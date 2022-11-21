@@ -5,8 +5,18 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include <cassert>
 
 EcalTrigTowerConstituentsMap::EcalTrigTowerConstituentsMap() {}
+
+EcalTrigTowerDetId EcalTrigTowerConstituentsMap::barrelTowerOf(const DetId& id) {
+  assert(id.det() == DetId::Ecal && id.subdetId() == EcalBarrel);
+  //--------------------
+  // Ecal Barrel
+  //--------------------
+  EBDetId myId(id);
+  return myId.tower();
+}
 
 EcalTrigTowerDetId EcalTrigTowerConstituentsMap::towerOf(const DetId& id) const {
   if (id.det() == DetId::Ecal && id.subdetId() == EcalBarrel) {

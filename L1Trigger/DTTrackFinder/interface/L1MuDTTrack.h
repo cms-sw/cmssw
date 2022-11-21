@@ -32,8 +32,6 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
-#include <FWCore/Framework/interface/ESHandle.h>
-#include <FWCore/Framework/interface/EventSetup.h>
 #include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackAssParam.h"
 #include "L1Trigger/DTTrackFinder/interface/L1MuDTAddressArray.h"
 #include "L1Trigger/DTTrackFinder/interface/L1MuDTTrackSegPhi.h"
@@ -162,9 +160,6 @@ public:
 
   /// set eta track segments used to form the muon candidate
   void setTSeta(const std::vector<const L1MuDTTrackSegEta*>& tsList);
-
-  /// convert  pt value in GeV to pt code
-  unsigned int triggerScale(float value, const edm::EventSetup& c) const;
 
   /// assignment operator
   L1MuDTTrack& operator=(const L1MuDTTrack&);

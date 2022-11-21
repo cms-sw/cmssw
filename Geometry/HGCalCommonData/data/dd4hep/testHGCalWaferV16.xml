@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  <open_geometry/>
+  <close_geometry/>
+
+  <IncludeSection>
+    <Include ref="Geometry/CMSCommonData/data/materials/2021/v1/materials.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/rotations.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/hgcalwafer/cms.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/hgcalMaterial/v2/hgcalMaterial.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/hgcalwafer/v16/hgcal.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/hgcalcell/v16/hgcalcell.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/hgcalwafer/v16/hgcalwafer.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/hgcalwafer/v16/hgcalpos.xml"/>
+   </IncludeSection>
+
+ </DDDefinition>
+

@@ -17,6 +17,7 @@ using namespace edm;
 using namespace std;
 
 ESDcsInfoTask::ESDcsInfoTask(const ParameterSet& ps) {
+  usesResource("DQMStore");
   dqmStore_ = Service<DQMStore>().operator->();
 
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
@@ -56,6 +57,8 @@ void ESDcsInfoTask::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, 
     meESDcsActiveMap_->setBinContent(i + 1, -1.0);
   }
 }
+
+void ESDcsInfoTask::endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) {}
 
 void ESDcsInfoTask::reset(void) {
   if (meESDcsFraction_)

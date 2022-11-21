@@ -16,7 +16,7 @@
 //
 //
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -42,18 +42,17 @@ using std::endl;
 // class declaration
 //
 
-class L1RCTParametersTester : public edm::EDAnalyzer {
+class L1RCTParametersTester : public edm::one::EDAnalyzer<> {
 public:
-  explicit L1RCTParametersTester(const edm::ParameterSet&) {}
-  ~L1RCTParametersTester() override {}
+  explicit L1RCTParametersTester(const edm::ParameterSet&) : token_(esConsumes()) {}
   void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+private:
+  edm::ESGetToken<L1RCTParameters, L1RCTParametersRcd> token_;
 };
 
 void L1RCTParametersTester::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
-  edm::ESHandle<L1RCTParameters> rctParam;
-  evSetup.get<L1RCTParametersRcd>().get(rctParam);
-
-  rctParam->print(std::cout);
+  evSetup.getData(token_).print(std::cout);
 }
 
 DEFINE_FWK_MODULE(L1RCTParametersTester);

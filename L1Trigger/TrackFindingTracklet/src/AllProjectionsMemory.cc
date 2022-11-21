@@ -29,10 +29,7 @@ void AllProjectionsMemory::writeAP(bool first, unsigned int iSector) {
   for (unsigned int j = 0; j < tracklets_.size(); j++) {
     string proj =
         (layer_ > 0) ? tracklets_[j]->trackletprojstrlayer(layer_) : tracklets_[j]->trackletprojstrdisk(disk_);
-    out_ << "0x";
-    out_ << std::setfill('0') << std::setw(2);
-    out_ << hex << j << dec;
-    out_ << " " << proj << "  " << trklet::hexFormat(proj) << endl;
+    out_ << hexstr(j) << " " << proj << "  " << trklet::hexFormat(proj) << endl;
   }
   out_.close();
 

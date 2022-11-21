@@ -77,7 +77,10 @@ namespace edm {
       virtual void doAcquire_(Event const&, EventSetup const&, WaitingTaskWithArenaHolder&) = 0;
       virtual size_t transformIndex_(edm::BranchDescription const& iBranch) const;
       virtual ProductResolverIndex transformPrefetch_(std::size_t iIndex) const;
-      virtual void transform_(std::size_t iIndex, edm::EventForTransformer& iEvent) const;
+      virtual void transformAsync_(WaitingTaskHolder iTask,
+                                   std::size_t iIndex,
+                                   edm::EventForTransformer& iEvent,
+                                   ServiceWeakToken const& iToken) const;
 
       void setModuleDescriptionPtr(ModuleDescription const* iDesc) { moduleDescriptionPtr_ = iDesc; }
       // ---------- member data --------------------------------

@@ -120,9 +120,7 @@ void HGCalRecHitValidation::analyze(const edm::Event& iEvent, const edm::EventSe
         ntot++;
         nused++;
         DetId detId = it.id();
-        int layer = ((geomType == 0)
-                         ? HGCalDetId(detId).layer()
-                         : ((geomType == 1) ? HGCSiliconDetId(detId).layer() : HGCScintillatorDetId(detId).layer()));
+        int layer = ((geomType == 1) ? HGCSiliconDetId(detId).layer() : HGCScintillatorDetId(detId).layer());
         recHitValidation(detId, layer, geom0, &it);
       }
     } else {

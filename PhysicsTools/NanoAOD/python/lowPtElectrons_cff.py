@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
+from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
 
 ################################################################################
 # Modules
@@ -56,17 +57,13 @@ finalLowPtElectrons = cms.EDFilter(
 )
 
 ################################################################################
-# electronTable 
+# electronTable
 ################################################################################
 
-lowPtElectronTable = cms.EDProducer(
-    "SimpleCandidateFlatTableProducer",
+lowPtElectronTable = simpleCandidateFlatTableProducer.clone(
     src = cms.InputTag("linkedObjects","lowPtElectrons"),
-    cut = cms.string(""),
     name= cms.string("LowPtElectron"),
     doc = cms.string("slimmedLowPtElectrons after basic selection (" + finalLowPtElectrons.cut.value()+")"),
-    singleton = cms.bool(False), # the number of entries is variable
-    extension = cms.bool(False), # this is the main table for the electrons
     variables = cms.PSet(
         # Basic variables
         CandVars,
@@ -182,32 +179,24 @@ lowPtElectronMCTask = cms.Task(
 # Modifiers
 ################################################################################
 
-_modifiers = ( run2_miniAOD_80XLegacy |
-               run2_nanoAOD_94XMiniAODv1 |
-               run2_nanoAOD_94XMiniAODv2 |
-               run2_nanoAOD_94X2016 |
-               run2_nanoAOD_102Xv1 |
-               run2_nanoAOD_106Xv1 )
-(_modifiers).toReplaceWith(lowPtElectronTask,cms.Task())
-(_modifiers).toReplaceWith(lowPtElectronTablesTask,cms.Task())
-(_modifiers).toReplaceWith(lowPtElectronMCTask,cms.Task())
-
 # To preserve "nano v9" functionality ...
 
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectrons_cfi import lowPtRegressionModifier
-run2_nanoAOD_106Xv2.toModify(modifiedLowPtElectrons.modifierConfig,
-                             modifications = cms.VPSet(lowPtElectronModifier,
-                                                       lowPtRegressionModifier))
-
-run2_nanoAOD_106Xv2.toModify(updatedLowPtElectronsWithUserData.userFloats,
-                             ID = cms.InputTag("lowPtPATElectronID"))
-
-run2_nanoAOD_106Xv2.toModify(finalLowPtElectrons,
-                             cut = "pt > 1. && userFloat('ID') > -0.25")
-
-run2_nanoAOD_106Xv2.toModify(lowPtElectronTable.variables,
-                             embeddedID = Var("electronID('ID')",float,doc="ID, BDT (raw) score"),
-                             ID = Var("userFloat('ID')",float,doc="New ID, BDT (raw) score"))
+run2_nanoAOD_106Xv2.toModify(
+    modifiedLowPtElectrons.modifierConfig,
+    modifications = cms.VPSet(lowPtElectronModifier,
+                              lowPtRegressionModifier)
+).toModify(
+    updatedLowPtElectronsWithUserData.userFloats,
+    ID = cms.InputTag("lowPtPATElectronID")
+).toModify(
+    finalLowPtElectrons,
+    cut = "pt > 1. && userFloat('ID') > -0.25"
+).toModify(
+    lowPtElectronTable.variables,
+    embeddedID = Var("electronID('ID')",float,doc="ID, BDT (raw) score"),
+    ID = Var("userFloat('ID')",float,doc="New ID, BDT (raw) score")
+)
 
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronID_cfi import lowPtGsfElectronID
 lowPtPATElectronID = lowPtGsfElectronID.clone(
@@ -219,6 +208,7 @@ lowPtPATElectronID = lowPtGsfElectronID.clone(
     ],
 )
 
-_lowPtElectronTask = cms.Task(lowPtPATElectronID)
-_lowPtElectronTask.add(lowPtElectronTask.copy())
-run2_nanoAOD_106Xv2.toReplaceWith(lowPtElectronTask,_lowPtElectronTask)
+run2_nanoAOD_106Xv2.toReplaceWith(
+    lowPtElectronTask,
+    lowPtElectronTask.copyAndAdd(lowPtPATElectronID)
+)

@@ -31,7 +31,7 @@ public:
   HGCalDetId& operator=(const DetId& id);
 
   /** Converter for a geometry cell id */
-  HGCalDetId geometryCell() const { return id_ & kHGCalMaskCell; }
+  HGCalDetId geometryCell() const { return HGCalDetId(id_ & static_cast<uint32_t>(kHGCalMaskCell)); }
 
   /// get the absolute value of the cell #'s in x and y
   int cell() const { return id_ & kHGCalCellMask; }

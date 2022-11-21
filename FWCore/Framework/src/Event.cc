@@ -264,6 +264,14 @@ namespace edm {
     return h;
   }
 
+  BasicHandle Event::getByTokenImpl(std::type_info const& iProductType, EDGetToken iToken) const {
+    BasicHandle h = provRecorder_.getByToken_(TypeID(iProductType), PRODUCT_TYPE, iToken, moduleCallingContext_);
+    if (h.isValid()) {
+      addToGotBranchIDs(*(h.provenance()));
+    }
+    return h;
+  }
+
   BasicHandle Event::getImpl(std::type_info const&, ProductID const& pid) const {
     BasicHandle h = this->getByProductID_(pid);
     if (h.isValid()) {

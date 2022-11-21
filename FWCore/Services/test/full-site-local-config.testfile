@@ -1,6 +1,6 @@
 <site-local-config>
 <site name="DUMMY">
-<subsite name="DUMMY_SUB_SITE">
+  <subsite name="DUMMY_SUB_SITE"/>
   <event-data>
     <catalog url="trivialcatalog_file:/dummy/storage.xml?protocol=dcap"/>
   </event-data>
@@ -30,6 +30,5 @@
     <statistics-destination name="cms-udpmon-collector.cern.ch:9331" info ="dn"/>
     <timeout-in-seconds value="7200" />
   </source-config>
-</subsite>
 </site>
 </site-local-config>

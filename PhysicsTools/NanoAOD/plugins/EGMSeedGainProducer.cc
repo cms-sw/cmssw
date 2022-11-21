@@ -69,12 +69,9 @@ private:
 // ------------ method called to produce the data  ------------
 template <typename T>
 void EGMSeedGainProducer<T>::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-  edm::Handle<edm::View<T>> src;
-  iEvent.getByToken(src_, src);
-  edm::Handle<EcalRecHitCollection> recHitsEB;
-  iEvent.getByToken(recHitsEB_, recHitsEB);
-  edm::Handle<EcalRecHitCollection> recHitsEE;
-  iEvent.getByToken(recHitsEE_, recHitsEE);
+  auto src = iEvent.getHandle(src_);
+  const auto& recHitsEBProd = iEvent.get(recHitsEB_);
+  const auto& recHitsEEProd = iEvent.get(recHitsEE_);
 
   unsigned nSrc = src->size();
   std::vector<int> gainSeed(nSrc, 12);
@@ -83,9 +80,9 @@ void EGMSeedGainProducer<T>::produce(edm::StreamID streamID, edm::Event& iEvent,
   for (unsigned i = 0; i < nSrc; i++) {
     auto obj = src->ptrAt(i);
     auto detid = obj->superCluster()->seed()->seed();
-    auto coll = obj->isEB() ? recHitsEB.product() : recHitsEE.product();
-    auto seed = coll->find(detid);
-    if (seed != coll->end()) {
+    const auto& coll = obj->isEB() ? recHitsEBProd : recHitsEEProd;
+    auto seed = coll.find(detid);
+    if (seed != coll.end()) {
       if (seed->checkFlag(EcalRecHit::kHasSwitchToGain6))
         gainSeed[i] = 6;
       if (seed->checkFlag(EcalRecHit::kHasSwitchToGain1))

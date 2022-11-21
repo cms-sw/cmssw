@@ -12,6 +12,7 @@ TrackletProjectionsMemory::TrackletProjectionsMemory(string name, Settings const
   size_t pos = find_nth(name, 0, "_", 1);
   assert(pos != string::npos);
   initLayerDisk(pos + 1, layer_, disk_);
+  hasProj_ = false;
 }
 
 void TrackletProjectionsMemory::addProj(Tracklet* tracklet) {
@@ -29,6 +30,7 @@ void TrackletProjectionsMemory::addProj(Tracklet* tracklet) {
     assert(itracklet != tracklet);
   }
 
+  hasProj_ = true;
   tracklets_.push_back(tracklet);
 }
 
@@ -50,10 +52,7 @@ void TrackletProjectionsMemory::writeTPROJ(bool first, unsigned int iSector) {
   for (unsigned int j = 0; j < tracklets_.size(); j++) {
     string proj = (layer_ > 0 && tracklets_[j]->validProj(layer_ - 1)) ? tracklets_[j]->trackletprojstrlayer(layer_)
                                                                        : tracklets_[j]->trackletprojstrdisk(disk_);
-    out_ << "0x";
-    out_ << std::setfill('0') << std::setw(2);
-    out_ << hex << j << dec;
-    out_ << " " << proj << "  " << trklet::hexFormat(proj) << endl;
+    out_ << hexstr(j) << " " << proj << "  " << trklet::hexFormat(proj) << endl;
   }
   out_.close();
 

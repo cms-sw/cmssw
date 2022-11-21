@@ -11,7 +11,7 @@
 #include <string>
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -33,7 +33,7 @@ using namespace reco;
 using namespace std;
 using namespace edm;
 
-class recoBSVTagInfoValidationAnalyzer : public edm::EDAnalyzer {
+class recoBSVTagInfoValidationAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
@@ -107,6 +107,7 @@ recoBSVTagInfoValidationAnalyzer::recoBSVTagInfoValidationAnalyzer(const edm::Pa
   sr_total_nlv = 0;
   total_nmiss = 0;
 
+  usesResource("DQMStore");
   //  get the store
   dqmStore_ = edm::Service<DQMStore>().operator->();
   dqmLabel = "SVValidation/";

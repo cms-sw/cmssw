@@ -16,15 +16,6 @@
  */
 class TTDTC {
 public:
-  // bit accurate Stub
-  typedef std::bitset<TTBV::S> BV;
-  // TTStub with bit accurate Stub
-  typedef std::pair<TTStubRef, BV> Frame;
-  // stub collection transported over an optical link between DTC and TFP
-  typedef std::vector<Frame> Stream;
-  // collection of optical links
-  typedef std::vector<Stream> Streams;
-
   TTDTC() {}
   TTDTC(int numRegions, int numOverlappingRegions, int numDTCsPerRegion);
   ~TTDTC() {}
@@ -35,10 +26,10 @@ public:
   const std::vector<int>& tfpChannels() const { return channels_; }
   // write one specific stream of TTStubRefs using DTC identifier (region[0-8], board[0-23], channel[0-1])
   // dtcRegions aka detector regions are defined by tk layout
-  void setStream(int dtcRegion, int dtcBoard, int dtcChannel, const Stream& stream);
+  void setStream(int dtcRegion, int dtcBoard, int dtcChannel, const tt::StreamStub& stream);
   // read one specific stream of TTStubRefs using TFP identifier (region[0-8], channel[0-47])
   // tfpRegions aka processing regions are rotated by -0.5 region width w.r.t detector regions
-  const Stream& stream(int tfpRegion, int tfpChannel) const;
+  const tt::StreamStub& stream(int tfpRegion, int tfpChannel) const;
   // total number of frames
   int size() const;
   // total number of stubs
@@ -64,7 +55,7 @@ private:
   // all TFP channel [default 0..47]
   std::vector<int> channels_;
   // collection of all optical links between DTC and TFP [default 432 links]
-  Streams streams_;
+  tt::StreamsStub streams_;
 };
 
 #endif

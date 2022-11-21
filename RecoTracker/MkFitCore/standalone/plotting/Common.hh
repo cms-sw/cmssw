@@ -12,6 +12,7 @@
 #include "TAxis.h"
 #include "TH1F.h"
 #include "TF1.h"
+#include "TSystem.h"
 
 #include <iostream>
 #include <vector>
@@ -257,7 +258,8 @@ namespace {
         builds.emplace_back(buildsMap["BH"]);
         builds.emplace_back(buildsMap["CE"]);
       } else {
-        builds.emplace_back(buildsMap["STD"]);
+        if (!gSystem->Getenv("MKFIT_MIMI"))  // MIMI does not support STD
+          builds.emplace_back(buildsMap["STD"]);
         builds.emplace_back(buildsMap["CE"]);
       }
     } else if (SUITE == forConf) {

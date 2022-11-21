@@ -64,7 +64,7 @@ process.runPF.associate(process.l1tLayer1TaskInputsTask)
 
 
 for det in "Barrel", "Barrel9", "HGCal", "HGCalNoTK", "HF":
-    l1pf = getattr(process, 'l1ctLayer1'+det)
+    l1pf = getattr(process, 'l1tLayer1'+det)
     l1pf.dumpFileName = cms.untracked.string("TTbar_PU200_"+det+".dump")
 
 process.source.fileNames  = [ '/store/cmst3/group/l1tr/gpetrucc/11_1_0/NewInputs110X/110121.done/TTbar_PU200/inputs110X_%d.root' % i for i in (1,3,7,8,9) ]

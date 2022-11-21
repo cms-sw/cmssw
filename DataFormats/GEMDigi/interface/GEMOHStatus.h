@@ -31,6 +31,7 @@ public:
       uint8_t L1aNF : 1;   // L1A FIFO near full
       uint8_t EvtSzW : 1;  // Event size warning
       uint8_t InValidVFAT : 1;
+      uint8_t missingVFAT : 1;
     };
   };
 
@@ -51,10 +52,15 @@ public:
     errors_ = error.codes;
 
     Warnings warn{0};
+    existVFATs_ = oh.existVFATs();
+    vfatMask_ = oh.vfatMask();
+    zsMask_ = oh.zsMask();
+    missingVFATs_ = (existVFATs_ ^ 0xffffff) & (vfatMask_ & (zsMask_ ^ 0xffffff));
     warn.EvtNF = oh.evtNF();
     warn.InNF = oh.inNF();
     warn.L1aNF = (oh.l1aNF() and (oh.version() == 0));
     warn.EvtSzW = oh.evtSzW();
+    warn.missingVFAT = (oh.version() != 0) and (missingVFATs_ != 0);
     warnings_ = warn.wcodes;
   }
 
@@ -67,10 +73,18 @@ public:
   bool isBad() const { return errors_ != 0; }
   uint16_t errors() const { return errors_; }
   uint8_t warnings() const { return warnings_; }
+  uint32_t missingVFATs() const { return missingVFATs_; }
+  uint32_t vfatMask() const { return vfatMask_; }
+  uint32_t zsMask() const { return zsMask_; }
+  uint32_t existVFATs() const { return existVFATs_; }
 
 private:
   uint16_t errors_;
   uint8_t warnings_;
+  uint32_t missingVFATs_;
+  uint32_t vfatMask_;
+  uint32_t zsMask_;
+  uint32_t existVFATs_;
 };
 
 inline std::ostream& operator<<(std::ostream& out, const GEMOHStatus& status) {

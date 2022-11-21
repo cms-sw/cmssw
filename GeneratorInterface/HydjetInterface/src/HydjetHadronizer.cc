@@ -341,14 +341,18 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent* evt) {
   vector<int> index(nsub_);
 
   while (ihy < hyjets.nhj) {
-    isub = std::floor((hyjets.khj[2][ihy] / 50000));
-    int hjoffset = isub * 50000;
+    constexpr int kMaxMultiplicity = 200000;
+    isub = std::floor((hyjets.khj[2][ihy] / kMaxMultiplicity));
+    int hjoffset = isub * kMaxMultiplicity;
 
     if (isub != isub_l) {
       sub_vertices = new HepMC::GenVertex(HepMC::FourVector(0, 0, 0, 0), isub);
       evt->add_vertex(sub_vertices);
       if (!evt->signal_process_vertex())
         evt->set_signal_process_vertex(sub_vertices);
+      if (isub >= static_cast<int>(index.size())) {
+        index.resize(isub + 1);
+      }
       index[isub] = ihy - 1;
       isub_l = isub;
     }
@@ -357,10 +361,10 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent* evt) {
       stab++;
     LogDebug("Hydjet_array") << ihy << " MULTin ev.:" << hyjets.nhj << " SubEv.#" << isub << " Part #" << ihy + 1
                              << ", PDG: " << hyjets.khj[1][ihy] << " (st. " << convertStatus(hyjets.khj[0][ihy])
-                             << ") mother=" << hyjets.khj[2][ihy] - (isub * 50000) + index[isub] + 1 << " ("
+                             << ") mother=" << hyjets.khj[2][ihy] - (isub * kMaxMultiplicity) + index[isub] + 1 << " ("
                              << hyjets.khj[2][ihy] << "), childs ("
-                             << hyjets.khj[3][ihy] - (isub * 50000) + index[isub] + 1 << "-"
-                             << hyjets.khj[4][ihy] - (isub * 50000) + index[isub] + 1 << "), vtx ("
+                             << hyjets.khj[3][ihy] - (isub * kMaxMultiplicity) + index[isub] + 1 << "-"
+                             << hyjets.khj[4][ihy] - (isub * kMaxMultiplicity) + index[isub] + 1 << "), vtx ("
                              << hyjets.vhj[0][ihy] << "," << hyjets.vhj[1][ihy] << "," << hyjets.vhj[2][ihy] << ") "
                              << std::endl;
 
@@ -374,6 +378,12 @@ bool HydjetHadronizer::get_particles(HepMC::GenEvent* evt) {
     } else {
       particle[ihy] = build_hyjet(ihy, ihy + 1);
       int mid = hyjets.khj[2][ihy] - hjoffset + index[isub];
+      if (mid > ihy) {
+        throw cms::Exception("BadHydjetParent") << "Parent ID " << mid << " is greater than child id " << ihy
+                                                << " this is not allowed.\n When this happened in the past it was "
+                                                   "caused the sub event multiplicity being > "
+                                                << kMaxMultiplicity << " which caused an offset overflow.";
+      }
       int mid_t = mid;
       while (((mid + 1) < ihy) && (std::abs(hyjets.khj[1][mid]) < 100) &&
              (hyjets.khj[3][mid + 1] - hjoffset + index[isub] <= ihy))

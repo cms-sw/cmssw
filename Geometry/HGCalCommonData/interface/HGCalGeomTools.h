@@ -8,7 +8,7 @@
 class HGCalGeomTools {
 public:
   HGCalGeomTools();
-  ~HGCalGeomTools() {}
+  ~HGCalGeomTools() = default;
 
   static constexpr int k_allCorners = 6;
   static constexpr int k_fiveCorners = 5;

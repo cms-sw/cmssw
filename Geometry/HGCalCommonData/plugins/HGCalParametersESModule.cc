@@ -51,10 +51,10 @@ HGCalParametersESModule::HGCalParametersESModule(const edm::ParameterSet& iC) {
 
 void HGCalParametersESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("name", "HGCalEESensitive");
-  desc.add<std::string>("name2", "HGCalEE");
+  desc.add<std::string>("name", "HGCalEELayer");
+  desc.add<std::string>("name2", "HGCalEESensitive");
   desc.add<std::string>("nameW", "HGCalEEWafer");
-  desc.add<std::string>("nameC", "HGCalEECell");
+  desc.add<std::string>("nameC", "HGCalEESensitive");
   desc.add<std::string>("nameT", "HGCal");
   desc.add<std::string>("nameX", "HGCalEESensitive");
   desc.add<bool>("fromDD4hep", false);

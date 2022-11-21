@@ -118,9 +118,6 @@ private:
   //misc switches
   const uint32_t verbosity_;
 
-  //reference speed to evaluate time of arrival at the sensititive detector, assuming the center of CMS
-  const float refSpeed_;
-
   //delay to apply after evaluating time of arrival at the sensitive detector
   const float tofDelay_;
 

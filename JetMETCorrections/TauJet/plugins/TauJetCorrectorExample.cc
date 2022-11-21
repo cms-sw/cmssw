@@ -16,7 +16,7 @@ Implementation:
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -27,13 +27,7 @@ Implementation:
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
-////#include "DataFormats/EgammaCandidates/interface/Electron.h"
-////#include "DataFormats/EgammaReco/interface/ElectronPixelSeed.h"
-////#include "DataFormats/MuonReco/interface/Muon.h"
-////#include "DataFormats/JetReco/interface/GenJet.h"
 
-#include "JetMETCorrections/TauJet/interface/TauJetCorrector.h"
-//#include "JetMETCorrections/TauJet/interface/JetCalibratorTauJet.h"
 #include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
@@ -57,7 +51,7 @@ Implementation:
 //
 // class decleration
 //
-class TauJetCorrectorExample : public edm::EDAnalyzer {
+class TauJetCorrectorExample : public edm::one::EDAnalyzer<> {
 public:
   explicit TauJetCorrectorExample(const edm::ParameterSet&);
   ~TauJetCorrectorExample() override;
@@ -68,9 +62,6 @@ private:
   void endJob() override;
 
   // ----------member data ---------------------------
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-  edm::EDGetTokenT<ExampleData> exampletoken;
-#endif
   std::string jetname;
   edm::EDGetTokenT<reco::IsolatedTauTagInfoCollection> tautoken;
   edm::EDGetTokenT<reco::JetCorrector> tauCorrectortoken;
@@ -94,11 +85,7 @@ private:
 using namespace reco;
 
 TauJetCorrectorExample::TauJetCorrectorExample(const edm::ParameterSet& iConfig)
-    :
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-      exampletoken(consumes<ExampleData>(edm::InputTag("example"))),
-#endif
-      jetname(iConfig.getUntrackedParameter<std::string>("JetHandle", "iterativeCone5CaloJets")),
+    : jetname(iConfig.getUntrackedParameter<std::string>("JetHandle", "iterativeCone5CaloJets")),
       tautoken(consumes<reco::IsolatedTauTagInfoCollection>(
           edm::InputTag(iConfig.getUntrackedParameter<std::string>("TauHandle", "coneIsolation")))),
       tauCorrectortoken(consumes<reco::JetCorrector>(
@@ -123,16 +110,6 @@ void TauJetCorrectorExample::analyze(const edm::Event& iEvent, const edm::EventS
 
   Handle<reco::JetCorrector> taucorrector;
   iEvent.getByToken(tauCorrectortoken, taucorrector);
-
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-  Handle<ExampleData> pIn;
-  iEvent.getByToken(exampletoken, pIn);
-#endif
-
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-  ESHandle<SetupData> pSetup;
-  iSetup.get<SetupRecord>().get(pSetup);
-#endif
 
   // this analyzer produces a small root file with basic candidates and some MC information
   // some additional print statements

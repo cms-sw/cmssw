@@ -41,7 +41,7 @@
 class HGCalWaferTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HGCalWaferTester(const edm::ParameterSet&);
-  ~HGCalWaferTester() override {}
+  ~HGCalWaferTester() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void beginJob() override {}

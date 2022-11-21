@@ -162,9 +162,8 @@ void MillePedeFileReader ::readMillePedeResultFile() {
       auto alignableIndex = alignableLabel % 10 - 1;
       std::string detLabel = getStringFromHLS(det);
 
-      countsTotal_[detLabel][alignableIndex]++;
-
       if (tokens.size() > 4 /*3*/) {
+        countsTotal_[detLabel][alignableIndex]++;  //Count aligned modules/ladders per structure
         const auto paramNum = pedeLabeler_->paramNumFromLabel(alignableLabel);
         align::StructureType type = alignable->alignableObjectId();
         align::ID id = alignable->id();

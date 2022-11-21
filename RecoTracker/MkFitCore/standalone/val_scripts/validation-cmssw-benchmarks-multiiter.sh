@@ -17,6 +17,8 @@ source xeon_scripts/init-env.sh
 export MIMI="CE mimi"
 declare -a val_builds=(MIMI)
 nevents=250
+extraargs="--use-dead-modules"
+numiters=10
 
 ## Common file setup
 case ${inputBin} in 
@@ -40,6 +42,17 @@ case ${inputBin} in
         nevents=20000
         sample=10mu
         ;;
+"TTbar_phase2")
+        dir=/home/matevz/mic-dev
+        subdir=
+        file=ttbar-p2.bin
+        nevents=100
+        extraargs="--geom CMS-phase2"
+        numiters=1
+        # Pass MIMI flag to ROOT plotting functions -- some will insert STD
+        # that does not work with MIMI at this point.
+        export MKFIT_MIMI=1
+        ;;
 *)
         echo "INPUT BIN IS UNKNOWN"
         exit 12
@@ -47,16 +60,26 @@ case ${inputBin} in
 esac
 
 ## Common executable setup
-maxth=64
-maxvu=16
-maxev=32
+if [[ `lsb_release -si` == "Fedora" ]]
+then
+    maxth=16 # 64
+    maxvu=8  # 16
+    maxev=16 # 32
+    avxmakearg="AVX2:=1"
+else
+    maxth=64
+    maxvu=16
+    maxev=32
+    avxmakearg="AVX_512:=1"
+fi
+
 if [[  "${suite}" == "valMT1" ]]
 then
     maxth=1
     maxev=1
 fi
 seeds="--cmssw-n2seeds"
-exe="./mkFit/mkFit --silent ${seeds} --num-thr ${maxth} --num-thr-ev ${maxev} --input-file ${dir}/${subdir}/${file} --num-events ${nevents} --remove-dup --use-dead-modules"
+exe="./mkFit --silent ${seeds} --num-thr ${maxth} --num-thr-ev ${maxev} --input-file ${dir}/${subdir}/${file} --num-events ${nevents} --remove-dup ${extraargs}"
 
 ## Common output setup
 tmpdir="tmp"
@@ -69,8 +92,8 @@ siminfo="--try-to-save-sim-info"
 bkfit="--backward-fit"
 
 ## validation options: SIMVAL == sim tracks as reference, CMSSWVAL == cmssw tracks as reference
-SIMVAL="SIMVAL --sim-val ${siminfo} ${bkfit} ${style} --num-iters-cmssw 10"
-SIMVAL_SEED="SIMVALSEED --sim-val ${siminfo} ${bkfit} --mtv-require-seeds --num-iters-cmssw 10"
+SIMVAL="SIMVAL --sim-val ${siminfo} ${bkfit} ${style} --num-iters-cmssw ${numiters}"
+SIMVAL_SEED="SIMVALSEED --sim-val ${siminfo} ${bkfit} --mtv-require-seeds --num-iters-cmssw ${numiters}"
 
 declare -a vals=(SIMVAL SIMVAL_SEED)
 
@@ -98,11 +121,16 @@ SIMPLOTSEED10="SIMVALSEED iter10 0 10 0"
 SIMPLOT6="SIMVAL iter6 0 6 0"
 SIMPLOTSEED6="SIMVALSEED iter6 0 6 0"
 
-declare -a plots=(SIMPLOT4 SIMPLOTSEED4 SIMPLOT22 SIMPLOTSEED22 SIMPLOT23 SIMPLOTSEED23 SIMPLOT5 SIMPLOTSEED5 SIMPLOT24 SIMPLOTSEED24 SIMPLOT7 SIMPLOTSEED7 SIMPLOT8 SIMPLOTSEED8 SIMPLOT9 SIMPLOTSEED9 SIMPLOT10 SIMPLOTSEED10 SIMPLOT6 SIMPLOTSEED6)
+if [[ "${inputBin}" == "TTbar_phase2" ]]
+then
+    declare -a plots=(SIMPLOT4 SIMPLOTSEED4)
+else
+    declare -a plots=(SIMPLOT4 SIMPLOTSEED4 SIMPLOT22 SIMPLOTSEED22 SIMPLOT23 SIMPLOTSEED23 SIMPLOT5 SIMPLOTSEED5 SIMPLOT24 SIMPLOTSEED24 SIMPLOT7 SIMPLOTSEED7 SIMPLOT8 SIMPLOTSEED8 SIMPLOT9 SIMPLOTSEED9 SIMPLOT10 SIMPLOTSEED10 SIMPLOT6 SIMPLOTSEED6)
+fi
 
 ## special cmssw dummy build
-CMSSW="CMSSW cmssw SIMVAL --sim-val-for-cmssw ${siminfo} --read-cmssw-tracks ${style} --num-iters-cmssw 10"
-CMSSW2="CMSSW cmssw SIMVALSEED --sim-val-for-cmssw ${siminfo} --read-cmssw-tracks --mtv-require-seeds --num-iters-cmssw 10"
+CMSSW="CMSSW cmssw SIMVAL --sim-val-for-cmssw ${siminfo} --read-cmssw-tracks ${style} --num-iters-cmssw ${numiters}"
+CMSSW2="CMSSW cmssw SIMVALSEED --sim-val-for-cmssw ${siminfo} --read-cmssw-tracks --mtv-require-seeds --num-iters-cmssw ${numiters}"
 
 ###############
 ## Functions ##
@@ -154,8 +182,8 @@ function plotVal()
 ########################
 
 ## Compile once
-make clean
-mVal="-j 32 WITH_ROOT:=1 AVX_512:=1"
+make distclean
+mVal="-j 32 WITH_ROOT:=1 ${avxmakearg}"
 make ${mVal}
 mkdir -p ${tmpdir}
 
@@ -184,10 +212,8 @@ do echo ${!val} | while read -r vN vO
 done
 
 ## clean up
-make clean ${mVal}
 mv tmp/valtree_*.root .
 rm -rf ${tmpdir}
-
 
 
 ## Compute observables and make images
@@ -223,15 +249,12 @@ do echo ${!plot} | while read -r pN suff pO iter cancel
 	echo "Overlaying histograms for: ${base} ${vN}"
         if [[  "${suff}" == "all" ]]
         then
-	    root -b -q -l plotting/makeValidation.C\(\"${base}\",\"_${pN}\",${pO},\"${suite}\"\)
+            root -b -q -l plotting/makeValidation.C\(\"${base}\",\"_${pN}\",${pO},\"${suite}\"\)
         else
             root -b -q -l plotting/makeValidation.C\(\"${base}\",\"_${pN}_${suff}\",${pO},\"${suite}\"\)
         fi
     done
 done
-
-## Final cleanup
-make distclean ${mVal}
 
 ## Final message
 echo "Finished physics validation!"

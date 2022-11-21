@@ -75,15 +75,17 @@ unsigned int ConditionHelper::get_pc_lut_version() const {
   // because of rigid CondFormats naming conventions - AWB 02.06.17
   // std::cout << "    - Getting proper PC LUT version from ConditionHelper: version = " << params_->PhiMatchWindowSt1_ << std::endl;
   // return params_->PhiMatchWindowSt1_;
-
   // Hack until we figure out why the database is returning "0" for 2017 data - AWB 04.08.17
   // std::cout << "    - Getting hacked PC LUT version from ConditionHelper: version = " << (params_->firmwareVersion_ >= 50000) << std::endl;
   if (params_->firmwareVersion_ < 50000) {  // For 2016
     return 0;
   } else if (params_->firmwareVersion_ < 1537467271) {  // From the beginning of 2017
     return 1;                                           // Corresponding to FW timestamps before Sept. 20, 2018
+  } else if (params_->firmwareVersion_ <
+             1664468309) {  // Corresponds to September 29, 2022. The firmware got deployed on October 6, 2022.
+    return 2;               // Starting September 26, 2018 with run 323556 (data only, not in MC)
   } else {
-    return 2;  // Starting September 26, 2018 with run 323556 (data only, not in MC)
+    return 3;  // Starting October 6, 2022 with run 359924 (data only, not in MC)
   }
 }
 

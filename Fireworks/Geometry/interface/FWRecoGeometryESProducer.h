@@ -16,7 +16,6 @@ class CaloGeometryRecord;
 class GlobalTrackingGeometry;
 class GlobalTrackingGeometryRecord;
 class TrackerGeometry;
-class FastTimeGeometry;
 class IdealGeometryRecord;
 class FWRecoGeometry;
 class FWRecoGeometryRecord;
@@ -59,13 +58,9 @@ private:
   void writeTrackerParametersXML(FWRecoGeometry&);
 
   edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> m_trackingGeomToken;
-  edm::ESGetToken<FastTimeGeometry, IdealGeometryRecord> m_ftlBarrelGeomToken;
-  edm::ESGetToken<FastTimeGeometry, IdealGeometryRecord> m_ftlEndcapGeomToken;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> m_caloGeomToken;
   const GlobalTrackingGeometry* m_trackingGeom = nullptr;
   const CaloGeometry* m_caloGeom = nullptr;
-  const FastTimeGeometry* m_ftlBarrelGeom = nullptr;
-  const FastTimeGeometry* m_ftlEndcapGeom = nullptr;
   const TrackerGeometry* m_trackerGeom = nullptr;
 
   unsigned int m_current;

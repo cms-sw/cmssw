@@ -28,12 +28,11 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <DataFormats/GEMRecHit/interface/ME0SegmentCollection.h>
 #include <DataFormats/GEMRecHit/interface/ME0RecHitCollection.h>
@@ -51,7 +50,7 @@
 // class declaration
 //
 
-class TestME0SegmentAnalyzer : public edm::EDAnalyzer {
+class TestME0SegmentAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit TestME0SegmentAnalyzer(const edm::ParameterSet&);
   ~TestME0SegmentAnalyzer();
@@ -60,7 +59,7 @@ private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
   // ----------member data ---------------------------
-  edm::ESHandle<ME0Geometry> me0Geom;
+  edm::ESGetToken<ME0Geometry, MuonGeometryRecord> me0Geom_Token;
 
   edm::EDGetTokenT<ME0SegmentCollection> ME0Segment_Token;
   edm::EDGetTokenT<ME0RecHitCollection> ME0RecHit_Token;
@@ -123,6 +122,7 @@ TestME0SegmentAnalyzer::TestME0SegmentAnalyzer(const edm::ParameterSet& iConfig)
 
 {
   //now do what ever initialization is needed
+  me0Geom_Token = esConsumes();
   ME0Segment_Token = consumes<ME0SegmentCollection>(edm::InputTag("me0Segments", "", "ME0RERECO"));
   ME0RecHit_Token = consumes<ME0RecHitCollection>(edm::InputTag("me0RecHits"));
   ME0Digi_Token = consumes<ME0DigiPreRecoCollection>(edm::InputTag("simMuonME0PseudoReDigis"));
@@ -219,7 +219,7 @@ TestME0SegmentAnalyzer::~TestME0SegmentAnalyzer() {
 
 // ------------ method called for each event  ------------
 void TestME0SegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  iSetup.get<MuonGeometryRecord>().get(me0Geom);
+  auto me0Geom = iSetup.getHandle(me0Geom_Token);
 
   // ================
   // ME0 Segments

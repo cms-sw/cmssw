@@ -195,7 +195,7 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
             float distanceSquared =
                 std::pow((ref->position().x() - scPosition[0]), 2) + std::pow((ref->position().y() - scPosition[1]), 2);
             if (distanceSquared < maxDforTimingSquared_) {
-              timeHits.push_back(ref->time() - timeOffset_);
+              timeHits.push_back(ref->time());
             }
           }
         }

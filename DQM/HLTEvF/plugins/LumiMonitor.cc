@@ -2,8 +2,7 @@
 
 #include "DQM/TrackingMonitor/interface/GetLumi.h"
 #include "DQMServices/Core/interface/DQMGlobalEDAnalyzer.h"
-#include "DataFormats/Luminosity/interface/LumiDetails.h"
-#include "DataFormats/Luminosity/interface/LumiSummary.h"
+#include "DataFormats/OnlineMetaData/interface/OnlineLuminosityRecord.h"
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -55,26 +54,23 @@ private:
   static MEbinning getHistoPSet(const edm::ParameterSet& pset);
   static MEbinning getHistoLSPSet(const edm::ParameterSet& pset);
 
+  std::string const folderName_;
+
+  edm::EDGetTokenT<LumiScalersCollection> const lumiScalersToken_;
+  edm::EDGetTokenT<OnlineLuminosityRecord> const onlineMetaDataDigisToken_;
+  MEbinning const lumi_binning_;
+  MEbinning const pu_binning_;
+  MEbinning const ls_binning_;
+
+  bool const doPixelLumi_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> const trkTopoToken_;
-
-  std::string folderName_;
-
-  edm::EDGetTokenT<LumiScalersCollection> lumiScalersToken_;
-  MEbinning lumi_binning_;
-  MEbinning pu_binning_;
-  MEbinning ls_binning_;
-
-  bool doPixelLumi_;
-  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> pixelClustersToken_;
-  bool useBPixLayer1_;
-  int minNumberOfPixelsPerCluster_;
-  float minPixelClusterCharge_;
-  MEbinning pixelCluster_binning_;
-  MEbinning pixellumi_binning_;
-
-  edm::EDGetTokenT<LumiSummary> lumiSummaryToken_;
-
-  float lumi_factor_per_bx_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> const pixelClustersToken_;
+  bool const useBPixLayer1_;
+  int const minNumberOfPixelsPerCluster_;
+  float const minPixelClusterCharge_;
+  MEbinning const pixelCluster_binning_;
+  MEbinning const pixellumi_binning_;
+  float const lumi_factor_per_bx_;
 };
 
 // -----------------------------
@@ -82,9 +78,9 @@ private:
 // -----------------------------
 
 LumiMonitor::LumiMonitor(const edm::ParameterSet& config)
-    : trkTopoToken_{esConsumes()},
-      folderName_(config.getParameter<std::string>("FolderName")),
-      lumiScalersToken_(consumes<LumiScalersCollection>(config.getParameter<edm::InputTag>("scalers"))),
+    : folderName_(config.getParameter<std::string>("folderName")),
+      lumiScalersToken_(consumes(config.getParameter<edm::InputTag>("scalers"))),
+      onlineMetaDataDigisToken_(consumes(config.getParameter<edm::InputTag>("onlineMetaDataDigis"))),
       lumi_binning_(getHistoPSet(
           config.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("lumiPSet"))),
       pu_binning_(
@@ -92,6 +88,8 @@ LumiMonitor::LumiMonitor(const edm::ParameterSet& config)
       ls_binning_(getHistoLSPSet(
           config.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("lsPSet"))),
       doPixelLumi_(config.getParameter<bool>("doPixelLumi")),
+      trkTopoToken_(doPixelLumi_ ? esConsumes<TrackerTopology, TrackerTopologyRcd>()
+                                 : edm::ESGetToken<TrackerTopology, TrackerTopologyRcd>()),
       pixelClustersToken_(doPixelLumi_ ? consumes<edmNew::DetSetVector<SiPixelCluster>>(
                                              config.getParameter<edm::InputTag>("pixelClusters"))
                                        : edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>>()),
@@ -103,13 +101,10 @@ LumiMonitor::LumiMonitor(const edm::ParameterSet& config)
                                          : MEbinning{}),
       pixellumi_binning_(doPixelLumi_ ? getHistoPSet(config.getParameter<edm::ParameterSet>("histoPSet")
                                                          .getParameter<edm::ParameterSet>("pixellumiPSet"))
-                                      : MEbinning{}) {
-  if (useBPixLayer1_) {
-    lumi_factor_per_bx_ = GetLumi::FREQ_ORBIT * GetLumi::SECONDS_PER_LS / GetLumi::XSEC_PIXEL_CLUSTER;
-  } else {
-    lumi_factor_per_bx_ = GetLumi::FREQ_ORBIT * GetLumi::SECONDS_PER_LS / GetLumi::rXSEC_PIXEL_CLUSTER;
-  }
-}
+                                      : MEbinning{}),
+      lumi_factor_per_bx_(useBPixLayer1_
+                              ? GetLumi::FREQ_ORBIT * GetLumi::SECONDS_PER_LS / GetLumi::XSEC_PIXEL_CLUSTER
+                              : GetLumi::FREQ_ORBIT * GetLumi::SECONDS_PER_LS / GetLumi::rXSEC_PIXEL_CLUSTER) {}
 
 MEbinning LumiMonitor::getHistoPSet(const edm::ParameterSet& pset) {
   return MEbinning{
@@ -131,94 +126,94 @@ void LumiMonitor::bookHistograms(DQMStore::IBooker& booker,
 
   if (doPixelLumi_) {
     auto me = booker.book1D("numberOfPixelClustersVsLS",
-                            "number of pixel clusters vs LS",
+                            "number of pixel clusters vs lumisection",
                             ls_binning_.nbins,
                             ls_binning_.xmin,
                             ls_binning_.xmax);
-    me->setAxisTitle("LS", 1);
+    me->setAxisTitle("lumisection", 1);
     me->setAxisTitle("number of pixel clusters", 2);
     histograms.numberOfPixelClustersVsLS = me;
 
     me = booker.bookProfile("numberOfPixelClustersVsLumi",
-                            "number of pixel clusters vs scal lumi",
+                            "number of pixel clusters vs online lumi",
                             lumi_binning_.nbins,
                             lumi_binning_.xmin,
                             lumi_binning_.xmax,
                             pixelCluster_binning_.xmin,
                             pixelCluster_binning_.xmax);
-    me->setAxisTitle("scal inst lumi E30 [Hz cm^{-2}]", 1);
+    me->setAxisTitle("online inst lumi E30 [Hz cm^{-2}]", 1);
     me->setAxisTitle("number of pixel clusters", 2);
     histograms.numberOfPixelClustersVsLumi = me;
 
     me = booker.bookProfile("pixelLumiVsLS",
-                            "pixel-lumi vs LS",
+                            "pixel-lumi vs lumisection",
                             ls_binning_.nbins,
                             ls_binning_.xmin,
                             ls_binning_.xmax,
                             pixellumi_binning_.xmin,
                             pixellumi_binning_.xmax);
-    me->setAxisTitle("LS", 1);
+    me->setAxisTitle("lumisection", 1);
     me->setAxisTitle("pixel-based inst lumi E30 [Hz cm^{-2}]", 2);
     histograms.pixelLumiVsLS = me;
 
     me = booker.bookProfile("pixelLumiVsLumi",
-                            "pixel-lumi vs scal lumi",
+                            "pixel-lumi vs online lumi",
                             lumi_binning_.nbins,
                             lumi_binning_.xmin,
                             lumi_binning_.xmax,
                             pixellumi_binning_.xmin,
                             lumi_binning_.xmax);
-    me->setAxisTitle("scal inst lumi E30 [Hz cm^{-2}]", 1);
+    me->setAxisTitle("online inst lumi E30 [Hz cm^{-2}]", 1);
     me->setAxisTitle("pixel-based inst lumi E30 [Hz cm^{-2}]", 2);
     histograms.pixelLumiVsLumi = me;
   }
 
   auto me = booker.bookProfile("lumiVsLS",
-                               "scal lumi vs LS",
+                               "online lumi vs lumisection",
                                ls_binning_.nbins,
                                ls_binning_.xmin,
                                ls_binning_.xmax,
                                lumi_binning_.xmin,
                                lumi_binning_.xmax);
-  me->setAxisTitle("LS", 1);
-  me->setAxisTitle("scal inst lumi E30 [Hz cm^{-2}]", 2);
+  me->setAxisTitle("lumisection", 1);
+  me->setAxisTitle("online inst lumi E30 [Hz cm^{-2}]", 2);
   histograms.lumiVsLS = me;
 
   me = booker.bookProfile("puVsLS",
-                          "scal PU vs LS",
+                          "online pileup vs lumisection",
                           ls_binning_.nbins,
                           ls_binning_.xmin,
                           ls_binning_.xmax,
                           pu_binning_.xmin,
                           pu_binning_.xmax);
-  me->setAxisTitle("LS", 1);
-  me->setAxisTitle("scal PU", 2);
+  me->setAxisTitle("lumisection", 1);
+  me->setAxisTitle("online pileup", 2);
   histograms.puVsLS = me;
 }
 
 void LumiMonitor::dqmAnalyze(edm::Event const& event,
                              edm::EventSetup const& setup,
                              Histograms const& histograms) const {
-  int ls = event.id().luminosityBlock();
+  int const ls = event.id().luminosityBlock();
 
-  float scal_lumi = -1.;
-  float scal_pu = -1.;
-  edm::Handle<LumiScalersCollection> lumiScalers;
-  event.getByToken(lumiScalersToken_, lumiScalers);
-  if (lumiScalers.isValid() and not lumiScalers->empty()) {
-    auto scalit = lumiScalers->begin();
-    scal_lumi = scalit->instantLumi();
-    scal_pu = scalit->pileup();
-  } else {
-    scal_lumi = -1.;
-    scal_pu = -1.;
+  float online_lumi = -1.f;
+  float online_pu = -1.f;
+  auto const lumiScalersHandle = event.getHandle(lumiScalersToken_);
+  auto const onlineMetaDataDigisHandle = event.getHandle(onlineMetaDataDigisToken_);
+  if (lumiScalersHandle.isValid() and not lumiScalersHandle->empty()) {
+    auto const scalit = lumiScalersHandle->begin();
+    online_lumi = scalit->instantLumi();
+    online_pu = scalit->pileup();
+  } else if (onlineMetaDataDigisHandle.isValid()) {
+    online_lumi = onlineMetaDataDigisHandle->instLumi();
+    online_pu = onlineMetaDataDigisHandle->avgPileUp();
   }
-  histograms.lumiVsLS->Fill(ls, scal_lumi);
-  histograms.puVsLS->Fill(ls, scal_pu);
+  histograms.lumiVsLS->Fill(ls, online_lumi);
+  histograms.puVsLS->Fill(ls, online_pu);
 
   if (doPixelLumi_) {
     size_t pixel_clusters = 0;
-    float pixel_lumi = -1.;
+    float pixel_lumi = -1.f;
     edm::Handle<edmNew::DetSetVector<SiPixelCluster>> pixelClusters;
     event.getByToken(pixelClustersToken_, pixelClusters);
     if (pixelClusters.isValid()) {
@@ -249,9 +244,9 @@ void LumiMonitor::dqmAnalyze(edm::Event const& event,
     }
 
     histograms.numberOfPixelClustersVsLS->Fill(ls, pixel_clusters);
-    histograms.numberOfPixelClustersVsLumi->Fill(scal_lumi, pixel_clusters);
+    histograms.numberOfPixelClustersVsLumi->Fill(online_lumi, pixel_clusters);
     histograms.pixelLumiVsLS->Fill(ls, pixel_lumi);
-    histograms.pixelLumiVsLumi->Fill(scal_lumi, pixel_lumi);
+    histograms.pixelLumiVsLumi->Fill(online_lumi, pixel_lumi);
   }
 }
 
@@ -267,7 +262,8 @@ void LumiMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pixelClusters", edm::InputTag("hltSiPixelClusters"));
   desc.add<edm::InputTag>("scalers", edm::InputTag("hltScalersRawToDigi"));
-  desc.add<std::string>("FolderName", "HLT/LumiMonitoring");
+  desc.add<edm::InputTag>("onlineMetaDataDigis", edm::InputTag("hltOnlineMetaDataDigis"));
+  desc.add<std::string>("folderName", "HLT/LumiMonitoring");
   desc.add<bool>("doPixelLumi", false);
   desc.add<bool>("useBPixLayer1", false);
   desc.add<int>("minNumberOfPixelsPerCluster", 2);  // from DQM/PixelLumi/python/PixelLumiDQM_cfi.py

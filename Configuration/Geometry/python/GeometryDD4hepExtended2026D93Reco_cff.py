@@ -12,7 +12,7 @@ from Geometry.TrackerGeometryBuilder.TrackerAdditionalParametersPerDet_cfi impor
 from Geometry.TrackerGeometryBuilder.trackerParameters_cff import *
 from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *
 from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *
-trackerGeometry.applyAlignment = cms.bool(False)
+trackerGeometry.applyAlignment = False
 
 # calo
 from Geometry.CaloEventSetup.HGCalV9Topology_cfi import *
@@ -56,5 +56,5 @@ from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff import *
 from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *
 from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *
 from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *
-mtdGeometry.applyAlignment = cms.bool(False)
+mtdGeometry.applyAlignment = False
 

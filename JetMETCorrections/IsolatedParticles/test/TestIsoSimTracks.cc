@@ -20,7 +20,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -77,13 +77,12 @@
 #include "TH1F.h"
 #include <TFile.h>
 
-class TestIsoSimTracks : public edm::EDAnalyzer {
+class TestIsoSimTracks : public edm::one::EDAnalyzer<> {
 public:
   explicit TestIsoSimTracks(const edm::ParameterSet&);
-  virtual ~TestIsoSimTracks(){};
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  void endJob(void);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
 private:
   TFile* m_Hfile;

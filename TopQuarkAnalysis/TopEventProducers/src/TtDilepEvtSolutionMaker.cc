@@ -2,7 +2,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -15,12 +15,11 @@
 #include <string>
 #include <vector>
 
-class TtDilepEvtSolutionMaker : public edm::EDProducer {
+class TtDilepEvtSolutionMaker : public edm::stream::EDProducer<> {
 public:
   explicit TtDilepEvtSolutionMaker(const edm::ParameterSet& iConfig);
   ~TtDilepEvtSolutionMaker() override;
 
-  void beginJob() override;
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
 private:
@@ -85,13 +84,11 @@ TtDilepEvtSolutionMaker::TtDilepEvtSolutionMaker(const edm::ParameterSet& iConfi
   produces<std::vector<TtDilepEvtSolution> >();
 
   myLRSignalSelObservables = new TtDilepLRSignalSelObservables(consumesCollector(), jetSourceToken_);
+
+  solver = new TtFullLepKinSolver(tmassbegin_, tmassend_, tmassstep_, nupars_);
 }
 
 TtDilepEvtSolutionMaker::~TtDilepEvtSolutionMaker() {}
-
-void TtDilepEvtSolutionMaker::beginJob() {
-  solver = new TtFullLepKinSolver(tmassbegin_, tmassend_, tmassstep_, nupars_);
-}
 
 void TtDilepEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<std::vector<pat::Tau> > taus;

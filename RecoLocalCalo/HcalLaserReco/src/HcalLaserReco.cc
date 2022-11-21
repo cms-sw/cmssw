@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -11,11 +11,10 @@
 #include <iostream>
 #include <fstream>
 
-class HcalLaserReco : public edm::EDProducer {
+class HcalLaserReco : public edm::global::EDProducer<> {
 public:
   explicit HcalLaserReco(const edm::ParameterSet& ps);
-  ~HcalLaserReco() override;
-  void produce(edm::Event& e, const edm::EventSetup& c) override;
+  void produce(edm::StreamID, edm::Event& e, const edm::EventSetup& c) const override;
 
 private:
   int qdctdcFed_;
@@ -30,11 +29,8 @@ HcalLaserReco::HcalLaserReco(edm::ParameterSet const& conf)
   produces<HcalLaserDigi>();
 }
 
-// Virtual destructor needed.
-HcalLaserReco::~HcalLaserReco() {}
-
 // Functions that gets called by framework every event
-void HcalLaserReco::produce(edm::Event& e, const edm::EventSetup&) {
+void HcalLaserReco::produce(edm::StreamID, edm::Event& e, const edm::EventSetup&) const {
   // Step A: Get Inputs
   edm::Handle<FEDRawDataCollection> rawraw;
   e.getByToken(tok_raw_, rawraw);

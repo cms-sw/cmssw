@@ -21,23 +21,27 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/Utils/interface/TFileDirectory.h"
 
 // pythia
 #include <Pythia8/Pythia.h>
 
 // root
 #include "TH1D.h"
-#include "TFile.h"
 #include "TLorentzVector.h"
 
 #if PYTHIA_VERSION_INTEGER < 8304
@@ -49,22 +53,19 @@ typedef Pythia8::ParticleDataEntryPtr ParticleDataEntryPtr;
 // class declaration
 //
 
-class TestPythiaDecays : public edm::stream::EDAnalyzer<> {
+class TestPythiaDecays : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit TestPythiaDecays(const edm::ParameterSet&);
-  ~TestPythiaDecays() override;
+  ~TestPythiaDecays() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-
   // ----------member data ---------------------------
+  const edm::EDGetTokenT<std::vector<SimTrack> > tokTrack_;
+  const edm::EDGetTokenT<std::vector<SimVertex> > tokVertex_;
   std::vector<int> pids;
   std::map<int, TH1D*> h_mass;
   std::map<int, TH1D*> h_p;
@@ -96,7 +97,10 @@ private:
 //
 // constructors and destructor
 //
-TestPythiaDecays::TestPythiaDecays(const edm::ParameterSet& iConfig) {
+TestPythiaDecays::TestPythiaDecays(const edm::ParameterSet& iConfig)
+    : tokTrack_(consumes<std::vector<SimTrack> >(edm::InputTag("famosSimHits"))),
+      tokVertex_(consumes<std::vector<SimVertex> >(edm::InputTag("famosSimHits"))) {
+  usesResource(TFileService::kSharedResource);
   // output file
   outputFile = iConfig.getParameter<std::string>("outputFile");
 
@@ -116,12 +120,16 @@ TestPythiaDecays::TestPythiaDecays(const edm::ParameterSet& iConfig) {
   pids.push_back(521);  // B+
 
   // define histograms
+  edm::Service<TFileService> file;
+  TFileDirectory observe = file->mkdir("observed");
+  TFileDirectory predict = file->mkdir("prediction");
   for (size_t i = 0; i < pids.size(); ++i) {
-    int pid = abs(pids[i]);
+    int pid = std::abs(pids[i]);
 
     // get particle data
     if (!pdt.isParticle(pid)) {
-      std::cout << "ERROR: BAD PARTICLE, pythia is not aware of pid " << pid << std::endl;
+      edm::LogError("TestPythiaDecays") << "ERROR: BAD PARTICLE, pythia is not aware of pid " << pid;
+      throw cms::Exception("Unknown", "FastSim") << "Bad Particle Type " << pid << "\n";
       std::exit(1);
     }
     ParticleDataEntryPtr pd = pdt.particleDataEntryPtr(pid);
@@ -139,9 +147,8 @@ TestPythiaDecays::TestPythiaDecays(const edm::ParameterSet& iConfig) {
     }
     std::stringstream strstr;
     strstr << "mass_" << pid;
-    h_mass[pid] = new TH1D(strstr.str().c_str(), strstr.str().c_str(), 100, mmin, mmax);
-    h_mass_ref[pid] = (TH1D*)(h_mass[pid]->Clone(strstr.str().c_str()));
-    h_mass_ref[pid]->SetTitle(h_mass_ref[pid]->GetName());
+    h_mass[pid] = observe.make<TH1D>(strstr.str().c_str(), strstr.str().c_str(), 100, mmin, mmax);
+    h_mass_ref[pid] = predict.make<TH1D>(strstr.str().c_str(), strstr.str().c_str(), 100, mmin, mmax);
     if (w == 0)
       h_mass_ref[pid]->Fill(m0);
     else {
@@ -154,19 +161,19 @@ TestPythiaDecays::TestPythiaDecays(const edm::ParameterSet& iConfig) {
     // p histogram
     strstr.str("");
     strstr << "p_" << pid;
-    h_p[pid] = new TH1D(strstr.str().c_str(), strstr.str().c_str(), 100, 0, 20);
+    h_p[pid] = observe.make<TH1D>(strstr.str().c_str(), strstr.str().c_str(), 100, 0, 20);
 
     // v histogram
     strstr.str("");
     strstr << "v_" << pid;
-    h_v[pid] = new TH1D(strstr.str().c_str(), strstr.str().c_str(), 100, 0, 1.);
+    h_v[pid] = observe.make<TH1D>(strstr.str().c_str(), strstr.str().c_str(), 100, 0, 1.);
 
     // ctau histograms
     double ctau0 = pd->tau0() / 10.;
     strstr.str("");
     strstr << "plt_" << pid;
-    h_plt[pid] = new TH1D(strstr.str().c_str(), strstr.str().c_str(), 100, 0, std::min(5. * ctau0, 500.));
-    h_plt_ref[pid] = (TH1D*)(h_plt[pid]->Clone(strstr.str().c_str()));
+    h_plt[pid] = observe.make<TH1D>(strstr.str().c_str(), strstr.str().c_str(), 100, 0, std::min(5. * ctau0, 500.));
+    h_plt_ref[pid] = predict.make<TH1D>(strstr.str().c_str(), strstr.str().c_str(), 100, 0, std::min(5. * ctau0, 500.));
     h_plt_ref[pid]->SetTitle(h_plt_ref[pid]->GetName());
     for (int b = 1; b <= h_plt_ref[pid]->GetNbinsX(); ++b) {
       double _val = h_plt_ref[pid]->GetBinCenter(b);
@@ -176,9 +183,10 @@ TestPythiaDecays::TestPythiaDecays(const edm::ParameterSet& iConfig) {
     // br histograms
     strstr.str("");
     strstr << "br_" << pid;
-    h_br[pid] = new TH1D(strstr.str().c_str(), strstr.str().c_str(), 0, 0, 0);
+    h_br[pid] = observe.make<TH1D>(strstr.str().c_str(), strstr.str().c_str(), 0, 0, 0);
     h_br[pid]->SetCanExtend(TH1::kAllAxes);
-    h_br_ref[pid] = (TH1D*)(h_br[pid]->Clone(strstr.str().c_str()));
+    h_br_ref[pid] = predict.make<TH1D>(strstr.str().c_str(), strstr.str().c_str(), 0, 0, 0);
+    h_br_ref[pid]->SetCanExtend(TH1::kAllAxes);
     h_br_ref[pid]->SetTitle(h_br_ref[pid]->GetName());
     knownDecayModes[pid] = std::vector<std::string>();
     for (int d = 0; d < pd->sizeChannels(); ++d) {
@@ -209,44 +217,17 @@ TestPythiaDecays::TestPythiaDecays(const edm::ParameterSet& iConfig) {
     // vertex plots
     strstr.str("");
     strstr << "originVertexRho_" << pid;
-    h_originVertexRho[pid] = new TH1D(strstr.str().c_str(), strstr.str().c_str(), 100, 0, 200);
+    h_originVertexRho[pid] = observe.make<TH1D>(strstr.str().c_str(), strstr.str().c_str(), 100, 0, 200);
     strstr.str("");
     strstr << "originVertexZ_" << pid;
-    h_originVertexZ[pid] = new TH1D(strstr.str().c_str(), strstr.str().c_str(), 100, 0, 400);
+    h_originVertexZ[pid] = observe.make<TH1D>(strstr.str().c_str(), strstr.str().c_str(), 100, 0, 400);
     strstr.str("");
     strstr << "decayVertexRho_" << pid;
-    h_decayVertexRho[pid] = new TH1D(strstr.str().c_str(), strstr.str().c_str(), 100, 0, 200);
+    h_decayVertexRho[pid] = observe.make<TH1D>(strstr.str().c_str(), strstr.str().c_str(), 100, 0, 200);
     strstr.str("");
     strstr << "decayVertexZ_" << pid;
-    h_decayVertexZ[pid] = new TH1D(strstr.str().c_str(), strstr.str().c_str(), 100, 0, 400);
+    h_decayVertexZ[pid] = observe.make<TH1D>(strstr.str().c_str(), strstr.str().c_str(), 100, 0, 400);
   }
-}
-
-TestPythiaDecays::~TestPythiaDecays() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-  TFile* f = TFile::Open(outputFile.c_str(), "RECREATE");
-  f->cd();
-  f->mkdir("observed");
-  f->mkdir("prediction");
-  for (size_t i = 0; i < pids.size(); ++i) {
-    int pid = pids[i];
-    f->cd("observed");
-    h_mass[pid]->Write();
-    h_plt[pid]->Write();
-    h_br[pid]->Write();
-    h_originVertexZ[pid]->Write();
-    h_originVertexRho[pid]->Write();
-    h_decayVertexZ[pid]->Write();
-    h_decayVertexRho[pid]->Write();
-    h_p[pid]->Write();
-    h_v[pid]->Write();
-    f->cd("prediction");
-    h_mass_ref[pid]->Write();
-    h_plt_ref[pid]->Write();
-    h_br_ref[pid]->Write();
-  }
-  f->Close();
 }
 
 //
@@ -255,13 +236,8 @@ TestPythiaDecays::~TestPythiaDecays() {
 
 // ------------ method called for each event  ------------
 void TestPythiaDecays::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
-
-  Handle<std::vector<SimTrack> > simtracks;
-  iEvent.getByLabel("famosSimHits", simtracks);
-
-  Handle<std::vector<SimVertex> > simvertices;
-  iEvent.getByLabel("famosSimHits", simvertices);
+  const edm::Handle<std::vector<SimTrack> >& simtracks = iEvent.getHandle(tokTrack_);
+  const edm::Handle<std::vector<SimVertex> > simvertices = iEvent.getHandle(tokVertex_);
 
   // create maps
 
@@ -364,38 +340,6 @@ void TestPythiaDecays::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     h_br_ref[pid]->Fill(label.c_str(), 0.);  // keep h_br and h_br_ref in sync
   }
 }
-
-// ------------ method called when starting to processes a run  ------------
-/*
-void 
-TestPythiaDecays::beginRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a run  ------------
-/*
-void 
-TestPythiaDecays::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-void 
-TestPythiaDecays::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void 
-TestPythiaDecays::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void TestPythiaDecays::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

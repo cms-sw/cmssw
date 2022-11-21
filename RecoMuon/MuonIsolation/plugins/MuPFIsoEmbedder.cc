@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -36,7 +36,7 @@
 // class declaration
 //
 
-class MuPFIsoEmbedder : public edm::EDProducer {
+class MuPFIsoEmbedder : public edm::stream::EDProducer<> {
 public:
   explicit MuPFIsoEmbedder(const edm::ParameterSet&);
   ~MuPFIsoEmbedder() override;
@@ -80,6 +80,7 @@ MuPFIsoEmbedder::MuPFIsoEmbedder(const edm::ParameterSet& iConfig)
 MuPFIsoEmbedder::~MuPFIsoEmbedder() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
+  delete helper_;
 }
 
 //

@@ -15,9 +15,10 @@
 #include <string>
 
 #include "TROOT.h"
-#include "TMinuit.h"
 #include "TGraph.h"
 #include "TF1.h"
+
+#include "TMinuitMinimizer.h"
 
 template <class C>
 class EcalUncalibRecHitRecAnalFitAlgo : public EcalUncalibRecHitRecAbsAlgo<C> {
@@ -39,6 +40,12 @@ private:
   };
 
 public:
+  EcalUncalibRecHitRecAnalFitAlgo() {
+    //In order to make fitting ROOT histograms thread safe
+    // one must call this undocumented function
+    TMinuitMinimizer::UseStaticMinuit(false);
+  }
+
   // destructor
   ~EcalUncalibRecHitRecAnalFitAlgo<C>() override{};
 
@@ -89,13 +96,12 @@ public:
     TGraph graph(10, xarray, frame);
 
     // fit functions
-    TF1 pulseShape =
-        TF1("pulseShape", "[0]*pow((x - [3])/[1],[2])*exp(-[2]*(x - [1] - [3])/[1])", imax - 1., imax + 3.);
-    TF1 pedestal = TF1("pedestal", "[0]", 0., 2.);
-
-    //TF1 pulseShape = TF1("pulseShape",pulseShapeFunction,imax-1.,imax+3.);
-    //TF1 pedestal = TF1("pedestal",pedestalFunction,0.,2.);
-    TF1 pluseAndPed = TF1("pulseAndPed", "pedestal+pulseShape");
+    TF1 pulseShape = TF1("pulseShape",
+                         "[0]*pow((x - [3])/[1],[2])*exp(-[2]*(x - [1] - [3])/[1])",
+                         imax - 1.,
+                         imax + 3.,
+                         TF1::EAddToList::kNo);
+    TF1 pedestal = TF1("pedestal", "[0]", 0., 2., TF1::EAddToList::kNo);
 
     //pulseShape parameters
     // Amplitude
@@ -119,14 +125,12 @@ public:
     pedestal.SetParameter(0, frame[0]);
     pedestal.SetParName(0, "Pedestal");
 
-    graph.Fit(&pulseShape, "QRM");
-    //TF1 *pulseShape2=graph.GetFunction("pulseShape");
+    int result = graph.Fit(&pulseShape, "QRMN SERIAL");
 
-    if (std::string(gMinuit->fCstatu.Data()) == std::string("CONVERGED ")) {
+    if (0 == result) {
       double amplitude_value = pulseShape.GetParameter(0);
 
-      graph.Fit(&pedestal, "QRL");
-      //TF1 *pedestal2=graph.GetFunction("pedestal");
+      graph.Fit(&pedestal, "QRLN SERIAL");
       double pedestal_value = pedestal.GetParameter(0);
 
       if (!iGainSwitch)

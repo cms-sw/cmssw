@@ -2,7 +2,7 @@
 // adapted TtSemiEvtSolutionMaker.h, v1.13 2007/07/06 02:49:42 lowette Exp $
 // for fully hadronic channel.
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -23,7 +23,7 @@
 #include <string>
 #include <vector>
 
-class TtHadEvtSolutionMaker : public edm::EDProducer {
+class TtHadEvtSolutionMaker : public edm::stream::EDProducer<> {
 public:
   explicit TtHadEvtSolutionMaker(const edm::ParameterSet& iConfig);
   ~TtHadEvtSolutionMaker() override;

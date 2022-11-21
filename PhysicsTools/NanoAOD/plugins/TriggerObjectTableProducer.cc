@@ -55,6 +55,8 @@ public:
 
   ~TriggerObjectTableProducer() override {}
 
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+
 private:
   void produce(edm::Event &, edm::EventSetup const &) override;
 
@@ -113,14 +115,15 @@ private:
 
 // ------------ method called to produce the data  ------------
 void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  edm::Handle<std::vector<pat::TriggerObjectStandAlone>> src;
-  iEvent.getByToken(src_, src);
+  const auto &trigObjs = iEvent.get(src_);
 
   std::vector<std::pair<const pat::TriggerObjectStandAlone *, const SelectedObject *>> selected;
-  for (const auto &obj : *src) {
+  for (const auto &obj : trigObjs) {
     for (const auto &sel : sels_) {
       if (sel.match(obj) && (sel.skipObjectsNotPassingQualityBits ? (int(sel.qualityBits(obj)) > 0) : true)) {
         selected.emplace_back(&obj, &sel);
+        // cave canem: the object will be taken by whichever selection it matches first, so it
+        // depends on the order of the selections in the VPSet
         break;
       }
     }
@@ -144,27 +147,24 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
     }
   }
 
-  edm::Handle<l1t::EGammaBxCollection> l1EG;
-  edm::Handle<l1t::EtSumBxCollection> l1Sum;
-  edm::Handle<l1t::JetBxCollection> l1Jet;
-  edm::Handle<l1t::MuonBxCollection> l1Muon;
-  edm::Handle<l1t::TauBxCollection> l1Tau;
-  iEvent.getByToken(l1EG_, l1EG);
-  iEvent.getByToken(l1Sum_, l1Sum);
-  iEvent.getByToken(l1Jet_, l1Jet);
-  iEvent.getByToken(l1Muon_, l1Muon);
-  iEvent.getByToken(l1Tau_, l1Tau);
+  const auto &l1EG = iEvent.get(l1EG_);
+  const auto &l1Sum = iEvent.get(l1Sum_);
+  const auto &l1Jet = iEvent.get(l1Jet_);
+  const auto &l1Muon = iEvent.get(l1Muon_);
+  const auto &l1Tau = iEvent.get(l1Tau_);
 
   std::vector<pair<pat::TriggerObjectStandAlone, int>> l1Objects;
+  l1Objects.reserve(l1EG.size(0) + l1Sum.size(0) + l1Jet.size(0) + l1Muon.size(0) + l1Tau.size(0));
 
-  for (l1t::EGammaBxCollection::const_iterator it = l1EG->begin(0); it != l1EG->end(0); it++) {
+  // no range-based for because we want bx=0 only
+  for (l1t::EGammaBxCollection::const_iterator it = l1EG.begin(0); it != l1EG.end(0); it++) {
     pat::TriggerObjectStandAlone l1obj(it->p4());
     l1obj.setCollection("L1EG");
     l1obj.addTriggerObjectType(trigger::TriggerL1EG);
     l1Objects.emplace_back(l1obj, it->hwIso());
   }
 
-  for (l1t::EtSumBxCollection::const_iterator it = l1Sum->begin(0); it != l1Sum->end(0); it++) {
+  for (l1t::EtSumBxCollection::const_iterator it = l1Sum.begin(0); it != l1Sum.end(0); it++) {
     pat::TriggerObjectStandAlone l1obj(it->p4());
 
     switch (it->getType()) {
@@ -215,14 +215,14 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
     l1Objects.emplace_back(l1obj, it->hwIso());
   }
 
-  for (l1t::JetBxCollection::const_iterator it = l1Jet->begin(0); it != l1Jet->end(0); it++) {
+  for (l1t::JetBxCollection::const_iterator it = l1Jet.begin(0); it != l1Jet.end(0); it++) {
     pat::TriggerObjectStandAlone l1obj(it->p4());
     l1obj.setCollection("L1Jet");
     l1obj.addTriggerObjectType(trigger::TriggerL1Jet);
     l1Objects.emplace_back(l1obj, it->hwIso());
   }
 
-  for (l1t::MuonBxCollection::const_iterator it = l1Muon->begin(0); it != l1Muon->end(0); it++) {
+  for (l1t::MuonBxCollection::const_iterator it = l1Muon.begin(0); it != l1Muon.end(0); it++) {
     pat::TriggerObjectStandAlone l1obj(it->p4());
     l1obj.setCollection("L1Mu");
     l1obj.addTriggerObjectType(trigger::TriggerL1Mu);
@@ -230,7 +230,7 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
     l1Objects.emplace_back(l1obj, it->hwIso());
   }
 
-  for (l1t::TauBxCollection::const_iterator it = l1Tau->begin(0); it != l1Tau->end(0); it++) {
+  for (l1t::TauBxCollection::const_iterator it = l1Tau.begin(0); it != l1Tau.end(0); it++) {
     pat::TriggerObjectStandAlone l1obj(it->p4());
     l1obj.setCollection("L1Tau");
     l1obj.addTriggerObjectType(trigger::TriggerL1Tau);
@@ -254,6 +254,7 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
         const auto &seed = l1obj.first;
         float dr2 = deltaR2(seed, obj);
         if (dr2 < best && sel.l1cut(seed)) {
+          best = dr2;
           l1pt[i] = seed.pt();
           l1iso[i] = l1obj.second;
           l1charge[i] = seed.charge();
@@ -266,15 +267,17 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
         const auto &seed = l1obj.first;
         float dr2 = deltaR2(seed, obj);
         if (dr2 < best && sel.l1cut_2(seed)) {
+          best = dr2;
           l1pt_2[i] = seed.pt();
         }
       }
     }
     if (sel.l2DR2 > 0) {
       float best = sel.l2DR2;
-      for (const auto &seed : *src) {
+      for (const auto &seed : trigObjs) {
         float dr2 = deltaR2(seed, obj);
         if (dr2 < best && sel.l2cut(seed)) {
+          best = dr2;
           l2pt[i] = seed.pt();
         }
       }
@@ -293,6 +296,39 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
   tab->addColumn<float>("l2pt", l2pt, "pt of associated 'L2' seed (i.e. HLT before tracking/PF)", 10);
   tab->addColumn<int>("filterBits", bits, "extra bits of associated information: " + bitsDoc_);
   iEvent.put(std::move(tab));
+}
+
+void TriggerObjectTableProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("name")->setComment("name of the flat table output");
+  desc.add<edm::InputTag>("src")->setComment("pat::TriggerObjectStandAlone input collection");
+  desc.add<edm::InputTag>("l1EG")->setComment("l1t::EGammaBxCollection input collection");
+  desc.add<edm::InputTag>("l1Sum")->setComment("l1t::EtSumBxCollection input collection");
+  desc.add<edm::InputTag>("l1Jet")->setComment("l1t::JetBxCollection input collection");
+  desc.add<edm::InputTag>("l1Muon")->setComment("l1t::MuonBxCollection input collection");
+  desc.add<edm::InputTag>("l1Tau")->setComment("l1t::TauBxCollection input collection");
+
+  edm::ParameterSetDescription selection;
+  selection.setComment("a parameterset to define a trigger collection in flat table");
+  selection.add<std::string>("name")->setComment("name of the leaf in the flat table");
+  selection.add<int>("id")->setComment("identifier of the trigger collection in the flat table");
+  selection.add<std::string>("sel")->setComment("function to selection on pat::TriggerObjectStandAlone");
+  selection.add<bool>("skipObjectsNotPassingQualityBits")->setComment("flag to skip object on quality bit");
+  selection.add<std::string>("qualityBits")
+      ->setComment("function on pat::TriggerObjectStandAlone to define quality bit");
+  selection.add<std::string>("qualityBitsDoc")->setComment("description of qualityBits");
+  selection.ifExists(edm::ParameterDescription<std::string>("l1seed", "selection on pat::TriggerObjectStandAlone"),
+                     edm::ParameterDescription<double>(
+                         "l1deltaR", "deltaR criteria to match pat::TriggerObjectStandAlone to L1 primitive"));
+  selection.ifExists(edm::ParameterDescription<std::string>("l1seed_2", "selection on pat::TriggerObjectStandAlone"),
+                     edm::ParameterDescription<double>(
+                         "l1deltaR_2", "deltaR criteria to match pat::TriggerObjectStandAlone to L1 primitive"));
+  selection.ifExists(edm::ParameterDescription<std::string>("l2seed", "selection on pat::TriggerObjectStandAlone"),
+                     edm::ParameterDescription<double>(
+                         "l2deltaR", "deltaR criteria to match pat::TriggerObjectStandAlone to 'L2' primitive"));
+  desc.addVPSet("selections", selection);
+
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

@@ -82,8 +82,7 @@ if __name__ == '__main__':
                      158.01, #reMiniAOD of 2018 HI MC with pp-like reco
                      312.0, #2021/Run3 HI MC Pyquen_ZeemumuJets_pt10 with pp-like reco
                      1306.0, #SingleMu Pt1 UP15
-                     1325.81, #test NanoAOD from existing MINI UL 106Xv1
-                     136.8523, #test NanoAOD from existing reMINI UL 106Xv2
+                     2500.601, #test NanoAOD from existing MINI
                      1330, #Run2 2015/2016 MC Zmm
                      135.4, #Run 2 2015/2016 Zee ttbar fastsim
                      10042.0, #2017 ZMM
@@ -98,13 +97,13 @@ if __name__ == '__main__':
                      13234.0, #2021 ttbar fastsim
                      13434.0, #2021 ttbar PU fastsim
                      12434.0, #2023 ttbar
-                     39434.0, #2026D88 ttbar (2022 new baseline)
-                     39434.75, #2026D88 ttbar with HLT75e33
-                     #39434.911, #2026D88 ttbar DD4hep XML
-                     39634.999, #2026D88 ttbar premixing stage1+stage2, PU50
-                     39496.0, #CE_E_Front_120um D88
-                     39500.0, #CE_H_Coarse_Scint D88
-                     41834.0, #2026D94 ttbar (exercise with HFNose)
+                     20834.0, #2026D88 ttbar (2022 new baseline)
+                     20834.75, #2026D88 ttbar with HLT75e33
+                     #20834.911, #2026D88 ttbar DD4hep XML
+                     21034.999, #2026D88 ttbar premixing stage1+stage2, PU50
+                     20896.0, #CE_E_Front_120um D88
+                     20900.0, #CE_H_Coarse_Scint D88
+                     23234.0, #2026D94 ttbar (exercise with HFNose)
                      25202.0, #2016 ttbar UP15 PU
                      250202.181, #2018 ttbar stage1 + stage2 premix
                      ],
@@ -182,7 +181,12 @@ if __name__ == '__main__':
                         help='Comma separated list of workflow to be shown or ran. Possible keys are also '+str(predefinedSet.keys())+'. and wild card like muon, or mc',
                         dest='testList',
                         default=None)
-    
+
+    parser.add_argument('-f','--failed-from',
+                        help='Provide a matrix report to specify the workflows to be run again. Augments the -l option if specified already',
+                        dest='failed_from',
+                        default=None)
+
     parser.add_argument('-r','--raw',
                         help='Temporary dump the .txt needed for prodAgent interface. To be discontinued soon. Argument must be the name of the set (standard, pileup,...)',
                         dest='raw')
@@ -378,6 +382,18 @@ if __name__ == '__main__':
     opt = parser.parse_args()
     if opt.command: opt.command = ' '.join(opt.command)
     os.environ["CMSSW_DAS_QUERY_SITES"]=opt.dasSites
+    if opt.failed_from:
+        rerunthese=[]
+        with open(opt.failed_from,'r') as report:
+            for report_line in report:
+                if 'FAILED' in report_line:
+                    to_run,_=report_line.split('_',1)
+                    rerunthese.append(to_run)
+        if opt.testList:
+            opt.testList+=','.join(['']+rerunthese)
+        else:
+            opt.testList = ','.join(rerunthese)
+
     if opt.IBEos:
       from subprocess import getstatusoutput as run_cmd
 

@@ -4,7 +4,7 @@ process = cms.Process("PROD")
 # Include the RandomNumberGeneratorService definition
 process.load("IOMC.RandomEngine.IOMC_cff")
 
-process.load("FastSimulation.Configuration.QCDpt50_120_cfi")
+process.load("Configuration.Generator.QCD_Pt_50_80_cfi")
 
 #  include "FastSimulation/Configuration/data/QCDpt600-800.cfi"
 # Generate Minimum Bias Events
@@ -35,7 +35,10 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.jetComp = cms.EDAnalyzer("JetComparison",
     MinEnergy = cms.double(50.0),
-    outputFile = cms.untracked.string('fastjet50-120_fast.root')
+)
+
+process.TFileService = cms.Service("TFileService",
+    fileName = cms.string('fastjet50-120_fast.root')
 )
 
 process.Timing = cms.Service("Timing")

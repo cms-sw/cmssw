@@ -22,24 +22,25 @@
 
 // user include files
 //   base class
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // forward declarations
-class L1GtParameters;
+class L1MuCSCTFConfiguration;
+class L1MuCSCTFConfigurationRcd;
 
 // class declaration
-class L1MuCSCTFParametersTester : public edm::EDAnalyzer {
+class L1MuCSCTFParametersTester : public edm::one::EDAnalyzer<> {
 public:
   // constructor
   explicit L1MuCSCTFParametersTester(const edm::ParameterSet&);
 
-  // destructor
-  ~L1MuCSCTFParametersTester() override;
-
   void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+private:
+  edm::ESGetToken<L1MuCSCTFConfiguration, L1MuCSCTFConfigurationRcd> token_;
 };
 
 #endif /*CSCTFConfigProducers_L1MuCSCTFParametersTester_h*/

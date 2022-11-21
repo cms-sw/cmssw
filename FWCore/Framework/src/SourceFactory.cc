@@ -18,6 +18,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerBase.h"
 
 //
 // static member functions
@@ -26,6 +27,7 @@ namespace edm {
   namespace eventsetup {
 
     std::string SourceMakerTraits::name() { return "CMS EDM Framework ESSource"; }
+    std::string const& SourceMakerTraits::baseType() { return ParameterSetDescriptionFillerBase::kBaseForESSource; }
 
     void SourceMakerTraits::replaceExisting(EventSetupProvider&, std::shared_ptr<EventSetupRecordIntervalFinder>) {
       throw edm::Exception(edm::errors::LogicError) << "SourceMakerTraits::replaceExisting\n"

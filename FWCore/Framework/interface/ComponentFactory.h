@@ -54,7 +54,7 @@ namespace edm {
       // ---------- const member functions ---------------------
       std::shared_ptr<base_type> addTo(EventSetupsController& esController,
                                        EventSetupProvider& iProvider,
-                                       edm::ParameterSet const& iConfiguration,
+                                       edm::ParameterSet& iConfiguration,
                                        ModuleTypeResolverBase const* resolver,
                                        bool replaceExisting = false) const {
         std::string modtype = iConfiguration.template getParameter<std::string>("@module_type");

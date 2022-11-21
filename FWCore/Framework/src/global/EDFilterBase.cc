@@ -84,17 +84,22 @@ namespace edm {
       this->doAcquire_(e.streamID(), e, c, holder);
     }
 
-    void EDFilterBase::doTransform(size_t iTransformIndex,
-                                   EventPrincipal const& iEvent,
-                                   ActivityRegistry*,
-                                   ModuleCallingContext const* iMCC) {
+    void EDFilterBase::doTransformAsync(WaitingTaskHolder iTask,
+                                        size_t iTransformIndex,
+                                        EventPrincipal const& iEvent,
+                                        ActivityRegistry*,
+                                        ModuleCallingContext const* iMCC,
+                                        ServiceWeakToken const& iToken) {
       EventForTransformer ev(iEvent, iMCC);
-      transform_(iTransformIndex, ev);
+      transformAsync_(iTask, iTransformIndex, ev, iToken);
     }
 
     size_t EDFilterBase::transformIndex_(edm::BranchDescription const& iBranch) const { return -1; }
     ProductResolverIndex EDFilterBase::transformPrefetch_(std::size_t iIndex) const { return 0; }
-    void EDFilterBase::transform_(std::size_t iIndex, edm::EventForTransformer& iEvent) const {}
+    void EDFilterBase::transformAsync_(WaitingTaskHolder iTask,
+                                       std::size_t iIndex,
+                                       edm::EventForTransformer& iEvent,
+                                       ServiceWeakToken const& iToken) const {}
 
     void EDFilterBase::doPreallocate(PreallocationConfiguration const& iPrealloc) {
       const auto nStreams = iPrealloc.numberOfStreams();
@@ -104,6 +109,8 @@ namespace edm {
       }
       previousParentageIds_ = std::make_unique<ParentageID[]>(nStreams);
       preallocStreams(nStreams);
+      preallocRuns(iPrealloc.numberOfRuns());
+      preallocRunsSummary(iPrealloc.numberOfRuns());
       preallocLumis(iPrealloc.numberOfLuminosityBlocks());
       preallocLumisSummary(iPrealloc.numberOfLuminosityBlocks());
       preallocate(iPrealloc);
@@ -247,6 +254,8 @@ namespace edm {
     }
 
     void EDFilterBase::preallocStreams(unsigned int) {}
+    void EDFilterBase::preallocRuns(unsigned int) {}
+    void EDFilterBase::preallocRunsSummary(unsigned int) {}
     void EDFilterBase::preallocLumis(unsigned int) {}
     void EDFilterBase::preallocLumisSummary(unsigned int) {}
     void EDFilterBase::preallocate(PreallocationConfiguration const&) {}

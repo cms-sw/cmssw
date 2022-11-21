@@ -36,12 +36,6 @@ HGCalGeomParameters::HGCalGeomParameters() : sqrt3_(std::sqrt(3.0)) {
 #endif
 }
 
-HGCalGeomParameters::~HGCalGeomParameters() {
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters::destructed!!!";
-#endif
-}
-
 void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
                                               HGCalParameters& php,
                                               const std::string& sdTag1,

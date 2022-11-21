@@ -66,8 +66,9 @@ Serialization of Eigen data is not yet supported.
 The template shared by layouts and parameters are:
 - Byte aligment (defaulting to the nVidia GPU cache line size (128 bytes))
 - Alignment enforcement (`relaxed` or `enforced`). When enforced, the alignment will be checked at construction
-  time, and the accesses are done with compiler hinting (using the widely supported `__builtin_assume_aligned`
-  intrinsic).
+  time.~~, and the accesses are done with compiler hinting (using the widely supported `__builtin_assume_aligned`
+  intrinsic).~~ It turned out that hinting `nvcc` for alignement removed the benefit of more important `__restrict__`
+  hinting. The `__builtin_assume_aligned` is hence currently not use.
 
 In addition, the views also provide access parameters:
 - Restrict qualify: add restrict hints to read accesses, so that the compiler knows it can relax accesses to the

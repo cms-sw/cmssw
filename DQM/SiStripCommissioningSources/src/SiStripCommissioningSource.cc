@@ -76,6 +76,7 @@ SiStripCommissioningSource::SiStripCommissioningSource(const edm::ParameterSet& 
       base_(""),
       view_(pset.getUntrackedParameter<std::string>("View", "Default")),
       parameters_(pset) {
+  usesResource("DQMStore");
   inputModuleSummaryToken_ = consumes<SiStripEventSummary>(edm::InputTag(inputModuleLabelSummary_));
   digiVirginRawToken_ = mayConsume<edm::DetSetVector<SiStripRawDigi> >(edm::InputTag(inputModuleLabel_, "VirginRaw"));
   digiFineDelaySelectionToken_ =

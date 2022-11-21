@@ -62,6 +62,12 @@ TkTransientTrackingRecHitBuilderESProducer::TkTransientTrackingRecHitBuilderESPr
     ppToken_ = c.consumes(edm::ESInputTag("", pname));
   }
 
+  if (pname == "PixelCPEFast") {
+    edm::LogWarning("TkTransientTrackingRecHitBuilderESProducer")
+        << "\n\t\t WARNING!\n 'PixelCPEFast' has been chosen as PixelCPE choice.\n"
+        << " Track angles will NOT be used in the CPE estimation!\n";
+  }
+
   auto const mname = p.getParameter<std::string>("Matcher");
   if (mname != "Fake") {
     mpToken_ = c.consumes(edm::ESInputTag("", mname));

@@ -9,8 +9,6 @@
  *        if used seriously it needs to be optimized and used properly... 
  */
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
@@ -21,6 +19,7 @@
 class DetId;
 
 class TrackerTopology;
+class TrackerGeometry;
 
 class CheckHitPattern {
 public:
@@ -39,7 +38,7 @@ public:
   static void print(const reco::Track& track);
 
   // Create map indicating r/z values of all layers/disks.
-  void init(const edm::EventSetup& iSetup);
+  void init(const TrackerTopology* tTopo, const TrackerGeometry& geom, const TransientTrackBuilder& builder);
 
   // Return a pair<uint32, uint32> consisting of the numbers used by HitPattern to
   // identify subdetector and layer number respectively.
@@ -61,7 +60,7 @@ private:
   RZrangeMap rangeRorZ_;
 
   // Makes TransientTracks needed for vertex fitting.
-  edm::ESHandle<TransientTrackBuilder> trkTool_;
+  const TransientTrackBuilder* trkTool_ = nullptr;
 };
 
 #endif

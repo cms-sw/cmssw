@@ -45,7 +45,10 @@ process.source = cms.Source("PoolSource",
 
 process.jetComp = cms.EDAnalyzer("JetComparison",
     MinEnergy = cms.double(50.0),
-    outputFile = cms.untracked.string('fastjet50-120_full.root')
+)
+
+process.TFileService = cms.Service("TFileService",
+    fileName = cms.string('fastjet50-120_full.root')
 )
 
 process.p = cms.Path(process.jetComp)

@@ -36,8 +36,6 @@
 #include "DataFormats/METReco/interface/PUSubMETDataFwd.h"
 #include "DataFormats/METReco/interface/SigInputObj.h"  //PH: preserve 5_3_x dependence
 
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
-
 class NoPileUpPFMEtDataProducer : public edm::stream::EDProducer<> {
 public:
   NoPileUpPFMEtDataProducer(const edm::ParameterSet&);

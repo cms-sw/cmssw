@@ -38,28 +38,27 @@ inline DetId gluedId(const DetId& du) {
   return DetId(du.rawId() & mask);
 }
 
-CkfDebugger::CkfDebugger(edm::EventSetup const& es, edm::ConsumesCollector&& iC)
-    : trackerHitAssociatorConfig_(std::move(iC)), totSeeds(0) {
+CkfDebugger::CkfDebugger(edm::ConsumesCollector iC)
+    : theTrackerToken(iC.esConsumes()),
+      theFieldToken(iC.esConsumes()),
+      theTopoHandToken(iC.esConsumes()),
+      theNavToken(iC.esConsumes(edm::ESInputTag("", "SimpleNavigationSchool"))),
+      trackerHitAssociatorConfig_(std::move(iC)),
+      totSeeds(0) {}
+
+void CkfDebugger::setConditions(edm::EventSetup const& es) {
   file = new TFile("out.root", "recreate");
   hchi2seedAll = new TH1F("hchi2seedAll", "hchi2seedAll", 2000, 0, 200);
   hchi2seedProb = new TH1F("hchi2seedProb", "hchi2seedProb", 2000, 0, 200);
 
-  edm::ESHandle<TrackerGeometry> tracker;
-  es.get<TrackerDigiGeometryRecord>().get(tracker);
-  theTrackerGeom = &(*tracker);
+  theTrackerGeom = &es.getData(theTrackerToken);
 
-  edm::ESHandle<MagneticField> theField;
-  es.get<IdealMagneticFieldRecord>().get(theField);
-  theMagField = &(*theField);
+  theMagField = &es.getData(theFieldToken);
 
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHand;
-  es.get<IdealGeometryRecord>().get(tTopoHand);
-  theTopo = tTopoHand.product();
+  theTopo = &es.getData(theTopoHandToken);
 
-  edm::ESHandle<NavigationSchool> nav;
-  es.get<NavigationSchoolRecord>().get("SimpleNavigationSchool", nav);
-  theNavSchool = nav.product();
+  theNavSchool = &es.getData(theNavToken);
 
   for (int i = 0; i != 17; i++) {
     dump.push_back(0);

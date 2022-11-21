@@ -179,7 +179,7 @@ class StallMonitorParser(object):
 
         self._f = f
         if numStreams == 0:
-          numStreams = numStreamsFromSource +1
+          numStreams = numStreamsFromSource +2
         self.numStreams =numStreams
         self._moduleNames = moduleNames
         self._esModuleNames = esModuleNames

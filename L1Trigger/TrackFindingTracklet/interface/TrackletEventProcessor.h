@@ -7,7 +7,12 @@
 #include <map>
 #include <memory>
 #include <vector>
+#include <deque>
 #include <string>
+
+namespace tt {
+  class Setup;
+}
 
 namespace trklet {
 
@@ -17,6 +22,7 @@ namespace trklet {
   class Sector;
   class HistBase;
   class Track;
+  class StubStreamData;
 
   class TrackletEventProcessor {
   public:
@@ -24,9 +30,11 @@ namespace trklet {
 
     ~TrackletEventProcessor();
 
-    void init(Settings const& theSettings);
+    void init(Settings const& theSettings, const tt::Setup* setup = nullptr);
 
-    void event(SLHCEvent& ev);
+    void event(SLHCEvent& ev,
+               std::vector<std::vector<std::string>>& streamsTrackRaw,
+               std::vector<std::vector<StubStreamData>>& streamsStubRaw);
 
     void printSummary();
 
@@ -53,6 +61,7 @@ namespace trklet {
     Timer TEDTimer_;
     Timer TRETimer_;
     Timer TPTimer_;
+    Timer TPDTimer_;
     Timer TCTimer_;
     Timer TCDTimer_;
     Timer PRTimer_;

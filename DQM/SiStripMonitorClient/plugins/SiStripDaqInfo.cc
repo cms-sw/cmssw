@@ -1,18 +1,20 @@
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
-
-#include "SiStripDaqInfo.h"
+#include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
+#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
+#include "CondFormats/RunInfo/interface/RunInfo.h"
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
-
-//Run Info
-#include "CondFormats/RunInfo/interface/RunInfo.h"
-
-// FED cabling and numbering
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include <cassert>
 #include <cmath>
@@ -20,13 +22,58 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <string>
 #include <vector>
+#include <map>
+
+class SiStripFedCabling;
+class TrackerTopology;
+
+class SiStripDaqInfo : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchRuns> {
+public:
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+  typedef dqm::harvesting::DQMStore DQMStore;
+
+  SiStripDaqInfo(edm::ParameterSet const& ps);
+
+private:
+  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override{};
+
+  void readFedIds(const SiStripFedCabling* fedcabling, edm::EventSetup const& iSetup);
+  void readSubdetFedFractions(DQMStore& dqm_store, std::vector<int> const& fed_ids, edm::EventSetup const& iSetup);
+  void bookStatus(DQMStore& dqm_store);
+  void fillDummyStatus(DQMStore& dqm_store);
+  void findExcludedModule(DQMStore& dqm_store, unsigned short fed_id, TrackerTopology const* tTopo);
+
+  std::map<std::string, std::vector<unsigned short>> subDetFedMap_;
+
+  MonitorElement* daqFraction_{nullptr};
+
+  struct SubDetMEs {
+    MonitorElement* daqFractionME;
+    int connectedFeds;
+  };
+
+  std::map<std::string, SubDetMEs> subDetMEsMap_;
+
+  int nFedTotal_{};
+  bool bookedStatus_{false};
+
+  const SiStripFedCabling* fedCabling_;
+  edm::ESWatcher<SiStripFedCablingRcd> fedCablingWatcher_;
+  edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> fedCablingToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
+};
 
 SiStripDaqInfo::SiStripDaqInfo(edm::ParameterSet const&)
     : fedCablingToken_{esConsumes<edm::Transition::BeginRun>()},
       tTopoToken_{esConsumes<edm::Transition::BeginRun>()},
       runInfoToken_{esConsumes<edm::Transition::BeginRun>()} {
+  usesResource("DQMStore");
   edm::LogInfo("SiStripDaqInfo") << "SiStripDaqInfo::Deleting SiStripDaqInfo ";
 }
 

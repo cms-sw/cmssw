@@ -20,11 +20,11 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-class CompareToObjectMapRecord : public edm::EDAnalyzer {
+class CompareToObjectMapRecord : public edm::one::EDAnalyzer<> {
 public:
   explicit CompareToObjectMapRecord(const edm::ParameterSet &pset);
   ~CompareToObjectMapRecord() override;

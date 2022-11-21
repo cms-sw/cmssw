@@ -1,6 +1,6 @@
 <site-local-config>
 <site name="DUMMY">
-<subsite name="DUMMY_SUB_SITE">
+  <subsite name="DUMMY_SUB_SITE"/>
   <event-data>
     <catalog url="trivialcatalog_file:/dummy/storage.xml?protocol=dcap"/>
   </event-data>
@@ -18,6 +18,5 @@
       <proxy url="http://cmsfrontier.dummy.foo:3128"/>
     </frontier-connect>
   </calib-data>
-</subsite>
 </site>
 </site-local-config>

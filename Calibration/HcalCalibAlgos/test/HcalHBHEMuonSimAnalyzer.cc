@@ -97,7 +97,7 @@ HcalHBHEMuonSimAnalyzer::HcalHBHEMuonSimAnalyzer(const edm::ParameterSet& iConfi
       eeLabel_(iConfig.getParameter<std::string>("EECollection")),
       hcLabel_(iConfig.getParameter<std::string>("HCCollection")),
       verbosity_(iConfig.getUntrackedParameter<int>("Verbosity", 0)),
-      maxDepth_(iConfig.getUntrackedParameter<int>("MaxDepth", 4)),
+      maxDepth_(iConfig.getUntrackedParameter<int>("MaxDepth", 7)),
       etaMax_(iConfig.getUntrackedParameter<double>("EtaMax", 3.0)),
       tMinE_(iConfig.getUntrackedParameter<double>("TimeMinCutECAL", -500.)),
       tMaxE_(iConfig.getUntrackedParameter<double>("TimeMaxCutECAL", 500.)),
@@ -401,7 +401,7 @@ void HcalHBHEMuonSimAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<std::string>("EECollection", "EcalHitsEE");
   desc.add<std::string>("HCCollection", "HcalHits");
   desc.addUntracked<int>("Verbosity", 0);
-  desc.addUntracked<int>("MaxDepth", 4);
+  desc.addUntracked<int>("MaxDepth", 7);
   desc.addUntracked<double>("EtaMax", 3.0);
   desc.addUntracked<double>("TimeMinCutECAL", -500.);
   desc.addUntracked<double>("TimeMaxCutECAL", 500.);

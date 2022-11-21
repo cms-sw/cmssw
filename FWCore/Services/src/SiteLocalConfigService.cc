@@ -15,7 +15,6 @@
 #include <sstream>
 #include <memory>
 #include <boost/algorithm/string.hpp>
-
 //<<<<<< PRIVATE DEFINES                                                >>>>>>
 //<<<<<< PRIVATE CONSTANTS                                              >>>>>>
 //<<<<<< PRIVATE TYPES                                                  >>>>>>
@@ -192,19 +191,29 @@ namespace edm {
       if (aDataCatalog.site == aDataCatalog.storageSite) {
         //it is a site (no defined subSite), use local path given in SITECONFIG_PATH
         if (aDataCatalog.subSite.empty())
-          filename_storage = siteconfig_path + "/storage.json";
+          filename_storage = siteconfig_path;
         //it is a subsite, move one level up
         else
-          filename_storage = siteconfig_path + "/../storage.json";
+          filename_storage = siteconfig_path + "/..";
       } else {  //cross site
         //it is a site (no defined subSite), move one level up
         if (aDataCatalog.subSite.empty())
-          filename_storage = siteconfig_path + "/../" + aDataCatalog.storageSite + "/storage.json";
+          filename_storage = siteconfig_path + "/../" + aDataCatalog.storageSite;
         //it is a subsite, move two levels up
         else
-          filename_storage = siteconfig_path + "/../../" + aDataCatalog.storageSite + "/storage.json";
+          filename_storage = siteconfig_path + "/../../" + aDataCatalog.storageSite;
       }
-
+      filename_storage /= "storage.json";
+      try {
+        filename_storage = std::filesystem::canonical(filename_storage);
+      } catch (std::exception &e) {
+        cms::Exception ex("SiteLocalConfigService");
+        ex << "Fail to convert path to the storage description, " << filename_storage.string()
+           << ", to the canonical absolute path"
+           << ". Path exists?";
+        ex.addContext("edm::SiteLocalConfigService::storageDescriptionPath()");
+        throw ex;
+      }
       return filename_storage;
     }
 
@@ -341,7 +350,7 @@ namespace edm {
       // The Site Config has the following format
       // <site-local-config>
       // <site name="FNAL">
-      // <subsite name="FNAL_SUBSITE">
+      //   <subsite name="FNAL_SUBSITE"/>
       //   <event-data>
       //     <catalog url="trivialcatalog_file:/x/y/z.xml"/>
       //     <rfiotype value="castor"/>
@@ -365,7 +374,6 @@ namespace edm {
       //        <protocol prefix="file"/>
       //     </native-protocols>
       //   </source-config>
-      // </subsite>
       // </site>
       // </site-local-config>
 
@@ -378,13 +386,20 @@ namespace edm {
         // Parse the site name
         m_siteName = safe(site->Attribute("name"));
         m_subSiteName = std::string();
-        if (subSite)
+        if (subSite) {
+          //check to make sure subSite has no children
+          auto subSite_first_child = subSite->FirstChild();
+          if (subSite_first_child) {
+            cms::Exception ex("SiteLocalConfigService");
+            ex << "Invalid site-local-config.xml. Subsite node has children!";
+            ex.addContext("edm::SiteLocalConfigService::parse()");
+            throw ex;
+          }
           m_subSiteName = safe(subSite->Attribute("name"));
+        }
 
         // Parsing of the event data section
         auto eventData = site->FirstChildElement("event-data");
-        if (subSite)
-          eventData = subSite->FirstChildElement("event-data");
         if (eventData) {
           auto catalog = eventData->FirstChildElement("catalog");
           if (catalog) {
@@ -411,8 +426,6 @@ namespace edm {
         //2. if SUBSITE is empty, this is a site. Otherwise, this is a subsite. These are used to define the path to locate the storage.json in FileLocator. This path is provided by storageDescriptionPath() method of this class.
         //get data-access
         auto dataAccess = site->FirstChildElement("data-access");
-        if (subSite)
-          dataAccess = subSite->FirstChildElement("data-access");
         if (dataAccess) {
           //get catalogs
           auto catalog = dataAccess->FirstChildElement("catalog");
@@ -432,8 +445,6 @@ namespace edm {
 
         // Parsing of the calib-data section
         auto calibData = site->FirstChildElement("calib-data");
-        if (subSite)
-          calibData = subSite->FirstChildElement("calib-data");
 
         if (calibData) {
           auto frontierConnect = calibData->FirstChildElement("frontier-connect");
@@ -458,8 +469,6 @@ namespace edm {
 
         // Parsing of the source config section
         auto sourceConfig = site->FirstChildElement("source-config");
-        if (subSite)
-          sourceConfig = subSite->FirstChildElement("source-config");
 
         if (sourceConfig) {
           auto cacheTempDir = sourceConfig->FirstChildElement("cache-temp-dir");

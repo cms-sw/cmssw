@@ -84,7 +84,7 @@ namespace mkfit {
     constexpr int Niter = 5;
     constexpr bool useTrigApprox = true;
 
-    // Config for Bfield. Note: for now the same for CMS-2017 and CylCowWLids.
+    // Config for Bfield. Note: for now the same for CMS-phase1 and CylCowWLids.
     constexpr float Bfield = 3.8112;
     constexpr float mag_c1 = 3.8114;
     constexpr float mag_b0 = -3.94991e-06;

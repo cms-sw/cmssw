@@ -205,8 +205,8 @@ namespace edm {
 
   void PileUp::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
     if (provider_.get() != nullptr) {
-      auto aux = std::make_shared<RunAuxiliary>(run.runAuxiliary());
-      runPrincipal_.reset(new RunPrincipal(aux, productRegistry_, *processConfiguration_, nullptr, 0));
+      runPrincipal_.reset(new RunPrincipal(productRegistry_, *processConfiguration_, nullptr, 0));
+      runPrincipal_->setAux(run.runAuxiliary());
       provider_->beginRun(*runPrincipal_, setup.impl(), run.moduleCallingContext(), *streamContext_);
     }
   }

@@ -5,7 +5,6 @@ beamSpotTable = cms.EDProducer("SimpleBeamspotFlatTableProducer",
     src = cms.InputTag("offlineBeamSpot"),
     name = cms.string("BeamSpot"),
     doc = cms.string("offlineBeamSpot, the offline reconstructed beamspot"),
-    singleton = cms.bool(True),  # there's always exactly one MET per event
     extension = cms.bool(False), # this is the main table for the MET
     variables = cms.PSet(
        type = Var("type()","int8",doc="BeamSpot type (Unknown = -1, Fake = 0, LHC = 1, Tracker = 2)"),
@@ -37,10 +36,8 @@ puTable = cms.EDProducer("NPUTablesProducer",
 
 genTable  = cms.EDProducer("SimpleGenEventFlatTableProducer",
         src = cms.InputTag("generator"),
-        cut = cms.string(""), 
         name= cms.string("Generator"),
         doc = cms.string("Generator information"),
-        singleton = cms.bool(True), 
         extension = cms.bool(False),
     variables = cms.PSet(
         x1 = Var( "?hasPDF?pdf().x.first:-1", float, doc="x1 fraction of proton momentum carried by the first parton",precision=14 ),
@@ -57,10 +54,8 @@ genTable  = cms.EDProducer("SimpleGenEventFlatTableProducer",
 
 genFilterTable = cms.EDProducer("SimpleGenFilterFlatTableProducerLumi",
         src = cms.InputTag("genFilterEfficiencyProducer"),
-        cut = cms.string(""), 
         name= cms.string("GenFilter"),
         doc = cms.string("Generator filter information"),
-        singleton = cms.bool(True), 
         extension = cms.bool(False),
     variables = cms.PSet(
         numEventsTotal        = Var("numEventsTotal()",        int,   doc="generator filter: total number of events",  precision=6),

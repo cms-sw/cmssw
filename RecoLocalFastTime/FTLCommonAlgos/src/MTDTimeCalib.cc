@@ -42,7 +42,7 @@ float MTDTimeCalib::getTimeCalib(const MTDDetId& id) const {
     if (btlL == BTLDetId::CrysLayout::tile) {
       time_calib -= btlLightCollTime_;  //simply remove the offset introduced at sim level
     } else if (btlL == BTLDetId::CrysLayout::bar || btlL == BTLDetId::CrysLayout::barphiflat ||
-               btlL == BTLDetId::CrysLayout::tdr) {
+               btlL == BTLDetId::CrysLayout::v2) {
       //for bars in phi
       time_calib -= 0.5 * topo.pitch().first * btlLightCollSlope_;  //time offset for bar time is L/2v
     } else if (btlL == BTLDetId::CrysLayout::barzflat) {

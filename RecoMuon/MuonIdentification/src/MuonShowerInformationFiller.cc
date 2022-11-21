@@ -908,7 +908,6 @@ void MuonShowerInformationFiller::fillHitsByStation(const reco::Muon& muon) {
     if (!muonRecHitsPhiBest.empty()) {
       muonRecHits[stat] = muonRecHitsPhiBest;
       stable_sort(muonRecHits[stat].begin(), muonRecHits[stat].end(), LessAbsMag());
-      muonRecHits[stat].front();
       GlobalPoint refpoint = muonRecHits[stat].front()->globalPosition();
       theStationShowerTSize.at(stat) = refpoint.mag() * dphimax;
     }

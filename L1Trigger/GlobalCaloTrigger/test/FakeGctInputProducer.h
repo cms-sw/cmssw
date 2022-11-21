@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -29,13 +29,12 @@
 // class decleration
 //
 
-class FakeGctInputProducer : public edm::EDProducer {
+class FakeGctInputProducer : public edm::global::EDProducer<> {
 public:
   explicit FakeGctInputProducer(const edm::ParameterSet&);
-  ~FakeGctInputProducer();
 
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   int rgnMode_;
   int iemMode_;

@@ -104,6 +104,10 @@ def customisePostEra_Run3_pp_on_PbPb(process):
     customisePostEra_Run3(process)
     return process
 
+def customisePostEra_Run3_pp_on_PbPb_approxSiStripClusters(process):
+    customisePostEra_Run3_pp_on_PbPb(process)
+    return process
+
 
 ##############################################################################
 def customisePPData(process):

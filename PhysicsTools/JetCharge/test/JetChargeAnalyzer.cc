@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -19,7 +19,7 @@
 #include <TH1.h>
 #include <string>
 
-class JetChargeAnalyzer : public edm::EDAnalyzer {
+class JetChargeAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   struct JetRefCompare {
     inline bool operator()(const edm::RefToBase<reco::Jet>& j1, const edm::RefToBase<reco::Jet>& j2) const {
@@ -46,13 +46,14 @@ private:
 };
 
 const int pdgIds[12] = {0, 1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 21};
-const char* pdgs[12] = {"?", "u", "-u", "d", "-d", "s", "-s", "c", "-c", "b", "-b", "g"};
+const char* const pdgs[12] = {"?", "u", "-u", "d", "-d", "s", "-s", "c", "-c", "b", "-b", "g"};
 
 JetChargeAnalyzer::JetChargeAnalyzer(const edm::ParameterSet& iConfig)
     : srcToken_(consumes<JetChargeCollection>(iConfig.getParameter<edm::InputTag>("src"))),
       jetMCSrcToken_(consumes<reco::JetFlavourMatchingCollection>(iConfig.getParameter<edm::InputTag>("jetFlavour"))),
       minET_(iConfig.getParameter<double>("minET")),
       dir_(iConfig.getParameter<std::string>("dir")) {
+  usesResource(TFileService::kSharedResource);
   edm::Service<TFileService> fs;
   TFileDirectory cwd = fs->mkdir(dir_.c_str());
   char buff[255], biff[255];

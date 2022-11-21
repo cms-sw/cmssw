@@ -26,17 +26,14 @@ class Hector;
 namespace HepMC {
   class GenEvent;
 }
-class HectorProducer : public edm::one::EDProducer<edm::one::SharedResources, edm::one::WatchRuns> {
+class HectorProducer : public edm::one::EDProducer<edm::one::SharedResources> {
 public:
   explicit HectorProducer(edm::ParameterSet const &p);
   ~HectorProducer() override;
-  void beginRun(const edm::Run &r, const edm::EventSetup &c) override;
-  void endRun(const edm::Run &r, const edm::EventSetup &c) override;
   void produce(edm::Event &e, const edm::EventSetup &c) override;
 
 private:
-  HepMC::GenEvent *evt_;
-  Hector *m_Hector;
+  std::unique_ptr<Hector> m_Hector;
 
   edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> tok_pdt_;
   edm::EDGetTokenT<edm::HepMCProduct> m_HepMC;

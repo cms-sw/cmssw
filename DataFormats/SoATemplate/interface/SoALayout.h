@@ -581,17 +581,6 @@
         throw std::runtime_error("In " #CLASS "::" #CLASS ": unexpected end pointer.");                                \
     }                                                                                                                  \
                                                                                                                        \
-    /* Range checker conditional to the macro _DO_RANGECHECK */                                                        \
-    SOA_HOST_DEVICE SOA_INLINE                                                                                         \
-    void rangeCheck(size_type index) const {                                                                           \
-      if constexpr (_DO_RANGECHECK) {                                                                                  \
-        if (index >= elements_) {                                                                                      \
-          printf("In " #CLASS "::rangeCheck(): index out of range: %zu with elements: %zu\n", index, elements_);       \
-          assert(false);                                                                                               \
-        }                                                                                                              \
-      }                                                                                                                \
-    }                                                                                                                  \
-                                                                                                                       \
     /* Data members */                                                                                                 \
     std::byte* mem_;                                                                                                   \
     size_type elements_;                                                                                               \

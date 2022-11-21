@@ -1,1 +1,2 @@
 <test name="testDiamondLUTCalibration" command="test_timing_LUT_cal.sh"/>
+<test name="testHptdcPcl" command="test_hptdc_pcl.sh"/>

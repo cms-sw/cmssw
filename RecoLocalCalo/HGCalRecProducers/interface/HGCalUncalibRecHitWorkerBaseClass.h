@@ -4,6 +4,7 @@
 #include "DataFormats/HGCRecHit/interface/HGCRecHitCollections.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 
 namespace edm {
   class Event;
@@ -18,22 +19,24 @@ public:
   HGCalUncalibRecHitWorkerBaseClass(const edm::ParameterSet& ps, edm::ConsumesCollector iC) {}
   virtual ~HGCalUncalibRecHitWorkerBaseClass() {}
 
-  // do event setup things
-  virtual void set(const edm::EventSetup& es) = 0;
-
   // run HGC-EE things
-  virtual bool runHGCEE(const HGCalDigiCollection::const_iterator& digi, HGCeeUncalibratedRecHitCollection& result) = 0;
+  virtual bool runHGCEE(const edm::ESHandle<HGCalGeometry>& geom,
+                        const HGCalDigiCollection& digis,
+                        HGCeeUncalibratedRecHitCollection& result) = 0;
 
   // run HGC-FH things
-  virtual bool runHGCHEsil(const HGCalDigiCollection::const_iterator& digi,
+  virtual bool runHGCHEsil(const edm::ESHandle<HGCalGeometry>& geom,
+                           const HGCalDigiCollection& digis,
                            HGChefUncalibratedRecHitCollection& result) = 0;
 
   // run HGC-BH things
-  virtual bool runHGCHEscint(const HGCalDigiCollection::const_iterator& digi,
+  virtual bool runHGCHEscint(const edm::ESHandle<HGCalGeometry>& geom,
+                             const HGCalDigiCollection& digis,
                              HGChebUncalibratedRecHitCollection& result) = 0;
 
   // run HFNose things
-  virtual bool runHGCHFNose(const HGCalDigiCollection::const_iterator& digi,
+  virtual bool runHGCHFNose(const edm::ESHandle<HGCalGeometry>& geom,
+                            const HGCalDigiCollection& digis,
                             HGChfnoseUncalibratedRecHitCollection& result) = 0;
 };
 

@@ -1,7 +1,7 @@
 #ifndef RecoTBCalo_EcalTBTDCReconstructor_EcalTBTDCRawInfoDumper_HH
 #define RecoTBCalo_EcalTBTDCReconstructor_EcalTBTDCRawInfoDumper_HH
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -14,7 +14,7 @@
 #include "TH1.h"
 #include "TGraph.h"
 #include "TH2.h"
-class EcalTBTDCRawInfoDumper : public edm::EDAnalyzer {
+class EcalTBTDCRawInfoDumper : public edm::one::EDAnalyzer<> {
 public:
   explicit EcalTBTDCRawInfoDumper(const edm::ParameterSet& ps);
   ~EcalTBTDCRawInfoDumper() override;

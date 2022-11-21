@@ -173,7 +173,7 @@ void DeregionizerProducer::setRefs_(l1t::PFCandidate &pf, const l1ct::PuppiObjEm
 void DeregionizerProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   // DeregionizerProducer
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("RegionalPuppiCands", edm::InputTag("l1ctLayer1", "PuppiRegional"));
+  desc.add<edm::InputTag>("RegionalPuppiCands", edm::InputTag("l1tLayer1", "PuppiRegional"));
   desc.add<unsigned int>("nPuppiFinalBuffer", 128);
   desc.add<unsigned int>("nPuppiPerClk", 6);
   desc.add<unsigned int>("nPuppiFirstBuffers", 12);

@@ -1,7 +1,7 @@
 #ifndef RecoTBCalo_EcalTBHodoscopeReconstructor_EcalTBHodoscopeRawInfoDumper_HH
 #define RecoTBCalo_EcalTBHodoscopeReconstructor_EcalTBHodoscopeRawInfoDumper_HH
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -14,7 +14,7 @@
 #include "TH1.h"
 #include "TGraph.h"
 #include "TH2.h"
-class EcalTBHodoscopeRawInfoDumper : public edm::EDAnalyzer {
+class EcalTBHodoscopeRawInfoDumper : public edm::one::EDAnalyzer<> {
 public:
   explicit EcalTBHodoscopeRawInfoDumper(const edm::ParameterSet& ps);
   ~EcalTBHodoscopeRawInfoDumper() override;

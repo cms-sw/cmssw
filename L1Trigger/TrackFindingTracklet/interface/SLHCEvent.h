@@ -1,4 +1,7 @@
-// This holds two classes: L1SimTrack (truth level simulated track), and SLHCEvent (support for maintaining standalone running)
+// This class stores all the L1SimTracks (truth-level simulated track)
+// & reconstructed stubs using CMSSW independent containers,
+// to support standalone running.
+
 #ifndef L1Trigger_TrackFindingTracklet_interface_SLHCEvent_h
 #define L1Trigger_TrackFindingTracklet_interface_SLHCEvent_h
 
@@ -34,12 +37,16 @@ namespace trklet {
                  std::string stubword,
                  int isPSmodule,
                  int isFlipped,
+                 bool tiltedBarrel,
+                 unsigned int tiltedRingId,
+                 unsigned int endcapRingId,
+                 unsigned int detId,
                  double x,
                  double y,
                  double z,
                  double bend,
                  double strip,
-                 std::vector<int> tps);
+                 std::vector<int> tpstt);
 
     const L1TStub& lastStub() const { return stubs_.back(); }
 

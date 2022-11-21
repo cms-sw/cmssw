@@ -21,8 +21,6 @@ namespace edm {
                                 EventSetupsController& esController,
                                 EventSetupProvider& cp,
                                 ParameterSet& params);
-
-    void validateEventSetupParameters(ParameterSet& pset);
   }  // namespace eventsetup
 }  // namespace edm
 #endif

@@ -155,7 +155,7 @@ namespace trklet {
                         double phiderdisk[5],
                         double rderdisk[5]);
 
-  private:
+  protected:
     int TCIndex_;
     int layer_;
     int disk_;

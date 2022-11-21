@@ -29,7 +29,7 @@
 class HGCalGeomParameters {
 public:
   HGCalGeomParameters();
-  ~HGCalGeomParameters();
+  ~HGCalGeomParameters() = default;
 
   void loadGeometryHexagon(const DDFilteredView& _fv,
                            HGCalParameters& php,

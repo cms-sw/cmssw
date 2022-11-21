@@ -52,7 +52,7 @@
 class EcalLaserAnalyzerYousi : public edm::one::EDAnalyzer<> {
 public:
   explicit EcalLaserAnalyzerYousi(const edm::ParameterSet &);
-  ~EcalLaserAnalyzerYousi() override;
+  ~EcalLaserAnalyzerYousi() override = default;
 
 private:
   void beginJob() override;
@@ -94,15 +94,18 @@ private:
 
   //parameters
 
-  std::string hitCollection_;
-  std::string hitProducer_;
+  const std::string hitCollection_;
+  const std::string hitProducer_;
   //  std::string PNFileName_ ;
   //  std::string ABFileName_ ;
-  std::string outFileName_;
-  std::string SM_;
-  std::string Run_;
-  std::string digiProducer_;
-  std::string PNdigiCollection_;
+  const std::string outFileName_;
+  const std::string SM_;
+  const std::string Run_;
+  const std::string digiProducer_;
+  const std::string PNdigiCollection_;
+  const edm::EDGetTokenT<EcalRawDataCollection> rawDataToken_;
+  const edm::EDGetTokenT<EBUncalibratedRecHitCollection> hitToken_;
+  const edm::EDGetTokenT<EcalPnDiodeDigiCollection> pnDigiToken_;
 };
 
 //
@@ -116,25 +119,23 @@ private:
 //
 // constructors and destructor
 //
-EcalLaserAnalyzerYousi::EcalLaserAnalyzerYousi(const edm::ParameterSet &iConfig) {
+EcalLaserAnalyzerYousi::EcalLaserAnalyzerYousi(const edm::ParameterSet &iConfig)
+    : hitCollection_(iConfig.getUntrackedParameter<std::string>("hitCollection")),
+      hitProducer_(iConfig.getUntrackedParameter<std::string>("hitProducer")),
+      outFileName_(iConfig.getUntrackedParameter<std::string>("outFileName")),
+      SM_(iConfig.getUntrackedParameter<std::string>("SM")),
+      Run_(iConfig.getUntrackedParameter<std::string>("Run")),
+      digiProducer_(iConfig.getUntrackedParameter<std::string>("digiProducer")),
+      PNdigiCollection_(iConfig.getUntrackedParameter<std::string>("PNdigiCollection")),
+      rawDataToken_(consumes<EcalRawDataCollection>(edm::InputTag(digiProducer_))),
+      hitToken_(consumes<EBUncalibratedRecHitCollection>(edm::InputTag(hitProducer_, hitCollection_))),
+      pnDigiToken_(consumes<EcalPnDiodeDigiCollection>(edm::InputTag(digiProducer_, PNdigiCollection_))) {
   //now do what ever initialization is needed
   //get the PN and AB file names
   //get the output file names, digi producers, etc
 
-  hitCollection_ = iConfig.getUntrackedParameter<std::string>("hitCollection");
-  hitProducer_ = iConfig.getUntrackedParameter<std::string>("hitProducer");
   //  PNFileName_ = iConfig.getUntrackedParameter<std::string>("PNFileName");
   //  ABFileName_ = iConfig.getUntrackedParameter<std::string>("ABFileName");
-  outFileName_ = iConfig.getUntrackedParameter<std::string>("outFileName");
-  SM_ = iConfig.getUntrackedParameter<std::string>("SM");
-  Run_ = iConfig.getUntrackedParameter<std::string>("Run");
-  digiProducer_ = iConfig.getUntrackedParameter<std::string>("digiProducer");
-  PNdigiCollection_ = iConfig.getUntrackedParameter<std::string>("PNdigiCollection");
-}
-
-EcalLaserAnalyzerYousi::~EcalLaserAnalyzerYousi() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -147,8 +148,7 @@ void EcalLaserAnalyzerYousi::analyze(const edm::Event &iEvent, const edm::EventS
 
   //  if ( fPN->IsOpen() ) { edm::LogInfo("EcalLaserAnalyzerYousi") <<"fPN is open in analyze OKAAAAAAAAYYY \n\n"; }
 
-  edm::Handle<EcalRawDataCollection> DCCHeaders;
-  iEvent.getByLabel(digiProducer_, DCCHeaders);
+  const edm::Handle<EcalRawDataCollection> &DCCHeaders = iEvent.getHandle(rawDataToken_);
 
   EcalDCCHeaderBlock::EcalDCCEventSettings settings = DCCHeaders->begin()->getEventSettings();
 
@@ -160,28 +160,18 @@ void EcalLaserAnalyzerYousi::analyze(const edm::Event &iEvent, const edm::EventS
     return;
   }  //only process blue laser
 
-  edm::Handle<EBUncalibratedRecHitCollection> hits;
+  const edm::Handle<EBUncalibratedRecHitCollection> &hits = iEvent.getHandle(hitToken_);
 
-  try {
-    iEvent.getByLabel(hitProducer_, hitCollection_, hits);
-    //     iEvent.getByType(hits);
-  } catch (std::exception &ex) {
-    LogError("EcalLaserAnalyzerYousi") << "Cannot get product:  EBRecHitCollection from: " << hitCollection_
-                                       << " - returning.\n\n";
-    //    return;
+  if (!hits.isValid()) {
+    edm::LogError("EcalLaserAnalyzerYousi")
+        << "Cannot get product:  EBRecHitCollection from: " << hitCollection_ << " - returning.\n\n";
+    return;
   }
 
-  edm::Handle<EcalPnDiodeDigiCollection> pndigis;
-
-  try {
-    //     iEvent.getByLabel(hitProducer_, hits);
-    iEvent.getByLabel(digiProducer_, PNdigiCollection_, pndigis);
-    //iEvent.getByType( pndigis );
-  } catch (std::exception &ex) {
-    LogError("EcalLaserAnalyzerYousi") << "Cannot get product:  EBdigiCollection from: "
-                                       << "getbytype"
-                                       << " - returning.\n\n";
-    //    return;
+  const edm::Handle<EcalPnDiodeDigiCollection> &pndigis = iEvent.getHandle(pnDigiToken_);
+  if (!pndigis.isValid()) {
+    edm::LogError("EcalLaserAnalyzerYousi") << "Cannot get product:  EBdigiCollection from: getHandle - returning.\n\n";
+    return;
   }
 
   Float_t PN_amp[5];

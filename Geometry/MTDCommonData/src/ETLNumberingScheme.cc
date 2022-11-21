@@ -1,9 +1,11 @@
+//#define EDM_ML_DEBUG
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "Geometry/MTDCommonData/interface/ETLNumberingScheme.h"
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 
 #include <iostream>
-
-//#define EDM_ML_DEBUG
 
 ETLNumberingScheme::ETLNumberingScheme() : MTDNumberingScheme() {
 #ifdef EDM_ML_DEBUG

@@ -30,6 +30,7 @@ BeamConditionsMonitor::BeamConditionsMonitor(const ParameterSet& ps) : countEvt_
   bsSrc_ = parameters_.getUntrackedParameter<InputTag>("beamSpot");
   debug_ = parameters_.getUntrackedParameter<bool>("Debug");
   beamSpotToken_ = esConsumes();
+  usesResource("DQMStore");
   dbe_ = Service<DQMStore>().operator->();
 
   if (!monitorName_.empty())

@@ -1,54 +1,36 @@
+#include "FastSimulation/Muons/plugins/FastTSGFromL2Muon.h"
+
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
-
 #include "RecoMuon/GlobalTrackingTools/interface/MuonTrackingRegionBuilder.h"
-
-#include "FastSimulation/Muons/plugins/FastTSGFromL2Muon.h"
-
-//#include <TH1.h>
 
 #include <set>
 
-FastTSGFromL2Muon::FastTSGFromL2Muon(const edm::ParameterSet& cfg) {
+FastTSGFromL2Muon::FastTSGFromL2Muon(const edm::ParameterSet& cfg)
+    : thePtCut(cfg.getParameter<double>("PtCut")),
+      theL2CollectionLabel(cfg.getParameter<edm::InputTag>("MuonCollectionLabel")),
+      theSeedCollectionLabels(cfg.getParameter<std::vector<edm::InputTag> >("SeedCollectionLabels")),
+      theSimTrackCollectionLabel(cfg.getParameter<edm::InputTag>("SimTrackCollectionLabel")),
+      simTrackToken_(consumes<edm::SimTrackContainer>(theSimTrackCollectionLabel)),
+      l2TrackToken_(consumes<reco::TrackCollection>(theL2CollectionLabel)) {
   produces<L3MuonTrajectorySeedCollection>();
 
-  edm::ParameterSet serviceParameters = cfg.getParameter<edm::ParameterSet>("ServiceParameters");
+  for (auto& seed : theSeedCollectionLabels)
+    seedToken_.emplace_back(consumes<edm::View<TrajectorySeed> >(seed));
 
-  thePtCut = cfg.getParameter<double>("PtCut");
-
-  theL2CollectionLabel = cfg.getParameter<edm::InputTag>("MuonCollectionLabel");
-  theSeedCollectionLabels = cfg.getParameter<std::vector<edm::InputTag> >("SeedCollectionLabels");
-  theSimTrackCollectionLabel = cfg.getParameter<edm::InputTag>("SimTrackCollectionLabel");
-  // useTFileService_ = cfg.getUntrackedParameter<bool>("UseTFileService",false);
   edm::ParameterSet regionBuilderPSet = cfg.getParameter<edm::ParameterSet>("MuonTrackingRegionBuilder");
   theRegionBuilder = std::make_unique<MuonTrackingRegionBuilder>(regionBuilderPSet, consumesCollector());
 }
 
-FastTSGFromL2Muon::~FastTSGFromL2Muon() {}
-
 void FastTSGFromL2Muon::beginRun(edm::Run const& run, edm::EventSetup const& es) {
   //region builder
-
-  /*
-  if(useTFileService_) {
-    edm::Service<TFileService> fs;
-    h_nSeedPerTrack = fs->make<TH1F>("nSeedPerTrack","nSeedPerTrack",76,-0.5,75.5);
-    h_nGoodSeedPerTrack = fs->make<TH1F>("nGoodSeedPerTrack","nGoodSeedPerTrack",75,-0.5,75.5);
-    h_nGoodSeedPerEvent = fs->make<TH1F>("nGoodSeedPerEvent","nGoodSeedPerEvent",75,-0.5,75.5);
-  } else {
-    h_nSeedPerTrack = 0;
-    h_nGoodSeedPerEvent = 0;
-    h_nGoodSeedPerTrack = 0;
-  }
-  */
 }
 
 void FastTSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es) {
@@ -59,12 +41,10 @@ void FastTSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es) {
   theRegionBuilder->setEvent(ev, es);
 
   // Retrieve the Monte Carlo truth (SimTracks)
-  edm::Handle<edm::SimTrackContainer> theSimTracks;
-  ev.getByLabel(theSimTrackCollectionLabel, theSimTracks);
+  const edm::Handle<edm::SimTrackContainer>& theSimTracks = ev.getHandle(simTrackToken_);
 
   // Retrieve L2 muon collection
-  edm::Handle<reco::TrackCollection> l2muonH;
-  ev.getByLabel(theL2CollectionLabel, l2muonH);
+  const edm::Handle<reco::TrackCollection>& l2muonH = ev.getHandle(l2TrackToken_);
 
   // Retrieve Seed collection
   unsigned seedCollections = theSeedCollectionLabels.size();
@@ -72,14 +52,14 @@ void FastTSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es) {
   theSeeds.resize(seedCollections);
   unsigned seed_size = 0;
   for (unsigned iseed = 0; iseed < seedCollections; ++iseed) {
-    ev.getByLabel(theSeedCollectionLabels[iseed], theSeeds[iseed]);
+    ev.getByToken(seedToken_[iseed], theSeeds[iseed]);
     seed_size += theSeeds[iseed]->size();
   }
 
   // Loop on L2 muons
   unsigned int imu = 0;
   unsigned int imuMax = l2muonH->size();
-  // std::cout << "Found " << imuMax << " L2 muons" << std::endl;
+  edm::LogVerbatim("FastTSGFromL2Muon") << "Found " << imuMax << " L2 muons";
   for (; imu != imuMax; ++imu) {
     // Make a ref to l2 muon
     reco::TrackRef muRef(l2muonH, imu);
@@ -120,12 +100,6 @@ void FastTSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es) {
 
     }  // End loop on seed collections
 
-    // A plot
-    // if(h_nSeedPerTrack) h_nSeedPerTrack->Fill(tkSeeds.size());
-
-    // Another plot
-    // if(h_nGoodSeedPerTrack) h_nGoodSeedPerTrack->Fill(tkSeeds.size());
-
     // Now create the Muon Trajectory Seed
     unsigned int is = 0;
     unsigned int isMax = tkSeeds.size();
@@ -135,10 +109,7 @@ void FastTSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es) {
 
   }  // End of l2 muon loop
 
-  // std::cout << "Found " << result->size() << " seeds for muons" << std::endl;
-
-  // And yet another plot
-  // if(h_nGoodSeedPerEvent) h_nGoodSeedPerEvent->Fill(result->size());
+  edm::LogVerbatim("FastTSGFromL2Muon") << "Found " << result->size() << " seeds for muons";
 
   //put in the event
   ev.put(std::move(result));

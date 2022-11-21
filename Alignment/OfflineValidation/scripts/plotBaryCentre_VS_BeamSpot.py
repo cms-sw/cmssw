@@ -10,6 +10,7 @@ import ROOT
 ROOT.gSystem.Load("libFWCoreFWLite.so")
 
 import CondCore.Utilities.conddblib as conddb
+import Alignment.OfflineValidation.TkAlAllInOneTool.findAndChange as fnc
 
 # 1/lumiScaleFactor to go from 1/pb to 1/fb
 lumiScaleFactor = 1000
@@ -433,9 +434,8 @@ def Run():
     lastRun = 1
 
     # get lumi per IOV
-    CMSSW_Dir = os.getenv("CMSSW_BASE")
     for year in years :
-        inputLumiFile = CMSSW_Dir + "/src/Alignment/OfflineValidation/data/lumiperrun"+str(year)+".txt"
+        inputLumiFile = fnc.digest_path("Alignment/OfflineValidation/data/lumiperrun"+str(year)+".txt")
         if os.path.isfile(inputLumiFile) == False :
            print ("File "+inputLumiFile+" not exist!")
            return -1

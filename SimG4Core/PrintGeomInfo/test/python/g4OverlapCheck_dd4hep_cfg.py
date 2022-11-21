@@ -1,3 +1,10 @@
+###############################################################################
+# Way to use this:
+#   cmsRun g4OverlapCheck_dd4hep_cfg.py tol=0.1
+#
+#   Options for tol 0.01, 0.1, 1.0
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 

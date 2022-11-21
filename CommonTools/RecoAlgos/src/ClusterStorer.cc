@@ -166,7 +166,7 @@ namespace helper {
       SiStripMatchedRecHit2D &mhit = static_cast<SiStripMatchedRecHit2D &>(genericHit);
       cluRef = (SiStripDetId(detid_).stereo() ? &mhit.stereoClusterRef() : &mhit.monoClusterRef());
     } else if (typeid(ProjectedSiStripRecHit2D) == hit_type) {
-      cluRef = &static_cast<ProjectedSiStripRecHit2D &>(genericHit).originalHit().omniCluster();
+      cluRef = &static_cast<ProjectedSiStripRecHit2D &>(genericHit).omniCluster();
     }
 
     assert(cluRef != nullptr);            // to catch missing RecHit types

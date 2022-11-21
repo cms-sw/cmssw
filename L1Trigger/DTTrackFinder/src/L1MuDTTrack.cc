@@ -166,19 +166,6 @@ void L1MuDTTrack::setTSeta(const vector<const L1MuDTTrackSegEta*>& tsList) {
 }
 
 //
-// convert pt value in GeV to pt code
-//
-unsigned int L1MuDTTrack::triggerScale(float value, const edm::EventSetup& c) const {
-  const float eps = 1.e-5;  // add an epsilon so that setting works with low edge value
-
-  edm::ESHandle<L1MuTriggerPtScale> theTriggerScales;
-  c.get<L1MuTriggerPtScaleRcd>().get(theTriggerScales);
-  unsigned int t_Scale = theTriggerScales->getPtScale()->getPacked(value + eps);
-
-  return t_Scale;
-}
-
-//
 // Assignment operator
 //
 L1MuDTTrack& L1MuDTTrack::operator=(const L1MuDTTrack& track) {

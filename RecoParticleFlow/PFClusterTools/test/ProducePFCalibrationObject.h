@@ -10,7 +10,7 @@
  *  \Original author G. Cerminara - CERN
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
 #include "CondFormats/DataRecord/interface/PFCalibrationRcd.h"
@@ -18,20 +18,19 @@
 #include <vector>
 #include <string>
 
-class ProducePFCalibrationObject : public edm::EDAnalyzer {
+class ProducePFCalibrationObject : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   /// Constructor
   ProducePFCalibrationObject(const edm::ParameterSet&);
 
   /// Destructor
-  virtual ~ProducePFCalibrationObject();
+  ~ProducePFCalibrationObject() override;
 
   // Operations
-  //   virtual void beginJob();
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& eSetup);
+  void beginRun(const edm::Run& run, const edm::EventSetup& eSetup) override;
+  void endRun(const edm::Run& run, const edm::EventSetup& eSetup) override {}
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) {}
-  virtual void endJob() {}
+  void analyze(const edm::Event&, const edm::EventSetup&) override {}
 
 protected:
 private:

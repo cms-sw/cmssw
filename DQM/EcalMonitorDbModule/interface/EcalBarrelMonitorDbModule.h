@@ -10,7 +10,7 @@
 
 #include <string>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -21,7 +21,7 @@
 
 class MonitorElementsDb;
 
-class EcalBarrelMonitorDbModule : public edm::EDAnalyzer {
+class EcalBarrelMonitorDbModule : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;

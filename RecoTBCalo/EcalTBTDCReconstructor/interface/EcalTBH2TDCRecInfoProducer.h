@@ -1,7 +1,7 @@
 #ifndef RecoTBCalo_EcalTBTDCReconstructor_EcalTBH2TDCRecInfoProducer_HH
 #define RecoTBCalo_EcalTBTDCReconstructor_EcalTBH2TDCRecInfoProducer_HH
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -12,7 +12,7 @@
 
 #include <vector>
 
-class EcalTBH2TDCRecInfoProducer : public edm::EDProducer {
+class EcalTBH2TDCRecInfoProducer : public edm::stream::EDProducer<> {
 public:
   explicit EcalTBH2TDCRecInfoProducer(const edm::ParameterSet& ps);
   ~EcalTBH2TDCRecInfoProducer() override;

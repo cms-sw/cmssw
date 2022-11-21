@@ -48,7 +48,7 @@ isr_X2XG_cNS_up isr:X2XG:cNS=2.0}',
         'UncertaintyBands:overSampleFSR = 10.0',
         'UncertaintyBands:overSampleISR = 10.0',
         'UncertaintyBands:FSRpTmin2Fac = 20',
-        'UncertaintyBands:ISRpTmin2Fac = 1'
+        'UncertaintyBands:ISRpTmin2Fac = 20' # for consistency with UL and P8.240 set to 20, to be optimized and changed for Run 3 re-MC  
         )
 )
 

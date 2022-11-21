@@ -6,7 +6,7 @@
 #include "TFile.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -16,10 +16,10 @@
 #include "helper.h"
 #include "progress_bar.h"
 
-class ComparePtLUT : public edm::EDAnalyzer {
+class ComparePtLUT : public edm::one::EDAnalyzer<> {
 public:
   explicit ComparePtLUT(const edm::ParameterSet&);
-  virtual ~ComparePtLUT();
+  ~ComparePtLUT() override;
 
 private:
   //virtual void beginJob();
@@ -28,7 +28,7 @@ private:
   //virtual void beginRun(const edm::Run&, const edm::EventSetup&);
   //virtual void endRun(const edm::Run&, const edm::EventSetup&);
 
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   void compareLUTs();
 

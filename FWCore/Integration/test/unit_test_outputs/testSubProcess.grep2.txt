@@ -254,10 +254,11 @@
 ++++++ starting: begin process block for module: label = 'getInt' id = 22
 ++++++ finished: begin process block for module: label = 'getInt' id = 22
 ++++ finished: begin process block
-++++ starting: source run
-++++ finished: source run
+++++ queuing: EventSetup synchronization run: 1 lumi: 0 event: 0
 ++++ pre: EventSetup synchronizing run: 1 lumi: 0 event: 0
 ++++ post: EventSetup synchronizing run: 1 lumi: 0 event: 0
+++++ starting: source run
+++++ finished: source run
 ++++ starting: global begin run 1 : time = 1
 ++++ finished: global begin run 1 : time = 1
 ++++ starting: global begin run 1 : time = 1
@@ -342,6 +343,7 @@
 ++++++ starting: global begin run for module: label = 'dependsOnNoPut' id = 23
 ++++++ finished: global begin run for module: label = 'dependsOnNoPut' id = 23
 ++++ finished: global begin run 1 : time = 1
+++++ queuing: EventSetup synchronization run: 1 lumi: 1 event: 0
 ++++ starting: begin run: stream = 0 run = 1 time = 1
 ++++ finished: begin run: stream = 0 run = 1 time = 1
 ++++ starting: begin run: stream = 0 run = 1 time = 1
@@ -360,7 +362,6 @@
 ++++ finished: begin run: stream = 0 run = 1 time = 1
 ++++ starting: begin run: stream = 0 run = 1 time = 1
 ++++ finished: begin run: stream = 0 run = 1 time = 1
-++++ queuing: EventSetup synchronization run: 1 lumi: 1 event: 0
 ++++ pre: EventSetup synchronizing run: 1 lumi: 1 event: 0
 ++++ post: EventSetup synchronizing run: 1 lumi: 1 event: 0
 ++++ starting: source lumi
@@ -2437,6 +2438,8 @@
 ++++++++ finished: processing event for module: stream = 0 label = 'endPath1' id = 30
 ++++++ finished: processing path 'endPath1' : stream = 0
 ++++ finished: processing event : stream = 0 run = 1 lumi = 3 event = 10 time = 50000001
+++++ queuing: EventSetup synchronization run: 1 lumi: 4294967295 event: 18446744073709551615
+++++ pre: EventSetup synchronizing run: 1 lumi: 4294967295 event: 18446744073709551615
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 3 time = 50000001
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 3 time = 50000001
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 3 time = 0
@@ -2547,8 +2550,10 @@
 ++++++ starting: write lumi for module: label = 'out' id = 24
 ++++++ finished: write lumi for module: label = 'out' id = 24
 ++++ finished: global write lumi: run = 1 lumi = 3 time = 45000001
-++++ pre: EventSetup synchronizing run: 1 lumi: 4294967295 event: 18446744073709551615
 ++++ post: EventSetup synchronizing run: 1 lumi: 4294967295 event: 18446744073709551615
+++++ queuing: EventSetup synchronization run: 2 lumi: 0 event: 0
+++++ pre: EventSetup synchronizing run: 2 lumi: 0 event: 0
+++++ post: EventSetup synchronizing run: 2 lumi: 0 event: 0
 ++++ starting: end run: stream = 0 run = 1 time = 50000001
 ++++ finished: end run: stream = 0 run = 1 time = 50000001
 ++++ starting: end run: stream = 0 run = 1 time = 0
@@ -2661,8 +2666,6 @@
 ++++ finished: global write run 1 : time = 0
 ++++ starting: source run
 ++++ finished: source run
-++++ pre: EventSetup synchronizing run: 2 lumi: 0 event: 0
-++++ post: EventSetup synchronizing run: 2 lumi: 0 event: 0
 ++++ starting: global begin run 2 : time = 55000001
 ++++ finished: global begin run 2 : time = 55000001
 ++++ starting: global begin run 2 : time = 55000001
@@ -2739,6 +2742,8 @@
 ++++++ starting: global begin run for module: label = 'dependsOnNoPut' id = 23
 ++++++ finished: global begin run for module: label = 'dependsOnNoPut' id = 23
 ++++ finished: global begin run 2 : time = 55000001
+++++ queuing: EventSetup synchronization run: 2 lumi: 1 event: 0
+++++ pre: EventSetup synchronizing run: 2 lumi: 1 event: 0
 ++++ starting: begin run: stream = 0 run = 2 time = 55000001
 ++++ finished: begin run: stream = 0 run = 2 time = 55000001
 ++++ starting: begin run: stream = 0 run = 2 time = 55000001
@@ -2757,8 +2762,6 @@
 ++++ finished: begin run: stream = 0 run = 2 time = 55000001
 ++++ starting: begin run: stream = 0 run = 2 time = 55000001
 ++++ finished: begin run: stream = 0 run = 2 time = 55000001
-++++ queuing: EventSetup synchronization run: 2 lumi: 1 event: 0
-++++ pre: EventSetup synchronizing run: 2 lumi: 1 event: 0
 ++++ post: EventSetup synchronizing run: 2 lumi: 1 event: 0
 ++++ starting: source lumi
 ++++ finished: source lumi
@@ -4834,6 +4837,8 @@
 ++++++++ finished: processing event for module: stream = 0 label = 'endPath1' id = 30
 ++++++ finished: processing path 'endPath1' : stream = 0
 ++++ finished: processing event : stream = 0 run = 2 lumi = 3 event = 10 time = 100000001
+++++ queuing: EventSetup synchronization run: 2 lumi: 4294967295 event: 18446744073709551615
+++++ pre: EventSetup synchronizing run: 2 lumi: 4294967295 event: 18446744073709551615
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 3 time = 100000001
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 3 time = 100000001
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 3 time = 0
@@ -4944,8 +4949,10 @@
 ++++++ starting: write lumi for module: label = 'out' id = 24
 ++++++ finished: write lumi for module: label = 'out' id = 24
 ++++ finished: global write lumi: run = 2 lumi = 3 time = 95000001
-++++ pre: EventSetup synchronizing run: 2 lumi: 4294967295 event: 18446744073709551615
 ++++ post: EventSetup synchronizing run: 2 lumi: 4294967295 event: 18446744073709551615
+++++ queuing: EventSetup synchronization run: 3 lumi: 0 event: 0
+++++ pre: EventSetup synchronizing run: 3 lumi: 0 event: 0
+++++ post: EventSetup synchronizing run: 3 lumi: 0 event: 0
 ++++ starting: end run: stream = 0 run = 2 time = 100000001
 ++++ finished: end run: stream = 0 run = 2 time = 100000001
 ++++ starting: end run: stream = 0 run = 2 time = 0
@@ -5058,8 +5065,6 @@
 ++++ finished: global write run 2 : time = 0
 ++++ starting: source run
 ++++ finished: source run
-++++ pre: EventSetup synchronizing run: 3 lumi: 0 event: 0
-++++ post: EventSetup synchronizing run: 3 lumi: 0 event: 0
 ++++ starting: global begin run 3 : time = 105000001
 ++++ finished: global begin run 3 : time = 105000001
 ++++ starting: global begin run 3 : time = 105000001
@@ -5136,6 +5141,8 @@
 ++++++ starting: global begin run for module: label = 'dependsOnNoPut' id = 23
 ++++++ finished: global begin run for module: label = 'dependsOnNoPut' id = 23
 ++++ finished: global begin run 3 : time = 105000001
+++++ queuing: EventSetup synchronization run: 3 lumi: 1 event: 0
+++++ pre: EventSetup synchronizing run: 3 lumi: 1 event: 0
 ++++ starting: begin run: stream = 0 run = 3 time = 105000001
 ++++ finished: begin run: stream = 0 run = 3 time = 105000001
 ++++ starting: begin run: stream = 0 run = 3 time = 105000001
@@ -5154,8 +5161,6 @@
 ++++ finished: begin run: stream = 0 run = 3 time = 105000001
 ++++ starting: begin run: stream = 0 run = 3 time = 105000001
 ++++ finished: begin run: stream = 0 run = 3 time = 105000001
-++++ queuing: EventSetup synchronization run: 3 lumi: 1 event: 0
-++++ pre: EventSetup synchronizing run: 3 lumi: 1 event: 0
 ++++ post: EventSetup synchronizing run: 3 lumi: 1 event: 0
 ++++ starting: source lumi
 ++++ finished: source lumi
@@ -5878,6 +5883,7 @@
 ++++++ finished: processing path 'endPath1' : stream = 0
 ++++ finished: processing event : stream = 0 run = 3 lumi = 1 event = 4 time = 120000001
 ++++ queuing: EventSetup synchronization run: 3 lumi: 2 event: 0
+++++ pre: EventSetup synchronizing run: 3 lumi: 2 event: 0
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 1 time = 120000001
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 1 time = 120000001
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 1 time = 0
@@ -5988,7 +5994,6 @@
 ++++++ starting: write lumi for module: label = 'out' id = 24
 ++++++ finished: write lumi for module: label = 'out' id = 24
 ++++ finished: global write lumi: run = 3 lumi = 1 time = 105000001
-++++ pre: EventSetup synchronizing run: 3 lumi: 2 event: 0
 ++++ post: EventSetup synchronizing run: 3 lumi: 2 event: 0
 ++++ starting: source lumi
 ++++ finished: source lumi
@@ -6711,6 +6716,7 @@
 ++++++ finished: processing path 'endPath1' : stream = 0
 ++++ finished: processing event : stream = 0 run = 3 lumi = 2 event = 8 time = 140000001
 ++++ queuing: EventSetup synchronization run: 3 lumi: 3 event: 0
+++++ pre: EventSetup synchronizing run: 3 lumi: 3 event: 0
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 2 time = 140000001
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 2 time = 140000001
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 2 time = 0
@@ -6821,7 +6827,6 @@
 ++++++ starting: write lumi for module: label = 'out' id = 24
 ++++++ finished: write lumi for module: label = 'out' id = 24
 ++++ finished: global write lumi: run = 3 lumi = 2 time = 125000001
-++++ pre: EventSetup synchronizing run: 3 lumi: 3 event: 0
 ++++ post: EventSetup synchronizing run: 3 lumi: 3 event: 0
 ++++ starting: source lumi
 ++++ finished: source lumi
@@ -7231,6 +7236,8 @@
 ++++++++ finished: processing event for module: stream = 0 label = 'endPath1' id = 30
 ++++++ finished: processing path 'endPath1' : stream = 0
 ++++ finished: processing event : stream = 0 run = 3 lumi = 3 event = 10 time = 150000001
+++++ queuing: EventSetup synchronization run: 3 lumi: 4294967295 event: 18446744073709551615
+++++ pre: EventSetup synchronizing run: 3 lumi: 4294967295 event: 18446744073709551615
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 3 time = 150000001
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 3 time = 150000001
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 3 time = 0
@@ -7341,7 +7348,6 @@
 ++++++ starting: write lumi for module: label = 'out' id = 24
 ++++++ finished: write lumi for module: label = 'out' id = 24
 ++++ finished: global write lumi: run = 3 lumi = 3 time = 145000001
-++++ pre: EventSetup synchronizing run: 3 lumi: 4294967295 event: 18446744073709551615
 ++++ post: EventSetup synchronizing run: 3 lumi: 4294967295 event: 18446744073709551615
 ++++ starting: end run: stream = 0 run = 3 time = 150000001
 ++++ finished: end run: stream = 0 run = 3 time = 150000001

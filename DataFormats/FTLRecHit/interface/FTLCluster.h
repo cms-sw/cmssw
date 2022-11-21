@@ -118,12 +118,12 @@ public:
 
   // linear average position (barycenter)
   inline float x() const {
-    auto x_pos = [this](unsigned int i) { return this->theHitOffset[i * 2] + minHitRow() + 0.5f; };
+    auto x_pos = [this](unsigned int i) { return this->theHitOffset[i * 2] + minHitRow(); };
     return weighted_mean(this->theHitENERGY, x_pos);
   }
 
   inline float y() const {
-    auto y_pos = [this](unsigned int i) { return this->theHitOffset[i * 2 + 1] + minHitCol() + 0.5f; };
+    auto y_pos = [this](unsigned int i) { return this->theHitOffset[i * 2 + 1] + minHitCol(); };
     return weighted_mean(this->theHitENERGY, y_pos);
   }
 

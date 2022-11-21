@@ -3,7 +3,7 @@
 #include <iostream>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -15,10 +15,10 @@
 #include "helper.h"
 #include "progress_bar.h"
 
-class MakePtLUT : public edm::EDAnalyzer {
+class MakePtLUT : public edm::one::EDAnalyzer<> {
 public:
   explicit MakePtLUT(const edm::ParameterSet&);
-  virtual ~MakePtLUT();
+  ~MakePtLUT() override;
 
 private:
   //virtual void beginJob();
@@ -27,7 +27,7 @@ private:
   //virtual void beginRun(const edm::Run&, const edm::EventSetup&);
   //virtual void endRun(const edm::Run&, const edm::EventSetup&);
 
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   void makeLUT();
 

@@ -19,7 +19,7 @@ Description: Analyzer individual fibre channels from the source card.
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -29,7 +29,7 @@ Description: Analyzer individual fibre channels from the source card.
 // Gct fibre data format
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctFibreWord.h"
 
-class GctFibreAnalyzer : public edm::EDAnalyzer {
+class GctFibreAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit GctFibreAnalyzer(const edm::ParameterSet&);
   ~GctFibreAnalyzer() override;

@@ -2,9 +2,14 @@
 #include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
+#include "FWCore/ParameterSet/interface/allowedValues.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
+#include "Utilities/General/interface/ClassName.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
@@ -112,10 +117,9 @@ class SimpleFlatTableProducerBase : public edm::stream::EDProducer<> {
 public:
   SimpleFlatTableProducerBase(edm::ParameterSet const &params)
       : name_(params.getParameter<std::string>("name")),
-        doc_(params.existsAs<std::string>("doc") ? params.getParameter<std::string>("doc") : ""),
-        extension_(params.existsAs<bool>("extension") ? params.getParameter<bool>("extension") : false),
-        skipNonExistingSrc_(
-            params.existsAs<bool>("skipNonExistingSrc") ? params.getParameter<bool>("skipNonExistingSrc") : false),
+        doc_(params.getParameter<std::string>("doc")),
+        extension_(params.getParameter<bool>("extension")),
+        skipNonExistingSrc_(params.getParameter<bool>("skipNonExistingSrc")),
         src_(consumes<TProd>(params.getParameter<edm::InputTag>("src"))) {
     edm::ParameterSet const &varsPSet = params.getParameter<edm::ParameterSet>("variables");
     for (const std::string &vname : varsPSet.getParameterNamesForType<edm::ParameterSet>()) {
@@ -142,6 +146,37 @@ public:
 
   ~SimpleFlatTableProducerBase() override {}
 
+  static edm::ParameterSetDescription baseDescriptions() {
+    edm::ParameterSetDescription desc;
+    std::string classname = ClassName<T>::name();
+    desc.add<std::string>("name")->setComment("name of the branch in the flat table output for " + classname);
+    desc.add<std::string>("doc", "")->setComment("few words of self documentation");
+    desc.add<bool>("extension", false)->setComment("whether or not to extend an existing same table");
+    desc.add<bool>("skipNonExistingSrc", false)
+        ->setComment("whether or not to skip producing the table on absent input product");
+    desc.add<edm::InputTag>("src")->setComment("input collection to fill the flat table");
+
+    edm::ParameterSetDescription variable;
+    variable.add<std::string>("expr")->setComment("a function to define the content of the branch in the flat table");
+    variable.add<std::string>("doc")->setComment("few words description of the branch content");
+    variable.ifValue(edm::ParameterDescription<std::string>(
+                         "type", "int", true, edm::Comment("the c++ type of the branch in the flat table")),
+                     edm::allowedValues<std::string>("int", "unit", "float", "int8", "uint8", "bool"));
+    variable.addOptionalNode(
+        edm::ParameterDescription<int>(
+            "precision", true, edm::Comment("the precision with which to store the value in the flat table")) xor
+            edm::ParameterDescription<std::string>(
+                "precision", true, edm::Comment("the precision with which to store the value in the flat table")),
+        false);
+
+    edm::ParameterSetDescription variables;
+    variables.setComment("a parameters set to define all variable to fill the flat table");
+    variables.addNode(
+        edm::ParameterWildcard<edm::ParameterSetDescription>("*", edm::RequireZeroOrMore, true, variable));
+    desc.add<edm::ParameterSetDescription>("variables", variables);
+
+    return desc;
+  }
   // this is to be overriden by the child class
   virtual std::unique_ptr<nanoaod::FlatTable> fillTable(const edm::Event &iEvent,
                                                         const edm::Handle<TProd> &prod) const = 0;
@@ -212,6 +247,39 @@ public:
 
   ~SimpleFlatTableProducer() override {}
 
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+    edm::ParameterSetDescription desc = SimpleFlatTableProducerBase<T, edm::View<T>>::baseDescriptions();
+
+    desc.ifValue(edm::ParameterDescription<bool>(
+                     "singleton", false, true, edm::Comment("whether or not the input collection is single-element")),
+                 false >> edm::ParameterDescription<std::string>(
+                              "cut", "", true, edm::Comment("selection on the main input collection")) or
+                     true >> edm::EmptyGroupDescription());
+    desc.addOptional<unsigned int>("maxLen")->setComment(
+        "define the maximum length of the input collection to put in the branch");
+
+    edm::ParameterSetDescription extvariable;
+    extvariable.add<edm::InputTag>("src")->setComment("valuemap input collection to fill the flat table");
+    extvariable.add<std::string>("doc")->setComment("few words description of the branch content");
+    extvariable.ifValue(edm::ParameterDescription<std::string>(
+                            "type", "int", true, edm::Comment("the c++ type of the branch in the flat table")),
+                        edm::allowedValues<std::string>("int", "unit", "float", "int8", "uint8", "bool"));
+    extvariable.addOptionalNode(
+        edm::ParameterDescription<int>(
+            "precision", true, edm::Comment("the precision with which to store the value in the flat table")) xor
+            edm::ParameterDescription<std::string>(
+                "precision", true, edm::Comment("the precision with which to store the value in the flat table")),
+        false);
+
+    edm::ParameterSetDescription extvariables;
+    extvariables.setComment("a parameters set to define all variable taken form valuemap to fill the flat table");
+    extvariables.addOptionalNode(
+        edm::ParameterWildcard<edm::ParameterSetDescription>("*", edm::RequireZeroOrMore, true, extvariable), false);
+    desc.addOptional<edm::ParameterSetDescription>("externalVariables", extvariables);
+
+    descriptions.addWithDefaultLabel(desc);
+  }
+
   std::unique_ptr<nanoaod::FlatTable> fillTable(const edm::Event &iEvent,
                                                 const edm::Handle<edm::View<T>> &prod) const override {
     std::vector<const T *> selobjs;
@@ -264,6 +332,11 @@ public:
 
   ~EventSingletonSimpleFlatTableProducer() override {}
 
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+    edm::ParameterSetDescription desc = SimpleFlatTableProducerBase<T, T>::baseDescriptions();
+    descriptions.addWithDefaultLabel(desc);
+  }
+
   std::unique_ptr<nanoaod::FlatTable> fillTable(const edm::Event &, const edm::Handle<T> &prod) const override {
     auto out = std::make_unique<nanoaod::FlatTable>(1, this->name_, true, this->extension_);
     std::vector<const T *> selobjs(1, prod.product());
@@ -280,6 +353,11 @@ public:
       : SimpleFlatTableProducerBase<T, edm::View<T>>(params) {}
 
   ~FirstObjectSimpleFlatTableProducer() override {}
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+    edm::ParameterSetDescription desc = desc = SimpleFlatTableProducerBase<T, edm::View<T>>::baseDescriptions();
+    descriptions.addWithDefaultLabel(desc);
+  }
 
   std::unique_ptr<nanoaod::FlatTable> fillTable(const edm::Event &iEvent,
                                                 const edm::Handle<edm::View<T>> &prod) const override {
@@ -376,6 +454,11 @@ public:
 
   ~LumiSingletonSimpleFlatTableProducer() override {}
 
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+    edm::ParameterSetDescription desc = SimpleFlatTableProducerBase<T, T>::baseDescriptions();
+    descriptions.addWithDefaultLabel(desc);
+  }
+
   std::unique_ptr<nanoaod::FlatTable> fillTable(const edm::LuminosityBlock &,
                                                 const edm::Handle<T> &prod) const override {
     auto out = std::make_unique<nanoaod::FlatTable>(1, this->name_, true, this->extension_);
@@ -397,6 +480,13 @@ public:
         cut_(params.existsAs<std::string>("cut") ? params.getParameter<std::string>("cut") : "", true) {}
 
   ~LumiSimpleFlatTableProducer() override {}
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+    edm::ParameterSetDescription desc = SimpleFlatTableProducerBase<T, TProd>::baseDescriptions();
+    desc.addOptional<unsigned int>("maxLen")->setComment(
+        "define the maximum length of the input collection to put in the branch");
+    descriptions.addWithDefaultLabel(desc);
+  }
 
   std::unique_ptr<nanoaod::FlatTable> fillTable(const edm::LuminosityBlock &iLumi,
                                                 const edm::Handle<TProd> &prod) const override {
