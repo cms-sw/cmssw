@@ -1,7 +1,6 @@
 #!/bin/tcsh
 
-cmsenv
-rehash
+eval `scram runtime -csh`
 
 set rawLHC = L1RePack
 set rawSIM = DigiL1Raw
