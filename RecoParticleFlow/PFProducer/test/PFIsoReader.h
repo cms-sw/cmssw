@@ -32,13 +32,13 @@ private:
   const std::vector<edm::InputTag> inputTagPhotonIsoDeposits_;
   const bool useValueMaps_;
 
- const edm::EDGetTokenT<reco::PFCandidateCollection> pfCandToken_;
- const edm::EDGetTokenT<reco::GsfElectronCollection> elecToken_;
- const edm::EDGetTokenT<reco::PhotonCollection>photonToken_;
- const edm::EDGetTokenT<edm::ValueMap<reco::PFCandidatePtr> >elecMapToken_;
- const edm::EDGetTokenT<edm::ValueMap<reco::PFCandidatePtr> > photonMapToken_;
- const edm::EDGetTokenT<edm::ValueMap<reco::PFCandidatePtr> > mergeMapToken_;
- std::vector<edm::EDGetTokenT<edm::Handle<edm::ValueMap<reco::IsoDeposit> > > > isoElecToken_;
- std::vector<edm::EDGetTokenT<edm::Handle<edm::ValueMap<reco::IsoDeposit> > > > isoPhotToken_;
+  const edm::EDGetTokenT<reco::PFCandidateCollection> pfCandToken_;
+  const edm::EDGetTokenT<reco::GsfElectronCollection> elecToken_;
+  const edm::EDGetTokenT<reco::PhotonCollection> photonToken_;
+  const edm::EDGetTokenT<edm::ValueMap<reco::PFCandidatePtr> > elecMapToken_;
+  const edm::EDGetTokenT<edm::ValueMap<reco::PFCandidatePtr> > photonMapToken_;
+  const edm::EDGetTokenT<edm::ValueMap<reco::PFCandidatePtr> > mergeMapToken_;
+  std::vector<edm::EDGetTokenT<edm::Handle<edm::ValueMap<reco::IsoDeposit> > > > isoElecToken_;
+  std::vector<edm::EDGetTokenT<edm::Handle<edm::ValueMap<reco::IsoDeposit> > > > isoPhotToken_;
 };
 #endif

@@ -16,14 +16,14 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 
 PFSuperClusterReader::PFSuperClusterReader(const edm::ParameterSet& iConfig)
-  : inputTagGSFTracks_(iConfig.getParameter<edm::InputTag>("GSFTracks")),
-    inputTagValueMapSC_(iConfig.getParameter<edm::InputTag>("SuperClusterRefMap")),
-    inputTagValueMapMVA_(iConfig.getParameter<edm::InputTag>("MVAMap")),
-    inputTagPFCandidates_(iConfig.getParameter<edm::InputTag>("PFCandidate")),
-    trackToken_(consumes<reco::GsfTrackCollection>(inputTagGSFTracks_)),
-    pfCandToken_(consumes<reco::PFCandidateCollection>(inputTagPFCandidates_)),
-    pfClusToken_(consumes<edm::ValueMap<reco::SuperClusterRef> >(inputTagValueMapSC_)),
-    pfMapToken_(consumes<edm::ValueMap<float> >(inputTagValueMapMVA_)) {}
+    : inputTagGSFTracks_(iConfig.getParameter<edm::InputTag>("GSFTracks")),
+      inputTagValueMapSC_(iConfig.getParameter<edm::InputTag>("SuperClusterRefMap")),
+      inputTagValueMapMVA_(iConfig.getParameter<edm::InputTag>("MVAMap")),
+      inputTagPFCandidates_(iConfig.getParameter<edm::InputTag>("PFCandidate")),
+      trackToken_(consumes<reco::GsfTrackCollection>(inputTagGSFTracks_)),
+      pfCandToken_(consumes<reco::PFCandidateCollection>(inputTagPFCandidates_)),
+      pfClusToken_(consumes<edm::ValueMap<reco::SuperClusterRef> >(inputTagValueMapSC_)),
+      pfMapToken_(consumes<edm::ValueMap<float> >(inputTagValueMapMVA_)) {}
 
 void PFSuperClusterReader::analyze(const edm::Event& iEvent, const edm::EventSetup& c) {
   const edm::Handle<reco::GsfTrackCollection>& gsfTracksH = iEvent.getHandle(trackToken_);
@@ -71,7 +71,9 @@ void PFSuperClusterReader::analyze(const edm::Event& iEvent, const edm::EventSet
     float mva = myMVAValueMap[theTrackRef];
     float eta = mySuperCluster.position().eta();
     float et = mySuperCluster.energy() * sin(mySuperCluster.position().theta());
-    edm::LogVerbatim("PFSuperClusterReader") << " Super Cluster energy, eta, Et , EtaWidth, PhiWidth " << mySuperCluster.energy() << " " << eta << " " << et << " " << mySuperCluster.etaWidth() << " " << mySuperCluster.phiWidth();
+    edm::LogVerbatim("PFSuperClusterReader")
+        << " Super Cluster energy, eta, Et , EtaWidth, PhiWidth " << mySuperCluster.energy() << " " << eta << " " << et
+        << " " << mySuperCluster.etaWidth() << " " << mySuperCluster.phiWidth();
 
     const reco::PFCandidate* myPFCandidate = findPFCandidate(pfCandidatesH.product(), theTrackRef);
 
@@ -95,14 +97,16 @@ void PFSuperClusterReader::analyze(const edm::Event& iEvent, const edm::EventSet
       edm::LogVerbatim("PFSuperClusterReader") << " Preshower cluster " << (*it)->energy();
     }
 
-    edm::LogVerbatim("PFSuperClusterReader") << " Comparison with PFCandidate : Energy " << myPFCandidate->ecalEnergy() << " SC : " << mySuperCluster.energy();
+    edm::LogVerbatim("PFSuperClusterReader") << " Comparison with PFCandidate : Energy " << myPFCandidate->ecalEnergy()
+                                             << " SC : " << mySuperCluster.energy();
     std::ostringstream st1;
     st1 << " Sum of Basic clusters :" << etotbasic;
     st1 << " Calibrated preshower energy : " << mySuperCluster.preshowerEnergy();
     etotbasic += mySuperCluster.preshowerEnergy();
     st1 << " Basic Clusters + PS :" << etotbasic;
     edm::LogVerbatim("PFSuperClusterReader") << st1.str();
-    edm::LogVerbatim("PFSuperClusterReader") << " Summary " << mySuperCluster.energy() << " " << eta << " " << et << " " << mySuperCluster.preshowerEnergy() << " " << mva << std::endl;
+    edm::LogVerbatim("PFSuperClusterReader") << " Summary " << mySuperCluster.energy() << " " << eta << " " << et << " "
+                                             << mySuperCluster.preshowerEnergy() << " " << mva << std::endl;
   }
 }
 
