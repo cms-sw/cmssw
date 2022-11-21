@@ -92,7 +92,7 @@ debug_(cfg.debug) {
           auto resolvedFileName = "compositeID.json";
 #endif
     std::cout<<resolvedFileName<<std::endl;
-	  composite_bdt_ = new conifer::BDT<ap_fixed<22,3,AP_RND_CONV,AP_SAT>,ap_fixed<22,3,AP_RND_CONV,AP_SAT>,0> (resolvedFileName);
+	  composite_bdt_ = new conifer::BDT<ap_fixed<21,12,AP_RND_CONV,AP_SAT>,ap_fixed<12,3,AP_RND_CONV,AP_SAT>,0> (resolvedFileName);
     std::cout<<"declared bdt"<<std::endl;
   }
 }
@@ -270,21 +270,21 @@ float PFTkEGAlgoEmulator::compute_composite_score(CompositeCandidate &cand,
   // Call and normalize input feature values, then cast to ap_fixed.
   // Note that for some features (e.g. track pT) we call the floating point representation, but that's already quantized!
   // Several other features, such as chi2 or most cluster features, are not quantized before casting them to ap_fixed.
-  ap_fixed<22,3,AP_RND_CONV,AP_SAT> hoe = (calo.floatHoe()-params.hoeMin)/(params.hoeMax-params.hoeMin);
-  ap_fixed<22,3,AP_RND_CONV,AP_SAT> tkpt = (tk.floatPt()-params.tkptMin)/(params.tkptMax-params.tkptMin);
-  ap_fixed<22,3,AP_RND_CONV,AP_SAT> srrtot = (calo.floatSrrTot()-params.srrtotMin)/(params.srrtotMax-params.srrtotMin);
-  ap_fixed<22,3,AP_RND_CONV,AP_SAT> deta = (tk.floatEta() - calo.floatEta()-params.detaMin)/(params.detaMax-params.detaMin);
+  ap_fixed<21,12,AP_RND_CONV,AP_SAT> hoe = calo.floatHoe();
+  ap_fixed<21,12,AP_RND_CONV,AP_SAT> tkpt = tk.floatPt();
+  ap_fixed<21,12,AP_RND_CONV,AP_SAT> srrtot = calo.floatSrrTot();
+  ap_fixed<21,12,AP_RND_CONV,AP_SAT> deta = tk.floatEta() - calo.floatEta();
   // FIXME: do we really need dpt to be a ratio?
-  ap_fixed<22,3,AP_RND_CONV,AP_SAT> dpt = ((tk.floatPt()/calo.floatPt())-params.dptMin)/(params.dptMax-params.dptMin);
-  ap_fixed<22,3,AP_RND_CONV,AP_SAT> meanz = (calo.floatMeanZ()-params.meanzMin)/(params.meanzMax-params.meanzMin);
-  ap_fixed<22,3,AP_RND_CONV,AP_SAT> dphi = (deltaPhi(tk.floatPhi(), calo.floatPhi()) -params.dphiMin)/(params.dphiMax-params.dphiMin);
-  ap_fixed<22,3,AP_RND_CONV,AP_SAT> chi2 = (tk.floatChi2()-params.tkchi2Min)/(params.tkchi2Max-params.tkchi2Min);
-  ap_fixed<22,3,AP_RND_CONV,AP_SAT> tkz0 = (tk.floatZ0()-params.tkz0Min)/(params.tkz0Max-params.tkz0Min);
-  ap_fixed<22,3,AP_RND_CONV,AP_SAT> nstubs = (tk.hwStubs-params.tknstubsMin)/(params.tknstubsMax-params.tknstubsMin);
+  ap_fixed<21,12,AP_RND_CONV,AP_SAT> dpt = (tk.floatPt()/calo.floatPt());
+  ap_fixed<21,12,AP_RND_CONV,AP_SAT> meanz = calo.floatMeanZ();
+  ap_fixed<21,12,AP_RND_CONV,AP_SAT> dphi = deltaPhi(tk.floatPhi(), calo.floatPhi());
+  ap_fixed<21,12,AP_RND_CONV,AP_SAT> chi2 = tk.floatChi2();
+  ap_fixed<21,12,AP_RND_CONV,AP_SAT> tkz0 = tk.floatZ0();
+  ap_fixed<21,12,AP_RND_CONV,AP_SAT> nstubs = tk.hwStubs;
   
   // Run BDT inference
-  std::vector<ap_fixed<22,3,AP_RND_CONV,AP_SAT>> inputs = { hoe, tkpt, srrtot, deta, dpt, meanz, dphi, chi2, tkz0, nstubs } ;
-  auto bdt_score = composite_bdt_->decision_function(inputs);
+  std::vector<ap_fixed<21,12,AP_RND_CONV,AP_SAT>> inputs = { hoe, tkpt, srrtot, deta, dpt, meanz, dphi, chi2, tkz0, nstubs } ;
+  std::vector<ap_fixed<12,3,AP_RND_CONV,AP_SAT>> bdt_score = composite_bdt_->decision_function(inputs);
 
   float bdt_score_CON = bdt_score[0];
   float bdt_score_XGB = 1/(1+exp(-bdt_score_CON)); // Map Conifer score to XGboost score. (same as scipy.expit)

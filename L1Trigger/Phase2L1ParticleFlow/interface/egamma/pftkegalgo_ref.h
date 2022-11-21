@@ -388,7 +388,7 @@ namespace l1ct {
                            z0_t z0) const;
 
     PFTkEGAlgoEmuConfig cfg;
-    conifer::BDT<ap_fixed<22,3,AP_RND_CONV,AP_SAT>,ap_fixed<22,3,AP_RND_CONV,AP_SAT>,0> * composite_bdt_;
+    conifer::BDT<ap_fixed<21,12,AP_RND_CONV,AP_SAT>,ap_fixed<12,3,AP_RND_CONV,AP_SAT>,0> * composite_bdt_;
     int debug_;
   };
 }  // namespace l1ct
