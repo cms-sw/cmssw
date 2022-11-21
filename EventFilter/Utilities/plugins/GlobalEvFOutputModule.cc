@@ -383,17 +383,20 @@ namespace evf {
     //read back file to check integrity of what was written
     off_t readInput = 0;
     uint32_t adlera = 1, adlerb = 0;
-    FILE* src = fopen(openIniFileName.c_str(), "r");
+    std::ifstream src(openIniFileName, std::ifstream::binary);
+    if (!src)
+      throw cms::Exception("GlobalEvFOutputModule") << "can not read back " << openIniFileName << ": " << strerror(errno);
 
     //allocate buffer to write INI file
-    std::unique_ptr<unsigned char[]> outBuf = std::make_unique<unsigned char[]>(1024 * 1024);
+    std::unique_ptr<char[]> outBuf = std::make_unique<char[]>(1024 * 1024);
     while (readInput < istat.st_size) {
       size_t toRead = readInput + 1024 * 1024 < istat.st_size ? 1024 * 1024 : istat.st_size - readInput;
-      fread(outBuf.get(), toRead, 1, src);
-      cms::Adler32(const_cast<const char*>(reinterpret_cast<char*>(outBuf.get())), toRead, adlera, adlerb);
+      src.read(outBuf.get(), toRead);
+      //cms::Adler32(const_cast<const char*>(reinterpret_cast<char*>(outBuf.get())), toRead, adlera, adlerb);
+      cms::Adler32(const_cast<const char*>(outBuf.get()), toRead, adlera, adlerb);
       readInput += toRead;
     }
-    fclose(src);
+    src.close();
 
     //clear serialization buffers
     streamerCommon.getSerializerBuffer()->clearHeaderBuffer();
