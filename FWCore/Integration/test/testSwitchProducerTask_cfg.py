@@ -61,11 +61,13 @@ process.intProducer1 = cms.EDProducer("ManyIntProducer", ivalue = cms.int32(1))
 process.intProducer2 = cms.EDProducer("ManyIntProducer", ivalue = cms.int32(2))
 process.intProducer3 = cms.EDProducer("ManyIntProducer", ivalue = cms.int32(2), values = cms.VPSet(cms.PSet(instance=cms.string("foo"),value=cms.int32(2))))
 process.intProducer4 = cms.EDProducer("ManyIntProducer", ivalue = cms.int32(42), throw = cms.untracked.bool(True))
+process.intProducer5 = cms.EDProducer("ManyIntProducer", ivalue = cms.int32(3), values = cms.VPSet(cms.PSet(instance=cms.string("foo"),value=cms.int32(3))))
 if enableTest2:
     process.intProducer1.throw = cms.untracked.bool(True)
 else:
     process.intProducer2.throw = cms.untracked.bool(True)
     process.intProducer3.throw = cms.untracked.bool(True)
+    process.intProducer5.throw = cms.untracked.bool(True)
 
 process.intProducer = SwitchProducerTest(
     test1 = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag("intProducer1")),
@@ -86,7 +88,7 @@ process.intProducerAlias = SwitchProducerTest(
 process.intProducerAlias2 = SwitchProducerTest(
     test1 = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag("intProducer1")),
     test2 = cms.EDAlias(intProducer4 = cms.VPSet(cms.PSet(type = cms.string("edmtestIntProduct"), fromProductInstance = cms.string(""), toProductInstance = cms.string(""))),
-                        intProducer3 = cms.VPSet(cms.PSet(type = cms.string("edmtestIntProduct"), fromProductInstance = cms.string("foo"), toProductInstance = cms.string("other"))))
+                        intProducer5 = cms.VPSet(cms.PSet(type = cms.string("edmtestIntProduct"), fromProductInstance = cms.string("foo"), toProductInstance = cms.string("other"))))
 )
 
 # Test multiple consumers of a SwitchProducer
@@ -96,12 +98,12 @@ process.intProducerDep3 = cms.EDProducer("AddIntsProducer", labels = cms.VInputT
 
 if args.conditionalTask:
     process.ct = cms.ConditionalTask(process.intProducer, process.intProducerOther, process.intProducerAlias, process.intProducerAlias2,
-                                     process.intProducer1, process.intProducer2, process.intProducer3, process.intProducer4)
+                                     process.intProducer1, process.intProducer2, process.intProducer3, process.intProducer4, process.intProducer5)
     process.p = cms.Path(process.intProducerDep1+process.intProducerDep2+process.intProducerDep3, process.ct)
 else:
     process.t = cms.Task(process.intProducer, process.intProducerOther, process.intProducerAlias, process.intProducerAlias2,
                          process.intProducerDep1, process.intProducerDep2, process.intProducerDep3,
-                         process.intProducer1, process.intProducer2, process.intProducer3, process.intProducer4)
+                         process.intProducer1, process.intProducer2, process.intProducer3, process.intProducer4, process.intProducer5)
     process.p = cms.Path(process.t)
 
 process.e = cms.EndPath(process.out)
