@@ -1,7 +1,19 @@
 import FWCore.ParameterSet.Config as cms
 
+import argparse
 import sys
-enableTest2 = (sys.argv[-1] != "disableTest2")
+
+parser = argparse.ArgumentParser(prog=sys.argv[0], description='Test SwitchProducer in Task.')
+parser.add_argument("--disableTest2", help="Disable test2 SwitchProducer case", action="store_true")
+parser.add_argument("--input", help="Read input file from a previous step of this same configuration", action="store_true")
+parser.add_argument("--conditionalTask", help="Use ConditionalTask instead of Task", action="store_true")
+
+argv = sys.argv[:]
+if '--' in argv:
+    argv.remove("--")
+args, unknown = parser.parse_known_args(argv)
+
+enableTest2 = not args.disableTest2
 class SwitchProducerTest(cms.SwitchProducer):
     def __init__(self, **kargs):
         super(SwitchProducerTest,self).__init__(
@@ -10,18 +22,30 @@ class SwitchProducerTest(cms.SwitchProducer):
                 test2 = lambda accelerators: (enableTest2, -9)
             ), **kargs)
 
-process = cms.Process("PROD1")
+process = cms.Process("PROD2" if args.input else "PROD1")
 
-process.source = cms.Source("EmptySource")
-if enableTest2:
-    process.source.firstLuminosityBlock = cms.untracked.uint32(2)
-
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(3)
-)
+if args.input:
+     # Test that having SwitchProducers with same labels as products from
+    # earlier processes works
+    process.source = cms.Source("PoolSource",
+        fileNames = cms.untracked.vstring("file:testSwitchProducer{}Task{}.root".format(
+            "Conditional" if args.conditionalTask else "",
+            1 if enableTest2 else 2,
+        ))
+    )
+    process.maxEvents.input = -1
+else:
+    process.source = cms.Source("EmptySource")
+    process.maxEvents.input = 3
+    if enableTest2:
+        process.source.firstLuminosityBlock = cms.untracked.uint32(2)
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('testSwitchProducerTask%d.root' % (1 if enableTest2 else 2,)),
+    fileName = cms.untracked.string('testSwitchProducer{}Task{}{}.root'.format(
+        "Conditional" if args.conditionalTask else "",
+        "Input" if args.input else "",
+        1 if enableTest2 else 2,
+    )),
     outputCommands = cms.untracked.vstring(
         'keep *_intProducer_*_*',
         'keep *_intProducerOther_*_*',
@@ -70,9 +94,14 @@ process.intProducerDep1 = cms.EDProducer("AddIntsProducer", labels = cms.VInputT
 process.intProducerDep2 = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag("intProducer"))
 process.intProducerDep3 = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag("intProducer"))
 
-process.t = cms.Task(process.intProducer, process.intProducerOther, process.intProducerAlias, process.intProducerAlias2,
-                     process.intProducerDep1, process.intProducerDep2, process.intProducerDep3,
-                     process.intProducer1, process.intProducer2, process.intProducer3, process.intProducer4)
-process.p = cms.Path(process.t)
+if args.conditionalTask:
+    process.ct = cms.ConditionalTask(process.intProducer, process.intProducerOther, process.intProducerAlias, process.intProducerAlias2,
+                                     process.intProducer1, process.intProducer2, process.intProducer3, process.intProducer4)
+    process.p = cms.Path(process.intProducerDep1+process.intProducerDep2+process.intProducerDep3, process.ct)
+else:
+    process.t = cms.Task(process.intProducer, process.intProducerOther, process.intProducerAlias, process.intProducerAlias2,
+                         process.intProducerDep1, process.intProducerDep2, process.intProducerDep3,
+                         process.intProducer1, process.intProducer2, process.intProducer3, process.intProducer4)
+    process.p = cms.Path(process.t)
 
 process.e = cms.EndPath(process.out)
