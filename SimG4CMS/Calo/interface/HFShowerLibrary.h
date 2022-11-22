@@ -63,23 +63,23 @@ protected:
 private:
   const HcalDDDSimConstants *hcalConstant_;
   std::unique_ptr<HFFibre> fibre_;
-  TFile *hf;
-  TBranch *emBranch, *hadBranch;
+  TFile *hf_;
+  TBranch *emBranch_, *hadBranch_;
 
-  bool verbose, applyFidCut, newForm, v3version;
-  int nMomBin, totEvents, evtPerBin;
-  float libVers, listVersion;
-  std::vector<double> pmom;
+  bool verbose_, applyFidCut_, newForm_, v3version_;
+  int nMomBin_, totEvents_, evtPerBin_;
+  float libVers_, listVersion_;
+  std::vector<double> pmom_;
 
   int fileVersion_;
   bool equalizeTimeShift_;
-  double probMax, backProb;
-  double dphi, rMin, rMax;
-  std::vector<double> gpar;
+  double probMax_, backProb_;
+  double dphi_, rMin_, rMax_;
+  std::vector<double> gpar_;
 
-  int npe;
-  HFShowerPhotonCollection pe;
-  std::unique_ptr<HFShowerPhotonCollection> photo;
-  HFShowerPhotonCollection photon;
+  int npe_;
+  HFShowerPhotonCollection pe_;
+  std::unique_ptr<HFShowerPhotonCollection> photo_;
+  HFShowerPhotonCollection photon_;
 };
 #endif
