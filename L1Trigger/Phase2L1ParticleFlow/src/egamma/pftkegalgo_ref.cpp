@@ -270,16 +270,16 @@ float PFTkEGAlgoEmulator::compute_composite_score(CompositeCandidate &cand,
   // Call and normalize input feature values, then cast to ap_fixed.
   // Note that for some features (e.g. track pT) we call the floating point representation, but that's already quantized!
   // Several other features, such as chi2 or most cluster features, are not quantized before casting them to ap_fixed.
-  ap_fixed<21,12,AP_RND_CONV,AP_SAT> hoe = calo.floatHoe();
-  ap_fixed<21,12,AP_RND_CONV,AP_SAT> tkpt = tk.floatPt();
-  ap_fixed<21,12,AP_RND_CONV,AP_SAT> srrtot = calo.floatSrrTot();
-  ap_fixed<21,12,AP_RND_CONV,AP_SAT> deta = tk.floatEta() - calo.floatEta();
-  // FIXME: do we really need dpt to be a ratio?
-  ap_fixed<21,12,AP_RND_CONV,AP_SAT> dpt = (tk.floatPt()/calo.floatPt());
-  ap_fixed<21,12,AP_RND_CONV,AP_SAT> meanz = calo.floatMeanZ();
-  ap_fixed<21,12,AP_RND_CONV,AP_SAT> dphi = deltaPhi(tk.floatPhi(), calo.floatPhi());
-  ap_fixed<21,12,AP_RND_CONV,AP_SAT> chi2 = tk.floatChi2();
-  ap_fixed<21,12,AP_RND_CONV,AP_SAT> tkz0 = tk.floatZ0();
+  ap_fixed<21,12,AP_RND_CONV,AP_SAT> hoe = calo.hwHoe;
+  ap_fixed<21,12,AP_RND_CONV,AP_SAT> tkpt = tk.hwPt;
+  ap_fixed<21,12,AP_RND_CONV,AP_SAT> srrtot = calo.hwSrrTot;
+  ap_fixed<21,12,AP_RND_CONV,AP_SAT> deta = tk.hwEta - calo.hwEta;
+  ap_fixed<18,9> calo_invPt = invert_with_shift<pt_t, ap_fixed<18,9>, 1024>(calo.hwPt); // TODO: this is a guess
+  ap_fixed<21,12,AP_RND_CONV,AP_SAT> dpt = tk.hwPt * calo_invPt;
+  ap_fixed<21,12,AP_RND_CONV,AP_SAT> meanz = calo.hwMeanZ;
+  ap_fixed<21,12,AP_RND_CONV,AP_SAT> dphi = tk.hwPhi - calo.hwPhi;
+  ap_fixed<21,12,AP_RND_CONV,AP_SAT> chi2 = tk.hwChi2;
+  ap_fixed<21,12,AP_RND_CONV,AP_SAT> tkz0 = tk.hwZ0;
   ap_fixed<21,12,AP_RND_CONV,AP_SAT> nstubs = tk.hwStubs;
   
   // Run BDT inference
