@@ -11,6 +11,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 
 process.load("Configuration.Geometry.GeometryExtended2026D88Reco_cff")
+process.load('RecoLocalFastTime.FTLClusterizer.MTDCPEESProducer_cfi')
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
