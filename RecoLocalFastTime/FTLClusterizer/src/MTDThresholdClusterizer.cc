@@ -74,7 +74,7 @@ bool MTDThresholdClusterizer::setup(const MTDGeometry* geom, const MTDTopology* 
 
   if (nrows > theBuffer.rows() || ncols > theBuffer.columns()) {  // change only when a larger is needed
     // Resize the buffer
-    theBuffer.setSize(nrows + 1, ncols + 1);  // +1 needed for MTD
+    theBuffer.setSize(nrows, ncols);
     bufferAlreadySet = true;
   }
 
@@ -282,20 +282,23 @@ FTLCluster MTDThresholdClusterizer::make_cluster(const FTLCluster::FTLHitPos& hi
       for (auto r = std::max(0, int(acluster.x[curInd] - 1));
            r < std::min(int(acluster.x[curInd] + 2), int(theBuffer.rows())) && !stopClus;
            ++r) {
+        LogDebug("MTDThresholdClusterizer")
+            << "Clustering subdet " << seed_subdet << " around " << curInd << " X,Y = " << acluster.x[curInd] << ","
+            << acluster.y[curInd] << " r,c = " << r << "," << c << " energy,time = " << theBuffer.energy(r, c) << " "
+            << theBuffer.time(r, c);
         if (theBuffer.energy(r, c) > theHitThreshold) {
           if (std::abs(theBuffer.time(r, c) - seed_time) >
               theTimeThreshold *
                   sqrt(theBuffer.time_error(r, c) * theBuffer.time_error(r, c) + seed_time_error * seed_time_error))
             continue;
-          if ((seed_subdet == GeomDetEnumerators::barrel) && (theBuffer.subDet(r, c) == GeomDetEnumerators::barrel)) {
+          if ((seed_subdet == GeomDetEnumerators::barrel) && (theBuffer.subDet(r, c) == GeomDetEnumerators::barrel) &&
+              (thePositionThreshold > 0)) {
             double hit_error_xx = theBuffer.local_error(r, c).xx();
             double hit_error_yy = theBuffer.local_error(r, c).yy();
-            if (thePositionThreshold > 0) {
-              if (((theBuffer.local_point(r, c) - seedPoint).mag2()) >
-                  thePositionThreshold * thePositionThreshold *
-                      (hit_error_xx + seed_error_xx + hit_error_yy + seed_error_yy))
-                continue;
-            }
+            if (((theBuffer.local_point(r, c) - seedPoint).mag2()) >
+                thePositionThreshold * thePositionThreshold *
+                    (hit_error_xx + seed_error_xx + hit_error_yy + seed_error_yy))
+              continue;
           }
           FTLCluster::FTLHitPos newhit(r, c);
           if (!acluster.add(newhit, theBuffer.energy(r, c), theBuffer.time(r, c), theBuffer.time_error(r, c))) {

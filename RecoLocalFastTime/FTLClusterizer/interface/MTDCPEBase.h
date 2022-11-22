@@ -80,7 +80,7 @@ private:
   virtual TimeValue clusterTime(DetParam const& dp, ClusterParam& cp) const;
   virtual TimeValueError clusterTimeError(DetParam const& dp, ClusterParam& cp) const;
 
-  static constexpr float sigma_flat = 1.f / std::sqrt(12.f);
+  static constexpr float sigma_flat = 0.2886751f;  // 1.f / std::sqrt(12.f);
 
 protected:
   //---------------------------------------------------------------------------
