@@ -1100,7 +1100,7 @@ def PrepJMECustomNanoAOD(process,runOnMC):
   return process
 
 def PrepJMECustomNanoAOD_MC(process):
-  Modifier_run2_JMENanoHerwig7.toModify(patJetPartons , CheckHerwig7Flag = True )
+  run2_JMENanoHerwig7.toModify(patJetPartons , CheckHerwig7Flag = True )
   PrepJMECustomNanoAOD(process,runOnMC=True)
   return process
 
