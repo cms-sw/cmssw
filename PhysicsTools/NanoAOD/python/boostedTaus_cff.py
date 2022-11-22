@@ -19,7 +19,7 @@ run2_nanoAOD_106Xv2.toModify(
 )
 
 boostedTauTable = simpleCandidateFlatTableProducer.clone(
-    src = cms.InputTag("finalBoostedTaus"),
+    src = cms.InputTag("linkedObjects", "boostedTaus"),
     name= cms.string("boostedTau"),
     doc = cms.string("slimmedBoostedTaus after basic selection (" + finalBoostedTaus.cut.value()+")"),
     variables = cms.PSet() # PSet defined below in era dependent way
