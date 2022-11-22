@@ -348,7 +348,6 @@ bool HFShowerLibrary::rInside(double r) { return (r >= rMin_ && r <= rMax_); }
 
 void HFShowerLibrary::getRecord(int type, int record) {
   int nrc = record - 1;
-  photon_.clear();
   photo_->clear();
   if (type > 0) {
     if (newForm_) {
@@ -369,7 +368,7 @@ void HFShowerLibrary::getRecord(int type, int record) {
         }
       }
     } else {
-      hadBranch_->SetAddress(&photon_);
+      hadBranch_->SetAddress(photo_.get());
       hadBranch_->GetEntry(nrc);
     }
   } else {
@@ -390,19 +389,16 @@ void HFShowerLibrary::getRecord(int type, int record) {
         }
       }
     } else {
-      emBranch_->SetAddress(&photon_);
+      emBranch_->SetAddress(photo_.get());
       emBranch_->GetEntry(nrc);
     }
   }
 #ifdef EDM_ML_DEBUG
-  int nPhoton = (newForm_) ? photo_->size() : photon_.size();
+  int nPhoton = photo_->size();
   edm::LogVerbatim("HFShower") << "HFShowerLibrary::getRecord: Record " << record << " of type " << type << " with "
                                << nPhoton << " photons";
   for (int j = 0; j < nPhoton; j++)
-    if (newForm_)
-      edm::LogVerbatim("HFShower") << "Photon " << j << " " << photo_->at(j);
-    else
-      edm::LogVerbatim("HFShower") << "Photon " << j << " " << photon_[j];
+    edm::LogVerbatim("HFShower") << "Photon " << j << " " << photo_->at(j);
 #endif
 }
 
@@ -490,7 +486,7 @@ void HFShowerLibrary::interpolate(int type, double pin) {
   for (int ir = 0; ir < 2; ir++) {
     if (irc[ir] > 0) {
       getRecord(type, irc[ir]);
-      int nPhoton = (newForm_) ? photo_->size() : photon_.size();
+      int nPhoton = photo_->size();
       npold += nPhoton;
       for (int j = 0; j < nPhoton; j++) {
         r = G4UniformRand();
@@ -548,7 +544,7 @@ void HFShowerLibrary::extrapolate(int type, double pin) {
   for (int ir = 0; ir < nrec; ir++) {
     if (irc[ir] > 0) {
       getRecord(type, irc[ir]);
-      int nPhoton = (newForm_) ? photo_->size() : photon_.size();
+      int nPhoton = photo_->size();
       npold += nPhoton;
       for (int j = 0; j < nPhoton; j++) {
         double r = G4UniformRand();
@@ -580,10 +576,7 @@ void HFShowerLibrary::extrapolate(int type, double pin) {
 }
 
 void HFShowerLibrary::storePhoton(int j) {
-  if (newForm_)
-    pe_.push_back(photo_->at(j));
-  else
-    pe_.push_back(photon_[j]);
+  pe_.push_back(photo_->at(j));
   npe_++;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << "HFShowerLibrary: storePhoton " << j << " npe " << npe_ << " " << pe_[npe_ - 1];
