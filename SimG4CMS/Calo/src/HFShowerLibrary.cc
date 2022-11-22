@@ -24,7 +24,7 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
                                  const HcalDDDSimConstants* hcons,
                                  const HcalSimulationParameters* hps,
                                  edm::ParameterSet const& p)
-    : hcalConstant_(hcons), hf_(nullptr), emBranch_(nullptr), hadBranch_(nullptr), npe_(0) {
+    : hcalConstant_(hcons), hf_(), emBranch_(nullptr), hadBranch_(nullptr), npe_(0) {
   edm::ParameterSet m_HF =
       (p.getParameter<edm::ParameterSet>("HFShower")).getParameter<edm::ParameterSet>("HFShowerBlock");
   probMax_ = m_HF.getParameter<double>("ProbMax");
@@ -48,7 +48,7 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
   if (pTreeName.find('.') == 0)
     pTreeName.erase(0, 2);
   const char* nTree = pTreeName.c_str();
-  hf_ = TFile::Open(nTree);
+  hf_ = std::unique_ptr<TFile>(TFile::Open(nTree));
 
   if (!hf_->IsOpen()) {
     edm::LogError("HFShower") << "HFShowerLibrary: opening " << nTree << " failed";

@@ -63,7 +63,7 @@ protected:
 private:
   const HcalDDDSimConstants *hcalConstant_;
   std::unique_ptr<HFFibre> fibre_;
-  TFile *hf_;
+  std::unique_ptr<TFile> hf_;
   TBranch *emBranch_, *hadBranch_;
 
   bool verbose_, applyFidCut_, newForm_, v3version_;
