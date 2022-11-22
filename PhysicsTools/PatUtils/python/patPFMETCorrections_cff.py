@@ -43,13 +43,11 @@ patPFMetT1T2Corr = _mod.pfJetMETcorrInputProducerTPatJetPATJetCorrExtractor.clon
 )
 patPFMetT1T2CorrTask = cms.Task(selectedPatJetsForMetT1T2Corr,
                                 patPFMetT1T2Corr)
-patPFMetT1T2CorrSequence = cms.Sequence(patPFMetT1T2CorrTask)
 
 patPFMetT2Corr = patPFMetT1T2Corr.clone(
     src = 'selectedPatJetsForMetT2Corr'
 )
 patPFMetT2CorrTask = cms.Task(patPFMetT2Corr)
-patPFMetT2CorrSequence = cms.Sequence(patPFMetT2CorrTask)
 
 #--------------------------------------------------------------------------------
 
@@ -59,7 +57,6 @@ from JetMETCorrections.Type1MET.pfMETCorrectionType0_cfi import *
 
 patPFMetT0Corr = pfMETcorrType0.clone()
 patPFMetT0CorrTask = cms.Task(type0PFMEtCorrectionPFCandToVertexAssociationTask, patPFMetT0Corr)
-patPFMetT0CorrSequence = cms.Sequence(patPFMetT0CorrTask)
 #--------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------
@@ -152,7 +149,6 @@ patMultPhiCorrParams_Puppi_ULDATA2016postVFPG = multPhiCorrParams_Puppi_Run2_ULD
 patMultPhiCorrParams_Puppi_ULDATA2016postVFPH = multPhiCorrParams_Puppi_Run2_ULDATA.multPhiCorr_Puppi_ULDATA2016postVFPH
 
 patPFMetTxyCorrTask = cms.Task(patPFMetTxyCorr)
-patPFMetTxyCorrSequence = cms.Sequence(patPFMetTxyCorrTask)
 
 #--------------------------------------------------------------------------------
 from RecoMET.METProducers.METSigParams_cfi import *
@@ -218,7 +214,6 @@ patPFMetT2SmearCorr = patPFMetT2Corr.clone(
 patPFMetSmearCorrTask = cms.Task(patSmearedJets,
                                  selectedPatJetsForMetT1T2SmearCorr,
                                  patPFMetT1T2SmearCorr)
-patPFMetSmearCorrSequence = cms.Sequence(patPFMetSmearCorrTask)
 
 #specific sequence for handling type2 correction with smeared jets
 patPFMetT2SmearCorrTask = cms.Task(patSmearedJets,
@@ -226,7 +221,6 @@ patPFMetT2SmearCorrTask = cms.Task(patSmearedJets,
                                    selectedPatJetsForMetT2SmearCorr,
                                    patPFMetT1T2SmearCorr,
                                    patPFMetT2SmearCorr)
-patPFMetT2SmearCorrSequence = cms.Sequence(patPFMetT2SmearCorrTask)
 
 #--------------------------------------------------------------------------------
 # use MET corrections to produce Type 1 / Type 1 + 2 corrected PFMET objects
@@ -303,7 +297,6 @@ producePatPFMETCorrectionsTask = cms.Task(
     patPFMetT0pcT1,
     patPFMetT0pcT1T2
 )
-producePatPFMETCorrections = cms.Sequence(producePatPFMETCorrectionsTask)
 #--------------------------------------------------------------------------------
 
 #
@@ -321,4 +314,3 @@ producePatPFMETCorrectionsUncTask = cms.Task(
     patPFMetT0Corr,
     pfCandMETcorr
 )
-producePatPFMETCorrectionsUnc = cms.Sequence(producePatPFMETCorrectionsUncTask)
