@@ -98,6 +98,16 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
   G4Track* theTrack = aStep->GetTrack();
   TrackStatus tstat = (theTrack->GetTrackStatus() == fAlive) ? sAlive : sKilledByProcess;
 
+  if (theTrack->GetKineticEnergy() < 0.0) {
+    if (nWarnings < 5) {
+      ++nWarnings;
+      edm::LogWarning("SimG4CoreApplication")
+          << "Track #" << theTrack->GetTrackID() << " " << theTrack->GetDefinition()->GetParticleName()
+          << " Ekin(MeV)= " << theTrack->GetKineticEnergy() / MeV;
+    }
+    theTrack->SetKineticEnergy(0.0);
+  }
+
   const G4StepPoint* preStep = aStep->GetPreStepPoint();
   const G4StepPoint* postStep = aStep->GetPostStepPoint();
 
