@@ -40,7 +40,7 @@ process.load("EventFilter.GEMRawToDigi.muonGEMDigis_cfi")
 process.load('RecoLocalMuon.GEMRecHit.gemRecHits_cfi')
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.load('RecoLocalMuon.GEMCSCSegment.gemcscSegments_cfi')
+process.load('RecoLocalMuon.GEMCSCSegment.gemcscSegments_cff')
 process.load("DQM.GEM.gemEffByGEMCSCSegment_cff")
 
 process.muonGEMDigis.useDBEMap = True

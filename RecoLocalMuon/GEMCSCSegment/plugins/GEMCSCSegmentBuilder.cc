@@ -32,6 +32,7 @@ GEMCSCSegmentBuilder::GEMCSCSegmentBuilder(const edm::ParameterSet& ps)
     :  // Ask factory to build this algorithm, giving it appropriate ParameterSet
       algo{GEMCSCSegmentBuilderPluginFactory::get()->create(ps.getParameter<std::string>("algo_name"),
                                                             ps.getParameter<edm::ParameterSet>("algo_psets"))},
+      enable_me21_ge21_(ps.getParameter<bool>("enableME21GE21")),
       gemgeom_{nullptr},
       cscgeom_{nullptr} {
   edm::LogVerbatim("GEMCSCSegmentBuilder")
@@ -120,14 +121,13 @@ void GEMCSCSegmentBuilder::build(const GEMRecHitCollection* recHits,
     CSCDetId CSCId = segmIt->cscDetId();
 
     // Search for Matches between GEM Roll and CSC Chamber
-    //   - only matches between ME1/1(a&b) and GE1/1
-    //   - notation: CSC ring 1 = ME1/1b; CSC ring 4 = ME1/1a
 
-    // Case A :: ME1/1 Segments can have GEM Rechits associated to them
+    // Case A :: ME1/1 and ME2/1 Segments can have GE1/1 and GE2/1 Rechits associated to them, respectively
     // ================================================================
-    if (CSCId.station() == 1 && (CSCId.ring() == 1 || CSCId.ring() == 4)) {
+    if (CSCId.isME11() or (enable_me21_ge21_ and CSCId.isME21())) {
       edm::LogVerbatim("GEMCSCSegmentBuilder")
-          << "[GEMCSCSegmentBuilder :: build] Found ME1/1 Segment in " << CSCId.rawId() << " = " << CSCId << std::endl;
+          << "[GEMCSCSegmentBuilder :: build] Found " << (CSCId.isME11() ? "ME1/1" : "ME2/1") << " Segment in "
+          << CSCId.rawId() << " = " << CSCId;
 
       // 1) Save the CSC Segment in CSC segment collection
       // -------------------------------------------------
@@ -214,13 +214,13 @@ void GEMCSCSegmentBuilder::build(const GEMRecHitCollection* recHits,
           }
         }  // end Loop over GEM Rolls
       }    // end Loop over GEM RecHits
-    }      // end requirement of CSC segment in ME1/1
+    }      // end requirement of CSC segment in ME1/1 or ME2/1
 
     // Case B :: all other CSC Chambers have no GEM Chamber associated
     // ===============================================================
-    else if (!(CSCId.station() == 1 && (CSCId.ring() == 1 || CSCId.ring() == 4))) {
-      edm::LogVerbatim("GEMCSCSegmentBuilder") << "[GEMCSCSegmentBuilder :: build] Found non-ME1/1 Segment in "
-                                               << CSCId.rawId() << " = " << CSCId << std::endl;
+    else {
+      edm::LogVerbatim("GEMCSCSegmentBuilder")
+          << "[GEMCSCSegmentBuilder :: build] Found a Segment in " << CSCId.rawId() << " = " << CSCId;
 
       // get CSC segment vector associated to this CSCDetId
       // if no vector is associated yet to this CSCDetId, create empty vector
@@ -230,10 +230,6 @@ void GEMCSCSegmentBuilder::build(const GEMRecHitCollection* recHits,
       cscsegmentvector_noGEM.push_back(segmIt->clone());
       cscSegColl_noGEM[CSCId.rawId()] = cscsegmentvector_noGEM;
     }
-
-    else {
-    }  // no other option
-
   }  // end Loop over csc segments
 
   // === Now pass CSC Segments and GEM RecHits to the Segment Algorithm ===
