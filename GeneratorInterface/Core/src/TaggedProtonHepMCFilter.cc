@@ -3,7 +3,10 @@
 TaggedProtonHepMCFilter::TaggedProtonHepMCFilter(const edm::ParameterSet &iConfig)
     : xiMin_(iConfig.getParameter<double>("xiMin")),
       xiMax_(iConfig.getParameter<double>("xiMax")),
-      nProtons_(iConfig.getParameter<int>("nProtons")) {}
+      comEnergy_(iConfig.getParameter<double>("comEnergy")),
+      nProtons_(iConfig.getParameter<int>("nProtons")) {
+  OneOverbeamEnergy_ = 2.0 / comEnergy_;
+}
 
 TaggedProtonHepMCFilter::~TaggedProtonHepMCFilter() {}
 
