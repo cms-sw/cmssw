@@ -40,6 +40,7 @@ linkedObjects = cms.EDProducer("PATObjectCrossLinker",
    electrons=cms.InputTag("finalElectrons"),
    lowPtElectrons=cms.InputTag("finalLowPtElectrons"),
    taus=cms.InputTag("finalTaus"),
+   boostedTaus=cms.InputTag("finalBoostedTaus"),
    photons=cms.InputTag("finalPhotons"),
 )
 
