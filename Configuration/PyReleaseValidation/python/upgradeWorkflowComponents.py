@@ -24,6 +24,8 @@ upgradeKeys[2017] = [
     '2023PU',
     '2024',
     '2024PU',
+    '2022postEE',
+    '2022postEEPU', 
 ]
 
 upgradeKeys[2026] = [
@@ -2009,6 +2011,14 @@ upgradeProperties[2017] = {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2024_realistic',
         'HLTmenu': '@relval2022',
+        'Era' : 'Run3',
+        'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
+        'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
+    },
+    '2022postEE' : {
+        'Geom' : 'DB:Extended',
+        'GT' : 'auto:phase1_2022_realistic_postEE',
+        'HLTmenu': '@relval2022_postEE',
         'Era' : 'Run3',
         'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
         'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
