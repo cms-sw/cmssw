@@ -80,6 +80,10 @@ public:
 private:
   void terminateRun();
 
+  void checkVoxels();
+
+  void setupVoxels();
+
   G4MTRunManagerKernel* m_kernel;
 
   CustomUIsession* m_UIsession;
