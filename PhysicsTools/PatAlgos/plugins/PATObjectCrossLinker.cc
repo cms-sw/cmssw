@@ -34,6 +34,7 @@
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
+#include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
 
 #include "DataFormats/Common/interface/View.h"
 
@@ -78,6 +79,18 @@ private:
                             C4& itemsMany,
                             const std::string& nameMany);
 
+  template <class C1, class C2, class C3>
+  void matchOneToVertices(C1& itemsOne,
+                          const C2& refProdVtx,
+                          C3& itemsVtx,
+                          const std::string& nameVtx);
+
+  template <class C1, class C2, class C3>
+  void matchVertexToMany(const C1& refProdVtx,
+                         C2& itemsVtx,
+                         const std::string& nameVtx,
+                         C3& itemsMany);
+
   //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
@@ -92,6 +105,7 @@ private:
   const edm::EDGetTokenT<edm::View<pat::Tau>> taus_;
   const edm::EDGetTokenT<edm::View<pat::Tau>> boostedTaus_;
   const edm::EDGetTokenT<edm::View<pat::Photon>> photons_;
+  const edm::EDGetTokenT<edm::View<reco::VertexCompositePtrCandidate>> vertices_;
 };
 
 //
@@ -105,7 +119,8 @@ PATObjectCrossLinker::PATObjectCrossLinker(const edm::ParameterSet& params)
       lowPtElectrons_(mayConsume<edm::View<pat::Electron>>(lowPtElectronsTag_)),
       taus_(consumes<edm::View<pat::Tau>>(params.getParameter<edm::InputTag>("taus"))),
       boostedTaus_(consumes<edm::View<pat::Tau>>(params.getParameter<edm::InputTag>("boostedTaus"))),
-      photons_(consumes<edm::View<pat::Photon>>(params.getParameter<edm::InputTag>("photons")))
+      photons_(consumes<edm::View<pat::Photon>>(params.getParameter<edm::InputTag>("photons"))),
+      vertices_(consumes<edm::View<reco::VertexCompositePtrCandidate>>(params.getParameter<edm::InputTag>("vertices")))
 
 {
   produces<std::vector<pat::Jet>>("jets");
@@ -116,6 +131,7 @@ PATObjectCrossLinker::PATObjectCrossLinker(const edm::ParameterSet& params)
   produces<std::vector<pat::Tau>>("taus");
   produces<std::vector<pat::Tau>>("boostedTaus");
   produces<std::vector<pat::Photon>>("photons");
+  produces<std::vector<reco::VertexCompositePtrCandidate>>("vertices");
 }
 
 PATObjectCrossLinker::~PATObjectCrossLinker() {
@@ -153,6 +169,7 @@ void PATObjectCrossLinker::matchOneToMany(const C1& refProdOne,
   }
 }
 
+// one electron can be matched to several photons
 template <class C1, class C2, class C3, class C4>
 void PATObjectCrossLinker::matchElectronToPhoton(const C1& refProdOne,
                                                  C2& itemsOne,
@@ -176,6 +193,7 @@ void PATObjectCrossLinker::matchElectronToPhoton(const C1& refProdOne,
   }
 }
 
+// one low pt electron can be matched to several electrons
 template <class C1, class C2, class C3, class C4>
 void PATObjectCrossLinker::matchLowPtToElectron(const C1& refProdOne,
                                                 C2& itemsOne,
@@ -203,6 +221,44 @@ void PATObjectCrossLinker::matchLowPtToElectron(const C1& refProdOne,
     }
     j.setOverlaps(nameMany, overlaps);
     ji++;
+  }
+}
+
+// several vertices stored as overlap with a jet
+// (reco vertices have no userCands)
+template <class C1, class C2, class C3>
+void PATObjectCrossLinker::matchOneToVertices(C1& itemsOne,
+                                            const C2& refProdVtx,
+                                            C3& itemsVtx,
+                                            const std::string& nameVtx) {
+  for (auto& j : itemsOne) {
+    edm::PtrVector<reco::Candidate> overlaps(refProdVtx.id());
+    size_t vi = 0;
+    for (auto& v : itemsVtx) {
+      if (matchByCommonSourceCandidatePtr(j, v)) {
+        overlaps.push_back(reco::CandidatePtr(refProdVtx.id(), vi, refProdVtx.productGetter()));
+      }
+      vi++;
+    }
+    j.setOverlaps(nameVtx, overlaps);
+  }
+}
+
+// vertex stored as userCand to matched object
+// (reco vertices have no overlaps)
+template <class C1, class C2, class C3>
+void PATObjectCrossLinker::matchVertexToMany(const C1& refProdVtx,
+                                          C2& itemsVtx,
+                                          const std::string& nameVtx,
+                                          C3& itemsMany) {
+  size_t vi = 0;
+  for (auto& v : itemsVtx) {
+    for (auto& m : itemsMany) {
+      if (matchByCommonSourceCandidatePtr(v, m) && (!m.hasUserCand(nameVtx))) {
+        m.addUserCand(nameVtx, reco::CandidatePtr(refProdVtx.id(), vi, refProdVtx.productGetter()));
+      }
+    }
+    vi++;
   }
 }
 
@@ -259,6 +315,13 @@ void PATObjectCrossLinker::produce(edm::Event& iEvent, const edm::EventSetup& iS
     photons->push_back(p);
   auto phRefProd = iEvent.getRefBeforePut<std::vector<pat::Photon>>("photons");
 
+  const auto& verticesIn = iEvent.get(vertices_);
+  auto vertices = std::make_unique<std::vector<reco::VertexCompositePtrCandidate>>();
+  vertices->reserve(verticesIn.size());
+  for (const auto& v : verticesIn)
+    vertices->push_back(v);
+  auto vtxRefProd = iEvent.getRefBeforePut<std::vector<reco::VertexCompositePtrCandidate>>("vertices");
+
   matchOneToMany(jetRefProd, *jets, "jet", muRefProd, *muons, "muons");
   matchOneToMany(jetRefProd, *jets, "jet", eleRefProd, *electrons, "electrons");
   matchOneToMany(jetRefProd, *jets, "jet", tauRefProd, *taus, "taus");
@@ -271,6 +334,11 @@ void PATObjectCrossLinker::produce(edm::Event& iEvent, const edm::EventSetup& iS
     matchLowPtToElectron(lowPtEleRefProd, *lowPtElectrons, "lowPtElectron", eleRefProd, *electrons, "electrons");
   }
 
+  matchOneToVertices(*jets, vtxRefProd, *vertices, "vertices");
+  matchOneToVertices(*taus, vtxRefProd, *vertices, "vertices");
+  matchVertexToMany(vtxRefProd, *vertices, "vertex", *muons);
+  matchVertexToMany(vtxRefProd, *vertices, "vertex", *electrons);
+
   iEvent.put(std::move(jets), "jets");
   iEvent.put(std::move(muons), "muons");
   iEvent.put(std::move(electrons), "electrons");
@@ -279,6 +347,7 @@ void PATObjectCrossLinker::produce(edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.put(std::move(taus), "taus");
   iEvent.put(std::move(boostedTaus), "boostedTaus");
   iEvent.put(std::move(photons), "photons");
+  iEvent.put(std::move(vertices), "vertices");
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
@@ -298,6 +367,7 @@ void PATObjectCrossLinker::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<edm::InputTag>("taus")->setComment("a tau collection derived from pat::Tau");
   desc.add<edm::InputTag>("boostedTaus")->setComment("a boosted tau collection derived from pat::Tau");
   desc.add<edm::InputTag>("photons")->setComment("a photon collection derived from pat::Photon");
+  desc.add<edm::InputTag>("vertices")->setComment("a vertex collection derived from reco::VertexCompositePtrCandidate");
   descriptions.add("patObjectCrossLinker", desc);
 }
 
