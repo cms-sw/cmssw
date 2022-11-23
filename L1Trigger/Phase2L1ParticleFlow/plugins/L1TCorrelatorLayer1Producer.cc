@@ -705,13 +705,25 @@ void L1TCorrelatorLayer1Producer::addRawHgcalCluster(l1ct::DetectorSector<ap_uin
   ap_int<9> w_phi = round(sec.region.localPhi(c.phi()) / ETAPHI_LSB);
   ap_uint<10> w_qual = c.hwQual();
 
+  ap_uint<13> w_srrtot = round(c.sigmaRR()/l1ct::Scales::SRRTOT_LSB);
+  ap_uint<12> w_meanz = round(c.absZBarycenter());
+  ap_uint<12> w_hoe = round(c.hOverE()/l1ct::Scales::HOE_LSB);
+ 
   cwrd(13, 0) = w_pt;
   cwrd(27, 14) = w_empt;
   cwrd(72, 64) = w_eta;
   cwrd(81, 73) = w_phi;
   cwrd(115, 106) = w_qual;
 
-  // FIXME: cluster-shape variables use by composite-ID need to be added here
+  // FIXME: we add the variables use by composite-ID. The definitin will have to be reviewd once the 
+  // hgc format is better defined. For now we use
+  // hwMeanZ = word 1 bits 30-19
+  // hwSrrTot = word 3 bits 21 - 9
+  // hoe = word 1 bits 63-52 (currently spare)
+  cwrd(213, 201) = w_srrtot;
+  cwrd(94, 83) = w_meanz;
+  // FIXME: we use a spare space in the word for hoe which is not in the current interface
+  cwrd(127, 116) = w_hoe;
 
   sec.obj.push_back(cwrd);
 }

@@ -40,7 +40,6 @@ namespace l1ct {
   typedef ap_uint<13> tk2calo_dq_t;
   typedef ap_uint<4> egquality_t;
   typedef ap_uint<3> stub_t;
-  // FIXME: random choice for the various bitwidth below!!!!
   typedef ap_ufixed<12, 10, AP_TRN, AP_SAT> chi2_t;
   typedef ap_ufixed<10, 1, AP_TRN, AP_SAT> srrtot_t;
   typedef ap_uint<8> meanz_t;  // mean - SCALE_MEANZ = 320
@@ -157,6 +156,8 @@ namespace l1ct {
     constexpr float DXY_LSB = 0.05;
     constexpr float PUPPIW_LSB = 1.0 / 256;
     constexpr float MEANZ_SCALE = 320.;
+    constexpr float SRRTOT_LSB = pow(2,-9);
+    constexpr float HOE_LSB = pow(2,-5);
 
     inline float floatPt(pt_t pt) { return pt.to_float(); }
     inline float floatPt(dpt_t pt) { return pt.to_float(); }
