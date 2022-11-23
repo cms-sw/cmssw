@@ -2020,7 +2020,7 @@ upgradeProperties[2017] = {
         'GT' : 'auto:phase1_2022_realistic_postEE',
         'HLTmenu': '@relval2022_postEE',
         'Era' : 'Run3',
-        'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
+        'BeamSpot': 'Realistic25ns13p6TeVEarly2022Collision',
         'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
     },
 }
