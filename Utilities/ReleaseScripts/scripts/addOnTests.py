@@ -13,7 +13,6 @@ scriptPath = os.path.dirname( os.path.abspath(sys.argv[0]) )
 if scriptPath not in sys.path:
     sys.path.append(scriptPath)
 
-
 class testit(Thread):
     def __init__(self,dirName, commandList):
         Thread.__init__(self)
@@ -24,44 +23,34 @@ class testit(Thread):
         self.nfail=[]
         self.npass=[]
 
-        return
-
     def run(self):
+        try:
+            os.makedirs(self.dirName)
+        except:
+            pass
 
-        startime='date %s' %time.asctime()
-        exitCodes = []
+        with open(self.dirName+'/cmdLog', 'w') as clf:
+            clf.write(f'# {self.dirName}\n')
 
-        for command in self.commandList:
+            for cmdIdx, command in enumerate(self.commandList):
+                clf.write(f'\n{command}\n')
 
-            if not os.path.exists(self.dirName):
-                os.makedirs(self.dirName)
+                time_start = time.time()
+                exitcode = os.system(f'cd {self.dirName} && {command} > step{cmdIdx+1}.log 2>&1')
+                time_elapsed_sec = round(time.time() - time_start)
 
-            commandbase = command.replace(' ','_').replace('/','_')
-            logfile='%s.log' % commandbase[:150].replace("'",'').replace('"','').replace('../','')
-
-            executable = 'cd '+self.dirName+'; '+command+' > '+logfile+' 2>&1'
-
-            ret = os.system(executable)
-            exitCodes.append( ret )
-
-        endtime='date %s' %time.asctime()
-        tottime='%s-%s'%(endtime,startime)
-
-        for i in range(len(self.commandList)):
-            command = self.commandList[i]
-            exitcode = exitCodes[i]
-            if exitcode != 0:
-                log='%s : FAILED - time: %s s - exit: %s\n' %(command,tottime,exitcode)
-                self.report+='%s\n'%log
-                self.nfail.append(1)
-                self.npass.append(0)
-            else:
-                log='%s : PASSED - time: %s s - exit: %s\n' %(command,tottime,exitcode)
-                self.report+='%s\n'%log
-                self.nfail.append(0)
-                self.npass.append(1)
-
-        return
+                timelog = f'elapsed time: {time_elapsed_sec} sec (ended on {time.asctime()})'
+                logline = f'[{self.dirName}:{cmdIdx+1}] {command} : '
+                if exitcode != 0:
+                    logline += 'FAILED'
+                    self.nfail.append(1)
+                    self.npass.append(0)
+                else:
+                    logline += 'PASSED'
+                    self.nfail.append(0)
+                    self.npass.append(1)
+                logline += f' - {timelog} - exit: {exitcode}'
+                self.report += logline+'\n\n'
 
 class StandardTester(object):
 
@@ -95,25 +84,25 @@ class StandardTester(object):
                 }
 
         hltTests = {}
-        hltFlag_data = ' realData=True  globalTag=@ inputFiles=@ '
-        hltFlag_mc   = ' realData=False globalTag=@ inputFiles=@ '
+        hltFlag_data = 'realData=True globalTag=@ inputFiles=@'
+        hltFlag_mc = 'realData=False globalTag=@ inputFiles=@'
         from Configuration.HLT.addOnTestsHLT import addOnTestsHLT
         hltTestsToAdd = addOnTestsHLT()
         for key in hltTestsToAdd:
             if '_data_' in key:
                 hltTests[key] = [hltTestsToAdd[key][0],
-                                 'cmsRun '+self.file2Path(hltTestsToAdd[key][1])+hltFlag_data,
+                                 'cmsRun '+self.file2Path(hltTestsToAdd[key][1])+' '+hltFlag_data,
                                  hltTestsToAdd[key][2]]
             elif '_mc_' in key:
                 hltTests[key] = [hltTestsToAdd[key][0],
-                                 'cmsRun '+self.file2Path(hltTestsToAdd[key][1])+hltFlag_mc,
+                                 'cmsRun '+self.file2Path(hltTestsToAdd[key][1])+' '+hltFlag_mc,
                                  hltTestsToAdd[key][2]]
             else:
                 hltTests[key] = [hltTestsToAdd[key][0],
                                  'cmsRun '+self.file2Path(hltTestsToAdd[key][1]),
                                  hltTestsToAdd[key][2]]
 
-        self.commands={}
+        self.commands = {}
         for dirName, command in lines.items():
             self.commands[dirName] = command
 
