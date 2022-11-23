@@ -176,9 +176,7 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
 #if 0  // LATER
   produces<l1t::PFCandidateCollection>("TKVtx");
 #endif
-#if 0  // LATER
   produces<std::vector<l1t::PFTrack>>("DecodedTK");
-#endif
 
   for (const auto &tag : iConfig.getParameter<std::vector<edm::InputTag>>("emClusters")) {
     emCands_.push_back(consumes<l1t::PFClusterCollection>(tag));
@@ -368,10 +366,7 @@ void L1TCorrelatorLayer1Producer::produce(edm::Event &iEvent, const edm::EventSe
   iEvent.put(fetchEmCalo(), "EmCalo");
   iEvent.put(fetchHadCalo(), "Calo");
   iEvent.put(fetchTracks(), "TK");
-  
-  #if 0
-    iEvent.put(fetchDecodedTracks(), "DecodedTK");
-  #endif
+  iEvent.put(fetchDecodedTracks(), "DecodedTK");
 
   // Then do the vertexing, and save it out
   std::vector<float> z0s;
@@ -643,8 +638,7 @@ void L1TCorrelatorLayer1Producer::addDecodedTrack(l1ct::DetectorSector<l1ct::TkO
     tkAndSel.second = t.quality() > 0;
   }
   // CMSSW-only extra info
-  tkAndSel.first.hwChi2 =  l1ct::Scales::makeChi2(t.chi2());
-  tkAndSel.first.hwStubs = t.nStubs();
+  tkAndSel.first.hwChi2 = round(t.chi2() * 10);
   tkAndSel.first.simPt = t.pt();
   tkAndSel.first.simCaloEta = t.caloEta();
   tkAndSel.first.simCaloPhi = t.caloPhi();
@@ -653,7 +647,7 @@ void L1TCorrelatorLayer1Producer::addDecodedTrack(l1ct::DetectorSector<l1ct::TkO
   tkAndSel.first.simZ0 = t.vertex().Z();
   tkAndSel.first.simD0 = t.vertex().Rho();
   tkAndSel.first.src = &t;
-  
+
   // If the track fails, we set its pT to zero, so that the decoded tracks are still aligned with the raw tracks
   // Downstream, the regionizer will just ignore zero-momentum tracks
   if (!tkAndSel.second)
@@ -690,40 +684,41 @@ void L1TCorrelatorLayer1Producer::addDecodedHadCalo(l1ct::DetectorSector<l1ct::H
   calo.hwEmPt = l1ct::Scales::makePtFromFloat(c.emEt());
   calo.hwEmID = c.hwEmID();
   calo.hwSrrTot = l1ct::Scales::makeSrrTot(c.sigmaRR());
-- calo.hwMeanZ = l1ct::Scales::makeMeanZ(c.absZBarycenter());
-- calo.hwHoe = l1ct::Scales::makeHoe(c.hOverE());
+  calo.hwMeanZ = c.absZBarycenter() < 320. ? l1ct::meanz_t(0) : l1ct::Scales::makeMeanZ(c.absZBarycenter());
+  calo.hwHoe = l1ct::Scales::makeHoe(c.hOverE());
   calo.src = &c;
   sec.obj.push_back(calo);
 }
 
 void L1TCorrelatorLayer1Producer::addRawHgcalCluster(l1ct::DetectorSector<ap_uint<256>> &sec, const l1t::PFCluster &c) {
   ap_uint<256> cwrd = 0;
-  ap_uint<14> w_pt = round(c.pt() / 0.25);
+  ap_ufixed<14, 12, AP_RND_CONV, AP_SAT> w_pt = c.pt();
   ap_uint<14> w_empt = round(c.emEt() / 0.25);
   constexpr float ETAPHI_LSB = M_PI / 720;
   ap_int<9> w_eta = round(sec.region.localEta(c.eta()) / ETAPHI_LSB);
   ap_int<9> w_phi = round(sec.region.localPhi(c.phi()) / ETAPHI_LSB);
   ap_uint<10> w_qual = c.hwQual();
 
-  ap_uint<13> w_srrtot = round(c.sigmaRR()/l1ct::Scales::SRRTOT_LSB);
+  ap_uint<13> w_srrtot = round(c.sigmaRR() / l1ct::Scales::SRRTOT_LSB);
   ap_uint<12> w_meanz = round(c.absZBarycenter());
-  ap_uint<12> w_hoe = round(c.hOverE()/l1ct::Scales::HOE_LSB);
- 
-  cwrd(13, 0) = w_pt;
+  // FIXME: the calibration can actually make hoe become negative....we add a small protection for now
+  // We use ap_ufixed to handle saturation and rounding
+  ap_ufixed<10, 5, AP_RND_CONV, AP_SAT> w_hoe = c.hOverE();
+
+  cwrd(13, 0) = w_pt.range();
   cwrd(27, 14) = w_empt;
   cwrd(72, 64) = w_eta;
   cwrd(81, 73) = w_phi;
   cwrd(115, 106) = w_qual;
 
-  // FIXME: we add the variables use by composite-ID. The definitin will have to be reviewd once the 
+  // FIXME: we add the variables use by composite-ID. The definitin will have to be reviewd once the
   // hgc format is better defined. For now we use
   // hwMeanZ = word 1 bits 30-19
   // hwSrrTot = word 3 bits 21 - 9
-  // hoe = word 1 bits 63-52 (currently spare)
+  // hoe = word 1 bits 63-52 (currently spare in the interface)
   cwrd(213, 201) = w_srrtot;
   cwrd(94, 83) = w_meanz;
-  // FIXME: we use a spare space in the word for hoe which is not in the current interface
-  cwrd(127, 116) = w_hoe;
+  cwrd(127, 116) = w_hoe.range();
 
   sec.obj.push_back(cwrd);
 }
@@ -871,15 +866,16 @@ std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchTr
 
 std::unique_ptr<std::vector<l1t::PFTrack>> L1TCorrelatorLayer1Producer::fetchDecodedTracks() const {
   auto ret = std::make_unique<std::vector<l1t::PFTrack>>();
-  for (const auto r : event_.decoded.track) {
+  for (const auto &r : event_.decoded.track) {
     const auto &reg = r.region;
     for (const auto &p : r.obj) {
       if (p.hwPt == 0 || !reg.isFiducial(p))
         continue;
-      reco::Particle::PolarLorentzVector p4(p.floatPt(), reg.floatGlbEta(p.hwVtxEta()), reg.floatGlbPhi(p.hwVtxPhi()), 0);
+      reco::Particle::PolarLorentzVector p4(
+          p.floatPt(), reg.floatGlbEta(p.hwVtxEta()), reg.floatGlbPhi(p.hwVtxPhi()), 0);
 
-      reco::Particle::Point vtx(0,0,p.floatZ0());
-      
+      reco::Particle::Point vtx(0, 0, p.floatZ0());
+
       ret->emplace_back(l1t::PFTrack(p.intCharge(),
                                      reco::Particle::LorentzVector(p4),
                                      vtx,
@@ -898,7 +894,6 @@ std::unique_ptr<std::vector<l1t::PFTrack>> L1TCorrelatorLayer1Producer::fetchDec
   }
   return ret;
 }
-
 
 std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchPF() const {
   auto ret = std::make_unique<l1t::PFCandidateCollection>();
@@ -922,7 +917,7 @@ std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchPF
       ret->back().setHwTkQuality(p.hwTkQuality);
       ret->back().setCaloEta(reg.floatGlbEtaOf(p));
       ret->back().setCaloPhi(reg.floatGlbPhiOf(p));
-      
+
       setRefs_(ret->back(), p);
     }
     for (const auto &p : event_.out[ir].pfneutral) {

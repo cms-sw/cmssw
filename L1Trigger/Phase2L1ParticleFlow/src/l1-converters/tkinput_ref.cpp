@@ -37,7 +37,8 @@ namespace {
 l1ct::TrackInputEmulator::TrackInputEmulator(const edm::ParameterSet &iConfig)
     : TrackInputEmulator(parseRegion(iConfig.getParameter<std::string>("region")),
                          parseEncoding(iConfig.getParameter<std::string>("trackWordEncoding")),
-                         iConfig.getParameter<bool>("bitwiseAccurate")) {
+                         iConfig.getParameter<bool>("bitwiseAccurate"),
+                         iConfig.getParameter<bool>("slimDataFormat")) {
   if (region_ != Region::Endcap && region_ != Region::Barrel) {
     edm::LogError("TrackInputEmulator") << "region '" << iConfig.getParameter<std::string>("region")
                                         << "' is not yet supported";
@@ -81,10 +82,11 @@ l1ct::TrackInputEmulator::TrackInputEmulator(const edm::ParameterSet &iConfig)
 
 #endif
 
-l1ct::TrackInputEmulator::TrackInputEmulator(Region region, Encoding encoding, bool bitwise)
+l1ct::TrackInputEmulator::TrackInputEmulator(Region region, Encoding encoding, bool bitwise, bool slim)
     : region_(region),
       encoding_(encoding),
       bitwise_(bitwise),
+      slim_(slim),
       rInvToPt_(31199.5),
       phiScale_(0.00038349520),
       z0Scale_(0.00999469),
@@ -100,7 +102,8 @@ l1ct::TrackInputEmulator::TrackInputEmulator(Region region, Encoding encoding, b
 
 std::pair<l1ct::TkObjEmu, bool> l1ct::TrackInputEmulator::decodeTrack(ap_uint<96> tkword,
                                                                       const l1ct::PFRegionEmu &sector,
-                                                                      bool bitwise) const {
+                                                                      bool bitwise,
+                                                                      bool slim) const {
   l1ct::TkObjEmu ret;
   ret.clear();
   auto z0 = signedZ0(tkword);
@@ -162,13 +165,20 @@ std::pair<l1ct::TkObjEmu, bool> l1ct::TrackInputEmulator::decodeTrack(ap_uint<96
         fDEta = floatDEtaHGCal(z0, Rinv, tanl);
         fDPhi = floatDPhiHGCal(z0, Rinv, tanl);
       }
-
       ret.hwDPhi = std::round(fDPhi);
       ret.hwDEta = std::round(fDEta);
       ret.hwPhi = std::round(fvtxPhi - fDPhi * ret.intCharge());
       ret.hwEta = glbeta_t(std::round(fvtxEta)) - ret.hwDEta - sector.hwEtaCenter;
 
       ret.hwZ0 = l1ct::Scales::makeZ0(floatZ0(z0));
+    }
+
+    if (!slim) {
+      ap_uint<7> w_hitPattern = tkword(15, 9);
+      ret.hwStubs = countSetBits(w_hitPattern);
+      ret.hwRedChi2RZ = tkword(35, 32);
+      ret.hwRedChi2RPhi = tkword(67, 64);
+      ret.hwRedChi2Bend = tkword(18, 16);
     }
 
     oksel = ret.hwQuality != 0;

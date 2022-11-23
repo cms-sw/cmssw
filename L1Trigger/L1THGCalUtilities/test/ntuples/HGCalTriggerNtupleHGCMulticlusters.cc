@@ -181,12 +181,12 @@ void HGCalTriggerNtupleHGCMulticlusters::fill(const edm::Event& e, const HGCalTr
       cl3d_layer_pt_.emplace_back(layer_pt);
     }
 
-    // // Retrieve indices of trigger cells inside cluster
-    // cl3d_clusters_id_.emplace_back(cl3d_itr->constituents().size());
-    // std::transform(cl3d_itr->constituents_begin(),
-    //                cl3d_itr->constituents_end(),
-    //                cl3d_clusters_id_.back().begin(),
-    //                [](const std::pair<uint32_t, edm::Ptr<l1t::HGCalCluster>>& id_cl) { return id_cl.second->detId(); });
+    // Retrieve indices of trigger cells inside cluster
+    cl3d_clusters_id_.emplace_back(cl3d_itr->constituents().size());
+    std::transform(cl3d_itr->constituents_begin(),
+                   cl3d_itr->constituents_end(),
+                   cl3d_clusters_id_.back().begin(),
+                   [](const std::pair<uint32_t, edm::Ptr<l1t::HGCalCluster>>& id_cl) { return id_cl.second->detId(); });
   }
 }
 

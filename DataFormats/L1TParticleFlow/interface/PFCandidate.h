@@ -51,7 +51,6 @@ namespace l1t {
     void setCaloEta(float caloeta) { caloEta_ = caloeta; }
     void setCaloPhi(float calophi) { caloPhi_ = calophi; }
 
-
     float z0() const { return vz(); }
     float dxy() const { return dxy_; }
     float caloEta() const { return caloEta_; }
