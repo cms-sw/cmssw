@@ -163,6 +163,9 @@ private:
 
   //Timing Cross Correlation Algo
   std::unique_ptr<EcalUncalibRecHitTimingCCAlgo> computeCC_;
+  double CCminTimeToBeLateMin_;
+  double CCminTimeToBeLateMax_;
+  double CCTimeShiftWrtRations_;
 };
 
 EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::ParameterSet& ps, edm::ConsumesCollector& c)
@@ -225,6 +228,9 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
     double startTime = ps.getParameter<double>("crossCorrelationStartTime");
     double stopTime = ps.getParameter<double>("crossCorrelationStopTime");
     double targetTimePrecision = ps.getParameter<double>("crossCorrelationTargetTimePrecision");
+    CCminTimeToBeLateMin_ = ps.getParameter<double>("crossCorrelationMinTimeToBeLateMin") / ecalPh1::Samp_Period;
+    CCminTimeToBeLateMax_ = ps.getParameter<double>("crossCorrelationMinTimeToBeLateMax") / ecalPh1::Samp_Period;
+    CCTimeShiftWrtRations_ = ps.getParameter<double>("crossCorrelationTimeShiftWrtRations");
     computeCC_ = std::make_unique<EcalUncalibRecHitTimingCCAlgo>(startTime, stopTime, targetTimePrecision);
   } else if (timeAlgoName != "None")
     edm::LogError("EcalUncalibRecHitError") << "No time estimation algorithm defined";
@@ -628,10 +634,61 @@ void EcalUncalibRecHitWorkerMultiFit::run(const edm::Event& evt,
           amplitudes[ibx] = uncalibRecHit.outOfTimeAmplitude(ibx);
 
         float jitterError = 0.;
-        float jitter = computeCC_->computeTimeCC(*itdg, amplitudes, aped, aGain, fullpulse, uncalibRecHit, jitterError);
+        float jitter =
+            computeCC_->computeTimeCC(*itdg, amplitudes, aped, aGain, fullpulse, uncalibRecHit, jitterError, true) +
+            CCTimeShiftWrtRations_ / ecalPh1::Samp_Period;
+        float noCorrectedJitter =
+            computeCC_->computeTimeCC(*itdg, amplitudes, aped, aGain, fullpulse, uncalibRecHit, jitterError, false) +
+            CCTimeShiftWrtRations_ / ecalPh1::Samp_Period;
 
         uncalibRecHit.setJitter(jitter);
         uncalibRecHit.setJitterError(jitterError);
+
+        // consider flagging as kOutOfTime only if above noise
+        float threshold, cterm, timeNconst;
+        float timeThrP = 0.;
+        float timeThrM = 0.;
+        if (barrel) {
+          threshold = pedRMSVec[0] * amplitudeThreshEB_;
+          cterm = EBtimeConstantTerm_;
+          timeNconst = EBtimeNconst_;
+          timeThrP = outOfTimeThreshG12pEB_;
+          timeThrM = outOfTimeThreshG12mEB_;
+          if (uncalibRecHit.amplitude() > 3000.) {  // Gain switch
+            for (int iSample = 0; iSample < EBDataFrame::MAXSAMPLES; iSample++) {
+              int GainId = ((EcalDataFrame)(*itdg)).sample(iSample).gainId();
+              if (GainId != 1) {
+                timeThrP = outOfTimeThreshG61pEB_;
+                timeThrM = outOfTimeThreshG61mEB_;
+                break;
+              }
+            }
+          }
+        } else {  //EndCap
+          threshold = pedRMSVec[0] * amplitudeThreshEE_;
+          cterm = EEtimeConstantTerm_;
+          timeNconst = EEtimeNconst_;
+          timeThrP = outOfTimeThreshG12pEE_;
+          timeThrM = outOfTimeThreshG12mEE_;
+          if (uncalibRecHit.amplitude() > 3000.) {  // Gain switch
+            for (int iSample = 0; iSample < EEDataFrame::MAXSAMPLES; iSample++) {
+              int GainId = ((EcalDataFrame)(*itdg)).sample(iSample).gainId();
+              if (GainId != 1) {
+                timeThrP = outOfTimeThreshG61pEE_;
+                timeThrM = outOfTimeThreshG61mEE_;
+                break;
+              }
+            }
+          }
+        }
+        if (uncalibRecHit.amplitude() > threshold) {
+          float correctedTime = noCorrectedJitter * ecalPh1::Samp_Period + itimeconst + offsetTime;
+          float sigmaped = pedRMSVec[0];  // approx for lower gains
+          float nterm = timeNconst * sigmaped / uncalibRecHit.amplitude();
+          float sigmat = std::sqrt(nterm * nterm + cterm * cterm);
+          if ((correctedTime > sigmat * timeThrP) || (correctedTime < -sigmat * timeThrM))
+            uncalibRecHit.setFlagBit(EcalUncalibratedRecHit::kOutOfTime);
+        }
 
       } else {  // no time method;
         uncalibRecHit.setJitter(0.);
@@ -712,7 +769,10 @@ edm::ParameterSetDescription EcalUncalibRecHitWorkerMultiFit::getAlgoDescription
               edm::ParameterDescription<double>("amplitudeThresholdEE", 10, true) and
               edm::ParameterDescription<double>("crossCorrelationStartTime", -25.0, true) and
               edm::ParameterDescription<double>("crossCorrelationStopTime", 25.0, true) and
-              edm::ParameterDescription<double>("crossCorrelationTargetTimePrecision", 0.01, true));
+              edm::ParameterDescription<double>("crossCorrelationTargetTimePrecision", 0.01, true) and
+              edm::ParameterDescription<double>("crossCorrelationTimeShiftWrtRations", 1., true) and
+              edm::ParameterDescription<double>("crossCorrelationMinTimeToBeLateMin", 2., true) and
+              edm::ParameterDescription<double>("crossCorrelationMinTimeToBeLateMax", 5., true));
 
   return psd;
 }
