@@ -20,7 +20,7 @@ on: # Controls when the action will run.
     branches: [L1TK-dev-12_6_0_pre5]
     # branches: [myBranchUnderTest]
   pull_request: # Run CI if someone makes a PR to any branch
-    # branches: [L1TK-dev-12_2_4] # Optionally only run CI if PR is to this branch.
+    # branches: [L1TK-dev-12_6_0_pre5] # Optionally only run CI if PR is to this branch.
     
 env:
   mirror_repo: "https://gitlab.cern.ch/cms-l1tk/cmssw_CI" # gitlab mirror
@@ -48,6 +48,10 @@ jobs:
       run: |
         # Sets env. variable $current_branch
         echo "current_branch=$(echo ${{ github.ref }} | sed -E 's|refs/[a-zA-Z]+/||')" >> $GITHUB_ENV
+
+    - name: print generic gitlab CI location
+
+        echo "In general, gitlab CI jobs run in https://gitlab.cern.ch/cms-l1tk/cmssw_CI/-/jobs"
 
     - name: Trigger gitlab CI run
       # Communicate between gitlab & github, and trigger gitlab CI run.
