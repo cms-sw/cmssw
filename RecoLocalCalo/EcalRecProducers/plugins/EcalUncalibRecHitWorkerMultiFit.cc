@@ -163,10 +163,11 @@ private:
 
   //Timing Cross Correlation Algo
   std::unique_ptr<EcalUncalibRecHitTimingCCAlgo> computeCC_;
-  std::unique_ptr<EcalUncalibRecHitTimingCCAlgo> computeCCnonCorrected_;
   double CCminTimeToBeLateMin_;
   double CCminTimeToBeLateMax_;
   double CCTimeShiftWrtRations_;
+  double CCtargetTimePrecision_;
+  double CCtargetTimePrecisionForDelayedPulses_;
 };
 
 EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::ParameterSet& ps, edm::ConsumesCollector& c)
@@ -228,13 +229,12 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
     timealgo_ = crossCorrelationMethod;
     double startTime = ps.getParameter<double>("crossCorrelationStartTime");
     double stopTime = ps.getParameter<double>("crossCorrelationStopTime");
-    double targetTimePrecision = ps.getParameter<double>("crossCorrelationTargetTimePrecision");
-    double targetTimePrecisionForDelayedPulses = ps.getParameter<double>("crossCorrelationTargetTimePrecisionForDelayedPulses");
+    CCtargetTimePrecision_ = ps.getParameter<double>("crossCorrelationTargetTimePrecision");
+    CCtargetTimePrecisionForDelayedPulses_ = ps.getParameter<double>("crossCorrelationTargetTimePrecisionForDelayedPulses");
     CCminTimeToBeLateMin_ = ps.getParameter<double>("crossCorrelationMinTimeToBeLateMin") / ecalPh1::Samp_Period;
     CCminTimeToBeLateMax_ = ps.getParameter<double>("crossCorrelationMinTimeToBeLateMax") / ecalPh1::Samp_Period;
     CCTimeShiftWrtRations_ = ps.getParameter<double>("crossCorrelationTimeShiftWrtRations");
-    computeCC_ = std::make_unique<EcalUncalibRecHitTimingCCAlgo>(startTime, stopTime, targetTimePrecision);
-    computeCCnonCorrected_ = std::make_unique<EcalUncalibRecHitTimingCCAlgo>(startTime, stopTime, targetTimePrecisionForDelayedPulses);
+    computeCC_ = std::make_unique<EcalUncalibRecHitTimingCCAlgo>(startTime, stopTime);
   } else if (timeAlgoName != "None")
     edm::LogError("EcalUncalibRecHitError") << "No time estimation algorithm defined";
 
@@ -638,10 +638,10 @@ void EcalUncalibRecHitWorkerMultiFit::run(const edm::Event& evt,
 
         float jitterError = 0.;
         float jitter =
-            computeCC_->computeTimeCC(*itdg, amplitudes, aped, aGain, fullpulse, uncalibRecHit, jitterError, true) +
+            computeCC_->computeTimeCC(*itdg, amplitudes, aped, aGain, fullpulse, uncalibRecHit, jitterError, CCtargetTimePrecision_, true) +
             CCTimeShiftWrtRations_ / ecalPh1::Samp_Period;
         float noCorrectedJitter =
-            computeCCnonCorrected_->computeTimeCC(*itdg, amplitudes, aped, aGain, fullpulse, uncalibRecHit, jitterError, false) +
+            computeCC_->computeTimeCC(*itdg, amplitudes, aped, aGain, fullpulse, uncalibRecHit, jitterError, CCtargetTimePrecisionForDelayedPulses_, false) +
             CCTimeShiftWrtRations_ / ecalPh1::Samp_Period;
 
         uncalibRecHit.setJitter(jitter);
