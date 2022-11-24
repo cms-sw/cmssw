@@ -48,7 +48,7 @@ int main(Int_t argc, Char_t *argv[]) {
   int flag = (argc > 3) ? atoi(argv[3]) : 0;
   int mode = (argc > 4) ? atoi(argv[4]) : 3;
   int cutMu = (argc > 5) ? atoi(argv[5]) : 0;
-  float cutP = (argc > 6) ? atof(argv[6]) : 10;
+  float cutP = (argc > 6) ? atof(argv[6]) : 5;
   int nevMax = (argc > 7) ? atoi(argv[7]) : -1;
   int over = (argc > 8) ? atoi(argv[8]) : 0;
   int maxDHB = (argc > 9) ? atoi(argv[9]) : 4;

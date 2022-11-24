@@ -1064,9 +1064,9 @@ void HcalHBHEMuonAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<edm::InputTag>("labelHBHERecHit", edm::InputTag("hbhereco"));
   desc.add<std::string>("labelVertex", "offlinePrimaryVertices");
   desc.add<std::string>("labelMuon", "muons");
-  std::vector<std::string> trig = {"HLT_IsoMu17", "HLT_IsoMu20", "HLT_IsoMu24", "HLT_IsoMu27", "HLT_Mu45", "HLT_Mu50"};
+  std::vector<std::string> trig = {};
   desc.add<std::vector<std::string>>("triggers", trig);
-  desc.add<double>("pMinMuon", 10.0);
+  desc.add<double>("pMinMuon", 5.0);
   desc.addUntracked<int>("verbosity", 0);
   desc.add<int>("useRaw", 0);
   desc.add<bool>("unCorrect", true);

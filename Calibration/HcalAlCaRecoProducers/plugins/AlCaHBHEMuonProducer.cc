@@ -231,7 +231,7 @@ void AlCaHBHEMuonProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<edm::InputTag>("EERecHitLabel", edm::InputTag("ecalRecHit", "EcalRecHitsEE"));
   desc.add<edm::InputTag>("HBHERecHitLabel", edm::InputTag("hbhereco"));
   desc.add<edm::InputTag>("MuonLabel", edm::InputTag("muons"));
-  desc.add<double>("MinimumMuonP", 10.0);
+  desc.add<double>("MinimumMuonP", 5.0);
   descriptions.add("alcaHBHEMuonProducer", desc);
 }
 
