@@ -174,8 +174,8 @@ elif (L1TRKALGO == 'HYBRID_NEWKF' or L1TRKALGO == 'HYBRID_REDUCED'):
 
 # LEGACY ALGORITHM (EXPERTS ONLY): TRACKLET
 elif (L1TRKALGO == 'TRACKLET'):
-    print "\n WARNING: This is not the baseline algorithm! Prefer HYBRID or HYBRID_DISPLACED!"
-    print "\n To run the Tracklet-only algorithm, ensure you have commented out 'CXXFLAGS=-DUSEHYBRID' in BuildFile.xml & recompiled! \n"
+    print("\n WARNING: This is not the baseline algorithm! Prefer HYBRID or HYBRID_DISPLACED!")
+    print("\n To run the Tracklet-only algorithm, ensure you have commented out 'CXXFLAGS=-DUSEHYBRID' in BuildFile.xml & recompiled! \n")
     process.TTTracksEmulation = cms.Path(process.L1THybridTracks)
     process.TTTracksEmulationWithTruth = cms.Path(process.L1THybridTracksWithAssociators)
     NHELIXPAR = 4
