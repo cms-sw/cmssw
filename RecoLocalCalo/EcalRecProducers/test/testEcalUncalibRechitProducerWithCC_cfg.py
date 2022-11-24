@@ -16,7 +16,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.source = cms.Source('PoolSource',
     fileNames = cms.untracked.vstring(
-        '/store/data/Run2022C/EGamma/RAW/v1/000/357/440/00000/013b0cf5-4e6a-4e17-ac19-8ab200eeeaee.root',
+        '/store/data/Run2022F/EGamma/RAW/v1/000/362/154/00000/01df3a20-4381-4103-8b98-5fd77e266823.root',
     ),
 )
 
