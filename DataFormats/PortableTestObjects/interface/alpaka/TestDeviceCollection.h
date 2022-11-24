@@ -20,6 +20,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // SoA with x, y, z, id fields in device global memory
     using TestDeviceCollection = PortableCollection<TestSoA>;
 
+    using TestDeviceMultiCollection2 = PortableCollection2<TestSoA, TestSoA2>;
+
+    using TestDeviceMultiCollection3 = PortableCollection3<TestSoA, TestSoA2, TestSoA3>;
+
   }  // namespace portabletest
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

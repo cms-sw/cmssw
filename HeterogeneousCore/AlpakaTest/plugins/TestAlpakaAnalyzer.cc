@@ -78,6 +78,50 @@ namespace {
     assert(view.metadata().addressOf_m() == &view[0].m().coeffRef(0, 0));
   }
 
+  template <typename T>
+  void checkViewAddresses2(T const& view) {
+    assert(view.metadata().addressOf_x2() == view.x2());
+    assert(view.metadata().addressOf_x2() == &view.x2(0));
+    assert(view.metadata().addressOf_x2() == &view[0].x2());
+    assert(view.metadata().addressOf_y2() == view.y2());
+    assert(view.metadata().addressOf_y2() == &view.y2(0));
+    assert(view.metadata().addressOf_y2() == &view[0].y2());
+    assert(view.metadata().addressOf_z2() == view.z2());
+    assert(view.metadata().addressOf_z2() == &view.z2(0));
+    assert(view.metadata().addressOf_z2() == &view[0].z2());
+    assert(view.metadata().addressOf_id2() == view.id2());
+    assert(view.metadata().addressOf_id2() == &view.id2(0));
+    assert(view.metadata().addressOf_id2() == &view[0].id2());
+    assert(view.metadata().addressOf_m2() == view.m2());
+    assert(view.metadata().addressOf_m2() == &view.m2(0).coeffRef(0, 0));
+    assert(view.metadata().addressOf_m2() == &view[0].m2().coeffRef(0, 0));
+    assert(view.metadata().addressOf_r2() == &view.r2());
+    //assert(view.metadata().addressOf_r2() == &view.r2(0));                  // cannot access a scalar with an index
+    //assert(view.metadata().addressOf_r2() == &view[0].r2());                // cannot access a scalar via a SoA row-like accessor
+  }
+
+  template <typename T>
+  void checkViewAddresses3(T const& view) {
+    assert(view.metadata().addressOf_x3() == view.x3());
+    assert(view.metadata().addressOf_x3() == &view.x3(0));
+    assert(view.metadata().addressOf_x3() == &view[0].x3());
+    assert(view.metadata().addressOf_y3() == view.y3());
+    assert(view.metadata().addressOf_y3() == &view.y3(0));
+    assert(view.metadata().addressOf_y3() == &view[0].y3());
+    assert(view.metadata().addressOf_z3() == view.z3());
+    assert(view.metadata().addressOf_z3() == &view.z3(0));
+    assert(view.metadata().addressOf_z3() == &view[0].z3());
+    assert(view.metadata().addressOf_id3() == view.id3());
+    assert(view.metadata().addressOf_id3() == &view.id3(0));
+    assert(view.metadata().addressOf_id3() == &view[0].id3());
+    assert(view.metadata().addressOf_m3() == view.m3());
+    assert(view.metadata().addressOf_m3() == &view.m3(0).coeffRef(0, 0));
+    assert(view.metadata().addressOf_m3() == &view[0].m3().coeffRef(0, 0));
+    assert(view.metadata().addressOf_r3() == &view.r3());
+    //assert(view.metadata().addressOf_r3() == &view.r3(0));                  // cannot access a scalar with an index
+    //assert(view.metadata().addressOf_r3() == &view[0].r3());                // cannot access a scalar via a SoA row-like accessor
+  }
+
 }  // namespace
 
 class TestAlpakaAnalyzer : public edm::global::EDAnalyzer<> {
@@ -85,6 +129,9 @@ public:
   TestAlpakaAnalyzer(edm::ParameterSet const& config)
       : source_{config.getParameter<edm::InputTag>("source")},
         token_{consumes(source_)},
+        //tokenMulti_{consumes(source_)},
+        tokenMulti2_{consumes(source_)},
+        tokenMulti3_{consumes(source_)},
         expectSize_{config.getParameter<int>("expectSize")},
         expectXvalues_{config.getParameter<std::vector<double>>("expectXvalues")} {
     if (std::string const& eb = config.getParameter<std::string>("expectBackend"); not eb.empty()) {
@@ -165,6 +212,117 @@ public:
                                        << ", got " << cms::alpakatools::toString(backend);
       }
     }
+
+    //    portabletest::TestHostMultiCollection const& productMulti = event.get(tokenMulti_);
+    //    auto const& viewMulti0 = productMulti.const_view<0>();
+    //    auto& mviewMulti0 = productMulti.view<0>();
+    //    auto const& cmviewMulti0 = productMulti.view<0>();
+    //    auto const& viewMulti1 = productMulti.const_view<1>();
+    //    auto& mviewMulti1 = productMulti.view<1>();
+    //    auto const& cmviewMulti1 = productMulti.view<1>();
+
+    portabletest::TestHostMultiCollection2 const& productMulti2 = event.get(tokenMulti2_);
+    auto const& viewMulti2_0 = productMulti2.const_view<0>();
+    auto& mviewMulti2_0 = productMulti2.view<0>();
+    auto const& cmviewMulti2_0 = productMulti2.view<0>();
+    auto const& viewMulti2_1 = productMulti2.const_view<1>();
+    auto& mviewMulti2_1 = productMulti2.view<1>();
+    auto const& cmviewMulti2_1 = productMulti2.view<1>();
+
+    checkViewAddresses(viewMulti2_0);
+    checkViewAddresses(mviewMulti2_0);
+    checkViewAddresses(cmviewMulti2_0);
+    checkViewAddresses2(viewMulti2_1);
+    checkViewAddresses2(mviewMulti2_1);
+    checkViewAddresses2(cmviewMulti2_1);
+
+    assert(viewMulti2_0.r() == 1.);
+    for (int32_t i = 0; i < viewMulti2_0.metadata().size(); ++i) {
+      auto vi = viewMulti2_0[i];
+      //      std::stringstream s;
+      //      s << "i=" << i << " x=" << vi.x() << " y=" << vi.y() << " z=" << vi.z() << " id=" << vi.id() << "'\nm=" << vi.m();
+      //      std::cout << s.str() << std::endl;
+      if (not expectXvalues_.empty() and vi.x() != expectXvalues_[i % expectXvalues_.size()]) {
+        throw cms::Exception("Assert") << "Index " << i << " expected value "
+                                       << expectXvalues_[i % expectXvalues_.size()] << ", got " << vi.x();
+      }
+      //assert(vi.x() == 0.);
+      assert(vi.y() == 0.);
+      assert(vi.z() == 0.);
+      assert(vi.id() == i);
+      assert(vi.m() == matrix * i);
+    }
+    assert(viewMulti2_1.r2() == 2.);
+    for (int32_t i = 0; i < viewMulti2_1.metadata().size(); ++i) {
+      auto vi = viewMulti2_1[i];
+      if (not expectXvalues_.empty() and vi.x2() != expectXvalues_[i % expectXvalues_.size()]) {
+        throw cms::Exception("Assert") << "Index " << i << " expected value "
+                                       << expectXvalues_[i % expectXvalues_.size()] << ", got " << vi.x2();
+      }
+      assert(vi.y2() == 0.);
+      assert(vi.z2() == 0.);
+      assert(vi.id2() == i);
+      assert(vi.m2() == matrix * i);
+    }
+
+    portabletest::TestHostMultiCollection3 const& productMulti3 = event.get(tokenMulti3_);
+    auto const& viewMulti3_0 = productMulti3.const_view<0>();
+    auto& mviewMulti3_0 = productMulti3.view<0>();
+    auto const& cmviewMulti3_0 = productMulti3.view<0>();
+    auto const& viewMulti3_1 = productMulti3.const_view<1>();
+    auto& mviewMulti3_1 = productMulti3.view<1>();
+    auto const& cmviewMulti3_1 = productMulti3.view<1>();
+    auto const& viewMulti3_2 = productMulti3.const_view<2>();
+    auto& mviewMulti3_2 = productMulti3.view<2>();
+    auto const& cmviewMulti3_2 = productMulti3.view<2>();
+
+    checkViewAddresses(viewMulti3_0);
+    checkViewAddresses(mviewMulti3_0);
+    checkViewAddresses(cmviewMulti3_0);
+    checkViewAddresses2(viewMulti3_1);
+    checkViewAddresses2(mviewMulti3_1);
+    checkViewAddresses2(cmviewMulti3_1);
+    checkViewAddresses3(viewMulti3_2);
+    checkViewAddresses3(mviewMulti3_2);
+    checkViewAddresses3(cmviewMulti3_2);
+
+    assert(viewMulti3_0.r() == 1.);
+    for (int32_t i = 0; i < viewMulti3_0.metadata().size(); ++i) {
+      auto vi = viewMulti3_0[i];
+      if (not expectXvalues_.empty() and vi.x() != expectXvalues_[i % expectXvalues_.size()]) {
+        throw cms::Exception("Assert") << "Index " << i << " expected value "
+                                       << expectXvalues_[i % expectXvalues_.size()] << ", got " << vi.x();
+      }
+      assert(vi.y() == 0.);
+      assert(vi.z() == 0.);
+      assert(vi.id() == i);
+      assert(vi.m() == matrix * i);
+    }
+    assert(viewMulti3_1.r2() == 2.);
+    for (int32_t i = 0; i < viewMulti3_1.metadata().size(); ++i) {
+      auto vi = viewMulti3_1[i];
+      if (not expectXvalues_.empty() and vi.x2() != expectXvalues_[i % expectXvalues_.size()]) {
+        throw cms::Exception("Assert") << "Index " << i << " expected value "
+                                       << expectXvalues_[i % expectXvalues_.size()] << ", got " << vi.x2();
+      }
+      assert(vi.y2() == 0.);
+      assert(vi.z2() == 0.);
+      assert(vi.id2() == i);
+      assert(vi.m2() == matrix * i);
+    }
+
+    assert(viewMulti3_2.r3() == 3.);
+    for (int32_t i = 0; i < viewMulti3_2.metadata().size(); ++i) {
+      auto vi = viewMulti3_2[i];
+      if (not expectXvalues_.empty() and vi.x3() != expectXvalues_[i % expectXvalues_.size()]) {
+        throw cms::Exception("Assert") << "Index " << i << " expected value "
+                                       << expectXvalues_[i % expectXvalues_.size()] << ", got " << vi.x3();
+      }
+      assert(vi.y3() == 0.);
+      assert(vi.z3() == 0.);
+      assert(vi.id3() == i);
+      assert(vi.m3() == matrix * i);
+    }
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -189,6 +347,9 @@ private:
   const edm::EDGetTokenT<portabletest::TestHostCollection> token_;
   edm::EDGetTokenT<unsigned short> backendToken_;
   std::optional<cms::alpakatools::Backend> expectBackend_;
+  //const edm::EDGetTokenT<portabletest::TestHostMultiCollection> tokenMulti_;
+  const edm::EDGetTokenT<portabletest::TestHostMultiCollection2> tokenMulti2_;
+  const edm::EDGetTokenT<portabletest::TestHostMultiCollection3> tokenMulti3_;
   const int expectSize_;
   const std::vector<double> expectXvalues_;
 };
