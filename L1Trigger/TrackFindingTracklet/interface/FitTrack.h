@@ -30,6 +30,9 @@ namespace trklet {
     void trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std::vector<std::pair<int, int>>&);
 
     // used if USEHYBRID is defined
+    //  tracklet = input track cand, updated with fitted helix info.
+    //  returns trackstublist = pointers to Stubs on track.
+    //  returns stubidslist = (layer, unique stub index in layer).
     void trackFitKF(Tracklet* tracklet,
                     std::vector<const Stub*>& trackstublist,
                     std::vector<std::pair<int, int>>& stubidslist);

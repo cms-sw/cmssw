@@ -115,8 +115,9 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks_, unsigned int iSe
     // Vector to store the relative rank of the track candidate for merging, based on seed type
     std::vector<int> seedRank;
 
-    // These vectors are to store the information from evaluating in each bin
+    // Stubs on every track
     std::vector<std::vector<const Stub*>> inputstublistsall;
+    // (layer, unique stub index within layer) of each stub on every track
     std::vector<std::vector<std::pair<int, int>>> mergedstubidslistsall;
     std::vector<std::vector<std::pair<int, int>>> inputstubidslistsall;
     std::vector<Tracklet*> inputtrackletsall;
@@ -198,30 +199,33 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks_, unsigned int iSe
         for (unsigned int jtrk = itrk + 1; jtrk < numStublists; jtrk++) {
           if (itrk >= settings_.numTracksComparedPerBin())
             continue;
-          // Get primary track stubids
+          // Get primary track stubids = (layer, unique stub index within layer)
           const std::vector<std::pair<int, int>>& stubsTrk1 = inputstubidslists_[itrk];
 
           // Get and count secondary track stubids
           const std::vector<std::pair<int, int>>& stubsTrk2 = inputstubidslists_[jtrk];
 
-          // Count number of Unique Regions (UR) that share stubs, and the number of UR that each track hits
-          unsigned int nShareUR = 0;
-          unsigned int nURStubTrk1 = 0;
-          unsigned int nURStubTrk2 = 0;
+          // Count number of layers that share stubs, and the number of UR that each track hits
+          unsigned int nShareLay = 0;
+          unsigned int nLayStubTrk1 = 0;
+          unsigned int nLayStubTrk2 = 0;
           if (settings_.mergeComparison() == "CompareAll") {
-            bool URArray[16];
-            for (auto& i : URArray) {
+            bool layerArr[16];
+            for (auto& i : layerArr) {
               i = false;
             };
             for (const auto& st1 : stubsTrk1) {
               for (const auto& st2 : stubsTrk2) {
-                if (st1.first == st2.first && st1.second == st2.second) {
-                  // Converts region encoded in st1->first to an index in the Unique Region (UR) array
-                  int i = st1.first;
-                  int reg = (i > 0 && i < 10) * (i - 1) + (i > 10) * (i - 5) - (i < 0) * i;
-                  if (!URArray[reg]) {
-                    nShareUR++;
-                    URArray[reg] = true;
+                if (st1.first == st2.first && st1.second == st2.second) {  // tracks share stub
+                  // Converts layer/disk encoded in st1->first to an index in the layer array
+                  int i = st1.first;  // layer/disk
+                  bool barrel = (i > 0 && i < 10);
+                  bool endcapA = (i > 10);
+                  bool endcapB = (i < 0);
+                  int lay = barrel * (i - 1) + endcapA * (i - 5) - endcapB * i;  // encode in range 0-15
+                  if (!layerArr[lay]) {
+                    nShareLay++;
+                    layerArr[lay] = true;
                   }
                 }
               }
@@ -230,57 +234,63 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks_, unsigned int iSe
             std::vector<const Stub*> fullStubslistsTrk1 = inputstublists_[itrk];
             std::vector<const Stub*> fullStubslistsTrk2 = inputstublists_[jtrk];
 
-            // Arrays to store the index of the best stub in each region
-            int URStubidsTrk1[16];
-            int URStubidsTrk2[16];
+            // Arrays to store the index of the best stub in each layer
+            int layStubidsTrk1[16];
+            int layStubidsTrk2[16];
             for (int i = 0; i < 16; i++) {
-              URStubidsTrk1[i] = -1;
-              URStubidsTrk2[i] = -1;
+              layStubidsTrk1[i] = -1;
+              layStubidsTrk2[i] = -1;
             }
-            // For each stub on the first track, find the stub with the best residual and store its index in the URStubidsTrk1 array
+            // For each stub on the first track, find the stub with the best residual and store its index in the layStubidsTrk1 array
             for (unsigned int stcount = 0; stcount < stubsTrk1.size(); stcount++) {
-              int i = stubsTrk1[stcount].first;
-              int reg = (i > 0 && i < 10) * (i - 1) + (i > 10) * (i - 5) - (i < 0) * i;
+              int i = stubsTrk1[stcount].first;  // layer/disk
+              bool barrel = (i > 0 && i < 10);
+              bool endcapA = (i > 10);
+              bool endcapB = (i < 0);
+              int lay = barrel * (i - 1) + endcapA * (i - 5) - endcapB * i;  // encode in range 0-15
               double nres = getPhiRes(inputtracklets_[itrk], fullStubslistsTrk1[stcount]);
               double ores = 0;
-              if (URStubidsTrk1[reg] != -1)
-                ores = getPhiRes(inputtracklets_[itrk], fullStubslistsTrk1[URStubidsTrk1[reg]]);
-              if (URStubidsTrk1[reg] == -1 || nres < ores) {
-                URStubidsTrk1[reg] = stcount;
+              if (layStubidsTrk1[lay] != -1)
+                ores = getPhiRes(inputtracklets_[itrk], fullStubslistsTrk1[layStubidsTrk1[lay]]);
+              if (layStubidsTrk1[lay] == -1 || nres < ores) {
+                layStubidsTrk1[lay] = stcount;
               }
             }
-            // For each stub on the second track, find the stub with the best residual and store its index in the URStubidsTrk1 array
+            // For each stub on the second track, find the stub with the best residual and store its index in the layStubidsTrk1 array
             for (unsigned int stcount = 0; stcount < stubsTrk2.size(); stcount++) {
-              int i = stubsTrk2[stcount].first;
-              int reg = (i > 0 && i < 10) * (i - 1) + (i > 10) * (i - 5) - (i < 0) * i;
+              int i = stubsTrk2[stcount].first;  // layer/disk
+              bool barrel = (i > 0 && i < 10);
+              bool endcapA = (i > 10);
+              bool endcapB = (i < 0);
+              int lay = barrel * (i - 1) + endcapA * (i - 5) - endcapB * i;  // encode in range 0-15
               double nres = getPhiRes(inputtracklets_[jtrk], fullStubslistsTrk2[stcount]);
               double ores = 0;
-              if (URStubidsTrk2[reg] != -1)
-                ores = getPhiRes(inputtracklets_[jtrk], fullStubslistsTrk2[URStubidsTrk2[reg]]);
-              if (URStubidsTrk2[reg] == -1 || nres < ores) {
-                URStubidsTrk2[reg] = stcount;
+              if (layStubidsTrk2[lay] != -1)
+                ores = getPhiRes(inputtracklets_[jtrk], fullStubslistsTrk2[layStubidsTrk2[lay]]);
+              if (layStubidsTrk2[lay] == -1 || nres < ores) {
+                layStubidsTrk2[lay] = stcount;
               }
             }
-            // For all 16 regions (6 layers and 10 disks), count the number of regions who's best stub on both tracks are the same
+            // For all 16 layers (6 layers and 10 disks), count the number of layers who's best stub on both tracks are the same
             for (int i = 0; i < 16; i++) {
-              int t1i = URStubidsTrk1[i];
-              int t2i = URStubidsTrk2[i];
+              int t1i = layStubidsTrk1[i];
+              int t2i = layStubidsTrk2[i];
               if (t1i != -1 && t2i != -1 && stubsTrk1[t1i].first == stubsTrk2[t2i].first &&
                   stubsTrk1[t1i].second == stubsTrk2[t2i].second)
-                nShareUR++;
+                nShareLay++;
             }
-            // Calculate the number of unique regions hit by each track, so that this number can be used in calculating the number of independent
+            // Calculate the number of layers hit by each track, so that this number can be used in calculating the number of independent
             // stubs on a track (not enabled/used by default)
             for (int i = 0; i < 16; i++) {
-              if (URStubidsTrk1[i] != -1)
-                nURStubTrk1++;
-              if (URStubidsTrk2[i] != -1)
-                nURStubTrk2++;
+              if (layStubidsTrk1[i] != -1)
+                nLayStubTrk1++;
+              if (layStubidsTrk2[i] != -1)
+                nLayStubTrk2++;
             }
           }
 
           // Fill duplicate map
-          if (nShareUR >= settings_.minIndStubs()) {  // For number of shared stub merge condition
+          if (nShareLay >= settings_.minIndStubs()) {  // For number of shared stub merge condition
             dupMap[itrk][jtrk] = true;
             dupMap[jtrk][itrk] = true;
           }
@@ -552,7 +562,7 @@ double PurgeDuplicate::getPhiRes(Tracklet* curTracklet, const Stub* curStub) con
   double phires;
   // Get phi position of stub
   stubphi = curStub->l1tstub()->phi();
-  // Get region that the stub is in (Layer 1->6, Disk 1->5)
+  // Get layer that the stub is in (Layer 1->6, Disk 1->5)
   int Layer = curStub->layerdisk() + 1;
   if (Layer > N_LAYER) {
     Layer = 0;
