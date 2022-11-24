@@ -64,6 +64,9 @@ ecalMultiFitUncalibRecHit = cms.EDProducer("EcalUncalibRecHitProducer",
       # for crossCorrelationMethod
       crossCorrelationStartTime = cms.double(-25),
       crossCorrelationStopTime = cms.double(25),
-      crossCorrelationTargetTimePrecision = cms.double(0.01)
+      crossCorrelationTargetTimePrecision = cms.double(0.01),
+      crossCorrelationTimeShiftWrtRations = cms.double(1),
+      crossCorrelationMinTimeToBeLateMin = cms.double(2),
+      crossCorrelationMinTimeToBeLateMax = cms.double(5)
    )
 )
