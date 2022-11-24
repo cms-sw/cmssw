@@ -11,7 +11,8 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
                                                     const EcalMGPAGainRatio* aGain,
                                                     const FullSampleVector& fullpulse,
                                                     EcalUncalibratedRecHit& uncalibRecHit,
-                                                    float& errOnTime) const {
+                                                    float& errOnTime,
+                                                    const bool correctForOOT) const {
   constexpr unsigned int nsample = EcalDataFrame::MAXSAMPLES;
 
   double maxamplitude = -std::numeric_limits<double>::max();
@@ -53,16 +54,18 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
     pulsenorm += fullpulse(iSample);
   }
 
-  int ipulse = -1;
-  for (auto const& amplit : amplitudes) {
-    ipulse++;
-    int bxp3 = ipulse - 2;
-    int firstsamplet = std::max(0, bxp3);
-    int offset = 7 - bxp3;
+  if (correctForOOT) {
+    int ipulse = -1;
+    for (auto const& amplit : amplitudes) {
+      ipulse++;
+      int bxp3 = ipulse - 2;
+      int firstsamplet = std::max(0, bxp3);
+      int offset = 7 - bxp3;
 
-    for (unsigned int isample = firstsamplet; isample < nsample; ++isample) {
-      auto const pulse = fullpulse(isample + offset);
-      pedSubSamples[isample] = std::max(0., pedSubSamples[isample] - amplit * pulse / pulsenorm);
+      for (unsigned int isample = firstsamplet; isample < nsample; ++isample) {
+        auto const pulse = fullpulse(isample + offset);
+        pedSubSamples[isample] = std::max(0., pedSubSamples[isample] - amplit * pulse / pulsenorm);
+      }
     }
   }
 
@@ -71,32 +74,45 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
   float tStop = stopTime_ + GLOBAL_TIME_SHIFT;
   float tM = (tStart + tStop) / 2;
 
-  float distStart, distStop;
+  float t0 = tStart;
+  float t3 = tStop;
+  float t2 = (t3+t0)/2;
+  float t1 = t2 - ONE_MINUS_GOLDEN_RATIO*(t3-t0);
+
   int counter = 0;
 
-  do {
-    ++counter;
-    distStart = computeCC(pedSubSamples, fullpulse, tStart);
-    distStop = computeCC(pedSubSamples, fullpulse, tStop);
+  float cc1 = computeCC(pedSubSamples, fullpulse, t1);
+  ++counter;
+  float cc2 = computeCC(pedSubSamples, fullpulse, t2);
+  ++counter;
 
-    if (distStart > distStop) {
-      tStop = tM;
-    } else {
-      tStart = tM;
-    }
-    tM = (tStart + tStop) / 2;
-
-  } while (tStop - tStart > targetTimePrecision_ && counter < MAX_NUM_OF_ITERATIONS);
-
-  tM -= GLOBAL_TIME_SHIFT;
-  errOnTime = targetTimePrecision_;
+  while (abs(t3 - t0) > targetTimePrecision_ && counter < MAX_NUM_OF_ITERATIONS) {
+      if (cc2> cc1) {
+          t0 = t1;
+          t1 = t2;
+          t2 = GOLDEN_RATIO*t2+ONE_MINUS_GOLDEN_RATIO*t3;
+          cc1 = cc2;
+          cc2 = computeCC(pedSubSamples, fullpulse, t2);
+          ++counter;
+      }
+      else {
+          t3 = t2;
+          t2 = t1;
+          t1 = GOLDEN_RATIO*t1+ONE_MINUS_GOLDEN_RATIO*t0;
+          cc2 = cc1;
+          cc1 = computeCC(pedSubSamples, fullpulse, t1);
+          ++counter;
+      }
+  }
+    
+  tM = (t3 + t0)/2 - GLOBAL_TIME_SHIFT;
+  errOnTime = abs(t3 - t0) / ecalPh1::Samp_Period;
 
   if (counter < MIN_NUM_OF_ITERATIONS || counter > MAX_NUM_OF_ITERATIONS - 1) {
     tM = TIME_WHEN_NOT_CONVERGING * ecalPh1::Samp_Period;
     //Negative error means that there was a problem with the CC
     errOnTime = -targetTimePrecision_ / ecalPh1::Samp_Period;
   }
-
   return -tM / ecalPh1::Samp_Period;
 }
 
