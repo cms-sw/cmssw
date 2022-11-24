@@ -8,15 +8,16 @@ rehash
 # old files in castor: rfdir /castor/cern.ch/cms/store/...
 # new files in eos   : cmsLs /store/...
 #
+# EDM input files can be accessed from the cms-bot cache area (i.e. /eos/cms/store/user/cmsbuild)
+# To enable redirection to the cms-bot cache area, please set the following environment variables: (example in bash)
+#  > export CMS_PATH="/cvmfs/cms-ib.cern.ch"
+#  > export SITECONFIG_PATH="/cvmfs/cms-ib.cern.ch/SITECONF/local"
 
 #
 # gen sim input files for Monte-Carlo tests
-#   InputGenSimGRun = /store/relval/CMSSW_5_3_6-START53_V14/RelValProdTTbar/GEN-SIM/v2/00000/DE03BB7E-F429-E211-A0B4-001A928116CC.root
-set InputGenSimGRun = /store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_5/DE03BB7E-F429-E211-A0B4-001A928116CC.root
-#   InputGenSimHIon = /store/relval/CMSSW_5_3_16/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM/PU_STARTHI53_LV1_mar03-v2/00000/143C21CD-E8A2-E311-87BE-0025904C66E8.root
-set InputGenSimHIon = /store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_5/143C21CD-E8A2-E311-87BE-0025904C66E8.root
-#   InputGenSimPIon = /store/relval/CMSSW_5_3_6-START53_V14/RelValProdTTbar/GEN-SIM/v2/00000/DE03BB7E-F429-E211-A0B4-001A928116CC.root
-set InputGenSimPIon = /store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_5/DE03BB7E-F429-E211-A0B4-001A928116CC.root
+set InputGenSimGRun = /store/relval/CMSSW_5_3_6-START53_V14/RelValProdTTbar/GEN-SIM/v2/00000/DE03BB7E-F429-E211-A0B4-001A928116CC.root
+set InputGenSimHIon = /store/relval/CMSSW_5_3_16/RelValPyquen_ZeemumuJets_pt10_2760GeV/GEN-SIM/PU_STARTHI53_LV1_mar03-v2/00000/143C21CD-E8A2-E311-87BE-0025904C66E8.root
+set InputGenSimPIon = /store/relval/CMSSW_5_3_6-START53_V14/RelValProdTTbar/GEN-SIM/v2/00000/DE03BB7E-F429-E211-A0B4-001A928116CC.root
 #
 # lhc raw input files for Real-Data tests
 set InputLHCRawGRun = /store/data/Run2012A/MuEG/RAW/v1/000/191/718/14932935-E289-E111-830C-5404A6388697.root
