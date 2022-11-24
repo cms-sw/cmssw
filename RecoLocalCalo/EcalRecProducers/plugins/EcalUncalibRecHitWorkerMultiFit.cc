@@ -230,7 +230,8 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
     double startTime = ps.getParameter<double>("crossCorrelationStartTime");
     double stopTime = ps.getParameter<double>("crossCorrelationStopTime");
     CCtargetTimePrecision_ = ps.getParameter<double>("crossCorrelationTargetTimePrecision");
-    CCtargetTimePrecisionForDelayedPulses_ = ps.getParameter<double>("crossCorrelationTargetTimePrecisionForDelayedPulses");
+    CCtargetTimePrecisionForDelayedPulses_ =
+        ps.getParameter<double>("crossCorrelationTargetTimePrecisionForDelayedPulses");
     CCminTimeToBeLateMin_ = ps.getParameter<double>("crossCorrelationMinTimeToBeLateMin") / ecalPh1::Samp_Period;
     CCminTimeToBeLateMax_ = ps.getParameter<double>("crossCorrelationMinTimeToBeLateMax") / ecalPh1::Samp_Period;
     CCTimeShiftWrtRations_ = ps.getParameter<double>("crossCorrelationTimeShiftWrtRations");
@@ -638,11 +639,19 @@ void EcalUncalibRecHitWorkerMultiFit::run(const edm::Event& evt,
 
         float jitterError = 0.;
         float jitter =
-            computeCC_->computeTimeCC(*itdg, amplitudes, aped, aGain, fullpulse, uncalibRecHit, jitterError, CCtargetTimePrecision_, true) +
+            computeCC_->computeTimeCC(
+                *itdg, amplitudes, aped, aGain, fullpulse, uncalibRecHit, jitterError, CCtargetTimePrecision_, true) +
             CCTimeShiftWrtRations_ / ecalPh1::Samp_Period;
-        float noCorrectedJitter =
-            computeCC_->computeTimeCC(*itdg, amplitudes, aped, aGain, fullpulse, uncalibRecHit, jitterError, CCtargetTimePrecisionForDelayedPulses_, false) +
-            CCTimeShiftWrtRations_ / ecalPh1::Samp_Period;
+        float noCorrectedJitter = computeCC_->computeTimeCC(*itdg,
+                                                            amplitudes,
+                                                            aped,
+                                                            aGain,
+                                                            fullpulse,
+                                                            uncalibRecHit,
+                                                            jitterError,
+                                                            CCtargetTimePrecisionForDelayedPulses_,
+                                                            false) +
+                                  CCTimeShiftWrtRations_ / ecalPh1::Samp_Period;
 
         uncalibRecHit.setJitter(jitter);
         uncalibRecHit.setJitterError(jitterError);
