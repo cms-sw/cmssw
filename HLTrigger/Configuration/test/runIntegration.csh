@@ -1,5 +1,17 @@
 #!/bin/tcsh
 
+# HLT-integration tests cannot run with SLC6 architectures,
+# due to an incompatibility with the latest .jar files of ConfDB-v2.
+# For further details, see https://github.com/cms-sw/cmssw/issues/40013#issuecomment-1325571973
+if ( "$SCRAM_ARCH" =~ slc6* ) then
+  echo
+  echo "WARNING -- HLT-integration tests of $2 ($1) will be skipped !"
+  echo "           SCRAM_ARCH=$SCRAM_ARCH, and ConfDB access with SLC6 is not supported anymore !"
+  echo "           The latest .jar files of ConfDB-v2 are incompatible with scram architectures based on SLC6."
+  echo "           For further details, see https://github.com/cms-sw/cmssw/issues/40013#issuecomment-1325571973"
+  exit 0
+endif
+
 cmsenv
 rehash
 
