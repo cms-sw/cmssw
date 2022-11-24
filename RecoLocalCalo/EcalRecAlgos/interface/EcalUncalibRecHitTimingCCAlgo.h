@@ -25,7 +25,7 @@ public:
                        const FullSampleVector& fullpulse,
                        EcalUncalibratedRecHit& uncalibRecHit,
                        float& errOnTime,
-                       const bool correctForOOT=true) const;
+                       const bool correctForOOT = true) const;
 
 private:
   const float startTime_;
