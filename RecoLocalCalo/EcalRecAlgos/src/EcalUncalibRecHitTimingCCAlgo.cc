@@ -76,8 +76,8 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
 
   float t0 = tStart;
   float t3 = tStop;
-  float t2 = (t3+t0)/2;
-  float t1 = t2 - ONE_MINUS_GOLDEN_RATIO*(t3-t0);
+  float t2 = (t3 + t0) / 2;
+  float t1 = t2 - ONE_MINUS_GOLDEN_RATIO * (t3 - t0);
 
   int counter = 0;
 
@@ -87,25 +87,24 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
   ++counter;
 
   while (abs(t3 - t0) > targetTimePrecision_ && counter < MAX_NUM_OF_ITERATIONS) {
-      if (cc2> cc1) {
-          t0 = t1;
-          t1 = t2;
-          t2 = GOLDEN_RATIO*t2+ONE_MINUS_GOLDEN_RATIO*t3;
-          cc1 = cc2;
-          cc2 = computeCC(pedSubSamples, fullpulse, t2);
-          ++counter;
-      }
-      else {
-          t3 = t2;
-          t2 = t1;
-          t1 = GOLDEN_RATIO*t1+ONE_MINUS_GOLDEN_RATIO*t0;
-          cc2 = cc1;
-          cc1 = computeCC(pedSubSamples, fullpulse, t1);
-          ++counter;
-      }
+    if (cc2 > cc1) {
+      t0 = t1;
+      t1 = t2;
+      t2 = GOLDEN_RATIO * t2 + ONE_MINUS_GOLDEN_RATIO * t3;
+      cc1 = cc2;
+      cc2 = computeCC(pedSubSamples, fullpulse, t2);
+      ++counter;
+    } else {
+      t3 = t2;
+      t2 = t1;
+      t1 = GOLDEN_RATIO * t1 + ONE_MINUS_GOLDEN_RATIO * t0;
+      cc2 = cc1;
+      cc1 = computeCC(pedSubSamples, fullpulse, t1);
+      ++counter;
+    }
   }
-    
-  tM = (t3 + t0)/2 - GLOBAL_TIME_SHIFT;
+
+  tM = (t3 + t0) / 2 - GLOBAL_TIME_SHIFT;
   errOnTime = abs(t3 - t0) / ecalPh1::Samp_Period;
 
   if (counter < MIN_NUM_OF_ITERATIONS || counter > MAX_NUM_OF_ITERATIONS - 1) {
