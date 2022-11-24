@@ -1,9 +1,8 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitTimingCCAlgo.h"
 
 EcalUncalibRecHitTimingCCAlgo::EcalUncalibRecHitTimingCCAlgo(const float startTime,
-                                                             const float stopTime,
-                                                             const float targetTimePrecision)
-    : startTime_(startTime), stopTime_(stopTime), targetTimePrecision_(targetTimePrecision) {}
+                                                             const float stopTime)
+    : startTime_(startTime), stopTime_(stopTime) {}
 
 double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFrame,
                                                     const std::vector<double>& amplitudes,
@@ -12,6 +11,7 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
                                                     const FullSampleVector& fullpulse,
                                                     EcalUncalibratedRecHit& uncalibRecHit,
                                                     float& errOnTime,
+                                                    const float targetTimePrecision,
                                                     const bool correctForOOT) const {
   constexpr unsigned int nsample = EcalDataFrame::MAXSAMPLES;
 
@@ -86,7 +86,7 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
   float cc2 = computeCC(pedSubSamples, fullpulse, t2);
   ++counter;
 
-  while (abs(t3 - t0) > targetTimePrecision_ && counter < MAX_NUM_OF_ITERATIONS) {
+  while (abs(t3 - t0) > targetTimePrecision && counter < MAX_NUM_OF_ITERATIONS) {
     if (cc2 > cc1) {
       t0 = t1;
       t1 = t2;
@@ -110,7 +110,7 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
   if (counter < MIN_NUM_OF_ITERATIONS || counter > MAX_NUM_OF_ITERATIONS - 1) {
     tM = TIME_WHEN_NOT_CONVERGING * ecalPh1::Samp_Period;
     //Negative error means that there was a problem with the CC
-    errOnTime = -targetTimePrecision_ / ecalPh1::Samp_Period;
+    errOnTime = -targetTimePrecision / ecalPh1::Samp_Period;
   }
   return -tM / ecalPh1::Samp_Period;
 }
