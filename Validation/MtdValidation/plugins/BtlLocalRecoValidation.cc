@@ -98,8 +98,6 @@ private:
   MonitorElement* meHitYlocal_;
   MonitorElement* meHitZlocal_;
 
-  MonitorElement* meHitX_;
-  MonitorElement* meHitY_;
   MonitorElement* meHitZ_;
   MonitorElement* meHitPhi_;
   MonitorElement* meHitEta_;
