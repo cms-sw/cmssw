@@ -17,7 +17,8 @@ name: PR validation with GitLab CI
 on: # Controls when the action will run.
   workflow_dispatch:
   push: # Please specify your branch down here if you want CI to run for each push to it.
-    branches: [myBranchUnderTest]
+    branches: [L1TK-dev-12_6_0_pre5]
+    # branches: [myBranchUnderTest]
   pull_request: # Run CI if someone makes a PR to any branch
     # branches: [L1TK-dev-12_2_4] # Optionally only run CI if PR is to this branch.
     
