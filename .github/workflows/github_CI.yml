@@ -49,6 +49,10 @@ jobs:
         # Sets env. variable $current_branch
         echo "current_branch=$(echo ${{ github.ref }} | sed -E 's|refs/[a-zA-Z]+/||')" >> $GITHUB_ENV
 
+    - name: Print generic gitlab CI location
+      run: |
+        echo "In general, gitlab CI jobs run in https://gitlab.cern.ch/cms-l1tk/cmssw_CI/-/jobs"      
+
     - name: Trigger gitlab CI run
       # Communicate between gitlab & github, and trigger gitlab CI run.
       # (Forked from https://github.com/SvanBoxel/gitlab-mirror-and-ci-action).
