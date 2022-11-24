@@ -163,6 +163,7 @@ private:
 
   //Timing Cross Correlation Algo
   std::unique_ptr<EcalUncalibRecHitTimingCCAlgo> computeCC_;
+  std::unique_ptr<EcalUncalibRecHitTimingCCAlgo> computeCCnonCorrected_;
   double CCminTimeToBeLateMin_;
   double CCminTimeToBeLateMax_;
   double CCTimeShiftWrtRations_;
@@ -228,10 +229,12 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
     double startTime = ps.getParameter<double>("crossCorrelationStartTime");
     double stopTime = ps.getParameter<double>("crossCorrelationStopTime");
     double targetTimePrecision = ps.getParameter<double>("crossCorrelationTargetTimePrecision");
+    double targetTimePrecisionForDelayedPulses = ps.getParameter<double>("crossCorrelationTargetTimePrecisionForDelayedPulses");
     CCminTimeToBeLateMin_ = ps.getParameter<double>("crossCorrelationMinTimeToBeLateMin") / ecalPh1::Samp_Period;
     CCminTimeToBeLateMax_ = ps.getParameter<double>("crossCorrelationMinTimeToBeLateMax") / ecalPh1::Samp_Period;
     CCTimeShiftWrtRations_ = ps.getParameter<double>("crossCorrelationTimeShiftWrtRations");
     computeCC_ = std::make_unique<EcalUncalibRecHitTimingCCAlgo>(startTime, stopTime, targetTimePrecision);
+    computeCCnonCorrected_ = std::make_unique<EcalUncalibRecHitTimingCCAlgo>(startTime, stopTime, targetTimePrecisionForDelayedPulses);
   } else if (timeAlgoName != "None")
     edm::LogError("EcalUncalibRecHitError") << "No time estimation algorithm defined";
 
@@ -638,7 +641,7 @@ void EcalUncalibRecHitWorkerMultiFit::run(const edm::Event& evt,
             computeCC_->computeTimeCC(*itdg, amplitudes, aped, aGain, fullpulse, uncalibRecHit, jitterError, true) +
             CCTimeShiftWrtRations_ / ecalPh1::Samp_Period;
         float noCorrectedJitter =
-            computeCC_->computeTimeCC(*itdg, amplitudes, aped, aGain, fullpulse, uncalibRecHit, jitterError, false) +
+            computeCCnonCorrected_->computeTimeCC(*itdg, amplitudes, aped, aGain, fullpulse, uncalibRecHit, jitterError, false) +
             CCTimeShiftWrtRations_ / ecalPh1::Samp_Period;
 
         uncalibRecHit.setJitter(jitter);
@@ -767,9 +770,10 @@ edm::ParameterSetDescription EcalUncalibRecHitWorkerMultiFit::getAlgoDescription
               edm::ParameterDescription<double>("outOfTimeThresholdGain61mEE", 1000, true) and
               edm::ParameterDescription<double>("amplitudeThresholdEB", 10, true) and
               edm::ParameterDescription<double>("amplitudeThresholdEE", 10, true) and
-              edm::ParameterDescription<double>("crossCorrelationStartTime", -25.0, true) and
+              edm::ParameterDescription<double>("crossCorrelationStartTime", -15.0, true) and
               edm::ParameterDescription<double>("crossCorrelationStopTime", 25.0, true) and
               edm::ParameterDescription<double>("crossCorrelationTargetTimePrecision", 0.01, true) and
+              edm::ParameterDescription<double>("crossCorrelationTargetTimePrecisionForDelayedPulses", 0.05, true) and
               edm::ParameterDescription<double>("crossCorrelationTimeShiftWrtRations", 1., true) and
               edm::ParameterDescription<double>("crossCorrelationMinTimeToBeLateMin", 2., true) and
               edm::ParameterDescription<double>("crossCorrelationMinTimeToBeLateMax", 5., true));
