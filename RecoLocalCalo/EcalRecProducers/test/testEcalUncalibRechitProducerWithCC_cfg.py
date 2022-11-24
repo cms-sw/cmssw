@@ -10,20 +10,20 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load('Configuration.StandardSequences.Reconstruction_cff')
+# process.load('Configuration.StandardSequences.Reconstruction_cff')
 
 
 
 process.source = cms.Source('PoolSource',
     fileNames = cms.untracked.vstring(
-        '/store/data/Run2018D/EGamma/RAW/v1/000/323/414/00000/042D6023-E0A2-8649-8D86-445F752A8F6B.root',
+        '/store/data/Run2022C/EGamma/RAW/v1/000/357/440/00000/013b0cf5-4e6a-4e17-ac19-8ab200eeeaee.root',
     ),
 )
 
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run3_data', '')
 
 
 process.maxEvents = cms.untracked.PSet(
@@ -35,14 +35,14 @@ process.maxEvents = cms.untracked.PSet(
 #-----------------------------------------
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load("RecoLocalCalo.Configuration.hcalLocalReco_cff")
-process.load("RecoLocalCalo.Configuration.ecalLocalRecoSequence_cff")
+# process.load("RecoLocalCalo.Configuration.ecalLocalRecoSequence_cff")
 process.load("EventFilter.HcalRawToDigi.HcalRawToDigi_cfi")
 process.load("EventFilter.EcalRawToDigi.EcalUnpackerData_cfi")
 process.load("RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi")
 
 # load both cpu plugins
 process.load("RecoLocalCalo.EcalRecProducers.ecalMultiFitUncalibRecHit_cfi")
-
+process.load("RecoLocalCalo.EcalRecProducers.ecalCPUUncalibRecHitProducer_cfi")
 ##
 ## force HLT configuration for ecalMultiFitUncalibRecHit
 ##
@@ -77,7 +77,7 @@ process.digiPath = cms.Path(
 
 process.recoPath = cms.Path(
     process.ecalMultiFitUncalibRecHit
-    *process.ecalRecHit
+    *process.ecalCPUUncalibRecHitProducer
 )
 
 process.schedule = cms.Schedule(
