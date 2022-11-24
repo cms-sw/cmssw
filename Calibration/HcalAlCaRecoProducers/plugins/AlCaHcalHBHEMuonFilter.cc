@@ -126,7 +126,7 @@ void AlCaHcalHBHEMuonFilter::globalEndRun(edm::Run const& iRun, edm::EventSetup 
 void AlCaHcalHBHEMuonFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<int>("prescale", 1);
-  desc.add<double>("minimumMuonP", 10.0);
+  desc.add<double>("minimumMuonP", 5.0);
   desc.add<edm::InputTag>("hbheMuonLabel", edm::InputTag("alcaHcalHBHEMuonProducer", "hbheMuon"));
   descriptions.add("alcaHcalHBHEMuonFilter", desc);
 }

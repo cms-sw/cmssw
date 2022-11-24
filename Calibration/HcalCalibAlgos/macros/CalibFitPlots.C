@@ -1099,6 +1099,8 @@ void PlotHist(const char* infile,
       } else {
         if (mode == 5)
           hist->GetYaxis()->SetRangeUser(0.1, 0.50);
+        else if (dataMC)
+          hist->GetYaxis()->SetRangeUser(0.5, 1.50);
         else
           hist->GetYaxis()->SetRangeUser(0.8, 1.20);
         if (kopt % 10 > 0) {
