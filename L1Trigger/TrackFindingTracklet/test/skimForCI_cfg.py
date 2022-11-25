@@ -31,7 +31,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 
-# D49 geometry (T15 tracker)
+# D88 geometry (T24 tracker)
 process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
 process.load('Configuration.Geometry.GeometryExtended2026D88_cff')
 
