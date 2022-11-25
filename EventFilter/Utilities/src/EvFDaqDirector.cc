@@ -143,9 +143,7 @@ namespace evf {
         edm::LogWarning("EvFDaqDirector") << "Bad lexical cast in parsing: " << std::string(fileBrokerUseLockParamPtr);
       }
     }
-  }
 
-  void EvFDaqDirector::initRun() {
     std::stringstream ss;
     ss << "run" << std::setfill('0') << std::setw(6) << run_;
     run_string_ = ss.str();
@@ -154,10 +152,13 @@ namespace evf {
     run_nstring_ = ss.str();
     run_dir_ = base_dir_ + "/" + run_string_;
     input_throttled_file_ = run_dir_ + "/input_throttle";
+    discard_ls_filestem_ = run_dir_ + "/discard_ls";
     ss = std::stringstream();
     ss << getpid();
     pid_ = ss.str();
+  }
 
+  void EvFDaqDirector::initRun() {
     // check if base dir exists or create it accordingly
     int retval = mkdir(base_dir_.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     if (retval != 0 && errno != EEXIST) {
@@ -322,6 +323,7 @@ namespace evf {
 
     nThreads_ = bounds.maxNumberOfStreams();
     nStreams_ = bounds.maxNumberOfThreads();
+    nConcurrentLumis_ = bounds.maxNumberOfConcurrentLuminosityBlocks();
   }
 
   void EvFDaqDirector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -444,6 +446,10 @@ namespace evf {
 
   std::string EvFDaqDirector::getInitFilePath(std::string const& stream) const {
     return run_dir_ + "/" + fffnaming::initFileNameWithPid(run_, 0, stream);
+  }
+
+  std::string EvFDaqDirector::getInitTempFilePath(std::string const& stream) const {
+    return run_dir_ + "/" + fffnaming::initTempFileNameWithPid(run_, 0, stream);
   }
 
   std::string EvFDaqDirector::getOpenProtocolBufferHistogramFilePath(const unsigned int ls,
@@ -2065,6 +2071,11 @@ namespace evf {
   bool EvFDaqDirector::inputThrottled() {
     struct stat buf;
     return (stat(input_throttled_file_.c_str(), &buf) == 0);
+  }
+
+  bool EvFDaqDirector::lumisectionDiscarded(unsigned int ls) {
+    struct stat buf;
+    return (stat((discard_ls_filestem_ + std::to_string(ls)).c_str(), &buf) == 0);
   }
 
 }  // namespace evf
