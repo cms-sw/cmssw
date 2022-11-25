@@ -100,12 +100,14 @@ private:
   const edm::EDGetTokenT<edm::View<pat::Jet>> jets_;
   const edm::EDGetTokenT<edm::View<pat::Muon>> muons_;
   const edm::EDGetTokenT<edm::View<pat::Electron>> electrons_;
+  const edm::EDGetTokenT<edm::View<pat::Photon>> photons_;
+  const edm::EDGetTokenT<edm::View<pat::Tau>> taus_;
   edm::InputTag lowPtElectronsTag_;
   edm::EDGetTokenT<edm::View<pat::Electron>> lowPtElectrons_;
-  const edm::EDGetTokenT<edm::View<pat::Tau>> taus_;
-  const edm::EDGetTokenT<edm::View<pat::Tau>> boostedTaus_;
-  const edm::EDGetTokenT<edm::View<pat::Photon>> photons_;
-  const edm::EDGetTokenT<edm::View<reco::VertexCompositePtrCandidate>> vertices_;
+  edm::InputTag boostedTausTag_;
+  edm::EDGetTokenT<edm::View<pat::Tau>> boostedTaus_;
+  edm::InputTag verticesTag_;
+  edm::EDGetTokenT<edm::View<reco::VertexCompositePtrCandidate>> vertices_;
 };
 
 //
@@ -115,23 +117,26 @@ PATObjectCrossLinker::PATObjectCrossLinker(const edm::ParameterSet& params)
     : jets_(consumes<edm::View<pat::Jet>>(params.getParameter<edm::InputTag>("jets"))),
       muons_(consumes<edm::View<pat::Muon>>(params.getParameter<edm::InputTag>("muons"))),
       electrons_(consumes<edm::View<pat::Electron>>(params.getParameter<edm::InputTag>("electrons"))),
+      photons_(consumes<edm::View<pat::Photon>>(params.getParameter<edm::InputTag>("photons"))),
+      taus_(consumes<edm::View<pat::Tau>>(params.getParameter<edm::InputTag>("taus"))),
       lowPtElectronsTag_(params.getParameter<edm::InputTag>("lowPtElectrons")),
       lowPtElectrons_(mayConsume<edm::View<pat::Electron>>(lowPtElectronsTag_)),
-      taus_(consumes<edm::View<pat::Tau>>(params.getParameter<edm::InputTag>("taus"))),
-      boostedTaus_(consumes<edm::View<pat::Tau>>(params.getParameter<edm::InputTag>("boostedTaus"))),
-      photons_(consumes<edm::View<pat::Photon>>(params.getParameter<edm::InputTag>("photons"))),
-      vertices_(consumes<edm::View<reco::VertexCompositePtrCandidate>>(params.getParameter<edm::InputTag>("vertices")))
-
+      boostedTausTag_(params.getParameter<edm::InputTag>("boostedTaus")),
+      boostedTaus_(mayConsume<edm::View<pat::Tau>>(boostedTausTag_)),
+      verticesTag_(params.getParameter<edm::InputTag>("vertices")),
+      vertices_(mayConsume<edm::View<reco::VertexCompositePtrCandidate>>(verticesTag_))
 {
   produces<std::vector<pat::Jet>>("jets");
   produces<std::vector<pat::Muon>>("muons");
   produces<std::vector<pat::Electron>>("electrons");
+  produces<std::vector<pat::Photon>>("photons");
+  produces<std::vector<pat::Tau>>("taus");
   if (!lowPtElectronsTag_.label().empty())
     produces<std::vector<pat::Electron>>("lowPtElectrons");
-  produces<std::vector<pat::Tau>>("taus");
-  produces<std::vector<pat::Tau>>("boostedTaus");
-  produces<std::vector<pat::Photon>>("photons");
-  produces<std::vector<reco::VertexCompositePtrCandidate>>("vertices");
+  if (!boostedTausTag_.label().empty())
+    produces<std::vector<pat::Tau>>("boostedTaus");
+  if (!verticesTag_.label().empty())
+    produces<std::vector<reco::VertexCompositePtrCandidate>>("vertices");
 }
 
 PATObjectCrossLinker::~PATObjectCrossLinker() {
@@ -285,6 +290,20 @@ void PATObjectCrossLinker::produce(edm::Event& iEvent, const edm::EventSetup& iS
     electrons->push_back(e);
   auto eleRefProd = iEvent.getRefBeforePut<std::vector<pat::Electron>>("electrons");
 
+  const auto& tausIn = iEvent.get(taus_);
+  auto taus = std::make_unique<std::vector<pat::Tau>>();
+  taus->reserve(tausIn.size());
+  for (const auto& t : tausIn)
+    taus->push_back(t);
+  auto tauRefProd = iEvent.getRefBeforePut<std::vector<pat::Tau>>("taus");
+
+  const auto& photonsIn = iEvent.get(photons_);
+  auto photons = std::make_unique<std::vector<pat::Photon>>();
+  photons->reserve(photonsIn.size());
+  for (const auto& p : photonsIn)
+    photons->push_back(p);
+  auto phRefProd = iEvent.getRefBeforePut<std::vector<pat::Photon>>("photons");
+
   auto lowPtElectrons = std::make_unique<std::vector<pat::Electron>>();
   if (!lowPtElectronsTag_.label().empty()) {
     auto lowPtElectronsIn = iEvent.getHandle(lowPtElectrons_);
@@ -294,38 +313,27 @@ void PATObjectCrossLinker::produce(edm::Event& iEvent, const edm::EventSetup& iS
     }
   }
 
-  const auto& tausIn = iEvent.get(taus_);
-  auto taus = std::make_unique<std::vector<pat::Tau>>();
-  taus->reserve(tausIn.size());
-  for (const auto& t : tausIn)
-    taus->push_back(t);
-  auto tauRefProd = iEvent.getRefBeforePut<std::vector<pat::Tau>>("taus");
-
-  const auto& boostedTausIn = iEvent.get(boostedTaus_);
   auto boostedTaus = std::make_unique<std::vector<pat::Tau>>();
-  boostedTaus->reserve(boostedTausIn.size());
-  for (const auto& t : boostedTausIn)
-    boostedTaus->push_back(t);
-  auto boostedTauRefProd = iEvent.getRefBeforePut<std::vector<pat::Tau>>("boostedTaus");
+  if (!boostedTausTag_.label().empty()) {
+    auto boostedTausIn = iEvent.getHandle(boostedTaus_);
+    boostedTaus->reserve(boostedTausIn->size());
+    for (const auto& e : *boostedTausIn) {
+      boostedTaus->push_back(e);
+    }
+  }
 
-  const auto& photonsIn = iEvent.get(photons_);
-  auto photons = std::make_unique<std::vector<pat::Photon>>();
-  photons->reserve(photonsIn.size());
-  for (const auto& p : photonsIn)
-    photons->push_back(p);
-  auto phRefProd = iEvent.getRefBeforePut<std::vector<pat::Photon>>("photons");
-
-  const auto& verticesIn = iEvent.get(vertices_);
   auto vertices = std::make_unique<std::vector<reco::VertexCompositePtrCandidate>>();
-  vertices->reserve(verticesIn.size());
-  for (const auto& v : verticesIn)
-    vertices->push_back(v);
-  auto vtxRefProd = iEvent.getRefBeforePut<std::vector<reco::VertexCompositePtrCandidate>>("vertices");
+  if (!verticesTag_.label().empty()) {
+    auto verticesIn = iEvent.getHandle(vertices_);
+    vertices->reserve(verticesIn->size());
+    for (const auto& e : *verticesIn) {
+      vertices->push_back(e);
+    }
+  }
 
   matchOneToMany(jetRefProd, *jets, "jet", muRefProd, *muons, "muons");
   matchOneToMany(jetRefProd, *jets, "jet", eleRefProd, *electrons, "electrons");
   matchOneToMany(jetRefProd, *jets, "jet", tauRefProd, *taus, "taus");
-  matchOneToMany(jetRefProd, *jets, "jet", boostedTauRefProd, *boostedTaus, "boostedTaus");
   matchOneToMany(jetRefProd, *jets, "jet", phRefProd, *photons, "photons");
 
   matchOneToMany(tauRefProd, *taus, "tau", muRefProd, *muons, "muons");
@@ -340,20 +348,30 @@ void PATObjectCrossLinker::produce(edm::Event& iEvent, const edm::EventSetup& iS
     matchElectronToPhoton(lowPtEleRefProd, *lowPtElectrons, "lowPtElectron", phRefProd, *photons, "photons");
   }
 
-  matchOneToVertices(*jets, vtxRefProd, *vertices, "vertices");
-  matchOneToVertices(*taus, vtxRefProd, *vertices, "vertices");
-  matchVertexToMany(vtxRefProd, *vertices, "vertex", *muons);
-  matchVertexToMany(vtxRefProd, *vertices, "vertex", *electrons);
+  if (!boostedTausTag_.label().empty()) {
+    auto boostedTauRefProd = iEvent.getRefBeforePut<std::vector<pat::Tau>>("boostedTaus");
+    matchOneToMany(jetRefProd, *jets, "jet", boostedTauRefProd, *boostedTaus, "boostedTaus");
+  }
+
+  if (!verticesTag_.label().empty()) {
+    auto vtxRefProd = iEvent.getRefBeforePut<std::vector<reco::VertexCompositePtrCandidate>>("vertices");
+    matchOneToVertices(*jets, vtxRefProd, *vertices, "vertices");
+    matchOneToVertices(*taus, vtxRefProd, *vertices, "vertices");
+    matchVertexToMany(vtxRefProd, *vertices, "vertex", *muons);
+    matchVertexToMany(vtxRefProd, *vertices, "vertex", *electrons);
+  }
 
   iEvent.put(std::move(jets), "jets");
   iEvent.put(std::move(muons), "muons");
   iEvent.put(std::move(electrons), "electrons");
+  iEvent.put(std::move(taus), "taus");
+  iEvent.put(std::move(photons), "photons");
   if (!lowPtElectronsTag_.label().empty())
     iEvent.put(std::move(lowPtElectrons), "lowPtElectrons");
-  iEvent.put(std::move(taus), "taus");
-  iEvent.put(std::move(boostedTaus), "boostedTaus");
-  iEvent.put(std::move(photons), "photons");
-  iEvent.put(std::move(vertices), "vertices");
+  if (!boostedTausTag_.label().empty())
+    iEvent.put(std::move(boostedTaus), "boostedTaus");
+  if (!verticesTag_.label().empty())
+    iEvent.put(std::move(vertices), "vertices");
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
@@ -371,9 +389,9 @@ void PATObjectCrossLinker::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<edm::InputTag>("lowPtElectrons")
       ->setComment("an optional electron collection derived from pat::Electron, empty=>not used");
   desc.add<edm::InputTag>("taus")->setComment("a tau collection derived from pat::Tau");
-  desc.add<edm::InputTag>("boostedTaus")->setComment("a boosted tau collection derived from pat::Tau");
+  desc.add<edm::InputTag>("boostedTaus")->setComment("a boosted tau collection derived from pat::Tau, empty=>not used");
   desc.add<edm::InputTag>("photons")->setComment("a photon collection derived from pat::Photon");
-  desc.add<edm::InputTag>("vertices")->setComment("a vertex collection derived from reco::VertexCompositePtrCandidate");
+  desc.add<edm::InputTag>("vertices")->setComment("a vertex collection derived from reco::VertexCompositePtrCandidate, empty=>not used");
   descriptions.add("patObjectCrossLinker", desc);
 }
 
