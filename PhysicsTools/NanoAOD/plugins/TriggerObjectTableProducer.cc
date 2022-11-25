@@ -116,7 +116,7 @@ private:
                           << qualityBitsConfig[i].getParameter<std::string>("selection") << ")";
           qualityBitsDoc += std::to_string(bit) + " => " + qualityBitsConfig[i].getParameter<std::string>("doc");
         }
-        if (!qualityBitsFunc.str().empty) {
+        if (!qualityBitsFunc.str().empty()) {
           //std::cout << "The quality bit string is :" << qualityBitsFunc.str() << std::endl;
           //std::cout << "The quality bit documentation is :" << qualityBitsDoc << std::endl;
           qualityBits = StringObjectFunction<pat::TriggerObjectStandAlone>(qualityBitsFunc.str());
