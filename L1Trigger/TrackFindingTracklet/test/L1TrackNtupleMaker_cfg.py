@@ -63,7 +63,7 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 #--- follow instructions in https://github.com/cms-L1TK/MCsamples
 
 #from MCsamples.Scripts.getCMSdata_cfi import *
-from MCsamples.Scripts.getCMSlocaldata_cfi import *
+#from MCsamples.Scripts.getCMSlocaldata_cfi import *
 
 if GEOMETRY == "D76":
   # Read data from card files (defines getCMSdataFromCards()):
