@@ -847,7 +847,23 @@ void FedRawDataInputSource::readSupervisor() {
       while (daqDirector_->inputThrottled()) {
         if (quit_threads_.load(std::memory_order_relaxed) || edm::shutdown_flag.load(std::memory_order_relaxed))
           break;
+
+        unsigned int nConcurrentLumis = daqDirector_->numConcurrentLumis();
+        unsigned int nOtherLumis = nConcurrentLumis > 0 ? nConcurrentLumis - 1 : 0;
+        unsigned int checkLumiStart = currentLumiSection > nOtherLumis ? currentLumiSection - nOtherLumis : 1;
+        bool hasDiscardedLumi = false;
+        for (unsigned int i = checkLumiStart; i <= currentLumiSection; i++) {
+          if (daqDirector_->lumisectionDiscarded(i)) {
+            edm::LogWarning("FedRawDataInputSource") << "Source detected that the lumisection is discarded -: " << i;
+            hasDiscardedLumi = true;
+            break;
+          }
+        }
+        if (hasDiscardedLumi)
+          break;
+
         setMonStateSup(inThrottled);
+
         if (!(counter % 50))
           edm::LogWarning("FedRawDataInputSource") << "Input throttled detected, reading files is paused...";
         usleep(100000);
