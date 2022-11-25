@@ -147,23 +147,22 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
   const auto &trigObjs = iEvent.get(src_);
 
   std::vector<std::pair<const pat::TriggerObjectStandAlone *, const SelectedObject *>> selected;
+  std::map<const pat::TriggerObjectStandAlone *, int> selected_bits;
   for (const auto &obj : trigObjs) {
     for (const auto &sel : sels_) {
-      if (sel.match(obj) && (sel.skipObjectsNotPassingQualityBits ? (int(sel.qualityBits(obj)) > 0) : true)) {
-        selected.emplace_back(&obj, &sel);
-        // cave canem: the object will be taken by whichever selection it matches first, so it
-        // depends on the order of the selections in the VPSet
-        break;
+      if (sel.match(obj)){
+	selected_bits[&obj] = int(sel.qualityBits(obj));
+	if (sel.skipObjectsNotPassingQualityBits ? (selected_bits[&obj]>0) : true){
+	  selected.emplace_back(&obj, &sel);
+	}
       }
     }
   }
 
   // Self-cleaning
-  std::map<const pat::TriggerObjectStandAlone *, int> selected_bits;
   for (unsigned int i = 0; i < selected.size(); ++i) {
     const auto &obj = *selected[i].first;
     const auto &sel = *selected[i].second;
-    selected_bits[&obj] = int(sel.qualityBits(obj));
 
     for (unsigned int j = 0; j < i; ++j) {
       const auto &obj2 = *selected[j].first;
