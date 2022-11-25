@@ -96,9 +96,9 @@ HcalGPUComparisonTask::HcalGPUComparisonTask(edm::ParameterSet const& ps)
   auto const chbhe_ref = e.getHandle(tokHBHE_ref_);
   auto const chbhe_target = e.getHandle(tokHBHE_target_);
 
-  if (not(chbhe_ref.isValid() or chbhe_target.isValid())) {
+  if (not(chbhe_ref.isValid() and chbhe_target.isValid())) {
     edm::LogWarning("HcalGPUComparisonTask")
-        << "Either CPU or GPU RecHit Collection is available, will not fill this event.";
+        << "Either CPU or GPU RecHit Collection is unavailable, will not fill this event.";
     return;
   }
 
