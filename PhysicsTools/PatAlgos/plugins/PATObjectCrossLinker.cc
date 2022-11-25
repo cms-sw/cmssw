@@ -328,6 +328,9 @@ void PATObjectCrossLinker::produce(edm::Event& iEvent, const edm::EventSetup& iS
   matchOneToMany(jetRefProd, *jets, "jet", boostedTauRefProd, *boostedTaus, "boostedTaus");
   matchOneToMany(jetRefProd, *jets, "jet", phRefProd, *photons, "photons");
 
+  matchOneToMany(tauRefProd, *taus, "tau", muRefProd, *muons, "muons");
+  matchOneToMany(tauRefProd, *taus, "tau", eleRefProd, *electrons, "electrons");
+
   matchElectronToPhoton(eleRefProd, *electrons, "electron", phRefProd, *photons, "photons");
 
   if (!lowPtElectronsTag_.label().empty()) {
