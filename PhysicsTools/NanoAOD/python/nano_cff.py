@@ -50,27 +50,6 @@ run2_nanoAOD_ANY.toModify(
     linkedObjects, jets="finalJets"
 )
 
-simpleCleanerTable = cms.EDProducer("NanoAODSimpleCrossCleaner",
-   name=cms.string("cleanmask"),
-   doc=cms.string("simple cleaning mask with priority to leptons"),
-   jets=cms.InputTag("linkedObjects","jets"),
-   muons=cms.InputTag("linkedObjects","muons"),
-   electrons=cms.InputTag("linkedObjects","electrons"),
-   lowPtElectrons=cms.InputTag("linkedObjects","lowPtElectrons"),
-   taus=cms.InputTag("linkedObjects","taus"),
-   photons=cms.InputTag("linkedObjects","photons"),
-   jetSel=cms.string("pt>15"),
-   muonSel=cms.string("track.isNonnull && isLooseMuon && isPFMuon && innerTrack.validFraction >= 0.49 && ( isGlobalMuon && globalTrack.normalizedChi2 < 3 && combinedQuality.chi2LocalPosition < 12 && combinedQuality.trkKink < 20 && segmentCompatibility >= 0.303 || segmentCompatibility >= 0.451 )"),
-   electronSel=cms.string(""),
-   lowPtElectronSel=cms.string(""),
-   tauSel=cms.string(""),
-   photonSel=cms.string(""),
-   jetName=cms.string("Jet"),muonName=cms.string("Muon"),electronName=cms.string("Electron"),
-   lowPtElectronName=cms.string("LowPtElectron"),
-   tauName=cms.string("Tau"),photonName=cms.string("Photon")
-)
-
-
 lhcInfoTable = cms.EDProducer("LHCInfoProducer")
 
 nanoTableTaskCommon = cms.Task(
@@ -84,7 +63,7 @@ nanoTableTaskCommon = cms.Task(
     jetPuppiTablesTask, jetAK8TablesTask,
     muonTablesTask, fsrTablesTask, tauTablesTask, boostedTauTablesTask,
     electronTablesTask, lowPtElectronTablesTask, photonTablesTask,
-    globalTablesTask, vertexTablesTask, metTablesTask, simpleCleanerTable, extraFlagsTableTask,
+    globalTablesTask, vertexTablesTask, metTablesTask, extraFlagsTableTask,
     isoTrackTablesTask,softActivityTablesTask
 )
 
