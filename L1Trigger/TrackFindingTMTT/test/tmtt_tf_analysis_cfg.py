@@ -11,16 +11,12 @@ import os
 
 process = cms.Process("Demo")
 
-GEOMETRY = "D76"
+GEOMETRY = "D88"
 
-if GEOMETRY == "D49": 
+if GEOMETRY == "D88": 
     print("using geometry " + GEOMETRY + " (tilted)")
-    process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
-    process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
-elif GEOMETRY == "D76": 
-    print("using geometry " + GEOMETRY + " (tilted)")
-    process.load('Configuration.Geometry.GeometryExtended2026D76Reco_cff')
-    process.load('Configuration.Geometry.GeometryExtended2026D76_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D88_cff')
 else:
     print("this is not a valid geometry!!!")
 
@@ -42,10 +38,7 @@ options = VarParsing.VarParsing ('analysis')
 #from MCsamples.Scripts.getCMSdata_cfi import *
 #from MCsamples.Scripts.getCMSlocaldata_cfi import *
 
-if GEOMETRY == "D49":
-  inputMC = ["/store/relval/CMSSW_11_3_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_113X_mcRun4_realistic_v3_2026D49PU200_rsb-v1/00000/00260a30-734a-4a3a-a4b0-f836ce5502c6.root"] 
-
-elif GEOMETRY == "D76":
+if GEOMETRY == "D88":
   # Read data from card files (defines getCMSdataFromCards()):
   #from MCsamples.RelVal_1130_D76.PU200_TTbar_14TeV_cfi import *
   #inputMC = getCMSdataFromCards()
@@ -59,7 +52,7 @@ elif GEOMETRY == "D76":
   #inputMC=getCMSdata(dataName)
 
   # Or read specified .root file:
-  inputMC = ["/store/relval/CMSSW_11_3_0_pre6/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_113X_mcRun4_realistic_v6_2026D76PU200-v1/00000/00026541-6200-4eed-b6f8-d3a1fd720e9c.root"]
+  inputMC = ["/store/relval/CMSSW_12_6_0_pre4/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_125X_mcRun4_realistic_v2_2026D88PU200-v1/2590000/00b3d04b-4c7b-4506-8d82-9538fb21ee19.root"]
 
 else:
   print("this is not a valid geometry!!!")
