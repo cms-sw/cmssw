@@ -202,8 +202,8 @@ namespace hcaldqm {
         {fADC_256_4, -0.5},
         {fEtlog2, 0.},
         {fDiffRatio, -2.5},
-        {fCPUenergy, -1},
-        {fGPUenergy, -1},
+        {fCPUenergy, 0},
+        {fGPUenergy, 0},
     };
     const std::map<ValueQuantityType, double> max_value = {
         {fN, 1000},
@@ -333,8 +333,8 @@ namespace hcaldqm {
         {fADC_256_4, 64},
         {fEtlog2, 9},
         {fDiffRatio, 50},
-        {fCPUenergy, 1005},
-        {fGPUenergy, 1005},
+        {fCPUenergy, 1000},
+        {fGPUenergy, 1000},
     };
     class ValueQuantity : public Quantity {
     public:
