@@ -150,11 +150,11 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
   std::map<const pat::TriggerObjectStandAlone *, int> selected_bits;
   for (const auto &obj : trigObjs) {
     for (const auto &sel : sels_) {
-      if (sel.match(obj)){
-	selected_bits[&obj] = int(sel.qualityBits(obj));
-	if (sel.skipObjectsNotPassingQualityBits ? (selected_bits[&obj]>0) : true){
-	  selected.emplace_back(&obj, &sel);
-	}
+      if (sel.match(obj)) {
+        selected_bits[&obj] = int(sel.qualityBits(obj));
+        if (sel.skipObjectsNotPassingQualityBits ? (selected_bits[&obj] > 0) : true) {
+          selected.emplace_back(&obj, &sel);
+        }
       }
     }
   }
