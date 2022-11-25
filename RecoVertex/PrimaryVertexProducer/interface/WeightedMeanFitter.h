@@ -15,6 +15,7 @@ namespace WeightedMeanFitter {
   constexpr float corr_x_bs = 1.0;  // corr_x for beam spot
   constexpr float corr_z = 1.4;
   constexpr int maxIterations = 50;
+  constexpr float muSquare = 9.;
 
   inline std::pair<GlobalPoint, double> nearestPoint(const GlobalPoint& vertex, reco::Track iclus) {
     double ox = iclus.vx();
@@ -76,7 +77,6 @@ namespace WeightedMeanFitter {
 
     float xpull;
     int niter = 0;
-    float mu = 3.;
 
     float err_x, err_z;
 
@@ -104,9 +104,9 @@ namespace WeightedMeanFitter {
 
         xpull = 0.;
 
-        if (std::pow(p.first.x() - old_x, 2) / (wx + err_x) < mu * mu &&
-            std::pow(p.first.y() - old_y, 2) / (wx + err_x) < mu * mu &&
-            std::pow(p.first.z() - old_z, 2) / (wz + err_z) < mu * mu)
+        if (std::pow(p.first.x() - old_x, 2) / (wx + err_x) < muSquare &&
+            std::pow(p.first.y() - old_y, 2) / (wx + err_x) < muSquare &&
+            std::pow(p.first.z() - old_z, 2) / (wz + err_z) < muSquare)
           xpull = 1.;
 
         ndof_x += xpull;
@@ -217,7 +217,6 @@ namespace WeightedMeanFitter {
 
     float xpull;
     int niter = 0;
-    float mu = 3.;
 
     float err_x, err_y, err_z;
 
@@ -251,9 +250,9 @@ namespace WeightedMeanFitter {
         wz = points[i].second.z() <= precision ? std::pow(precision, 2) : std::pow(points[i].second.z(), 2);
 
         xpull = 0.;
-        if (std::pow(p.first.x() - old_x, 2) / (wx + err_x) < mu * mu &&
-            std::pow(p.first.y() - old_y, 2) / (wy + err_y) < mu * mu &&
-            std::pow(p.first.z() - old_z, 2) / (wz + err_z) < mu * mu)
+        if (std::pow(p.first.x() - old_x, 2) / (wx + err_x) < muSquare &&
+            std::pow(p.first.y() - old_y, 2) / (wy + err_y) < muSquare &&
+            std::pow(p.first.z() - old_z, 2) / (wz + err_z) < muSquare)
           xpull = 1.;
 
         ndof_x += xpull;
@@ -360,11 +359,10 @@ namespace WeightedMeanFitter {
     float old_x, old_y, old_z;
     float xpull;
     int niter = 0;
-    float mu = 3.;
     float err_x, err_y, err_z;
-    err_x = 1. / std::sqrt(s_wx);
-    err_y = 1. / std::sqrt(s_wx);
-    err_z = 1. / std::sqrt(s_wz);
+    err_x = 1. / s_wx;
+    err_y = 1. / s_wx;
+    err_z = 1. / s_wz;
     float s_err_x = 0., s_err_y = 0., s_err_z = 0.;
     while ((niter++) < maxIterations) {
       old_x = x;
@@ -387,17 +385,17 @@ namespace WeightedMeanFitter {
         wx = p.second.x();
         wx = wx <= precision ? precision : wx;
 
-        wy = wx * wx + err_y * err_y;
-        wx = wx * wx + err_x * err_x;
+        wy = wx * wx + err_y;
+        wx = wx * wx + err_x;
 
         wz = p.second.z();
         wz = wz <= precision ? precision : wz;
-        wz = wz * wz + err_z * err_z;
+        wz = wz * wz + err_z;
 
         xpull = std::pow((p.first.x() - old_x), 2) / wx;
         xpull += std::pow((p.first.y() - old_y), 2) / wy;
         xpull += std::pow((p.first.z() - old_z), 2) / wz;
-        xpull = 1. / (1. + std::exp(-0.5 * ((mu * mu) - xpull)));
+        xpull = 1. / (1. + std::exp(-0.5 * ((muSquare)-xpull)));
         ndof_x += xpull;
 
         wx = 1. / wx;
@@ -433,18 +431,18 @@ namespace WeightedMeanFitter {
       y /= s_wy;
       z /= s_wz;
 
-      err_x = std::sqrt(s_err_x / s_wx);
-      err_y = std::sqrt(s_err_y / s_wy);
-      err_z = std::sqrt(s_err_z / s_wz);
+      err_x = s_err_x / s_wx;
+      err_y = s_err_y / s_wy;
+      err_z = s_err_z / s_wz;
 
       if (std::abs(x - old_x) < (precision / 1.) && std::abs(y - old_y) < (precision / 1.) &&
           std::abs(z - old_z) < (precision / 1.))
         break;
     }
 
-    err(0, 0) = err_x * err_x;
-    err(1, 1) = err_y * err_y;
-    err(2, 2) = err_z * err_z;
+    err(0, 0) = err_x;
+    err(1, 1) = err_y;
+    err(2, 2) = err_z;
 
     float dist = 0.f;
     for (const auto& p : points) {
