@@ -989,6 +989,12 @@ vector<TransientVertex> DAClusterizerInZ_vect::vertices_in_blocks(const vector<r
             });
 
   unsigned int nBlocks = (unsigned int)std::floor(sorted_tracks.size() / (block_size_ * (1 - overlap_frac_)));
+  if (nBlocks < 1) {
+    nBlocks = 1;
+    edm::LogWarning("DAClusterizerinZ_vect")
+        << "Warning nBlocks was 0 with ntracks = " << sorted_tracks.size() << " block_size = " << block_size_
+        << " and overlap fraction = " << overlap_frac_ << ". Setting nBlocks = 1";
+  }
   for (unsigned int block = 0; block < nBlocks; block++) {
     vector<reco::TransientTrack> block_tracks;
     unsigned int begin = (unsigned int)(block * block_size_ * (1 - overlap_frac_));
