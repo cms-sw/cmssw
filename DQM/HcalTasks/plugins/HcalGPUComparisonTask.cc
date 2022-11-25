@@ -96,24 +96,9 @@ HcalGPUComparisonTask::HcalGPUComparisonTask(edm::ParameterSet const& ps)
   auto const chbhe_ref = e.getHandle(tokHBHE_ref_);
   auto const chbhe_target = e.getHandle(tokHBHE_target_);
 
-  if (not(chbhe_ref.isValid() and chbhe_target.isValid())) {
-    if (chbhe_target.isValid()) {
-      edm::LogWarning("HcalGPUComparisonTask")
-          << "The CPU HBHERecHitCollection " << tagHBHE_ref_.encode() << " is not available";
-
-      for (auto const& rh : *chbhe_target)
-        energyGPUvsCPU_subdet_.fill(rh.id(), -0.5, rh.energy());
-    } else if (chbhe_ref.isValid()) {
-      edm::LogWarning("HcalGPUComparisonTask")
-          << "The GPU HBHERecHitCollection " << tagHBHE_target_.encode() << " is not available";
-
-      for (auto const& rh : *chbhe_ref)
-        energyGPUvsCPU_subdet_.fill(rh.id(), rh.energy(), -0.5);
-    } else {
-      edm::LogWarning("HcalGPUComparisonTask")
-          << "Neither CPU nor GPU RecHit Collection available, will not fill this event.";
-    }
-
+  if (not(chbhe_ref.isValid() or chbhe_target.isValid())) {
+    edm::LogWarning("HcalGPUComparisonTask")
+        << "Either CPU or GPU RecHit Collection is available, will not fill this event.";
     return;
   }
 
