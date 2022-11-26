@@ -150,6 +150,8 @@ protected:
   std::vector<std::string> listLayer_;
   std::map<std::string, int> mapIdxLayer_;  // All indices in the following objects start at 1
   std::map<int, int> mapNumChPerChamber_;
+  std::map<int, int> mapNumModule_;
+  std::map<int, std::map<int, int>> mapIdxToChamberInOcc_;
   std::map<int, MonitorElement *> mapHistLumiFunc_;
   Bool_t bIsStatusChambersInit_;
 };
@@ -229,6 +231,39 @@ void GEMDQMHarvester::drawSummaryHistogram(edm::Service<DQMStore> &store, Int_t 
       if (h2SrcVFATOcc == nullptr)
         continue;
       listOccPlots[nIdxLayer] = h2SrcVFATOcc;
+      mapIdxToChamberInOcc_[nIdxLayer] = {};
+      Int_t nNumModule = mapNumModule_[nIdxLayer];  // FIXME: Is this way to obtain the module number fully general?
+      // Obtaining the bin indices of chambers from their labels
+      for (Int_t i = 1; i <= h2SrcVFATOcc->getNbinsX(); i++) {
+        std::string strLabel = h2SrcVFATOcc->getTH2F()->GetXaxis()->GetBinLabel(i);
+        std::string strSrc = strLabel;
+        std::vector<int> listNumExtract;
+
+        while (!strSrc.empty()) {
+          auto nPosDigit = strSrc.find_first_of("0123456789");
+          if (nPosDigit == std::string::npos)
+            break;
+          std::stringstream ss;
+          ss << strSrc.substr(nPosDigit);
+          Int_t nExtract;
+          ss >> nExtract;
+          if (!ss.eof()) {
+            ss >> strSrc;
+          } else {
+            strSrc = "";
+          }
+          listNumExtract.push_back(nExtract);
+        }
+
+        if (listNumExtract.empty()) {  // Errneous case; but the job should not be dead
+          edm::LogError("GEMDQMHarvester") << "Error: Wrong label of GEM VFAT occupancy plot: " << strLabel;
+        } else if (listNumExtract.size() > 1 && nNumModule > 1) {
+          Int_t nCh = (listNumExtract[0] - 1) * nNumModule + listNumExtract[1];
+          mapIdxToChamberInOcc_[nIdxLayer][nCh] = i;
+        } else {
+          mapIdxToChamberInOcc_[nIdxLayer][listNumExtract[0]] = i;
+        }
+      }
     }
 
     fReportSummary = refineSummaryHistogram(strTitleSummary,
@@ -271,8 +306,8 @@ void GEMDQMHarvester::drawSummaryHistogram(edm::Service<DQMStore> &store, Int_t 
   for (const auto &strSuffix : listLayer_) {
     if (mapIdxLayer_.find(strSuffix) == mapIdxLayer_.end())
       continue;
-    //auto nNumChamber = mapNumChPerChamber_[mapIdxLayer_[strSuffix]];
-    Int_t nNumChamber = 36;
+    Int_t nIdxLayer = mapIdxLayer_[strSuffix];
+    auto nNumChamber = mapNumChPerChamber_[nIdxLayer] / mapNumModule_[nIdxLayer];
     createInactiveChannelFracHist(store, strSuffix, nNumChamber);
   }
 
@@ -329,7 +364,7 @@ void GEMDQMHarvester::getGeometryInfo(edm::Service<DQMStore> &store, MonitorElem
         if (strLayer.find("GE11") != std::string::npos) {
           nBinXActual = 36;
         } else if (strLayer.find("GE21") != std::string::npos) {
-          nBinXActual = 18;
+          nBinXActual = 72;
         } else if (strLayer.find("GE01") != std::string::npos) {
           nBinXActual = 36;
         }
@@ -337,6 +372,7 @@ void GEMDQMHarvester::getGeometryInfo(edm::Service<DQMStore> &store, MonitorElem
       listLayer_.push_back(strLayer);
       mapIdxLayer_[strLayer] = i;
       mapNumChPerChamber_[i] = nBinXActual;
+      mapNumModule_[i] = (strLayer.find("GE21") != std::string::npos ? 4 : 1);
     }
   } else {  // For others (validation and...?)
     listLayer_.push_back("");
@@ -417,8 +453,9 @@ Float_t GEMDQMHarvester::refineSummaryHistogram(std::string strName,
   Int_t nBinY = h2Sum->getNbinsY();
   Int_t nAllBin = 0, nFineBin = 0;
   for (Int_t j = 1; j <= nBinY; j++) {
-    Int_t nBinX = (Int_t)(h2SrcStatusE->getBinContent(0, j) + 0.5);
+    Int_t nBinX = mapNumChPerChamber_[j];
     auto h2SrcOcc = listOccPlots[j];
+    auto &mapIdxOccChamber = mapIdxToChamberInOcc_[j];
     Int_t nBinYOcc = 0;
     if (h2SrcOcc != nullptr) {
       nBinYOcc = h2SrcOcc->getNbinsY();
@@ -427,8 +464,9 @@ Float_t GEMDQMHarvester::refineSummaryHistogram(std::string strName,
     h2Sum->setBinContent(0, j, nBinX);
     for (Int_t i = 1; i <= nBinX; i++) {
       Float_t fOcc = 0;
+      Int_t nIdxChOcc = mapIdxOccChamber[i];
       for (Int_t r = 1; r <= nBinYOcc; r++) {
-        fOcc += h2SrcOcc->getBinContent(i, r);
+        fOcc += h2SrcOcc->getBinContent(nIdxChOcc, r);
       }
 
       Float_t fStatusAll = h2SrcStatusA->getBinContent(i, j);
@@ -591,8 +629,15 @@ void GEMDQMHarvester::createLumiFuncHist(edm::Service<DQMStore> &store,
 
     h2Summary->setXTitle("Luminosity block");
     h2Summary->setYTitle("Chamber");
+    Int_t nNumModule = mapNumModule_[nIdxLayer];
     for (Int_t i = 1; i <= nNumCh; i++) {
-      h2Summary->setBinLabel(i, Form("%i", i), 2);
+      if (nNumModule <= 1) {
+        h2Summary->setBinLabel(i, Form("%i", i), 2);
+      } else {
+        Int_t nCh = (i - 1) / nNumModule + 1;
+        Int_t nModule = (i - 1) / nNumModule + 1;
+        h2Summary->setBinLabel(i, Form("%i M%i", nCh, nModule), 2);
+      }
     }
   } else {
     h2Summary = mapHistLumiFunc_[nIdxLayer];
