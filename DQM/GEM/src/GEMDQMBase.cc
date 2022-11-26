@@ -82,12 +82,14 @@ int GEMDQMBase::loadChambers() {
 
       const int station_number = station->station();
       const int num_superchambers = (station_number == 1 ? 36 : 18);
+      const int num_mod = getNumModule(station->station());
       const int max_vfat = getMaxVFAT(station->station());  // the number of VFATs per GEMEtaPartition
       const int num_etas = getNumEtaPartitions(station);    // the number of eta partitions per GEMChamber
       const int num_vfat = num_etas * max_vfat;             // the number of VFATs per GEMChamber
+      const int strip1st = (station_number == 2 ? 1 : 0);   // the index of the first strip
       const int num_digi = GEMeMap::maxChan_;               // the number of digis (channels) per VFAT
 
-      nMaxNumCh_ = std::max(nMaxNumCh_, num_superchambers);
+      nMaxNumCh_ = std::max(nMaxNumCh_, num_superchambers * num_mod);
 
       Int_t nMinIdxChamber = 1048576;
       Int_t nMaxIdxChamber = -1048576;
@@ -108,8 +110,10 @@ int GEMDQMBase::loadChambers() {
                                               station_number,
                                               layer_number,
                                               num_superchambers,
+                                              num_mod,
                                               num_etas,
                                               num_vfat,
+                                              strip1st,
                                               num_digi,
                                               nMinIdxChamber,
                                               nMaxIdxChamber);
@@ -166,7 +170,7 @@ dqm::impl::MonitorElement* GEMDQMBase::CreateSummaryHist(DQMStore::IBooker& iboo
     auto label =
         Form("GE%+i1-%cL%i;%s", region * keyToStation(key), (region > 0 ? 'P' : 'M'), keyToLayer(key), strInfo.Data());
     h2Res->setBinLabel(i, label, 2);
-    Int_t nNumCh = mapStationInfo_[key].nNumChambers_;
+    Int_t nNumCh = mapStationInfo_[key].nNumChambers_ * mapStationInfo_[key].nNumModules_;
     h2Res->setBinContent(0, i, nNumCh);
   }
 
