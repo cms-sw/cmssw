@@ -14,8 +14,8 @@ namespace gpuVertexFinder {
 
   // this algo does not really scale as it works in a single block...
   // enough for <10K tracks we have
-  __global__ void clusterTracksDBSCAN(ZVertices* pdata,
-                                      WorkSpace* pws,
+  __global__ void clusterTracksDBSCAN(VtxSoAView pdata,
+                                      WsSoAView pws,
                                       int minT,      // min number of neighbours to be "core"
                                       float eps,     // max absolute distance to cluster
                                       float errmax,  // max error to be "seed"
@@ -28,21 +28,23 @@ namespace gpuVertexFinder {
 
     auto er2mx = errmax * errmax;
 
-    auto& __restrict__ data = *pdata;
-    auto& __restrict__ ws = *pws;
-    auto nt = ws.ntrks;
-    float const* __restrict__ zt = ws.zt;
-    float const* __restrict__ ezt2 = ws.ezt2;
+    auto& __restrict__ data = pdata;
+    auto& __restrict__ ws = pws;
+    auto nt = ws.ntrks();
+    float const* __restrict__ zt = ws.zt();
+    float const* __restrict__ ezt2 = ws.ezt2();
 
-    uint32_t& nvFinal = data.nvFinal;
-    uint32_t& nvIntermediate = ws.nvIntermediate;
+    uint32_t& nvFinal = data.nvFinal();
+    uint32_t& nvIntermediate = ws.nvIntermediate();
 
-    uint8_t* __restrict__ izt = ws.izt;
-    int32_t* __restrict__ nn = data.ndof;
-    int32_t* __restrict__ iv = ws.iv;
+    uint8_t* __restrict__ izt = ws.izt();
+    int32_t* __restrict__ nn = data.ndof();
+    int32_t* __restrict__ iv = ws.iv();
 
-    assert(pdata);
     assert(zt);
+    assert(iv);
+    assert(nn);
+    assert(ezt2);
 
     using Hist = cms::cuda::HistoContainer<uint8_t, 256, 16000, 8, uint16_t>;
     __shared__ Hist hist;
@@ -59,7 +61,7 @@ namespace gpuVertexFinder {
 
     // fill hist  (bin shall be wider than "eps")
     for (auto i = threadIdx.x; i < nt; i += blockDim.x) {
-      assert(i < ZVertices::MAXTRACKS);
+      assert(i < zVertex::utilities::MAXTRACKS);
       int iz = int(zt[i] * 10.);  // valid if eps<=0.1
       iz = std::clamp(iz, INT8_MIN, INT8_MAX);
       izt[i] = iz - INT8_MIN;
@@ -214,7 +216,7 @@ namespace gpuVertexFinder {
     }
     __syncthreads();
 
-    assert(foundClusters < ZVertices::MAXVTX);
+    assert(foundClusters < zVertex::utilities::MAXVTX);
 
     // propagate the negative id to all the tracks in the cluster.
     for (auto i = threadIdx.x; i < nt; i += blockDim.x) {

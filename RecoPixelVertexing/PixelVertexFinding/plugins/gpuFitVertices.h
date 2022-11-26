@@ -12,28 +12,25 @@
 
 namespace gpuVertexFinder {
 
-  __device__ __forceinline__ void fitVertices(ZVertices* pdata,
-                                              WorkSpace* pws,
+  __device__ __forceinline__ void fitVertices(VtxSoAView& pdata,
+                                              WsSoAView& pws,
                                               float chi2Max  // for outlier rejection
   ) {
     constexpr bool verbose = false;  // in principle the compiler should optmize out if false
 
-    auto& __restrict__ data = *pdata;
-    auto& __restrict__ ws = *pws;
-    auto nt = ws.ntrks;
-    float const* __restrict__ zt = ws.zt;
-    float const* __restrict__ ezt2 = ws.ezt2;
-    float* __restrict__ zv = data.zv;
-    float* __restrict__ wv = data.wv;
-    float* __restrict__ chi2 = data.chi2;
-    uint32_t& nvFinal = data.nvFinal;
-    uint32_t& nvIntermediate = ws.nvIntermediate;
+    auto& __restrict__ data = pdata;
+    auto& __restrict__ ws = pws;
+    auto nt = ws.ntrks();
+    float const* __restrict__ zt = ws.zt();
+    float const* __restrict__ ezt2 = ws.ezt2();
+    float* __restrict__ zv = data.zv();
+    float* __restrict__ wv = data.wv();
+    float* __restrict__ chi2 = data.chi2();
+    uint32_t& nvFinal = data.nvFinal();
+    uint32_t& nvIntermediate = ws.nvIntermediate();
 
-    int32_t* __restrict__ nn = data.ndof;
-    int32_t* __restrict__ iv = ws.iv;
-
-    assert(pdata);
-    assert(zt);
+    int32_t* __restrict__ nn = data.ndof();
+    int32_t* __restrict__ iv = ws.iv();
 
     assert(nvFinal <= nvIntermediate);
     nvFinal = nvIntermediate;
@@ -101,8 +98,8 @@ namespace gpuVertexFinder {
       printf("and %d noise\n", noise);
   }
 
-  __global__ void fitVerticesKernel(ZVertices* pdata,
-                                    WorkSpace* pws,
+  __global__ void fitVerticesKernel(VtxSoAView pdata,
+                                    WsSoAView pws,
                                     float chi2Max  // for outlier rejection
   ) {
     fitVertices(pdata, pws, chi2Max);

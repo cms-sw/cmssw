@@ -28,6 +28,8 @@ namespace pixelTopology {
   constexpr int16_t phi0p07 = 730;  // round(730.12648...) = phi2short(0.07);
   constexpr int16_t phi0p09 = 900;
 
+  constexpr uint16_t last_barrel_layer = 3;  // this is common between all the topologies
+
   template <class Function, std::size_t... Indices>
   constexpr auto map_to_array_helper(Function f, std::index_sequence<Indices...>)
       -> std::array<std::invoke_result_t<Function, std::size_t>, sizeof...(Indices)> {
@@ -292,10 +294,11 @@ namespace pixelTopology {
     static constexpr uint32_t maxCellTracks = 302;
     static constexpr uint32_t maxHitsOnTrack = 15;
     static constexpr uint32_t maxHitsOnTrackForFullFit = 6;
-    static constexpr uint32_t avgHitsPerTrack = 9;
+    static constexpr uint32_t avgHitsPerTrack = 7;
     static constexpr uint32_t maxCellsPerHit = 256;
     static constexpr uint32_t avgTracksPerHit = 10;
     static constexpr uint32_t maxNumberOfTuples = 256 * 1024;
+    //this is well above thanks to maxNumberOfTuples
     static constexpr uint32_t maxHitsForContainers = avgHitsPerTrack * maxNumberOfTuples;
     static constexpr uint32_t maxNumberOfDoublets = 5 * 512 * 1024;
     static constexpr uint32_t maxNumOfActiveDoublets = maxNumberOfDoublets / 8;
@@ -308,9 +311,9 @@ namespace pixelTopology {
     static constexpr uint32_t getDoubletsFromHistoMaxBlockSize = 64;  // for both x and y
     static constexpr uint32_t getDoubletsFromHistoMinBlocksPerMP = 16;
 
-    static constexpr uint32_t last_bpix1_detIndex = 108;
-    static constexpr uint32_t last_bpix2_detIndex = 324;
-    static constexpr uint32_t last_barrel_detIndex = 504;
+    static constexpr uint16_t last_bpix1_detIndex = 108;
+    static constexpr uint16_t last_bpix2_detIndex = 324;
+    static constexpr uint16_t last_barrel_detIndex = 504;
 
     static constexpr uint32_t maxPixInModule = 6000;
 
@@ -383,7 +386,7 @@ namespace pixelTopology {
     static constexpr uint32_t maxCellTracks = 48;
     static constexpr uint32_t maxHitsOnTrack = 10;
     static constexpr uint32_t maxHitsOnTrackForFullFit = 6;
-    static constexpr uint32_t avgHitsPerTrack = 4;
+    static constexpr uint32_t avgHitsPerTrack = 5;
     static constexpr uint32_t maxCellsPerHit = 256;
     static constexpr uint32_t avgTracksPerHit = 6;
     static constexpr uint32_t maxNumberOfTuples = 32 * 1024;
@@ -399,9 +402,9 @@ namespace pixelTopology {
     static constexpr uint32_t getDoubletsFromHistoMaxBlockSize = 64;  // for both x and y
     static constexpr uint32_t getDoubletsFromHistoMinBlocksPerMP = 16;
 
-    static constexpr uint32_t last_bpix1_detIndex = 96;
-    static constexpr uint32_t last_bpix2_detIndex = 320;
-    static constexpr uint32_t last_barrel_detIndex = 1184;
+    static constexpr uint16_t last_bpix1_detIndex = 96;
+    static constexpr uint16_t last_bpix2_detIndex = 320;
+    static constexpr uint16_t last_barrel_detIndex = 1184;
 
     static constexpr uint32_t maxPixInModule = 6000;
 

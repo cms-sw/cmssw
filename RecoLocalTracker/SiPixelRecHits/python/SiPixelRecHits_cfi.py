@@ -56,7 +56,7 @@ phase2_tracker.toReplaceWith(siPixelRecHitsPreSplittingCUDA,_siPixelRecHitCUDAPh
 siPixelRecHitsPreSplittingSoA = SwitchProducerCUDA(
     cpu = cms.EDAlias(
             siPixelRecHitsPreSplittingCPU = cms.VPSet(
-                 cms.PSet(type = cms.string("pixelTopologyPhase1TrackingRecHit2DCPUT")),
+                 cms.PSet(type = cms.string("pixelTopologyPhase1TrackingRecHitSoAHost")),
                  cms.PSet(type = cms.string("uintAsHostProduct"))
              )),
 )
@@ -64,7 +64,7 @@ siPixelRecHitsPreSplittingSoA = SwitchProducerCUDA(
 phase2_tracker.toModify(siPixelRecHitsPreSplittingSoA,
 cpu = cms.EDAlias(
         siPixelRecHitsPreSplittingCPU = cms.VPSet(
-             cms.PSet(type = cms.string("pixelTopologyPhase2TrackingRecHit2DCPUT")),
+             cms.PSet(type = cms.string("pixelTopologyPhase2TrackingRecHitSoAHost")),
              cms.PSet(type = cms.string("uintAsHostProduct"))
          )))
 

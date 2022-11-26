@@ -3,6 +3,7 @@
 <use name="CUDADataFormats/Common"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/SiPixelRawData"/>
+<use name="DataFormats/SoATemplate" source_only="1"/>
 <use name="HeterogeneousCore/CUDAUtilities"/>
 
 <export>

@@ -1,8 +1,11 @@
 #include <cuda_runtime.h>
+#include <Eigen/Core>  // needed here by soa layout
 
 #include "CUDADataFormats/Common/interface/Product.h"
 #include "CUDADataFormats/Common/interface/HostProduct.h"
-#include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
+#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousHost.h"
+#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousDevice.h"
+#include "CUDADataFormats/Track/interface/PixelTrackUtilities.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -21,8 +24,8 @@
 
 template <typename TrackerTraits>
 class PixelTrackSoAFromCUDAT : public edm::stream::EDProducer<edm::ExternalWork> {
-  using PixelTrackHeterogeneous = PixelTrackHeterogeneousT<TrackerTraits>;
-  using TrackSoA = pixelTrack::TrackSoAT<TrackerTraits>;
+  using TrackSoAHost = TrackSoAHeterogeneousHost<TrackerTraits>;
+  using TrackSoADevice = TrackSoAHeterogeneousDevice<TrackerTraits>;
 
 public:
   explicit PixelTrackSoAFromCUDAT(const edm::ParameterSet& iConfig);
@@ -36,16 +39,15 @@ private:
                edm::WaitingTaskWithArenaHolder waitingTaskHolder) override;
   void produce(edm::Event& iEvent, edm::EventSetup const& iSetup) override;
 
-  edm::EDGetTokenT<cms::cuda::Product<PixelTrackHeterogeneous>> tokenCUDA_;
-  edm::EDPutTokenT<PixelTrackHeterogeneous> tokenSOA_;
+  edm::EDGetTokenT<cms::cuda::Product<TrackSoADevice>> tokenCUDA_;
+  edm::EDPutTokenT<TrackSoAHost> tokenSOA_;
 
-  cms::cuda::host::unique_ptr<TrackSoA> soa_;
+  TrackSoAHost tracks_h_;
 };
 
 template <typename TrackerTraits>
 PixelTrackSoAFromCUDAT<TrackerTraits>::PixelTrackSoAFromCUDAT(const edm::ParameterSet& iConfig)
-    : tokenCUDA_(consumes<cms::cuda::Product<PixelTrackHeterogeneous>>(iConfig.getParameter<edm::InputTag>("src"))),
-      tokenSOA_(produces<PixelTrackHeterogeneous>()) {}
+    : tokenCUDA_(consumes(iConfig.getParameter<edm::InputTag>("src"))), tokenSOA_(produces<TrackSoAHost>()) {}
 
 template <typename TrackerTraits>
 void PixelTrackSoAFromCUDAT<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -59,19 +61,22 @@ template <typename TrackerTraits>
 void PixelTrackSoAFromCUDAT<TrackerTraits>::acquire(edm::Event const& iEvent,
                                                     edm::EventSetup const& iSetup,
                                                     edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
-  cms::cuda::Product<PixelTrackHeterogeneous> const& inputDataWrapped = iEvent.get(tokenCUDA_);
+  cms::cuda::Product<TrackSoADevice> const& inputDataWrapped = iEvent.get(tokenCUDA_);
   cms::cuda::ScopedContextAcquire ctx{inputDataWrapped, std::move(waitingTaskHolder)};
-  auto const& inputData = ctx.get(inputDataWrapped);
-
-  soa_ = inputData.toHostAsync(ctx.stream());
+  auto const& tracks_d = ctx.get(inputDataWrapped);  // Tracks on device
+  tracks_h_ = TrackSoAHost(ctx.stream());            // Create an instance of Tracks on Host, using the stream
+  cudaCheck(cudaMemcpyAsync(tracks_h_.buffer().get(),
+                            tracks_d.const_buffer().get(),
+                            tracks_d.bufferSize(),
+                            cudaMemcpyDeviceToHost,
+                            ctx.stream()));  // Copy data from Device to Host
 }
 
 template <typename TrackerTraits>
 void PixelTrackSoAFromCUDAT<TrackerTraits>::produce(edm::Event& iEvent, edm::EventSetup const& iSetup) {
-  auto const& tsoa = *soa_;
-  auto maxTracks = tsoa.stride();
+  auto maxTracks = tracks_h_.view().metadata().size();
+  auto nTracks = tracks_h_.view().nTracks();
 
-  auto nTracks = tsoa.nTracks();
   assert(nTracks < maxTracks);
   if (nTracks == maxTracks - 1) {
     edm::LogWarning("PixelTracks") << "Unsorted reconstructed pixel tracks truncated to " << maxTracks - 1
@@ -84,8 +89,8 @@ void PixelTrackSoAFromCUDAT<TrackerTraits>::produce(edm::Event& iEvent, edm::Eve
 
   int32_t nt = 0;
   for (int32_t it = 0; it < maxTracks; ++it) {
-    auto nHits = tsoa.nHits(it);
-    assert(nHits == int(tsoa.hitIndices.size(it)));
+    auto nHits = TracksUtilities<TrackerTraits>::nHits(tracks_h_.view(), it);
+    assert(nHits == int(tracks_h_.view().hitIndices().size(it)));
     if (nHits == 0)
       break;  // this is a guard: maybe we need to move to nTracks...
     nt++;
@@ -94,9 +99,8 @@ void PixelTrackSoAFromCUDAT<TrackerTraits>::produce(edm::Event& iEvent, edm::Eve
 #endif
 
   // DO NOT  make a copy  (actually TWO....)
-  iEvent.emplace(tokenSOA_, std::move(soa_));
-
-  assert(!soa_);
+  iEvent.emplace(tokenSOA_, std::move(tracks_h_));
+  assert(!tracks_h_.buffer());
 }
 
 using PixelTrackSoAFromCUDA = PixelTrackSoAFromCUDAT<pixelTopology::Phase1>;
