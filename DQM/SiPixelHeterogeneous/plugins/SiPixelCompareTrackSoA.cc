@@ -20,7 +20,8 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
+#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousHost.h"
+#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousDevice.h"
 // for string manipulations
 #include <fmt/printf.h>
 
@@ -65,7 +66,7 @@ namespace {
 template <typename T>
 class SiPixelCompareTrackSoA : public DQMEDAnalyzer {
 public:
-  using PixelTrackSoA = PixelTrackHeterogeneousT<T>;
+  using PixelTrackSoA = TrackSoAHeterogeneousHost<T>;
 
   explicit SiPixelCompareTrackSoA(const edm::ParameterSet&);
   ~SiPixelCompareTrackSoA() override = default;
@@ -133,6 +134,7 @@ SiPixelCompareTrackSoA<T>::SiPixelCompareTrackSoA(const edm::ParameterSet& iConf
 //
 template <typename T>
 void SiPixelCompareTrackSoA<T>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using helper = TracksUtilities<T>;
   const auto& tsoaHandleCPU = iEvent.getHandle(tokenSoATrackCPU_);
   const auto& tsoaHandleGPU = iEvent.getHandle(tokenSoATrackGPU_);
   if (not tsoaHandleCPU or not tsoaHandleGPU) {
@@ -147,12 +149,12 @@ void SiPixelCompareTrackSoA<T>::analyze(const edm::Event& iEvent, const edm::Eve
     return;
   }
 
-  auto const& tsoaCPU = *tsoaHandleCPU->get();
-  auto const& tsoaGPU = *tsoaHandleGPU->get();
-  auto maxTracksCPU = tsoaCPU.stride();  //this should be same for both?
-  auto maxTracksGPU = tsoaGPU.stride();  //this should be same for both?
-  auto const* qualityCPU = tsoaCPU.qualityData();
-  auto const* qualityGPU = tsoaGPU.qualityData();
+  auto const& tsoaCPU = *tsoaHandleCPU;
+  auto const& tsoaGPU = *tsoaHandleGPU;
+  auto maxTracksCPU = tsoaCPU.view().metadata().size();  //this should be same for both?
+  auto maxTracksGPU = tsoaGPU.view().metadata().size();  //this should be same for both?
+  auto const* qualityCPU = tsoaCPU.view().quality();
+  auto const* qualityGPU = tsoaGPU.view().quality();
   int32_t nTracksCPU = 0;
   int32_t nTracksGPU = 0;
   int32_t nLooseAndAboveTracksCPU = 0;
@@ -162,9 +164,9 @@ void SiPixelCompareTrackSoA<T>::analyze(const edm::Event& iEvent, const edm::Eve
   //Loop over GPU tracks and store the indices of the loose tracks. Whats happens if useQualityCut_ is false?
   std::vector<int32_t> looseTrkidxGPU;
   for (int32_t jt = 0; jt < maxTracksGPU; ++jt) {
-    if (tsoaGPU.nHits(jt) == 0)
+    if (helper::nHits(tsoaGPU.view(), jt) == 0)
       break;  // this is a guard
-    if (!(tsoaGPU.pt(jt) > 0.))
+    if (!(tsoaGPU.view()[jt].pt() > 0.))
       continue;
     nTracksGPU++;
     if (useQualityCut_ && qualityGPU[jt] < minQuality_)
@@ -175,9 +177,18 @@ void SiPixelCompareTrackSoA<T>::analyze(const edm::Event& iEvent, const edm::Eve
 
   //Now loop over CPU tracks//nested loop for loose gPU tracks
   for (int32_t it = 0; it < maxTracksCPU; ++it) {
-    if (tsoaCPU.nHits(it) == 0)
+    int nHitsCPU = helper::nHits(tsoaCPU.view(), it);
+
+    if (nHitsCPU == 0)
       break;  // this is a guard
-    if (!(tsoaCPU.pt(it) > 0.))
+
+    float ptCPU = tsoaCPU.view()[it].pt();
+    float etaCPU = tsoaCPU.view()[it].eta();
+    float phiCPU = helper::phi(tsoaCPU.view(), it);
+    float zipCPU = helper::zip(tsoaCPU.view(), it);
+    float tipCPU = helper::tip(tsoaCPU.view(), it);
+
+    if (!(ptCPU > 0.))
       continue;
     nTracksCPU++;
     if (useQualityCut_ && qualityCPU[it] < minQuality_)
@@ -187,12 +198,11 @@ void SiPixelCompareTrackSoA<T>::analyze(const edm::Event& iEvent, const edm::Eve
     const int32_t notFound = -1;
     int32_t closestTkidx = notFound;
     float mindr2 = dr2cut_;
-    float etacpu = tsoaCPU.eta(it);
-    float phicpu = tsoaCPU.phi(it);
+
     for (auto gid : looseTrkidxGPU) {
-      float etagpu = tsoaGPU.eta(gid);
-      float phigpu = tsoaGPU.phi(gid);
-      float dr2 = reco::deltaR2(etacpu, phicpu, etagpu, phigpu);
+      float etaGPU = tsoaGPU.view()[gid].eta();
+      float phiGPU = helper::phi(tsoaGPU.view(), gid);
+      float dr2 = reco::deltaR2(etaCPU, phiCPU, etaGPU, phiGPU);
       if (dr2 > dr2cut_)
         continue;  // this is arbitrary
       if (mindr2 > dr2) {
@@ -201,31 +211,31 @@ void SiPixelCompareTrackSoA<T>::analyze(const edm::Event& iEvent, const edm::Eve
       }
     }
 
-    hpt_eta_tkAllCPU_->Fill(etacpu, tsoaCPU.pt(it));  //all CPU tk
-    hphi_z_tkAllCPU_->Fill(phicpu, tsoaCPU.zip(it));
+    hpt_eta_tkAllCPU_->Fill(etaCPU, ptCPU);  //all CPU tk
+    hphi_z_tkAllCPU_->Fill(phiCPU, zipCPU);
     if (closestTkidx == notFound)
       continue;
     nLooseAndAboveTracksCPU_matchedGPU++;
 
-    hchi2_->Fill(tsoaCPU.chi2(it), tsoaGPU.chi2(closestTkidx));
-    hCharge_->Fill(tsoaCPU.charge(it), tsoaGPU.charge(closestTkidx));
-    hnHits_->Fill(tsoaCPU.nHits(it), tsoaGPU.nHits(closestTkidx));
-    hnLayers_->Fill(tsoaCPU.nLayers(it), tsoaGPU.nLayers(closestTkidx));
-    hpt_->Fill(tsoaCPU.pt(it), tsoaGPU.pt(closestTkidx));
-    hptLogLog_->Fill(tsoaCPU.pt(it), tsoaGPU.pt(closestTkidx));
-    heta_->Fill(etacpu, tsoaGPU.eta(closestTkidx));
-    hphi_->Fill(phicpu, tsoaGPU.phi(closestTkidx));
-    hz_->Fill(tsoaCPU.zip(it), tsoaGPU.zip(closestTkidx));
-    htip_->Fill(tsoaCPU.tip(it), tsoaGPU.tip(closestTkidx));
-    hptdiffMatched_->Fill(tsoaCPU.pt(it) - tsoaGPU.pt(closestTkidx));
-    hCurvdiffMatched_->Fill((tsoaCPU.charge(it) / tsoaCPU.pt(it)) -
-                            (tsoaGPU.charge(closestTkidx) / tsoaGPU.pt(closestTkidx)));
-    hetadiffMatched_->Fill(etacpu - tsoaGPU.eta(closestTkidx));
-    hphidiffMatched_->Fill(reco::deltaPhi(phicpu, tsoaGPU.phi(closestTkidx)));
-    hzdiffMatched_->Fill(tsoaCPU.zip(it) - tsoaGPU.zip(closestTkidx));
-    htipdiffMatched_->Fill(tsoaCPU.tip(it) - tsoaGPU.tip(closestTkidx));
-    hpt_eta_tkAllCPUMatched_->Fill(etacpu, tsoaCPU.pt(it));  //matched to gpu
-    hphi_z_tkAllCPUMatched_->Fill(phicpu, tsoaCPU.zip(it));
+    hchi2_->Fill(tsoaCPU.view()[it].chi2(), tsoaGPU.view()[closestTkidx].chi2());
+    hCharge_->Fill(helper::charge(tsoaCPU.view(), it), helper::charge(tsoaGPU.view(), closestTkidx));
+    hnHits_->Fill(helper::nHits(tsoaCPU.view(), it), helper::nHits(tsoaGPU.view(), closestTkidx));
+    hnLayers_->Fill(tsoaCPU.view()[it].nLayers(), tsoaGPU.view()[closestTkidx].nLayers());
+    hpt_->Fill(tsoaCPU.view()[it].pt(), tsoaGPU.view()[closestTkidx].pt());
+    hptLogLog_->Fill(tsoaCPU.view()[it].pt(), tsoaGPU.view()[closestTkidx].pt());
+    heta_->Fill(etaCPU, tsoaGPU.view()[closestTkidx].eta());
+    hphi_->Fill(etaCPU, helper::phi(tsoaGPU.view(), closestTkidx));
+    hz_->Fill(zipCPU, helper::zip(tsoaGPU.view(), closestTkidx));
+    htip_->Fill(tipCPU, helper::tip(tsoaGPU.view(), closestTkidx));
+    hptdiffMatched_->Fill(tsoaCPU.view()[it].pt() - tsoaGPU.view()[closestTkidx].pt());
+    hCurvdiffMatched_->Fill((helper::charge(tsoaCPU.view(), it) / tsoaCPU.view()[it].pt()) -
+                            (helper::charge(tsoaGPU.view(), closestTkidx) / tsoaGPU.view()[closestTkidx].pt()));
+    hetadiffMatched_->Fill(etaCPU - tsoaGPU.view()[closestTkidx].eta());
+    hphidiffMatched_->Fill(reco::deltaPhi(etaCPU, helper::phi(tsoaGPU.view(), closestTkidx)));
+    hzdiffMatched_->Fill(zipCPU - helper::zip(tsoaGPU.view(), closestTkidx));
+    htipdiffMatched_->Fill(tipCPU - helper::tip(tsoaGPU.view(), closestTkidx));
+    hpt_eta_tkAllCPUMatched_->Fill(etaCPU, tsoaCPU.view()[it].pt());  //matched to gpu
+    hphi_z_tkAllCPUMatched_->Fill(etaCPU, zipCPU);
   }
   hnTracks_->Fill(nTracksCPU, nTracksGPU);
   hnLooseAndAboveTracks_->Fill(nLooseAndAboveTracksCPU, nLooseAndAboveTracksGPU);

@@ -20,14 +20,15 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
+#include "CUDADataFormats/Track/interface/PixelTrackUtilities.h"
+#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousHost.h"
 // for string manipulations
 #include <fmt/printf.h>
 
 template <typename T>
 class SiPixelMonitorTrackSoA : public DQMEDAnalyzer {
 public:
-  using PixelTrackHeterogeneous = PixelTrackHeterogeneousT<T>;
+  using PixelTrackHeterogeneous = TrackSoAHeterogeneousHost<T>;
   explicit SiPixelMonitorTrackSoA(const edm::ParameterSet&);
   ~SiPixelMonitorTrackSoA() override = default;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
@@ -81,23 +82,24 @@ void SiPixelMonitorTrackSoA<T>::analyze(const edm::Event& iEvent, const edm::Eve
     return;
   }
 
-  auto const& tsoa = *((tsoaHandle.product())->get());
-  auto maxTracks = tsoa.stride();
-  auto const* quality = tsoa.qualityData();
+  using helper = TracksUtilities<T>;
+  auto const& tsoa = *tsoaHandle.product();
+  auto maxTracks = tsoa.view().metadata().size();
+  auto const* quality = tsoa.view().quality();
   int32_t nTracks = 0;
   int32_t nLooseAndAboveTracks = 0;
 
   for (int32_t it = 0; it < maxTracks; ++it) {
-    auto nHits = tsoa.nHits(it);
-    auto nLayers = tsoa.nLayers(it);
+    auto nHits = helper::nHits(tsoa.const_view(), it);
+    auto nLayers = tsoa.view()[it].nLayers();
     if (nHits == 0)
       break;  // this is a guard
-    float pt = tsoa.pt(it);
+    float pt = tsoa.view()[it].pt();
     if (!(pt > 0.))
       continue;
 
     // fill the quality for all tracks
-    pixelTrack::Quality qual = tsoa.quality(it);
+    pixelTrack::Quality qual = quality[it];
     hquality->Fill(int(qual));
     nTracks++;
 
@@ -105,11 +107,11 @@ void SiPixelMonitorTrackSoA<T>::analyze(const edm::Event& iEvent, const edm::Eve
       continue;
 
     // fill parameters only for quality >= loose
-    float chi2 = tsoa.chi2(it);
-    float phi = tsoa.phi(it);
-    float zip = tsoa.zip(it);
-    float eta = tsoa.eta(it);
-    float tip = tsoa.tip(it);
+    float chi2 = tsoa.view()[it].chi2();
+    float phi = helper::phi(tsoa.const_view(), it);
+    float zip = helper::zip(tsoa.const_view(), it);
+    float eta = tsoa.view()[it].eta();
+    float tip = helper::tip(tsoa.const_view(), it);
 
     hchi2->Fill(chi2);
     hChi2VsPhi->Fill(phi, chi2);

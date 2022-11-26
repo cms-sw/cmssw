@@ -1,5 +1,6 @@
 <use name="ofast-flag"/>
 <use name="CUDADataFormats/Track"/>
+<use name="CUDADataFormats/TrackingRecHit"/>
 <use name="CommonTools/RecoAlgos"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>

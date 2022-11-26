@@ -12,7 +12,7 @@
 
 #include "PixelRecHitGPUKernel.h"
 #include "gpuPixelRecHits.h"
-// #define GPU_DEBUG 1
+// #define GPU_DEBUG
 
 namespace {
   template <typename TrackerTraits>
@@ -42,7 +42,7 @@ namespace {
 namespace pixelgpudetails {
 
   template <typename TrackerTraits>
-  TrackingRecHit2DGPUT<TrackerTraits> PixelRecHitGPUKernel<TrackerTraits>::makeHitsAsync(
+  TrackingRecHitSoADevice<TrackerTraits> PixelRecHitGPUKernel<TrackerTraits>::makeHitsAsync(
       SiPixelDigisCUDA const& digis_d,
       SiPixelClustersCUDA const& clusters_d,
       BeamSpotCUDA const& bs_d,
@@ -51,8 +51,8 @@ namespace pixelgpudetails {
     using namespace gpuPixelRecHits;
     auto nHits = clusters_d.nClusters();
 
-    TrackingRecHit2DGPUT<TrackerTraits> hits_d(
-        nHits, clusters_d.offsetBPIX2(), cpeParams, clusters_d.clusModuleStart(), stream);
+    TrackingRecHitSoADevice<TrackerTraits> hits_d(
+        nHits, clusters_d.offsetBPIX2(), cpeParams, clusters_d->clusModuleStart(), stream);
 
     int activeModulesWithDigis = digis_d.nModules();
     // protect from empty events
@@ -61,11 +61,10 @@ namespace pixelgpudetails {
       int blocks = activeModulesWithDigis;
 
 #ifdef GPU_DEBUG
-
       std::cout << "launching getHits kernel for " << blocks << " blocks" << std::endl;
 #endif
       getHits<TrackerTraits><<<blocks, threadsPerBlock, 0, stream>>>(
-          cpeParams, bs_d.data(), digis_d.view(), digis_d.nDigis(), clusters_d.view(), hits_d.view());
+          cpeParams, bs_d.data(), digis_d.view(), digis_d.nDigis(), clusters_d.const_view(), hits_d.view());
       cudaCheck(cudaGetLastError());
 #ifdef GPU_DEBUG
       cudaCheck(cudaDeviceSynchronize());
@@ -74,16 +73,16 @@ namespace pixelgpudetails {
       // assuming full warp of threads is better than a smaller number...
       if (nHits) {
         setHitsLayerStart<TrackerTraits>
-            <<<1, 32, 0, stream>>>(clusters_d.clusModuleStart(), cpeParams, hits_d.hitsLayerStart());
+            <<<1, 32, 0, stream>>>(clusters_d->clusModuleStart(), cpeParams, hits_d.view().hitsLayerStart().data());
         cudaCheck(cudaGetLastError());
         constexpr auto nLayers = TrackerTraits::numberOfLayers;
         cms::cuda::fillManyFromVector(hits_d.phiBinner(),
                                       nLayers,
-                                      hits_d.iphi(),
-                                      hits_d.hitsLayerStart(),
+                                      hits_d.view().iphi(),
+                                      hits_d.view().hitsLayerStart().data(),
                                       nHits,
                                       256,
-                                      hits_d.phiBinnerStorage(),
+                                      hits_d.view().phiBinnerStorage(),
                                       stream);
         cudaCheck(cudaGetLastError());
 
@@ -92,6 +91,11 @@ namespace pixelgpudetails {
 #endif
       }
     }
+
+#ifdef GPU_DEBUG
+    cudaCheck(cudaDeviceSynchronize());
+    std::cout << "PixelRecHitGPUKernel -> DONE!" << std::endl;
+#endif
 
     return hits_d;
   }

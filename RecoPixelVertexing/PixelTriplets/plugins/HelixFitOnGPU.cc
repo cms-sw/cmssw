@@ -2,17 +2,16 @@
 #include "HelixFitOnGPU.h"
 
 template <typename TrackerTraits>
-void HelixFitOnGPU<TrackerTraits>::allocateOnGPU(
-    Tuples const *tuples,
-    caStructures::TupleMultiplicityT<TrackerTraits> const *tupleMultiplicity,
-    pixelTrack::TrackSoAT<TrackerTraits> *helix_fit_results) {
-  tuples_ = tuples;
+void HelixFitOnGPU<TrackerTraits>::allocateOnGPU(TupleMultiplicity const *tupleMultiplicity,
+                                                 OutputSoAView &helix_fit_results) {
+  tuples_ = &helix_fit_results.hitIndices();
   tupleMultiplicity_ = tupleMultiplicity;
   outputSoa_ = helix_fit_results;
 
   assert(tuples_);
   assert(tupleMultiplicity_);
-  assert(outputSoa_);
+  assert(outputSoa_.chi2());
+  assert(outputSoa_.pt());
 }
 
 template <typename TrackerTraits>

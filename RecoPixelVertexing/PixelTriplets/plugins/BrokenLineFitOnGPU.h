@@ -8,7 +8,7 @@
 
 #include <cuda_runtime.h>
 
-#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DHeterogeneous.h"
+#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitsUtilities.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"
@@ -17,23 +17,18 @@
 #include "HelixFitOnGPU.h"
 
 template <typename TrackerTraits>
-using HitsOnGPU = TrackingRecHit2DSOAViewT<TrackerTraits>;
+using Tuples = typename TrackSoA<TrackerTraits>::HitContainer;
 template <typename TrackerTraits>
-using Tuples = pixelTrack::HitContainerT<TrackerTraits>;
-template <typename TrackerTraits>
-using OutputSoA = pixelTrack::TrackSoAT<TrackerTraits>;
+using OutputSoAView = TrackSoAView<TrackerTraits>;
 template <typename TrackerTraits>
 using TupleMultiplicity = caStructures::TupleMultiplicityT<TrackerTraits>;
-
-// using tindex_type = typename TrackerTraits::tindex_type;
-// constexpr auto invalidTkId = std::numeric_limits<tindex_type>::max();
 
 // #define BL_DUMP_HITS
 
 template <int N, typename TrackerTraits>
 __global__ void kernel_BLFastFit(Tuples<TrackerTraits> const *__restrict__ foundNtuplets,
                                  TupleMultiplicity<TrackerTraits> const *__restrict__ tupleMultiplicity,
-                                 HitsOnGPU<TrackerTraits> const *__restrict__ hhp,
+                                 TrackingRecHitSoAConstView<TrackerTraits> hh,
                                  typename TrackerTraits::tindex_type *__restrict__ ptkids,
                                  double *__restrict__ phits,
                                  float *__restrict__ phits_ge,
@@ -46,7 +41,6 @@ __global__ void kernel_BLFastFit(Tuples<TrackerTraits> const *__restrict__ found
 
   assert(hitsInFit <= nHitsL);
   assert(nHitsL <= nHitsH);
-  assert(hhp);
   assert(phits);
   assert(pfast_fit);
   assert(foundNtuplets);
@@ -100,9 +94,9 @@ __global__ void kernel_BLFastFit(Tuples<TrackerTraits> const *__restrict__ found
     // #define YERR_FROM_DC
 #ifdef YERR_FROM_DC
     // try to compute more precise error in y
-    auto dx = hhp->xGlobal(hitId[hitsInFit - 1]) - hhp->xGlobal(hitId[0]);
-    auto dy = hhp->yGlobal(hitId[hitsInFit - 1]) - hhp->yGlobal(hitId[0]);
-    auto dz = hhp->zGlobal(hitId[hitsInFit - 1]) - hhp->zGlobal(hitId[0]);
+    auto dx = hh[hitId[hitsInFit - 1]].xGlobal() - hh[hitId[0]].xGlobal();
+    auto dy = hh[hitId[hitsInFit - 1]].yGlobal() - hh[hitId[0]].yGlobal();
+    auto dz = hh[hitId[hitsInFit - 1]].zGlobal() - hh[hitId[0]].zGlobal();
     float ux, uy, uz;
 #endif
 
@@ -118,8 +112,8 @@ __global__ void kernel_BLFastFit(Tuples<TrackerTraits> const *__restrict__ found
       float ge[6];
 
 #ifdef YERR_FROM_DC
-      auto const &dp = hhp->cpeParams().detParams(hhp->detectorIndex(hit));
-      auto status = hhp->status(hit);
+      auto const &dp = hh.cpeParams().detParams(hh.detectorIndex(hit));
+      auto status = hh[hit].chargeAndStatus().status;
       int qbin = CPEFastParametrisation::kGenErrorQBins - 1 - status.qBin;
       assert(qbin >= 0 && qbin < 5);
       bool nok = (status.isBigY | status.isOneY);
@@ -136,12 +130,10 @@ __global__ void kernel_BLFastFit(Tuples<TrackerTraits> const *__restrict__ found
       yerr *= dp.yfact[qbin];                // inflate
       yerr *= yerr;
       yerr += dp.apeYY;
-      yerr = nok ? hhp->yerrLocal(hit) : yerr;
-      dp.frame.toGlobal(hhp->xerrLocal(hit), 0, yerr, ge);
+      yerr = nok ? hh[hit].yerrLocal() : yerr;
+      dp.frame.toGlobal(hh[hit].xerrLocal(), 0, yerr, ge);
 #else
-      hhp->cpeParams()
-          .detParams(hhp->detectorIndex(hit))
-          .frame.toGlobal(hhp->xerrLocal(hit), 0, hhp->yerrLocal(hit), ge);
+      hh.cpeParams().detParams(hh[hit].detectorIndex()).frame.toGlobal(hh[hit].xerrLocal(), 0, hh[hit].yerrLocal(), ge);
 #endif
 
 #ifdef BL_DUMP_HITS
@@ -151,16 +143,16 @@ __global__ void kernel_BLFastFit(Tuples<TrackerTraits> const *__restrict__ found
                local_idx,
                tkid,
                hit,
-               hhp->detectorIndex(hit),
+               hh[hit].detectorIndex(),
                i,
-               hhp->xGlobal(hit),
-               hhp->yGlobal(hit),
-               hhp->zGlobal(hit));
+               hh[hit].xGlobal(),
+               hh[hit].yGlobal(),
+               hh[hit].zGlobal());
         printf("Error: hits_ge.col(%d) << %e,%e,%e,%e,%e,%e\n", i, ge[0], ge[1], ge[2], ge[3], ge[4], ge[5]);
       }
 #endif
 
-      hits.col(i) << hhp->xGlobal(hit), hhp->yGlobal(hit), hhp->zGlobal(hit);
+      hits.col(i) << hh[hit].xGlobal(), hh[hit].yGlobal(), hh[hit].zGlobal();
       hits_ge.col(i) << ge[0], ge[1], ge[2], ge[3], ge[4], ge[5];
     }
     brokenline::fastFit(hits, fast_fit);
@@ -176,12 +168,14 @@ __global__ void kernel_BLFastFit(Tuples<TrackerTraits> const *__restrict__ found
 template <int N, typename TrackerTraits>
 __global__ void kernel_BLFit(TupleMultiplicity<TrackerTraits> const *__restrict__ tupleMultiplicity,
                              double bField,
-                             OutputSoA<TrackerTraits> *results,
+                             OutputSoAView<TrackerTraits> results_view,
                              typename TrackerTraits::tindex_type const *__restrict__ ptkids,
                              double *__restrict__ phits,
                              float *__restrict__ phits_ge,
                              double *__restrict__ pfast_fit) {
-  assert(results);
+  assert(results_view.pt());
+  assert(results_view.eta());
+  assert(results_view.chi2());
   assert(pfast_fit);
   constexpr auto invalidTkId = std::numeric_limits<typename TrackerTraits::tindex_type>::max();
 
@@ -209,10 +203,11 @@ __global__ void kernel_BLFit(TupleMultiplicity<TrackerTraits> const *__restrict_
     brokenline::lineFit(hits_ge, fast_fit, bField, data, line);
     brokenline::circleFit(hits, hits_ge, fast_fit, bField, data, circle);
 
-    results->stateAtBS.copyFromCircle(circle.par, circle.cov, line.par, line.cov, 1.f / float(bField), tkid);
-    results->pt(tkid) = float(bField) / float(std::abs(circle.par(2)));
-    results->eta(tkid) = asinhf(line.par(0));
-    results->chi2(tkid) = (circle.chi2 + line.chi2) / (2 * N - 5);
+    TracksUtilities<TrackerTraits>::copyFromCircle(
+        results_view, circle.par, circle.cov, line.par, line.cov, 1.f / float(bField), tkid);
+    results_view[tkid].pt() = float(bField) / float(std::abs(circle.par(2)));
+    results_view[tkid].eta() = asinhf(line.par(0));
+    results_view[tkid].chi2() = (circle.chi2 + line.chi2) / (2 * N - 5);
 
 #ifdef BROKENLINE_DEBUG
     if (!(circle.chi2 >= 0) || !(line.chi2 >= 0))

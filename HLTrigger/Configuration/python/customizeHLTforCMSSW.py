@@ -258,6 +258,12 @@ def customizeHLTfor40334(process):
 
   return process
 
+def customizeHLTfor40465(process):
+    try:
+        process.hltSiPixelRecHitsSoA.cpu.hltSiPixelRecHitsFromLegacy[0].type = 'pixelTopologyPhase1TrackingRecHitSoAHost'
+    except:
+        pass
+    return process
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -266,9 +272,10 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
- 
+
     process = customizeHLTfor38761(process)
     process = customizeHLTfor40264(process)
     process = customizeHLTfor40334(process)
+    process = customizeHLTfor40465(process)
 
     return process

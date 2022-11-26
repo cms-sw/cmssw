@@ -6,7 +6,8 @@
 
 #include <cuda_runtime.h>
 
-#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DHeterogeneous.h"
+#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitsUtilities.h"
+#include "CUDADataFormats/Track/interface/PixelTrackUtilities.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"
@@ -15,11 +16,9 @@
 #include "HelixFitOnGPU.h"
 
 template <typename TrackerTraits>
-using HitsOnGPU = TrackingRecHit2DSOAViewT<TrackerTraits>;
+using Tuples = typename TrackSoA<TrackerTraits>::HitContainer;
 template <typename TrackerTraits>
-using Tuples = pixelTrack::HitContainerT<TrackerTraits>;
-template <typename TrackerTraits>
-using OutputSoA = pixelTrack::TrackSoAT<TrackerTraits>;
+using OutputSoAView = TrackSoAView<TrackerTraits>;
 template <typename TrackerTraits>
 using TupleMultiplicity = caStructures::TupleMultiplicityT<TrackerTraits>;
 
@@ -27,7 +26,7 @@ template <int N, typename TrackerTraits>
 __global__ void kernel_FastFit(Tuples<TrackerTraits> const *__restrict__ foundNtuplets,
                                TupleMultiplicity<TrackerTraits> const *__restrict__ tupleMultiplicity,
                                uint32_t nHits,
-                               HitsOnGPU<TrackerTraits> const *__restrict__ hhp,
+                               TrackingRecHitSoAConstView<TrackerTraits> hh,
                                double *__restrict__ phits,
                                float *__restrict__ phits_ge,
                                double *__restrict__ pfast_fit,
@@ -68,14 +67,10 @@ __global__ void kernel_FastFit(Tuples<TrackerTraits> const *__restrict__ foundNt
     auto const *hitId = foundNtuplets->begin(tkid);
     for (unsigned int i = 0; i < hitsInFit; ++i) {
       auto hit = hitId[i];
-      // printf("Hit global: %f,%f,%f\n", hhp->xg_d[hit],hhp->yg_d[hit],hhp->zg_d[hit]);
       float ge[6];
-      hhp->cpeParams()
-          .detParams(hhp->detectorIndex(hit))
-          .frame.toGlobal(hhp->xerrLocal(hit), 0, hhp->yerrLocal(hit), ge);
-      // printf("Error: %d: %f,%f,%f,%f,%f,%f\n",hhp->detInd_d[hit],ge[0],ge[1],ge[2],ge[3],ge[4],ge[5]);
+      hh.cpeParams().detParams(hh[hit].detectorIndex()).frame.toGlobal(hh[hit].xerrLocal(), 0, hh[hit].yerrLocal(), ge);
 
-      hits.col(i) << hhp->xGlobal(hit), hhp->yGlobal(hit), hhp->zGlobal(hit);
+      hits.col(i) << hh[hit].xGlobal(), hh[hit].yGlobal(), hh[hit].zGlobal();
       hits_ge.col(i) << ge[0], ge[1], ge[2], ge[3], ge[4], ge[5];
     }
     riemannFit::fastFit(hits, fast_fit);
@@ -133,13 +128,12 @@ template <int N, typename TrackerTraits>
 __global__ void kernel_LineFit(TupleMultiplicity<TrackerTraits> const *__restrict__ tupleMultiplicity,
                                uint32_t nHits,
                                double bField,
-                               OutputSoA<TrackerTraits> *results,
+                               OutputSoAView<TrackerTraits> results_view,
                                double *__restrict__ phits,
                                float *__restrict__ phits_ge,
                                double *__restrict__ pfast_fit_input,
                                riemannFit::CircleFit *__restrict__ circle_fit,
                                uint32_t offset) {
-  assert(results);
   assert(circle_fit);
   assert(N <= nHits);
 
@@ -154,7 +148,7 @@ __global__ void kernel_LineFit(TupleMultiplicity<TrackerTraits> const *__restric
       break;
 
     // get it for the ntuple container (one to one to helix)
-    auto tkid = *(tupleMultiplicity->begin(nHits) + tuple_idx);
+    int32_t tkid = *(tupleMultiplicity->begin(nHits) + tuple_idx);
 
     riemannFit::Map3xNd<N> hits(phits + local_idx);
     riemannFit::Map4d fast_fit(pfast_fit_input + local_idx);
@@ -164,11 +158,16 @@ __global__ void kernel_LineFit(TupleMultiplicity<TrackerTraits> const *__restric
 
     riemannFit::fromCircleToPerigee(circle_fit[local_idx]);
 
-    results->stateAtBS.copyFromCircle(
-        circle_fit[local_idx].par, circle_fit[local_idx].cov, line_fit.par, line_fit.cov, 1.f / float(bField), tkid);
-    results->pt(tkid) = bField / std::abs(circle_fit[local_idx].par(2));
-    results->eta(tkid) = asinhf(line_fit.par(0));
-    results->chi2(tkid) = (circle_fit[local_idx].chi2 + line_fit.chi2) / (2 * N - 5);
+    TracksUtilities<TrackerTraits>::copyFromCircle(results_view,
+                                                   circle_fit[local_idx].par,
+                                                   circle_fit[local_idx].cov,
+                                                   line_fit.par,
+                                                   line_fit.cov,
+                                                   1.f / float(bField),
+                                                   tkid);
+    results_view[tkid].pt() = bField / std::abs(circle_fit[local_idx].par(2));
+    results_view[tkid].eta() = asinhf(line_fit.par(0));
+    results_view[tkid].chi2() = (circle_fit[local_idx].chi2 + line_fit.chi2) / (2 * N - 5);
 
 #ifdef RIEMANN_DEBUG
     printf("kernelLineFit size %d for %d hits circle.par(0,1,2): %d %f,%f,%f\n",

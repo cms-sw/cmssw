@@ -3,9 +3,15 @@
 
 // #define GPU_DEBUG
 
-#include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
 #include "GPUCACell.h"
 #include "gpuPixelDoublets.h"
+
+#include "CUDADataFormats/Track/interface/PixelTrackUtilities.h"
+#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitsUtilities.h"
+#include "CUDADataFormats/Common/interface/HeterogeneousSoA.h"
+#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitSoADevice.h"
+#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousHost.h"
+
 // #define DUMP_GPU_TK_TUPLES
 
 namespace caHitNtupletGenerator {
@@ -201,8 +207,9 @@ public:
   template <typename T>
   using unique_ptr = typename Traits::template unique_ptr<T>;
 
-  using HitsView = TrackingRecHit2DSOAViewT<TrackerTraits>;
-  using HitsOnCPU = TrackingRecHit2DHeterogeneousT<Traits, TrackerTraits>;
+  using HitsView = TrackingRecHitSoAView<TrackerTraits>;
+  using HitsConstView = TrackingRecHitSoAConstView<TrackerTraits>;
+  using TkSoAView = TrackSoAView<TrackerTraits>;
 
   using HitToTuple = caStructures::HitToTupleT<TrackerTraits>;
   using TupleMultiplicity = caStructures::TupleMultiplicityT<TrackerTraits>;
@@ -216,8 +223,7 @@ public:
   using CACell = GPUCACellT<TrackerTraits>;
 
   using Quality = pixelTrack::Quality;
-  using TkSoA = pixelTrack::TrackSoAT<TrackerTraits>;
-  using HitContainer = pixelTrack::HitContainerT<TrackerTraits>;
+  using HitContainer = typename TrackSoA<TrackerTraits>::HitContainer;
 
   CAHitNtupletGeneratorKernels(Params const& params)
       : params_(params), paramsMaxDoubletes3Quarters_(3 * params.cellCuts_.maxNumberOfDoublets_ / 4) {}
@@ -226,11 +232,11 @@ public:
 
   TupleMultiplicity const* tupleMultiplicity() const { return device_tupleMultiplicity_.get(); }
 
-  void launchKernels(HitsOnCPU const& hh, TkSoA* tuples_d, cudaStream_t cudaStream);
+  void launchKernels(const HitsConstView& hh, TkSoAView& track_view, cudaStream_t cudaStream);
 
-  void classifyTuples(HitsOnCPU const& hh, TkSoA* tuples_d, cudaStream_t cudaStream);
+  void classifyTuples(const HitsConstView& hh, TkSoAView& track_view, cudaStream_t cudaStream);
 
-  void buildDoublets(HitsOnCPU const& hh, cudaStream_t stream);
+  void buildDoublets(const HitsConstView& hh, int32_t offsetBPIX2, cudaStream_t stream);
   void allocateOnGPU(int32_t nHits, cudaStream_t stream);
   void cleanup(cudaStream_t cudaStream);
 
@@ -283,20 +289,24 @@ protected:
 template <typename TrackerTraits>
 class CAHitNtupletGeneratorKernelsGPU : public CAHitNtupletGeneratorKernels<cms::cudacompat::GPUTraits, TrackerTraits> {
   using CAHitNtupletGeneratorKernels<cms::cudacompat::GPUTraits, TrackerTraits>::CAHitNtupletGeneratorKernels;
-  using HitsOnCPU = TrackingRecHit2DHeterogeneousT<cms::cudacompat::GPUTraits, TrackerTraits>;
-  using TkSoA = pixelTrack::TrackSoAT<TrackerTraits>;
+
   using Counters = caHitNtupletGenerator::Counters;
-  using HitContainer = pixelTrack::HitContainerT<TrackerTraits>;
+  using CAParams = caHitNtupletGenerator::CAParamsT<TrackerTraits>;
+
+  using HitContainer = typename TrackSoA<TrackerTraits>::HitContainer;
+
   using CellNeighborsVector = caStructures::CellNeighborsVectorT<TrackerTraits>;
   using HitToTuple = caStructures::HitToTupleT<TrackerTraits>;
   using CellTracksVector = caStructures::CellTracksVectorT<TrackerTraits>;
   using TupleMultiplicity = caStructures::TupleMultiplicityT<TrackerTraits>;
-  using CAParams = caHitNtupletGenerator::CAParamsT<TrackerTraits>;
+
+  using HitsConstView = TrackingRecHitSoAConstView<TrackerTraits>;
+  using TkSoAView = TrackSoAView<TrackerTraits>;
 
 public:
-  void launchKernels(HitsOnCPU const& hh, TkSoA* tuples_d, cudaStream_t cudaStream);
-  void classifyTuples(HitsOnCPU const& hh, TkSoA* tuples_d, cudaStream_t cudaStream);
-  void buildDoublets(HitsOnCPU const& hh, cudaStream_t stream);
+  void launchKernels(const HitsConstView& hh, TkSoAView& track_view, cudaStream_t cudaStream);
+  void classifyTuples(const HitsConstView& hh, TkSoAView& track_view, cudaStream_t cudaStream);
+  void buildDoublets(const HitsConstView& hh, int32_t offsetBPIX2, cudaStream_t stream);
   void allocateOnGPU(int32_t nHits, cudaStream_t stream);
   static void printCounters(Counters const* counters);
 };
@@ -304,19 +314,24 @@ public:
 template <typename TrackerTraits>
 class CAHitNtupletGeneratorKernelsCPU : public CAHitNtupletGeneratorKernels<cms::cudacompat::CPUTraits, TrackerTraits> {
   using CAHitNtupletGeneratorKernels<cms::cudacompat::CPUTraits, TrackerTraits>::CAHitNtupletGeneratorKernels;
-  using HitsOnCPU = TrackingRecHit2DHeterogeneousT<cms::cudacompat::CPUTraits, TrackerTraits>;
-  using TkSoA = pixelTrack::TrackSoAT<TrackerTraits>;
+
   using Counters = caHitNtupletGenerator::Counters;
+  using CAParams = caHitNtupletGenerator::CAParamsT<TrackerTraits>;
+
+  using HitContainer = typename TrackSoA<TrackerTraits>::HitContainer;
+
   using CellNeighborsVector = caStructures::CellNeighborsVectorT<TrackerTraits>;
   using HitToTuple = caStructures::HitToTupleT<TrackerTraits>;
   using CellTracksVector = caStructures::CellTracksVectorT<TrackerTraits>;
   using TupleMultiplicity = caStructures::TupleMultiplicityT<TrackerTraits>;
-  using CAParams = caHitNtupletGenerator::CAParamsT<TrackerTraits>;
+
+  using HitsConstView = TrackingRecHitSoAConstView<TrackerTraits>;
+  using TkSoAView = TrackSoAView<TrackerTraits>;
 
 public:
-  void launchKernels(HitsOnCPU const& hh, TkSoA* tuples_d, cudaStream_t cudaStream);
-  void classifyTuples(HitsOnCPU const& hh, TkSoA* tuples_d, cudaStream_t cudaStream);
-  void buildDoublets(HitsOnCPU const& hh, cudaStream_t stream);
+  void launchKernels(const HitsConstView& hh, TkSoAView& track_view, cudaStream_t cudaStream);
+  void classifyTuples(const HitsConstView& hh, TkSoAView& track_view, cudaStream_t cudaStream);
+  void buildDoublets(const HitsConstView& hh, int32_t offsetBPIX2, cudaStream_t stream);
   void allocateOnGPU(int32_t nHits, cudaStream_t stream);
   static void printCounters(Counters const* counters);
 };

@@ -1,7 +1,7 @@
 #include "BrokenLineFitOnGPU.h"
 
 template <typename TrackerTraits>
-void HelixFitOnGPU<TrackerTraits>::launchBrokenLineKernelsOnCPU(HitsView const* hv,
+void HelixFitOnGPU<TrackerTraits>::launchBrokenLineKernelsOnCPU(const TrackingRecHitSoAConstView<TrackerTraits> &hv,
                                                                 uint32_t hitsInFit,
                                                                 uint32_t maxNumberOfTuples) {
   assert(tuples_);
