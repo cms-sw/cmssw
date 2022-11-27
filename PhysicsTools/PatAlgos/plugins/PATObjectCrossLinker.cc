@@ -80,16 +80,10 @@ private:
                             const std::string& nameMany);
 
   template <class C1, class C2, class C3>
-  void matchOneToVertices(C1& itemsOne,
-                          const C2& refProdVtx,
-                          C3& itemsVtx,
-                          const std::string& nameVtx);
+  void matchOneToVertices(C1& itemsOne, const C2& refProdVtx, C3& itemsVtx, const std::string& nameVtx);
 
   template <class C1, class C2, class C3>
-  void matchVertexToMany(const C1& refProdVtx,
-                         C2& itemsVtx,
-                         const std::string& nameVtx,
-                         C3& itemsMany);
+  void matchVertexToMany(const C1& refProdVtx, C2& itemsVtx, const std::string& nameVtx, C3& itemsMany);
 
   //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
@@ -124,8 +118,7 @@ PATObjectCrossLinker::PATObjectCrossLinker(const edm::ParameterSet& params)
       boostedTausTag_(params.getParameter<edm::InputTag>("boostedTaus")),
       boostedTaus_(mayConsume<edm::View<pat::Tau>>(boostedTausTag_)),
       verticesTag_(params.getParameter<edm::InputTag>("vertices")),
-      vertices_(mayConsume<edm::View<reco::VertexCompositePtrCandidate>>(verticesTag_))
-{
+      vertices_(mayConsume<edm::View<reco::VertexCompositePtrCandidate>>(verticesTag_)) {
   produces<std::vector<pat::Jet>>("jets");
   produces<std::vector<pat::Muon>>("muons");
   produces<std::vector<pat::Electron>>("electrons");
@@ -233,9 +226,9 @@ void PATObjectCrossLinker::matchLowPtToElectron(const C1& refProdOne,
 // (reco vertices have no userCands)
 template <class C1, class C2, class C3>
 void PATObjectCrossLinker::matchOneToVertices(C1& itemsOne,
-                                            const C2& refProdVtx,
-                                            C3& itemsVtx,
-                                            const std::string& nameVtx) {
+                                              const C2& refProdVtx,
+                                              C3& itemsVtx,
+                                              const std::string& nameVtx) {
   for (auto& j : itemsOne) {
     edm::PtrVector<reco::Candidate> overlaps(refProdVtx.id());
     size_t vi = 0;
@@ -253,9 +246,9 @@ void PATObjectCrossLinker::matchOneToVertices(C1& itemsOne,
 // (reco vertices have no overlaps)
 template <class C1, class C2, class C3>
 void PATObjectCrossLinker::matchVertexToMany(const C1& refProdVtx,
-                                          C2& itemsVtx,
-                                          const std::string& nameVtx,
-                                          C3& itemsMany) {
+                                             C2& itemsVtx,
+                                             const std::string& nameVtx,
+                                             C3& itemsMany) {
   size_t vi = 0;
   for (auto& v : itemsVtx) {
     for (auto& m : itemsMany) {
@@ -391,7 +384,8 @@ void PATObjectCrossLinker::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<edm::InputTag>("taus")->setComment("a tau collection derived from pat::Tau");
   desc.add<edm::InputTag>("boostedTaus")->setComment("a boosted tau collection derived from pat::Tau, empty=>not used");
   desc.add<edm::InputTag>("photons")->setComment("a photon collection derived from pat::Photon");
-  desc.add<edm::InputTag>("vertices")->setComment("a vertex collection derived from reco::VertexCompositePtrCandidate, empty=>not used");
+  desc.add<edm::InputTag>("vertices")
+      ->setComment("a vertex collection derived from reco::VertexCompositePtrCandidate, empty=>not used");
   descriptions.add("patObjectCrossLinker", desc);
 }
 
