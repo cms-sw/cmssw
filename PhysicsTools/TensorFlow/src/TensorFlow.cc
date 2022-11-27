@@ -1,6 +1,5 @@
 /*
  * TensorFlow interface helpers.
- * Based on TensorFlow C++ API 2.1.
  * For more info, see https://gitlab.cern.ch/mrieger/CMSSW-DNN.
  *
  * Author: Marcel Rieger
@@ -208,6 +207,16 @@ namespace tensorflow {
     session = nullptr;
 
     return status.ok();
+  }
+
+  bool closeSession(const Session*& session) {
+    auto s = const_cast<Session*>(session);
+    bool state = closeSession(s);
+
+    // reset the pointer
+    session = nullptr;
+
+    return state;
   }
 
   void run(Session* session,
