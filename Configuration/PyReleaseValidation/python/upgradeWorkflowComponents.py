@@ -24,8 +24,8 @@ upgradeKeys[2017] = [
     '2023PU',
     '2024',
     '2024PU',
-    '2022postEE',
-    '2022postEEPU', 
+    '2021postEE',
+    '2021postEEPU', 
 ]
 
 upgradeKeys[2026] = [
@@ -2015,7 +2015,7 @@ upgradeProperties[2017] = {
         'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
         'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
     },
-    '2022postEE' : {
+    '2021postEE' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2022_realistic_postEE',
         'HLTmenu': '@relval2022_postEE',
