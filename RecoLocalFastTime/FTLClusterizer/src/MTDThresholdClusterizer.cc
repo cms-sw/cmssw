@@ -335,7 +335,7 @@ FTLCluster MTDThresholdClusterizer::make_cluster(const FTLCluster::FTLHitPos& hi
       sumXW2 += acluster.energy[index] * acluster.energy[index] * pixel_errx2[index];
     }
     cluster.setClusterPosX(sumXW / sumW);
-    cluster.setClusterErrorX(std::sqrt(sumXW2 / sumW / sumW));
+    cluster.setClusterErrorX(std::sqrt(sumXW2) / sumW);
   }
 
   return cluster;
