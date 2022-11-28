@@ -41,6 +41,7 @@
 #include "RecoVertex/PrimaryVertexProducer/interface/HITrackFilterForPVFinding.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/GapClusterizerInZ.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/DAClusterizerInZ.h"
+#include "RecoVertex/PrimaryVertexProducer/interface/WeightedMeanFitter.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
 //#include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
@@ -95,4 +96,5 @@ private:
   edm::EDGetTokenT<edm::ValueMap<float> > trkTimeResosToken;
 
   bool f4D;
+  bool weightFit;
 };
