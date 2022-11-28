@@ -50,6 +50,11 @@ run2_nanoAOD_ANY.toModify(
     linkedObjects, jets="finalJets"
 )
 
+# boosted taus don't exist in 122X MINI
+run3_nanoAOD_122.toModify(
+    linkedObjects, boostedTaus=None,
+)
+
 lhcInfoTable = cms.EDProducer("LHCInfoProducer")
 
 nanoTableTaskCommon = cms.Task(
