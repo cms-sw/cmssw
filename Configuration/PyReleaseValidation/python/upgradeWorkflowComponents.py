@@ -242,7 +242,7 @@ upgradeWFs['DigiNoHLT'] = UpgradeWorkflow_DigiNoHLT(
 
 # some commonalities among tracking WFs
 class UpgradeWorkflowTracking(UpgradeWorkflow):
-    # skip the PU argument since PU workflows never used here
+
     def __init__(self, steps, PU, suffix, offset):
         # always include some steps that will be skipped
         steps = steps + ["ALCA","Nano"]
@@ -265,9 +265,13 @@ class UpgradeWorkflow_trackingOnly(UpgradeWorkflowTracking):
     def setup__(self, step, stepName, stepDict, k, properties):
         if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
         elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, stepDict[step][k]])
+
     def condition(self, fragment, stepList, key, hasHarvest):
         result = (fragment=="TTbar_13" or fragment=="TTbar_14TeV") and hasHarvest and self.condition_(fragment, stepList, key, hasHarvest)
         return result
+
+
+
 upgradeWFs['trackingOnly'] = UpgradeWorkflow_trackingOnly(
     steps = [
         'Reco',
@@ -461,6 +465,79 @@ upgradeWFs['vectorHits'] = UpgradeWorkflow_vectorHits(
     suffix = '_vectorHits',
     offset = 0.9,
 )
+
+# WeightedMeanFitter vertexing workflows
+class UpgradeWorkflow_weightedVertex(UpgradeWorkflow):
+    def __init__(self, reco = {}, harvest = {}, **kwargs):
+        # adapt the parameters for the UpgradeWorkflow init method
+        super(UpgradeWorkflow_weightedVertex, self).__init__(
+            steps = [
+                'Reco',
+                'HARVEST',
+                'RecoGlobal',
+                'HARVESTGlobal',
+                'RecoNano',
+                'HARVESTNano',
+                'RecoFakeHLT',
+                'HARVESTFakeHLT',
+            ],
+            PU = [
+                'Reco',
+                'HARVEST',
+                'RecoGlobal',
+                'HARVESTGlobal',
+                'RecoNano',
+                'HARVESTNano',
+                'RecoFakeHLT',
+                'HARVESTFakeHLT',
+            ],
+            **kwargs)
+        self.__reco = reco
+        self.__harvest = harvest
+
+    def setup_(self, step, stepName, stepDict, k, properties):
+        # temporarily remove trigger & downstream steps
+        if 'Reco' in step:
+            mod = {'--procModifiers': 'weightedVertexing,vertexInBlocks', '--datatier':'GEN-SIM-RECO,DQMIO',
+            '--eventcontent':'RECOSIM,DQM'}
+            stepDict[stepName][k] = merge([mod,self.step3, stepDict[step][k]])
+        if 'HARVEST' in step:
+            stepDict[stepName][k] = merge([self.step4,stepDict[step][k]])
+
+    def condition(self, fragment, stepList, key, hasHarvest):
+        # select only a subset of the workflows
+        selected = [
+            ('2021' in key and fragment == "TTbar_14TeV" and 'FS' not in key),
+            ('2024' in key and fragment == "TTbar_14TeV"),
+            ('2026' in key and fragment == "TTbar_14TeV")
+        ]
+        result = any(selected) and hasHarvest
+
+        return result
+
+
+upgradeWFs['weightedVertex'] = UpgradeWorkflow_weightedVertex( 
+    suffix = '_weightedVertex',
+    offset = 0.278,
+)
+
+upgradeWFs['weightedVertex'].step3 = {}
+upgradeWFs['weightedVertex'].step4 = {}
+
+upgradeWFs['weightedVertexTrackingOnly'] = UpgradeWorkflow_weightedVertex(
+    suffix = '_weightedVertexTrackingOnly',
+    offset = 0.279,
+)
+
+upgradeWFs['weightedVertexTrackingOnly'].step3 = {
+    '-s': 'RAW2DIGI,RECO:reconstruction_trackingOnly,VALIDATION:@trackingOnlyValidation,DQM:@trackingOnlyDQM',
+    '--datatier':'GEN-SIM-RECO,DQMIO',
+    '--eventcontent':'RECOSIM,DQM',
+}
+
+upgradeWFs['weightedVertexTrackingOnly'].step4 = {
+    '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'
+}
 
 # Special TICL Pattern recognition Workflows
 class UpgradeWorkflow_ticl_clue3D(UpgradeWorkflow):
