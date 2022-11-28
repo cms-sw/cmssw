@@ -398,8 +398,6 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
     HcalCoderDb coder(*channelCoder, *shape);
     const HcalLutMetadatum* meta = metadata->getValues(cell);
 
-    unsigned int mipMax = 0;
-    unsigned int mipMin = 0;
     unsigned int bit12_energy =
         0;  // defaults for energy requirement for bits 12-15 are high / low to avoid FG bit 0-4 being set when not intended
     unsigned int bit13_energy = 0;
@@ -409,9 +407,6 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
     bool is2018OrLater = topo_->triggerMode() >= HcalTopologyMode::TriggerMode_2018 or
                          topo_->triggerMode() == HcalTopologyMode::TriggerMode_2018legacy;
     if (is2018OrLater or topo_->dddConstants()->isPlan1(cell)) {
-      const HcalTPChannelParameter* channelParameters = conditions.getHcalTPChannelParameter(cell);
-      mipMax = channelParameters->getFGBitInfo() >> 16;
-      mipMin = channelParameters->getFGBitInfo() & 0xFFFF;
       bit12_energy = 16;  // depths 1,2 max energy
       bit13_energy = 80;  // depths 3+ min energy
       bit14_energy = 64;  // prompt min energy
@@ -541,10 +536,6 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
               if (linearizedADC >= bit15_energy)
                 lut[adc] |= 1 << 15;
             }
-            if (adc >= mipMin and adc < mipMax)
-              lut[adc] |= QIE11_LUT_MSB0;
-            else if (adc >= mipMax)
-              lut[adc] |= QIE11_LUT_MSB1;
           }
 
           //Zeroing the 4th depth in the trigger towers where |ieta| = 16 to match the behavior in the uHTR firmware in Run3, where the 4th depth is not included in the sum over depths when constructing the TP energy for this tower.
