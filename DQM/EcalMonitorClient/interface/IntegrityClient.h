@@ -23,6 +23,7 @@ namespace ecaldqm {
     void setTokens(edm::ConsumesCollector&) override;
 
     float errFractionThreshold_;
+    int processedEvents;
   };
 }  // namespace ecaldqm
 
