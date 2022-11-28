@@ -52,15 +52,14 @@ public:
                             double time,
                             bool onlyLong = false);
 
-protected:
+private:
   bool rInside(double r);
-  void getRecord(int, int);
+  HFShowerPhotonCollection getRecord(int, int) const;
   void loadEventInfo(TBranch *);
   void interpolate(int, double);
   void extrapolate(int, double);
-  void storePhoton(int j);
+  void storePhoton(HFShowerPhoton const &iPhoton);
 
-private:
   const HcalDDDSimConstants *hcalConstant_;
   std::unique_ptr<HFFibre> fibre_;
   std::unique_ptr<TFile> hf_;
@@ -78,6 +77,5 @@ private:
   std::vector<double> gpar_;
 
   HFShowerPhotonCollection pe_;
-  std::unique_ptr<HFShowerPhotonCollection> photo_;
 };
 #endif
