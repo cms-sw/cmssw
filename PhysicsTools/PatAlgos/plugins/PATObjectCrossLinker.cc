@@ -114,22 +114,25 @@ PATObjectCrossLinker::PATObjectCrossLinker(const edm::ParameterSet& params)
       photons_(consumes<edm::View<pat::Photon>>(params.getParameter<edm::InputTag>("photons"))),
       taus_(consumes<edm::View<pat::Tau>>(params.getParameter<edm::InputTag>("taus"))),
       lowPtElectronsTag_(params.getParameter<edm::InputTag>("lowPtElectrons")),
-      lowPtElectrons_(mayConsume<edm::View<pat::Electron>>(lowPtElectronsTag_)),
       boostedTausTag_(params.getParameter<edm::InputTag>("boostedTaus")),
-      boostedTaus_(mayConsume<edm::View<pat::Tau>>(boostedTausTag_)),
-      verticesTag_(params.getParameter<edm::InputTag>("vertices")),
-      vertices_(mayConsume<edm::View<reco::VertexCompositePtrCandidate>>(verticesTag_)) {
+      verticesTag_(params.getParameter<edm::InputTag>("vertices")) {
   produces<std::vector<pat::Jet>>("jets");
   produces<std::vector<pat::Muon>>("muons");
   produces<std::vector<pat::Electron>>("electrons");
   produces<std::vector<pat::Photon>>("photons");
   produces<std::vector<pat::Tau>>("taus");
-  if (!lowPtElectronsTag_.label().empty())
+  if (!lowPtElectronsTag_.label().empty()) {
+    lowPtElectrons_ = consumes<edm::View<pat::Electron>>(lowPtElectronsTag_),
     produces<std::vector<pat::Electron>>("lowPtElectrons");
-  if (!boostedTausTag_.label().empty())
+  }
+  if (!boostedTausTag_.label().empty()) {
+    boostedTaus_ = consumes<edm::View<pat::Tau>>(boostedTausTag_);
     produces<std::vector<pat::Tau>>("boostedTaus");
-  if (!verticesTag_.label().empty())
+  }
+  if (!verticesTag_.label().empty()) {
+    vertices_ = consumes<edm::View<reco::VertexCompositePtrCandidate>>(verticesTag_);
     produces<std::vector<reco::VertexCompositePtrCandidate>>("vertices");
+  }
 }
 
 PATObjectCrossLinker::~PATObjectCrossLinker() {
@@ -379,13 +382,14 @@ void PATObjectCrossLinker::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<edm::InputTag>("jets")->setComment("a jet collection derived from pat::Jet");
   desc.add<edm::InputTag>("muons")->setComment("a muon collection derived from pat::Muon");
   desc.add<edm::InputTag>("electrons")->setComment("an electron collection derived from pat::Electron");
-  desc.add<edm::InputTag>("lowPtElectrons")
-      ->setComment("an optional electron collection derived from pat::Electron, empty=>not used");
-  desc.add<edm::InputTag>("taus")->setComment("a tau collection derived from pat::Tau");
-  desc.add<edm::InputTag>("boostedTaus")->setComment("a boosted tau collection derived from pat::Tau, empty=>not used");
   desc.add<edm::InputTag>("photons")->setComment("a photon collection derived from pat::Photon");
-  desc.add<edm::InputTag>("vertices")
-      ->setComment("a vertex collection derived from reco::VertexCompositePtrCandidate, empty=>not used");
+  desc.add<edm::InputTag>("taus")->setComment("a tau collection derived from pat::Tau");
+  desc.add<edm::InputTag>("lowPtElectrons", edm::InputTag(""))
+      ->setComment("an optional electron collection derived from pat::Electron, empty=>not used");
+  desc.add<edm::InputTag>("boostedTaus", edm::InputTag(""))
+      ->setComment("an optional boosted tau collection derived from pat::Tau, empty=>not used");
+  desc.add<edm::InputTag>("vertices", edm::InputTag(""))
+      ->setComment("an optional vertex collection derived from reco::VertexCompositePtrCandidate,empty=>not used");
   descriptions.add("patObjectCrossLinker", desc);
 }
 
