@@ -17,8 +17,11 @@ public:
 
   HFShowerPhoton(float x = 0, float y = 0, float z = 0, float lambda = 0, float t = 0);
   HFShowerPhoton(const Point& p, float time, float lambda);
-  HFShowerPhoton(const HFShowerPhoton&);
-  virtual ~HFShowerPhoton();
+  HFShowerPhoton(const HFShowerPhoton&) = default;
+  HFShowerPhoton(HFShowerPhoton&&) = default;
+
+  HFShowerPhoton& operator=(const HFShowerPhoton&) = default;
+  HFShowerPhoton& operator=(HFShowerPhoton&&) = default;
 
   const Point& position() const { return position_; }
   float x() const { return position_.X(); }
