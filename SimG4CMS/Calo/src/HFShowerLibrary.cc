@@ -116,7 +116,6 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
                                << " Flag for equalizing Time Shift for different eta " << equalizeTimeShift_;
 
   fibre_ = std::make_unique<HFFibre>(name, hcalConstant_, hps, p);
-  photo_ = std::make_unique<HFShowerPhotonCollection>();
 
   //Radius (minimum and maximum)
   std::vector<double> rTable = hcalConstant_->getRTableHF();
@@ -346,60 +345,64 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector&
 
 bool HFShowerLibrary::rInside(double r) { return (r >= rMin_ && r <= rMax_); }
 
-void HFShowerLibrary::getRecord(int type, int record) {
+HFShowerPhotonCollection HFShowerLibrary::getRecord(int type, int record) const {
   int nrc = record - 1;
-  photo_->clear();
+  HFShowerPhotonCollection photo;
+
   if (type > 0) {
     if (newForm_) {
       if (!v3version_) {
-        hadBranch_->SetAddress(&photo_);
+        auto temp = std::make_unique<HFShowerPhotonCollection>();
+        hadBranch_->SetAddress(&temp);
         int position = (fileVersion_ >= 2) ? nrc : (nrc + totEvents_);
         hadBranch_->GetEntry(position);
+        photo = std::move(*temp);
       } else {
         std::vector<float> t;
         std::vector<float>* tp = &t;
         hadBranch_->SetAddress(&tp);
         hadBranch_->GetEntry(nrc + totEvents_);
         unsigned int tSize = t.size() / 5;
-        photo_->reserve(tSize);
+        photo.reserve(tSize);
         for (unsigned int i = 0; i < tSize; i++) {
-          photo_->push_back(
-              HFShowerPhoton(t[i], t[1 * tSize + i], t[2 * tSize + i], t[3 * tSize + i], t[4 * tSize + i]));
+          photo.emplace_back(t[i], t[1 * tSize + i], t[2 * tSize + i], t[3 * tSize + i], t[4 * tSize + i]);
         }
       }
     } else {
-      hadBranch_->SetAddress(photo_.get());
+      hadBranch_->SetAddress(&photo);
       hadBranch_->GetEntry(nrc);
     }
   } else {
     if (newForm_) {
       if (!v3version_) {
-        emBranch_->SetAddress(&photo_);
+        auto temp = std::make_unique<HFShowerPhotonCollection>();
+        emBranch_->SetAddress(&temp);
         emBranch_->GetEntry(nrc);
+        photo = std::move(*temp);
       } else {
         std::vector<float> t;
         std::vector<float>* tp = &t;
         emBranch_->SetAddress(&tp);
         emBranch_->GetEntry(nrc);
         unsigned int tSize = t.size() / 5;
-        photo_->reserve(tSize);
+        photo.reserve(tSize);
         for (unsigned int i = 0; i < tSize; i++) {
-          photo_->push_back(
-              HFShowerPhoton(t[i], t[1 * tSize + i], t[2 * tSize + i], t[3 * tSize + i], t[4 * tSize + i]));
+          photo.emplace_back(t[i], t[1 * tSize + i], t[2 * tSize + i], t[3 * tSize + i], t[4 * tSize + i]);
         }
       }
     } else {
-      emBranch_->SetAddress(photo_.get());
+      emBranch_->SetAddress(&photo);
       emBranch_->GetEntry(nrc);
     }
   }
 #ifdef EDM_ML_DEBUG
-  int nPhoton = photo_->size();
+  int nPhoton = photo.size();
   edm::LogVerbatim("HFShower") << "HFShowerLibrary::getRecord: Record " << record << " of type " << type << " with "
                                << nPhoton << " photons";
   for (int j = 0; j < nPhoton; j++)
-    edm::LogVerbatim("HFShower") << "Photon " << j << " " << photo_->at(j);
+    edm::LogVerbatim("HFShower") << "Photon " << j << " " << photo[j];
 #endif
+  return photo;
 }
 
 void HFShowerLibrary::loadEventInfo(TBranch* branch) {
@@ -484,13 +487,13 @@ void HFShowerLibrary::interpolate(int type, double pin) {
   std::size_t npold = 0;
   for (int ir = 0; ir < 2; ir++) {
     if (irc[ir] > 0) {
-      getRecord(type, irc[ir]);
-      int nPhoton = photo_->size();
+      auto photons = getRecord(type, irc[ir]);
+      int nPhoton = photons.size();
       npold += nPhoton;
-      for (int j = 0; j < nPhoton; j++) {
+      for (auto const& photon : photons) {
         r = G4UniformRand();
         if ((ir == 0 && r > w) || (ir > 0 && r < w)) {
-          storePhoton(j);
+          storePhoton(photon);
         }
       }
     }
@@ -541,13 +544,13 @@ void HFShowerLibrary::extrapolate(int type, double pin) {
   std::size_t npold = 0;
   for (int ir = 0; ir < nrec; ir++) {
     if (irc[ir] > 0) {
-      getRecord(type, irc[ir]);
-      int nPhoton = photo_->size();
+      auto const photons = getRecord(type, irc[ir]);
+      int nPhoton = photons.size();
       npold += nPhoton;
-      for (int j = 0; j < nPhoton; j++) {
+      for (auto const& photon : photons) {
         double r = G4UniformRand();
         if (ir != nrec - 1 || r < w) {
-          storePhoton(j);
+          storePhoton(photon);
         }
       }
 #ifdef EDM_ML_DEBUG
@@ -573,8 +576,8 @@ void HFShowerLibrary::extrapolate(int type, double pin) {
 #endif
 }
 
-void HFShowerLibrary::storePhoton(int j) {
-  pe_.push_back(photo_->at(j));
+void HFShowerLibrary::storePhoton(HFShowerPhoton const& iPhoton) {
+  pe_.push_back(iPhoton);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << "HFShowerLibrary: storePhoton " << j << " npe " << pe_.size() << " " << pe_.last();
 #endif
