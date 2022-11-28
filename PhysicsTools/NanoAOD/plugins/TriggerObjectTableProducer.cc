@@ -111,15 +111,15 @@ private:
           if (qualityBitsConfig[i].existsAs<unsigned int>("bit"))
             bit = qualityBitsConfig[i].getParameter<unsigned int>("bit");
           assert(!bits[bit] && "a quality bit was inserted twice");  // the bit should not have been set already
-	  assert(bit<=32 && "quality bits are store on 32 bit");
+          assert(bit <= 32 && "quality bits are store on 32 bit");
           bits[bit] = true;
           qualityBitsFunc << std::to_string(int(pow(2, bit))) << "*("
                           << qualityBitsConfig[i].getParameter<std::string>("selection") << ")";
           qualityBitsDoc += std::to_string(bit) + " => " + qualityBitsConfig[i].getParameter<std::string>("doc");
         }
         if (!qualityBitsFunc.str().empty()) {
-          //std::cout << "The quality bit string is :" << qualityBitsFunc.str() << std::endl;
-          //std::cout << "The quality bit documentation is :" << qualityBitsDoc << std::endl;
+          std::cout << "The quality bit string is :" << qualityBitsFunc.str() << std::endl;
+          std::cout << "The quality bit documentation is :" << qualityBitsDoc << std::endl;
           qualityBits = StringObjectFunction<pat::TriggerObjectStandAlone>(qualityBitsFunc.str());
         }
       }
@@ -159,6 +159,24 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
       }
     }
   }
+
+  /*
+  for (const auto &obj : trigObjs) {
+    // tell me a bit about yourself
+    std::cout<<"types: ";
+    for (const auto &tp : obj.triggerObjectTypes())
+      std::cout << std::to_string(tp) <<", ";
+    std::cout<< "\n";
+    std::cout<<"paths: ";
+    for (const auto &p : obj.pathNames())
+      std::cout<<p<<", ";
+    std::cout <<"\n";
+    std::cout<<"filters: ";
+    for (const auto &f : obj.filterLabels())
+      std::cout<<f<<", ";
+    std::cout<< std::endl;
+  }
+  */
 
   // Self-cleaning
   for (unsigned int i = 0; i < selected.size(); ++i) {
