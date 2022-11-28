@@ -111,6 +111,7 @@ private:
           if (qualityBitsConfig[i].existsAs<unsigned int>("bit"))
             bit = qualityBitsConfig[i].getParameter<unsigned int>("bit");
           assert(!bits[bit] && "a quality bit was inserted twice");  // the bit should not have been set already
+	  assert(bit<=32 && "quality bits are store on 32 bit");
           bits[bit] = true;
           qualityBitsFunc << std::to_string(int(pow(2, bit))) << "*("
                           << qualityBitsConfig[i].getParameter<std::string>("selection") << ")";
