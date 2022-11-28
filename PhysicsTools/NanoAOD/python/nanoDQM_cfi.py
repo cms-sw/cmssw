@@ -840,7 +840,7 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
             plots = cms.VPSet(
                 Count1D('_size', 28, -0.5, 27.5),
                 Plot1D('eta', 'eta', 20, -5, 5, 'eta'),
-                Plot1D('filterBits', 'filterBits', 1024, -0.5, 1023.5, 'extra bits of associated information: 1 = CaloIdL_TrackIdL_IsoVL, 2 = WPLoose, 4 = WPTight, 8 = OverlapFilter PFTau for Electron (PixelMatched e/gamma); 1 = TrkIsoVVL, 2 = Iso, 4 = OverlapFilter PFTau for Muon; 1 = LooseChargedIso, 2 = MediumChargedIso, 4 = TightChargedIso, 8 = TightID OOSC photons, 16 = L2p5 pixel iso, 32 = OverlapFilter IsoMu, 64 = OverlapFilter IsoEle, 128 = L1-HLT matched, 256 = Dz for Tau; 1 = VBF cross-cleaned from loose iso PFTau for Jet'),
+                Plot1D('filterBits', 'filterBits', 1024, -0.5, 16000, 'extra bits of associated information: see branch documentation'),
                 Plot1D('id', 'id', 20, 0, 30, 'ID of the object: 11 = Electron (PixelMatched e/gamma), 22 = Photon (PixelMatch-vetoed e/gamma), 13 = Muon, 14 = Tau, 1 = Jet, 2 = MET, 3 = HT, 4 = MHT'),
                 Plot1D('l1charge', 'l1charge', 3, -1.5, 1.5, 'charge of associated L1 seed'),
                 Plot1D('l1iso', 'l1iso', 4, -0.5, 3.5, 'iso of associated L1 seed'),
