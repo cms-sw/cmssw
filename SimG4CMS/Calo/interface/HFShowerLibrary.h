@@ -77,7 +77,6 @@ private:
   double dphi_, rMin_, rMax_;
   std::vector<double> gpar_;
 
-  int npe_;
   HFShowerPhotonCollection pe_;
   std::unique_ptr<HFShowerPhotonCollection> photo_;
 };
