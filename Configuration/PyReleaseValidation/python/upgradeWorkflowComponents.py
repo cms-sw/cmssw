@@ -26,6 +26,8 @@ upgradeKeys[2017] = [
     '2024PU',
     '2021FS',
     '2021FSPU',
+    '2021postEE',
+    '2021postEEPU',
 ]
 
 upgradeKeys[2026] = [
@@ -2113,6 +2115,14 @@ upgradeProperties[2017] = {
         'Era' : 'Run3_FastSim',
         'BeamSpot': 'Realistic25ns13p6TeVEarly2022Collision',
         'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
+    },
+    '2021postEE' : {
+        'Geom' : 'DB:Extended',
+        'GT' : 'auto:phase1_2022_realistic_postEE',
+        'HLTmenu': '@relval2022',
+        'Era' : 'Run3',
+        'BeamSpot': 'Realistic25ns13p6TeVEarly2022Collision',
+        'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
     },
 }
 
