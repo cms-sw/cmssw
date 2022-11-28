@@ -24,7 +24,7 @@ def mksel( selection, doc=None, bit=None):
     if doc==None:
         doc=ddoc
     #print("creating an entry with",selection,doc)
-    return cms.PSet(selection=cms.string(selection),doc=cms.string(doc),bit=cms.int32(bit)) if bit else cms.PSet(selection=cms.string(selection),doc=cms.string(doc))
+    return cms.PSet(selection=cms.string(selection),doc=cms.string(doc),bit=cms.uint32(bit)) if bit is not None else cms.PSet(selection=cms.string(selection),doc=cms.string(doc))
 
 def chaintoken_(tokens,f,OR_or_AND=None):
     if (not type(tokens) in [list,tuple]):
@@ -263,7 +263,7 @@ for sel in selections2016:
             mksel("filter('hltL3cr*IsoFiltered0p09')","Iso"),
             mksel("filter('*OverlapFilter*IsoMu*PFTau*')","OverlapFilter PFTau"),
             mksel("filter('hltL3f*IsoFiltered0p09')","IsoTkMu"),
-            mksel(["hltL3fL1sMu*L3Filtered50*","hltL3fL1sMu*TkFiltered50*"],"1mu (Mu50)")
+            mksel(["hltL3fL1sMu*L3Filtered50*","hltL3fL1sMu*TkFiltered50*"],"1mu (Mu50)", bit=10)
         )
     elif sel.name=='Tau':
         sel.sel = cms.string("type(84) && pt > 5 && coll('*Tau*') && ( filter('*LooseIso*') || filter('*MediumIso*') || filter('*MediumComb*Iso*') || filter('hltL2TauIsoFilter') || filter('*OverlapFilter*IsoMu*') || filter('*OverlapFilter*IsoEle*') || filter('*L1HLTMatched*') || filter('*Dz02*') )")

@@ -351,7 +351,7 @@ void TriggerObjectTableProducer::fillDescriptions(edm::ConfigurationDescriptions
   edm::ParameterSetDescription bit;
   bit.add<std::string>("selection")->setComment("function on pat::TriggerObjectStandAlone to define quality bit");
   bit.add<std::string>("doc")->setComment("definition of the quality bit");
-  bit.addOptional<int>("bit")->setComment("value of the bit, if not the order in the VPset");
+  bit.addOptional<uint>("bit")->setComment("value of the bit, if not the order in the VPset");
   bit.setComment("parameter set to define quality bit of matching object");
 
   //selection.addVPSet("qualityBits", bit); // non-backqard compatible
