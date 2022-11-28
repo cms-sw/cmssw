@@ -1,4 +1,6 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 from copy import deepcopy
 
@@ -54,6 +56,11 @@ SUSYoHLToEleHToBTagSingleLeptonPOSTPROCESSING = DQMEDHarvester('DQMGenericClient
         ),
                                                                   resolution = cms.vstring('')
                                                                   )
+
+SUSY_HLT_Ele_HT_BTag_SingleLep_run3 = SUSY_HLT_Ele_HT_BTag_SingleLepton.clone()
+SUSY_HLT_Ele_HT_BTag_SingleLep_run3.hltJetTags = 'hltDeepCombinedSecondaryVertexBJetTagsCalo'
+SUSY_HLT_Ele_HT_BTag_SingleLep_run3.jetTagCollection = 'pfDeepCSVJetTags:probb'
+run3_common.toReplaceWith( SUSY_HLT_Ele_HT_BTag_SingleLepton, SUSY_HLT_Ele_HT_BTag_SingleLep_run3 )
 
 # fastsim has no conversion collection (yet)
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
