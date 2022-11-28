@@ -68,6 +68,7 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 mksel("filter('hlt*OverlapFilterIsoEle*PFTau*')","1e-1tau"),
                 mksel("filter('hltEle*Ele*Ele*CaloIdLTrackIdLDphiLeg*Filter')","3e"),
                 mksel(["hltL3fL1Mu*DoubleEG*Filtered*","hltMu*DiEle*CaloIdLTrackIdLElectronleg*Filter"],"2e-1mu"),
+                mksel(["hltL3fL1DoubleMu*EG*Filter*","hltDiMu*Ele*CaloIdLTrackIdLElectronleg*Filter"],"1e-2mu"),
                 mksel(("hltEle32L1DoubleEGWPTightGsfTrackIsoFilter","hltEGL1SingleEGOrFilter"),"1e (32_L1DoubleEG_AND_L1SingleEGOr)"),
                 mksel("filter('hltEle*CaloIdVTGsfTrkIdTGsfDphiFilter')","1e (CaloIdVT_GsfTrkIdT)"),
                 mksel("path('HLT_Ele*PFJet*')","1e (PFJet)"),
