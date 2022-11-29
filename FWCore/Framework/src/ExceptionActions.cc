@@ -8,23 +8,17 @@
 
 namespace edm {
   namespace exception_actions {
-    namespace {
-      struct ActionNames {
-        ActionNames() : table_(LastCode + 1) {
-          table_[IgnoreCompletely] = "IgnoreCompletely";
-          table_[Rethrow] = "Rethrow";
-          table_[SkipEvent] = "SkipEvent";
-          table_[FailPath] = "FailPath";
-        }
-
-        typedef std::vector<char const*> Table;
-        Table table_;
-      };
-    }  // namespace
-
     char const* actionName(ActionCodes code) {
-      static ActionNames tab;
-      return static_cast<unsigned int>(code) < tab.table_.size() ? tab.table_[code] : "UnknownAction";
+      static constexpr std::array<char const*, LastCode> tab = []() constexpr {
+        std::array<char const*, LastCode> table{};
+        table[IgnoreCompletely] = "IgnoreCompletely";
+        table[Rethrow] = "Rethrow";
+        table[SkipEvent] = "SkipEvent";
+        table[FailPath] = "FailPath";
+        return table;
+      }
+      ();
+      return static_cast<unsigned int>(code) < tab.size() ? tab[code] : "UnknownAction";
     }
   }  // namespace exception_actions
 
