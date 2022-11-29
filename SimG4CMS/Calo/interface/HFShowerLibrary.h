@@ -53,12 +53,12 @@ public:
                             bool onlyLong = false);
 
 private:
-  bool rInside(double r);
+  bool rInside(double r) const;
   HFShowerPhotonCollection getRecord(int, int) const;
   void loadEventInfo(TBranch *);
-  void interpolate(int, double);
-  void extrapolate(int, double);
-  void storePhoton(HFShowerPhoton const &iPhoton);
+  HFShowerPhotonCollection interpolate(int, double);
+  HFShowerPhotonCollection extrapolate(int, double);
+  void storePhoton(HFShowerPhoton const &iPhoton, HFShowerPhotonCollection &iPhotons) const;
 
   const HcalDDDSimConstants *hcalConstant_;
   std::unique_ptr<HFFibre> fibre_;
@@ -75,7 +75,5 @@ private:
   double probMax_, backProb_;
   double dphi_, rMin_, rMax_;
   std::vector<double> gpar_;
-
-  HFShowerPhotonCollection pe_;
 };
 #endif
