@@ -148,12 +148,12 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
   const auto &trigObjs = iEvent.get(src_);
 
   std::vector<std::pair<const pat::TriggerObjectStandAlone *, const SelectedObject *>> selected;
-  std::map<const pat::TriggerObjectStandAlone *, int> selected_bits;
+  std::map<int, std::map<const pat::TriggerObjectStandAlone *, int>> selected_bits;
   for (const auto &obj : trigObjs) {
     for (const auto &sel : sels_) {
       if (sel.match(obj)) {
-        selected_bits[&obj] = int(sel.qualityBits(obj));
-        if (sel.skipObjectsNotPassingQualityBits ? (selected_bits[&obj] > 0) : true) {
+        selected_bits[sel.id][&obj] = int(sel.qualityBits(obj));
+        if (sel.skipObjectsNotPassingQualityBits ? (selected_bits[sel.id][&obj] > 0) : true) {
           selected.emplace_back(&obj, &sel);
         }
       }
@@ -169,7 +169,7 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
       const auto &obj2 = *selected[j].first;
       const auto &sel2 = *selected[j].second;
       if (sel.id == sel2.id && abs(obj.pt() - obj2.pt()) < 1e-6 && deltaR2(obj, obj2) < 1e-6) {
-        selected_bits[&obj2] |= selected_bits[&obj];  //Keep filters from all the objects
+        selected_bits[sel.id][&obj2] |= selected_bits[sel.id][&obj];  //Keep filters from all the objects
         selected.erase(selected.begin() + i);
         i--;
       }
@@ -276,7 +276,7 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
     eta[i] = obj.eta();
     phi[i] = obj.phi();
     id[i] = sel.id;
-    bits[i] = selected_bits[&obj];
+    bits[i] = selected_bits[sel.id][&obj];
     if (sel.l1DR2 > 0) {
       float best = sel.l1DR2;
       for (const auto &l1obj : l1Objects) {
