@@ -218,7 +218,7 @@ private:
   edm::GetterOfProducts<FlatTable> getterOfProducts_;
 };
 
-NanoAODDQM::NanoAODDQM(const edm::ParameterSet &iConfig) : getterOfProducts_(edm::ProcessMatch("NANO"), this) {
+NanoAODDQM::NanoAODDQM(const edm::ParameterSet &iConfig) : getterOfProducts_(edm::ProcessMatch("*"), this) {
   const edm::ParameterSet &vplots = iConfig.getParameter<edm::ParameterSet>("vplots");
   for (const std::string &name : vplots.getParameterNamesForType<edm::ParameterSet>()) {
     auto &group = groups_[name];
