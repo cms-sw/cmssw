@@ -67,9 +67,8 @@ lowPtElectronTable = simpleCandidateFlatTableProducer.clone(
     variables = cms.PSet(
         # Basic variables
         CandVars,
-        # Overlaps with PF electron
+        # Overlaps with PF electron and photon
         electronIdx = Var("?overlaps('electrons').size()>0?overlaps('electrons')[0].key():-1", int, doc="index of the overlapping PF electron (-1 if none)"),
-        jetIdx = Var("?hasUserCand('jet')?userCand('jet').key():-1", int, doc="index of the associated jet (-1 if none)"),
         photonIdx = Var("?overlaps('photons').size()>0?overlaps('photons')[0].key():-1", int, doc="index of the first associated photon (-1 if none)"),
         # BDT scores and WPs
         ID = Var("electronID('ID')",float,doc="ID, BDT (raw) score"),

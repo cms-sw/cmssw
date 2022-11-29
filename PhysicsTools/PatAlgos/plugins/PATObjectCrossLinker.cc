@@ -340,7 +340,6 @@ void PATObjectCrossLinker::produce(edm::Event& iEvent, const edm::EventSetup& iS
   if (!lowPtElectronsTag_.label().empty()) {
     auto lowPtEleRefProd = iEvent.getRefBeforePut<std::vector<pat::Electron>>("lowPtElectrons");
     matchLowPtToElectron(lowPtEleRefProd, *lowPtElectrons, "lowPtElectron", eleRefProd, *electrons, "electrons");
-    matchOneToMany(jetRefProd, *jets, "jet", lowPtEleRefProd, *lowPtElectrons, "lowPtElectrons");
     matchElectronToPhoton(lowPtEleRefProd, *lowPtElectrons, "lowPtElectron", phRefProd, *photons, "photons");
   }
 
