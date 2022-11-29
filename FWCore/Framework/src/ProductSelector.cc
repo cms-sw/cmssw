@@ -83,14 +83,10 @@ namespace edm {
               << "Please drop at least one of them.\n";
         }
       };
-      BranchID const& trueBranchID = desc.originalBranchID();
+      // In case of SwitchProducer, we have to check the aliased-for
+      // BranchID for the case that the chosen case is an EDAlias
+      BranchID const& trueBranchID = desc.isSwitchAlias() ? desc.switchAliasForBranchID() : desc.originalBranchID();
       check(trueBranchID);
-      // In case of SwitchProducer, we have to check also the
-      // aliased-for BranchID for the case that the chosen case is an EDAlias
-      if (desc.isSwitchAlias()) {
-        check(desc.switchAliasForBranchID());
-      }
-
       trueBranchIDToKeptBranchDesc.insert(std::make_pair(trueBranchID, &desc));
     }
   }
