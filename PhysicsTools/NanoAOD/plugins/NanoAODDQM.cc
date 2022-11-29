@@ -11,7 +11,8 @@
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-#include <memory>
+#include "FWCore/Framework/interface/GetterOfProducts.h"
+#include "FWCore/Framework/interface/ProcessMatch.h"
 
 #include <numeric>
 #include <regex>
@@ -195,9 +196,10 @@ private:
     std::vector<SelGroupConfig> selGroups;
   };
   std::map<std::string, GroupConfig> groups_;
+  edm::GetterOfProducts<FlatTable> getterOfProducts_;
 };
 
-NanoAODDQM::NanoAODDQM(const edm::ParameterSet &iConfig) {
+NanoAODDQM::NanoAODDQM(const edm::ParameterSet &iConfig): getterOfProducts_(edm::ProcessMatch("NANO"), this) {
   const edm::ParameterSet &vplots = iConfig.getParameter<edm::ParameterSet>("vplots");
   for (const std::string &name : vplots.getParameterNamesForType<edm::ParameterSet>()) {
     auto &group = groups_[name];
@@ -209,7 +211,7 @@ NanoAODDQM::NanoAODDQM(const edm::ParameterSet &iConfig) {
       group.selGroups.emplace_back(cname, cuts.getParameter<std::string>(cname));
     }
   }
-  consumesMany<FlatTable>();
+  callWhenNewProductsRegistered(getterOfProducts_);
 }
 
 void NanoAODDQM::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
@@ -278,7 +280,7 @@ void NanoAODDQM::bookHistograms(DQMStore::IBooker &booker, edm::Run const &, edm
 
 void NanoAODDQM::analyze(const edm::Event &iEvent, const edm::EventSetup &) {
   std::vector<edm::Handle<FlatTable>> alltables;
-  iEvent.getManyByType(alltables);
+  getterOfProducts_.fillHandles(iEvent, alltables);
   std::map<std::string, std::pair<const FlatTable *, std::vector<const FlatTable *>>> maintables;
 
   for (const auto &htab : alltables) {
