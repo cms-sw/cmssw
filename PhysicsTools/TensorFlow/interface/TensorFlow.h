@@ -118,6 +118,8 @@ namespace tensorflow {
                   const std::vector<std::string>& outputNames,
                   std::vector<Tensor>* outputs,
                   const thread::ThreadPoolOptions& threadPoolOptions) {
+    // TF takes a non-const session in the run call which is, however, thread-safe and logically
+    // const, thus const_cast is consistent
     run(const_cast<Session*>(session), inputs, outputNames, outputs, threadPoolOptions);
   }
 
@@ -136,6 +138,8 @@ namespace tensorflow {
                   const std::vector<std::string>& outputNames,
                   std::vector<Tensor>* outputs,
                   thread::ThreadPoolInterface* threadPool) {
+    // TF takes a non-const session in the run call which is, however, thread-safe and logically
+    // const, thus const_cast is consistent
     run(const_cast<Session*>(session), inputs, outputNames, outputs, threadPool);
   }
 
@@ -154,6 +158,8 @@ namespace tensorflow {
                   const std::vector<std::string>& outputNames,
                   std::vector<Tensor>* outputs,
                   const std::string& threadPoolName = "no_threads") {
+    // TF takes a non-const session in the run call which is, however, thread-safe and logically
+    // const, thus const_cast is consistent
     run(const_cast<Session*>(session), inputs, outputNames, outputs, threadPoolName);
   }
 
@@ -170,6 +176,8 @@ namespace tensorflow {
                   const std::vector<std::string>& outputNames,
                   std::vector<Tensor>* outputs,
                   const std::string& threadPoolName = "no_threads") {
+    // TF takes a non-const session in the run call which is, however, thread-safe and logically
+    // const, thus const_cast is consistent
     run(const_cast<Session*>(session), outputNames, outputs, threadPoolName);
   }
 
