@@ -277,7 +277,7 @@ protected:
   }
 
 public:
-  // ----------private member functions --------------
+  // ----------public member functions --------------
   unsigned int countSetBits(unsigned int n) const {
     // Adapted from: https://www.geeksforgeeks.org/count-set-bits-in-an-integer/
     unsigned int count = 0;
