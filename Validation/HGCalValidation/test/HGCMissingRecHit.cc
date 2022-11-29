@@ -377,7 +377,8 @@ void HGCMissingRecHit::analyzeHGCalSimHit(edm::Handle<std::vector<PCaloHit>> con
       edm::LogVerbatim("HGCalValid") << "Position = " << p << " Energy " << simHit.energy() << ":" << energySum;
     }
     if ((!valid1) || (!valid2))
-      edm::LogVerbatim("HGCalMiss") << "Invalid SimHit " << st1.str() << " position = " << p << " perp " << p.perp() << " Validity flags " << valid1 << ":" << valid2;
+      edm::LogVerbatim("HGCalMiss") << "Invalid SimHit " << st1.str() << " position = " << p << " perp " << p.perp()
+                                    << " Validity flags " << valid1 << ":" << valid2;
   }
 }
 

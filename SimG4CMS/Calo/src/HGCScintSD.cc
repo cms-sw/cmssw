@@ -221,8 +221,10 @@ uint32_t HGCScintSD::setDetUnitId(const G4Step* aStep) {
     double dy = xy.second - (hitPoint.y() / CLHEP::cm);
     double diff = std::sqrt(dx * dx + dy * dy);
     constexpr double tol = 3.0;
-    if (diff > tol) 
-      edm::LogVerbatim("HGCSim") << "CheckID " << HGCScintillatorDetId(id) << " input position: (" << hitPoint.x()/CLHEP::cm << ", " << hitPoint.y()/CLHEP::cm << "); position from ID (" << xy.first << ", " << xy.second << ") distance " << diff;
+    if (diff > tol)
+      edm::LogVerbatim("HGCSim") << "CheckID " << HGCScintillatorDetId(id) << " input position: ("
+                                 << hitPoint.x() / CLHEP::cm << ", " << hitPoint.y() / CLHEP::cm
+                                 << "); position from ID (" << xy.first << ", " << xy.second << ") distance " << diff;
   }
   return id;
 }
