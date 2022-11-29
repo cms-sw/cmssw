@@ -30,7 +30,7 @@ public:
 private:
   void initPointer();
 
-  int isItPrimaryDecayProductOrConversion(const G4Track*, const G4Track&) const;
+  int isItPrimaryDecayProductOrConversion(const int subtype, const G4Track&) const;
 
   int isItFromPrimary(const G4Track&, int) const;
 
