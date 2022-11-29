@@ -14,9 +14,12 @@
 #include "FWCore/Framework/interface/GetterOfProducts.h"
 #include "FWCore/Framework/interface/ProcessMatch.h"
 
+#include <memory>
+#include <limits>
 #include <numeric>
 #include <regex>
 #include <sstream>
+#include <type_traits>
 
 namespace {
   std::string replaceStringsToColumGets(const std::string &expr, const nanoaod::FlatTable &table) {
@@ -86,7 +89,8 @@ private:
                              cfg.getParameter<uint32_t>("nbins"),
                              cfg.getParameter<double>("min"),
                              cfg.getParameter<double>("max"))),
-          col_(cfg.getParameter<std::string>("column")) {}
+          col_(cfg.getParameter<std::string>("column")),
+          bitset_(cfg.getParameter<bool>("bitset")) {}
     ~Plot1D() override {}
     void fill(const FlatTable &table, const std::vector<bool> &rowsel) override {
       int icol = table.columnIndex(col_);
@@ -115,15 +119,30 @@ private:
 
   protected:
     std::string col_;
+    bool bitset_;
     template <typename T>
     void vfill(const FlatTable &table, int icol, const std::vector<bool> &rowsel) {
       const auto &data = table.columnData<T>(icol);
       for (unsigned int i = 0, n = data.size(); i < n; ++i) {
-        if (rowsel[i])
-          plot_->Fill(data[i]);
+        if (rowsel[i]) {
+          const T val = data[i];
+          if constexpr (std::is_integral<T>::value) {
+            if (bitset_) {
+              for (unsigned int b = 0; b < std::numeric_limits<T>::digits; b++) {
+                if ((val >> b) & 0b1)
+                  plot_->Fill(b);
+              }
+            } else {
+              plot_->Fill(val);
+            }
+          } else {
+            plot_->Fill(val);
+          }
+        }
       }
     }
   };
+
   class Profile1D : public Plot {
   public:
     Profile1D(DQMStore::IBooker &booker, const edm::ParameterSet &cfg)
@@ -199,7 +218,7 @@ private:
   edm::GetterOfProducts<FlatTable> getterOfProducts_;
 };
 
-NanoAODDQM::NanoAODDQM(const edm::ParameterSet &iConfig): getterOfProducts_(edm::ProcessMatch("NANO"), this) {
+NanoAODDQM::NanoAODDQM(const edm::ParameterSet &iConfig) : getterOfProducts_(edm::ProcessMatch("NANO"), this) {
   const edm::ParameterSet &vplots = iConfig.getParameter<edm::ParameterSet>("vplots");
   for (const std::string &name : vplots.getParameterNamesForType<edm::ParameterSet>()) {
     auto &group = groups_[name];
@@ -226,6 +245,7 @@ void NanoAODDQM::fillDescriptions(edm::ConfigurationDescriptions &descriptions) 
   edm::ParameterDescription<uint32_t> nbins("nbins", true, edm::Comment("number of bins of the plot"));
   edm::ParameterDescription<double> min("min", true, edm::Comment("starting value of the x axis"));
   edm::ParameterDescription<double> max("max", true, edm::Comment("ending value of the x axis"));
+  edm::ParameterDescription<bool> bitset("bitset", false, true, edm::Comment("plot individual bits of values"));
   edm::ParameterDescription<std::string> column(
       "column", true, edm::Comment("name of the raw to fill the content of the plot"));
   edm::ParameterDescription<std::string> xcolumn(
@@ -239,7 +259,7 @@ void NanoAODDQM::fillDescriptions(edm::ConfigurationDescriptions &descriptions) 
       edm::ParameterDescription<std::string>("kind", "none", true, edm::Comment("the type of histogram")),
       "none" >> (name) or  //it should really be edm::EmptyGroupDescription(), but name is used in python by modifiers
           "count1d" >> (name and title and nbins and min and max) or
-          "hist1d" >> (name and title and nbins and min and max and column) or
+          "hist1d" >> (name and title and nbins and min and max and column and bitset) or
           "prof1d" >> (name and title and nbins and min and max and xcolumn and ycolumn));
 
   edm::ParameterSetDescription vplot;
