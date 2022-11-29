@@ -1,4 +1,3 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from enum import Enum
 import sys
@@ -15,6 +14,11 @@ applyExtraConditions = EXTRACONDTEMPLATE
 theRefitter = REFITTERTEMPLATE
 
 process = cms.Process("PrimaryVertexValidation") 
+
+###################################################################
+# Set the process to run multi-threaded
+###################################################################
+process.options.numberOfThreads = 8
 
 ###################################################################
 def customiseAlignmentAndAPE(process):
