@@ -60,8 +60,7 @@ private:
   HFShowerPhotonCollection extrapolate(int, double);
   void storePhoton(HFShowerPhoton const &iPhoton, HFShowerPhotonCollection &iPhotons) const;
 
-  const HcalDDDSimConstants *hcalConstant_;
-  std::unique_ptr<HFFibre> fibre_;
+  HFFibre fibre_;
   std::unique_ptr<TFile> hf_;
   TBranch *emBranch_, *hadBranch_;
 

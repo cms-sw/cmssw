@@ -24,7 +24,7 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
                                  const HcalDDDSimConstants* hcons,
                                  const HcalSimulationParameters* hps,
                                  edm::ParameterSet const& p)
-    : hcalConstant_(hcons), hf_(), emBranch_(nullptr), hadBranch_(nullptr) {
+    : fibre_(hcons, hps, p), hf_(), emBranch_(nullptr), hadBranch_(nullptr) {
   edm::ParameterSet m_HF =
       (p.getParameter<edm::ParameterSet>("HFShower")).getParameter<edm::ParameterSet>("HFShowerBlock");
   probMax_ = m_HF.getParameter<double>("ProbMax");
@@ -115,22 +115,20 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
                                << probMax_ << "  Back propagation of light probability " << backProb_
                                << " Flag for equalizing Time Shift for different eta " << equalizeTimeShift_;
 
-  fibre_ = std::make_unique<HFFibre>(name, hcalConstant_, hps, p);
-
   //Radius (minimum and maximum)
-  std::vector<double> rTable = hcalConstant_->getRTableHF();
+  std::vector<double> rTable = hcons->getRTableHF();
   rMin_ = rTable[0];
   rMax_ = rTable[rTable.size() - 1];
 
   //Delta phi
-  std::vector<double> phibin = hcalConstant_->getPhiTableHF();
+  std::vector<double> phibin = hcons->getPhiTableHF();
   dphi_ = phibin[0];
 
   edm::LogVerbatim("HFShower") << "HFShowerLibrary: rMIN " << rMin_ / CLHEP::cm << " cm and rMax " << rMax_ / CLHEP::cm
                                << " (Half) Phi Width of wedge " << dphi_ / CLHEP::deg;
 
   //Special Geometry parameters
-  gpar_ = hcalConstant_->getGparHF();
+  gpar_ = hcons->getGparHF();
 }
 
 HFShowerLibrary::~HFShowerLibrary() {
@@ -260,10 +258,10 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector&
       zv = std::abs(pos.z()) - gpar_[4] - 0.5 * gpar_[1];
       G4ThreeVector lpos = G4ThreeVector(pos.x(), pos.y(), zv);
 
-      zv = fibre_->zShift(lpos, depth, 0);  // distance to PMT !
+      zv = fibre_.zShift(lpos, depth, 0);  // distance to PMT !
 
       double r = pos.perp();
-      double p = fibre_->attLength(photon.lambda());
+      double p = fibre_.attLength(photon.lambda());
       double fi = pos.phi();
       if (fi < 0)
         fi += CLHEP::twopi;
@@ -298,7 +296,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector&
 #endif
       if (rInside(r) && r1 <= exp(-p * zv) && r2 <= probMax_ * weight && dfir > gpar_[5] && zz >= gpar_[4] &&
           zz <= gpar_[4] + gpar_[1] && r3 <= backProb_ && (depth != 2 || zz >= gpar_[4] + gpar_[0])) {
-        double tdiff = (equalizeTimeShift_) ? (fibre_->tShift(lpos, depth, -1)) : (fibre_->tShift(lpos, depth, 1));
+        double tdiff = (equalizeTimeShift_) ? (fibre_.tShift(lpos, depth, -1)) : (fibre_.tShift(lpos, depth, 1));
         oneHit.position = pos;
         oneHit.depth = depth;
         oneHit.time = (tSlice + (photon.t()) + tdiff);
@@ -319,7 +317,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector&
         r1 = G4UniformRand();
         r2 = G4UniformRand();
         if (rInside(r) && r1 <= exp(-p * zv) && r2 <= probMax_ && dfir > gpar_[5]) {
-          double tdiff = (equalizeTimeShift_) ? (fibre_->tShift(lpos, 2, -1)) : (fibre_->tShift(lpos, 2, 1));
+          double tdiff = (equalizeTimeShift_) ? (fibre_.tShift(lpos, 2, -1)) : (fibre_.tShift(lpos, 2, 1));
           oneHit.position = pos;
           oneHit.depth = 2;
           oneHit.time = (tSlice + (photon.t()) + tdiff);
