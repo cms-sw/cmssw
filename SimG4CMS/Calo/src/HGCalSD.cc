@@ -221,7 +221,11 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
       hgcons_->waferFromPosition(xx, hitPoint.y(), layer, waferU, waferV, cellU, cellV, waferType, wt1, false, false);
       HGCSiliconDetId hid2(hid1.det(), hid1.zside(), waferType, layer, waferU, waferV, cellU, cellV);
       bool valid2 = hgcons_->isValidHex8(hid2.layer(), hid2.waferU(), hid2.waferV(), hid2.cellU(), hid2.cellV(), true);
-      edm::LogVerbatim("HGCSim") << "CheckID " << HGCSiliconDetId(id) << " input position: (" << hitPoint.x()/CLHEP::cm << ", " << hitPoint.y()/CLHEP::cm << "); position from ID (" << xx << ", " << xy.second << ") distance " << diff << " New ID|Old ID " << (hid1.rawId() == hid2.rawId()) << " Valid " << valid1 << ":" << valid2;
+      edm::LogVerbatim("HGCSim") << "CheckID " << HGCSiliconDetId(id) << " input position: ("
+                                 << hitPoint.x() / CLHEP::cm << ", " << hitPoint.y() / CLHEP::cm
+                                 << "); position from ID (" << xx << ", " << xy.second << ") distance " << diff
+                                 << " New ID|Old ID " << (hid1.rawId() == hid2.rawId()) << " Valid " << valid1 << ":"
+                                 << valid2;
     }
   }
   return id;

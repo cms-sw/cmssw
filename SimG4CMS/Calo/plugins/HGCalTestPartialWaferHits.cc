@@ -116,12 +116,12 @@ void HGCalTestPartialWaferHits::analyze(const edm::Event& e, const edm::EventSet
       for (auto hit : hits) {
         ++all;
         DetId id(hit.id());
-	bool valid = (geom->topology()).valid(id);
-	std::ostringstream st1;
+        bool valid = (geom->topology()).valid(id);
+        std::ostringstream st1;
         if ((id.det() == DetId::HGCalEE) || (id.det() == DetId::HGCalHSi)) {
           ++allSi;
           HGCSiliconDetId hid(id);
-	  st1 << hid;
+          st1 << hid;
           const auto& info = hgc.waferInfo(hid.layer(), hid.waferU(), hid.waferV());
           bool toCheck(false);
           if (!wafers_.empty()) {
@@ -148,16 +148,17 @@ void HGCalTestPartialWaferHits::analyze(const edm::Event& e, const edm::EventSet
           }
         } else {
           ++allSc;
-	  st1 << HGCScintillatorDetId(id);
-	}
-	if (!valid) {
-	  edm::LogVerbatim("HGCalError") << "Invalid ID " << st1.str();
-	  ++bad;
-	}
+          st1 << HGCScintillatorDetId(id);
+        }
+        if (!valid) {
+          edm::LogVerbatim("HGCalError") << "Invalid ID " << st1.str();
+          ++bad;
+        }
       }
     }
   }
-  edm::LogVerbatim("HGCalSim") << "Total hits = " << all << ":" << nhits << " Good Silicon DetIds = " << allSi << ":" << good << " Scintitllator = " << allSc << " Invalid = " << bad;
+  edm::LogVerbatim("HGCalSim") << "Total hits = " << all << ":" << nhits << " Good Silicon DetIds = " << allSi << ":"
+                               << good << " Scintitllator = " << allSc << " Invalid = " << bad;
 }
 
 //define this as a plug-in
