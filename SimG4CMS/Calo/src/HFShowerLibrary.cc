@@ -213,23 +213,24 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector&
   double ctheta = cos(momDir.theta());
   double stheta = sin(momDir.theta());
 
+  HFShowerPhotonCollection pe;
   if (isEM) {
     if (pin < pmom_[nMomBin_ - 1]) {
-      interpolate(0, pin);
+      pe = interpolate(0, pin);
     } else {
-      extrapolate(0, pin);
+      pe = extrapolate(0, pin);
     }
   } else {
     if (pin < pmom_[nMomBin_ - 1]) {
-      interpolate(1, pin);
+      pe = interpolate(1, pin);
     } else {
-      extrapolate(1, pin);
+      pe = extrapolate(1, pin);
     }
   }
 
   std::size_t nHit = 0;
   HFShowerLibrary::Hit oneHit;
-  for (auto const& photon : pe_) {
+  for (auto const& photon : pe) {
     double zv = std::abs(photon.z());  // abs local z
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HFShower") << "HFShowerLibrary: Hit " << i << " " << photon << " zv " << zv;
@@ -335,15 +336,15 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector&
   }
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HFShower") << "HFShowerLibrary: Total Hits " << nHit << " out of " << pe_.size() << " PE";
+  edm::LogVerbatim("HFShower") << "HFShowerLibrary: Total Hits " << nHit << " out of " << pe.size() << " PE";
 #endif
-  if (nHit > pe_.size() && !onlyLong) {
-    edm::LogWarning("HFShower") << "HFShowerLibrary: Hit buffer " << pe_.size() << " smaller than " << nHit << " Hits";
+  if (nHit > pe.size() && !onlyLong) {
+    edm::LogWarning("HFShower") << "HFShowerLibrary: Hit buffer " << pe.size() << " smaller than " << nHit << " Hits";
   }
   return hit;
 }
 
-bool HFShowerLibrary::rInside(double r) { return (r >= rMin_ && r <= rMax_); }
+bool HFShowerLibrary::rInside(double r) const { return (r >= rMin_ && r <= rMax_); }
 
 HFShowerPhotonCollection HFShowerLibrary::getRecord(int type, int record) const {
   int nrc = record - 1;
@@ -434,7 +435,7 @@ void HFShowerLibrary::loadEventInfo(TBranch* branch) {
     pmom_[i] *= CLHEP::GeV;
 }
 
-void HFShowerLibrary::interpolate(int type, double pin) {
+HFShowerPhotonCollection HFShowerLibrary::interpolate(int type, double pin) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << "HFShowerLibrary:: Interpolate for Energy " << pin / CLHEP::GeV << " GeV with "
                                << nMomBin_ << " momentum bins and " << evtPerBin_ << " entries/bin -- total "
@@ -483,36 +484,39 @@ void HFShowerLibrary::interpolate(int type, double pin) {
   edm::LogVerbatim("HFShower") << "HFShowerLibrary:: Select records " << irc[0] << " and " << irc[1] << " with weights "
                                << 1 - w << " and " << w;
 #endif
-  pe_.clear();
+  HFShowerPhotonCollection pe;
+
   std::size_t npold = 0;
   for (int ir = 0; ir < 2; ir++) {
     if (irc[ir] > 0) {
       auto photons = getRecord(type, irc[ir]);
       int nPhoton = photons.size();
       npold += nPhoton;
+      pe.reserve(pe.size() + nPhoton);
       for (auto const& photon : photons) {
         r = G4UniformRand();
         if ((ir == 0 && r > w) || (ir > 0 && r < w)) {
-          storePhoton(photon);
+          storePhoton(photon, pe);
         }
       }
     }
   }
 
-  if ((pe_.size() > npold || (npold == 0 && irc[0] > 0)) && !(pe_.empty() && npold == 0))
+  if ((pe.size() > npold || (npold == 0 && irc[0] > 0)) && !(pe.empty() && npold == 0))
     edm::LogWarning("HFShower") << "HFShowerLibrary: Interpolation Warning =="
                                 << " records " << irc[0] << " and " << irc[1] << " gives a buffer of " << npold
-                                << " photons and fills " << pe_.size() << " *****";
+                                << " photons and fills " << pe.size() << " *****";
 #ifdef EDM_ML_DEBUG
   else
     edm::LogVerbatim("HFShower") << "HFShowerLibrary: Interpolation == records " << irc[0] << " and " << irc[1]
-                                 << " gives a buffer of " << npold << " photons and fills " << pe_.size() << " PE";
-  for (int j = 0; j < npe; j++)
-    edm::LogVerbatim("HFShower") << "Photon " << j << " " << pe_[j];
+                                 << " gives a buffer of " << npold << " photons and fills " << pe.size() << " PE";
+  for (int j = 0; j < pe.size(); j++)
+    edm::LogVerbatim("HFShower") << "Photon " << j << " " << pe[j];
 #endif
+  return pe;
 }
 
-void HFShowerLibrary::extrapolate(int type, double pin) {
+HFShowerPhotonCollection HFShowerLibrary::extrapolate(int type, double pin) {
   int nrec = int(pin / pmom_[nMomBin_ - 1]);
   double w = (pin - pmom_[nMomBin_ - 1] * nrec) / pmom_[nMomBin_ - 1];
   nrec++;
@@ -540,17 +544,18 @@ void HFShowerLibrary::extrapolate(int type, double pin) {
     }
   }
 
-  pe_.clear();
+  HFShowerPhotonCollection pe;
   std::size_t npold = 0;
   for (int ir = 0; ir < nrec; ir++) {
     if (irc[ir] > 0) {
       auto const photons = getRecord(type, irc[ir]);
       int nPhoton = photons.size();
       npold += nPhoton;
+      pe.reserve(pe.size() + nPhoton);
       for (auto const& photon : photons) {
         double r = G4UniformRand();
         if (ir != nrec - 1 || r < w) {
-          storePhoton(photon);
+          storePhoton(photon, pe);
         }
       }
 #ifdef EDM_ML_DEBUG
@@ -562,23 +567,25 @@ void HFShowerLibrary::extrapolate(int type, double pin) {
   edm::LogVerbatim("HFShower") << "HFShowerLibrary:: uses " << npold << " photons";
 #endif
 
-  if (pe_.size() > npold || npold == 0)
+  if (pe.size() > npold || npold == 0)
     edm::LogWarning("HFShower") << "HFShowerLibrary: Extrapolation Warning == " << nrec << " records " << irc[0] << ", "
-                                << irc[1] << ", ... gives a buffer of " << npold << " photons and fills " << pe_.size()
+                                << irc[1] << ", ... gives a buffer of " << npold << " photons and fills " << pe.size()
                                 << " *****";
 #ifdef EDM_ML_DEBUG
   else
     edm::LogVerbatim("HFShower") << "HFShowerLibrary: Extrapolation == " << nrec << " records " << irc[0] << ", "
-                                 << irc[1] << ", ... gives a buffer of " << npold << " photons and fills " << pe_.size()
+                                 << irc[1] << ", ... gives a buffer of " << npold << " photons and fills " << pe.size()
                                  << " PE";
-  for (int j = 0; j < npe; j++)
-    edm::LogVerbatim("HFShower") << "Photon " << j << " " << pe_[j];
+  for (int j = 0; j < pe.size(); j++)
+    edm::LogVerbatim("HFShower") << "Photon " << j << " " << pe[j];
 #endif
+  return pe;
 }
 
-void HFShowerLibrary::storePhoton(HFShowerPhoton const& iPhoton) {
-  pe_.push_back(iPhoton);
+void HFShowerLibrary::storePhoton(HFShowerPhoton const& iPhoton, HFShowerPhotonCollection& iPhotons) const {
+  iPhotons.push_back(iPhoton);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HFShower") << "HFShowerLibrary: storePhoton " << j << " npe " << pe_.size() << " " << pe_.last();
+  edm::LogVerbatim("HFShower") << "HFShowerLibrary: storePhoton " << iPhoton << " npe " << iPhotons.size() << " "
+                               << iPhotons.last();
 #endif
 }
