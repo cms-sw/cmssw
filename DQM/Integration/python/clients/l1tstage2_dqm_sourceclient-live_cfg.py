@@ -158,8 +158,6 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.caloStage2Digis.InputLabel = "rawDataRepacker"
     process.gtStage2Digis.InputLabel = "rawDataRepacker"
     process.l1tStage2CaloLayer1.fedRawDataLabel = "rawDataRepacker"
-    process.l1tStage2uGMTZeroSupp.rawData = "rawDataRepacker"
-    process.l1tStage2uGMTZeroSuppFatEvts.rawData = "rawDataRepacker"
     process.l1tStage2BmtfZeroSupp.rawData = "rawDataRepacker"
     process.l1tStage2BmtfZeroSuppFatEvts.rawData = "rawDataRepacker"
     process.selfFatEventFilter.rawInput = "rawDataRepacker"
