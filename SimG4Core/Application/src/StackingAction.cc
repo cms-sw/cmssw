@@ -218,7 +218,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
         auto ptr = dynamic_cast<const G4GammaGeneralProcess*>(creatorProc);
         if (nullptr != ptr) {
           creatorProc = ptr->GetSelectedProcess();
-	  subType = (nullptr != creatorProc) ? creatorProc->GetProcessSubType() : 0;
+          subType = (nullptr != creatorProc) ? creatorProc->GetProcessSubType() : 0;
           track->SetCreatorProcess(creatorProc);
         }
       }
@@ -343,8 +343,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
           LogDebug("SimG4CoreApplication")
               << "StackingAction:Classify Track " << aTrack->GetTrackID() << " Parent " << aTrack->GetParentID()
               << " Type " << aTrack->GetDefinition()->GetParticleName() << " Ekin=" << ke / CLHEP::MeV
-              << " MeV from process subType=" << subType << " as " << classification
-              << " Flag: " << flag;
+              << " MeV from process subType=" << subType << " as " << classification << " Flag: " << flag;
         }
       }
     }
