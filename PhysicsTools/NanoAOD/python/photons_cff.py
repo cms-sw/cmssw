@@ -35,7 +35,7 @@ photon_id_modules_WorkingPoints_nanoAOD_Run2 = cms.PSet(
 
 # make Fall17 the default one in Run2
 run2_egamma.toModify(photon_id_modules_WorkingPoints_nanoAOD,
-                     modules=photon_id_modules_WorkingPoints_nanoAOD_Run2.modules).\
+                     modules=photon_id_modules_WorkingPoints_nanoAOD_Run2.modules).\                          
         toModify(photon_id_modules_WorkingPoints_nanoAOD,
                  WorkingPoints=photon_id_modules_WorkingPoints_nanoAOD_Run2.WorkingPoints)
 
@@ -166,7 +166,6 @@ run2_egamma.toModify(slimmedPhotonsWithUserData.userFloats,
                 toModify(slimmedPhotonsWithUserData.userInts,
                          VIDNestedWPBitmap = None)
 
-
 run2_egamma.toModify(
     slimmedPhotonsWithUserData.userFloats,
     ecalEnergyErrPostCorrNew = cms.InputTag("calibratedPatPhotonsNano","ecalEnergyErrPostCorr"),
@@ -270,7 +269,6 @@ run2_egamma.toModify(photonTable.variables,
                      pfRelIso03_chg_quadratic=None,
                      pfRelIso03_all_quadratic=None,
                      hoe_PUcorr=None)
-
 
 #these eras need to make the energy correction, hence the "New"
 run2_egamma.toModify(
