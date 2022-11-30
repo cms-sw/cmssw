@@ -6,9 +6,9 @@
 
 namespace testTrackingRecHit2D {
 
-  void runKernels(TrackingRecHit2DSOAView* hits);
-
-}
+  template <typename TrackerTraits>
+  void runKernels(TrackingRecHit2DSOAViewT<TrackerTraits>* hits);
+}  // namespace testTrackingRecHit2D
 
 int main() {
   cms::cudatest::requireDevices();
@@ -19,23 +19,21 @@ int main() {
   auto nHits = 200;
   // inner scope to deallocate memory before destroying the stream
   {
-    TrackingRecHit2DGPU tkhit(nHits, false, 0, nullptr, nullptr, stream);
-    testTrackingRecHit2D::runKernels(tkhit.view());
+    TrackingRecHit2DGPUT<pixelTopology::Phase1> tkhit(nHits, 0, nullptr, nullptr, stream);
+    testTrackingRecHit2D::runKernels<pixelTopology::Phase1>(tkhit.view());
 
-    TrackingRecHit2DGPU tkhitPhase2(nHits, true, 0, nullptr, nullptr, stream);
-    testTrackingRecHit2D::runKernels(tkhitPhase2.view());
+    TrackingRecHit2DGPUT<pixelTopology::Phase2> tkhitPhase2(nHits, 0, nullptr, nullptr, stream);
+    testTrackingRecHit2D::runKernels<pixelTopology::Phase2>(tkhitPhase2.view());
 
-    TrackingRecHit2DHost tkhitH(nHits, false, 0, nullptr, nullptr, stream, &tkhit);
+    TrackingRecHit2DHostT<pixelTopology::Phase1> tkhitH(nHits, 0, nullptr, nullptr, stream, &tkhit);
     cudaStreamSynchronize(stream);
     assert(tkhitH.view());
     assert(tkhitH.view()->nHits() == unsigned(nHits));
-    assert(tkhitH.view()->nMaxModules() == phase1PixelTopology::numberOfModules);
 
-    TrackingRecHit2DHost tkhitHPhase2(nHits, true, 0, nullptr, nullptr, stream, &tkhit);
+    TrackingRecHit2DHostT<pixelTopology::Phase2> tkhitHPhase2(nHits, 0, nullptr, nullptr, stream, &tkhitPhase2);
     cudaStreamSynchronize(stream);
     assert(tkhitHPhase2.view());
     assert(tkhitHPhase2.view()->nHits() == unsigned(nHits));
-    assert(tkhitHPhase2.view()->nMaxModules() == phase2PixelTopology::numberOfModules);
   }
 
   cudaCheck(cudaStreamDestroy(stream));
