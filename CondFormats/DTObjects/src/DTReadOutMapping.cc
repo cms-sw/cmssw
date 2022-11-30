@@ -222,7 +222,7 @@ int DTReadOutMapping::geometryToReadOut(int wheelId,
     searchStatus = atomicCache()->grROB.find(cellKey.begin(), cellKey.end(), robMLgr);
     if (searchStatus)
       return searchStatus;
-    if (!(robMLgr->size()))
+    if (robMLgr->empty())
       return 1;
     std::vector<int>::const_iterator tdc_iter = robMLgr->begin();
     std::vector<int>::const_iterator tdc_iend = robMLgr->end();
@@ -239,7 +239,7 @@ int DTReadOutMapping::geometryToReadOut(int wheelId,
       searchStatus = atomicCache()->grROS.find(cellKey.begin(), cellKey.end(), rosMLgr);
       if (searchStatus)
         continue;
-      if (!(rosMLgr->size()))
+      if (rosMLgr->empty())
         continue;
       std::vector<int>::const_iterator ros_iter = rosMLgr->begin();
       std::vector<int>::const_iterator ros_iend = rosMLgr->end();
@@ -262,11 +262,11 @@ int DTReadOutMapping::geometryToReadOut(int wheelId,
         searchStatus = atomicCache()->grDDU.find(cellKey.begin(), cellKey.end(), dduMLgr);
         if (searchStatus)
           continue;
-        if (!(dduMLgr->size()))
+        if (dduMLgr->empty())
           continue;
         if (searchStatus)
           return searchStatus;
-        if (!(dduMLgr->size()))
+        if (dduMLgr->empty())
           return 1;
         loop0++;
         std::vector<int>::const_iterator ddu_iter = dduMLgr->begin();
