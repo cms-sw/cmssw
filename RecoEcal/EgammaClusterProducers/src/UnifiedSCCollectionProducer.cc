@@ -293,7 +293,7 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt, const edm::EventSetup
     edm::LogWarning("MissingInput") << "could not handle the new BasicClusters (Unclean Only)!";
     return;
   }
-   LogTrace("UnifiedSC") << "Got the BasicClusters from the event again  (Unclean Only)";
+  LogTrace("UnifiedSC") << "Got the BasicClusters from the event again  (Unclean Only)";
   //
 
   // now we can build the SC collection
