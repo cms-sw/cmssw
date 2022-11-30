@@ -428,11 +428,11 @@ workflows[136.899] = ['',['RunCosmics2021CRAFT','RECOCOSDRUN3','ALCACOSDRUN3','H
 workflows[137.8] = ['',['RunEGamma2018C','HLTDR2_2018','RECODR2_2018reHLT_skimEGamma_Offline_L1TEgDQM',
                         'RunEGamma2018D','HLTDR2_2018','RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQM','HARVEST2018_L1TEgDQM_MULTIRUN']]
 ### Prompt / Express / Splashes ###
-workflows[138.1] = ['PromptCosmics',['RunCosmics2021','RECOCOSDPROMPTRUN3','ALCACOSDPROMPTRUN3','HARVESTDCPROMPTRUN3']]
-workflows[138.2] = ['ExpressCosmics',['RunCosmics2021','RECOCOSDEXPRUN3','ALCACOSDEXPRUN3','HARVESTDCEXPRUN3']]
-workflows[138.3] = ['Splashes',['RunMinimumBias2021Splash','COPYPASTER3','RECODR3Splash','HARVESTDR3']]
-workflows[138.4] = ['PromptCollisions',['RunMinimumBias2021','ALCARECOPROMPTR3','HARVESTDPROMPTR3']]
-workflows[138.5] = ['ExpressCollisions',['RunMinimumBias2021','TIER0EXPRUN3','ALCARECOEXPR3','HARVESTDEXPR3']]
+workflows[138.1] = ['PromptCosmics2021',['RunCosmics2021','RECOCOSDPROMPTRUN3','ALCACOSDPROMPTRUN3','HARVESTDCPROMPTRUN3']]
+workflows[138.2] = ['ExpressCosmics2021',['RunCosmics2021','RECOCOSDEXPRUN3','ALCACOSDEXPRUN3','HARVESTDCEXPRUN3']]
+workflows[138.3] = ['RunMinimumBias2021Splash',['RunMinimumBias2021Splash','COPYPASTER3','RECODR3Splash','HARVESTDR3']]
+workflows[138.4] = ['PromptCollisions2021',['RunMinimumBias2021','ALCARECOPROMPTR3','HARVESTDPROMPTR3']]
+workflows[138.5] = ['ExpressCollisions2021',['RunMinimumBias2021','TIER0EXPRUN3','ALCARECOEXPR3','HARVESTDEXPR3']]
 
 #### Test of lumi section boundary crossing with run2 2018D ####
 workflows[136.8861] = ['',['RunEGamma2018Dml1','HLTDR2_2018ml','RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQM','HARVEST2018_L1TEgDQM_Prompt']]
