@@ -145,6 +145,9 @@ struct L2TauNNProducerCacheData {
 };
 
 class L2TauNNProducer : public edm::stream::EDProducer<edm::GlobalCache<L2TauNNProducerCacheData>> {
+  using TrackSoA = pixelTrack::TrackSoAT<pixelTopology::Phase1>;
+  using PixelTrackHeterogeneous = PixelTrackHeterogeneousT<pixelTopology::Phase1>;
+
 public:
   struct caloRecHitCollections {
     const HBHERecHitCollection* hbhe;
@@ -179,16 +182,16 @@ private:
                        const caloRecHitCollections& caloRecHits);
   void fillPatatracks(tensorflow::Tensor& cellGridMatrix,
                       const std::vector<l1t::TauRef>& allTaus,
-                      const pixelTrack::TrackSoA& patatracks_tsoa,
+                      const TrackSoA& patatracks_tsoa,
                       const ZVertexSoA& patavtx_soa,
                       const reco::BeamSpot& beamspot,
                       const MagneticField* magfi);
   void selectGoodTracksAndVertices(const ZVertexSoA& patavtx_soa,
-                                   const pixelTrack::TrackSoA& patatracks_tsoa,
+                                   const TrackSoA& patatracks_tsoa,
                                    std::vector<int>& trkGood,
                                    std::vector<int>& vtxGood);
   std::pair<float, float> impactParameter(int it,
-                                          const pixelTrack::TrackSoA& patatracks_tsoa,
+                                          const TrackSoA& patatracks_tsoa,
                                           float patatrackPhi,
                                           const reco::BeamSpot& beamspot,
                                           const MagneticField* magfi);
@@ -293,7 +296,7 @@ L2TauNNProducer::L2TauNNProducer(const edm::ParameterSet& cfg, const L2TauNNProd
       geometryToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       bFieldToken_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
       pataVerticesToken_(consumes<ZVertexHeterogeneous>(cfg.getParameter<edm::InputTag>("pataVertices"))),
-      pataTracksToken_(consumes<PixelTrackHeterogeneous>(cfg.getParameter<edm::InputTag>("pataTracks"))),
+      pataTracksToken_(consumes(cfg.getParameter<edm::InputTag>("pataTracks"))),
       beamSpotToken_(consumes<reco::BeamSpot>(cfg.getParameter<edm::InputTag>("BeamSpot"))),
       maxVtx_(cfg.getParameter<uint>("maxVtx")),
       fractionSumPt2_(cfg.getParameter<double>("fractionSumPt2")),
@@ -570,7 +573,7 @@ void L2TauNNProducer::fillCaloRecHits(tensorflow::Tensor& cellGridMatrix,
 }
 
 void L2TauNNProducer::selectGoodTracksAndVertices(const ZVertexSoA& patavtx_soa,
-                                                  const pixelTrack::TrackSoA& patatracks_tsoa,
+                                                  const TrackSoA& patatracks_tsoa,
                                                   std::vector<int>& trkGood,
                                                   std::vector<int>& vtxGood) {
   const auto maxTracks = patatracks_tsoa.stride();
@@ -617,7 +620,7 @@ void L2TauNNProducer::selectGoodTracksAndVertices(const ZVertexSoA& patavtx_soa,
 }
 
 std::pair<float, float> L2TauNNProducer::impactParameter(int it,
-                                                         const pixelTrack::TrackSoA& patatracks_tsoa,
+                                                         const TrackSoA& patatracks_tsoa,
                                                          float patatrackPhi,
                                                          const reco::BeamSpot& beamspot,
                                                          const MagneticField* magfi) {
@@ -650,7 +653,7 @@ std::pair<float, float> L2TauNNProducer::impactParameter(int it,
 
 void L2TauNNProducer::fillPatatracks(tensorflow::Tensor& cellGridMatrix,
                                      const std::vector<l1t::TauRef>& allTaus,
-                                     const pixelTrack::TrackSoA& patatracks_tsoa,
+                                     const TrackSoA& patatracks_tsoa,
                                      const ZVertexSoA& patavtx_soa,
                                      const reco::BeamSpot& beamspot,
                                      const MagneticField* magfi) {

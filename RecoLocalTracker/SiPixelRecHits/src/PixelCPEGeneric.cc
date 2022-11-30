@@ -54,8 +54,7 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const& conf,
   IrradiationBiasCorrection_ = conf.getParameter<bool>("IrradiationBiasCorrection");
   DoCosmics_ = conf.getParameter<bool>("DoCosmics");
 
-  // Upgrade means phase 2
-  isPhase2_ = conf.getParameter<bool>("Upgrade");
+  isPhase2_ = conf.getParameter<bool>("isPhase2");
 
   // For cosmics force the use of simple errors
   if ((DoCosmics_))
@@ -450,6 +449,6 @@ void PixelCPEGeneric::fillPSetDescription(edm::ParameterSetDescription& desc) {
   desc.add<bool>("TruncatePixelCharge", true);
   desc.add<bool>("IrradiationBiasCorrection", false);
   desc.add<bool>("DoCosmics", false);
-  desc.add<bool>("Upgrade", false);
+  desc.add<bool>("isPhase2", false);
   desc.add<bool>("SmallPitch", false);
 }
