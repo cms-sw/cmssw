@@ -27,6 +27,23 @@ run2_nanoAOD_ANY.toModify(
      plots = _Electron_Run2_plots
 )
 
+_Photon_Run2_plots = cms.VPSet()
+def _match(name):
+    if 'Fall17V2' in name: return True
+    if '_quadratic' in name: return True
+    if 'hoe_PUcorr' in name: return True
+    return False
+for plot in nanoDQM.vplots.Photon.plots:
+    if not _match(plot.name.value()):
+        _Photon_Run2_plots.append(plot)
+_Photon_Run2_plots.extend([
+    Plot1D('pfRelIso03_all', 'pfRelIso03_all', 20, 0, 2, 'PF relative isolation dR=0.3, total (with rho*EA PU Fall17V2 corrections)'),
+    Plot1D('pfRelIso03_chg', 'pfRelIso03_chg', 20, 0, 2, 'PF relative isolation dR=0.3, charged component (with rho*EA PU Fall17V2 corrections)'),
+])
+run2_nanoAOD_ANY.toModify(
+     nanoDQM.vplots.Photon, 
+     plots = _Photon_Run2_plots
+)
 
 ## MC
 nanoDQMMC = nanoDQM.clone()
