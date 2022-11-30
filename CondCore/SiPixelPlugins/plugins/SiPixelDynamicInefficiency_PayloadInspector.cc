@@ -45,7 +45,7 @@ namespace {
 
     // constants for ROC level simulation for Phase1
     enum shiftEnumerator { FPixRocIdShift = 3, BPixRocIdShift = 6 };
-    static const int rocIdMaskBits = 0x1F;
+    const int rocIdMaskBits = 0x1F;
 
     struct packedBadRocFraction {
       std::vector<int> badRocNumber;
