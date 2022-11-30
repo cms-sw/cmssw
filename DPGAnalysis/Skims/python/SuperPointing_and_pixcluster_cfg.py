@@ -17,10 +17,10 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(5000))
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'CRZT210_V1::All' 
+process.GlobalTag.globaltag = 'auto:run3_data_prompt'
 process.prefer("GlobalTag")
 
 process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
