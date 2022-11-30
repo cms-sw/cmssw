@@ -811,11 +811,11 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   EcalGainRatioMap::const_iterator gainIter;
   int nGain = 0;
   for (gainIter = gainMapEB.begin(); gainIter != gainMapEB.end() && nGain < 10; ++gainIter, ++nGain) {
-    const auto aGain = (*gainIter);
+    const auto& aGain = (*gainIter);
     ss << aGain.gain12Over6() << ", " << aGain.gain6Over1() * aGain.gain12Over6() << "\n";
   }
   for (gainIter = gainMapEE.begin(); gainIter != gainMapEE.end() && nGain < 10; ++gainIter, ++nGain) {
-    const auto aGain = (*gainIter);
+    const auto& aGain = (*gainIter);
     ss << aGain.gain12Over6() << ", " << aGain.gain6Over1() * aGain.gain12Over6() << "\n";
   }
   edm::LogInfo("TopInfo") << ss.str();
