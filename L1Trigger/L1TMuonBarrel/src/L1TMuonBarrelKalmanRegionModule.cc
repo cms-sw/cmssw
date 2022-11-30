@@ -277,7 +277,7 @@ L1MuKBMTrackCollection L1TMuonBarrelKalmanRegionModule::sort4(const L1MuKBMTrack
       s2_3 = in[2];
     }
 
-    L1MuKBMTrack s2_2 = in[1];
+    const L1MuKBMTrack& s2_2 = in[1];
     //Step 2;
     L1MuKBMTrack s3_1 = s2_1;
     L1MuKBMTrack s3_2;
