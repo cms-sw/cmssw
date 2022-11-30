@@ -149,8 +149,8 @@ void momentumElectronBiasValidation(TString variable,
   std::cout << "Configuring the ROOT style ..." << std::endl;
   configureROOTstyle(verbose);
 
-  TCanvas* c = new TCanvas("c", "Canvas", 0, 0, 1150, 800);
-  TCanvas* ccontrol = new TCanvas("ccontrol", "controlCanvas", 0, 0, 600, 300);
+  TCanvas* c = new TCanvas("cElectron", "Canvas", 0, 0, 1150, 800);
+  TCanvas* ccontrol = new TCanvas("ccontrolElectron", "controlCanvas", 0, 0, 600, 300);
 
   // Creating histos
   std::vector<HistoType> histos(files.size());
@@ -417,6 +417,11 @@ void fillFinalHisto(ModeType mode, Bool_t verbose, HistoType& histo) {
     // calculate mean of different energy bins
     TF1* fit = new TF1("fit", "pol0", 0, histo.eRange.size() - 1);
     TF1* fit2 = new TF1("fit2", "pol0", 0, histo.eRange.size() - 1);
+
+    if (histo.fit[i]->GetEntries() < 10) {
+      return;
+    }
+
     histo.fit[i]->Fit("fit", fitOption + "0");
     histo.combinedxAxisBin[i]->Fit("fit2", "Q0");
     overallmisalignment = fit->GetParameter(0);
@@ -543,9 +548,11 @@ void layoutFinalPlot(ModeType mode,
     }
 
     // Fit function
-    histos[i].f2->SetLineColor(i + 1);
-    histos[i].f2->SetLineStyle(i + 1);
-    histos[i].f2->SetLineWidth(2);
+    if (histos[i].f2) {
+      histos[i].f2->SetLineColor(i + 1);
+      histos[i].f2->SetLineStyle(i + 1);
+      histos[i].f2->SetLineWidth(2);
+    }
 
     // Other settings
     histos[i].overallhisto->GetYaxis()->SetTitleOffset(1.05);
@@ -610,7 +617,9 @@ void layoutFinalPlot(ModeType mode,
 
     // draw final histogram
     histos[i].overallhisto->DrawClone("pe1 same");
-    histos[i].f2->DrawClone("same");
+    if (histos[i].f2) {
+      histos[i].f2->DrawClone("same");
+    }
     histos[i].overallGraph->DrawClone("|| same");
     histos[i].overallGraph->DrawClone("pz same");
     histos[i].overallGraph->SetLineStyle(i + 1);
@@ -1223,6 +1232,10 @@ void readTree(ModeType mode, TString variable, HistoType& histo, EopElecVariable
 //
 // -----------------------------------------------------------------------------
 std::vector<Double_t> extractgausparams(TH1F* histo, TString option1, TString option2) {
+  if (histo->GetEntries() < 10) {
+    return {0., 0., 0., 0.};
+  }
+
   // Fitting the histogram with a gaussian function
   TF1* f1 = new TF1("f1", "gaus");
   f1->SetRange(0., 2.);
