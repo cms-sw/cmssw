@@ -237,7 +237,7 @@ namespace DBoxMetadataHelper {
         output.push_back(toAppend);
         toAppend.clear();
         for (unsigned int iPath = 0; iPath < pathsPrep.size(); ++iPath) {
-          std::string thisString = pathsPrep[iPath];
+          const std::string& thisString = pathsPrep[iPath];
           // skip userText since we want to see actual contents, not metadata
           if (thisString.find("userText") == std::string::npos) {
             // if the line to be added has less than colWidth chars, and is not a new tag ("inputTag"), append to current
@@ -260,7 +260,7 @@ namespace DBoxMetadataHelper {
         output.push_back(toAppend);
         toAppend.clear();
         for (unsigned int iPath = 0; iPath < pathsProd.size(); ++iPath) {
-          std::string thisString = pathsProd[iPath];
+          const std::string& thisString = pathsProd[iPath];
 
           if (thisString.find("userText") == std::string::npos) {
             // if the line to be added has less than colWidth chars append to current
@@ -614,7 +614,7 @@ namespace DBoxMetadataHelper {
       output.push_back("#color[" + std::to_string(color) + "]{" + toAppend + "}");
       toAppend.clear();
       for (unsigned int iPath = 0; iPath < thePaths.size(); ++iPath) {
-        std::string thisString = thePaths[iPath];
+        const std::string& thisString = thePaths[iPath];
         // skip userText since we want to compare actual contents, not metadata
         if (thisString.find("userText") == std::string::npos) {
           // if the line to be added has less than colWidth chars, and is not a new tag ("inputTag"), append to current
