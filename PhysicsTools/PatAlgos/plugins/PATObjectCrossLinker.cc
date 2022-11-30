@@ -302,27 +302,27 @@ void PATObjectCrossLinker::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
   auto lowPtElectrons = std::make_unique<std::vector<pat::Electron>>();
   if (!lowPtElectronsTag_.label().empty()) {
-    auto lowPtElectronsIn = iEvent.getHandle(lowPtElectrons_);
-    lowPtElectrons->reserve(lowPtElectronsIn->size());
-    for (const auto& e : *lowPtElectronsIn) {
+    const auto& lowPtElectronsIn = iEvent.get(lowPtElectrons_);
+    lowPtElectrons->reserve(lowPtElectronsIn.size());
+    for (const auto& e : lowPtElectronsIn) {
       lowPtElectrons->push_back(e);
     }
   }
 
   auto boostedTaus = std::make_unique<std::vector<pat::Tau>>();
   if (!boostedTausTag_.label().empty()) {
-    auto boostedTausIn = iEvent.getHandle(boostedTaus_);
-    boostedTaus->reserve(boostedTausIn->size());
-    for (const auto& e : *boostedTausIn) {
+    const auto& boostedTausIn = iEvent.get(boostedTaus_);
+    boostedTaus->reserve(boostedTausIn.size());
+    for (const auto& e : boostedTausIn) {
       boostedTaus->push_back(e);
     }
   }
 
   auto vertices = std::make_unique<std::vector<reco::VertexCompositePtrCandidate>>();
   if (!verticesTag_.label().empty()) {
-    auto verticesIn = iEvent.getHandle(vertices_);
-    vertices->reserve(verticesIn->size());
-    for (const auto& e : *verticesIn) {
+    const auto& verticesIn = iEvent.get(vertices_);
+    vertices->reserve(verticesIn.size());
+    for (const auto& e : verticesIn) {
       vertices->push_back(e);
     }
   }
