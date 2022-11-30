@@ -29,6 +29,7 @@ public:
 
 private:
   // ----------constants, enums and typedefs ---------
+  std::vector<edm::ParameterSet> collections_;
   unsigned nJets_;
   size_t nFramesPerBX_;
   size_t ctl2BoardTMUX_;
@@ -41,43 +42,53 @@ private:
   void endJob() override;
   std::vector<ap_uint<64>> encodeJets(const std::vector<l1t::PFJet> jets);
 
-  edm::EDGetTokenT<edm::View<l1t::PFJet>> jetsToken_;
   l1t::demo::BoardDataWriter fileWriterOutputToGT_;
+  std::vector<edm::EDGetTokenT<edm::View<l1t::PFJet>>> jetsTokens_;
 };
 
 L1CTJetFileWriter::L1CTJetFileWriter(const edm::ParameterSet& iConfig)
-    : nJets_(iConfig.getParameter<unsigned>("nJets")),
+    : 
+      collections_(iConfig.getUntrackedParameter<std::vector<edm::ParameterSet>>("collections",
+                                                                                 std::vector<edm::ParameterSet>())),
+      nJets_(iConfig.getParameter<unsigned>("nJets")),
       nFramesPerBX_(iConfig.getParameter<unsigned>("nFramesPerBX")),
       ctl2BoardTMUX_(iConfig.getParameter<unsigned>("TMUX")),
-      gapLengthOutput_(ctl2BoardTMUX_ * nFramesPerBX_ - 2 * nJets_),
+      gapLengthOutput_(ctl2BoardTMUX_ * nFramesPerBX_ - 2 * nJets_ * collections_.size()),
       maxLinesPerFile_(iConfig.getParameter<unsigned>("maxLinesPerFile")),
       channelSpecsOutputToGT_{{{"jets", 0}, {{ctl2BoardTMUX_, gapLengthOutput_}, {0}}}},
-      jetsToken_(consumes<edm::View<l1t::PFJet>>(iConfig.getParameter<edm::InputTag>("jets"))),
       fileWriterOutputToGT_(l1t::demo::parseFileFormat(iConfig.getParameter<std::string>("format")),
                             iConfig.getParameter<std::string>("outputFilename"),
                             iConfig.getParameter<std::string>("outputFileExtension"),
                             nFramesPerBX_,
                             ctl2BoardTMUX_,
                             maxLinesPerFile_,
-                            channelSpecsOutputToGT_) {}
+                            channelSpecsOutputToGT_) {
+        for(const auto &pset : collections_){
+          jetsTokens_.push_back(consumes<edm::View<l1t::PFJet>>(pset.getParameter<edm::InputTag>("jets")));
+        }
+      }
 
 void L1CTJetFileWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  // 1) Encode jet information onto vectors containing link data
-  // TODO remove the sort here and sort the input collection where it's created
-  const edm::View<l1t::PFJet>& jets = iEvent.get(jetsToken_);
-  std::vector<l1t::PFJet> sortedJets;
-  sortedJets.reserve(jets.size());
-  std::copy(jets.begin(), jets.end(), std::back_inserter(sortedJets));
+  // 1) Pack collections in otder they're specified. jets then sums within collection
+  std::vector<ap_uint<64>> link_words;
+  for(const auto &token : jetsTokens_){
+    // 2) Encode jet information onto vectors containing link data
+    // TODO remove the sort here and sort the input collection where it's created
+    const edm::View<l1t::PFJet>& jets = iEvent.get(token);
+    std::vector<l1t::PFJet> sortedJets;
+    sortedJets.reserve(jets.size());
+    std::copy(jets.begin(), jets.end(), std::back_inserter(sortedJets));
 
-  std::stable_sort(
-      sortedJets.begin(), sortedJets.end(), [](l1t::PFJet i, l1t::PFJet j) { return (i.hwPt() > j.hwPt()); });
-  const auto outputJets(encodeJets(sortedJets));
-
-  // 2) Pack jet information into 'event data' object, and pass that to file writer
+    std::stable_sort(
+        sortedJets.begin(), sortedJets.end(), [](l1t::PFJet i, l1t::PFJet j) { return (i.hwPt() > j.hwPt()); });
+    const auto outputJets(encodeJets(sortedJets));
+    link_words.insert(link_words.end(), outputJets.begin(), outputJets.end());
+  }
+  // 3) Pack jet information into 'event data' object, and pass that to file writer
   l1t::demo::EventData eventDataJets;
-  eventDataJets.add({"jets", 0}, outputJets);
+  eventDataJets.add({"jets", 0}, link_words);
   fileWriterOutputToGT_.addEvent(eventDataJets);
 }
 
@@ -107,7 +118,19 @@ void L1CTJetFileWriter::fillDescriptions(edm::ConfigurationDescriptions& descrip
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("jets");
+  {
+    edm::ParameterSetDescription vpsd1;
+    vpsd1.add<edm::InputTag>("jets", edm::InputTag("scPFL1PuppiEmulatorCorrected"));
+    std::vector<edm::ParameterSet> temp1;
+    temp1.reserve(1);
+    {
+      edm::ParameterSet temp2;
+      temp2.addParameter<edm::InputTag>("jets", edm::InputTag("scPFL1PuppiEmulatorCorrected"));
+      temp1.push_back(temp2);
+    }
+    desc.addVPSetUntracked("collections", vpsd1, temp1);
+  }
+  //desc.add<std::vector<edm::ParameterSet>>("collections");
   desc.add<std::string>("outputFilename");
   desc.add<std::string>("outputFileExtension", "txt");
   desc.add<uint32_t>("nJets", 12);
