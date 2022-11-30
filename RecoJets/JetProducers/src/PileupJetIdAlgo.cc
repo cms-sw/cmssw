@@ -491,7 +491,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
         double dZ0 = 9999.;
         double dZ_tmp = 9999.;
         for (unsigned vtx_i = 0; vtx_i < allvtx.size(); vtx_i++) {
-          auto iv = allvtx[vtx_i];
+          const auto& iv = allvtx[vtx_i];
 
           if (iv.isFake())
             continue;

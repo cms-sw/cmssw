@@ -116,7 +116,7 @@ void ParticleBasedIsoProducer::produce(edm::Event& theEvent, const edm::EventSet
     std::vector<reco::PFCandidateRef> pfCandIsoPairPho;
     for (unsigned int lCand = 0; lCand < nObj; lCand++) {
       pfEGCandRef = reco::PFCandidateRef(pfEGCandidateHandle, lCand);
-      reco::PhotonRef myPho = (pfEGCandToPhotonMap)[pfEGCandRef];
+      const reco::PhotonRef& myPho = (pfEGCandToPhotonMap)[pfEGCandRef];
 
       if (myPho.isNonnull()) {
         //std::cout << "ParticleBasedIsoProducer photons PF SC " << pfEGCandRef->superClusterRef()->energy() << " Photon SC " << myPho->superCluster()->energy() << std::endl;
@@ -149,7 +149,7 @@ void ParticleBasedIsoProducer::produce(edm::Event& theEvent, const edm::EventSet
     std::vector<reco::PFCandidateRef> pfCandIsoPairEle;
     for (unsigned int lCand = 0; lCand < nObj; lCand++) {
       pfEGCandRef = reco::PFCandidateRef(pfEGCandidateHandle, lCand);
-      reco::GsfElectronRef myEle = (pfEGCandToElectronMap)[pfEGCandRef];
+      const reco::GsfElectronRef& myEle = (pfEGCandToElectronMap)[pfEGCandRef];
 
       if (myEle.isNonnull()) {
         //	std::cout << "ParticleBasedIsoProducer Electorns PF SC " << pfEGCandRef->superClusterRef()->energy() << " Electron SC " << myEle->superCluster()->energy() << std::endl;
