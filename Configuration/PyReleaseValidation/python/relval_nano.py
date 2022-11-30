@@ -134,32 +134,32 @@ steps['NANO_mc12.6']=merge([{'--era':'Run3',
 
 ################
 #10.6 input
-workflows[2500.31 ] = ['mc106Xul17v2', ['TTbarMINIAOD10.6_UL16v2','NANO_mc10.6ul16v2', 'HRV_NANO_mc']]
-workflows[2500.311] = ['mc106Xul17v2', ['TTbarMINIAOD10.6_UL17v2','NANO_mc10.6ul17v2', 'HRV_NANO_mc']]
-workflows[2500.312] = ['mc106Xul17v2', ['TTbarMINIAOD10.6_UL18v2','NANO_mc10.6ul18v2', 'HRV_NANO_mc']]
+workflows[2500.31 ] = ['NANOmc106Xul16v2', ['TTbarMINIAOD10.6_UL16v2','NANO_mc10.6ul16v2', 'HRV_NANO_mc']]
+workflows[2500.311] = ['NANOmc106Xul17v2', ['TTbarMINIAOD10.6_UL17v2','NANO_mc10.6ul17v2', 'HRV_NANO_mc']]
+workflows[2500.312] = ['NANOmc106Xul18v2', ['TTbarMINIAOD10.6_UL18v2','NANO_mc10.6ul18v2', 'HRV_NANO_mc']]
 
-workflows[2500.33 ] = ['data106Xul16v2', ['MuonEG2016MINIAOD10.6v2', 'NANO_data10.6ul16v2', 'HRV_NANO_data']]
-workflows[2500.331] = ['data106Xul17v2', ['MuonEG2017MINIAOD10.6v2', 'NANO_data10.6ul17v2', 'HRV_NANO_data']]
-workflows[2500.332] = ['data106Xul18v2', ['MuonEG2018MINIAOD10.6v2', 'NANO_data10.6ul18v2', 'HRV_NANO_data']]
+workflows[2500.33 ] = ['NANOdata106Xul16v2', ['MuonEG2016MINIAOD10.6v2', 'NANO_data10.6ul16v2', 'HRV_NANO_data']]
+workflows[2500.331] = ['NANOdata106Xul17v2', ['MuonEG2017MINIAOD10.6v2', 'NANO_data10.6ul17v2', 'HRV_NANO_data']]
+workflows[2500.332] = ['NANOdata106Xul18v2', ['MuonEG2018MINIAOD10.6v2', 'NANO_data10.6ul18v2', 'HRV_NANO_data']]
 
 ################
 #12.2 input
-workflows[2500.4  ] = ['mc122Xrun3_v10', ['TTbarMINIAOD12.2','NANO_mc12.2_v10', 'HRV_NANO_mc']]
-workflows[2500.401] = ['mc122Xrun3', ['TTbarMINIAOD12.2','NANO_mc12.2', 'HRV_NANO_mc']]
+workflows[2500.4  ] = ['NANOmc122Xrun3_v10', ['TTbarMINIAOD12.2','NANO_mc12.2_v10', 'HRV_NANO_mc']]
+workflows[2500.401] = ['NANOmc122Xrun3', ['TTbarMINIAOD12.2','NANO_mc12.2', 'HRV_NANO_mc']]
 
 ################
 #12.4 input
 ## these are borken because of tau configuration in NANO ATM: they should be re-enabled when a fix gets in
-workflows[2500.5  ] = ['mc124Xrun3_v10', ['TTbarMINIAOD12.4','NANO_mc12.4_v10', 'HRV_NANO_mc']]
-workflows[2500.501] = ['mc124Xrun3', ['TTbarMINIAOD12.4','NANO_mc12.4', 'HRV_NANO_mc']]
+workflows[2500.5  ] = ['NANOmc124Xrun3_v10', ['TTbarMINIAOD12.4','NANO_mc12.4_v10', 'HRV_NANO_mc']]
+workflows[2500.501] = ['NANOmc124Xrun3', ['TTbarMINIAOD12.4','NANO_mc12.4', 'HRV_NANO_mc']]
 
-workflows[2500.51 ] = ['data124Xrun3_v10', ['MuonEG2022MINIAOD12.4','NANO_data12.4_v10', 'HRV_NANO_data']]
-workflows[2500.511] = ['data124Xrun3', ['MuonEG2022MINIAOD12.4','NANO_data12.4', 'HRV_NANO_data']]
+workflows[2500.51 ] = ['NANOdata124Xrun3_v10', ['MuonEG2022MINIAOD12.4','NANO_data12.4_v10', 'HRV_NANO_data']]
+workflows[2500.511] = ['NANOdata124Xrun3', ['MuonEG2022MINIAOD12.4','NANO_data12.4', 'HRV_NANO_data']]
 
 ################
 #12.6 workflows
 ## these two workflows should be creating a sample "from scratch" instead of using a pre-release sample as input
-workflows[2500.6  ] = ['mc126X_v10', ['TTBarMINIAOD12.6','NANO_mc12.6_v10', 'HRV_NANO_mc']]
-workflows[2500.601] = ['mc126X', ['TTBarMINIAOD12.6','NANO_mc12.6', 'HRV_NANO_mc']]
+workflows[2500.6  ] = ['NANOmc126X_v10', ['TTBarMINIAOD12.6','NANO_mc12.6_v10', 'HRV_NANO_mc']]
+workflows[2500.601] = ['NANOmc126X', ['TTBarMINIAOD12.6','NANO_mc12.6', 'HRV_NANO_mc']]
 
 ################
