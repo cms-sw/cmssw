@@ -526,7 +526,7 @@ void MuonSeedOrcaPatternRecognition::complete(MuonRecHitContainer& seedSegments,
   ConstMuonRecHitPointer first = seedSegments[0];  // first rechit of seed
   GlobalPoint ptg2 = first->globalPosition();      // its global pos +v
   for (unsigned nr = 0; nr < recHits.size(); ++nr) {
-    MuonRecHitPointer recHit(recHits[nr]);
+    const MuonRecHitPointer& recHit(recHits[nr]);
     GlobalPoint ptg1(recHit->globalPosition());
     float deta = fabs(ptg1.eta() - ptg2.eta());
     // Geom::Phi should keep it in the range [-pi, pi]

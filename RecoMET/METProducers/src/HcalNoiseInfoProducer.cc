@@ -1375,7 +1375,7 @@ void HcalNoiseInfoProducer::filltracks(edm::Event& iEvent,
 
   summary.trackenergy_ = 0.0;
   for (reco::TrackCollection::const_iterator iTrack = handle->begin(); iTrack != handle->end(); ++iTrack) {
-    reco::Track trk = *iTrack;
+    const reco::Track& trk = *iTrack;
     if (trk.pt() < minTrackPt_ || fabs(trk.eta()) > maxTrackEta_)
       continue;
 

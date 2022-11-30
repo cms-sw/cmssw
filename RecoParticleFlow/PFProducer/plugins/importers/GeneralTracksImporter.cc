@@ -97,7 +97,7 @@ void GeneralTracksImporter::importToBlock(const edm::Event& e, BlockElementImpor
     std::sort(vetoed.begin(), vetoed.end());
   }
   const auto muonH = e.getHandle(muons_);
-  const auto muons = *muonH;
+  const auto& muons = *muonH;
   elems.reserve(elems.size() + tracks->size());
   std::vector<bool> mask(tracks->size(), true);
   reco::MuonRef muonref;

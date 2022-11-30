@@ -119,7 +119,7 @@ void TempTrajectory::join(TempTrajectory& segment) {
 PropagationDirection TempTrajectory::direction() const { return PropagationDirection(theDirection); }
 
 void TempTrajectory::check() const {
-  if (theData.size() == 0)
+  if (theData.empty())
     throw cms::Exception("TrackingTools/PatternTools",
                          "Trajectory::check() - information requested from empty Trajectory");
 }

@@ -567,7 +567,7 @@ void DTSegmentUpdator::rejectBadHits(DTChamberRecSegment2D* phiSeg) const {
     float normResidual = mean_residual > 0 ? std::abs(residuals[i]) / mean_residual : 0;
     ++i;
     if (normResidual < 1.5) {
-      DTRecHit1D newHit1D = (*hit);
+      const DTRecHit1D& newHit1D = (*hit);
       updatedRecHits.push_back(newHit1D);
       if (debug)
         cout << " accepted " << i << "th hit"
