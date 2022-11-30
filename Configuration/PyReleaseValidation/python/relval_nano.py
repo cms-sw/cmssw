@@ -100,7 +100,7 @@ steps['NANO_mc12.2']=merge([{'--era':'Run3,run3_nanoAOD_122',
 ##12.4 INPUT
 steps['TTbarMINIAOD12.4'] = {'INPUT':InputInfo(location='STD',
                                                ## to be updated as soon as some TTbar appears in a 12.4 campaign
-                                               dataSet='/MinBias_TuneCP5_14TeV-pythia8/Run3Summer22MiniAODv3-NoPU_Pilot_124X_mcRun3_2022_realistic_v11-v2/MINIAODSIM ')}
+                                               dataSet='/RelValTTbar_14TeV/CMSSW_12_4_9_patch1-124X_mcRun3_2022_realistic_v10_BS2022-v1/MINIAODSIM')}
 steps['NANO_mc12.4_v10']=merge([{'--era':'Run3,run3_nanoAOD_124',
                                  '--conditions':'auto:phase1_2022_realistic',
                                  '-s':'NANO:PhysicsTools/NanoAOD/V10/nano_cff,DQM:@nanoAODDQM'},
@@ -122,14 +122,14 @@ steps['NANO_data12.4']=merge([{'--era':'Run3,run3_nanoAOD_124',
 ##12.6 workflows ("from scratch")
 steps['TTBarMINIAOD12.6'] = {'INPUT':InputInfo(location='STD',ls=run3_lumis,
                                                ## this is a dataset from the last pre-release: to be updated much too often IMO
-                                               dataSet='/RelValTTbar_14TeV/CMSSW_12_6_0_pre2-PU_125X_mcRun3_2022_realistic_v3-v1/MINIAODSIM')}
+                                               dataSet='/RelValTTbar_14TeV/CMSSW_12_6_0_pre4-PU_125X_mcRun3_2022_realistic_v4-v1/MINIAODSIM')}
 steps['NANO_mc12.6_v10']=merge([{'--era':'Run3',
                                  '--conditions':'auto:phase1_2022_realistic',
                                  '-s':'NANO:PhysicsTools/NanoAOD/V10/nano_cff,DQM:@nanoAODDQM'},
-                                _NANO_data])
+                                _NANO_mc])
 steps['NANO_mc12.6']=merge([{'--era':'Run3',
                              '--conditions':'auto:phase1_2022_realistic'},
-                            _NANO_data])
+                            _NANO_mc])
 
 
 ################
