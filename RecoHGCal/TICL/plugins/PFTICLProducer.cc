@@ -84,7 +84,7 @@ void PFTICLProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   evt.getByToken(srcTrackTimeError_, trackTimeErrH);
   evt.getByToken(srcTrackTimeQuality_, trackTimeQualH);
   const auto muonH = evt.getHandle(muons_);
-  const auto muons = *muonH;
+  const auto& muons = *muonH;
 
   auto candidates = std::make_unique<reco::PFCandidateCollection>();
 
