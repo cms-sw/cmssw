@@ -7,6 +7,7 @@
 //===----------------------------------------------------------------------===//
 #include <clang/AST/ExprCXX.h>
 #include <clang/AST/Attr.h>
+#include <clang/AST/ParentMap.h>
 
 #include <memory>
 
@@ -22,6 +23,23 @@ namespace clangcms {
   void ConstCastAwayChecker::checkPreStmt(const clang::ExplicitCastExpr *CE, clang::ento::CheckerContext &C) const {
     if (!(clang::CStyleCastExpr::classof(CE) || clang::CXXConstCastExpr::classof(CE)))
       return;
+    auto P = C.getCurrentAnalysisDeclContext()->getParentMap().getParent(CE);
+    while (!(isa<AttributedStmt>(P) || isa<DeclStmt>(P)) &&
+           C.getCurrentAnalysisDeclContext()->getParentMap().hasParent(P)) {
+      P = C.getCurrentAnalysisDeclContext()->getParentMap().getParent(P);
+    }
+    if (isa<AttributedStmt>(P)) {
+      const AttributedStmt *AS = dyn_cast_or_null<AttributedStmt>(P);
+      if (AS && (hasSpecificAttr<CMSSaAllowAttr>(AS->getAttrs()) || hasSpecificAttr<CMSThreadSafeAttr>(AS->getAttrs())))
+        return;
+    }
+    if (isa<DeclStmt>(P)) {
+      const DeclStmt *DS = dyn_cast_or_null<DeclStmt>(P);
+      if (DS && (hasSpecificAttr<CMSSaAllowAttr>(DS->getSingleDecl()->getAttrs()) ||
+                 hasSpecificAttr<CMSThreadSafeAttr>(DS->getSingleDecl()->getAttrs())))
+        return;
+    }
+
     const Expr *SE = CE->getSubExpr();
     const CXXRecordDecl *CRD = nullptr;
     std::string cname;
