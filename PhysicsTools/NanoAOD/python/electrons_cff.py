@@ -47,7 +47,7 @@ electron_id_modules_WorkingPoints_nanoAOD_Run2 = cms.PSet(
 )
 
 # make Fall17 the default one in Run2
-run2_nanoAOD_ANY.toModify(electron_id_modules_WorkingPoints_nanoAOD,
+run2_egamma.toModify(electron_id_modules_WorkingPoints_nanoAOD,
                           modules=electron_id_modules_WorkingPoints_nanoAOD_Run2.modules).\
         toModify(electron_id_modules_WorkingPoints_nanoAOD,
                  WorkingPoints=electron_id_modules_WorkingPoints_nanoAOD_Run2.WorkingPoints)
@@ -198,12 +198,12 @@ slimmedElectronsWithUserData = cms.EDProducer("PATElectronUserDataEmbedder",
 )
 
 # no need for the Run3 IDs in Run2
-run2_nanoAOD_ANY.toModify(slimmedElectronsWithUserData.userFloats,
-                          miniIsoChg = None,
-                          miniIsoAll = None,
-                          PFIsoChg = None,
-                          PFIsoAll = None,
-                          PFIsoAll04 = None).\
+run2_egamma.toModify(slimmedElectronsWithUserData.userFloats,
+                     miniIsoChg = None,
+                     miniIsoAll = None,
+                     PFIsoChg = None,
+                     PFIsoAll = None,
+                     PFIsoAll04 = None).\
         toModify(slimmedElectronsWithUserData.userIntFromBools,
                  cutBasedID_veto = None,
                  cutBasedID_loose = None,
@@ -212,7 +212,7 @@ run2_nanoAOD_ANY.toModify(slimmedElectronsWithUserData.userFloats,
         toModify(slimmedElectronsWithUserData.userInts,
                  VIDNestedWPBitmap = None)
 
-(run2_egamma_2016 | run2_egamma_2017 | run2_egamma_2018).toModify(
+run2_egamma.toModify(
     slimmedElectronsWithUserData.userFloats,
     ecalTrkEnergyErrPostCorrNew = cms.InputTag("calibratedPatElectronsNano","ecalTrkEnergyErrPostCorr"),
     ecalTrkEnergyPreCorrNew     = cms.InputTag("calibratedPatElectronsNano","ecalTrkEnergyPreCorr"),
@@ -339,7 +339,7 @@ electronTable = simpleCandidateFlatTableProducer.clone(
     ),
 )
 
-(run2_nanoAOD_106Xv2).toModify(
+(run2_egamma).toModify(
         # energy scale/smearing: only for Run2
         electronTable.variables,
         pt = Var("pt*userFloat('ecalTrkEnergyPostCorrNew')/userFloat('ecalTrkEnergyPreCorrNew')", float, precision=-1, doc="p_{T}"),
@@ -423,8 +423,8 @@ _electronTask_Run2 = electronTask.copy()
 _electronTask_Run2.remove(bitmapVIDForEle)
 _electronTask_Run2.remove(isoForEle)
 _electronTask_Run2.add(calibratedPatElectronsNano)
-run2_nanoAOD_ANY.toReplaceWith(electronTask, _electronTask_Run2)
+run2_egamma.toReplaceWith(electronTask, _electronTask_Run2)
 
-# Revert back to AK4 CHS jets for Run 2
+# Revert back to AK4 CHS jets for Run2 inputs
 run2_nanoAOD_ANY.toModify(
     ptRatioRelForEle,srcJet="updatedJets")
