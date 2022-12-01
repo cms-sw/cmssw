@@ -375,7 +375,7 @@ std::vector<int> GenHFHadronMatcher::findHadronJets(const reco::GenParticleColle
   for (reco::GenParticleCollection::const_iterator i_particle = genParticles->begin();
        i_particle != genParticles->end();
        ++i_particle) {
-    const reco::GenParticle lepton = *i_particle;
+    const reco::GenParticle &lepton = *i_particle;
     const int pdg_abs = lepton.pdgId();
     // Skipping if not a lepton: e/mu
     if (pdg_abs != 11 && pdg_abs != 13)
