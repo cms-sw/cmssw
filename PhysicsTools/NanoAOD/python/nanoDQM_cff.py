@@ -22,7 +22,7 @@ _Electron_Run2_plots = cms.VPSet()
 for plot in nanoDQM.vplots.Electron.plots:
     if 'Fall17V2' not in plot.name.value():
         _Electron_Run2_plots.append(plot)
-run2_nanoAOD_ANY.toModify(
+run2_egamma.toModify(
      nanoDQM.vplots.Electron, 
      plots = _Electron_Run2_plots
 )
@@ -40,7 +40,7 @@ _Photon_Run2_plots.extend([
     Plot1D('pfRelIso03_all', 'pfRelIso03_all', 20, 0, 2, 'PF relative isolation dR=0.3, total (with rho*EA PU Fall17V2 corrections)'),
     Plot1D('pfRelIso03_chg', 'pfRelIso03_chg', 20, 0, 2, 'PF relative isolation dR=0.3, charged component (with rho*EA PU Fall17V2 corrections)'),
 ])
-run2_nanoAOD_ANY.toModify(
+run2_egamma.toModify(
      nanoDQM.vplots.Photon, 
      plots = _Photon_Run2_plots
 )
