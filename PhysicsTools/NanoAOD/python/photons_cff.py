@@ -34,8 +34,8 @@ photon_id_modules_WorkingPoints_nanoAOD_Run2 = cms.PSet(
 )
 
 # make Fall17 the default one in Run2
-run2_nanoAOD_ANY.toModify(photon_id_modules_WorkingPoints_nanoAOD,
-                          modules=photon_id_modules_WorkingPoints_nanoAOD_Run2.modules).\
+run2_egamma.toModify(photon_id_modules_WorkingPoints_nanoAOD,
+                     modules=photon_id_modules_WorkingPoints_nanoAOD_Run2.modules).\
         toModify(photon_id_modules_WorkingPoints_nanoAOD,
                  WorkingPoints=photon_id_modules_WorkingPoints_nanoAOD_Run2.WorkingPoints)
 
@@ -152,11 +152,11 @@ slimmedPhotonsWithUserData = cms.EDProducer("PATPhotonUserDataEmbedder",
 )
 
 # no need for the Run3 IDs in Run2
-run2_nanoAOD_ANY.toModify(slimmedPhotonsWithUserData.userFloats,
-                          mvaID = None,
-                          PFIsoChgQuadratic = None,
-                          PFIsoAllQuadratic = None,
-                          HoverEQuadratic = None).\
+run2_egamma.toModify(slimmedPhotonsWithUserData.userFloats,
+                     mvaID = None,
+                     PFIsoChgQuadratic = None,
+                     PFIsoAllQuadratic = None,
+                     HoverEQuadratic = None).\
                 toModify(slimmedPhotonsWithUserData.userIntFromBools,
                           cutBasedID_loose = None,
                           cutBasedID_medium = None,
@@ -167,7 +167,7 @@ run2_nanoAOD_ANY.toModify(slimmedPhotonsWithUserData.userFloats,
                          VIDNestedWPBitmap = None)
 
 
-(run2_egamma_2016 | run2_egamma_2017 | run2_egamma_2018).toModify(
+run2_egamma.toModify(
     slimmedPhotonsWithUserData.userFloats,
     ecalEnergyErrPostCorrNew = cms.InputTag("calibratedPatPhotonsNano","ecalEnergyErrPostCorr"),
     ecalEnergyPreCorrNew     = cms.InputTag("calibratedPatPhotonsNano","ecalEnergyPreCorr"),
@@ -251,28 +251,28 @@ photonTable = simpleCandidateFlatTableProducer.clone(
 )
 
 # switch default IDs back to Fall17V2 in Run2, remove Winter22V1 and quadratic iso
-run2_nanoAOD_ANY.toModify(photonTable.variables,
-                          cutBased = photonTable.variables.cutBased_Fall17V2,
-                          cutBased_Fall17V2 = None,
-                          vidNestedWPBitmap = photonTable.variables.vidNestedWPBitmap_Fall17V2,
-                          vidNestedWPBitmap_Fall17V2 = None,
-                          mvaID = photonTable.variables.mvaID_Fall17V2,
-                          mvaID_Fall17V2 = None,
-                          mvaID_WP90 = photonTable.variables.mvaID_Fall17V2_WP90,
-                          mvaID_Fall17V2_WP90 = None,
-                          mvaID_WP80 = photonTable.variables.mvaID_Fall17V2_WP80,
-                          mvaID_Fall17V2_WP80 = None,
-                          pfRelIso03_chg = photonTable.variables.pfRelIso03_chg_Fall17V2,
-                          pfRelIso03_chg_Fall17V2 = None,
-                          pfRelIso03_all = photonTable.variables.pfRelIso03_all_Fall17V2,
-                          pfRelIso03_all_Fall17V2 = None,
-                          pfRelIso03_chg_quadratic=None,
-                          pfRelIso03_all_quadratic=None,
-                          hoe_PUcorr=None)
+run2_egamma.toModify(photonTable.variables,
+                     cutBased = photonTable.variables.cutBased_Fall17V2,
+                     cutBased_Fall17V2 = None,
+                     vidNestedWPBitmap = photonTable.variables.vidNestedWPBitmap_Fall17V2,
+                     vidNestedWPBitmap_Fall17V2 = None,
+                     mvaID = photonTable.variables.mvaID_Fall17V2,
+                     mvaID_Fall17V2 = None,
+                     mvaID_WP90 = photonTable.variables.mvaID_Fall17V2_WP90,
+                     mvaID_Fall17V2_WP90 = None,
+                     mvaID_WP80 = photonTable.variables.mvaID_Fall17V2_WP80,
+                     mvaID_Fall17V2_WP80 = None,
+                     pfRelIso03_chg = photonTable.variables.pfRelIso03_chg_Fall17V2,
+                     pfRelIso03_chg_Fall17V2 = None,
+                     pfRelIso03_all = photonTable.variables.pfRelIso03_all_Fall17V2,
+                     pfRelIso03_all_Fall17V2 = None,
+                     pfRelIso03_chg_quadratic=None,
+                     pfRelIso03_all_quadratic=None,
+                     hoe_PUcorr=None)
 
 
 #these eras need to make the energy correction, hence the "New"
-(run2_egamma_2016 | run2_egamma_2017 | run2_egamma_2018).toModify(
+run2_egamma.toModify(
     photonTable.variables,
     pt = Var("pt*userFloat('ecalEnergyPostCorrNew')/userFloat('ecalEnergyPreCorrNew')", float, precision=-1, doc="p_{T}"),
     energyErr = Var("userFloat('ecalEnergyErrPostCorrNew')",float,doc="energy error of the cluster from regression",precision=6),
@@ -301,16 +301,8 @@ photonMCTable = cms.EDProducer("CandMCMatchTableProducer",
     docString = cms.string("MC matching to status==1 photons or electrons"),
 )
 
-from RecoEgamma.EgammaTools.egammaObjectModificationsInMiniAOD_cff import egamma8XObjectUpdateModifier,egamma9X105XUpdateModifier,prependEgamma8XObjectUpdateModifier
-#we have dataformat changes to 106X so to read older releases we use egamma updators
-slimmedPhotonsTo106X = cms.EDProducer("ModifiedPhotonProducer",
-    src = cms.InputTag("slimmedPhotons"),
-    modifierConfig = cms.PSet( modifications = cms.VPSet(egamma9X105XUpdateModifier) )
-)
-
-
 #adding 4 most imp scale & smearing variables to table
-(run2_egamma_2016 | run2_egamma_2017 | run2_egamma_2018).toModify(
+run2_egamma.toModify(
     photonTable.variables,
     dEscaleUp=Var("userFloat('ecalEnergyPostCorrNew') - userFloat('energyScaleUpNew')", float, doc="ecal energy scale shifted 1 sigma up (adding gain/stat/syst in quadrature)", precision=8),
     dEscaleDown=Var("userFloat('ecalEnergyPostCorrNew') - userFloat('energyScaleDownNew')", float, doc="ecal energy scale shifted 1 sigma down (adding gain/stat/syst in quadrature)", precision=8),
@@ -327,4 +319,4 @@ _photonTask_Run2.remove(bitmapVIDForPho)
 _photonTask_Run2.remove(isoForPho)
 _photonTask_Run2.remove(hOverEForPho)
 _photonTask_Run2.add(calibratedPatPhotonsNano)
-run2_nanoAOD_ANY.toReplaceWith(photonTask, _photonTask_Run2)
+run2_egamma.toReplaceWith(photonTask, _photonTask_Run2)
