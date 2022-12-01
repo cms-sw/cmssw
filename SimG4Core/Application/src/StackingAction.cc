@@ -175,9 +175,10 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
   const int pdg = aTrack->GetDefinition()->GetPDGEncoding();
   const int abspdg = std::abs(pdg);
   auto track = const_cast<G4Track*>(aTrack);
+  const G4VProcess* creatorProc = aTrack->GetCreatorProcess();
 
   // primary
-  if (aTrack->GetCreatorProcess() == nullptr || aTrack->GetParentID() == 0) {
+  if (creatorProc == nullptr || aTrack->GetParentID() == 0) {
     if (!trackNeutrino && (abspdg == 12 || abspdg == 14 || abspdg == 16 || abspdg == 18)) {
       classification = fKill;
     } else if (worldSolid->Inside(aTrack->GetPosition()) == kOutside) {
@@ -212,20 +213,18 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
     } else {
       // potentially good for tracking
       const double ke = aTrack->GetKineticEnergy();
-      const G4VProcess* proc = aTrack->GetCreatorProcess();
-      G4int subType = (nullptr != proc) ? proc->GetProcessSubType() : 0;
+      G4int subType = (nullptr != creatorProc) ? creatorProc->GetProcessSubType() : 0;
       if (subType == 16) {
-        auto ptr = dynamic_cast<const G4GammaGeneralProcess*>(proc);
-        if (nullptr != proc) {
-          proc = ptr->GetSelectedProcess();
-          subType = proc->GetProcessSubType();
-          track->SetCreatorProcess(proc);
+        auto ptr = dynamic_cast<const G4GammaGeneralProcess*>(creatorProc);
+        if (nullptr != ptr) {
+          creatorProc = ptr->GetSelectedProcess();
+          subType = (nullptr != creatorProc) ? creatorProc->GetProcessSubType() : 0;
+          track->SetCreatorProcess(creatorProc);
         }
       }
       LogDebug("SimG4CoreApplication") << "##StackingAction:Classify Track " << aTrack->GetTrackID() << " Parent "
                                        << aTrack->GetParentID() << " " << aTrack->GetDefinition()->GetParticleName()
-                                       << " Ekin(MeV)=" << ke / CLHEP::MeV << " subType=" << subType << " "
-                                       << proc->GetProcessName();
+                                       << " Ekin(MeV)=" << ke / CLHEP::MeV << " subType=" << subType << " ";
 
       // kill tracks in specific regions
       if (isThisRegion(reg, deadRegions)) {
@@ -250,8 +249,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
             }
           }
 
-          if (killDeltaRay && classification != fKill &&
-              aTrack->GetCreatorProcess()->GetProcessSubType() == fIonisation) {
+          if (killDeltaRay && classification != fKill && subType == fIonisation) {
             classification = fKill;
           }
           if (killInCalo && classification != fKill && isThisRegion(reg, caloRegions)) {
@@ -270,12 +268,12 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
           const G4Track* mother = trackAction->geant4Track();
           int flag = 0;
           if (savePDandCinAll) {
-            flag = isItPrimaryDecayProductOrConversion(aTrack, *mother);
+            flag = isItPrimaryDecayProductOrConversion(subType, *mother);
           } else {
             if ((savePDandCinTracker && isThisRegion(reg, trackerRegions)) ||
                 (savePDandCinCalo && isThisRegion(reg, caloRegions)) ||
                 (savePDandCinMuon && isThisRegion(reg, muonRegions))) {
-              flag = isItPrimaryDecayProductOrConversion(aTrack, *mother);
+              flag = isItPrimaryDecayProductOrConversion(subType, *mother);
             }
           }
           if (saveFirstSecondary && 0 == flag) {
@@ -345,8 +343,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
           LogDebug("SimG4CoreApplication")
               << "StackingAction:Classify Track " << aTrack->GetTrackID() << " Parent " << aTrack->GetParentID()
               << " Type " << aTrack->GetDefinition()->GetParticleName() << " Ekin=" << ke / CLHEP::MeV
-              << " MeV from process " << proc->GetProcessName() << " subType=" << subType << " as " << classification
-              << " Flag: " << flag;
+              << " MeV from process subType=" << subType << " as " << classification << " Flag: " << flag;
         }
       }
     }
@@ -434,14 +431,14 @@ bool StackingAction::isThisRegion(const G4Region* reg, std::vector<const G4Regio
   return flag;
 }
 
-int StackingAction::isItPrimaryDecayProductOrConversion(const G4Track* aTrack, const G4Track& mother) const {
+int StackingAction::isItPrimaryDecayProductOrConversion(const int stype, const G4Track& mother) const {
   int flag = 0;
   const TrackInformation& motherInfo(extractor(mother));
   // Check whether mother is a primary
   if (motherInfo.isPrimary()) {
-    if (aTrack->GetCreatorProcess()->GetProcessType() == fDecay) {
+    if (stype == fDecay) {
       flag = 1;
-    } else if (aTrack->GetCreatorProcess()->GetProcessSubType() == fGammaConversion) {
+    } else if (stype == fGammaConversion) {
       flag = 2;
     }
   }
