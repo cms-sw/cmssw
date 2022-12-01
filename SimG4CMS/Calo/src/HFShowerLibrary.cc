@@ -19,34 +19,86 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 
 //#define EDM_ML_DEBUG
+namespace {
+  HFShowerLibrary::Params paramsFrom(edm::ParameterSet const& hfShower,
+                                     edm::ParameterSet const& hfShowerLibrary,
+                                     double iDeltaPhi) {
+    HFShowerLibrary::Params params;
+
+    params.dphi_ = iDeltaPhi;
+
+    params.probMax_ = hfShower.getParameter<double>("ProbMax");
+    params.equalizeTimeShift_ = hfShower.getParameter<bool>("EqualizeTimeShift");
+
+    params.backProb_ = hfShowerLibrary.getParameter<double>("BackProbability");
+    params.verbose_ = hfShowerLibrary.getUntrackedParameter<bool>("Verbosity", false);
+    params.applyFidCut_ = hfShowerLibrary.getParameter<bool>("ApplyFiducialCut");
+
+    return params;
+  }
+
+  HFShowerLibrary::FileParams fileParamsFrom(edm::ParameterSet const& hfShowerLibrary) {
+    HFShowerLibrary::FileParams params;
+
+    edm::FileInPath fp = hfShowerLibrary.getParameter<edm::FileInPath>("FileName");
+    params.fileName_ = fp.fullPath();
+    if (params.fileName_.find('.') == 0)
+      params.fileName_.erase(0, 2);
+
+    std::string emName = hfShowerLibrary.getParameter<std::string>("TreeEMID");
+    std::string hadName = hfShowerLibrary.getParameter<std::string>("TreeHadID");
+    std::string branchEvInfo = hfShowerLibrary.getUntrackedParameter<std::string>(
+        "BranchEvt", "HFShowerLibraryEventInfos_hfshowerlib_HFShowerLibraryEventInfo");
+    std::string branchPre =
+        hfShowerLibrary.getUntrackedParameter<std::string>("BranchPre", "HFShowerPhotons_hfshowerlib_");
+    std::string branchPost = hfShowerLibrary.getUntrackedParameter<std::string>("BranchPost", "_R.obj");
+    params.fileVersion_ = hfShowerLibrary.getParameter<int>("FileVersion");
+
+    params.emBranchName_ = branchPre + emName + branchPost;
+    params.hadBranchName_ = branchPre + hadName + branchPost;
+
+    if (not branchEvInfo.empty()) {
+      params.branchEvInfo_ = branchEvInfo + branchPost;
+    }
+    return params;
+  }
+}  // namespace
+
+HFShowerLibrary::HFShowerLibrary(const HcalDDDSimConstants* hcons,
+                                 const HcalSimulationParameters* hps,
+                                 edm::ParameterSet const& hfShower,
+                                 edm::ParameterSet const& hfShowerLibrary)
+    : HFShowerLibrary(paramsFrom(hfShower, hfShowerLibrary, hcons->getPhiTableHF().front()),
+                      fileParamsFrom(hfShowerLibrary),
+                      HFFibre::Params(hfShower.getParameter<double>("CFibre"), hcons, hps)) {}
 
 HFShowerLibrary::HFShowerLibrary(const std::string& name,
                                  const HcalDDDSimConstants* hcons,
                                  const HcalSimulationParameters* hps,
                                  edm::ParameterSet const& p)
-    : fibre_(hcons, hps, p), hf_(), emBranch_(nullptr), hadBranch_(nullptr) {
-  edm::ParameterSet m_HF =
-      (p.getParameter<edm::ParameterSet>("HFShower")).getParameter<edm::ParameterSet>("HFShowerBlock");
-  probMax_ = m_HF.getParameter<double>("ProbMax");
-  equalizeTimeShift_ = m_HF.getParameter<bool>("EqualizeTimeShift");
+    : HFShowerLibrary(
+          hcons,
+          hps,
+          p.getParameter<edm::ParameterSet>("HFShower").getParameter<edm::ParameterSet>("HFShowerBlock"),
+          p.getParameter<edm::ParameterSet>("HFShowerLibrary").getParameter<edm::ParameterSet>("HFLibraryFileBlock")) {}
 
-  edm::ParameterSet m_HS =
-      (p.getParameter<edm::ParameterSet>("HFShowerLibrary")).getParameter<edm::ParameterSet>("HFLibraryFileBlock");
-  edm::FileInPath fp = m_HS.getParameter<edm::FileInPath>("FileName");
-  std::string pTreeName = fp.fullPath();
-  backProb_ = m_HS.getParameter<double>("BackProbability");
-  std::string emName = m_HS.getParameter<std::string>("TreeEMID");
-  std::string hadName = m_HS.getParameter<std::string>("TreeHadID");
-  std::string branchEvInfo = m_HS.getUntrackedParameter<std::string>(
-      "BranchEvt", "HFShowerLibraryEventInfos_hfshowerlib_HFShowerLibraryEventInfo");
-  std::string branchPre = m_HS.getUntrackedParameter<std::string>("BranchPre", "HFShowerPhotons_hfshowerlib_");
-  std::string branchPost = m_HS.getUntrackedParameter<std::string>("BranchPost", "_R.obj");
-  verbose_ = m_HS.getUntrackedParameter<bool>("Verbosity", false);
-  applyFidCut_ = m_HS.getParameter<bool>("ApplyFiducialCut");
-  fileVersion_ = m_HS.getParameter<int>("FileVersion");
+HFShowerLibrary::HFShowerLibrary(const Params& iParams, const FileParams& iFileParams, HFFibre::Params iFibreParams)
+    : fibre_(iFibreParams),
+      hf_(),
+      emBranch_(nullptr),
+      hadBranch_(nullptr),
+      verbose_(iParams.verbose_),
+      applyFidCut_(iParams.applyFidCut_),
+      fileVersion_(iFileParams.fileVersion_),
+      equalizeTimeShift_(iParams.equalizeTimeShift_),
+      probMax_(iParams.probMax_),
+      backProb_(iParams.backProb_),
+      dphi_(iParams.dphi_),
+      rMin_(iFibreParams.rTableHF_.front()),
+      rMax_(iFibreParams.rTableHF_.back()),
+      gpar_(iFibreParams.gParHF_) {
+  std::string pTreeName = iFileParams.fileName_;
 
-  if (pTreeName.find('.') == 0)
-    pTreeName.erase(0, 2);
   const char* nTree = pTreeName.c_str();
   hf_ = std::unique_ptr<TFile>(TFile::Open(nTree));
 
@@ -57,7 +109,7 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
     edm::LogVerbatim("HFShower") << "HFShowerLibrary: opening " << nTree << " successfully";
   }
 
-  newForm_ = (branchEvInfo.empty());
+  newForm_ = iFileParams.branchEvInfo_.empty();
   TTree* event(nullptr);
   if (newForm_)
     event = (TTree*)hf_->Get("HFSimHits");
@@ -66,7 +118,7 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
   if (event) {
     TBranch* evtInfo(nullptr);
     if (!newForm_) {
-      std::string info = branchEvInfo + branchPost;
+      std::string info = iFileParams.branchEvInfo_;
       evtInfo = event->GetBranch(info.c_str());
     }
     if (evtInfo || newForm_) {
@@ -82,23 +134,23 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
     throw cms::Exception("Unknown", "HFShowerLibrary") << "Events tree absent\n";
   }
 
-  std::stringstream ss;
-  ss << "HFShowerLibrary: Library " << libVers_ << " ListVersion " << listVersion_ << " File version " << fileVersion_
-     << " Events Total " << totEvents_ << " and " << evtPerBin_ << " per bin\n";
-  ss << "HFShowerLibrary: Energies (GeV) with " << nMomBin_ << " bins\n";
-  for (int i = 0; i < nMomBin_; ++i) {
-    if (i / 10 * 10 == i && i > 0) {
-      ss << "\n";
+  edm::LogVerbatim("HFShower").log([&](auto& logger) {
+    logger << "HFShowerLibrary: Library " << libVers_ << " ListVersion " << listVersion_ << " File version "
+           << fileVersion_ << " Events Total " << totEvents_ << " and " << evtPerBin_ << " per bin\n";
+    logger << "HFShowerLibrary: Energies (GeV) with " << nMomBin_ << " bins\n";
+    for (int i = 0; i < nMomBin_; ++i) {
+      if (i / 10 * 10 == i && i > 0) {
+        logger << "\n";
+      }
+      logger << "  " << pmom_[i] / CLHEP::GeV;
     }
-    ss << "  " << pmom_[i] / CLHEP::GeV;
-  }
-  edm::LogVerbatim("HFShower") << ss.str();
+  });
 
-  std::string nameBr = branchPre + emName + branchPost;
+  std::string nameBr = iFileParams.emBranchName_;
   emBranch_ = event->GetBranch(nameBr.c_str());
   if (verbose_)
     emBranch_->Print();
-  nameBr = branchPre + hadName + branchPost;
+  nameBr = iFileParams.hadBranchName_;
   hadBranch_ = event->GetBranch(nameBr.c_str());
   if (verbose_)
     hadBranch_->Print();
@@ -108,27 +160,16 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
     v3version_ = true;
   }
 
-  edm::LogVerbatim("HFShower") << " HFShowerLibrary:Branch " << emName << " has " << emBranch_->GetEntries()
-                               << " entries and Branch " << hadName << " has " << hadBranch_->GetEntries()
+  edm::LogVerbatim("HFShower") << " HFShowerLibrary:Branch " << iFileParams.emBranchName_ << " has "
+                               << emBranch_->GetEntries() << " entries and Branch " << iFileParams.hadBranchName_
+                               << " has " << hadBranch_->GetEntries()
                                << " entries\n HFShowerLibrary::No packing information - Assume x, y, z are not in "
                                   "packed form\n Maximum probability cut off "
                                << probMax_ << "  Back propagation of light probability " << backProb_
                                << " Flag for equalizing Time Shift for different eta " << equalizeTimeShift_;
 
-  //Radius (minimum and maximum)
-  std::vector<double> rTable = hcons->getRTableHF();
-  rMin_ = rTable[0];
-  rMax_ = rTable[rTable.size() - 1];
-
-  //Delta phi
-  std::vector<double> phibin = hcons->getPhiTableHF();
-  dphi_ = phibin[0];
-
   edm::LogVerbatim("HFShower") << "HFShowerLibrary: rMIN " << rMin_ / CLHEP::cm << " cm and rMax " << rMax_ / CLHEP::cm
                                << " (Half) Phi Width of wedge " << dphi_ / CLHEP::deg;
-
-  //Special Geometry parameters
-  gpar_ = hcons->getGparHF();
 }
 
 HFShowerLibrary::~HFShowerLibrary() {
@@ -228,10 +269,13 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector&
 
   std::size_t nHit = 0;
   HFShowerLibrary::Hit oneHit;
+#ifdef EDM_ML_DEBUG
+  int i = 0;
+#endif
   for (auto const& photon : pe) {
     double zv = std::abs(photon.z());  // abs local z
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HFShower") << "HFShowerLibrary: Hit " << i << " " << photon << " zv " << zv;
+    edm::LogVerbatim("HFShower") << "HFShowerLibrary: Hit " << i++ << " " << photon << " zv " << zv;
 #endif
     if (zv <= gpar_[1] && photon.lambda() > 0 && (photon.z() >= 0 || (zv > gpar_[0] && (!onlyLong)))) {
       int depth = 1;
@@ -508,7 +552,7 @@ HFShowerPhotonCollection HFShowerLibrary::interpolate(int type, double pin) {
   else
     edm::LogVerbatim("HFShower") << "HFShowerLibrary: Interpolation == records " << irc[0] << " and " << irc[1]
                                  << " gives a buffer of " << npold << " photons and fills " << pe.size() << " PE";
-  for (int j = 0; j < pe.size(); j++)
+  for (std::size_t j = 0; j < pe.size(); j++)
     edm::LogVerbatim("HFShower") << "Photon " << j << " " << pe[j];
 #endif
   return pe;
@@ -574,7 +618,7 @@ HFShowerPhotonCollection HFShowerLibrary::extrapolate(int type, double pin) {
     edm::LogVerbatim("HFShower") << "HFShowerLibrary: Extrapolation == " << nrec << " records " << irc[0] << ", "
                                  << irc[1] << ", ... gives a buffer of " << npold << " photons and fills " << pe.size()
                                  << " PE";
-  for (int j = 0; j < pe.size(); j++)
+  for (std::size_t j = 0; j < pe.size(); j++)
     edm::LogVerbatim("HFShower") << "Photon " << j << " " << pe[j];
 #endif
   return pe;
@@ -584,6 +628,6 @@ void HFShowerLibrary::storePhoton(HFShowerPhoton const& iPhoton, HFShowerPhotonC
   iPhotons.push_back(iPhoton);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << "HFShowerLibrary: storePhoton " << iPhoton << " npe " << iPhotons.size() << " "
-                               << iPhotons.last();
+                               << iPhotons.back();
 #endif
 }

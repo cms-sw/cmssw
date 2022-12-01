@@ -2,21 +2,65 @@
 #include "SimG4CMS/Calo/interface/HFFibre.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 
+namespace test_hffibre {
+  HFFibre::Params defaultParams() {
+    HFFibre::Params fibreParams;
+    //Taken from values used by IB workflow 250202.181
+    fibreParams.fractionOfSpeedOfLightInFibre_ = 0.5;
+    fibreParams.gParHF_ = {{220, 1650, 300, 0, 11150, 3.75, 11370}};
+    fibreParams.rTableHF_ = {{12.5 * cm,
+                              16.9 * cm,
+                              20.1 * cm,
+                              24 * cm,
+                              28.6 * cm,
+                              34 * cm,
+                              40.6 * cm,
+                              48.3 * cm,
+                              57.6 * cm,
+                              68.6 * cm,
+                              81.81 * cm,
+                              197.5 * cm,
+                              116.2 * cm,
+                              130 * cm}};
+    fibreParams.shortFibreLength_ = {{206 * cm,
+                                      211.881 * cm,
+                                      220.382 * cm,
+                                      235.552 * cm,
+                                      245.62 * cm,
+                                      253.909 * cm,
+                                      255.012 * cm,
+                                      263.007 * cm,
+                                      264.348 * cm,
+                                      268.5 * cm,
+                                      268.5 * cm,
+                                      270 * cm,
+                                      273.5 * cm}};
+    fibreParams.longFibreLength_ = {{227.993 * cm,
+                                     237.122 * cm,
+                                     241.701 * cm,
+                                     256.48 * cm,
+                                     266.754 * cm,
+                                     275.988 * cm,
+                                     276.982 * cm,
+                                     284.989 * cm,
+                                     286.307 * cm,
+                                     290.478 * cm,
+                                     290.5 * cm,
+                                     292 * cm,
+                                     295.5 * cm}};
+    fibreParams.attenuationLength_ = {
+        {0.000809654 / cm, 0.000713002 / cm, 0.000654918 / cm, 0.000602767 / cm, 0.000566295 / cm, 0.000541647 / cm,
+         0.000516175 / cm, 0.000502512 / cm, 0.000504225 / cm, 0.000506212 / cm, 0.000506275 / cm, 0.000487621 / cm,
+         0.000473034 / cm, 0.000454002 / cm, 0.000442383 / cm, 0.000441043 / cm, 0.00044361 / cm,  0.000433124 / cm,
+         0.000440188 / cm, 0.000435257 / cm, 0.000439224 / cm, 0.000431385 / cm, 0.00041707 / cm,  0.000415677 / cm,
+         0.000408389 / cm, 0.000400293 / cm, 0.000400989 / cm, 0.000395417 / cm, 0.00038936 / cm,  0.000383942 / cm}};
+    fibreParams.lambdaLimits_ = {{300, 600}};
+    return fibreParams;
+  }
+}  // namespace test_hffibre
+
 TEST_CASE("test HFFibre", "[HFFibre]") {
-  HFFibre::Params params;
-  params.fractionOfSpeedOfLightInFibre_ = 0.5;
-  params.gParHF_ = {{220, 1650, 300, 0, 11150, 3.75, 11370}};
-  params.rTableHF_ = {{12.5, 16.9, 20.1, 24, 28.6, 34, 40.6, 48.3, 57.6, 68.6, 81.81, 197.5, 116.2, 130}};
-  params.shortFibreLength_ = {
-      {206, 211.881, 220.382, 235.552, 245.62, 253.909, 255.012, 263.007, 264.348, 268.5, 268.5, 270, 273.5}};
-  params.longFibreLength_ = {
-      {227.993, 237.122, 241.701, 256.48, 266.754, 275.988, 276.982, 284.989, 286.307, 290.478, 290.5, 292, 295.5}};
-  params.attenuationLength_ = {{0.000809654, 0.000713002, 0.000654918, 0.000602767, 0.000566295, 0.000541647,
-                                0.000516175, 0.000502512, 0.000504225, 0.000506212, 0.000506275, 0.000487621,
-                                0.000473034, 0.000454002, 0.000442383, 0.000441043, 0.00044361,  0.000433124,
-                                0.000440188, 0.000435257, 0.000439224, 0.000431385, 0.00041707,  0.000415677,
-                                0.000408389, 0.000400293, 0.000400989, 0.000395417, 0.00038936,  0.000383942}};
-  params.lambdaLimits_ = {{300, 600}};
+  HFFibre::Params params = test_hffibre::defaultParams();
 
   HFFibre fibre(params);
   SECTION("Attenuation") {
