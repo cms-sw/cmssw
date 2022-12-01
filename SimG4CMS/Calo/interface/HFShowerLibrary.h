@@ -52,7 +52,28 @@ public:
                             double time,
                             bool onlyLong = false);
 
+  struct Params {
+    double probMax_;
+    double backProb_;
+    double dphi_;
+    bool equalizeTimeShift_;
+    bool verbose_;
+    bool applyFidCut_;
+  };
+  struct FileParams {
+    std::string fileName_;
+    std::string emBranchName_;
+    std::string hadBranchName_;
+    std::string branchEvInfo_;
+    int fileVersion_;
+  };
+  HFShowerLibrary(Params const &, FileParams const &, HFFibre::Params);
+
 private:
+  HFShowerLibrary(const HcalDDDSimConstants *hcons,
+                  const HcalSimulationParameters *hps,
+                  edm::ParameterSet const &hfShower,
+                  edm::ParameterSet const &hfShowerLibrary);
   bool rInside(double r) const;
   HFShowerPhotonCollection getRecord(int, int) const;
   void loadEventInfo(TBranch *);
