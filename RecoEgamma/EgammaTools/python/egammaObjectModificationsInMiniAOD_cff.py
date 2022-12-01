@@ -47,7 +47,7 @@ for ele_mva_cff in [
           ele_fall17_noIso_v1,
           ele_fall17_iso_v2,
           ele_fall17_noIso_v2,
-          ele_summer18UL_hzz
+          ele_summer18UL_hzz,
           ele_RunIIIWinter22_iso_v1,
           ele_RunIIIWinter22_noIso_v1
         ]:
