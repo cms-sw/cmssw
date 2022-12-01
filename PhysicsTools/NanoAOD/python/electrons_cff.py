@@ -354,6 +354,7 @@ electronTable = simpleCandidateFlatTableProducer.clone(
     ),
 )
 
+
 (run2_egamma).toModify(
         # energy scale/smearing: only for Run2
         electronTable.variables,
