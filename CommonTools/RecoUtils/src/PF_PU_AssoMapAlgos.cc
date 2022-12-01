@@ -293,7 +293,7 @@ VertexRef PF_PU_AssoMapAlgos::FindClosestZ(const reco::TrackRef trkref,
 
   //loop over all vertices with a good quality in the vertex collection
   for (unsigned int index_vtx = 0; index_vtx < vtxcollV.size(); ++index_vtx) {
-    VertexRef vertexref = vtxcollV.at(index_vtx);
+    const VertexRef& vertexref = vtxcollV.at(index_vtx);
 
     double nTracks = sqrt(vertexref->tracksSize());
 
@@ -323,7 +323,7 @@ VertexRef PF_PU_AssoMapAlgos::FindClosest3D(TransientTrack transtrk,
 
   //loop over all vertices with a good quality in the vertex collection
   for (unsigned int index_vtx = 0; index_vtx < vtxcollV.size(); ++index_vtx) {
-    VertexRef vertexref = vtxcollV.at(index_vtx);
+    const VertexRef& vertexref = vtxcollV.at(index_vtx);
 
     double nTracks = sqrt(vertexref->tracksSize());
 
