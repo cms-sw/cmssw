@@ -2,6 +2,14 @@ from __future__ import print_function
 import os.path
 import FWCore.ParameterSet.Config as cms
 
+def L1TSettingsToCaloParamsHI_2022_v0_6(process):
+    process.load("L1Trigger.L1TCalorimeter.caloParamsHI_2022_v0_6_cfi")
+    return process
+
+def L1TSettingsToCaloParams_2022_v0_6(process):
+    process.load("L1Trigger.L1TCalorimeter.caloParams_2022_v0_6_cfi")
+    return process
+
 def L1TSettingsToCaloParamsHI_2022_v0_5(process):
     process.load("L1Trigger.L1TCalorimeter.caloParamsHI_2022_v0_5_cfi")
     return process
