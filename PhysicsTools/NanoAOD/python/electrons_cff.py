@@ -167,14 +167,6 @@ slimmedElectronsWithUserData = cms.EDProducer("PATElectronUserDataEmbedder",
         ptRatio = cms.InputTag("ptRatioRelForEle:ptRatio"),
         ptRel = cms.InputTag("ptRatioRelForEle:ptRel"),
         jetNDauChargedMVASel = cms.InputTag("ptRatioRelForEle:jetNDauChargedMVASel"),
-
-        ecalTrkEnergyErrPostCorrNew = cms.InputTag("calibratedPatElectronsNano","ecalTrkEnergyErrPostCorr"),
-        ecalTrkEnergyPreCorrNew     = cms.InputTag("calibratedPatElectronsNano","ecalTrkEnergyPreCorr"),
-        ecalTrkEnergyPostCorrNew    = cms.InputTag("calibratedPatElectronsNano","ecalTrkEnergyPostCorr"),
-        energyScaleUpNew               = cms.InputTag("calibratedPatElectronsNano","energyScaleUp"),
-        energyScaleDownNew             = cms.InputTag("calibratedPatElectronsNano","energyScaleDown"),
-        energySigmaUpNew               = cms.InputTag("calibratedPatElectronsNano","energySigmaUp"),
-        energySigmaDownNew             = cms.InputTag("calibratedPatElectronsNano","energySigmaDown"),
     ),
     userIntFromBools = cms.PSet(
         mvaIso_WP90 = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-iso-V2-wp90"),
@@ -219,6 +211,17 @@ run2_nanoAOD_ANY.toModify(slimmedElectronsWithUserData.userFloats,
                  cutBasedID_tight = None).\
         toModify(slimmedElectronsWithUserData.userInts,
                  VIDNestedWPBitmap = None)
+
+(run2_egamma_2016 | run2_egamma_2017 | run2_egamma_2018).toModify(
+    slimmedElectronsWithUserData.userFloats,
+    ecalTrkEnergyErrPostCorrNew = cms.InputTag("calibratedPatElectronsNano","ecalTrkEnergyErrPostCorr"),
+    ecalTrkEnergyPreCorrNew     = cms.InputTag("calibratedPatElectronsNano","ecalTrkEnergyPreCorr"),
+    ecalTrkEnergyPostCorrNew    = cms.InputTag("calibratedPatElectronsNano","ecalTrkEnergyPostCorr"),
+    energyScaleUpNew            = cms.InputTag("calibratedPatElectronsNano","energyScaleUp"),
+    energyScaleDownNew          = cms.InputTag("calibratedPatElectronsNano","energyScaleDown"),
+    energySigmaUpNew            = cms.InputTag("calibratedPatElectronsNano","energySigmaUp"),
+    energySigmaDownNew          = cms.InputTag("calibratedPatElectronsNano","energySigmaDown")
+)
 
 (run2_egamma_2016).toModify(
     slimmedElectronsWithUserData.userFloats,
@@ -336,8 +339,8 @@ electronTable = simpleCandidateFlatTableProducer.clone(
     ),
 )
 
-#for technical reasons
 (run2_nanoAOD_106Xv2).toModify(
+        # energy scale/smearing: only for Run2
         electronTable.variables,
         pt = Var("pt*userFloat('ecalTrkEnergyPostCorrNew')/userFloat('ecalTrkEnergyPreCorrNew')", float, precision=-1, doc="p_{T}"),
         energyErr = Var("userFloat('ecalTrkEnergyErrPostCorrNew')", float, precision=6, doc="energy error of the cluster-track combination"),
@@ -419,6 +422,7 @@ electronMCTask = cms.Task(tautaggerForMatching, matchingElecPhoton, electronsMCM
 _electronTask_Run2 = electronTask.copy()
 _electronTask_Run2.remove(bitmapVIDForEle)
 _electronTask_Run2.remove(isoForEle)
+_electronTask_Run2.add(calibratedPatElectronsNano)
 run2_nanoAOD_ANY.toReplaceWith(electronTask, _electronTask_Run2)
 
 # Revert back to AK4 CHS jets for Run 2
