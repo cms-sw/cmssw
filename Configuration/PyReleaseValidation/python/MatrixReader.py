@@ -309,7 +309,6 @@ class MatrixReader(object):
                 commands.append(cmd)
                 ranStepList.append(stepName)
                 stepIndex+=1
-            #print('would use',name,'will use',name_for_workflow,'instead')
             self.workFlowSteps[(num,prefix)] = (num, name_for_workflow, commands, ranStepList)
         
         return
