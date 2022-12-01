@@ -66,18 +66,26 @@ TEST_CASE("test HFShowerLibrary", "[HFShowerLibrary]") {
 
     HFShowerLibrary showerLibrary(params, fileParams, std::move(fibreParams));
     SECTION("fillHits") {
-      SetRandomEngine guard(11);
-
       SECTION("non EM or Hadron") {
+        SetRandomEngine guard(11);
         bool ok = false;
         auto hits = showerLibrary.fillHits({0, 0, 0}, {0, 0, 0}, 0, 0., ok, 1., 0.);
         REQUIRE(hits.empty());
         REQUIRE(not ok);
       }
       SECTION("photon within threshold") {
+        SetRandomEngine guard(11);
         bool ok = false;
         auto hits = showerLibrary.fillHits(
             {-470.637, -618.696, 11150}, {0.000467326, -0.00804975, 0.999967}, 22, 2.2 * GeV, ok, 1., 0.);
+        REQUIRE(ok);
+        REQUIRE(hits.size() == 2);
+      }
+      SECTION("pion within threshold") {
+        SetRandomEngine guard(11);
+        bool ok = false;
+        auto hits = showerLibrary.fillHits(
+            {-470.637, -618.696, 11150}, {0.000467326, -0.00804975, 0.999967}, 211, 2.2 * GeV, ok, 1., 0.);
         REQUIRE(ok);
         REQUIRE(hits.size() == 2);
       }
@@ -94,18 +102,26 @@ TEST_CASE("test HFShowerLibrary", "[HFShowerLibrary]") {
 
     HFShowerLibrary showerLibrary(params, fileParams, std::move(fibreParams));
     SECTION("fillHits") {
-      SetRandomEngine guard(11);
-
       SECTION("non EM or Hadron") {
+        SetRandomEngine guard(11);
         bool ok = false;
         auto hits = showerLibrary.fillHits({0, 0, 0}, {0, 0, 0}, 0, 0., ok, 1., 0.);
         REQUIRE(hits.empty());
         REQUIRE(not ok);
       }
       SECTION("photon within threshold") {
+        SetRandomEngine guard(11);
         bool ok = false;
         auto hits = showerLibrary.fillHits(
             {-470.637, -618.696, 11150}, {0.000467326, -0.00804975, 0.999967}, 22, 5.2 * GeV, ok, 1., 0.);
+        REQUIRE(ok);
+        REQUIRE(hits.size() == 1);
+      }
+      SECTION("pion within threshold") {
+        SetRandomEngine guard(11);
+        bool ok = false;
+        auto hits = showerLibrary.fillHits(
+            {-470.637, -618.696, 11150}, {0.000467326, -0.00804975, 0.999967}, 211, 5.2 * GeV, ok, 1., 0.);
         REQUIRE(ok);
         REQUIRE(hits.size() == 1);
       }
@@ -124,20 +140,28 @@ TEST_CASE("test HFShowerLibrary", "[HFShowerLibrary]") {
 
     HFShowerLibrary showerLibrary(params, fileParams, std::move(fibreParams));
     SECTION("fillHits") {
-      SetRandomEngine guard(11);
-
       SECTION("non EM or Hadron") {
+        SetRandomEngine guard(11);
         bool ok = false;
         auto hits = showerLibrary.fillHits({0, 0, 0}, {0, 0, 0}, 0, 0., ok, 1., 0.);
         REQUIRE(hits.empty());
         REQUIRE(not ok);
       }
       SECTION("photon within threshold") {
+        SetRandomEngine guard(11);
         bool ok = false;
         auto hits = showerLibrary.fillHits(
             {-470.637, -618.696, 11150}, {0.000467326, -0.00804975, 0.999967}, 22, 2.2 * GeV, ok, 1., 0.);
         REQUIRE(ok);
         REQUIRE(hits.size() == 5);
+      }
+      SECTION("pion within threshold") {
+        SetRandomEngine guard(11);
+        bool ok = false;
+        auto hits = showerLibrary.fillHits(
+            {-470.637, -618.696, 11150}, {0.000467326, -0.00804975, 0.999967}, 211, 5.2 * GeV, ok, 1., 0.);
+        REQUIRE(ok);
+        REQUIRE(hits.size() == 2);
       }
     }
   }

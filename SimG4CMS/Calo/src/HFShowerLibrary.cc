@@ -85,11 +85,10 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
 HFShowerLibrary::HFShowerLibrary(const Params& iParams, const FileParams& iFileParams, HFFibre::Params iFibreParams)
     : fibre_(iFibreParams),
       hf_(),
-      emBranch_(nullptr),
-      hadBranch_(nullptr),
+      emBranch_(),
+      hadBranch_(),
       verbose_(iParams.verbose_),
       applyFidCut_(iParams.applyFidCut_),
-      fileVersion_(iFileParams.fileVersion_),
       equalizeTimeShift_(iParams.equalizeTimeShift_),
       probMax_(iParams.probMax_),
       backProb_(iParams.backProb_),
@@ -109,20 +108,26 @@ HFShowerLibrary::HFShowerLibrary(const Params& iParams, const FileParams& iFileP
     edm::LogVerbatim("HFShower") << "HFShowerLibrary: opening " << nTree << " successfully";
   }
 
-  newForm_ = iFileParams.branchEvInfo_.empty();
+  auto fileFormat = FileFormat::kOld;
+  const int fileVersion = iFileParams.fileVersion_;
+
+  auto newForm = iFileParams.branchEvInfo_.empty();
   TTree* event(nullptr);
-  if (newForm_)
+  if (newForm) {
+    fileFormat = FileFormat::kNew;
     event = (TTree*)hf_->Get("HFSimHits");
-  else
+  } else {
     event = (TTree*)hf_->Get("Events");
+  }
+  VersionInfo versionInfo;
   if (event) {
     TBranch* evtInfo(nullptr);
-    if (!newForm_) {
+    if (!newForm) {
       std::string info = iFileParams.branchEvInfo_;
       evtInfo = event->GetBranch(info.c_str());
     }
-    if (evtInfo || newForm_) {
-      loadEventInfo(evtInfo);
+    if (evtInfo || newForm) {
+      versionInfo = loadEventInfo(evtInfo, fileVersion);
     } else {
       edm::LogError("HFShower") << "HFShowerLibrary: HFShowerLibrayEventInfo"
                                 << " Branch does not exist in Event";
@@ -135,8 +140,9 @@ HFShowerLibrary::HFShowerLibrary(const Params& iParams, const FileParams& iFileP
   }
 
   edm::LogVerbatim("HFShower").log([&](auto& logger) {
-    logger << "HFShowerLibrary: Library " << libVers_ << " ListVersion " << listVersion_ << " File version "
-           << fileVersion_ << " Events Total " << totEvents_ << " and " << evtPerBin_ << " per bin\n";
+    logger << "HFShowerLibrary: Library " << versionInfo.libVers_ << " ListVersion " << versionInfo.listVersion_
+           << " File version " << fileVersion << " Events Total " << totEvents_ << " and " << evtPerBin_
+           << " per bin\n";
     logger << "HFShowerLibrary: Energies (GeV) with " << nMomBin_ << " bins\n";
     for (int i = 0; i < nMomBin_; ++i) {
       if (i / 10 * 10 == i && i > 0) {
@@ -147,22 +153,30 @@ HFShowerLibrary::HFShowerLibrary(const Params& iParams, const FileParams& iFileP
   });
 
   std::string nameBr = iFileParams.emBranchName_;
-  emBranch_ = event->GetBranch(nameBr.c_str());
+  auto emBranch = event->GetBranch(nameBr.c_str());
   if (verbose_)
-    emBranch_->Print();
+    emBranch->Print();
   nameBr = iFileParams.hadBranchName_;
-  hadBranch_ = event->GetBranch(nameBr.c_str());
+  auto hadBranch = event->GetBranch(nameBr.c_str());
   if (verbose_)
-    hadBranch_->Print();
+    hadBranch->Print();
 
-  v3version_ = false;
-  if (emBranch_->GetClassName() == std::string("vector<float>")) {
-    v3version_ = true;
+  if (emBranch->GetClassName() == std::string("vector<float>")) {
+    assert(fileFormat == FileFormat::kNew);
+    fileFormat = FileFormat::kNewV3;
   }
+  emBranch_ = BranchReader(emBranch, fileFormat, 0);
+  size_t offset = 0;
+  if (fileFormat == FileFormat::kNewV3 or (fileFormat == FileFormat::kNew and fileVersion < 2)) {
+    //NOTE: for this format, the hadBranch is all empty up to
+    // totEvents_ (which is more like 1/2*GenEntries())
+    offset = totEvents_;
+  }
+  hadBranch_ = BranchReader(hadBranch, fileFormat, offset);
 
   edm::LogVerbatim("HFShower") << " HFShowerLibrary:Branch " << iFileParams.emBranchName_ << " has "
-                               << emBranch_->GetEntries() << " entries and Branch " << iFileParams.hadBranchName_
-                               << " has " << hadBranch_->GetEntries()
+                               << emBranch->GetEntries() << " entries and Branch " << iFileParams.hadBranchName_
+                               << " has " << hadBranch->GetEntries()
                                << " entries\n HFShowerLibrary::No packing information - Assume x, y, z are not in "
                                   "packed form\n Maximum probability cut off "
                                << probMax_ << "  Back propagation of light probability " << backProb_
@@ -388,55 +402,65 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector&
 
 bool HFShowerLibrary::rInside(double r) const { return (r >= rMin_ && r <= rMax_); }
 
-HFShowerPhotonCollection HFShowerLibrary::getRecord(int type, int record) const {
+HFShowerPhotonCollection HFShowerLibrary::BranchReader::getRecordOldForm(TBranch* iBranch, int iEntry) {
+  HFShowerPhotonCollection photo;
+  iBranch->SetAddress(&photo);
+  iBranch->GetEntry(iEntry);
+  return photo;
+}
+HFShowerPhotonCollection HFShowerLibrary::BranchReader::getRecordNewForm(TBranch* iBranch, int iEntry) {
+  HFShowerPhotonCollection photo;
+
+  auto temp = std::make_unique<HFShowerPhotonCollection>();
+  iBranch->SetAddress(&temp);
+  iBranch->GetEntry(iEntry);
+  photo = std::move(*temp);
+
+  return photo;
+}
+HFShowerPhotonCollection HFShowerLibrary::BranchReader::getRecordNewFormV3(TBranch* iBranch, int iEntry) {
+  HFShowerPhotonCollection photo;
+
+  std::vector<float> t;
+  std::vector<float>* tp = &t;
+  iBranch->SetAddress(&tp);
+  iBranch->GetEntry(iEntry);
+  unsigned int tSize = t.size() / 5;
+  photo.reserve(tSize);
+  for (unsigned int i = 0; i < tSize; i++) {
+    photo.emplace_back(t[i], t[1 * tSize + i], t[2 * tSize + i], t[3 * tSize + i], t[4 * tSize + i]);
+  }
+
+  return photo;
+}
+
+HFShowerPhotonCollection HFShowerLibrary::BranchReader::getRecord(int record) const {
   int nrc = record - 1;
   HFShowerPhotonCollection photo;
 
+  switch (format_) {
+    case FileFormat::kNew: {
+      photo = getRecordNewForm(branch_, nrc + offset_);
+      break;
+    }
+    case FileFormat::kNewV3: {
+      photo = getRecordNewFormV3(branch_, nrc + offset_);
+      break;
+    }
+    case FileFormat::kOld: {
+      photo = getRecordOldForm(branch_, nrc);
+      break;
+    }
+  }
+  return photo;
+}
+
+HFShowerPhotonCollection HFShowerLibrary::getRecord(int type, int record) const {
+  HFShowerPhotonCollection photo;
   if (type > 0) {
-    if (newForm_) {
-      if (!v3version_) {
-        auto temp = std::make_unique<HFShowerPhotonCollection>();
-        hadBranch_->SetAddress(&temp);
-        int position = (fileVersion_ >= 2) ? nrc : (nrc + totEvents_);
-        hadBranch_->GetEntry(position);
-        photo = std::move(*temp);
-      } else {
-        std::vector<float> t;
-        std::vector<float>* tp = &t;
-        hadBranch_->SetAddress(&tp);
-        hadBranch_->GetEntry(nrc + totEvents_);
-        unsigned int tSize = t.size() / 5;
-        photo.reserve(tSize);
-        for (unsigned int i = 0; i < tSize; i++) {
-          photo.emplace_back(t[i], t[1 * tSize + i], t[2 * tSize + i], t[3 * tSize + i], t[4 * tSize + i]);
-        }
-      }
-    } else {
-      hadBranch_->SetAddress(&photo);
-      hadBranch_->GetEntry(nrc);
-    }
+    photo = hadBranch_.getRecord(record);
   } else {
-    if (newForm_) {
-      if (!v3version_) {
-        auto temp = std::make_unique<HFShowerPhotonCollection>();
-        emBranch_->SetAddress(&temp);
-        emBranch_->GetEntry(nrc);
-        photo = std::move(*temp);
-      } else {
-        std::vector<float> t;
-        std::vector<float>* tp = &t;
-        emBranch_->SetAddress(&tp);
-        emBranch_->GetEntry(nrc);
-        unsigned int tSize = t.size() / 5;
-        photo.reserve(tSize);
-        for (unsigned int i = 0; i < tSize; i++) {
-          photo.emplace_back(t[i], t[1 * tSize + i], t[2 * tSize + i], t[3 * tSize + i], t[4 * tSize + i]);
-        }
-      }
-    } else {
-      emBranch_->SetAddress(&photo);
-      emBranch_->GetEntry(nrc);
-    }
+    photo = emBranch_.getRecord(record);
   }
 #ifdef EDM_ML_DEBUG
   int nPhoton = photo.size();
@@ -448,7 +472,8 @@ HFShowerPhotonCollection HFShowerLibrary::getRecord(int type, int record) const 
   return photo;
 }
 
-void HFShowerLibrary::loadEventInfo(TBranch* branch) {
+HFShowerLibrary::VersionInfo HFShowerLibrary::loadEventInfo(TBranch* branch, int fileVersion) {
+  VersionInfo versionInfo;
   if (branch) {
     std::vector<HFShowerLibraryEventInfo> eventInfoCollection;
     branch->SetAddress(&eventInfoCollection);
@@ -459,22 +484,23 @@ void HFShowerLibrary::loadEventInfo(TBranch* branch) {
     totEvents_ = eventInfoCollection[0].totalEvents();
     nMomBin_ = eventInfoCollection[0].numberOfBins();
     evtPerBin_ = eventInfoCollection[0].eventsPerBin();
-    libVers_ = eventInfoCollection[0].showerLibraryVersion();
-    listVersion_ = eventInfoCollection[0].physListVersion();
+    versionInfo.libVers_ = eventInfoCollection[0].showerLibraryVersion();
+    versionInfo.listVersion_ = eventInfoCollection[0].physListVersion();
     pmom_ = eventInfoCollection[0].energyBins();
   } else {
     edm::LogVerbatim("HFShower") << "HFShowerLibrary::loadEventInfo loads EventInfo from hardwired"
                                  << " numbers";
 
     nMomBin_ = 16;
-    evtPerBin_ = (fileVersion_ == 0) ? 5000 : 10000;
+    evtPerBin_ = (fileVersion == 0) ? 5000 : 10000;
     totEvents_ = nMomBin_ * evtPerBin_;
-    libVers_ = (fileVersion_ == 0) ? 1.1 : 1.2;
-    listVersion_ = 3.6;
+    versionInfo.libVers_ = (fileVersion == 0) ? 1.1 : 1.2;
+    versionInfo.listVersion_ = 3.6;
     pmom_ = {2, 3, 5, 7, 10, 15, 20, 30, 50, 75, 100, 150, 250, 350, 500, 1000};
   }
   for (int i = 0; i < nMomBin_; i++)
     pmom_[i] *= CLHEP::GeV;
+  return versionInfo;
 }
 
 HFShowerPhotonCollection HFShowerLibrary::interpolate(int type, double pin) {

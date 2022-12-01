@@ -76,21 +76,45 @@ private:
                   edm::ParameterSet const &hfShowerLibrary);
   bool rInside(double r) const;
   HFShowerPhotonCollection getRecord(int, int) const;
-  void loadEventInfo(TBranch *);
+
+  struct VersionInfo {
+    float libVers_;
+    float listVersion_;
+  };
+  VersionInfo loadEventInfo(TBranch *, int fileVersion);
   HFShowerPhotonCollection interpolate(int, double);
   HFShowerPhotonCollection extrapolate(int, double);
   void storePhoton(HFShowerPhoton const &iPhoton, HFShowerPhotonCollection &iPhotons) const;
 
+  enum class FileFormat { kOld, kNew, kNewV3 };
+
+  struct BranchReader {
+    BranchReader() : branch_(nullptr), offset_(0), format_(FileFormat::kOld) {}
+    BranchReader(TBranch *iBranch, FileFormat iFormat, size_t iReadOffset)
+        : branch_(iBranch), offset_(iReadOffset), format_(iFormat) {}
+
+    HFShowerPhotonCollection getRecord(int) const;
+
+  private:
+    static HFShowerPhotonCollection getRecordOldForm(TBranch *, int iEntry);
+    static HFShowerPhotonCollection getRecordNewForm(TBranch *, int iEntry);
+    static HFShowerPhotonCollection getRecordNewFormV3(TBranch *, int iEntry);
+
+    TBranch *branch_;
+    size_t offset_;
+    FileFormat format_;
+  };
+
   HFFibre fibre_;
   std::unique_ptr<TFile> hf_;
-  TBranch *emBranch_, *hadBranch_;
 
-  bool verbose_, applyFidCut_, newForm_, v3version_;
+  BranchReader emBranch_;
+  BranchReader hadBranch_;
+
+  bool verbose_, applyFidCut_;
   int nMomBin_, totEvents_, evtPerBin_;
-  float libVers_, listVersion_;
   std::vector<double> pmom_;
 
-  int fileVersion_;
   bool equalizeTimeShift_;
   double probMax_, backProb_;
   double dphi_, rMin_, rMax_;
