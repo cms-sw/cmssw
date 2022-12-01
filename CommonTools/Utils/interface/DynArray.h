@@ -88,8 +88,8 @@ namespace dynarray {
 #define unInitDynArray(T, n, x)                                                \
   alignas(alignof(T)) unsigned char x##_storage[sizeof(T) * dynarray::num(n)]; \
   DynArray<T> x(x##_storage)
-#define declareDynArray(T, n, x)                                               \
-  alignas(alignof(T)) unsigned char x##_storage[sizeof(T) * dynarray::num(n)]; \
+#define declareDynArray(T, n, x)                                                 \
+  alignas(alignof(T)) unsigned char x##_storage[sizeof(T) * dynarray::num(n)]{}; \
   DynArray<T> x(x##_storage, n)
 #define initDynArray(T, n, x, i)                                               \
   alignas(alignof(T)) unsigned char x##_storage[sizeof(T) * dynarray::num(n)]; \
