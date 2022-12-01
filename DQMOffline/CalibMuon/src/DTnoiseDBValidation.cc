@@ -41,6 +41,7 @@ DTnoiseDBValidation::DTnoiseDBValidation(const ParameterSet &pset)
   LogVerbatim("NoiseDBValidation") << "[DTnoiseDBValidation] Constructor called!";
 
   // Get the DQM needed services
+  usesResource("DQMStore");
   dbe_ = edm::Service<DQMStore>().operator->();
   dbe_->setCurrentFolder("DT/DtCalib/NoiseDBValidation");
 

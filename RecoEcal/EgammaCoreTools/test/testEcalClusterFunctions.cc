@@ -21,7 +21,7 @@ Implementation:
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -36,7 +36,7 @@ Implementation:
 
 #include "CondFormats/EcalObjects/interface/EcalFunctionParameters.h"
 
-class testEcalClusterFunctions : public edm::EDAnalyzer {
+class testEcalClusterFunctions : public edm::one::EDAnalyzer<> {
 public:
   explicit testEcalClusterFunctions(const edm::ParameterSet&);
   ~testEcalClusterFunctions() override = default;

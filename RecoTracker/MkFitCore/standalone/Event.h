@@ -72,7 +72,7 @@ namespace mkfit {
 
   struct DataFileHeader {
     int f_magic = 0xBEEF;
-    int f_format_version = 6;
+    int f_format_version = 7;  //last update with ph2 geom
     int f_sizeof_track = sizeof(Track);
     int f_sizeof_hit = sizeof(Hit);
     int f_sizeof_hot = sizeof(HitOnTrack);

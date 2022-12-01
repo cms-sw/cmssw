@@ -74,6 +74,14 @@ namespace fwlite {
 
     // ---------- const member functions ---------------------
     std::string const getBranchNameFor(std::type_info const&, char const*, char const*, char const*) const override;
+    template <typename T>
+    edm::EDGetTokenT<T> consumes(edm::InputTag const& iTag) const {
+      auto t = event1_->consumes<T>(iTag);
+      if (t) {
+        return t;
+      }
+      return event2_->consumes<T>(iTag);
+    }
 
     using fwlite::EventBase::getByLabel;
 
@@ -133,6 +141,8 @@ namespace fwlite {
                                               edm::ProductID const& thinned) const;
 
   private:
+    bool getByTokenImp(edm::EDGetToken, edm::WrapperBase const*&) const override;
+
     MultiChainEvent(Event const&);  // stop default
 
     const MultiChainEvent& operator=(Event const&);  // stop default

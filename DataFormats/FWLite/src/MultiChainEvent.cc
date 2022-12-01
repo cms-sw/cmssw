@@ -315,6 +315,17 @@ namespace fwlite {
     return true;
   }
 
+  bool MultiChainEvent::getByTokenImp(edm::EDGetToken iToken, edm::WrapperBase const*& iValue) const {
+    bool ret1 = event1_->getByTokenImp(iToken, iValue);
+    if (!ret1) {
+      (const_cast<MultiChainEvent*>(this))->toSec(event1_->id());
+      bool ret2 = event2_->getByTokenImp(iToken, iValue);
+      if (!ret2)
+        return false;
+    }
+    return true;
+  }
+
   edm::WrapperBase const* MultiChainEvent::getByProductID(edm::ProductID const& iID) const {
     // First try the first file
     edm::WrapperBase const* edp = event1_->getByProductID(iID);

@@ -25,6 +25,8 @@ run3_common.toModify(siPixelClustersPreSplittingCUDA,
 
 # convert the pixel digis (except errors) and clusters to the legacy format
 from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoA_cfi import siPixelDigisClustersFromSoA as _siPixelDigisClustersFromSoA
+from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoAPhase2_cfi import siPixelDigisClustersFromSoAPhase2 as _siPixelDigisClustersFromSoAPhase2
+
 siPixelDigisClustersPreSplitting = _siPixelDigisClustersFromSoA.clone()
 
 run3_common.toModify(siPixelDigisClustersPreSplitting,
@@ -32,7 +34,7 @@ run3_common.toModify(siPixelDigisClustersPreSplitting,
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 
-(gpu & ~phase2_tracker).toReplaceWith(siPixelClustersPreSplittingTask, cms.Task(
+gpu.toReplaceWith(siPixelClustersPreSplittingTask, cms.Task(
     # conditions used *only* by the modules running on GPU
     siPixelROCsStatusAndMappingWrapperESProducer,
     siPixelGainCalibrationForHLTGPU,
@@ -55,12 +57,13 @@ siPixelDigisPhase2SoA = _siPixelDigisSoAFromCUDA.clone(
     src = "siPixelClustersPreSplittingCUDA"
 )
 
-phase2_tracker.toModify(siPixelDigisClustersPreSplitting,
+phase2_tracker.toReplaceWith(siPixelDigisClustersPreSplitting, _siPixelDigisClustersFromSoAPhase2.clone(
                         clusterThreshold_layer1 = 4000,
                         clusterThreshold_otherLayers = 4000,
                         src = "siPixelDigisPhase2SoA",
                         #produceDigis = False
-                        )
+                        ))
+
 (gpu & phase2_tracker).toReplaceWith(siPixelClustersPreSplittingTask, cms.Task(
                             # reconstruct the pixel clusters on the gpu from copied digis
                             siPixelClustersPreSplittingCUDA,

@@ -2,6 +2,7 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="DataFormats/MuonDetId"/>
+<use name="DataFormats/MuonReco"/>
 <use name="DataFormats/GEMRecHit"/>
 <use name="Geometry/CommonDetUnit" source_only="1"/>
 <use name="Geometry/GEMGeometry"/>
@@ -9,12 +10,15 @@
 <use name="Geometry/Records"/>
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/TrackingHit"/>
+<use name="CommonTools/UtilAlgos"/>
 <use name="rootcore"/>
 <use name="rootgraphics"/>
 <use name="Root"/>
 <use name="boost"/>
 <flags EDM_PLUGIN="1"/>
 <library file="TestGEMCSCSegmentAnalyzer.cc" name="testGEMCSCSegmentAnalyzer">
+</library>
+<library file="GEMCSCCoincidenceRateAnalyzer.cc" name="GEMCSCCoincidenceRateAnalyzer">
 </library>
 
 <export>

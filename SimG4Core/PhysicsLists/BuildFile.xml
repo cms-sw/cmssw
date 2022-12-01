@@ -1,6 +1,7 @@
 <use name="boost"/>
 <use name="clhep"/>
 <use name="geant4core"/>
+<use name="g4hepemcore"/>
 <use name="heppdt"/>
 <use name="FWCore/MessageLogger"/>
 <use name="SimG4Core/MagneticField"/>

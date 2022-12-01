@@ -2,7 +2,7 @@
 // Package:    SiPixelPhase1CompareRecHitsSoA
 // Class:      SiPixelPhase1CompareRecHitsSoA
 //
-/**\class SiPixelPhase1CompareRecHitsSoA SiPixelPhase1CompareRecHitsSoA.cc 
+/**\class SiPixelPhase1CompareRecHitsSoA SiPixelPhase1CompareRecHitsSoA.cc
 */
 //
 // Author: Suvankar Roy Chowdhury, Alessandro Rossi
@@ -29,6 +29,9 @@
 
 class SiPixelPhase1CompareRecHitsSoA : public DQMEDAnalyzer {
 public:
+  using HitSoA = TrackingRecHit2DSOAViewT<pixelTopology::Phase1>;
+  using HitsOnCPU = TrackingRecHit2DCPUT<pixelTopology::Phase1>;
+
   explicit SiPixelPhase1CompareRecHitsSoA(const edm::ParameterSet&);
   ~SiPixelPhase1CompareRecHitsSoA() override = default;
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
@@ -39,8 +42,8 @@ public:
 private:
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
-  const edm::EDGetTokenT<TrackingRecHit2DCPU> tokenSoAHitsCPU_;
-  const edm::EDGetTokenT<TrackingRecHit2DCPU> tokenSoAHitsGPU_;
+  const edm::EDGetTokenT<HitsOnCPU> tokenSoAHitsCPU_;
+  const edm::EDGetTokenT<HitsOnCPU> tokenSoAHitsGPU_;
   const std::string topFolderName_;
   const float mind2cut_;
   static constexpr uint32_t invalidHit_ = std::numeric_limits<uint32_t>::max();
@@ -77,8 +80,8 @@ private:
 SiPixelPhase1CompareRecHitsSoA::SiPixelPhase1CompareRecHitsSoA(const edm::ParameterSet& iConfig)
     : geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
       topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()),
-      tokenSoAHitsCPU_(consumes<TrackingRecHit2DCPU>(iConfig.getParameter<edm::InputTag>("pixelHitsSrcCPU"))),
-      tokenSoAHitsGPU_(consumes<TrackingRecHit2DCPU>(iConfig.getParameter<edm::InputTag>("pixelHitsSrcGPU"))),
+      tokenSoAHitsCPU_(consumes(iConfig.getParameter<edm::InputTag>("pixelHitsSrcCPU"))),
+      tokenSoAHitsGPU_(consumes(iConfig.getParameter<edm::InputTag>("pixelHitsSrcGPU"))),
       topFolderName_(iConfig.getParameter<std::string>("topFolderName")),
       mind2cut_(iConfig.getParameter<double>("minD2cut")) {}
 //
@@ -106,10 +109,11 @@ void SiPixelPhase1CompareRecHitsSoA::analyze(const edm::Event& iEvent, const edm
     out << "the comparison will not run.";
     return;
   }
+
   auto const& rhsoaCPU = *rhsoaHandleCPU;
-  const TrackingRecHit2DSOAView* soa2dCPU = rhsoaCPU.view();
+  const HitSoA* soa2dCPU = rhsoaCPU.view();
   auto const& rhsoaGPU = *rhsoaHandleGPU;
-  const TrackingRecHit2DSOAView* soa2dGPU = rhsoaGPU.view();
+  const HitSoA* soa2dGPU = rhsoaGPU.view();
 
   uint32_t nHitsCPU = soa2dCPU->nHits();
   uint32_t nHitsGPU = soa2dGPU->nHits();

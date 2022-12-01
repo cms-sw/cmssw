@@ -13,14 +13,13 @@ TGTS := ${LIB_CORE}
 all: ${TGTS}
 
 SRCS := $(wildcard ${CORE_DIR}/src/*.cc) \
-        $(wildcard ${CORE_DIR}/src/Ice/*.cc) \
 		$(wildcard ${CORE_DIR}/src/Matriplex/*.cc) \
 		$(wildcard ${SADIR}/*.cc)
 SRCB := $(notdir ${SRCS})
 DEPS := $(SRCB:.cc=.d)
 OBJS := $(SRCB:.cc=.o)
 
-vpath %.cc ${CORE_DIR}/src ${CORE_DIR}/src/Ice ${CORE_DIR}/src/Matriplex ${SADIR}
+vpath %.cc ${CORE_DIR}/src ${CORE_DIR}/src/Matriplex ${SADIR}
 
 AUTO_TGTS :=
 

@@ -58,6 +58,7 @@ BeamMonitorBx::BeamMonitorBx(const ParameterSet& ps) : countBx_(0), countEvt_(0)
   fitNLumi_ = parameters_.getUntrackedParameter<int>("fitEveryNLumi", -1);
   resetFitNLumi_ = parameters_.getUntrackedParameter<int>("resetEveryNLumi", -1);
 
+  usesResource("DQMStore");
   dbe_ = Service<DQMStore>().operator->();
 
   if (!monitorName_.empty())

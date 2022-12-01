@@ -294,7 +294,7 @@ void PixelThresholdClusterizer::copy_to_buffer(DigiIterator begin, DigiIterator 
 
     if (adc < 100)
       adc = 100;  // put all negative pixel charges into the 100 elec bin
-    /* This is semi-random good number. The exact number (in place of 100) is irrelevant from the point 
+    /* This is semi-random good number. The exact number (in place of 100) is irrelevant from the point
        of view of the final cluster charge since these are typically >= 20000.
     */
 
@@ -444,7 +444,7 @@ SiPixelCluster PixelThresholdClusterizer::make_cluster(const SiPixelCluster::Pix
 
   /*  this is not possible as dead and noisy pixel cannot make it into a seed...
   if ( doMissCalibrate &&
-       (theSiPixelGainCalibrationService_->isDead(theDetid,pix.col(),pix.row()) || 
+       (theSiPixelGainCalibrationService_->isDead(theDetid,pix.col(),pix.row()) ||
 	theSiPixelGainCalibrationService_->isNoisy(theDetid,pix.col(),pix.row())) )
     {
       std::cout << "IMPOSSIBLE" << std::endl;
@@ -489,15 +489,15 @@ SiPixelCluster PixelThresholdClusterizer::make_cluster(const SiPixelCluster::Pix
         }
 
         /* //Commenting out the addition of dead pixels to the cluster until further testing -- dfehling 06/09
-	      //Check on the bounds of the module; this is to keep the isDead and isNoisy modules from returning errors 
-	      else if(r>= 0 && c >= 0 && (r <= (theNumOfRows-1.)) && (c <= (theNumOfCols-1.))){ 
+	      //Check on the bounds of the module; this is to keep the isDead and isNoisy modules from returning errors
+	      else if(r>= 0 && c >= 0 && (r <= (theNumOfRows-1.)) && (c <= (theNumOfCols-1.))){
 	      //Check for dead/noisy pixels check that the buffer is not -1 (already considered).  Check whether we want to split clusters separated by dead pixels or not.
 	      if((theSiPixelGainCalibrationService_->isDead(theDetid,c,r) || theSiPixelGainCalibrationService_->isNoisy(theDetid,c,r)) && theBuffer(r,c) != 1){
-	      
-	      //If a pixel is dead or noisy, check to see if we want to split the clusters or not.  
+
+	      //If a pixel is dead or noisy, check to see if we want to split the clusters or not.
 	      //Push it into a dead pixel stack in case we want to split the clusters.  Otherwise add it to the cluster.
    	      //If we are splitting the clusters, we will iterate over the dead pixel stack later.
-	      
+
 	      SiPixelCluster::PixelPos newpix(r,c);
 	      if(!doSplitClusters){
 
@@ -505,10 +505,10 @@ SiPixelCluster PixelThresholdClusterizer::make_cluster(const SiPixelCluster::Pix
 	      else if(doSplitClusters){
 	      dead_pixel_stack.push(newpix);
 	      dead_flag = true;}
-	      
+
 	      theBuffer.set_adc(newpix, 1);
-	      } 
-	      
+	      }
+
 	      }
 	      */
       }

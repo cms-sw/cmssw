@@ -6,7 +6,6 @@
 #define HLTJetMETValidation_h
 
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

@@ -5,11 +5,11 @@ namespace l1t::demo::codecs {
 
   ap_uint<64> encodeEtSum(const l1t::EtSum& etSum) {
     l1tmetemu::EtMiss etMiss;
-    etMiss.Et = etSum.hwPt();
+    etMiss.Et.V = etSum.hwPt();
     etMiss.Phi = etSum.hwPhi();
     ap_uint<1> valid = (etSum.hwQual() > 0);
     ap_uint<64 - (l1tmetemu::kMETSize + l1tmetemu::kMETPhiSize + 1)> unassigned = 0;
-    ap_uint<64> etSumWord = (unassigned, etMiss.Phi, etMiss.Et, valid);
+    ap_uint<64> etSumWord = (unassigned, etMiss.Phi, etMiss.Et.range(), valid);
     return etSumWord;
   }
 
@@ -41,9 +41,9 @@ namespace l1t::demo::codecs {
       math::XYZTLorentzVector v(0, 0, 0, 0);
       l1t::EtSum s(v,
                    l1t::EtSum::EtSumType::kMissingEt,
-                   l1tmetemu::MET_t(x(1 + l1tmetemu::kMETSize, 1)).to_int(),
+                   l1tmetemu::METWord_t(x(1 + l1tmetemu::kMETSize, 1)),
                    0,
-                   l1tmetemu::METphi_t(x(1 + l1tmetemu::kMETSize + l1tmetemu::kMETPhiSize, 17)).to_int(),
+                   l1tmetemu::METWordphi_t(x(1 + l1tmetemu::kMETSize + l1tmetemu::kMETPhiSize, 17)).to_int(),
                    0);
       etSums.push_back(s);
     }

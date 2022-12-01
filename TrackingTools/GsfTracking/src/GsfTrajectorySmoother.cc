@@ -129,6 +129,10 @@ Trajectory GsfTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
     if (theMerger)
       predTsos = theMerger->merge(predTsos);
 
+    if (!predTsos.isValid()) {
+      return Trajectory();
+    }
+
     if ((*itm).recHit()->isValid()) {
       //update
       currTsos = updator()->update(predTsos, *(*itm).recHit());
@@ -204,6 +208,9 @@ Trajectory GsfTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
     if (theMerger)
       currTsos = theMerger->merge(currTsos);
 
+    if (!currTsos.isValid()) {
+      return Trajectory();
+    }
     dump(currTsos, "currTsos", "GsfTrackFitters");
   }
 

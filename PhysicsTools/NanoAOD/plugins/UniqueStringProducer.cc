@@ -1,6 +1,8 @@
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/NanoAOD/interface/UniqueString.h"
 
 #include <vector>
@@ -17,6 +19,15 @@ public:
 
   ~UniqueStringProducer() override {}
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    edm::ParameterSetDescription strings;
+    strings.setComment("a parameter set definining the a pair of strings to be added in run flat table");
+    strings.addNode(edm::ParameterWildcard<std::string>("*", edm::RequireZeroOrMore, true));
+    desc.add<edm::ParameterSetDescription>("strings", strings);
+
+    descriptions.addWithDefaultLabel(desc);
+  }
   void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {}  // do nothing
 
   void globalBeginRunProduce(edm::Run& iRun, edm::EventSetup const&) const override {

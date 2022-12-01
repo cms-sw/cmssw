@@ -29,20 +29,22 @@ namespace mkfit {
       eoh.setBeamSpot(ev.beamSpot_);
     }
 
-    void handle_duplicates(Event *event) {
+    void handle_duplicates(Event *) {
+      /*
       // Mark tracks as duplicates; if within CMSSW, remove duplicate tracks from fit or candidate track collection
       if (Config::removeDuplicates) {
         if (Config::quality_val || Config::sim_val || Config::cmssw_val) {
-          find_duplicates(event->candidateTracks_);
+          clean_duplicates(event->candidateTracks_);
           if (Config::backwardFit)
-            find_duplicates(event->fitTracks_);
+            clean_duplicates(event->fitTracks_);
         }
         // For the MEIF benchmarks and the stress tests, no validation flags are set so we will enter this block
         else {
           // Only care about the candidate tracks here; no need to run the duplicate removal on both candidate and fit tracks
-          find_duplicates(event->candidateTracks_);
+          clean_duplicates(event->candidateTracks_);
         }
       }
+      */
     }
 
     //=========================================================================

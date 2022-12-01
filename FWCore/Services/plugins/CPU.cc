@@ -16,6 +16,18 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/CPUServiceBase.h"
 
+#include "cpu_features/cpu_features_macros.h"
+
+#if defined(CPU_FEATURES_ARCH_X86)
+#include "cpu_features/cpuinfo_x86.h"
+#elif defined(CPU_FEATURES_ARCH_ARM)
+#include "cpu_features/cpuinfo_arm.h"
+#elif defined(CPU_FEATURES_ARCH_AARCH64)
+#include "cpu_features/cpuinfo_aarch64.h"
+#elif defined(CPU_FEATURES_ARCH_PPC)
+#include "cpu_features/cpuinfo_ppc.h"
+#endif
+
 #include <iostream>
 #include <sys/time.h>
 #include <sys/resource.h>
@@ -24,6 +36,7 @@
 #include <fstream>
 #include <sstream>
 #include <set>
+#include <fmt/format.h>
 
 #ifdef __linux__
 #include <sched.h>
@@ -48,6 +61,7 @@ namespace edm {
       bool cpuInfoImpl(std::string &models, double &avgSpeed, Service<JobReport> *reportSvc);
       bool parseCPUInfo(std::vector<std::pair<std::string, std::string>> &info);
       std::string getModels(const std::vector<std::pair<std::string, std::string>> &info);
+      std::string getModelFromCPUFeatures();
       double getAverageSpeed(const std::vector<std::pair<std::string, std::string>> &info);
       void postEndJob();
     };
@@ -247,6 +261,26 @@ namespace edm {
       return true;
     }
 
+    std::string CPU::getModelFromCPUFeatures() {
+      using namespace cpu_features;
+
+      std::string model;
+#if defined(CPU_FEATURES_ARCH_X86)
+      const auto info{GetX86Info()};
+      model = info.brand_string;
+#elif defined(CPU_FEATURES_ARCH_ARM)
+      const auto info{GetArmInfo()};
+      model = fmt::format("ARM {} {} {}", info.implementer, info.architecture, info.variant);
+#elif defined(CPU_FEATURES_ARCH_AARCH64)
+      const auto info{GetAarch64Info()};
+      model = fmt::format("aarch64 {} {}", info.implementer, info.variant);
+#elif defined(CPU_FEATURES_ARCH_PPC)
+      const auto strings{GetPPCPlatformStrings()};
+      model = strings.machine;
+#endif
+      return model;
+    }
+
     std::string CPU::getModels(const std::vector<std::pair<std::string, std::string>> &info) {
       std::set<std::string> models;
       for (const auto &entry : info) {
@@ -261,6 +295,11 @@ namespace edm {
           ss << ", ";
         }
         ss << modelname;
+      }
+      // If "model name" isn't present in /proc/cpuinfo, see what we can get
+      // from cpu_features
+      if (0 == model) {
+        return getModelFromCPUFeatures();
       }
       return ss.str();
     }

@@ -1,12 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
+from PhysicsTools.NanoAOD.globalVariablesTableProducer_cfi import globalVariablesTableProducer
+from PhysicsTools.NanoAOD.simpleBeamspotFlatTableProducer_cfi import simpleBeamspotFlatTableProducer
+from PhysicsTools.NanoAOD.simpleGenEventFlatTableProducer_cfi import simpleGenEventFlatTableProducer
+from PhysicsTools.NanoAOD.simpleGenFilterFlatTableProducerLumi_cfi import simpleGenFilterFlatTableProducerLumi
 
-beamSpotTable = cms.EDProducer("SimpleBeamspotFlatTableProducer",
+beamSpotTable = simpleBeamspotFlatTableProducer.clone(
     src = cms.InputTag("offlineBeamSpot"),
     name = cms.string("BeamSpot"),
     doc = cms.string("offlineBeamSpot, the offline reconstructed beamspot"),
-    singleton = cms.bool(True),  # there's always exactly one MET per event
-    extension = cms.bool(False), # this is the main table for the MET
     variables = cms.PSet(
        type = Var("type()","int8",doc="BeamSpot type (Unknown = -1, Fake = 0, LHC = 1, Tracker = 2)"),
        z = Var("position().z()",float,doc="BeamSpot center, z coordinate (cm)",precision=-1),
@@ -16,7 +18,7 @@ beamSpotTable = cms.EDProducer("SimpleBeamspotFlatTableProducer",
     ),
 )
 
-rhoTable = cms.EDProducer("GlobalVariablesTableProducer",
+rhoTable = globalVariablesTableProducer.clone(
     name = cms.string("Rho"),
     variables = cms.PSet(
         fixedGridRhoAll = ExtVar( cms.InputTag("fixedGridRhoAll"), "double", doc = "rho from all PF Candidates, no foreground removal (for isolation of prompt photons)" ),
@@ -32,16 +34,13 @@ puTable = cms.EDProducer("NPUTablesProducer",
         src = cms.InputTag("slimmedAddPileupInfo"),
         pvsrc = cms.InputTag("offlineSlimmedPrimaryVertices"),
         zbins = cms.vdouble( [0.0,1.7,2.6,3.0,3.5,4.2,5.2,6.0,7.5,9.0,12.0] ),
-        savePtHatMax = cms.bool(False), 
+        savePtHatMax = cms.bool(False),
 )
 
-genTable  = cms.EDProducer("SimpleGenEventFlatTableProducer",
-        src = cms.InputTag("generator"),
-        cut = cms.string(""), 
-        name= cms.string("Generator"),
-        doc = cms.string("Generator information"),
-        singleton = cms.bool(True), 
-        extension = cms.bool(False),
+genTable  = simpleGenEventFlatTableProducer.clone(
+    src = cms.InputTag("generator"),
+    name= cms.string("Generator"),
+    doc = cms.string("Generator information"),
     variables = cms.PSet(
         x1 = Var( "?hasPDF?pdf().x.first:-1", float, doc="x1 fraction of proton momentum carried by the first parton",precision=14 ),
         x2 = Var( "?hasPDF?pdf().x.second:-1", float, doc="x2 fraction of proton momentum carried by the second parton",precision=14 ),
@@ -52,22 +51,19 @@ genTable  = cms.EDProducer("SimpleGenEventFlatTableProducer",
         scalePDF = Var( "?hasPDF?pdf().scalePDF:-1", float, doc="Q2 scale for PDF", precision=14 ),
         binvar = Var("?hasBinningValues()?binningValues()[0]:-1", float, doc="MC generation binning value", precision=14),
         weight = Var("weight()", float,doc="MC generator weight", precision=14),
-        ),
+    ),
 )
 
-genFilterTable = cms.EDProducer("SimpleGenFilterFlatTableProducerLumi",
-        src = cms.InputTag("genFilterEfficiencyProducer"),
-        cut = cms.string(""), 
-        name= cms.string("GenFilter"),
-        doc = cms.string("Generator filter information"),
-        singleton = cms.bool(True), 
-        extension = cms.bool(False),
+genFilterTable = simpleGenFilterFlatTableProducerLumi.clone(
+    src = cms.InputTag("genFilterEfficiencyProducer"),
+    name= cms.string("GenFilter"),
+    doc = cms.string("Generator filter information"),
     variables = cms.PSet(
         numEventsTotal        = Var("numEventsTotal()",        int,   doc="generator filter: total number of events",  precision=6),
         numEventsPassed       = Var("numEventsPassed()",       int,   doc="generator filter: passed number of events", precision=6),
         filterEfficiency      = Var("filterEfficiency()",      float, doc="generator filter: efficiency",              precision=14),
         filterEfficiencyError = Var("filterEfficiencyError()", float, doc="generator filter: efficiency error",        precision=14),
-        ),
+    ),
 )
 
 globalTablesTask = cms.Task(beamSpotTable, rhoTable)

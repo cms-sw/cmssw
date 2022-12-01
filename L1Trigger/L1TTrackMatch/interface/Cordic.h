@@ -15,26 +15,21 @@
 class Cordic {
 public:
   Cordic();
-  Cordic(int aPhiScale, int aMagnitudeBits, const int aSteps, bool debug);
+  Cordic(const int aSteps, bool debug);
 
+  template <typename T>
+  void cordic_subfunc(T &x, T &y, T &z) const;
   l1tmetemu::EtMiss toPolar(l1tmetemu::Et_t x, l1tmetemu::Et_t y) const;
 
 private:
-  // Scale for Phi calculation to maintain precision
-  const int mPhiScale;
-  // Scale for Magnitude calculation
-  const int mMagnitudeScale;
-  // Bit width for internal magnitude
-  const int mMagnitudeBits;
-  // Number of cordic iterations
   const int cordicSteps;
 
   const bool debug;
 
   // To calculate atan
-  std::vector<l1tmetemu::METphi_t> atanLUT;
+  std::vector<l1tmetemu::atan_lut_fixed_t> atanLUT;
   // To normalise final magnitude
-  std::vector<l1tmetemu::Et_t> magNormalisationLUT;
+  std::vector<l1tmetemu::atan_lut_fixed_t> magNormalisationLUT;
 };
 
 #endif

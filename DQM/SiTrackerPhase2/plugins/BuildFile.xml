@@ -9,6 +9,8 @@
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="DQMServices/Core"/>
 <use name="DQM/SiTrackerPhase2"/>
+<use name="MagneticField/Records"/>
+<use name="MagneticField/Engine"/>
 <use name="boost_system"/>
 <use name="rootcling"/>
 <flags EDM_PLUGIN="1"/>

@@ -20,28 +20,24 @@ process.testProducerCuda = cms.EDProducer('alpaka_cuda_async::TestAlpakaProducer
     size = cms.int32(42)
 )
 
-# copy the product from the gpu (if available) to the host
-process.testTranscriberFromCuda = cms.EDProducer('alpaka_cuda_async::TestAlpakaTranscriber',
-    source = cms.InputTag('testProducerCuda')
-)
-
 # run the producer on the cpu
 process.testProducerCpu = cms.EDProducer('alpaka_serial_sync::TestAlpakaProducer',
     size = cms.int32(42)
 )
 
-# extract the cpu product from the heterogeneous wrapper
-process.testTranscriberFromCpu = cms.EDProducer('alpaka_serial_sync::TestAlpakaTranscriber',
-    source = cms.InputTag('testProducerCpu')
-)
-
 # either run the producer on a CUDA gpu (if available) and copy the product to the cpu, or run the producer directly on the cpu
+#
+# TODO: the cuda case needs currently explicitly to restrict the
+# host-only data products. In the near future the constraints of
+# SwichProducer will be relaxed to not consider transient data
+# products (as defined in classes_def.xml) after which the explicit
+# set of data products can be removed.
 process.testProducer = SwitchProducerCUDA(
     cpu = cms.EDAlias(
-        testTranscriberFromCpu = cms.VPSet(cms.PSet(type = cms.string('*')))
+        testProducerCpu = cms.VPSet(cms.PSet(type = cms.string('*')))
     ),
     cuda = cms.EDAlias(
-        testTranscriberFromCuda = cms.VPSet(cms.PSet(type = cms.string('*')))
+        testProducerCuda = cms.VPSet(cms.PSet(type = cms.string('128falseportabletestTestSoALayoutPortableHostCollection')))
     )
 )
 
@@ -55,14 +51,9 @@ process.testProducerSerial = cms.EDProducer('alpaka_serial_sync::TestAlpakaProdu
     size = cms.int32(99)
 )
 
-# extract the cpu product from the heterogeneous wrapper
-process.testTranscriberSerial = cms.EDProducer('alpaka_serial_sync::TestAlpakaTranscriber',
-    source = cms.InputTag('testProducerSerial')
-)
-
 # analyse the second product
 process.testAnalyzerSerial = cms.EDAnalyzer('TestAlpakaAnalyzer',
-    source = cms.InputTag('testTranscriberSerial')
+    source = cms.InputTag('testProducerSerial')
 )
 
 # write the two products to a 'test.root' file
@@ -71,11 +62,11 @@ process.output = cms.OutputModule('PoolOutputModule',
     outputCommands = cms.untracked.vstring(
         'drop *',
         'keep *_testProducer_*_*',
-        'keep *_testTranscriberSerial_*_*',
+        'keep *_testProducerSerial_*_*',
   )
 )
 
-process.producer_task = cms.Task(process.testProducerCuda, process.testTranscriberFromCuda, process.testProducerCpu, process.testTranscriberFromCpu)
+process.producer_task = cms.Task(process.testProducerCuda, process.testProducerCpu)
 
 process.process_path = cms.Path(
     process.testProducer +
@@ -84,7 +75,6 @@ process.process_path = cms.Path(
 
 process.serial_path = cms.Path(
     process.testProducerSerial +
-    process.testTranscriberSerial +
     process.testAnalyzerSerial)
 
 process.output_path = cms.EndPath(process.output)

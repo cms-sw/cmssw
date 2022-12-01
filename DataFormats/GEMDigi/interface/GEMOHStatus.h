@@ -36,7 +36,7 @@ public:
   };
 
   GEMOHStatus() {}
-  GEMOHStatus(const GEMOptoHybrid& oh) {
+  GEMOHStatus(const GEMOptoHybrid& oh, int chamberType) : chamberType_(chamberType) {
     Errors error{0};
     error.EvtF = oh.evtF();
     error.InF = oh.inF();
@@ -77,8 +77,10 @@ public:
   uint32_t vfatMask() const { return vfatMask_; }
   uint32_t zsMask() const { return zsMask_; }
   uint32_t existVFATs() const { return existVFATs_; }
+  int chamberType() const { return chamberType_; }
 
 private:
+  int chamberType_;
   uint16_t errors_;
   uint8_t warnings_;
   uint32_t missingVFATs_;

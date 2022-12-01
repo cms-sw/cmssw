@@ -2,7 +2,7 @@
 // Package:    SiPixelPhase1CompareTrackSoA
 // Class:      SiPixelPhase1CompareTrackSoA
 //
-/**\class SiPixelPhase1CompareTrackSoA SiPixelPhase1CompareTrackSoA.cc 
+/**\class SiPixelPhase1CompareTrackSoA SiPixelPhase1CompareTrackSoA.cc
 */
 //
 // Author: Suvankar Roy Chowdhury
@@ -64,6 +64,8 @@ namespace {
 
 class SiPixelPhase1CompareTrackSoA : public DQMEDAnalyzer {
 public:
+  using PixelTrackSoAPhase1 = PixelTrackHeterogeneousT<pixelTopology::Phase1>;
+
   explicit SiPixelPhase1CompareTrackSoA(const edm::ParameterSet&);
   ~SiPixelPhase1CompareTrackSoA() override = default;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
@@ -71,8 +73,8 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  const edm::EDGetTokenT<PixelTrackHeterogeneous> tokenSoATrackCPU_;
-  const edm::EDGetTokenT<PixelTrackHeterogeneous> tokenSoATrackGPU_;
+  const edm::EDGetTokenT<PixelTrackSoAPhase1> tokenSoATrackCPU_;
+  const edm::EDGetTokenT<PixelTrackSoAPhase1> tokenSoATrackGPU_;
   const std::string topFolderName_;
   const bool useQualityCut_;
   const pixelTrack::Quality minQuality_;
@@ -113,8 +115,8 @@ private:
 //
 
 SiPixelPhase1CompareTrackSoA::SiPixelPhase1CompareTrackSoA(const edm::ParameterSet& iConfig)
-    : tokenSoATrackCPU_(consumes<PixelTrackHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelTrackSrcCPU"))),
-      tokenSoATrackGPU_(consumes<PixelTrackHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelTrackSrcGPU"))),
+    : tokenSoATrackCPU_(consumes<PixelTrackSoAPhase1>(iConfig.getParameter<edm::InputTag>("pixelTrackSrcCPU"))),
+      tokenSoATrackGPU_(consumes<PixelTrackSoAPhase1>(iConfig.getParameter<edm::InputTag>("pixelTrackSrcGPU"))),
       topFolderName_(iConfig.getParameter<std::string>("topFolderName")),
       useQualityCut_(iConfig.getParameter<bool>("useQualityCut")),
       minQuality_(pixelTrack::qualityByName(iConfig.getParameter<std::string>("minQuality"))),

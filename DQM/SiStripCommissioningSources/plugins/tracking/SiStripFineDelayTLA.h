@@ -1,7 +1,6 @@
 #ifndef CalibTracker_SiSitripLorentzAngle_SiStripFineDelayTLA_h
 #define CalibTracker_SiSitripLorentzAngle_SiStripFineDelayTLA_h
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

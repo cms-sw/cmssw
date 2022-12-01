@@ -101,7 +101,7 @@ using RangeCheckingHostDeviceView =
 
 // We expect to just run one thread.
 __global__ void rangeCheckKernel(RangeCheckingHostDeviceView soa) {
-  printf("About to fail range-check in CUDA thread: %d\n", threadIdx.x);
+  printf("About to fail range-check (operator[]) in CUDA thread: %d\n", threadIdx.x);
   [[maybe_unused]] auto si = soa[soa.metadata().size()];
   printf("Fail: range-check failure should have stopped the kernel.\n");
 }
@@ -250,10 +250,23 @@ int main(void) {
         soa1viewRangeChecking(h_soahdLayout);
     // This should throw an exception
     [[maybe_unused]] auto si = soa1viewRangeChecking[soa1viewRangeChecking.metadata().size()];
-    std::cout << "Fail: expected range-check exception not caught on the host." << std::endl;
+    std::cout << "Fail: expected range-check exception (operator[]) not caught on the host." << std::endl;
     assert(false);
   } catch (const std::out_of_range&) {
-    std::cout << "Pass: expected range-check exception successfully caught on the host." << std::endl;
+    std::cout << "Pass: expected range-check exception (operator[]) successfully caught on the host." << std::endl;
+  }
+
+  try {
+    // Get a view like the default, except for range checking
+    SoAHostDeviceLayout::ViewTemplate<SoAHostDeviceView::restrictQualify, cms::soa::RangeChecking::enabled>
+        soa1viewRangeChecking(h_soahdLayout);
+    // This should throw an exception
+    [[maybe_unused]] auto si = soa1viewRangeChecking[soa1viewRangeChecking.metadata().size()];
+    std::cout << "Fail: expected range-check exception (view-level index access) not caught on the host." << std::endl;
+    assert(false);
+  } catch (const std::out_of_range&) {
+    std::cout << "Pass: expected range-check exception (view-level index access) successfully caught on the host."
+              << std::endl;
   }
 
   // Validation of range checking in a kernel

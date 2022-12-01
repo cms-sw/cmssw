@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
+from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
 
 ##################### User floats producers, selectors ##########################
 
@@ -47,16 +48,11 @@ tightJetIdLepVeto = cms.EDProducer("PatJetIDValueMapProducer",
     ),
     src = cms.InputTag("updatedJets")
 )
-run2_jme_2016.toModify( tightJetId.filterParams, version = "RUN2UL16CHS" )
-run2_jme_2016.toModify( tightJetIdLepVeto.filterParams, version = "RUN2UL16CHS" )
-for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
-    modifier.toModify( tightJetId.filterParams, version = "WINTER16" )
-    modifier.toModify( tightJetIdLepVeto.filterParams, version = "WINTER16" )
-for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
-    modifier.toModify( tightJetId.filterParams, version = "WINTER17" )
-    modifier.toModify( tightJetIdLepVeto.filterParams, version = "WINTER17" )
-run2_nanoAOD_102Xv1.toModify( tightJetId.filterParams, version = "SUMMER18" )
-run2_nanoAOD_102Xv1.toModify( tightJetIdLepVeto.filterParams, version = "SUMMER18" )
+run2_jme_2016.toModify(
+    tightJetId.filterParams, version = "RUN2UL16CHS"
+).toModify(
+    tightJetIdLepVeto.filterParams, version = "RUN2UL16CHS"
+)
 
 bJetVars = cms.EDProducer("JetRegressionVarProducer",
     pvsrc = cms.InputTag("offlineSlimmedPrimaryVertices"),
@@ -94,10 +90,6 @@ updatedJetsWithUserData = cms.EDProducer("PATJetUserDataEmbedder",
         puIdNanoId = cms.InputTag('pileupJetIdNano:fullId'),
     ),
 )
-for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
-    modifier.toModify(updatedJetsWithUserData.userInts,
-        looseId = cms.InputTag("looseJetId"),
-    )
 
 
 finalJets = cms.EDFilter("PATJetRefSelector",
@@ -109,13 +101,10 @@ finalJets = cms.EDFilter("PATJetRefSelector",
 ##################### Tables for final output and docs ##########################
 
 
-jetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+jetTable = simpleCandidateFlatTableProducer.clone(
     src = cms.InputTag("linkedObjects","jets"),
-    cut = cms.string(""), #we should not filter on cross linked collections
     name = cms.string("Jet"),
     doc  = cms.string("slimmedJets, i.e. ak4 PFJets CHS with JECs applied, after basic selection (" + finalJets.cut.value()+")"),
-    singleton = cms.bool(False), # the number of entries is variable
-    extension = cms.bool(False), # this is the main table for the jets
     externalVariables = cms.PSet(
         bRegCorr = ExtVar(cms.InputTag("bjetNN:corr"),float, doc="pt correction for b-jet energy regression",precision=10),
         bRegRes = ExtVar(cms.InputTag("bjetNN:res"),float, doc="res on pt corrected with b-jet regression",precision=6),
@@ -161,30 +150,21 @@ jetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 jetTable.variables.pt.precision=10
 
 ### Era dependent customization
-for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_102Xv1, run2_nanoAOD_106Xv1:
-    # Deprecated after 106X
-    modifier.toModify(jetTable.variables,
-        btagCMVA = Var("bDiscriminator('pfCombinedMVAV2BJetTags')",float,doc="CMVA V2 btag discriminator",precision=10),
-        btagDeepC = Var("bDiscriminator('pfDeepCSVJetTags:probc')",float,doc="DeepCSV charm btag discriminator",precision=10),
-        btagDeepFlavC = Var("bDiscriminator('pfDeepFlavourJetTags:probc')",float,doc="DeepFlavour charm tag discriminator",precision=10),
-    )
-for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
-    modifier.toModify( jetTable.variables, jetId = Var("userInt('tightIdLepVeto')*4+userInt('tightId')*2+userInt('looseId')",int,doc="Jet ID flags bit1 is loose, bit2 is tight, bit3 is tightLepVeto"))
-
-run2_nanoAOD_102Xv1.toModify( jetTable.variables.puIdDisc, doc="Pileup ID discriminant with 102X (2018) training")
-run2_nanoAOD_102Xv1.toModify( jetTable.variables, puId = Var("userInt('pileupJetId:fullId')",int,doc="Pileup ID flags for pre-UL trainings"))
-(run2_jme_2016 & ~tracker_apv_vfp30_2016 ).toModify( jetTable.variables.puIdDisc, doc="Pileup ID discriminant with 106X (2016) training")
-(run2_jme_2016 & ~tracker_apv_vfp30_2016 ).toModify( jetTable.variables.puId, doc="Pileup ID flags with 106X (2016) training")
-(run2_jme_2016 & tracker_apv_vfp30_2016 ).toModify( jetTable.variables.puIdDisc, doc="Pileup ID discriminant with 106X (2016APV) training")
-(run2_jme_2016 & tracker_apv_vfp30_2016 ).toModify( jetTable.variables.puId,  doc="Pileup ID flags with 106X (2016APV) training")
-run2_jme_2017.toModify( jetTable.variables.puIdDisc, doc="Pileup ID discriminant with 106X (2017) training")
-run2_jme_2017.toModify( jetTable.variables.puId, doc="Pileup ID flags with 106X (2017) training")
-for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
-    modifier.toModify( jetTable.variables, puIdDisc = Var("userFloat('pileupJetId:fullDiscriminant')",float,doc="Pileup ID discriminant with 80X (2016) training",precision=10))
-    modifier.toModify( jetTable.variables, puId = Var("userInt('pileupJetId:fullId')",int,doc="Pileup ID flags for pre-UL trainings"))
-for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
-    modifier.toModify( jetTable.variables.puIdDisc, doc="Pileup ID discriminant with 94X (2017) training")
-    modifier.toModify( jetTable.variables, puId = Var("userInt('pileupJetId:fullId')",int,doc="Pileup ID flags for 2016/2017/2018 EOY trainings"))
+(run2_jme_2016 & ~tracker_apv_vfp30_2016 ).toModify(
+    jetTable.variables.puIdDisc, doc="Pileup ID discriminant with 106X (2016) training"
+).toModify(
+    jetTable.variables.puId, doc="Pileup ID flags with 106X (2016) training"
+)
+(run2_jme_2016 & tracker_apv_vfp30_2016 ).toModify(
+    jetTable.variables.puIdDisc, doc="Pileup ID discriminant with 106X (2016APV) training"
+).toModify(
+    jetTable.variables.puId,  doc="Pileup ID flags with 106X (2016APV) training"
+)
+run2_jme_2017.toModify(
+    jetTable.variables.puIdDisc, doc="Pileup ID discriminant with 106X (2017) training"
+).toModify(
+    jetTable.variables.puId, doc="Pileup ID flags with 106X (2017) training"
+)
 
 bjetNN = cms.EDProducer("BJetEnergyRegressionMVA",
     backend = cms.string("ONNX"),
@@ -288,17 +268,25 @@ cjetNN = cms.EDProducer("BJetEnergyRegressionMVA",
 )
 
 
-run2_jme_2016.toModify( bjetNN, weightFile = cms.FileInPath("PhysicsTools/NanoAOD/data/breg_training_2016.onnx") )
-run2_jme_2016.toModify( bjetNN,outputFormulas = cms.vstring(["at(0)*0.31976690888404846+1.047176718711853","0.5*(at(2)-at(1))*0.31976690888404846"]))
+run2_jme_2016.toModify(
+    bjetNN, weightFile = cms.FileInPath("PhysicsTools/NanoAOD/data/breg_training_2016.onnx")
+).toModify(
+    bjetNN,outputFormulas = cms.vstring(["at(0)*0.31976690888404846+1.047176718711853","0.5*(at(2)-at(1))*0.31976690888404846"])
+).toModify(
+    cjetNN, weightFile = cms.FileInPath("PhysicsTools/NanoAOD/data/creg_training_2016.onnx")
+).toModify(
+    cjetNN, outputFormulas = cms.vstring(["at(0)*0.28862622380256653+0.9908722639083862","0.5*(at(2)-at(1))*0.28862622380256653"])
+)
 
-run2_jme_2017.toModify( bjetNN, weightFile = cms.FileInPath("PhysicsTools/NanoAOD/data/breg_training_2017.onnx") )
-run2_jme_2017.toModify( bjetNN,outputFormulas = cms.vstring(["at(0)*0.28225210309028625+1.055067777633667","0.5*(at(2)-at(1))*0.28225210309028625"]))
-
-run2_jme_2016.toModify( cjetNN, weightFile = cms.FileInPath("PhysicsTools/NanoAOD/data/creg_training_2016.onnx") )
-run2_jme_2016.toModify( cjetNN,outputFormulas = cms.vstring(["at(0)*0.28862622380256653+0.9908722639083862","0.5*(at(2)-at(1))*0.28862622380256653"]))
-
-run2_jme_2017.toModify( cjetNN, weightFile = cms.FileInPath("PhysicsTools/NanoAOD/data/creg_training_2017.onnx") )
-run2_jme_2017.toModify( cjetNN,outputFormulas = cms.vstring(["at(0)*0.24718524515628815+0.9927206635475159","0.5*(at(2)-at(1))*0.24718524515628815"]))
+run2_jme_2017.toModify(
+    bjetNN, weightFile = cms.FileInPath("PhysicsTools/NanoAOD/data/breg_training_2017.onnx")
+).toModify(
+    bjetNN,outputFormulas = cms.vstring(["at(0)*0.28225210309028625+1.055067777633667","0.5*(at(2)-at(1))*0.28225210309028625"])
+).toModify(
+    cjetNN, weightFile = cms.FileInPath("PhysicsTools/NanoAOD/data/creg_training_2017.onnx")
+).toModify(
+    cjetNN, outputFormulas = cms.vstring(["at(0)*0.24718524515628815+0.9927206635475159","0.5*(at(2)-at(1))*0.24718524515628815"])
+)
 
 
 #
@@ -312,12 +300,16 @@ qgtagger=QGTagger.clone(srcJets="updatedJets",srcVertexCollection="offlineSlimme
 #
 from RecoJets.JetProducers.PileupJetID_cfi import pileupJetId, _chsalgos_94x, _chsalgos_102x, _chsalgos_106X_UL16, _chsalgos_106X_UL16APV, _chsalgos_106X_UL17, _chsalgos_106X_UL18
 pileupJetIdNano=pileupJetId.clone(jets="updatedJets",algos = cms.VPSet(_chsalgos_106X_UL18),inputIsCorrected=True,applyJec=False,vertexes="offlineSlimmedPrimaryVertices")
-run2_jme_2017.toModify(pileupJetIdNano, algos = _chsalgos_106X_UL17)
-(run2_jme_2016 & ~tracker_apv_vfp30_2016 ).toModify(pileupJetIdNano, algos = _chsalgos_106X_UL16)
-(run2_jme_2016 & tracker_apv_vfp30_2016 ).toModify(pileupJetIdNano, algos = _chsalgos_106X_UL16APV)
-run2_nanoAOD_102Xv1.toModify(pileupJetIdNano, algos = _chsalgos_102x)
-for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
-    modifier.toModify(pileupJetIdNano, algos = _chsalgos_94x)
+run2_jme_2017.toModify(
+    pileupJetIdNano, algos = _chsalgos_106X_UL17
+)
+(run2_jme_2016 & ~tracker_apv_vfp30_2016 ).toModify(
+    pileupJetIdNano, algos = _chsalgos_106X_UL16
+)
+(run2_jme_2016 & tracker_apv_vfp30_2016 ).toModify(
+    pileupJetIdNano, algos = _chsalgos_106X_UL16APV
+)
+
 
 ##############################################################
 ## DeepInfoAK4CHS:Start
@@ -350,9 +342,7 @@ nanoAOD_addDeepInfoAK4CHS_switch = cms.PSet(
     nanoAOD_addDeepBTag_switch = cms.untracked.bool(False),
     nanoAOD_addDeepFlavourTag_switch = cms.untracked.bool(False),
 )
-run2_miniAOD_80XLegacy.toModify(nanoAOD_addDeepInfoAK4CHS_switch, nanoAOD_addDeepBTag_switch = cms.untracked.bool(True))
-for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
-    modifier.toModify(nanoAOD_addDeepInfoAK4CHS_switch, nanoAOD_addDeepFlavourTag_switch =  cms.untracked.bool(True))
+
 ################################################
 ## DeepInfoAK4CHS:End
 #################################################
@@ -376,13 +366,11 @@ basicJetsForMetForT1METNano = cms.EDProducer("PATJetCleanerForType1MET",
 
 updatedJetsWithUserData.userFloats.muonSubtrRawPt = cms.InputTag("basicJetsForMetForT1METNano:MuonSubtrRawPt")
 
-corrT1METJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+corrT1METJetTable = simpleCandidateFlatTableProducer.clone(
     src = finalJets.src,
     cut = cms.string("pt<15 && abs(eta)<9.9"),
     name = cms.string("CorrT1METJet"),
     doc  = cms.string("Additional low-pt ak4 CHS jets for Type-1 MET re-correction"),
-    singleton = cms.bool(False), # the number of entries is variable
-    extension = cms.bool(False), # this is the main table for the jets
     variables = cms.PSet(
         rawPt = Var("pt()*jecFactor('Uncorrected')",float,precision=10),
         eta  = Var("eta",  float,precision=12),
@@ -398,33 +386,6 @@ jetForMETTask =  cms.Task(basicJetsForMetForT1METNano,corrT1METJetTable)
 
 #before cross linking
 jetUserDataTask = cms.Task(bJetVars,qgtagger,jercVars,tightJetId,tightJetIdLepVeto,pileupJetIdNano)
-
-#
-# HF shower shape recomputation
-# Only run if needed (i.e. if default MINIAOD info is missing or outdated because of new JECs...)
-#
-from RecoJets.JetProducers.hfJetShowerShape_cfi import hfJetShowerShape
-hfJetShowerShapeforNanoAOD = hfJetShowerShape.clone(jets="updatedJets",vertices="offlineSlimmedPrimaryVertices")
-for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_102Xv1, run2_nanoAOD_106Xv1:
-    modifier.toModify(updatedJetsWithUserData.userFloats,
-        hfsigmaEtaEta = cms.InputTag('hfJetShowerShapeforNanoAOD:sigmaEtaEta'),
-        hfsigmaPhiPhi = cms.InputTag('hfJetShowerShapeforNanoAOD:sigmaPhiPhi'),
-    )
-    modifier.toModify(updatedJetsWithUserData.userInts,
-        hfcentralEtaStripSize = cms.InputTag('hfJetShowerShapeforNanoAOD:centralEtaStripSize'),
-        hfadjacentEtaStripsSize = cms.InputTag('hfJetShowerShapeforNanoAOD:adjacentEtaStripsSize'),
-    )
-    modifier.toModify(jetTable.variables, hfsigmaEtaEta = Var("userFloat('hfsigmaEtaEta')",float,doc="sigmaEtaEta for HF jets (noise discriminating variable)",precision=10))
-    modifier.toModify(jetTable.variables, hfsigmaPhiPhi = Var("userFloat('hfsigmaPhiPhi')",float,doc="sigmaPhiPhi for HF jets (noise discriminating variable)",precision=10))
-    modifier.toModify(jetTable.variables, hfcentralEtaStripSize = Var("userInt('hfcentralEtaStripSize')", int, doc="eta size of the central tower strip in HF (noise discriminating variable)"))
-    modifier.toModify(jetTable.variables, hfadjacentEtaStripsSize = Var("userInt('hfadjacentEtaStripsSize')", int, doc="eta size of the strips next to the central tower strip in HF (noise discriminating variable)"))
-    modifier.toModify(jetUserDataTask, jetUserDataTask.add(hfJetShowerShapeforNanoAOD))
-
-_jetUserDataTask2016 = jetUserDataTask.copy()
-_jetUserDataTask2016.add(looseJetId)
-
-for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
-  modifier.toReplaceWith(jetUserDataTask,_jetUserDataTask2016)
 
 #before cross linking
 jetTask = cms.Task(jetCorrFactorsNano,updatedJets,jetUserDataTask,updatedJetsWithUserData,finalJets)

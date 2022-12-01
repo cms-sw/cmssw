@@ -33,7 +33,7 @@ bool ExceptionHandler::Notify(const char* exceptionOrigin,
   // part of exception happens outside tracking loop
   if (nullptr != track) {
     ekin = track->GetKineticEnergy();
-    message << "\n"
+    message << "\n CMS info: "
             << "TrackID=" << track->GetTrackID() << " ParentID=" << track->GetParentID() << "  "
             << track->GetParticleDefinition()->GetParticleName() << "; Ekin(MeV)=" << ekin / CLHEP::MeV
             << "; time(ns)=" << track->GetGlobalTime() / CLHEP::ns << "; status=" << track->GetTrackStatus()

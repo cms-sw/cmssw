@@ -40,16 +40,17 @@ int main(Int_t argc, Char_t *argv[]) {
   const char *meanFileName = argv[3];
   int mode = (argc > 4) ? atoi(argv[4]) : 0;
   int modeLHC = (argc > 5) ? atoi(argv[5]) : 3;
+  int nMax = (argc > 6) ? atoi(argv[6]) : -1;
+  bool debug = (argc > 7) ? (atoi(argv[7]) > 0) : false;
   std::cout << "Input File List " << inputFileName << std::endl
             << "Output ROOT File Name " << outputFileName << std::endl
             << "Output Mean File Name " << meanFileName << std::endl
             << "Mode " << mode << " ModeLHC " << modeLHC << std::endl;
 
-  AnalyzeLepTree *tree = new AnalyzeLepTree(inputFileName, mode, modeLHC);
-  tree->Loop();
-  tree->writeHisto(outputFileName);
-  tree->writeMeanError(meanFileName);
-  delete tree;
+  AnalyzeLepTree tree(inputFileName, mode, modeLHC);
+  tree.Loop(nMax, debug);
+  tree.writeHisto(outputFileName);
+  tree.writeMeanError(meanFileName);
 
   return 0;
 }

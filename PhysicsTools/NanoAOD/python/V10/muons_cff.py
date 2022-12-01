@@ -16,7 +16,6 @@ slimmedMuonsUpdated = cms.EDProducer("PATMuonUpdater",
     ),
     recomputeMuonBasicSelectors = cms.bool(False),
 )
-run2_miniAOD_80XLegacy.toModify( slimmedMuonsUpdated, computeMiniIso = True, recomputeMuonBasicSelectors = True )
 
 isoForMu = cms.EDProducer("MuonIsoValueMapProducer",
     src = cms.InputTag("slimmedMuonsUpdated"),
@@ -24,8 +23,6 @@ isoForMu = cms.EDProducer("MuonIsoValueMapProducer",
     rho_MiniIso = cms.InputTag("fixedGridRhoFastjetAll"),
     EAFile_MiniIso = cms.FileInPath("PhysicsTools/NanoAOD/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_94X.txt"),
 )
-run2_miniAOD_80XLegacy.toModify(isoForMu, EAFile_MiniIso = "PhysicsTools/NanoAOD/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_80X.txt")
-run2_nanoAOD_94X2016.toModify(isoForMu, EAFile_MiniIso = "PhysicsTools/NanoAOD/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_80X.txt")
 
 ptRatioRelForMu = cms.EDProducer("MuonJetVarProducer",
     srcJet = cms.InputTag("updatedJetsPuppi"),
@@ -150,12 +147,6 @@ muonTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     ),
 )
 
-
-#for modifier in  run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2:
-#    modifier.toModify(muonTable.variables, puppiIsoId = None, softMva = None)
-(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2).toModify(muonTable.variables, puppiIsoId = None, softMva = None)
-
-run2_nanoAOD_102Xv1.toModify(muonTable.variables, puppiIsoId = None)
 
 # Revert back to AK4 CHS jets for Run 2
 run2_nanoAOD_ANY.toModify(ptRatioRelForMu,srcJet="updatedJets")

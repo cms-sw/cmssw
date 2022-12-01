@@ -16,15 +16,15 @@ phase1Pixel.toModify(siPixelClusters,
   ClusterThreshold_L1     = 2000
 )
 
-# Run3, changes in the gain calibration scheme 
+# Run3, changes in the gain calibration scheme
 #from Configuration.Eras.Era_Run3_cff import Run3
 #Run3.toModify(siPixelClusters,
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify(siPixelClusters,
   VCaltoElectronGain      = 1,  # all gains=1, pedestals=0
-  VCaltoElectronGain_L1   = 1,   
-  VCaltoElectronOffset    = 0,   
-  VCaltoElectronOffset_L1 = 0,  
+  VCaltoElectronGain_L1   = 1,
+  VCaltoElectronOffset    = 0,
+  VCaltoElectronOffset_L1 = 0,
   ClusterThreshold_L1     = 4000
 )
 
@@ -45,4 +45,7 @@ from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 (premix_stage2 & phase2_tracker).toModify(siPixelClusters,
     src = "mixData:Pixel"
 )
-
+from Configuration.ProcessModifiers.pixelNtupletFit_cff import pixelNtupletFit
+(phase2_tracker & pixelNtupletFit).toModify(siPixelClusters, #at the moment the duplicate dropping is not imnplemented in Phase2
+    DropDuplicates = False
+)
