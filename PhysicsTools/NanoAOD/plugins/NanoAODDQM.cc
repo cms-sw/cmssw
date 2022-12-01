@@ -26,7 +26,7 @@ namespace {
     std::stringstream out;
     std::sregex_iterator last;
     for (std::sregex_iterator i = tbegin; i != tend; last = i, ++i) {
-      std::smatch match = *i;
+      const std::smatch &match = *i;
       out << match.prefix().str();
       if (table.columnIndex(match.str()) != -1) {
         out << "getAnyValue(\"" << match.str() << "\")";
