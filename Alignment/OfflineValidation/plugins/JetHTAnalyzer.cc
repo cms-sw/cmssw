@@ -336,7 +336,7 @@ void JetHTAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<double>("minVertexMeanWeight", 0.5);
   desc.add<std::vector<double>>("profilePtBorders", {3, 5, 10, 20, 50, 100});
   desc.add<std::vector<double>>("iovList", {0, 500000});
-  descriptions.add("JetHTAnalyzer", desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in
