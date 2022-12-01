@@ -70210,7 +70210,7 @@ fragment.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
     reportBy = cms.untracked.string( "job" ),
     HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
 )
-.hltPrePhysicsCirculating = cms.EDFilter( "HLTPrescaler",
+fragment.hltPrePhysicsCirculating = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
     offset = cms.uint32( 0 )
 )
