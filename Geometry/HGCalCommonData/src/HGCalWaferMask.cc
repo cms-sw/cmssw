@@ -312,7 +312,7 @@ bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
           int u2 = ((u + 1) / 2);
           good = ((v - u2) >= (3 * n4 - 1));
           break;
-        } 
+        }
         case (HGCalTypes::WaferCorner3): {
           good = ((u + v) >= (5 * n2 - 1));
           break;
