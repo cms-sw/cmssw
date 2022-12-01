@@ -23,7 +23,8 @@
   <class name="edm::RefVector<FTLRecHitCollection>"/>
   <class name="edm::RefProd<FTLRecHitCollection>"/>
 
-  <class name="FTLCluster" ClassVersion="3">
+  <class name="FTLCluster" ClassVersion="4">
+   <version ClassVersion="4" checksum="291411646"/>
     <version ClassVersion="3" checksum="2080981492"/>
   </class>
   <class name="std::vector<FTLCluster>"/>

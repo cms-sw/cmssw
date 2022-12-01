@@ -17,7 +17,6 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"

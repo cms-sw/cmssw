@@ -147,6 +147,37 @@ namespace fwlite {
     iData.lastProduct_ = eventEntry;
   }
 
+  std::optional<edm::BranchID> DataGetterHelper::getBranchIDFor(std::type_info const& iInfo,
+                                                                char const* iModuleLabel,
+                                                                char const* iProductInstanceLabel,
+                                                                char const* iProcessLabel) const {
+    auto branchFor = [this](edm::TypeID const& iInfo,
+                            char const* iModuleLabel,
+                            char const* iProductInstanceLabel,
+                            char const* iProcessLabel) -> std::optional<edm::BranchID> {
+      for (auto const& bd : branchMap_->getBranchDescriptions()) {
+        if (bd.unwrappedTypeID() == iInfo and bd.moduleLabel() == iModuleLabel and
+            bd.productInstanceName() == iProductInstanceLabel and bd.processName() == iProcessLabel) {
+          return bd.branchID();
+        }
+      }
+      return std::nullopt;
+    };
+    if (nullptr == iProcessLabel || strlen(iProcessLabel) == 0) {
+      //have to search in reverse order since newest are on the bottom
+      const edm::ProcessHistory& h = DataGetterHelper::history();
+      edm::TypeID typeID(iInfo);
+      for (edm::ProcessHistory::const_reverse_iterator iproc = h.rbegin(), eproc = h.rend(); iproc != eproc; ++iproc) {
+        auto v = branchFor(typeID, iModuleLabel, iProductInstanceLabel, iproc->processName().c_str());
+        if (v) {
+          return v;
+        }
+      }
+      return std::nullopt;
+    }
+    return branchFor(edm::TypeID(iInfo), iModuleLabel, iProductInstanceLabel, iProcessLabel);
+  }
+
   internal::Data& DataGetterHelper::getBranchDataFor(std::type_info const& iInfo,
                                                      char const* iModuleLabel,
                                                      char const* iProductInstanceLabel,

@@ -10,15 +10,13 @@
 namespace gpuVertexFinder {
 
   using ZVertices = ZVertexSoA;
-  using TkSoA = pixelTrack::TrackSoA;
-
   // workspace used in the vertex reco algos
   struct WorkSpace {
     static constexpr uint32_t MAXTRACKS = ZVertexSoA::MAXTRACKS;
     static constexpr uint32_t MAXVTX = ZVertexSoA::MAXVTX;
 
     uint32_t ntrks;            // number of "selected tracks"
-    uint16_t itrk[MAXTRACKS];  // index of original track
+    uint32_t itrk[MAXTRACKS];  // index of original track
     float zt[MAXTRACKS];       // input track z at bs
     float ezt2[MAXTRACKS];     // input error^2 on the above
     float ptt2[MAXTRACKS];     // input pt^2 on the above
@@ -38,11 +36,12 @@ namespace gpuVertexFinder {
     pws->init();
   }
 
+  template <typename TrackerTraits>
   class Producer {
   public:
     using ZVertices = ZVertexSoA;
     using WorkSpace = gpuVertexFinder::WorkSpace;
-    using TkSoA = pixelTrack::TrackSoA;
+    using TkSoA = pixelTrack::TrackSoAT<TrackerTraits>;
 
     Producer(bool oneKernel,
              bool useDensity,

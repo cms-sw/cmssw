@@ -1,0 +1,243 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="hgcalEE.xml" eval="true">
+  <Constant name="rMinFine"     value="0.0*fm"/>
+  <Constant name="rMaxFine"     value="0.0*cm"/>
+  <Constant name="rMaxMiddle"   value="120.0*cm"/>
+  <Constant name="rMaxCoarse"   value="2000.0*cm"/>
+  <Constant name="rMin"         value="0.0*fm"/>
+  <Constant name="rMax"         value="10.0*cm"/>
+  <Constant name="widthSilicon" value="150.0*mm"/>
+  <Constant name="widthKapton"  value="150.0*mm"/>
+  <Constant name="widthScint1"  value="100.0*mm"/>
+  <Constant name="widthScint2"  value="20.0*mm"/>
+  <Constant name="thickKapton"  value="0.050*mm"/>
+  <Constant name="thickSilicon" value="0.050*mm"/>
+  <Constant name="thickScint1"  value="5.0*mm"/>
+  <Constant name="thickScint2"  value="5.0*mm"/>
+  <Constant name="zposTel1"     value="0.0*cm"/>
+  <Constant name="zposTel2"     value="15.3*cm"/>
+  <Constant name="zposTel3"     value="30.5*cm"/>
+  <Constant name="zposTel4"     value="64.8*cm"/>
+  <Constant name="zposTel5"     value="80.0*cm"/>
+  <Constant name="zposTel6"     value="95.3*cm"/>
+  <Constant name="zposScint1"   value="-1.0*cm"/>
+  <Constant name="zposScint2"   value="-0.5*cm"/>
+  <Constant name="zposScint3"   value="95.3*cm"/>
+  <Constant name="zposScint4"   value="95.8*cm"/>
+  <Constant name="absorbW"      value="0.5*[hgcal:WaferW]"/>
+  <Constant name="absorbH"      value="[hgcal:WaferW]*[hgcal:tan30deg]"/>
+</ConstantsSection>
+
+<SolidSection label="hgcalEE.xml">
+  <Box name="HGCalEETelScint1"  dx="[widthScint1]/2"  dy="[widthScint1]/2"  dz="[thickScint1]/2"/>
+  <Box name="HGCalEETelScint2"  dx="[widthScint2]/2"  dy="[widthScint2]/2"  dz="[thickScint2]/2"/>
+  <Box name="HGCalEETelSilicon" dx="[widthSilicon]/2" dy="[widthSilicon]/2" dz="[thickSilicon]/2"/>
+  <Box name="HGCalEETelKapton"  dx="[widthKapton]/2"  dy="[widthKapton]/2"  dz="[thickKapton]/2"/>
+</SolidSection>
+
+<LogicalPartSection label="hgcalEE.xml">
+  <LogicalPart name="HGCalEETelScint1" category="unspecified">
+    <rSolid name="HGCalEETelScint1"/>
+    <rMaterial name="materials:Scintillator"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalEETelScint2" category="unspecified">
+    <rSolid name="HGCalEETelScint2"/>
+    <rMaterial name="materials:Scintillator"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalEETelSilicon" category="unspecified">
+    <rSolid name="HGCalEETelSilicon"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalEETelKapton" category="unspecified">
+    <rSolid name="HGCalEETelKapton"/>
+    <rMaterial name="materials:Kapton"/>
+  </LogicalPart>
+</LogicalPartSection>
+  
+<PosPartSection label="hgcalEE.xml">
+  <PosPart copyNumber="1">
+    <rParent name="hgcal:HGCal"/>
+    <rChild name="hgcalEE:HGCalEETelScint1"/>
+    <Translation x="0*fm" y="0*fm" z="([zposScint1]+0.5*[thickScint1])"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="hgcal:HGCal"/>
+    <rChild name="hgcalEE:HGCalEETelScint2"/>
+    <Translation x="0*fm" y="0*fm" z="([zposScint2]+0.5*[thickScint2])"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="hgcal:HGCal"/>
+    <rChild name="hgcalEE:HGCalEETelScint1"/>
+    <Translation x="0*fm" y="0*fm" z="([zposScint3]+0.5*[thickScint1])"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+    <rParent name="hgcal:HGCal"/>
+    <rChild name="hgcalEE:HGCalEETelScint2"/>
+    <Translation x="0*fm" y="0*fm" z="([zposScint4]+0.5*[thickScint2])"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcal:HGCal"/>
+    <rChild name="hgcalEE:HGCalEETelSilicon"/>
+    <Translation x="0*fm" y="0*fm" z="([zposTel1]-0.5*[thickSilicon])"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hgcal:HGCal"/>
+    <rChild name="hgcalEE:HGCalEETelKapton"/>
+    <Translation x="0*fm" y="0*fm" z="([zposTel1]+0.5*[thickKapton])"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="hgcal:HGCal"/>
+    <rChild name="hgcalEE:HGCalEETelSilicon"/>
+    <Translation x="0*fm" y="0*fm" z="([zposTel2]-0.5*[thickSilicon])"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="hgcal:HGCal"/>
+    <rChild name="hgcalEE:HGCalEETelKapton"/>
+    <Translation x="0*fm" y="0*fm" z="([zposTel2]+0.5*[thickKapton])"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="hgcal:HGCal"/>
+    <rChild name="hgcalEE:HGCalEETelSilicon"/>
+    <Translation x="0*fm" y="0*fm" z="([zposTel3]-0.5*[thickSilicon])"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="hgcal:HGCal"/>
+    <rChild name="hgcalEE:HGCalEETelKapton"/>
+    <Translation x="0*fm" y="0*fm" z="([zposTel3]+0.5*[thickKapton])"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+    <rParent name="hgcal:HGCal"/>
+    <rChild name="hgcalEE:HGCalEETelSilicon"/>
+    <Translation x="0*fm" y="0*fm" z="([zposTel4]-0.5*[thickSilicon])"/>
+  </PosPart>
+  <PosPart copyNumber="4">
+    <rParent name="hgcal:HGCal"/>
+    <rChild name="hgcalEE:HGCalEETelKapton"/>
+    <Translation x="0*fm" y="0*fm" z="([zposTel4]+0.5*[thickKapton])"/>
+  </PosPart>
+  <PosPart copyNumber="5">
+    <rParent name="hgcal:HGCal"/>
+    <rChild name="hgcalEE:HGCalEETelSilicon"/>
+    <Translation x="0*fm" y="0*fm" z="([zposTel5]-0.5*[thickSilicon])"/>
+  </PosPart>
+  <PosPart copyNumber="5">
+    <rParent name="hgcal:HGCal"/>
+    <rChild name="hgcalEE:HGCalEETelKapton"/>
+    <Translation x="0*fm" y="0*fm" z="([zposTel5]+0.5*[thickKapton])"/>
+  </PosPart>
+  <PosPart copyNumber="6">
+    <rParent name="hgcal:HGCal"/>
+    <rChild name="hgcalEE:HGCalEETelSilicon"/>
+    <Translation x="0*fm" y="0*fm" z="([zposTel6]-0.5*[thickSilicon])"/>
+  </PosPart>
+  <PosPart copyNumber="6">
+    <rParent name="hgcal:HGCal"/>
+    <rChild name="hgcalEE:HGCalEETelKapton"/>
+    <Translation x="0*fm" y="0*fm" z="([zposTel6]+0.5*[thickKapton])"/>
+  </PosPart>
+  <Algorithm name="hgcal:DDHGCalTBModule">
+    <rParent name="hgcal:HGCalEE1"/>
+    <Vector name="WaferName" type="string" nEntries="2">
+      hgcalwafer:HGCalEEWaferFine, hgcalwafer:HGCalEEWaferCoarse</Vector>
+    <Vector name="CoverName" type="string" nEntries="4">
+      hgcal:HGCalEEPCB, hgcal:HGCalEEKapton, hgcal:HGCalEEAbsorber,
+      hgcal:HGCalCuEEAbsorber</Vector>
+    <Vector name="MaterialNames" type="string" nEntries="5">
+      materials:Air, materials:Air,  materials:Air, 
+      materials:Air, materials:Air</Vector>
+    <Vector name="VolumeNames" type="string" nEntries="5">
+      EEPCB1,      EEKapton1,   EEShield1, 
+      EESensitive, EEBaseCu</Vector>
+    <Vector name="Thickness" type="numeric" nEntries="5">
+      [hgcal:thPCB], [hgcal:thKapton], [hgcal:thAbsEE],
+      0.10*mm,       [hgcal:thAbsCuEE]</Vector>
+    <Vector name="Layers" type="numeric" nEntries="1"> 
+      6</Vector>
+    <Vector name="LayerThick" type="numeric" nEntries="1"> 
+      3.06*mm</Vector>
+    <Vector name="LayerType" type="numeric" nEntries="6"> 
+      0, 3, 3, 3, 1, 4</Vector>
+    <Vector name="LayerSense" type="numeric" nEntries="6">
+      2, 1, 1, 1, 3, 5</Vector>
+    <Numeric name="firstCopy"   value="1"/>
+    <Numeric name="zMinBlock"   value="[hgcal:zminEE1]"/>
+    <Numeric name="rMaxFine"    value="[rMaxFine]"/>
+    <Numeric name="waferW"      value="[hgcal:WaferW]"/>
+    <Numeric name="waferGap"    value="0.0*fm"/>
+    <Numeric name="absorberW"   value="[hgcalEE:absorbW]"/>
+    <Numeric name="absorberH"   value="[hgcalEE:absorbH]"/>
+    <Numeric name="Sectors"     value="12"/>
+    <Vector name="SlopeBottom" type="numeric" nEntries="2">
+      0.0, 0.0</Vector>
+    <Vector name="SlopeTop" type="numeric" nEntries="2">
+      0, 0</Vector>
+    <Vector name="ZFront" type="numeric" nEntries="2">
+      [hgcal:zminEE1], [hgcal:zmaxEE2]</Vector>
+    <Vector name="RMaxFront" type="numeric" nEntries="2">
+      [hgcal:rmaxEE], [hgcal:rmaxEE]</Vector>
+    <String name="RotNameSpace" value="hgcalmodule"/>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalTBModule">
+    <rParent name="hgcal:HGCalEE2"/>
+    <Vector name="WaferName" type="string" nEntries="2">
+      hgcalwafer:HGCalEEWaferFine, hgcalwafer:HGCalEEWaferCoarse</Vector>
+    <Vector name="CoverName" type="string" nEntries="4">
+      hgcal:HGCalEEPCB, hgcal:HGCalEEKapton, hgcal:HGCalEEAbsorber,
+      hgcal:HGCalCuEEAbsorber</Vector>
+    <Vector name="MaterialNames" type="string" nEntries="5">
+      materials:Air, materials:Air, materials:Air, 
+      materials:Air, materials:Air</Vector>
+    <Vector name="VolumeNames" type="string" nEntries="5">
+      EEPCB1,      EEKapton1,   EEShield1, 
+      EESensitive, EEgap1</Vector>
+    <Vector name="Thickness" type="numeric" nEntries="5">
+      [hgcal:thPCB], [hgcal:thKapton], [hgcal:thAbsEE],
+      0.10*mm,       11.89*mm</Vector>
+    <Vector name="Layers" type="numeric" nEntries="2"> 
+      7, 6</Vector>
+    <Vector name="LayerThick" type="numeric" nEntries="2"> 
+      15.0*mm, 3.11*mm</Vector>
+    <Vector name="LayerType" type="numeric" nEntries="13"> 
+     2, 1, 3, 3, 3, 0, 4, 0, 3, 3, 3, 1, 2
+    </Vector>
+    <Vector name="LayerSense" type="numeric" nEntries="13">
+     4, 3, 1, 1, 1, 2, 0, 2, 1, 1, 1, 3, 4  
+    </Vector>
+    <Numeric name="firstCopy"   value="4"/>
+    <Numeric name="zMinBlock"   value="[hgcal:zminEE2]"/>
+    <Numeric name="rMaxFine"    value="[rMaxFine]"/>
+    <Numeric name="waferW"      value="[hgcal:WaferW]"/>
+    <Numeric name="waferGap"    value="0.0*fm"/>
+    <Numeric name="absorberW"   value="[hgcalEE:absorbW]"/>
+    <Numeric name="absorberH"   value="[hgcalEE:absorbH]"/>
+    <Numeric name="Sectors"     value="12"/>
+    <Vector name="SlopeBottom" type="numeric" nEntries="2">
+      0.0, 0.0</Vector>
+    <Vector name="SlopeTop" type="numeric" nEntries="2">
+      0, 0</Vector>
+    <Vector name="ZFront" type="numeric" nEntries="2">
+      [hgcal:zminEE1], [hgcal:zmaxEE2]</Vector>
+    <Vector name="RMaxFront" type="numeric" nEntries="2">
+      [hgcal:rmaxEE], [hgcal:rmaxEE]</Vector>
+    <String name="RotNameSpace" value="hgcalmodule"/>
+  </Algorithm>
+</PosPartSection> 
+
+<SpecParSection label="hgcalEE.xml" eval="true">
+  <SpecPar name="HGCalEE">
+    <PartSelector path="//HGCalEESensitive.*"/>    
+    <Parameter name="Volume" value="HGCalEESensitive" eval="false"/>
+    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon" eval="false"/>
+    <Parameter name="RadiusBound"  value="[rMinFine]"/>
+    <Parameter name="RadiusBound"  value="[rMaxFine]"/>
+    <Parameter name="RadiusBound"  value="[rMaxMiddle]"/>
+    <Parameter name="RadiusBound"  value="[rMaxCoarse]"/>
+    <Parameter name="RadiusLimits" value="[rMin]"/>
+    <Parameter name="RadiusLimits" value="[rMax]"/>
+    <Parameter name="LevelTop"     value="99"/>
+  </SpecPar>
+</SpecParSection>
+
+</DDDefinition>

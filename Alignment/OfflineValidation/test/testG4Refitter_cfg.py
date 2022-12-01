@@ -4,7 +4,7 @@ import sys
 from enum import Enum
 import FWCore.ParameterSet.VarParsing as VarParsing
 from Configuration.StandardSequences.Eras import eras
-from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarPileUpGENSIMRECO
+from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultMC_TTBarPU 
 
 process = cms.Process("Demo") 
 
@@ -20,7 +20,7 @@ options.parseArguments()
 # Event source and run selection
 ###################################################################
 process.source = cms.Source("PoolSource",
-                            fileNames = filesRelValTTbarPileUpGENSIMRECO,
+                            fileNames = filesDefaultMC_TTBarPU,
                             duplicateCheckMode = cms.untracked.string('checkAllFilesOpened')
                             )
 

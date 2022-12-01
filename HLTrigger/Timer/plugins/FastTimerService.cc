@@ -568,7 +568,9 @@ void FastTimerService::PlotsPerPath::book(dqm::reco::DQMStore::IBooker& booker,
                                           unsigned int lumisections,
                                           bool byls) {
   const std::string basedir = booker.pwd();
-  booker.setCurrentFolder(basedir + "/" + prefixDir + path.name_);
+  std::string folderName = basedir + "/" + prefixDir + path.name_;
+  fixForDQM(folderName);
+  booker.setCurrentFolder(folderName);
 
   total_.book(booker, "path", path.name_, ranges, lumisections, byls);
 

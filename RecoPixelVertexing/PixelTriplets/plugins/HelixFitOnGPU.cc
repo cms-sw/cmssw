@@ -1,9 +1,11 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HelixFitOnGPU.h"
 
-void HelixFitOnGPU::allocateOnGPU(Tuples const *tuples,
-                                  TupleMultiplicity const *tupleMultiplicity,
-                                  OutputSoA *helix_fit_results) {
+template <typename TrackerTraits>
+void HelixFitOnGPU<TrackerTraits>::allocateOnGPU(
+    Tuples const *tuples,
+    caStructures::TupleMultiplicityT<TrackerTraits> const *tupleMultiplicity,
+    pixelTrack::TrackSoAT<TrackerTraits> *helix_fit_results) {
   tuples_ = tuples;
   tupleMultiplicity_ = tupleMultiplicity;
   outputSoa_ = helix_fit_results;
@@ -13,4 +15,8 @@ void HelixFitOnGPU::allocateOnGPU(Tuples const *tuples,
   assert(outputSoa_);
 }
 
-void HelixFitOnGPU::deallocateOnGPU() {}
+template <typename TrackerTraits>
+void HelixFitOnGPU<TrackerTraits>::deallocateOnGPU() {}
+
+template class HelixFitOnGPU<pixelTopology::Phase1>;
+template class HelixFitOnGPU<pixelTopology::Phase2>;

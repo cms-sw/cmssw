@@ -2,8 +2,8 @@
 // Author: Felice Pantaleo, CERN
 //
 
-// #define BROKENLINE_DEBUG
-
+//#define BROKENLINE_DEBUG
+//#define BL_DUMP_HITS
 #include <cstdint>
 
 #include <cuda_runtime.h>
@@ -16,19 +16,25 @@
 
 #include "HelixFitOnGPU.h"
 
-using HitsOnGPU = TrackingRecHit2DSOAView;
-using Tuples = pixelTrack::HitContainer;
-using OutputSoA = pixelTrack::TrackSoA;
-using tindex_type = caConstants::tindex_type;
-constexpr auto invalidTkId = std::numeric_limits<tindex_type>::max();
+template <typename TrackerTraits>
+using HitsOnGPU = TrackingRecHit2DSOAViewT<TrackerTraits>;
+template <typename TrackerTraits>
+using Tuples = pixelTrack::HitContainerT<TrackerTraits>;
+template <typename TrackerTraits>
+using OutputSoA = pixelTrack::TrackSoAT<TrackerTraits>;
+template <typename TrackerTraits>
+using TupleMultiplicity = caStructures::TupleMultiplicityT<TrackerTraits>;
+
+// using tindex_type = typename TrackerTraits::tindex_type;
+// constexpr auto invalidTkId = std::numeric_limits<tindex_type>::max();
 
 // #define BL_DUMP_HITS
 
-template <int N>
-__global__ void kernel_BLFastFit(Tuples const *__restrict__ foundNtuplets,
-                                 caConstants::TupleMultiplicity const *__restrict__ tupleMultiplicity,
-                                 HitsOnGPU const *__restrict__ hhp,
-                                 tindex_type *__restrict__ ptkids,
+template <int N, typename TrackerTraits>
+__global__ void kernel_BLFastFit(Tuples<TrackerTraits> const *__restrict__ foundNtuplets,
+                                 TupleMultiplicity<TrackerTraits> const *__restrict__ tupleMultiplicity,
+                                 HitsOnGPU<TrackerTraits> const *__restrict__ hhp,
+                                 typename TrackerTraits::tindex_type *__restrict__ ptkids,
                                  double *__restrict__ phits,
                                  float *__restrict__ phits_ge,
                                  double *__restrict__ pfast_fit,
@@ -36,6 +42,7 @@ __global__ void kernel_BLFastFit(Tuples const *__restrict__ foundNtuplets,
                                  uint32_t nHitsH,
                                  int32_t offset) {
   constexpr uint32_t hitsInFit = N;
+  constexpr auto invalidTkId = std::numeric_limits<typename TrackerTraits::tindex_type>::max();
 
   assert(hitsInFit <= nHitsL);
   assert(nHitsL <= nHitsH);
@@ -67,7 +74,7 @@ __global__ void kernel_BLFastFit(Tuples const *__restrict__ foundNtuplets,
     }
     // get it from the ntuple container (one to one to helix)
     auto tkid = *(tupleMultiplicity->begin(nHitsL) + tuple_idx);
-    assert(tkid < foundNtuplets->nOnes());
+    assert(int(tkid) < foundNtuplets->nOnes());
 
     ptkids[local_idx] = tkid;
 
@@ -166,29 +173,28 @@ __global__ void kernel_BLFastFit(Tuples const *__restrict__ foundNtuplets,
   }
 }
 
-template <int N>
-__global__ void kernel_BLFit(caConstants::TupleMultiplicity const *__restrict__ tupleMultiplicity,
+template <int N, typename TrackerTraits>
+__global__ void kernel_BLFit(TupleMultiplicity<TrackerTraits> const *__restrict__ tupleMultiplicity,
                              double bField,
-                             OutputSoA *results,
-                             tindex_type const *__restrict__ ptkids,
+                             OutputSoA<TrackerTraits> *results,
+                             typename TrackerTraits::tindex_type const *__restrict__ ptkids,
                              double *__restrict__ phits,
                              float *__restrict__ phits_ge,
                              double *__restrict__ pfast_fit) {
   assert(results);
   assert(pfast_fit);
+  constexpr auto invalidTkId = std::numeric_limits<typename TrackerTraits::tindex_type>::max();
 
   // same as above...
-
   // look in bin for this hit multiplicity
   auto local_start = blockIdx.x * blockDim.x + threadIdx.x;
   for (int local_idx = local_start, nt = riemannFit::maxNumberOfConcurrentFits; local_idx < nt;
        local_idx += gridDim.x * blockDim.x) {
     if (invalidTkId == ptkids[local_idx])
       break;
-
     auto tkid = ptkids[local_idx];
 
-    assert(tkid < caConstants::maxTuples);
+    assert(tkid < TrackerTraits::maxNumberOfTuples);
 
     riemannFit::Map3xNd<N> hits(phits + local_idx);
     riemannFit::Map4d fast_fit(pfast_fit + local_idx);
@@ -213,7 +219,7 @@ __global__ void kernel_BLFit(caConstants::TupleMultiplicity const *__restrict__ 
       printf("kernelBLFit failed! %f/%f\n", circle.chi2, line.chi2);
     printf("kernelBLFit size %d for %d hits circle.par(0,1,2): %d %f,%f,%f\n",
            N,
-           nHits,
+           N,
            tkid,
            circle.par(0),
            circle.par(1),

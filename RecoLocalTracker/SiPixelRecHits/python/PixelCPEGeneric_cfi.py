@@ -11,13 +11,13 @@ run3_common.toModify(PixelCPEGenericESProducer, IrradiationBiasCorrection = True
 # customize the Pixel CPE generic producer for phase2
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(PixelCPEGenericESProducer,
-  UseErrorsFromTemplates = True,    
-  LoadTemplatesFromDB = True,       
+  UseErrorsFromTemplates = True,
+  LoadTemplatesFromDB = True,
   NoTemplateErrorsWhenNoTrkAngles = True,
   TruncatePixelCharge = False,
   IrradiationBiasCorrection = False, # set IBC off
   DoCosmics = False,
-  Upgrade = True,                    # use 'upgrade' version of hardcoded CPE errors
+  isPhase2 = True,                    # use 'Phase2' version of hardcoded CPE errors
   xerr_barrel_ln = [0.00025, 0.00030, 0.00035, 0.00035],
   xerr_barrel_ln_def = 0.00035,
   yerr_barrel_ln = [0.00210, 0.00115, 0.00125],

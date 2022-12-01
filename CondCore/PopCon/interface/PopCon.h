@@ -96,7 +96,7 @@ namespace popcon {
       s << "PopCon v" << s_version << "; " << msg << ret.second;
       m_dbService->setLogHeaderForRecord(m_record, source.id(), s.str());
     }
-    for (auto it : iovs)
+    for (const auto& it : iovs)
       edm::LogInfo("PopCon") << "Since " << it.first << std::endl;
 
     m_dbService->writeMany(iovs, m_record);

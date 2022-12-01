@@ -14,7 +14,7 @@ hltFiltersDQM = hltFiltersDQMonitor.clone(
 )
 
 # Lumi
-from DQMOffline.Trigger.DQMOffline_LumiMontiroring_cff import *
+from DQMOffline.Trigger.DQMOffline_LumiMonitoring_cff import *
 
 # Egamma
 from DQMOffline.Trigger.EgHLTOfflineSource_cff import *

@@ -1,0 +1,14 @@
+root://eoscms.cern.ch//store/group/alca_trackeralign/jviinika/JetHtExamples/JetHTAnalysis_MC2018_PFJet320_ptHat30-50_2021-01-12.root 30
+root://eoscms.cern.ch//store/group/alca_trackeralign/jviinika/JetHtExamples/JetHTAnalysis_MC2018_PFJet320_ptHat50-80_CERN_2021-01-12.root 50
+root://eoscms.cern.ch//store/group/alca_trackeralign/jviinika/JetHtExamples/JetHTAnalysis_MC2018_PFJet320_ptHat80-120_2021-01-12.root 80
+root://eoscms.cern.ch//store/group/alca_trackeralign/jviinika/JetHtExamples/JetHTAnalysis_MC2018_PFJet320_ptHat120-170_2021-01-12.root 120
+root://eoscms.cern.ch//store/group/alca_trackeralign/jviinika/JetHtExamples/JetHTAnalysis_MC2018_PFJet320_ptHat170-300_2021-01-12.root 170
+root://eoscms.cern.ch//store/group/alca_trackeralign/jviinika/JetHtExamples/JetHTAnalysis_MC2018_PFJet320_ptHat300-470_2021-01-12.root 300
+root://eoscms.cern.ch//store/group/alca_trackeralign/jviinika/JetHtExamples/JetHTAnalysis_MC2018_PFJet320_ptHat470-600_2021-01-12.root 470
+root://eoscms.cern.ch//store/group/alca_trackeralign/jviinika/JetHtExamples/JetHTAnalysis_MC2018_PFJet320_ptHat600-800_2021-01-12.root 600
+root://eoscms.cern.ch//store/group/alca_trackeralign/jviinika/JetHtExamples/JetHTAnalysis_MC2018_PFJet320_ptHat800-1000_2021-01-12.root 800
+root://eoscms.cern.ch//store/group/alca_trackeralign/jviinika/JetHtExamples/JetHTAnalysis_MC2018_PFJet320_ptHat1000-1400_2021-01-12.root 1000
+root://eoscms.cern.ch//store/group/alca_trackeralign/jviinika/JetHtExamples/JetHTAnalysis_MC2018_PFJet320_ptHat1400-1800_2021-01-12.root 1400
+root://eoscms.cern.ch//store/group/alca_trackeralign/jviinika/JetHtExamples/JetHTAnalysis_MC2018_PFJet320_ptHat1800-2400_2021-01-12.root 1800
+root://eoscms.cern.ch//store/group/alca_trackeralign/jviinika/JetHtExamples/JetHTAnalysis_MC2018_PFJet320_ptHat2400-3200_2021-01-12.root 2400
+root://eoscms.cern.ch//store/group/alca_trackeralign/jviinika/JetHtExamples/JetHTAnalysis_MC2018_PFJet320_ptHat3200-inf_2021-01-12.root 3200

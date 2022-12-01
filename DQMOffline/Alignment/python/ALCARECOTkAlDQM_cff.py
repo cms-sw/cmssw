@@ -170,7 +170,7 @@ ALCARECOTkAlJpsiMassBiasDQM = DQMOffline.Alignment.DiMuonMassBiasMonitor_cfi.DiM
     muonTracks = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
     decayMotherName = 'J/#psi',
-    DiMuMassConfig = dict(ymin = 2.7 ,ymax = 3.4))
+    DiMuMassConfig = dict(ymin = 2.7 ,ymax = 3.4, maxDeltaEta = 1.3))
 
 ALCARECOTkAlJpsiMuMuDQM = cms.Sequence( ALCARECOTkAlJpsiMuMuTrackingDQM + ALCARECOTkAlJpsiMuMuTkAlDQM + ALCARECOTkAlJpsiMuMuVtxDQM + ALCARECOTkAlJpsiMassBiasDQM)
 
@@ -240,7 +240,7 @@ ALCARECOTkAlUpsilonMassBiasDQM = DQMOffline.Alignment.DiMuonMassBiasMonitor_cfi.
     muonTracks = 'ALCARECO'+__selectionName,
     FolderName = "AlCaReco/"+__selectionName,
     decayMotherName = '#Upsilon',
-    DiMuMassConfig = dict(ymin = 8.9 ,ymax = 9.9))
+    DiMuMassConfig = dict(ymin = 8.9 ,ymax = 9.9, maxDeltaEta = 1.6))
 
 ALCARECOTkAlUpsilonMuMuDQM = cms.Sequence( ALCARECOTkAlUpsilonMuMuTrackingDQM + ALCARECOTkAlUpsilonMuMuTkAlDQM + ALCARECOTkAlUpsilonMuMuVtxDQM + ALCARECOTkAlUpsilonMassBiasDQM)
 

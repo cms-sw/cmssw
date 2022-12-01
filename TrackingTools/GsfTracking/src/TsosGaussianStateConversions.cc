@@ -40,13 +40,18 @@ namespace GaussianStateConversions {
     std::vector<TrajectoryStateOnSurface> components;
     components.reserve(singleStates.size());
     for (auto const& ic : singleStates) {
-      components.emplace_back((*ic).weight(),
-                              LocalTrajectoryParameters((*ic).mean(), pzSign, charged),
-                              LocalTrajectoryError((*ic).covariance()),
-                              surface,
-                              field,
-                              side);
+      //require states to be positive-definite
+      if (double det = 0; (*ic).covariance().Det2(det) && det > 0) {
+        components.emplace_back((*ic).weight(),
+                                LocalTrajectoryParameters((*ic).mean(), pzSign, charged),
+                                LocalTrajectoryError((*ic).covariance()),
+                                surface,
+                                field,
+                                side);
+      }
     }
-    return TrajectoryStateOnSurface((BasicTrajectoryState*)new BasicMultiTrajectoryState(components));
+    return components.empty()
+               ? TrajectoryStateOnSurface()
+               : TrajectoryStateOnSurface((BasicTrajectoryState*)new BasicMultiTrajectoryState(components));
   }
 }  // namespace GaussianStateConversions

@@ -16,6 +16,7 @@ CSCSharesInputTest::CSCSharesInputTest(const edm::ParameterSet &myConfig) {
   mu_token = consumes<edm::View<reco::Muon> >(myConfig.getParameter<edm::InputTag>("MuonCollection"));
 
   // Set up plots, ntuples
+  usesResource(TFileService::kSharedResource);
   edm::Service<TFileService> rootFile;
 
   ntuples_["perEvent"] = rootFile->make<TNtuple>(

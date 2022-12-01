@@ -72,7 +72,13 @@ siStripClustersHLT = cms.EDProducer("SiStripClusterizer",
                                         cms.InputTag('siStripZeroSuppressionHLT','ScopeMode')),
                                 )
 
-from RecoLocalTracker.SiStripClusterizer.SiStripClusters2ApproxClusters_cff import SiStripClusters2ApproxClustersHLT
+from RecoLocalTracker.SiStripClusterizer.SiStripClusters2ApproxClusters_cff import hltSiStripClusters2ApproxClusters
 
-DigiToApproxClusterRawTask = cms.Task(siStripDigisHLT,siStripZeroSuppressionHLT,siStripClustersHLT,SiStripClusters2ApproxClustersHLT)
+from EventFilter.Utilities.EvFFEDExcluder_cfi import EvFFEDExcluder as _EvFFEDExcluder
+rawPrimeDataRepacker = _EvFFEDExcluder.clone(
+    src = 'rawDataCollector',
+    fedsToExclude = [foo for foo in range(50, 490)]
+)
+
+DigiToApproxClusterRawTask = cms.Task(siStripDigisHLT,siStripZeroSuppressionHLT,siStripClustersHLT,hltSiStripClusters2ApproxClusters,rawPrimeDataRepacker)
 DigiToApproxClusterRaw = cms.Sequence(DigiToApproxClusterRawTask)

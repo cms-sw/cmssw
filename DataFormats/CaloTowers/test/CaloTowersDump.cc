@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
@@ -10,7 +10,7 @@ using namespace std;
       
   \author J. Mans - Minnesota
   */
-class CaloTowersDump : public edm::EDAnalyzer {
+class CaloTowersDump : public edm::one::EDAnalyzer<> {
 public:
   explicit CaloTowersDump(edm::ParameterSet const& conf);
   virtual void analyze(edm::Event const& e, edm::EventSetup const& c);

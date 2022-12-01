@@ -13,6 +13,8 @@ DiMuonMassBiasMonitor = DQMEDAnalyzer('DiMuonMassBiasMonitor',
                                           yUnits = cms.string('[GeV]'),
                                           NxBins = cms.int32(24),
                                           NyBins = cms.int32(50),
+                                          # defaults for the Z->mm decay
                                           ymin = cms.double(65.),
-                                          ymax = cms.double(115.)
+                                          ymax = cms.double(115.),
+                                          maxDeltaEta =  cms.double(3.7),
                                       ))

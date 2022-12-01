@@ -1,7 +1,6 @@
 #ifndef ESPedestalTask_H
 #define ESPedestalTask_H
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

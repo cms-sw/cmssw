@@ -4,7 +4,6 @@
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/Records/interface/FastTimeGeometryRecord.h"
 
 class FWRecoGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<

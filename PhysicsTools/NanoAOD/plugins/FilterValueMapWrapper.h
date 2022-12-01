@@ -10,6 +10,8 @@
 #include "FWCore/Common/interface/EventBase.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace edm {
 
@@ -35,6 +37,7 @@ namespace edm {
       edm::Handle<C> h_c;
       event.getByToken(src_, h_c);
       std::vector<int> bitOut;
+      bitOut.reserve(h_c->size());
       // loop through and add passing value_types to the output vector
       for (typename C::const_iterator ibegin = h_c->begin(), iend = h_c->end(), i = ibegin; i != iend; ++i) {
         bitOut.push_back((*filter_)(*i));
@@ -44,6 +47,15 @@ namespace edm {
       filler.insert(h_c, bitOut.begin(), bitOut.end());
       filler.fill();
       event.put(std::move(o));
+    }
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+
+      desc.add<edm::InputTag>("src")->setComment("input collection");
+      desc.add<edm::ParameterSetDescription>("filterParams", T::getDescription());
+
+      descriptions.addWithDefaultLabel(desc);
     }
 
   protected:

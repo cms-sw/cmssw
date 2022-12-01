@@ -29,6 +29,12 @@ def addToProcessAndTask(label, module, process, task):
     setattr(process, label, module)
     task.add(getattr(process, label))
 
+def addTaskToProcess(process, label, task):
+    if not hasattr(process, label):
+        setattr(process, label, task)
+    else:
+        getattr(process, label).add(task)
+
 def addESProducers(process,config):
     config = config.replace("/",".")
     #import RecoBTag.Configuration.RecoBTag_cff as btag

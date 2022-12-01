@@ -42,6 +42,9 @@
 
 #include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
 
+#include "RecoLocalFastTime/Records/interface/MTDCPERecord.h"
+#include "RecoLocalFastTime/FTLClusterizer/interface/MTDClusterParameterEstimator.h"
+
 #include "MTDHit.h"
 
 class BtlLocalRecoValidation : public DQMEDAnalyzer {
@@ -72,8 +75,9 @@ private:
   edm::EDGetTokenT<FTLClusterCollection> btlRecCluToken_;
   edm::EDGetTokenT<MTDTrackingDetSetVector> mtdTrackingHitToken_;
 
-  edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
-  edm::ESGetToken<MTDTopology, MTDTopologyRcd> mtdtopoToken_;
+  const edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
+  const edm::ESGetToken<MTDTopology, MTDTopologyRcd> mtdtopoToken_;
+  const edm::ESGetToken<MTDClusterParameterEstimator, MTDCPERecord> cpeToken_;
 
   // --- histograms declaration
 
@@ -94,8 +98,6 @@ private:
   MonitorElement* meHitYlocal_;
   MonitorElement* meHitZlocal_;
 
-  MonitorElement* meHitX_;
-  MonitorElement* meHitY_;
   MonitorElement* meHitZ_;
   MonitorElement* meHitPhi_;
   MonitorElement* meHitEta_;
@@ -183,7 +185,10 @@ BtlLocalRecoValidation::BtlLocalRecoValidation(const edm::ParameterSet& iConfig)
       hitMinEnergy_(iConfig.getParameter<double>("HitMinimumEnergy")),
       optionalPlots_(iConfig.getParameter<bool>("optionalPlots")),
       uncalibRecHitsPlots_(iConfig.getParameter<bool>("UncalibRecHitsPlots")),
-      hitMinAmplitude_(iConfig.getParameter<double>("HitMinimumAmplitude")) {
+      hitMinAmplitude_(iConfig.getParameter<double>("HitMinimumAmplitude")),
+      mtdgeoToken_(esConsumes<MTDGeometry, MTDDigiGeometryRecord>()),
+      mtdtopoToken_(esConsumes<MTDTopology, MTDTopologyRcd>()),
+      cpeToken_(esConsumes<MTDClusterParameterEstimator, MTDCPERecord>(edm::ESInputTag("", "MTDCPEBase"))) {
   btlRecHitsToken_ = consumes<FTLRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsTag"));
   if (uncalibRecHitsPlots_)
     btlUncalibRecHitsToken_ =
@@ -191,9 +196,6 @@ BtlLocalRecoValidation::BtlLocalRecoValidation(const edm::ParameterSet& iConfig)
   btlSimHitsToken_ = consumes<CrossingFrame<PSimHit> >(iConfig.getParameter<edm::InputTag>("simHitsTag"));
   btlRecCluToken_ = consumes<FTLClusterCollection>(iConfig.getParameter<edm::InputTag>("recCluTag"));
   mtdTrackingHitToken_ = consumes<MTDTrackingDetSetVector>(iConfig.getParameter<edm::InputTag>("trkHitTag"));
-
-  mtdgeoToken_ = esConsumes<MTDGeometry, MTDDigiGeometryRecord>();
-  mtdtopoToken_ = esConsumes<MTDTopology, MTDTopologyRcd>();
 }
 
 BtlLocalRecoValidation::~BtlLocalRecoValidation() {}
@@ -209,6 +211,8 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
   auto topologyHandle = iSetup.getTransientHandle(mtdtopoToken_);
   const MTDTopology* topology = topologyHandle.product();
+
+  auto const& cpe = iSetup.getData(cpeToken_);
 
   auto btlRecHitsHandle = makeValid(iEvent.getHandle(btlRecHitsToken_));
   auto btlSimHitsHandle = makeValid(iEvent.getHandle(btlSimHitsToken_));
@@ -248,7 +252,7 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
     if ((simHitIt->second).time == 0 || simHit.tof() < (simHitIt->second).time) {
       (simHitIt->second).time = simHit.tof();
 
-      auto hit_pos = simHit.entryPoint();
+      auto hit_pos = simHit.localPosition();
       (simHitIt->second).x = hit_pos.x();
       (simHitIt->second).y = hit_pos.y();
       (simHitIt->second).z = hit_pos.z();
@@ -283,12 +287,10 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
     if (optionalPlots_) {
       meLocalOccupancy_->Fill(local_point.x() + recHit.position(), local_point.y());
-      meHitXlocal_->Fill(local_point.x());
-      meHitYlocal_->Fill(local_point.y());
-      meHitZlocal_->Fill(local_point.z());
     }
-    meHitX_->Fill(global_point.x());
-    meHitY_->Fill(global_point.y());
+    meHitXlocal_->Fill(local_point.x());
+    meHitYlocal_->Fill(local_point.y());
+    meHitZlocal_->Fill(local_point.z());
     meHitZ_->Fill(global_point.z());
     meHitPhi_->Fill(global_point.phi());
     meHitEta_->Fill(global_point.eta());
@@ -350,8 +352,10 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(genericDet->topology());
       const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
 
+      MTDClusterParameterEstimator::ReturnType tuple = cpe.getParameters(cluster, *genericDet);
+
       // --- Cluster position in the module reference frame
-      Local3DPoint local_point(topo.localX(cluster.x()), topo.localY(cluster.y()), 0.);
+      LocalPoint local_point(std::get<0>(tuple));
       const auto& global_point = genericDet->toGlobal(local_point);
 
       meCluEnergy_->Fill(cluster.energy());
@@ -453,17 +457,17 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
         meCluZRes_->Fill(z_res);
 
-        if (optionalPlots_) {
-          if (matchClu && comp != nullptr) {
-            meCluLocalXRes_->Fill(xlocal_res);
-            meCluLocalYRes_->Fill(ylocal_res);
-            meCluLocalXPull_->Fill(xlocal_res / std::sqrt(comp->localPositionError().xx()));
-            meCluLocalYPull_->Fill(ylocal_res / std::sqrt(comp->localPositionError().yy()));
-            meCluZPull_->Fill(z_res / std::sqrt(comp->globalPositionError().czz()));
-            meCluXLocalErr_->Fill(std::sqrt(comp->localPositionError().xx()));
-            meCluYLocalErr_->Fill(std::sqrt(comp->localPositionError().yy()));
-          }
+        if (matchClu && comp != nullptr) {
+          meCluLocalXRes_->Fill(xlocal_res);
+          meCluLocalYRes_->Fill(ylocal_res);
+          meCluLocalXPull_->Fill(xlocal_res / std::sqrt(comp->localPositionError().xx()));
+          meCluLocalYPull_->Fill(ylocal_res / std::sqrt(comp->localPositionError().yy()));
+          meCluZPull_->Fill(z_res / std::sqrt(comp->globalPositionError().czz()));
+          meCluXLocalErr_->Fill(std::sqrt(comp->localPositionError().xx()));
+          meCluYLocalErr_->Fill(std::sqrt(comp->localPositionError().yy()));
+        }
 
+        if (optionalPlots_) {
           meCluYXLocal_->Fill(local_point.x(), local_point.y());
           meCluYXLocalSim_->Fill(cluLocalPosSIM.x(), cluLocalPosSIM.y());
         }
@@ -591,7 +595,7 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
   meNhits_ = ibook.book1D("BtlNhits", "Number of BTL RECO hits;log_{10}(N_{RECO})", 100, 0., 5.25);
 
   meHitEnergy_ = ibook.book1D("BtlHitEnergy", "BTL RECO hits energy;E_{RECO} [MeV]", 100, 0., 20.);
-  meHitLogEnergy_ = ibook.book1D("BtlHitLogEnergy", "BTL RECO hits energy;log_{10}(E_{RECO} [MeV])", 25, -1., 1.5);
+  meHitLogEnergy_ = ibook.book1D("BtlHitLogEnergy", "BTL RECO hits energy;log_{10}(E_{RECO} [MeV])", 16, -0.1, 1.5);
   meHitTime_ = ibook.book1D("BtlHitTime", "BTL RECO hits ToA;ToA_{RECO} [ns]", 100, 0., 25.);
   meHitTimeError_ = ibook.book1D("BtlHitTimeError", "BTL RECO hits ToA error;#sigma^{ToA}_{RECO} [ns]", 50, 0., 0.1);
   meOccupancy_ = ibook.book2D(
@@ -599,12 +603,10 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
   if (optionalPlots_) {
     meLocalOccupancy_ = ibook.book2D(
         "BtlLocalOccupancy", "BTL RECO hits local occupancy;X_{RECO} [cm]; Y_{RECO} [cm]", 100, 10., 10., 60, -3., 3.);
-    meHitXlocal_ = ibook.book1D("BtlHitXlocal", "BTL RECO local X;X_{RECO}^{LOC} [cm]", 100, -10., 10.);
-    meHitYlocal_ = ibook.book1D("BtlHitYlocal", "BTL RECO local Y;Y_{RECO}^{LOC} [cm]", 60, -3, 3);
-    meHitZlocal_ = ibook.book1D("BtlHitZlocal", "BTL RECO local z;z_{RECO}^{LOC} [cm]", 10, -1, 1);
   }
-  meHitX_ = ibook.book1D("BtlHitX", "BTL RECO hits X;X_{RECO} [cm]", 60, -120., 120.);
-  meHitY_ = ibook.book1D("BtlHitY", "BTL RECO hits Y;Y_{RECO} [cm]", 60, -120., 120.);
+  meHitXlocal_ = ibook.book1D("BtlHitXlocal", "BTL RECO local X;X_{RECO}^{LOC} [cm]", 100, -10., 10.);
+  meHitYlocal_ = ibook.book1D("BtlHitYlocal", "BTL RECO local Y;Y_{RECO}^{LOC} [cm]", 60, -3, 3);
+  meHitZlocal_ = ibook.book1D("BtlHitZlocal", "BTL RECO local z;z_{RECO}^{LOC} [cm]", 8, -0.4, 0.4);
   meHitZ_ = ibook.book1D("BtlHitZ", "BTL RECO hits Z;Z_{RECO} [cm]", 100, -260., 260.);
   meHitPhi_ = ibook.book1D("BtlHitPhi", "BTL RECO hits #phi;#phi_{RECO} [rad]", 126, -3.2, 3.2);
   meHitEta_ = ibook.book1D("BtlHitEta", "BTL RECO hits #eta;#eta_{RECO}", 100, -1.55, 1.55);
@@ -716,16 +718,18 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
   meCluPhiRes_ =
       ibook.book1D("BtlCluPhiRes", "BTL cluster #phi resolution;#phi_{RECO}-#phi_{SIM} [rad]", 100, -0.03, 0.03);
   meCluZRes_ = ibook.book1D("BtlCluZRes", "BTL cluster Z resolution;Z_{RECO}-Z_{SIM} [cm]", 100, -0.2, 0.2);
+  meCluLocalXRes_ =
+      ibook.book1D("BtlCluLocalXRes", "BTL cluster local X resolution;X_{RECO}-X_{SIM} [cm]", 100, -3.1, 3.1);
+  meCluLocalYRes_ =
+      ibook.book1D("BtlCluLocalYRes", "BTL cluster local Y resolution;Y_{RECO}-Y_{SIM} [cm]", 100, -0.2, 0.2);
+  meCluLocalXPull_ =
+      ibook.book1D("BtlCluLocalXPull", "BTL cluster local X pull;X_{RECO}-X_{SIM}/sigmaX_[RECO]", 100, -5., 5.);
+  meCluLocalYPull_ =
+      ibook.book1D("BtlCluLocalYPull", "BTL cluster local Y pull;Y_{RECO}-Y_{SIM}/sigmaY_[RECO]", 100, -5., 5.);
+  meCluZPull_ = ibook.book1D("BtlCluZPull", "BTL cluster Z pull;Z_{RECO}-Z_{SIM}/sigmaZ_[RECO]", 100, -5., 5.);
+  meCluXLocalErr_ = ibook.book1D("BtlCluXLocalErr", "BTL cluster X local error;sigmaX_{RECO,loc} [cm]", 20, 0., 2.);
+  meCluYLocalErr_ = ibook.book1D("BtlCluYLocalErr", "BTL cluster Y local error;sigmaY_{RECO,loc} [cm]", 20, 0., 0.4);
   if (optionalPlots_) {
-    meCluLocalXRes_ =
-        ibook.book1D("BtlCluLocalXRes", "BTL cluster local X resolution;X_{RECO}-X_{SIM} [cm]", 100, -3.1, 3.1);
-    meCluLocalYRes_ =
-        ibook.book1D("BtlCluLocalYRes", "BTL cluster local Y resolution;Y_{RECO}-Y_{SIM} [cm]", 100, -3.1, 3.1);
-    meCluLocalXPull_ =
-        ibook.book1D("BtlCluLocalXPull", "BTL cluster local X pull;X_{RECO}-X_{SIM}/sigmaX_[RECO]", 100, -5., 5.);
-    meCluLocalYPull_ =
-        ibook.book1D("BtlCluLocalYPull", "BTL cluster local Y pull;Y_{RECO}-Y_{SIM}/sigmaY_[RECO]", 100, -5., 5.);
-    meCluZPull_ = ibook.book1D("BtlCluZPull", "BTL cluster Z pull;Z_{RECO}-Z_{SIM}/sigmaZ_[RECO]", 100, -5., 5.);
     meCluYXLocal_ = ibook.book2D("BtlCluYXLocal",
                                  "BTL cluster local Y vs X;X^{local}_{RECO} [cm];Y^{local}_{RECO} [cm]",
                                  200,
@@ -742,8 +746,6 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
                                     200,
                                     -2.8,
                                     2.8);
-    meCluXLocalErr_ = ibook.book1D("BtlCluXLocalErr", "BTL cluster X local error;sigmaX_{RECO,loc} [cm]", 30, 0., 3.);
-    meCluYLocalErr_ = ibook.book1D("BtlCluYLocalErr", "BTL cluster Y local error;sigmaY_{RECO,loc} [cm]", 30, 0., 0.9);
   }
   meUnmatchedCluEnergy_ =
       ibook.book1D("BtlUnmatchedCluEnergy", "BTL unmatched cluster log10(energy);log10(E_{RECO} [MeV])", 5, -3, 2);

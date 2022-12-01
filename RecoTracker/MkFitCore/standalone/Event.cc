@@ -849,8 +849,8 @@ namespace mkfit {
   //==============================================================================
 
   int DataFile::openRead(const std::string &fname, int expected_n_layers) {
-    constexpr int min_ver = 4;
-    constexpr int max_ver = 6;
+    constexpr int min_ver = 7;
+    constexpr int max_ver = 7;
 
     f_fp = fopen(fname.c_str(), "r");
     assert(f_fp != 0 && "Opening of input file failed.");

@@ -207,12 +207,7 @@ void LeptonInJetProducer<T>::fillDescriptions(edm::ConfigurationDescriptions &de
   desc.add<edm::InputTag>("src")->setComment("jet input collection");
   desc.add<edm::InputTag>("srcEle")->setComment("electron input collection");
   desc.add<edm::InputTag>("srcMu")->setComment("muon input collection");
-  std::string modname;
-  modname += "LepIn";
-  if (typeid(T) == typeid(pat::Jet))
-    modname += "Jet";
-  modname += "Producer";
-  descriptions.add(modname, desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 typedef LeptonInJetProducer<pat::Jet> LepInJetProducer;

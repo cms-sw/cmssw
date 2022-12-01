@@ -534,8 +534,8 @@ namespace mkfit {
       MPlexQF hitsXi;
       MPlexQF propSign;
 #pragma omp simd
-      for (int n = 0; n < N_proc; ++n) {
-        if (failFlag(n, 0, 0) || (noMatEffPtr && noMatEffPtr->constAt(n, 0, 0))) {
+      for (int n = 0; n < NN; ++n) {
+        if (n >= N_proc || (failFlag(n, 0, 0) || (noMatEffPtr && noMatEffPtr->constAt(n, 0, 0)))) {
           hitsRl(n, 0, 0) = 0.f;
           hitsXi(n, 0, 0) = 0.f;
         } else {
@@ -637,8 +637,8 @@ namespace mkfit {
       MPlexQF hitsXi;
       MPlexQF propSign;
 #pragma omp simd
-      for (int n = 0; n < N_proc; ++n) {
-        if (noMatEffPtr && noMatEffPtr->constAt(n, 0, 0)) {
+      for (int n = 0; n < NN; ++n) {
+        if (n >= N_proc || (noMatEffPtr && noMatEffPtr->constAt(n, 0, 0))) {
           hitsRl(n, 0, 0) = 0.f;
           hitsXi(n, 0, 0) = 0.f;
         } else {
