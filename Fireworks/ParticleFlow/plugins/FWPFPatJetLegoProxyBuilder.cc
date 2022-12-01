@@ -18,7 +18,7 @@ void FWPFPatJetLegoProxyBuilder<T>::build(const T& iData,
   typedef std::vector<reco::PFCandidatePtr>::const_iterator IC;
 
   for (IC ic = consts.begin(); ic != consts.end(); ++ic) {
-    const reco::PFCandidatePtr pfCandPtr = *ic;
+    const reco::PFCandidatePtr& pfCandPtr = *ic;
 
     FWLegoCandidate* candidate = new FWLegoCandidate(vc,
                                                      FWProxyBuilderBase::context(),
