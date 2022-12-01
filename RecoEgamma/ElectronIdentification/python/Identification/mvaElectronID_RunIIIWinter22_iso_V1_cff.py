@@ -8,7 +8,7 @@ from os import path
 mvaTag = "RunIIIWinter22IsoV1"
 
 #weightFileDir = "RecoEgamma/ElectronIdentification/data/MVAWeightFiles/RunIIIWinter22IsoV1"
-weightFileDir = "/afs/cern.ch/work/p/prrout/public/pkltoxml/Iso_Clusterbased"
+weightFileDir = "/afs/cern.ch/work/p/prrout/public/pkltoxml/Retrained_final/Iso_Clusterbased"
 
 mvaWeightFiles = [
      path.join(weightFileDir, "EB1_5.weights.xml"), # EB1_5
@@ -21,23 +21,23 @@ mvaWeightFiles = [
 
 mvaEleID_RunIIIWinter22_iso_V1_wp80_container = EleMVARaw_WP(
     idName = "mvaEleID-RunIIIWinter22-iso-V1-wp80", mvaTag = mvaTag,
-    cutCategory0 = "0.956646311", # EB1_5
-    cutCategory1 = "0.924156857 ", # EB2_5
-    cutCategory2 = "0.849070287 ", # EE_5
-    cutCategory3 = "0.993499804", # EB1_10
-    cutCategory4 = "0.987464821 ", # EB2_10
-    cutCategory5 = "0.966739392 ", # EE_10
+    cutCategory0 = "0.99776583820026143", # EB1_5
+    cutCategory1 = "0.99399710641666705", # EB2_5
+    cutCategory2 = "0.97627554114737425", # EE_5
+    cutCategory3 = "0.99997133733482069", # EB1_10
+    cutCategory4 = "0.99991566148661426", # EB2_10
+    cutCategory5 = "0.99932288865775143", # EE_10
     )
 
 
 mvaEleID_RunIIIWinter22_iso_V1_wp90_container = EleMVARaw_WP(
     idName = "mvaEleID-RunIIIWinter22-iso-V1-wp90", mvaTag = mvaTag,
-    cutCategory0 = " 0.900200486 ", # EB1_5
-    cutCategory1 = " 0.824187922 ", # EB2_5
-    cutCategory2 = " 0.672394681 ", # EE_5
-    cutCategory3 = " 0.981543684 ", # EB1_10
-    cutCategory4 = " 0.96563136 ", # EB2_10
-    cutCategory5 = " 0.904820812 ", # EE_10
+    cutCategory0 = "0.9870981346957135", # EB1_5
+    cutCategory1 = "0.95756807831082225", # EB2_5
+    cutCategory2 = "0.81079745560696059", # EE_5
+    cutCategory3 = "0.99981763428587134", # EB1_10
+    cutCategory4 = "0.99936974968805936", # EB2_10
+    cutCategory5 = "0.99293135832977431", # EE_10
     )
 
 
