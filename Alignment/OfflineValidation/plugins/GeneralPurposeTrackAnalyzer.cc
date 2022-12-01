@@ -1138,7 +1138,7 @@ void GeneralPurposeTrackAnalyzer::fillDescriptions(edm::ConfigurationDescription
   desc.add<edm::InputTag>("BeamSpotTag", edm::InputTag("offlineBeamSpot"));
   desc.add<edm::InputTag>("VerticesTag", edm::InputTag("offlinePrimaryVertices"));
   desc.add<bool>("isCosmics", false);
-  descriptions.add("GeneralPurposeTrackAnalyzer", desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_MODULE(GeneralPurposeTrackAnalyzer);
