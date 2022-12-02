@@ -16,8 +16,6 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
-
 using namespace std;
 namespace SingleTopTChannelLepton_miniAOD {
 
@@ -112,11 +110,6 @@ namespace SingleTopTChannelLepton_miniAOD {
     // empty
     if (cfg.existsAs<edm::ParameterSet>("jetExtras")) {
       edm::ParameterSet jetExtras = cfg.getParameter<edm::ParameterSet>("jetExtras");
-      // jetCorrector is optional; in case it's not found
-      // the InputTag will remain empty
-      if (jetExtras.existsAs<std::string>("jetCorrector")) {
-        jetCorrector_ = iC.esConsumes(edm::ESInputTag("", jetExtras.getParameter<std::string>("jetCorrector")));
-      }
       // read jetID information if it exists
       if (jetExtras.existsAs<edm::ParameterSet>("jetID")) {
         edm::ParameterSet jetID = jetExtras.getParameter<edm::ParameterSet>("jetID");
