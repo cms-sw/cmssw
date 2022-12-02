@@ -22,7 +22,7 @@ SRCS := $(wildcard ${CMS_DIR}/src/*.cc) $(wildcard ${SACMS}/*.cc)
 ifdef WITH_ROOT
 SRCS += ${SACMS}/tkNtuple/WriteMemoryFile.cc
 DictsDict.cc ${DICTPCM}: ${SACMS}/tkNtuple/DictsLinkDef.h
-	rootcint -v3 -f $@ $<
+	rootcint -v3 -f DictsDict.cc $<
 	mv DictsDict_rdict.pcm ${DICTPCM}
 endif
 SRCB := $(notdir ${SRCS})

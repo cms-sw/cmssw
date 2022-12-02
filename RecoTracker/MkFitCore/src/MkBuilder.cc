@@ -554,6 +554,7 @@ namespace mkfit {
 
             dcall(pre_prop_print(curr_layer, mkfndr.get()));
 
+            mkfndr->clearFailFlag();
             (mkfndr.get()->*fnd_foos.m_propagate_foo)(
                 layer_info.propagate_to(), curr_tridx, prop_config.finding_inter_layer_pflags);
 
@@ -844,6 +845,7 @@ namespace mkfit {
             //propagate to layer
             dcall(pre_prop_print(curr_layer, mkfndr.get()));
 
+            mkfndr->clearFailFlag();
             (mkfndr.get()->*fnd_foos.m_propagate_foo)(
                 layer_info.propagate_to(), end - itrack, prop_config.finding_inter_layer_pflags);
 
@@ -1072,6 +1074,7 @@ namespace mkfit {
 #endif
 
         // propagate to current layer
+        mkfndr->clearFailFlag();
         (mkfndr->*fnd_foos.m_propagate_foo)(
             layer_info.propagate_to(), end - itrack, prop_config.finding_inter_layer_pflags);
 
@@ -1350,7 +1353,7 @@ namespace mkfit {
         // ./mkFit ... | perl -ne 'if (/^BKF_OVERLAP/) { s/^BKF_OVERLAP //og; print; }' > bkf_ovlp.rtt
         printf(
             "BKF_OVERLAP event/I:label/I:prod_type/I:is_findable/I:layer/I:is_stereo/I:is_barrel/I:"
-            "pt/F:eta/F:phi/F:chi2/F:isnan/I:isfin/I:gtzero/I:hit_label/I:"
+            "pt/F:pt_cur/F:eta/F:phi/F:phi_cur/F:r_cur/F:z_cur/F:chi2/F:isnan/I:isfin/I:gtzero/I:hit_label/I:"
             "sx_t/F:sy_t/F:sz_t/F:d_xy/F:d_z/F\n");
         first = false;
       }

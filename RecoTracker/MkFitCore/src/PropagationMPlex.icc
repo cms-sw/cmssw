@@ -452,8 +452,7 @@ static inline void helixAtRFromIterativeCCS_impl(const Tf& __restrict__ inPar,
 
   for (int n = nmin; n < nmax; ++n) {
     dprint_np(n,
-              "propagation end, dump parameters"
-                  << std::endl
+              "propagation end, dump parameters\n"
                   << "   pos = " << outPar(n, 0, 0) << " " << outPar(n, 1, 0) << " " << outPar(n, 2, 0) << "\t\t r="
                   << std::sqrt(outPar(n, 0, 0) * outPar(n, 0, 0) + outPar(n, 1, 0) * outPar(n, 1, 0)) << std::endl
                   << "   mom = " << std::cos(outPar(n, 4, 0)) / outPar(n, 3, 0) << " "
@@ -463,7 +462,7 @@ static inline void helixAtRFromIterativeCCS_impl(const Tf& __restrict__ inPar,
 
 #ifdef DEBUG
   for (int n = nmin; n < nmax; ++n) {
-    if (n < N_proc) {
+    if (debug && n < N_proc) {
       dmutex_guard;
       std::cout << n << ": jacobian" << std::endl;
       printf("%5f %5f %5f %5f %5f %5f\n",

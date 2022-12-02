@@ -138,7 +138,7 @@ namespace mkfit {
       const auto label = tkcand.label();
       TrackExtra extra(label);
 
-      // track_print(tkcand, "XXX");
+      // track_print(event, tkcand, "quality_process -> track_print:");
 
       // access temp seed trk and set matching seed hits
       const auto &seed = event->seedTracks_[itrack];

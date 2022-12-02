@@ -250,7 +250,7 @@ namespace mkfit {
       printf("Read %i seedtracks (neg value means actual reading was skipped)\n", ns);
       for (int it = 0; it < ns; it++) {
         const Track &ss = seedTracks_[it];
-        printf("  %3i q=%+i pT=%7.3f eta=% 7.3f nHits=%i label=%4i algo=%2i\n",
+        printf("  %-3i q=%+i pT=%7.3f eta=% 7.3f nHits=%i label=%4i algo=%2i\n",
                it,
                ss.charge(),
                ss.pT(),
@@ -302,7 +302,7 @@ namespace mkfit {
     printf("Read %i simtracks\n", nt);
     for (int it = 0; it < nt; it++) {
       const Track &t = simTracks_[it];
-      printf("  %3i q=%+i pT=%7.3f eta=% 7.3f nHits=%2d  label=%4d\n",
+      printf("  %-3i q=%+i pT=%7.3f eta=% 7.3f nHits=%2d  label=%4d\n",
              it,
              t.charge(),
              t.pT(),
@@ -359,7 +359,7 @@ namespace mkfit {
     printf("Read %i rectracks\n", nert);
     for (int it = 0; it < nert; it++) {
       const Track &t = cmsswTracks_[it];
-      printf("  %i with q=%+i pT=%7.3f eta=% 7.3f nHits=%2d  label=%4d algo=%2d\n",
+      printf("  %-3i with q=%+i pT=%7.3f eta=% 7.3f nHits=%2d  label=%4d algo=%2d\n",
              it,
              t.charge(),
              t.pT(),
