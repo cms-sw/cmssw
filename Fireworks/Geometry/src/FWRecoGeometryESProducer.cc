@@ -13,6 +13,8 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
+#include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
+#include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
@@ -96,6 +98,24 @@ using Phase2TrackerTopology = PixelTopology;
     }                                                                                                          \
   }
 
+void FWRecoGeometryESProducer::ADD_MTD_TOPOLOGY(unsigned int rawid,
+                                                const GeomDet* detUnit,
+                                                FWRecoGeometry& fwRecoGeometry) {
+  const MTDGeomDet* det = dynamic_cast<const MTDGeomDet*>(detUnit);
+
+  if (det) {
+    const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(det->topology());
+    const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
+
+    std::pair<float, float> pitch = topo.pitch();
+    fwRecoGeometry.idToName[rawid].topology[0] = pitch.first;
+    fwRecoGeometry.idToName[rawid].topology[1] = pitch.second;
+
+    fwRecoGeometry.idToName[rawid].topology[2] = topo.localX(0.f);  // offsetX
+    fwRecoGeometry.idToName[rawid].topology[3] = topo.localY(0.f);  // offsetY
+  }
+}
+
 namespace {
   const std::array<std::string, 3> hgcal_geom_names = {
       {"HGCalEESensitive", "HGCalHESiliconSensitive", "HGCalHEScintillatorSensitive"}};
@@ -158,7 +178,7 @@ std::unique_ptr<FWRecoGeometry> FWRecoGeometryESProducer::produce(const FWRecoGe
     addCaloGeometry(*fwRecoGeometry);
   }
   if (m_timing) {
-    m_mtdGeom  = &record.get(m_mtdGeomToken);
+    m_mtdGeom = &record.get(m_mtdGeomToken);
     addMTDGeometry(*fwRecoGeometry);
   }
 
@@ -636,12 +656,13 @@ void FWRecoGeometryESProducer::addCaloGeometry(FWRecoGeometry& fwRecoGeometry) {
 
 void FWRecoGeometryESProducer::addMTDGeometry(FWRecoGeometry& fwRecoGeometry) {
   for (auto const& det : m_mtdGeom->detUnits()) {
-
     if (det) {
       DetId detid = det->geographicalId();
       unsigned int rawid = detid.rawId();
       unsigned int current = insert_id(rawid, fwRecoGeometry);
       fillShapeAndPlacement(current, det, fwRecoGeometry);
+
+      ADD_MTD_TOPOLOGY(current, m_mtdGeom->idToDetUnit(detid), fwRecoGeometry);
     }
   }
 }

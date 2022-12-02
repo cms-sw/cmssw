@@ -51,6 +51,8 @@ private:
 
   void ADD_PIXEL_TOPOLOGY(unsigned int rawid, const GeomDet* detUnit, FWRecoGeometry&);
 
+  void ADD_MTD_TOPOLOGY(unsigned int rawid, const GeomDet* detUnit, FWRecoGeometry&);
+
   unsigned int insert_id(unsigned int id, FWRecoGeometry&);
   void fillPoints(unsigned int id,
                   std::vector<GlobalPoint>::const_iterator begin,
