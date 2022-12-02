@@ -1,0 +1,10 @@
+<library name="FireworksMtdPlugins" file="*.cc">
+  <use name="DataFormats/FTLRecHit"/>
+  <use name="Fireworks/Core"/>
+  <use name="rootinteractive"/>
+  <use name="rootphysics"/>
+  <use name="rooteve"/>
+  <use name="rootgeom"/>
+  <use name="rootrgl"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

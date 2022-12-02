@@ -111,8 +111,9 @@ void FWRecoGeometryESProducer::ADD_MTD_TOPOLOGY(unsigned int rawid,
     fwRecoGeometry.idToName[rawid].topology[0] = pitch.first;
     fwRecoGeometry.idToName[rawid].topology[1] = pitch.second;
 
-    fwRecoGeometry.idToName[rawid].topology[2] = topo.localX(0.f);  // offsetX
-    fwRecoGeometry.idToName[rawid].topology[3] = topo.localY(0.f);  // offsetY
+    fwRecoGeometry.idToName[rawid].topology[2] = topo.xoffset();
+    fwRecoGeometry.idToName[rawid].topology[3] = topo.yoffset();
+
   }
 }
 
