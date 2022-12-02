@@ -102,7 +102,7 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(edm::ESHandle<TransientTrackingRe
     if (m_debug)
       std::cout << "    TrajectoryMeasurement #" << nTrajMeasurement << std::endl;
 
-    TrajectoryMeasurement trajMeasurement = *iTrajMeasurement;
+    const TrajectoryMeasurement& trajMeasurement = *iTrajMeasurement;
 
     TrajectoryStateOnSurface tsos =
         m_tsoscomb(trajMeasurement.forwardPredictedState(), trajMeasurement.backwardPredictedState());
