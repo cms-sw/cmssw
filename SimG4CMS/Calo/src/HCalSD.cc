@@ -578,10 +578,12 @@ bool HCalSD::filterHit(CaloG4Hit* aHit, double time) {
 uint32_t HCalSD::setDetUnitId(int det, const G4ThreeVector& pos, int depth, int lay = 1) {
   uint32_t id = 0;
   if (det == 0) {
+#ifdef printDebug
+    double eta = std::abs(pos.eta());
+#endif
     if (std::abs(pos.z()) > maxZ_) {
       det = 5;
 #ifdef printDebug
-      double eta = std::abs(pos.eta());
       if (eta < 2.868)
         ++detNull_[2];
 #endif
@@ -598,11 +600,9 @@ uint32_t HCalSD::setDetUnitId(int det, const G4ThreeVector& pos, int depth, int 
       ++detNull_[det - 3];
 #endif
     }
-#ifdef EDM_ML_DEBUG
+#ifdef printDEBUG
     edm::LogVerbatim("HcalSim") << "Position " << pos.perp() << ":" << std::abs(pos.z()) << " Limits "
                                 << !(hcalConstants_->isHE()) << ":" << maxZ_ << " det " << det;
-#endif
-#ifdef printDebug
   } else {
     ++detNull_[3];
 #endif
