@@ -75,7 +75,7 @@ namespace l1t {
       for (std::vector<CaloRegion>::const_iterator notCorrectedRegion = regions.begin();
            notCorrectedRegion != regions.end();
            notCorrectedRegion++) {
-        CaloRegion newSubRegion = *notCorrectedRegion;
+        const CaloRegion &newSubRegion = *notCorrectedRegion;
         subRegions->push_back(newSubRegion);
       }
     }
