@@ -66,6 +66,7 @@ public:
     std::string hadBranchName_;
     std::string branchEvInfo_;
     int fileVersion_;
+    bool cacheBranches_ = false;
   };
   HFShowerLibrary(Params const &, FileParams const &, HFFibre::Params);
 
@@ -88,21 +89,45 @@ private:
 
   enum class FileFormat { kOld, kNew, kNewV3 };
 
+  struct BranchCache;
   struct BranchReader {
     BranchReader() : branch_(nullptr), offset_(0), format_(FileFormat::kOld) {}
-    BranchReader(TBranch *iBranch, FileFormat iFormat, size_t iReadOffset)
-        : branch_(iBranch), offset_(iReadOffset), format_(iFormat) {}
+    BranchReader(TBranch *iBranch, FileFormat iFormat, size_t iReadOffset, size_t maxRecordsToCache)
+        : branch_(iBranch), offset_(iReadOffset), format_(iFormat) {
+      if (0 < maxRecordsToCache) {
+        doCaching(maxRecordsToCache);
+        branch_ = nullptr;
+      }
+    }
 
     HFShowerPhotonCollection getRecord(int) const;
+
+    std::size_t numberOfRecords() const;
 
   private:
     static HFShowerPhotonCollection getRecordOldForm(TBranch *, int iEntry);
     static HFShowerPhotonCollection getRecordNewForm(TBranch *, int iEntry);
     static HFShowerPhotonCollection getRecordNewFormV3(TBranch *, int iEntry);
+    void doCaching(size_t maxRecords);
+
+    static std::shared_ptr<BranchCache const> makeCache(BranchReader &,
+                                                        size_t maxRecordsToCache,
+                                                        std::string const &iFileName,
+                                                        std::string const &iBranchName);
 
     TBranch *branch_;
+    std::shared_ptr<BranchCache const> cache_;
     size_t offset_;
     FileFormat format_;
+  };
+
+  struct BranchCache {
+    explicit BranchCache(BranchReader &, size_t maxRecordsToCache);
+    [[nodiscard]] HFShowerPhotonCollection getRecord(int) const;
+
+  private:
+    HFShowerPhotonCollection photons_;
+    std::vector<std::size_t> offsets_;
   };
 
   HFFibre fibre_;
