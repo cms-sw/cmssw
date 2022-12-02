@@ -2410,7 +2410,7 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
 
   // get the beamspot from the Event:
   auto recoBeamSpotHandle = iEvent.getHandle(beamSpotTag_);
-  const BeamSpot bs = *recoBeamSpotHandle;
+  const BeamSpot &bs = *recoBeamSpotHandle;
 
   auto isoFromDepsTk03Handle = iEvent.getHandle(isoFromDepsTk03Tag_);
   auto isoFromDepsTk04Handle = iEvent.getHandle(isoFromDepsTk04Tag_);

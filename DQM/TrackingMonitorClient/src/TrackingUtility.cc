@@ -198,7 +198,7 @@ bool TrackingUtility::goToDir(DQMStore::IBooker& ibooker, DQMStore::IGetter& ige
   }
   std::vector<std::string> subDirVec = igetter.getSubdirs();
   for (std::vector<std::string>::const_iterator ic = subDirVec.begin(); ic != subDirVec.end(); ic++) {
-    std::string fname = (*ic);
+    const std::string& fname = (*ic);
     if ((fname.find("Reference") != std::string::npos) || (fname.find("AlCaReco") != std::string::npos) ||
         (fname.find("HLT") != std::string::npos))
       continue;

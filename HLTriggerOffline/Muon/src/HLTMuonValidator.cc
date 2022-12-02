@@ -154,7 +154,7 @@ void HLTMuonValidator::dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &
   analyzers_.clear();
   set<string>::iterator iPath;
   for (iPath = hltPaths.begin(); iPath != hltPaths.end(); iPath++) {
-    string path = *iPath;
+    const string &path = *iPath;
     string shortpath = path;
     if (path.rfind("_v") < path.length())
       shortpath = path.substr(0, path.rfind("_v"));

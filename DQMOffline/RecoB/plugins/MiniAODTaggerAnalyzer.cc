@@ -104,7 +104,7 @@ void MiniAODTaggerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
 
       // only add to histograms when discriminator values are valid
       if (numerator >= 0 && denominator > 0) {
-        reco::Jet recoJet = *jet;
+        const reco::Jet& recoJet = *jet;
         if (jetTagPlotter_->etaPtBin().inBin(recoJet, jec)) {
           jetTagPlotter_->analyzeTag(recoJet, jec, numerator / denominator, jet->partonFlavour());
         }
