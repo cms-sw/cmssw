@@ -411,13 +411,17 @@ void CaloSimHitStudy::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
       if (testNumber_) {
         int subdet(0), ieta(0), iphi(0), z(0), lay(0), depth(0);
         HcalTestNumbering::unpackHcalIndex(id, subdet, z, depth, ieta, iphi, lay);
-	HcalDDDRecConstants::HcalID hid1 = hcalGeom_->topology().dddConstants()->getHCID(subdet, ieta, iphi, lay, depth);
-	int zside = 2 * z - 1;
-	HcalDetId hid2(static_cast<HcalSubdetector>(hid1.subdet), (zside * hid1.eta), hid1.phi, hid1.depth);
+        HcalDDDRecConstants::HcalID hid1 =
+            hcalGeom_->topology().dddConstants()->getHCID(subdet, ieta, iphi, lay, depth);
+        int zside = 2 * z - 1;
+        HcalDetId hid2(static_cast<HcalSubdetector>(hid1.subdet), (zside * hid1.eta), hid1.phi, hid1.depth);
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("HitStudy") << "From SIM step subdet:z:depth:eta:phi:lay " << subdet << ":" << z << ":" << depth << ":" << ieta << ":" << iphi << ":" << lay << " After getHCID subdet:zside:eta:phi:depth " << hid1.subdet << ":" << zside << ":" << hid1.eta << ":" << hid1.phi << ":" << hid1.depth << " ID " << hid2;
+        edm::LogVerbatim("HitStudy") << "From SIM step subdet:z:depth:eta:phi:lay " << subdet << ":" << z << ":"
+                                     << depth << ":" << ieta << ":" << iphi << ":" << lay
+                                     << " After getHCID subdet:zside:eta:phi:depth " << hid1.subdet << ":" << zside
+                                     << ":" << hid1.eta << ":" << hid1.phi << ":" << hid1.depth << " ID " << hid2;
 #endif
-	id = hid2.rawId();
+        id = hid2.rawId();
       }
     }
     std::map<unsigned int, double>::const_iterator it = hitMap.find(id);
@@ -457,7 +461,7 @@ void CaloSimHitStudy::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
           etotG[idx] += edep;
       }
     } else {
-      HcalSubdetector subdet =  HcalDetId(id).subdet();
+      HcalSubdetector subdet = HcalDetId(id).subdet();
       if (subdet == HcalSubdetector::HcalBarrel) {
         idx = indx + 2;
         nHB++;
