@@ -10,7 +10,6 @@
 #include "HeterogeneousCore/AlpakaCore/interface/EventCache.h"
 #include "HeterogeneousCore/AlpakaCore/interface/QueueCache.h"
 #include "HeterogeneousCore/AlpakaCore/interface/module_backend_config.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/TransferToHost.h"
 
 #include <memory>
 #include <tuple>
@@ -26,12 +25,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
    *
    * The produces() functions return a custom ProducerBaseAdaptor in
    * order to call the deviceProduces(). For device or asynchronous
-   * backends the deviceProduces() registers the automatic transfer to
+   * backends the deviceProduces() registers the automatic copy to
    * host and a transformation from edm::DeviceProduct<T> to U, where
    * U is the host-equivalent of T. The transformation from T to U is
-   * done by a specialization of cms::alpakatools::TransferToHost<T>
-   * template, that should be provided in the same file where T is
-   * defined.
+   * done by an overload of copyToHost() function, that should be
+   * provided in the same file and in the same namespace where T is
+   * defined
    *
    * TODO: add "override" for labelsForToken()
    */
@@ -78,13 +77,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     template <typename TProduct, typename TToken, edm::Transition Tr>
     edm::EDPutTokenT<TToken> deviceProduces(std::string instanceName) {
       edm::EDPutTokenT<TToken> token = Base::template produces<TToken, Tr>(std::move(instanceName));
-      // TODO: should host-synchronous backend(s) have DeviceProduct<TProduct> branch?
 #ifndef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
       // All device backends or devices with asynchronous queue
 
-      // TODO: in principle we could also decide to not register the
-      // transfer to host if the TransferToHost<T> has not been
-      // specialized for TProduct.
       this->registerTransformAsync(
           token,
           [](TToken const& deviceProduct, edm::WaitingTaskWithArenaHolder holder) {
@@ -95,13 +90,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             TProduct const& productOnDevice =
                 deviceProduct.template getSynchronized<EDMetadata>(*metadataPtr, tryReuseQueue);
 
-            using TransferT = cms::alpakatools::TransferToHost<TProduct>;
-            using HostType = typename TransferT::HostDataType;
-            HostType productOnHost = TransferT::transferAsync(metadataPtr->queue(), productOnDevice);
+            auto productOnHost = copyToHostAsync(metadataPtr->queue(), productOnDevice);
 
             // Need to keep the EDMetadata object from sentry.finish()
             // alive until the synchronization
-            using TplType = std::tuple<HostType, std::shared_ptr<EDMetadata>>;
+            using TplType = std::tuple<decltype(productOnHost), std::shared_ptr<EDMetadata>>;
             // Wrap possibly move-only type into a copyable type
             return std::make_shared<TplType>(std::move(productOnHost), sentry.finish());
           },

@@ -27,6 +27,11 @@ function runSuccess {
     cmsRun ${TEST_DIR}/testAlpakaModules_cfg.py $1 || die "cmsRun testAlpakaModules_cfg.py $1" $?
     echo
 }
+function runSuccessHostAndDevice {
+    echo "cmsRun testAlpakaModulesHostAndDevice_cfg.py $1"
+    cmsRun ${TEST_DIR}/testAlpakaModulesHostAndDevice_cfg.py $1 || die "cmsRun testAlpakaModulesHostAndDevice_cfg.py $1" $?
+    echo
+}
 function runFailure {
     echo "cmsRun testAlpakaModules_cfg.py $1 (job itself is expected to fail)"
     cmsRun -j testAlpakaModules_jobreport.xml ${TEST_DIR}/testAlpakaModules_cfg.py $1 && die "cmsRun testAlpakaModules_cfg.py $1 did not fail" 1
@@ -47,6 +52,8 @@ if [ "${TARGET}" == "cpu" ]; then
     runFailure "-- --accelerators=gpu-nvidia --expectBackend=cuda_async"
     runFailure "-- --moduleBackend=cuda_async --expectBackend=cuda_async"
 
+    runSuccessHostAndDevice "-- --expectBackend=serial_sync"
+
 elif [ "${TARGET}" == "cuda" ]; then
     runSuccess "-- --expectBackend=cuda_async"
     runSuccess "-- --accelerators=gpu-nvidia --expectBackend=cuda_async"
@@ -54,4 +61,7 @@ elif [ "${TARGET}" == "cuda" ]; then
 
     runFailure "-- --accelerators=gpu-nvidia --moduleBackend=serial_sync --expectBackend=serial_sync"
     runFailure "-- --accelerators=cpu --moduleBackend=cuda_async --expectBackend=cuda_async"
+
+    runSuccessHostAndDevice "-- --expectBackend=cuda_async"
+
 fi

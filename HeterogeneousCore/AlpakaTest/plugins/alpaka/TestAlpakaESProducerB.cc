@@ -12,20 +12,16 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   /**
    * This class demonstrates and ESProducer on the data model 2 that
-   * - consumes a standard host ESProduct and converts the data into an Alpaka buffer
-   * - transfers the buffer contents to the device of the backend
+   * consumes a standard host ESProduct and converts the data into an
+   * Alpaka buffer that is then moved into an object of a class that
+   * is templated over the device type, and implicitly transfers the
+   * data product to device
    */
   class TestAlpakaESProducerB : public ESProducer {
   public:
     TestAlpakaESProducerB(edm::ParameterSet const& iConfig) {
-      {
-        auto cc = setWhatProduced(this, &TestAlpakaESProducerB::produceHost);
-        token_ = cc.consumes();
-      }
-      {
-        auto cc = setWhatProduced(this, &TestAlpakaESProducerB::produceDevice);
-        hostToken_ = cc.consumes();
-      }
+      auto cc = setWhatProduced(this);
+      token_ = cc.consumes();
     }
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -33,7 +29,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       descriptions.addWithDefaultLabel(desc);
     }
 
-    std::optional<cms::alpakatest::AlpakaESTestDataB<DevHost>> produceHost(AlpakaESTestRecordB const& iRecord) {
+    std::optional<cms::alpakatest::AlpakaESTestDataB<DevHost>> produce(AlpakaESTestRecordB const& iRecord) {
       auto const& input = iRecord.get(token_);
 
       int const size = 5;
@@ -45,18 +41,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return cms::alpakatest::AlpakaESTestDataB<DevHost>(std::move(buffer));
     }
 
-    // TODO: in principle in this model the transfer to device could be automated
-    std::optional<cms::alpakatest::AlpakaESTestDataB<Device>> produceDevice(
-        device::Record<AlpakaESTestRecordB> const& iRecord) {
-      auto hostHandle = iRecord.getTransientHandle(hostToken_);
-      auto buffer = cms::alpakatools::make_device_buffer<int[]>(iRecord.queue(), hostHandle->size());
-      alpaka::memcpy(iRecord.queue(), buffer, hostHandle->buffer());
-      return cms::alpakatest::AlpakaESTestDataB<Device>(std::move(buffer));
-    }
-
   private:
     edm::ESGetToken<cms::alpakatest::ESTestDataB, AlpakaESTestRecordB> token_;
-    edm::ESGetToken<cms::alpakatest::AlpakaESTestDataB<DevHost>, AlpakaESTestRecordB> hostToken_;
   };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
