@@ -233,6 +233,12 @@ def AddJetID(proc, jetName="", jetSrc="", jetTableName="", jetTaskName=""):
       ),
     )
   )
+  
+  run2_jme_2016.toModify(
+    getattr(proc, tightJetId).filterParams, version = "RUN2UL16{}".format("PUPPI" if isPUPPIJet else "CHS")
+  ).toModify(
+    getattr(proc, tightJetIdLepVeto).filterParams, version = "RUN2UL16{}".format("PUPPI" if isPUPPIJet else "CHS")
+  )
 
   #
   # Save variables as userInts in each jet
@@ -577,6 +583,15 @@ def ReclusterAK4PuppiJets(proc, recoJA, runOnMC):
 
   jetName = recoJetInfo.jetUpper
   patJetFinalColl = recoJetInfo.patJetFinalCollection
+
+  #
+  # Set the jetID for UL 16 era
+  #
+  run2_jme_2016.toModify(
+    proc.tightJetPuppiId.filterParams, version = "RUN2UL16PUPPI"
+  ).toModify(
+    proc.tightJetIdLepVeto.filterParams, version = "RUN2UL16PUPPI"
+  )
 
   #
   # Change the input jet source for jetCorrFactorsNano
