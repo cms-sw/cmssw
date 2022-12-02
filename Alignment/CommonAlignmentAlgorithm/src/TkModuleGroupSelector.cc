@@ -27,7 +27,7 @@ TkModuleGroupSelector::TkModuleGroupSelector(AlignableTracker *aliTracker,
   std::vector<std::string> parameterNames = cfg.getParameterNames();
   for (std::vector<std::string>::const_iterator iParam = parameterNames.begin(); iParam != parameterNames.end();
        ++iParam) {
-    const std::string name = (*iParam);
+    const std::string &name = (*iParam);
     if (name != "RunRange" && name != "ReferenceRun" && name != "Granularity") {
       throw cms::Exception("BadConfig") << "@SUB=TkModuleGroupSelector::TkModuleGroupSelector:"
                                         << " Unknown parameter name '" << name << "' in PSet. Maybe a typo?";
@@ -107,7 +107,7 @@ void TkModuleGroupSelector::verifyParameterNames(const edm::ParameterSet &pset, 
   std::vector<std::string> parameterNames = pset.getParameterNames();
   for (std::vector<std::string>::const_iterator iParam = parameterNames.begin(); iParam != parameterNames.end();
        ++iParam) {
-    const std::string name = (*iParam);
+    const std::string &name = (*iParam);
     if (name != "levels" && name != "RunRange" && name != "split" && name != "ReferenceRun") {
       throw cms::Exception("BadConfig") << "@SUB=TkModuleGroupSelector::verifyParameterNames:"
                                         << " Unknown parameter name '" << name << "' in PSet number " << psetnr
