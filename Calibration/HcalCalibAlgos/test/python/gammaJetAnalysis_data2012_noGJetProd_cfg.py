@@ -1,3 +1,19 @@
+# This was migrated to use reco::JetCorrector in Nov 2022.
+# This was not fully tested because this configuration
+# before the migration already failed with multiple errors
+# unrelated to JetCorrectors. At the least:
+#
+# Something unknown but unrelated to JetCorrectors in these
+# three lines in gammaJetAnalysis_cfi.py causes this file to
+# be unparseable by Python:
+#
+#   from RecoJets.Configuration.RecoJets_cff import *
+#   from RecoJets.Configuration.RecoPFJets_cff import *
+#   from CommonTools.ParticleFlow.pfNoPileUp_cff import *
+#
+# The input file does not exist in a publicly available
+# space. There may be other problems.
+
 import FWCore.ParameterSet.Config as cms
 process = cms.Process('ANALYSIS')
 
@@ -16,7 +32,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery=cms.untracked.int32(1000)
 #load the analyzer
 process.load('Calibration.HcalCalibAlgos.gammaJetAnalysis_cfi')
 # load energy corrector
-process.load('JetMETCorrections.Configuration.JetCorrectionProducers_cff')
+process.load('JetMETCorrections.Configuration.CorrectedJetProducers_cff')
 
 # run over files
 process.GammaJetAnalysis.rootHistFilename = cms.string('PhoJet_tree_CHS_data2012_noGJetProd.root')
@@ -74,5 +90,5 @@ process.GammaJetAnalysis.debug     = cms.untracked.int32(0)
 
 process.p = cms.Path(
     process.seq_ak4PFCHS *
-    process.GammaJetAnalysis
+    process.GammaJetAnalysis, process.ak4PFCHSL2L3CorrectorTask
 )
