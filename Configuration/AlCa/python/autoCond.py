@@ -80,9 +80,9 @@ autoCond = {
     # GlobalTag for MC production with realistic conditions for Phase1 2022 detector for Heavy Ion
     'phase1_2022_realistic_hi'     : '125X_mcRun3_2022_realistic_HI_v7',
     # GlobalTag for MC production with realistic conditions for Phase1 2023
-    'phase1_2023_realistic'        : '125X_mcRun3_2023_realistic_v5',
+    'phase1_2023_realistic'        : '130X_mcRun3_2023_realistic_v1',
     # GlobalTag for MC production with realistic conditions for Phase1 2024
-    'phase1_2024_realistic'        : '125X_mcRun3_2024_realistic_v5',
+    'phase1_2024_realistic'        : '130X_mcRun3_2024_realistic_v1',
     # GlobalTag for MC production with realistic conditions for Phase2
     'phase2_realistic'             : '125X_mcRun4_realistic_v5'
 }
