@@ -31,11 +31,7 @@
 
 class PileupRandomNumberGenerator : public edm::RandomNumberGenerator {
 public:
-  PileupRandomNumberGenerator(std::vector<std::string> const& iModuleLabels) : m_seed(0) {
-    for (auto const& name : iModuleLabels) {
-      m_modulesToEngines.emplace(name, std::unique_ptr<CLHEP::HepRandomEngine>{});
-    }
-  }
+  PileupRandomNumberGenerator(std::vector<std::string> const& iModuleLabels);
 
   void setSeed(uint32_t iSeed);
   void setEngine(CLHEP::HepRandomEngine const&);

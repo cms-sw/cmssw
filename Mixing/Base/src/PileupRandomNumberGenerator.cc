@@ -20,11 +20,15 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 
-#include "CLHEP/Random/engineIDulong.h"
-#include "CLHEP/Random/JamesRandom.h"
-#include "CLHEP/Random/RanecuEngine.h"
-#include "CLHEP/Random/MixMaxRng.h"
-#include "IOMC/RandomEngine/interface/TRandomAdaptor.h"
+#include "IOMC/RandomEngine/interface/cloneEngine.h"
+
+#include "CLHEP/Random/RandomEngine.h"
+
+PileupRandomNumberGenerator::PileupRandomNumberGenerator(std::vector<std::string> const& iModuleLabels) : m_seed(0) {
+  for (auto const& name : iModuleLabels) {
+    m_modulesToEngines.emplace(name, std::unique_ptr<CLHEP::HepRandomEngine>{});
+  }
+}
 
 CLHEP::HepRandomEngine& PileupRandomNumberGenerator::getEngine(edm::StreamID const&) {
   return *m_modulesToEngines[findPresentModule()];
@@ -36,14 +40,14 @@ CLHEP::HepRandomEngine& PileupRandomNumberGenerator::getEngine(edm::LuminosityBl
 
 std::unique_ptr<CLHEP::HepRandomEngine> PileupRandomNumberGenerator::cloneEngine(edm::LuminosityBlockIndex const&) {
   auto& engine = m_modulesToEngines[findPresentModule()];
-  return cloneEngine(*engine);
+  return edm::cloneEngine(*engine);
 }
 
 void PileupRandomNumberGenerator::setSeed(uint32_t iSeed) { m_seed = iSeed; }
 
 void PileupRandomNumberGenerator::setEngine(CLHEP::HepRandomEngine const& iEngine) {
   for (auto& v : m_modulesToEngines) {
-    v.second = cloneEngine(iEngine);
+    v.second = edm::cloneEngine(iEngine);
   }
 }
 
@@ -66,28 +70,6 @@ std::vector<RandomEngineState> const& PileupRandomNumberGenerator::getLumiCache(
 void PileupRandomNumberGenerator::consumes(edm::ConsumesCollector&& iC) const {}
 
 void PileupRandomNumberGenerator::print(std::ostream& os) const {}
-
-std::unique_ptr<CLHEP::HepRandomEngine> PileupRandomNumberGenerator::cloneEngine(
-    CLHEP::HepRandomEngine const& existingEngine) {
-  std::vector<unsigned long> stateL = existingEngine.put();
-  long seedL = existingEngine.getSeed();
-  std::unique_ptr<CLHEP::HepRandomEngine> newEngine;
-  if (stateL[0] == CLHEP::engineIDulong<CLHEP::HepJamesRandom>()) {
-    newEngine = std::make_unique<CLHEP::HepJamesRandom>(seedL);
-  } else if (stateL[0] == CLHEP::engineIDulong<CLHEP::RanecuEngine>()) {
-    newEngine = std::make_unique<CLHEP::RanecuEngine>();
-  } else if (stateL[0] == CLHEP::engineIDulong<CLHEP::MixMaxRng>()) {
-    newEngine = std::make_unique<CLHEP::MixMaxRng>(seedL);
-  } else if (stateL[0] == CLHEP::engineIDulong<edm::TRandomAdaptor>()) {
-    newEngine = std::make_unique<edm::TRandomAdaptor>(seedL);
-  } else {
-    // Sanity check, it should not be possible for this to happen.
-    throw edm::Exception(edm::errors::Unknown)
-        << "The RandomNumberGeneratorService is trying to clone unknown engine type\n";
-  }
-  newEngine->get(stateL);
-  return newEngine;
-}
 
 const std::string& PileupRandomNumberGenerator::findPresentModule() const {
   edm::ModuleCallingContext const* mcc = edm::CurrentModuleOnThread::getCurrentModuleOnThread();
