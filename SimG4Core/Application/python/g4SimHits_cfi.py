@@ -548,5 +548,5 @@ phase2_timing.toModify( g4SimHits.ECalSD,
 ##
 ## Enable handling of final state radiation for Run 2
 ##
-from Configuration.Eras.Modifier_run2_final_state_rad_cff import run2_final_state_rad
+from Configuration.ProcessModifiers.run2_final_state_rad_cff import run2_final_state_rad
 run2_final_state_rad.toModify( g4SimHits, Generator = dict( FixOfFinalStateRadiation = True ) )
