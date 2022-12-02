@@ -2,9 +2,9 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   AlpakaESTestDataDDevice testESAlgoAsync(Queue& queue,
-                                          AlpakaESTestDataA const& dataA,
+                                          AlpakaESTestDataADevice const& dataA,
                                           cms::alpakatest::AlpakaESTestDataB<Device> const& dataB) {
-    auto const size = std::min(dataA.size(), dataB.size());
+    auto const size = std::min(dataA->metadata().size(), static_cast<int>(dataB.size()));
     AlpakaESTestDataDDevice ret(size, queue);
 
     auto const& deviceProperties = alpaka::getAccDevProps<Acc1D>(alpaka::getDev(queue));
@@ -18,14 +18,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::exec<Acc1D>(
         queue,
         workDiv,
-        [] ALPAKA_FN_ACC(Acc1D const& acc, int const* a, int const* b, AlpakaESTestDataDDevice::View c, int size) {
+        [] ALPAKA_FN_ACC(Acc1D const& acc,
+                         AlpakaESTestDataADevice::ConstView a,
+                         int const* b,
+                         AlpakaESTestDataDDevice::View c,
+                         int size) {
           const int32_t thread = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0u];
           const int32_t stride = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc)[0u];
           for (auto i = thread; i < size; i += stride) {
-            c[i] = a[i] + b[i];
+            c[i] = a.z()[i] + b[i];
           }
         },
-        dataA.data(),
+        dataA.view(),
         dataB.data(),
         ret.view(),
         size);

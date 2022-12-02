@@ -40,7 +40,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
   private:
-    device::ESGetToken<AlpakaESTestDataA, AlpakaESTestRecordA> tokenA_;
+    device::ESGetToken<AlpakaESTestDataADevice, AlpakaESTestRecordA> tokenA_;
     device::ESGetToken<cms::alpakatest::AlpakaESTestDataB<Device>, AlpakaESTestRecordB> tokenB_;
   };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

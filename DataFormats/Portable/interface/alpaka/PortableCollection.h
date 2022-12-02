@@ -9,7 +9,6 @@
 #include "DataFormats/Portable/interface/PortableHostCollection.h"
 #include "DataFormats/Portable/interface/PortableDeviceCollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/TransferToHost.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -40,20 +39,21 @@ namespace traits {
 
 }  // namespace traits
 
-namespace cms::alpakatools {
-  // TODO: Is this the right place for the specialization? Or should it be in PortableDeviceProduct?
-  template <typename T>
-  struct TransferToHost<ALPAKA_ACCELERATOR_NAMESPACE::PortableCollection<T>> {
-    using HostDataType = ::PortableHostCollection<T>;
+// overloads must be defined in the global namespace because Portable{Device,Host}Collection are
+template <typename TQueue, typename TLayout>
+auto copyToHostAsync(TQueue& queue,
+                     PortableDeviceCollection<TLayout, typename alpaka::trait::DevType<TQueue>::type> const& srcData) {
+  PortableHostCollection<TLayout> dstData(srcData->metadata().size(), queue);
+  alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());
+  return dstData;
+}
 
-    template <typename TQueue>
-    static HostDataType transferAsync(TQueue& queue,
-                                      ALPAKA_ACCELERATOR_NAMESPACE::PortableCollection<T> const& deviceData) {
-      HostDataType hostData(deviceData->metadata().size(), queue);
-      alpaka::memcpy(queue, hostData.buffer(), deviceData.buffer());
-      return hostData;
-    }
-  };
-}  // namespace cms::alpakatools
+template <typename TQueue, typename TLayout>
+auto copyToDeviceAsync(TQueue& queue, PortableHostCollection<TLayout> const& srcData) {
+  PortableDeviceCollection<TLayout, typename alpaka::trait::DevType<TQueue>::type> dstData(srcData->metadata().size(),
+                                                                                           queue);
+  alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());
+  return dstData;
+}
 
 #endif  // DataFormats_Portable_interface_alpaka_PortableDeviceCollection_h

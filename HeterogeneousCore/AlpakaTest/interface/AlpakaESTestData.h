@@ -7,6 +7,11 @@
 #include "HeterogeneousCore/AlpakaTest/interface/AlpakaESTestSoA.h"
 
 namespace cms::alpakatest {
+  // Model 1
+  using AlpakaESTestDataAHost = PortableHostCollection<AlpakaESTestSoAA>;
+  using AlpakaESTestDataCHost = PortableHostCollection<AlpakaESTestSoAC>;
+  using AlpakaESTestDataDHost = PortableHostCollection<AlpakaESTestSoAD>;
+
   // Model 2
   template <typename TDev>
   class AlpakaESTestDataB {
@@ -27,9 +32,22 @@ namespace cms::alpakatest {
     Buffer buffer_;
   };
 
-  // Model 3
-  using AlpakaESTestDataCHost = PortableHostCollection<AlpakaESTestSoAC>;
-  using AlpakaESTestDataDHost = PortableHostCollection<AlpakaESTestSoAD>;
+  template <typename TQueue>
+  auto copyToDeviceAsync(TQueue& queue, AlpakaESTestDataB<alpaka_common::DevHost> const& srcData) {
+    // TODO: In principle associating the allocation to a queue is
+    // incorrect. Framework will keep the memory alive until the IOV
+    // ends. By that point all asynchronous activity using that
+    // memory has finished, and the memory could be marked as "free"
+    // in the allocator already by the host-side release of the
+    // memory. There could also be other, independent asynchronous
+    // activity going on that uses the same queue (since we don't
+    // retain the queue here), and at the time of host-side release
+    // the device-side release gets associated to the complemention
+    // of that activity (which has nothing to do with the memory here).
+    auto dstBuffer = cms::alpakatools::make_device_buffer<int[]>(queue, srcData.size());
+    alpaka::memcpy(queue, dstBuffer, srcData.buffer());
+    return AlpakaESTestDataB<typename alpaka::trait::DevType<TQueue>::type>(std::move(dstBuffer));
+  }
 }  // namespace cms::alpakatest
 
 #endif
