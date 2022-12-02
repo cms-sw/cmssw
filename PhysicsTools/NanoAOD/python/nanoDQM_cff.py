@@ -22,6 +22,13 @@ _Electron_Run2_plots = cms.VPSet()
 for plot in nanoDQM.vplots.Electron.plots:
     if 'Fall17V2' not in plot.name.value():
         _Electron_Run2_plots.append(plot)
+_Electron_Run2_plots.extend([
+    Plot1D('dEscaleUp', 'dEscaleUp', 100, -0.01, 0.01, '#Delta E scaleUp'),
+    Plot1D('dEscaleDown', 'dEscaleDown', 100, -0.01, 0.01, '#Delta E scaleDown'),
+    Plot1D('dEsigmaUp', 'dEsigmaUp', 100, -0.1, 0.1, '#Delta E sigmaUp'),
+    Plot1D('dEsigmaDown', 'dEsigmaDown', 100, -0.1, 0.1, '#Delta E sigmaDown'),
+    Plot1D('eCorr', 'eCorr', 20, 0.8, 1.2, 'ratio of the calibrated energy/miniaod energy'),
+])
 run2_egamma.toModify(
      nanoDQM.vplots.Electron, 
      plots = _Electron_Run2_plots
@@ -39,6 +46,11 @@ for plot in nanoDQM.vplots.Photon.plots:
 _Photon_Run2_plots.extend([
     Plot1D('pfRelIso03_all', 'pfRelIso03_all', 20, 0, 2, 'PF relative isolation dR=0.3, total (with rho*EA PU Fall17V2 corrections)'),
     Plot1D('pfRelIso03_chg', 'pfRelIso03_chg', 20, 0, 2, 'PF relative isolation dR=0.3, charged component (with rho*EA PU Fall17V2 corrections)'),
+    Plot1D('dEscaleUp', 'dEscaleUp', 100, -0.01, 0.01, '#Delta E scaleUp'),
+    Plot1D('dEscaleDown', 'dEscaleDown', 100, -0.01, 0.01, '#Delta E scaleDown'),
+    Plot1D('dEsigmaUp', 'dEsigmaUp', 100, -0.1, 0.1, '#Delta E sigmaUp'),
+    Plot1D('dEsigmaDown', 'dEsigmaDown', 100, -0.1, 0.1, '#Delta E sigmaDown'),
+    Plot1D('eCorr', 'eCorr', 20, 0.8, 1.2, 'ratio of the calibrated energy/miniaod energy'),
 ])
 run2_egamma.toModify(
      nanoDQM.vplots.Photon, 
