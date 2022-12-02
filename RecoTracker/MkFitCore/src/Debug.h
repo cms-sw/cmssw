@@ -1,4 +1,9 @@
 #ifndef RecoTracker_MkFitCore_src_Debug_h
+
+namespace mkfit {
+  extern bool g_debug;
+}
+
 #ifdef DEBUG
 #define RecoTracker_MkFitCore_src_Debug_h
 
@@ -36,7 +41,7 @@
   All are protected by a file scope mutex to avoid mixed printouts.
   This mutex can also be acquired within a block via dmutex_guard:
 
-  if (debug) {
+  if (debug && g_debug) {
     dmutex_guard;
     [do complicated stuff]
   }
@@ -48,30 +53,30 @@
 
 #define dmutex_guard std::lock_guard<std::mutex> dlock(debug_mutex)
 #define dprint(x)                \
-  if (debug) {                   \
+  if (debug && g_debug) {        \
     dmutex_guard;                \
     std::cout << x << std::endl; \
   }
 #define dprint_np(n, x)                       \
-  if (debug && n < N_proc) {                  \
+  if (debug && g_debug && n < N_proc) {       \
     dmutex_guard;                             \
     std::cout << n << ": " << x << std::endl; \
   }
-#define dcall(x)  \
-  if (debug) {    \
-    dmutex_guard; \
-    x;            \
+#define dcall(x)          \
+  if (debug && g_debug) { \
+    dmutex_guard;         \
+    x;                    \
   }
-#define dprintf(...)     \
-  if (debug) {           \
-    dmutex_guard;        \
-    printf(__VA_ARGS__); \
+#define dprintf(...)      \
+  if (debug && g_debug) { \
+    dmutex_guard;         \
+    printf(__VA_ARGS__);  \
   }
-#define dprintf_np(n, ...)   \
-  if (debug && n < N_proc) { \
-    dmutex_guard;            \
-    std::cout << n << ": ";  \
-    printf(__VA_ARGS__);     \
+#define dprintf_np(n, ...)              \
+  if (debug && g_debug && n < N_proc) { \
+    dmutex_guard;                       \
+    std::cout << n << ": ";             \
+    printf(__VA_ARGS__);                \
   }
 
 namespace {
