@@ -561,14 +561,14 @@ namespace TopSingleLepton_miniAOD {
       // check jetID for calo jets
       //unsigned int idx = jet - jets->begin();
 
-      pat::Jet sel = *jet;
+      const pat::Jet& sel = *jet;
 
       if (!(*jetSelect)(sel))
         continue;
       //      if (!jetSelect(sel)) continue;
 
       // prepare jet to fill monitor histograms
-      pat::Jet monitorJet = *jet;
+      const pat::Jet& monitorJet = *jet;
 
       ++mult;
 
