@@ -68,10 +68,10 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(MAXEVENTSTEM
 # JSON Filtering
 ###################################################################
 if isMC:
-     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is Simulation!")
+     print("############ testPVValidation_cfg.py: msg%-i: This is Simulation!")
      runboundary = 1
 else:
-     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is DATA!")
+     print("############ testPVValidation_cfg.py: msg%-i: This is DATA!")
      import FWCore.PythonUtilities.LumiList as LumiList
      process.source.lumisToProcess = LumiList.LumiList(filename ='LUMILISTTEMPLATE').getVLuminosityBlockRange()
 
@@ -109,7 +109,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'GLOBALTAGTEMPLATE', '')
 
 if allFromGT:
-     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: All is taken from GT")
+     print("############ testPVValidation_cfg.py: msg%-i: All is taken from GT")
 else:
      ####################################################################
      # Get Alignment constants and APE
@@ -120,10 +120,10 @@ else:
      # Kinks and Bows (optional)
      ####################################################################
      if applyBows:
-          print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Applying TrackerSurfaceDeformations!")
+          print("############ testPVValidation_cfg.py: msg%-i: Applying TrackerSurfaceDeformations!")
           process=customiseKinksAndBows(process)
      else:
-          print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: MultiPVValidation: Not applying TrackerSurfaceDeformations!")
+          print("############ testPVValidation_cfg.py: msg%-i: MultiPVValidation: Not applying TrackerSurfaceDeformations!")
 
      ####################################################################
      # Extra corrections not included in the GT
@@ -134,7 +134,7 @@ else:
           ##### END OF EXTRA CONDITIONS
  
      else:
-          print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Not applying extra calibration constants!")
+          print("############ testPVValidation_cfg.py: msg%-i: Not applying extra calibration constants!")
      
 ####################################################################
 # Load and Configure event selection
@@ -208,7 +208,7 @@ else:
 
 if(theRefitter == RefitType.COMMON):
 
-     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: using the common track selection and refit sequence!")
+     print("############ testPVValidation_cfg.py: msg%-i: using the common track selection and refit sequence!")
      ####################################################################
      # Load and Configure Common Track Selection and refitting sequence
      ####################################################################
@@ -230,7 +230,7 @@ if(theRefitter == RefitType.COMMON):
 
 elif (theRefitter == RefitType.STANDARD):
 
-     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: using the standard single refit sequence!")
+     print("############ testPVValidation_cfg.py: msg%-i: using the standard single refit sequence!")
      ####################################################################
      # Load and Configure Measurement Tracker Event
      # (needed in case NavigationSchool is set != '')
@@ -289,10 +289,10 @@ GapClusterizationParams = cms.PSet(algorithm   = cms.string('gap'),
 ####################################################################
 def switchClusterizerParameters(da):
      if da:
-          print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running DA Algorithm!")
+          print("############ testPVValidation_cfg.py: msg%-i: Running DA Algorithm!")
           return DAClusterizationParams
      else:
-          print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running GAP Algorithm!")
+          print("############ testPVValidation_cfg.py: msg%-i: Running GAP Algorithm!")
           return GapClusterizationParams
 
 ####################################################################
