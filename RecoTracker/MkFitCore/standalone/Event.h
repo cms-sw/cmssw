@@ -111,6 +111,8 @@ namespace mkfit {
     int openRead(const std::string &fname, int expected_n_layers);
     void openWrite(const std::string &fname, int n_layers, int n_ev, int extra_sections = 0);
 
+    void rewind();
+
     int advancePosToNextEvent(FILE *fp);
 
     void skipNEvents(int n_to_skip);
@@ -118,6 +120,8 @@ namespace mkfit {
     void close();
     void CloseWrite(int n_written);  //override nevents in the header and close
   };
+
+  void print(std::string pfx, int itrack, const Track &trk, const Event &ev);
 
 }  // end namespace mkfit
 #endif
