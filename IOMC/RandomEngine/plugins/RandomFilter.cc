@@ -1,5 +1,5 @@
 
-#include "IOMC/RandomEngine/src/RandomFilter.h"
+#include "RandomFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

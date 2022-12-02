@@ -10,7 +10,7 @@
 //   Created:  Tue Mar  7 09:43:46 EST 2006 (originally in FWCore/Services)
 //
 
-#include "IOMC/RandomEngine/src/RandomNumberGeneratorService.h"
+#include "RandomNumberGeneratorService.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
