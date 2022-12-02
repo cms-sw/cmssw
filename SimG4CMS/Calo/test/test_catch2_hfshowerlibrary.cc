@@ -18,7 +18,7 @@ namespace {
     try {
       return std::shared_ptr<edm::Presence>(
           edm::PresenceFactory::get()->makePresence("SingleThreadMSPresence").release());
-    } catch (cms::Exception &e) {
+    } catch (cms::Exception& e) {
       std::cerr << e.explainSelf() << std::endl;
       throw;
     }
@@ -35,7 +35,13 @@ namespace {
     CLHEP::MixMaxRng m_current;
     decltype(G4Random::getTheEngine()) m_previous;
   };
+
 }  // namespace
+
+bool operator==(HFShowerLibrary::Hit const& iLHS, HFShowerLibrary::Hit const& iRHS) {
+  return iLHS.position == iRHS.position and iLHS.depth == iRHS.depth and iLHS.time == iRHS.time;
+}
+
 namespace test_hffibre {
   HFFibre::Params defaultParams();
 }
@@ -63,8 +69,9 @@ TEST_CASE("test HFShowerLibrary", "[HFShowerLibrary]") {
     fileParams.hadBranchName_ = "hadParticles";
     fileParams.branchEvInfo_ = "";
     fileParams.fileVersion_ = 0;
+    fileParams.cacheBranches_ = false;
 
-    HFShowerLibrary showerLibrary(params, fileParams, std::move(fibreParams));
+    HFShowerLibrary showerLibrary(params, fileParams, fibreParams);
     SECTION("fillHits") {
       SECTION("non EM or Hadron") {
         SetRandomEngine guard(11);
@@ -90,6 +97,49 @@ TEST_CASE("test HFShowerLibrary", "[HFShowerLibrary]") {
         REQUIRE(hits.size() == 2);
       }
     }
+    SECTION("em cache") {
+      std::vector<HFShowerLibrary::Hit> nonCached;
+      {
+        SetRandomEngine guard(11);
+        bool ok = false;
+        nonCached = showerLibrary.fillHits(
+            {-470.637, -618.696, 11150}, {0.000467326, -0.00804975, 0.999967}, 22, 2.2 * GeV, ok, 1., 0.);
+      }
+      std::vector<HFShowerLibrary::Hit> cached;
+      {
+        auto newFileParams = fileParams;
+        newFileParams.cacheBranches_ = true;
+        HFShowerLibrary showerLibrary(params, newFileParams, fibreParams);
+
+        SetRandomEngine guard(11);
+        bool ok = false;
+        cached = showerLibrary.fillHits(
+            {-470.637, -618.696, 11150}, {0.000467326, -0.00804975, 0.999967}, 22, 2.2 * GeV, ok, 1., 0.);
+      }
+      REQUIRE(nonCached == cached);
+    }
+
+    SECTION("had cache") {
+      std::vector<HFShowerLibrary::Hit> nonCached;
+      {
+        SetRandomEngine guard(11);
+        bool ok = false;
+        nonCached = showerLibrary.fillHits(
+            {-470.637, -618.696, 11150}, {0.000467326, -0.00804975, 0.999967}, 211, 2.2 * GeV, ok, 1., 0.);
+      }
+      std::vector<HFShowerLibrary::Hit> cached;
+      {
+        auto newFileParams = fileParams;
+        newFileParams.cacheBranches_ = true;
+        HFShowerLibrary showerLibrary(params, newFileParams, fibreParams);
+
+        SetRandomEngine guard(11);
+        bool ok = false;
+        cached = showerLibrary.fillHits(
+            {-470.637, -618.696, 11150}, {0.000467326, -0.00804975, 0.999967}, 211, 2.2 * GeV, ok, 1., 0.);
+      }
+      REQUIRE(nonCached == cached);
+    }
   }
   SECTION("v3 file") {
     HFShowerLibrary::FileParams fileParams;
@@ -99,6 +149,7 @@ TEST_CASE("test HFShowerLibrary", "[HFShowerLibrary]") {
     fileParams.hadBranchName_ = "hadParticles";
     fileParams.branchEvInfo_ = "";
     fileParams.fileVersion_ = 0;
+    fileParams.cacheBranches_ = false;
 
     HFShowerLibrary showerLibrary(params, fileParams, std::move(fibreParams));
     SECTION("fillHits") {
@@ -135,6 +186,7 @@ TEST_CASE("test HFShowerLibrary", "[HFShowerLibrary]") {
     fileParams.hadBranchName_ = "hadParticles";
     fileParams.branchEvInfo_ = "";
     fileParams.fileVersion_ = 2;
+    fileParams.cacheBranches_ = false;
 
     params.equalizeTimeShift_ = true;
 

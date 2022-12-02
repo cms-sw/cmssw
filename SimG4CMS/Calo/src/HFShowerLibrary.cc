@@ -60,6 +60,8 @@ namespace {
     if (not branchEvInfo.empty()) {
       params.branchEvInfo_ = branchEvInfo + branchPost;
     }
+
+    params.cacheBranches_ = hfShowerLibrary.getUntrackedParameter<bool>("cacheBranches", false);
     return params;
   }
 }  // namespace
@@ -165,14 +167,14 @@ HFShowerLibrary::HFShowerLibrary(const Params& iParams, const FileParams& iFileP
     assert(fileFormat == FileFormat::kNew);
     fileFormat = FileFormat::kNewV3;
   }
-  emBranch_ = BranchReader(emBranch, fileFormat, 0);
+  emBranch_ = BranchReader(emBranch, fileFormat, 0, iFileParams.cacheBranches_ ? totEvents_ : 0);
   size_t offset = 0;
   if (fileFormat == FileFormat::kNewV3 or (fileFormat == FileFormat::kNew and fileVersion < 2)) {
     //NOTE: for this format, the hadBranch is all empty up to
     // totEvents_ (which is more like 1/2*GenEntries())
     offset = totEvents_;
   }
-  hadBranch_ = BranchReader(hadBranch, fileFormat, offset);
+  hadBranch_ = BranchReader(hadBranch, fileFormat, offset, iFileParams.cacheBranches_ ? totEvents_ : 0);
 
   edm::LogVerbatim("HFShower") << " HFShowerLibrary:Branch " << iFileParams.emBranchName_ << " has "
                                << emBranch->GetEntries() << " entries and Branch " << iFileParams.hadBranchName_
@@ -184,6 +186,9 @@ HFShowerLibrary::HFShowerLibrary(const Params& iParams, const FileParams& iFileP
 
   edm::LogVerbatim("HFShower") << "HFShowerLibrary: rMIN " << rMin_ / CLHEP::cm << " cm and rMax " << rMax_ / CLHEP::cm
                                << " (Half) Phi Width of wedge " << dphi_ / CLHEP::deg;
+  if (iFileParams.cacheBranches_) {
+    hf_.reset();
+  }
 }
 
 HFShowerLibrary::~HFShowerLibrary() {
@@ -402,6 +407,62 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector&
 
 bool HFShowerLibrary::rInside(double r) const { return (r >= rMin_ && r <= rMax_); }
 
+HFShowerLibrary::BranchCache::BranchCache(HFShowerLibrary::BranchReader& iReader, size_t maxRecordsToCache) {
+  auto nRecords = iReader.numberOfRecords();
+  if (nRecords > maxRecordsToCache) {
+    nRecords = maxRecordsToCache;
+  }
+  offsets_.reserve(nRecords + 1);
+
+  //first pass is to figure out how much space will be needed
+  size_t nPhotons = 0;
+  for (size_t r = 0; r < nRecords; ++r) {
+    auto shower = iReader.getRecord(r + 1);
+    nPhotons += shower.size();
+  }
+
+  photons_.reserve(nPhotons);
+
+  size_t offset = 0;
+  for (size_t r = 0; r < nRecords; ++r) {
+    offsets_.emplace_back(offset);
+    auto shower = iReader.getRecord(r + 1);
+    offset += shower.size();
+    std::copy(shower.begin(), shower.end(), std::back_inserter(photons_));
+  }
+  offsets_.emplace_back(offset);
+  photons_.shrink_to_fit();
+}
+
+void HFShowerLibrary::BranchReader::doCaching(size_t maxRecordsToCache) {
+  cache_ = makeCache(*this, maxRecordsToCache, branch_->GetDirectory()->GetFile()->GetName(), branch_->GetName());
+}
+
+std::shared_ptr<HFShowerLibrary::BranchCache const> HFShowerLibrary::BranchReader::makeCache(
+    BranchReader& iReader, size_t maxRecordsToCache, std::string const& iFileName, std::string const& iBranchName) {
+  //This allows sharing of the same cached data across the different modules (e.g. the per stream instances of OscarMTProducer
+  CMS_SA_ALLOW static std::mutex s_mutex;
+  std::lock_guard<std::mutex> guard(s_mutex);
+  CMS_SA_ALLOW static std::map<std::pair<std::string, std::string>, std::weak_ptr<BranchCache>> s_map;
+  auto v = s_map[{iFileName, iBranchName}].lock();
+  if (v) {
+    return v;
+  }
+  v = std::make_shared<BranchCache>(iReader, maxRecordsToCache);
+  s_map[{iFileName, iBranchName}] = v;
+  return v;
+}
+
+HFShowerPhotonCollection HFShowerLibrary::BranchCache::getRecord(int iRecord) const {
+  assert(iRecord > 0);
+  assert(static_cast<size_t>(iRecord + 1) < offsets_.size());
+
+  auto start = offsets_[iRecord - 1];
+  auto end = offsets_[iRecord];
+
+  return HFShowerPhotonCollection(photons_.begin() + start, photons_.begin() + end);
+}
+
 HFShowerPhotonCollection HFShowerLibrary::BranchReader::getRecordOldForm(TBranch* iBranch, int iEntry) {
   HFShowerPhotonCollection photo;
   iBranch->SetAddress(&photo);
@@ -435,6 +496,9 @@ HFShowerPhotonCollection HFShowerLibrary::BranchReader::getRecordNewFormV3(TBran
 }
 
 HFShowerPhotonCollection HFShowerLibrary::BranchReader::getRecord(int record) const {
+  if (cache_) {
+    return cache_->getRecord(record);
+  }
   int nrc = record - 1;
   HFShowerPhotonCollection photo;
 
@@ -454,6 +518,8 @@ HFShowerPhotonCollection HFShowerLibrary::BranchReader::getRecord(int record) co
   }
   return photo;
 }
+
+size_t HFShowerLibrary::BranchReader::numberOfRecords() const { return branch_->GetEntries() - offset_; }
 
 HFShowerPhotonCollection HFShowerLibrary::getRecord(int type, int record) const {
   HFShowerPhotonCollection photo;
