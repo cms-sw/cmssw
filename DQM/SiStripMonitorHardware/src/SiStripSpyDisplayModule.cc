@@ -292,7 +292,7 @@ void SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::Event
     const std::vector<const FedChannelConnection*>& conns = detCabling_->getConnections(*d);
     //cout << "________________________________________________" << endl;
     //cout << "FED channels found in detId " << *d << " is " << conns.size() << endl;
-    if (!(conns.size())) {
+    if (conns.empty()) {
       // TODO: Properly DEBUG/warning this...
       //cout << "Skipping detID " << uint32_t(*d) << endl;
       continue;

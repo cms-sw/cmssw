@@ -583,7 +583,7 @@ namespace SingleTopTChannelLepton_miniAOD {
       // check jetID for calo jets
       //unsigned int idx = jet - jets->begin();
 
-      pat::Jet sel = *jet;
+      const pat::Jet& sel = *jet;
 
       if (jetSelect == nullptr)
         jetSelect = std::make_unique<StringCutObjectSelector<pat::Jet>>(jetSelect_);
@@ -593,7 +593,7 @@ namespace SingleTopTChannelLepton_miniAOD {
       //      if (!jetSelect(sel)) continue;
 
       // prepare jet to fill monitor histograms
-      pat::Jet monitorJet = *jet;
+      const pat::Jet& monitorJet = *jet;
 
       ++mult;
 
