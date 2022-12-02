@@ -11,15 +11,15 @@ mvaTag = "RunIIIWinter22IsoV1"
 weightFileDir = "/afs/cern.ch/work/p/prrout/public/pkltoxml/Retrained_final/Iso_Clusterbased"
 
 mvaWeightFiles = [
-     path.join(weightFileDir, "EB1_5.weights.xml"), # EB1_5
-     path.join(weightFileDir, "EB2_5.weights.xml"), # EB2_5
-     path.join(weightFileDir, "EE_5.weights.xml"), # EE_5
-     path.join(weightFileDir, "EB1_10.weights.xml"), # EB1_10
-     path.join(weightFileDir, "EB2_10.weights.xml"), # EB2_10
-     path.join(weightFileDir, "EE_10.weights.xml"), # EE_10
+     path.join(weightFileDir, "EB1_5.weights.root"), # EB1_5
+     path.join(weightFileDir, "EB2_5.weights.root"), # EB2_5
+     path.join(weightFileDir, "EE_5.weights.root"), # EE_5
+     path.join(weightFileDir, "EB1_10.weights.root"), # EB1_10
+     path.join(weightFileDir, "EB2_10.weights.root"), # EB2_10
+     path.join(weightFileDir, "EE_10.weights.root"), # EE_10
      ]
 
-mvaEleID_RunIIIWinter22_iso_V1_wp80_container = EleMVARaw_WP(
+mvaEleID_RunIIIWinter22_iso_V1_wp80_container = EleMVA_WP(
     idName = "mvaEleID-RunIIIWinter22-iso-V1-wp80", mvaTag = mvaTag,
     cutCategory0 = "0.99776583820026143", # EB1_5
     cutCategory1 = "0.99399710641666705", # EB2_5
@@ -30,7 +30,7 @@ mvaEleID_RunIIIWinter22_iso_V1_wp80_container = EleMVARaw_WP(
     )
 
 
-mvaEleID_RunIIIWinter22_iso_V1_wp90_container = EleMVARaw_WP(
+mvaEleID_RunIIIWinter22_iso_V1_wp90_container = EleMVA_WP(
     idName = "mvaEleID-RunIIIWinter22-iso-V1-wp90", mvaTag = mvaTag,
     cutCategory0 = "0.9870981346957135", # EB1_5
     cutCategory1 = "0.95756807831082225", # EB2_5
