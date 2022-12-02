@@ -12,7 +12,14 @@ nanojmeDQM = nanoDQM.clone()
 # Add more variables for AK4 Puppi jets
 #
 #============================================
-nanojmeDQM.vplots.Jet.plots.extend([
+_ak4puppiplots = cms.VPSet(
+    Count1D('_size', 20, -0.5, 19.5, 'AK4 PF Puppi jets with JECs applied.')
+)
+for plot in nanojmeDQM.vplots.Jet.plots:
+    if plot.name.value()=="_size": continue
+    _ak4puppiplots.append(plot)
+
+_ak4puppiplots.extend([
     Plot1D('nConstChHads', 'nConstChHads', 20, 14.5, 34.5, 'number of charged hadrons in the jet'),
     Plot1D('nConstElecs', 'nConstElecs', 3, -0.5, 2.5, 'number of electrons in the jet'),
     Plot1D('nConstHFEMs', 'nConstHFEMs', 1, -0.5, 0.5, 'number of HF EMs in the jet'),
@@ -57,7 +64,7 @@ nanojmeDQM.vplots.Jet.plots.extend([
 _ak4chsplots = cms.VPSet(
     Count1D('_size', 20, -0.5, 19.5, 'AK4 PF CHS jets with JECs applied.')
 )
-for plot in nanojmeDQM.vplots.Jet.plots:
+for plot in _ak4puppiplots:
     if plot.name.value()=="_size": continue
     _ak4chsplots.append(plot)
     _ak4chsplots.extend([
@@ -66,10 +73,23 @@ for plot in nanojmeDQM.vplots.Jet.plots:
         Plot1D('chFPV3EF', 'chFPV3EF', 20, 0, 2, 'charged fromPV==3 Energy Fraction (component of the total charged Energy Fraction).'),
     ])
 
-nanojmeDQM.vplots.JetCHS = cms.PSet(
+#============================================
+#
+# Setup all extra AK4 collections. Will remove
+# collection depending on era.
+#
+#============================================
+nanojmeDQM.vplots.Jet.plots = _ak4puppiplots #Puppi is default "Jet collection" for Run-3
+nanojmeDQM.vplots.JetPuppi = cms.PSet( # This is for the Run-2 extra "JetPuppi" collection
+    sels = nanojmeDQM.vplots.Jet.sels,
+    plots = _ak4puppiplots
+)
+nanojmeDQM.vplots.JetCHS = cms.PSet( # This is for the Run-3 extra "JetCHS" collection
     sels = nanojmeDQM.vplots.Jet.sels,
     plots = _ak4chsplots
 )
+
+
 
 #============================================
 #
@@ -172,7 +192,6 @@ nanojmeDQM.vplots.JetCalo = cms.PSet(
     ),
 )
 
-
 ##MC
 nanojmeDQMMC = nanojmeDQM.clone()
 #nanojmeDQMMC.vplots.Electron.sels.Prompt = cms.string("genPartFlav == 1")
@@ -182,8 +201,42 @@ nanojmeDQMMC.vplots.Photon.sels.Prompt = cms.string("genPartFlav == 1")
 nanojmeDQMMC.vplots.Tau.sels.Prompt = cms.string("genPartFlav == 5")
 nanojmeDQMMC.vplots.Jet.sels.Prompt = cms.string("genJetIdx != 1")
 nanojmeDQMMC.vplots.Jet.sels.PromptB = cms.string("genJetIdx != 1 && hadronFlavour == 5")
-nanojmeDQMMC.vplots.JetCHS.sels.Prompt = cms.string("genJetIdx != 1")
-nanojmeDQMMC.vplots.JetCHS.sels.PromptB = cms.string("genJetIdx != 1 && hadronFlavour == 5")
+
+#============================================
+#
+# Era dependent customization
+#
+#============================================
+#
+# Run 3
+#
+(~run2_nanoAOD_ANY).toModify(
+    nanojmeDQM.vplots.Jet, 
+    plots = _ak4puppiplots,
+).toModify(
+    nanojmeDQM.vplots, 
+    JetPuppi = None # Remove "JetPuppi" from DQM
+)
+(~run2_nanoAOD_ANY).toModify(
+    nanojmeDQMMC.vplots.JetCHS.sels,
+    Prompt = nanojmeDQMMC.vplots.Jet.sels.Prompt,
+    PromptB = nanojmeDQMMC.vplots.Jet.sels.PromptB
+)
+#
+# Run 2
+#
+run2_nanoAOD_ANY.toModify(
+    nanojmeDQM.vplots.Jet, 
+    plots = _ak4chsplots, #
+).toModify(
+    nanojmeDQM.vplots, 
+    JetCHS = None # Remove "JetCHS" from DQM
+)
+run2_nanoAOD_ANY.toModify(
+    nanojmeDQMMC.vplots.JetPuppi.sels, 
+    Prompt = nanojmeDQMMC.vplots.Jet.sels.Prompt,
+    PromptB = nanojmeDQMMC.vplots.Jet.sels.PromptB
+)
 
 from DQMServices.Core.DQMQualityTester import DQMQualityTester
 nanoDQMQTester = DQMQualityTester(
