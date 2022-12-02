@@ -22,14 +22,15 @@ void ElectronMcFakePostValidator::finalize(DQMStore::IBooker& iBooker, DQMStore:
   setBookStatOverflowFlag(set_StatOverflowFlag);
 
   edm::LogInfo("ElectronMcFakePostValidator::finalize") << "efficiency calculation ";
-  bookH1andDivide(iBooker, 
-                  iGetter, 
-                  "etaEff_Extended", 
-                  "matchingObjectEta_Extended_matched", 
-                  "matchingObject_eta_Extended", 
-                  "#eta", 
-                  "Efficiency", "");
- bookH1andDivide(iBooker,
+  bookH1andDivide(iBooker,
+                  iGetter,
+                  "etaEff_Extended",
+                  "matchingObjectEta_Extended_matched",
+                  "matchingObject_eta_Extended",
+                  "#eta",
+                  "Efficiency",
+                  "");
+  bookH1andDivide(iBooker,
                   iGetter,
                   "absetaEff_Extended",
                   "matchingObjectAbsEta_Extended_matched",
