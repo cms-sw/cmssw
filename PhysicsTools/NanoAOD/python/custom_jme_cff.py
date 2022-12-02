@@ -105,7 +105,7 @@ config_recojets = list(filter(lambda k: k['enabled'], config_recojets))
 nanoInfo_recojets = {
   "ak4calo" : {
     "name": "JetCalo",
-    "doc" : "AK4 Calo jets with JECs applied",
+    "doc" : "AK4 Calo jets (slimmedCaloJets)",
   },
   "ak4pf" : {
     "name"  : "JetPF",
@@ -183,6 +183,7 @@ PARTICLENETAK4VARS = cms.PSet(
   particleNetAK4_CvsL = Var("?(pt>=15)?bDiscriminator('pfParticleNetAK4DiscriminatorsJetTags:CvsL'):-1",float,doc="ParticleNetAK4 tagger c vs udsg discriminator",precision=10),
   particleNetAK4_CvsB = Var("?(pt>=15)?bDiscriminator('pfParticleNetAK4DiscriminatorsJetTags:CvsB'):-1",float,doc="ParticleNetAK4 tagger c vs b discriminator",precision=10),
   particleNetAK4_QvsG = Var("?(pt>=15)?bDiscriminator('pfParticleNetAK4DiscriminatorsJetTags:QvsG'):-1",float,doc="ParticleNetAK4 tagger uds vs g discriminator",precision=10),
+  particleNetAK4_G = Var("?(pt>=15)?bDiscriminator('pfParticleNetAK4DiscriminatorsJetTags:probg'):-1",float,doc="ParticleNetAK4 tagger g raw score",precision=10),
   particleNetAK4_puIdDisc = Var("?(pt>=15)?1-bDiscriminator('pfParticleNetAK4JetTags:probpu'):-1",float,doc="ParticleNetAK4 tagger pileup jet discriminator",precision=10),
 )
 
@@ -205,7 +206,7 @@ def AddJetID(proc, jetName="", jetSrc="", jetTableName="", jetTaskName=""):
   Setup modules to calculate PF jet ID
   """
 
-  isPUPPIJet = True if "Puppi" in jetName else False
+  isPUPPIJet = True if "PUPPI" in jetName.upper() else False
 
   looseJetId = "looseJetId{}".format(jetName)
   setattr(proc, looseJetId, proc.looseJetId.clone(
@@ -392,6 +393,7 @@ def AddParticleNetAK4Scores(proc, jetTableName=""):
   getattr(proc, jetTableName).variables.particleNetAK4_CvsL = PARTICLENETAK4VARS.particleNetAK4_CvsL
   getattr(proc, jetTableName).variables.particleNetAK4_CvsB = PARTICLENETAK4VARS.particleNetAK4_CvsB
   getattr(proc, jetTableName).variables.particleNetAK4_QvsG = PARTICLENETAK4VARS.particleNetAK4_QvsG
+  getattr(proc, jetTableName).variables.particleNetAK4_G = PARTICLENETAK4VARS.particleNetAK4_G
   getattr(proc, jetTableName).variables.particleNetAK4_puIdDisc = PARTICLENETAK4VARS.particleNetAK4_puIdDisc
 
   return proc
@@ -485,6 +487,9 @@ def SavePatJets(proc, jetName, payload, patJetFinalColl, jetTablePrefix, jetTabl
   jetTableDocDefault = jetTableDoc + " with JECs applied. Jets with pt >= {ptcut:.0f} GeV are stored.".format(ptcut=ptcut)
   if runOnMC:
     jetTableDocDefault += "For jets with pt < {ptcut:.0f} GeV, only those matched to gen jets are stored.".format(ptcut=ptcut)
+
+  if doCalo:
+    jetTableDocDefault = jetTableDoc
 
   jetTableName = "jet{}Table".format(jetName)
   setattr(proc,jetTableName, simpleCandidateFlatTableProducer.clone(
@@ -698,6 +703,7 @@ def ReclusterAK4PuppiJets(proc, recoJA, runOnMC):
   proc.jetPuppiTable.variables.particleNetAK4_CvsL     = PARTICLENETAK4VARS.particleNetAK4_CvsL
   proc.jetPuppiTable.variables.particleNetAK4_CvsB     = PARTICLENETAK4VARS.particleNetAK4_CvsB
   proc.jetPuppiTable.variables.particleNetAK4_QvsG     = PARTICLENETAK4VARS.particleNetAK4_QvsG
+  proc.jetPuppiTable.variables.particleNetAK4_G        = PARTICLENETAK4VARS.particleNetAK4_G
   proc.jetPuppiTable.variables.particleNetAK4_puIdDisc = PARTICLENETAK4VARS.particleNetAK4_puIdDisc
 
   #
@@ -872,6 +878,7 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   proc.jetTable.variables.particleNetAK4_CvsL       = PARTICLENETAK4VARS.particleNetAK4_CvsL
   proc.jetTable.variables.particleNetAK4_CvsB       = PARTICLENETAK4VARS.particleNetAK4_CvsB
   proc.jetTable.variables.particleNetAK4_QvsG       = PARTICLENETAK4VARS.particleNetAK4_QvsG
+  proc.jetTable.variables.particleNetAK4_G          = PARTICLENETAK4VARS.particleNetAK4_G
   proc.jetTable.variables.particleNetAK4_puIdDisc   = PARTICLENETAK4VARS.particleNetAK4_puIdDisc
 
   #Adding hf shower shape producer to the jet sequence. By default this producer is not automatically rerun at the NANOAOD step
