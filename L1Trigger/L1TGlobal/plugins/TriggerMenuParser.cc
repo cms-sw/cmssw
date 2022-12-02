@@ -1103,7 +1103,7 @@ bool l1t::TriggerMenuParser::parseMuon(tmeventsetup::esCondition condMu, unsigne
   unsigned int chargeCorrelation = 1;
   const std::vector<esCut>& cuts = condMu.getCuts();
   for (size_t jj = 0; jj < cuts.size(); jj++) {
-    const esCut cut = cuts.at(jj);
+    const esCut& cut = cuts.at(jj);
     if (cut.getCutType() == esCutType::ChargeCorrelation) {
       if (cut.getData() == "ls")
         chargeCorrelation = 2;
@@ -1126,7 +1126,7 @@ bool l1t::TriggerMenuParser::parseMuon(tmeventsetup::esCondition condMu, unsigne
   // Loop over objects and extract the cuts on the objects
   const std::vector<esObject>& objects = condMu.getObjects();
   for (size_t jj = 0; jj < objects.size(); jj++) {
-    const esObject object = objects.at(jj);
+    const esObject& object = objects.at(jj);
     gEq = (object.getComparisonOperator() == esComparisonOperator::GE);
 
     //  BLW TO DO: This needs to be added to the Object Parameters
@@ -1152,7 +1152,7 @@ bool l1t::TriggerMenuParser::parseMuon(tmeventsetup::esCondition condMu, unsigne
 
     const std::vector<esCut>& cuts = object.getCuts();
     for (size_t kk = 0; kk < cuts.size(); kk++) {
-      const esCut cut = cuts.at(kk);
+      const esCut& cut = cuts.at(kk);
 
       switch (cut.getCutType()) {
         case esCutType::UnconstrainedPt:
@@ -1384,7 +1384,7 @@ bool l1t::TriggerMenuParser::parseMuonCorr(const tmeventsetup::esObject* corrMu,
 
   const std::vector<esCut>& cuts = corrMu->getCuts();
   for (size_t kk = 0; kk < cuts.size(); kk++) {
-    const esCut cut = cuts.at(kk);
+    const esCut& cut = cuts.at(kk);
 
     switch (cut.getCutType()) {
       case esCutType::UnconstrainedPt:  // Added for displaced muons
@@ -1749,7 +1749,7 @@ bool l1t::TriggerMenuParser::parseCalo(tmeventsetup::esCondition condCalo, unsig
   // Loop over objects and extract the cuts on the objects
   const std::vector<esObject>& objects = condCalo.getObjects();
   for (size_t jj = 0; jj < objects.size(); jj++) {
-    const esObject object = objects.at(jj);
+    const esObject& object = objects.at(jj);
     gEq = (object.getComparisonOperator() == esComparisonOperator::GE);
 
     //  BLW TO DO: This needs to be added to the Object Parameters
@@ -1772,7 +1772,7 @@ bool l1t::TriggerMenuParser::parseCalo(tmeventsetup::esCondition condCalo, unsig
 
     const std::vector<esCut>& cuts = object.getCuts();
     for (size_t kk = 0; kk < cuts.size(); kk++) {
-      const esCut cut = cuts.at(kk);
+      const esCut& cut = cuts.at(kk);
 
       switch (cut.getCutType()) {
         case esCutType::Threshold:
@@ -2007,7 +2007,7 @@ bool l1t::TriggerMenuParser::parseCaloCorr(const tmeventsetup::esObject* corrCal
 
   const std::vector<esCut>& cuts = corrCalo->getCuts();
   for (size_t kk = 0; kk < cuts.size(); kk++) {
-    const esCut cut = cuts.at(kk);
+    const esCut& cut = cuts.at(kk);
 
     switch (cut.getCutType()) {
       case esCutType::Threshold:
@@ -2279,7 +2279,7 @@ bool l1t::TriggerMenuParser::parseEnergySum(tmeventsetup::esCondition condEnergy
   // Loop over objects and extract the cuts on the objects
   const std::vector<esObject>& objects = condEnergySum.getObjects();
   for (size_t jj = 0; jj < objects.size(); jj++) {
-    const esObject object = objects.at(jj);
+    const esObject& object = objects.at(jj);
     gEq = (object.getComparisonOperator() == esComparisonOperator::GE);
 
     //  BLW TO DO: This needs to be added to the Object Parameters
@@ -2293,7 +2293,7 @@ bool l1t::TriggerMenuParser::parseEnergySum(tmeventsetup::esCondition condEnergy
 
     const std::vector<esCut>& cuts = object.getCuts();
     for (size_t kk = 0; kk < cuts.size(); kk++) {
-      const esCut cut = cuts.at(kk);
+      const esCut& cut = cuts.at(kk);
 
       switch (cut.getCutType()) {
         case esCutType::Threshold:
@@ -2469,7 +2469,7 @@ bool l1t::TriggerMenuParser::parseEnergySumCorr(const tmeventsetup::esObject* co
 
   const std::vector<esCut>& cuts = corrESum->getCuts();
   for (size_t kk = 0; kk < cuts.size(); kk++) {
-    const esCut cut = cuts.at(kk);
+    const esCut& cut = cuts.at(kk);
 
     switch (cut.getCutType()) {
       case esCutType::Threshold:
@@ -2598,7 +2598,7 @@ bool l1t::TriggerMenuParser::parseExternal(tmeventsetup::esCondition condExt, un
   // Get object for External conditions
   const std::vector<esObject>& objects = condExt.getObjects();
   for (size_t jj = 0; jj < objects.size(); jj++) {
-    const esObject object = objects.at(jj);
+    const esObject& object = objects.at(jj);
     if (object.getType() == esObjectType::EXT) {
       relativeBx = object.getBxOffset();
       channelID = object.getExternalChannelId();
@@ -2697,7 +2697,7 @@ bool l1t::TriggerMenuParser::parseCorrelation(tmeventsetup::esCondition corrCond
   int cutType = 0;
   const std::vector<esCut>& cuts = corrCond.getCuts();
   for (size_t jj = 0; jj < cuts.size(); jj++) {
-    const esCut cut = cuts.at(jj);
+    const esCut& cut = cuts.at(jj);
 
     if (cut.getCutType() == esCutType::ChargeCorrelation) {
       if (cut.getData() == "ls")
@@ -2788,7 +2788,7 @@ bool l1t::TriggerMenuParser::parseCorrelation(tmeventsetup::esCondition corrCond
 
   // loop over legs
   for (size_t jj = 0; jj < objects.size(); jj++) {
-    const esObject object = objects.at(jj);
+    const esObject& object = objects.at(jj);
     LogDebug("TriggerMenuParser") << "      obj name = " << object.getName() << "\n";
     LogDebug("TriggerMenuParser") << "      obj type = " << object.getType() << "\n";
     LogDebug("TriggerMenuParser") << "      obj op = " << object.getComparisonOperator() << "\n";
@@ -2996,7 +2996,7 @@ bool l1t::TriggerMenuParser::parseCorrelationThreeBody(tmeventsetup::esCondition
   int cutType = 0;
   const std::vector<esCut>& cuts = corrCond.getCuts();
   for (size_t lll = 0; lll < cuts.size(); lll++) {  // START esCut lll
-    const esCut cut = cuts.at(lll);
+    const esCut& cut = cuts.at(lll);
 
     if (cut.getCutType() == esCutType::ChargeCorrelation) {
       if (cut.getData() == "ls")
@@ -3043,7 +3043,7 @@ bool l1t::TriggerMenuParser::parseCorrelationThreeBody(tmeventsetup::esCondition
 
   // Loop over legs
   for (size_t lll = 0; lll < objects.size(); lll++) {
-    const esObject object = objects.at(lll);
+    const esObject& object = objects.at(lll);
     LogDebug("TriggerMenuParser") << "      obj name = " << object.getName() << "\n";
     LogDebug("TriggerMenuParser") << "      obj type = " << object.getType() << "\n";
     LogDebug("TriggerMenuParser") << "      obj bx = " << object.getBxOffset() << "\n";
@@ -3159,7 +3159,7 @@ bool l1t::TriggerMenuParser::parseCorrelationWithOverlapRemoval(const tmeventset
   int cutType = 0;
   const std::vector<esCut>& cuts = corrCond.getCuts();
   for (size_t jj = 0; jj < cuts.size(); jj++) {
-    const esCut cut = cuts.at(jj);
+    const esCut& cut = cuts.at(jj);
 
     if (cut.getCutType() == esCutType::ChargeCorrelation) {
       if (cut.getData() == "ls")
