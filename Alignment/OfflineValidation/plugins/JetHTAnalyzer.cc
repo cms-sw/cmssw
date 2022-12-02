@@ -175,7 +175,7 @@ void JetHTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   int counter = 0;
   for (reco::VertexCollection::const_iterator pvIt = pvtx.begin(); pvIt != pvtx.end(); pvIt++) {
-    reco::Vertex iPV = *pvIt;
+    const reco::Vertex& iPV = *pvIt;
     counter++;
 
     if (iPV.isFake())
