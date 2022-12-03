@@ -2,13 +2,12 @@ import FWCore.ParameterSet.Config as cms
 from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_tools import *
 from os import path
 
-# Egamma presentation on this ID for Run3:
+#Egamma presentation on this ID for Run3:
 #https://indico.cern.ch/event/1220628/contributions/5134878/attachments/2546114/4384580/Run%203%20Electron%20MVA%20based%20ID%20training.pdf
 
 mvaTag = "RunIIIWinter22NoIsoV1"
 
-#weightFileDir = "RecoEgamma/ElectronIdentification/data/MVAWeightFiles/RunIIIWinter22NoIsoV1"
-weightFileDir = "/afs/cern.ch/work/p/prrout/public/pkltoxml/Retrained_final/Non_Iso"
+weightFileDir = "RecoEgamma/ElectronIdentification/data/MVAWeightFiles/Winter22NoIsoV1"
 
 
 mvaWeightFiles = cms.vstring(
