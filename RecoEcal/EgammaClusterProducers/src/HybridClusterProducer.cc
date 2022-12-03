@@ -152,7 +152,7 @@ void HybridClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
     return;
   }
 
-  reco::BasicClusterCollection clusterCollection = *bccHandle;
+  const reco::BasicClusterCollection& clusterCollection = *bccHandle;
 
   LogTrace("EcalClusters") << "Got the BasicClusterCollection" << std::endl;
 

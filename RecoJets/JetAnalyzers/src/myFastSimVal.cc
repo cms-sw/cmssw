@@ -2673,7 +2673,7 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
 
   // --- Loop over towers and make a lists of used and unused towers
   for (CaloTowerCollection::const_iterator tower = caloTowers->begin(); tower != caloTowers->end(); tower++) {
-    CaloTower t = *tower;
+    const CaloTower& t = *tower;
     Double_t et = tower->et();
 
     if (et > 0) {
@@ -2757,7 +2757,7 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
 
   // --- Loop over towers and make a lists of used and unused towers
   for (CaloTowerCollection::const_iterator tower = caloTowers->begin(); tower != caloTowers->end(); tower++) {
-    CaloTower t = *tower;
+    const CaloTower& t = *tower;
     Double_t et = tower->et();
 
     if (et > 0) {
@@ -2842,7 +2842,7 @@ void myFastSimVal::analyze(const Event& evt, const EventSetup& es) {
 
   // --- Loop over towers and make a lists of used and unused towers
   for (CaloTowerCollection::const_iterator tower = caloTowers->begin(); tower != caloTowers->end(); tower++) {
-    CaloTower t = *tower;
+    const CaloTower& t = *tower;
     Double_t et = tower->et();
 
     if (et > 0) {
