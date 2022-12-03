@@ -106,7 +106,7 @@ void NuclearTrackCorrector::produce(edm::Event& iEvent, const edm::EventSetup& i
   swap_map(temp_m_TrajectoryCollection, m_TrackToTrajMap);
 
   for (unsigned int i = 0; i < m_NuclearInteractionCollection.size(); i++) {
-    reco::NuclearInteraction ni = m_NuclearInteractionCollection[i];
+    const reco::NuclearInteraction& ni = m_NuclearInteractionCollection[i];
     if (ni.likelihood() < 0.4)
       continue;
 
