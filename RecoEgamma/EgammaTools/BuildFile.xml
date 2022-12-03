@@ -2,7 +2,6 @@
 <use name="CommonTools/Utils"/>
 <use name="FWCore/Framework"/>
 <use name="DataFormats/Common"/>
-<use name="DataFormats/HcalRecHit"/>
 <use name="DataFormats/EgammaReco"/>
 <use name="DataFormats/EgammaCandidates"/>
 <use name="DataFormats/PatCandidates"/>
