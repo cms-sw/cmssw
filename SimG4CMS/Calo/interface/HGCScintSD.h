@@ -48,6 +48,7 @@ private:
   bool storeAllG4Hits_, fiducialCut_;
   bool useBirk_;
   double birk1_, birk2_, birk3_, weight_;
+  bool checkID_;
   std::string fileName_;
   std::vector<int> tiles_;
 };
