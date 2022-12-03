@@ -7,8 +7,7 @@ from os import path
 
 mvaTag = "RunIIIWinter22IsoV1"
 
-#weightFileDir = "RecoEgamma/ElectronIdentification/data/MVAWeightFiles/RunIIIWinter22IsoV1"
-weightFileDir = "/afs/cern.ch/work/p/prrout/public/pkltoxml/Retrained_final/Iso_Clusterbased"
+weightFileDir = "RecoEgamma/ElectronIdentification/data/MVAWeightFiles/Winter22IsoV1"
 
 mvaWeightFiles = [
      path.join(weightFileDir, "EB1_5.weights.root"), # EB1_5
