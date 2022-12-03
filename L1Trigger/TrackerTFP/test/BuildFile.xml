@@ -1,4 +1,6 @@
 <library file="*.cc" name="TrackerTFPTests">
+  <use name="CommonTools/UtilAlgos"/>
   <use name="L1Trigger/TrackerTFP"/>
+  <use name="SimTracker/TrackTriggerAssociation"/>
   <flags EDM_PLUGIN="1"/>
 </library>

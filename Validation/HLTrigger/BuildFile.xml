@@ -1,12 +1,9 @@
-<use name="CommonTools/TriggerUtils"/>
 <use name="DQMOffline/Trigger"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
-<use name="FWCore/ServiceRegistry"/>
 <use name="DataFormats/HLTReco"/>
 <use name="HLTrigger/HLTcore"/>
 <use name="DQMServices/Core"/>
-<use name="CommonTools/Utils"/>
 <use name="root"/>
 <export>
   <lib name="1"/>
