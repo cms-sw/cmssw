@@ -66,9 +66,9 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Validation.HGCalValidation.hgcMissingRecHit_cfi')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
-#if hasattr(process,'MessageLogger'):
-#    process.MessageLogger.HGCalMiss=dict()
-#    process.MessageLogger.HGCalError=dict()
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.HGCalMiss=dict()
+    process.MessageLogger.HGCalError=dict()
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1),
