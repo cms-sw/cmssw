@@ -56,6 +56,7 @@ HGCScintSD::HGCScintSD(const std::string& name,
   birk2_ = m_HGC.getParameter<double>("BirkC2");
   birk3_ = m_HGC.getParameter<double>("BirkC3");
   storeAllG4Hits_ = m_HGC.getParameter<bool>("StoreAllG4Hits");
+  checkID_ = m_HGC.getUntrackedParameter<bool>("CheckID");
   fileName_ = m_HGC.getUntrackedParameter<std::string>("TileFileName");
 
   if (storeAllG4Hits_) {
@@ -213,6 +214,17 @@ uint32_t HGCScintSD::setDetUnitId(const G4Step* aStep) {
                                << " is rejected by fiducilal volume cut";
 #endif
     id = 0;
+  }
+  if ((id != 0) && checkID_) {
+    auto xy = hgcons_->locateCell(HGCScintillatorDetId(id), false);
+    double dx = xy.first - (hitPoint.x() / CLHEP::cm);
+    double dy = xy.second - (hitPoint.y() / CLHEP::cm);
+    double diff = std::sqrt(dx * dx + dy * dy);
+    constexpr double tol = 3.5;
+    if (diff > tol)
+      edm::LogVerbatim("HGCSim") << "CheckID " << HGCScintillatorDetId(id) << " input position: ("
+                                 << hitPoint.x() / CLHEP::cm << ", " << hitPoint.y() / CLHEP::cm
+                                 << "); position from ID (" << xy.first << ", " << xy.second << ") distance " << diff;
   }
   return id;
 }

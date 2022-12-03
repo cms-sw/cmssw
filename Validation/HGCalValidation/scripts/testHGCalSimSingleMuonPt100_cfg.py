@@ -64,10 +64,10 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
-#if hasattr(process,'MessageLogger'):
-#    process.MessageLogger.ValidHGCal=dict()
-#    process.MessageLogger.HGCalGeom=dict()
-#    process.MessageLogger.HGCalSim=dict()
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.HGCalError=dict()
+#   process.MessageLogger.HGCSim=dict()
+#   process.MessageLogger.HGCalSim=dict()
 
 # Input source
 process.source = cms.Source("EmptySource")
@@ -131,12 +131,15 @@ process.generator = cms.EDFilter("Pythia8PtGun",
 #Modified to produce hgceedigis
 process.ProductionFilterSequence = cms.Sequence(process.generator)
 
+process.g4SimHits.HGCSD.CheckID = True
+process.g4SimHits.HGCScintSD.CheckID = True
+
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.endjob_step = cms.EndPath(process.endOfProcess)
-process.analysis_step = cms.Path(process.hgcalHitPartialEE+process.hgcalHitPartialHE)
+process.analysis_step = cms.Path(process.hgcalHitPartialEE+process.hgcalHitPartialHE+process.hgcalHitPartialHEB)
 process.out_step = cms.EndPath(process.output)
 
 # Schedule definition
