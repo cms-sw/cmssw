@@ -46,7 +46,7 @@ void drawSingleHistogram(TH1D *histogram[kMaxFiles],
                          bool logScale,
                          int color[kMaxFiles]) {
   // Create and setup the histogram drawer
-  JDrawer *drawer = new JDrawer();
+  const auto &drawer = std::make_unique<JDrawer>();
   drawer->SetLogY(logScale);
   drawer->SetTopMargin(0.08);
 
@@ -812,7 +812,7 @@ void jetHtPlotter(std::string configurationFileName) {
   //                  Draw the plots
   // ===============================================
 
-  JDrawer *drawer = new JDrawer();
+  const auto &drawer = std::make_unique<JDrawer>();
   TLegend *legend[nMaxLegendColumns];
   int columnOrder[nMaxLegendColumns];
   bool noIovFound = true;

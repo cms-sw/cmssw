@@ -1,6 +1,7 @@
 #ifndef ALIGNMENT_OFFLINEVALIDATION_PLOTALIGNNMENTVALIDATION_H_
 #define ALIGNMENT_OFFLINEVALIDATION_PLOTALIGNNMENTVALIDATION_H_
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Alignment/OfflineValidation/interface/TkAlStyle.h"
 #include "Alignment/OfflineValidation/interface/TkOffTreeVariables.h"
 
