@@ -208,12 +208,18 @@ slimmedElectronsWithUserData = cms.EDProducer("PATElectronUserDataEmbedder",
 
 # no need for the Run3 IDs in Run2
 run2_egamma.toModify(slimmedElectronsWithUserData.userFloats,
+                     mvaIso = None,
+                     mvaNoIso = None,
                      miniIsoChg = None,
                      miniIsoAll = None,
                      PFIsoChg = None,
                      PFIsoAll = None,
                      PFIsoAll04 = None).\
         toModify(slimmedElectronsWithUserData.userIntFromBools,
+                 mvaIso_WP90 = None,
+                 mvaIso_WP80 = None,
+                 mvaNoIso_WP90 = None,
+                 mvaNoIso_WP80 = None,
                  cutBasedID_veto = None,
                  cutBasedID_loose = None,
                  cutBasedID_medium = None,
@@ -354,7 +360,6 @@ electronTable = simpleCandidateFlatTableProducer.clone(
     ),
 )
 
-
 (run2_egamma).toModify(
         # energy scale/smearing: only for Run2
         electronTable.variables,
@@ -370,7 +375,23 @@ electronTable = simpleCandidateFlatTableProducer.clone(
         # switch default IDs back to Fall17V2 in Run2, remove Winter22V1 and quadratic iso
         cutBased = electronTable.variables.cutBased_Fall17V2,
         cutBased_Fall17V2 = None,
-        vidNestedWPBitmap = electronTable.variables.cutBased_Fall17V2 ,
+        mvaIso = electronTable.variables.mvaIso_Fall17V2,
+        mvaIso_Fall17V2 = None,
+        mvaIso_WP80 = electronTable.variables.mvaIso_Fall17V2_WP80,
+        mvaIso_Fall17V2_WP80 = None,
+        mvaIso_WP90 = electronTable.variables.mvaIso_Fall17V2_WP90,
+        mvaIso_Fall17V2_WP90 = None,
+        mvaIso_WPL = electronTable.variables.mvaIso_Fall17V2_WPL,
+        mvaIso_Fall17V2_WPL = None,
+        mvaNoIso = electronTable.variables.mvaNoIso_Fall17V2,
+        mvaNoIso_Fall17V2 = None,
+        mvaNoIso_WP80 = electronTable.variables.mvaNoIso_Fall17V2_WP80,
+        mvaNoIso_Fall17V2_WP80 = None,
+        mvaNoIso_WP90 = electronTable.variables.mvaNoIso_Fall17V2_WP90,
+        mvaNoIso_Fall17V2_WP90 = None,
+        mvaNoIso_WPL = electronTable.variables.mvaNoIso_Fall17V2_WPL,
+        mvaNoIso_Fall17V2_WPL = None,
+        vidNestedWPBitmap = electronTable.variables.cutBased_Fall17V2,
         vidNestedWPBitmap_Fall17V2 = None,
         miniPFRelIso_chg = electronTable.variables.miniPFRelIso_chg_Fall17V2,
         miniPFRelIso_chg_Fall17V2 = None,
