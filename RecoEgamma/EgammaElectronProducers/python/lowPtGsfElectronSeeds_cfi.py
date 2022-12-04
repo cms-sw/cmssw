@@ -30,6 +30,8 @@ lowPtGsfElectronSeeds = cms.EDProducer(
     UsePfTracks = cms.bool(True),
     MinPtThreshold = cms.double(1.0),
     MaxPtThreshold = cms.double(15.),
+    isPhase2 = cms.bool(False),
+    barrelOnlyAbsEta = cms.double(1.6),
     )
 
 # Modifiers for FastSim
@@ -52,3 +54,6 @@ bParking.toModify(lowPtGsfElectronSeeds,
 
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 pp_on_AA.toModify(lowPtGsfElectronSeeds,MinPtThreshold = 5.0)
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(lowPtGsfElectronSeeds,isPhase2 = True)

@@ -160,6 +160,10 @@ private:  // member data
   const double minPtThreshold_;
   const double maxPtThreshold_;
 
+  //Phase2
+  const bool isPhase2_;
+  const double barrelOnlyAbsEta_;
+
   // pow( sinh(1.65), 2. )
   static constexpr double boundary_ = 2.50746495928 * 2.50746495928;
   // pow( ele_mass, 2. )
@@ -189,7 +193,9 @@ LowPtGsfElectronSeedProducer::LowPtGsfElectronSeedProducer(const edm::ParameterS
       passThrough_(conf.getParameter<bool>("PassThrough")),
       usePfTracks_(conf.getParameter<bool>("UsePfTracks")),
       minPtThreshold_(conf.getParameter<double>("MinPtThreshold")),
-      maxPtThreshold_(conf.getParameter<double>("MaxPtThreshold")) {
+      maxPtThreshold_(conf.getParameter<double>("MaxPtThreshold")),
+      isPhase2_(conf.getParameter<bool>("isPhase2")),  
+      barrelOnlyAbsEta_(conf.getParameter<double>("barrelOnlyAbsEta")) {
   if (usePfTracks_) {
     pfTracks_ = consumes(conf.getParameter<edm::InputTag>("pfTracks"));
     hcalClusters_ = consumes(conf.getParameter<edm::InputTag>("hcalClusters"));
@@ -332,6 +338,10 @@ void LowPtGsfElectronSeedProducer::loop(const edm::Handle<std::vector<T> >& hand
   for (unsigned int itrk = 0; itrk < handle.product()->size(); itrk++) {
     edm::Ref<std::vector<T> > templatedRef(handle, itrk);  // TrackRef or PFRecTrackRef
     reco::TrackRef trackRef = getBaseRef(handle, itrk);
+
+    if (isPhase2_ && std::abs(trackRef->eta())>barrelOnlyAbsEta_) {
+      continue;
+    }
 
     if (!(trackRef->quality(reco::TrackBase::qualityByName("highPurity")))) {
       continue;
@@ -665,6 +675,8 @@ void LowPtGsfElectronSeedProducer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<bool>("UsePfTracks", true);
   desc.add<double>("MinPtThreshold", 1.0);
   desc.add<double>("MaxPtThreshold", 15.);
+  desc.add<bool>("isPhase2", false);
+  desc.add<double>("barrelOnlyAbsEta", 1.6);
   descriptions.add("lowPtGsfElectronSeeds", desc);
 }
 
