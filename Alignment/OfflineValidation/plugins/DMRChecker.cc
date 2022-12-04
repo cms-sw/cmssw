@@ -2101,7 +2101,7 @@ void DMRChecker::fillDescriptions(edm::ConfigurationDescriptions &descriptions)
   desc.add<edm::InputTag>("BeamSpotTag", edm::InputTag("offlineBeamSpot"));
   desc.add<edm::InputTag>("VerticesTag", edm::InputTag("offlinePrimaryVertices"));
   desc.add<bool>("isCosmics", false);
-  descriptions.add("DMRChecker", desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_MODULE(DMRChecker);

@@ -9,9 +9,9 @@ TEST_CASE("GeneralPurposeTrackAnalyzer tests", "[GeneralPurposeTrackAnalyzer]") 
   //The python configuration
   const std::string baseConfig{
       R"_(from FWCore.TestProcessor.TestProcess import *
-from Alignment.OfflineValidation.GeneralPurposeTrackAnalyzer_cfi import GeneralPurposeTrackAnalyzer
+from Alignment.OfflineValidation.generalPurposeTrackAnalyzer_cfi import generalPurposeTrackAnalyzer
 process = TestProcess()
-process.trackAnalyzer = GeneralPurposeTrackAnalyzer
+process.trackAnalyzer = generalPurposeTrackAnalyzer
 process.moduleToTest(process.trackAnalyzer)
 process.add_(cms.Service('MessageLogger'))
 process.add_(cms.Service('TFileService',fileName=cms.string('tesTrackAnalyzer1.root')))
@@ -45,9 +45,9 @@ TEST_CASE("DMRChecker tests", "[DMRChecker]") {
   //The python configuration
   const std::string baseConfig{
       R"_(from FWCore.TestProcessor.TestProcess import *
-from Alignment.OfflineValidation.DMRChecker_cfi import DMRChecker
+from Alignment.OfflineValidation.dmrChecker_cfi import dmrChecker
 process = TestProcess()
-process.dmrAnalyzer = DMRChecker
+process.dmrAnalyzer = dmrChecker
 process.moduleToTest(process.dmrAnalyzer)
 process.add_(cms.Service('MessageLogger'))
 process.add_(cms.Service('TFileService',fileName=cms.string('tesTrackAnalyzer2.root')))
