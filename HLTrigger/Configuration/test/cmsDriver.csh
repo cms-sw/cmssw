@@ -128,7 +128,7 @@ foreach gtag ( MC DATA )
   else if ( ($1 == all) || ($1 == ALL) ) then
     set tables = ( GRun HIon PIon PRef 2022v15 Fake Fake1 Fake2 )
   else if ( ($1 == ib) || ($1 == IB) ) then
-    set tables = ( GRun HIon PIon PRef )
+    set tables = ( GRun HIon PIon PRef Fake Fake1 Fake )
   else if ( ($1 == dev) || ($1 == DEV) ) then
     set tables = ( GRun HIon PIon PRef )
   else if ( ($1 == full) || ($1 == FULL) ) then
