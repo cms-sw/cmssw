@@ -11,7 +11,7 @@ if ( $2 == "" ) then
 else if ( $2 == ALL ) then
   set tables = ( GRun HIon PIon PRef 2022v15 Fake Fake1 Fake2 )
 else if ( $2 == IB ) then
-  set tables = ( GRun HIon PIon PRef )
+  set tables = ( GRun HIon PIon PRef Fake Fake1 Fake2 )
 else if ( $2 == DEV ) then
   set tables = ( GRun HIon PIon PRef )
 else if ( $2 == FULL ) then
