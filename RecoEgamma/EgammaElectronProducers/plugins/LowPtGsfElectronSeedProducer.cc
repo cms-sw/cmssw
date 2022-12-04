@@ -194,7 +194,7 @@ LowPtGsfElectronSeedProducer::LowPtGsfElectronSeedProducer(const edm::ParameterS
       usePfTracks_(conf.getParameter<bool>("UsePfTracks")),
       minPtThreshold_(conf.getParameter<double>("MinPtThreshold")),
       maxPtThreshold_(conf.getParameter<double>("MaxPtThreshold")),
-      isPhase2_(conf.getParameter<bool>("isPhase2")),  
+      isPhase2_(conf.getParameter<bool>("isPhase2")),
       barrelOnlyAbsEta_(conf.getParameter<double>("barrelOnlyAbsEta")) {
   if (usePfTracks_) {
     pfTracks_ = consumes(conf.getParameter<edm::InputTag>("pfTracks"));
@@ -339,7 +339,7 @@ void LowPtGsfElectronSeedProducer::loop(const edm::Handle<std::vector<T> >& hand
     edm::Ref<std::vector<T> > templatedRef(handle, itrk);  // TrackRef or PFRecTrackRef
     reco::TrackRef trackRef = getBaseRef(handle, itrk);
 
-    if (isPhase2_ && std::abs(trackRef->eta())>barrelOnlyAbsEta_) {
+    if (isPhase2_ && std::abs(trackRef->eta()) > barrelOnlyAbsEta_) {
       continue;
     }
 
