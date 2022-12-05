@@ -279,7 +279,7 @@ electronMVATTH= cms.EDProducer("EleBaseMVAValueMapProducer",
         LepGood_dxy = cms.string("log(abs(dB('PV2D')))"),
         LepGood_sip3d = cms.string("abs(dB('PV3D')/edB('PV3D'))"),
         LepGood_dz = cms.string("log(abs(dB('PVDZ')))"),
-        LepGood_mvaFall17V2noIso = cms.string("userFloat('mvaNoIso')"),
+        LepGood_mvaFall17V2noIso = cms.string("userFloat('mvaNoIso_Fall17V2')"),
     )
 )
 run2_egamma_2016.toModify(
