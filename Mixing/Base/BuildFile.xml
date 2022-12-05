@@ -7,6 +7,8 @@
 <use name="FWCore/Sources"/>
 <use name="FWCore/Utilities"/>
 <use name="FWCore/Version"/>
+<use name="IOMC/RandomEngine"/>
+<use name="SimDataFormats/RandomEngine"/>
 <use name="clhep"/>
 <use name="roothistmatrix"/>
 <use name="CondFormats/RunInfo"/>

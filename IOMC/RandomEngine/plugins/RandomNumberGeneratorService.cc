@@ -10,7 +10,7 @@
 //   Created:  Tue Mar  7 09:43:46 EST 2006 (originally in FWCore/Services)
 //
 
-#include "IOMC/RandomEngine/src/RandomNumberGeneratorService.h"
+#include "RandomNumberGeneratorService.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -35,6 +35,7 @@
 #include "FWCore/Utilities/interface/LuminosityBlockIndex.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "IOMC/RandomEngine/interface/TRandomAdaptor.h"
+#include "IOMC/RandomEngine/interface/cloneEngine.h"
 #include "SimDataFormats/RandomEngine/interface/RandomEngineState.h"
 #include "SimDataFormats/RandomEngine/interface/RandomEngineStates.h"
 
@@ -289,25 +290,7 @@ namespace edm {
 
     std::unique_ptr<CLHEP::HepRandomEngine> RandomNumberGeneratorService::cloneEngine(
         LuminosityBlockIndex const& lumiIndex) {
-      CLHEP::HepRandomEngine& existingEngine = getEngine(lumiIndex);
-
-      std::vector<unsigned long> stateL = existingEngine.put();
-      long seedL = existingEngine.getSeed();
-      std::unique_ptr<CLHEP::HepRandomEngine> newEngine;
-      if (stateL[0] == CLHEP::engineIDulong<CLHEP::HepJamesRandom>()) {
-        newEngine = std::make_unique<CLHEP::HepJamesRandom>(seedL);
-      } else if (stateL[0] == CLHEP::engineIDulong<CLHEP::RanecuEngine>()) {
-        newEngine = std::make_unique<CLHEP::RanecuEngine>();
-      } else if (stateL[0] == CLHEP::engineIDulong<CLHEP::MixMaxRng>()) {
-        newEngine = std::make_unique<CLHEP::MixMaxRng>(seedL);
-      } else if (stateL[0] == CLHEP::engineIDulong<TRandomAdaptor>()) {
-        newEngine = std::make_unique<TRandomAdaptor>(seedL);
-      } else {
-        // Sanity check, it should not be possible for this to happen.
-        throw Exception(errors::Unknown) << "The RandomNumberGeneratorService is trying to clone unknown engine type\n";
-      }
-      newEngine->get(stateL);
-      return newEngine;
+      return edm::cloneEngine(getEngine(lumiIndex));
     }
 
     // PROBABLY TO BE DELETED, This returns the configured seed without
