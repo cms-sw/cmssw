@@ -293,8 +293,8 @@ upgradeWFs['trackingOnly'] = UpgradeWorkflow_trackingOnly(
         'RecoFakeHLT',
         'HARVESTFakeHLT'
     ],
-    
-   
+
+
     suffix = '_trackingOnly',
     offset = 0.1,
 )
@@ -516,7 +516,7 @@ class UpgradeWorkflow_weightedVertex(UpgradeWorkflow):
         return result
 
 
-upgradeWFs['weightedVertex'] = UpgradeWorkflow_weightedVertex( 
+upgradeWFs['weightedVertex'] = UpgradeWorkflow_weightedVertex(
     suffix = '_weightedVertex',
     offset = 0.278,
 )
@@ -1420,6 +1420,121 @@ upgradeWFs['ProdLike'] = UpgradeWorkflow_ProdLike(
     ],
     suffix = '_ProdLike',
     offset = 0.21,
+)
+
+class UpgradeWorkflow_ProdLikeRunningPU(UpgradeWorkflow_ProdLike):
+    def __init__(self, suffix, offset, fixedPU,
+        steps = [
+            'GenSimHLBeamSpot14',
+            'Digi',
+            'DigiTrigger',
+            'Reco',
+            'RecoGlobal',
+            'RecoNano',
+            'MiniAOD',
+            'Nano']
+        , PU = [
+            'GenSimHLBeamSpot14',
+            'Digi',
+            'DigiTrigger',
+            'Reco',
+            'RecoGlobal',
+            'RecoNano',
+            'MiniAOD',
+            'Nano',
+        ]):
+        super(UpgradeWorkflow_ProdLikeRunningPU, self).__init__(steps,PU, suffix, offset)
+        self.__fixedPU = fixedPU
+    def setupPU_(self, step, stepName, stepDict, k, properties):
+        # adjust first, so it gets copied into new Premix step
+        if '--pileup' in stepDict[stepName][k]:
+            stepDict[stepName][k]['--pileup'] = 'AVE_' + str(self.__fixedPU) + '_BX_25ns'
+    def condition(self, fragment, stepList, key, hasHarvest):
+        # lower PUs for Run3
+        return (fragment=="TTbar_14TeV") and (('2026' in key) or ('2021' in key and self.__fixedPU<=100))
+
+upgradeWFs['ProdLikePU10'] = UpgradeWorkflow_ProdLikeRunningPU(
+    suffix = '_ProdLikePU10',
+    offset = 0.2110,
+    fixedPU = 10,
+)
+
+upgradeWFs['ProdLikePU20'] = UpgradeWorkflow_ProdLikeRunningPU(
+    suffix = '_ProdLikePU10',
+    offset = 0.2120,
+    fixedPU = 20,
+)
+
+upgradeWFs['ProdLikePU30'] = UpgradeWorkflow_ProdLikeRunningPU(
+    suffix = '_ProdLikePU30',
+    offset = 0.2130,
+    fixedPU = 30,
+)
+
+upgradeWFs['ProdLikePU40'] = UpgradeWorkflow_ProdLikeRunningPU(
+    suffix = '_ProdLikePU40',
+    offset = 0.2140,
+    fixedPU = 40,
+)
+
+upgradeWFs['ProdLikePU50'] = UpgradeWorkflow_ProdLikeRunningPU(
+    suffix = '_ProdLikePU50',
+    offset = 0.2150,
+    fixedPU = 50,
+)
+
+upgradeWFs['ProdLikePU60'] = UpgradeWorkflow_ProdLikeRunningPU(
+    suffix = '_ProdLikePU60',
+    offset = 0.2160,
+    fixedPU = 60,
+)
+
+upgradeWFs['ProdLikePU70'] = UpgradeWorkflow_ProdLikeRunningPU(
+    suffix = '_ProdLikePU70',
+    offset = 0.2170,
+    fixedPU = 70,
+)
+
+upgradeWFs['ProdLikePU80'] = UpgradeWorkflow_ProdLikeRunningPU(
+    suffix = '_ProdLikePU80',
+    offset = 0.2180,
+    fixedPU = 80,
+)
+
+upgradeWFs['ProdLikePU90'] = UpgradeWorkflow_ProdLikeRunningPU(
+    suffix = '_ProdLikePU90',
+    offset = 0.2190,
+    fixedPU = 90,
+)
+
+upgradeWFs['ProdLikePU100'] = UpgradeWorkflow_ProdLikeRunningPU(
+    suffix = '_ProdLikePU100',
+    offset = 0.21100,
+    fixedPU = 100,
+)
+
+upgradeWFs['ProdLikePU120'] = UpgradeWorkflow_ProdLikeRunningPU(
+    suffix = '_ProdLikePU120',
+    offset = 0.21120,
+    fixedPU = 120,
+)
+
+upgradeWFs['ProdLikePU140'] = UpgradeWorkflow_ProdLikeRunningPU(
+    suffix = '_ProdLikePU140',
+    offset = 0.21140,
+    fixedPU = 140,
+)
+
+upgradeWFs['ProdLikePU160'] = UpgradeWorkflow_ProdLikeRunningPU(
+    suffix = '_ProdLikePU160',
+    offset = 0.21160,
+    fixedPU = 160,
+)
+
+upgradeWFs['ProdLikePU180'] = UpgradeWorkflow_ProdLikeRunningPU(
+    suffix = '_ProdLikePU180',
+    offset = 0.21180,
+    fixedPU = 180,
 )
 
 class UpgradeWorkflow_HLT75e33(UpgradeWorkflow):
