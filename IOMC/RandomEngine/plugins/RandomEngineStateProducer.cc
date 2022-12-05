@@ -1,5 +1,5 @@
 
-#include "IOMC/RandomEngine/src/RandomEngineStateProducer.h"
+#include "RandomEngineStateProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
