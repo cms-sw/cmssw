@@ -4,7 +4,7 @@
 #include "FWCore/Utilities/interface/CRC16.h"
 
 #include "EventFilter/HGCalRawToDigi/interface/HGCalFrameGenerator.h"
-#include "EventFilter/HGCalRawToDigi/interface/RawDataPackingTools.h"
+#include "EventFilter/HGCalRawToDigi/interface/HGCalRawDataPackingTools.h"
 
 #include "CLHEP/Random/RandFlat.h"
 

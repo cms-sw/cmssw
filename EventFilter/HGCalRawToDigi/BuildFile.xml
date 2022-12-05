@@ -2,6 +2,7 @@
 <use name="FWCore/ParameterSet"/>
 <use name="DataFormats/Common"/> <!--FIXME move to a SimDataFormats/XXX subpackage? -->
 <use name="DataFormats/FEDRawData"/>
+<use name="DataFormats/HGCalDigi"/>
 <use name="clhep"/>
 <export>
   <lib name="1"/>

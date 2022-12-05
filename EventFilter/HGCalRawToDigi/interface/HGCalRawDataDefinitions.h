@@ -1,5 +1,5 @@
-#ifndef EventFilter_HGCalRawToDigi_RawDataDefinitions_h
-#define EventFilter_HGCalRawToDigi_RawDataDefinitions_h
+#ifndef EventFilter_HGCalRawToDigi_HGCalRawDataDefinitions_h
+#define EventFilter_HGCalRawToDigi_HGCalRawDataDefinitions_h
 
 namespace hgcal {
   enum ECOND_FRAME {

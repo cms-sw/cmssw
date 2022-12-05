@@ -14,7 +14,7 @@
    Capture Block ID: b'[14,17]
    ECON-D idx: b'[10,13]
    ECON-D eRx: b'[6,9]
-   1/2 ROC channel number: b'[0-5]   
+   1/2 ROC channel number: b'[0-5]
  */
 
 class HGCalElectronicsId {
@@ -38,20 +38,21 @@ public:
      @short CTOR
   */
   HGCalElectronicsId() : value_(0) {}
-  HGCalElectronicsId(uint16_t fedid, uint8_t captureblock, uint8_t econdidx, uint8_t econderx, uint8_t halfrocch);
-  HGCalElectronicsId(uint32_t value) : value_(value) {}
+  explicit HGCalElectronicsId(
+      uint16_t fedid, uint8_t captureblock, uint8_t econdidx, uint8_t econderx, uint8_t halfrocch);
+  explicit HGCalElectronicsId(uint32_t value) : value_(value) {}
   HGCalElectronicsId(const HGCalElectronicsId& o) : value_(o.value_) {}
 
   /**
      @short getters
   */
-  uint32_t operator()() { return value_; }
-  uint32_t raw() { return value_; }
-  uint16_t fedId();
-  uint8_t captureBlock();
-  uint8_t econdIdx();
-  uint8_t econdeRx();
-  uint8_t halfrocChannel();
+  uint32_t operator()() const { return value_; }
+  uint32_t raw() const { return value_; }
+  uint16_t fedId() const;
+  uint8_t captureBlock() const;
+  uint8_t econdIdx() const;
+  uint8_t econdeRx() const;
+  uint8_t halfrocChannel() const;
 
   void print(std::ostream& out = std::cout) {
     out << "Raw=0x" << std::hex << raw() << std::dec << std::endl

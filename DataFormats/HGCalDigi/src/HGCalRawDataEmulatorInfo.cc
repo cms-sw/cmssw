@@ -1,4 +1,8 @@
-#include "EventFilter/HGCalRawToDigi/interface/HGCalEmulatorInfo.h"
+#include "DataFormats/HGCalDigi/interface/HGCalRawDataEmulatorInfo.h"
+
+//-----------------------------------------------
+// ECON-D emulator info
+//-----------------------------------------------
 
 HGCalECONDEmulatorInfo::HGCalECONDEmulatorInfo(
     bool obit, bool bbit, bool ebit, bool tbit, bool hbit, bool sbit, std::vector<uint64_t> enabled_channels) {
@@ -29,6 +33,10 @@ std::vector<bool> HGCalECONDEmulatorInfo::channelsEnabled(size_t ch_id) const {
 HGCalECONDEmulatorInfo::HGCROCEventRecoStatus HGCalECONDEmulatorInfo::eventRecoStatus() const {
   return static_cast<HGCROCEventRecoStatus>(bitH() << 1 | bitT());
 }
+
+//-----------------------------------------------
+// S-link emulator info
+//-----------------------------------------------
 
 void HGCalSlinkEmulatorInfo::clear() { econd_info_.clear(); }
 

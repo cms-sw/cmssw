@@ -101,11 +101,15 @@ public:
   uint32_t raw() { return value_; }
   bool tc() { return flag2(); }
   bool tp() { return flag1(); }
+  uint16_t tctp() { return (tc()<<1) | tp(); }
   uint16_t adc(bool charMode = false) { return charMode ? packet3() : (tc() ? 0 : packet2()); }
   uint16_t adcm1(bool charMode = false) { return charMode ? 0 : packet3(); }
   uint16_t tot(bool charMode = false) {
     uint16_t tot12b(decompressToT(packet2()));
     return charMode || tc() ? tot12b : 0;
+  }
+  uint16_t rawtot(bool charMode = false) {
+    return charMode || tc() ? packet2() : 0;
   }
   uint16_t toa() { return packet1(); }
   bool flag2() const { return readPacket(kFlagMask, kFlag2Shift); }

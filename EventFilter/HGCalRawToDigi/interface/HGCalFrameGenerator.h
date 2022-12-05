@@ -1,7 +1,7 @@
 #ifndef EventFilter_HGCalRawToDigi_HGCalFrameGenerator_h
 #define EventFilter_HGCalRawToDigi_HGCalFrameGenerator_h
 
-#include "EventFilter/HGCalRawToDigi/interface/HGCalEmulatorInfo.h"
+#include "DataFormats/HGCalDigi/interface/HGCalRawDataEmulatorInfo.h"
 #include "EventFilter/HGCalRawToDigi/interface/SlinkTypes.h"
 
 #include <cstdint>

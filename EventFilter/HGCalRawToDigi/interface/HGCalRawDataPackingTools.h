@@ -1,5 +1,5 @@
-#ifndef EventFilter_HGCalRawToDigi_RawDataPackingTools_h
-#define EventFilter_HGCalRawToDigi_RawDataPackingTools_h
+#ifndef EventFilter_HGCalRawToDigi_HGCalRawDataPackingTools_h
+#define EventFilter_HGCalRawToDigi_HGCalRawDataPackingTools_h
 
 #include <cstdint>
 #include <vector>
@@ -32,6 +32,8 @@ namespace hgcal {
      */
     std::vector<uint32_t> eRxSubPacketHeader(
         uint16_t stat, uint16_t ham, bool bitE, uint16_t cm0, uint16_t cm1, std::vector<bool> chmap);
+    std::vector<uint32_t> eRxSubPacketHeader(
+        uint16_t stat, uint16_t ham, bool bitE, uint16_t cm0, uint16_t cm1, uint64_t chmap);
 
     /**
      * \short builds the two ECON-D header words
