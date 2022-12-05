@@ -24,6 +24,7 @@
 
 //system includes
 #include <sstream>
+#include <boost/type_index.hpp>
 #include <numeric>  // for std::accumulate
 
 // ROOT includes
@@ -89,6 +90,8 @@ private:
   bool checkMapsValidity(const std::vector<MonitorElement*>& maps, const std::string& type) const;
   unsigned int countTotalHits(const std::vector<MonitorElement*>& maps); /* to check if TK was ON */
   void makeSummary(DQMStore::IGetter& getter, DQMStore::IBooker& booker) const;
+  template <typename T>
+  void setEffBinLabels(const T gr, const T gr2, const unsigned int nLayers) const;
   void makeSummaryVsBX(DQMStore::IGetter& getter, TFileService& fs) const;
   void makeSummaryVsLumi(DQMStore::IGetter& getter) const;
   void makeSummaryVsCM(DQMStore::IGetter& getter, TFileService& fs) const;
@@ -565,7 +568,7 @@ void SiStripHitEfficiencyHarvester::writeBadStripPayload(const SiStripQuality& q
 void SiStripHitEfficiencyHarvester::makeSummary(DQMStore::IGetter& getter, DQMStore::IBooker& booker) const {
   // use goodlayer_total/found and alllayer_total/found, collapse side and/or ring if needed
 
-  unsigned int nLayers = 34;
+  unsigned int nLayers{34};  // default
   if (showRings_)
     nLayers = 30;
   if (!showEndcapSides_) {
@@ -576,7 +579,7 @@ void SiStripHitEfficiencyHarvester::makeSummary(DQMStore::IGetter& getter, DQMSt
   }
 
   // come back to the main folder and create a final efficiency folder
-  booker.setCurrentFolder(fmt::format("{}/FinalEfficiency", inputFolder_));
+  booker.setCurrentFolder(fmt::format("{}/EfficiencySummary", inputFolder_));
   MonitorElement* found = booker.book1D("found", "found", nLayers + 1, 0, nLayers + 1);
   MonitorElement* all = booker.book1D("all", "all", nLayers + 1, 0, nLayers + 1);
   MonitorElement* found2 = booker.book1D("found2", "found", nLayers + 1, 0, nLayers + 1);
@@ -656,8 +659,10 @@ void SiStripHitEfficiencyHarvester::makeSummary(DQMStore::IGetter& getter, DQMSt
   found2->getTH1F()->Sumw2();
   all2->getTH1F()->Sumw2();
 
-  MonitorElement* eff_all = booker.book1D("eff_all", "efficiency for all modules", nLayers + 1, 0, nLayers + 1);
-  MonitorElement* eff_good = booker.book1D("eff_good", "efficiency for good modules", nLayers + 1, 0, nLayers + 1);
+  MonitorElement* h_eff_all =
+      booker.book1D("eff_all", "Strip hit efficiency for all modules", nLayers + 1, 0, nLayers + 1);
+  MonitorElement* h_eff_good =
+      booker.book1D("eff_good", "Strip hit efficiency for good modules", nLayers + 1, 0, nLayers + 1);
 
   for (int i = 1; i < found->getNbinsX(); i++) {
     const auto& den_all = all2->getBinContent(i);
@@ -665,13 +670,28 @@ void SiStripHitEfficiencyHarvester::makeSummary(DQMStore::IGetter& getter, DQMSt
     const auto& den_good = all->getBinContent(i);
     const auto& num_good = found->getBinContent(i);
 
+    // fill all modules efficiency
     if (den_all > 0.) {
-      eff_all->setBinContent(i, num_all / den_all);
+      float eff_all = num_all / den_all;
+      float err_eff_all = (eff_all * (1 - eff_all)) / den_all;
+      h_eff_all->setBinContent(i, eff_all);
+      h_eff_all->setBinError(i, err_eff_all);
     }
+
+    // fill good modules efficiency
     if (den_good > 0.) {
-      eff_good->setBinContent(i, num_good / den_good);
+      float eff_good = num_good / den_good;
+      float err_eff_good = (eff_good * (1 - eff_good)) / den_good;
+      h_eff_good->setBinContent(i, eff_good);
+      h_eff_good->setBinError(i, err_eff_good);
     }
   }
+
+  h_eff_all->getTH1F()->SetMinimum(effPlotMin_);
+  h_eff_good->getTH1F()->SetMinimum(effPlotMin_);
+
+  // set the histogram bin labels
+  this->setEffBinLabels(h_eff_all->getTH1F(), h_eff_good->getTH1F(), nLayers);
 
   if (!isAtPCL_) {
     // if TFileService is not avaible, just go on
@@ -693,6 +713,8 @@ void SiStripHitEfficiencyHarvester::makeSummary(DQMStore::IGetter& getter, DQMSt
       gr->SetPointError(j, 0., 0., gr->GetErrorYlow(j), gr->GetErrorYhigh(j));
       gr2->SetPointError(j, 0., 0., gr2->GetErrorYlow(j), gr2->GetErrorYhigh(j));
     }
+
+    this->setEffBinLabels(gr, gr2, nLayers);
 
     gr->GetXaxis()->SetLimits(0, nLayers);
     gr->SetMarkerColor(2);
@@ -718,39 +740,6 @@ void SiStripHitEfficiencyHarvester::makeSummary(DQMStore::IGetter& getter, DQMSt
     gr2->GetYaxis()->SetTitle("Efficiency");
     gr2->SetTitle("SiStripHitEfficiency by Layer");
 
-    for (Long_t k = 1; k < nLayers + 1; k++) {
-      TString label;
-      if (showEndcapSides_)
-        label = ::layerSideName(k, showRings_, nTEClayers_);
-      else
-        label = ::layerName(k, showRings_, nTEClayers_);
-      if (!showTOB6TEC9_) {
-        if (k == 10)
-          label = "";
-        if (!showRings_ && k == nLayers)
-          label = "";
-        if (!showRings_ && showEndcapSides_ && k == 25)
-          label = "";
-      }
-      if (!showRings_) {
-        if (showEndcapSides_) {
-          gr->GetXaxis()->SetBinLabel(((k + 1) * 100 + 2) / (nLayers)-4, label);
-          gr2->GetXaxis()->SetBinLabel(((k + 1) * 100 + 2) / (nLayers)-4, label);
-        } else {
-          gr->GetXaxis()->SetBinLabel((k + 1) * 100 / (nLayers)-6, label);
-          gr2->GetXaxis()->SetBinLabel((k + 1) * 100 / (nLayers)-6, label);
-        }
-      } else {
-        if (showEndcapSides_) {
-          gr->GetXaxis()->SetBinLabel((k + 1) * 100 / (nLayers)-4, label);
-          gr2->GetXaxis()->SetBinLabel((k + 1) * 100 / (nLayers)-4, label);
-        } else {
-          gr->GetXaxis()->SetBinLabel((k + 1) * 100 / (nLayers)-7, label);
-          gr2->GetXaxis()->SetBinLabel((k + 1) * 100 / (nLayers)-7, label);
-        }
-      }
-    }
-
     gr->Draw("AP");
     gr->GetXaxis()->SetNdivisions(36);
 
@@ -775,6 +764,56 @@ void SiStripHitEfficiencyHarvester::makeSummary(DQMStore::IGetter& getter, DQMSt
     c7->SaveAs("Summary.png");
     c7->SaveAs("Summary.root");
   }  // if it's not run at PCL
+}
+
+template <typename T>
+void SiStripHitEfficiencyHarvester::setEffBinLabels(const T gr, const T gr2, const unsigned int nLayers) const {
+  LogDebug("SiStripHitEfficiencyHarvester")
+      << "nLayers = " << nLayers << " number of bins, gr1: " << gr->GetXaxis()->GetNbins()
+      << " number of bins, gr2: " << gr2->GetXaxis()->GetNbins() << " showRings: " << showRings_
+      << " showEndcapSides: " << showEndcapSides_ << " type of object is "
+      << boost::typeindex::type_id<T>().pretty_name();
+
+  for (Long_t k = 1; k < nLayers + 1; k++) {
+    std::string label{};
+    if (showEndcapSides_)
+      label = ::layerSideName(k, showRings_, nTEClayers_);
+    else
+      label = ::layerName(k, showRings_, nTEClayers_);
+    if (!showTOB6TEC9_) {
+      if (k == 10)
+        label = "";
+      if (!showRings_ && k == nLayers)
+        label = "";
+      if (!showRings_ && showEndcapSides_ && k == 25)
+        label = "";
+    }
+
+    int bin{-1};
+    if constexpr (std::is_same_v<T, TGraphAsymmErrors*>) {
+      edm::LogInfo("SiStripHitEfficiencyHarvester")
+          << "class name: " << gr->ClassName() << " expected TGraphAsymErrors" << std::endl;
+      if (!showRings_) {
+        if (showEndcapSides_) {
+          bin = (((k + 1) * 100 + 2) / (nLayers)-4);
+        } else {
+          bin = ((k + 1) * 100 / (nLayers)-6);
+        }
+      } else {
+        if (showEndcapSides_) {
+          bin = ((k + 1) * 100 / (nLayers)-4);
+        } else {
+          bin = ((k + 1) * 100 / (nLayers)-7);
+        }
+      }
+    } else {
+      edm::LogInfo("SiStripHitEfficiencyHarvester")
+          << "class name: " << gr->ClassName() << " expected TH1F" << std::endl;
+      bin = k;
+    }
+    gr->GetXaxis()->SetBinLabel(bin, label.data());
+    gr2->GetXaxis()->SetBinLabel(bin, label.data());
+  }
 }
 
 // not yet implemented
