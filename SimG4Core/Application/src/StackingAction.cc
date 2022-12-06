@@ -168,11 +168,14 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
 
   if (creatorProc == nullptr && aTrack->GetParentID() != 0) {
     edm::LogWarning("StackingAction::ClassifyNewTrack")
-      << " TrackID=" << aTrack->GetTrackID() << " ParentID=" << aTrack->GetParentID() << " " << aTrack->GetDefinition()->GetParticleName() << " Ekin(MeV)=" << aTrack->GetKineticEnergy();
+        << " TrackID=" << aTrack->GetTrackID() << " ParentID=" << aTrack->GetParentID() << " "
+        << aTrack->GetDefinition()->GetParticleName() << " Ekin(MeV)=" << aTrack->GetKineticEnergy();
   }
   if (aTrack->GetKineticEnergy() < 0.0) {
     edm::LogWarning("StackingAction::ClassifyNewTrack")
-      << " TrackID=" << aTrack->GetTrackID() << " ParentID=" << aTrack->GetParentID() << " " << aTrack->GetDefinition()->GetParticleName() << " Ekin(MeV)=" << aTrack->GetKineticEnergy() << " creator " << creatorProc->GetProcessName();  
+        << " TrackID=" << aTrack->GetTrackID() << " ParentID=" << aTrack->GetParentID() << " "
+        << aTrack->GetDefinition()->GetParticleName() << " Ekin(MeV)=" << aTrack->GetKineticEnergy() << " creator "
+        << creatorProc->GetProcessName();
   }
   // primary
   if (creatorProc == nullptr || aTrack->GetParentID() == 0) {
@@ -217,24 +220,26 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
         if (nullptr != ptr) {
           creatorProc = ptr->GetSelectedProcess();
           if (nullptr == creatorProc) {
-            if(nullptr == m_Compton) {
-	      auto vp = G4LossTableManager::Instance()->GetEmProcessVector();
-              for(auto & p : vp) {
-		if(fComptonScattering == p->GetProcessSubType()) {
-		  m_Compton = p;
-		  break;
-		}
-	      }
-	    }
-	    creatorProc = m_Compton;
-	  }
-	  subType = creatorProc->GetProcessSubType();
+            if (nullptr == m_Compton) {
+              auto vp = G4LossTableManager::Instance()->GetEmProcessVector();
+              for (auto& p : vp) {
+                if (fComptonScattering == p->GetProcessSubType()) {
+                  m_Compton = p;
+                  break;
+                }
+              }
+            }
+            creatorProc = m_Compton;
+          }
+          subType = creatorProc->GetProcessSubType();
           track->SetCreatorProcess(creatorProc);
         }
-	if(creatorProc == nullptr) {
-	  edm::LogWarning("StackingAction::ClassifyNewTrack")
-	    << " SubType=16 and no creatorProc; TrackID=" << aTrack->GetTrackID() << " ParentID=" << aTrack->GetParentID() << " " << aTrack->GetDefinition()->GetParticleName() << " Ekin(MeV)=" << ke << " SubType=" << subType;
-	}
+        if (creatorProc == nullptr) {
+          edm::LogWarning("StackingAction::ClassifyNewTrack")
+              << " SubType=16 and no creatorProc; TrackID=" << aTrack->GetTrackID()
+              << " ParentID=" << aTrack->GetParentID() << " " << aTrack->GetDefinition()->GetParticleName()
+              << " Ekin(MeV)=" << ke << " SubType=" << subType;
+        }
       }
       // VI - end
       LogDebug("SimG4CoreApplication") << "##StackingAction:Classify Track " << aTrack->GetTrackID() << " Parent "
