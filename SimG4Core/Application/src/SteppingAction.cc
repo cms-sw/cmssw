@@ -102,10 +102,8 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
     if (nWarnings < 2) {
       ++nWarnings;
       edm::LogWarning("SimG4CoreApplication")
-          << "SteppingAction::UserSteppingAction: Track #" 
-          << theTrack->GetTrackID() << " " 
-          << theTrack->GetDefinition()->GetParticleName()
-          << " Ekin(MeV)= " << theTrack->GetKineticEnergy() / MeV;
+          << "SteppingAction::UserSteppingAction: Track #" << theTrack->GetTrackID() << " "
+          << theTrack->GetDefinition()->GetParticleName() << " Ekin(MeV)= " << theTrack->GetKineticEnergy() / MeV;
     }
     theTrack->SetKineticEnergy(0.0);
   }
