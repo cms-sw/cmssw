@@ -1,6 +1,7 @@
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/ResourceInformation.h"
 #include "FWCore/Utilities/interface/TimingServiceBase.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -253,7 +254,7 @@ void CondorStatusService::lastUpdate() {
   updateChirp("Done", "true");
   edm::Service<edm::ResourceInformation> resourceInformationService;
   if (!resourceInformationService.isAvailable()) {
-    std::cout << "At post, ResourceInformationService is NOT available.\n";
+    edm::LogWarning("CondorStatusService") << "At post, ResourceInformationService is NOT available.\n";
   }
 }
 

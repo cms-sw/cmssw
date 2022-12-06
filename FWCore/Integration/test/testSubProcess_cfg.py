@@ -36,7 +36,6 @@ process.DoodadESSource = cms.ESSource("DoodadESSource"
 
 process.ZombieKillerService = cms.Service("ZombieKillerService")
 process.JobReportService = cms.Service("JobReportService")
-process.CUDAService = cms.Service("CUDAService")
 
 # ---------------------------------------------------------------
 
@@ -71,9 +70,6 @@ copyProcess.AdaptorConfig = cms.Service("AdaptorConfig",
     intentionallyIllegalParameter = cms.bool(True)
 )
 copyProcess.ResourceInformationService = cms.Service("ResourceInformationService",
-    intentionallyIllegalParameter = cms.bool(True)
-)
-copyProcess.CUDAService = cms.Service("CUDAService",
     intentionallyIllegalParameter = cms.bool(True)
 )
 copyProcess.CondorStatusService = cms.Service("CondorStatusService",

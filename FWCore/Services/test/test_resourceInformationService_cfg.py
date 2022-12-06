@@ -8,11 +8,10 @@ class ProcessAcceleratorTest(cms.ProcessAccelerator):
     def __init__(self):
         super(ProcessAcceleratorTest,self).__init__()
         self._labels = ["test1", "gpu-foo", "test2"]
-        self._enabled = ["test1", "gpu-foo", "test2"]
     def labels(self):
         return self._labels
     def enabledLabels(self):
-        return self._enabled
+        return self._labels
 
 process = cms.Process("PROD")
 process.add_(ProcessAcceleratorTest())
