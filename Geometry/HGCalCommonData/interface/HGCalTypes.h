@@ -84,7 +84,7 @@ public:
   static constexpr std::array<int, 3> edgeWaferLDThree = {{1, -2, -15}};
   static constexpr std::array<int, 3> edgeWaferHDTop = {{1, 0, 9}};
   static constexpr std::array<int, 3> edgeWaferHDBottom = {{-1, 0, -10}};
-  static constexpr std::array<int, 3> edgeWaferHDLeft = {{-1, 2, 4}};
+  static constexpr std::array<int, 3> edgeWaferHDLeft = {{-1, 2, 5}};
   static constexpr std::array<int, 3> edgeWaferHDRight = {{1, -2, -18}};
   static constexpr std::array<int, 3> edgeWaferHDFive = {{-1, 2, 18}};
 
