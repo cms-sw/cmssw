@@ -38,7 +38,7 @@ hltGTs = {
     'run3_mc_FULL'           : ('124X_mcRun3_2022_realistic_forTSG_menu1p4_v1'   ,l1Menus['FULL']),
     'run3_mc_GRun'           : ('124X_mcRun3_2022_realistic_forTSG_menu1p4_v1'   ,l1Menus['GRun']),
     'run3_mc_2022v12'        : ('phase1_2022_realistic'                          ,l1Menus['2022v12']),
-    'run3_mc_2022v14'        : ('124X_mcRun3_2022_realistic_forTSG_menu1p4_v1'   ,l1Menus['2022v14']),
+    'run3_mc_2022v14'        : ('phase1_2022_realistic_postEE'                   ,l1Menus['2022v14']),
     'run3_mc_HIon'           : ('124X_mcRun3_2022_realistic_HI_forTSG_menu1p4_v1',l1Menus['HIon']),
     'run3_mc_PIon'           : ('124X_mcRun3_2022_realistic_forTSG_menu1p4_v1'   ,l1Menus['PIon']),
     'run3_mc_PRef'           : ('124X_mcRun3_2022_realistic_forTSG_menu1p4_v1'   ,l1Menus['PRef']),
