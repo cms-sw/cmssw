@@ -97,20 +97,32 @@ private:
       if (icol == -1)
         return;  // columns may be missing (e.g. mc-only)
       switch (table.columnType(icol)) {
-        case FlatTable::ColumnType::Float:
-          vfill<float>(table, icol, rowsel);
-          break;
-        case FlatTable::ColumnType::Int:
-          vfill<int>(table, icol, rowsel);
-          break;
         case FlatTable::ColumnType::Int8:
           vfill<int8_t>(table, icol, rowsel);
           break;
         case FlatTable::ColumnType::UInt8:
           vfill<uint8_t>(table, icol, rowsel);
           break;
+        case FlatTable::ColumnType::Int16:
+          vfill<int16_t>(table, icol, rowsel);
+          break;
+        case FlatTable::ColumnType::UInt16:
+          vfill<uint16_t>(table, icol, rowsel);
+          break;
+        case FlatTable::ColumnType::Int32:
+          vfill<int32_t>(table, icol, rowsel);
+          break;
+        case FlatTable::ColumnType::UInt32:
+          vfill<uint32_t>(table, icol, rowsel);
+          break;
         case FlatTable::ColumnType::Bool:
           vfill<bool>(table, icol, rowsel);
+          break;
+        case FlatTable::ColumnType::Float:
+          vfill<float>(table, icol, rowsel);
+          break;
+        case FlatTable::ColumnType::Double:
+          vfill<double>(table, icol, rowsel);
           break;
         default:
           throw cms::Exception("LogicError", "Unsupported type");

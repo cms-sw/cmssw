@@ -42,11 +42,13 @@ private:
         : name(aname), title(atitle), rootTypeCode(rootType), branch(branchptr) {}
   };
   TBranch *m_counterBranch = nullptr;
-  std::vector<NamedBranchPtr> m_floatBranches;
-  std::vector<NamedBranchPtr> m_intBranches;
   std::vector<NamedBranchPtr> m_int8Branches;
   std::vector<NamedBranchPtr> m_uint8Branches;
+  std::vector<NamedBranchPtr> m_int16Branches;
+  std::vector<NamedBranchPtr> m_uint16Branches;
+  std::vector<NamedBranchPtr> m_int32Branches;
   std::vector<NamedBranchPtr> m_uint32Branches;
+  std::vector<NamedBranchPtr> m_floatBranches;
   std::vector<NamedBranchPtr> m_doubleBranches;
   bool m_branchesBooked;
 
