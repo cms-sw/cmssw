@@ -67,8 +67,9 @@ lowPtElectronTable = simpleCandidateFlatTableProducer.clone(
     variables = cms.PSet(
         # Basic variables
         CandVars,
-        # Overlaps with PF electron
+        # Overlaps with PF electron and photon
         electronIdx = Var("?overlaps('electrons').size()>0?overlaps('electrons')[0].key():-1", int, doc="index of the overlapping PF electron (-1 if none)"),
+        photonIdx = Var("?overlaps('photons').size()>0?overlaps('photons')[0].key():-1", int, doc="index of the first associated photon (-1 if none)"),
         # BDT scores and WPs
         ID = Var("electronID('ID')",float,doc="ID, BDT (raw) score"),
         unbiased = Var("electronID('unbiased')",float,doc="ElectronSeed, pT- and dxy- agnostic BDT (raw) score"),
@@ -98,9 +99,6 @@ lowPtElectronTable = simpleCandidateFlatTableProducer.clone(
         dxyErr = Var("edB('PV2D')",float,doc="dxy uncertainty, in cm",precision=6),
         dz = Var("dB('PVDZ')",float,doc="dz (with sign) wrt first PV, in cm",precision=10),
         dzErr = Var("abs(edB('PVDZ'))",float,doc="dz uncertainty, in cm",precision=6),
-        # Cross-referencing
-        #jetIdx
-        #photonIdx
     ),
 )
 
