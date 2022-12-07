@@ -135,14 +135,9 @@ patMuons = cms.EDProducer("PATMuonProducer",
     hltCollectionFilters = cms.vstring('*')
 )
 
-
-
-
-
-
-
-
-
-
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(patMuons,
+                     mvaJetTag = cms.InputTag("pfDeepCSVJetTags:probb"),
+)
 
 
