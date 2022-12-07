@@ -88,8 +88,6 @@ patDisplacedMuons = patMuons.clone(
 patDisplacedMuons.isoDeposits = cms.PSet()
 patDisplacedMuons.isolationValues = cms.PSet()
 
-
-
 # Displaced muon task filters the displacedMuons that overlap with standard muons
 makePatDisplacedMuonsTask = cms.Task(
     filteredDisplacedMuonsTask,
@@ -97,4 +95,9 @@ makePatDisplacedMuonsTask = cms.Task(
     )
 
 makePatDisplacedMuons = cms.Sequence(makePatDisplacedMuonsTask)
+
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(patDisplacedMuons,
+                     mvaJetTag = "pfDeepCSVJetTags:probb",
+)
 
