@@ -3,7 +3,7 @@ from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 
 process = cms.Process('HGCalWafer',Phase2C17I13M9)
 
-geomFile = "Configuration.Geometry.GeometryExtended2026D88_cff"
+geomFile = "Configuration.Geometry.GeometryExtended2026D92_cff"
 
 print("Geometry file: ", geomFile)
 

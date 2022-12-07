@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-from Geometry.HGCalCommonData.hgcalWaferIDTesterEE_cfi import *
+from Geometry.HGCalCommonData.hgcalWaferIDTesterHEF_cfi import *
 
-hgcalWaferIDTesterHEF = hgcalWaferIDTesterEE.clone(
-    nameSense = "HGCalHESiliconSensitive",
-    fileName = "cellIDHEF.txt"
+hgcalWaferIDTesterEE = hgcalWaferIDTesterHEF.clone(
+    nameSense = "HGCalEESensitive",
+    fileName = "cellIDEE.txt"
 )
