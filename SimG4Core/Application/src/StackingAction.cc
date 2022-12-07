@@ -15,6 +15,7 @@
 #include "G4VSolid.hh"
 #include "G4TransportationManager.hh"
 #include "G4GammaGeneralProcess.hh"
+#include "G4LossTableManager.hh"
 
 StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterSet& p, const CMSSteppingVerbose* sv)
     : trackAction(trka), steppingVerbose(sv) {
@@ -38,16 +39,6 @@ StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterS
   savePDandCinCalo = p.getUntrackedParameter<bool>("SavePrimaryDecayProductsAndConversionsInCalo", false);
   savePDandCinMuon = p.getUntrackedParameter<bool>("SavePrimaryDecayProductsAndConversionsInMuon", false);
   saveFirstSecondary = p.getUntrackedParameter<bool>("SaveFirstLevelSecondary", false);
-  killInCalo = false;
-  killInCaloEfH = false;
-
-  // Russian Roulette
-  regionEcal = nullptr;
-  regionHcal = nullptr;
-  regionMuonIron = nullptr;
-  regionPreShower = nullptr;
-  regionCastor = nullptr;
-  regionWorld = nullptr;
 
   gRusRoEnerLim = p.getParameter<double>("RusRoGammaEnergyLimit") * CLHEP::MeV;
   nRusRoEnerLim = p.getParameter<double>("RusRoNeutronEnergyLimit") * CLHEP::MeV;
@@ -66,8 +57,6 @@ StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterS
   nRusRoCastor = p.getParameter<double>("RusRoCastorNeutron");
   nRusRoWorld = p.getParameter<double>("RusRoWorldNeutron");
 
-  gRRactive = false;
-  nRRactive = false;
   if (gRusRoEnerLim > 0.0 && (gRusRoEcal < 1.0 || gRusRoHcal < 1.0 || gRusRoMuonIron < 1.0 || gRusRoPreShower < 1.0 ||
                               gRusRoCastor < 1.0 || gRusRoWorld < 1.0)) {
     gRRactive = true;
@@ -177,6 +166,17 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
   auto track = const_cast<G4Track*>(aTrack);
   const G4VProcess* creatorProc = aTrack->GetCreatorProcess();
 
+  if (creatorProc == nullptr && aTrack->GetParentID() != 0) {
+    edm::LogWarning("StackingAction::ClassifyNewTrack")
+        << " TrackID=" << aTrack->GetTrackID() << " ParentID=" << aTrack->GetParentID() << " "
+        << aTrack->GetDefinition()->GetParticleName() << " Ekin(MeV)=" << aTrack->GetKineticEnergy();
+  }
+  if (aTrack->GetKineticEnergy() < 0.0) {
+    edm::LogWarning("StackingAction::ClassifyNewTrack")
+        << " TrackID=" << aTrack->GetTrackID() << " ParentID=" << aTrack->GetParentID() << " "
+        << aTrack->GetDefinition()->GetParticleName() << " Ekin(MeV)=" << aTrack->GetKineticEnergy() << " creator "
+        << creatorProc->GetProcessName();
+  }
   // primary
   if (creatorProc == nullptr || aTrack->GetParentID() == 0) {
     if (!trackNeutrino && (abspdg == 12 || abspdg == 14 || abspdg == 16 || abspdg == 18)) {
@@ -214,14 +214,34 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
       // potentially good for tracking
       const double ke = aTrack->GetKineticEnergy();
       G4int subType = (nullptr != creatorProc) ? creatorProc->GetProcessSubType() : 0;
+      // VI: this part of code is needed for Geant4 10.7 only
       if (subType == 16) {
         auto ptr = dynamic_cast<const G4GammaGeneralProcess*>(creatorProc);
         if (nullptr != ptr) {
           creatorProc = ptr->GetSelectedProcess();
-          subType = (nullptr != creatorProc) ? creatorProc->GetProcessSubType() : 0;
+          if (nullptr == creatorProc) {
+            if (nullptr == m_Compton) {
+              auto vp = G4LossTableManager::Instance()->GetEmProcessVector();
+              for (auto& p : vp) {
+                if (fComptonScattering == p->GetProcessSubType()) {
+                  m_Compton = p;
+                  break;
+                }
+              }
+            }
+            creatorProc = m_Compton;
+          }
+          subType = creatorProc->GetProcessSubType();
           track->SetCreatorProcess(creatorProc);
         }
+        if (creatorProc == nullptr) {
+          edm::LogWarning("StackingAction::ClassifyNewTrack")
+              << " SubType=16 and no creatorProc; TrackID=" << aTrack->GetTrackID()
+              << " ParentID=" << aTrack->GetParentID() << " " << aTrack->GetDefinition()->GetParticleName()
+              << " Ekin(MeV)=" << ke << " SubType=" << subType;
+        }
       }
+      // VI - end
       LogDebug("SimG4CoreApplication") << "##StackingAction:Classify Track " << aTrack->GetTrackID() << " Parent "
                                        << aTrack->GetParentID() << " " << aTrack->GetDefinition()->GetParticleName()
                                        << " Ekin(MeV)=" << ke / CLHEP::MeV << " subType=" << subType << " ";
