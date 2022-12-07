@@ -293,8 +293,8 @@ upgradeWFs['trackingOnly'] = UpgradeWorkflow_trackingOnly(
         'RecoFakeHLT',
         'HARVESTFakeHLT'
     ],
-   
-  
+
+
     suffix = '_trackingOnly',
     offset = 0.1,
 )
@@ -516,7 +516,7 @@ class UpgradeWorkflow_weightedVertex(UpgradeWorkflow):
         return result
 
 
-upgradeWFs['weightedVertex'] = UpgradeWorkflow_weightedVertex( 
+upgradeWFs['weightedVertex'] = UpgradeWorkflow_weightedVertex(
     suffix = '_weightedVertex',
     offset = 0.278,
 )
@@ -1424,21 +1424,7 @@ upgradeWFs['ProdLike'] = UpgradeWorkflow_ProdLike(
 
 class UpgradeWorkflow_ProdLikeRunningPU(UpgradeWorkflow_ProdLike):
     def __init__(self, suffix, offset, fixedPU,
-         steps = [
-        'GenSimHLBeamSpot14',
-        'Digi',
-        'DigiTrigger',
-        'Reco',
-        'RecoGlobal',
-        'RecoNano',
-        'HARVEST',
-        'HARVESTGlobal',
-        'HARVESTNano',
-        'MiniAOD',
-        'ALCA',
-        'ALCAPhase2',
-        'Nano',
-        ],
+         steps = [],
         PU = [
             'GenSimHLBeamSpot14',
             'Digi',
@@ -1458,7 +1444,7 @@ class UpgradeWorkflow_ProdLikeRunningPU(UpgradeWorkflow_ProdLike):
         self.__fixedPU = fixedPU
     def setupPU_(self, step, stepName, stepDict, k, properties):
         #  change PU skipping ALCA and HARVEST
-        if not ('ALCA' in step or 'HARVEST' in step) and '--pileup' in stepDict[stepName][k]:
+        if stepDict[stepName][k] is not None and '--pileup' in stepDict[stepName][k]:
             stepDict[stepName][k]['--pileup'] = 'AVE_' + str(self.__fixedPU) + '_BX_25ns'
     def condition(self, fragment, stepList, key, hasHarvest):
         # lower PUs for Run3
@@ -1466,89 +1452,89 @@ class UpgradeWorkflow_ProdLikeRunningPU(UpgradeWorkflow_ProdLike):
 
 # The numbering below is following the 0.21 for ProdLike wfs
 # 0.21N would have been a more natural choice but the
-# trailing zeros are ignored. Thus 0.N21 is used
+# trailing zeros are ignored. Thus 0.21N1 is used
 
 upgradeWFs['ProdLikePU10'] = UpgradeWorkflow_ProdLikeRunningPU(
     suffix = '_ProdLikePU10',
-    offset = 0.1021,
+    offset = 0.21101,
     fixedPU = 10,
 )
 
 upgradeWFs['ProdLikePU20'] = UpgradeWorkflow_ProdLikeRunningPU(
-    suffix = '_ProdLikePU10',
-    offset = 0.2021,
+    suffix = '_ProdLikePU20',
+    offset = 0.21201,
     fixedPU = 20,
 )
 
 upgradeWFs['ProdLikePU30'] = UpgradeWorkflow_ProdLikeRunningPU(
     suffix = '_ProdLikePU30',
-    offset = 0.3021,
+    offset = 0.21301,
     fixedPU = 30,
 )
 
 upgradeWFs['ProdLikePU40'] = UpgradeWorkflow_ProdLikeRunningPU(
     suffix = '_ProdLikePU40',
-    offset = 0.4021,
+    offset = 0.21401,
     fixedPU = 40,
 )
 
 upgradeWFs['ProdLikePU50'] = UpgradeWorkflow_ProdLikeRunningPU(
     suffix = '_ProdLikePU50',
-    offset = 0.5021,
+    offset = 0.21501,
     fixedPU = 50,
 )
 
 upgradeWFs['ProdLikePU60'] = UpgradeWorkflow_ProdLikeRunningPU(
     suffix = '_ProdLikePU60',
-    offset = 0.6021,
+    offset = 0.21601,
     fixedPU = 60,
 )
 
 upgradeWFs['ProdLikePU70'] = UpgradeWorkflow_ProdLikeRunningPU(
     suffix = '_ProdLikePU70',
-    offset = 0.7021,
+    offset = 0.21701,
     fixedPU = 70,
 )
 
 upgradeWFs['ProdLikePU80'] = UpgradeWorkflow_ProdLikeRunningPU(
     suffix = '_ProdLikePU80',
-    offset = 0.8021,
+    offset = 0.21801,
     fixedPU = 80,
 )
 
 upgradeWFs['ProdLikePU90'] = UpgradeWorkflow_ProdLikeRunningPU(
     suffix = '_ProdLikePU90',
-    offset = 0.9021,
+    offset = 0.21901,
     fixedPU = 90,
 )
 
 upgradeWFs['ProdLikePU100'] = UpgradeWorkflow_ProdLikeRunningPU(
     suffix = '_ProdLikePU100',
-    offset = 0.10021, #this should be 0.21100 but the two trailing zeros would be ignored
+    offset = 0.211001,
     fixedPU = 100,
 )
 
 upgradeWFs['ProdLikePU120'] = UpgradeWorkflow_ProdLikeRunningPU(
     suffix = '_ProdLikePU120',
-    offset = 0.12021,
+    offset = 0.211201,
     fixedPU = 120,
 )
 
 upgradeWFs['ProdLikePU140'] = UpgradeWorkflow_ProdLikeRunningPU(
     suffix = '_ProdLikePU140',
-    offset = 0.14021,
+    offset = 0.211401,
     fixedPU = 140,
 )
 
 upgradeWFs['ProdLikePU160'] = UpgradeWorkflow_ProdLikeRunningPU(
     suffix = '_ProdLikePU160',
-    offset = 0.16021,
+    offset = 0.211601,
     fixedPU = 160,
 )
 
 upgradeWFs['ProdLikePU180'] = UpgradeWorkflow_ProdLikeRunningPU(
     suffix = '_ProdLikePU180',
-    offset = 0.18021,
+    offset = 0.211801,
     fixedPU = 180,
 )
 
