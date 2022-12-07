@@ -28,10 +28,11 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
+template<typename T>
 class SiPixelPhase1MonitorRecHitsSoA : public DQMEDAnalyzer {
 public:
-  using HitSoA = TrackingRecHit2DSOAViewT<pixelTopology::Phase1>;
-  using HitsOnCPU = TrackingRecHit2DCPUT<pixelTopology::Phase1>;
+  using HitSoA = TrackingRecHit2DSOAViewT<T>;
+  using HitsOnCPU = TrackingRecHit2DCPUT<T>;
 
   explicit SiPixelPhase1MonitorRecHitsSoA(const edm::ParameterSet&);
   ~SiPixelPhase1MonitorRecHitsSoA() override = default;
@@ -74,7 +75,8 @@ private:
 // constructors
 //
 
-SiPixelPhase1MonitorRecHitsSoA::SiPixelPhase1MonitorRecHitsSoA(const edm::ParameterSet& iConfig)
+template<typename T>
+SiPixelPhase1MonitorRecHitsSoA<T>::SiPixelPhase1MonitorRecHitsSoA(const edm::ParameterSet& iConfig)
     : geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
       topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()),
       tokenSoAHitsCPU_(consumes(iConfig.getParameter<edm::InputTag>("pixelHitsSrc"))),
@@ -82,7 +84,8 @@ SiPixelPhase1MonitorRecHitsSoA::SiPixelPhase1MonitorRecHitsSoA(const edm::Parame
 //
 // Begin Run
 //
-void SiPixelPhase1MonitorRecHitsSoA::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+template<typename T>
+void SiPixelPhase1MonitorRecHitsSoA<T>::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   tkGeom_ = &iSetup.getData(geomToken_);
   tTopo_ = &iSetup.getData(topoToken_);
 }
@@ -90,7 +93,8 @@ void SiPixelPhase1MonitorRecHitsSoA::dqmBeginRun(const edm::Run& iRun, const edm
 //
 // -- Analyze
 //
-void SiPixelPhase1MonitorRecHitsSoA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+template<typename T>
+void SiPixelPhase1MonitorRecHitsSoA<T>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const auto& rhsoaHandle = iEvent.getHandle(tokenSoAHitsCPU_);
   if (!rhsoaHandle.isValid()) {
     edm::LogWarning("SiPixelPhase1MonitorRecHitsSoA") << "No RecHits SoA found \n returning!" << std::endl;
@@ -145,7 +149,8 @@ void SiPixelPhase1MonitorRecHitsSoA::analyze(const edm::Event& iEvent, const edm
 //
 // -- Book Histograms
 //
-void SiPixelPhase1MonitorRecHitsSoA::bookHistograms(DQMStore::IBooker& iBook,
+template<typename T>
+void SiPixelPhase1MonitorRecHitsSoA<T>::bookHistograms(DQMStore::IBooker& iBook,
                                                     edm::Run const& iRun,
                                                     edm::EventSetup const& iSetup) {
   iBook.cd();
@@ -187,11 +192,17 @@ void SiPixelPhase1MonitorRecHitsSoA::bookHistograms(DQMStore::IBooker& iBook,
   }
 }
 
-void SiPixelPhase1MonitorRecHitsSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+template<typename T>
+void SiPixelPhase1MonitorRecHitsSoA<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // monitorpixelRecHitsSoA
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pixelHitsSrc", edm::InputTag("siPixelRecHitsPreSplittingSoA"));
   desc.add<std::string>("TopFolderName", "SiPixelHeterogeneous/PixelRecHitsSoA");
   descriptions.addWithDefaultLabel(desc);
 }
-DEFINE_FWK_MODULE(SiPixelPhase1MonitorRecHitsSoA);
+
+using SiPixelPhase1MonitorRecHitsSoAPhase1 = SiPixelPhase1MonitorRecHitsSoA<pixelTopology::Phase1>;
+using SiPixelPhase1MonitorRecHitsSoAPhase2 = SiPixelPhase1MonitorRecHitsSoA<pixelTopology::Phase2>;
+
+DEFINE_FWK_MODULE(SiPixelPhase1MonitorRecHitsSoAPhase1);
+DEFINE_FWK_MODULE(SiPixelPhase1MonitorRecHitsSoAPhase2);

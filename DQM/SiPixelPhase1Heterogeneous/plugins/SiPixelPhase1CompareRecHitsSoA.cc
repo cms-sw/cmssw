@@ -27,10 +27,11 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
+template<typename T>
 class SiPixelPhase1CompareRecHitsSoA : public DQMEDAnalyzer {
 public:
-  using HitSoA = TrackingRecHit2DSOAViewT<pixelTopology::Phase1>;
-  using HitsOnCPU = TrackingRecHit2DCPUT<pixelTopology::Phase1>;
+  using HitSoA = TrackingRecHit2DSOAViewT<T>;
+  using HitsOnCPU = TrackingRecHit2DCPUT<T>;
 
   explicit SiPixelPhase1CompareRecHitsSoA(const edm::ParameterSet&);
   ~SiPixelPhase1CompareRecHitsSoA() override = default;
@@ -77,7 +78,8 @@ private:
 // constructors
 //
 
-SiPixelPhase1CompareRecHitsSoA::SiPixelPhase1CompareRecHitsSoA(const edm::ParameterSet& iConfig)
+template<typename T>
+SiPixelPhase1CompareRecHitsSoA<T>::SiPixelPhase1CompareRecHitsSoA(const edm::ParameterSet& iConfig)
     : geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
       topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()),
       tokenSoAHitsCPU_(consumes(iConfig.getParameter<edm::InputTag>("pixelHitsSrcCPU"))),
@@ -87,7 +89,8 @@ SiPixelPhase1CompareRecHitsSoA::SiPixelPhase1CompareRecHitsSoA(const edm::Parame
 //
 // Begin Run
 //
-void SiPixelPhase1CompareRecHitsSoA::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+template<typename T>
+void SiPixelPhase1CompareRecHitsSoA<T>::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   tkGeom_ = &iSetup.getData(geomToken_);
   tTopo_ = &iSetup.getData(topoToken_);
 }
@@ -95,7 +98,8 @@ void SiPixelPhase1CompareRecHitsSoA::dqmBeginRun(const edm::Run& iRun, const edm
 //
 // -- Analyze
 //
-void SiPixelPhase1CompareRecHitsSoA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+template<typename T>
+void SiPixelPhase1CompareRecHitsSoA<T>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const auto& rhsoaHandleCPU = iEvent.getHandle(tokenSoAHitsCPU_);
   const auto& rhsoaHandleGPU = iEvent.getHandle(tokenSoAHitsGPU_);
   if (not rhsoaHandleCPU or not rhsoaHandleGPU) {
@@ -184,9 +188,10 @@ void SiPixelPhase1CompareRecHitsSoA::analyze(const edm::Event& iEvent, const edm
 //
 // -- Book Histograms
 //
-void SiPixelPhase1CompareRecHitsSoA::bookHistograms(DQMStore::IBooker& iBook,
-                                                    edm::Run const& iRun,
-                                                    edm::EventSetup const& iSetup) {
+template<typename T>
+void SiPixelPhase1CompareRecHitsSoA<T>::bookHistograms(DQMStore::IBooker& iBook,
+						       edm::Run const& iRun,
+						       edm::EventSetup const& iSetup) {
   iBook.cd();
   iBook.setCurrentFolder(topFolderName_);
 
@@ -226,7 +231,8 @@ void SiPixelPhase1CompareRecHitsSoA::bookHistograms(DQMStore::IBooker& iBook,
   hFposYDiff_ = iBook.book1D("rechitsposYDiffFpix","y-position difference of rechits in FPix; rechit y-pos difference (CPU - GPU)", 1000, -10, 10);
 }
 
-void SiPixelPhase1CompareRecHitsSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+template<typename T>
+void SiPixelPhase1CompareRecHitsSoA<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // monitorpixelRecHitsSoA
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pixelHitsSrcCPU", edm::InputTag("siPixelRecHitsPreSplittingSoA@cpu"));
@@ -235,4 +241,9 @@ void SiPixelPhase1CompareRecHitsSoA::fillDescriptions(edm::ConfigurationDescript
   desc.add<double>("minD2cut", 0.0001);
   descriptions.addWithDefaultLabel(desc);
 }
-DEFINE_FWK_MODULE(SiPixelPhase1CompareRecHitsSoA);
+
+using SiPixelPhase1CompareRecHitsSoAPhase1 = SiPixelPhase1CompareRecHitsSoA<pixelTopology::Phase1>;
+using SiPixelPhase1CompareRecHitsSoAPhase2 = SiPixelPhase1CompareRecHitsSoA<pixelTopology::Phase2>;
+
+DEFINE_FWK_MODULE(SiPixelPhase1CompareRecHitsSoAPhase1);
+DEFINE_FWK_MODULE(SiPixelPhase1CompareRecHitsSoAPhase2);
