@@ -14,23 +14,29 @@ void TableOutputBranches::defineBranchesFromFirstEvent(const nanoaod::FlatTable 
   for (size_t i = 0; i < tab.nColumns(); i++) {
     const std::string &var = tab.columnName(i);
     switch (tab.columnType(i)) {
-      case nanoaod::FlatTable::ColumnType::Float:
-        m_floatBranches.emplace_back(var, tab.columnDoc(i), "F");
-        break;
-      case nanoaod::FlatTable::ColumnType::Int:
-        m_intBranches.emplace_back(var, tab.columnDoc(i), "I");
-        break;
       case nanoaod::FlatTable::ColumnType::Int8:
         m_int8Branches.emplace_back(var, tab.columnDoc(i), "B");
         break;
       case nanoaod::FlatTable::ColumnType::UInt8:
         m_uint8Branches.emplace_back(var, tab.columnDoc(i), "b");
         break;
-      case nanoaod::FlatTable::ColumnType::Bool:
-        m_uint8Branches.emplace_back(var, tab.columnDoc(i), "O");
+      case nanoaod::FlatTable::ColumnType::Int16:
+        m_int16Branches.emplace_back(var, tab.columnDoc(i), "S");
+        break;
+      case nanoaod::FlatTable::ColumnType::UInt16:
+        m_uint16Branches.emplace_back(var, tab.columnDoc(i), "s");
+        break;
+      case nanoaod::FlatTable::ColumnType::Int32:
+        m_int32Branches.emplace_back(var, tab.columnDoc(i), "I");
         break;
       case nanoaod::FlatTable::ColumnType::UInt32:
         m_uint32Branches.emplace_back(var, tab.columnDoc(i), "i");
+        break;
+      case nanoaod::FlatTable::ColumnType::Bool:
+        m_uint8Branches.emplace_back(var, tab.columnDoc(i), "O");
+        break;
+      case nanoaod::FlatTable::ColumnType::Float:
+        m_floatBranches.emplace_back(var, tab.columnDoc(i), "F");
         break;
       case nanoaod::FlatTable::ColumnType::Double:
         m_doubleBranches.emplace_back(var, tab.columnDoc(i), "D");
@@ -60,7 +66,16 @@ void TableOutputBranches::branch(TTree &tree) {
   }
   std::string varsize = m_singleton ? "" : "[n" + m_baseName + "]";
   for (std::vector<NamedBranchPtr> *branches :
-       {&m_floatBranches, &m_intBranches, &m_int8Branches, &m_uint8Branches, &m_uint32Branches, &m_doubleBranches}) {
+       {
+       &m_int8Branches,
+       &m_uint8Branches,
+       &m_int16Branches,
+       &m_uint16Branches,
+       &m_int32Branches,
+       &m_uint32Branches,
+       &m_floatBranches,
+       &m_doubleBranches
+       }) {
     for (auto &pair : *branches) {
       std::string branchName = makeBranchName(m_baseName, pair.name);
       pair.branch =
@@ -102,16 +117,20 @@ void TableOutputBranches::fill(const edm::OccurrenceForOutput &iWhatever, TTree 
                            "Mismatch in number of entries between extension and main table for " + tab.name());
     }
   }
-  for (auto &pair : m_floatBranches)
-    fillColumn<float>(pair, tab);
-  for (auto &pair : m_intBranches)
-    fillColumn<int>(pair, tab);
   for (auto &pair : m_int8Branches)
     fillColumn<int8_t>(pair, tab);
   for (auto &pair : m_uint8Branches)
     fillColumn<uint8_t>(pair, tab);
+  for (auto &pair : m_int16Branches)
+    fillColumn<int16_t>(pair, tab);
+  for (auto &pair : m_uint16Branches)
+    fillColumn<uint16_t>(pair, tab);
+  for (auto &pair : m_int32Branches)
+    fillColumn<int32_t>(pair, tab);
   for (auto &pair : m_uint32Branches)
     fillColumn<uint32_t>(pair, tab);
+  for (auto &pair : m_floatBranches)
+    fillColumn<float>(pair, tab);
   for (auto &pair : m_doubleBranches)
     fillColumn<double>(pair, tab);
 }
