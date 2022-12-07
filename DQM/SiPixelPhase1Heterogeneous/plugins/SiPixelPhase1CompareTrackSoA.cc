@@ -62,9 +62,10 @@ namespace {
   }
 }  // namespace
 
+template<typename T>
 class SiPixelPhase1CompareTrackSoA : public DQMEDAnalyzer {
 public:
-  using PixelTrackSoAPhase1 = PixelTrackHeterogeneousT<pixelTopology::Phase1>;
+  using PixelTrackSoA = PixelTrackHeterogeneousT<T>;
 
   explicit SiPixelPhase1CompareTrackSoA(const edm::ParameterSet&);
   ~SiPixelPhase1CompareTrackSoA() override = default;
@@ -73,8 +74,8 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  const edm::EDGetTokenT<PixelTrackSoAPhase1> tokenSoATrackCPU_;
-  const edm::EDGetTokenT<PixelTrackSoAPhase1> tokenSoATrackGPU_;
+  const edm::EDGetTokenT<PixelTrackSoA> tokenSoATrackCPU_;
+  const edm::EDGetTokenT<PixelTrackSoA> tokenSoATrackGPU_;
   const std::string topFolderName_;
   const bool useQualityCut_;
   const pixelTrack::Quality minQuality_;
@@ -114,9 +115,10 @@ private:
 // constructors
 //
 
-SiPixelPhase1CompareTrackSoA::SiPixelPhase1CompareTrackSoA(const edm::ParameterSet& iConfig)
-    : tokenSoATrackCPU_(consumes<PixelTrackSoAPhase1>(iConfig.getParameter<edm::InputTag>("pixelTrackSrcCPU"))),
-      tokenSoATrackGPU_(consumes<PixelTrackSoAPhase1>(iConfig.getParameter<edm::InputTag>("pixelTrackSrcGPU"))),
+template<typename T>
+SiPixelPhase1CompareTrackSoA<T>::SiPixelPhase1CompareTrackSoA(const edm::ParameterSet& iConfig)
+    : tokenSoATrackCPU_(consumes<PixelTrackSoA>(iConfig.getParameter<edm::InputTag>("pixelTrackSrcCPU"))),
+      tokenSoATrackGPU_(consumes<PixelTrackSoA>(iConfig.getParameter<edm::InputTag>("pixelTrackSrcGPU"))),
       topFolderName_(iConfig.getParameter<std::string>("topFolderName")),
       useQualityCut_(iConfig.getParameter<bool>("useQualityCut")),
       minQuality_(pixelTrack::qualityByName(iConfig.getParameter<std::string>("minQuality"))),
@@ -125,7 +127,8 @@ SiPixelPhase1CompareTrackSoA::SiPixelPhase1CompareTrackSoA(const edm::ParameterS
 //
 // -- Analyze
 //
-void SiPixelPhase1CompareTrackSoA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+template<typename T>
+void SiPixelPhase1CompareTrackSoA<T>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const auto& tsoaHandleCPU = iEvent.getHandle(tokenSoATrackCPU_);
   const auto& tsoaHandleGPU = iEvent.getHandle(tokenSoATrackGPU_);
   if (not tsoaHandleCPU or not tsoaHandleGPU) {
@@ -224,9 +227,10 @@ void SiPixelPhase1CompareTrackSoA::analyze(const edm::Event& iEvent, const edm::
 //
 // -- Book Histograms
 //
-void SiPixelPhase1CompareTrackSoA::bookHistograms(DQMStore::IBooker& iBook,
-                                                  edm::Run const& iRun,
-                                                  edm::EventSetup const& iSetup) {
+template<typename T>
+void SiPixelPhase1CompareTrackSoA<T>::bookHistograms(DQMStore::IBooker& iBook,
+						     edm::Run const& iRun,
+						     edm::EventSetup const& iSetup) {
   iBook.cd();
   iBook.setCurrentFolder(topFolderName_);
 
@@ -267,7 +271,8 @@ void SiPixelPhase1CompareTrackSoA::bookHistograms(DQMStore::IBooker& iBook,
 
 }
 
-void SiPixelPhase1CompareTrackSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+template<typename T>
+void SiPixelPhase1CompareTrackSoA<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // monitorpixelTrackSoA
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pixelTrackSrcCPU", edm::InputTag("pixelTracksSoA@cpu"));
@@ -278,4 +283,9 @@ void SiPixelPhase1CompareTrackSoA::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<double>("deltaR2cut", 0.04);
   descriptions.addWithDefaultLabel(desc);
 }
-DEFINE_FWK_MODULE(SiPixelPhase1CompareTrackSoA);
+
+using SiPixelPhase1CompareTrackSoAPhase1 = SiPixelPhase1CompareTrackSoA<pixelTopology::Phase1>;
+using SiPixelPhase1CompareTrackSoAPhase2 = SiPixelPhase1CompareTrackSoA<pixelTopology::Phase2>;
+
+DEFINE_FWK_MODULE(SiPixelPhase1CompareTrackSoAPhase1);
+DEFINE_FWK_MODULE(SiPixelPhase1CompareTrackSoAPhase2);
