@@ -1,9 +1,8 @@
 // -*- C++ -*-
-///bookLayer
-// Package:    SiPixelPhase1MonitorTrackSoA
-// Class:      SiPixelPhase1MonitorTrackSoA
+// Package:    SiPixelMonitorTrackSoA
+// Class:      SiPixelMonitorTrackSoA
 //
-/**\class SiPixelPhase1MonitorTrackSoA SiPixelPhase1MonitorTrackSoA.cc
+/**\class SiPixelMonitorTrackSoA SiPixelMonitorTrackSoA.cc
 */
 //
 // Author: Suvankar Roy Chowdhury
@@ -26,11 +25,11 @@
 #include <fmt/printf.h>
 
 template<typename T>
-class SiPixelPhase1MonitorTrackSoA : public DQMEDAnalyzer {
+class SiPixelMonitorTrackSoA : public DQMEDAnalyzer {
 public:
   using PixelTrackHeterogeneous = PixelTrackHeterogeneousT<T>;
-  explicit SiPixelPhase1MonitorTrackSoA(const edm::ParameterSet&);
-  ~SiPixelPhase1MonitorTrackSoA() override = default;
+  explicit SiPixelMonitorTrackSoA(const edm::ParameterSet&);
+  ~SiPixelMonitorTrackSoA() override = default;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -64,7 +63,7 @@ private:
 //
 
 template<typename T>
-SiPixelPhase1MonitorTrackSoA<T>::SiPixelPhase1MonitorTrackSoA(const edm::ParameterSet& iConfig) {
+SiPixelMonitorTrackSoA<T>::SiPixelMonitorTrackSoA(const edm::ParameterSet& iConfig) {
   tokenSoATrack_ = consumes<PixelTrackHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelTrackSrc"));
   topFolderName_ = iConfig.getParameter<std::string>("topFolderName");  //"SiPixelHeterogeneous/PixelTrackSoA";
   useQualityCut_ = iConfig.getParameter<bool>("useQualityCut");
@@ -75,10 +74,10 @@ SiPixelPhase1MonitorTrackSoA<T>::SiPixelPhase1MonitorTrackSoA(const edm::Paramet
 // -- Analyze
 //
 template<typename T>
-void SiPixelPhase1MonitorTrackSoA<T>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void SiPixelMonitorTrackSoA<T>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const auto& tsoaHandle = iEvent.getHandle(tokenSoATrack_);
   if (!tsoaHandle.isValid()) {
-    edm::LogWarning("SiPixelPhase1MonitorTrackSoA") << "No Track SoA found \n returning!" << std::endl;
+    edm::LogWarning("SiPixelMonitorTrackSoA") << "No Track SoA found \n returning!" << std::endl;
     return;
   }
 
@@ -136,7 +135,7 @@ void SiPixelPhase1MonitorTrackSoA<T>::analyze(const edm::Event& iEvent, const ed
 // -- Book Histograms
 //
 template<typename T>
-void SiPixelPhase1MonitorTrackSoA<T>::bookHistograms(DQMStore::IBooker& iBook,
+void SiPixelMonitorTrackSoA<T>::bookHistograms(DQMStore::IBooker& iBook,
                                                   edm::Run const& iRun,
                                                   edm::EventSetup const& iSetup) {
   iBook.cd();
@@ -177,7 +176,7 @@ void SiPixelPhase1MonitorTrackSoA<T>::bookHistograms(DQMStore::IBooker& iBook,
 }
 
 template<typename T>
-void SiPixelPhase1MonitorTrackSoA<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void SiPixelMonitorTrackSoA<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // monitorpixelTrackSoA
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pixelTrackSrc", edm::InputTag("pixelTracksSoA"));
@@ -187,8 +186,8 @@ void SiPixelPhase1MonitorTrackSoA<T>::fillDescriptions(edm::ConfigurationDescrip
   descriptions.addWithDefaultLabel(desc);
 }
 
-using SiPixelPhase1MonitorTrackSoAPhase1 = SiPixelPhase1MonitorTrackSoA<pixelTopology::Phase1>;
-using SiPixelPhase1MonitorTrackSoAPhase2 = SiPixelPhase1MonitorTrackSoA<pixelTopology::Phase2>;
+using SiPixelPhase1MonitorTrackSoA = SiPixelMonitorTrackSoA<pixelTopology::Phase1>;
+using SiPixelPhase2MonitorTrackSoA = SiPixelMonitorTrackSoA<pixelTopology::Phase2>;
 
-DEFINE_FWK_MODULE(SiPixelPhase1MonitorTrackSoAPhase1);
-DEFINE_FWK_MODULE(SiPixelPhase1MonitorTrackSoAPhase2);
+DEFINE_FWK_MODULE(SiPixelPhase1MonitorTrackSoA);
+DEFINE_FWK_MODULE(SiPixelPhase2MonitorTrackSoA);
