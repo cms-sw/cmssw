@@ -27,15 +27,15 @@ public:
   using Bounds::inside;
 
   bool inside(const Local2DPoint& p) const override {
-    return (std::abs(p.x()) < halfWidth) & (std::abs(p.y()) < halfLength);
+    return (std::abs(p.x()) < halfWidth) && (std::abs(p.y()) < halfLength);
   }
 
   bool inside(const Local3DPoint& p) const override {
-    return (std::abs(p.x()) < halfWidth) & (std::abs(p.y()) < halfLength) & (std::abs(p.z()) < halfThickness);
+    return (std::abs(p.x()) < halfWidth) && (std::abs(p.y()) < halfLength) && (std::abs(p.z()) < halfThickness);
   }
 
   bool inside(const Local2DPoint& p, float tollerance) const override {
-    return (std::abs(p.x()) < (halfWidth + tollerance)) & (std::abs(p.y()) < (halfLength + tollerance));
+    return (std::abs(p.x()) < (halfWidth + tollerance)) && (std::abs(p.y()) < (halfLength + tollerance));
   }
 
   bool inside(const Local3DPoint& p, const LocalError& err, float scale = 1.f) const override;
