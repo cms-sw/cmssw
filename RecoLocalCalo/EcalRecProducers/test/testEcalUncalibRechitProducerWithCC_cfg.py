@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('RECO', eras.Run2_2018)
+process = cms.Process('RECO', eras.Run3)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -49,10 +49,12 @@ process.load("RecoLocalCalo.EcalRecProducers.ecalCPUUncalibRecHitProducer_cfi")
 
 process.ecalMultiFitUncalibRecHit.algoPSet = cms.PSet( 
       # for crossCorrelationMethod
-      timealgo = cms.string( "crossCorrelationMethod" ),  
-      crossCorrelationStartTime = cms.double(-25),
-      crossCorrelationStopTime = cms.double(25),
-      crossCorrelationTargetTimePrecision = cms.double(0.01),
+      timealgo = cms.string( "crossCorrelationMethod" ),
+    #   timealgo = cms.string( "RatioMethod" ),  
+    #   crossCorrelationStartTime = cms.double(-15),
+    #   crossCorrelationStopTime = cms.double(25),
+    #   crossCorrelationTargetTimePrecision = cms.double(0.01),
+    #   crossCorrelationTargetTimePrecisionForDelayedPulses = cms.double(0.05),
 )     
       
 ##    
