@@ -1,8 +1,8 @@
 // -*- C++ -*-
-// Package:    SiPixelPhase1CompareVertexSoA
-// Class:      SiPixelPhase1CompareVertexSoA
+// Package:    SiPixelCompareVertexSoA
+// Class:      SiPixelCompareVertexSoA
 //
-/**\class SiPixelPhase1CompareVertexSoA SiPixelPhase1CompareVertexSoA.cc 
+/**\class SiPixelCompareVertexSoA SiPixelCompareVertexSoA.cc 
 */
 //
 // Author: Suvankar Roy Chowdhury
@@ -21,11 +21,11 @@
 #include "CUDADataFormats/Vertex/interface/ZVertexHeterogeneous.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
-class SiPixelPhase1CompareVertexSoA : public DQMEDAnalyzer {
+class SiPixelCompareVertexSoA : public DQMEDAnalyzer {
 public:
   using IndToEdm = std::vector<uint16_t>;
-  explicit SiPixelPhase1CompareVertexSoA(const edm::ParameterSet&);
-  ~SiPixelPhase1CompareVertexSoA() override = default;
+  explicit SiPixelCompareVertexSoA(const edm::ParameterSet&);
+  ~SiPixelCompareVertexSoA() override = default;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -53,7 +53,7 @@ private:
 // constructors
 //
 
-SiPixelPhase1CompareVertexSoA::SiPixelPhase1CompareVertexSoA(const edm::ParameterSet& iConfig)
+SiPixelCompareVertexSoA::SiPixelCompareVertexSoA(const edm::ParameterSet& iConfig)
     : tokenSoAVertexCPU_(consumes<ZVertexHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelVertexSrcCPU"))),
       tokenSoAVertexGPU_(consumes<ZVertexHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelVertexSrcGPU"))),
       tokenBeamSpot_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotSrc"))),
@@ -63,11 +63,11 @@ SiPixelPhase1CompareVertexSoA::SiPixelPhase1CompareVertexSoA(const edm::Paramete
 //
 // -- Analyze
 //
-void SiPixelPhase1CompareVertexSoA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void SiPixelCompareVertexSoA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const auto& vsoaHandleCPU = iEvent.getHandle(tokenSoAVertexCPU_);
   const auto& vsoaHandleGPU = iEvent.getHandle(tokenSoAVertexGPU_);
   if (not vsoaHandleCPU or not vsoaHandleGPU) {
-    edm::LogWarning out("SiPixelPhase1CompareTrackSoA");
+    edm::LogWarning out("SiPixelCompareVertexSoA");
     if (not vsoaHandleCPU) {
       out << "reference (cpu) tracks not found; ";
     }
@@ -86,7 +86,7 @@ void SiPixelPhase1CompareVertexSoA::analyze(const edm::Event& iEvent, const edm:
   auto bsHandle = iEvent.getHandle(tokenBeamSpot_);
   float x0 = 0., y0 = 0., z0 = 0., dxdz = 0., dydz = 0.;
   if (!bsHandle.isValid()) {
-    edm::LogWarning("PixelVertexProducer") << "No beamspot found. returning vertexes with (0,0,Z) ";
+    edm::LogWarning("SiPixelCompareVertexSoA") << "No beamspot found. returning vertexes with (0,0,Z) ";
   } else {
     const reco::BeamSpot& bs = *bsHandle;
     x0 = bs.x0();
@@ -149,7 +149,7 @@ void SiPixelPhase1CompareVertexSoA::analyze(const edm::Event& iEvent, const edm:
 //
 // -- Book Histograms
 //
-void SiPixelPhase1CompareVertexSoA::bookHistograms(DQMStore::IBooker& ibooker,
+void SiPixelCompareVertexSoA::bookHistograms(DQMStore::IBooker& ibooker,
                                                    edm::Run const& iRun,
                                                    edm::EventSetup const& iSetup) {
   ibooker.cd();
@@ -171,7 +171,7 @@ void SiPixelPhase1CompareVertexSoA::bookHistograms(DQMStore::IBooker& ibooker,
   hzdiff_ = ibooker.book1D("vzdiff", ";Vertex z difference (CPU - GPU);#entries", 100, -2.5, 2.5);
 }
 
-void SiPixelPhase1CompareVertexSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void SiPixelCompareVertexSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // monitorpixelVertexSoA
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pixelVertexSrcCPU", edm::InputTag("pixelVerticesSoA@cpu"));
@@ -181,4 +181,4 @@ void SiPixelPhase1CompareVertexSoA::fillDescriptions(edm::ConfigurationDescripti
   desc.add<double>("dzCut", 1.);
   descriptions.addWithDefaultLabel(desc);
 }
-DEFINE_FWK_MODULE(SiPixelPhase1CompareVertexSoA);
+DEFINE_FWK_MODULE(SiPixelCompareVertexSoA);

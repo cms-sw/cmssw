@@ -1,8 +1,8 @@
 // -*- C++ -*-
-// Package:    SiPixelPhase1CompareRecHitsSoA
-// Class:      SiPixelPhase1CompareRecHitsSoA
+// Package:    SiPixelCompareRecHitsSoA
+// Class:      SiPixelCompareRecHitsSoA
 //
-/**\class SiPixelPhase1CompareRecHitsSoA SiPixelPhase1CompareRecHitsSoA.cc
+/**\class SiPixelCompareRecHitsSoA SiPixelCompareRecHitsSoA.cc
 */
 //
 // Author: Suvankar Roy Chowdhury, Alessandro Rossi
@@ -28,13 +28,13 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 template<typename T>
-class SiPixelPhase1CompareRecHitsSoA : public DQMEDAnalyzer {
+class SiPixelCompareRecHitsSoA : public DQMEDAnalyzer {
 public:
   using HitSoA = TrackingRecHit2DSOAViewT<T>;
   using HitsOnCPU = TrackingRecHit2DCPUT<T>;
 
-  explicit SiPixelPhase1CompareRecHitsSoA(const edm::ParameterSet&);
-  ~SiPixelPhase1CompareRecHitsSoA() override = default;
+  explicit SiPixelCompareRecHitsSoA(const edm::ParameterSet&);
+  ~SiPixelCompareRecHitsSoA() override = default;
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
@@ -79,7 +79,7 @@ private:
 //
 
 template<typename T>
-SiPixelPhase1CompareRecHitsSoA<T>::SiPixelPhase1CompareRecHitsSoA(const edm::ParameterSet& iConfig)
+SiPixelCompareRecHitsSoA<T>::SiPixelCompareRecHitsSoA(const edm::ParameterSet& iConfig)
     : geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
       topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()),
       tokenSoAHitsCPU_(consumes(iConfig.getParameter<edm::InputTag>("pixelHitsSrcCPU"))),
@@ -90,7 +90,7 @@ SiPixelPhase1CompareRecHitsSoA<T>::SiPixelPhase1CompareRecHitsSoA(const edm::Par
 // Begin Run
 //
 template<typename T>
-void SiPixelPhase1CompareRecHitsSoA<T>::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+void SiPixelCompareRecHitsSoA<T>::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   tkGeom_ = &iSetup.getData(geomToken_);
   tTopo_ = &iSetup.getData(topoToken_);
 }
@@ -99,11 +99,11 @@ void SiPixelPhase1CompareRecHitsSoA<T>::dqmBeginRun(const edm::Run& iRun, const 
 // -- Analyze
 //
 template<typename T>
-void SiPixelPhase1CompareRecHitsSoA<T>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void SiPixelCompareRecHitsSoA<T>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const auto& rhsoaHandleCPU = iEvent.getHandle(tokenSoAHitsCPU_);
   const auto& rhsoaHandleGPU = iEvent.getHandle(tokenSoAHitsGPU_);
   if (not rhsoaHandleCPU or not rhsoaHandleGPU) {
-    edm::LogWarning out("SiPixelPhase1CompareRecHitSoA");
+    edm::LogWarning out("SiPixelCompareRecHitSoA");
     if (not rhsoaHandleCPU) {
       out << "reference (cpu) rechits not found; ";
     }
@@ -189,7 +189,7 @@ void SiPixelPhase1CompareRecHitsSoA<T>::analyze(const edm::Event& iEvent, const 
 // -- Book Histograms
 //
 template<typename T>
-void SiPixelPhase1CompareRecHitsSoA<T>::bookHistograms(DQMStore::IBooker& iBook,
+void SiPixelCompareRecHitsSoA<T>::bookHistograms(DQMStore::IBooker& iBook,
 						       edm::Run const& iRun,
 						       edm::EventSetup const& iSetup) {
   iBook.cd();
@@ -232,7 +232,7 @@ void SiPixelPhase1CompareRecHitsSoA<T>::bookHistograms(DQMStore::IBooker& iBook,
 }
 
 template<typename T>
-void SiPixelPhase1CompareRecHitsSoA<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void SiPixelCompareRecHitsSoA<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // monitorpixelRecHitsSoA
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pixelHitsSrcCPU", edm::InputTag("siPixelRecHitsPreSplittingSoA@cpu"));
@@ -242,8 +242,8 @@ void SiPixelPhase1CompareRecHitsSoA<T>::fillDescriptions(edm::ConfigurationDescr
   descriptions.addWithDefaultLabel(desc);
 }
 
-using SiPixelPhase1CompareRecHitsSoAPhase1 = SiPixelPhase1CompareRecHitsSoA<pixelTopology::Phase1>;
-using SiPixelPhase1CompareRecHitsSoAPhase2 = SiPixelPhase1CompareRecHitsSoA<pixelTopology::Phase2>;
+using SiPixelPhase1CompareRecHitsSoA = SiPixelCompareRecHitsSoA<pixelTopology::Phase1>;
+using SiPixelPhase2CompareRecHitsSoA = SiPixelCompareRecHitsSoA<pixelTopology::Phase2>;
 
-DEFINE_FWK_MODULE(SiPixelPhase1CompareRecHitsSoAPhase1);
-DEFINE_FWK_MODULE(SiPixelPhase1CompareRecHitsSoAPhase2);
+DEFINE_FWK_MODULE(SiPixelPhase1CompareRecHitsSoA);
+DEFINE_FWK_MODULE(SiPixelPhase2CompareRecHitsSoA);
