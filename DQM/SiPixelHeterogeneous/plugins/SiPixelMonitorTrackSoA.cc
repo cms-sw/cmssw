@@ -24,7 +24,7 @@
 // for string manipulations
 #include <fmt/printf.h>
 
-template<typename T>
+template <typename T>
 class SiPixelMonitorTrackSoA : public DQMEDAnalyzer {
 public:
   using PixelTrackHeterogeneous = PixelTrackHeterogeneousT<T>;
@@ -62,7 +62,7 @@ private:
 // constructors
 //
 
-template<typename T>
+template <typename T>
 SiPixelMonitorTrackSoA<T>::SiPixelMonitorTrackSoA(const edm::ParameterSet& iConfig) {
   tokenSoATrack_ = consumes<PixelTrackHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelTrackSrc"));
   topFolderName_ = iConfig.getParameter<std::string>("topFolderName");  //"SiPixelHeterogeneous/PixelTrackSoA";
@@ -73,7 +73,7 @@ SiPixelMonitorTrackSoA<T>::SiPixelMonitorTrackSoA(const edm::ParameterSet& iConf
 //
 // -- Analyze
 //
-template<typename T>
+template <typename T>
 void SiPixelMonitorTrackSoA<T>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const auto& tsoaHandle = iEvent.getHandle(tokenSoATrack_);
   if (!tsoaHandle.isValid()) {
@@ -134,10 +134,10 @@ void SiPixelMonitorTrackSoA<T>::analyze(const edm::Event& iEvent, const edm::Eve
 //
 // -- Book Histograms
 //
-template<typename T>
+template <typename T>
 void SiPixelMonitorTrackSoA<T>::bookHistograms(DQMStore::IBooker& iBook,
-                                                  edm::Run const& iRun,
-                                                  edm::EventSetup const& iSetup) {
+                                               edm::Run const& iRun,
+                                               edm::EventSetup const& iSetup) {
   iBook.cd();
   iBook.setCurrentFolder(topFolderName_);
 
@@ -175,7 +175,7 @@ void SiPixelMonitorTrackSoA<T>::bookHistograms(DQMStore::IBooker& iBook,
   }
 }
 
-template<typename T>
+template <typename T>
 void SiPixelMonitorTrackSoA<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // monitorpixelTrackSoA
   edm::ParameterSetDescription desc;

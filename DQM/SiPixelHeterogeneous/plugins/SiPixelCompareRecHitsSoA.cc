@@ -27,7 +27,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-template<typename T>
+template <typename T>
 class SiPixelCompareRecHitsSoA : public DQMEDAnalyzer {
 public:
   using HitSoA = TrackingRecHit2DSOAViewT<T>;
@@ -52,16 +52,16 @@ private:
   const TrackerGeometry* tkGeom_ = nullptr;
   const TrackerTopology* tTopo_ = nullptr;
   MonitorElement* hnHits_;
-  MonitorElement* hBchargeL_[4];
+  MonitorElement* hBchargeL_[4];  // max 4 barrel hits
   MonitorElement* hBsizexL_[4];
   MonitorElement* hBsizeyL_[4];
   MonitorElement* hBposxL_[4];
   MonitorElement* hBposyL_[4];
-  MonitorElement* hFchargeD_[2][3];
-  MonitorElement* hFsizexD_[2][3];
-  MonitorElement* hFsizeyD_[2][3];
-  MonitorElement* hFposxD_[2][3];
-  MonitorElement* hFposyD_[2][3];
+  MonitorElement* hFchargeD_[2][12];  // max 12 endcap disks
+  MonitorElement* hFsizexD_[2][12];
+  MonitorElement* hFsizeyD_[2][12];
+  MonitorElement* hFposxD_[2][12];
+  MonitorElement* hFposyD_[2][12];
   //differences
   MonitorElement* hBchargeDiff_;
   MonitorElement* hFchargeDiff_;
@@ -78,7 +78,7 @@ private:
 // constructors
 //
 
-template<typename T>
+template <typename T>
 SiPixelCompareRecHitsSoA<T>::SiPixelCompareRecHitsSoA(const edm::ParameterSet& iConfig)
     : geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
       topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()),
@@ -89,7 +89,7 @@ SiPixelCompareRecHitsSoA<T>::SiPixelCompareRecHitsSoA(const edm::ParameterSet& i
 //
 // Begin Run
 //
-template<typename T>
+template <typename T>
 void SiPixelCompareRecHitsSoA<T>::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   tkGeom_ = &iSetup.getData(geomToken_);
   tTopo_ = &iSetup.getData(topoToken_);
@@ -98,7 +98,7 @@ void SiPixelCompareRecHitsSoA<T>::dqmBeginRun(const edm::Run& iRun, const edm::E
 //
 // -- Analyze
 //
-template<typename T>
+template <typename T>
 void SiPixelCompareRecHitsSoA<T>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const auto& rhsoaHandleCPU = iEvent.getHandle(tokenSoAHitsCPU_);
   const auto& rhsoaHandleGPU = iEvent.getHandle(tokenSoAHitsGPU_);
@@ -188,10 +188,10 @@ void SiPixelCompareRecHitsSoA<T>::analyze(const edm::Event& iEvent, const edm::E
 //
 // -- Book Histograms
 //
-template<typename T>
+template <typename T>
 void SiPixelCompareRecHitsSoA<T>::bookHistograms(DQMStore::IBooker& iBook,
-						       edm::Run const& iRun,
-						       edm::EventSetup const& iSetup) {
+                                                 edm::Run const& iRun,
+                                                 edm::EventSetup const& iSetup) {
   iBook.cd();
   iBook.setCurrentFolder(topFolderName_);
 

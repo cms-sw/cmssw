@@ -62,7 +62,7 @@ namespace {
   }
 }  // namespace
 
-template<typename T>
+template <typename T>
 class SiPixelCompareTrackSoA : public DQMEDAnalyzer {
 public:
   using PixelTrackSoA = PixelTrackHeterogeneousT<T>;
@@ -115,7 +115,7 @@ private:
 // constructors
 //
 
-template<typename T>
+template <typename T>
 SiPixelCompareTrackSoA<T>::SiPixelCompareTrackSoA(const edm::ParameterSet& iConfig)
     : tokenSoATrackCPU_(consumes<PixelTrackSoA>(iConfig.getParameter<edm::InputTag>("pixelTrackSrcCPU"))),
       tokenSoATrackGPU_(consumes<PixelTrackSoA>(iConfig.getParameter<edm::InputTag>("pixelTrackSrcGPU"))),
@@ -127,7 +127,7 @@ SiPixelCompareTrackSoA<T>::SiPixelCompareTrackSoA(const edm::ParameterSet& iConf
 //
 // -- Analyze
 //
-template<typename T>
+template <typename T>
 void SiPixelCompareTrackSoA<T>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const auto& tsoaHandleCPU = iEvent.getHandle(tokenSoATrackCPU_);
   const auto& tsoaHandleGPU = iEvent.getHandle(tokenSoATrackGPU_);
@@ -227,10 +227,10 @@ void SiPixelCompareTrackSoA<T>::analyze(const edm::Event& iEvent, const edm::Eve
 //
 // -- Book Histograms
 //
-template<typename T>
+template <typename T>
 void SiPixelCompareTrackSoA<T>::bookHistograms(DQMStore::IBooker& iBook,
-						     edm::Run const& iRun,
-						     edm::EventSetup const& iSetup) {
+                                               edm::Run const& iRun,
+                                               edm::EventSetup const& iSetup) {
   iBook.cd();
   iBook.setCurrentFolder(topFolderName_);
 

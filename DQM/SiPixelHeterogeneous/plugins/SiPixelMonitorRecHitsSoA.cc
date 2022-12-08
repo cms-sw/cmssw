@@ -28,7 +28,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-template<typename T>
+template <typename T>
 class SiPixelMonitorRecHitsSoA : public DQMEDAnalyzer {
 public:
   using HitSoA = TrackingRecHit2DSOAViewT<T>;
@@ -56,7 +56,7 @@ private:
   MonitorElement* hBcharge;
   MonitorElement* hBsizex;
   MonitorElement* hBsizey;
-  MonitorElement* hBposZPL[4];
+  MonitorElement* hBposZPL[4];  // max 4 barrel hits
   MonitorElement* hBchargeL[4];
   MonitorElement* hBsizexL[4];
   MonitorElement* hBsizeyL[4];
@@ -65,7 +65,7 @@ private:
   MonitorElement* hFcharge;
   MonitorElement* hFsizex;
   MonitorElement* hFsizey;
-  MonitorElement* hFposXYD[2][12];
+  MonitorElement* hFposXYD[2][12];  // max 12 endcap disks
   MonitorElement* hFchargeD[2][12];
   MonitorElement* hFsizexD[2][12];
   MonitorElement* hFsizeyD[2][12];
@@ -75,7 +75,7 @@ private:
 // constructors
 //
 
-template<typename T>
+template <typename T>
 SiPixelMonitorRecHitsSoA<T>::SiPixelMonitorRecHitsSoA(const edm::ParameterSet& iConfig)
     : geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
       topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()),
@@ -84,7 +84,7 @@ SiPixelMonitorRecHitsSoA<T>::SiPixelMonitorRecHitsSoA(const edm::ParameterSet& i
 //
 // Begin Run
 //
-template<typename T>
+template <typename T>
 void SiPixelMonitorRecHitsSoA<T>::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   tkGeom_ = &iSetup.getData(geomToken_);
   tTopo_ = &iSetup.getData(topoToken_);
@@ -93,7 +93,7 @@ void SiPixelMonitorRecHitsSoA<T>::dqmBeginRun(const edm::Run& iRun, const edm::E
 //
 // -- Analyze
 //
-template<typename T>
+template <typename T>
 void SiPixelMonitorRecHitsSoA<T>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const auto& rhsoaHandle = iEvent.getHandle(tokenSoAHitsCPU_);
   if (!rhsoaHandle.isValid()) {
@@ -149,10 +149,10 @@ void SiPixelMonitorRecHitsSoA<T>::analyze(const edm::Event& iEvent, const edm::E
 //
 // -- Book Histograms
 //
-template<typename T>
+template <typename T>
 void SiPixelMonitorRecHitsSoA<T>::bookHistograms(DQMStore::IBooker& iBook,
-                                                    edm::Run const& iRun,
-                                                    edm::EventSetup const& iSetup) {
+                                                 edm::Run const& iRun,
+                                                 edm::EventSetup const& iSetup) {
   iBook.cd();
   iBook.setCurrentFolder(topFolderName_);
 
