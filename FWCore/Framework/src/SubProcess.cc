@@ -122,7 +122,7 @@ namespace edm {
 
     // If there are subprocesses, pop the subprocess parameter sets out of the process parameter set
     auto subProcessVParameterSet = popSubProcessVParameterSet(*processParameterSet_);
-    bool hasSubProcesses = subProcessVParameterSet.size() != 0ull;
+    bool hasSubProcesses = !subProcessVParameterSet.empty();
 
     // Validates the parameters in the 'options', 'maxEvents', and 'maxLuminosityBlocks'
     // top level parameter sets. Default values are also set in here if the

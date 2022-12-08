@@ -120,30 +120,30 @@ bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
       switch (rotn) {
         case (HGCalTypes::WaferCorner0): {
           int u2 = u / 2;
-          good = ((v - u2) < n);
+          good = ((v - u2) <= n);
           break;
         }
         case (HGCalTypes::WaferCorner1): {
-          good = ((v + u) < (3 * n - 1));
+          good = ((v + u) < (3 * n));
           break;
         }
         case (HGCalTypes::WaferCorner2): {
           int v2 = (v + 1) / 2;
-          good = ((u - v2) < n);
+          good = ((u - v2) <= n);
           break;
         }
         case (HGCalTypes::WaferCorner3): {
-          int u2 = (u + 1) / 2;
+          int u2 = (u - 1) / 2;
           good = (u2 <= v);
           break;
         }
         case (HGCalTypes::WaferCorner4): {
-          good = ((v + u) >= n);
+          good = ((v + u) >= n - 1);
           break;
         }
         default: {
           int v2 = v / 2;
-          good = (u > v2);
+          good = (u >= v2);
           break;
         }
       }
@@ -168,7 +168,7 @@ bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
           break;
         }
         case (HGCalTypes::WaferCorner4): {
-          good = (u >= n2);
+          good = (u >= n2 - 1);
           break;
         }
         default: {
@@ -185,7 +185,7 @@ bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
           break;
         }
         case (HGCalTypes::WaferCorner1): {
-          good = (u < (5 * n4));
+          good = (u <= (5 * n4));
           break;
         }
         case (HGCalTypes::WaferCorner2): {
@@ -193,7 +193,7 @@ bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
           break;
         }
         case (HGCalTypes::WaferCorner3): {
-          good = (v >= (3 * n4));
+          good = (v >= (3 * n4 - 1));
           break;
         }
         case (HGCalTypes::WaferCorner4): {
@@ -201,7 +201,7 @@ bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
           break;
         }
         default: {
-          good = ((v - u) < n4);
+          good = ((v - u) <= n4);
           break;
         }
       }
@@ -214,7 +214,7 @@ bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
           break;
         }
         case (HGCalTypes::WaferCorner1): {
-          good = (u < n);
+          good = (u <= n);
           break;
         }
         case (HGCalTypes::WaferCorner2): {
@@ -222,7 +222,7 @@ bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
           break;
         }
         case (HGCalTypes::WaferCorner3): {
-          good = (v >= n);
+          good = (v >= n - 1);
           break;
         }
         case (HGCalTypes::WaferCorner4): {
@@ -230,7 +230,7 @@ bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
           break;
         }
         default: {
-          good = (u > v);
+          good = (u >= v);
           break;
         }
       }
@@ -301,28 +301,28 @@ bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
     case (HGCalTypes::WaferSemi2): {  //WaferSemi2
       switch (rotn) {
         case (HGCalTypes::WaferCorner0): {
-          good = ((u + v) < (4 * n3));
+          good = ((u + v) <= (4 * n3 + 1));
           break;
         }
         case (HGCalTypes::WaferCorner1): {
-          good = ((2 * u - v) < n2);
+          good = ((2 * u - v) <= n2);
           break;
         }
         case (HGCalTypes::WaferCorner2): {
           int u2 = ((u + 1) / 2);
-          good = ((v - u2) >= (3 * n4));
+          good = ((v - u2) >= (3 * n4 - 1));
           break;
         }
         case (HGCalTypes::WaferCorner3): {
-          good = ((u + v) >= (5 * n2));
+          good = ((u + v) >= (5 * n2 - 1));
           break;
         }
         case (HGCalTypes::WaferCorner4): {
-          good = ((2 * u - v) > (3 * n2));
+          good = ((2 * u - v) >= (3 * n2));
           break;
         }
         default: {
-          int u2 = ((n == 8) ? ((u + 1) / 2) : (u / 2));
+          int u2 = (u + 1) / 2;
           good = ((v - u2) < n4);
           break;
         }
@@ -365,19 +365,19 @@ bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
           break;
         }
         case (HGCalTypes::WaferCorner1): {
-          good = (u < (3 * n4));
+          good = (u <= (3 * n4));
           break;
         }
         case (HGCalTypes::WaferCorner2): {
-          good = ((v - u) >= n4);
+          good = ((v - u) >= n4 - 1);
           break;
         }
         case (HGCalTypes::WaferCorner3): {
-          good = (v >= (5 * n4));
+          good = (v >= (5 * n4 - 1));
           break;
         }
         case (HGCalTypes::WaferCorner4): {
-          good = (u >= (5 * n4));
+          good = (u >= (5 * n4 - 1));
           break;
         }
         default: {

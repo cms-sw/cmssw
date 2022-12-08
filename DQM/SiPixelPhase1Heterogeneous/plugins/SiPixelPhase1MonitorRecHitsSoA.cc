@@ -3,7 +3,7 @@
 // Package:    SiPixelPhase1MonitorRecHitsSoA
 // Class:      SiPixelPhase1MonitorRecHitsSoA
 //
-/**\class SiPixelPhase1MonitorRecHitsSoA SiPixelPhase1MonitorRecHitsSoA.cc 
+/**\class SiPixelPhase1MonitorRecHitsSoA SiPixelPhase1MonitorRecHitsSoA.cc
 */
 //
 // Author: Suvankar Roy Chowdhury, Alessandro Rossi
@@ -30,6 +30,9 @@
 
 class SiPixelPhase1MonitorRecHitsSoA : public DQMEDAnalyzer {
 public:
+  using HitSoA = TrackingRecHit2DSOAViewT<pixelTopology::Phase1>;
+  using HitsOnCPU = TrackingRecHit2DCPUT<pixelTopology::Phase1>;
+
   explicit SiPixelPhase1MonitorRecHitsSoA(const edm::ParameterSet&);
   ~SiPixelPhase1MonitorRecHitsSoA() override = default;
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
@@ -40,7 +43,7 @@ public:
 private:
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
-  const edm::EDGetTokenT<TrackingRecHit2DCPU> tokenSoAHitsCPU_;
+  const edm::EDGetTokenT<HitsOnCPU> tokenSoAHitsCPU_;
   const std::string topFolderName_;
   const TrackerGeometry* tkGeom_ = nullptr;
   const TrackerTopology* tTopo_ = nullptr;
@@ -74,7 +77,7 @@ private:
 SiPixelPhase1MonitorRecHitsSoA::SiPixelPhase1MonitorRecHitsSoA(const edm::ParameterSet& iConfig)
     : geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
       topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()),
-      tokenSoAHitsCPU_(consumes<TrackingRecHit2DCPU>(iConfig.getParameter<edm::InputTag>("pixelHitsSrc"))),
+      tokenSoAHitsCPU_(consumes(iConfig.getParameter<edm::InputTag>("pixelHitsSrc"))),
       topFolderName_(iConfig.getParameter<std::string>("TopFolderName")) {}
 //
 // Begin Run
@@ -94,7 +97,7 @@ void SiPixelPhase1MonitorRecHitsSoA::analyze(const edm::Event& iEvent, const edm
     return;
   }
   auto const& rhsoa = *rhsoaHandle;
-  const TrackingRecHit2DSOAView* soa2d = rhsoa.view();
+  const HitSoA* soa2d = rhsoa.view();
 
   uint32_t nHits_ = soa2d->nHits();
   hnHits->Fill(nHits_);

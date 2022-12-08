@@ -18,7 +18,7 @@ public:
     for (size_t i = 0; i + nTrunc < Hits.size(); i++) {
       sumdedx += Hits[i].charge();
     }
-    double avrdedx = (Hits.size()) ? sumdedx / (Hits.size() - nTrunc) : 0.0;
+    double avrdedx = (!Hits.empty()) ? sumdedx / (Hits.size() - nTrunc) : 0.0;
     return std::make_pair(avrdedx, -1);
   }
 

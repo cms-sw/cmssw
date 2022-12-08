@@ -1,8 +1,4 @@
 <use name="clhep"/>
-<use name="DataFormats/Common"/>
-<use name="FWCore/Framework"/>
-<use name="FWCore/ParameterSet"/>
-<use name="JetMETCorrections/Objects"/>
 <export>
   <lib name="1"/>
 </export>

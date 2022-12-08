@@ -102,7 +102,7 @@ void AlignmentMonitorTemplate::event(const edm::Event& iEvent,
 
     std::vector<TrajectoryMeasurement> measurements = traj->measurements();
     for (std::vector<TrajectoryMeasurement>::const_iterator im = measurements.begin(); im != measurements.end(); ++im) {
-      const TrajectoryMeasurement meas = *im;
+      const TrajectoryMeasurement& meas = *im;
       const TransientTrackingRecHit* hit = &(*meas.recHit());
       const DetId id = hit->geographicalId();
 

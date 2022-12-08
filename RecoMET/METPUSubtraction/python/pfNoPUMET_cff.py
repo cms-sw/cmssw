@@ -53,24 +53,6 @@ jvfJetIdForPFNoPUMEt = cms.EDProducer("JVFJetIdProducer",
 pfNoPUMEtTask.add(jvfJetIdForPFNoPUMEt)
 
 import RecoMET.METProducers.METSigParams_cfi as met_config
-pfNoPUMEtData = cms.EDProducer("NoPileUpPFMEtDataProducer",
-    srcJets = cms.InputTag('calibratedAK4PFJetsForPFNoPUMEt'),
-    srcJetIds = cms.InputTag('puJetIdForPFNoPUMEt', 'full53xId'),
-    #srcJetIds = cms.InputTag('jvcJetIdForPFNoPUMEt', 'Id'),                          
-    minJetPt = cms.double(30.0),
-    jetIdSelection = cms.string('loose'),
-    jetEnOffsetCorrLabel = cms.string("ak4PFL1Fastjet"),
-    srcPFCandidates = cms.InputTag('particleFlow'),
-    srcPFCandToVertexAssociations = cms.InputTag('pfCandidateToVertexAssociationForPFNoPUMEt'),
-    srcJetsForMEtCov = cms.InputTag('ak4PFJets'),
-    minJetPtForMEtCov = cms.double(10.),
- #  minJetPtForMEtCov = cms.double(8.), # FOR TESTING ONLY !!                            
-    srcHardScatterVertex = cms.InputTag('selectedPrimaryVertexHighestPtTrackSumForPFMEtCorrType0'),
-    dZcut = cms.double(0.2), # cm
-    resolution = met_config.METSignificance_params,
-    verbosity = cms.int32(0)     
-)
-pfNoPUMEtTask.add(pfNoPUMEtData)
 
 pfNoPUMEt = cms.EDProducer("NoPileUpPFMEtProducer",
     srcMEt = cms.InputTag('pfMet'),

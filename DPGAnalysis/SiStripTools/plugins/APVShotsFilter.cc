@@ -175,7 +175,7 @@ bool APVShotsFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventS
 
       const std::vector<const FedChannelConnection*>& conns = _detCabling->getConnections(det);
 
-      if (!(conns.size()))
+      if (conns.empty())
         continue;
       uint16_t lFedId = 0;
       for (uint32_t ch = 0; ch < conns.size(); ch++) {

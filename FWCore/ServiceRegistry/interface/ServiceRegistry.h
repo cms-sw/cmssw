@@ -109,11 +109,12 @@ namespace edm {
     template <typename T>
     static ServiceToken createContaining(std::unique_ptr<T> iService,
                                          ServiceToken iToken,
-                                         serviceregistry::ServiceLegacy iLegacy) {
+                                         bool iOverrideIfServiceInToken) {
       std::vector<edm::ParameterSet> config;
-      auto manager = std::make_shared<serviceregistry::ServicesManager>(iToken, iLegacy, config);
+      auto manager =
+          std::make_shared<serviceregistry::ServicesManager>(iToken, serviceregistry::kOverlapIsError, config);
       auto wrapper = std::make_shared<serviceregistry::ServiceWrapper<T> >(std::move(iService));
-      manager->put(wrapper);
+      manager->put(wrapper, iOverrideIfServiceInToken);
       return manager;
     }
     /// create a service token that holds the service held by iWrapper

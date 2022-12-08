@@ -265,8 +265,8 @@ namespace l1t {
     int m_uGtBoardNumber;
     bool m_uGtFinalBoard;
 
-    //whether we reset the prescales each lumi or not
-    bool m_resetPSCountersEachLumiSec = true;
+    // whether we reset the prescales each lumi or not
+    bool m_resetPSCountersEachLumiSec = false;
 
     // start the PS counter from a random value between [1,PS] instead of PS
     bool m_semiRandomInitialPSCounters = false;

@@ -1137,7 +1137,7 @@ std::vector<l1t::GlobalBoard::PrescaleCounter> l1t::GlobalBoard::prescaleCounter
   return out;
 }
 
-// initializer prescale counters using a semi-random value between [0, prescale value * 10 ^ precision - 1]
+// initialises prescale counters with a semi-random value in the range [0, prescale*10^precision - 1]
 std::vector<l1t::GlobalBoard::PrescaleCounter> l1t::GlobalBoard::prescaleCountersWithSemirandomInitialCounter(
     std::vector<double> const& prescaleFactorsAlgoTrig, edm::Event const& iEvent) {
   // pick a (semi)random number seeding based on run, lumi, event numbers,

@@ -6,3 +6,8 @@ hgcalHitPartialHE = hgcalHitPartialEE.clone(
     nameSense  = "HGCalHESiliconSensitive",
     caloHitSource = "HGCHitsHEfront"
 )
+
+hgcalHitPartialHEB = hgcalHitPartialEE.clone(
+    nameSense  = "HGCalHEScintillatorSensitive",
+    caloHitSource = "HGCHitsHEback"
+)

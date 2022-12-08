@@ -27,10 +27,11 @@
 
 #include "gpuPixelRecHits.h"
 
-class SiPixelRecHitSoAFromLegacy : public edm::global::EDProducer<> {
+template <typename TrackerTraits>
+class SiPixelRecHitSoAFromLegacyT : public edm::global::EDProducer<> {
 public:
-  explicit SiPixelRecHitSoAFromLegacy(const edm::ParameterSet& iConfig);
-  ~SiPixelRecHitSoAFromLegacy() override = default;
+  explicit SiPixelRecHitSoAFromLegacyT(const edm::ParameterSet& iConfig);
+  ~SiPixelRecHitSoAFromLegacyT() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -44,39 +45,44 @@ private:
   const edm::ESGetToken<PixelClusterParameterEstimator, TkPixelCPERecord> cpeToken_;
   const edm::EDGetTokenT<reco::BeamSpot> bsGetToken_;
   const edm::EDGetTokenT<SiPixelClusterCollectionNew> clusterToken_;  // Legacy Clusters
-  const edm::EDPutTokenT<TrackingRecHit2DCPU> tokenHit_;
+  const edm::EDPutTokenT<TrackingRecHit2DCPUT<TrackerTraits>> tokenHit_;
   const edm::EDPutTokenT<HMSstorage> tokenModuleStart_;
   const bool convert2Legacy_;
-  const bool isPhase2_;
 };
 
-SiPixelRecHitSoAFromLegacy::SiPixelRecHitSoAFromLegacy(const edm::ParameterSet& iConfig)
+template <typename TrackerTraits>
+SiPixelRecHitSoAFromLegacyT<TrackerTraits>::SiPixelRecHitSoAFromLegacyT(const edm::ParameterSet& iConfig)
     : geomToken_(esConsumes()),
       cpeToken_(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("CPE")))),
       bsGetToken_{consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))},
       clusterToken_{consumes<SiPixelClusterCollectionNew>(iConfig.getParameter<edm::InputTag>("src"))},
-      tokenHit_{produces<TrackingRecHit2DCPU>()},
+      tokenHit_{produces<TrackingRecHit2DCPUT<TrackerTraits>>()},
       tokenModuleStart_{produces<HMSstorage>()},
-      convert2Legacy_(iConfig.getParameter<bool>("convertToLegacy")),
-      isPhase2_(iConfig.getParameter<bool>("isPhase2")) {
+      convert2Legacy_(iConfig.getParameter<bool>("convertToLegacy")) {
   if (convert2Legacy_)
     produces<SiPixelRecHitCollectionNew>();
 }
 
-void SiPixelRecHitSoAFromLegacy::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+template <typename TrackerTraits>
+void SiPixelRecHitSoAFromLegacyT<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
   desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
   desc.add<edm::InputTag>("src", edm::InputTag("siPixelClustersPreSplitting"));
-  desc.add<std::string>("CPE", "PixelCPEFast");
+  std::string cpeName = "PixelCPEFast";
+  cpeName += TrackerTraits::nameModifier;
+  desc.add<std::string>("CPE", cpeName);
   desc.add<bool>("convertToLegacy", false);
-  desc.add<bool>("isPhase2", false);
+
   descriptions.addWithDefaultLabel(desc);
 }
 
-void SiPixelRecHitSoAFromLegacy::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& es) const {
+template <typename TrackerTraits>
+void SiPixelRecHitSoAFromLegacyT<TrackerTraits>::produce(edm::StreamID streamID,
+                                                         edm::Event& iEvent,
+                                                         const edm::EventSetup& es) const {
   const TrackerGeometry* geom_ = &es.getData(geomToken_);
-  PixelCPEFast const* fcpe = dynamic_cast<const PixelCPEFast*>(&es.getData(cpeToken_));
+  PixelCPEFast<TrackerTraits> const* fcpe = dynamic_cast<const PixelCPEFast<TrackerTraits>*>(&es.getData(cpeToken_));
   if (not fcpe) {
     throw cms::Exception("Configuration") << "SiPixelRecHitSoAFromLegacy can only use a CPE of type PixelCPEFast";
   }
@@ -93,14 +99,11 @@ void SiPixelRecHitSoAFromLegacy::produce(edm::StreamID streamID, edm::Event& iEv
   iEvent.getByToken(clusterToken_, hclusters);
   auto const& input = *hclusters;
 
-  const int nMaxModules = isPhase2_ ? phase2PixelTopology::numberOfModules : phase1PixelTopology::numberOfModules;
-  const int startBPIX2 = isPhase2_ ? phase2PixelTopology::layerStart[1] : phase1PixelTopology::layerStart[1];
-
-  assert(nMaxModules < gpuClustering::maxNumModules);
-  assert(startBPIX2 < nMaxModules);
+  constexpr int maxModules = TrackerTraits::numberOfModules;
+  constexpr int startBPIX2 = pixelTopology::layerStart<TrackerTraits>(1);
 
   // allocate a buffer for the indices of the clusters
-  auto hmsp = std::make_unique<uint32_t[]>(nMaxModules + 1);
+  auto hmsp = std::make_unique<uint32_t[]>(maxModules + 1);
   // hitsModuleStart is a non-owning pointer to the buffer
   auto hitsModuleStart = hmsp.get();
   // wrap the buffer in a HostProduct
@@ -141,24 +144,23 @@ void SiPixelRecHitSoAFromLegacy::produce(edm::StreamID streamID, edm::Event& iEv
     DetId detIdObject(detid);
     const GeomDetUnit* genericDet = geom_->idToDetUnit(detIdObject);
     auto gind = genericDet->index();
-    assert(gind < nMaxModules);
+    assert(gind < maxModules);
     auto const nclus = dsv.size();
     clusInModule_[gind] = nclus;
     numberOfClusters += nclus;
   }
   hitsModuleStart[0] = 0;
 
-  for (int i = 1, n = nMaxModules + 1; i < n; ++i)
+  for (int i = 1, n = maxModules + 1; i < n; ++i)
     hitsModuleStart[i] = hitsModuleStart[i - 1] + clusInModule_[i - 1];
 
-  assert(numberOfClusters == int(hitsModuleStart[nMaxModules]));
+  assert(numberOfClusters == int(hitsModuleStart[maxModules]));
 
   // output SoA
   // element 96 is the start of BPIX2 (i.e. the number of clusters in BPIX1)
 
-  auto output = std::make_unique<TrackingRecHit2DCPU>(
-      numberOfClusters, isPhase2_, hitsModuleStart[startBPIX2], &cpeView, hitsModuleStart, nullptr);
-  assert(output->nMaxModules() == uint32_t(nMaxModules));
+  auto output = std::make_unique<TrackingRecHit2DCPUT<TrackerTraits>>(
+      numberOfClusters, hitsModuleStart[startBPIX2], &cpeView, hitsModuleStart, nullptr);
 
   if (0 == numberOfClusters) {
     iEvent.put(std::move(output));
@@ -168,7 +170,7 @@ void SiPixelRecHitSoAFromLegacy::produce(edm::StreamID streamID, edm::Event& iEv
   }
 
   if (convert2Legacy_)
-    legacyOutput->reserve(nMaxModules, numberOfClusters);
+    legacyOutput->reserve(maxModules, numberOfClusters);
 
   int numberOfDetUnits = 0;
   int numberOfHits = 0;
@@ -178,7 +180,7 @@ void SiPixelRecHitSoAFromLegacy::produce(edm::StreamID streamID, edm::Event& iEv
     DetId detIdObject(detid);
     const GeomDetUnit* genericDet = geom_->idToDetUnit(detIdObject);
     auto const gind = genericDet->index();
-    assert(gind < nMaxModules);
+    assert(gind < maxModules);
     const PixelGeomDetUnit* pixDet = dynamic_cast<const PixelGeomDetUnit*>(genericDet);
     assert(pixDet);
     auto const nclus = dsv.size();
@@ -249,6 +251,7 @@ void SiPixelRecHitSoAFromLegacy::produce(edm::StreamID streamID, edm::Event& iEv
 
         if (ih >= maxHitsInModule)
           break;
+
         assert(ih < clusterRef.size());
         LocalPoint lp(output->view()->xLocal(h), output->view()->yLocal(h));
         LocalError le(output->view()->xerrLocal(h), 0, output->view()->yerrLocal(h));
@@ -262,7 +265,7 @@ void SiPixelRecHitSoAFromLegacy::produce(edm::StreamID streamID, edm::Event& iEv
   assert(numberOfHits == numberOfClusters);
 
   // fill data structure to support CA
-  const auto nLayers = isPhase2_ ? phase2PixelTopology::numberOfLayers : phase1PixelTopology::numberOfLayers;
+  constexpr auto nLayers = TrackerTraits::numberOfLayers;
   for (auto i = 0U; i < nLayers + 1; ++i) {
     output->hitsLayerStart()[i] = hitsModuleStart[cpeView.layerGeometry().layerStart[i]];
     LogDebug("SiPixelRecHitSoAFromLegacy")
@@ -279,10 +282,18 @@ void SiPixelRecHitSoAFromLegacy::produce(edm::StreamID streamID, edm::Event& iEv
                                 output->phiBinnerStorage());
 
   LogDebug("SiPixelRecHitSoAFromLegacy") << "created HitSoa for " << numberOfClusters << " clusters in "
-                                         << numberOfDetUnits << " Dets";
+                                         << numberOfDetUnits << " Dets"
+                                         << "\n";
   iEvent.put(std::move(output));
   if (convert2Legacy_)
     iEvent.put(std::move(legacyOutput));
 }
 
+using SiPixelRecHitSoAFromLegacy = SiPixelRecHitSoAFromLegacyT<pixelTopology::Phase1>;
 DEFINE_FWK_MODULE(SiPixelRecHitSoAFromLegacy);
+
+using SiPixelRecHitSoAFromLegacyPhase1 = SiPixelRecHitSoAFromLegacyT<pixelTopology::Phase1>;
+DEFINE_FWK_MODULE(SiPixelRecHitSoAFromLegacyPhase1);
+
+using SiPixelRecHitSoAFromLegacyPhase2 = SiPixelRecHitSoAFromLegacyT<pixelTopology::Phase2>;
+DEFINE_FWK_MODULE(SiPixelRecHitSoAFromLegacyPhase2);

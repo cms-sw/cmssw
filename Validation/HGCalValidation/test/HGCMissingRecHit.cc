@@ -335,8 +335,9 @@ void HGCMissingRecHit::analyzeHGCalSimHit(edm::Handle<std::vector<PCaloHit>> con
                                           std::map<unsigned int, HGCHitTuple> &hitRefs) {
   for (auto const &simHit : *simHits) {
     DetId id(simHit.id());
-    bool ok(true);
+    bool ok(true), valid2(false);
     GlobalPoint p;
+    bool valid1 = (hgcGeometry_[idet]->topology()).valid(id);
     std::ostringstream st1;
     if (id.det() == DetId::HGCalHSc) {
       st1 << HGCScintillatorDetId(id);
@@ -347,10 +348,14 @@ void HGCMissingRecHit::analyzeHGCalSimHit(edm::Handle<std::vector<PCaloHit>> con
     }
     if ((hgcCons_[idet]->waferHexagon8()) && ((id.det() == DetId::HGCalEE) || (id.det() == DetId::HGCalHSi))) {
       p = hgcGeometry_[idet]->getPosition(id);
+      HGCSiliconDetId hid(id);
+      valid2 = hgcCons_[idet]->isValidHex8(hid.layer(), hid.waferU(), hid.waferV(), hid.cellU(), hid.cellV(), true);
     } else if ((hgcCons_[idet]->tileTrapezoid()) && (id.det() == DetId::HGCalHSc)) {
       p = hgcGeometry_[idet]->getPosition(id);
+      HGCScintillatorDetId hid(id);
+      valid2 = hgcCons_[idet]->isValidTrap(hid.zside(), hid.layer(), hid.ring(), hid.iphi());
       edm::LogVerbatim("HGCalGeom") << "Scint " << HGCScintillatorDetId(id) << " position (" << p.x() << ", " << p.y()
-                                    << ", " << p.z() << ")";
+                                    << ", " << p.z() << ") " << valid1 << ":" << valid2;
     } else {
       // This is an invalid cell
       ok = false;
@@ -371,6 +376,9 @@ void HGCMissingRecHit::analyzeHGCalSimHit(edm::Handle<std::vector<PCaloHit>> con
       hitRefs[id] = std::make_tuple(energySum, p);
       edm::LogVerbatim("HGCalValid") << "Position = " << p << " Energy " << simHit.energy() << ":" << energySum;
     }
+    if ((!valid1) || (!valid2))
+      edm::LogVerbatim("HGCalMiss") << "Invalid SimHit " << st1.str() << " position = " << p << " perp " << p.perp()
+                                    << " Validity flags " << valid1 << ":" << valid2;
   }
 }
 

@@ -154,7 +154,7 @@ private:
  */
 
   void setCache() {
-    if ((thePos.x() == 0.) & (thePos.y() == 0.)) {
+    if ((thePos.x() == 0.) && (thePos.y() == 0.)) {
       thePhi = theEta = 0.;  // avoid FPE
     } else {
       thePhi = thePos.barePhi();

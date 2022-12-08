@@ -13,6 +13,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
@@ -25,6 +26,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -102,7 +104,7 @@ void HGCalTestPartialWaferHits::analyze(const edm::Event& e, const edm::EventSet
   const edm::Handle<edm::PCaloHitContainer>& hitsCalo = e.getHandle(tok_calo_);
   bool getHits = (hitsCalo.isValid());
   uint32_t nhits = (getHits) ? hitsCalo->size() : 0;
-  uint32_t good(0), allSi(0), all(0);
+  uint32_t good(0), allSi(0), all(0), allSc(0), bad(0);
   edm::LogVerbatim("HGCalSim") << "HGCalTestPartialWaferHits: Input flags Hits " << getHits << " with " << nhits
                                << " hits: Layer Offset " << firstLayer;
 
@@ -114,9 +116,12 @@ void HGCalTestPartialWaferHits::analyze(const edm::Event& e, const edm::EventSet
       for (auto hit : hits) {
         ++all;
         DetId id(hit.id());
+        bool valid = (geom->topology()).valid(id);
+        std::ostringstream st1;
         if ((id.det() == DetId::HGCalEE) || (id.det() == DetId::HGCalHSi)) {
           ++allSi;
           HGCSiliconDetId hid(id);
+          st1 << hid;
           const auto& info = hgc.waferInfo(hid.layer(), hid.waferU(), hid.waferV());
           bool toCheck(false);
           if (!wafers_.empty()) {
@@ -139,13 +144,21 @@ void HGCalTestPartialWaferHits::analyze(const edm::Event& e, const edm::EventSet
             edm::LogVerbatim("HGCalSim") << "Hit[" << all << ":" << allSi << ":" << good << "]" << HGCSiliconDetId(id)
                                          << " Wafer Type:Part:Orient:Cassette " << info.type << ":" << info.part << ":"
                                          << info.orient << ":" << info.cassette << " at (" << pos.x() << ", " << pos.y()
-                                         << ", " << pos.z() << ") Validity " << valid1 << ":" << valid2;
+                                         << ", " << pos.z() << ") Valid " << valid1 << ":" << valid2;
           }
+        } else {
+          ++allSc;
+          st1 << HGCScintillatorDetId(id);
+        }
+        if (!valid) {
+          edm::LogVerbatim("HGCalError") << "Invalid ID " << st1.str();
+          ++bad;
         }
       }
     }
   }
-  edm::LogVerbatim("HGCalSim") << "Total hits = " << all << ":" << nhits << " Good DetIds = " << allSi << ":" << good;
+  edm::LogVerbatim("HGCalSim") << "Total hits = " << all << ":" << nhits << " Good Silicon DetIds = " << allSi << ":"
+                               << good << " Scintitllator = " << allSc << " Invalid = " << bad;
 }
 
 //define this as a plug-in
