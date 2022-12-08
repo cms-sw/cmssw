@@ -1,336 +1,587 @@
-#! /usr/bin/env python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""hltDumpStream: print information on streams, primary datasets, triggers and (HLT) prescales of a HLT menu
 
-from __future__ import print_function
-import sys, re, os
+examples:
+  # run hltDumpStream on HLT menu used in run 123456 (output in CSV format)
+  hltConfigFromDB --runNumber 123456 | hltDumpStream --mode csv
+  # run hltDumpStream on local cfg file hlt.py (output in text format)
+  hltDumpStream hlt.py --mode text
+"""
+import os
+import sys
+import argparse
+import re
+import fnmatch
 import operator
 from importlib.machinery import SourceFileLoader
 import types
 import tempfile
 import FWCore.ParameterSet.Config as cms
 
-mode = 'text'
-try:
-  if sys.argv[1] == '--csv':
-    mode = 'csv'
-    del sys.argv[1]
-except:
-  pass
+def getPathSeeds(path):
+  '''list of strings, each corresponding to one of the seeds of the trigger
+  '''
+  seeds = []
+  pathModList = path.expandAndClone()._seq._collection
+  for pathMod in pathModList:
+    # skip ignored EDFilters
+    if pathMod.isOperation() and pathMod.decoration() == '-':
+      continue
 
-# parse the HLT configuration from standard input or from the given file
-try:
-  configname = sys.argv[1]
-  loader=SourceFileLoader("pycfg", configname)	
-  hlt=types.ModuleType(loader.name)
-  loader.exec_module(hlt)
-except:
-  with tempfile.NamedTemporaryFile(dir="./",delete=False,suffix=".py") as temp_file:
+    if pathMod.type_() == 'HLTPrescaler':
+      break
 
-    temp_file.write(bytes(sys.stdin.read(),'utf-8'))
-    configname = temp_file.name
-    sys.argv.append(configname)# VarParsing expects python/cmsRun python.py
-  loader=SourceFileLoader("pycfg", configname)	
-  hlt=types.ModuleType(loader.name)
-  loader.exec_module(hlt)
-  os.remove(configname)
+    elif pathMod.type_() == 'HLTL1TSeed':
+      seeds.append(pathMod.L1SeedsLogicalExpression.value())
 
+    elif pathMod.type_() == 'TriggerResultsFilter':
+      trigConds = pathMod.triggerConditions
+      if len(trigConds) == 1:
+        seeds.append(trigConds[0])
+      else:
+        seeds.append('(' + ') OR ('.join(trigConds) + ')')
+  return seeds
 
-
-if 'process' in hlt.__dict__:
-  process = hlt.process
-elif 'fragment' in hlt.__dict__:
-  process = hlt.fragment
-else:
-  sys.stderr.write("Error: the input is not a valid HLT configuration")
-  sys.exit(1)
-
-# read global prescale service
-prescale = dict()
-prescaleNames = [ '' ]
-columns  = 1
-if 'PrescaleService' in process.__dict__:
-  prescaleNames = process.PrescaleService.lvl1Labels.value()
-  columns = len(prescaleNames)
-  for entry in process.PrescaleService.prescaleTable:
-    prescale[entry.pathName.value()] = entry.prescales.value()
-
-
-# search a path for a single module with a certain name
-class SearchModuleByName(object):
-  def __init__(self, target, barrier = None):
-    self.target  = target
-    self.barrier = barrier
-    self.found   = [ ]
-    self.stop    = False
-
-  def enter(self, node):
-    if self.stop:
-      return
-
-    if isinstance(node, cms._Module):
-      if node.label_() == self.barrier:
-        self.stop = True
-        return
-      if node.label_() == self.target:
-        self.found.append(node)
-    
-  def leave(self, node):
-    pass
-
-
-# search a path for a single module of a certain type
-class SearchModuleByType(object):
-  def __init__(self, target, barrier = None):
-    self.target  = target
-    self.barrier = barrier
-    self.found   = [ ]
-    self.stop    = False
-
-  def enter(self, node):
-    if self.stop:
-      return
-
-    if isinstance(node, cms._Module):
-      if node.label_() == self.barrier:
-        self.stop = True
-        return
-      if node.type_() == self.target:
-        self.found.append(node)
-    
-  def leave(self, node):
-    pass
-
-
-# search a path for a "dumb" prescaler
-class SearchDumbPrescale(SearchModuleByType):
-  def __init__(self, barrier = None):
-    super(SearchDumbPrescale, self).__init__('HLTPrescaler', barrier)
-    
-
-# search a path for a "smart" prescaler
-class SearchSmartPrescale(SearchModuleByType):
-  def __init__(self, barrier = None):
-    super(SearchSmartPrescale, self).__init__('HLTHighLevelDev', barrier)
-
-
-# search a path for a "smart" prescaler
-class SearchNewSmartPrescale(SearchModuleByType):
-  def __init__(self, barrier = None):
-    super(SearchNewSmartPrescale, self).__init__('TriggerResultsFilter', barrier)
-
-
-# extract the L1 seed for a given path
-def getL1Seed(path):
-  searchSeed = SearchModuleByType('HLTL1TSeed')
-  path.visit(searchSeed)
-  if searchSeed.found:
-    return [ seed.L1SeedsLogicalExpression.value() for seed in searchSeed.found ]
-  else:
-    return [ ]
-
-
-# prepare a description of the L1 seed for a given path
-def getL1SeedDescription(path):
-  seeds = getL1Seed(path)
+def getPathSeedsDescription(path):
+  '''string representing the logical expression of the trigger's seeding
+  '''
+  seeds = getPathSeeds(path)
   if len(seeds) == 0:
     seedDesc = '(none)'
   elif len(seeds) == 1:
     seedDesc = seeds[0]
   else:
     seedDesc = '(' + ') AND ('.join(seeds) + ')'
-
   return seedDesc
 
-# get the BPTX coincidenxe information for the given path
 def getBPTXMatching(path):
-  searchSeed  = SearchModuleByName('hltL1sL1BPTX')
-  searchPlus  = SearchModuleByName('hltL1sL1BPTXPlusOnly')
-  searchMinus = SearchModuleByName('hltL1sL1BPTXMinusOnly')
-  searchZero  = SearchModuleByName('hltL1sZeroBias')
-  searchBPTX  = SearchModuleByName('hltBPTXCoincidence')
-  path.visit(searchSeed)
-  path.visit(searchPlus)
-  path.visit(searchMinus)
-  path.visit(searchZero)
-  path.visit(searchBPTX)
-  if searchSeed.found or searchPlus.found or searchMinus.found or searchZero.found:
+  '''integer representing the BPTX coincidence information for the given path
+  '''
+  bptxDict = {
+    'hltL1sL1BPTX': False,
+    'hltL1sL1BPTXPlusOnly': False,
+    'hltL1sL1BPTXMinusOnly': False,
+    'hltL1sZeroBias': False,
+    'hltBPTXCoincidence': False,
+  }
+  for bptxMod in bptxDict:
+    if hasattr(process, bptxMod):
+      bptxDict[bptxMod] = path.contains(getattr(process, bptxMod))
+
+  if bptxDict['hltL1sL1BPTX'] or bptxDict['hltL1sL1BPTXPlusOnly'] or \
+     bptxDict['hltL1sL1BPTXMinusOnly'] or bptxDict['hltL1sZeroBias']:
     bptx = 2
-  elif searchBPTX.found:
+  elif bptxDict['hltBPTXCoincidence']:
     bptx = 1
   else:
     bptx = 0
   return bptx
 
-# get the BPTX coincidenxe information for the given path, formatted as a charachter
 def getBPTXMatchingDescription(path):
-  code = r' ~='
-  bptx = getBPTXMatching(path)
-  return code[bptx]
+  '''string representing the BPTX coincidence information for the given path
+  '''
+  return ' ~='[getBPTXMatching(path)]
 
+def getStreamsInfoFromProcess(process, prescaleValues, numberOfPrescaleColumns):
+  '''extract the info on streams, datasets and triggers:
+  the return type is a list of dictionaries, one per stream
 
-# get a tuple with the prescale factors for a path in a given endpath
-def getPrescales(name, out, end):
-  # look for a gobal prescale for the given path
-  if name in prescale:
-    pre = prescale[name]
-  else:
-    pre = [1] * columns
+  each stream dict contains the following entries (key: value)
+   - name: name of the stream
+   - path: cms.EndPath/FinalPath associated to the stream
+   - prescales: list of prescale values (1 per PS column) applied to the EndPath/FinalPath associated to the stream
+   - smartPrescales: dictionary (path:ps) of smart-prescales applied at stream level
+   - datasets: list of dataset dictionaries (see below)
 
-  # check for a valid EndPath
-  if out and end:
-    endp = process.endpaths[end]
+  every dataset dictionary contains the following entries (key: value)
+   - name: name of the dataset
+   - path: cms.Path associated to the dataset, i.e. the "DatasetPath" (path=None if there is no DatasetPath)
+   - prescales: list of prescale values (1 per PS column) applied to the DatasetPath (a list of 1s if there is no DatasetPath)
+   - smartPrescales: dictionary (path:ps) of smart-prescales applied at dataset level (a list of 1s if there is no DatasetPath)
+   - triggers: list of trigger dictionaries (see below)
 
-    # look for a local dumb prescaler in the output path
-    dumb = SearchDumbPrescale(out)
-    endp.visit(dumb)
-    if dumb.found and end in prescale:
-      pre = map(operator.mul, pre, prescale[end])
+  every trigger dictionary contains the following entries (key: value)
+   - name: name of the high-level trigger
+   - path: cms.Path associated to the trigger
+   - prescales: list of prescale values (1 per PS column) applied to the Path
+   - bptx: string expressing the BPTX condition used by the trigger (if any)
+   - seed: string expressing the logical expression seeding the trigger
+           (this is tipically based on L1-Trigger algorithms,
+           but in general it can also include selections on other HLT Paths, incl. DatasetPaths);
+           seed modules are required to precede the HLTPrescaler module of the trigger (if any)
+  '''
 
-    # look for an old-style local smart prescaler in the output path
-    smart = SearchSmartPrescale(out)
-    endp.visit(smart)
-    # FIXME wildcards are not supported yet
-    for found in smart.found:
-      if name in found.HLTPaths.value():
-        index = found.HLTPaths.value().index(name)
-        scale = found.HLTPathsPrescales.value()[index] * found.HLTOverallPrescale.value()
-        pre = [ scale * p for p in pre ]
-      else:
-        pre = [ 0 ] * columns
+  # get hold of Schedule if present
+  procSchedule = process.schedule_()
+  if procSchedule == None:
+    # older HLT configs used "HLTSchedule", which appears under '_Process__partialschedules'
+    partialScheduleNames = list(process._Process__partialschedules.keys())
+    if len(partialScheduleNames) == 1:
+      procSchedule = getattr(process, partialScheduleNames[0])
+    elif len(partialScheduleNames) > 1:
+      raise RuntimeError('ERROR -- the process holds multiple partial schedules: '+str(process._Process__partialschedules))
 
-    # look for a new-style local smart prescaler in the output path
-    smart = SearchNewSmartPrescale(out)
-    endp.visit(smart)
-    # FIXME wildcards are not supported yet
-    # FIXME arbitrary expressions are not supported yet, only "HLT_Xxx" and "HLT_Xxx / N"
-    match_pre = re.compile(r'%s\s*/\s*(\d+)' % name)
-    for found in smart.found:
-      scale = 0
-      for condition in found.triggerConditions.value():
-        if name == condition:
-          scale = 1
-        elif match_pre.match(condition):
-          scale = int(match_pre.match(condition).groups()[0])
-      # apply the smart prescale to all columns 
-      pre = [ scale * p for p in pre ]
+  # find list of streams:
+  #  - stream XYZ exists if the configuration contains a EndPath/FinalPath that contains an OutputModule named hltOutputXYZ
+  #  - if more than one such EndPath/FinalPath exists, it is an error (unsupported configuration)
+  #  - if the configuration contains a cms.Schedule, the EndPath/FinalPath is required to be part of the cms.Schedule
+  #  - reliance on the PSet "streams" is minimised:
+  #    - the latter PSet, if present, should be a superset of the streams found in the configuration
+  #      (this is the case for HLT configs containing only a subset of the triggers of a menu, e.g. "hltGetConfiguration --paths [..]")
+  streams = []
 
-  return pre
+  # regex to find smart-prescale value
+  smartPS_recomp = re.compile(r'(.*)\s*/\s*(\d+)')
 
+  # find valid streams based on OutputModules
+  for outModName in process.outputModules_():
+    # find stream OutputModules by name: "hltOutput*"
+    if not outModName.startswith('hltOutput'):
+      continue
+    streamName = outModName[len('hltOutput'):]
 
-# get the prescale factors for a path in a given endpath
-def getPrescalesDescription(name, out, end):
-  pre = getPrescales(name, out, end)
-  if mode == 'text':
-    return ''.join('  %6d' % p for p in pre)
-  elif mode == 'csv':
-    return ', '.join('%s' % p for p in pre)
-  else:
-    return 'n/a'
+    # find EndPath/FinalPath containing stream OutputModule
+    streamPath = None
+    outputModule = process.outputModules_()[outModName]
+    for efPaths in [process.endpaths_().values(), process.finalpaths_().values()]:
+      for efPath in efPaths:
+        if procSchedule != None:
+          # skip EndPath/FinalPath if not included in the schedule
+          # (schedule.contains does not seem to be enough, so the index of the EndPath/FinalPath in the schedule is searched;
+          #  if the EndPath/FinalPath is not in the schedule, this search leads to a runtime-error)
+          try: procSchedule.index(efPath)
+          except: continue
+        if efPath.contains(outputModule):
+          # if streamPath is already set, throw a runtime error:
+          # no more than one EndPath/FinalPath can hold a given OutputModule in valid HLT configurations
+          if streamPath != None:
+            errMsg = 'ERROR -- output module "'+outModName+'" is associated to'
+            errMsg += ' more than one EndPath/FinalPath: '+str([streamPath.label(), efPath.label()])
+            raise RuntimeError(errMsg)
+          streamPath = efPath
 
-# get the names of the prescale columns
-def getPrescaleNames():
-  if mode == 'text':
-    return ''.join('  %6d' % p for p in prescaleNames)
-  elif mode == 'csv':
-    return ', '.join('%s' % p for p in prescaleNames)
-  else:
-    return 'n/a'
+    # OutputModule not included in any active EndPath/FinalPath
+    if streamPath == None:
+      continue
 
+    # fill info of all datasets assigned to this stream
+    datasetsOfStream = []
 
-# format the information about a path associated to a specific endpath
-def dumpPath(stream, dataset, name, out, end):
-  if name not in process.paths:
-    return '        %-*s*** missing ***' % (length, name)
+    datasetNames = []
+    usesDatasetPaths = False
 
-  path = process.paths[name]
-  
-  # look for prescales
-  preDesc = getPrescalesDescription(name, out, end)
+    pathsOfStream = sorted(list(set(fooPathName for fooPathName in outputModule.SelectEvents.SelectEvents)))
+    datasetPathsOfStream = [foo for foo in pathsOfStream if foo.startswith('Dataset_')]
 
-  # look for BPTX coincidence in the given path
-  bptxDesc = getBPTXMatchingDescription(path)
+    if len(datasetPathsOfStream) == 0:
+      # no DatasetPaths found (older HLT menus, before Run 3), fall back on the "streams" PSet
+      datasetNames = sorted(list(set(getattr(process.streams, streamName))))
 
-  # look for L1 seed
-  seedDesc = getL1SeedDescription(path)
+    elif len(datasetPathsOfStream) == len(pathsOfStream):
+      # HLT menus with OutputModules selecting on DatasetPaths (HLT menus of 2022 and later)
+      datasetNames = [foo[len('Dataset_'):] for foo in datasetPathsOfStream]
+      usesDatasetPaths = True
 
-  if mode == 'text':
-    return '      %s %-*s%s    %s' % (bptxDesc, length, name, preDesc, seedDesc)
-  elif mode == 'csv':
-    return '%s, %s, %s, %s, %s' % (stream, dataset, name, preDesc, seedDesc)
-  else:
-    return 'n/a'
-
-
-def getEndPath(output):
-  # look for the EndPath with the corresponding output module
-  out = ''
-  for o in process.endpaths.itervalues():
-    searchOut = SearchModuleByName(output)
-    o.visit(searchOut)
-    if searchOut.found:
-      out = o.label_()
-      break
-  return out
-
-
-def dumpHeader():
-  if mode == 'csv':
-    print('stream, dataset, path, %s, L1 trigger' % getPrescaleNames())
-
-
-def dumpStream(stream):
-  assigned = set()
-  allpaths = set()
-
-  if mode == 'text':
-    print('stream', stream)
-  out = 'hltOutput%s' % stream
-  end = getEndPath(out)
-  if end:
-    output = eval('process.hltOutput%s' % stream)
-    allpaths = set( path for path in output.SelectEvents.SelectEvents )
-
-  pds = sorted( process.streams.__dict__[stream] )
-  for pd in pds:
-    if mode == 'text':
-      print('    dataset', pd)
-    if pd in process.datasets.__dict__:
-      paths = sorted( path for path in process.datasets.__dict__[pd] )
-      assigned.update( paths )
-      for path in paths:
-        print(dumpPath(stream, pd, path, out, end))
     else:
-      if mode == 'text':
-        print('        *** not found ***')
+      # only a subset of the Paths in the OutputModule's SelectEvents are DatasetPaths:
+      # this is not expected to happen in valid HLT configurations
+      errMsg = 'ERROR -- output module "'+outModName+'" has a mixture of DatasetPaths and non-DatasetPaths'
+      errMsg += ' in its SelectEvents.SelectEvents PSet: '+str(outputModule.SelectEvents.SelectEvents)
+      raise RuntimeError(errMsg)
 
-  unassigned = allpaths - assigned
-  if unassigned:
+    for datasetName in datasetNames:
+
+      datasetPath = None
+      datasetPrescales = [1]*numberOfPrescaleColumns
+      datasetSmartPrescales = {}
+
+      if not usesDatasetPaths:
+        # for non-DatasetPaths, fall back on "datasets" PSet
+        pathNames = sorted(list(set(getattr(process.datasets, datasetName))))
+        for foo in pathNames:
+          datasetSmartPrescales[foo] = 1
+
+      else:
+        datasetPathName = 'Dataset_'+datasetName
+        if datasetPathName in psValues:
+          datasetPrescales = psValues[datasetPathName]
+
+        if not hasattr(process, datasetPathName):
+          msgErr = 'ERROR -- process does not have DatasetPath "'+datasetPathName+'" required by stream "'+streamName+'"'
+          raise RuntimeError(msgErr)
+
+        datasetPath = getattr(process, datasetPathName)
+
+        datasetSmartPrescales = {}
+
+        # find smart-PS module of DatasetPath
+        # (used to extract both trigger name and smart-PS values)
+        datasetPathSmartPSModule = None
+        for pathMod in datasetPath.expandAndClone()._seq._collection:
+          # check only EDFilters
+          if not isinstance(pathMod, cms.EDFilter):
+            continue
+          if pathMod.type_() == 'TriggerResultsFilter':
+            if datasetPathSmartPSModule == None:
+              datasetPathSmartPSModule = pathMod
+            else:
+              msgErr = 'ERROR -- found more than one smart-PS module associated to DatasetPath "'+datasetPathName+'":'
+              msgErr = ' '+str([datasetPathSmartPSModule.label(), pathMod.label()])
+              raise RuntimeError(msgErr)
+
+        if datasetPathSmartPSModule == None:
+          raise RuntimeError('ERROR -- DatasetPath "'+datasetPathName+'" does not contain any smart-PS module (type: TriggerResultsFilter)')
+
+        # get list of Paths, and their smartPSs, from TriggerResultsFilter module of the Dataset Path
+        # (by construction, the smart-PS module inside a DatasetPath does not use wildcards, but only the exact names of the Paths)
+        for triggerCond in datasetPathSmartPSModule.triggerConditions:
+          smartPS_match = smartPS_recomp.match(triggerCond)
+          if smartPS_match:
+            smartPS_key = smartPS_match.group(1).strip()
+            smartPS_val = int(smartPS_match.group(2))
+          else:
+            smartPS_key = triggerCond
+            smartPS_val = 1
+
+          if smartPS_key in datasetSmartPrescales:
+            msgErr = 'ERROR -- multiple smart-PS for trigger expression "'+smartPS_key+'" in module "'+datasetPathSmartPSModule.label()+'"'
+            raise RuntimeError(msgErr)
+
+          datasetSmartPrescales[smartPS_key] = smartPS_val
+
+        pathNames = sorted(datasetSmartPrescales.keys())
+
+      # info on triggers assigned to a dataset
+      triggersOfDataset = []
+      for pathName in pathNames:
+        if not hasattr(process, pathName):
+          msgErr = 'ERROR -- process does not have Path "'+pathName+'" required by dataset "'+datasetName+'"'
+          raise RuntimeError(msgErr)
+        path = getattr(process, pathName)
+        # seed of HLT path (tipically, a selection on L1-Trigger algos)
+        seedStr = getPathSeedsDescription(path)
+        # look for BPTX coincidence in the given path
+        bptxStr = getBPTXMatchingDescription(path)
+        # global prescales of the trigger
+        pathPrescales = prescaleValues[pathName] if pathName in prescaleValues else [1]*numberOfPrescaleColumns
+        # trigger information
+        triggersOfDataset += [{
+          'name': pathName,
+          'path': path,
+          'seed': seedStr,
+          'BPTX': bptxStr,
+          'prescales': pathPrescales,
+        }]
+
+      # order triggers alphabetically by name
+      triggersOfDataset.sort(key = lambda x: x['name'])
+
+      datasetsOfStream += [{
+        'name': datasetName,
+        'path': datasetPath,
+        'prescales': datasetPrescales,
+        'smartPrescales': datasetSmartPrescales,
+        'triggers': triggersOfDataset,
+      }]
+
+    # order datasets alphabetically by name
+    datasetsOfStream.sort(key = lambda x: x['name'])
+
+    # fill smart-PS applied at stream level
+    # (in Run-2 HLT menus, smart-PSs are applied to standard Paths in the stream EndPath)
+    # (in Run-3 HLT menus, prescales at stream level have not been used yet, plus they cannot be applied inside FinalPaths)
+    streamSmartPrescales = {} # dictionary of smart-PSs applied at stream level
+    smartPSModuleName = None  # smart-PS module in the stream EndPath/FinalPath
+
+    # build list of Paths that can have a smart-PS at stream level:
+    # this includes the Paths of all datasets in the stream, and the DatasetPaths (if present)
+    pathNamesForStreamSmartPS = []
+    for dset in datasetsOfStream:
+      pathNamesForStreamSmartPS += [foo['name'] for foo in dset['triggers']]
+      if dset['path'] != None:
+        pathNamesForStreamSmartPS += [dset['path'].label()]
+    pathNamesForStreamSmartPS = sorted(list(set(pathNamesForStreamSmartPS)))
+
+    # default to 1 (correct value if smart-PS module is absent)
+    for foo in pathNamesForStreamSmartPS:
+      streamSmartPrescales[foo] = 1
+
+    # loop on modules preceding the OutputModule in the EndPath/FinalPath
+    # to extract smart prescales at stream level, requiring no more than one smart-PS module
+    streamPathExpanded = streamPath.expandAndClone()
+    for modIdx in range(streamPathExpanded.index(outputModule)):
+      mod = streamPathExpanded._seq._collection[modIdx]
+
+      # find smart-PS modules by type
+      if mod.type_() not in ['TriggerResultsFilter', 'HLTHighLevelDev']:
+        continue
+
+      if smartPSModuleName != None:
+        msgErr = 'ERROR -- found more than one smart-PS module associated to stream "'+streamName+'":'
+        msgErr = ' '+str([smartPSModuleName, mod.label()])
+        raise RuntimeError(msgErr)
+      else:
+        smartPSModuleName = mod.label()
+
+      # smart-PS module is present: start by setting to None, and extract smart-PSs
+      for foo in pathNamesForStreamSmartPS:
+        streamSmartPrescales[foo] = None
+
+      # "TriggerResultsFilter": latest type of smart-prescale module
+      if mod.type_() == 'TriggerResultsFilter':
+
+        for triggerCond in mod.triggerConditions:
+          smartPS_match = smartPS_recomp.match(triggerCond)
+          if smartPS_match:
+            smartPS_key = smartPS_match.group(1).strip()
+            smartPS_val = int(smartPS_match.group(2))
+          else:
+            smartPS_key = triggerCond
+            smartPS_val = 1
+
+          for pathName in streamSmartPrescales:
+            if fnmatch.fnmatch(pathName, smartPS_key):
+              if streamSmartPrescales[pathName] == None:
+                streamSmartPrescales[pathName] = smartPS_val
+              else:
+                msgWarn = 'WARNING -- multiple matches for smart-PS of Path "'+pathName+'" in stream "'+streamName+'"'
+                msgWarn += ', the lowest smart-PS value will be used (ignoring zero).'
+                print(msgWarn, file=sys.stderr)
+                streamSmartPrescales[pathName] = min(streamSmartPrescales[pathName], max(1, smartPS_val))
+
+      # "HLTHighLevelDev": old type of smart-prescale module
+      else:
+        for idx,triggerExpr in enumerate(mod.HLTPaths.value()):
+          smartPS_key = triggerExpr
+          smartPS_val = mod.HLTPathsPrescales.value()[idx] * mod.HLTOverallPrescale.value()
+
+          for pathName in streamSmartPrescales:
+            if fnmatch.fnmatch(pathName, smartPS_key):
+              if streamSmartPrescales[pathName] == None:
+                streamSmartPrescales[pathName] = smartPS_val
+              else:
+                msgWarn = 'WARNING -- multiple matches for smart-PS of Path "'+pathName+'" in stream "'+streamName+'"'
+                msgWarn += ', the lowest smart-PS value will be used (ignoring zero).'
+                print(msgWarn, file=sys.stderr)
+                streamSmartPrescales[pathName] = min(streamSmartPrescales[pathName], max(1, smartPS_val))
+
+      # if a smart-PS is still None, there is a smart-PS module,
+      # but no match for a given Path, so set its smart-PS to zero
+      for foo in pathNamesForStreamSmartPS:
+        if streamSmartPrescales[foo] == None:
+          msgWarn = 'WARNING -- smart-PS of Path "'+foo+'" in stream "'+streamName+'" not found, will be set to zero.'
+          print(msgWarn, file=sys.stderr)
+          streamSmartPrescales[foo] = 0
+
+    streams += [{
+      'name': streamName,
+      'path': streamPath,
+      'prescales': prescaleValues[streamPath.label()] if streamPath.label() in prescaleValues else [1]*numberOfPrescaleColumns,
+      'datasets': datasetsOfStream,
+      'smartPrescales': streamSmartPrescales,
+    }]
+
+  # order streams alphabetically by name
+  streams.sort(key = lambda x: x['name'])
+
+  return streams
+
+def printHeader(mode, selectedPrescaleColumns):
+  '''print to stdout the header of the hltDumpStream output
+  '''
+  if mode == 'text':
+    if len(selectedPrescaleColumns) > 0:
+      print('-----------------')
+      print('Prescale Columns:')
+      print('-----------------')
+      for psColIdx,psColName in selectedPrescaleColumns:
+        print(f'{psColIdx: >4d} : {psColName}')
+      print('-----------------\n')
+  elif mode == 'csv':
+    psColNamesStr = ', '.join(foo[1] for foo in selectedPrescaleColumns)
+    if psColNamesStr: psColNamesStr += ', '
+    print('stream, dataset, path, ' + psColNamesStr + 'seed')
+
+def printStreamInfo(mode, stream, selectedPrescaleColumns, pathStrSize=100, showPrescaleValues=True, showSeedNames=True):
+  '''print to stdout the information on triggers and datasets of a given stream
+  '''
+  streamName = stream['name']
+  if mode == 'text':
+    print('stream', streamName)
+
+  for dataset in stream['datasets']:
+    datasetName = dataset['name']
     if mode == 'text':
-      print('    *** unassigned paths ***')
-    for path in sorted(unassigned):
-      print(dumpPath(stream, '(unassigned)', path, out, end))
+      print('    dataset', datasetName)
 
-  if not end:
-    print('    *** corresponding EndPath not found ***')
-  else:
-    missing    = assigned - allpaths
-    if missing:
+    datasetPathName = None
+    if dataset['path'] != None:
+      datasetPathName = dataset['path'].label()
+
+    datasetSmartPrescaleInStream = 1
+    if datasetPathName != None:
+      datasetSmartPrescaleInStream = stream['smartPrescales'][datasetPathName]
+
+    for trigger in dataset['triggers']:
+
+      triggerName = trigger['name']
+      triggerSeedDesc = trigger['seed']
+      triggerBPTXDesc = trigger['BPTX']
+
+      triggerSmartPrescaleInDataset = dataset['smartPrescales'][triggerName]
+      triggerSmartPrescaleInStream = stream['smartPrescales'][triggerName]
+
+      triggerSmartPrescale = triggerSmartPrescaleInDataset * triggerSmartPrescaleInStream * datasetSmartPrescaleInStream
+
+      prescales = []
+
+      for psColIdx,_ in selectedPrescaleColumns:
+        triggerPrescale = trigger['prescales'][psColIdx]
+        datasetPrescale = dataset['prescales'][psColIdx]
+        streamPrescale = stream['prescales'][psColIdx]
+        prescales.append(triggerSmartPrescale * triggerPrescale * datasetPrescale * streamPrescale)
+
+      triggerStr = ''
+
       if mode == 'text':
-        print('    *** paths missing from the EndPath\'s output module ***')
-      for path in sorted(missing):
-        print(dumpPath(stream, '(missing)', path, out, end))
+        triggerStr += '      %s %-*s' % (triggerBPTXDesc, pathStrSize, triggerName)
+        if showPrescaleValues:
+          triggerStr += '%s' % (''.join('  %6d' % p for p in prescales))
+        if showSeedNames:
+          triggerStr += '    %s' % (triggerSeedDesc)
 
+      elif mode == 'csv':
+        triggerStr += '%s, %s, %s' % (streamName, datasetName, triggerName)
+        if showPrescaleValues:
+          prescaleStr = '%s' % (', '.join('%s' % p for p in prescales))
+          if prescaleStr: prescaleStr = ', '+prescaleStr
+          triggerStr += prescaleStr
+        if showSeedNames:
+          triggerStr += ', %s' % (triggerSeedDesc)
 
-# read the list of streams
-streams = process.streams._Parameterizable__parameterNames
-streams.sort()
+      print(triggerStr)
 
-# figure the longest path name
-length   = 32
-length_p = max(len(p) for p in process.paths)
-length_d = max(len(p) for d in process.datasets.__dict__ if not d.startswith('_') for p in process.datasets.__dict__[d])
-length = max(length_p, length_d, length) + 4
+  if mode == 'text':
+    print('---')
 
-dumpHeader()
-for stream in streams:
-  dumpStream(stream)
+##
+## main
+##
+if __name__ == '__main__':
+
+  ### args
+  parser = argparse.ArgumentParser(
+    prog = './'+os.path.basename(__file__),
+    formatter_class = argparse.RawDescriptionHelpFormatter,
+    description = __doc__,
+    argument_default = argparse.SUPPRESS,
+  )
+
+  # menu: name of ConfDB config, or local cmsRun cfg file, or stdin
+  parser.add_argument('menu',
+                      nargs = '?',
+                      metavar = 'MENU',
+                      default = None,
+                      help = 'path to local cmsRun cfg file (if not specified, stdin is used)' )
+
+  # mode: format of output file
+  parser.add_argument('-m', '--mode',
+                      dest = 'mode',
+                      action = 'store',
+                      metavar = 'MODE',
+                      default = 'text',
+                      choices = ['text', 'csv'],
+                      help = 'format of output file (must be "text", or "csv") [default: "text"]' )
+
+  # prescale-columns: select prescale columns via regular expressions
+  group = parser.add_mutually_exclusive_group()
+  group.add_argument('-p', '--prescale-columns',
+                     dest = 'ps_columns',
+                     metavar = 'COLUMN',
+                     nargs = '+',
+                     default = ['*'],
+                     help = 'list of patterns, passed to fnmatch, to select prescale columns [default: ["*"]]')
+  group.add_argument('--no-prescales',
+                     dest = 'ps_columns',
+                     action = 'store_const',
+                     const = [],
+                     help = 'do not show information on prescales')
+
+  # no-seeds: do not show information on trigger seeds
+  parser.add_argument('--no-seeds',
+                      dest = 'no_seeds',
+                      action = 'store_true',
+                      default = False,
+                      help = 'do not show the seed of a HLT path [default: False]' )
+
+  # parse command line arguments and options
+  opts = parser.parse_args()
+
+  # parse the HLT configuration from a local cfg file, or from standard input
+  if opts.menu != None:
+    loader = SourceFileLoader("pycfg", opts.menu)
+    hlt = types.ModuleType(loader.name)
+    loader.exec_module(hlt)
+  else:
+    with tempfile.NamedTemporaryFile(dir = "./", delete = False, suffix = ".py") as temp_file:
+      temp_file.write(bytes(sys.stdin.read(), 'utf-8'))
+      configname = temp_file.name
+      # VarParsing expects python/cmsRun python.py
+      sys.argv.append(configname)
+    loader = SourceFileLoader("pycfg", configname)
+    hlt = types.ModuleType(loader.name)
+    loader.exec_module(hlt)
+    os.remove(configname)
+
+  # get hold of cms.Process object
+  if 'process' in hlt.__dict__:
+    process = hlt.process
+  elif 'fragment' in hlt.__dict__:
+    process = hlt.fragment
+  else:
+    sys.stderr.write("Error: the input is not a valid HLT configuration")
+    sys.exit(1)
+
+  # Info from PrescaleService:
+  # values of all (global, i.e. non-smart) HLT prescales, and names of selected prescale columns
+  #  - prescaleValues: dictionary of (key) name of Path to (value) list of Path's prescales
+  #  - selectedPSColumns: list of tuples, each holding (index, name) of selected prescale column
+  psValues = dict()
+  numPSColumns = 0
+  selectedPSColumns = []
+  showPSValues = True
+  if opts.ps_columns:
+    if hasattr(process, 'PrescaleService') and process.PrescaleService.type_() == 'PrescaleService':
+      # number of prescale columns in the configuration
+      numPSColumns = len(process.PrescaleService.lvl1Labels)
+      # keep PS values for all columns
+      for entry in process.PrescaleService.prescaleTable:
+        psValues[entry.pathName.value()] = entry.prescales.value()
+      # find index and name of selected PS columns
+      for psColIdx,psColName in enumerate(process.PrescaleService.lvl1Labels):
+        for psColPattern in opts.ps_columns:
+          if fnmatch.fnmatch(psColName, psColPattern):
+            selectedPSColumns.append((psColIdx, psColName))
+            break
+      if not selectedPSColumns:
+        print('WARNING -- selected zero prescale columns: information on prescales will not be shown.', file=sys.stderr)
+        showPSValues = False
+    else:
+      print('WARNING -- PrescaleService module not found: information on prescales will not be shown.', file=sys.stderr)
+      showPSValues = False
+
+  # show seed expression of every HLT Path
+  showSeeds = not opts.no_seeds
+
+  # extract streams' information from cms.Process
+  streams = getStreamsInfoFromProcess(process, psValues, numPSColumns)
+
+  # print header information
+  printHeader(opts.mode, selectedPSColumns)
+
+  maxPathNameLength = max([16] + [len(foo) for foo in process.paths_() if not foo.startswith('Dataset_')])
+
+  # print information of every stream
+  for stream_i in streams:
+    printStreamInfo(opts.mode, stream_i, selectedPSColumns, maxPathNameLength, showPSValues, showSeeds)
