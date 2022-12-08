@@ -105,18 +105,18 @@ void SiPixelMonitorVertexSoA::analyze(const edm::Event& iEvent, const edm::Event
 // -- Book Histograms
 //
 void SiPixelMonitorVertexSoA::bookHistograms(DQMStore::IBooker& ibooker,
-                                                   edm::Run const& iRun,
-                                                   edm::EventSetup const& iSetup) {
+                                             edm::Run const& iRun,
+                                             edm::EventSetup const& iSetup) {
   //std::string top_folder = ""//
   ibooker.cd();
   ibooker.setCurrentFolder(topFolderName_);
-  hnVertex = ibooker.book1D("nVertex", ";# of Vertex;#entries", 101, -0.5, 100.5);
+  hnVertex = ibooker.book1D("nVertex", ";# of Vertices;#entries", 101, -0.5, 100.5);
   hx = ibooker.book1D("vx", ";Vertex x;#entries", 10, -5., 5.);
   hy = ibooker.book1D("vy", ";Vertex y;#entries", 10, -5., 5.);
   hz = ibooker.book1D("vz", ";Vertex z;#entries", 30, -30., 30);
   hchi2 = ibooker.book1D("chi2", ";Vertex chi-squared;#entries", 40, 0., 20.);
   hchi2oNdof = ibooker.book1D("chi2oNdof", ";Vertex chi-squared/Ndof;#entries", 40, 0., 20.);
-  hptv2 = ibooker.book1D("ptsq", ";Vertex p_T squared;#entries", 200, 0., 200.);
+  hptv2 = ibooker.book1D("ptsq", ";Vertex #sum (p_{T})^{2};#entries", 200, 0., 200.);
   hntrks = ibooker.book1D("ntrk", ";#tracks associated;#entries", 100, -0.5, 99.5);
 }
 

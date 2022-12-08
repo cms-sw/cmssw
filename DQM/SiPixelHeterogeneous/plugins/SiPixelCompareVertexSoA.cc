@@ -150,20 +150,20 @@ void SiPixelCompareVertexSoA::analyze(const edm::Event& iEvent, const edm::Event
 // -- Book Histograms
 //
 void SiPixelCompareVertexSoA::bookHistograms(DQMStore::IBooker& ibooker,
-                                                   edm::Run const& iRun,
-                                                   edm::EventSetup const& iSetup) {
+                                             edm::Run const& iRun,
+                                             edm::EventSetup const& iSetup) {
   ibooker.cd();
   ibooker.setCurrentFolder(topFolderName_);
 
   // FIXME: all the 2D correlation plots are quite heavy in terms of memory consumption, so a as soon as DQM supports either TH2I or THnSparse
   // these should be moved to a less resource consuming format
-  hnVertex_ = ibooker.book2I("nVertex", "# of Vertex;CPU;GPU", 101, -0.5, 100.5, 101, -0.5, 100.5);
+  hnVertex_ = ibooker.book2I("nVertex", "# of Vertices;CPU;GPU", 101, -0.5, 100.5, 101, -0.5, 100.5);
   hx_ = ibooker.book2I("vx", "Vertez x - Beamspot x;CPU;GPU", 50, -0.1, 0.1, 50, -0.1, 0.1);
   hy_ = ibooker.book2I("vy", "Vertez y - Beamspot y;CPU;GPU", 50, -0.1, 0.1, 50, -0.1, 0.1);
   hz_ = ibooker.book2I("vz", "Vertez z;CPU;GPU", 30, -30., 30., 30, -30., 30.);
   hchi2_ = ibooker.book2I("chi2", "Vertex chi-squared;CPU;GPU", 40, 0., 20., 40, 0., 20.);
   hchi2oNdof_ = ibooker.book2I("chi2oNdof", "Vertex chi-squared/Ndof;CPU;GPU", 40, 0., 20., 40, 0., 20.);
-  hptv2_ = ibooker.book2I("ptsq", "Vertex p_T squared;CPU;GPU", 200, 0., 200., 200, 0., 200.);
+  hptv2_ = ibooker.book2I("ptsq", "Vertex #sum (p_{T})^{2};CPU;GPU", 200, 0., 200., 200, 0., 200.);
   hntrks_ = ibooker.book2I("ntrk", "#tracks associated;CPU;GPU", 100, -0.5, 99.5, 100, -0.5, 99.5);
   hntrks_ = ibooker.book2I("ntrk", "#tracks associated;CPU;GPU", 100, -0.5, 99.5, 100, -0.5, 99.5);
   hxdiff_ = ibooker.book1D("vxdiff", ";Vertex x difference (CPU - GPU);#entries", 100, -0.001, 0.001);
