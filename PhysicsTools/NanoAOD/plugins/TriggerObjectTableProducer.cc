@@ -94,34 +94,29 @@ private:
           qualityBits("0"),   //will be overwritten from configuration
           qualityBitsDoc("")  //will be created from configuration
     {
-      if (pset.existsAs<std::string>("qualityBits")) {
-        qualityBits = StringObjectFunction<pat::TriggerObjectStandAlone>(pset.getParameter<std::string>("qualityBits"));
-        qualityBitsDoc = pset.getParameter<std::string>("qualityBitsDoc");
-      } else {
-        std::vector<edm::ParameterSet> qualityBitsConfig =
-            pset.getParameter<std::vector<edm::ParameterSet>>("qualityBits");
-        std::stringstream qualityBitsFunc;
-        std::vector<bool> bits(qualityBitsConfig.size(), false);
-        for (size_t i = 0; i != qualityBitsConfig.size(); ++i) {
-          if (i != 0) {
-            qualityBitsFunc << " + ";
-            qualityBitsDoc += ", ";
-          }
-          unsigned int bit = i;
-          if (qualityBitsConfig[i].existsAs<unsigned int>("bit"))
-            bit = qualityBitsConfig[i].getParameter<unsigned int>("bit");
-          assert(!bits[bit] && "a quality bit was inserted twice");  // the bit should not have been set already
-          assert(bit < 31 && "quality bits are store on 32 bit");
-          bits[bit] = true;
-          qualityBitsFunc << std::to_string(int(pow(2, bit))) << "*("
-                          << qualityBitsConfig[i].getParameter<std::string>("selection") << ")";
-          qualityBitsDoc += std::to_string(bit) + " => " + qualityBitsConfig[i].getParameter<std::string>("doc");
+      std::vector<edm::ParameterSet> qualityBitsConfig =
+          pset.getParameter<std::vector<edm::ParameterSet>>("qualityBits");
+      std::stringstream qualityBitsFunc;
+      std::vector<bool> bits(qualityBitsConfig.size(), false);
+      for (size_t i = 0; i != qualityBitsConfig.size(); ++i) {
+        if (i != 0) {
+          qualityBitsFunc << " + ";
+          qualityBitsDoc += ", ";
         }
-        if (!qualityBitsFunc.str().empty()) {
-          //std::cout << "The quality bit string is :" << qualityBitsFunc.str() << std::endl;
-          //std::cout << "The quality bit documentation is :" << qualityBitsDoc << std::endl;
-          qualityBits = StringObjectFunction<pat::TriggerObjectStandAlone>(qualityBitsFunc.str());
-        }
+        unsigned int bit = i;
+        if (qualityBitsConfig[i].existsAs<unsigned int>("bit"))
+          bit = qualityBitsConfig[i].getParameter<unsigned int>("bit");
+        assert(!bits[bit] && "a quality bit was inserted twice");  // the bit should not have been set already
+        assert(bit < 31 && "quality bits are store on 32 bit");
+        bits[bit] = true;
+        qualityBitsFunc << std::to_string(int(pow(2, bit))) << "*("
+                        << qualityBitsConfig[i].getParameter<std::string>("selection") << ")";
+        qualityBitsDoc += std::to_string(bit) + " => " + qualityBitsConfig[i].getParameter<std::string>("doc");
+      }
+      if (!qualityBitsFunc.str().empty()) {
+        //std::cout << "The quality bit string is :" << qualityBitsFunc.str() << std::endl;
+        //std::cout << "The quality bit documentation is :" << qualityBitsDoc << std::endl;
+        qualityBits = StringObjectFunction<pat::TriggerObjectStandAlone>(qualityBitsFunc.str());
       }
       if (pset.existsAs<std::string>("l1seed")) {
         l1cut = StringCutObjectSelector<pat::TriggerObjectStandAlone>(pset.getParameter<std::string>("l1seed"));
