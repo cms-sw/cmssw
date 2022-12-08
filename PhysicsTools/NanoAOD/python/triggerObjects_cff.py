@@ -271,6 +271,36 @@ run2_HLTconditions_2016.toModify(
     )
 )
 
+_run2_HLTconditions = run2_HLTconditions_2016 | run2_HLTconditions_2017 | run2_HLTconditions_2018
+
+_run2_HLTconditions.toModify(
+    triggerObjectTable.selections.Jet,
+    qualityBits = cms.VPSet(
+        mksel(["*CrossCleaned*LooseChargedIsoPFTau*"], "VBF cross-cleaned from loose iso PFTau"),
+        mksel(["hltBTagCaloCSVp087Triple"], "hltBTagCaloCSVp087Triple"),
+        mksel(["hltDoubleCentralJet90"], "hltDoubleCentralJet90"),
+        mksel(["hltDoublePFCentralJetLooseID90"], "hltDoublePFCentralJetLooseID90"),
+        mksel(["hltL1sTripleJetVBFIorHTTIorDoubleJetCIorSingleJet"], "hltL1sTripleJetVBFIorHTTIorDoubleJetCIorSingleJet"),
+        mksel(["hltQuadCentralJet30"], "hltQuadCentralJet30"),
+        mksel(["hltQuadPFCentralJetLooseID30"], "hltQuadPFCentralJetLooseID30"),
+        mksel(["hltL1sQuadJetC50IorQuadJetC60IorHTT280IorHTT300IorHTT320IorTripleJet846848VBFIorTripleJet887256VBFIorTripleJet927664VBF", "hltL1sQuadJetCIorTripleJetVBFIorHTT"], "hltL1sQuadJetC50IorQuadJetC60IorHTT280IorHTT300IorHTT320IorTripleJet846848VBFIorTripleJet887256VBFIorTripleJet927664VBF or hltL1sQuadJetCIorTripleJetVBFIorHTT"),
+        mksel(["hltQuadCentralJet45"], "hltQuadCentralJet45"),
+        mksel(["hltQuadPFCentralJetLooseID45"], "hltQuadPFCentralJetLooseID45"),
+        mksel(["hltL1sQuadJetC60IorHTT380IorHTT280QuadJetIorHTT300QuadJet", "hltL1sQuadJetC50to60IorHTT280to500IorHTT250to340QuadJet"], "hltL1sQuadJetC60IorHTT380IorHTT280QuadJetIorHTT300QuadJet or hltL1sQuadJetC50to60IorHTT280to500IorHTT250to340QuadJet"),
+        mksel(["hltBTagCaloCSVp05Double", "hltBTagCaloDeepCSVp17Double"], "hltBTagCaloCSVp05Double or hltBTagCaloDeepCSVp17Double"),
+        mksel(["hltPFCentralJetLooseIDQuad30"], "hltPFCentralJetLooseIDQuad30"),
+        mksel(["hlt1PFCentralJetLooseID75"], "hlt1PFCentralJetLooseID75"),
+        mksel(["hlt2PFCentralJetLooseID60"], "hlt2PFCentralJetLooseID60"),
+        mksel(["hlt3PFCentralJetLooseID45"], "hlt3PFCentralJetLooseID45"),
+        mksel(["hlt4PFCentralJetLooseID40"], "hlt4PFCentralJetLooseID40"),
+        mksel(["hltBTagPFCSVp070Triple", "hltBTagPFDeepCSVp24Triple", "hltBTagPFDeepCSV4p5Triple"], "hltBTagPFCSVp070Triple or hltBTagPFDeepCSVp24Triple or hltBTagPFDeepCSV4p5Triple"),
+        mksel(["hltHpsOverlapFilterDeepTauDoublePFTau*PFJet*"], "Double tau + jet"),
+        mksel(["*CrossCleaned*MediumDeepTauDitauWPPFTau*"], "VBF cross-cleaned from medium deeptau PFTau"),
+        mksel(["*CrossCleanedUsingDiJetCorrChecker*"], "VBF cross-cleaned using dijet correlation checker"),
+        mksel(["hltHpsOverlapFilterDeepTauPFTau*PFJet*"], "monitoring muon + tau + jet"),
+    )
+)
+
 from PhysicsTools.PatUtils.L1PrefiringWeightProducer_cff import prefiringweight
 #Next lines are for UL2016 maps
 (run2_muon_2016 & tracker_apv_vfp30_2016).toModify(
@@ -321,6 +351,6 @@ l1bits=cms.EDProducer("L1TriggerResultsConverter",
 
 triggerObjectTablesTask = cms.Task( unpackedPatTrigger,triggerObjectTable,l1bits)
 
-(run2_HLTconditions_2016 | run2_HLTconditions_2017 | run2_HLTconditions_2018).toReplaceWith(
+_run2_HLTconditions.toReplaceWith(
     triggerObjectTablesTask, triggerObjectTablesTask.copyAndAdd(prefiringweight,l1PreFiringEventWeightTable)
 )
