@@ -50,9 +50,9 @@ triggerObjectTable = triggerObjectTableProducer.clone(
     l1Jet = cms.InputTag("caloStage2Digis","Jet"),
     l1Muon = cms.InputTag("gmtStage2Digis","Muon"),
     l1Tau = cms.InputTag("caloStage2Digis","Tau"),
-    selections = cms.VPSet(
-        cms.PSet(
-            name = cms.string("Electron (PixelMatched e/gamma)"), # this selects also photons for the moment!
+    selections = cms.PSet(
+        Electron = cms.PSet(
+            doc = cms.string("PixelMatched e/gamma"), # this may also select photons!
             id = cms.int32(11),
             sel = cms.string("type(92) && pt > 7 && coll('hltEgammaCandidates') && filter('*PixelMatchFilter')"),
             l1seed = cms.string("type(-98)"),  l1deltaR = cms.double(0.3),
@@ -75,8 +75,7 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 mksel(["hltEG175HEFilter","hltEG200HEFilter"],"1e (Photon175_OR_Photon200)"),
                 )
         ),
-        cms.PSet(
-            name = cms.string("Photon"),
+        Photon = cms.PSet(
             id = cms.int32(22),
             sel = cms.string("type(92) && pt > 20 && coll('hltEgammaCandidates')"),
             l1seed = cms.string("type(-98)"),  l1deltaR = cms.double(0.3),
@@ -97,8 +96,7 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 mksel("filter('hltMu17Photon30IsoCaloIdPhotonlegTrackIsoFilter')","1mu-1photon")
             )
         ),
-        cms.PSet(
-            name = cms.string("Muon"),
+        Muon = cms.PSet(
             id = cms.int32(13),
             sel = cms.string("type(83) && pt > 5 && (coll('hltIterL3MuonCandidates') || (pt > 45 && coll('hltHighPtTkMuonCands')) || (pt > 95 && coll('hltOldL3MuonCandidates')))"),
             l1seed = cms.string("type(-81)"), l1deltaR = cms.double(0.5),
@@ -120,8 +118,7 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 mksel("filter('hltMu17Photon30IsoCaloIdMuonlegL3Filtered17Q')","1mu-1photon")
             )
         ),
-        cms.PSet(
-            name = cms.string("Tau"),
+        Tau = cms.PSet(
             id = cms.int32(15),
             sel = cms.string("type(84) && pt > 5 && coll('*Tau*') && ( filter('*LooseChargedIso*') || filter('*MediumChargedIso*') || filter('*DeepTau*') || filter('*TightChargedIso*') || filter('*TightOOSCPhotons*') || filter('hltL2TauIsoFilter') || filter('*OverlapFilterIsoMu*') || filter('*OverlapFilterIsoEle*') || filter('*L1HLTMatched*') || filter('*Dz02*') || filter('*DoublePFTau*') || filter('*SinglePFTau*') || filter('hlt*SelectedPFTau') || filter('*DisplPFTau*') )"), #All trigger objects from a Tau collection + passing at least one filter
             l1seed = cms.string("type(-100)"), l1deltaR = cms.double(0.3),
@@ -150,8 +147,7 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 mksel("filter('*1Prong')","1 prong tau paths")
             )
         ),
-        cms.PSet(
-            name = cms.string("BoostedTau"),
+        BoostedTau = cms.PSet(
             id = cms.int32(1515),
             sel = cms.string("type(85) && pt > 120 && coll('hltAK8PFJetsCorrected') && filter('hltAK8SinglePFJets*SoftDropMass40*ParticleNetTauTau')"),
             l1seed = cms.string("type(-99)"), l1deltaR = cms.double(0.3),
@@ -161,8 +157,7 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 mksel("filter('hltAK8SinglePFJets*SoftDropMass40*ParticleNetTauTau')","HLT_AK8PFJetX_SoftDropMass40_PFAK8ParticleNetTauTau0p30")
             )
         ),
-        cms.PSet(
-            name = cms.string("Jet"),
+        Jet = cms.PSet(
             id = cms.int32(1),
             sel = cms.string("( type(0) || type(85) || type(86) || type(-99) )"),
             l1seed = cms.string("type(-99)"), l1deltaR = cms.double(0.3),
@@ -200,8 +195,7 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 mksel(["hltBTagPFDeepCSV1p5Single"])
             ),
         ),
-        cms.PSet(
-            name = cms.string("FatJet"),
+        FatJet = cms.PSet(
             id = cms.int32(6),
             sel = cms.string("type(85) && pt > 120 && coll('hltAK8PFJetsCorrected')"),
             l1seed = cms.string("type(-99)"), l1deltaR = cms.double(0.3),
@@ -209,8 +203,7 @@ triggerObjectTable = triggerObjectTableProducer.clone(
             skipObjectsNotPassingQualityBits = cms.bool(True),
             qualityBits = cms.VPSet()
         ),
-        cms.PSet(
-            name = cms.string("MET"),
+        MET = cms.PSet(
             id = cms.int32(2),
             sel = cms.string("type(87) && pt > 30 && coll('hltPFMETProducer')"),
             l1seed = cms.string("type(-87) && coll('L1ETM')"), l1deltaR = cms.double(9999),
@@ -219,8 +212,7 @@ triggerObjectTable = triggerObjectTableProducer.clone(
             skipObjectsNotPassingQualityBits = cms.bool(True),
             qualityBits = cms.VPSet()
         ),
-        cms.PSet(
-            name = cms.string("HT"),
+        HT = cms.PSet(
             id = cms.int32(3),
             sel = cms.string("type(89) || type(-89)"),
             l1seed = cms.string("type(-89) && coll('L1HTT')"), l1deltaR = cms.double(9999),
@@ -235,8 +227,7 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 mksel(["hltPFCentralJetsLooseIDQuad30HT300","hltPFCentralJetsLooseIDQuad30HT330"])
             ),
         ),
-        cms.PSet(
-            name = cms.string("MHT"),
+        MHT = cms.PSet(
             id = cms.int32(4),
             sel = cms.string("type(90)"),
             l1seed = cms.string("type(-90) && coll('L1HTM')"), l1deltaR = cms.double(9999),
@@ -254,34 +245,30 @@ triggerObjectTable = triggerObjectTableProducer.clone(
 # ERA-dependent configuration
 # Tune filter and collection names to 2016 HLT menus
 # FIXME: check non-lepton objects and cross check leptons
-selections2016 = copy.deepcopy(triggerObjectTable.selections)
-for sel in selections2016:
-    if sel.name=='Muon':
-        sel.sel = cms.string("type(83) && pt > 5 && (coll('hlt*L3MuonCandidates') || coll('hlt*TkMuonCands') || coll('hlt*TrkMuonCands'))")
-        sel.qualityBits = cms.VPSet(
+run2_HLTconditions_2016.toModify(
+    triggerObjectTable.selections.Muon,
+    sel = "type(83) && pt > 5 && (coll('hlt*L3MuonCandidates') || coll('hlt*TkMuonCands') || coll('hlt*TrkMuonCands'))",
+    qualityBits = cms.VPSet(
             mksel("filter('*RelTrkIso*Filtered0p4')","TrkIsoVVL"),
             mksel("filter('hltL3cr*IsoFiltered0p09')","Iso"),
             mksel("filter('*OverlapFilter*IsoMu*PFTau*')","OverlapFilter PFTau"),
             mksel("filter('hltL3f*IsoFiltered0p09')","IsoTkMu"),
             mksel(["hltL3fL1sMu*L3Filtered50*","hltL3fL1sMu*TkFiltered50*"],"1mu (Mu50)", bit=10)
-        )
-    elif sel.name=='Tau':
-        sel.sel = cms.string("type(84) && pt > 5 && coll('*Tau*') && ( filter('*LooseIso*') || filter('*MediumIso*') || filter('*MediumComb*Iso*') || filter('hltL2TauIsoFilter') || filter('*OverlapFilter*IsoMu*') || filter('*OverlapFilter*IsoEle*') || filter('*L1HLTMatched*') || filter('*Dz02*') )")
-        sel.qualityBits = cms.VPSet(
-            mksel("(filter('*LooseIso*')-filter('*VLooseIso*'))","LooseIso"),
-            mksel("filter('*Medium*Iso*')","Medium(Comb)Iso"),
-            mksel("filter('*VLooseIso*')","VLooseIso"),
-            mksel("0","None"),
-            mksel("filter('hltL2TauIsoFilter')","L2p5 pixel iso"),
-            mksel("filter('*OverlapFilter*IsoMu*')","OverlapFilter IsoMu"),
-            mksel("filter('*OverlapFilter*IsoEle*')","OverlapFilter IsoEle"),
-            mksel("filter('*L1HLTMatched*')","L1-HLT matched"),
-            mksel("filter('*Dz02*')","Dz")
-        )
-
-run2_HLTconditions_2016.toModify(
-  triggerObjectTable,
-  selections = selections2016
+    )
+).toModify(
+    triggerObjectTable.selections.Tau,
+    sel = "type(84) && pt > 5 && coll('*Tau*') && ( filter('*LooseIso*') || filter('*MediumIso*') || filter('*MediumComb*Iso*') || filter('hltL2TauIsoFilter') || filter('*OverlapFilter*IsoMu*') || filter('*OverlapFilter*IsoEle*') || filter('*L1HLTMatched*') || filter('*Dz02*') )",
+    qualityBits = cms.VPSet(
+        mksel("(filter('*LooseIso*')-filter('*VLooseIso*'))","LooseIso"),
+        mksel("filter('*Medium*Iso*')","Medium(Comb)Iso"),
+        mksel("filter('*VLooseIso*')","VLooseIso"),
+        mksel("0","None"),
+        mksel("filter('hltL2TauIsoFilter')","L2p5 pixel iso"),
+        mksel("filter('*OverlapFilter*IsoMu*')","OverlapFilter IsoMu"),
+        mksel("filter('*OverlapFilter*IsoEle*')","OverlapFilter IsoEle"),
+        mksel("filter('*L1HLTMatched*')","L1-HLT matched"),
+        mksel("filter('*Dz02*')","Dz")
+    )
 )
 
 from PhysicsTools.PatUtils.L1PrefiringWeightProducer_cff import prefiringweight
