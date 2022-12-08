@@ -10,7 +10,7 @@
 #include "CondFormats/PCLConfig/interface/AlignPCLThresholds.h"
 
 // for the PI Helper
-#include "CondCore/PCLConfigPlugins/interface/SiPixelAliPCLThresholdsPayloadInspectorHelper.h"
+#include "SiPixelAliPCLThresholdsPayloadInspectorHelper.h"
 
 namespace {
 
