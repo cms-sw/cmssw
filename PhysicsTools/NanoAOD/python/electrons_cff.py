@@ -6,8 +6,7 @@ from math import ceil,log
 
 ############################FOR bitmapVIDForEle main defn#############################
 electron_id_modules_WorkingPoints_nanoAOD = cms.PSet(
-    modules = cms.vstring(
-        'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Winter22_122X_V1_cff',
+    modules = cms.vstring(        
         'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV70_cff',
         # HZZ ID
         'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Summer16UL_ID_ISO_cff',
@@ -17,6 +16,10 @@ electron_id_modules_WorkingPoints_nanoAOD = cms.PSet(
         'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Fall17_94X_V2_cff',
         'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_iso_V2_cff',
         'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_noIso_V2_cff',
+        # Run3Winter22:
+        'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Winter22_122X_V1_cff',
+        'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_RunIIIWinter22_iso_V1_cff',
+        'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_RunIIIWinter22_noIso_V1_cff',
     ),
     WorkingPoints = cms.vstring(
         "egmGsfElectronIDs:cutBasedElectronID-RunIIIWinter22-V1-veto",
@@ -147,9 +150,11 @@ run2_egamma_2018.toModify(
 slimmedElectronsWithUserData = cms.EDProducer("PATElectronUserDataEmbedder",
     src = cms.InputTag("slimmedElectrons"),
     parentSrcs = cms.VInputTag("reducedEgamma:reducedGedGsfElectrons"),
-    userFloats = cms.PSet(
-        mvaIso = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV2Values"),
-        mvaNoIso = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17NoIsoV2Values"),
+    userFloats = cms.PSet(        
+        mvaIso_Fall17V2 = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV2Values"),
+        mvaNoIso_Fall17V2 = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17NoIsoV2Values"),
+        mvaIso = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2RunIIIWinter22IsoV1Values"),
+        mvaNoIso = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2RunIIIWinter22NoIsoV1Values"),
         mvaHZZIso = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Summer18ULIdIsoValues"),
 
         miniIsoChg = cms.InputTag("isoForEle:miniIsoChg"),
@@ -168,14 +173,18 @@ slimmedElectronsWithUserData = cms.EDProducer("PATElectronUserDataEmbedder",
         ptRel = cms.InputTag("ptRatioRelForEle:ptRel"),
         jetNDauChargedMVASel = cms.InputTag("ptRatioRelForEle:jetNDauChargedMVASel"),
     ),
-    userIntFromBools = cms.PSet(
-        mvaIso_WP90 = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-iso-V2-wp90"),
-        mvaIso_WP80 = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-iso-V2-wp80"),
-        mvaIso_WPL = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-iso-V2-wpLoose"),
-        mvaNoIso_WP90 = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-noIso-V2-wp90"),
-        mvaNoIso_WP80 = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-noIso-V2-wp80"),
-        mvaNoIso_WPL = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-noIso-V2-wpLoose"),
-
+    userIntFromBools = cms.PSet(        
+        mvaIso_Fall17V2_WP90 = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-iso-V2-wp90"),
+        mvaIso_Fall17V2_WP80 = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-iso-V2-wp80"),
+        mvaIso_Fall17V2_WPL = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-iso-V2-wpLoose"),
+        mvaIso_WP90 = cms.InputTag("egmGsfElectronIDs:mvaEleID-RunIIIWinter22-iso-V1-wp90"),
+        mvaIso_WP80 = cms.InputTag("egmGsfElectronIDs:mvaEleID-RunIIIWinter22-iso-V1-wp80"),                
+        mvaNoIso_Fall17V2_WP90 = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-noIso-V2-wp90"),
+        mvaNoIso_Fall17V2_WP80 = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-noIso-V2-wp80"),
+        mvaNoIso_Fall17V2_WPL = cms.InputTag("egmGsfElectronIDs:mvaEleID-Fall17-noIso-V2-wpLoose"),
+        mvaNoIso_WP90 = cms.InputTag("egmGsfElectronIDs:mvaEleID-RunIIIWinter22-noIso-V1-wp90"),
+        mvaNoIso_WP80 = cms.InputTag("egmGsfElectronIDs:mvaEleID-RunIIIWinter22-noIso-V1-wp80"),
+    
         cutBasedID_veto = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-RunIIIWinter22-V1-veto"),
         cutBasedID_loose = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-RunIIIWinter22-V1-loose"),
         cutBasedID_medium = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-RunIIIWinter22-V1-medium"),
@@ -199,12 +208,18 @@ slimmedElectronsWithUserData = cms.EDProducer("PATElectronUserDataEmbedder",
 
 # no need for the Run3 IDs in Run2
 run2_egamma.toModify(slimmedElectronsWithUserData.userFloats,
+                     mvaIso = None,
+                     mvaNoIso = None,
                      miniIsoChg = None,
                      miniIsoAll = None,
                      PFIsoChg = None,
                      PFIsoAll = None,
                      PFIsoAll04 = None).\
         toModify(slimmedElectronsWithUserData.userIntFromBools,
+                 mvaIso_WP90 = None,
+                 mvaIso_WP80 = None,
+                 mvaNoIso_WP90 = None,
+                 mvaNoIso_WP80 = None,
                  cutBasedID_veto = None,
                  cutBasedID_loose = None,
                  cutBasedID_medium = None,
@@ -264,7 +279,7 @@ electronMVATTH= cms.EDProducer("EleBaseMVAValueMapProducer",
         LepGood_dxy = cms.string("log(abs(dB('PV2D')))"),
         LepGood_sip3d = cms.string("abs(dB('PV3D')/edB('PV3D'))"),
         LepGood_dz = cms.string("log(abs(dB('PVDZ')))"),
-        LepGood_mvaFall17V2noIso = cms.string("userFloat('mvaNoIso')"),
+        LepGood_mvaFall17V2noIso = cms.string("userFloat('mvaNoIso_Fall17V2')"),
     )
 )
 run2_egamma_2016.toModify(
@@ -295,14 +310,20 @@ electronTable = simpleCandidateFlatTableProducer.clone(
         eInvMinusPInv = Var("(1-eSuperClusterOverP())/ecalEnergy()",float,doc="1/E_SC - 1/p_trk",precision=10),
         scEtOverPt = Var("(superCluster().energy()/(pt*cosh(superCluster().eta())))-1",float,doc="(supercluster transverse energy)/pt-1",precision=8),
 
-        mvaIso = Var("userFloat('mvaIso')",float,doc="MVA Iso ID V2 score"),
-        mvaIso_WP80 = Var("userInt('mvaIso_WP80')",bool,doc="MVA Iso ID V2 WP80"),
-        mvaIso_WP90 = Var("userInt('mvaIso_WP90')",bool,doc="MVA Iso ID V2 WP90"),
-        mvaIso_WPL = Var("userInt('mvaIso_WPL')",bool,doc="MVA Iso ID V2 loose WP"),
-        mvaNoIso = Var("userFloat('mvaNoIso')",float,doc="MVA noIso ID V2 score"),
-        mvaNoIso_WP80 = Var("userInt('mvaNoIso_WP80')",bool,doc="MVA noIso ID V2 WP80"),
-        mvaNoIso_WP90 = Var("userInt('mvaNoIso_WP90')",bool,doc="MVA noIso ID V2 WP90"),
-        mvaNoIso_WPL = Var("userInt('mvaNoIso_WPL')",bool,doc="MVA noIso ID V2 loose WP"),
+        mvaIso = Var("userFloat('mvaIso')",float,doc="MVA Iso ID score, Winter22V1"),
+        mvaIso_WP80 = Var("userInt('mvaIso_WP80')",bool,doc="MVA Iso ID WP80, Winter22V1"),
+        mvaIso_WP90 = Var("userInt('mvaIso_WP90')",bool,doc="MVA Iso ID WP90, Winter22V1"),
+        mvaNoIso = Var("userFloat('mvaNoIso')",float,doc="MVA noIso ID score, Winter22V1"),
+        mvaNoIso_WP80 = Var("userInt('mvaNoIso_WP80')",bool,doc="MVA noIso ID WP80, Winter22V1"),
+        mvaNoIso_WP90 = Var("userInt('mvaNoIso_WP90')",bool,doc="MVA noIso ID WP90, Winter22V1"),                 
+        mvaIso_Fall17V2 = Var("userFloat('mvaIso_Fall17V2')",float,doc="MVA Iso ID score, Fall17V2"),
+        mvaIso_Fall17V2_WP80 = Var("userInt('mvaIso_Fall17V2_WP80')",bool,doc="MVA Iso ID WP80, Fall17V2"),       
+        mvaIso_Fall17V2_WP90 = Var("userInt('mvaIso_Fall17V2_WP90')",bool,doc="MVA Iso ID WP90, Fall17V2"),
+        mvaIso_Fall17V2_WPL = Var("userInt('mvaIso_Fall17V2_WPL')",bool,doc="MVA Iso ID loose WP, Fall17V2"),
+        mvaNoIso_Fall17V2 = Var("userFloat('mvaNoIso_Fall17V2')",float,doc="MVA noIso ID score, Fall17V2"),
+        mvaNoIso_Fall17V2_WP80 = Var("userInt('mvaNoIso_Fall17V2_WP80')",bool,doc="MVA noIso ID WP80, Fall17V2"),
+        mvaNoIso_Fall17V2_WP90 = Var("userInt('mvaNoIso_Fall17V2_WP90')",bool,doc="MVA noIso ID WP90, Fall17V2"),
+        mvaNoIso_Fall17V2_WPL = Var("userInt('mvaNoIso_Fall17V2_WPL')",bool,doc="MVA noIso ID loose WP, Fall17V2"),
         mvaHZZIso = Var("userFloat('mvaHZZIso')", float,doc="HZZ MVA Iso ID score"),
 
         cutBased = Var("userInt('cutBasedID_veto')+userInt('cutBasedID_loose')+userInt('cutBasedID_medium')+userInt('cutBasedID_tight')",int,doc="cut-based ID RunIII Winter22 (0:fail, 1:veto, 2:loose, 3:medium, 4:tight)"),
@@ -355,7 +376,23 @@ electronTable = simpleCandidateFlatTableProducer.clone(
         # switch default IDs back to Fall17V2 in Run2, remove Winter22V1 and quadratic iso
         cutBased = electronTable.variables.cutBased_Fall17V2,
         cutBased_Fall17V2 = None,
-        vidNestedWPBitmap = electronTable.variables.cutBased_Fall17V2 ,
+        mvaIso = electronTable.variables.mvaIso_Fall17V2,
+        mvaIso_Fall17V2 = None,
+        mvaIso_WP80 = electronTable.variables.mvaIso_Fall17V2_WP80,
+        mvaIso_Fall17V2_WP80 = None,
+        mvaIso_WP90 = electronTable.variables.mvaIso_Fall17V2_WP90,
+        mvaIso_Fall17V2_WP90 = None,
+        mvaIso_WPL = electronTable.variables.mvaIso_Fall17V2_WPL,
+        mvaIso_Fall17V2_WPL = None,
+        mvaNoIso = electronTable.variables.mvaNoIso_Fall17V2,
+        mvaNoIso_Fall17V2 = None,
+        mvaNoIso_WP80 = electronTable.variables.mvaNoIso_Fall17V2_WP80,
+        mvaNoIso_Fall17V2_WP80 = None,
+        mvaNoIso_WP90 = electronTable.variables.mvaNoIso_Fall17V2_WP90,
+        mvaNoIso_Fall17V2_WP90 = None,
+        mvaNoIso_WPL = electronTable.variables.mvaNoIso_Fall17V2_WPL,
+        mvaNoIso_Fall17V2_WPL = None,
+        vidNestedWPBitmap = electronTable.variables.cutBased_Fall17V2,
         vidNestedWPBitmap_Fall17V2 = None,
         miniPFRelIso_chg = electronTable.variables.miniPFRelIso_chg_Fall17V2,
         miniPFRelIso_chg_Fall17V2 = None,

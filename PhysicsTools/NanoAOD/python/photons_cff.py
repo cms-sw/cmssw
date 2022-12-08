@@ -166,7 +166,6 @@ run2_egamma.toModify(slimmedPhotonsWithUserData.userFloats,
                 toModify(slimmedPhotonsWithUserData.userInts,
                          VIDNestedWPBitmap = None)
 
-
 run2_egamma.toModify(
     slimmedPhotonsWithUserData.userFloats,
     ecalEnergyErrPostCorrNew = cms.InputTag("calibratedPatPhotonsNano","ecalEnergyErrPostCorr"),
@@ -270,7 +269,6 @@ run2_egamma.toModify(photonTable.variables,
                      pfRelIso03_chg_quadratic=None,
                      pfRelIso03_all_quadratic=None,
                      hoe_PUcorr=None)
-
 
 #these eras need to make the energy correction, hence the "New"
 run2_egamma.toModify(
