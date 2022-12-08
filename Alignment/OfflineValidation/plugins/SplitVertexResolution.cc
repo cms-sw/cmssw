@@ -423,7 +423,7 @@ void SplitVertexResolution::analyze(const edm::Event& iEvent, const edm::EventSe
   int goodcounter = 0;
 
   for (auto pvIt = pvtx.cbegin(); pvIt != pvtx.cend(); ++pvIt) {
-    reco::Vertex iPV = *pvIt;
+    const reco::Vertex& iPV = *pvIt;
     counter++;
     if (iPV.isFake())
       continue;

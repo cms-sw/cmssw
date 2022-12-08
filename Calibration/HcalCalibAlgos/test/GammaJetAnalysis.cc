@@ -24,6 +24,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -63,8 +64,7 @@
 
 #include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
-#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
+#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
@@ -186,7 +186,6 @@ private:
 
   const std::string photonCollName_;       // label for the photon collection
   const std::string pfJetCollName_;        // label for the PF jet collection
-  const std::string pfJetCorrName_;        // label for the PF jet correction service
   const std::string genJetCollName_;       // label for the genjet collection
   const std::string genParticleCollName_;  // label for the genparticle collection
   const std::string genEventInfoName_;     // label for the generator event info collection
@@ -235,6 +234,7 @@ private:
   edm::EDGetTokenT<reco::PFMETCollection> tok_PFMET_;
   edm::EDGetTokenT<reco::PFMETCollection> tok_PFType1MET_;
   edm::EDGetTokenT<edm::TriggerResults> tok_TrigRes_;
+  edm::EDGetTokenT<reco::JetCorrector> jetCorrectorToken_;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
 
   // root file/histograms
@@ -494,7 +494,6 @@ GammaJetAnalysis::GammaJetAnalysis(const edm::ParameterSet& iConfig)
       pfMETColl(iConfig.getParameter<edm::InputTag>("PFMETColl")),
       photonCollName_(iConfig.getParameter<std::string>("photonCollName")),
       pfJetCollName_(iConfig.getParameter<std::string>("pfJetCollName")),
-      pfJetCorrName_(iConfig.getParameter<std::string>("pfJetCorrName")),
       genJetCollName_(iConfig.getParameter<std::string>("genJetCollName")),
       genParticleCollName_(iConfig.getParameter<std::string>("genParticleCollName")),
       genEventInfoName_(iConfig.getParameter<std::string>("genEventInfoName")),
@@ -518,6 +517,7 @@ GammaJetAnalysis::GammaJetAnalysis(const edm::ParameterSet& iConfig)
       doGenJets_(iConfig.getParameter<bool>("doGenJets")),
       workOnAOD_(iConfig.getParameter<int>("workOnAOD")),
       ignoreHLT_(iConfig.getUntrackedParameter<bool>("ignoreHLT", false)),
+      jetCorrectorToken_(consumes<reco::JetCorrector>(iConfig.getParameter<edm::InputTag>("JetCorrections"))),
       tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       hltPrescaleProvider_(iConfig, consumesCollector(), *this) {
   usesResource(TFileService::kSharedResource);
@@ -1056,8 +1056,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     HERE("get corrector");
 
-    // Get jet corrections
-    const JetCorrector* correctorPF = JetCorrector::getJetCorrector(pfJetCorrName_, evSetup);
+    reco::JetCorrector const& correctorPF = iEvent.get(jetCorrectorToken_);
 
     // sort jets by corrected et
     std::set<PFJetCorretPair, PFJetCorretPairComp> pfjetcorretpairset;
@@ -1066,7 +1065,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       // do not let the jet to be close to the tag photon
       if (deltaR(photon_tag, jet) < 0.5)
         continue;
-      double jec = correctorPF->correction(*it, iEvent, evSetup);
+      double jec = correctorPF.correction(*it);
       pfjetcorretpairset.insert(PFJetCorretPair(jet, jec));
     }
 

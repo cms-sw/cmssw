@@ -53,14 +53,14 @@ FTLUncalibratedRecHit BTLUncalibRecHitAlgo::makeRecHit(const BTLDataFrame& dataF
 
   unsigned char flag = 0;
 
-  const auto& sampleLeft = dataFrame.sample(0);
-  const auto& sampleRight = dataFrame.sample(1);
+  const auto& sampleRight = dataFrame.sample(0);
+  const auto& sampleLeft = dataFrame.sample(1);
 
   double nHits = 0.;
 
-  if (sampleLeft.data() > 0) {
-    amplitude.first = float(sampleLeft.data()) * adcLSB_;
-    time.first = float(sampleLeft.toa()) * toaLSBToNS_;
+  if (sampleRight.data() > 0) {
+    amplitude.first = float(sampleRight.data()) * adcLSB_;
+    time.first = float(sampleRight.toa()) * toaLSBToNS_;
 
     nHits += 1.;
 
@@ -70,9 +70,9 @@ FTLUncalibratedRecHit BTLUncalibRecHitAlgo::makeRecHit(const BTLDataFrame& dataF
   }
 
   // --- If available, reconstruct the amplitude and time of the second SiPM
-  if (sampleRight.data() > 0) {
-    amplitude.second = sampleRight.data() * adcLSB_;
-    time.second = sampleRight.toa() * toaLSBToNS_;
+  if (sampleLeft.data() > 0) {
+    amplitude.second = float(sampleLeft.data()) * adcLSB_;
+    time.second = float(sampleLeft.toa()) * toaLSBToNS_;
 
     nHits += 1.;
 
@@ -94,10 +94,10 @@ FTLUncalibratedRecHit BTLUncalibRecHitAlgo::makeRecHit(const BTLDataFrame& dataF
   float positionError = BTLRecHitsErrorEstimatorIM::positionError();
 
   LogDebug("BTLUncalibRecHit") << "ADC+: set the charge to: (" << amplitude.first << ", " << amplitude.second << ")  ("
-                               << sampleLeft.data() << ", " << sampleRight.data() << "  " << adcLSB_ << ' '
+                               << sampleRight.data() << ", " << sampleLeft.data() << "  " << adcLSB_ << ' '
                                << std::endl;
   LogDebug("BTLUncalibRecHit") << "TDC+: set the time to: (" << time.first << ", " << time.second << ")  ("
-                               << sampleLeft.toa() << ", " << sampleRight.toa() << "  " << toaLSBToNS_ << ' '
+                               << sampleRight.toa() << ", " << sampleLeft.toa() << "  " << toaLSBToNS_ << ' '
                                << std::endl;
 
   return FTLUncalibratedRecHit(

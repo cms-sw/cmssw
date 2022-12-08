@@ -30,7 +30,7 @@ void MultiTrajectoryStateAssembler::addState(const TrajectoryStateOnSurface tsos
   // Add components (i.e. state to be added can be single or multi state)
   //
   GetComponents comps(tsos);
-  MultiTSOS components(comps());
+  const MultiTSOS &components(comps());
   addStateVector(components);
 }
 

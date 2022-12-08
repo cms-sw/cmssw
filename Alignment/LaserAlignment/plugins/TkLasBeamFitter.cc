@@ -426,7 +426,7 @@ void TkLasBeamFitter::getLasBeams(TkFittedLasBeam &beam, vector<TrajectoryStateO
   for (TkLasBeam::const_iterator iHit = beam.begin(); iHit < beam.end(); ++iHit) {
     // iHit is a SiStripLaserRecHit2D
 
-    const SiStripLaserRecHit2D hit(*iHit);
+    const SiStripLaserRecHit2D &hit(*iHit);
 
     this->getLasHits(beam, hit, gd, globHit, hitsAtTecPlus);
     sumZ += globHit.back().z();

@@ -25,7 +25,7 @@
 
 class PixelVertexProducerFromSoA : public edm::global::EDProducer<> {
 public:
-  using IndToEdm = std::vector<uint16_t>;
+  using IndToEdm = std::vector<uint32_t>;
 
   explicit PixelVertexProducerFromSoA(const edm::ParameterSet &iConfig);
   ~PixelVertexProducerFromSoA() override = default;
@@ -90,7 +90,7 @@ void PixelVertexProducerFromSoA::produce(edm::StreamID streamID, edm::Event &iEv
             << " from " << indToEdm.size() << " tracks" << std::endl;
 #endif  // PIXVERTEX_DEBUG_PRODUCE
 
-  std::set<uint16_t> uind;  // for verifing index consistency
+  std::set<uint32_t> uind;  // for verifing index consistency
   for (int j = nv - 1; j >= 0; --j) {
     auto i = soa.sortInd[j];  // on gpu sorted in ascending order....
     assert(i < nv);

@@ -207,6 +207,7 @@ class WorkFlowRunner(Thread):
         logStat=''
         for i,s in enumerate(self.stat):
             logStat+='Step%d-%s '%(i,s)
+        #self.report='%s_%s+%s %s - time %s; exit: '%(self.wf.numId,self.wf.nameId,'+'.join(self.wf.stepList),logStat,tottime)+' '.join(map(str,self.retStep))+'\n'
         self.report='%s_%s %s - time %s; exit: '%(self.wf.numId,self.wf.nameId,logStat,tottime)+' '.join(map(str,self.retStep))+'\n'
 
         return 

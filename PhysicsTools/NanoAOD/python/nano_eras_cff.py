@@ -19,3 +19,5 @@ from Configuration.Eras.Modifier_run3_nanoAOD_124_cff import run3_nanoAOD_124
 run2_nanoAOD_ANY = (
     run2_nanoAOD_106Xv2
 )
+
+run2_egamma = (run2_egamma_2016 | run2_egamma_2017 | run2_egamma_2018)

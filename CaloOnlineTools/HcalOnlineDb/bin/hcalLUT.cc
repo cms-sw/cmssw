@@ -23,9 +23,10 @@ void dumpLutDiff(LutXml &xmls1, LutXml &xmls2, bool testFormat = true, int detai
   const int ndet = 5;
   const char *DET[ndet] = {"HB", "HE", "HO", "HF", "HT"};
   const int dtype[ndet] = {0, 1, 2, 3, 4};
+  const int HBandHE_fgBits = 0xFC00;
 
-  const int nvar = 4;
-  enum vtype { total, extra, zeros, match };
+  const int nvar = 5;
+  enum vtype { total, extra, zeros, match, fgMatch };
 
   std::array<int, nvar> n[ndet];
 
@@ -75,9 +76,15 @@ void dumpLutDiff(LutXml &xmls1, LutXml &xmls2, bool testFormat = true, int detai
 
     const auto &lut2 = x2->second;
     bool good = size == lut2.size();
-    for (size_t i = 0; i < size and good; ++i) {
+    bool fgGood = size == lut2.size();
+    for (size_t i = 0; i < size and (good or fgGood); ++i) {
       if (lut1[i] != lut2[i]) {
         good = false;
+        //Only check fine grain bits in HB and HE
+        if (subdet == 1 || subdet == 2) {
+          if ((lut1[i] & HBandHE_fgBits) != (lut2[i] & HBandHE_fgBits))
+            fgGood = false;
+        }
         if (detail == 2) {
           cout << Form("Mismatach in index=%3d, %4d!=%4d, ", int(i), lut1[i], lut2[i]) << id << endl;
         }
@@ -85,6 +92,8 @@ void dumpLutDiff(LutXml &xmls1, LutXml &xmls2, bool testFormat = true, int detai
     }
     if (good)
       m[match]++;
+    if (fgGood)
+      m[fgMatch]++;
   }
 
   if (testFormat) {
@@ -99,9 +108,17 @@ void dumpLutDiff(LutXml &xmls1, LutXml &xmls2, bool testFormat = true, int detai
         good = false;
       }
     }
-    cout << Form("%3s:  %8s  %8s  %8s", "Det", "total", "match", "mismatch") << endl;
+    cout << Form("%3s:  %8s  %8s  %8s  %8s  %8s", "Det", "total", "match", "mismatch", "FG match", "FG mismatch")
+         << endl;
     for (auto i : dtype)
-      cout << Form("%3s:  %8d  %8d  %8d", DET[i], n[i][total], n[i][match], n[i][total] - n[i][match]) << endl;
+      cout << Form("%3s:  %8d  %8d  %8d  %8d  %8d",
+                   DET[i],
+                   n[i][total],
+                   n[i][match],
+                   n[i][total] - n[i][match],
+                   n[i][fgMatch],
+                   n[i][total] - n[i][fgMatch])
+           << endl;
     cout << "--------------------------------------------" << endl;
     cout << (good ? "PASS!" : "FAIL!") << endl;
   }

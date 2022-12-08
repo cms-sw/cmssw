@@ -106,7 +106,7 @@ void UncleanSCRecoveryProducer::produce(edm::StreamID, edm::Event& evt, const ed
 
   std::vector<DetId> scUncleanSeedDetId;  // counting the unclean
   for (int isc = 0; isc < uncleanSize; ++isc) {
-    const reco::SuperCluster unsc = uncleanSC[isc];
+    const reco::SuperCluster& unsc = uncleanSC[isc];
     scUncleanSeedDetId.push_back(unsc.seed()->seed());
     reco::CaloCluster_iterator bciter = unsc.clustersBegin();
     for (; bciter != unsc.clustersEnd(); ++bciter) {
@@ -144,7 +144,6 @@ void UncleanSCRecoveryProducer::produce(edm::StreamID, edm::Event& evt, const ed
     edm::LogWarning("MissingInput") << "could not handle the new BasicClusters!";
     return;
   }
-  reco::BasicClusterCollection basicClustersProd = *bccHandle;
 
   LogTrace("EcalCleaning") << "Got the BasicClusters from the event again";
   int bcSize = bccHandle->size();
@@ -166,7 +165,7 @@ void UncleanSCRecoveryProducer::produce(edm::StreamID, edm::Event& evt, const ed
         }
       }
     }
-    const reco::SuperCluster unsc = uncleanSC[isc];
+    const reco::SuperCluster& unsc = uncleanSC[isc];
     reco::SuperCluster newSC(unsc.energy(), unsc.position(), seed, clusterPtrVector);
     newSC.setFlags(reco::CaloCluster::uncleanOnly);
     superClusters.push_back(newSC);
@@ -207,14 +206,14 @@ void UncleanSCRecoveryProducer::produce(edm::StreamID, edm::Event& evt, const ed
   // print out the clean collection SC
   LogTrace("EcalCleaning") << "Clean Collection SC ";
   for (int i = 0; i < cleanSize; ++i) {
-    const reco::SuperCluster csc = cleanSC[i];
+    const reco::SuperCluster& csc = cleanSC[i];
     LogTrace("EcalCleaning") << " >>> clean    #" << i << "; Energy: " << csc.energy() << " eta: " << csc.eta()
                              << " sc seed detid: " << csc.seed()->seed().rawId();
   }
   // the unclean SC
   LogTrace("EcalCleaning") << "Unclean Collection SC ";
   for (int i = 0; i < uncleanSize; ++i) {
-    const reco::SuperCluster usc = uncleanSC[i];
+    const reco::SuperCluster& usc = uncleanSC[i];
     LogTrace("EcalCleaning") << " >>> unclean  #" << i << "; Energy: " << usc.energy() << " eta: " << usc.eta()
                              << " sc seed detid: " << usc.seed()->seed().rawId();
   }
