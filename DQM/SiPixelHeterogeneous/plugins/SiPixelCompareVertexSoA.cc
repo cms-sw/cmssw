@@ -182,3 +182,6 @@ void SiPixelCompareVertexSoA::fillDescriptions(edm::ConfigurationDescriptions& d
   descriptions.addWithDefaultLabel(desc);
 }
 DEFINE_FWK_MODULE(SiPixelCompareVertexSoA);
+
+using SiPixelPhase1CompareVertexSoA = SiPixelCompareVertexSoA;
+DEFINE_FWK_MODULE(SiPixelPhase1CompareVertexSoA);
