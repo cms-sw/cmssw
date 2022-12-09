@@ -92,7 +92,30 @@ btagging = cms.Sequence(btaggingTask)
 
 ## modifying b-tagging task in Run3 adding ParticleNet inferece
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
-_pfBTaggingTask_particleNet = pfBTaggingTask.copy()
-_pfBTaggingTask_particleNet.add( pfParticleNetAK4TaskForRECO, pfParticleNetTask )
-run3_common.toReplaceWith( pfBTaggingTask, _pfBTaggingTask_particleNet)
+_pfBTaggingTask_run3 = cms.Task(
+    # Keep all the infos and DeepCSV
+    pfImpactParameterTagInfos,
+    pfTrackCountingHighEffBJetTags,
+    pfJetProbabilityBJetTags,
+    pfJetBProbabilityBJetTags,
+
+    pfSecondaryVertexTagInfos,
+    inclusiveCandidateVertexingTask,
+    pfInclusiveSecondaryVertexFinderTagInfos,
+    pfGhostTrackVertexTagInfos,
+    pfDeepCSVTask,
+
+    softPFMuonsTagInfos,
+    softPFElectronsTagInfos,
+    pixelClusterTagInfos,
+
+    pfParticleNetAK4TaskForRECO,
+    pfParticleNetTask
+)
+_pfCTaggingTask_run3 = cms.Task(
+    inclusiveCandidateVertexingCvsLTask,
+    pfInclusiveSecondaryVertexFinderCvsLTagInfos,
+)
+run3_common.toReplaceWith( pfBTaggingTask, _pfBTaggingTask_run3 )
+run3_common.toReplaceWith( pfCTaggingTask, _pfCTaggingTask_run3 )
 
