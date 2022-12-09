@@ -54,6 +54,11 @@ tauTable = simpleCandidateFlatTableProducer.clone(
 _tauVarsBase = cms.PSet(P4Vars,
        charge = Var("charge", int, doc="electric charge"),
        jetIdx = Var("?hasUserCand('jet')?userCand('jet').key():-1", int, doc="index of the associated jet (-1 if none)"),
+       eleIdx = Var("?overlaps('electrons').size()>0?overlaps('electrons')[0].key():-1", int, doc="index of first matching electron"),
+       muIdx = Var("?overlaps('muons').size()>0?overlaps('muons')[0].key():-1", int, doc="index of first matching muon"),
+       svIdx1 = Var("?overlaps('vertices').size()>0?overlaps('vertices')[0].key():-1", int, doc="index of first matching secondary vertex"),
+       svIdx2 = Var("?overlaps('vertices').size()>1?overlaps('vertices')[1].key():-1", int, doc="index of second matching secondary vertex"),
+       nSVs = Var("?hasOverlaps('vertices')?overlaps('vertices').size():0", int, doc="number of secondary vertices in the tau"),
        decayMode = Var("decayMode()",int),
        idDecayModeOldDMs = Var("tauID('decayModeFinding')", bool),
 

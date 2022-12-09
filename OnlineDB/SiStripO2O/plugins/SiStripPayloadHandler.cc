@@ -202,6 +202,10 @@ std::string SiStripPayloadHandler<SiStripPayload>::queryConfigMap(std::string co
   edm::LogInfo("SiStripPayloadHandler") << "[SiStripPayloadHandler::" << __func__ << "] "
                                         << "Query " << m_configMapDb << " to see if the payload is already in DB.";
 
+  // if dev/prep, use CMS_COND_STRIP
+  if (m_condDb.find("prep") != std::string::npos) {
+    m_cfgMapSchemaName = "CMS_COND_STRIP";
+  }
   auto cmDbSession = m_connectionPool.createCoralSession(m_configMapDb);
   // query the STRIP_CONFIG_TO_PAYLOAD_MAP table
   cmDbSession->transaction().start(true);

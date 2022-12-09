@@ -46,7 +46,7 @@ void MuonMETAlgo::MuonMETAlgo_run(const edm::View<reco::Muon>& inputMuons,
                                   const edm::ValueMap<reco::MuonMETCorrectionData>& vm_muCorrData,
                                   const edm::View<T>& v_uncorMET,
                                   std::vector<T>* v_corMET) {
-  T uncorMETObj = v_uncorMET.front();
+  const T& uncorMETObj = v_uncorMET.front();
 
   double corMETX = uncorMETObj.px();
   double corMETY = uncorMETObj.py();

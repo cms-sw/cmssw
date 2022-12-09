@@ -10,6 +10,7 @@
 namespace {
 
   // original code from CMSSW_4_4
+  using namespace pixelTopology;
 
   std::tuple<int, bool> localXori(int mpx) {
     const float m_pitchx = 1.f;
@@ -127,14 +128,14 @@ namespace {
 }  // namespace
 
 constexpr void testLayer() {
-  for (auto i = 0U; i < phase1PixelTopology::numberOfModules; ++i) {
-    uint32_t layer = phase1PixelTopology::getLayer(i);
-    uint32_t tLayer = phase1PixelTopology::findLayer(i);
+  for (auto i = 0U; i < Phase1::numberOfModules; ++i) {
+    uint32_t layer = getLayer<Phase1>(i);
+    uint32_t tLayer = findLayer<Phase1>(i);
     assert(tLayer == layer);
-    //std::cout << "module " << i << ": " << "layer " << layer << ", \"" << phase1PixelTopology::layerName[layer] << "\", [" << phase1PixelTopology::layerStart[layer] << ", " << phase1PixelTopology::layerStart[layer+1] << ")" << std::endl;
-    assert(layer < phase1PixelTopology::numberOfLayers);
-    assert(i >= phase1PixelTopology::layerStart[layer]);
-    assert(i < phase1PixelTopology::layerStart[layer + 1]);
+
+    assert(layer < Phase1::numberOfLayers);
+    assert(i >= Phase1::layerStart[layer]);
+    assert(i < Phase1::layerStart[layer + 1]);
   }
 }
 
@@ -145,8 +146,8 @@ int main() {
 
   for (uint16_t ix = 0; ix < 80 * 2; ++ix) {
     auto ori = localXori(ix);
-    auto xl = phase1PixelTopology::localX(ix);
-    auto bp = phase1PixelTopology::isBigPixX(ix);
+    auto xl = Phase1::localX(ix);
+    auto bp = Phase1::isBigPixX(ix);
     if (std::get<0>(ori) != xl)
       std::cout << "Error " << std::get<0>(ori) << "!=" << xl << std::endl;
     assert(std::get<1>(ori) == bp);
@@ -154,21 +155,20 @@ int main() {
 
   for (uint16_t iy = 0; iy < 52 * 8; ++iy) {
     auto ori = localYori(iy);
-    auto yl = phase1PixelTopology::localY(iy);
-    auto bp = phase1PixelTopology::isBigPixY(iy);
+    auto yl = Phase1::localY(iy);
+    auto bp = Phase1::isBigPixY(iy);
     if (std::get<0>(ori) != yl)
       std::cout << "Error " << std::get<0>(ori) << "!=" << yl << std::endl;
     assert(std::get<1>(ori) == bp);
   }
 
-  for (auto i = 0U; i < phase1PixelTopology::numberOfLayers; ++i) {
-    std::cout << "layer " << i << ", \"" << phase1PixelTopology::layerName[i] << "\", ["
-              << phase1PixelTopology::layerStart[i] << ", " << phase1PixelTopology::layerStart[i + 1] << ") "
-              << phase1PixelTopology::layerStart[i + 1] - phase1PixelTopology::layerStart[i] << std::endl;
+  for (auto i = 0U; i < Phase1::numberOfLayers; ++i) {
+    std::cout << "layer " << i << "\", [" << Phase1::layerStart[i] << ", " << Phase1::layerStart[i + 1] << ") "
+              << Phase1::layerStart[i + 1] - Phase1::layerStart[i] << std::endl;
   }
 
-  std::cout << "maxModuleStide layerIndexSize " << phase1PixelTopology::maxModuleStride << ' '
-            << phase1PixelTopology::layerIndexSize << std::endl;
+  std::cout << "maxModuleStide layerIndexSize " << maxModuleStride<Phase1> << ' '
+            << layerIndexSize<Phase1> << std::endl;
 
   testLayer();
 

@@ -55,6 +55,7 @@ HGCalSD::HGCalSD(const std::string& name,
   cornerMinMask_ = m_HGC.getParameter<int>("CornerMinMask");
   angles_ = m_HGC.getUntrackedParameter<std::vector<double>>("WaferAngles");
   missingFile_ = m_HGC.getUntrackedParameter<std::string>("MissingWaferFile");
+  checkID_ = m_HGC.getUntrackedParameter<bool>("CheckID");
 
   if (storeAllG4Hits_) {
     setUseMap(false);
@@ -204,6 +205,30 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
   if (id != 0)
     edm::LogVerbatim("HGCSim") << HGCSiliconDetId(id);
 #endif
+  if ((id != 0) && checkID_) {
+    HGCSiliconDetId hid1(id);
+    auto xy = hgcons_->locateCell(hid1, false);
+    double xx = (hid1.zside() > 0) ? xy.first : -xy.first;
+    double dx = xx - (hitPoint.x() / CLHEP::cm);
+    double dy = xy.second - (hitPoint.y() / CLHEP::cm);
+    double diff = std::sqrt(dx * dx + dy * dy);
+    constexpr double tol = 1.0;
+    if (diff > tol) {
+      bool valid1 = hgcons_->isValidHex8(hid1.layer(), hid1.waferU(), hid1.waferV(), hid1.cellU(), hid1.cellV(), true);
+      int cellU(0), cellV(0), waferType(-1), waferU(0), waferV(0);
+      double wt1(0);
+      xx = (hid1.zside() > 0) ? hitPoint.x() : -hitPoint.x();
+      hgcons_->waferFromPosition(xx, hitPoint.y(), layer, waferU, waferV, cellU, cellV, waferType, wt1, false, false);
+      HGCSiliconDetId hid2(hid1.det(), hid1.zside(), waferType, layer, waferU, waferV, cellU, cellV);
+      bool valid2 = hgcons_->isValidHex8(hid2.layer(), hid2.waferU(), hid2.waferV(), hid2.cellU(), hid2.cellV(), true);
+      auto partn = hgcons_->waferTypeRotation(hid1.layer(), hid1.waferU(), hid1.waferV(), false, false);
+      edm::LogVerbatim("HGCSim") << "CheckID " << HGCSiliconDetId(id) << " input position: ("
+                                 << hitPoint.x() / CLHEP::cm << ", " << hitPoint.y() / CLHEP::cm
+                                 << "); position from ID (" << xx << ", " << xy.second << ") distance " << diff
+                                 << " New ID|Old ID " << (hid1.rawId() == hid2.rawId()) << " Valid " << valid1 << ":"
+                                 << valid2 << " Wafer type|rotation " << partn.first << ":" << partn.second;
+    }
+  }
   return id;
 }
 

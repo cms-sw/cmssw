@@ -519,7 +519,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         WaferAngles      = cms.untracked.vdouble(90.0,30.0),
         WaferSize        = cms.untracked.double(123.7),
         MouseBite        = cms.untracked.double(2.5),
-        CheckID          = cms.untracked.bool(True),
+        CheckID          = cms.untracked.bool(False),
         UseDetector      = cms.untracked.int32(3),
         Detectors        = cms.untracked.int32(2),
         MissingWaferFile = cms.untracked.string("")
@@ -534,6 +534,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         FiducialCut      = cms.bool(False),
         DistanceFromEdge = cms.double(1.0),
         StoreAllG4Hits   = cms.bool(False),
+        CheckID          = cms.untracked.bool(False),
         TileFileName     = cms.untracked.string("")
     ),
     HFNoseSD = cms.PSet(

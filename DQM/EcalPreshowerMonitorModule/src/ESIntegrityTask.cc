@@ -216,7 +216,7 @@ void ESIntegrityTask::analyze(const Event& e, const EventSetup& c) {
   vector<int> fiberStatus;
   if (e.getByToken(dccCollections_, dccs)) {
     for (ESRawDataCollection::const_iterator dccItr = dccs->begin(); dccItr != dccs->end(); ++dccItr) {
-      ESDCCHeaderBlock dcc = (*dccItr);
+      const ESDCCHeaderBlock& dcc = (*dccItr);
 
       meFED_->Fill(dcc.fedId());
 

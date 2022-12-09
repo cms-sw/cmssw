@@ -45,24 +45,13 @@ ResidualRefitting::ResidualRefitting(const edm::ParameterSet& cfg)
       muonsNoStation2_(cfg.getParameter<edm::InputTag>("muonsNoStation2")),
       muonsNoStation3_(cfg.getParameter<edm::InputTag>("muonsNoStation3")),
       muonsNoStation4_(cfg.getParameter<edm::InputTag>("muonsNoStation4")),
-
-      /*
-  muonsNoPXBLayer1_		( cfg.getParameter<edm::InputTag>("muonsNoPXBLayer1"	) ),
-  muonsNoPXBLayer2_		( cfg.getParameter<edm::InputTag>("muonsNoPXBLayer1"	) ),
-  muonsNoPXBLayer3_		( cfg.getParameter<edm::InputTag>("muonsNoPXBLayer1"	) ),
-
-  muonsNoTIBLayer1_			( cfg.getParameter<edm::InputTag>("muonsNoTIBLayer1"	) ),
-  muonsNoTIBLayer2_			( cfg.getParameter<edm::InputTag>("muonsNoTIBLayer2"	) ),
-  muonsNoTIBLayer3_			( cfg.getParameter<edm::InputTag>("muonsNoTIBLayer3"	) ),
-  muonsNoTIBLayer4_			( cfg.getParameter<edm::InputTag>("muonsNoTIBLayer4"	) ),
-
-  muonsNoTOBLayer1_			( cfg.getParameter<edm::InputTag>("muonsNoTOBLayer1"	) ),
-  muonsNoTOBLayer2_			( cfg.getParameter<edm::InputTag>("muonsNoTOBLayer2"	) ),
-  muonsNoTOBLayer3_			( cfg.getParameter<edm::InputTag>("muonsNoTOBLayer3"	) ),
-  muonsNoTOBLayer4_			( cfg.getParameter<edm::InputTag>("muonsNoTOBLayer4"	) ),
-  muonsNoTOBLayer5_			( cfg.getParameter<edm::InputTag>("muonsNoTOBLayer5"	) ),
-  muonsNoTOBLayer6_			( cfg.getParameter<edm::InputTag>("muonsNoTOBLayer6"	) ),*/
       debug_(cfg.getUntrackedParameter<bool>("doDebug")),
+      muonsToken_(consumes<reco::MuonCollection>(muons_)),
+      muonTracksToken_(consumes<reco::TrackCollection>(muonsRemake_)),
+      muonsNoSt1Token_(consumes<reco::TrackCollection>(muonsNoStation1_)),
+      muonsNoSt2Token_(consumes<reco::TrackCollection>(muonsNoStation2_)),
+      muonsNoSt3Token_(consumes<reco::TrackCollection>(muonsNoStation3_)),
+      muonsNoSt4Token_(consumes<reco::TrackCollection>(muonsNoStation4_)),
       outputFile_(nullptr),
       outputTree_(nullptr),
       outputBranch_(nullptr),
@@ -75,8 +64,20 @@ ResidualRefitting::ResidualRefitting(const edm::ParameterSet& cfg)
 
   // the services
   theService = new MuonServiceProxy(serviceParameters, consumesCollector());
-
 }  //The constructor
+
+void ResidualRefitting::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("muons", edm::InputTag("muons"));
+  desc.add<edm::InputTag>("muonsRemake", edm::InputTag("globalMuons"));
+  desc.add<edm::InputTag>("muonsNoStation1", edm::InputTag("muonsNoSt1"));
+  desc.add<edm::InputTag>("muonsNoStation2", edm::InputTag("muonsNoSt2"));
+  desc.add<edm::InputTag>("muonsNoStation3", edm::InputTag("muonsNoSt3"));
+  desc.add<edm::InputTag>("muonsNoStation4", edm::InputTag("muonsNoSt4"));
+  desc.addUntracked<std::string>("histoutputFile", "histFile.root");
+  desc.addUntracked<bool>("doDebug", false);
+  descriptions.add("residualRefitting", desc);
+}
 
 void ResidualRefitting::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
   if (debug_)
@@ -88,57 +89,13 @@ void ResidualRefitting::analyze(const edm::Event& event, const edm::EventSetup& 
   // Generator Collection
 
   // The original muon collection that is sitting in memory
-  edm::Handle<reco::MuonCollection> muons;
+  const edm::Handle<reco::MuonCollection>& muons = event.getHandle(muonsToken_);
+  const edm::Handle<reco::TrackCollection>& muonTracks = event.getHandle(muonTracksToken_);
+  const edm::Handle<reco::TrackCollection>& muonsNoSt1 = event.getHandle(muonsNoSt1Token_);
+  const edm::Handle<reco::TrackCollection>& muonsNoSt2 = event.getHandle(muonsNoSt2Token_);
+  const edm::Handle<reco::TrackCollection>& muonsNoSt3 = event.getHandle(muonsNoSt3Token_);
+  const edm::Handle<reco::TrackCollection>& muonsNoSt4 = event.getHandle(muonsNoSt4Token_);
 
-  edm::Handle<reco::TrackCollection> muonTracks;
-  edm::Handle<reco::TrackCollection> muonsNoSt1;
-  edm::Handle<reco::TrackCollection> muonsNoSt2;
-  edm::Handle<reco::TrackCollection> muonsNoSt3;
-  edm::Handle<reco::TrackCollection> muonsNoSt4;
-
-  event.getByLabel(muons_, muons);  //set label to muons
-  event.getByLabel(muonsRemake_, muonTracks);
-  event.getByLabel(muonsNoStation1_, muonsNoSt1);
-  event.getByLabel(muonsNoStation2_, muonsNoSt2);
-  event.getByLabel(muonsNoStation3_, muonsNoSt3);
-  event.getByLabel(muonsNoStation4_, muonsNoSt4);
-
-  /*
-//	std::cout<<"Muon Collection No PXB "<<std::endl;
-//Tracker Barrel Pixel Refits
-	edm::Handle<MuonCollection> muonsNoPXBLayer1Coll;
-	event.getByLabel(muonsNoPXBLayer1_, muonsNoPXBLayer1Coll);
-	edm::Handle<MuonCollection> muonsNoPXBLayer2Coll;
-	event.getByLabel(muonsNoPXBLayer2_, muonsNoPXBLayer2Coll);
-	edm::Handle<MuonCollection> muonsNoPXBLayer3Coll;
-	event.getByLabel(muonsNoPXBLayer3_, muonsNoPXBLayer3Coll);
-//	std::cout<<"Muon Collection No TIB "<<std::endl;
-// Tracker Inner Barrel Refits
-	edm::Handle<MuonCollection> muonsNoTIBLayer1Coll;
-	event.getByLabel(muonsNoTIBLayer1_, muonsNoTIBLayer1Coll);
-	edm::Handle<MuonCollection> muonsNoTIBLayer2Coll;
-	event.getByLabel(muonsNoTIBLayer2_, muonsNoTIBLayer2Coll);
-	edm::Handle<MuonCollection> muonsNoTIBLayer3Coll;
-	event.getByLabel(muonsNoTIBLayer3_, muonsNoTIBLayer3Coll);
-	edm::Handle<MuonCollection> muonsNoTIBLayer4Coll;
-	event.getByLabel(muonsNoTIBLayer4_, muonsNoTIBLayer4Coll);
-
-//	std::cout<<"Muon Collection No TOB "<<std::endl;
-
-//Tracker outer barrel refits
-	edm::Handle<MuonCollection> muonsNoTOBLayer1Coll;
-	event.getByLabel(muonsNoTOBLayer1_, muonsNoTOBLayer1Coll);
-	edm::Handle<MuonCollection> muonsNoTOBLayer2Coll;
-	event.getByLabel(muonsNoTOBLayer2_, muonsNoTOBLayer2Coll);
-	edm::Handle<MuonCollection> muonsNoTOBLayer3Coll;
-	event.getByLabel(muonsNoTOBLayer3_, muonsNoTOBLayer3Coll);
-	edm::Handle<MuonCollection> muonsNoTOBLayer4Coll;
-	event.getByLabel(muonsNoTOBLayer4_, muonsNoTOBLayer4Coll);
-	edm::Handle<MuonCollection> muonsNoTOBLayer5Coll;
-	event.getByLabel(muonsNoTOBLayer5_, muonsNoTOBLayer5Coll);
-	edm::Handle<MuonCollection> muonsNoTOBLayer6Coll;
-	event.getByLabel(muonsNoTOBLayer6_, muonsNoTOBLayer6Coll);
-*/
   //magnetic field information
   theField = &eventSetup.getData(magFieldToken_);
   edm::ESHandle<GlobalTrackingGeometry> globalTrackingGeometry = eventSetup.getHandle(trackingGeometryToken_);
@@ -149,23 +106,6 @@ void ResidualRefitting::analyze(const edm::Event& event, const edm::EventSetup& 
   zero_storage();
 
   //Do the Gmr Muons from the unModified Collection
-
-  /*
-	int iGmr = 0;
-	if ( (muons->end() - muons->begin()) > 0) printf("Data Dump:: Original GMR Muons\n");
-	for ( MuonCollection::const_iterator muon = muons->begin(); muon!=muons->end(); muon++, iGmr++) {
-		if ( iGmr >= ResidualRefitting::N_MAX_STORED) break; // error checking
-		if (!debug
-		
-		dumpTrackRef(muon->combinedMuon(), "cmb"); 
-		dumpTrackRef(muon->standAloneMuon(), "sam");
-		dumpTrackRef(muon->track(), "trk");
-		
-
-	}
-	storageGmrOld_.n_ = iGmr;
-	storageSamNew_.n_ = iGmr;
-*/
 
   //Refitted muons
   if (debug_)
@@ -238,12 +178,11 @@ void ResidualRefitting::analyze(const edm::Event& event, const edm::EventSetup& 
 
   if (iGmrRemake > 0 || iGmrCyl > 0) {
     outputTree_->Fill();
-    std::cout << "FILLING NTUPLE!" << std::endl;
-    std::cout << "Entries Recorded: " << outputTree_->GetEntries() << " Branch :: " << outputBranch_->GetEntries()
-              << std::endl
-              << std::endl;
+    edm::LogVerbatim("ResidualRefitting") << "FILLING NTUPLE!";
+    edm::LogVerbatim("ResidualRefitting")
+        << "Entries Recorded: " << outputTree_->GetEntries() << " Branch :: " << outputBranch_->GetEntries();
   } else
-    std::cout << "no tracks -- no fill!\n" << std::endl << std::endl;
+    edm::LogVerbatim("ResidualRefitting") << "no tracks -- no fill!\n";
 
   //  /*************************************************************************************************************/
   //  //END OF ntuple dumper
@@ -418,8 +357,8 @@ void ResidualRefitting::CollectTrackHits(edm::Handle<reco::TrackCollection> trac
 //
 //
 
-void ResidualRefitting::NewTrackMeasurements(edm::Handle<reco::TrackCollection> trackCollOrig,
-                                             edm::Handle<reco::TrackCollection> trackColl,
+void ResidualRefitting::NewTrackMeasurements(const edm::Handle<reco::TrackCollection>& trackCollOrig,
+                                             const edm::Handle<reco::TrackCollection>& trackColl,
                                              ResidualRefitting::storage_trackExtrap& trackExtrap) {
   int numTracks = 0;
   int recCounter = 0;
@@ -569,19 +508,20 @@ void ResidualRefitting::StoreTrackerRecHits(DetId detid, const TrackerTopology* 
   subdetector = detid.subdetId();
 
   if (detector != DetId::Tracker) {
-    std::cout << "OMFG NOT THE TRACKER\n" << std::endl;
+    edm::LogVerbatim("ResidualRefitting") << "OMFG NOT THE TRACKER\n";
     return;
   }
 
   if (debug_)
-    std::cout << "Tracker:: ";
+    edm::LogVerbatim("ResidualRefitting") << "Tracker:: ";
   if (subdetector == ResidualRefitting::PXB) {
     layer = tTopo->pxbLayer(detid.rawId());
     ladder = tTopo->pxbLadder(detid.rawId());
     module = tTopo->pxbModule(detid.rawId());
     if (debug_)
-      std::cout << "PXB"
-                << "\tlayer = " << layer << "\tladder = " << ladder << "\tmodule = " << module;
+      edm::LogVerbatim("ResidualRefitting")
+          << "PXB"
+          << "\tlayer = " << layer << "\tladder = " << ladder << "\tmodule = " << module;
 
   } else if (subdetector == ResidualRefitting::PXF) {
     side = tTopo->pxfSide(detid.rawId());
@@ -590,37 +530,37 @@ void ResidualRefitting::StoreTrackerRecHits(DetId detid, const TrackerTopology* 
     panel = tTopo->pxfPanel(detid.rawId());
     module = tTopo->pxfModule(detid.rawId());
     if (debug_)
-      std::cout << "PXF"
-                << "\tside = " << side << "\tdisk = " << disk << "\tblade = " << blade << "\tpanel = " << panel
-                << "\tmodule = " << module;
+      edm::LogVerbatim("ResidualRefitting") << "PXF"
+                                            << "\tside = " << side << "\tdisk = " << disk << "\tblade = " << blade
+                                            << "\tpanel = " << panel << "\tmodule = " << module;
 
   } else if (subdetector == ResidualRefitting::TIB) {
     layer = tTopo->tibLayer(detid.rawId());
     module = tTopo->tibModule(detid.rawId());
     if (debug_)
-      std::cout << "TIB"
-                << "\tlayer = " << layer << "\tmodule = " << module;
+      edm::LogVerbatim("ResidualRefitting") << "TIB"
+                                            << "\tlayer = " << layer << "\tmodule = " << module;
   } else if (subdetector == ResidualRefitting::TID) {
     side = tTopo->tidSide(detid.rawId());
     wheel = tTopo->tidWheel(detid.rawId());
     ring = tTopo->tidRing(detid.rawId());
     if (debug_)
-      std::cout << "TID"
-                << "\tside = " << side << "\twheel = " << wheel << "\tring = " << ring;
+      edm::LogVerbatim("ResidualRefitting") << "TID"
+                                            << "\tside = " << side << "\twheel = " << wheel << "\tring = " << ring;
 
   } else if (subdetector == ResidualRefitting::TOB) {
     layer = tTopo->tobLayer(detid.rawId());
     module = tTopo->tobModule(detid.rawId());
     if (debug_)
-      std::cout << "TOB"
-                << "\tlayer = " << layer << "\tmodule = " << module;
+      edm::LogVerbatim("ResidualRefitting") << "TOB"
+                                            << "\tlayer = " << layer << "\tmodule = " << module;
 
   } else if (subdetector == ResidualRefitting::TEC) {
     ring = tTopo->tecRing(detid.rawId());
     module = tTopo->tecModule(detid.rawId());
     if (debug_)
-      std::cout << "TEC"
-                << "\tring = " << ring << "\tmodule = " << module;
+      edm::LogVerbatim("ResidualRefitting") << "TEC"
+                                            << "\tring = " << ring << "\tmodule = " << module;
   }
 
   //Do Storage
@@ -666,7 +606,7 @@ void ResidualRefitting::trkExtrap(const DetId& detid,
   bool dump_ = debug_;
 
   if (dump_)
-    std::cout << "In the trkExtrap function" << std::endl;
+    edm::LogVerbatim("ResidualRefitting") << "In the trkExtrap function";
 
   float gpExtrapX = -99999;
   float gpExtrapY = -99999;
@@ -960,7 +900,7 @@ void ResidualRefitting::zero_trackExtrap(ResidualRefitting::storage_trackExtrap*
 // Begin Job
 //
 void ResidualRefitting::beginJob() {
-  std::cout << "Creating file " << outputFileName_.c_str() << std::endl;
+  edm::LogVerbatim("ResidualRefitting") << "Creating file " << outputFileName_.c_str();
 
   outputFile_ = new TFile(outputFileName_.c_str(), "RECREATE");
 
@@ -1155,8 +1095,9 @@ FreeTrajectoryState ResidualRefitting::freeTrajStateMuon(reco::TrackRef muon) {
   math::XYZPoint innerPos = muon->referencePoint();
   math::XYZVector innerMom = muon->momentum();
   if (debug_)
-    std::cout << "Inner Pos: "
-              << "\tx = " << innerPos.X() << "\ty = " << innerPos.Y() << "\tz = " << innerPos.Z() << std::endl;
+    edm::LogVerbatim("ResidualRefitting")
+        << "Inner Pos: "
+        << "\tx = " << innerPos.X() << "\ty = " << innerPos.Y() << "\tz = " << innerPos.Z();
 
   GlobalPoint innerPoint(innerPos.X(), innerPos.Y(), innerPos.Z());
   GlobalVector innerVec(innerMom.X(), innerMom.Y(), innerMom.Z());
@@ -1173,7 +1114,7 @@ FreeTrajectoryState ResidualRefitting::freeTrajStateMuon(reco::TrackRef muon) {
 // dump Track Extrapolation
 //
 void ResidualRefitting::dumpTrackExtrap(const ResidualRefitting::storage_trackExtrap& track) {
-  std::cout << "\n\nExtrapolation Dump:\n";
+  edm::LogVerbatim("ResidualRefitting") << "\n\nExtrapolation Dump:\n";
   for (unsigned int i = 0; i < (unsigned int)track.n_; i++) {
     //		double rho = sqrt( (float)track.gpX_[i] * (float)track.gpX_[i] + (float)track.gpY_[i] * (float)track.gpY_[i]  );
 
@@ -1194,7 +1135,7 @@ void ResidualRefitting::dumpTrackExtrap(const ResidualRefitting::storage_trackEx
 // dump Muon Rec Hits
 //
 void ResidualRefitting::dumpMuonRecHits(const ResidualRefitting::storage_hit& hit) {
-  std::cout << "Muon Rec Hits Dump:\n";
+  edm::LogVerbatim("ResidualRefitting") << "Muon Rec Hits Dump:\n";
   for (unsigned int i = 0; i < (unsigned int)hit.n_; i++) {
     //		double rho = sqrt( (float)hit.gpX_[i] * (float)hit.gpX_[i] + (float)hit.gpY_[i] * (float)hit.gpY_[i]  );
 
@@ -1214,7 +1155,7 @@ void ResidualRefitting::dumpMuonRecHits(const ResidualRefitting::storage_hit& hi
 // dump Tracker Rec Hits
 //
 void ResidualRefitting::dumpTrackHits(const ResidualRefitting::storage_trackHit& hit) {
-  std::cout << "Tracker Rec Hits Dump:\n";
+  edm::LogVerbatim("ResidualRefitting") << "Tracker Rec Hits Dump:\n";
   for (unsigned int i = 0; i < (unsigned int)hit.n_; i++) {
     //		double rho = sqrt( (float)hit.gpX_[i] * (float)hit.gpX_[i] + (float)hit.gpY_[i] * (float)hit.gpY_[i]  );
 

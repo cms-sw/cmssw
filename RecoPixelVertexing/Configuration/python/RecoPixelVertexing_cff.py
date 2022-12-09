@@ -14,7 +14,9 @@ from Configuration.ProcessModifiers.pixelNtupletFit_cff import pixelNtupletFit
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 
 # build the pixel vertices in SoA format on the CPU
-from RecoPixelVertexing.PixelVertexFinding.pixelVerticesCUDA_cfi import pixelVerticesCUDA as _pixelVerticesCUDA
+from RecoPixelVertexing.PixelVertexFinding.pixelVertexProducerCUDAPhase1_cfi import pixelVertexProducerCUDAPhase1 as _pixelVerticesCUDA
+from RecoPixelVertexing.PixelVertexFinding.pixelVertexProducerCUDAPhase2_cfi import pixelVertexProducerCUDAPhase2 as _pixelVerticesCUDAPhase2
+
 pixelVerticesSoA = SwitchProducerCUDA(
     cpu = _pixelVerticesCUDA.clone(
         pixelTrackSrc = "pixelTracksSoA",
@@ -22,13 +24,20 @@ pixelVerticesSoA = SwitchProducerCUDA(
     )
 )
 
+phase2_tracker.toModify(pixelVerticesSoA,cpu = _pixelVerticesCUDAPhase2.clone(
+    pixelTrackSrc = "pixelTracksSoA",
+    onGPU = False,
+    PtMin = 2.0
+))
+
 # convert the pixel vertices from SoA to legacy format
 from RecoPixelVertexing.PixelVertexFinding.pixelVertexFromSoA_cfi import pixelVertexFromSoA as _pixelVertexFromSoA
-(pixelNtupletFit & ~phase2_tracker).toReplaceWith(pixelVertices, _pixelVertexFromSoA.clone(
+
+(pixelNtupletFit).toReplaceWith(pixelVertices, _pixelVertexFromSoA.clone(
     src = "pixelVerticesSoA"
 ))
 
-(pixelNtupletFit & ~phase2_tracker).toReplaceWith(pixelVerticesTask, cms.Task(
+(pixelNtupletFit).toReplaceWith(pixelVerticesTask, cms.Task(
     # build the pixel vertices in SoA format on the CPU
     pixelVerticesSoA,
     # convert the pixel vertices from SoA to legacy format
@@ -44,6 +53,12 @@ pixelVerticesCUDA = _pixelVerticesCUDA.clone(
     pixelTrackSrc = "pixelTracksCUDA",
     onGPU = True
 )
+
+phase2_tracker.toReplaceWith(pixelVerticesCUDA,_pixelVerticesCUDAPhase2.clone(
+    pixelTrackSrc = "pixelTracksCUDA",
+    onGPU = True,
+    PtMin = 2.0
+))
 
 # transfer the pixel vertices in SoA format to the CPU
 from RecoPixelVertexing.PixelVertexFinding.pixelVerticesSoA_cfi import pixelVerticesSoA as _pixelVerticesSoA

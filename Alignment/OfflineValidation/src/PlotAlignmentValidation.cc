@@ -2239,6 +2239,7 @@ double PlotAlignmentValidation::resampleTestOfEqualRMS(TH1F* h1, TH1F* h2, int n
     test_mean += abs(d1 - d2 - rmsdiff);
   }
   test_mean /= numSamples;
+  edm::LogPrint("") << "test mean:" << test_mean;
   //p value
   double p = 0;
   for (double d : diff) {
@@ -2283,6 +2284,7 @@ double PlotAlignmentValidation::resampleTestOfEqualMeans(TH1F* h1, TH1F* h2, int
     test_mean += abs(d1 - d2 - meandiff);
   }
   test_mean /= numSamples;
+  edm::LogPrint("") << "test mean:" << test_mean;
   //p-value
   double p = 0;
   for (double d : diff) {

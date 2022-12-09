@@ -528,6 +528,18 @@ namespace edmtest {
                 return TokenValue{produces<IntProduct>(pset.getParameter<std::string>("instance")),
                                   pset.getParameter<int>("value")};
               })},
+          transientTokenValues_{vector_transform(
+              p.getParameter<std::vector<edm::ParameterSet>>("transientValues"),
+              [this](edm::ParameterSet const& pset) {
+                auto const& branchAlias = pset.getParameter<std::string>("branchAlias");
+                if (not branchAlias.empty()) {
+                  return TransientTokenValue{produces<TransientIntProduct>(pset.getParameter<std::string>("instance"))
+                                                 .setBranchAlias(branchAlias),
+                                             pset.getParameter<int>("value")};
+                }
+                return TransientTokenValue{produces<TransientIntProduct>(pset.getParameter<std::string>("instance")),
+                                           pset.getParameter<int>("value")};
+              })},
           throw_{p.getUntrackedParameter<bool>("throw")} {
       tokenValues_.push_back(TokenValue{produces<IntProduct>(), p.getParameter<int>("ivalue")});
     }
@@ -543,6 +555,7 @@ namespace edmtest {
         pset.add<int>("value");
         pset.add<std::string>("branchAlias", "");
         desc.addVPSet("values", pset, std::vector<edm::ParameterSet>{});
+        desc.addVPSet("transientValues", pset, std::vector<edm::ParameterSet>{});
       }
 
       descriptions.addDefault(desc);
@@ -556,6 +569,13 @@ namespace edmtest {
       int value;
     };
     std::vector<TokenValue> tokenValues_;
+
+    struct TransientTokenValue {
+      edm::EDPutTokenT<TransientIntProduct> token;
+      int value;
+    };
+    std::vector<TransientTokenValue> transientTokenValues_;
+
     bool throw_;
   };
 
@@ -566,6 +586,9 @@ namespace edmtest {
 
     // EventSetup is not used.
     for (auto const& tv : tokenValues_) {
+      e.emplace(tv.token, tv.value);
+    }
+    for (auto const& tv : transientTokenValues_) {
       e.emplace(tv.token, tv.value);
     }
   }
