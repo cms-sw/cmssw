@@ -657,12 +657,15 @@ namespace dqm::implementation {
     auto const& meset = store_->globalMEs_[edm::LuminosityBlockID(runNumber, lumi)];
     auto it = meset.lower_bound(path);
 
-    // decide if the ME should be saved in DQMIO based on the list provided
-    bool saveIt = false;
+    // decide if the ME should be saved in DQMIO and/or nanoDQMIO
+    // if doSaveByLumi_ is false: store all monitoring elements (needed for harvesting step!)
+    // if doSaveByLumi_ is true: store only selected monitoring elements (i.e. "nanoDQMIO")
     while (it != meset.end() && (*it)->getFullname().rfind(path_str, 0) == 0) {
+      bool saveIt = true; // default value if doSaveByLumi_ is false
+
       if (store_->doSaveByLumi_ && not store_->MEsToSave_.empty()) {
         std::string name = (*it)->getFullname();
-        saveIt = false;
+        saveIt = false; // default value if doSaveByLumi_ is true
         for (std::vector<std::string>::const_iterator ipath = store_->MEsToSave_.begin();
              ipath != store_->MEsToSave_.end();
              ++ipath) {
