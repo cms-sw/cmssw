@@ -144,7 +144,7 @@ std::vector<FactorizedJetCorrectorCalculator::VarTypes> FactorizedJetCorrectorCa
     const std::vector<std::string>& fNames) const {
   std::vector<VarTypes> result;
   for (unsigned i = 0; i < fNames.size(); i++) {
-    std::string ss = fNames[i];
+    const std::string& ss = fNames[i];
     if (ss == "JetPt")
       result.push_back(kJetPt);
     else if (ss == "JetEta")

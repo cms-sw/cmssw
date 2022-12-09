@@ -176,6 +176,7 @@ public:
       const std::vector<reco::TransientTrack> &tracks) const override;
 
   std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack> &tracks) const;
+  std::vector<TransientVertex> vertices_in_blocks(const std::vector<reco::TransientTrack> &tracks) const;
 
   track_t fill(const std::vector<reco::TransientTrack> &tracks) const;
 
@@ -222,6 +223,10 @@ private:
 
   double sel_zrange_;
   const double zrange_min_ = 0.1;  // smallest z-range to be included in a tracks cluster list
+
+  bool runInBlocks_;
+  unsigned int block_size_;
+  double overlap_frac_;
 };
 
 //#ifndef DAClusterizerInZ_vect_h

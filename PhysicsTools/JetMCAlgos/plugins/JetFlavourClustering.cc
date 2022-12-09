@@ -314,7 +314,7 @@ void JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iS
     std::vector<edm::Ptr<reco::Candidate>> constituents = it->getJetConstituents();
     std::vector<edm::Ptr<reco::Candidate>>::const_iterator m;
     for (m = constituents.begin(); m != constituents.end(); ++m) {
-      reco::CandidatePtr constit = *m;
+      const reco::CandidatePtr& constit = *m;
       if (!constit.isNonnull() || !constit.isAvailable()) {
         edm::LogError("MissingJetConstituent") << "Jet constituent required for jet reclustering is missing. "
                                                   "Reclustered jets are not guaranteed to reproduce the original jets!";

@@ -167,7 +167,7 @@ bool CtfSpecialSeedGenerator::buildSeeds(const edm::EventSetup& iSetup,
   //SeedFromGenericPairOrTriplet seedBuilder(conf_, magfield.product(), tracker.product(), theBuilder.product());
   edm::LogInfo("CtfSpecialSeedGenerator") << "osh.size() " << osh.size();
   for (unsigned int i = 0; i < osh.size(); i++) {
-    SeedingHitSet shs = osh[i];
+    const SeedingHitSet& shs = osh[i];
     if (preliminaryCheck(shs, iSetup)) {
       std::vector<TrajectorySeed*> seeds = theSeedBuilder->seed(shs, dir, navdir, iSetup);
       for (std::vector<TrajectorySeed*>::const_iterator iSeed = seeds.begin(); iSeed != seeds.end(); iSeed++) {

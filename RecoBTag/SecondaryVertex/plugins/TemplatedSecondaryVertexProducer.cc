@@ -388,7 +388,7 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
         std::vector<edm::Ptr<reco::Candidate> > constituents = it->getJetConstituents();
         std::vector<edm::Ptr<reco::Candidate> >::const_iterator m;
         for (m = constituents.begin(); m != constituents.end(); ++m) {
-          reco::CandidatePtr constit = *m;
+          const reco::CandidatePtr &constit = *m;
           if (constit.isNull() || constit->pt() <= std::numeric_limits<double>::epsilon()) {
             edm::LogWarning("NullTransverseMomentum") << "dropping input candidate with pt=0";
             continue;
@@ -414,7 +414,7 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
         std::vector<edm::Ptr<reco::Candidate> > constituents = it->jet()->getJetConstituents();
         std::vector<edm::Ptr<reco::Candidate> >::const_iterator m;
         for (m = constituents.begin(); m != constituents.end(); ++m) {
-          reco::CandidatePtr constit = *m;
+          const reco::CandidatePtr &constit = *m;
           if (constit.isNull() || constit->pt() <= std::numeric_limits<double>::epsilon()) {
             edm::LogWarning("NullTransverseMomentum") << "dropping input candidate with pt=0";
             continue;

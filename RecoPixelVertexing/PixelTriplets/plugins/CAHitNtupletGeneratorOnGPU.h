@@ -21,20 +21,33 @@ namespace edm {
   class ParameterSetDescription;
 }  // namespace edm
 
+template <typename TrackerTraits>
 class CAHitNtupletGeneratorOnGPU {
 public:
-  using HitsOnGPU = TrackingRecHit2DSOAView;
-  using HitsOnCPU = TrackingRecHit2DGPU;
-  using hindex_type = TrackingRecHit2DSOAView::hindex_type;
+  using PixelTrackHeterogeneous = PixelTrackHeterogeneousT<TrackerTraits>;
 
-  using Quality = pixelTrack::Quality;
-  using OutputSoA = pixelTrack::TrackSoA;
-  using HitContainer = pixelTrack::HitContainer;
+  using HitsView = TrackingRecHit2DSOAViewT<TrackerTraits>;
+  using HitsOnGPU = TrackingRecHit2DGPUT<TrackerTraits>;
+  using HitsOnCPU = TrackingRecHit2DCPUT<TrackerTraits>;
+  using hindex_type = typename HitsView::hindex_type;
+
+  using HitToTuple = caStructures::HitToTupleT<TrackerTraits>;
+  using TupleMultiplicity = caStructures::TupleMultiplicityT<TrackerTraits>;
+  using OuterHitOfCell = caStructures::OuterHitOfCellT<TrackerTraits>;
+
+  using GPUCACell = GPUCACellT<TrackerTraits>;
+  using OutputSoA = pixelTrack::TrackSoAT<TrackerTraits>;
+  using HitContainer = typename OutputSoA::HitContainer;
   using Tuple = HitContainer;
 
-  using QualityCuts = cAHitNtupletGenerator::QualityCuts;
-  using Params = cAHitNtupletGenerator::Params;
-  using Counters = cAHitNtupletGenerator::Counters;
+  using CellNeighborsVector = caStructures::CellNeighborsVectorT<TrackerTraits>;
+  using CellTracksVector = caStructures::CellTracksVectorT<TrackerTraits>;
+
+  using Quality = pixelTrack::Quality;
+
+  using QualityCuts = pixelTrack::QualityCutsT<TrackerTraits>;
+  using Params = caHitNtupletGenerator::ParamsT<TrackerTraits>;
+  using Counters = caHitNtupletGenerator::Counters;
 
 public:
   CAHitNtupletGeneratorOnGPU(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC)
@@ -42,21 +55,22 @@ public:
   CAHitNtupletGeneratorOnGPU(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
   static void fillDescriptions(edm::ParameterSetDescription& desc);
-  static const char* fillDescriptionsLabel() { return "caHitNtupletOnGPU"; }
+  static void fillDescriptionsCommon(edm::ParameterSetDescription& desc);
+  //static const char* fillDescriptionsLabel() { return "caHitNtupletOnGPU"; }
 
   void beginJob();
   void endJob();
 
-  PixelTrackHeterogeneous makeTuplesAsync(TrackingRecHit2DGPU const& hits_d, float bfield, cudaStream_t stream) const;
+  PixelTrackHeterogeneous makeTuplesAsync(HitsOnGPU const& hits_d, float bfield, cudaStream_t stream) const;
 
-  PixelTrackHeterogeneous makeTuples(TrackingRecHit2DCPU const& hits_d, float bfield) const;
+  PixelTrackHeterogeneous makeTuples(HitsOnCPU const& hits_d, float bfield) const;
 
 private:
-  void buildDoublets(HitsOnCPU const& hh, cudaStream_t stream) const;
+  void buildDoublets(HitsOnGPU const& hh, cudaStream_t stream) const;
 
-  void hitNtuplets(HitsOnCPU const& hh, const edm::EventSetup& es, bool useRiemannFit, cudaStream_t cudaStream);
+  void hitNtuplets(HitsOnGPU const& hh, const edm::EventSetup& es, bool useRiemannFit, cudaStream_t cudaStream);
 
-  void launchKernels(HitsOnCPU const& hh, bool useRiemannFit, cudaStream_t cudaStream) const;
+  void launchKernels(HitsOnGPU const& hh, bool useRiemannFit, cudaStream_t cudaStream) const;
 
   Params m_params;
 

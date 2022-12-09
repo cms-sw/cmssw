@@ -108,7 +108,7 @@ void ESRawDataTask::analyze(const Event& e, const EventSetup& c) {
 
       if (e.getByToken(dccCollections_, dccs)) {
         for (ESRawDataCollection::const_iterator dccItr = dccs->begin(); dccItr != dccs->end(); ++dccItr) {
-          ESDCCHeaderBlock esdcc = (*dccItr);
+          const ESDCCHeaderBlock& esdcc = (*dccItr);
 
           esDCC_L1A_FreqMap[esdcc.getLV1()]++;
           esDCC_BX_FreqMap[esdcc.getBX()]++;
@@ -141,7 +141,7 @@ void ESRawDataTask::analyze(const Event& e, const EventSetup& c) {
   vector<int> fiberStatus;
   if (e.getByToken(dccCollections_, dccs)) {
     for (ESRawDataCollection::const_iterator dccItr = dccs->begin(); dccItr != dccs->end(); ++dccItr) {
-      ESDCCHeaderBlock dcc = (*dccItr);
+      const ESDCCHeaderBlock& dcc = (*dccItr);
 
       //if (dcc.getRunNumber() != runNum_) {
       //meRunNumberErrors_->Fill(dcc.fedId());

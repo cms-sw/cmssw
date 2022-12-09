@@ -14,10 +14,20 @@
 
 // Base Class Headers
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "DataFormats/CSCRecHit/interface/CSCSegment.h"
+#include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
@@ -25,6 +35,7 @@
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include <vector>
 
@@ -45,11 +56,12 @@ public:
   MuonAlignmentAnalyzer(const edm::ParameterSet &pset);
 
   /// Destructor
-  ~MuonAlignmentAnalyzer() override;
+  ~MuonAlignmentAnalyzer() override = default;
 
   // Operations
 
   void analyze(const edm::Event &event, const edm::EventSetup &eventSetup) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
   void beginJob() override;
   void endJob() override;
@@ -59,28 +71,42 @@ private:
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
   const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> trackingGeometryToken_;
   RecHitVector doMatching(const reco::Track &,
-                          edm::Handle<DTRecSegment4DCollection> &,
-                          edm::Handle<CSCSegmentCollection> &,
+                          const edm::Handle<DTRecSegment4DCollection> &,
+                          const edm::Handle<CSCSegmentCollection> &,
                           intDVector *,
                           intDVector *,
-                          edm::ESHandle<GlobalTrackingGeometry> &);
+                          const edm::ESHandle<GlobalTrackingGeometry> &);
 
   edm::Service<TFileService> fs;
 
   // InputTags
-  edm::InputTag theGLBMuonTag;
-  edm::InputTag theSTAMuonTag;
+  const edm::InputTag theSTAMuonTag;
+  const edm::InputTag theGLBMuonTag;
 
   // Collections needed
-  edm::InputTag theRecHits4DTagDT;
-  edm::InputTag theRecHits4DTagCSC;
+  const edm::InputTag theRecHits4DTagDT;
+  const edm::InputTag theRecHits4DTagCSC;
 
   // To switch between real data and MC
-  std::string theDataType;
+  const std::string theDataType;
 
-  bool doSAplots, doGBplots, doResplots;
+  const bool doSAplots, doGBplots, doResplots;
 
   // Histograms
+
+  // hist kinematic range
+  const double ptRangeMin, ptRangeMax, invMassRangeMin, invMassRangeMax;
+  // hist residual range
+  const double resLocalXRangeStation1, resLocalXRangeStation2, resLocalXRangeStation3, resLocalXRangeStation4;
+  const double resLocalYRangeStation1, resLocalYRangeStation2, resLocalYRangeStation3, resLocalYRangeStation4;
+  const double resPhiRange, resThetaRange;
+  const unsigned int nbins, min1DTrackRecHitSize, min4DTrackSegmentSize;
+
+  const edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken_;
+  const edm::EDGetTokenT<reco::TrackCollection> staTrackToken_;
+  const edm::EDGetTokenT<reco::TrackCollection> glbTrackToken_;
+  const edm::EDGetTokenT<DTRecSegment4DCollection> allDTSegmentToken_;
+  const edm::EDGetTokenT<CSCSegmentCollection> allCSCSegmentToken_;
 
   //# muons per event
   TH1F *hGBNmuons;
@@ -270,13 +296,5 @@ private:
   int numberOfGBRecTracks;
   int numberOfSARecTracks;
   int numberOfHits;
-
-  // hist kinematic range
-  double ptRangeMin, ptRangeMax, invMassRangeMin, invMassRangeMax;
-  // hist residual range
-  double resLocalXRangeStation1, resLocalXRangeStation2, resLocalXRangeStation3, resLocalXRangeStation4;
-  double resLocalYRangeStation1, resLocalYRangeStation2, resLocalYRangeStation3, resLocalYRangeStation4;
-  double resPhiRange, resThetaRange;
-  unsigned int nbins, min1DTrackRecHitSize, min4DTrackSegmentSize;
 };
 #endif

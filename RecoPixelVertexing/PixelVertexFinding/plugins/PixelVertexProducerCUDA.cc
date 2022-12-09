@@ -1,6 +1,7 @@
 #include <cuda_runtime.h>
 
 #include "CUDADataFormats/Common/interface/Product.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -21,10 +22,14 @@
 
 #undef PIXVERTEX_DEBUG_PRODUCE
 
-class PixelVertexProducerCUDA : public edm::global::EDProducer<> {
+template <typename TrackerTraits>
+class PixelVertexProducerCUDAT : public edm::global::EDProducer<> {
+  using PixelTrackHeterogeneous = PixelTrackHeterogeneousT<TrackerTraits>;
+  using GPUAlgo = gpuVertexFinder::Producer<TrackerTraits>;
+
 public:
-  explicit PixelVertexProducerCUDA(const edm::ParameterSet& iConfig);
-  ~PixelVertexProducerCUDA() override = default;
+  explicit PixelVertexProducerCUDAT(const edm::ParameterSet& iConfig);
+  ~PixelVertexProducerCUDAT() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -40,14 +45,15 @@ private:
   edm::EDGetTokenT<PixelTrackHeterogeneous> tokenCPUTrack_;
   edm::EDPutTokenT<ZVertexHeterogeneous> tokenCPUVertex_;
 
-  const gpuVertexFinder::Producer gpuAlgo_;
+  const GPUAlgo gpuAlgo_;
 
   // Tracking cuts before sending tracks to vertex algo
   const float ptMin_;
   const float ptMax_;
 };
 
-PixelVertexProducerCUDA::PixelVertexProducerCUDA(const edm::ParameterSet& conf)
+template <typename TrackerTraits>
+PixelVertexProducerCUDAT<TrackerTraits>::PixelVertexProducerCUDAT(const edm::ParameterSet& conf)
     : onGPU_(conf.getParameter<bool>("onGPU")),
       gpuAlgo_(conf.getParameter<bool>("oneKernel"),
                conf.getParameter<bool>("useDensity"),
@@ -65,12 +71,13 @@ PixelVertexProducerCUDA::PixelVertexProducerCUDA(const edm::ParameterSet& conf)
         consumes<cms::cuda::Product<PixelTrackHeterogeneous>>(conf.getParameter<edm::InputTag>("pixelTrackSrc"));
     tokenGPUVertex_ = produces<ZVertexCUDAProduct>();
   } else {
-    tokenCPUTrack_ = consumes<PixelTrackHeterogeneous>(conf.getParameter<edm::InputTag>("pixelTrackSrc"));
+    tokenCPUTrack_ = consumes(conf.getParameter<edm::InputTag>("pixelTrackSrc"));
     tokenCPUVertex_ = produces<ZVertexHeterogeneous>();
   }
 }
 
-void PixelVertexProducerCUDA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+template <typename TrackerTraits>
+void PixelVertexProducerCUDAT<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
   // Only one of these three algos can be used at once.
@@ -90,13 +97,13 @@ void PixelVertexProducerCUDA::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<double>("PtMax", 75.);
   desc.add<edm::InputTag>("pixelTrackSrc", edm::InputTag("pixelTracksCUDA"));
 
-  auto label = "pixelVerticesCUDA";
-  descriptions.add(label, desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
-void PixelVertexProducerCUDA::produceOnGPU(edm::StreamID streamID,
-                                           edm::Event& iEvent,
-                                           const edm::EventSetup& iSetup) const {
+template <typename TrackerTraits>
+void PixelVertexProducerCUDAT<TrackerTraits>::produceOnGPU(edm::StreamID streamID,
+                                                           edm::Event& iEvent,
+                                                           const edm::EventSetup& iSetup) const {
   edm::Handle<cms::cuda::Product<PixelTrackHeterogeneous>> hTracks;
   iEvent.getByToken(tokenGPUTrack_, hTracks);
 
@@ -108,9 +115,10 @@ void PixelVertexProducerCUDA::produceOnGPU(edm::StreamID streamID,
   ctx.emplace(iEvent, tokenGPUVertex_, gpuAlgo_.makeAsync(ctx.stream(), tracks, ptMin_, ptMax_));
 }
 
-void PixelVertexProducerCUDA::produceOnCPU(edm::StreamID streamID,
-                                           edm::Event& iEvent,
-                                           const edm::EventSetup& iSetup) const {
+template <typename TrackerTraits>
+void PixelVertexProducerCUDAT<TrackerTraits>::produceOnCPU(edm::StreamID streamID,
+                                                           edm::Event& iEvent,
+                                                           const edm::EventSetup& iSetup) const {
   auto const* tracks = iEvent.get(tokenCPUTrack_).get();
   assert(tracks);
 
@@ -133,7 +141,10 @@ void PixelVertexProducerCUDA::produceOnCPU(edm::StreamID streamID,
   iEvent.emplace(tokenCPUVertex_, gpuAlgo_.make(tracks, ptMin_, ptMax_));
 }
 
-void PixelVertexProducerCUDA::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+template <typename TrackerTraits>
+void PixelVertexProducerCUDAT<TrackerTraits>::produce(edm::StreamID streamID,
+                                                      edm::Event& iEvent,
+                                                      const edm::EventSetup& iSetup) const {
   if (onGPU_) {
     produceOnGPU(streamID, iEvent, iSetup);
   } else {
@@ -141,4 +152,11 @@ void PixelVertexProducerCUDA::produce(edm::StreamID streamID, edm::Event& iEvent
   }
 }
 
+using PixelVertexProducerCUDA = PixelVertexProducerCUDAT<pixelTopology::Phase1>;
 DEFINE_FWK_MODULE(PixelVertexProducerCUDA);
+
+using PixelVertexProducerCUDAPhase1 = PixelVertexProducerCUDAT<pixelTopology::Phase1>;
+DEFINE_FWK_MODULE(PixelVertexProducerCUDAPhase1);
+
+using PixelVertexProducerCUDAPhase2 = PixelVertexProducerCUDAT<pixelTopology::Phase2>;
+DEFINE_FWK_MODULE(PixelVertexProducerCUDAPhase2);

@@ -247,6 +247,38 @@ TEST_CASE("Configuration with different branches", s_tag) {
   }
 }
 
+TEST_CASE("Configuration with different transient branches", s_tag) {
+  const std::string test1{"cms.EDProducer('ManyIntProducer', ivalue = cms.int32(1), values = cms.VPSet())"};
+  const std::string test2{
+      "cms.EDProducer('ManyIntProducer', ivalue = cms.int32(2), transientValues = "
+      "cms.VPSet(cms.PSet(instance=cms.string('foo'),value=cms.int32(3))))"};
+
+  const std::string baseConfig1 = makeConfig(true, test1, test2);
+  const std::string baseConfig2 = makeConfig(false, test1, test2);
+
+  SECTION("Different transient branches are allowed") {
+    edm::test::TestProcessor::Config config1{baseConfig1};
+    edm::test::TestProcessor testProcessor1{config1};
+    auto event1 = testProcessor1.test();
+    REQUIRE(event1.get<edmtest::IntProduct>()->value == 2);
+
+    // It would be better if the next line of executable code would
+    // throw an exception, but that is not the current expected behavior.
+    // It would be nice to have all cases of a SwitchProducer fail if
+    // any case fails on a "get" (but it is intentional and desirable
+    // that it does not fail only because a  case declares it produces
+    // different transient products). We decided it was not worth the
+    // effort and complexity to implement this behavior (at least not yet).
+    REQUIRE(event1.get<edmtest::TransientIntProduct>("foo")->value == 3);
+
+    edm::test::TestProcessor::Config config2{baseConfig2};
+    edm::test::TestProcessor testProcessor2{config2};
+    auto event2 = testProcessor2.test();
+    REQUIRE(event2.get<edmtest::IntProduct>()->value == 1);
+    REQUIRE_THROWS(event2.get<edmtest::TransientIntProduct>()->value == 3);
+  }
+}
+
 TEST_CASE("Configuration with different branches with EDAlias", s_tag) {
   const std::string otherprod{
       "cms.EDProducer('ManyIntProducer', ivalue = cms.int32(2), values = "
