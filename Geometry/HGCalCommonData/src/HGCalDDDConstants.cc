@@ -611,14 +611,14 @@ bool HGCalDDDConstants::isValidHex8(int layer, int modU, int modV, int cellU, in
   if ((cellU < 0) || (cellU >= 2 * N) || (cellV < 0) || (cellV >= 2 * N)) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants:: Cannot statisfy Cell 1 condition " << cellU << ":" << cellV
-				  << ":" << N;
+                                  << ":" << N;
 #endif
     return false;
   }
   if (((cellV - cellU) >= N) || ((cellU - cellV) > N)) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants:: Cannot statisfy Cell 2 condition " << cellU << ":" << cellV
-				  << ":" << N;
+                                  << ":" << N;
 #endif
     return false;
   }
