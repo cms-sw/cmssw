@@ -278,4 +278,19 @@ namespace tensorflow {
     run(session, {}, outputNames, outputs, threadPoolName);
   }
 
+  void SessionCache::closeSession() {
+    // delete the session if set
+    Session* s = session.load();
+    if (s != nullptr) {
+      tensorflow::closeSession(s);
+      session.store(nullptr);
+    }
+
+    // delete the graph if set
+    if (graph.load() != nullptr) {
+      delete graph.load();
+      graph.store(nullptr);
+    }
+  }
+
 }  // namespace tensorflow
