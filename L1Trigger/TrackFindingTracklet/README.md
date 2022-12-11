@@ -8,7 +8,7 @@ L1 tracking algo used.
 For the baseline HYBRID algo, which runs Tracklet pattern reco followed
 by KF track fit, TrackFindingTracklet/interface/Settings.h configures the pattern reco, (although some 
 parameters there are overridden by l1tTTTracksFromTrackletEmulation_cfi.py).
-The KF fit is configued by the constructor of TrackFindingTMTT/src//Settings.cc.
+The KF fit is configued by the constructor of TrackFindingTMTT/src/Settings.cc.
 
 The ROOT macros L1TrackNtuplePlot.C & L1TrackQualityPlot.C make tracking 
 performance & BDT track quality performance plots from the TTree. 
