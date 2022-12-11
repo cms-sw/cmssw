@@ -361,7 +361,7 @@ void PATJetProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
           edm::Ref<std::vector<CaloTower>> caloTowerRef(h_caloTowersOut, caloTowersOut->size() - 1);
           edm::Ptr<CaloTower> caloForwardRef(h_caloTowersOut.id(), caloTowerRef.key(), h_caloTowersOut.productGetter());
           // set the "backward" ref to the original collection for association
-          edm::Ptr<CaloTower> caloBackRef(*itow);
+          const edm::Ptr<CaloTower> &caloBackRef(*itow);
           // add to the list of FwdPtr's
           itowersRef.push_back(pat::CaloTowerFwdPtrCollection::value_type(caloForwardRef, caloBackRef));
         }
@@ -385,7 +385,7 @@ void PATJetProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) 
         edm::Ptr<reco::PFCandidate> pfForwardRef(
             h_pfCandidatesOut.id(), pfCollectionRef.key(), h_pfCandidatesOut.productGetter());
         // set the "backward" ref to the original collection for association
-        edm::Ptr<reco::PFCandidate> pfBackRef(*ipart);
+        const edm::Ptr<reco::PFCandidate> &pfBackRef(*ipart);
         // add to the list of FwdPtr's
         iparticlesRef.push_back(pat::PFCandidateFwdPtrCollection::value_type(pfForwardRef, pfBackRef));
       }
