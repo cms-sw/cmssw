@@ -84,7 +84,7 @@ bool EMEnrichingFilterAlgo::filterPhotonElectronSeed(float clusterthreshold,
   vector<reco::GenParticle> seeds;
   //find electron and photon seeds - must have E>seedthreshold GeV
   for (uint32_t is = 0; is < genParsCurved.size(); is++) {
-    reco::GenParticle gp = genParsCurved.at(is);
+    const reco::GenParticle &gp = genParsCurved.at(is);
     if (gp.status() != 1 || fabs(gp.eta()) > FILTER_ETA_MAX_ || fabs(gp.eta()) < FILTER_ETA_MIN_)
       continue;
     int absid = abs(gp.pdgId());
@@ -105,8 +105,8 @@ bool EMEnrichingFilterAlgo::filterPhotonElectronSeed(float clusterthreshold,
         0;  //isolation energy from heavy hadrons that goes in the same area as the "electron" - so contributes to H/E
     bool isBarrel = fabs(seeds.at(is).eta()) < ECALBARRELMAXETA_;
     for (uint32_t ig = 0; ig < genParsCurved.size(); ig++) {
-      reco::GenParticle gp = genParsCurved.at(ig);
-      reco::GenParticle gpUnCurv = genPars.at(ig);  //for tk isolation, p at vertex
+      const reco::GenParticle &gp = genParsCurved.at(ig);
+      const reco::GenParticle &gpUnCurv = genPars.at(ig);  //for tk isolation, p at vertex
       if (gp.status() != 1)
         continue;
       int gpabsid = abs(gp.pdgId());
@@ -196,7 +196,7 @@ std::vector<reco::GenParticle> EMEnrichingFilterAlgo::applyBFieldCurv(const std:
   AnalyticalPropagator propagator(magField, alongMomentum);
 
   for (uint32_t ig = 0; ig < genPars.size(); ig++) {
-    reco::GenParticle gp = genPars.at(ig);
+    const reco::GenParticle &gp = genPars.at(ig);
     //don't bend trajectories of neutral particles, unstable particles, particles with < 1 GeV
     //particles with < ~0.9 GeV don't reach the barrel
     //so just put them as-is into the new vector
@@ -271,8 +271,8 @@ bool EMEnrichingFilterAlgo::filterIsoGenPar(float etmin,
                                             const reco::GenParticleCollection &gph,
                                             const reco::GenParticleCollection &gphCurved) const {
   for (uint32_t ip = 0; ip < gph.size(); ip++) {
-    reco::GenParticle gp = gph.at(ip);
-    reco::GenParticle gpCurved = gphCurved.at(ip);
+    const reco::GenParticle &gp = gph.at(ip);
+    const reco::GenParticle &gpCurved = gphCurved.at(ip);
     int gpabsid = abs(gp.pdgId());
     //find potential candidates
     if (gp.et() <= etmin || gp.status() != 1)
@@ -290,8 +290,8 @@ bool EMEnrichingFilterAlgo::filterIsoGenPar(float etmin,
     for (uint32_t jp = 0; jp < gph.size(); jp++) {
       if (jp == ip)
         continue;
-      reco::GenParticle pp = gph.at(jp);
-      reco::GenParticle ppCurved = gphCurved.at(jp);
+      const reco::GenParticle &pp = gph.at(jp);
+      const reco::GenParticle &ppCurved = gphCurved.at(jp);
       if (pp.status() != 1)
         continue;
       float dr = deltaR(gp, pp);
