@@ -101,8 +101,11 @@ HFShowerLibrary::HFShowerLibrary(const Params& iParams, const FileParams& iFileP
   std::string pTreeName = iFileParams.fileName_;
 
   const char* nTree = pTreeName.c_str();
-  hf_ = std::unique_ptr<TFile>(TFile::Open(nTree));
-
+  {
+    //It is not safe to open a Tfile in one thread and close in another without adding the following:
+    TDirectory::TContext context;
+    hf_ = std::unique_ptr<TFile>(TFile::Open(nTree));
+  }
   if (!hf_->IsOpen()) {
     edm::LogError("HFShower") << "HFShowerLibrary: opening " << nTree << " failed";
     throw cms::Exception("Unknown", "HFShowerLibrary") << "Opening of " << pTreeName << " fails\n";
