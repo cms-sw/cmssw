@@ -19,7 +19,7 @@ namespace l1t {
 namespace l1ct {
 
   struct HadCaloObjEmu : public HadCaloObj {
-    const l1t::PFCluster *src;
+    const l1t::PFCluster *src = nullptr;
     bool read(std::fstream &from);
     bool write(std::fstream &to) const;
     void clear() {
@@ -29,7 +29,7 @@ namespace l1ct {
   };
 
   struct EmCaloObjEmu : public EmCaloObj {
-    const l1t::PFCluster *src;
+    const l1t::PFCluster *src = nullptr;
     bool read(std::fstream &from);
     bool write(std::fstream &to) const;
     void clear() {
@@ -41,7 +41,7 @@ namespace l1ct {
   struct TkObjEmu : public TkObj {
     uint16_t hwChi2, hwStubs;
     float simPt, simCaloEta, simCaloPhi, simVtxEta, simVtxPhi, simZ0, simD0;
-    const l1t::PFTrack *src;
+    const l1t::PFTrack *src = nullptr;
     bool read(std::fstream &from);
     bool write(std::fstream &to) const;
     void clear() {
@@ -60,7 +60,7 @@ namespace l1ct {
   };
 
   struct MuObjEmu : public MuObj {
-    const l1t::SAMuon *src;
+    const l1t::SAMuon *src = nullptr;
     bool read(std::fstream &from);
     bool write(std::fstream &to) const;
     void clear() {
@@ -70,10 +70,10 @@ namespace l1ct {
   };
 
   struct PFChargedObjEmu : public PFChargedObj {
-    const l1t::PFCluster *srcCluster;
-    const l1t::PFTrack *srcTrack;
-    const l1t::SAMuon *srcMu;
-    const l1t::PFCandidate *srcCand;
+    const l1t::PFCluster *srcCluster = nullptr;
+    const l1t::PFTrack *srcTrack = nullptr;
+    const l1t::SAMuon *srcMu = nullptr;
+    const l1t::PFCandidate *srcCand = nullptr;
     bool read(std::fstream &from);
     bool write(std::fstream &to) const;
     void clear() {
@@ -86,8 +86,8 @@ namespace l1ct {
   };
 
   struct PFNeutralObjEmu : public PFNeutralObj {
-    const l1t::PFCluster *srcCluster;
-    const l1t::PFCandidate *srcCand;
+    const l1t::PFCluster *srcCluster = nullptr;
+    const l1t::PFCandidate *srcCand = nullptr;
     bool read(std::fstream &from);
     bool write(std::fstream &to) const;
     void clear() {
@@ -113,10 +113,10 @@ namespace l1ct {
   };
 
   struct PuppiObjEmu : public PuppiObj {
-    const l1t::PFCluster *srcCluster;
-    const l1t::PFTrack *srcTrack;
-    const l1t::SAMuon *srcMu;
-    const l1t::PFCandidate *srcCand;
+    const l1t::PFCluster *srcCluster = nullptr;
+    const l1t::PFTrack *srcTrack = nullptr;
+    const l1t::SAMuon *srcMu = nullptr;
+    const l1t::PFCandidate *srcCand = nullptr;
     bool read(std::fstream &from);
     bool write(std::fstream &to) const;
     void clear() {
@@ -150,7 +150,7 @@ namespace l1ct {
   };
 
   struct EGObjEmu : public EGIsoObj {
-    const l1t::PFCluster *srcCluster;
+    const l1t::PFCluster *srcCluster = nullptr;
     void clear() {
       srcCluster = nullptr;
       EGIsoObj::clear();
@@ -190,8 +190,8 @@ namespace l1ct {
   };
 
   struct EGIsoEleObjEmu : public EGIsoEleObj {
-    const l1t::PFCluster *srcCluster;
-    const l1t::PFTrack *srcTrack;
+    const l1t::PFCluster *srcCluster = nullptr;
+    const l1t::PFTrack *srcTrack = nullptr;
     // we use an index to the standalone object needed to retrieve a Ref when putting
     int sta_idx;
     bool read(std::fstream &from);
