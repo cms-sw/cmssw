@@ -12,3 +12,6 @@
 
 <!-- test the HLTPrescaleExample plugin -->
 <test name="test_HLTPrescaleExample" command="cmsRun ${LOCALTOP}/src/HLTrigger/HLTcore/test/hltPrescaleExample_cfg.py"/>
+
+<!-- test EDAnalyzers using TriggerEvent and TriggerEventWithRefs -->
+<test name="test_TriggerEventAnalyzers" command="testTriggerEventAnalyzers.sh"/>
