@@ -37,7 +37,7 @@
 class LHEIntermediateParticlePtFilter : public edm::global::EDFilter<> {
 public:
   explicit LHEIntermediateParticlePtFilter(const edm::ParameterSet&);
-  ~LHEIntermediateParticlePtFilter() override;
+  ~LHEIntermediateParticlePtFilter() override = default;
 
   bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
