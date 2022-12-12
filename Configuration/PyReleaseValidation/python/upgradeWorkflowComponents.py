@@ -24,6 +24,8 @@ upgradeKeys[2017] = [
     '2023PU',
     '2024',
     '2024PU',
+    '2021postEE',
+    '2021postEEPU', 
 ]
 
 upgradeKeys[2026] = [
@@ -76,7 +78,7 @@ numWFStart={
 }
 numWFSkip=200
 # temporary measure to keep other WF numbers the same
-numWFConflict = [[20000,23200],[23600,28200],[28600,31400],[31800,32200],[32600,34600],[50000,51000]]
+numWFConflict = [[13200,13600],[20000,23200],[23600,28200],[28600,31400],[31800,32200],[32600,34600],[50000,51000]]
 numWFAll={
     2017: [],
     2026: []
@@ -2011,6 +2013,14 @@ upgradeProperties[2017] = {
         'HLTmenu': '@relval2022',
         'Era' : 'Run3',
         'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
+        'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
+    },
+    '2021postEE' : {
+        'Geom' : 'DB:Extended',
+        'GT' : 'auto:phase1_2022_realistic_postEE',
+        'HLTmenu': '@relval2022_postEE',
+        'Era' : 'Run3',
+        'BeamSpot': 'Realistic25ns13p6TeVEarly2022Collision',
         'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
     },
 }
