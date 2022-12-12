@@ -30,7 +30,7 @@ HFShowerParam::HFShowerParam(const std::string& name,
                              const HcalDDDSimConstants* hcons,
                              const HcalSimulationParameters* hps,
                              edm::ParameterSet const& p)
-    : hcalConstants_(hcons), fillHisto_(false) {
+    : fibre_(hcons, hps, p), fillHisto_(false) {
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
   edm::ParameterSet m_HF2 = m_HF.getParameter<edm::ParameterSet>("HFShowerBlock");
   pePerGeV_ = m_HF.getParameter<double>("PEPerGeV");
@@ -45,7 +45,7 @@ HFShowerParam::HFShowerParam(const std::string& name,
   aperture_ = cos(asin(m_HF.getParameter<double>("Aperture")));
   applyFidCut_ = m_HF.getParameter<bool>("ApplyFiducialCut");
   parametrizeLast_ = m_HF.getUntrackedParameter<bool>("ParametrizeLast", false);
-  gpar_ = hcalConstants_->getGparHF();
+  gpar_ = hcons->getGparHF();
 
   edm::LogVerbatim("HFShower") << "HFShowerParam::Use of shower library is set to " << useShowerLibrary
                                << " Use of Gflash is set to " << useGflash << " P.E. per GeV " << pePerGeV_
@@ -90,20 +90,17 @@ HFShowerParam::HFShowerParam(const std::string& name,
 #endif
 
   if (useShowerLibrary)
-    showerLibrary_ = std::make_unique<HFShowerLibrary>(name, hcalConstants_, hps, p);
+    showerLibrary_ = std::make_unique<HFShowerLibrary>(name, hcons, hps, p);
   else
     showerLibrary_.reset(nullptr);
   if (useGflash)
     gflash_ = std::make_unique<HFGflash>(p);
   else
     gflash_.reset(nullptr);
-  fibre_ = std::make_unique<HFFibre>(name, hcalConstants_, hps, p);
-  attLMeanInv_ = fibre_->attLength(lambdaMean);
+  attLMeanInv_ = fibre_.attLength(lambdaMean);
   edm::LogVerbatim("HFShower") << "att. length used for (lambda=" << lambdaMean
                                << ") = " << 1 / (attLMeanInv_ * CLHEP::cm) << " cm";
 }
-
-HFShowerParam::~HFShowerParam() {}
 
 std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step* aStep, double weight, bool& isKilled) {
   auto const preStepPoint = aStep->GetPreStepPoint();
@@ -251,7 +248,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step* aStep, doub
                 ok = false;
             }
             //attenuation
-            double dist = fibre_->zShift(localPoint, depth, 0);  // distance to PMT
+            double dist = fibre_.zShift(localPoint, depth, 0);  // distance to PMT
             double r1 = G4UniformRand();
 #ifdef EDM_ML_DEBUG
             edm::LogVerbatim("HFShower") << "HFShowerParam:Distance to PMT (" << npmt << ") " << dist
@@ -266,8 +263,8 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step* aStep, doub
                   << "HFShowerParam:Extra exclusion " << r2 << ">" << weight << " " << (r2 > weight);
 #endif
               if (r2 < weight) {
-                double time = (equalizeTimeShift_) ? (fibre_->tShift(localPoint, depth, -1))
-                                                   : (fibre_->tShift(localPoint, depth, 0));
+                double time = (equalizeTimeShift_) ? (fibre_.tShift(localPoint, depth, -1))
+                                                   : (fibre_.tShift(localPoint, depth, 0));
 
                 hit.position = hitSL[i].position;
                 hit.depth = depth;
@@ -303,8 +300,8 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step* aStep, doub
         path = "Rest";
         edep *= pePerGeV_;
         double tSlice = (aStep->GetPostStepPoint()->GetGlobalTime());
-        double time = (equalizeTimeShift_) ? (fibre_->tShift(localPoint, 1, -1))
-                                           : (fibre_->tShift(localPoint, 1, 0));  // remaining part
+        double time = (equalizeTimeShift_) ? (fibre_.tShift(localPoint, 1, -1))
+                                           : (fibre_.tShift(localPoint, 1, 0));  // remaining part
         bool ok = true;
         if (applyFidCut_) {  // @@ For showerlibrary no z-cut for Short (no z)
           int npmt = HFFibreFiducial::PMTNumber(hitPoint);
@@ -330,7 +327,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step* aStep, doub
           }
 #endif
           if (zz >= gpar_[0]) {
-            time = (equalizeTimeShift_) ? (fibre_->tShift(localPoint, 2, -1)) : (fibre_->tShift(localPoint, 2, 0));
+            time = (equalizeTimeShift_) ? (fibre_.tShift(localPoint, 2, -1)) : (fibre_.tShift(localPoint, 2, 0));
             hit.depth = 2;
             hit.time = tSlice + time;
             hits.push_back(hit);

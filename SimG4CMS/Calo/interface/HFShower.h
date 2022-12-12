@@ -26,7 +26,6 @@ public:
            const HcalSimulationParameters *hps,
            edm::ParameterSet const &p,
            int chk = 0);
-  virtual ~HFShower();
 
 public:
   struct Hit {
@@ -43,10 +42,8 @@ public:
   std::vector<Hit> getHits(const G4Step *aStep, bool forLibraryProducer, double zoffset);
 
 private:
-  const HcalDDDSimConstants *hcalConstant_;
-
-  std::unique_ptr<HFCherenkov> cherenkov_;
-  std::unique_ptr<HFFibre> fibre_;
+  HFCherenkov cherenkov_;
+  HFFibre fibre_;
 
   int chkFibre_;
   bool applyFidCut_;
