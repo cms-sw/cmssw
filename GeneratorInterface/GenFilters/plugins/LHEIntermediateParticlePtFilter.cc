@@ -14,7 +14,6 @@
 
 // system include files
 #include <memory>
-#include <iostream>
 #include <set>
 
 // user include files
@@ -47,8 +46,8 @@ private:
   edm::EDGetTokenT<LHEEventProduct> src_;
   const std::vector<int> pdgIdVec_;
   std::set<int> pdgIds_;  // Set of PDG Ids to include
-  double ptMin_;          // number of particles required to pass filter
-  double ptMax_;          // number of particles required to pass filter
+  const double ptMin_;    // number of particles required to pass filter
+  const double ptMax_;    // number of particles required to pass filter
 };
 
 using namespace edm;
@@ -61,11 +60,6 @@ LHEIntermediateParticlePtFilter::LHEIntermediateParticlePtFilter(const edm::Para
   //here do whatever other initialization is needed
   src_ = consumes<LHEEventProduct>(iConfig.getParameter<edm::InputTag>("src"));
   pdgIds_ = std::set<int>(pdgIdVec_.begin(), pdgIdVec_.end());
-}
-
-LHEIntermediateParticlePtFilter::~LHEIntermediateParticlePtFilter() {
-  // do anything here that needs to be done at destruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 // ------------ method called to skim the data  ------------
@@ -94,11 +88,8 @@ bool LHEIntermediateParticlePtFilter::filter(edm::StreamID, edm::Event& iEvent, 
     }
     vpt_ = tot.pt();
   }
-  if ((ptMax_ < 0. || vpt_ <= ptMax_) && vpt_ > ptMin_) {
-    return true;
-  } else {
-    return false;
-  }
+
+  return (ptMax_ < 0. || vpt_ <= ptMax_) && (vpt_ > ptMin_);
 }
 
 //define this as a plug-in
