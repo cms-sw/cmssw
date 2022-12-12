@@ -16,7 +16,9 @@ SiStripCorrelateBadStripAndNoise::SiStripCorrelateBadStripAndNoise(const edm::Pa
 }
 
 void SiStripCorrelateBadStripAndNoise::beginRun(const edm::Run &run, const edm::EventSetup &es) {
-  if (noiseWatcher_.check(es) || qualityWatcher_.check(es)) {
+  auto newNoise = noiseWatcher_.check(es);
+  auto newQuality = qualityWatcher_.check(es);
+  if (newNoise || newQuality) {
     edm::LogInfo("") << "[SiStripCorrelateBadStripAndNoise::beginRun]" << std::endl;
 
     quality_ = &es.getData(qualityToken_);
