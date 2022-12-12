@@ -2127,13 +2127,17 @@ void PlotAlignmentValidation::plotDMRHistogram(PlotAlignmentValidation::DMRPlotI
       if (isBadModule)
         continue;
       fUsedModules << *_moduleId << "\n";
-      h->Fill(*varToPlot);
+      if (h) {
+        h->Fill(*varToPlot);
+      }
     }
 
     //Finalize
     fUsedModules.close();
     fBadModules->Close();
-    h->SetName(histoname.Data());
+    if (h) {
+      h->SetName(histoname.Data());
+    }
   }
 
   //Store histogram
