@@ -527,7 +527,7 @@ void TrackstersMergeProducerV3::energyRegressionAndID(const std::vector<reco::Ca
   //
   // 1. Set default values for regressed energy and particle id for each trackster.
   // 2. Store indices of tracksters whose total sum of cluster energies is above the
-  //    eidMinClusterEnergy_ (GeV) treshold. Inference is not applied for soft tracksters.
+  //    eidMinClusterEnergy_ (GeV) threshold. Inference is not applied for soft tracksters.
   // 3. When no trackster passes the selection, return.
   // 4. Create input and output tensors. The batch dimension is determined by the number of
   //    selected tracksters.
@@ -637,7 +637,7 @@ void TrackstersMergeProducerV3::energyRegressionAndID(const std::vector<reco::Ca
   }
 
   // run the inference (7)
-  tensorflow::run(const_cast<tensorflow::Session *>(eidSession), inputList, outputNames, &outputs);
+  tensorflow::run(eidSession, inputList, outputNames, &outputs);
 
   // store regressed energy per trackster (8)
   if (!eidOutputNameEnergy_.empty()) {
