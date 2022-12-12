@@ -16,7 +16,7 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 numWFIB = []
 numWFIB.extend([20034.0]) #2026D86
 numWFIB.extend([20834.0,20834.911,20834.103]) #2026D88 DDD XML, DD4hep XML, aging
-numWFIB.extend([20834.75]) #2026D88 with HLT75e33
+numWFIB.extend([20834.75,20834.76]) #2026D88 with HLT75e33 after RECO, HLTe33 with the same step with Digi+L1
 numWFIB.extend([21061.97]) #2026D88 premixing stage1 (NuGun+PU)
 numWFIB.extend([20834.5,20834.9,20834.501,20834.502]) #2026D88 pixelTrackingOnly, vector hits, Patatrack local reconstruction on CPU, Patatrack local reconstruction on GPU
 numWFIB.extend([21034.99,21034.999]) #2026D88 premixing combined stage1+stage2 (ttbar+PU200, ttbar+PU50 for PR test)
