@@ -7,17 +7,9 @@
 #include <iomanip>
 
 HFShowerPhoton::HFShowerPhoton(float x, float y, float z, float lambda, float t)
-    : position_(Point(x, y, z)), lambda_(lambda), time_(t) {}
+    : position_(x, y, z), lambda_(lambda), time_(t) {}
 
 HFShowerPhoton::HFShowerPhoton(const Point& p, float t, float lambda) : position_(p), lambda_(lambda), time_(t) {}
-
-HFShowerPhoton::HFShowerPhoton(const HFShowerPhoton& right) {
-  position_ = right.position_;
-  lambda_ = right.lambda_;
-  time_ = right.time_;
-}
-
-HFShowerPhoton::~HFShowerPhoton() {}
 
 std::ostream& operator<<(std::ostream& os, const HFShowerPhoton& it) {
   os << "X " << std::setw(6) << it.x() << " Y " << std::setw(6) << it.y() << " Z " << std::setw(6) << it.z() << " t "
