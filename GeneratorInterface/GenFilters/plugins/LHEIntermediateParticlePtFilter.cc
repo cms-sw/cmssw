@@ -45,7 +45,7 @@ private:
   // ----------member data ---------------------------
 
   edm::EDGetTokenT<LHEEventProduct> src_;
-  std::vector<int> pdgIdVec_;
+  const std::vector<int> pdgIdVec_;
   std::set<int> pdgIds_;  // Set of PDG Ids to include
   double ptMin_;          // number of particles required to pass filter
   double ptMax_;          // number of particles required to pass filter
