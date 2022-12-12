@@ -61,6 +61,11 @@ using namespace l1tcalo;
 using namespace l1extra;
 using namespace std;
 
+//HLS4ML compiled emulator modeling
+#include <string>
+#include "L1Trigger/L1TCaloLayer1/src/HLS_emulator.hh"
+#include "ap_fixed.h"
+
 //
 // class declaration
 //
@@ -103,6 +108,10 @@ private:
 
   UCTLayer1* layer1;
   UCTSummaryCard* summaryCard;
+
+  //HLS4ML emulator objects
+  ModelLoader loader;
+  HLS4MLModel* model;
 };
 
 //
@@ -128,7 +137,9 @@ L1TCaloSummary::L1TCaloSummary(const edm::ParameterSet& iConfig)
       boostedJetPtFactor(iConfig.getParameter<double>("boostedJetPtFactor")),
       verbose(iConfig.getParameter<bool>("verbose")),
       fwVersion(iConfig.getParameter<int>("firmwareVersion")),
-      regionToken(consumes<L1CaloRegionCollection>(edm::InputTag("simCaloStage2Layer1Digis"))) {
+      regionToken(consumes<L1CaloRegionCollection>(edm::InputTag("simCaloStage2Layer1Digis"))),
+      loader(ModelLoader(((std::string)std::getenv("CMSSW_BASE"))
+                             .append(iConfig.getParameter<string>("compiledAnomalyModelLocation")))) {
   std::vector<double> pumLUTData;
   char pumLUTString[10];
   for (uint32_t pumBin = 0; pumBin < nPumBins; pumBin++) {
@@ -149,11 +160,17 @@ L1TCaloSummary::L1TCaloSummary(const edm::ParameterSet& iConfig)
   }
   produces<L1JetParticleCollection>("Boosted");
   summaryCard = new UCTSummaryCard(&pumLUT, jetSeed, tauSeed, tauIsolationFactor, eGammaSeed, eGammaIsolationFactor);
+
+  //Anomaly model/ CICADA model and output
+  produces<float>("anomalyScore");
+  model = loader.load_model();
 }
 
 L1TCaloSummary::~L1TCaloSummary() {
   if (summaryCard != nullptr)
     delete summaryCard;
+
+  loader.destroy_model();
 }
 
 //
@@ -165,6 +182,8 @@ void L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   using namespace edm;
 
   std::unique_ptr<L1JetParticleCollection> bJetCands(new L1JetParticleCollection);
+  //This will hold the score we emplace into the event
+  std::unique_ptr<float> anomalyScore(new float);
 
   UCTGeometry g;
 
@@ -179,6 +198,12 @@ void L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   if (!iEvent.getByToken(regionToken, regionCollection))
     edm::LogError("L1TCaloSummary") << "UCT: Failed to get regions from region collection!";
   iEvent.getByToken(regionToken, regionCollection);
+  //Input into the model is in the input_t format as defined in the model's firmware/defines.h
+  //For the CICADA 2018 Run A model, it takes all 252 regions, in a single vector, from low to high phi, low to high eta.
+  //TODO: Would be good to have this synchronized to the firmware/defines.h used to make the model's .so
+  //...But this may require the inclusion of additional files into CMSSW,
+  //with no guarantee that it will be anymore synchronized than this is.
+  ap_ufixed<10, 10> precompiledModelInput[252];
   for (const L1CaloRegion& i : *regionCollection) {
     UCTRegionIndex r = g.getUCTRegionIndexFromL1CaloRegion(i.gctEta(), i.gctPhi());
     UCTTowerIndex t = g.getUCTTowerIndexFromL1CaloRegion(r, i.raw());
@@ -193,7 +218,24 @@ void L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     UCTRegion* test = new UCTRegion(crate, card, negativeEta, region, fwVersion);
     test->setRegionSummary(i.raw());
     inputRegions.push_back(test);
+    //This should fill the tensor in the proper order to be fed to the anomaly model
+    //We take 4 off of the GCT eta/iEta.
+    //iEta taken from this ranges from 4-17, (I assume reserving lower and higher for forward regions)
+    //So our first index, index 0, is technically iEta=4, and so-on.
+    precompiledModelInput[14 * i.gctPhi() + (i.gctEta() - 4)] = i.et();
   }
+  //run the precompiled CICADA model
+  //Output of the model is taken from the model's firmware/defines.h file again
+  //this time in is in result_t format
+  //TODO: Similarly to the above, it might be nice to have a way to synchronize this to the model being used
+  ap_fixed<11, 5> precompiledModelResult[1];
+  model->prepare_input(precompiledModelInput);
+  model->predict();
+  model->read_result(precompiledModelResult);
+
+  *anomalyScore =
+      precompiledModelResult[0].to_float();  //convert the fixed precision result to a proper c++ floating point
+
   summaryCard->setRegionData(inputRegions);
 
   if (!summaryCard->process()) {
@@ -257,6 +299,8 @@ void L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   }
 
   iEvent.put(std::move(bJetCands), "Boosted");
+  //Write out anomaly score
+  iEvent.put(std::move(anomalyScore), "anomalyScore");
 }
 
 void L1TCaloSummary::print() {}
