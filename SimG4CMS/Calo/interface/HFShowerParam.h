@@ -28,7 +28,6 @@ public:
                 const HcalDDDSimConstants* hcons,
                 const HcalSimulationParameters* hps,
                 edm::ParameterSet const& p);
-  virtual ~HFShowerParam();
 
 public:
   struct Hit {
@@ -41,9 +40,8 @@ public:
   std::vector<Hit> getHits(const G4Step* aStep, double weight, bool& isKilled);
 
 private:
-  const HcalDDDSimConstants* hcalConstants_;
   std::unique_ptr<HFShowerLibrary> showerLibrary_;
-  std::unique_ptr<HFFibre> fibre_;
+  HFFibre fibre_;
   std::unique_ptr<HFGflash> gflash_;
   bool fillHisto_;
   double pePerGeV_, edMin_, ref_index_, aperture_, attLMeanInv_;
