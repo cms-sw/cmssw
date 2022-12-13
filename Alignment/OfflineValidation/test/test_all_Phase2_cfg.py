@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 import sys
 from enum import Enum
-from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultMC_TTBarPU
+from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultMC_TTBarPUPhase2RECO
 
 class RefitType(Enum):
      STANDARD = 1
@@ -12,10 +12,11 @@ isMC = True
 allFromGT = True
 applyBows = True
 applyExtraConditions = True
-theRefitter = RefitType.COMMON
-_theTrackCollection = 'generalTracks' # 'ALCARECOTkAlMinBias'
+theRefitter = RefitType.STANDARD
+_theTrackCollection = "generalTracks" #"ALCARECOTkAlMinBias" unfortunately not yet
 
-process = cms.Process("Demo")
+from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+process = cms.Process("Demo",Phase2C17I13M9) 
 
 ###################################################################
 # Set the process to run multi-threaded
@@ -26,13 +27,13 @@ process.options.numberOfThreads = 8
 # Event source and run selection
 ###################################################################
 process.source = cms.Source("PoolSource",
-                            fileNames = filesDefaultMC_TTBarPU,
+                            fileNames = filesDefaultMC_TTBarPUPhase2RECO,
                             duplicateCheckMode = cms.untracked.string('checkAllFilesOpened')
                             )
 
 runboundary = 1
 process.source.firstRun = cms.untracked.uint32(int(runboundary))
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(2600) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 ###################################################################
 # JSON Filtering
@@ -79,7 +80,8 @@ process.load('Configuration.StandardSequences.MagneticField_cff')
 ###################################################################
 # Standard loads
 ###################################################################
-process.load("Configuration.Geometry.GeometryRecoDB_cff")
+#process.load("Configuration.Geometry.GeometryRecoDB_cff")
+process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
 
 ####################################################################
 # Get the BeamSpot
@@ -91,7 +93,7 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 ####################################################################
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2022_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 if allFromGT:
      print("############ testPVValidation_cfg.py: msg%-i: All is taken from GT")
@@ -191,7 +193,7 @@ if(theRefitter == RefitType.COMMON):
      # Load and Configure Common Track Selection and refitting sequence
      ####################################################################
      import Alignment.CommonAlignment.tools.trackselectionRefitting as trackselRefit
-     process.seqTrackselRefit = trackselRefit.getSequence(process, _theTrackCollection,
+     process.seqTrackselRefit = trackselRefit.getSequence(process, 'ALCARECOTkAlMinBias',
                                                           isPVValidation=True, 
                                                           TTRHBuilder='WithAngleAndTemplate',
                                                           usePixelQualityFlag=True,
@@ -211,8 +213,8 @@ elif (theRefitter == RefitType.STANDARD):
      # (needed in case NavigationSchool is set != '')
      ####################################################################
      # process.load("RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi") 
-     # process.MeasurementTrackerEvent.pixelClusterProducer = '_theTrackCollection'
-     # process.MeasurementTrackerEvent.stripClusterProducer = '_theTrackCollection'
+     # process.MeasurementTrackerEvent.pixelClusterProducer = 'ALCARECOTkAlMinBias'
+     # process.MeasurementTrackerEvent.stripClusterProducer = 'ALCARECOTkAlMinBias'
      # process.MeasurementTrackerEvent.inactivePixelDetectorLabels = cms.VInputTag()
      # process.MeasurementTrackerEvent.inactiveStripDetectorLabels = cms.VInputTag()
 
@@ -330,6 +332,7 @@ process.HLTFilter = triggerResultsFilter.clone(
 ###################################################################
 process.myanalysis = cms.EDAnalyzer("GeneralPurposeTrackAnalyzer",
                                     TkTag  = cms.InputTag('FinalTrackRefitter'),
+                                    doLatencyAnalysis =  cms.bool(False),
                                     isCosmics = cms.bool(False)
                                     )
 
