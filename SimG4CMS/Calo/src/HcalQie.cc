@@ -304,7 +304,7 @@ std::vector<int> HcalQie::getCode(int nht, const std::vector<CaloHit>& hitbuf, C
       double avpe = ehit / eDepPerPE;
       CLHEP::RandPoissonQ randPoissonQ(*engine, avpe);
       double photo = randPoissonQ.fire();
- #ifdef EDM_ML_DEBUG
+#ifdef EDM_ML_DEBUG
       etot += ehit;
       photons += photo;
       edm::LogVerbatim("HcalSim") << "HcalQie::getCode: Hit " << kk << ":" << kk + jump << " Energy deposit " << ehit
