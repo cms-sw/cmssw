@@ -132,26 +132,25 @@ bool JetMatchingEWKFxFx::initAfterBeams() {
 
   // Print information
   if (MATCHINGDEBUG) {
-  string jetStr = (jetAlgorithm == 1)    ? "CellJet"
-                  : (slowJetPower == -1) ? "anti-kT"
-                  : (slowJetPower == 0)  ? "C/A"
-                  : (slowJetPower == 1)  ? "kT"
-                                         : "unknown";
-  string modeStr = (exclusiveMode) ? "exclusive" : "inclusive";
-  cout << endl
-       << " *-----  Madgraph matching parameters  -----*" << endl
-       << " |  qCut                |  " << setw(14) << qCut << "  |" << endl
-       << " |  nQmatch             |  " << setw(14) << nQmatch << "  |" << endl
-       << " |  clFact              |  " << setw(14) << clFact << "  |" << endl
-       << " |  Jet algorithm       |  " << setw(14) << jetStr << "  |" << endl
-       << " |  eTjetMin            |  " << setw(14) << eTjetMin << "  |" << endl
-       << " |  etaJetMax           |  " << setw(14) << etaJetMax << "  |" << endl
-       << " |  jetAllow            |  " << setw(14) << jetAllow << "  |" << endl
-       << " |  Mode                |  " << setw(14) << modeStr << "  |" << endl
-       << " *-----------------------------------------*" << endl;
+    string jetStr = (jetAlgorithm == 1)    ? "CellJet"
+                    : (slowJetPower == -1) ? "anti-kT"
+                    : (slowJetPower == 0)  ? "C/A"
+                    : (slowJetPower == 1)  ? "kT"
+                                           : "unknown";
+    string modeStr = (exclusiveMode) ? "exclusive" : "inclusive";
+    cout << endl
+         << " *-----  Madgraph matching parameters  -----*" << endl
+         << " |  qCut                |  " << setw(14) << qCut << "  |" << endl
+         << " |  nQmatch             |  " << setw(14) << nQmatch << "  |" << endl
+         << " |  clFact              |  " << setw(14) << clFact << "  |" << endl
+         << " |  Jet algorithm       |  " << setw(14) << jetStr << "  |" << endl
+         << " |  eTjetMin            |  " << setw(14) << eTjetMin << "  |" << endl
+         << " |  etaJetMax           |  " << setw(14) << etaJetMax << "  |" << endl
+         << " |  jetAllow            |  " << setw(14) << jetAllow << "  |" << endl
+         << " |  Mode                |  " << setw(14) << modeStr << "  |" << endl
+         << " *-----------------------------------------*" << endl;
   }
   return true;
-
 }
 
 bool JetMatchingEWKFxFx::doVetoPartonLevelEarly(const Event& event) {
