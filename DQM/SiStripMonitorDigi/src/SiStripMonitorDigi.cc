@@ -1164,16 +1164,6 @@ void SiStripMonitorDigi::createLayerMEs(DQMStore::IBooker& ibooker, std::string 
 //
 void SiStripMonitorDigi::createSubDetMEs(DQMStore::IBooker& ibooker, std::string label) {
   SubDetMEs subdetMEs;
-  subdetMEs.totNDigis = 0;
-  subdetMEs.SubDetTotDigiProf = nullptr;
-  subdetMEs.SubDetDigiApvProf = nullptr;
-  subdetMEs.SubDetDigiApvTH2 = nullptr;
-
-  subdetMEs.SubDetApvShots.clear();
-  subdetMEs.SubDetNApvShotsTH1 = nullptr;
-  subdetMEs.SubDetChargeMedianApvShotsTH1 = nullptr;
-  subdetMEs.SubDetNStripsApvShotsTH1 = nullptr;
-  subdetMEs.SubDetNApvShotsProf = nullptr;
 
   std::string HistoName;
 
