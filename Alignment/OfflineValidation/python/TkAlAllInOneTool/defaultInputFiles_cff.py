@@ -14,6 +14,23 @@ filesDefaultMC_TTBarPU = cms.untracked.vstring(
     '/store/relval/CMSSW_12_5_0_pre5/RelValTTbar_14TeV/GEN-SIM-RECO/PU_125X_mcRun3_2022_realistic_v3-v1/10000/0136c33f-3ff9-4602-8578-906ae6e0160b.root'
 )
 
+filesDefaultMC_TTBarPUPhase2 = cms.untracked.vstring(
+    '/store/relval/CMSSW_12_5_3/RelValMinBias_14TeV/ALCARECO/TkAlMinBias-125X_mcRun4_realistic_v5_2026D88PU-v1/2590000/27b7ab93-1d2b-4f4a-a98e-68386c314b5e.root',
+    '/store/relval/CMSSW_12_5_3/RelValMinBias_14TeV/ALCARECO/TkAlMinBias-125X_mcRun4_realistic_v5_2026D88PU-v1/2590000/45b3c086-a3ac-429e-845f-4796ba8f2d3f.root',
+    '/store/relval/CMSSW_12_5_3/RelValMinBias_14TeV/ALCARECO/TkAlMinBias-125X_mcRun4_realistic_v5_2026D88PU-v1/2590000/b82f7b2d-1e7f-43ce-a7bc-dc44ce3b2358.root'
+)
+
+filesDefaultMC_TTBarPUPhase2RECO = cms.untracked.vstring(
+    '/store/relval/CMSSW_12_5_3/RelValMinBias_14TeV/GEN-SIM-RECO/125X_mcRun4_realistic_v5_2026D88PU-v1/2590000/22e22ae6-a353-4f2e-815e-cc5efee37af9.root',
+    '/store/relval/CMSSW_12_5_3/RelValMinBias_14TeV/GEN-SIM-RECO/125X_mcRun4_realistic_v5_2026D88PU-v1/2590000/87ea36b3-b17a-4f5a-ab5a-0973e684db1b.root',
+    '/store/relval/CMSSW_12_5_3/RelValMinBias_14TeV/GEN-SIM-RECO/125X_mcRun4_realistic_v5_2026D88PU-v1/2590000/e9de823f-35f7-4493-ba4a-c1d9671d2d70.root',
+    '/store/relval/CMSSW_12_5_3/RelValMinBias_14TeV/GEN-SIM-RECO/125X_mcRun4_realistic_v5_2026D88PU-v1/2590000/9c5055d6-5f74-4e26-8166-1f65cc7e6e5c.root',
+    '/store/relval/CMSSW_12_5_3/RelValMinBias_14TeV/GEN-SIM-RECO/125X_mcRun4_realistic_v5_2026D88PU-v1/2590000/678538ab-9e17-4880-b27a-b7b5b045124d.root',
+    '/store/relval/CMSSW_12_5_3/RelValMinBias_14TeV/GEN-SIM-RECO/125X_mcRun4_realistic_v5_2026D88PU-v1/2590000/7f9af44d-aff5-41be-9d0d-3cbbd35b19dd.root',
+    '/store/relval/CMSSW_12_5_3/RelValMinBias_14TeV/GEN-SIM-RECO/125X_mcRun4_realistic_v5_2026D88PU-v1/2590000/d8d6b261-4897-4ee4-9210-d68041b3dd67.root',
+    '/store/relval/CMSSW_12_5_3/RelValMinBias_14TeV/GEN-SIM-RECO/125X_mcRun4_realistic_v5_2026D88PU-v1/2590000/04fa3331-7c8a-420d-b07a-d677e2caf992.root'
+)
+
 filesDefaultData_JetHTRun2018D = cms.untracked.vstring(
     '/store/data/Run2018D/JetHT/ALCARECO/TkAlMinBias-12Nov2019_UL2018-v3/270000/AF80DFBE-C277-1142-AE8F-71FE4444370A.root'
 )
