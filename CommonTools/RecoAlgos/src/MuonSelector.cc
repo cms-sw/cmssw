@@ -5,8 +5,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-
-#include <DataFormats/SiStripDetId/interface/SiStripDetId.h>
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -26,6 +25,7 @@ namespace helper {
         selStandAloneTracksHits_(new TrackingRecHitCollection),
         selStripClusters_(new edmNew::DetSetVector<SiStripCluster>),
         selPixelClusters_(new edmNew::DetSetVector<SiPixelCluster>),
+        selPhase2OTClusters_(new edmNew::DetSetVector<Phase2TrackerCluster1D>),
         rMuons_(),
         rTracks_(),
         rTrackExtras_(),
@@ -202,6 +202,9 @@ namespace helper {
         const ProjectedSiStripRecHit2D &pHit = static_cast<const ProjectedSiStripRecHit2D &>(hit);
         if (!pHit.originalHit().cluster().isAvailable())
           return false;
+      } else if (hit_type == typeid(Phase2TrackerRecHit1D)) {
+        if (!static_cast<const Phase2TrackerRecHit1D &>(hit).cluster().isAvailable())
+          return false;
       } else {
         // std::cout << "|   It is a " << hit_type.name() << " hit !?" << std::endl;
         // Do nothing. We might end up here for FastSim hits.
@@ -230,6 +233,7 @@ namespace helper {
     if (cloneClusters()) {
       evt.put(std::move(selStripClusters_));
       evt.put(std::move(selPixelClusters_));
+      evt.put(std::move(selPhase2OTClusters_));
     }
     return h;
   }
