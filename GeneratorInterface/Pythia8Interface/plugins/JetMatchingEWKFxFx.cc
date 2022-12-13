@@ -131,6 +131,7 @@ bool JetMatchingEWKFxFx::initAfterBeams() {
   workEventJet.init("(workEventJet)", particleDataPtr);
 
   // Print information
+  if (MATCHINGDEBUG) {
   string jetStr = (jetAlgorithm == 1)    ? "CellJet"
                   : (slowJetPower == -1) ? "anti-kT"
                   : (slowJetPower == 0)  ? "C/A"
@@ -148,8 +149,9 @@ bool JetMatchingEWKFxFx::initAfterBeams() {
        << " |  jetAllow            |  " << setw(14) << jetAllow << "  |" << endl
        << " |  Mode                |  " << setw(14) << modeStr << "  |" << endl
        << " *-----------------------------------------*" << endl;
-
+  }
   return true;
+
 }
 
 bool JetMatchingEWKFxFx::doVetoPartonLevelEarly(const Event& event) {
