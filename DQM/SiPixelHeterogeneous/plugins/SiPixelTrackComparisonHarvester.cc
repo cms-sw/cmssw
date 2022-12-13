@@ -7,10 +7,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-class SiPixelPhase1TrackComparisonHarvester : public DQMEDHarvester {
+class SiPixelTrackComparisonHarvester : public DQMEDHarvester {
 public:
-  explicit SiPixelPhase1TrackComparisonHarvester(const edm::ParameterSet&);
-  ~SiPixelPhase1TrackComparisonHarvester() override = default;
+  explicit SiPixelTrackComparisonHarvester(const edm::ParameterSet&);
+  ~SiPixelTrackComparisonHarvester() override = default;
   void dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -20,10 +20,10 @@ private:
   const std::string topFolder_;
 };
 
-SiPixelPhase1TrackComparisonHarvester::SiPixelPhase1TrackComparisonHarvester(const edm::ParameterSet& iConfig)
+SiPixelTrackComparisonHarvester::SiPixelTrackComparisonHarvester(const edm::ParameterSet& iConfig)
     : topFolder_(iConfig.getParameter<std::string>("topFolderName")) {}
 
-void SiPixelPhase1TrackComparisonHarvester::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
+void SiPixelTrackComparisonHarvester::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
   MonitorElement* hpt_eta_tkAllCPU = igetter.get(topFolder_ + "/ptetatrkAllCPU");
   MonitorElement* hpt_eta_tkAllCPUmatched = igetter.get(topFolder_ + "/ptetatrkAllCPUmatched");
   MonitorElement* hphi_z_tkAllCPU = igetter.get(topFolder_ + "/phiztrkAllCPU");
@@ -31,7 +31,7 @@ void SiPixelPhase1TrackComparisonHarvester::dqmEndJob(DQMStore::IBooker& ibooker
 
   if (hpt_eta_tkAllCPU == nullptr or hpt_eta_tkAllCPUmatched == nullptr or hphi_z_tkAllCPU == nullptr or
       hphi_z_tkAllCPUmatched == nullptr) {
-    edm::LogError("SiPixelPhase1TrackComparisonHarvester")
+    edm::LogError("SiPixelTrackComparisonHarvester")
         << "MEs needed for this module are not found in the input file. Skipping.";
     return;
   }
@@ -49,11 +49,11 @@ void SiPixelPhase1TrackComparisonHarvester::dqmEndJob(DQMStore::IBooker& ibooker
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-void SiPixelPhase1TrackComparisonHarvester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void SiPixelTrackComparisonHarvester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("topFolderName", "SiPixelHeterogeneous/PixelTrackCompareGPUvsCPU/");
-  descriptions.add("siPixelPhase1TrackComparisonHarvester", desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(SiPixelPhase1TrackComparisonHarvester);
+DEFINE_FWK_MODULE(SiPixelTrackComparisonHarvester);

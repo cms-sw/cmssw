@@ -239,6 +239,15 @@ def customizeHLTfor38761(process):
 
      return process
 
+def customizeHLTfor40264(process):
+    for producer in producers_by_type(process, "SiPixelPhase1MonitorVertexSoA"):
+        producer._TypedParameterizable__type = "SiPixelMonitorVertexSoA"
+
+    for producer in producers_by_type(process, "SiPixelPhase1CompareVertexSoA"):
+        producer._TypedParameterizable__type = "SiPixelCompareVertexSoA"
+
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -248,7 +257,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customiseFor12718(process)
  
     process = customizeHLTfor38761(process)
-
-
+    process = customizeHLTfor40264(process)
 
     return process
