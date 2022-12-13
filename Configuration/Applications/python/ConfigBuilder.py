@@ -1976,7 +1976,8 @@ class ConfigBuilder(object):
         # any 'DQM' job should use DQMStore in non-legacy mode (but not HARVESTING)
         self.loadAndRemember("DQMServices/Core/DQMStoreNonLegacy_cff")
         _,_dqmSeq,_ = self.loadDefaultOrSpecifiedCFF(stepSpec,self.DQMOFFLINEDefaultCFF)
-        sequenceList=postSequenceList=_dqmSeq.split('+')
+        sequenceList=_dqmSeq.split('+')
+        postSequenceList=_dqmSeq.split('+')
         from DQMOffline.Configuration.autoDQM import autoDQM
         self.expandMapping(sequenceList,autoDQM,index=0)
         self.expandMapping(postSequenceList,autoDQM,index=1)
