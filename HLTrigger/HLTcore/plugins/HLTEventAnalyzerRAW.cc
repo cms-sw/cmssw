@@ -11,7 +11,6 @@
 #include "FWCore/Common/interface/TriggerResultsByName.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "HLTrigger/HLTcore/interface/HLTEventAnalyzerRAW.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // need access to class objects being referenced to get their content!
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
@@ -50,7 +49,7 @@
 #include <cassert>
 
 //
-// constructors and destructor
+// constructor
 //
 HLTEventAnalyzerRAW::HLTEventAnalyzerRAW(const edm::ParameterSet& ps)
     : processName_(ps.getParameter<std::string>("processName")),
@@ -58,18 +57,15 @@ HLTEventAnalyzerRAW::HLTEventAnalyzerRAW(const edm::ParameterSet& ps)
       triggerResultsTag_(ps.getParameter<edm::InputTag>("triggerResults")),
       triggerResultsToken_(consumes<edm::TriggerResults>(triggerResultsTag_)),
       triggerEventWithRefsTag_(ps.getParameter<edm::InputTag>("triggerEventWithRefs")),
-      triggerEventWithRefsToken_(consumes<trigger::TriggerEventWithRefs>(triggerEventWithRefsTag_)) {
-  using namespace std;
-  using namespace edm;
-
-  LogVerbatim("HLTEventAnalyzerRAW") << "HLTEventAnalyzerRAW configuration: " << endl
-                                     << "   ProcessName = " << processName_ << endl
-                                     << "   TriggerName = " << triggerName_ << endl
-                                     << "   TriggerResultsTag = " << triggerResultsTag_.encode() << endl
-                                     << "   TriggerEventWithRefsTag = " << triggerEventWithRefsTag_.encode() << endl;
+      triggerEventWithRefsToken_(consumes<trigger::TriggerEventWithRefs>(triggerEventWithRefsTag_)),
+      verbose_(ps.getParameter<bool>("verbose")),
+      permissive_(ps.getParameter<bool>("permissive")) {
+  LOG(logMsgType_) << logMsgType_ << " configuration:\n"
+                   << "   ProcessName = " << processName_ << "\n"
+                   << "   TriggerName = " << triggerName_ << "\n"
+                   << "   TriggerResultsTag = " << triggerResultsTag_.encode() << "\n"
+                   << "   TriggerEventWithRefsTag = " << triggerEventWithRefsTag_.encode();
 }
-
-HLTEventAnalyzerRAW::~HLTEventAnalyzerRAW() = default;
 
 //
 // member functions
@@ -77,18 +73,17 @@ HLTEventAnalyzerRAW::~HLTEventAnalyzerRAW() = default;
 void HLTEventAnalyzerRAW::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("processName", "HLT");
-  desc.add<std::string>("triggerName", "@");
+  desc.add<std::string>("triggerName", "@")
+      ->setComment("name of trigger Path to consider (use \"@\" to consider all Paths)");
   desc.add<edm::InputTag>("triggerResults", edm::InputTag("TriggerResults", "", "HLT"));
   desc.add<edm::InputTag>("triggerEventWithRefs", edm::InputTag("hltTriggerSummaryRAW", "", "HLT"));
+  desc.add<bool>("verbose", false)->setComment("enable verbose mode");
+  desc.add<bool>("permissive", false)
+      ->setComment("if true, exceptions due to Refs pointing to unavailable collections are bypassed");
   descriptions.add("hltEventAnalyzerRAW", desc);
 }
 
-void HLTEventAnalyzerRAW::endRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {}
-
 void HLTEventAnalyzerRAW::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
-  using namespace std;
-  using namespace edm;
-
   bool changed(true);
   if (hltConfig_.init(iRun, iSetup, processName_, changed)) {
     if (changed) {
@@ -97,40 +92,41 @@ void HLTEventAnalyzerRAW::beginRun(edm::Run const& iRun, edm::EventSetup const& 
         const unsigned int n(hltConfig_.size());
         const unsigned int triggerIndex(hltConfig_.triggerIndex(triggerName_));
         if (triggerIndex >= n) {
-          LogVerbatim("HLTEventAnalyzerRAW")
-              << "HLTEventAnalyzerRAW::analyze:"
-              << " TriggerName " << triggerName_ << " not available in (new) config!" << endl;
-          LogVerbatim("HLTEventAnalyzerRAW") << "Available TriggerNames are: " << endl;
+          LOG(logMsgType_) << logMsgType_ << "::beginRun: TriggerName " << triggerName_
+                           << " not available in (new) config!";
+          LOG(logMsgType_) << "Available TriggerNames are: ";
           hltConfig_.dump("Triggers");
         }
       }
+      // in verbose mode, print process info to stdout
+      if (verbose_) {
+        hltConfig_.dump("ProcessName");
+        hltConfig_.dump("GlobalTag");
+        hltConfig_.dump("TableName");
+        hltConfig_.dump("Streams");
+        hltConfig_.dump("Datasets");
+        hltConfig_.dump("PrescaleTable");
+        hltConfig_.dump("ProcessPSet");
+      }
     }
   } else {
-    LogVerbatim("HLTEventAnalyzerRAW") << "HLTEventAnalyzerRAW::analyze:"
-                                       << " config extraction failure with process name " << processName_ << endl;
+    LOG(logMsgType_) << logMsgType_ << "::beginRun: config extraction failure with process name " << processName_;
   }
 }
 
-// ------------ method called to produce the data  ------------
 void HLTEventAnalyzerRAW::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace std;
-  using namespace edm;
-
-  LogVerbatim("HLTEventAnalyzerRAW") << endl;
-
   // get event products
-  iEvent.getByToken(triggerResultsToken_, triggerResultsHandle_);
-  if (!triggerResultsHandle_.isValid()) {
-    LogVerbatim("HLTEventAnalyzerRAW")
-        << "HLTEventAnalyzerRAW::analyze: Error in getting TriggerResults product from Event!" << endl;
+  triggerResultsHandle_ = iEvent.getHandle(triggerResultsToken_);
+  if (not triggerResultsHandle_.isValid()) {
+    LOG(logMsgType_) << logMsgType_ << "::analyze: Error in getting TriggerResults product from Event!";
     return;
   }
-  iEvent.getByToken(triggerEventWithRefsToken_, triggerEventWithRefsHandle_);
-  if (!triggerEventWithRefsHandle_.isValid()) {
-    LogVerbatim("HLTEventAnalyzerRAW")
-        << "HLTEventAnalyzerRAW::analyze: Error in getting TriggerEventWithRefs product from Event!" << endl;
+  triggerEventWithRefsHandle_ = iEvent.getHandle(triggerEventWithRefsToken_);
+  if (not triggerEventWithRefsHandle_.isValid()) {
+    LOG(logMsgType_) << logMsgType_ << "::analyze: Error in getting TriggerEventWithRefs product from Event!";
     return;
   }
+
   // sanity check
   assert(triggerResultsHandle_->size() == hltConfig_.size());
 
@@ -150,42 +146,45 @@ void HLTEventAnalyzerRAW::analyze(const edm::Event& iEvent, const edm::EventSetu
 void HLTEventAnalyzerRAW::analyzeTrigger(const edm::Event& iEvent,
                                          const edm::EventSetup& iSetup,
                                          const std::string& triggerName) {
-  using namespace std;
-  using namespace edm;
-  using namespace reco;
-  using namespace trigger;
-
-  LogVerbatim("HLTEventAnalyzerRAW") << endl;
-
   const unsigned int n(hltConfig_.size());
   const unsigned int triggerIndex(hltConfig_.triggerIndex(triggerName));
   assert(triggerIndex == iEvent.triggerNames(*triggerResultsHandle_).triggerIndex(triggerName));
 
   // abort on invalid trigger name
   if (triggerIndex >= n) {
-    LogVerbatim("HLTEventAnalyzerRAW") << "HLTEventAnalyzerRAW::analyzeTrigger: path " << triggerName << " - not found!"
-                                       << endl;
+    LOG(logMsgType_) << logMsgType_ << "::analyzeTrigger: path " << triggerName << " - not found!";
     return;
   }
 
-  LogVerbatim("HLTEventAnalyzerRAW") << "HLTEventAnalyzerRAW::analyzeTrigger: path " << triggerName << " ["
-                                     << triggerIndex << "]" << endl;
+  LOG(logMsgType_) << logMsgType_ << "::analyzeTrigger: path " << triggerName << " [" << triggerIndex << "]";
+
+  // results from TriggerResults product
+  LOG(logMsgType_) << " Trigger path status:"
+                   << " WasRun=" << triggerResultsHandle_->wasrun(triggerIndex)
+                   << " Accept=" << triggerResultsHandle_->accept(triggerIndex)
+                   << " Error=" << triggerResultsHandle_->error(triggerIndex);
+
   // modules on this trigger path
   const unsigned int m(hltConfig_.size(triggerIndex));
-  const vector<string>& moduleLabels(hltConfig_.moduleLabels(triggerIndex));
+  const std::vector<std::string>& moduleLabels(hltConfig_.moduleLabels(triggerIndex));
+  assert(m == moduleLabels.size());
 
-  // Results from TriggerResults product
-  LogVerbatim("HLTEventAnalyzerRAW") << " Trigger path status:"
-                                     << " WasRun=" << triggerResultsHandle_->wasrun(triggerIndex)
-                                     << " Accept=" << triggerResultsHandle_->accept(triggerIndex)
-                                     << " Error =" << triggerResultsHandle_->error(triggerIndex) << endl;
+  // skip empty Path
+  if (m == 0) {
+    LOG(logMsgType_) << logMsgType_ << "::analyzeTrigger: path " << triggerName << " [" << triggerIndex
+                     << "] is empty!";
+    return;
+  }
+
+  // index of last module executed in this Path
   const unsigned int moduleIndex(triggerResultsHandle_->index(triggerIndex));
-  LogVerbatim("HLTEventAnalyzerRAW") << " Last active module - label/type: " << moduleLabels[moduleIndex] << "/"
-                                     << hltConfig_.moduleType(moduleLabels[moduleIndex]) << " [" << moduleIndex
-                                     << " out of 0-" << (m - 1) << " on this path]" << endl;
   assert(moduleIndex < m);
 
-  // Results from TriggerEventWithRefs product
+  LOG(logMsgType_) << " Last active module - label/type: " << moduleLabels[moduleIndex] << "/"
+                   << hltConfig_.moduleType(moduleLabels[moduleIndex]) << " [" << moduleIndex << " out of 0-" << (m - 1)
+                   << " on this path]";
+
+  // results from TriggerEventWithRefs product
   photonIds_.clear();
   photonRefs_.clear();
   electronIds_.clear();
@@ -249,315 +248,149 @@ void HLTEventAnalyzerRAW::analyzeTrigger(const edm::Event& iEvent,
   pfmetIds_.clear();
   pfmetRefs_.clear();
 
-  // Attention: must look only for modules actually run in this path
-  // for this event!
+  // Attention: must look only for modules actually run in this path for this event!
   for (unsigned int j = 0; j <= moduleIndex; ++j) {
-    const string& moduleLabel(moduleLabels[j]);
-    const string moduleType(hltConfig_.moduleType(moduleLabel));
-    // check whether the module is packed up in TriggerEventWithRef product
-    const unsigned int filterIndex(triggerEventWithRefsHandle_->filterIndex(InputTag(moduleLabel, "", processName_)));
+    const std::string& moduleLabel(moduleLabels[j]);
+    const std::string moduleType(hltConfig_.moduleType(moduleLabel));
+    // check whether the module is packed up in TriggerEventWithRefs product
+    const unsigned int filterIndex(
+        triggerEventWithRefsHandle_->filterIndex(edm::InputTag(moduleLabel, "", processName_)));
     if (filterIndex < triggerEventWithRefsHandle_->size()) {
-      LogVerbatim("HLTEventAnalyzerRAW") << " Filter in slot " << j << " - label/type " << moduleLabel << "/"
-                                         << moduleType << endl;
-      LogVerbatim("HLTEventAnalyzerRAW") << " Filter packed up at: " << filterIndex << endl;
-      LogVerbatim("HLTEventAnalyzerRAW") << "  Accepted objects:" << endl;
+      LOG(logMsgType_) << " Filter in slot " << j << " - label/type " << moduleLabel << "/" << moduleType;
+      LOG(logMsgType_) << " Filter packed up at: " << filterIndex;
+      LOG(logMsgType_) << "  Accepted objects:";
 
+      // Photons
       triggerEventWithRefsHandle_->getObjects(filterIndex, photonIds_, photonRefs_);
-      const unsigned int nPhotons(photonIds_.size());
-      if (nPhotons > 0) {
-        LogVerbatim("HLTEventAnalyzerRAW") << "   Photons: " << nPhotons << "  - the objects: # id pt" << endl;
-        for (unsigned int i = 0; i != nPhotons; ++i) {
-          LogVerbatim("HLTEventAnalyzerRAW")
-              << "   " << i << " " << photonIds_[i] << " " << photonRefs_[i]->pt() << endl;
-        }
-      }
+      showObjects(photonIds_, photonRefs_, "Photons");
 
+      // Electrons
       triggerEventWithRefsHandle_->getObjects(filterIndex, electronIds_, electronRefs_);
-      const unsigned int nElectrons(electronIds_.size());
-      if (nElectrons > 0) {
-        LogVerbatim("HLTEventAnalyzerRAW") << "   Electrons: " << nElectrons << "  - the objects: # id pt" << endl;
-        for (unsigned int i = 0; i != nElectrons; ++i) {
-          LogVerbatim("HLTEventAnalyzerRAW")
-              << "   " << i << " " << electronIds_[i] << " " << electronRefs_[i]->pt() << endl;
-        }
-      }
+      showObjects(electronIds_, electronRefs_, "Electrons");
 
+      // Muons
       triggerEventWithRefsHandle_->getObjects(filterIndex, muonIds_, muonRefs_);
-      const unsigned int nMuons(muonIds_.size());
-      if (nMuons > 0) {
-        LogVerbatim("HLTEventAnalyzerRAW") << "   Muons: " << nMuons << "  - the objects: # id pt" << endl;
-        for (unsigned int i = 0; i != nMuons; ++i) {
-          LogVerbatim("HLTEventAnalyzerRAW") << "   " << i << " " << muonIds_[i] << " " << muonRefs_[i]->pt() << endl;
-        }
-      }
+      showObjects(muonIds_, muonRefs_, "Muons");
 
+      // Jets
       triggerEventWithRefsHandle_->getObjects(filterIndex, jetIds_, jetRefs_);
-      const unsigned int nJets(jetIds_.size());
-      if (nJets > 0) {
-        LogVerbatim("HLTEventAnalyzerRAW") << "   Jets: " << nJets << "  - the objects: # id pt" << endl;
-        for (unsigned int i = 0; i != nJets; ++i) {
-          LogVerbatim("HLTEventAnalyzerRAW") << "   " << i << " " << jetIds_[i] << " " << jetRefs_[i]->pt() << endl;
-        }
-      }
+      showObjects(jetIds_, jetRefs_, "Jets");
 
+      // Composites
       triggerEventWithRefsHandle_->getObjects(filterIndex, compositeIds_, compositeRefs_);
-      const unsigned int nComposites(compositeIds_.size());
-      if (nComposites > 0) {
-        LogVerbatim("HLTEventAnalyzerRAW") << "   Composites: " << nComposites << "  - the objects: # id pt" << endl;
-        for (unsigned int i = 0; i != nComposites; ++i) {
-          LogVerbatim("HLTEventAnalyzerRAW")
-              << "   " << i << " " << compositeIds_[i] << " " << compositeRefs_[i]->pt() << endl;
-        }
-      }
+      showObjects(compositeIds_, compositeRefs_, "Composites");
 
+      // BaseMETs
       triggerEventWithRefsHandle_->getObjects(filterIndex, basemetIds_, basemetRefs_);
-      const unsigned int nBaseMETs(basemetIds_.size());
-      if (nBaseMETs > 0) {
-        LogVerbatim("HLTEventAnalyzerRAW") << "   BaseMETs: " << nBaseMETs << "  - the objects: # id pt" << endl;
-        for (unsigned int i = 0; i != nBaseMETs; ++i) {
-          LogVerbatim("HLTEventAnalyzerRAW")
-              << "   " << i << " " << basemetIds_[i] << " " << basemetRefs_[i]->pt() << endl;
-        }
-      }
+      showObjects(basemetIds_, basemetRefs_, "BaseMETs");
 
+      // CaloMETs
       triggerEventWithRefsHandle_->getObjects(filterIndex, calometIds_, calometRefs_);
-      const unsigned int nCaloMETs(calometIds_.size());
-      if (nCaloMETs > 0) {
-        LogVerbatim("HLTEventAnalyzerRAW") << "   CaloMETs: " << nCaloMETs << "  - the objects: # id pt" << endl;
-        for (unsigned int i = 0; i != nCaloMETs; ++i) {
-          LogVerbatim("HLTEventAnalyzerRAW")
-              << "   " << i << " " << calometIds_[i] << " " << calometRefs_[i]->pt() << endl;
-        }
-      }
+      showObjects(calometIds_, calometRefs_, "CaloMETs");
 
+      // PixTracks
       triggerEventWithRefsHandle_->getObjects(filterIndex, pixtrackIds_, pixtrackRefs_);
-      const unsigned int nPixTracks(pixtrackIds_.size());
-      if (nPixTracks > 0) {
-        LogVerbatim("HLTEventAnalyzerRAW") << "   PixTracks: " << nPixTracks << "  - the objects: # id pt" << endl;
-        for (unsigned int i = 0; i != nPixTracks; ++i) {
-          LogVerbatim("HLTEventAnalyzerRAW")
-              << "   " << i << " " << pixtrackIds_[i] << " " << pixtrackRefs_[i]->pt() << endl;
-        }
-      }
+      showObjects(pixtrackIds_, pixtrackRefs_, "PixTracks");
 
+      // L1EMs
       triggerEventWithRefsHandle_->getObjects(filterIndex, l1emIds_, l1emRefs_);
-      const unsigned int nL1EM(l1emIds_.size());
-      if (nL1EM > 0) {
-        LogVerbatim("HLTEventAnalyzerRAW") << "   L1EM: " << nL1EM << "  - the objects: # id pt" << endl;
-        for (unsigned int i = 0; i != nL1EM; ++i) {
-          LogVerbatim("HLTEventAnalyzerRAW") << "   " << i << " " << l1emIds_[i] << " " << l1emRefs_[i]->pt() << endl;
-        }
-      }
+      showObjects(l1emIds_, l1emRefs_, "L1EMs");
 
+      // L1Muons
       triggerEventWithRefsHandle_->getObjects(filterIndex, l1muonIds_, l1muonRefs_);
-      const unsigned int nL1Muon(l1muonIds_.size());
-      if (nL1Muon > 0) {
-        LogVerbatim("HLTEventAnalyzerRAW") << "   L1Muon: " << nL1Muon << "  - the objects: # id pt" << endl;
-        for (unsigned int i = 0; i != nL1Muon; ++i) {
-          LogVerbatim("HLTEventAnalyzerRAW")
-              << "   " << i << " " << l1muonIds_[i] << " " << l1muonRefs_[i]->pt() << endl;
-        }
-      }
+      showObjects(l1muonIds_, l1muonRefs_, "L1Muons");
 
+      // L1Jets
       triggerEventWithRefsHandle_->getObjects(filterIndex, l1jetIds_, l1jetRefs_);
-      const unsigned int nL1Jet(l1jetIds_.size());
-      if (nL1Jet > 0) {
-        LogVerbatim("HLTEventAnalyzerRAW") << "   L1Jet: " << nL1Jet << "  - the objects: # id pt" << endl;
-        for (unsigned int i = 0; i != nL1Jet; ++i) {
-          LogVerbatim("HLTEventAnalyzerRAW") << "   " << i << " " << l1jetIds_[i] << " " << l1jetRefs_[i]->pt() << endl;
-        }
-      }
+      showObjects(l1jetIds_, l1jetRefs_, "L1Jets");
 
+      // L1EtMiss
       triggerEventWithRefsHandle_->getObjects(filterIndex, l1etmissIds_, l1etmissRefs_);
-      const unsigned int nL1EtMiss(l1etmissIds_.size());
-      if (nL1EtMiss > 0) {
-        LogVerbatim("HLTEventAnalyzerRAW") << "   L1EtMiss: " << nL1EtMiss << "  - the objects: # id pt" << endl;
-        for (unsigned int i = 0; i != nL1EtMiss; ++i) {
-          LogVerbatim("HLTEventAnalyzerRAW")
-              << "   " << i << " " << l1etmissIds_[i] << " " << l1etmissRefs_[i]->pt() << endl;
-        }
-      }
+      showObjects(l1etmissIds_, l1etmissRefs_, "L1EtMiss");
 
+      // L1HFRings
       triggerEventWithRefsHandle_->getObjects(filterIndex, l1hfringsIds_, l1hfringsRefs_);
-      const unsigned int nL1HfRings(l1hfringsIds_.size());
-      if (nL1HfRings > 0) {
-        LogVerbatim("HLTEventAnalyzerRAW") << "   L1HfRings: " << nL1HfRings << "  - the objects: # id 4 4" << endl;
-        for (unsigned int i = 0; i != nL1HfRings; ++i) {
-          LogVerbatim("HLTEventAnalyzerRAW") << "   " << i << " " << l1hfringsIds_[i] << " "
-                                             << l1hfringsRefs_[i]->hfEtSum(l1extra::L1HFRings::kRing1PosEta) << " "
-                                             << l1hfringsRefs_[i]->hfEtSum(l1extra::L1HFRings::kRing1NegEta) << " "
-                                             << l1hfringsRefs_[i]->hfEtSum(l1extra::L1HFRings::kRing2PosEta) << " "
-                                             << l1hfringsRefs_[i]->hfEtSum(l1extra::L1HFRings::kRing2NegEta) << " "
-                                             << l1hfringsRefs_[i]->hfBitCount(l1extra::L1HFRings::kRing1PosEta) << " "
-                                             << l1hfringsRefs_[i]->hfBitCount(l1extra::L1HFRings::kRing1NegEta) << " "
-                                             << l1hfringsRefs_[i]->hfBitCount(l1extra::L1HFRings::kRing2PosEta) << " "
-                                             << l1hfringsRefs_[i]->hfBitCount(l1extra::L1HFRings::kRing2NegEta) << endl;
-        }
-      }
+      showObjects(l1hfringsIds_, l1hfringsRefs_, "L1HFRings");
 
+      // L1TMuons
       triggerEventWithRefsHandle_->getObjects(filterIndex, l1tmuonIds_, l1tmuonRefs_);
-      const unsigned int nL1TMuon(l1tmuonIds_.size());
-      if (nL1TMuon > 0) {
-        LogVerbatim("HLTEventAnalyzerRAW") << "   L1TMuon: " << nL1TMuon << "  - the objects: # id pt" << endl;
-        for (unsigned int i = 0; i != nL1TMuon; ++i) {
-          LogVerbatim("HLTEventAnalyzerRAW")
-              << "   " << i << " " << l1tmuonIds_[i] << " " << l1tmuonRefs_[i]->pt() << endl;
-        }
-      }
+      showObjects(l1tmuonIds_, l1tmuonRefs_, "L1TMuons");
 
+      // L1TMuonShowers
       triggerEventWithRefsHandle_->getObjects(filterIndex, l1tmuonShowerIds_, l1tmuonShowerRefs_);
-      const unsigned int nL1TMuonShower(l1tmuonShowerIds_.size());
-      if (nL1TMuonShower > 0) {
-        LogVerbatim("HLTEventAnalyzerRAW")
-            << "   L1TMuonShower: " << nL1TMuonShower << "  - the objects: # id pt" << endl;
-        for (unsigned int i = 0; i != nL1TMuonShower; ++i) {
-          LogVerbatim("HLTEventAnalyzerRAW")
-              << "   " << i << " " << l1tmuonShowerIds_[i] << " " << l1tmuonShowerRefs_[i]->pt() << endl;
-        }
-      }
+      showObjects(l1tmuonShowerIds_, l1tmuonShowerRefs_, "L1TMuonShowers");
 
+      // L1TEGammas
       triggerEventWithRefsHandle_->getObjects(filterIndex, l1tegammaIds_, l1tegammaRefs_);
-      const unsigned int nL1TEGamma(l1tegammaIds_.size());
-      if (nL1TEGamma > 0) {
-        LogVerbatim("HLTEventAnalyzerRAW") << "   L1TEGamma: " << nL1TEGamma << "  - the objects: # id pt" << endl;
-        for (unsigned int i = 0; i != nL1TEGamma; ++i) {
-          LogVerbatim("HLTEventAnalyzerRAW")
-              << "   " << i << " " << l1tegammaIds_[i] << " " << l1tegammaRefs_[i]->pt() << endl;
-        }
-      }
+      showObjects(l1tegammaIds_, l1tegammaRefs_, "L1TEGammas");
 
+      // L1TJets
       triggerEventWithRefsHandle_->getObjects(filterIndex, l1tjetIds_, l1tjetRefs_);
-      const unsigned int nL1TJet(l1tjetIds_.size());
-      if (nL1TJet > 0) {
-        LogVerbatim("HLTEventAnalyzerRAW") << "   L1TJet: " << nL1TJet << "  - the objects: # id pt" << endl;
-        for (unsigned int i = 0; i != nL1TJet; ++i) {
-          LogVerbatim("HLTEventAnalyzerRAW")
-              << "   " << i << " " << l1tjetIds_[i] << " " << l1tjetRefs_[i]->pt() << endl;
-        }
-      }
+      showObjects(l1tjetIds_, l1tjetRefs_, "L1TJets");
 
+      // L1TTaus
       triggerEventWithRefsHandle_->getObjects(filterIndex, l1ttauIds_, l1ttauRefs_);
-      const unsigned int nL1TTau(l1ttauIds_.size());
-      if (nL1TTau > 0) {
-        LogVerbatim("HLTEventAnalyzerRAW") << "   L1TTau: " << nL1TTau << "  - the objects: # id pt" << endl;
-        for (unsigned int i = 0; i != nL1TTau; ++i) {
-          LogVerbatim("HLTEventAnalyzerRAW")
-              << "   " << i << " " << l1ttauIds_[i] << " " << l1ttauRefs_[i]->pt() << endl;
-        }
-      }
+      showObjects(l1ttauIds_, l1ttauRefs_, "L1TTaus");
 
+      // L1TEtSums
       triggerEventWithRefsHandle_->getObjects(filterIndex, l1tetsumIds_, l1tetsumRefs_);
-      const unsigned int nL1TEtSum(l1tetsumIds_.size());
-      if (nL1TEtSum > 0) {
-        LogVerbatim("HLTEventAnalyzerRAW") << "   L1TEtSum: " << nL1TEtSum << "  - the objects: # id pt" << endl;
-        for (unsigned int i = 0; i != nL1TEtSum; ++i) {
-          LogVerbatim("HLTEventAnalyzerRAW")
-              << "   " << i << " " << l1tetsumIds_[i] << " " << l1tetsumRefs_[i]->pt() << endl;
-        }
-      }
+      showObjects(l1tetsumIds_, l1tetsumRefs_, "L1TEtSum");
 
-      /* Phase-2 */
+      /// Phase 2
 
+      // L1TTkMuons
       triggerEventWithRefsHandle_->getObjects(filterIndex, l1ttkmuIds_, l1ttkmuRefs_);
-      const unsigned int nL1TTkMuons(l1ttkmuIds_.size());
-      if (nL1TTkMuons > 0) {
-        LogVerbatim("HLTEventAnalyzerRAW") << "   L1TTkMuons: " << nL1TTkMuons << "  - the objects: # id pt" << endl;
-        for (unsigned int i = 0; i != nL1TTkMuons; ++i) {
-          LogVerbatim("HLTEventAnalyzerRAW")
-              << "   " << i << " " << l1ttkmuIds_[i] << " " << l1ttkmuRefs_[i]->pt() << endl;
-        }
-      }
+      showObjects(l1ttkmuIds_, l1ttkmuRefs_, "L1TTkMuons");
 
+      // L1TTkElectrons
       triggerEventWithRefsHandle_->getObjects(filterIndex, l1ttkeleIds_, l1ttkeleRefs_);
-      const unsigned int nL1TTkElectrons(l1ttkeleIds_.size());
-      if (nL1TTkElectrons > 0) {
-        LogVerbatim("HLTEventAnalyzerRAW")
-            << "   L1TTkElectrons: " << nL1TTkElectrons << "  - the objects: # id pt" << endl;
-        for (unsigned int i = 0; i != nL1TTkElectrons; ++i) {
-          LogVerbatim("HLTEventAnalyzerRAW")
-              << "   " << i << " " << l1ttkeleIds_[i] << " " << l1ttkeleRefs_[i]->pt() << endl;
-        }
-      }
+      showObjects(l1ttkeleIds_, l1ttkeleRefs_, "L1TTkElectrons");
 
+      // L1TTkEMs
       triggerEventWithRefsHandle_->getObjects(filterIndex, l1ttkemIds_, l1ttkemRefs_);
-      const unsigned int nL1TTkEMs(l1ttkemIds_.size());
-      if (nL1TTkEMs > 0) {
-        LogVerbatim("HLTEventAnalyzerRAW") << "   L1TTkEMs: " << nL1TTkEMs << "  - the objects: # id pt" << endl;
-        for (unsigned int i = 0; i != nL1TTkEMs; ++i) {
-          LogVerbatim("HLTEventAnalyzerRAW")
-              << "   " << i << " " << l1ttkemIds_[i] << " " << l1ttkemRefs_[i]->pt() << endl;
-        }
-      }
+      showObjects(l1ttkemIds_, l1ttkemRefs_, "L1TTkEMs");
 
+      // L1TPFJets
       triggerEventWithRefsHandle_->getObjects(filterIndex, l1tpfjetIds_, l1tpfjetRefs_);
-      const unsigned int nL1TPFJets(l1tpfjetIds_.size());
-      if (nL1TPFJets > 0) {
-        LogVerbatim("HLTEventAnalyzerRAW") << "   L1TPFJets: " << nL1TPFJets << "  - the objects: # id pt" << endl;
-        for (unsigned int i = 0; i != nL1TPFJets; ++i) {
-          LogVerbatim("HLTEventAnalyzerRAW")
-              << "   " << i << " " << l1tpfjetIds_[i] << " " << l1tpfjetRefs_[i]->pt() << endl;
-        }
-      }
+      showObjects(l1tpfjetIds_, l1tpfjetRefs_, "L1TPFJets");
 
+      // L1TPFTaus
       triggerEventWithRefsHandle_->getObjects(filterIndex, l1tpftauIds_, l1tpftauRefs_);
-      const unsigned int nL1TPFTaus(l1tpftauIds_.size());
-      if (nL1TPFTaus > 0) {
-        LogVerbatim("HLTEventAnalyzerRAW") << "   L1TPFTaus: " << nL1TPFTaus << "  - the objects: # id pt" << endl;
-        for (unsigned int i = 0; i != nL1TPFTaus; ++i) {
-          LogVerbatim("HLTEventAnalyzerRAW")
-              << "   " << i << " " << l1tpftauIds_[i] << " " << l1tpftauRefs_[i]->pt() << endl;
-        }
-      }
+      showObjects(l1tpftauIds_, l1tpftauRefs_, "L1TPFTaus");
 
+      // L1THPSPFTaus
       triggerEventWithRefsHandle_->getObjects(filterIndex, l1thpspftauIds_, l1thpspftauRefs_);
-      const unsigned int nL1THPSPFTaus(l1thpspftauIds_.size());
-      if (nL1THPSPFTaus > 0) {
-        LogVerbatim("HLTEventAnalyzerRAW")
-            << "   L1THPSPFTaus: " << nL1THPSPFTaus << "  - the objects: # id pt" << endl;
-        for (unsigned int i = 0; i != nL1THPSPFTaus; ++i) {
-          LogVerbatim("HLTEventAnalyzerRAW")
-              << "   " << i << " " << l1thpspftauIds_[i] << " " << l1thpspftauRefs_[i]->pt() << endl;
-        }
-      }
+      showObjects(l1thpspftauIds_, l1thpspftauRefs_, "L1THPSPFTaus");
 
+      // L1TPFTracks
       triggerEventWithRefsHandle_->getObjects(filterIndex, l1tpftrackIds_, l1tpftrackRefs_);
-      const unsigned int nL1TPFTracks(l1tpftrackIds_.size());
-      if (nL1TPFTracks > 0) {
-        LogVerbatim("HLTEventAnalyzerRAW") << "   L1TPFTracks: " << nL1TPFTracks << "  - the objects: # id pt" << endl;
-        for (unsigned int i = 0; i != nL1TPFTracks; ++i) {
-          LogVerbatim("HLTEventAnalyzerRAW")
-              << "   " << i << " " << l1tpftrackIds_[i] << " " << l1tpftrackRefs_[i]->pt() << endl;
-        }
-      }
+      showObjects(l1tpftrackIds_, l1tpftrackRefs_, "L1TPFTracks");
 
+      // PFJets
       triggerEventWithRefsHandle_->getObjects(filterIndex, pfjetIds_, pfjetRefs_);
-      const unsigned int nPFJets(pfjetIds_.size());
-      if (nPFJets > 0) {
-        LogVerbatim("HLTEventAnalyzerRAW") << "   PFJets: " << nPFJets << "  - the objects: # id pt" << endl;
-        for (unsigned int i = 0; i != nPFJets; ++i) {
-          LogVerbatim("HLTEventAnalyzerRAW") << "   " << i << " " << pfjetIds_[i] << " " << pfjetRefs_[i]->pt() << endl;
-        }
-      }
+      showObjects(pfjetIds_, pfjetRefs_, "PFJets");
 
+      // PFTaus
       triggerEventWithRefsHandle_->getObjects(filterIndex, pftauIds_, pftauRefs_);
-      const unsigned int nPFTaus(pftauIds_.size());
-      if (nPFTaus > 0) {
-        LogVerbatim("HLTEventAnalyzerRAW") << "   PFTaus: " << nPFTaus << "  - the objects: # id pt" << endl;
-        for (unsigned int i = 0; i != nPFTaus; ++i) {
-          LogVerbatim("HLTEventAnalyzerRAW") << "   " << i << " " << pftauIds_[i] << " " << pftauRefs_[i]->pt() << endl;
-        }
-      }
+      showObjects(pftauIds_, pftauRefs_, "PFTaus");
 
+      // PFMETs
       triggerEventWithRefsHandle_->getObjects(filterIndex, pfmetIds_, pfmetRefs_);
-      const unsigned int nPfMETs(pfmetIds_.size());
-      if (nPfMETs > 0) {
-        LogVerbatim("HLTEventAnalyzerRAW") << "   PfMETs: " << nPfMETs << "  - the objects: # id pt" << endl;
-        for (unsigned int i = 0; i != nPfMETs; ++i) {
-          LogVerbatim("HLTEventAnalyzerRAW") << "   " << i << " " << pfmetIds_[i] << " " << pfmetRefs_[i]->pt() << endl;
-        }
-      }
+      showObjects(pfmetIds_, pfmetRefs_, "PFMETs");
     }
   }
 
   return;
+}
+
+template <>
+void HLTEventAnalyzerRAW::showObject(LOG& log, trigger::VRl1hfrings::value_type const& ref) const {
+  log << "hfEtSum(ring1PosEta)=" << ref->hfEtSum(l1extra::L1HFRings::kRing1PosEta)
+      << " hfEtSum(ring1NegEta)=" << ref->hfEtSum(l1extra::L1HFRings::kRing1NegEta)
+      << " hfEtSum(ring2PosEta)=" << ref->hfEtSum(l1extra::L1HFRings::kRing2PosEta)
+      << " hfEtSum(ring2NegEta)=" << ref->hfEtSum(l1extra::L1HFRings::kRing2NegEta)
+      << " hfBitCount(ring1PosEta)=" << ref->hfBitCount(l1extra::L1HFRings::kRing1PosEta)
+      << " hfBitCount(ring1NegEta)=" << ref->hfBitCount(l1extra::L1HFRings::kRing1NegEta)
+      << " hfBitCount(ring2PosEta)=" << ref->hfBitCount(l1extra::L1HFRings::kRing2PosEta)
+      << " hfBitCount(ring2NegEta)=" << ref->hfBitCount(l1extra::L1HFRings::kRing2NegEta);
 }
