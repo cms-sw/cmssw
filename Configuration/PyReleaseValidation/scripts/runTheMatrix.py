@@ -99,6 +99,7 @@ if __name__ == '__main__':
                      12434.0, #2023 ttbar
                      20834.0, #2026D88 ttbar (2022 new baseline)
                      20834.75, #2026D88 ttbar with HLT75e33
+                     20834.76, #2026D88 ttbar with HLT75e33 in the same step as DIGI+L1
                      #20834.911, #2026D88 ttbar DD4hep XML
                      21034.999, #2026D88 ttbar premixing stage1+stage2, PU50
                      20896.0, #CE_E_Front_120um D88
