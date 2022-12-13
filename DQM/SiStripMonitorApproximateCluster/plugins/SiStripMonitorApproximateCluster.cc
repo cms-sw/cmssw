@@ -5,10 +5,8 @@
 //
 /**\class SiStripMonitorApproximateCluster SiStripMonitorApproximateCluster.cc DQM/SiStripMonitorApproximateCluster/plugins/SiStripMonitorApproximateCluster.cc
 
- Description: [one line class summary]
+ Description: Monitor SiStripApproximateClusters and on-demand compare properties with original SiStripClusters
 
- Implementation:
-     [Notes on implementation]
 */
 //
 // Original Author:  Marco Musich
@@ -22,10 +20,9 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Common/interface/DetSet.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiStripCluster/interface/SiStripApproximateCluster.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -33,9 +30,47 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
 //
 // class declaration
 //
+
+namespace siStripRawPrime {
+  struct monitorApproxCluster {
+  public:
+    monitorApproxCluster()
+        : h_barycenter_{nullptr}, h_width_{nullptr}, h_avgCharge_{nullptr}, h_isSaturated_{nullptr}, isBooked_{false} {}
+
+    void fill(const SiStripApproximateCluster& cluster) {
+      h_barycenter_->Fill(cluster.barycenter());
+      h_width_->Fill(cluster.width());
+      h_avgCharge_->Fill(cluster.avgCharge());
+      h_isSaturated_->Fill(cluster.isSaturated() ? 1 : -1);
+    }
+
+    void book(dqm::implementation::DQMStore::IBooker& ibook, const std::string& folder) {
+      ibook.setCurrentFolder(folder);
+      h_barycenter_ =
+          ibook.book1D("clusterBarycenter", "cluster barycenter;cluster barycenter;#clusters", 7680., 0., 7680.);
+      h_width_ = ibook.book1D("clusterWidth", "cluster width;cluster width;#clusters", 128, -0.5, 127.5);
+      h_avgCharge_ =
+          ibook.book1D("clusterAvgCharge", "average strip charge;average strip charge;#clusters", 256, -0.5, 255.5);
+      h_isSaturated_ = ibook.book1D("clusterSaturation", "cluster saturation;is saturated?;#clusters", 3, -1.5, 1.5);
+      h_isSaturated_->getTH1F()->GetXaxis()->SetBinLabel(1, "Not saturated");
+      h_isSaturated_->getTH1F()->GetXaxis()->SetBinLabel(3, "Saturated");
+      isBooked_ = true;
+    }
+
+    bool isBooked() { return isBooked_; }
+
+  private:
+    dqm::reco::MonitorElement* h_barycenter_;
+    dqm::reco::MonitorElement* h_width_;
+    dqm::reco::MonitorElement* h_avgCharge_;
+    dqm::reco::MonitorElement* h_isSaturated_;
+    bool isBooked_;
+  };
+}  // namespace siStripRawPrime
 
 class SiStripMonitorApproximateCluster : public DQMEDAnalyzer {
 public:
@@ -52,11 +87,11 @@ private:
   // ------------ member data ------------
   std::string folder_;
   bool compareClusters_;
-  MonitorElement* h_nclusters_{nullptr};
-  MonitorElement* h_barycenter_{nullptr};
-  MonitorElement* h_width_{nullptr};
-  MonitorElement* h_avgCharge_{nullptr};
-  MonitorElement* h_isSaturated_{nullptr};
+  MonitorElement* h_nclusters_;
+
+  siStripRawPrime::monitorApproxCluster allClusters{};
+  siStripRawPrime::monitorApproxCluster matchedClusters{};
+  siStripRawPrime::monitorApproxCluster unMatchedClusters{};
 
   // for comparisons
   MonitorElement* h_isMatched_{nullptr};
@@ -138,19 +173,18 @@ void SiStripMonitorApproximateCluster::analyze(const edm::Event& iEvent, const e
     // starts here comaparison with regular clusters
     if (compareClusters_) {
       edmNew::DetSetVector<SiStripCluster>::const_iterator isearch =
-          stripClusterCollection_->find(detid);  // search  clusters of detid
+          stripClusterCollection_->find(detid);  // search clusters of same detid
       strip_clusters_detset = (*isearch);
     }
 
-    bool isMatched{false};
     for (const auto& cluster : detClusters) {
       nApproxClusters++;
-      h_barycenter_->Fill(cluster.barycenter());
-      h_width_->Fill(cluster.width());
-      h_avgCharge_->Fill(cluster.avgCharge());
-      h_isSaturated_->Fill(cluster.isSaturated() ? 1 : -1);
+
+      // fill the full cluster collection
+      allClusters.fill(cluster);
 
       if (compareClusters_ && !strip_clusters_detset.empty()) {
+        // build the converted cluster for the matching
         uint16_t nStrips{0};
         auto det = std::find_if(tkDets.begin(), tkDets.end(), [detid](auto& elem) -> bool {
           return (elem->geographicalId().rawId() == detid);
@@ -159,30 +193,42 @@ void SiStripMonitorApproximateCluster::analyze(const edm::Event& iEvent, const e
         nStrips = p.nstrips() - 1;
 
         const auto convertedCluster = SiStripCluster(cluster, nStrips);
+
         float distance{9999.};
         const SiStripCluster* closestCluster{nullptr};
         for (const auto& stripCluster : strip_clusters_detset) {
+          // by construction the approximated cluster width has same
+          // size as the original cluster
+          if (cluster.width() != stripCluster.size()) {
+            continue;
+          }
+
           float deltaBarycenter = convertedCluster.barycenter() - stripCluster.barycenter();
-          if (deltaBarycenter < distance) {
+          if (std::abs(deltaBarycenter) < distance) {
             closestCluster = &stripCluster;
-            distance = deltaBarycenter;
+            distance = std::abs(deltaBarycenter);
           }
         }
 
         // Matching criteria:
         // - if exists a closest cluster in the DetId
         // - the size coincides with the original one
-        if (closestCluster && (cluster.width() == closestCluster->size())) {
-          isMatched = true;
-          h_deltaBarycenter_->Fill(distance);
+        if (closestCluster) {
+          h_deltaBarycenter_->Fill(closestCluster->barycenter() - convertedCluster.barycenter());
           h_deltaSize_->Fill(closestCluster->size() - convertedCluster.size());
           h_deltaCharge_->Fill(closestCluster->charge() - convertedCluster.charge());
           h_deltaFirstStrip_->Fill(closestCluster->firstStrip() - convertedCluster.firstStrip());
           h_deltaEndStrip_->Fill(closestCluster->endStrip() - convertedCluster.endStrip());
         }
 
-        h_isMatched_->Fill(isMatched ? 1 : -1);
-
+        // perfect match (also barycenter coindices)
+        if (std::abs(distance) <= 1.f) {
+          matchedClusters.fill(cluster);
+          h_isMatched_->Fill(1);
+        } else {
+          unMatchedClusters.fill(cluster);
+          h_isMatched_->Fill(-1);
+        }
       }  // if we're doing the comparison cluster by cluster
 
     }  // loop on clusters in a detset
@@ -195,27 +241,24 @@ void SiStripMonitorApproximateCluster::bookHistograms(DQMStore::IBooker& ibook,
                                                       edm::EventSetup const& iSetup) {
   ibook.setCurrentFolder(folder_);
   h_nclusters_ = ibook.book1D("numberOfClusters", "total N. of clusters;N. of clusters;#clusters", 500., 0., 500000.);
-  h_barycenter_ =
-      ibook.book1D("clusterBarycenter", "cluster barycenter;cluster barycenter;#clusters", 7680., 0., 7680.);
-  h_width_ = ibook.book1D("clusterWidth", "cluster width;cluster width;#clusters", 128, -0.5, 127.5);
-  h_avgCharge_ =
-      ibook.book1D("clusterAvgCharge", "average strip charge;average strip charge;#clusters", 256, -0.5, 255.5);
-  h_isSaturated_ = ibook.book1D("clusterSaturation", "cluster saturation;is saturated?;#clusters", 3, -1.5, 1.5);
-  h_isSaturated_->getTH1F()->GetXaxis()->SetBinLabel(1, "Not saturated");
-  h_isSaturated_->getTH1F()->GetXaxis()->SetBinLabel(3, "Saturated");
+  allClusters.book(ibook, folder_);
 
   //  for comparisons
   if (compareClusters_) {
+    // book monitoring for matche and unmatched clusters separately
+    matchedClusters.book(ibook, fmt::format("{}/MatchedClusters", folder_));
+    unMatchedClusters.book(ibook, fmt::format("{}/UnmatchedClusters", folder_));
+
     ibook.setCurrentFolder(fmt::format("{}/ClusterComparisons", folder_));
     h_deltaBarycenter_ =
-        ibook.book1D("deltaBarycenter", "#Delta barycenter;#Delta barycenter;cluster pairs", 201, -100.5, 100.5);
+        ibook.book1D("deltaBarycenter", "#Delta barycenter;#Delta barycenter;cluster pairs", 501, -1000.5, 1000.5);
     h_deltaSize_ = ibook.book1D("deltaSize", "#Delta size;#Delta size;cluster pairs", 201, -100.5, 100.5);
-    h_deltaCharge_ = ibook.book1D("deltaCharge", "#Delta charge;#Delta charge;cluster pairs", 500, -1000.5, 1000.5);
+    h_deltaCharge_ = ibook.book1D("deltaCharge", "#Delta charge;#Delta charge;cluster pairs", 501, -1000.5, 1000.5);
 
     h_deltaFirstStrip_ =
-        ibook.book1D("deltaFirstStrip", "#Delta FirstStrip; #Delta firstStrip;cluster pairs", 201, -100.5, 100.5);
+        ibook.book1D("deltaFirstStrip", "#Delta FirstStrip; #Delta firstStrip;cluster pairs", 501, -1000.5, 1000.5);
     h_deltaEndStrip_ =
-        ibook.book1D("deltaEndStrip", "#Delta EndStrip; #Delta endStrip; cluster pairs", 201, -100.5, 100.5);
+        ibook.book1D("deltaEndStrip", "#Delta EndStrip; #Delta endStrip; cluster pairs", 501, -1000.5, 1000.5);
 
     h_isMatched_ = ibook.book1D("isClusterMatched", "cluster matching;is matched?;#clusters", 3, -1.5, 1.5);
     h_isMatched_->getTH1F()->GetXaxis()->SetBinLabel(1, "Not matched");
