@@ -203,7 +203,10 @@ void FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //  Initialize the calorimeter geometry
   if (simulateCalorimetry) {
-    if (watchCaloGeometry_.check(iSetup) || watchCaloTopology_.check(iSetup)) {
+    //evaluate here since || short circuits and we want to be sure bother are updated
+    auto newGeom = watchCaloGeometry_.check(iSetup);
+    auto newTopo = watchCaloTopology_.check(iSetup);
+    if (newGeom || newTopo) {
       auto const& pG = iSetup.getData(caloGeometryESToken_);
       myCalorimetry->getCalorimeter()->setupGeometry(pG);
 
