@@ -181,6 +181,39 @@ namespace tensorflow {
     run(const_cast<Session*>(session), outputNames, outputs, threadPoolName);
   }
 
+  // struct that can be used in edm::stream modules for caching a graph and a session instance,
+  // both made atomic for cases where access is required from multiple threads
+  struct SessionCache {
+    std::atomic<GraphDef*> graph;
+    std::atomic<Session*> session;
+
+    // constructor
+    SessionCache() {}
+
+    // initializing constructor, forwarding all arguments to createSession
+    template <typename... Args>
+    SessionCache(const std::string& graphPath, Args&&... sessionArgs) {
+      createSession(graphPath, std::forward<Args>(sessionArgs)...);
+    }
+
+    // destructor
+    ~SessionCache() { closeSession(); }
+
+    // create the internal graph representation from graphPath and the session object, forwarding
+    // all additional arguments to the central tensorflow::createSession
+    template <typename... Args>
+    void createSession(const std::string& graphPath, Args&&... sessionArgs) {
+      graph.store(loadGraphDef(graphPath));
+      session.store(tensorflow::createSession(graph.load(), std::forward<Args>(sessionArgs)...));
+    }
+
+    // return a pointer to the const session
+    inline const Session* getSession() const { return session.load(); }
+
+    // closes and removes the session as well as the graph, and sets the atomic members to nullptr's
+    void closeSession();
+  };
+
 }  // namespace tensorflow
 
 #endif  // PHYSICSTOOLS_TENSORFLOW_TENSORFLOW_H
