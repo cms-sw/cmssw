@@ -29,6 +29,8 @@ nanoDQMIO_perLSoutput = cms.PSet(
     "EcalBarrel/EBOccupancyTask/EBOT digi occupancy",
     "EcalEndcap/EEOccupancyTask/EEOT digi occupancy EE -",
     "EcalEndcap/EEOccupancyTask/EEOT digi occupancy EE +",
+    "EcalBarrel/EBOccupancyTask/EBOT DCC entries",
+    "EcalEndcap/EEOccupancyTask/EEOT DCC entries",
     "Ecal/EventInfo/processedEvents",
     "PixelPhase1/Tracks/charge_PXBarrel",
     "PixelPhase1/Tracks/charge_PXForward",
