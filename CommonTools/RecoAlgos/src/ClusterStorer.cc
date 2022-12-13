@@ -71,13 +71,17 @@ namespace helper {
   void ClusterStorer::clear() {
     pixelClusterRecords_.clear();
     stripClusterRecords_.clear();
+    phase2OTClusterRecords_.clear();
   }
 
   // -------------------------------------------------------------
-  void ClusterStorer::processAllClusters(edmNew::DetSetVector<SiPixelCluster> &pixelDsvToFill,
-                                         edm::RefProd<edmNew::DetSetVector<SiPixelCluster> > refPixelClusters,
-                                         edmNew::DetSetVector<SiStripCluster> &stripDsvToFill,
-                                         edm::RefProd<edmNew::DetSetVector<SiStripCluster> > refStripClusters) {
+  void ClusterStorer::processAllClusters(
+      edmNew::DetSetVector<SiPixelCluster> &pixelDsvToFill,
+      edm::RefProd<edmNew::DetSetVector<SiPixelCluster> > refPixelClusters,
+      edmNew::DetSetVector<SiStripCluster> &stripDsvToFill,
+      edm::RefProd<edmNew::DetSetVector<SiStripCluster> > refStripClusters,
+      edmNew::DetSetVector<Phase2TrackerCluster1D> &phase2OTDsvToFill,
+      edm::RefProd<edmNew::DetSetVector<Phase2TrackerCluster1D> > refPhase2OTClusters) {
     if (!pixelClusterRecords_.empty()) {
       this->processClusters<SiPixelRecHit, SiPixelCluster>(pixelClusterRecords_, pixelDsvToFill, refPixelClusters);
     }
@@ -88,6 +92,10 @@ namespace helper {
       // ClusterHitRecord<typename SiStripRecHit2D::ClusterRef>::rekey<RecHitType>
       // is specialised such that 'RecHitType' is not used...
       this->processClusters<SiStripRecHit2D, SiStripCluster>(stripClusterRecords_, stripDsvToFill, refStripClusters);
+    }
+    if (!phase2OTClusterRecords_.empty()) {
+      this->processClusters<Phase2TrackerRecHit1D, Phase2TrackerCluster1D>(
+          phase2OTClusterRecords_, phase2OTDsvToFill, refPhase2OTClusters);
     }
   }
 
