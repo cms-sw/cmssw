@@ -32,9 +32,13 @@ namespace clangcms {
     }
     if (P && isa<DeclStmt>(P)) {
       const DeclStmt *DS = dyn_cast_or_null<DeclStmt>(P);
-      if (DS && (hasSpecificAttr<CMSSaAllowAttr>(DS->getSingleDecl()->getAttrs()) ||
-                 hasSpecificAttr<CMSThreadSafeAttr>(DS->getSingleDecl()->getAttrs())))
-        return;
+      if (DS) {
+        for (auto D : DS->decls()) {
+          if (hasSpecificAttr<CMSSaAllowAttr>(D->getAttrs()) || hasSpecificAttr<CMSThreadSafeAttr>(D->getAttrs())) {
+            return;
+          }
+        }
+      }
     }
 
     const Expr *SE = CE->getSubExprAsWritten();
