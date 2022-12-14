@@ -1412,7 +1412,7 @@ void FP420Test::update(const EndOfEvent* evt) {
             //UserNtuples->fillg42(float(intindex),1.);
             //UserNtuples->fillp208(float(intindex),float(nhit),1.);
             //UserNtuples->fillp211(float(intindex),float(themap1[index]),1.);
-            //totalEnergy += themap[index];
+            totalEnergy += themap[index];
           }  // for
         }    // for
         //UserNtuples->fillg39(nhitsecY,1.);
