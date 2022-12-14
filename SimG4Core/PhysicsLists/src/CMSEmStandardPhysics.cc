@@ -80,9 +80,12 @@ CMSEmStandardPhysics::CMSEmStandardPhysics(G4int ver, const edm::ParameterSet& p
   param->SetPhotoeffectBelowKShell(pe);
   G4TransportationWithMscType trtype = fDisabled;
   int type = p.getParameter<int>("G4TransportWithMSC");
-  if (trtype == 1) { trtype = fEnabled; }
-  else if (trtype == 2) { trtype = fMultipleSteps; }
-  param->SetTransportationWithMsc(trtype);  
+  if (trtype == 1) {
+    trtype = fEnabled;
+  } else if (trtype == 2) {
+    trtype = fMultipleSteps;
+  }
+  param->SetTransportationWithMsc(trtype);
 #endif
 }
 
@@ -160,7 +163,6 @@ void CMSEmStandardPhysics::ConstructProcess() {
 #if G4VERSION_NUMBER >= 1110
   G4TransportationWithMscType transportationWithMsc = G4EmParameters::Instance()->TransportationWithMsc();
   if (transportationWithMsc != G4TransportationWithMscType::fDisabled) {
-
     // Remove default G4Transportation and replace with G4TransportationWithMsc.
     G4ProcessManager* procManager = particle->GetProcessManager();
     G4VProcess* removed = procManager->RemoveProcess(0);
