@@ -170,7 +170,6 @@ void HcalSiPMHitResponse::addPEnoise(CLHEP::HepRandomEngine* engine) {
 
         sumnoisePE += noisepe;
       }
-      elapsedTime += dt;
 
     }  // precise time loop
 
