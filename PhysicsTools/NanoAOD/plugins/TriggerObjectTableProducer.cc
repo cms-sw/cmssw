@@ -38,9 +38,9 @@ public:
     const auto selNames = selPSet.getParameterNames();
     std::stringstream idstr, qualitystr;
     idstr << "ID of the object: ";
-    for (const auto &name: selNames) {
+    for (const auto &name : selNames) {
       sels_.emplace_back(selPSet.getParameter<edm::ParameterSet>(name));
-      const auto& sel = sels_.back();
+      const auto &sel = sels_.back();
       idstr << sel.id << " = " << name + sel.doc;
       if (sels_.size() < selNames.size())
         idstr << ", ";
@@ -95,7 +95,7 @@ private:
           qualityBits("0"),   //will be overwritten from configuration
           qualityBitsDoc("")  //will be created from configuration
     {
-      if (doc.size() > 0) {
+      if (!doc.empty()) {
         doc = "(" + doc + ")";
       }
       std::vector<edm::ParameterSet> qualityBitsConfig =
@@ -338,7 +338,8 @@ void TriggerObjectTableProducer::fillDescriptions(edm::ConfigurationDescriptions
 
   edm::ParameterSetDescription selection;
   selection.setComment("a parameterset to define a trigger collection in flat table");
-  selection.add<std::string>("doc", "")->setComment("optional additional info to be added to the table doc for that object");
+  selection.add<std::string>("doc", "")->setComment(
+      "optional additional info to be added to the table doc for that object");
   selection.add<int>("id")->setComment("identifier of the trigger collection in the flat table");
   selection.add<std::string>("sel")->setComment("function to selection on pat::TriggerObjectStandAlone");
   selection.add<bool>("skipObjectsNotPassingQualityBits")->setComment("flag to skip object on quality bit");
