@@ -75,6 +75,18 @@ CMSEmStandardPhysics::CMSEmStandardPhysics(G4int ver, const edm::ParameterSet& p
   double tcut = p.getParameter<double>("G4TrackingCut") * CLHEP::MeV;
   param->SetLowestElectronEnergy(tcut);
   param->SetLowestMuHadEnergy(tcut);
+#if G4VERSION_NUMBER >= 1110
+  bool pe = p.getParameter<bool>("PhotoeffectBelowKShell");
+  param->SetPhotoeffectBelowKShell(pe);
+  G4TransportationWithMscType trtype = fDisabled;
+  int type = p.getParameter<int>("G4TransportWithMSC");
+  if (trtype == 1) {
+    trtype = fEnabled;
+  } else if (trtype == 2) {
+    trtype = fMultipleSteps;
+  }
+  param->SetTransportationWithMsc(trtype);
+#endif
 }
 
 CMSEmStandardPhysics::~CMSEmStandardPhysics() {}
@@ -151,8 +163,8 @@ void CMSEmStandardPhysics::ConstructProcess() {
 #if G4VERSION_NUMBER >= 1110
   G4TransportationWithMscType transportationWithMsc = G4EmParameters::Instance()->TransportationWithMsc();
   if (transportationWithMsc != G4TransportationWithMscType::fDisabled) {
-    G4ProcessManager* procManager = particle->GetProcessManager();
     // Remove default G4Transportation and replace with G4TransportationWithMsc.
+    G4ProcessManager* procManager = particle->GetProcessManager();
     G4VProcess* removed = procManager->RemoveProcess(0);
     if (removed->GetProcessName() != "Transportation") {
       G4Exception("CMSEmStandardPhysics::ConstructProcess",
@@ -177,7 +189,7 @@ void CMSEmStandardPhysics::ConstructProcess() {
   } else
 #endif
   {
-    // Register as a separate process.
+    // Multiple scattering is registered as a separate process
     G4eMultipleScattering* msc = new G4eMultipleScattering;
     msc->SetEmModel(msc1);
     msc->SetEmModel(msc2);
