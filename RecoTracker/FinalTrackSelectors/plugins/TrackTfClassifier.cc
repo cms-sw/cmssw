@@ -106,7 +106,7 @@ namespace {
         std::vector<tensorflow::Tensor> outputs;
 
         //evaluate the input
-        tensorflow::run(const_cast<tensorflow::Session*>(session_), inputs, {"Identity"}, &outputs);
+        tensorflow::run(session_, inputs, {"Identity"}, &outputs);
 
         for (auto nt = 0; nt < bsize_; nt++) {
           int itrack = nt + bsize_ * nb;
