@@ -7,8 +7,8 @@ DEVICE=$2
 # 1. GPU not available (only if GPU test requested) / avx instructions not supported (needed for singularity on CPU)
 # 1b. Nvidia drivers not available
 # 2. wrong architecture (not amd64)
-# 3. singularity not found or not usable
-# 4. inside singularity container w/o unprivileged user namespace enabled (needed for singularity-in-singularity)
+# 3. singularity not found or not usable and
+# inside singularity container w/o unprivileged user namespace enabled (needed for singularity-in-singularity)
 # so just return true in those cases
 
 if [ "$DEVICE" = "GPU" ]; then
@@ -42,20 +42,9 @@ else
        exit 0
 fi
 
-if type singularity >& /dev/null; then
-	echo "has singularity"
-else
-	echo "missing singularity"
+if ! singularity-check.sh; then
+	echo "missing singularity or missing unprivileged user namespace support"
 	exit 0
-fi
-
-if [ -n "$SINGULARITY_CONTAINER" ]; then
-	if grep -q "^allow setuid = no" /etc/singularity/singularity.conf && unshare -U echo >/dev/null 2>&1; then
-		echo "has unprivileged user namespace support"
-	else
-		echo "missing unprivileged user namespace support"
-		exit 0
-	fi
 fi
 
 fallbackName=triton_server_instance_${DEVICE}
