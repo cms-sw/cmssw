@@ -181,6 +181,14 @@ process.hltParticleFlowClusterHBHE = cms.EDProducer("PFClusterProducerCudaHCAL",
                                                     initialClusteringStep = process.hltParticleFlowClusterHBHE.initialClusteringStep
 )
 
+# ES ---
+process.hltPFHBHERecHitParamsGPUESProducer  = cms.ESSource("PFHBHERecHitParamsGPUESProducer",
+                                                             depthHB = cms.vuint32( 1, 2, 3, 4 ),
+                                                             depthHE = cms.vuint32( 1, 2, 3, 4, 5, 6, 7  ),
+                                                             thresholdE_HB = cms.vdouble(0.1, 0.2, 0.3, 0.3),
+                                                             thresholdE_HE = cms.vdouble(0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2)
+)
+
 # value before recent optimizations
 process.hltParticleFlowClusterHBHE.pfClusterBuilder.maxIterations = 50
 
@@ -202,7 +210,7 @@ process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*Hbhereco*_*_*')
 # Run only localreco, PFRecHit and PFCluster producers for HBHE only
 #process.source.fileNames = cms.untracked.vstring('file:/cms/data/hatake/ana/PF/GPU/CMSSW_12_4_0_v2/src/test/v21/GPU/reHLT_HLT.root ')
 
-process.HBHEPFGPUTask = cms.Path(process.hltHcalDigis+process.hltHcalDigisGPU+process.hltHbherecoGPU+process.hltHbherecoFromGPU+process.hltParticleFlowRecHitHBHE+process.hltParticleFlowClusterHBHE)
+process.HBHEPFGPUTask = cms.Path(process.hltHcalDigis+process.hltHcalDigisGPU+process.hltHbherecoGPU+process.hltPFHBHERecHitParamsGPUESProducer+process.hltHbherecoFromGPU+process.hltParticleFlowRecHitHBHE+process.hltParticleFlowClusterHBHE)
 process.HBHEPFCPUTask = cms.Path(process.hltHcalDigis+process.hltHbherecoLegacy+process.hltParticleFlowRecHitHBHE+process.hltParticleFlowClusterHBHE)
 process.schedule = cms.Schedule(process.HBHEPFGPUTask)
 process.schedule.extend([process.endjob_step,process.FEVTDEBUGHLToutput_step])

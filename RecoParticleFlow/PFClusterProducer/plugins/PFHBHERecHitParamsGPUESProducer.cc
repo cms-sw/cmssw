@@ -35,6 +35,7 @@ private:
 };
 
 PFHBHERecHitParamsGPUESProducer::PFHBHERecHitParamsGPUESProducer(edm::ParameterSet const& pset) : pset_{pset} {
+  std::cout << "PFHBHERecHitParamsGPUESProducer::PFHBHERecHitParamsGPUESProducer" << std::endl;
   setWhatProduced(this);
   findingRecord<JobConfigurationGPURecord>();
 }
@@ -47,8 +48,8 @@ void PFHBHERecHitParamsGPUESProducer::setIntervalFor(const edm::eventsetup::Even
 
 void PFHBHERecHitParamsGPUESProducer::fillDescriptions(edm::ConfigurationDescriptions& desc) {
   edm::ParameterSetDescription d;
-  d.add<std::vector<unsigned int>>("depthHB", { 1, 2, 3, 4});
-  d.add<std::vector<unsigned int>>("depthHE", { 1, 2, 3, 4, 5, 6, 7});
+  d.add<std::vector<int>>("depthHB", { 1, 2, 3, 4});
+  d.add<std::vector<int>>("depthHE", { 1, 2, 3, 4, 5, 6, 7});
   d.add<std::vector<double>>("thresholdE_HB", { 0.1, 0.2, 0.3, 0.3});
   d.add<std::vector<double>>("thresholdE_HE", { 0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2});
   desc.addWithDefaultLabel(d);

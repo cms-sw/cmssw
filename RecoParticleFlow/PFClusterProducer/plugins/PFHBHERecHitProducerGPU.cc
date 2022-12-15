@@ -31,6 +31,7 @@
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFHCALDenseIdNavigator.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitNavigatorBase.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFHBHERecHitParamsGPU.h"
 
 #include "DeclsForKernels.h"
 #include "SimplePFGPUAlgos.h"
@@ -79,6 +80,10 @@ private:
   edm::ESWatcher<HcalRecNumberingRecord> theRecNumberWatcher_;
   std::unique_ptr<const HcalTopology> topology_;
 
+  // PFHBHERecHit params
+  const edm::ESGetToken<PFHBHERecHitParamsGPU, JobConfigurationGPURecord> recoParamsToken_;
+  edm::ESHandle<PFHBHERecHitParamsGPU> recHitParametersHandle_;
+  
   // Miscellaneous
   PFRecHit::HCAL::PersistentDataCPU persistentDataCPU;
   PFRecHit::HCAL::PersistentDataGPU persistentDataGPU;
@@ -113,7 +118,8 @@ PFHBHERecHitProducerGPU::PFHBHERecHitProducerGPU(edm::ParameterSet const& ps)
           ps.getParameterSetVector("producers")[0].getParameter<edm::InputTag>("src"))},
       OutputPFRecHitSoA_Token_{produces<OProductType>(ps.getParameter<std::string>("PFRecHitsGPUOut"))},
       hcalToken_(esConsumes<edm::Transition::BeginRun>()),
-      geomToken_(esConsumes<edm::Transition::BeginRun>()) {
+      geomToken_(esConsumes<edm::Transition::BeginRun>()),
+      recoParamsToken_{esConsumes()}{
   edm::ConsumesCollector cc = consumesCollector();
 
   produces<reco::PFRecHitCollection>();
@@ -265,6 +271,24 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
   auto const& HBHERecHitSoA = ctx.get(HBHERecHitSoAProduct);
   size_t num_rechits = HBHERecHitSoA.size;
 
+  //
+  //auto const& pulseOffsets = setup.getData(recoParamsToken_);
+  //auto const& pulseOffsetsProduct = pulseOffsets.getProduct(ctx.stream());
+  recHitParametersHandle_ = setup.getHandle(recoParamsToken_);
+  auto const& recHitParametersProduct = recHitParametersHandle_->getProduct(ctx.stream());
+
+  std::cout << (recHitParametersHandle_->getValuesdepthHB())[0] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesdepthHB())[1] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesdepthHB())[2] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesdepthHB())[3] << std::endl;
+
+  std::cout << (recHitParametersHandle_->getValuesdepthHE())[0] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesdepthHE())[1] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesdepthHE())[2] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesdepthHE())[3] << std::endl;
+
+  std::cout << recHitParametersProduct.valuesdepthHB[0] << std::endl;
+  
   if (initCuda) {
     // Initialize persistent arrays for rechit positions
     persistentDataCPU.allocate(nDenseIdsInRange, ctx.stream());
