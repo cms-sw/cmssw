@@ -7,7 +7,10 @@
 
 class TauNNId {
 public:
-  TauNNId(const std::string &iInput, const tensorflow::Session *session, const std::string &iWeightFile, int iNParticles);
+  TauNNId(const std::string &iInput,
+          const tensorflow::Session *session,
+          const std::string &iWeightFile,
+          int iNParticles);
   ~TauNNId();
 
   void setNNVectorVar();
