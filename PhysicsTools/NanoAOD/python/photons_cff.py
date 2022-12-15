@@ -319,7 +319,7 @@ run2_egamma.toModify(
     dEsigmaDown=Var("userFloat('ecalEnergyPostCorrNew') - userFloat('energySigmaDownNew')", float, doc="ecal energy smearing value shifted 1 sigma up", precision=8),
 )
 
-<<<<<<< HEAD
+
 photonTask = cms.Task(bitmapVIDForPho, bitmapVIDForPhoRun2, isoForPho, hOverEForPho, isoForPhoFall17V2, seedGainPho, seedLocationPho, slimmedPhotonsWithUserData, finalPhotons)
 
 photonTablesTask = cms.Task(photonTable)
