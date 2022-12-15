@@ -4,16 +4,16 @@ import FWCore.ParameterSet.Config as cms
 import sys
 if 'runkey=hi_run' in sys.argv:
   from Configuration.Eras.Era_Run3_pp_on_PbPb_approxSiStripClusters_cff import Run3_pp_on_PbPb_approxSiStripClusters
-  process = cms.Process("BeamMonitor", Run3_pp_on_PbPb_approxSiStripClusters)
+  process = cms.Process("SiStripMonitor", Run3_pp_on_PbPb_approxSiStripClusters)
 else:
   from Configuration.Eras.Era_Run3_cff import Run3
-  process = cms.Process("BeamMonitor", Run3)
+  process = cms.Process("SiStripMonitor", Run3)
 
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('siStripDigis',
                                          'siStripClusters',
                                          'siStripZeroSuppression',
-                                        'SiStripClusterizer'),
+                                         'SiStripClusterizer'),
     cout = cms.untracked.PSet(threshold = cms.untracked.string('ERROR')),
     destinations = cms.untracked.vstring('cout')
 )
@@ -553,8 +553,6 @@ if (process.runType.getRunType() == process.runType.hi_run):
             'HLT_HIPhysics*'
             ]
 
-
-
     process.SiStripMonitorDigi.UseDCSFiltering = False
     process.SiStripMonitorClusterReal.UseDCSFiltering = False
 
@@ -666,6 +664,10 @@ if (process.runType.getRunType() == process.runType.hi_run):
         process.TrackingClient
     )
 
+    # append the approximate clusters monitoring for the HI run case
+    from DQM.SiStripMonitorApproximateCluster.SiStripMonitorApproximateCluster_cfi import SiStripMonitorApproximateCluster
+    process.siStripApproximateClusterComparator = SiStripMonitorApproximateCluster.clone(compareClusters = cms.bool(True))
+    process.p.insert(process.p.index(process.TrackingClient)+1,process.siStripApproximateClusterComparator)
 
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *

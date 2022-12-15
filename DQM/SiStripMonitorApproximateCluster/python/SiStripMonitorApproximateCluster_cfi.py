@@ -1,0 +1,6 @@
+import FWCore.ParameterSet.Config as cms
+
+# SiStripMonitorCluster
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+from DQM.SiStripMonitorApproximateCluster.siStripMonitorApproximateCluster_cfi import siStripMonitorApproximateCluster
+SiStripMonitorApproximateCluster =  siStripMonitorApproximateCluster.clone()

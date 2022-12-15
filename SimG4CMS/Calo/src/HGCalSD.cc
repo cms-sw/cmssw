@@ -212,7 +212,7 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
     double dx = xx - (hitPoint.x() / CLHEP::cm);
     double dy = xy.second - (hitPoint.y() / CLHEP::cm);
     double diff = std::sqrt(dx * dx + dy * dy);
-    constexpr double tol = 1.0;
+    constexpr double tol = 2.0;
     if (diff > tol) {
       bool valid1 = hgcons_->isValidHex8(hid1.layer(), hid1.waferU(), hid1.waferV(), hid1.cellU(), hid1.cellV(), true);
       int cellU(0), cellV(0), waferType(-1), waferU(0), waferV(0);
