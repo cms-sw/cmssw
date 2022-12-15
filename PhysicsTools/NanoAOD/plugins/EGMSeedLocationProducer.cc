@@ -36,7 +36,6 @@ private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   edm::EDGetTokenT<edm::View<T>> src_;
-
 };
 
 template <typename T>
@@ -89,7 +88,6 @@ void EGMSeedLocationProducer<T>::produce(edm::StreamID streamID,
   filleriYV.insert(src, iY.begin(), iY.end());
   filleriYV.fill();
   iEvent.put(std::move(iYV), "iY");
-
 }
 
 template <typename T>
