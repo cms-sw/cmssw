@@ -22,6 +22,9 @@ filesDefaultData_JetHTRun2022A = cms.untracked.vstring(
     '/store/data/Run2022A/JetHT/ALCARECO/TkAlMinBias-PromptReco-v1/000/352/900/00000/96120499-f83f-4b90-a828-58d4c2d26350.root'
 )
 
+filesDefaultData_JetHTRun2018DHcalIsoTrk = cms.untracked.vstring(
+    '/store/data/Run2018D/JetHT/ALCARECO/HcalCalIsoTrkFilter-12Nov2019_UL2018-v3/100000/075A1F1E-20B4-134D-9794-AD764DA6730D.root')
+
 filesDefaultMC_NoPU = cms.untracked.vstring(
     '/store/mc/RunIIWinter19PFCalibDR/Single_Pion_gun_E_2to200_13TeV_pythia8/GEN-SIM-RECO/2018ConditionsNoPU_105X_upgrade2018_realistic_v4-v1/270000/2BCBEBAB-BA94-B74F-9BFA-04F849A32558.root'
 )
