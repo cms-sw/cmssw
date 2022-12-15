@@ -50,13 +50,16 @@
     <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test test_unitSubmitPVsplit.sh"/>
     <use name="FWCore/Utilities"/>
   </bin>
-  <bin file="testAlignmentOfflineValidation.cpp" name="EoPPion">
-    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test test_unitEoPPion.sh"/>
+  <bin file="testAlignmentOfflineValidation.cpp" name="EoP">
+    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test test_unitEoP.sh"/>
     <use name="FWCore/Utilities"/>
   </bin>
-  <bin file="testAlignmentOfflineValidation.cpp" name="EoPElectron">
-    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test test_unitEoPElectron.sh"/>
-    <use name="FWCore/Utilities"/>
+  <bin file="testEoPPlotting.cpp" name="testEoPPlotting">
+    <flags PRE_TEST="EoP"/>
+    <use name="rootmath"/>
+    <use name="roothistmatrix"/>
+    <use name="rootgraphics"/>
+    <use name="Alignment/OfflineValidation"/>
   </bin>
   <bin file="testAlignmentOfflineValidation.cpp" name="Miscellanea">
     <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test test_unitMiscellanea.sh"/>

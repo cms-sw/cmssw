@@ -40,7 +40,7 @@ process = cms.Process("EnergyOverMomentumTree",Run3)
 
 # initialize MessageLogger and output report
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
 process.MessageLogger.TrackRefitter=dict()
 process.MessageLogger.EopElecTreeWriter=dict()
     
