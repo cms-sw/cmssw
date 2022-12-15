@@ -5,7 +5,11 @@
 
 static constexpr unsigned int n_particles_max = 10;
 
-TauNNId::TauNNId(const std::string &iInput, const tensorflow::Session * session, const std::string &iWeightFile, int iNParticles) : session_(session) {
+TauNNId::TauNNId(const std::string &iInput,
+                 const tensorflow::Session *session,
+                 const std::string &iWeightFile,
+                 int iNParticles)
+    : session_(session) {
   NNvectorVar_.clear();
   edm::FileInPath fp(iWeightFile);
   fNParticles_ = iNParticles;
