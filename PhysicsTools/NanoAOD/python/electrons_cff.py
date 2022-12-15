@@ -3,6 +3,7 @@ from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCand
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
 from math import ceil,log
+#from ROOT import *
 
 ############################FOR bitmapVIDForEle main defn#############################
 electron_id_modules_WorkingPoints_nanoAOD = cms.PSet(
@@ -115,6 +116,9 @@ ptRatioRelForEle = cms.EDProducer("ElectronJetVarProducer",
 seedGainEle = cms.EDProducer("ElectronSeedGainProducer", src = cms.InputTag("slimmedElectrons"))
 ############################################seed gainELE
 
+## Seed Location
+seedLocationEle = cms.EDProducer("ElectronSeedLocationProducer", src = cms.InputTag("slimmedElectrons"))
+
 ############################calibratedPatElectrons##############
 ##this is a special one, so we leave the era modifications here#####
 import RecoEgamma.EgammaTools.calibratedEgammas_cff
@@ -200,6 +204,10 @@ slimmedElectronsWithUserData = cms.EDProducer("PATElectronUserDataEmbedder",
         VIDNestedWPBitmap_Fall17V2 = cms.InputTag("bitmapVIDForEleFall17V2"),
         VIDNestedWPBitmapHEEP = cms.InputTag("bitmapVIDForEleHEEP"),
         seedGain = cms.InputTag("seedGainEle"),
+        seed_iEta = cms.InputTag("seedLocationEle:iEta"),
+        seed_iPhi = cms.InputTag("seedLocationEle:iPhi"),
+        seed_iX = cms.InputTag("seedLocationEle:iX"),
+        seed_iY = cms.InputTag("seedLocationEle:iY"),
     ),
     userCands = cms.PSet(
         jetForLepJetVar = cms.InputTag("ptRatioRelForEle:jetForLepJetVar") # warning: Ptr is null if no match is found
@@ -353,6 +361,10 @@ electronTable = simpleCandidateFlatTableProducer.clone(
         lostHits = Var("gsfTrack.hitPattern.numberOfLostHits('MISSING_INNER_HITS')","uint8",doc="number of missing inner hits"),
         isPFcand = Var("pfCandidateRef().isNonnull()",bool,doc="electron is PF candidate"),
         seedGain = Var("userInt('seedGain')","uint8",doc="Gain of the seed crystal"),
+        seed_iEta = Var("userInt('seed_iEta')",int,doc="iEta (location) of seed crystal in barrel"),
+        seed_iPhi = Var("userInt('seed_iPhi')",int,doc="iPhi (location) of seed crystal in barrel"),
+        seed_iX = Var("userInt('seed_iX')",int,doc="iX (location) of seed crystal in endcap"),
+        seed_iY = Var("userInt('seed_iY')",int,doc="iY (location) of seed crystal in endcap"),
         jetNDauCharged = Var("?userCand('jetForLepJetVar').isNonnull()?userFloat('jetNDauChargedMVASel'):0", "uint8", doc="number of charged daughters of the closest jet"),
     ),
     externalVariables = cms.PSet(
@@ -453,7 +465,7 @@ electronMCTable = cms.EDProducer("CandMCMatchTableProducer",
     genparticles     = cms.InputTag("finalGenParticles"),
 )
 
-electronTask = cms.Task(bitmapVIDForEle,bitmapVIDForEleFall17V2,bitmapVIDForEleHEEP,isoForEle,isoForEleFall17V2,ptRatioRelForEle,seedGainEle,calibratedPatElectronsNano,slimmedElectronsWithUserData,finalElectrons)
+electronTask = cms.Task(bitmapVIDForEle,bitmapVIDForEleFall17V2,bitmapVIDForEleHEEP,isoForEle,isoForEleFall17V2,ptRatioRelForEle,seedGainEle,seedLocationEle,calibratedPatElectronsNano,slimmedElectronsWithUserData,finalElectrons)
 electronTablesTask = cms.Task(electronMVATTH, electronTable)
 electronMCTask = cms.Task(tautaggerForMatching, matchingElecPhoton, electronsMCMatchForTable, electronsMCMatchForTableAlt, electronMCTable)
 

@@ -93,6 +93,8 @@ isoForPhoFall17V2 = isoForPho.clone(
 
 seedGainPho = cms.EDProducer("PhotonSeedGainProducer", src = cms.InputTag("slimmedPhotons"))
 
+seedLocationPho = cms.EDProducer("PhotonSeedLocationProducer", src = cms.InputTag("slimmedPhotons"))
+
 import RecoEgamma.EgammaTools.calibratedEgammas_cff
 
 calibratedPatPhotonsNano = RecoEgamma.EgammaTools.calibratedEgammas_cff.calibratedPatPhotons.clone(
@@ -148,6 +150,10 @@ slimmedPhotonsWithUserData = cms.EDProducer("PATPhotonUserDataEmbedder",
         VIDNestedWPBitmap = cms.InputTag("bitmapVIDForPho"),
         VIDNestedWPBitmapFall17V2 = cms.InputTag("bitmapVIDForPhoRun2"),
         seedGain = cms.InputTag("seedGainPho"),
+        seed_iEta = cms.InputTag("seedLocationPho:iEta"),
+        seed_iPhi = cms.InputTag("seedLocationPho:iPhi"),
+        seed_iX = cms.InputTag("seedLocationPho:iX"),
+        seed_iY = cms.InputTag("seedLocationPho:iY"),
     )
 )
 
@@ -239,6 +245,10 @@ photonTable = simpleCandidateFlatTableProducer.clone(
         isScEtaEB = Var("abs(superCluster().eta()) < 1.4442",bool,doc="is supercluster eta within barrel acceptance"),
         isScEtaEE = Var("abs(superCluster().eta()) > 1.566 && abs(superCluster().eta()) < 2.5",bool,doc="is supercluster eta within endcap acceptance"),
         seedGain = Var("userInt('seedGain')","uint8",doc="Gain of the seed crystal"),
+        seed_iEta = Var("userInt('seed_iEta')",int,doc="iEta (location) of seed crystal in barrel"),
+        seed_iPhi = Var("userInt('seed_iPhi')",int,doc="iPhi (location) of seed crystal in barrel"),
+        seed_iX = Var("userInt('seed_iX')",int,doc="iX (location) of seed crystal in endcap"),
+        seed_iY = Var("userInt('seed_iY')",int,doc="iY (location) of seed crystal in endcap"),
         # position of photon is best approximated by position of seed cluster, not the SC centroid
         x_calo = Var("superCluster().seed().position().x()",float,doc="photon supercluster position on calorimeter, x coordinate (cm)",precision=10),
         y_calo = Var("superCluster().seed().position().y()",float,doc="photon supercluster position on calorimeter, y coordinate (cm)",precision=10),
@@ -309,7 +319,9 @@ run2_egamma.toModify(
     dEsigmaDown=Var("userFloat('ecalEnergyPostCorrNew') - userFloat('energySigmaDownNew')", float, doc="ecal energy smearing value shifted 1 sigma up", precision=8),
 )
 
-photonTask = cms.Task(bitmapVIDForPho, bitmapVIDForPhoRun2, isoForPho, hOverEForPho, isoForPhoFall17V2, seedGainPho, slimmedPhotonsWithUserData, finalPhotons)
+<<<<<<< HEAD
+photonTask = cms.Task(bitmapVIDForPho, bitmapVIDForPhoRun2, isoForPho, hOverEForPho, isoForPhoFall17V2, seedGainPho, seedLocationPho, slimmedPhotonsWithUserData, finalPhotons)
+
 photonTablesTask = cms.Task(photonTable)
 photonMCTask = cms.Task(photonsMCMatchForTable, photonMCTable)
 
