@@ -23,13 +23,10 @@ class EGMSeedLocationProducer : public edm::global::EDProducer<> {
 public:
   explicit EGMSeedLocationProducer(const edm::ParameterSet& iConfig)
       : src_(consumes<edm::View<T>>(iConfig.getParameter<edm::InputTag>("src"))) {
-    //recHitsEB_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsEB"))),
-    //recHitsEE_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsEE"))) {
     produces<edm::ValueMap<int>>("iEta");
     produces<edm::ValueMap<int>>("iPhi");
     produces<edm::ValueMap<int>>("iX");
     produces<edm::ValueMap<int>>("iY");
-    //produces<edm::ValueMap<float>>("PFIsoChg");
   }
   ~EGMSeedLocationProducer() override{};
 
@@ -38,11 +35,8 @@ public:
 private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
-  // ----------member data ---------------------------
-
   edm::EDGetTokenT<edm::View<T>> src_;
-  //  edm::EDGetTokenT<EcalRecHitCollection> recHitsEB_;
-  // edm::EDGetTokenT<EcalRecHitCollection> recHitsEE_;
+
 };
 
 template <typename T>
@@ -50,11 +44,8 @@ void EGMSeedLocationProducer<T>::produce(edm::StreamID streamID,
                                          edm::Event& iEvent,
                                          const edm::EventSetup& iSetup) const {
   auto src = iEvent.getHandle(src_);
-  //  const auto& recHitsEBProd = iEvent.get(recHitsEB_);
-  //const auto& recHitsEEProd = iEvent.get(recHitsEE_);
 
   unsigned nSrc = src->size();
-  //  std::vector<int> gainSeed(nSrc);
   std::vector<int> iEta(nSrc, 0);
   std::vector<int> iPhi(nSrc, 0);
   std::vector<int> iX(nSrc, 0);
@@ -80,7 +71,6 @@ void EGMSeedLocationProducer<T>::produce(edm::StreamID streamID,
   filleriEtaV.insert(src, iEta.begin(), iEta.end());
   filleriEtaV.fill();
   iEvent.put(std::move(iEtaV), "iEta");
-  //  iEvent.put(std::move(PFIsoChgV), "PFIsoChg");
 
   std::unique_ptr<edm::ValueMap<int>> iPhiV(new edm::ValueMap<int>());
   edm::ValueMap<int>::Filler filleriPhiV(*iPhiV);
@@ -100,28 +90,17 @@ void EGMSeedLocationProducer<T>::produce(edm::StreamID streamID,
   filleriYV.fill();
   iEvent.put(std::move(iYV), "iY");
 
-  //  std::unique_ptr<edm::ValueMap<int>> gainSeedV(new edm::ValueMap<int>());
-  // edm::ValueMap<int>::Filler fillerCorr(*gainSeedV);
-  //  fillerCorr.insert(src, gainSeed.begin(), gainSeed.end());
-  // fillerCorr.fill();
-  // iEvent.put(std::move(gainSeedV));
 }
 
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 template <typename T>
 void EGMSeedLocationProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src")->setComment("input physics object collection");
-  //  desc.add<edm::InputTag>("recHitsEB", edm::InputTag("reducedEgamma", "reducedEBRecHits"))
-  //  ->setComment("EB rechit collection");
-  //desc.add<edm::InputTag>("recHitsEE", edm::InputTag("reducedEgamma", "reducedEERecHits"))
-  //  ->setComment("EE rechit collection");
   descriptions.addDefault(desc);
 }
 
 typedef EGMSeedLocationProducer<pat::Electron> ElectronSeedLocationProducer;
 typedef EGMSeedLocationProducer<pat::Photon> PhotonSeedLocationProducer;
 
-//define this as a plug-in
 DEFINE_FWK_MODULE(ElectronSeedLocationProducer);
 DEFINE_FWK_MODULE(PhotonSeedLocationProducer);
