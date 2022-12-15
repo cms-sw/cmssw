@@ -715,7 +715,7 @@ std::vector<float> MkFitOutputConverter::computeDNNs(TrackCandidateCollection co
 
     //eval and rescale
     std::vector<tensorflow::Tensor> outputs;
-    tensorflow::run(const_cast<tensorflow::Session*>(session), inputs, {"Identity"}, &outputs);
+    tensorflow::run(session, inputs, {"Identity"}, &outputs);
 
     for (auto nt = 0; nt < bsize_; nt++) {
       int itrack = nt + bsize_ * nb;
