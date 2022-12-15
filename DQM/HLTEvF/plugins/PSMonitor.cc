@@ -63,7 +63,7 @@ private:
 // -----------------------------
 
 PSMonitor::PSMonitor(const edm::ParameterSet& config)
-    : folderName_(config.getParameter<std::string>("FolderName")),
+    : folderName_(config.getParameter<std::string>("folderName")),
       ugtBXToken_(consumes<GlobalAlgBlkBxCollection>(config.getParameter<edm::InputTag>("ugtBXInputTag"))) {
   edm::ParameterSet histoPSet = config.getParameter<edm::ParameterSet>("histoPSet");
   edm::ParameterSet psColumnPSet = histoPSet.getParameter<edm::ParameterSet>("psColumnPSet");
@@ -138,19 +138,19 @@ void PSMonitor::fillHistoPSetDescription(edm::ParameterSetDescription& pset, int
 void PSMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("ugtBXInputTag", edm::InputTag("hltGtStage2Digis"));
-  desc.add<std::string>("FolderName", "HLT/PSMonitoring");
+  desc.add<std::string>("folderName", "HLT/PSMonitoring");
 
   edm::ParameterSetDescription histoPSet;
 
   edm::ParameterSetDescription psColumnPSet;
   fillHistoPSetDescription(psColumnPSet, 8);
-  histoPSet.add<edm::ParameterSetDescription>("psColumnPSet", psColumnPSet);
+  histoPSet.add("psColumnPSet", psColumnPSet);
 
   edm::ParameterSetDescription lsPSet;
   fillHistoPSetDescription(lsPSet, 2500);
-  histoPSet.add<edm::ParameterSetDescription>("lsPSet", lsPSet);
+  histoPSet.add("lsPSet", lsPSet);
 
-  desc.add<edm::ParameterSetDescription>("histoPSet", histoPSet);
+  desc.add("histoPSet", histoPSet);
 
   descriptions.add("psMonitoring", desc);
 }
