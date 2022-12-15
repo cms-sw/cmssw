@@ -1,15 +1,15 @@
-#include "FWCore/Framework/interface/global/EDProducer.h"
+#include <iostream>
+#include <vector>
+
+#include "DataFormats/NanoAOD/interface/FlatTable.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/transform.h"
-#include "DataFormats/NanoAOD/interface/FlatTable.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "TLorentzVector.h"
-
-#include <vector>
-#include <iostream>
 
 class LHETablesProducer : public edm::global::EDProducer<> {
 public:
@@ -17,7 +17,8 @@ public:
       : lheTag_(edm::vector_transform(params.getParameter<std::vector<edm::InputTag>>("lheInfo"),
                                       [this](const edm::InputTag& tag) { return mayConsume<LHEEventProduct>(tag); })),
         precision_(params.getParameter<int>("precision")),
-        storeLHEParticles_(params.getParameter<bool>("storeLHEParticles")) {
+        storeLHEParticles_(params.getParameter<bool>("storeLHEParticles")),
+        storeAllLHEInfo_(params.getParameter<bool>("storeAllLHEInfo")) {
     produces<nanoaod::FlatTable>("LHE");
     if (storeLHEParticles_)
       produces<nanoaod::FlatTable>("LHEPart");
@@ -40,7 +41,8 @@ public:
       if (storeLHEParticles_)
         iEvent.put(std::move(lhePartTab), "LHEPart");
     } else {
-      if (storeLHEParticles_) {  // need to store a dummy table anyway to make the framework happy
+      if (storeLHEParticles_) {  // need to store a dummy table anyway to make
+                                 // the framework happy
         auto lhePartTab = std::make_unique<nanoaod::FlatTable>(1, "LHEPart", true);
         iEvent.put(std::move(lhePartTab), "LHEPart");
       }
@@ -54,7 +56,9 @@ public:
     unsigned int lheNj = 0, lheNb = 0, lheNc = 0, lheNuds = 0, lheNglu = 0;
     double lheVpt = 0;
     double alphaS = 0;
-
+    double alphaQED = 0;
+    double scale = 0;
+    int idproc = 0;
     const auto& hepeup = lheProd.hepeup();
     const auto& pup = hepeup.PUP;
     int lep = -1, lepBar = -1, nu = -1, nuBar = -1;
@@ -63,18 +67,34 @@ public:
     std::vector<float> vals_phi;
     std::vector<float> vals_mass;
     std::vector<float> vals_pz;
+    std::vector<float> vals_time;
     std::vector<int> vals_pid;
     std::vector<int> vals_status;
     std::vector<int> vals_spin;
+    std::vector<int> vals_col1;
+    std::vector<int> vals_col2;
+    std::vector<int> vals_mother1;
+    std::vector<int> vals_mother2;
     alphaS = hepeup.AQCDUP;
+    alphaQED = hepeup.AQEDUP;
+    scale = hepeup.SCALUP;
+    idproc = hepeup.IDPRUP;
     for (unsigned int i = 0, n = pup.size(); i < n; ++i) {
       int status = hepeup.ISTUP[i];
       int idabs = std::abs(hepeup.IDUP[i]);
-      if (status == 1 || status == -1 || (status == 2 && (idabs >= 23 && idabs <= 25))) {
-        TLorentzVector p4(pup[i][0], pup[i][1], pup[i][2], pup[i][3]);  // x,y,z,t
+      if (status == 1 || status == -1 || (status == 2 && (idabs >= 23 && idabs <= 25)) || storeAllLHEInfo_) {
+        TLorentzVector p4(pup[i][0], pup[i][1], pup[i][2],
+                          pup[i][3]);  // x,y,z,t
         vals_pid.push_back(hepeup.IDUP[i]);
         vals_spin.push_back(hepeup.SPINUP[i]);
         vals_status.push_back(status);
+        if (storeAllLHEInfo_) {
+          vals_col1.push_back(hepeup.ICOLUP[i].first);
+          vals_col2.push_back(hepeup.ICOLUP[i].second);
+          vals_mother1.push_back(hepeup.MOTHUP[i].first);
+          vals_mother2.push_back(hepeup.MOTHUP[i].second);
+          vals_time.push_back(hepeup.VTIMUP[i]);
+        }
         if (status == -1) {
           vals_pt.push_back(0);
           vals_eta.push_back(0);
@@ -103,9 +123,9 @@ public:
         // HT
         double pt = std::hypot(pup[i][0], pup[i][1]);  // first entry is px, second py
         lheHT += pt;
-        int mothIdx = std::max(
-            hepeup.MOTHUP[i].first - 1,
-            0);  //first and last mother as pair; first entry has index 1 in LHE; incoming particles return motherindex 0
+        int mothIdx = std::max(hepeup.MOTHUP[i].first - 1,
+                               0);  // first and last mother as pair; first entry has index 1 in
+                                    // LHE; incoming particles return motherindex 0
         int mothIdxTwo = std::max(hepeup.MOTHUP[i].second - 1, 0);
         int mothStatus = hepeup.ISTUP[mothIdx];
         int mothStatusTwo = hepeup.ISTUP[mothIdxTwo];
@@ -143,7 +163,11 @@ public:
     out.addColumnValue<uint8_t>("NpNLO", lheProd.npNLO(), "number of partons at NLO");
     out.addColumnValue<uint8_t>("NpLO", lheProd.npLO(), "number of partons at LO");
     out.addColumnValue<float>("AlphaS", alphaS, "Per-event alphaS");
-
+    if (storeAllLHEInfo_) {
+      out.addColumnValue<float>("AlphaQED", alphaQED, "Per-event alphaQED");
+      out.addColumnValue<float>("Scale", scale, "Per-event scale");
+      out.addColumnValue<uint8_t>("ProcessID", idproc, "Process id (as in the card ordering)");
+    }
     auto outPart = std::make_unique<nanoaod::FlatTable>(vals_pt.size(), "LHEPart", false);
     outPart->addColumn<float>("pt", vals_pt, "Pt of LHE particles", this->precision_);
     outPart->addColumn<float>("eta", vals_eta, "Pseodorapidity of LHE particles", this->precision_);
@@ -153,17 +177,30 @@ public:
     outPart->addColumn<int>("pdgId", vals_pid, "PDG ID of LHE particles");
     outPart->addColumn<int>("status", vals_status, "LHE particle status; -1:incoming, 1:outgoing");
     outPart->addColumn<int>("spin", vals_spin, "Spin of LHE particles");
-
+    if (storeAllLHEInfo_) {
+      outPart->addColumn<int>("color1", vals_col1, "First color index of LHE particles");
+      outPart->addColumn<int>("color2", vals_col2, "Second color index of LHE particles");
+      outPart->addColumn<int>("mother1", vals_mother1, "First mother index of LHE particles");
+      outPart->addColumn<int>("mother2", vals_mother2, "Second mother index of LHE particles");
+      outPart->addColumn<float>("lifetime", vals_time, "Own lifetime of LHE particles", this->precision_);
+    }
     return outPart;
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
-    desc.add<std::vector<edm::InputTag>>("lheInfo", std::vector<edm::InputTag>{{"externalLHEProducer"}, {"source"}})
+    desc.add<std::vector<edm::InputTag>>(
+            "lheInfo", std::vector<edm::InputTag>{{"lheWeights"}, {"externalLHEProducer"}, {"source"}})
         ->setComment("tag(s) for the LHE information (LHEEventProduct)");
     desc.add<int>("precision", -1)->setComment("precision on the 4-momenta of the LHE particles");
     desc.add<bool>("storeLHEParticles", false)
-        ->setComment("Whether we want to store the 4-momenta of the status 1 particles at LHE level");
+        ->setComment(
+            "Whether we want to store the 4-momenta of the status 1 particles "
+            "at LHE level");
+    desc.add<bool>("storeAllLHEInfo", false)
+        ->setComment(
+            "Whether to store the whole set of intermediate LHE particles, not "
+            "only the status +/-1 ones");
     descriptions.add("lheInfoTable", desc);
   }
 
@@ -171,6 +208,7 @@ protected:
   const std::vector<edm::EDGetTokenT<LHEEventProduct>> lheTag_;
   const unsigned int precision_;
   const bool storeLHEParticles_;
+  const bool storeAllLHEInfo_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"

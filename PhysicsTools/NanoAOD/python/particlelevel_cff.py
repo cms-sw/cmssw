@@ -3,6 +3,7 @@ from  PhysicsTools.NanoAOD.common_cff import *
 from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
 from PhysicsTools.NanoAOD.simpleSingletonCandidateFlatTableProducer_cfi import simpleSingletonCandidateFlatTableProducer
 from PhysicsTools.NanoAOD.simpleHTXSFlatTableProducer_cfi import simpleHTXSFlatTableProducer
+from PhysicsTools.NanoAOD.lheInfoTable_cfi import lheInfoTable
 
 ##################### User floats producers, selectors ##########################
 
@@ -123,11 +124,7 @@ HTXSCategoryTable = simpleHTXSFlatTableProducer.clone(
    )
 )
 
-lheInfoTable = cms.EDProducer("LHETablesProducer",
-     lheInfo = cms.VInputTag(cms.InputTag("externalLHEProducer"), cms.InputTag("source")),
-     precision = cms.int32(14),
-     storeLHEParticles = cms.bool(True)
- )
+lheInfoTable.storeLHEParticles = True
 
 particleLevelTask = cms.Task(mergedGenParticles,genParticles2HepMC,particleLevel,tautagger,genParticles2HepMCHiggsVtx,rivetProducerHTXS)
 particleLevelTablesTask = cms.Task(rivetLeptonTable,rivetPhotonTable,rivetMetTable,HTXSCategoryTable,lheInfoTable)

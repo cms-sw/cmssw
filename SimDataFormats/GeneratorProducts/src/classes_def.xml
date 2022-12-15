@@ -204,6 +204,8 @@
   <version ClassVersion="10" checksum="4158740350"/>
   <version ClassVersion="11" checksum="3778311764"/>
  </class> 
+ <class name="GenWeightProduct"/>
+ <class name="GenWeightInfoProduct"/>
  <class name="edm::Wrapper&lt;LHEXMLStringProduct&gt;"/>
 	<class name="std::vector&lt;LHERunInfoProduct::Header&gt;"/>
 	<class name="LHERunInfoProduct" ClassVersion="10">
@@ -228,9 +230,29 @@
  <class name="gen::WeightsInfo" ClassVersion="10">
   <version ClassVersion="10" checksum="2663143460"/>
  </class>
+ <class name="gen::WeightGroupInfo"/>
+ <class name="gen::UnknownWeightGroupInfo"/>
+ <class name="gen::MEParamWeightGroupInfo"/>
+ <class name="gen::PdfWeightGroupInfo"/>
+ <class name="gen::PartonShowerWeightGroupInfo"/>
+ <class name="gen::ScaleWeightGroupInfo"/>
+ <class name="gen::WeightMetaInfo"/>
  <class name="std::vector<gen::WeightsInfo>"/>
-	<class name="edm::Wrapper&lt;LHERunInfoProduct&gt;"/>
-	<class name="edm::Wrapper&lt;LHEEventProduct&gt;"/>
+ <class name="std::vector<gen::WeightGroupInfo>"/>
+ <class name="std::vector<gen::WeightGroupInfo*>"/>
+ <class name="edm::Wrapper<gen::WeightGroupInfo>"/>
+ <class name="edm::Wrapper<gen::UnknownWeightGroupInfo>"/>
+ <class name="edm::Wrapper<gen::MEParamWeightGroupInfo>"/>
+ <class name="edm::Wrapper<gen::PdfWeightGroupInfo>"/>
+ <class name="edm::Wrapper<gen::PartonShowerWeightGroupInfo>"/>
+ <class name="edm::Wrapper<gen::ScaleWeightGroupInfo>"/>
+ <class name="std::vector<std::unique_ptr<gen::WeightGroupInfo>>"/>
+ <class name="edm::Wrapper<std::vector<std::unique_ptr<gen::WeightGroupInfo>>>"/>
+ <class name="edm::Wrapper<LHERunInfoProduct>"/>
+ <class name="edm::Wrapper<GenWeightInfoProduct>"/>
+ <class name="edm::Wrapper<GenWeightProduct>"/>
+ <class name="edm::Wrapper<LHEEventProduct>"/>
+ 
 
  <!--needed for backward compatibility between HepMC 2.06.xx and 2.05.yy-->
  <ioread sourceClass = "HepMC::Polarization" version="[1-10]" targetClass="HepMC::Polarization" source = "" target="m_defined">
@@ -248,5 +270,7 @@
 <class name="ExternalGeneratorEventInfo" ClassVersion="3">
   <version ClassVersion="3" checksum="2860722409"/>
 </class>
+<class name="std::unordered_map<string,unsigned long>"/>
+<class name="std::unordered_map<unsigned long,vector<string> >"/>
 
 </lcgdict>

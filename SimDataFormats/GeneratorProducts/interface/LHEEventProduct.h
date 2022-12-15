@@ -2,8 +2,8 @@
 #define SimDataFormats_GeneratorProducts_LHEEventProduct_h
 
 #include <memory>
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
 #include "SimDataFormats/GeneratorProducts/interface/PdfInfo.h"
@@ -22,6 +22,17 @@ public:
   LHEEventProduct(const lhef::HEPEUP &hepeup, const double originalXWGTUP)
       : hepeup_(hepeup), originalXWGTUP_(originalXWGTUP) {}
   LHEEventProduct(LHEEventProduct &&other) = default;
+  LHEEventProduct(const LHEEventProduct &other) {
+    hepeup_ = other.hepeup_;
+    comments_ = other.comments_;
+    if (other.pdf_)
+      pdf_ = std::make_unique<PDF>(*other.pdf_);
+    weights_ = other.weights_;
+    originalXWGTUP_ = other.originalXWGTUP_;
+    scales_ = other.scales_;
+    npLO_ = other.npLO_;
+    npNLO_ = other.npNLO_;
+  }
 
   LHEEventProduct &operator=(LHEEventProduct &&other) = default;
 
@@ -29,6 +40,7 @@ public:
 
   void setPDF(const PDF &pdf) { pdf_ = std::make_unique<PDF>(pdf); }
   void addWeight(const WGT &wgt) { weights_.push_back(wgt); }
+  void clearWeights() { weights_.clear(); }
   void addComment(const std::string &line) { comments_.push_back(line); }
 
   double originalXWGTUP() const { return originalXWGTUP_; }
@@ -105,9 +117,12 @@ private:
   std::unique_ptr<PDF> pdf_;
   std::vector<WGT> weights_;
   double originalXWGTUP_;
-  std::vector<float> scales_;  //scale value used to exclude EWK-produced partons from matching
-  int npLO_;                   //number of partons for LO process (used to steer matching/merging)
-  int npNLO_;                  //number of partons for NLO process (used to steer matching/merging)
+  std::vector<float> scales_;  // scale value used to exclude EWK-produced
+                               // partons from matching
+  int npLO_;                   // number of partons for LO process (used to steer
+                               // matching/merging)
+  int npNLO_;                  // number of partons for NLO process (used to steer
+                               // matching/merging)
 };
 
 #endif  // GeneratorEvent_LHEInterface_LHEEventProduct_h
