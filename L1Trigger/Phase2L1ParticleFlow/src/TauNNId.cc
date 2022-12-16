@@ -21,8 +21,6 @@ TauNNId::TauNNId(const std::string &iInput,
   fInput_ = iInput;
 }
 
-TauNNId::~TauNNId() { tensorflow::closeSession(session_); }
-
 void TauNNId::setNNVectorVar() {
   NNvectorVar_.clear();
   for (int i0 = 0; i0 < fNParticles_; i0++) {
