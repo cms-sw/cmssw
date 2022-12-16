@@ -13,7 +13,8 @@ l1t::RegionalMuonShower::RegionalMuonShower(bool oneNominalInTime,
       isTwoLooseInTime_(twoLooseInTime),
       isTwoLooseOutOfTime_(twoLooseOutOfTime),
       link_(0),
-      processor_(0) {}
+      processor_(0),
+      trackFinder_(l1t::tftype::bmtf) {}
 
 l1t::RegionalMuonShower::~RegionalMuonShower() {}
 
