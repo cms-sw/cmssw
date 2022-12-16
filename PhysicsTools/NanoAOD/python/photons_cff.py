@@ -150,10 +150,8 @@ slimmedPhotonsWithUserData = cms.EDProducer("PATPhotonUserDataEmbedder",
         VIDNestedWPBitmap = cms.InputTag("bitmapVIDForPho"),
         VIDNestedWPBitmapFall17V2 = cms.InputTag("bitmapVIDForPhoRun2"),
         seedGain = cms.InputTag("seedGainPho"),
-        seediEta = cms.InputTag("seedLocationPho:iEta"),
-        seediPhi = cms.InputTag("seedLocationPho:iPhi"),
-        seediX = cms.InputTag("seedLocationPho:iX"),
-        seediY = cms.InputTag("seedLocationPho:iY"),
+        seediEtaOriX = cms.InputTag("seedLocationPho:iEtaOriX"),
+        seediPhiOriY = cms.InputTag("seedLocationPho:iPhiOriY"),
     )
 )
 
@@ -245,10 +243,8 @@ photonTable = simpleCandidateFlatTableProducer.clone(
         isScEtaEB = Var("abs(superCluster().eta()) < 1.4442",bool,doc="is supercluster eta within barrel acceptance"),
         isScEtaEE = Var("abs(superCluster().eta()) > 1.566 && abs(superCluster().eta()) < 2.5",bool,doc="is supercluster eta within endcap acceptance"),
         seedGain = Var("userInt('seedGain')","uint8",doc="Gain of the seed crystal"),
-        seediEta = Var("userInt('seediEta')","int8",doc="iEta (location) of seed crystal in barrel"),
-        seediPhi = Var("userInt('seediPhi')",int,doc="iPhi (location) of seed crystal in barrel"),
-        seediX = Var("userInt('seediX')","uint8",doc="iX (location) of seed crystal in endcap"),
-        seediY = Var("userInt('seediY')","uint8",doc="iY (location) of seed crystal in endcap"),
+        seediEtaOriX = Var("userInt('seediEtaOriX')","int8",doc="iEta or iX of seed crystal. iEta is barrel-only, iX is endcap-only. iEta runs from -85 to +85, with no crystal at iEta=0. iX runs from 1 to 100."),
+        seediPhiOriY = Var("userInt('seediPhiOriY')",int,doc="iPhi or iY of seed crystal. iPhi is barrel-only, iY is endcap-only. iPhi runs from 1 to 360. iY runs from 1 to 100."),
         # position of photon is best approximated by position of seed cluster, not the SC centroid
         x_calo = Var("superCluster().seed().position().x()",float,doc="photon supercluster position on calorimeter, x coordinate (cm)",precision=10),
         y_calo = Var("superCluster().seed().position().y()",float,doc="photon supercluster position on calorimeter, y coordinate (cm)",precision=10),

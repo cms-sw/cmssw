@@ -1,5 +1,7 @@
 //
-// EGMSeedLocationProducer (to compute iEta/iPhi or iX/iY of seed)
+// EGMSeedLocationProducer
+// to compute iEta/iPhi (for barrel) and iX/iY (for endcaps) of seed crystal
+// for size considerations, they are compressed into 2 vars (iEtaOriX/iPhiOriY)
 //
 // Author: Swagata Mukherjee
 // Date: December 2022
@@ -23,10 +25,8 @@ class EGMSeedLocationProducer : public edm::global::EDProducer<> {
 public:
   explicit EGMSeedLocationProducer(const edm::ParameterSet& iConfig)
       : src_(consumes<edm::View<T>>(iConfig.getParameter<edm::InputTag>("src"))) {
-    produces<edm::ValueMap<int>>("iEta");
-    produces<edm::ValueMap<int>>("iPhi");
-    produces<edm::ValueMap<int>>("iX");
-    produces<edm::ValueMap<int>>("iY");
+    produces<edm::ValueMap<int>>("iEtaOriX");
+    produces<edm::ValueMap<int>>("iPhiOriY");
   }
   ~EGMSeedLocationProducer() override{};
 
@@ -45,10 +45,14 @@ void EGMSeedLocationProducer<T>::produce(edm::StreamID streamID,
   auto src = iEvent.getHandle(src_);
 
   unsigned nSrc = src->size();
-  std::vector<int> iEta(nSrc, 0);
-  std::vector<int> iPhi(nSrc, 0);
-  std::vector<int> iX(nSrc, 0);
-  std::vector<int> iY(nSrc, 0);
+  // Range of the variables are the following:
+  // iEta runs from -85 to +85, with no crystal at iEta=0.
+  // iPhi runs from 1 to 360.
+  // iX and iY run from 1 to 100.
+  // So, when combined, iEtaOriX will be -85 to 100 (except 0).
+  // and iPhiOriY will be 1 to 360.
+  std::vector<int> iEtaOriX(nSrc, 0);
+  std::vector<int> iPhiOriY(nSrc, 0);
 
   for (unsigned i = 0; i < nSrc; i++) {  // object loop
     auto obj = src->ptrAt(i);
@@ -56,38 +60,26 @@ void EGMSeedLocationProducer<T>::produce(edm::StreamID streamID,
 
     if (detid.subdetId() == EcalBarrel) {
       EBDetId ebdetid(detid);
-      iEta[i] = ebdetid.ieta();
-      iPhi[i] = ebdetid.iphi();
+      iEtaOriX[i] = ebdetid.ieta();
+      iPhiOriY[i] = ebdetid.iphi();
     } else if (detid.subdetId() == EcalEndcap) {
       EEDetId eedetid(detid);
-      iX[i] = eedetid.ix();
-      iY[i] = eedetid.iy();
+      iEtaOriX[i] = eedetid.ix();
+      iPhiOriY[i] = eedetid.iy();
     }
   }  // end of object loop
 
-  std::unique_ptr<edm::ValueMap<int>> iEtaV(new edm::ValueMap<int>());
-  edm::ValueMap<int>::Filler filleriEtaV(*iEtaV);
-  filleriEtaV.insert(src, iEta.begin(), iEta.end());
-  filleriEtaV.fill();
-  iEvent.put(std::move(iEtaV), "iEta");
+  std::unique_ptr<edm::ValueMap<int>> iEtaOriXV(new edm::ValueMap<int>());
+  edm::ValueMap<int>::Filler filleriEtaOriXV(*iEtaOriXV);
+  filleriEtaOriXV.insert(src, iEtaOriX.begin(), iEtaOriX.end());
+  filleriEtaOriXV.fill();
+  iEvent.put(std::move(iEtaOriXV), "iEtaOriX");
 
-  std::unique_ptr<edm::ValueMap<int>> iPhiV(new edm::ValueMap<int>());
-  edm::ValueMap<int>::Filler filleriPhiV(*iPhiV);
-  filleriPhiV.insert(src, iPhi.begin(), iPhi.end());
-  filleriPhiV.fill();
-  iEvent.put(std::move(iPhiV), "iPhi");
-
-  std::unique_ptr<edm::ValueMap<int>> iXV(new edm::ValueMap<int>());
-  edm::ValueMap<int>::Filler filleriXV(*iXV);
-  filleriXV.insert(src, iX.begin(), iX.end());
-  filleriXV.fill();
-  iEvent.put(std::move(iXV), "iX");
-
-  std::unique_ptr<edm::ValueMap<int>> iYV(new edm::ValueMap<int>());
-  edm::ValueMap<int>::Filler filleriYV(*iYV);
-  filleriYV.insert(src, iY.begin(), iY.end());
-  filleriYV.fill();
-  iEvent.put(std::move(iYV), "iY");
+  std::unique_ptr<edm::ValueMap<int>> iPhiOriYV(new edm::ValueMap<int>());
+  edm::ValueMap<int>::Filler filleriPhiOriYV(*iPhiOriYV);
+  filleriPhiOriYV.insert(src, iPhiOriY.begin(), iPhiOriY.end());
+  filleriPhiOriYV.fill();
+  iEvent.put(std::move(iPhiOriYV), "iPhiOriY");
 }
 
 template <typename T>
