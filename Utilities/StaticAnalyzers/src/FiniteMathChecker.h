@@ -10,7 +10,6 @@
 
 namespace clangcms {
   class FiniteMathChecker : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::CXXRecordDecl> > {
-
   public:
     void checkASTDecl(const clang::CXXRecordDecl *CRD,
                       clang::ento::AnalysisManager &mgr,

@@ -42,7 +42,7 @@ namespace clangcms {
         Visit(child);
       }
   }
- 
+
   void FMWalkAST::VisitCallExpr(clang::CallExpr *CE) {
     const clang::Expr *Callee = CE->getCallee();
     const FunctionDecl *FD = CE->getDirectCallee();
@@ -64,22 +64,19 @@ namespace clangcms {
 
     clang::ento::PathDiagnosticLocation CELoc =
         clang::ento::PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(), AC);
-    BugType *BT = new clang::ento::BugType(
-          Checker,
-          "std::isnan / std::isinf does not work when fast-math is used. Please use "
-          "edm::isNotFinite from 'FWCore/Utilities/interface/isFinite.h'",
-          "fastmath plugin");
+    BugType *BT = new clang::ento::BugType(Checker,
+                                           "std::isnan / std::isinf does not work when fast-math is used. Please use "
+                                           "edm::isNotFinite from 'FWCore/Utilities/interface/isFinite.h'",
+                                           "fastmath plugin");
     std::unique_ptr<clang::ento::BasicBugReport> report =
         std::make_unique<clang::ento::BasicBugReport>(*BT, BT->getCheckerName(), CELoc);
     //report->addRange(Callee->getSourceRange());
     BR.emitReport(std::move(report));
-
   }
 
-
   void FiniteMathChecker::checkASTDecl(const clang::CXXRecordDecl *RD,
-                                    clang::ento::AnalysisManager &mgr,
-                                    clang::ento::BugReporter &BR) const {
+                                       clang::ento::AnalysisManager &mgr,
+                                       clang::ento::BugReporter &BR) const {
     const clang::SourceManager &SM = BR.getSourceManager();
     const char *sfile = SM.getPresumedLoc(RD->getLocation()).getFilename();
     if (!support::isCmsLocalFile(sfile))
