@@ -11,7 +11,7 @@ public:
           const tensorflow::Session *session,
           const std::string &iWeightFile,
           int iNParticles);
-  ~TauNNId();
+  ~TauNNId(){};
 
   void setNNVectorVar();
   float EvaluateNN();
