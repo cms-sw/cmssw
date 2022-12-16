@@ -52,7 +52,7 @@ bool PSPDigitizerAlgorithm::select_hit(const PSimHit& hit, double tCorr, double&
 //
 // -- Compare Signal with Threshold
 //
-bool PSPDigitizerAlgorithm::isAboveThreshold(const DigitizerUtility::SimHitInfo* hitInfo,
+bool PSPDigitizerAlgorithm::isAboveThreshold(const digitizerUtility::SimHitInfo* hitInfo,
                                              float charge,
                                              float thr) const {
   return (charge >= thr);

@@ -54,7 +54,7 @@ void PixelBrickedDigitizerAlgorithm::induce_signal(const PSimHit& hit,
                                                    const size_t hitIndex,
                                                    const uint32_t tofBin,
                                                    const Phase2TrackerGeomDetUnit* pixdet,
-                                                   const std::vector<DigitizerUtility::SignalPoint>& collection_points) {
+                                                   const std::vector<digitizerUtility::SignalPoint>& collection_points) {
   // X  - Rows, Left-Right, 160, (1.6cm)   for barrel
   // Y  - Columns, Down-Up, 416, (6.4cm)
   const Phase2TrackerTopology* topol = &pixdet->specificTopology();
@@ -221,8 +221,8 @@ void PixelBrickedDigitizerAlgorithm::induce_signal(const PSimHit& hit,
   float corr_time = hit.tof() - pixdet->surface().toGlobal(hit.localPosition()).mag() * c_inv;
   for (auto const& hit_s : hit_signal) {
     int chan = hit_s.first;
-    theSignal[chan] +=
-        (makeDigiSimLinks_ ? DigitizerUtility::Amplitude(hit_s.second, &hit, hit_s.second, corr_time, hitIndex, tofBin)
-                           : DigitizerUtility::Amplitude(hit_s.second, nullptr, hit_s.second));
+    theSignal[chan] += (makeDigiSimLinks_ ? digitizerUtility::Ph2Amplitude(
+                                                hit_s.second, &hit, hit_s.second, corr_time, hitIndex, tofBin)
+                                          : digitizerUtility::Ph2Amplitude(hit_s.second, nullptr, hit_s.second));
   }
 }
