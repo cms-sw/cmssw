@@ -75,18 +75,6 @@ CMSEmStandardPhysics::CMSEmStandardPhysics(G4int ver, const edm::ParameterSet& p
   double tcut = p.getParameter<double>("G4TrackingCut") * CLHEP::MeV;
   param->SetLowestElectronEnergy(tcut);
   param->SetLowestMuHadEnergy(tcut);
-#if G4VERSION_NUMBER >= 1110
-  bool pe = p.getParameter<bool>("PhotoeffectBelowKShell");
-  param->SetPhotoeffectBelowKShell(pe);
-  G4TransportationWithMscType trtype = fDisabled;
-  int type = p.getParameter<int>("G4TransportWithMSC");
-  if (trtype == 1) {
-    trtype = fEnabled;
-  } else if (trtype == 2) {
-    trtype = fMultipleSteps;
-  }
-  param->SetTransportationWithMsc(trtype);
-#endif
 }
 
 CMSEmStandardPhysics::~CMSEmStandardPhysics() {}
