@@ -21,6 +21,6 @@ public:
                      const size_t hitIndex,
                      const unsigned int tofBin,
                      const Phase2TrackerGeomDetUnit* pixdet,
-                     const std::vector<DigitizerUtility::SignalPoint>& collection_points) override;
+                     const std::vector<digitizerUtility::SignalPoint>& collection_points) override;
 };
 #endif

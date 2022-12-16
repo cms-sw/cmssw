@@ -186,7 +186,7 @@ double SSDigitizerAlgorithm::getSignalScale(double xval) const {
 //
 // -- Compare Signal with Threshold
 //
-bool SSDigitizerAlgorithm::isAboveThreshold(const DigitizerUtility::SimHitInfo* const hisInfo,
+bool SSDigitizerAlgorithm::isAboveThreshold(const digitizerUtility::SimHitInfo* const hisInfo,
                                             float charge,
                                             float thr) const {
   return (charge >= thr);

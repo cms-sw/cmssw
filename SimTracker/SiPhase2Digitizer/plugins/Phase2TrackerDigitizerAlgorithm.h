@@ -13,7 +13,7 @@
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
 
-#include "SimTracker/SiPhase2Digitizer/plugins/DigitizerUtility.h"
+#include "SimTracker/Common/interface/DigitizerUtility.h"
 #include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerFwd.h"
 
 // Units and Constants
@@ -70,10 +70,10 @@ public:
                                  const Phase2TrackerGeomDetUnit* pixdet,
                                  const GlobalVector& bfield);
   virtual void digitize(const Phase2TrackerGeomDetUnit* pixdet,
-                        std::map<int, DigitizerUtility::DigiSimInfo>& digi_map,
+                        std::map<int, digitizerUtility::DigiSimInfo>& digi_map,
                         const TrackerTopology* tTopo);
   virtual bool select_hit(const PSimHit& hit, double tCorr, double& sigScale) const { return true; }
-  virtual bool isAboveThreshold(const DigitizerUtility::SimHitInfo* hitInfo, float charge, float thr) const {
+  virtual bool isAboveThreshold(const digitizerUtility::SimHitInfo* hitInfo, float charge, float thr) const {
     return true;
   }
 
@@ -100,7 +100,7 @@ protected:
   };
 
   // Internal type aliases
-  using signal_map_type = std::map<int, DigitizerUtility::Amplitude, std::less<int> >;
+  using signal_map_type = std::map<int, digitizerUtility::Ph2Amplitude, std::less<int> >;
   using signalMaps = std::map<uint32_t, signal_map_type>;
   using Frame = GloballyPositioned<double>;
   using Parameters = std::vector<edm::ParameterSet>;
@@ -184,17 +184,17 @@ protected:
 
   //-- additional member functions
   // Private methods
-  virtual std::vector<DigitizerUtility::EnergyDepositUnit> primary_ionization(const PSimHit& hit) const;
-  virtual std::vector<DigitizerUtility::SignalPoint> drift(
+  virtual std::vector<digitizerUtility::EnergyDepositUnit> primary_ionization(const PSimHit& hit) const;
+  virtual std::vector<digitizerUtility::SignalPoint> drift(
       const PSimHit& hit,
       const Phase2TrackerGeomDetUnit* pixdet,
       const GlobalVector& bfield,
-      const std::vector<DigitizerUtility::EnergyDepositUnit>& ionization_points) const;
+      const std::vector<digitizerUtility::EnergyDepositUnit>& ionization_points) const;
   virtual void induce_signal(const PSimHit& hit,
                              const size_t hitIndex,
                              const uint32_t tofBin,
                              const Phase2TrackerGeomDetUnit* pixdet,
-                             const std::vector<DigitizerUtility::SignalPoint>& collection_points);
+                             const std::vector<digitizerUtility::SignalPoint>& collection_points);
   virtual std::vector<float> fluctuateEloss(
       int particleId, float momentum, float eloss, float length, int NumberOfSegments) const;
   virtual void add_noise(const Phase2TrackerGeomDetUnit* pixdet);
