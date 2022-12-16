@@ -53,11 +53,14 @@ public:
   void fill(std::vector<const ObjType *> &selobjs, nanoaod::FlatTable &out) const override {
     std::vector<ValType> vals(selobjs.size());
     for (unsigned int i = 0, n = vals.size(); i < n; ++i) {
-      ValType val = func_(*selobjs[i]) if constexpr (std::is_same<ValType, float>() && this->precision_ == -2) {
-        auto prec = precisionFunc_(*selobjs[i]);
-        vals[i] = prec > 0 ? MiniFloatConverter::reduceMantissaToNbitsRounding(val, prec) : val;
-      }
-      else {
+      ValType val = func_(*selobjs[i]);
+      if constexpr (std::is_same<ValType, float>()) {
+        if (this->precision_ == -2) {
+          auto prec = precisionFunc_(*selobjs[i]);
+          vals[i] = prec > 0 ? MiniFloatConverter::reduceMantissaToNbitsRounding(val, prec) : val;
+        } else
+          vals[i] = val;
+      } else {
         vals[i] = val;
       }
     }
