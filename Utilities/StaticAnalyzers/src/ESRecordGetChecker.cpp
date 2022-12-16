@@ -9,6 +9,7 @@ namespace clangcms {
     const CheckerBase *Checker;
     clang::ento::BugReporter &BR;
     clang::AnalysisDeclContext *AC;
+    const clang::ento::BugType *BT;
 
   public:
     ESRWalker(const CheckerBase *checker, clang::ento::BugReporter &br, clang::AnalysisDeclContext *ac)
@@ -61,7 +62,8 @@ namespace clangcms {
             "the token see "
             "https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideHowToGetDataFromES#Getting_data_from_EventSetup_wit";
       PathDiagnosticLocation CELoc = PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(), AC);
-      BugType *BT = new BugType(Checker, "EventSetupRecord::get function called", "Deprecated API");
+      std::unique_ptr<BugType> BT =
+          std::make_unique<BugType>(Checker, "EventSetupRecord::get function called", "Deprecated API");
       std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), CELoc);
       R->addRange(CE->getSourceRange());
       BR.emitReport(std::move(R));
