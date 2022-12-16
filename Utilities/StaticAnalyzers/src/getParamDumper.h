@@ -3,6 +3,7 @@
 #include <clang/StaticAnalyzer/Core/BugReporter/BugType.h>
 #include <clang/StaticAnalyzer/Core/Checker.h>
 #include <clang/StaticAnalyzer/Core/PathSensitive/CheckerContext.h>
+#include "clang/StaticAnalyzer/Core/PathSensitive/CallEvent.h"
 
 namespace clangcms {
 
@@ -13,7 +14,7 @@ namespace clangcms {
     typedef void (getParamDumper::*FnCheck)(const clang::CallExpr *, clang::ento::CheckerContext &C) const;
 
   public:
-    bool evalCall(const clang::CallExpr *CE, clang::ento::CheckerContext &C) const;
+    bool evalCall(const clang::ento::CallEvent &Call, clang::ento::CheckerContext &C) const;
 
     void checkASTDecl(const clang::CXXRecordDecl *CRD,
                       clang::ento::AnalysisManager &mgr,
