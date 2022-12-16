@@ -43,7 +43,6 @@ process.TFileService = cms.Service("TFileService",
 process.load("L1Trigger.L1TNtuples.l1JetRecoTreeProducer_cfi")
 
 # get corrected jets
-#from JetMETCorrections.Configuration.JetCorrectionProducers_cff import ak4PFCHSJetsL2
 #process.l1RecoTreeProducer.jetTag = cms.untracked.InputTag("ak4PFCHSJetsL2")
 
 process.p = cms.Path(
