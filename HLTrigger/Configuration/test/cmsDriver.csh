@@ -36,7 +36,7 @@ set InputLHCRawGRun2 = /store/data/Run2016B/JetHT/RAW/v1/000/272/762/00000/C666C
 set InputLHCRawGRun3 = /store/data/Run2022B/HLTPhysics/RAW/v1/000/355/456/00000/69b26b27-4bd1-4524-bc18-45f7b9b5e076.root
 set InputLHCRawHIon1 = /store/hidata/HIRun2015/HIHardProbes/RAW/v1/000/263/718/00000/08057733-02A5-E511-9C7D-02163E014606.root
 set InputLHCRawHIon2 = /store/hidata/HIRun2018A/HIHardProbes/RAW/v1/000/326/479/00000/0E2CC5D5-9D87-7348-9219-B00CD718C847.root
-set InputLHCRawHIon3 = $InputLHCRawGRun3 #!! UPDATE once 2022 HIon RAW data is available
+set InputLHCRawHIon3 = /store/hidata/HIRun2022A/HITestRaw0/RAW/v1/000/362/321/00000/f467ee64-fc64-47a6-9d8a-7ca73ebca2bd.root
 set InputLHCRawPIon2 = $InputLHCRawGRun2
 set InputLHCRawPRef2 = $InputLHCRawGRun2
 set InputLHCRawPIon3 = $InputLHCRawGRun3
@@ -273,7 +273,7 @@ foreach gtag ( MC DATA )
     echo "Creating L1RePack $name"
 
     if ( $table == HIon ) then
-    cmsDriver.py RelVal                 --step=$L1REPACK                                   --conditions=$GTAG --filein=$InputLHCRaw                        --custom_conditions=$XL1T --fileout=RelVal_L1RePack_$name.root      --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RAW'               --eventcontent=RAW                     --customise=HLTrigger/Configuration/CustomConfigs.L1T     $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_L1RePack_$name.py --customise=L1Trigger/Configuration/L1Trigger_custom.customiseResetPrescalesAndMasks #--customise_commands='from FWCore.ParameterSet.MassReplace import massSearchReplaceAnyInputTag; massSearchReplaceAnyInputTag(process.SimL1Emulator,"rawDataCollector","rawDataRepacker",False,True)'
+    cmsDriver.py RelVal                 --step=$L1REPACK                                   --conditions=$GTAG --filein=$InputLHCRaw                        --custom_conditions=$XL1T --fileout=RelVal_L1RePack_$name.root      --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RAW'               --eventcontent=RAW                     --customise=HLTrigger/Configuration/CustomConfigs.L1T     $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_L1RePack_$name.py --customise=L1Trigger/Configuration/L1Trigger_custom.customiseResetPrescalesAndMasks --customise_commands='from FWCore.ParameterSet.MassReplace import massSearchReplaceAnyInputTag; massSearchReplaceAnyInputTag(process.SimL1Emulator,"rawDataCollector","rawDataRepacker",False,True)'
     else
     cmsDriver.py RelVal                 --step=$L1REPACK                                   --conditions=$GTAG --filein=$InputLHCRaw                        --custom_conditions=$XL1T --fileout=RelVal_L1RePack_$name.root      --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RAW'               --eventcontent=RAW                     --customise=HLTrigger/Configuration/CustomConfigs.L1T     $Era --customise=$Custom  --scenario=$SCEN --python_filename=RelVal_L1RePack_$name.py --customise=L1Trigger/Configuration/L1Trigger_custom.customiseResetPrescalesAndMasks
     endif
