@@ -10,6 +10,7 @@
 class Phase2TrackerRecHit1D final : public TrackerSingleRecHit {
 public:
   typedef OmniClusterRef::Phase2Cluster1DRef CluRef;
+  typedef OmniClusterRef::Phase2Cluster1DRef ClusterRef;
 
   Phase2TrackerRecHit1D() {}
 
