@@ -118,7 +118,11 @@ namespace clangcms {
     return;
   }
 
-  bool getParamDumper::evalCall(const CallExpr *CE, CheckerContext &C) const {
+  bool getParamDumper::evalCall(const CallEvent &Call, CheckerContext &C) const {
+    const auto *CE = llvm::dyn_cast_or_null<clang::CallExpr>(Call.getOriginExpr());
+    if (!CE)
+      return false;
+
     FnCheck Handler = llvm::StringSwitch<FnCheck>(C.getCalleeName(CE))
                           .Case("getParameter", &getParamDumper::analyzerEval)
                           .Case("getUntrackedParameter", &getParamDumper::analyzerEval)
