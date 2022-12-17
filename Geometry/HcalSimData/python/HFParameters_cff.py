@@ -26,6 +26,7 @@ HFShowerBlock = cms.PSet(
 ## Change the HFShowerLibrary file for Run2
 ##
 from Configuration.Eras.Modifier_run2_common_cff import run2_common
+from Configuration.ProcessModifiers.applyHFLibraryFix_cff import applyHFLibraryFix
 #
 #--- Default: to keep using the library with a problem
 (~applyHFLibraryFix & run2_common).toModify( HFLibraryFileBlock, FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en_v4.root' )

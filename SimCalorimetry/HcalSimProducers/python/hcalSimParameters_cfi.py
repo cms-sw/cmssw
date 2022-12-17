@@ -116,6 +116,7 @@ hcalSimParameters.hoHamamatsu = hcalSimParameters.ho.clone()
 
 # Customises the HCAL digitiser for post LS1 running
 from Configuration.Eras.Modifier_run2_common_cff import run2_common
+from Configuration.ProcessModifiers.applyHFLibraryFix_cff import applyHFLibraryFix
 
 run2_common.toModify( hcalSimParameters, 
     ho = dict( siPMCode = 1 ),
