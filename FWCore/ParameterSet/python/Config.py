@@ -27,6 +27,16 @@ from .ExceptionHandling import *
 if sys.getrecursionlimit()<5000:
     sys.setrecursionlimit(5000)
 
+class edm(object):
+    class errors(object):
+        #Allowed errors to used within Python
+        Configuration = "{Configuration}"
+
+class EDMException(Exception):
+    def __init__(self, error, message):
+        super().__init__(error+"\n"+message)
+
+
 def checkImportPermission(minLevel = 2, allowedPatterns = []):
     """
     Raise an exception if called by special config files. This checks
