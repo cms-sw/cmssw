@@ -112,8 +112,9 @@ steps['RunHI2018']={'INPUT':InputInfo(dataSet='/HIHardProbes/HIRun2018A-v1/RAW',
 steps['RunHI2018Reduced']={'INPUT':InputInfo(dataSet='/HIMinimumBiasReducedFormat0/HIRun2018A-v1/RAW',label='hi2018reduced',events=10000,location='STD',ls=Run2018HI)}
 steps['RunHI2018AOD']={'INPUT':InputInfo(dataSet='/HIHardProbes/HIRun2018A-04Apr2019-v1/AOD',label='hi2018aod',events=10000,location='STD',ls=Run2018HI)}
 
-Run2022HI={360761: [[112,112]]}
-steps['RunHI2022']={'INPUT':InputInfo(dataSet='/EphemeralHLTPhysics0/Run2022F-v1/RAW',label='hi2022',events=10000,location='STD',ls=Run2022HI)}
+Run2022HI={362321: [[112,112]]}
+steps['RunHI2022']={'INPUT':InputInfo(dataSet='/HITestRawPrime0/HIRun2022A-v1/RAW',label='hi2022',events=10000,location='STD',ls=Run2022HI)}
+steps['RunHI2022FullFormat']={'INPUT':InputInfo(dataSet='/HITestRaw0/HIRun2022A-v1/RAW',label='hi2022',events=10000,location='STD',ls=Run2022HI)}
 
 Run2012A=[191226]
 Run2012ASk=Run2012A+[]
@@ -2130,8 +2131,18 @@ steps['RECOHID22APPROXCLUSTERS']=merge([{ '--scenario':'pp',
                                           '--eventcontent':'AOD,DQM',
                                           '--era':'Run3_pp_on_PbPb_approxSiStripClusters',
                                           '--repacked':'',
-                                          '-n':'10'
+                                          '-n':'100'
                                       },steps['RECOHID15']])
+
+steps['RECOHID22']=merge([{ '--scenario':'pp',
+                            '--conditions':'auto:run3_data_prompt',
+                            '-s':'RAW2DIGI,L1Reco,RECO,DQM:@commonFakeHLT+@standardDQMFakeHLT',
+                            '--datatier':'AOD,DQMIO',
+                            '--eventcontent':'AOD,DQM',
+                            '--era':'Run3_pp_on_PbPb',
+                            '--repacked':'',
+                            '-n':'100'
+                        },steps['RECOHID15']])
 
 
 steps['TIER0']=merge([{'--customise':'Configuration/DataProcessing/RecoTLR.customisePrompt',
