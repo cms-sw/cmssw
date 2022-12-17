@@ -80,8 +80,16 @@ ParametrisedEMPhysics::ParametrisedEMPhysics(const std::string& name, const edm:
   bool genn = theParSet.getParameter<bool>("G4NeutronGeneralProcess");
   G4HadronicParameters::Instance()->SetEnableNeutronGeneralProcess(genn);
 
-  if (theParSet.getParameter<bool>("G4TransportWithMSC"))
-    param->SetTransportationWithMsc(G4TransportationWithMscType::fEnabled);
+  bool pe = p.getParameter<bool>("PhotoeffectBelowKShell");
+  param->SetPhotoeffectBelowKShell(pe);
+  G4TransportationWithMscType trtype = G4TransportationWithMscType::fDisabled;
+  int type = p.getParameter<int>("G4TransportWithMSC");
+  if (type == 1) {
+    trtype = G4TransportationWithMscType::fEnabled;
+  } else if (type == 2) {
+    trtype = G4TransportationWithMscType::fMultipleSteps;
+  }
+  param->SetTransportationWithMsc(trtype);
 #endif
 
   bool mudat = theParSet.getParameter<bool>("ReadMuonData");
