@@ -72,21 +72,18 @@
 //
 // class declaration
 //
-struct DeepCoreCache {
-  const tensorflow::GraphDef* graph_def;
-};
 
-class DeepCoreSeedGenerator : public edm::stream::EDProducer<edm::GlobalCache<DeepCoreCache>> {
+class DeepCoreSeedGenerator : public edm::stream::EDProducer<edm::GlobalCache<tensorflow::SessionCache>> {
 public:
-  explicit DeepCoreSeedGenerator(const edm::ParameterSet&, const DeepCoreCache*);
+  explicit DeepCoreSeedGenerator(const edm::ParameterSet&, const tensorflow::SessionCache*);
   ~DeepCoreSeedGenerator() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   // A pointer to a cluster and a list of tracks on it
 
   // static methods for handling the global cache
-  static std::unique_ptr<DeepCoreCache> initializeGlobalCache(const edm::ParameterSet&);
-  static void globalEndJob(DeepCoreCache*);
+  static std::unique_ptr<tensorflow::SessionCache> initializeGlobalCache(const edm::ParameterSet&);
+  static void globalEndJob(tensorflow::SessionCache*);
 
   double jetPt_;
   double jetEta_;
@@ -121,7 +118,7 @@ private:
   std::vector<std::string> inputTensorName_;
   std::vector<std::string> outputTensorName_;
   double probThr_;
-  tensorflow::Session* session_;
+  const tensorflow::Session* session_;
 
   std::pair<bool, Basic3DVector<float>> findIntersection(const GlobalVector&,
                                                          const reco::Candidate::Point&,
@@ -158,7 +155,7 @@ private:
       tensorflow::NamedTensorList, std::vector<std::string>);
 };
 
-DeepCoreSeedGenerator::DeepCoreSeedGenerator(const edm::ParameterSet& iConfig, const DeepCoreCache* cache)
+DeepCoreSeedGenerator::DeepCoreSeedGenerator(const edm::ParameterSet& iConfig, const tensorflow::SessionCache* cache)
     : vertices_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
       pixelClusters_(
           consumes<edmNew::DetSetVector<SiPixelCluster>>(iConfig.getParameter<edm::InputTag>("pixelClusters"))),
@@ -174,7 +171,7 @@ DeepCoreSeedGenerator::DeepCoreSeedGenerator(const edm::ParameterSet& iConfig, c
       inputTensorName_(iConfig.getParameter<std::vector<std::string>>("inputTensorName")),
       outputTensorName_(iConfig.getParameter<std::vector<std::string>>("outputTensorName")),
       probThr_(iConfig.getParameter<double>("probThr")),
-      session_(tensorflow::createSession(cache->graph_def))
+      session_(cache->getSession())
 
 {
   produces<TrajectorySeedCollection>();
@@ -532,15 +529,15 @@ std::vector<GlobalVector> DeepCoreSeedGenerator::splittedClusterDirections(
   return clustDirs;
 }
 
-std::unique_ptr<DeepCoreCache> DeepCoreSeedGenerator::initializeGlobalCache(const edm::ParameterSet& iConfig) {
-  // this method is supposed to create, initialize and return a DeepCoreCache instance
-  std::unique_ptr<DeepCoreCache> cache = std::make_unique<DeepCoreCache>();
+std::unique_ptr<tensorflow::SessionCache> DeepCoreSeedGenerator::initializeGlobalCache(
+    const edm::ParameterSet& iConfig) {
+  // this method is supposed to create, initialize and return a Tensorflow:SessionCache instance
   std::string graphPath = iConfig.getParameter<edm::FileInPath>("weightFile").fullPath();
-  cache->graph_def = tensorflow::loadGraphDef(graphPath);
+  std::unique_ptr<tensorflow::SessionCache> cache = std::make_unique<tensorflow::SessionCache>(graphPath);
   return cache;
 }
 
-void DeepCoreSeedGenerator::globalEndJob(DeepCoreCache* cache) { delete cache->graph_def; }
+void DeepCoreSeedGenerator::globalEndJob(tensorflow::SessionCache* cache) {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void DeepCoreSeedGenerator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
