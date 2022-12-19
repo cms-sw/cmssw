@@ -36,4 +36,10 @@ private:
   bool verbose_ = false;
 };
 
+namespace edm {
+  namespace service {
+    inline bool isProcessWideService(CUDAService const*) { return true; }
+  }  // namespace service
+}  // namespace edm
+
 #endif

@@ -40,6 +40,10 @@ process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('*')
 )
 
+process.CPU = cms.Service("CPU",
+    disableJobReportOutput = cms.untracked.bool(True)
+)
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(2)
 )

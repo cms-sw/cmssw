@@ -16,14 +16,18 @@
 #include "FWCore/Framework/interface/SignallingProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
+#include "FWCore/Utilities/interface/ResourceInformation.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #include <memory>
 
 #include <set>
+#include <string>
+#include <vector>
 
 namespace edm {
   ScheduleItems::ScheduleItems()
@@ -121,6 +125,13 @@ namespace edm {
   }
 
   std::shared_ptr<CommonParams> ScheduleItems::initMisc(ParameterSet& parameterSet) {
+    edm::Service<edm::ResourceInformation> resourceInformationService;
+    if (resourceInformationService.isAvailable()) {
+      auto const& selectedAccelerators =
+          parameterSet.getUntrackedParameter<std::vector<std::string>>("@selected_accelerators");
+      resourceInformationService->initializeAcceleratorTypes(selectedAccelerators);
+    }
+
     act_table_ = std::make_unique<ExceptionToActionTable>(parameterSet);
     std::string processName = parameterSet.getParameter<std::string>("@process_name");
     processConfiguration_ = std::make_shared<ProcessConfiguration>(
