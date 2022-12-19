@@ -8,13 +8,27 @@
 
 using namespace l1t;
 
-TkJet::TkJet() {}
+TkJet::TkJet()
+    : JetVtx_(-999.),
+      ntracks_(0),
+      tighttracks_(0),
+      displacedtracks_(0),
+      tightdisplacedtracks_(0),
+      displacedTag_(false) {}
 
 TkJet::TkJet(const LorentzVector& p4,
              const edm::Ref<JetBxCollection>& jetRef,
              const std::vector<edm::Ptr<L1TTTrackType> >& trkPtrs,
              float jetvtx)
-    : L1Candidate(p4), jetRef_(jetRef), trkPtrs_(trkPtrs), JetVtx_(jetvtx) {}
+    : L1Candidate(p4),
+      jetRef_(jetRef),
+      trkPtrs_(trkPtrs),
+      JetVtx_(jetvtx),
+      ntracks_(0),
+      tighttracks_(0),
+      displacedtracks_(0),
+      tightdisplacedtracks_(0),
+      displacedTag_(false) {}
 TkJet::TkJet(const LorentzVector& p4,
              const std::vector<edm::Ptr<L1TTTrackType> >& trkPtrs,
              float jetvtx,
