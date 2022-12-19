@@ -3,10 +3,8 @@
 TaggedProtonHepMCFilter::TaggedProtonHepMCFilter(const edm::ParameterSet &iConfig)
     : xiMin_(iConfig.getParameter<double>("xiMin")),
       xiMax_(iConfig.getParameter<double>("xiMax")),
-      comEnergy_(iConfig.getParameter<double>("comEnergy")),
-      nProtons_(iConfig.getParameter<int>("nProtons")) {
-  OneOverbeamEnergy_ = 2.0 / comEnergy_;
-}
+      OneOverbeamEnergy_(2.0 / iConfig.getParameter<double>("comEnergy")),
+      nProtons_(iConfig.getParameter<int>("nProtons")) {}
 
 bool TaggedProtonHepMCFilter::filter(const HepMC::GenEvent *evt) {
   // Going through the particle list, and count good protons
