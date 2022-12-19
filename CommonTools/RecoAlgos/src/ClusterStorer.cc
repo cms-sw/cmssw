@@ -182,4 +182,30 @@ namespace helper {
     (*cluRef) = OmniClusterRef(newRef);
   }
 
+  // -------------------------------------------------------------
+  // Specific rekey for class template ClusterRefType = VectorHit::ClusterRef,
+  // RecHitType is not used.
+  template <>
+  template <typename RecHitType>  // or template<> to specialise also here?
+  void ClusterStorer::ClusterHitRecord<VectorHit::ClusterRef>::
+      //  rekey<VectorHit>(const VectorHit::ClusterRef &newRef) const
+      rekey(const VectorHit::ClusterRef &newRef) const {
+    TrackingRecHit &genericHit = (*hits_)[index_];
+    const std::type_info &hit_type = typeid(genericHit);
+
+    OmniClusterRef *cluRef = nullptr;
+    if (typeid(VectorHit) == hit_type) {
+      VectorHit &vHit = static_cast<VectorHit &>(genericHit);
+      // FIXME: this essentially uses a hack
+      // https://github.com/cms-sw/cmssw/blob/master/DataFormats/TrackerCommon/interface/TrackerTopology.h#L291
+      cluRef = (SiStripDetId(detid_).stereo() ? &vHit.upperClusterRef() : &vHit.lowerClusterRef());
+    } else {
+      return;
+    }
+
+    assert(cluRef != nullptr);            // to catch missing RecHit types
+    assert(cluRef->key() == ref_.key());  // otherwise something went wrong
+    (*cluRef) = OmniClusterRef(newRef);
+  }
+
 }  // namespace helper
