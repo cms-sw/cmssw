@@ -14,14 +14,14 @@
 
 using namespace l1t;
 
-class L1NNTauProducer : public edm::stream::EDProducer<edm::GlobalCache<TauNNTFCache>> {
+class L1NNTauProducer : public edm::stream::EDProducer<edm::GlobalCache<tensorflow::SessionCache>> {
 public:
-  explicit L1NNTauProducer(const edm::ParameterSet&, const TauNNTFCache*);
+  explicit L1NNTauProducer(const edm::ParameterSet&, const tensorflow::SessionCache*);
   ~L1NNTauProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  static std::unique_ptr<TauNNTFCache> initializeGlobalCache(const edm::ParameterSet&);
-  static void globalEndJob(const TauNNTFCache*);
+  static std::unique_ptr<tensorflow::SessionCache> initializeGlobalCache(const edm::ParameterSet&);
+  static void globalEndJob(const tensorflow::SessionCache*){};
 
 private:
   std::unique_ptr<TauNNId> fTauNNId_;
@@ -40,7 +40,7 @@ private:
 
 static constexpr float track_trigger_eta_max = 2.5;
 
-L1NNTauProducer::L1NNTauProducer(const edm::ParameterSet& cfg, const TauNNTFCache* cache)
+L1NNTauProducer::L1NNTauProducer(const edm::ParameterSet& cfg, const tensorflow::SessionCache* cache)
     : fSeedPt_(cfg.getParameter<double>("seedpt")),
       fConeSize_(cfg.getParameter<double>("conesize")),
       fTauSize_(cfg.getParameter<double>("tausize")),
@@ -48,23 +48,19 @@ L1NNTauProducer::L1NNTauProducer(const edm::ParameterSet& cfg, const TauNNTFCach
       fNParticles_(cfg.getParameter<int>("nparticles")),
       fL1PFToken_(consumes<vector<l1t::PFCandidate>>(cfg.getParameter<edm::InputTag>("L1PFObjects"))) {
   std::string lNNFile = cfg.getParameter<std::string>("NNFileName");  //,"L1Trigger/Phase2L1Taus/data/tau_3layer.pb");
-  fTauNNId_ = std::make_unique<TauNNId>(
-      lNNFile.find("v0") == std::string::npos ? "input_1:0" : "dense_1_input:0", cache, lNNFile, fNParticles_);
+  fTauNNId_ = std::make_unique<TauNNId>(lNNFile.find("v0") == std::string::npos ? "input_1:0" : "dense_1_input:0",
+                                        cache->getSession(),
+                                        lNNFile,
+                                        fNParticles_);
   produces<l1t::PFTauCollection>("L1PFTausNN");
 }
-std::unique_ptr<TauNNTFCache> L1NNTauProducer::initializeGlobalCache(const edm::ParameterSet& cfg) {
+
+std::unique_ptr<tensorflow::SessionCache> L1NNTauProducer::initializeGlobalCache(const edm::ParameterSet& cfg) {
   tensorflow::setLogging("3");
-  std::string lNNFile = cfg.getParameter<std::string>("NNFileName");
-  edm::FileInPath fp(lNNFile);
-  TauNNTFCache* cache = new TauNNTFCache();
-  cache->graphDef = tensorflow::loadGraphDef(fp.fullPath());
-  return std::unique_ptr<TauNNTFCache>(cache);
+  std::string graphPath = edm::FileInPath(cfg.getParameter<std::string>("NNFileName")).fullPath();
+  return std::make_unique<tensorflow::SessionCache>(graphPath);
 }
-void L1NNTauProducer::globalEndJob(const TauNNTFCache* cache) {
-  if (cache->graphDef != nullptr) {
-    delete cache->graphDef;
-  }
-}
+
 void L1NNTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<l1t::PFCandidateCollection> l1PFCandidates;
   iEvent.getByToken(fL1PFToken_, l1PFCandidates);
