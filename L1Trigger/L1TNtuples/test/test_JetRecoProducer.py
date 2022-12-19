@@ -42,7 +42,6 @@ process.TFileService = cms.Service("TFileService",
 # producer under test
 process.load("L1Trigger.L1TNtuples.l1JetRecoTreeProducer_cfi")
 
-# get corrected jets
 #process.l1RecoTreeProducer.jetTag = cms.untracked.InputTag("ak4PFCHSJetsL2")
 
 process.p = cms.Path(
