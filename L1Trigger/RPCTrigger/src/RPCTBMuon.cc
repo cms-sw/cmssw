@@ -174,6 +174,7 @@ RPCTBMuon::RPCTBMuon(const RPCPacMuon& pacMuon) : RPCMuon(pacMuon) {
 
   m_EtaAddress = 0;
   m_PhiAddress = 0;
+  m_muonBitsType = mbtUnset;
 }
 #endif  //_STAND_ALONE
 //---------------------------------------------------------------------------
