@@ -416,7 +416,7 @@ struct HGCalMixRotatedLayer {
                                       << cms::convert2mm(r2) << ", " << cms::convert2mm(hthickl) << ", "
                                       << convertRadToDeg(phi1) << ", " << convertRadToDeg(phi2);
 #endif
-        dd4hep::Position tran(cshift.first, cshift.second, zpos);
+        dd4hep::Position tran(-cshift.first, cshift.second, zpos);
         glog.placeVolume(glog1, copy, tran);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: Position " << glog1.name() << " number " << copy
@@ -482,7 +482,7 @@ struct HGCalMixRotatedLayer {
           << ":" << place;
 #endif
       auto cshift = cassette_.getShift(layer + 1, -1, cassette);
-      double xpos = xyoff.first + cshift.first + nc * delx;
+      double xpos = xyoff.first - cshift.first + nc * delx;
       double ypos = xyoff.second + cshift.second + nr * dy;
 #ifdef EDM_ML_DEBUG
       double xorig = xyoff.first + nc * delx;
