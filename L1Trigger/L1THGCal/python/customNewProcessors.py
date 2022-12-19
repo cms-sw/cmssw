@@ -13,7 +13,7 @@ def custom_layer1_truncation(process):
 def custom_stage1_truncation(process):
     parameters = stage1truncation_proc.clone()
     process.l1tHGCalBackEndLayer1Producer.ProcessorParameters = parameters
-    process.l1tHGcalBackEndLayer2Producer.InputCluster = cms.InputTag('l1tHGCalBackEndStage1Producer:HGCalBackendStage1Processor')
+    process.l1tHGCalBackEndLayer2Producer.InputCluster = cms.InputTag('l1tHGCalBackEndStage1Producer:HGCalBackendStage1Processor')
     process.l1tHGCalTowerProducer.InputTriggerCells = cms.InputTag('l1tHGCalBackEndStage1Producer:HGCalBackendStage1Processor')
     return process
 
