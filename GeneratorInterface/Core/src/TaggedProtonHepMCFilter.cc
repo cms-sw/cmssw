@@ -16,6 +16,8 @@ bool TaggedProtonHepMCFilter::filter(const HepMC::GenEvent *evt) {
       double xi = (1.0 - std::abs(p4.pz()) * OneOverbeamEnergy_);
       if (xi > xiMin_ && xi < xiMax_)
         nGoodProtons++;
+      if (nGoodProtons >= nProtons_)
+        return true;
     }
   }
   return (nGoodProtons >= nProtons_);
