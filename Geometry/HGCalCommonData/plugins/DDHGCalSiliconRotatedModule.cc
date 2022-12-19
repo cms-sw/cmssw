@@ -420,7 +420,7 @@ void DDHGCalSiliconRotatedModule::positionSensitive(const DDLogicalPart& glog, i
     int cassette = HGCalProperty::waferCassette(waferProperty_[k]);
     int place = HGCalCell::cellPlacementIndex(1, layertype, orien);
     auto cshift = cassette_.getShift(layer + 1, -1, cassette);
-    double xpos = xyoff.first + cshift.first + nc * delx;
+    double xpos = xyoff.first - cshift.first + nc * delx;
     double ypos = xyoff.second + cshift.second + nr * dy;
 #ifdef EDM_ML_DEBUG
     double xorig = xyoff.first + nc * delx;

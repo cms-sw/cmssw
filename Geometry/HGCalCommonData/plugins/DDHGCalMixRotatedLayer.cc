@@ -485,7 +485,7 @@ void DDHGCalMixRotatedLayer::positionMix(const DDLogicalPart& glog,
                                     << " of dimensions " << r1 << ", " << r2 << ", " << hthickl << ", "
                                     << convertRadToDeg(phi1) << ", " << convertRadToDeg(phi2);
 #endif
-      DDTranslation tran(cshift.first, cshift.second, zpos);
+      DDTranslation tran(-cshift.first, cshift.second, zpos);
       cpv.position(glog1, glog, copy, tran, rot);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: Position " << glog1.name() << " number " << copy
@@ -546,7 +546,7 @@ void DDHGCalMixRotatedLayer::positionMix(const DDLogicalPart& glog,
         << place;
 #endif
     auto cshift = cassette_.getShift(layer + 1, -1, cassette);
-    double xpos = xyoff.first + cshift.first + nc * delx;
+    double xpos = xyoff.first - cshift.first + nc * delx;
     double ypos = xyoff.second + cshift.second + nr * dy;
 #ifdef EDM_ML_DEBUG
     double xorig = xyoff.first + nc * delx;
