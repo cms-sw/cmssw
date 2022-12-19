@@ -20,5 +20,5 @@ bool TaggedProtonHepMCFilter::filter(const HepMC::GenEvent *evt) {
         return true;
     }
   }
-  return (nGoodProtons >= nProtons_);
+  return false;
 }
