@@ -197,8 +197,6 @@ def _appendPhase2Digis(obj):
         'keep *_l1tPFClustersFromHGC3DClusters_*_*',
         'keep *_l1tPFTracksFromL1TracksBarrel_*_*',
         'keep *_l1tPFTracksFromL1TracksHGCal_*_*',
-        'keep *_l1tSCPFL1PF_*_*',
-        'keep *_l1tSCPFL1Puppi_*_*',
         'keep *_l1tSCPFL1PuppiCorrectedEmulator_*_*',
         'keep *_l1tSCPFL1PuppiCorrectedEmulatorMHT_*_*',
         'keep *_l1tPhase1JetProducer9x9_*_*', 
