@@ -426,7 +426,10 @@ void DDHGCalSiliconRotatedModule::positionSensitive(const DDLogicalPart& glog, i
     double xorig = xyoff.first + nc * delx;
     double yorig = xyoff.second + nr * dy;
     double angle = std::atan2(yorig, xorig);
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedLayer::Wafer: layer " << layer + 1 << " cassette " << cassette << " Shift " << cshift.first << ":" << cshift.second << " Original " << xorig << ":" << yorig << ":" << convertRadToDeg(angle) << " Final " << xpos << ":" << ypos;
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedLayer::Wafer: layer " << layer + 1 << " cassette "
+                                  << cassette << " Shift " << cshift.first << ":" << cshift.second << " Original "
+                                  << xorig << ":" << yorig << ":" << convertRadToDeg(angle) << " Final " << xpos << ":"
+                                  << ypos;
 #endif
     std::string wafer;
     int i(999);
