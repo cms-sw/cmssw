@@ -17,7 +17,7 @@ private:
 
 public:
   explicit TaggedProtonHepMCFilter(const edm::ParameterSet &);
-  ~TaggedProtonHepMCFilter() override;
+  ~TaggedProtonHepMCFilter() override = default;
 
   bool filter(const HepMC::GenEvent *evt) override;
 };
