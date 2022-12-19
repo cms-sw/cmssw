@@ -8,8 +8,6 @@ TaggedProtonHepMCFilter::TaggedProtonHepMCFilter(const edm::ParameterSet &iConfi
   OneOverbeamEnergy_ = 2.0 / comEnergy_;
 }
 
-TaggedProtonHepMCFilter::~TaggedProtonHepMCFilter() {}
-
 bool TaggedProtonHepMCFilter::filter(const HepMC::GenEvent *evt) {
   // Going through the particle list, and count good protons
   int nGoodProtons = 0;
