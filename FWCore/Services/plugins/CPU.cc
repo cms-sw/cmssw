@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // Package:     Services
-// Class  :     CPU
+// Class  :     edm::service::CPU
 //
 // Implementation:
 //
@@ -15,6 +15,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/CPUServiceBase.h"
+#include "FWCore/Utilities/interface/ResourceInformation.h"
 
 #include "cpu_features/cpu_features_macros.h"
 
@@ -28,14 +29,14 @@
 #include "cpu_features/cpuinfo_ppc.h"
 #endif
 
-#include <iostream>
-#include <sys/time.h>
-#include <sys/resource.h>
-#include <cstdio>
+#include <cstdlib>
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <map>
 #include <set>
+#include <utility>
+#include <vector>
 #include <fmt/format.h>
 
 #ifdef __linux__
@@ -53,12 +54,10 @@ namespace edm {
 
       static void fillDescriptions(ConfigurationDescriptions &descriptions);
 
-      bool cpuInfo(std::string &models, double &avgSpeed) override;
-
     private:
       const bool reportCPUProperties_;
+      const bool disableJobReportOutput_;
 
-      bool cpuInfoImpl(std::string &models, double &avgSpeed, Service<JobReport> *reportSvc);
       bool parseCPUInfo(std::vector<std::pair<std::string, std::string>> &info);
       std::string getModels(const std::vector<std::pair<std::string, std::string>> &info);
       std::string getModelFromCPUFeatures();
@@ -150,7 +149,27 @@ namespace edm {
     }  // namespace
 
     CPU::CPU(const ParameterSet &iPS, ActivityRegistry &iRegistry)
-        : reportCPUProperties_(iPS.getUntrackedParameter<bool>("reportCPUProperties")) {
+        : reportCPUProperties_(iPS.getUntrackedParameter<bool>("reportCPUProperties")),
+          disableJobReportOutput_(iPS.getUntrackedParameter<bool>("disableJobReportOutput")) {
+      edm::Service<edm::ResourceInformation> resourceInformationService;
+      if (resourceInformationService.isAvailable()) {
+        std::vector<std::pair<std::string, std::string>> info;
+        if (parseCPUInfo(info)) {
+          std::string models = getModels(info);
+          double averageSpeed = getAverageSpeed(info);
+          resourceInformationService->setCpuModelsFormatted(models);
+          resourceInformationService->setCpuAverageSpeed(averageSpeed);
+
+          std::set<std::string> modelsSet;
+          for (const auto &entry : info) {
+            if (entry.first == "model name") {
+              modelsSet.insert(entry.second);
+            }
+          }
+          std::vector<std::string> modelsVector(modelsSet.begin(), modelsSet.end());
+          resourceInformationService->setCPUModels(modelsVector);
+        }
+      }
       iRegistry.watchPostEndJob(this, &CPU::postEndJob);
     }
 
@@ -159,10 +178,15 @@ namespace edm {
     void CPU::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
       edm::ParameterSetDescription desc;
       desc.addUntracked<bool>("reportCPUProperties", false);
+      desc.addUntracked<bool>("disableJobReportOutput", false);
       descriptions.add("CPU", desc);
     }
 
     void CPU::postEndJob() {
+      if (disableJobReportOutput_) {
+        return;
+      }
+
       Service<JobReport> reportSvc;
 
       std::vector<std::pair<std::string, std::string>> info;
@@ -203,17 +227,6 @@ namespace edm {
         reportCPUProperties.insert(std::make_pair("cpusetCount", i2str(set_size)));
       }
       reportSvc->reportPerformanceSummary("SystemCPU", reportCPUProperties);
-    }
-
-    bool CPU::cpuInfo(std::string &models, double &avgSpeed) {
-      std::vector<std::pair<std::string, std::string>> info;
-      if (!parseCPUInfo(info)) {
-        return false;
-      }
-
-      models = getModels(info);
-      avgSpeed = getAverageSpeed(info);
-      return true;
     }
 
     bool CPU::parseCPUInfo(std::vector<std::pair<std::string, std::string>> &info) {
