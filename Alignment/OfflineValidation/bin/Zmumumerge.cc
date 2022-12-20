@@ -202,12 +202,20 @@ void Fitting_GetMassmeanVSvariables(TString inputfile_name, TString output_path)
 }
 
 const static int max_file_number = 10;
-void Draw_TH1D_forMultiRootFiles(vector<TString> file_names,
-                                 vector<TString> label_names,
-                                 vector<int> colors,
-                                 vector<int> styles,
-                                 TString th1d_name,
-                                 TString output_name) {
+void Draw_TH1D_forMultiRootFiles(const vector<TString>& file_names,
+                                 const vector<TString>& label_names,
+                                 const vector<int>& colors,
+                                 const vector<int>& styles,
+                                 const TString& th1d_name,
+                                 const TString& output_name) {
+  if (file_names.empty() || label_names.empty()) {
+    cout << "Provided an empty list of file and label names" << std::endl;
+    return;
+  }
+
+  // do not allow the list of files and labels names to differ
+  assert(file_names.size() == label_names.size());
+
   TH1D* th1d_input[max_file_number];
   TFile* file_input[max_file_number];
   for (auto const& filename : file_names | boost::adaptors::indexed(0)) {
