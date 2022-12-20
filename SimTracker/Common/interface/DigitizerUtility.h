@@ -1,5 +1,5 @@
-#ifndef __SimTracker_SiPhase2Digitizer_DigitizerUtility_h
-#define __SimTracker_SiPhase2Digitizer_DigitizerUtility_h
+#ifndef SimTracker_Common_DigitizerUtility_h
+#define SimTracker_Common_DigitizerUtility_h
 
 #include <map>
 #include <memory>
@@ -8,8 +8,9 @@
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
+#include "SimTracker/Common/interface/SimHitInfoForLinks.h"
 
-namespace DigitizerUtility {
+namespace digitizerUtility {
 
   class SimHitInfo {
   public:
@@ -30,10 +31,66 @@ namespace DigitizerUtility {
     float time_;
   };
 
+  //===================================================================================================
   class Amplitude {
   public:
     Amplitude() : _amp(0.0) {}
-    Amplitude(float amp, const PSimHit* hitp, float frac = 0, float tcor = 0, size_t hitIndex = 0, uint32_t tofBin = 0)
+    Amplitude(float amp, float frac) : _amp(amp), _frac(1, frac) {
+      //in case of digi from noisypixels
+      //the MC information are removed
+      if (_frac[0] < -0.5) {
+        _frac.pop_back();
+      }
+    }
+
+    Amplitude(float amp, const PSimHit* hitp, size_t hitIndex, size_t hitInd4CR, unsigned int tofBin, float frac)
+        : _amp(amp), _frac(1, frac) {
+      //in case of digi from noisypixels
+      //the MC information are removed
+      if (_frac[0] < -0.5) {
+        _frac.pop_back();
+      } else {
+        _hitInfos.emplace_back(hitp, hitIndex, tofBin, hitInd4CR, amp);
+      }
+    }
+
+    // can be used as a float by convers.
+    operator float() const { return _amp; }
+    float ampl() const { return _amp; }
+    const std::vector<float>& individualampl() const { return _frac; }
+    const std::vector<SimHitInfoForLinks>& hitInfos() const { return _hitInfos; }
+
+    void operator+=(const Amplitude& other) {
+      _amp += other._amp;
+      //in case of contribution of noise to the digi
+      //the MC information are removed
+      if (other._frac[0] > -0.5) {
+        if (!other._hitInfos.empty()) {
+          _hitInfos.insert(_hitInfos.end(), other._hitInfos.begin(), other._hitInfos.end());
+        }
+        _frac.insert(_frac.end(), other._frac.begin(), other._frac.end());
+      }
+    }
+    void operator+=(const float& amp) { _amp += amp; }
+
+    void set(const float amplitude) {  // Used to reset the amplitude
+      _amp = amplitude;
+    }
+    /*     void setind (const float indamplitude) {  // Used to reset the amplitude */
+    /*       _frac = idamplitude; */
+    /*     } */
+  private:
+    float _amp;
+    std::vector<float> _frac;
+    std::vector<SimHitInfoForLinks> _hitInfos;
+  };  // end class Amplitude
+
+  //===================================================================================================
+  class Ph2Amplitude {
+  public:
+    Ph2Amplitude() : _amp(0.0) {}
+    Ph2Amplitude(
+        float amp, const PSimHit* hitp, float frac = 0, float tcor = 0, size_t hitIndex = 0, uint32_t tofBin = 0)
         : _amp(amp) {
       if (frac > 0) {
         if (hitp != nullptr)
@@ -48,7 +105,7 @@ namespace DigitizerUtility {
     float ampl() const { return _amp; }
     const std::vector<std::pair<float, std::unique_ptr<SimHitInfo> > >& simInfoList() const { return _simInfoList; }
 
-    void operator+=(const Amplitude& other) {
+    void operator+=(const Ph2Amplitude& other) {
       _amp += other._amp;
       // in case of digi from the noise, the MC information need not be there
       for (auto const& ic : other.simInfoList()) {
@@ -64,7 +121,7 @@ namespace DigitizerUtility {
   private:
     float _amp;
     std::vector<std::pair<float, std::unique_ptr<SimHitInfo> > > _simInfoList;
-  };
+  };  // end class Ph2Amplitude
 
   //*********************************************************
   // Define a class for 3D ionization points and energy
@@ -126,5 +183,5 @@ namespace DigitizerUtility {
     bool ot_bit;
     std::vector<std::pair<float, SimHitInfo*> > simInfoList;
   };
-}  // namespace DigitizerUtility
+}  // namespace digitizerUtility
 #endif

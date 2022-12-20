@@ -32,21 +32,21 @@ public:
   ~Pixel3DDigitizerAlgorithm() override;
 
   bool select_hit(const PSimHit& hit, double tCorr, double& sigScale) const override;
-  std::vector<DigitizerUtility::SignalPoint> drift(
+  std::vector<digitizerUtility::SignalPoint> drift(
       const PSimHit& hit,
       const Phase2TrackerGeomDetUnit* pixdet,
       const GlobalVector& bfield,
-      const std::vector<DigitizerUtility::EnergyDepositUnit>& ionization_points) const override;
+      const std::vector<digitizerUtility::EnergyDepositUnit>& ionization_points) const override;
   // overload drift
-  std::vector<DigitizerUtility::SignalPoint> drift(
+  std::vector<digitizerUtility::SignalPoint> drift(
       const PSimHit& hit,
       const Phase2TrackerGeomDetUnit* pixdet,
       const GlobalVector& bfield,
-      const std::vector<DigitizerUtility::EnergyDepositUnit>& ionization_points,
+      const std::vector<digitizerUtility::EnergyDepositUnit>& ionization_points,
       bool diffusion_activated) const;
 
   // New diffusion function: check implementation
-  std::vector<DigitizerUtility::EnergyDepositUnit> diffusion(const LocalPoint& pos,
+  std::vector<digitizerUtility::EnergyDepositUnit> diffusion(const LocalPoint& pos,
                                                              const float& ncarriers,
                                                              const std::function<LocalVector(float, float)>& u_drift,
                                                              const std::pair<float, float> pitches,
@@ -56,7 +56,7 @@ public:
                      const size_t hitIndex,
                      const uint32_t tofBin,
                      const Phase2TrackerGeomDetUnit* pixdet,
-                     const std::vector<DigitizerUtility::SignalPoint>& collection_points) override;
+                     const std::vector<digitizerUtility::SignalPoint>& collection_points) override;
 
 private:
   // Radius of Column np and ohmic
