@@ -50,8 +50,7 @@ namespace clangcms {
         if (oname.substr(0, eoname.length()) != eoname) {
           os << "TFileService function " << mname << " is called in function " << pname;
           PathDiagnosticLocation CELoc = PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(), AC);
-          std::unique_ptr<BugType> BT =
-              std::make_unique<BugType>(Checker, "TFileService function called ", "ThreadSafety");
+          BugType *BT = new BugType(Checker, "TFileService function called ", "ThreadSafety");
           std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, os.str(), CELoc);
           R->setDeclWithIssue(AC->getDecl());
           R->addRange(CE->getSourceRange());
@@ -64,8 +63,7 @@ namespace clangcms {
     } else if (support::isKnownThrUnsafeFunc(mname)) {
       os << "Known thread unsafe function " << mname << " is called in function " << pname;
       PathDiagnosticLocation CELoc = PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(), AC);
-      std::unique_ptr<BugType> BT =
-          std::make_unique<BugType>(Checker, "known thread unsafe function called", "ThreadSafety");
+      BugType *BT = new BugType(Checker, "known thread unsafe function called", "ThreadSafety");
       std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, os.str(), CELoc);
       R->setDeclWithIssue(AC->getDecl());
       R->addRange(CE->getSourceRange());
