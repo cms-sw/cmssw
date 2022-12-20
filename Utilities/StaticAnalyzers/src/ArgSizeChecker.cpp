@@ -107,8 +107,7 @@ namespace clangcms {
       std::string pname = PQT.getAsString();
       std::string fname = MD->getNameAsString();
       os << "Function parameter passed by value with size of parameter '" << size_param << "' bits > max size '"
-         << max_bits
-         << "' bits parameter type '" << pname << "' function '" << fname << "' class '"
+         << max_bits << "' bits parameter type '" << pname << "' function '" << fname << "' class '"
          << MD->getParent()->getNameAsString() << "'\n";
       std::string oname = "operator";
 
