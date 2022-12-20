@@ -514,7 +514,9 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
     NumberOfStripClustersVsGoodPVtx->setAxisTitle("Mean number of strip clusters", 2);
   }
 
-  if (doPlotsVsLUMI_ || doAllPlots) {
+  bool isMC = ((iRun.runAuxiliary().run() == 1) && (iRun.runAuxiliary().beginTime().value() == 1));
+
+  if ((doPlotsVsLUMI_ || doAllPlots) && !isMC) {
     ibooker.setCurrentFolder(MEFolderName + "/LUMIanalysis");
     int LUMIBin = conf->getParameter<int>("LUMIBin");
     float LUMIMin = conf->getParameter<double>("LUMIMin");
@@ -758,7 +760,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       lumi = metaData->instLumi();
   }
 
-  if (doPlotsVsLUMI_ || doAllPlots)
+  if ((doPlotsVsLUMI_ || doAllPlots) && iEvent.isRealData())
     NumberEventsOfVsLUMI->Fill(lumi);
 
   //  Analyse the tracks
@@ -820,7 +822,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         NumberOfRecHitsPerTrackVsLS->Fill(static_cast<double>(iEvent.id().luminosityBlock()),
                                           track->numberOfValidHits());
 
-      if (doPlotsVsLUMI_ || doAllPlots)
+      if ((doPlotsVsLUMI_ || doAllPlots) && iEvent.isRealData())
         NumberOfRecHitsPerTrackVsLUMI->Fill(lumi, track->numberOfValidHits());
 
       totalRecHits += track->numberOfValidHits();
@@ -847,7 +849,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
       if (doPlotsVsBX_ || doAllPlots)
         NumberOfTracksVsBX->Fill(bx, numberOfTracks);
-      if (doPlotsVsLUMI_ || doAllPlots)
+      if ((doPlotsVsLUMI_ || doAllPlots) && iEvent.isRealData())
         NumberOfTracksVsLUMI->Fill(lumi, numberOfTracks);
       if (doFractionPlot_) {
         FractionOfGoodTracks->Fill(frac);
@@ -855,7 +857,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         if (doFractionPlot_) {
           if (doPlotsVsBX_ || doAllPlots)
             GoodTracksFractionVsBX->Fill(bx, frac);
-          if (doPlotsVsLUMI_ || doAllPlots)
+          if ((doPlotsVsLUMI_ || doAllPlots) && iEvent.isRealData())
             GoodTracksFractionVsLUMI->Fill(lumi, frac);
         }
       }
@@ -1057,7 +1059,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         if (doFractionPlot_)
           GoodTracksFractionVsGoodPVtx->Fill(float(totalNumGoodPV), frac);
 
-        if (doPlotsVsLUMI_ || doAllPlots)
+        if ((doPlotsVsLUMI_ || doAllPlots) && iEvent.isRealData())
           NumberOfGoodPVtxVsLUMI->Fill(lumi, float(totalNumGoodPV));
       }
 
@@ -1067,7 +1069,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       ss << "VI stat " << totalNumGoodPV << ' ' << numberOfTracks;
       for (uint i = 0; i < ClusterLabels.size(); i++) {
         ss << ' ' << NClus[i];
-        if (doPlotsVsLUMI_ || doAllPlots) {
+        if ((doPlotsVsLUMI_ || doAllPlots) && iEvent.isRealData()) {
           if (ClusterLabels[i] == "Pix")
             NumberOfPixelClustersVsLUMI->Fill(lumi, NClus[i]);
           if (ClusterLabels[i] == "Strip")
@@ -1090,7 +1092,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       if (doPlotsVsBX_ || doAllPlots)
         if (totalNumGoodPV != 0)
           NumberOfGoodPVtxWO0VsBX->Fill(bx, float(totalNumGoodPV));
-      if (doPlotsVsLUMI_ || doAllPlots)
+      if ((doPlotsVsLUMI_ || doAllPlots) && iEvent.isRealData())
         if (totalNumGoodPV != 0)
           NumberOfGoodPVtxWO0VsLUMI->Fill(lumi, float(totalNumGoodPV));
 
