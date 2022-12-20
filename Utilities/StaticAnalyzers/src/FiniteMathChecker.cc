@@ -70,7 +70,6 @@ namespace clangcms {
                                            "fastmath plugin");
     std::unique_ptr<clang::ento::BasicBugReport> report =
         std::make_unique<clang::ento::BasicBugReport>(*BT, BT->getCheckerName(), CELoc);
-    //report->addRange(Callee->getSourceRange());
     BR.emitReport(std::move(report));
   }
 
