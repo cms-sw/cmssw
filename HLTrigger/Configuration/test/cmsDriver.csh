@@ -12,6 +12,14 @@ eval `scram runtime -csh`
 #  > export CMS_PATH="/cvmfs/cms-ib.cern.ch"
 #  > export SITECONFIG_PATH="/cvmfs/cms-ib.cern.ch/SITECONF/local"
 #
+# IMPORTANT:
+#  when the names of the EDM files below are changed, make sure to execute the script
+#
+#  > ./HLTrigger/Configuration/test/testAccessToEDMInputsOfHLTTests_update_filelist.sh
+#
+#  to update the list of files to be cached in the IB-EOS area
+#  (see the readme in this directory for further details)
+#
 
 #
 # GEN-SIM input files for Monte-Carlo tests
