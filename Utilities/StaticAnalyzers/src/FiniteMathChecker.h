@@ -5,7 +5,6 @@
 #include <clang/StaticAnalyzer/Core/PathSensitive/CheckerContext.h>
 #include "clang/StaticAnalyzer/Core/PathSensitive/CallEvent.h"
 #include <clang/StaticAnalyzer/Core/BugReporter/BugType.h>
-#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "CmsException.h"
 
 namespace clangcms {
