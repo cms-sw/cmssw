@@ -24,7 +24,7 @@
 #include "SimTracker/SiPhase2Digitizer/plugins/PixelDigitizerAlgorithm.h"
 #include "SimTracker/SiPhase2Digitizer/plugins/Pixel3DDigitizerAlgorithm.h"
 #include "SimTracker/SiPhase2Digitizer/plugins/PixelBrickedDigitizerAlgorithm.h"
-#include "SimTracker/SiPhase2Digitizer/plugins/DigitizerUtility.h"
+#include "SimTracker/Common/interface/DigitizerUtility.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -296,13 +296,13 @@ namespace cms {
           algotype != AlgorithmType::InnerPixelBricked)
         continue;
 
-      std::map<int, DigitizerUtility::DigiSimInfo> digi_map;
+      std::map<int, digitizerUtility::DigiSimInfo> digi_map;
       fiter->second->digitize(dynamic_cast<const Phase2TrackerGeomDetUnit*>(det_u), digi_map, tTopo_);
 
       edm::DetSet<PixelDigi> collector(rawId);
       edm::DetSet<PixelDigiSimLink> linkcollector(rawId);
       for (auto const& digi_p : digi_map) {
-        DigitizerUtility::DigiSimInfo info = digi_p.second;
+        digitizerUtility::DigiSimInfo info = digi_p.second;
         const auto& ip = PixelDigi::channelToPixel(digi_p.first);
         collector.data.emplace_back(ip.first, ip.second, info.sig_tot);
         for (auto const& sim_p : info.simInfoList) {
@@ -331,7 +331,7 @@ namespace cms {
   }
 }  // namespace cms
 namespace {
-  void addToCollector(edm::DetSet<PixelDigi>& collector, const int channel, const DigitizerUtility::DigiSimInfo& info) {
+  void addToCollector(edm::DetSet<PixelDigi>& collector, const int channel, const digitizerUtility::DigiSimInfo& info) {
     // For premixing stage1 the channel must be decoded with PixelDigi
     // so that when the row and column are inserted to PixelDigi the
     // coded channel stays the same (so that it can then be decoded
@@ -341,7 +341,7 @@ namespace {
   }
   void addToCollector(edm::DetSet<Phase2TrackerDigi>& collector,
                       const int channel,
-                      const DigitizerUtility::DigiSimInfo& info) {
+                      const digitizerUtility::DigiSimInfo& info) {
     const auto& ip = Phase2TrackerDigi::channelToPixel(channel);
     collector.data.emplace_back(ip.first, ip.second, info.ot_bit);
   }
@@ -360,13 +360,13 @@ namespace cms {
           algotype == AlgorithmType::InnerPixelBricked)
         continue;
 
-      std::map<int, DigitizerUtility::DigiSimInfo> digi_map;
+      std::map<int, digitizerUtility::DigiSimInfo> digi_map;
       fiter->second->digitize(dynamic_cast<const Phase2TrackerGeomDetUnit*>(det_u), digi_map, tTopo_);
 
       edm::DetSet<DigiType> collector(rawId);
       edm::DetSet<PixelDigiSimLink> linkcollector(rawId);
       for (auto const& digi_p : digi_map) {
-        DigitizerUtility::DigiSimInfo info = digi_p.second;
+        digitizerUtility::DigiSimInfo info = digi_p.second;
         addToCollector(collector, digi_p.first, info);
         for (auto const& sim_p : info.simInfoList) {
           linkcollector.data.emplace_back(digi_p.first,
