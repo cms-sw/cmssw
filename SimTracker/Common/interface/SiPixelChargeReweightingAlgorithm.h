@@ -1,47 +1,119 @@
-//class SiPixelChargeReweightingAlgorithm SimTracker/SiPixelDigitizer/src/SiPixelChargeReweightingAlgorithm.cc
+#ifndef SimTracker_Common_SiPixelChargeReweightingAlgorithm_h
+#define SimTracker_Common_SiPixelChargeReweightingAlgorithm_h
 
 // Original Author Caroline Collard
 // September 2020 : Extraction of the code for cluster charge reweighting from SiPixelDigitizerAlgorithm to a new class
-//
+
+// forward declarations
+#include <map>
+#include <memory>
+#include <vector>
 #include <iostream>
 #include <iomanip>
+#include <type_traits>
+#include <gsl/gsl_sf_erf.h>
 
-#include "SimGeneral/NoiseGenerators/interface/GaussianTailNoiseGenerator.h"
+#include "boost/multi_array.hpp"
 
-#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
-#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimTracker/Common/interface/SiG4UniversalFluctuation.h"
-#include "SimTracker/SiPixelDigitizer/plugins/SiPixelChargeReweightingAlgorithm.h"
-
-//#include "PixelIndices.h"
+#include "CondFormats/DataRecord/interface/SiPixel2DTemplateDBObjectRcd.h"
+#include "CondFormats/SiPixelObjects/interface/GlobalPixel.h"
+#include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixel2DTemplateDBObject.h"
+#include "CondFormats/SiPixelTransient/interface/SiPixelTemplate2D.h"
+#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-
+#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-// Accessing dead pixel modules from the DB:
-#include "DataFormats/DetId/interface/DetId.h"
-
-#include "CondFormats/SiPixelObjects/interface/GlobalPixel.h"
-
-#include "CondFormats/SiPixelObjects/interface/PixelIndices.h"
-#include "CondFormats/SiPixelObjects/interface/PixelROC.h"
-#include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixel2DTemplateDBObject.h"
-
-#include "CondFormats/SiPixelObjects/interface/PixelROC.h"
-
-// Geometry
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimTracker/Common/interface/DigitizerUtility.h"
+#include "SimTracker/SiPixelDigitizer/plugins/SiPixelDigitizerAlgorithm.h"
 
-using namespace edm;
-using namespace sipixelobjects;
+// forward declarations
+class DetId;
+class GaussianTailNoiseGenerator;
+class PixelDigi;
+class PixelDigiSimLink;
+class PixelGeomDetUnit;
+class SiG4UniversalFluctuation;
 
-void SiPixelChargeReweightingAlgorithm::init(const edm::EventSetup& es) {
+class SiPixelChargeReweightingAlgorithm {
+public:
+  SiPixelChargeReweightingAlgorithm(const edm::ParameterSet& conf, edm::ConsumesCollector iC);
+  ~SiPixelChargeReweightingAlgorithm();
+
+  // initialization that cannot be done in the constructor
+  void init(const edm::EventSetup& es);
+
+  typedef std::map<int, digitizerUtility::Amplitude, std::less<int> > signal_map_type;  // from Digi.Skel.
+  typedef signal_map_type::iterator signal_map_iterator;                                // from Digi.Skel.
+  typedef signal_map_type::const_iterator signal_map_const_iterator;                    // from Digi.Skel.
+
+  bool hitSignalReweight(const PSimHit& hit,
+                         std::map<int, float, std::less<int> >& hit_signal,
+                         const size_t hitIndex,
+                         const size_t hitIndex4CR,
+                         const unsigned int tofBin,
+                         const PixelTopology* topol,
+                         uint32_t detID,
+                         signal_map_type& theSignal,
+                         unsigned short int processType,
+                         const bool& boolmakeDigiSimLinks);
+
+  bool lateSignalReweight(const PixelGeomDetUnit* pixdet,
+                          std::vector<PixelDigi>& digis,
+                          PixelSimHitExtraInfo& loopTempSH,
+                          signal_map_type& theNewDigiSignal,
+                          const TrackerTopology* tTopo,
+                          CLHEP::HepRandomEngine* engine);
+
+private:
+  // Internal typedef
+  typedef std::map<uint32_t, signal_map_type> signalMaps;
+  typedef GloballyPositioned<double> Frame;
+  typedef std::vector<edm::ParameterSet> Parameters;
+  typedef boost::multi_array<float, 2> array_2d;
+
+  std::vector<SiPixelTemplateStore2D> templateStores_;
+
+  // Variables and objects for the charge reweighting using 2D templates
+  SiPixelTemplate2D templ2D;
+  std::vector<bool> xdouble;
+  std::vector<bool> ydouble;
+  std::vector<float> track;
+  int IDnum, IDden;
+
+  const bool UseReweighting;
+  bool applyLateReweighting_;
+  const bool PrintClusters;
+  const bool PrintTemplates;
+
+  static constexpr float cmToMicrons = 10000.f;
+
+  edm::ESGetToken<SiPixel2DTemplateDBObject, SiPixel2DTemplateDBObjectRcd> SiPixel2DTemp_den_token_;
+  edm::ESGetToken<SiPixel2DTemplateDBObject, SiPixel2DTemplateDBObjectRcd> SiPixel2DTemp_num_token_;
+  const SiPixel2DTemplateDBObject* dbobject_den;
+  const SiPixel2DTemplateDBObject* dbobject_num;
+
+  // methods for charge reweighting in irradiated sensors
+  int PixelTempRewgt2D(int id_gen, int id_rewgt, array_2d& cluster);
+  void printCluster(array_2d& cluster);
+  void printCluster(float arr[BXM2][BYM2]);
+  void printCluster(float arr[TXSIZE][TYSIZE]);
+};
+
+inline void SiPixelChargeReweightingAlgorithm::init(const edm::EventSetup& es) {
   // Read template files for charge reweighting
   if (UseReweighting || applyLateReweighting_) {
     dbobject_den = &es.getData(SiPixel2DTemp_den_token_);
@@ -58,8 +130,8 @@ void SiPixelChargeReweightingAlgorithm::init(const edm::EventSetup& es) {
 
 //=========================================================================
 
-SiPixelChargeReweightingAlgorithm::SiPixelChargeReweightingAlgorithm(const edm::ParameterSet& conf,
-                                                                     edm::ConsumesCollector iC)
+inline SiPixelChargeReweightingAlgorithm::SiPixelChargeReweightingAlgorithm(const edm::ParameterSet& conf,
+                                                                            edm::ConsumesCollector iC)
     :
 
       templ2D(templateStores_),
@@ -83,22 +155,22 @@ SiPixelChargeReweightingAlgorithm::SiPixelChargeReweightingAlgorithm(const edm::
 }
 
 //=========================================================================
-SiPixelChargeReweightingAlgorithm::~SiPixelChargeReweightingAlgorithm() {
+inline SiPixelChargeReweightingAlgorithm::~SiPixelChargeReweightingAlgorithm() {
   LogDebug("PixelDigitizer") << "SiPixelChargeReweightingAlgorithm deleted";
 }
 
 //============================================================================
 
-bool SiPixelChargeReweightingAlgorithm::hitSignalReweight(const PSimHit& hit,
-                                                          std::map<int, float, std::less<int> >& hit_signal,
-                                                          const size_t hitIndex,
-                                                          const size_t hitIndex4CR,
-                                                          const unsigned int tofBin,
-                                                          const PixelTopology* topol,
-                                                          uint32_t detID,
-                                                          signal_map_type& theSignal,
-                                                          unsigned short int processType,
-                                                          const bool& boolmakeDigiSimLinks) {
+inline bool SiPixelChargeReweightingAlgorithm::hitSignalReweight(const PSimHit& hit,
+                                                                 std::map<int, float, std::less<int> >& hit_signal,
+                                                                 const size_t hitIndex,
+                                                                 const size_t hitIndex4CR,
+                                                                 const unsigned int tofBin,
+                                                                 const PixelTopology* topol,
+                                                                 uint32_t detID,
+                                                                 signal_map_type& theSignal,
+                                                                 unsigned short int processType,
+                                                                 const bool& boolmakeDigiSimLinks) {
   int irow_min = topol->nrows();
   int irow_max = 0;
   int icol_min = topol->ncolumns();
@@ -113,9 +185,9 @@ bool SiPixelChargeReweightingAlgorithm::hitSignalReweight(const PSimHit& hit,
     int chan = (*im).first;
     std::pair<int, int> pixelWithCharge = PixelDigi::channelToPixel(chan);
 
-    hitSignal[chan] += (boolmakeDigiSimLinks ? SiPixelDigitizerAlgorithm::Amplitude(
+    hitSignal[chan] += (boolmakeDigiSimLinks ? digitizerUtility::Amplitude(
                                                    (*im).second, &hit, hitIndex, hitIndex4CR, tofBin, (*im).second)
-                                             : SiPixelDigitizerAlgorithm::Amplitude((*im).second, (*im).second));
+                                             : digitizerUtility::Amplitude((*im).second, (*im).second));
     chargeBefore += (*im).second;
 
     if (pixelWithCharge.first < irow_min)
@@ -282,9 +354,8 @@ bool SiPixelChargeReweightingAlgorithm::hitSignalReweight(const PSimHit& hit,
       if (charge > 0) {
         chargeAfter += charge;
         theSignal[PixelDigi::pixelToChannel(hitPixel.first + row - THX, hitPixel.second + col - THY)] +=
-            (boolmakeDigiSimLinks
-                 ? SiPixelDigitizerAlgorithm::Amplitude(charge, &hit, hitIndex, hitIndex4CR, tofBin, charge)
-                 : SiPixelDigitizerAlgorithm::Amplitude(charge, charge));
+            (boolmakeDigiSimLinks ? digitizerUtility::Amplitude(charge, &hit, hitIndex, hitIndex4CR, tofBin, charge)
+                                  : digitizerUtility::Amplitude(charge, charge));
       }
     }
   }
@@ -310,7 +381,7 @@ bool SiPixelChargeReweightingAlgorithm::hitSignalReweight(const PSimHit& hit,
 //! returns 0 if everything is OK, 1 if angles are outside template coverage (cluster is probably still
 //! usable, > 1 if something is wrong (no reweight done).
 // *******************************************************************************************************
-int SiPixelChargeReweightingAlgorithm::PixelTempRewgt2D(int id_in, int id_rewgt, array_2d& cluster) {
+inline int SiPixelChargeReweightingAlgorithm::PixelTempRewgt2D(int id_in, int id_rewgt, array_2d& cluster) {
   // Local variables
   int i, j, k, l, kclose;
   int nclusx, nclusy, success;
@@ -384,18 +455,18 @@ int SiPixelChargeReweightingAlgorithm::PixelTempRewgt2D(int id_in, int id_rewgt,
   // Check that the cluster container is a 13x21 matrix
 
   if (cluster.num_dimensions() != 2) {
-    LogWarning("Pixel Digitizer") << "Cluster is not 2-dimensional. Return. \n";
+    edm::LogWarning("Pixel Digitizer") << "Cluster is not 2-dimensional. Return. \n";
     return 3;
   }
   nclusx = (int)cluster.shape()[0];
   nclusy = (int)cluster.shape()[1];
   if (nclusx != TXSIZE || xdouble.size() != TXSIZE) {
-    LogWarning("Pixel Digitizer") << "Sizes in x do not match: nclusx=" << nclusx << "  xdoubleSize=" << xdouble.size()
-                                  << "  TXSIZE=" << TXSIZE << ". Return. \n";
+    edm::LogWarning("Pixel Digitizer") << "Sizes in x do not match: nclusx=" << nclusx
+                                       << "  xdoubleSize=" << xdouble.size() << "  TXSIZE=" << TXSIZE << ". Return. \n";
     return 4;
   }
   if (nclusy != TYSIZE || ydouble.size() != TYSIZE) {
-    LogWarning("Pixel Digitizer") << "Sizes in y do not match. Return. \n";
+    edm::LogWarning("Pixel Digitizer") << "Sizes in y do not match. Return. \n";
     return 5;
   }
 
@@ -533,7 +604,7 @@ int SiPixelChargeReweightingAlgorithm::PixelTempRewgt2D(int id_in, int id_rewgt,
   return success;
 }  // PixelTempRewgt2D
 
-void SiPixelChargeReweightingAlgorithm::printCluster(array_2d& cluster) {
+inline void SiPixelChargeReweightingAlgorithm::printCluster(array_2d& cluster) {
   for (int col = 0; col < TYSIZE; ++col) {
     for (int row = 0; row < TXSIZE; ++row) {
       LogDebug("Pixel Digitizer") << cluster[row][col];
@@ -542,7 +613,7 @@ void SiPixelChargeReweightingAlgorithm::printCluster(array_2d& cluster) {
   }
 }
 
-void SiPixelChargeReweightingAlgorithm::printCluster(float arr[BXM2][BYM2]) {
+inline void SiPixelChargeReweightingAlgorithm::printCluster(float arr[BXM2][BYM2]) {
   for (int col = 0; col < BYM2; ++col) {
     for (int row = 0; row < BXM2; ++row) {
       LogDebug("Pixel Digitizer") << arr[row][col];
@@ -551,7 +622,7 @@ void SiPixelChargeReweightingAlgorithm::printCluster(float arr[BXM2][BYM2]) {
   }
 }
 
-void SiPixelChargeReweightingAlgorithm::printCluster(float arr[TXSIZE][TYSIZE]) {
+inline void SiPixelChargeReweightingAlgorithm::printCluster(float arr[TXSIZE][TYSIZE]) {
   for (int col = 0; col < TYSIZE; ++col) {
     for (int row = 0; row < TXSIZE; ++row) {
       LogDebug("Pixel Digitizer") << arr[row][col];
@@ -560,25 +631,25 @@ void SiPixelChargeReweightingAlgorithm::printCluster(float arr[TXSIZE][TYSIZE]) 
   }
 }
 
-bool SiPixelChargeReweightingAlgorithm::lateSignalReweight(const PixelGeomDetUnit* pixdet,
-                                                           std::vector<PixelDigi>& digis,
-                                                           PixelSimHitExtraInfo& loopTempSH,
-                                                           signal_map_type& theNewDigiSignal,
-                                                           const TrackerTopology* tTopo,
-                                                           CLHEP::HepRandomEngine* engine) {
+inline bool SiPixelChargeReweightingAlgorithm::lateSignalReweight(const PixelGeomDetUnit* pixdet,
+                                                                  std::vector<PixelDigi>& digis,
+                                                                  PixelSimHitExtraInfo& loopTempSH,
+                                                                  signal_map_type& theNewDigiSignal,
+                                                                  const TrackerTopology* tTopo,
+                                                                  CLHEP::HepRandomEngine* engine) {
   uint32_t detID = pixdet->geographicalId().rawId();
   const PixelTopology* topol = &pixdet->specificTopology();
 
   if (UseReweighting) {
-    LogError("Pixel Digitizer") << " ******************************** \n";
-    LogError("Pixel Digitizer") << " ******************************** \n";
-    LogError("Pixel Digitizer") << " ******************************** \n";
-    LogError("Pixel Digitizer") << " *****  INCONSISTENCY !!!   ***** \n";
-    LogError("Pixel Digitizer")
+    edm::LogError("Pixel Digitizer") << " ******************************** \n";
+    edm::LogError("Pixel Digitizer") << " ******************************** \n";
+    edm::LogError("Pixel Digitizer") << " ******************************** \n";
+    edm::LogError("Pixel Digitizer") << " *****  INCONSISTENCY !!!   ***** \n";
+    edm::LogError("Pixel Digitizer")
         << " applyLateReweighting_ and UseReweighting can not be true at the same time for PU ! \n";
-    LogError("Pixel Digitizer") << " ---> DO NOT APPLY CHARGE REWEIGHTING TWICE !!! \n";
-    LogError("Pixel Digitizer") << " ******************************** \n";
-    LogError("Pixel Digitizer") << " ******************************** \n";
+    edm::LogError("Pixel Digitizer") << " ---> DO NOT APPLY CHARGE REWEIGHTING TWICE !!! \n";
+    edm::LogError("Pixel Digitizer") << " ******************************** \n";
+    edm::LogError("Pixel Digitizer") << " ******************************** \n";
     return false;
   }
 
@@ -598,7 +669,7 @@ bool SiPixelChargeReweightingAlgorithm::lateSignalReweight(const PixelGeomDetUni
     unsigned int chan = loopDigi->channel();
     if (loopTempSH.isInTheList(chan)) {
       float corresponding_charge = loopDigi->adc();
-      theDigiSignal[chan] += SiPixelDigitizerAlgorithm::Amplitude(corresponding_charge, corresponding_charge);
+      theDigiSignal[chan] += digitizerUtility::Amplitude(corresponding_charge, corresponding_charge);
       chargeBefore += corresponding_charge;
       if (loopDigi->row() < irow_min)
         irow_min = loopDigi->row();
@@ -724,7 +795,7 @@ bool SiPixelChargeReweightingAlgorithm::lateSignalReweight(const PixelGeomDetUni
           (hitPixel.second + col - THY) >= 0 && (hitPixel.second + col - THY) < topol->ncolumns() && charge > 0) {
         chargeAfter += charge;
         theNewDigiSignal[PixelDigi::pixelToChannel(hitPixel.first + row - THX, hitPixel.second + col - THY)] +=
-            SiPixelDigitizerAlgorithm::Amplitude(charge, charge);
+            digitizerUtility::Amplitude(charge, charge);
       }
     }
   }
@@ -750,10 +821,12 @@ bool SiPixelChargeReweightingAlgorithm::lateSignalReweight(const PixelGeomDetUni
     if (i_transformed_row < 0 || i_transformed_row > TXSIZE || i_transformed_col < 0 || i_transformed_col > TYSIZE) {
       // not in the box
       if (chanDigi >= 0 && (*i).second > 0) {
-        theNewDigiSignal[chanDigi] += SiPixelDigitizerAlgorithm::Amplitude((*i).second, (*i).second);
+        theNewDigiSignal[chanDigi] += digitizerUtility::Amplitude((*i).second, (*i).second);
       }
     }
   }
 
   return true;
 }
+
+#endif
