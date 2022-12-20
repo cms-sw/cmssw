@@ -30,7 +30,6 @@
 #include <llvm/ADT/SmallString.h>
 
 #include "ClassChecker.h"
-
 #include <iostream>
 #include <fstream>
 #include <iterator>
@@ -313,8 +312,7 @@ namespace clangcms {
     support::fixAnonNS(mname, sfile);
     std::string tolog = "data class '" + pname + "' const function '" + mname + "' Warning: " + os.str() + ".";
     writeLog(tolog);
-    std::unique_ptr<BugType> BT =
-        std::make_unique<BugType>(Checker, "const_cast used in const function ", "Data Class Const Correctness");
+    BugType *BT = new BugType(Checker, "const_cast used in const function ", "Data Class Const Correctness");
     std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(tolog), CELoc);
     BR.emitReport(std::move(R));
     return;
@@ -359,7 +357,7 @@ namespace clangcms {
         support::fixAnonNS(mname, sfile);
         std::string tolog = "data class '" + pname + "' const function '" + mname + "' Warning: " + os.str();
         writeLog(tolog);
-        std::unique_ptr<BugType> BT = std::make_unique<BugType>(
+        BugType *BT = new BugType(
             Checker, "ClassChecker : non-const static local variable accessed", "Data Class Const Correctness");
         std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), CELoc);
         BR.emitReport(std::move(R));
@@ -380,8 +378,7 @@ namespace clangcms {
         support::fixAnonNS(mname, sfile);
         std::string tolog = "data class '" + pname + "' const function '" + mname + "' Warning: " + os.str();
         writeLog(tolog);
-        std::unique_ptr<BugType> BT = std::make_unique<BugType>(
-            Checker, "Non-const static member variable accessed", "Data Class Const Correctness");
+        BugType *BT = new BugType(Checker, "Non-const static member variable accessed", "Data Class Const Correctness");
         std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), CELoc);
         BR.emitReport(std::move(R));
         return;
@@ -401,8 +398,7 @@ namespace clangcms {
         support::fixAnonNS(mname, sfile);
         std::string tolog = "data class '" + pname + "' const function '" + mname + "' Warning: " + os.str();
         writeLog(tolog);
-        std::unique_ptr<BugType> BT = std::make_unique<BugType>(
-            Checker, "Non-const global static variable accessed", "Data Class Const Correctness");
+        BugType *BT = new BugType(Checker, "Non-const global static variable accessed", "Data Class Const Correctness");
         std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), CELoc);
         BR.emitReport(std::move(R));
         return;
@@ -541,7 +537,7 @@ namespace clangcms {
     if (support::isSafeClassName(support::getQualifiedName(*MD)))
       return;
     writeLog(tolog);
-    std::unique_ptr<BugType> BT = std::make_unique<BugType>(
+    BugType *BT = new BugType(
         Checker, "Non-const member function could modify member data object", "Data Class Const Correctness");
     std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), CELoc);
     BR.emitReport(std::move(R));
@@ -566,8 +562,8 @@ namespace clangcms {
         clang::ento::PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(), AC);
 
     writeLog(tolog);
-    std::unique_ptr<BugType> BT = std::make_unique<BugType>(
-        Checker, "Const cast away from member data in const function", "Data Class Const Correctness");
+    BugType *BT =
+        new BugType(Checker, "Const cast away from member data in const function", "Data Class Const Correctness");
     std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), CELoc);
     BR.emitReport(std::move(R));
   }
@@ -633,10 +629,9 @@ namespace clangcms {
     clang::QualType RTy = Ctx.getCanonicalType(RQT);
     if ((RTy->isPointerType() || RTy->isReferenceType())) {
       if (!support::isConst(RTy)) {
-        std::unique_ptr<BugType> BT = std::make_unique<BugType>(
-            BugType(Checker,
-                    "Const function returns pointer or reference to non-const member data object",
-                    "Data Class Const Correctness"));
+        BugType *BT = new BugType(Checker,
+                                  "Const function returns pointer or reference to non-const member data object",
+                                  "Data Class Const Correctness");
         std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), CELoc);
         BR.emitReport(std::move(R));
       }
@@ -645,10 +640,10 @@ namespace clangcms {
     std::string rtname = RTy.getAsString();
     if ((RTy->isReferenceType() || RTy->isRecordType()) && support::isConst(RTy) &&
         rtname.substr(0, svname.length()) == svname) {
-      std::unique_ptr<BugType> BT = std::make_unique<BugType>(
-          Checker,
-          "Const function returns member data object of type const std::vector<*> or const std::vector<*>&",
-          "Data Class Const Correctness");
+      BugType *BT =
+          new BugType(Checker,
+                      "Const function returns member data object of type const std::vector<*> or const std::vector<*>&",
+                      "Data Class Const Correctness");
       std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), CELoc);
       BR.emitReport(std::move(R));
     }

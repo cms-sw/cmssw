@@ -66,13 +66,11 @@ namespace clangcms {
           os << "'\n";
 
           std::string oname = "operator";
-          //                              if ( fname.substr(0,oname.length()) == oname ) continue;
 
           const clang::ento::PathDiagnosticLocation DLoc =
               clang::ento::PathDiagnosticLocation::createBegin(PVD, ctx.getSourceManager());
 
-          std::unique_ptr<BugType> BT = std::make_unique<clang::ento::BugType>(
-              this, "Function parameter copied by value with size > max", "ArgSize");
+          BugType *BT = new BugType(this, "Function parameter copied by value with size > max", "ArgSize");
           std::unique_ptr<BasicBugReport> report =
               std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), DLoc);
           report->addRange(PVD->getSourceRange());
@@ -112,10 +110,8 @@ namespace clangcms {
          << max_bits << "' bits parameter type '" << pname << "' function '" << fname << "' class '"
          << MD->getParent()->getNameAsString() << "'\n";
       std::string oname = "operator";
-      //             if ( fname.substr(0,oname.length()) == oname ) continue;
 
-      std::unique_ptr<BugType> BT =
-          std::make_unique<clang::ento::BugType>(this, "Function parameter with size > max", "ArgSize");
+      BugType *BT = new BugType(this, "Function parameter with size > max", "ArgSize");
       std::unique_ptr<BasicBugReport> report = std::make_unique<BasicBugReport>(*BT, llvm::StringRef(os.str()), DLoc);
       BR.emitReport(std::move(report));
     }
