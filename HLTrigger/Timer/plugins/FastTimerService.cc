@@ -1067,7 +1067,7 @@ void FastTimerService::postGlobalEndLumi(edm::GlobalContext const& gc) {
       fmt::sprintf("run %d, lumisection %d", gc.luminosityBlockID().run(), gc.luminosityBlockID().luminosityBlock());
   printTransition(out, lumi_transition_[index], label);
 
-  if (enable_dqm_transitions_) {
+  if (enable_dqm_ and enable_dqm_transitions_) {
     plots_->fill_lumi(lumi_transition_[index], gc.luminosityBlockID().luminosityBlock());
   }
 }
@@ -1098,7 +1098,7 @@ void FastTimerService::postGlobalEndRun(edm::GlobalContext const& gc) {
   }
   printTransition(out, run_transition_[index], label);
 
-  if (enable_dqm_transitions_) {
+  if (enable_dqm_ and enable_dqm_transitions_) {
     plots_->fill_run(run_transition_[index]);
   }
 }
