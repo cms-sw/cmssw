@@ -1,19 +1,20 @@
-<use name="DataFormats/DetId"/>
-<use name="DataFormats/EcalDetId"/>
-<use name="DataFormats/EcalRawData"/>
-<use name="FWCore/Utilities"/>
-<use name="FWCore/Framework"/>
-<use name="FWCore/ParameterSet"/>
-<use name="FWCore/ServiceRegistry"/>
-<use name="Geometry/EcalMapping"/>
-<use name="Geometry/CaloTopology"/>
-<use name="Geometry/CaloGeometry"/>
-<use name="Geometry/Records"/>
+<use name="boost"/>
+<use name="rootcore"/>
+<use name="tbb"/>
 <use name="CalibCalorimetry/EcalLaserAnalyzer"/>
 <use name="CondFormats/EcalObjects"/>
 <use name="DQMServices/Core"/>
-<use name="rootcore"/>
-<use name="boost"/>
+<use name="DataFormats/DetId"/>
+<use name="DataFormats/EcalDetId"/>
+<use name="DataFormats/EcalRawData"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
+<use name="Geometry/CaloGeometry"/>
+<use name="Geometry/CaloTopology"/>
+<use name="Geometry/EcalMapping"/>
+<use name="Geometry/Records"/>
 <export>
   <lib name="1"/>
 </export>

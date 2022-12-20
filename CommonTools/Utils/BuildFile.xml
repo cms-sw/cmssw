@@ -1,13 +1,14 @@
+<use name="boost"/>
+<use name="boost_regex"/>
+<use name="roothistmatrix"/>
+<use name="tbb"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/Math"/>
+<use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Reflection"/>
 <use name="FWCore/SOA" source_only="1"/>
 <use name="FWCore/Utilities"/>
-<use name="FWCore/MessageLogger"/>
-<use name="boost"/>
-<use name="boost_regex"/>
-<use name="roothistmatrix"/>
 <export>
   <lib name="1"/>
 </export>

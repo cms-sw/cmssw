@@ -1,25 +1,27 @@
+<use name="stdcxx-fs"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/Utilities"/>
 <use name="GeneratorInterface/LHEInterface"/>
-<use name="stdcxx-fs"/>
+
 <library name="GeneratorInterfaceLHEProducer" file="LHEFilter.cc LHE2HepMCConverter.cc ExternalLHEProducer.cc ExternalLHEAsciiDumper.cc">
+  <use name="tbb"/>
   <use name="FWCore/Framework"/>
   <use name="SimDataFormats/GeneratorProducts"/>
   <flags EDM_PLUGIN="1"/>
 </library>
-<library name="GeneratorInterfaceLHEIO" file="LH5Source.cc LHESource.cc LHEProvenanceHelper.cc LHEWriter.cc">
-	<use name="FWCore/Framework"/>
-	<use name="FWCore/Sources"/>
-        <use name="SimDataFormats/GeneratorProducts"/>
-	<flags EDM_PLUGIN="1"/>
 
+<library name="GeneratorInterfaceLHEIO" file="LH5Source.cc LHESource.cc LHEProvenanceHelper.cc LHEWriter.cc">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/Sources"/>
+  <use name="SimDataFormats/GeneratorProducts"/>
+  <flags EDM_PLUGIN="1"/>
 </library>
 
 <library name="GeneratorInterfaceLHECOMWeightProducer" file="LHECOMWeightProducer.cc">
+  <use name="lhapdf"/>
   <use name="FWCore/Framework"/>
   <use name="SimDataFormats/GeneratorProducts"/>
-  <use name="lhapdf"/>
   <flags EDM_PLUGIN="1"/>
 </library>
