@@ -65,7 +65,7 @@ namespace helper {
       /// Set the reference of the hit of this record to 'newRef',
       /// will not modify the ref stored in this object.
       template <typename RecHitType>
-      void rekey(const ClusterRefType &newRef) const;
+      void rekey(const ClusterRefType &newRef);
 
     private:
       ClusterHitRecord() {}  /// private => unusable
