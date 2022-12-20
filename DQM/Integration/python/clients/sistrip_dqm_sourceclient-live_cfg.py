@@ -666,7 +666,8 @@ if (process.runType.getRunType() == process.runType.hi_run):
 
     # append the approximate clusters monitoring for the HI run case
     from DQM.SiStripMonitorApproximateCluster.SiStripMonitorApproximateCluster_cfi import SiStripMonitorApproximateCluster
-    process.siStripApproximateClusterComparator = SiStripMonitorApproximateCluster.clone(compareClusters = cms.bool(True))
+    process.siStripApproximateClusterComparator = SiStripMonitorApproximateCluster.clone(compareClusters = cms.bool(True),
+                                                                                         ClustersProducer = cms.InputTag("hltSiStripClusterizerForRawPrime"))
     process.p.insert(process.p.index(process.TrackingClient)+1,process.siStripApproximateClusterComparator)
 
 ### process customizations included here
