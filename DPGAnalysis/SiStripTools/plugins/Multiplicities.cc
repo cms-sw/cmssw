@@ -1,4 +1,4 @@
-#include "DPGAnalysis/SiStripTools/interface/Multiplicities.h"
+#include "Multiplicities.h"
 
 ClusterSummarySingleMultiplicity::ClusterSummarySingleMultiplicity()
     : m_subdetenum(ClusterSummary::STRIP), m_varenum(ClusterSummary::NCLUSTERS), m_mult(0), m_collection() {}

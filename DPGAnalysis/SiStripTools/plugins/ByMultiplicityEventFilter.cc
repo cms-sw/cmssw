@@ -37,7 +37,7 @@
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-#include "DPGAnalysis/SiStripTools/interface/Multiplicities.h"
+#include "Multiplicities.h"
 
 //
 // class declaration
