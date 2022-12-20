@@ -31,6 +31,7 @@ class edm(object):
     class errors(object):
         #Allowed errors to used within Python
         Configuration = "{Configuration}"
+        UnavailableAccelerator = "{UnavailableAccelerator}"
 
 class EDMException(Exception):
     def __init__(self, error, message):
