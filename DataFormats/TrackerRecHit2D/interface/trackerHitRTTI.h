@@ -27,16 +27,18 @@ namespace trackerHitRTTI {
   inline bool isProjMono(TrackingRecHit const& hit) { return rtti(hit) == projMono || rtti(hit) == fastProjMono; }
   inline bool isProjStereo(TrackingRecHit const& hit) { return rtti(hit) == projStereo || rtti(hit) == fastProjStereo; }
   inline bool isProjected(TrackingRecHit const& hit) {
-    return ((rtti(hit) == projMono) | (rtti(hit) == projStereo)) ||
-           (rtti(hit) == fastProjMono) | (rtti(hit) == fastProjStereo);
+    return ((rtti(hit) == projMono) || (rtti(hit) == projStereo)) || (rtti(hit) == fastProjMono) ||
+           (rtti(hit) == fastProjStereo);
   }
   inline bool isMatched(TrackingRecHit const& hit) { return rtti(hit) == match || rtti(hit) == fastMatch; }
   inline bool isMulti(TrackingRecHit const& hit) { return rtti(hit) == multi; }
-  inline bool isSingleType(TrackingRecHit const& hit) { return (rtti(hit) > 0) & (rtti(hit) < 4); }
-  inline bool isFromDet(TrackingRecHit const& hit) { return (((rtti(hit) > 0) & (rtti(hit) < 6)) | (rtti(hit) == 12)); }
-  inline bool isFast(TrackingRecHit const& hit) { return (rtti(hit) > 5) & (rtti(hit) <= 9); }
+  inline bool isSingleType(TrackingRecHit const& hit) { return (rtti(hit) > 0) && (rtti(hit) < 4); }
+  inline bool isFromDet(TrackingRecHit const& hit) {
+    return (((rtti(hit) > 0) && (rtti(hit) < 6)) || (rtti(hit) == 12));
+  }
+  inline bool isFast(TrackingRecHit const& hit) { return (rtti(hit) > 5) && (rtti(hit) <= 9); }
   inline bool isFromDetOrFast(TrackingRecHit const& hit) {
-    return (((rtti(hit) > 0) & (rtti(hit) < 10)) | (rtti(hit) == 12));
+    return (((rtti(hit) > 0) && (rtti(hit) < 10)) || (rtti(hit) == 12));
   }
   inline bool isTiming(TrackingRecHit const& hit) { return rtti(hit) == mipTiming; }
   inline bool isVector(TrackingRecHit const& hit) { return rtti(hit) == vector; }
