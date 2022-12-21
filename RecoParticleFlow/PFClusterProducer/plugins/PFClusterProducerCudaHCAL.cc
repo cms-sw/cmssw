@@ -52,7 +52,7 @@ public:
   std::unique_ptr<PFClusterEnergyCorrectorBase> _energyCorrector;
 
 private:
-  void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) override;
+  void beginRun(const edm::Run &, const edm::EventSetup &) override;
   void acquire(edm::Event const &, edm::EventSetup const &, edm::WaitingTaskWithArenaHolder) override;
   void produce(edm::Event &, const edm::EventSetup &) override;
 
@@ -264,7 +264,7 @@ void PFClusterProducerCudaHCAL::fillDescriptions(edm::ConfigurationDescriptions&
   cdesc.addWithDefaultLabel(desc);
 }
 
-void PFClusterProducerCudaHCAL::beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& es) {
+void PFClusterProducerCudaHCAL::beginRun(const edm::Run& run, const edm::EventSetup& es) {
   //initCuda_ = true;  // (Re)initialize cuda arrays
   //KenH: for now comment this out, as we know we don't change the channel status on lumisection basis
 }

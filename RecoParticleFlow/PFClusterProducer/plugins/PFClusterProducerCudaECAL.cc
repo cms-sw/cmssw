@@ -377,7 +377,7 @@ public:
   Int_t nRHperPFCTotal_GPU = 0;
 
 private:
-  void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) override;
+  void beginRun(const edm::Run &, const edm::EventSetup &) override;
   void acquire(edm::Event const &, edm::EventSetup const &, edm::WaitingTaskWithArenaHolder) override;
   void produce(edm::Event &, const edm::EventSetup &) override;
 
@@ -659,7 +659,7 @@ PFClusterProducerCudaECAL::~PFClusterProducerCudaECAL() {
   delete MyFile;
 }
 
-void PFClusterProducerCudaECAL::beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& es) {
+void PFClusterProducerCudaECAL::beginRun(const edm::Run& run, const edm::EventSetup& es) {
   _initialClustering->update(es);
   if (_pfClusterBuilder)
     _pfClusterBuilder->update(es);

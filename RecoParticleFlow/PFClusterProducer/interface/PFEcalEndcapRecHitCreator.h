@@ -34,7 +34,7 @@ public:
         recHitToken_(cc.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"))),
         elecMap_(nullptr),
         geomToken_(cc.esConsumes()),
-        mappingToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {
+        mappingToken_(cc.esConsumes<edm::Transition::BeginRun>()) {
     auto srF = iConfig.getParameter<edm::InputTag>("srFlags");
     if (not srF.label().empty())
       srFlagToken_ = cc.consumes<EESrFlagCollection>(srF);
