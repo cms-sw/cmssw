@@ -607,7 +607,6 @@ bool HGCalDDDConstants::isValidHex8(int layer, int modU, int modV, int cellU, in
                                 << " Tests " << (cellU >= 0) << ":" << (cellU < 2 * N) << ":" << (cellV >= 0) << ":"
                                 << (cellV < 2 * N) << ":" << ((cellV - cellU) < N) << ":" << ((cellU - cellV) <= N);
 #endif
-  //  if (mode_ != HGCalGeometryMode::Hexagon8Cassette) {
   if ((cellU < 0) || (cellU >= 2 * N) || (cellV < 0) || (cellV >= 2 * N)) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants:: Cannot statisfy Cell 1 condition " << cellU << ":" << cellV
@@ -622,7 +621,6 @@ bool HGCalDDDConstants::isValidHex8(int layer, int modU, int modV, int cellU, in
 #endif
     return false;
   }
-  //  }
   return isValidCell8(layer, modU, modV, cellU, cellV, type);
 }
 
