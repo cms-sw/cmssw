@@ -2,21 +2,25 @@
 
 # Pass in name and status
 function die {
-  echo $1: status $2
-  echo === Log file ===
-  cat ${3:-/dev/null}
-  echo === End log file ===
+  printf "\n%s: status %s\n" "$1" "$2"
+  if [ $# -gt 2 ]; then
+    printf "%s\n" "=== Log File =========="
+    cat $3
+    printf "%s\n" "=== End of Log File ==="
+  fi
   exit $2
 }
 
 # run test job
 TESTDIR="${LOCALTOP}"/src/HLTrigger/HLTfilters/test
 
-cmsRun "${TESTDIR}"/triggerResultsFilter_by_PathStatus.py &> log_triggerResultsFilter_by_PathStatus \
- || die "Failure running triggerResultsFilter_by_PathStatus.py" $? log_triggerResultsFilter_by_PathStatus
+cmsRun "${TESTDIR}"/testTriggerResultsFilter_by_PathStatus_cfg.py &> log_testTriggerResultsFilter_by_PathStatus \
+  || die "Failure running testTriggerResultsFilter_by_PathStatus_cfg.py" $? log_testTriggerResultsFilter_by_PathStatus
+
+cat log_testTriggerResultsFilter_by_PathStatus
 
 # expected PathSummary of test job
-cat <<@EOF > log_triggerResultsFilter_by_PathStatus_expected
+cat <<@EOF > log_testTriggerResultsFilter_by_PathStatus_expected
 TrigReport ---------- Event  Summary ------------
 TrigReport Events total = 1000 passed = 1000 failed = 0
 TrigReport ---------- Path   Summary ------------
@@ -58,6 +62,6 @@ TrigReport     1   33       1000       1000          0          0 Check_NOTAlway
 @EOF
 
 # compare to expected output of test job
-grep -m$(cat log_triggerResultsFilter_by_PathStatus_expected | wc -l) \
- 'TrigReport ' log_triggerResultsFilter_by_PathStatus | diff log_triggerResultsFilter_by_PathStatus_expected - \
- || die "differences in expected log report" $?
+grep -m$(cat log_testTriggerResultsFilter_by_PathStatus_expected | wc -l) \
+  'TrigReport ' log_testTriggerResultsFilter_by_PathStatus | diff log_testTriggerResultsFilter_by_PathStatus_expected - \
+  || die "Unexpected differences in outputs of testTriggerResultsFilter_by_PathStatus_cfg.py" $?
