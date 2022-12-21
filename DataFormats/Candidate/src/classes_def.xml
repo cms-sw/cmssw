@@ -117,7 +117,7 @@
   </class>
 
   <class name="reco::CandidateRef" />
-  <class name="reco::CandidatePtr" />
+  <class name="reco::CandidatePtr" /> 
   <class name="reco::CandidateRefVector" />
   <class name="reco::CompositeCandidateRef" />
   <class name="reco::CompositeCandidateRefVector" />
@@ -133,6 +133,7 @@
 
   <class name="std::vector<edm::RefToBase<reco::Candidate> >" />
   <class name="std::vector<edm::Ptr<reco::Candidate> >" />
+  <class name="edm::AtomicPtrCache<std::vector<edm::Ptr<reco::Candidate> > >"/>
   <class name="std::vector<edm::PtrVector<reco::Candidate> >" />
   <class name="edm::reftobase::BaseVectorHolder<reco::Candidate>" />
   <class name="edm::reftobase::BaseVectorHolder<reco::Candidate>::const_iterator_imp" />
