@@ -105,7 +105,7 @@ namespace helper {
                                       edmNew::DetSetVector<ClusterType> &dsvToFill,
                                       edm::RefProd<edmNew::DetSetVector<ClusterType> > &refprod) {
     std::sort(clusterRecords.begin(), clusterRecords.end());  // this sorts them by detid
-    typedef typename std::vector<ClusterHitRecord<typename HitType::ClusterRef> >::const_iterator RIT;
+    typedef typename std::vector<ClusterHitRecord<typename HitType::ClusterRef> >::iterator RIT;
     RIT it = clusterRecords.begin(), end = clusterRecords.end();
     size_t clusters = 0;
     while (it != end) {
@@ -143,7 +143,7 @@ namespace helper {
   // generic rekey (in practise for pixel only...)
   template <typename ClusterRefType>  // template for class
   template <typename RecHitType>      // template for member function
-  void ClusterStorer::ClusterHitRecord<ClusterRefType>::rekey(const ClusterRefType &newRef) const {
+  void ClusterStorer::ClusterHitRecord<ClusterRefType>::rekey(const ClusterRefType &newRef) {
     TrackingRecHit &genericHit = (*hits_)[index_];
     RecHitType *hit = nullptr;
     if (genericHit.geographicalId().rawId() == detid_) {  // a hit on this det, so it's simple
@@ -159,9 +159,7 @@ namespace helper {
   // RecHitType is not used.
   template <>
   template <typename RecHitType>  // or template<> to specialise also here?
-  void ClusterStorer::ClusterHitRecord<SiStripRecHit2D::ClusterRef>::
-      //  rekey<SiStripRecHit2D>(const SiStripRecHit2D::ClusterRef &newRef) const
-      rekey(const SiStripRecHit2D::ClusterRef &newRef) const {
+  void ClusterStorer::ClusterHitRecord<SiStripRecHit2D::ClusterRef>::rekey(const SiStripRecHit2D::ClusterRef &newRef) {
     TrackingRecHit &genericHit = (*hits_)[index_];
     const std::type_info &hit_type = typeid(genericHit);
 
@@ -175,6 +173,30 @@ namespace helper {
       cluRef = (SiStripDetId(detid_).stereo() ? &mhit.stereoClusterRef() : &mhit.monoClusterRef());
     } else if (typeid(ProjectedSiStripRecHit2D) == hit_type) {
       cluRef = &static_cast<ProjectedSiStripRecHit2D &>(genericHit).omniCluster();
+    }
+
+    assert(cluRef != nullptr);            // to catch missing RecHit types
+    assert(cluRef->key() == ref_.key());  // otherwise something went wrong
+    (*cluRef) = OmniClusterRef(newRef);
+  }
+
+  // -------------------------------------------------------------
+  // Specific rekey for class template ClusterRefType = VectorHit::ClusterRef,
+  // RecHitType is not used.
+  template <>
+  template <typename RecHitType>  // or template<> to specialise also here?
+  void ClusterStorer::ClusterHitRecord<VectorHit::ClusterRef>::rekey(const VectorHit::ClusterRef &newRef) {
+    TrackingRecHit &genericHit = (*hits_)[index_];
+    const std::type_info &hit_type = typeid(genericHit);
+
+    OmniClusterRef *cluRef = nullptr;
+    if (typeid(VectorHit) == hit_type) {
+      VectorHit &vHit = static_cast<VectorHit &>(genericHit);
+      // FIXME: this essentially uses a hack
+      // https://github.com/cms-sw/cmssw/blob/master/DataFormats/TrackerCommon/interface/TrackerTopology.h#L291
+      cluRef = (SiStripDetId(detid_).stereo() ? &vHit.upperClusterRef() : &vHit.lowerClusterRef());
+    } else {
+      return;
     }
 
     assert(cluRef != nullptr);            // to catch missing RecHit types
