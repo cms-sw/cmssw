@@ -1,7 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TEST")
+
 process.options.numberOfThreads = 1
+process.options.numberOfStreams = 0
 process.options.wantSummary = True
 process.maxEvents.input = 100
 
@@ -140,12 +142,12 @@ process.Dataset_TestDatasetX = cms.Path( process.HLTDatasetPathBeginSequence + p
 process.Dataset_TestDatasetY = cms.Path( process.HLTDatasetPathBeginSequence + process.hltDatasetTestDatasetY + process.hltPreDatasetTestDatasetY )
 
 process.schedule = cms.Schedule(
-  process.HLTriggerFirstPath,
-  process.HLT_TestPathA_v1,
-  process.HLT_TestPathB_v1,
-  process.HLT_TestPathC_v1,
-  process.HLTriggerFinalPath,
-  process.RatesMonitoring,
-  process.Dataset_TestDatasetX,
-  process.Dataset_TestDatasetY
+    process.HLTriggerFirstPath,
+    process.HLT_TestPathA_v1,
+    process.HLT_TestPathB_v1,
+    process.HLT_TestPathC_v1,
+    process.HLTriggerFinalPath,
+    process.RatesMonitoring,
+    process.Dataset_TestDatasetX,
+    process.Dataset_TestDatasetY
 )

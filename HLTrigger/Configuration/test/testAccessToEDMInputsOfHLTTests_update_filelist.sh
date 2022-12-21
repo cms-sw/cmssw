@@ -69,7 +69,7 @@ function edmFileIsAvailable() {
 
 printf "%s\n" "-------------------------"
 printf "%s\n" "Checking availability of EDM files..."
-printf "%s\n" "(checks whether the file is in ibeos cache, or can be accessed remotely via global redirector)"
+printf "%s\n" "(checks whether the file is in the ibeos cache, or it can be accessed remotely via the redirector cms-xrd-global.cern.ch)"
 
 for inputFile in $(cat "${TMPFILE1}" | sort -u); do
   printf '\e[1;34m%-20s\e[m %s\033[0K\r' "[Checking...]" "${inputFile}"

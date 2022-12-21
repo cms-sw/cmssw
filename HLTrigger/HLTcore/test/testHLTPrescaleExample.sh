@@ -9,5 +9,5 @@ function die {
 # run test job
 TESTDIR="${LOCALTOP}"/src/HLTrigger/HLTcore/test
 
-cmsRun "${TESTDIR}"/testTriggerEventAnalyzers_cfg.py \
-  || die "Failure running testTriggerEventAnalyzers_cfg.py" $?
+cmsRun "${TESTDIR}"/testHLTPrescaleExample_cfg.py \
+  || die "Failure running testHLTPrescaleExample_cfg.py" $?
