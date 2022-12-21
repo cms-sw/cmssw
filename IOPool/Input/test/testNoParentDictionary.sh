@@ -10,6 +10,7 @@ cd $SCRAM_TEST_NAME
 # Create a new CMSSW dev area
 OLD_CMSSW_BASE=${CMSSW_BASE}
 LD_LIBRARY_PATH_TO_OLD=$(echo $LD_LIBRARY_PATH | tr ':' '\n' | grep "^${CMSSW_BASE}/" | tr '\n' ':')
+PYTHON3PATH_TO_OLD=$(echo $PYTHON3PATH | tr ':' '\n' | grep "^${CMSSW_BASE}/" | tr '\n' ':')
 scram -a $SCRAM_ARCH project $CMSSW_VERSION
 pushd $CMSSW_VERSION/src
 eval `scram run -sh`
@@ -34,8 +35,9 @@ scram build -j $(nproc)
 popd
 
 # Add OLD_CMSSW_BASE in between CMSSW_BASE and CMSSW_RELEASE_BASE for
-# LD_LIBRARY_PATH and ROOT_INCLUDE_PATH
+# LD_LIBRARY_PATH, PYTHON3PATH, and ROOT_INCLUDE_PATH
 export LD_LIBRARY_PATH=$(echo -n ${LD_LIBRARY_PATH} | sed -e "s|${CMSSW_BASE}/external/${SCRAM_ARCH}/lib:|${CMSSW_BASE}/external/${SCRAM_ARCH}/lib:${LD_LIBRARY_PATH_TO_OLD}:|")
+export PYTHON3PATH=$(echo -n ${PYTHON3PATH} | sed -e "s|${CMSSW_BASE}/lib/${SCRAM_ARCH}:|${CMSSW_BASE}/lib/${SCRAM_ARCH}::${PYTHON3PATH_TO_OLD}:|")
 export ROOT_INCLUDE_PATH=$(echo -n ${ROOT_INCLUDE_PATH} | sed -e "s|${CMSSW_BASE}/src:|${CMSSW_BASE}/src:${OLD_CMSSW_BASE}/src:|")
 
 echo "Produce a file with TransientIntParentT<1> product"
