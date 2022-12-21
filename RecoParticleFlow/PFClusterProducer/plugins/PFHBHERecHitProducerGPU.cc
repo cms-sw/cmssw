@@ -275,19 +275,42 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
   //auto const& pulseOffsets = setup.getData(recoParamsToken_);
   //auto const& pulseOffsetsProduct = pulseOffsets.getProduct(ctx.stream());
   recHitParametersHandle_ = setup.getHandle(recoParamsToken_);
-  auto const& recHitParametersProduct = recHitParametersHandle_->getProduct(ctx.stream());
+  //auto const& recHitParametersProduct2 = recHitParametersHandle_->getProduct(ctx.stream()); // to be passed to CUDA
 
+  auto const& recHitParams = setup.getData(recoParamsToken_);
+  auto const& recHitParamsProduct = recHitParams.getProduct(ctx.stream());
+  
   std::cout << (recHitParametersHandle_->getValuesdepthHB())[0] << std::endl;
   std::cout << (recHitParametersHandle_->getValuesdepthHB())[1] << std::endl;
   std::cout << (recHitParametersHandle_->getValuesdepthHB())[2] << std::endl;
   std::cout << (recHitParametersHandle_->getValuesdepthHB())[3] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesdepthHB()).size() << std::endl;
+  
+  std::cout << (recHitParams.getValuesdepthHB()).size() << std::endl;
 
   std::cout << (recHitParametersHandle_->getValuesdepthHE())[0] << std::endl;
   std::cout << (recHitParametersHandle_->getValuesdepthHE())[1] << std::endl;
   std::cout << (recHitParametersHandle_->getValuesdepthHE())[2] << std::endl;
   std::cout << (recHitParametersHandle_->getValuesdepthHE())[3] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesdepthHE())[4] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesdepthHE())[5] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesdepthHE())[6] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesdepthHE()).size() << std::endl;
 
-  std::cout << recHitParametersProduct.valuesdepthHB[0] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesthresholdE_HB())[0] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesthresholdE_HB())[1] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesthresholdE_HB())[2] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesthresholdE_HB())[3] << std::endl;
+
+  std::cout << (recHitParametersHandle_->getValuesthresholdE_HE())[0] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesthresholdE_HE())[1] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesthresholdE_HE())[2] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesthresholdE_HE())[3] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesthresholdE_HE())[4] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesthresholdE_HE())[5] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesthresholdE_HE())[6] << std::endl;
+
+  std::cout << "init starts" << std::endl;
   
   if (initCuda) {
     // Initialize persistent arrays for rechit positions
@@ -348,15 +371,29 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
     //   cudaCheck(cudaStreamSynchronize(ctx.stream()));
 
     initCuda = false;
+    
   }
 
+  std::cout << "init done" << std::endl; 
+  
   if (num_rechits == 0) return; // if no rechit, there is nothing to do.
 
   outputGPU.allocate(num_rechits, ctx.stream());
 
+  // bundle up constants
+  PFRecHit::HCAL::ConstantProducts constantProducts{
+        recHitParamsProduct,
+	recHitParams.getValuesdepthHB(),
+	recHitParams.getValuesdepthHE(),
+	recHitParams.getValuesthresholdE_HB(),
+	recHitParams.getValuesthresholdE_HE()
+	  };
+  
   // Entry point for GPU calls
   GPU_timers.fill(0.0);
-  PFRecHit::HCAL::entryPoint(HBHERecHitSoA, cudaConstants, outputGPU, persistentDataGPU, scratchDataGPU, ctx.stream(), GPU_timers);
+  PFRecHit::HCAL::entryPoint(HBHERecHitSoA, cudaConstants,
+			     constantProducts,
+			     outputGPU, persistentDataGPU, scratchDataGPU, ctx.stream(), GPU_timers);
 
   // if (cudaStreamQuery(ctx.stream()) != cudaSuccess)
   //   cudaCheck(cudaStreamSynchronize(ctx.stream()));

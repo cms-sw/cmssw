@@ -10,6 +10,7 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 #include "DeclsForKernels.h"
 #include "SimplePFGPUAlgos.h"
+//#include "RecoParticleFlow/PFClusterProducer/interface/PFHBHERecHitParamsGPU.h"
 
 // Uncomment for debug mode
 //#define DEBUG_ENABLE
@@ -374,6 +375,10 @@ namespace PFRecHit {
 	  bool found = false;
 	  for (uint32_t j=0; j<4; j++){
 	    if (depth == constantsGPU_d.qTestDepthHB[j]){
+	      printf("aa %6d %8.2f\n",
+		     constantsGPU_d.qTestDepthHB[j],
+		     constantsGPU_d.qTestThreshVsDepthHB[j]);
+	      //recHitParametersProduct.valuesdepthHB[j]);
 	      threshold = constantsGPU_d.qTestThreshVsDepthHB[j];
 	      found = true; // found depth and threshold
 	    }
@@ -627,12 +632,19 @@ namespace PFRecHit {
 
     void entryPoint(::hcal::RecHitCollection<::calo::common::DevStoragePolicy> const& HBHERecHits_asInput,
 		    const PFRecHit::HCAL::Constants& cudaConstants,
+		    ConstantProducts const& constantProducts,
+		    //const PFRecHit::HCAL::ConstantProducts& constantProducts,
+		    //const PFHBHERecHitParamsGPU::Product& recHitParametersProduct,
+		    //const std::vector<int, cms::cuda::HostAllocator<int>>& depthHB,
                     OutputPFRecHitDataGPU& HBHEPFRecHits_asOutput,
                     PersistentDataGPU& persistentDataGPU,
                     ScratchDataGPU& scratchDataGPU,
                     cudaStream_t cudaStream,
                     std::array<float, 5>& timer) {
 
+      //printf("bb %8d\n",recHitParametersProduct.valuesdepthHB[1]);
+      printf("bb %8d\n",constantProducts.depthHB[1]);
+      
       uint32_t nRHIn = HBHERecHits_asInput.size;  // Number of input rechits
       if (nRHIn == 0) {
         HBHEPFRecHits_asOutput.PFRecHits.size = 0;

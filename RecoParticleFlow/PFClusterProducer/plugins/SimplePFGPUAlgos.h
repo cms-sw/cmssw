@@ -4,6 +4,7 @@
 #include <array>
 
 #include "CUDADataFormats/EcalRecHitSoA/interface/EcalUncalibratedRecHit.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFHBHERecHitParamsGPU.h"
 
 #include "DeclsForKernels.h"
 
@@ -13,6 +14,7 @@ namespace PFRecHit {
 
     void entryPoint(::hcal::RecHitCollection<::calo::common::DevStoragePolicy> const&,
 		    const PFRecHit::HCAL::Constants&,
+		    const PFRecHit::HCAL::ConstantProducts&,
                     OutputPFRecHitDataGPU&,
                     PersistentDataGPU&,
                     ScratchDataGPU&,
