@@ -244,12 +244,6 @@ modifyHLTforEras(%(process)s)
     if not self.config.fragment:
       self.build_source()
 
-    # manual override some parameters
-    if self.config.type in ('HIon', ):
-      if self.config.data:
-        if not self.config.fragment:
-          self._fix_parameter( type = 'InputTag', value = 'rawDataCollector',  replace = 'rawDataRepacker')
-
     # if requested, remove the HLT prescales
     self.fixPrescales()
 
