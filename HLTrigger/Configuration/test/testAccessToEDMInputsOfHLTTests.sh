@@ -2,10 +2,7 @@
 
 # Pass in name and status
 function die {
-  echo $1: status $2
-  echo === Log file ===
-  cat ${3:-/dev/null}
-  echo === End log file ===
+  printf "\n%s: status %s\n" "$1" "$2"
   exit $2
 }
 
@@ -15,15 +12,13 @@ TESTDIR="${LOCALTOP}"/src/HLTrigger/Configuration/test
 inputFileList="${TESTDIR}"/testAccessToEDMInputsOfHLTTests_filelist.txt
 
 if [ ! -f "${inputFileList}" ]; then
-  printf "%s\n" "ERROR -- invalid path to file listing EDM input files: ${inputFileList}"
+  printf "\n%s\n" "ERROR -- invalid path to file listing EDM input files:"
+  printf "%s\n"   "         ${inputFileList}"
   exit 1
 fi
 
-LOGFILE=log_testAccessToEDMInputsOfHLTTests
-
-rm -f "${LOGFILE}"
 for inputFile in $(cat "${inputFileList}"); do
-  cmsRun "${TESTDIR}"/testAccessToEDMInputsOfHLTTests_cfg.py inputFiles="${inputFile}" &>> "${LOGFILE}" \
-    || die "Failure running testAccessToEDMInputsOfHLTTests_cfg.py" $? "${LOGFILE}"
+  cmsRun "${TESTDIR}"/testAccessToEDMInputsOfHLTTests_cfg.py inputFiles="${inputFile}" \
+    || die "Failure running testAccessToEDMInputsOfHLTTests_cfg.py" $?
 done
 unset inputFile

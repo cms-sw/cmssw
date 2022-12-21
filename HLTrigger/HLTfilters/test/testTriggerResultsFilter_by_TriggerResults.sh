@@ -2,24 +2,30 @@
 
 # Pass in name and status
 function die {
-  echo $1: status $2
-  echo === Log file ===
-  cat ${3:-/dev/null}
-  echo === End log file ===
+  printf "\n%s: status %s\n" "$1" "$2"
+  if [ $# -gt 2 ]; then
+    printf "%s\n" "=== Log File =========="
+    cat $3
+    printf "%s\n" "=== End of Log File ==="
+  fi
   exit $2
 }
 
 # run test job
 TESTDIR="${LOCALTOP}"/src/HLTrigger/HLTfilters/test
 
-cmsRun "${TESTDIR}"/triggerResultsFilter_producer.py &> log_triggerResultsFilter_producer \
-  || die "Failure running triggerResultsFilter_producer.py" $? log_triggerResultsFilter_producer
+cmsRun "${TESTDIR}"/testTriggerResultsFilter_producer_cfg.py &> log_testTriggerResultsFilter_producer \
+  || die "Failure running testTriggerResultsFilter_producer_cfg.py" $? log_testTriggerResultsFilter_producer
 
-cmsRun "${TESTDIR}"/triggerResultsFilter_by_TriggerResults.py &> log_triggerResultsFilter_by_TriggerResults \
- || die "Failure running triggerResultsFilter_by_TriggerResults.py" $? log_triggerResultsFilter_by_TriggerResults
+cat log_testTriggerResultsFilter_producer
+
+cmsRun "${TESTDIR}"/testTriggerResultsFilter_by_TriggerResults_cfg.py &> log_testTriggerResultsFilter_by_TriggerResults \
+  || die "Failure running testTriggerResultsFilter_by_TriggerResults_cfg.py" $? log_testTriggerResultsFilter_by_TriggerResults
+
+cat log_testTriggerResultsFilter_by_TriggerResults
 
 # expected PathSummary of test job
-cat <<@EOF > log_triggerResultsFilter_by_TriggerResults_expected
+cat <<@EOF > log_testTriggerResultsFilter_by_TriggerResults_expected
 TrigReport ---------- Event  Summary ------------
 TrigReport Events total = 1000 passed = 1000 failed = 0
 TrigReport ---------- Path   Summary ------------
@@ -53,6 +59,6 @@ TrigReport     1   25       1000          0       1000          0 path_false_pat
 @EOF
 
 # compare to expected output of test job
-grep -m$(cat log_triggerResultsFilter_by_TriggerResults_expected | wc -l) \
- 'TrigReport ' log_triggerResultsFilter_by_TriggerResults | diff log_triggerResultsFilter_by_TriggerResults_expected - \
- || die "differences in expected log report" $?
+grep -m$(cat log_testTriggerResultsFilter_by_TriggerResults_expected | wc -l) \
+  'TrigReport ' log_testTriggerResultsFilter_by_TriggerResults | diff log_testTriggerResultsFilter_by_TriggerResults_expected - \
+  || die "Unexpected differences in outputs of testTriggerResultsFilter_by_TriggerResults_cfg.py" $?
