@@ -11,6 +11,7 @@ options.setDefault('inputFiles', [
 options.setDefault('maxEvents', 10)
 options.parseArguments()
 
+## Process
 process = cms.Process('TEST')
 
 process.options.numberOfThreads = 1
@@ -22,15 +23,13 @@ process.maxEvents.input = options.maxEvents
 process.source = cms.Source('PoolSource',
   fileNames = cms.untracked.vstring(options.inputFiles)
 )
-print('process.source.fileNames =', process.source.fileNames.value())
 
 ## GlobalTag
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
-print('process.GlobalTag.globaltag =', process.GlobalTag.globaltag.value())
 
-## EventData modules
+## EventData Modules
 from HLTrigger.HLTcore.hltEventAnalyzerAOD_cfi import hltEventAnalyzerAOD as _hltEventAnalyzerAOD
 process.triggerEventAnalyzer = _hltEventAnalyzerAOD.clone(
   processName = 'HLT',
