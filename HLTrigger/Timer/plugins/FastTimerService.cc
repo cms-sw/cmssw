@@ -259,7 +259,7 @@ FastTimerService::ResourcesPerProcess FastTimerService::ResourcesPerProcess::ope
 
 FastTimerService::ResourcesPerJob::ResourcesPerJob(ProcessCallGraph const& job,
                                                    std::vector<GroupOfModules> const& groups)
-    : total(), overhead(), eventsetup(), event(), highlight(groups.size()), modules(job.size()), processes(), events(0) {
+    : highlight{groups.size()}, modules{job.size()}, events{0} {
   processes.reserve(job.processes().size());
   for (auto const& process : job.processes())
     processes.emplace_back(process);
@@ -268,6 +268,7 @@ FastTimerService::ResourcesPerJob::ResourcesPerJob(ProcessCallGraph const& job,
 void FastTimerService::ResourcesPerJob::reset() {
   total.reset();
   overhead.reset();
+  idle.reset();
   eventsetup.reset();
   event.reset();
   for (auto& module : highlight)
@@ -282,6 +283,7 @@ void FastTimerService::ResourcesPerJob::reset() {
 FastTimerService::ResourcesPerJob& FastTimerService::ResourcesPerJob::operator+=(ResourcesPerJob const& other) {
   total += other.total;
   overhead += other.overhead;
+  idle += other.idle;
   eventsetup += other.eventsetup;
   event += other.event;
   assert(highlight.size() == other.highlight.size());
@@ -685,7 +687,7 @@ void FastTimerService::PlotsPerProcess::fill(ProcessCallGraph::ProcessType const
 }
 
 FastTimerService::PlotsPerJob::PlotsPerJob(ProcessCallGraph const& job, std::vector<GroupOfModules> const& groups)
-    : event_(), event_ex_(), overhead_(), highlight_(groups.size()), modules_(job.size()), processes_() {
+    : highlight_{groups.size()}, modules_{job.size()} {
   processes_.reserve(job.processes().size());
   for (auto const& process : job.processes())
     processes_.emplace_back(process);
@@ -706,10 +708,9 @@ void FastTimerService::PlotsPerJob::book(dqm::reco::DQMStore::IBooker& booker,
 
   // event summary plots
   event_.book(booker, "event", "Event", event_ranges, lumisections, byls);
-
   event_ex_.book(booker, "explicit", "Event (explicit)", event_ranges, lumisections, byls);
-
   overhead_.book(booker, "overhead", "Overhead", event_ranges, lumisections, byls);
+  idle_.book(booker, "idle", "Idle", event_ranges, lumisections, byls);
 
   modules_[job.source().id()].book(booker, "source", "Source", module_ranges, lumisections, byls);
 
@@ -748,6 +749,7 @@ void FastTimerService::PlotsPerJob::fill(ProcessCallGraph const& job, ResourcesP
   event_.fill(data.total, ls);
   event_ex_.fill(data.event, ls);
   overhead_.fill(data.overhead, ls);
+  idle_.fill(data.idle, ls);
 
   // fill highltight plots
   for (unsigned int group : boost::irange(0ul, highlight_.size()))
@@ -1092,7 +1094,7 @@ void FastTimerService::postGlobalEndRun(edm::GlobalContext const& gc) {
     return;
 
   edm::LogVerbatim out("FastReport");
-  auto const& label = fmt::sprintf("Run %d", gc.luminosityBlockID().run());
+  auto const& label = fmt::sprintf("run %d", gc.luminosityBlockID().run());
   if (print_run_summary_) {
     printSummary(out, run_summary_[index], label);
   }
@@ -1103,11 +1105,13 @@ void FastTimerService::postGlobalEndRun(edm::GlobalContext const& gc) {
   }
 }
 
-void FastTimerService::preSourceRun(edm::RunIndex index) { thread().measure_and_accumulate(overhead_); }
+void FastTimerService::preSourceRun(edm::RunIndex index) { thread().measure_and_accumulate(job_summary_.overhead); }
 
 void FastTimerService::postSourceRun(edm::RunIndex index) { thread().measure_and_accumulate(run_transition_[index]); }
 
-void FastTimerService::preSourceLumi(edm::LuminosityBlockIndex index) { thread().measure_and_accumulate(overhead_); }
+void FastTimerService::preSourceLumi(edm::LuminosityBlockIndex index) {
+  thread().measure_and_accumulate(job_summary_.overhead);
+}
 
 void FastTimerService::postSourceLumi(edm::LuminosityBlockIndex index) {
   thread().measure_and_accumulate(lumi_transition_[index]);
@@ -1117,6 +1121,7 @@ void FastTimerService::postEndJob() {
   // stop observing to avoid potential race conditions at exit
   tbb::task_scheduler_observer::observe(false);
   guard_.finalize();
+  // print the job summaries
   if (print_job_summary_) {
     edm::LogVerbatim out("FastReport");
     printSummary(out, job_summary_, "Job");
@@ -1336,8 +1341,9 @@ void FastTimerService::printSummary(T& out, ResourcesPerJob const& data, std::st
     }
   }
   printSummaryLine(out, data.total, data.events, "total");
-  printSummaryLine(out, data.overhead, data.events, "other");
   printSummaryLine(out, data.eventsetup, data.events, "eventsetup");
+  printSummaryLine(out, data.overhead, data.events, "other");
+  printSummaryLine(out, data.idle, data.events, "idle");
   out << '\n';
   printPathSummaryHeader(out, "Processes and Paths");
   printSummaryLine(out, source.total, data.events, source_d.moduleLabel());
@@ -1357,8 +1363,9 @@ void FastTimerService::printSummary(T& out, ResourcesPerJob const& data, std::st
     }
   }
   printSummaryLine(out, data.total, data.events, "total");
-  printSummaryLine(out, data.overhead, data.events, "other");
   printSummaryLine(out, data.eventsetup, data.events, "eventsetup");
+  printSummaryLine(out, data.overhead, data.events, "other");
+  printSummaryLine(out, data.idle, data.events, "idle");
   out << '\n';
   for (unsigned int group : boost::irange(0ul, highlight_modules_.size())) {
     printSummaryHeader(out, "Highlighted modules", true);
@@ -1406,8 +1413,10 @@ void FastTimerService::writeSummaryJSON(ResourcesPerJob const& data, std::string
                                 json{{"mem_free", "deallocated memory"}}});
 
   // write the resources used by the job
-  j["total"] = encodeToJSON(
-      "Job", callgraph_.processDescription(0).name_, data.events, data.total + data.overhead + data.eventsetup);
+  j["total"] = encodeToJSON("Job",
+                            callgraph_.processDescription(0).name_,
+                            data.events,
+                            data.total + data.eventsetup + data.overhead + data.idle);
 
   // write the resources used by every module
   j["modules"] = json::array();
@@ -1417,9 +1426,10 @@ void FastTimerService::writeSummaryJSON(ResourcesPerJob const& data, std::string
     j["modules"].push_back(encodeToJSON(module, data_m));
   }
 
-  // add an entry for the "overhead"
+  // add an entry for the non-event transitions, modules, and idle states
   j["modules"].push_back(encodeToJSON("other", "other", data.events, data.overhead));
   j["modules"].push_back(encodeToJSON("eventsetup", "eventsetup", data.events, data.eventsetup));
+  j["modules"].push_back(encodeToJSON("idle", "idle", data.events, data.idle));
 
   std::ofstream out(filename);
   out << std::setw(2) << j << std::flush;
@@ -1623,7 +1633,7 @@ void FastTimerService::postEventReadFromSource(edm::StreamContext const& sc, edm
 }
 
 void FastTimerService::preModuleGlobalBeginRun(edm::GlobalContext const& gc, edm::ModuleCallingContext const& mcc) {
-  thread().measure_and_accumulate(overhead_);
+  thread().measure_and_accumulate(job_summary_.overhead);
 }
 
 void FastTimerService::postModuleGlobalBeginRun(edm::GlobalContext const& gc, edm::ModuleCallingContext const& mcc) {
@@ -1632,7 +1642,7 @@ void FastTimerService::postModuleGlobalBeginRun(edm::GlobalContext const& gc, ed
 }
 
 void FastTimerService::preModuleGlobalEndRun(edm::GlobalContext const& gc, edm::ModuleCallingContext const& mcc) {
-  thread().measure_and_accumulate(overhead_);
+  thread().measure_and_accumulate(job_summary_.overhead);
 }
 
 void FastTimerService::postModuleGlobalEndRun(edm::GlobalContext const& gc, edm::ModuleCallingContext const& mcc) {
@@ -1641,7 +1651,7 @@ void FastTimerService::postModuleGlobalEndRun(edm::GlobalContext const& gc, edm:
 }
 
 void FastTimerService::preModuleGlobalBeginLumi(edm::GlobalContext const& gc, edm::ModuleCallingContext const& mcc) {
-  thread().measure_and_accumulate(overhead_);
+  thread().measure_and_accumulate(job_summary_.overhead);
 }
 
 void FastTimerService::postModuleGlobalBeginLumi(edm::GlobalContext const& gc, edm::ModuleCallingContext const& mcc) {
@@ -1650,7 +1660,7 @@ void FastTimerService::postModuleGlobalBeginLumi(edm::GlobalContext const& gc, e
 }
 
 void FastTimerService::preModuleGlobalEndLumi(edm::GlobalContext const& gc, edm::ModuleCallingContext const& mcc) {
-  thread().measure_and_accumulate(overhead_);
+  thread().measure_and_accumulate(job_summary_.overhead);
 }
 
 void FastTimerService::postModuleGlobalEndLumi(edm::GlobalContext const& gc, edm::ModuleCallingContext const& mcc) {
@@ -1659,7 +1669,7 @@ void FastTimerService::postModuleGlobalEndLumi(edm::GlobalContext const& gc, edm
 }
 
 void FastTimerService::preModuleStreamBeginRun(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
-  thread().measure_and_accumulate(overhead_);
+  thread().measure_and_accumulate(job_summary_.overhead);
 }
 
 void FastTimerService::postModuleStreamBeginRun(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
@@ -1668,7 +1678,7 @@ void FastTimerService::postModuleStreamBeginRun(edm::StreamContext const& sc, ed
 }
 
 void FastTimerService::preModuleStreamEndRun(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
-  thread().measure_and_accumulate(overhead_);
+  thread().measure_and_accumulate(job_summary_.overhead);
 }
 
 void FastTimerService::postModuleStreamEndRun(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
@@ -1677,7 +1687,7 @@ void FastTimerService::postModuleStreamEndRun(edm::StreamContext const& sc, edm:
 }
 
 void FastTimerService::preModuleStreamBeginLumi(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
-  thread().measure_and_accumulate(overhead_);
+  thread().measure_and_accumulate(job_summary_.overhead);
 }
 
 void FastTimerService::postModuleStreamBeginLumi(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
@@ -1686,7 +1696,7 @@ void FastTimerService::postModuleStreamBeginLumi(edm::StreamContext const& sc, e
 }
 
 void FastTimerService::preModuleStreamEndLumi(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
-  thread().measure_and_accumulate(overhead_);
+  thread().measure_and_accumulate(job_summary_.overhead);
 }
 
 void FastTimerService::postModuleStreamEndLumi(edm::StreamContext const& sc, edm::ModuleCallingContext const& mcc) {
@@ -1725,8 +1735,8 @@ bool FastTimerService::ThreadGuard::register_thread(FastTimerService::AtomicReso
   auto ptr = ::pthread_getspecific(key_);
 
   if (not ptr) {
-    auto p = thread_resources_.emplace_back(std::make_shared<specific_t>(r));
-    auto pp = new std::shared_ptr<specific_t>(*p);
+    auto it = thread_resources_.emplace_back(std::make_shared<specific_t>(r));
+    auto pp = new std::shared_ptr<specific_t>(*it);
     auto err = ::pthread_setspecific(key_, pp);
     if (err) {
       throw cms::Exception("FastTimerService") << "ThreadGuard pthread_setspecific failed: " << ::strerror(err);
@@ -1766,13 +1776,25 @@ FastTimerService::Measurement& FastTimerService::ThreadGuard::thread() {
 }
 
 void FastTimerService::on_scheduler_entry(bool worker) {
-  if (guard_.register_thread(overhead_)) {
+  // The AtomicResources passed to register_thread are used to account the resources
+  // used or freed by the thread after the last active measurement and before leaving the TBB pool.
+  if (guard_.register_thread(job_summary_.idle)) {
     // initialise the measurement point for a thread that has newly joined the TBB pool
     thread().measure();
+  } else {
+    // An existing thread is re-joining the TBB pool.
+    // Note: unsure whether the resources used outside of the TBB pool should be
+    //   - not accounted:       thread().measure()
+    //   - considered as idle:  thread().measure_and_accumulate(job_summary_.idle)
+    //   - considered as other: thread().measure_and_accumulate(job_summary_.overhead)
+    thread().measure_and_accumulate(job_summary_.overhead);
   }
 }
 
-void FastTimerService::on_scheduler_exit(bool worker) {}
+void FastTimerService::on_scheduler_exit(bool worker) {
+  // Account for the resources used or freed by the thread after the last active measurement and before leaving the TBB pool.
+  thread().measure_and_accumulate(job_summary_.idle);
+}
 
 FastTimerService::Measurement& FastTimerService::thread() { return guard_.thread(); }
 

@@ -103,7 +103,7 @@ private:
   void preModuleEventPrefetching(edm::StreamContext const&, edm::ModuleCallingContext const&);
   void postModuleEventPrefetching(edm::StreamContext const&, edm::ModuleCallingContext const&);
 
-  // these signal pairs are guaranteed to be called within the same thread
+  // these signal pairs are guaranteed to be called from the same thread
 
   //void preOpenFile(std::string const&, bool);
   //void postOpenFile(std::string const&, bool);
@@ -312,6 +312,7 @@ private:
     Resources total;
     AtomicResources overhead;
     AtomicResources eventsetup;
+    AtomicResources idle;
     Resources event;  // total time etc. spent between preSourceEvent and postEvent
     Measurement event_measurement;
     std::vector<Resources> highlight;
@@ -432,6 +433,7 @@ private:
     PlotsPerElement event_;
     PlotsPerElement event_ex_;
     PlotsPerElement overhead_;
+    PlotsPerElement idle_;
     // resources spent in the modules' lumi and run transitions
     PlotsPerElement lumi_;
     PlotsPerElement run_;
@@ -455,7 +457,6 @@ private:
   // per-lumi and per-run information
   std::vector<AtomicResources> lumi_transition_;  // resources spent in the modules' global and stream lumi transitions
   std::vector<AtomicResources> run_transition_;   // resources spent in the modules' global and stream run transitions
-  AtomicResources overhead_;                      // resources spent outside of the modules' transitions
 
   // summary data
   ResourcesPerJob job_summary_;               // whole event time accounting per-job
