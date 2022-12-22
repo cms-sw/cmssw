@@ -5381,7 +5381,7 @@ process.ThroughputService = cms.Service( "ThroughputService",
 )
 
 process.hltGetRaw = cms.EDAnalyzer( "HLTGetRaw",
-    RawDataCollection = cms.InputTag( "rawDataRepacker" )
+    RawDataCollection = cms.InputTag( "rawDataCollector" )
 )
 process.hltPSetMap = cms.EDProducer( "ParameterSetBlobProducer" )
 process.hltBoolFalse = cms.EDFilter( "HLTBool",
@@ -5402,7 +5402,7 @@ process.hltGtStage2Digis = cms.EDProducer( "L1TRawToDigi",
     TMTCheck = cms.bool( True ),
     CTP7 = cms.untracked.bool( False ),
     MTF7 = cms.untracked.bool( False ),
-    InputLabel = cms.InputTag( "rawDataRepacker" ),
+    InputLabel = cms.InputTag( "rawDataCollector" ),
     lenSlinkHeader = cms.untracked.int32( 8 ),
     lenSlinkTrailer = cms.untracked.int32( 8 ),
     lenAMCHeader = cms.untracked.int32( 8 ),
@@ -5440,10 +5440,10 @@ process.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
     TriggerMenuLuminosity = cms.string( "startup" )
 )
 process.hltScalersRawToDigi = cms.EDProducer( "ScalersRawToDigi",
-    scalersInputTag = cms.InputTag( "rawDataRepacker" )
+    scalersInputTag = cms.InputTag( "rawDataCollector" )
 )
 process.hltOnlineMetaDataDigis = cms.EDProducer( "OnlineMetaDataRawToDigi",
-    onlineMetaDataInputLabel = cms.InputTag( "rawDataRepacker" )
+    onlineMetaDataInputLabel = cms.InputTag( "rawDataCollector" )
 )
 process.hltOnlineBeamSpot = cms.EDProducer( "BeamSpotOnlineProducer",
     changeToCMSCoordinates = cms.bool( False ),
@@ -5470,7 +5470,7 @@ process.hltPreEcalCalibration = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltEcalCalibrationRaw = cms.EDProducer( "EvFFEDSelector",
-    inputTag = cms.InputTag( "rawDataRepacker" ),
+    inputTag = cms.InputTag( "rawDataCollector" ),
     fedList = cms.vuint32( 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654, 1024 )
 )
 process.hltPreHcalCalibration = cms.EDFilter( "HLTPrescaler",
@@ -5478,11 +5478,11 @@ process.hltPreHcalCalibration = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltHcalCalibTypeFilter = cms.EDFilter( "HLTHcalCalibTypeFilter",
-    InputTag = cms.InputTag( "rawDataRepacker" ),
+    InputTag = cms.InputTag( "rawDataCollector" ),
     CalibTypes = cms.vint32( 1, 2, 3, 4, 5, 6 )
 )
 process.hltHcalCalibrationRaw = cms.EDProducer( "EvFFEDSelector",
-    inputTag = cms.InputTag( "rawDataRepacker" ),
+    inputTag = cms.InputTag( "rawDataCollector" ),
     fedList = cms.vuint32( 700, 701, 702, 703, 704, 705, 706, 707, 708, 709, 710, 711, 712, 713, 714, 715, 716, 717, 718, 719, 720, 721, 722, 723, 724, 725, 726, 727, 728, 729, 730, 731, 1024, 1100, 1101, 1102, 1103, 1104, 1105, 1106, 1107, 1108, 1109, 1110, 1111, 1112, 1113, 1114, 1115, 1116, 1117, 1118, 1119, 1120, 1121, 1122, 1123, 1124, 1125, 1126, 1127, 1128, 1129, 1130, 1131, 1132, 1133, 1134, 1135, 1136, 1137, 1138, 1139, 1140, 1141, 1142, 1143, 1144, 1145, 1146, 1147, 1148, 1149, 1150, 1151, 1152, 1153, 1154, 1155, 1156, 1157, 1158, 1159, 1160, 1161, 1162, 1163, 1164, 1165, 1166, 1167, 1168, 1169, 1170, 1171, 1172, 1173, 1174, 1175, 1176, 1177, 1178, 1179, 1180, 1181, 1182, 1183, 1184, 1185, 1186, 1187, 1188, 1189, 1190, 1191, 1192, 1193, 1194, 1195, 1196, 1197, 1198, 1199 )
 )
 process.hltRandomEventsFilter = cms.EDFilter( "HLTTriggerTypeFilter",
@@ -5509,7 +5509,7 @@ process.hltSiPixelDigisLegacy = cms.EDProducer( "SiPixelRawToDigi",
     UseQualityInfo = cms.bool( False ),
     ErrorList = cms.vint32( 29 ),
     UserErrorList = cms.vint32(  ),
-    InputLabel = cms.InputTag( "rawDataRepacker" ),
+    InputLabel = cms.InputTag( "rawDataCollector" ),
     Regions = cms.PSet(  ),
     UsePilotBlade = cms.bool( False ),
     UsePhase1 = cms.bool( True ),
@@ -5554,7 +5554,7 @@ process.hltSiPixelClustersGPU = cms.EDProducer( "SiPixelRawToClusterCUDA",
     UseQualityInfo = cms.bool( False ),
     clusterThreshold_layer1 = cms.int32( 4000 ),
     clusterThreshold_otherLayers = cms.int32( 4000 ),
-    InputLabel = cms.InputTag( "rawDataRepacker" ),
+    InputLabel = cms.InputTag( "rawDataCollector" ),
     Regions = cms.PSet(  ),
     CablingMapLabel = cms.string( "" )
 )
@@ -5644,7 +5644,7 @@ process.hltEcalDigisLegacy = cms.EDProducer( "EcalRawToDigi",
     syncCheck = cms.bool( True ),
     feIdCheck = cms.bool( True ),
     silentMode = cms.untracked.bool( True ),
-    InputLabel = cms.InputTag( "rawDataRepacker" ),
+    InputLabel = cms.InputTag( "rawDataCollector" ),
     orderedFedList = cms.vint32( 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654 ),
     eventPut = cms.bool( True ),
     numbTriggerTSamples = cms.int32( 1 ),
@@ -5658,7 +5658,7 @@ process.hltEcalDigisLegacy = cms.EDProducer( "EcalRawToDigi",
     memUnpacking = cms.bool( True )
 )
 process.hltEcalDigisGPU = cms.EDProducer( "EcalRawToDigiGPU",
-    InputLabel = cms.InputTag( "rawDataRepacker" ),
+    InputLabel = cms.InputTag( "rawDataCollector" ),
     FEDs = cms.vint32( 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654 ),
     maxChannelsEB = cms.uint32( 61200 ),
     maxChannelsEE = cms.uint32( 14648 ),
@@ -5892,7 +5892,7 @@ process.hltHcalDigis = cms.EDProducer( "HcalRawToDigi",
     ComplainEmptyData = cms.untracked.bool( False ),
     UnpackerMode = cms.untracked.int32( 0 ),
     ExpectedOrbitMessageTime = cms.untracked.int32( -1 ),
-    InputLabel = cms.InputTag( "rawDataRepacker" ),
+    InputLabel = cms.InputTag( "rawDataCollector" ),
     ElectronicsMap = cms.string( "" )
 )
 process.hltHcalDigisGPU = cms.EDProducer( "HcalDigisProducerGPU",
@@ -6383,7 +6383,7 @@ process.hltPixelVertexSoACompareGPUvsCPU = cms.EDProducer( "SiPixelPhase1Compare
     dzCut = cms.double( 1.0 )
 )
 process.hltL1EventNumberL1Fat = cms.EDFilter( "HLTL1NumberFilter",
-    rawInput = cms.InputTag( "rawDataRepacker" ),
+    rawInput = cms.InputTag( "rawDataCollector" ),
     period = cms.uint32( 107 ),
     invert = cms.bool( False ),
     fedId = cms.int32( 1024 ),
@@ -6394,7 +6394,7 @@ process.hltPreHIPhysics = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltSiStripRawToDigi = cms.EDProducer( "SiStripRawToDigiModule",
-    ProductLabel = cms.InputTag( "rawDataRepacker" ),
+    ProductLabel = cms.InputTag( "rawDataCollector" ),
     LegacyUnpacker = cms.bool( False ),
     AppendedBytes = cms.int32( 0 ),
     UseDaqRegister = cms.bool( False ),
@@ -6462,7 +6462,7 @@ process.hltSiStripDigiToZSRaw = cms.EDProducer( "SiStripDigiToRawModule",
     UseWrongDigiType = cms.bool( False ),
     CopyBufferHeader = cms.bool( True ),
     InputDigis = cms.InputTag( 'hltSiStripZeroSuppression','ZeroSuppressed' ),
-    RawDataTag = cms.InputTag( "rawDataRepacker" )
+    RawDataTag = cms.InputTag( "rawDataCollector" )
 )
 process.hltSiStripClusterizerForRawPrime = cms.EDProducer( "SiStripClusterizer",
     Clusterizer = cms.PSet( 
@@ -6516,7 +6516,7 @@ process.hltPreAlCaEcalPhiSymForHI = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltEcalPreshowerDigis = cms.EDProducer( "ESRawToDigi",
-    sourceTag = cms.InputTag( "rawDataRepacker" ),
+    sourceTag = cms.InputTag( "rawDataCollector" ),
     debugMode = cms.untracked.bool( False ),
     InstanceES = cms.string( "" ),
     LookupTable = cms.FileInPath( "EventFilter/ESDigiToRaw/data/ES_lookup_table.dat" ),
@@ -6545,7 +6545,7 @@ process.hltEcalPhiSymFilter = cms.EDFilter( "HLTEcalPhiSymFilter",
     phiSymEndcapDigiCollection = cms.string( "phiSymEcalDigisEE" )
 )
 process.hltL1EventNumberNZS = cms.EDFilter( "HLTL1NumberFilter",
-    rawInput = cms.InputTag( "rawDataRepacker" ),
+    rawInput = cms.InputTag( "rawDataCollector" ),
     period = cms.uint32( 4096 ),
     invert = cms.bool( False ),
     fedId = cms.int32( 1024 ),
@@ -6611,7 +6611,7 @@ process.hltRPCMuonNormaL1Filtered0ForHI = cms.EDFilter( "HLTMuonL1TFilter",
     SelectQualities = cms.vint32(  )
 )
 process.hltMuonDTDigis = cms.EDProducer( "DTuROSRawToDigi",
-    inputLabel = cms.InputTag( "rawDataRepacker" ),
+    inputLabel = cms.InputTag( "rawDataCollector" ),
     debug = cms.untracked.bool( False )
 )
 process.hltDt1DRecHits = cms.EDProducer( "DTRecHitProducer",
@@ -6719,7 +6719,7 @@ process.hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
     recHits2DLabel = cms.InputTag( "dt2DSegments" )
 )
 process.hltMuonCSCDigis = cms.EDProducer( "CSCDCCUnpacker",
-    InputObjects = cms.InputTag( "rawDataRepacker" ),
+    InputObjects = cms.InputTag( "rawDataCollector" ),
     UseExaminer = cms.bool( True ),
     ExaminerMask = cms.uint32( 535558134 ),
     UseSelectiveUnpacking = cms.bool( True ),
@@ -6885,7 +6885,7 @@ process.hltCscSegments = cms.EDProducer( "CSCSegmentProducer",
     )
 )
 process.hltMuonRPCDigis = cms.EDProducer( "RPCUnpackingModule",
-    InputLabel = cms.InputTag( "rawDataRepacker" ),
+    InputLabel = cms.InputTag( "rawDataCollector" ),
     doSynchro = cms.bool( False )
 )
 process.hltRpcRecHits = cms.EDProducer( "RPCRecHitProducer",
@@ -6898,7 +6898,7 @@ process.hltRpcRecHits = cms.EDProducer( "RPCRecHitProducer",
     deadvecfile = cms.FileInPath( "RecoLocalMuon/RPCRecHit/data/RPCDeadVec.dat" )
 )
 process.hltMuonGEMDigis = cms.EDProducer( "GEMRawToDigiModule",
-    InputLabel = cms.InputTag( "rawDataRepacker" ),
+    InputLabel = cms.InputTag( "rawDataCollector" ),
     useDBEMap = cms.bool( True ),
     keepDAQStatus = cms.bool( False ),
     readMultiBX = cms.bool( False ),
@@ -7927,7 +7927,7 @@ process.hltSiPixelDigisPPOnAA = cms.EDProducer( "SiPixelRawToDigi",
     UseQualityInfo = cms.bool( False ),
     ErrorList = cms.vint32( 29 ),
     UserErrorList = cms.vint32(  ),
-    InputLabel = cms.InputTag( "rawDataRepacker" ),
+    InputLabel = cms.InputTag( "rawDataCollector" ),
     Regions = cms.PSet(  ),
     UsePilotBlade = cms.bool( False ),
     UsePhase1 = cms.bool( True ),
@@ -7966,7 +7966,7 @@ process.hltSiPixelRecHitsPPOnAA = cms.EDProducer( "SiPixelRecHitConverter",
     VerboseLevel = cms.untracked.int32( 0 )
 )
 process.hltSiStripExcludedFEDListProducer = cms.EDProducer( "SiStripExcludedFEDListProducer",
-    ProductLabel = cms.InputTag( "rawDataRepacker" )
+    ProductLabel = cms.InputTag( "rawDataCollector" )
 )
 process.hltHITrackingSiStripRawToClustersFacilityZeroSuppression = cms.EDProducer( "SiStripClusterizer",
     Clusterizer = cms.PSet( 
@@ -12796,7 +12796,7 @@ process.hltVerticesPFFilterPPOnAA = cms.EDFilter( "VertexSelector",
     filter = cms.bool( True )
 )
 process.hltFEDSelectorOnlineMetaData = cms.EDProducer( "EvFFEDSelector",
-    inputTag = cms.InputTag( "rawDataRepacker" ),
+    inputTag = cms.InputTag( "rawDataCollector" ),
     fedList = cms.vuint32( 1022 )
 )
 process.hltL1sL1FirstCollisionAfterAbortGapCentrality30100BptxAND = cms.EDFilter( "HLTL1TSeed",
@@ -24968,7 +24968,7 @@ process.hltPreHIUPCZeroBiasSinglePixelTrackMaxPixelTrack = cms.EDFilter( "HLTPre
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
 )
 process.hltFEDSelectorTCDS = cms.EDProducer( "EvFFEDSelector",
-    inputTag = cms.InputTag( "rawDataRepacker" ),
+    inputTag = cms.InputTag( "rawDataCollector" ),
     fedList = cms.vuint32( 1024, 1025 )
 )
 process.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
