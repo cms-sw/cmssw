@@ -40,7 +40,7 @@ namespace mkfit {
     friend class MkBuilder;
 
   public:
-    static constexpr int MPlexHitIdxMax = 16;
+    static constexpr int MPlexHitIdxMax = 32;
 
     using MPlexHitIdx = Matriplex::Matriplex<int, MPlexHitIdxMax, 1, NN>;
     using MPlexQHoT = Matriplex::Matriplex<HitOnTrack, 1, 1, NN>;
