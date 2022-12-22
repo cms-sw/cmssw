@@ -8634,7 +8634,7 @@ void CMTRawAnalyzer::fillDigiAmplitude(HBHEDigiCollection::const_iterator& digiI
   double difpedestal2 = 0.;
   double difpedestal3 = 0.;
 
-/*
+  /*
   double amplitudewithPedSubtr1 = 0.;
   double amplitudewithPedSubtr2 = 0.;
   double amplitudewithPedSubtr3 = 0.;
