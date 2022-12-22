@@ -43,7 +43,7 @@ EMShower::EMShower(const RandomEngineAndDistribution* engine,
   nPart = thePart->size();
   totalEnergy = 0.;
   globalMaximum = 0.;
-  double meanDepth = 0.;
+  //double meanDepth = 0.;
   // Initialize the shower parameters for each particle
 
   for (unsigned int i = 0; i < nPart; ++i) {
@@ -94,7 +94,7 @@ EMShower::EMShower(const RandomEngineAndDistribution* engine,
     b.push_back((a[i] - 1.) / T[i]);
     maximumOfShower.push_back((a[i] - 1.) / b[i]);
     globalMaximum += maximumOfShower[i] * E[i];
-    meanDepth += a[i] / b[i] * E[i];
+    //meanDepth += a[i] / b[i] * E[i];
     //    std::cout << " Adding max " << maximumOfShower[i] << " " << E[i] << " " <<maximumOfShower[i]*E[i] << std::endl;
     //    std::cout << std::setw(8) << std::setprecision(5) << " a /b " << a[i] << " " << b[i] << std::endl;
     Ti.push_back(a[i] / b[i] * (std::exp(theMeanLnAlpha) - 1.) / std::exp(theMeanLnAlpha));
@@ -114,7 +114,7 @@ EMShower::EMShower(const RandomEngineAndDistribution* engine,
   //         << std::endl;
 
   globalMaximum /= totalEnergy;
-  meanDepth /= totalEnergy;
+  //meanDepth /= totalEnergy;
   // std::cout << " Total Energy " << totalEnergy << " Global max " << globalMaximum << std::endl;
 }
 
@@ -268,9 +268,9 @@ void EMShower::compute() {
 
   // Prepare the grids in EcalHitMaker
   // theGrid->setInnerAndOuterDepth(innerDepth,outerDepth);
-  float pstot = 0.;
-  float ps2tot = 0.;
-  float ps1tot = 0.;
+  //float pstot = 0.;
+  //float ps2tot = 0.;
+  //float ps1tot = 0.;
   bool status = false;
   //  double E1 = 0.;  // Energy layer 1
   //  double E2 = 0.;  // Energy layer 2
@@ -279,7 +279,7 @@ void EMShower::compute() {
   //  double E9 = 0.;  // Energy ECAL
 
   // Loop over all segments for the longitudinal development
-  double totECalc = 0;
+  //double totECalc = 0;
 
   for (unsigned iStep = 0; iStep < nSteps; ++iStep) {
     // The length of the shower in this segment
@@ -400,7 +400,7 @@ void EMShower::compute() {
       }
       */
 
-      totECalc += dE;
+      //totECalc += dE;
 
       // The number of energy spots (or mips)
       double nS = 0;
@@ -435,8 +435,8 @@ void EMShower::compute() {
       } else if (presh1) {
         nS = random->poissonShoot(dE * E[i] * theLayer1->mipsPerGeV());
         //	std::cout << " dE *E[i] (1)" << dE*E[i] << " " << dE*E[i]*theLayer1->mipsPerGeV() << "  "<< nS << std::endl;
-        pstot += dE * E[i];
-        ps1tot += dE * E[i];
+        //pstot += dE * E[i];
+        //ps1tot += dE * E[i];
         dE = nS / (E[i] * theLayer1->mipsPerGeV());
 
         //        E1 += dE*E[i];
@@ -446,8 +446,8 @@ void EMShower::compute() {
       } else if (presh2) {
         nS = random->poissonShoot(dE * E[i] * theLayer2->mipsPerGeV());
         //	std::cout << " dE *E[i] (2) " << dE*E[i] << " " << dE*E[i]*theLayer2->mipsPerGeV() << "  "<< nS << std::endl;
-        pstot += dE * E[i];
-        ps2tot += dE * E[i];
+        //pstot += dE * E[i];
+        //ps2tot += dE * E[i];
         dE = nS / (E[i] * theLayer2->mipsPerGeV());
 
         //        E2 += dE*E[i];
@@ -580,11 +580,13 @@ void EMShower::compute() {
   //  myHistos->fill("h401",n2);
   //  myHistos->fill("h402",E9+E1+0.7*E2);
   //  if(!standalone)theGrid->printGrid();
+  /*
   double Etotal = 0.;
   for (unsigned i = 0; i < nPart; ++i) {
     //      myHistos->fill("h10",Etot[i]);
     Etotal += Etot[i];
   }
+  */
 
   //  std::cout << "Etotal = " << Etotal << " nPart = "<< nPart << std::endl;
   //  std::cout << "totECalc = " << totECalc << std::endl;
