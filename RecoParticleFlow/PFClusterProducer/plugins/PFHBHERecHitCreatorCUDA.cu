@@ -362,6 +362,11 @@ namespace PFRecHit {
 
     // Phase I threshold test corresponding to PFRecHitQTestHCALThresholdVsDepth
     __global__ void applyDepthThresholdQTests(const uint32_t nRHIn,           // Number of input rechits
+					      //const PFHBHERecHitParamsGPU::Product recHitParamsProduct,
+					      int const* depthHB,
+					      int const* depthHE,
+					      double const* thresholdE_HB,
+					      double const* thresholdE_HE,
                                               int* rh_mask,                   // Mask for rechit index
                                               const uint32_t* recHits_did,    // Input rechit detIds
                                               const float* recHits_energy) {  // Input rechit energy
@@ -375,10 +380,10 @@ namespace PFRecHit {
 	  bool found = false;
 	  for (uint32_t j=0; j<4; j++){
 	    if (depth == constantsGPU_d.qTestDepthHB[j]){
-	      printf("aa %6d %8.2f\n",
+	      printf("aa %6d %8.2f %8d\n",
 		     constantsGPU_d.qTestDepthHB[j],
-		     constantsGPU_d.qTestThreshVsDepthHB[j]);
-	      //recHitParametersProduct.valuesdepthHB[j]);
+		     constantsGPU_d.qTestThreshVsDepthHB[j],
+		     depthHB[j]);
 	      threshold = constantsGPU_d.qTestThreshVsDepthHB[j];
 	      found = true; // found depth and threshold
 	    }
@@ -632,10 +637,8 @@ namespace PFRecHit {
 
     void entryPoint(::hcal::RecHitCollection<::calo::common::DevStoragePolicy> const& HBHERecHits_asInput,
 		    const PFRecHit::HCAL::Constants& cudaConstants,
-		    ConstantProducts const& constantProducts,
+		    const ConstantProducts& constantProducts,
 		    //const PFRecHit::HCAL::ConstantProducts& constantProducts,
-		    //const PFHBHERecHitParamsGPU::Product& recHitParametersProduct,
-		    //const std::vector<int, cms::cuda::HostAllocator<int>>& depthHB,
                     OutputPFRecHitDataGPU& HBHEPFRecHits_asOutput,
                     PersistentDataGPU& persistentDataGPU,
                     ScratchDataGPU& scratchDataGPU,
@@ -748,7 +751,13 @@ namespace PFRecHit {
       //applyQTests<<<(nRHIn+127)/128, 256, 0, cudaStream>>>(nRHIn, scratchDataGPU.rh_mask.get(), HBHERecHits_asInput.did.get(), HBHERecHits_asInput.energy.get());
 
       applyDepthThresholdQTests<<<(nRHIn + threadsPerBlock - 1) / threadsPerBlock, threadsPerBlock, 0, cudaStream>>>(
-          nRHIn, scratchDataGPU.rh_mask.get(), HBHERecHits_asInput.did.get(), HBHERecHits_asInput.energy.get());
+          nRHIn,	  
+	  //constantProducts.recHitParametersProduct,
+	  constantProducts.recHitParametersProduct.valuesdepthHB,
+	  constantProducts.recHitParametersProduct.valuesdepthHE,
+	  constantProducts.recHitParametersProduct.valuesthresholdE_HB,
+	  constantProducts.recHitParametersProduct.valuesthresholdE_HE,
+	  scratchDataGPU.rh_mask.get(), HBHERecHits_asInput.did.get(), HBHERecHits_asInput.energy.get());
       cudaCheck(cudaGetLastError());
 
 #ifdef DEBUG_ENABLE
