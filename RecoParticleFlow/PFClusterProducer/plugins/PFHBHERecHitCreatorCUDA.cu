@@ -382,12 +382,12 @@ namespace PFRecHit {
         if (subdet == HcalBarrel) {
 	  bool found = false;
 	  for (uint32_t j=0; j<4; j++){
-	    if (depth == constantsGPU_d.qTestDepthHB[j]){
+	    if (depth == depthHB[j]){
 	      printf("aa %6d %8.2f %8d\n",
-		     constantsGPU_d.qTestDepthHB[j],
-		     constantsGPU_d.qTestThreshVsDepthHB[j],
+		     depthHB[j],
+		     thresholdE_HB[j],
 		     depthHB[j]);
-	      threshold = constantsGPU_d.qTestThreshVsDepthHB[j];
+	      threshold = thresholdE_HB[j];
 	      found = true; // found depth and threshold
 	    }
 	  }
@@ -396,8 +396,8 @@ namespace PFRecHit {
         } else if (subdet == HcalEndcap) {
 	  bool found = false;
 	  for (uint32_t j=0; j<7; j++){
-	    if (depth == constantsGPU_d.qTestDepthHE[j]){
-	      threshold = constantsGPU_d.qTestThreshVsDepthHE[j];
+	    if (depth == depthHE[j]){
+	      threshold = thresholdE_HE[j];
 	      found = true; // found depth and threshold
 	    }
 	  }
