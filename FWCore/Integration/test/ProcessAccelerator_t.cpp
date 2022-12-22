@@ -59,8 +59,8 @@ process.moduleToTest(process.s)
         test2);
   }
 
-  std::string makeResolverConfig(bool test2Enabled, std::string_view accelerator, std::string_view variant) {
-    const std::string appendTest2 = test2Enabled ? "self._enabled.append('test2')" : "";
+  std::string makeResolverConfig(bool enableOther, std::string_view accelerator, std::string_view variant) {
+    const std::string appendOther = enableOther ? "self._enabled.append('other')" : "";
     const std::string explicitVariant =
         variant.empty() ? std::string(variant) : fmt::format(", variant=cms.untracked.string('{}')", variant);
     return fmt::format(
@@ -70,15 +70,15 @@ import FWCore.ParameterSet.Config as cms
 class ModuleTypeResolverTest:
     def __init__(self, accelerators):
         self._variants = []
-        if "test2" in accelerators:
-            self._variants.append("test2")
-        if "test1" in accelerators:
-            self._variants.append("test1")
+        if "other" in accelerators:
+            self._variants.append("other")
+        if "cpu" in accelerators:
+            self._variants.append("cpu")
         if len(self._variants) == 0:
-            raise cms.EDMException(cms.edm.errors.UnavailableAccelerator, "No 'test1' or 'test2' accelerator available")
+            raise cms.EDMException(cms.edm.errors.UnavailableAccelerator, "No 'cpu' or 'other' accelerator available")
 
     def plugin(self):
-        return "TestTypeResolverMaker"
+        return "edm::test::ConfigurableTestTypeResolverMaker"
 
     def setModuleVariant(self, module):
         if "generic::" in module.type_():
@@ -91,8 +91,8 @@ class ModuleTypeResolverTest:
 class ProcessAcceleratorTest(cms.ProcessAccelerator):
     def __init__(self):
         super(ProcessAcceleratorTest,self).__init__()
-        self._labels = ["test1", "test2"]
-        self._enabled = ["test1"]
+        self._labels = ["other"]
+        self._enabled = []
         {}
     def labels(self):
         return self._labels
@@ -110,7 +110,7 @@ process.m = cms.EDProducer("generic::IntProducer",
 )
 process.moduleToTest(process.m)
 )_",
-        appendTest2,
+        appendOther,
         accelerator,
         explicitVariant);
   }
@@ -214,28 +214,96 @@ TEST_CASE("Configuration with SwitchProducer", s_tag) {
 }
 
 TEST_CASE("Configuration with ModuleTypeResolver", s_tag) {
+  const std::string baseConfig_auto = makeResolverConfig(true, "*", "");
+  const std::string baseConfig_cpu = makeResolverConfig(true, "cpu", "");
+  const std::string baseConfig_other = makeResolverConfig(true, "other", "");
+  const std::string baseConfig_cpuExplicit = makeResolverConfig(true, "*", "cpu");
+  const std::string baseConfig_otherExplicit = makeResolverConfig(true, "*", "other");
+  const std::string baseConfigOtherDisabled_auto = makeResolverConfig(false, "*", "");
+  const std::string baseConfigOtherDisabled_cpu = makeResolverConfig(false, "cpu", "");
+  const std::string baseConfigOtherDisabled_other = makeResolverConfig(false, "other", "");
+
   SECTION("Configuration hash is not changed") {
-    auto pset_auto = edm::readConfig(makeResolverConfig(true, "*", ""));
-    auto pset_test1 = edm::readConfig(makeResolverConfig(true, "test1", ""));
-    auto pset_test2 = edm::readConfig(makeResolverConfig(true, "test2", ""));
-    auto pset_test1explicit = edm::readConfig(makeResolverConfig(true, "*", "test1"));
-    auto pset_test2explicit = edm::readConfig(makeResolverConfig(true, "*", "test2"));
-    auto psetTest2Disabled_auto = edm::readConfig(makeResolverConfig(false, "*", ""));
-    auto psetTest2Disabled_test1 = edm::readConfig(makeResolverConfig(false, "test1", ""));
-    REQUIRE_THROWS_WITH(edm::readConfig(makeResolverConfig(false, "test2", "")),
-                        Catch::Contains("UnavailableAccelerator"));
+    auto pset_auto = edm::readConfig(baseConfig_auto);
+    auto pset_cpu = edm::readConfig(baseConfig_cpu);
+    auto pset_other = edm::readConfig(baseConfig_other);
+    auto pset_cpuExplicit = edm::readConfig(baseConfig_cpuExplicit);
+    auto pset_otherExplicit = edm::readConfig(baseConfig_otherExplicit);
+    auto psetOtherDisabled_auto = edm::readConfig(baseConfigOtherDisabled_auto);
+    auto psetOtherDisabled_cpu = edm::readConfig(baseConfigOtherDisabled_cpu);
+    REQUIRE_THROWS_WITH(edm::readConfig(baseConfigOtherDisabled_other), Catch::Contains("UnavailableAccelerator"));
     pset_auto->registerIt();
-    pset_test1->registerIt();
-    pset_test2->registerIt();
-    pset_test1explicit->registerIt();
-    pset_test2explicit->registerIt();
-    psetTest2Disabled_auto->registerIt();
-    psetTest2Disabled_test1->registerIt();
-    REQUIRE(pset_auto->id() == pset_test1->id());
-    REQUIRE(pset_auto->id() == pset_test2->id());
-    REQUIRE(pset_auto->id() == pset_test1explicit->id());
-    REQUIRE(pset_auto->id() == pset_test2explicit->id());
-    REQUIRE(pset_auto->id() == psetTest2Disabled_auto->id());
-    REQUIRE(pset_auto->id() == psetTest2Disabled_test1->id());
+    pset_cpu->registerIt();
+    pset_other->registerIt();
+    pset_cpuExplicit->registerIt();
+    pset_otherExplicit->registerIt();
+    psetOtherDisabled_auto->registerIt();
+    psetOtherDisabled_cpu->registerIt();
+    REQUIRE(pset_auto->id() == pset_cpu->id());
+    REQUIRE(pset_auto->id() == pset_other->id());
+    REQUIRE(pset_auto->id() == pset_cpuExplicit->id());
+    REQUIRE(pset_auto->id() == pset_otherExplicit->id());
+    REQUIRE(pset_auto->id() == psetOtherDisabled_auto->id());
+    REQUIRE(pset_auto->id() == psetOtherDisabled_cpu->id());
+  }
+
+  edm::test::TestProcessor::Config config_auto{baseConfig_auto};
+  edm::test::TestProcessor::Config config_cpu{baseConfig_cpu};
+  edm::test::TestProcessor::Config config_other{baseConfig_other};
+  edm::test::TestProcessor::Config config_cpuExplicit{baseConfig_cpuExplicit};
+  edm::test::TestProcessor::Config config_otherExplicit{baseConfig_otherExplicit};
+  edm::test::TestProcessor::Config configOtherDisabled_auto{baseConfigOtherDisabled_auto};
+  edm::test::TestProcessor::Config configOtherDisabled_cpu{baseConfigOtherDisabled_cpu};
+
+  SECTION("Base configuration is OK") { REQUIRE_NOTHROW(edm::test::TestProcessor(config_auto)); }
+
+  SECTION("No event data") {
+    edm::test::TestProcessor tester(config_auto);
+    REQUIRE_NOTHROW(tester.test());
+  }
+
+  SECTION("beginJob and endJob only") {
+    edm::test::TestProcessor tester(config_auto);
+    REQUIRE_NOTHROW(tester.testBeginAndEndJobOnly());
+  }
+
+  SECTION("Run with no LuminosityBlocks") {
+    edm::test::TestProcessor tester(config_auto);
+    REQUIRE_NOTHROW(tester.testRunWithNoLuminosityBlocks());
+  }
+
+  SECTION("LuminosityBlock with no Events") {
+    edm::test::TestProcessor tester(config_auto);
+    REQUIRE_NOTHROW(tester.testLuminosityBlockWithNoEvents());
+  }
+
+  SECTION("Other enabled, acclerators=*") {
+    edm::test::TestProcessor tester(config_auto);
+    auto event = tester.test();
+    REQUIRE(event.get<edmtest::IntProduct>()->value == 2);
+  }
+
+  SECTION("Other enabled, acclerators=cpu") {
+    edm::test::TestProcessor tester(config_cpu);
+    auto event = tester.test();
+    REQUIRE(event.get<edmtest::IntProduct>()->value == 1);
+  }
+
+  SECTION("Other enabled, acclerators=other") {
+    edm::test::TestProcessor tester(config_other);
+    auto event = tester.test();
+    REQUIRE(event.get<edmtest::IntProduct>()->value == 2);
+  }
+
+  SECTION("Other disabled, accelerators=*") {
+    edm::test::TestProcessor tester(configOtherDisabled_auto);
+    auto event = tester.test();
+    REQUIRE(event.get<edmtest::IntProduct>()->value == 1);
+  }
+
+  SECTION("Other disabled, accelerators=cpu") {
+    edm::test::TestProcessor tester(configOtherDisabled_cpu);
+    auto event = tester.test();
+    REQUIRE(event.get<edmtest::IntProduct>()->value == 1);
   }
 }
