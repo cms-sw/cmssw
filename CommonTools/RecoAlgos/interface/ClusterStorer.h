@@ -20,6 +20,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/Phase2TrackerRecHit1D.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 
 namespace helper {
@@ -39,7 +40,9 @@ namespace helper {
     void processAllClusters(edmNew::DetSetVector<SiPixelCluster> &pixelDsvToFill,
                             edm::RefProd<edmNew::DetSetVector<SiPixelCluster> > refPixelClusters,
                             edmNew::DetSetVector<SiStripCluster> &stripDsvToFill,
-                            edm::RefProd<edmNew::DetSetVector<SiStripCluster> > refStripClusters);
+                            edm::RefProd<edmNew::DetSetVector<SiStripCluster> > refStripClusters,
+                            edmNew::DetSetVector<Phase2TrackerCluster1D> &phase2OTDsvToFill,
+                            edm::RefProd<edmNew::DetSetVector<Phase2TrackerCluster1D> > refPhase2OTClusters);
 
   private:
     /// A struct for clusters associated to hits
@@ -62,7 +65,7 @@ namespace helper {
       /// Set the reference of the hit of this record to 'newRef',
       /// will not modify the ref stored in this object.
       template <typename RecHitType>
-      void rekey(const ClusterRefType &newRef) const;
+      void rekey(const ClusterRefType &newRef);
 
     private:
       ClusterHitRecord() {}  /// private => unusable
@@ -77,7 +80,7 @@ namespace helper {
     typedef ClusterHitRecord<SiStripRecHit2D::ClusterRef> StripClusterHitRecord;
     //FIXME:: this is just temporary solution for phase2,
     //probably is good to add a Phase2ClusterStorer?
-    typedef ClusterHitRecord<Phase2TrackerRecHit1D::CluRef> Phase2OTClusterHitRecord;
+    typedef ClusterHitRecord<Phase2TrackerRecHit1D::ClusterRef> Phase2OTClusterHitRecord;
 
     //------------------------------------------------------------------
     //!  Processes all the clusters of a specific type
