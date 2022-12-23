@@ -38,10 +38,11 @@ public:
   ~HGCalDDDConstants() = default;
 
   std::pair<int, int> assignCell(float x, float y, int lay, int subSec, bool reco) const;
-  std::array<int, 5> assignCellHex(float x, float y, int lay, bool reco, bool extend = false, bool debug = false) const;
+  std::array<int, 5> assignCellHex(
+      float x, float y, int zside, int lay, bool reco, bool extend = false, bool debug = false) const;
   std::array<int, 3> assignCellTrap(float x, float y, float z, int lay, bool reco) const;
   std::pair<double, double> cellEtaPhiTrap(int type, int irad) const;
-  bool cellInLayer(int waferU, int waferV, int cellU, int cellV, int lay, bool reco) const;
+  bool cellInLayer(int waferU, int waferV, int cellU, int cellV, int lay, int zside, bool reco) const;
   double cellSizeHex(int type) const;
   inline std::pair<double, double> cellSizeTrap(int type, int irad) const {
     return std::make_pair(hgpar_->radiusLayer_[type][irad - 1], hgpar_->radiusLayer_[type][irad]);
@@ -90,9 +91,10 @@ public:
     return ((hgpar_->layerType_.empty()) ? HGCalTypes::WaferCenter : hgpar_->layerType_[lay - hgpar_->firstLayer_]);
   }
   std::pair<float, float> localToGlobal8(
-      int lay, int waferU, int waferV, double localX, double localY, bool reco, bool debug) const;
+      int zside, int lay, int waferU, int waferV, double localX, double localY, bool reco, bool debug) const;
   std::pair<float, float> locateCell(int cell, int lay, int type, bool reco) const;
-  std::pair<float, float> locateCell(int lay,
+  std::pair<float, float> locateCell(int zside,
+                                     int lay,
                                      int waferU,
                                      int waferV,
                                      int cellU,
@@ -104,7 +106,7 @@ public:
   std::pair<float, float> locateCell(const HGCSiliconDetId&, bool debug = false) const;
   std::pair<float, float> locateCell(const HGCScintillatorDetId&, bool debug = false) const;
   std::pair<float, float> locateCellHex(int cell, int wafer, bool reco) const;
-  std::pair<float, float> locateCellTrap(int lay, int ieta, int iphi, bool reco, bool debug = false) const;
+  std::pair<float, float> locateCellTrap(int zside, int lay, int ieta, int iphi, bool reco, bool debug = false) const;
   inline int levelTop(int ind = 0) const { return hgpar_->levelT_[ind]; }
   bool maskCell(const DetId& id, int corners) const;
   inline int maxCellUV() const { return (tileTrapezoid() ? hgpar_->nCellsFine_ : 2 * hgpar_->nCellsFine_); }
@@ -147,6 +149,7 @@ public:
   void waferFromPosition(const double x, const double y, int& wafer, int& icell, int& celltyp) const;
   void waferFromPosition(const double x,
                          const double y,
+                         const int zside,
                          const int layer,
                          int& waferU,
                          int& waferV,

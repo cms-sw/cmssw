@@ -1,5 +1,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HGCalCommonData/interface/HGCalCassette.h"
+#include <algorithm>
 #include <sstream>
 
 //#define EDM_ML_DEBUG
@@ -10,11 +11,17 @@ void HGCalCassette::setParameter(int cassette, const std::vector<double>& shifts
   shifts_.insert(shifts_.end(), shifts.begin(), shifts.end());
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "# of cassettes = " << cassette_ << " Type " << typeHE_;
-  std::ostringstream st1;
-  st1 << " Shifts:";
-  for (const auto& s : shifts_)
-    st1 << ":" << s;
-  edm::LogVerbatim("HGCalGeom") << st1.str();
+  for (uint32_t j1 = 0; j1 < shifts.size(); j1 += 12) {
+    std::ostringstream st1;
+    if (j1 == 0)
+      st1 << " Shifts:";
+    else
+      st1 << "        ";
+    uint32_t j2 = std::min((j1 + 12), static_cast<uint32_t>(shifts.size()));
+    for (uint32_t j = j1; j < j2; ++j)
+      st1 << ":" << shifts[j];
+    edm::LogVerbatim("HGCalGeom") << st1.str();
+  }
 #endif
 }
 
@@ -28,4 +35,9 @@ std::pair<double, double> HGCalCassette::getShift(int layer, int zside, int cass
                                 << xy.second;
 #endif
   return xy;
+}
+
+int HGCalCassette::cassetteIndex(int det, int layer, int side, int cassette) {
+  int zs = (side > 0) ? factor_ : 0;
+  return (((zs + det) * factor_ + layer) * factor_ + cassette);
 }
