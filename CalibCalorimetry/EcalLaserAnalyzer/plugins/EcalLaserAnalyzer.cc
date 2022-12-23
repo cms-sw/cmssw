@@ -919,10 +919,8 @@ void EcalLaserAnalyzer::endJob() {
     // Loop on events
     //================
 
-    Long64_t nbytes = 0, nb = 0;
     for (Long64_t jentry = 0; jentry < ADCtrees[iCry]->GetEntriesFast(); jentry++) {
-      nb = ADCtrees[iCry]->GetEntry(jentry);
-      nbytes += nb;
+      ADCtrees[iCry]->GetEntry(jentry);
 
       // Get back color
 
@@ -1169,10 +1167,8 @@ void EcalLaserAnalyzer::endJob() {
     // Final loop on events
     //=======================
 
-    Long64_t nbytes = 0, nb = 0;
     for (Long64_t jentry = 0; jentry < APDtrees[iCry]->GetEntriesFast(); jentry++) {
-      nb = APDtrees[iCry]->GetEntry(jentry);
-      nbytes += nb;
+      APDtrees[iCry]->GetEntry(jentry);
 
       double pnmean;
       if (pn0 < 10 && pn1 > 10) {
