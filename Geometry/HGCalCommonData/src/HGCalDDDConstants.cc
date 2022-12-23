@@ -246,8 +246,9 @@ bool HGCalDDDConstants::cellInLayer(int waferU, int waferV, int cellU, int cellV
       int ncell = (thck == HGCalTypes::WaferFineThin) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_;
       return HGCalWaferMask::goodCell(cellU, cellV, ncell, part, rotn);
     } else if (waferHexagon8() || waferHexagon6()) {
-      const auto& xy = ((waferHexagon8()) ? locateCell(zside, lay, waferU, waferV, cellU, cellV, reco, true, false, false)
-                                          : locateCell(cellU, lay, waferU, reco));
+      const auto& xy =
+          ((waferHexagon8()) ? locateCell(zside, lay, waferU, waferV, cellU, cellV, reco, true, false, false)
+                             : locateCell(cellU, lay, waferU, reco));
       double rpos = sqrt(xy.first * xy.first + xy.second * xy.second);
       return ((rpos >= hgpar_->rMinLayHex_[indx.first]) && (rpos <= hgpar_->rMaxLayHex_[indx.first]));
     } else {
@@ -724,7 +725,8 @@ std::pair<float, float> HGCalDDDConstants::locateCell(int cell, int lay, int typ
 }
 
 std::pair<float, float> HGCalDDDConstants::locateCell(
-    int zside, int lay, int waferU, int waferV, int cellU, int cellV, bool reco, bool all, bool norot, bool debug) const {
+    int zside, int lay, int waferU, int waferV, int cellU, int cellV, bool reco, bool all, bool norot, bool debug)
+    const {
   double x(0), y(0);
   int indx = HGCalWaferIndex::waferIndex(lay, waferU, waferV);
   auto itr = hgpar_->typesInLayers_.find(indx);
@@ -824,7 +826,8 @@ std::pair<float, float> HGCalDDDConstants::locateCellHex(int cell, int wafer, bo
   return std::make_pair(x, y);
 }
 
-std::pair<float, float> HGCalDDDConstants::locateCellTrap(int zside, int lay, int irad, int iphi, bool reco, bool debug) const {
+std::pair<float, float> HGCalDDDConstants::locateCellTrap(
+    int zside, int lay, int irad, int iphi, bool reco, bool debug) const {
   float x(0), y(0);
   const auto& indx = getIndex(lay, reco);
   if (indx.first >= 0) {

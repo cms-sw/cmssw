@@ -219,7 +219,8 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
       double wt1(0);
       int zside = (hid1.zside() > 0) ? 1 : -1;
       xx = zside * hitPoint.x();
-      hgcons_->waferFromPosition(xx, hitPoint.y(), zside, layer, waferU, waferV, cellU, cellV, waferType, wt1, false, false);
+      hgcons_->waferFromPosition(
+          xx, hitPoint.y(), zside, layer, waferU, waferV, cellU, cellV, waferType, wt1, false, false);
       HGCSiliconDetId hid2(hid1.det(), hid1.zside(), waferType, layer, waferU, waferV, cellU, cellV);
       bool valid2 = hgcons_->isValidHex8(hid2.layer(), hid2.waferU(), hid2.waferV(), hid2.cellU(), hid2.cellV(), true);
       auto partn = hgcons_->waferTypeRotation(hid1.layer(), hid1.waferU(), hid1.waferV(), false, false);
