@@ -8,6 +8,7 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
+//KH #include "FWCore/Framework/interface/ESConsumesCollector.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
@@ -17,7 +18,9 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitNavigatorBase.h"
+//KH #include "HeterogeneousCore/CUDACore/interface/JobConfigurationGPURecord.h"
 
+//----------
 template <typename DET, typename TOPO, bool ownsTopo = true>
 class PFHCALDenseIdNavigator : public PFRecHitNavigatorBase {
 public:

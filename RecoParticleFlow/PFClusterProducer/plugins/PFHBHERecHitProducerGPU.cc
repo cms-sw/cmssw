@@ -32,6 +32,7 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFHCALDenseIdNavigator.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitNavigatorBase.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFHBHERecHitParamsGPU.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/HBHETopologyGPU.h"
 
 #include "DeclsForKernels.h"
 #include "SimplePFGPUAlgos.h"
@@ -83,7 +84,10 @@ private:
   // PFHBHERecHit params
   const edm::ESGetToken<PFHBHERecHitParamsGPU, JobConfigurationGPURecord> recoParamsToken_;
   edm::ESHandle<PFHBHERecHitParamsGPU> recHitParametersHandle_;
-  
+
+  const edm::ESGetToken<HBHETopologyGPU, JobConfigurationGPURecord> hbheTopologyToken_;
+  edm::ESHandle<HBHETopologyGPU> hbheTopologyHandle_;
+
   // Miscellaneous
   PFRecHit::HCAL::PersistentDataCPU persistentDataCPU;
   PFRecHit::HCAL::PersistentDataGPU persistentDataGPU;
@@ -119,7 +123,8 @@ PFHBHERecHitProducerGPU::PFHBHERecHitProducerGPU(edm::ParameterSet const& ps)
       OutputPFRecHitSoA_Token_{produces<OProductType>(ps.getParameter<std::string>("PFRecHitsGPUOut"))},
       hcalToken_(esConsumes<edm::Transition::BeginRun>()),
       geomToken_(esConsumes<edm::Transition::BeginRun>()),
-      recoParamsToken_{esConsumes()}{
+      recoParamsToken_{esConsumes()},
+      hbheTopologyToken_{esConsumes()}{
   edm::ConsumesCollector cc = consumesCollector();
 
   produces<reco::PFRecHitCollection>();
@@ -279,13 +284,15 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
 
   auto const& recHitParams = setup.getData(recoParamsToken_);
   auto const& recHitParamsProduct = recHitParams.getProduct(ctx.stream());
-  
+
+  recHitParametersHandle_ = setup.getHandle(recoParamsToken_);
+
   std::cout << (recHitParametersHandle_->getValuesdepthHB())[0] << std::endl;
   std::cout << (recHitParametersHandle_->getValuesdepthHB())[1] << std::endl;
   std::cout << (recHitParametersHandle_->getValuesdepthHB())[2] << std::endl;
   std::cout << (recHitParametersHandle_->getValuesdepthHB())[3] << std::endl;
   std::cout << (recHitParametersHandle_->getValuesdepthHB()).size() << std::endl;
-  
+
   std::cout << (recHitParams.getValuesdepthHB()).size() << std::endl;
 
   std::cout << (recHitParametersHandle_->getValuesdepthHE())[0] << std::endl;
@@ -311,7 +318,7 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
   std::cout << (recHitParametersHandle_->getValuesthresholdE_HE())[6] << std::endl;
 
   std::cout << "init starts" << std::endl;
-  
+
   if (initCuda) {
     // Initialize persistent arrays for rechit positions
     persistentDataCPU.allocate(nDenseIdsInRange, ctx.stream());
@@ -371,11 +378,11 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
     //   cudaCheck(cudaStreamSynchronize(ctx.stream()));
 
     initCuda = false;
-    
+
   }
 
-  std::cout << "init done" << std::endl; 
-  
+  std::cout << "init done" << std::endl;
+
   if (num_rechits == 0) return; // if no rechit, there is nothing to do.
 
   outputGPU.allocate(num_rechits, ctx.stream());
@@ -388,7 +395,7 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
 	recHitParams.getValuesthresholdE_HB(),
 	recHitParams.getValuesthresholdE_HE()
 	  };
-  
+
   // Entry point for GPU calls
   GPU_timers.fill(0.0);
   PFRecHit::HCAL::entryPoint(HBHERecHitSoA, cudaConstants,
