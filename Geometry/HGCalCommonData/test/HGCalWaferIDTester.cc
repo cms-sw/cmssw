@@ -121,7 +121,8 @@ void HGCalWaferIDTester::analyze(const edm::Event& iEvent, const edm::EventSetup
     double xx = posXY_[k].first;
     double yy = posXY_[k].second;
     int layer = detIds_[k].layer();
-    hgdc.waferFromPosition(xx, yy, layer, waferU, waferV, cellU, cellV, waferType, wt, false, debug);
+    int zside = detIds_[k].zside();
+    hgdc.waferFromPosition(xx, yy, zside, layer, waferU, waferV, cellU, cellV, waferType, wt, false, debug);
     HGCSiliconDetId id(detIds_[k].det(), detIds_[k].zside(), waferType, layer, waferU, waferV, cellU, cellV);
     if (id.rawId() != detIds_[k].rawId())
       edm::LogVerbatim("HGCalGeom") << "Non-matching DetId for [" << k << "] Original " << detIds_[k] << " New " << id;
