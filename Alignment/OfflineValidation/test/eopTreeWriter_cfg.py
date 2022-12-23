@@ -30,10 +30,10 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) )
 # define input files
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-                                'root://cmsxrootd.fnal.gov//store/data/Run2018D/JetHT/ALCARECO/HcalCalIsoTrkFilter-12Nov2019_UL2018-v3/100000/075A1F1E-20B4-134D-9794-AD764DA6730D.root',
-                                'root://cmsxrootd.fnal.gov//store/data/Run2018D/JetHT/ALCARECO/HcalCalIsoTrkFilter-12Nov2019_UL2018-v3/100000/1B7906DB-A233-0143-ACF0-BB29D9FCFB24.root',
-                                'root://cmsxrootd.fnal.gov//store/data/Run2018D/JetHT/ALCARECO/HcalCalIsoTrkFilter-12Nov2019_UL2018-v3/100000/441F40BB-325E-5D46-9F1D-3C8BBAB8AE58.root',
-                                'root://cmsxrootd.fnal.gov//store/data/Run2018D/JetHT/ALCARECO/HcalCalIsoTrkFilter-12Nov2019_UL2018-v3/100000/B624B687-53C9-1C49-A19E-25FC808C9D88.root'))
+                                '/store/data/Run2018D/JetHT/ALCARECO/HcalCalIsoTrkFilter-12Nov2019_UL2018-v3/100000/075A1F1E-20B4-134D-9794-AD764DA6730D.root',
+                                '/store/data/Run2018D/JetHT/ALCARECO/HcalCalIsoTrkFilter-12Nov2019_UL2018-v3/100000/1B7906DB-A233-0143-ACF0-BB29D9FCFB24.root',
+                                '/store/data/Run2018D/JetHT/ALCARECO/HcalCalIsoTrkFilter-12Nov2019_UL2018-v3/100000/441F40BB-325E-5D46-9F1D-3C8BBAB8AE58.root',
+                                '/store/data/Run2018D/JetHT/ALCARECO/HcalCalIsoTrkFilter-12Nov2019_UL2018-v3/100000/B624B687-53C9-1C49-A19E-25FC808C9D88.root'))
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(options.maxEvents)
