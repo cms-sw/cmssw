@@ -145,6 +145,10 @@ void HGCalTestPartialWaferHits::analyze(const edm::Event& e, const edm::EventSet
                                          << " Wafer Type:Part:Orient:Cassette " << info.type << ":" << info.part << ":"
                                          << info.orient << ":" << info.cassette << " at (" << pos.x() << ", " << pos.y()
                                          << ", " << pos.z() << ") Valid " << valid1 << ":" << valid2;
+            if (!valid)
+              st1 << " Wafer Type:Part:Orient:Cassette " << info.type << ":" << info.part << ":" << info.orient;
+          } else {
+            valid = true;
           }
         } else {
           ++allSc;
