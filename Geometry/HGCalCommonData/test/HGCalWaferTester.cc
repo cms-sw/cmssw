@@ -80,13 +80,13 @@ void HGCalWaferTester::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   if (hgdc.waferHexagon8()) {
     int layer = hgdc.firstLayer();
     for (int u = -12; u <= 12; ++u) {
-      std::pair<double, double> xy = hgdc.waferPosition(layer, u, 0, reco_);
+      std::pair<double, double> xy = hgdc.waferPosition(layer, u, 0, reco_, false);
       edm::LogVerbatim("HGCalGeom") << " iz = +, u = " << u << ", v = 0: x = " << xy.first << " y = " << xy.second
                                     << "\n"
                                     << " iz = -, u = " << u << ", v = 0: x = " << -xy.first << " y = " << xy.second;
     }
     for (int v = -12; v <= 12; ++v) {
-      std::pair<double, double> xy = hgdc.waferPosition(layer, 0, v, reco_);
+      std::pair<double, double> xy = hgdc.waferPosition(layer, 0, v, reco_, false);
       edm::LogVerbatim("HGCalGeom") << " iz = +, u = 0, v = " << v << ": x = " << xy.first << " y = " << xy.second
                                     << "\n"
                                     << " iz = -, u = 0, v = " << v << ": x = " << -xy.first << " y = " << xy.second;

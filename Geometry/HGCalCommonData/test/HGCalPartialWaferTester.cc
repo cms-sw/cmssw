@@ -107,7 +107,7 @@ void HGCalPartialWaferTester::analyze(const edm::Event&, const edm::EventSetup& 
             ++alltry;
             double zpos = hgdc.waferZ(layer, reco);
             int zside = (zpos > 0) ? 1 : -1;
-            auto xy = hgdc.locateCell(layer, waferU, waferV, ui, vi, reco, all, norot, debug1);
+            auto xy = hgdc.locateCell(zside, layer, waferU, waferV, ui, vi, reco, all, norot, debug1);
             int lay(layer), cU(0), cV(0), wType(-1), wU(0), wV(0);
             double wt(0);
             hgdc.waferFromPosition(HGCalParameters::k_ScaleToDDD * xy.first,

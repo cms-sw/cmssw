@@ -30,7 +30,7 @@ uint32_t HFNoseNumberingScheme::getUnitID(
   } else if (mode_ == HGCalGeometryMode::Hexagon8Full) {
     int zside = (pos.z() > 0) ? 1 : -1;
     double xx = zside * pos.x();
-    hgcons_.waferFromPosition(xx, pos.y(), zside, layer, waferU, waferV, cellU, cellV, waferType, wt);
+    hgcons_.waferFromPosition(xx, pos.y(), zside, layer, waferU, waferV, cellU, cellV, waferType, wt, false, false);
   }
   if (waferType >= 0) {
     index = HFNoseDetId(iz, waferType, layer, waferU, waferV, cellU, cellV).rawId();
@@ -59,7 +59,7 @@ void HFNoseNumberingScheme::checkPosition(uint32_t index, const G4ThreeVector& p
   } else if ((DetId(index).det() == DetId::Forward) && (DetId(index).subdetId() == static_cast<int>(HFNose))) {
     HFNoseDetId id = HFNoseDetId(index);
     lay = id.layer();
-    xy = hgcons_.locateCell(id.zside(), lay, id.waferU(), id.waferV(), id.cellU(), id.cellV(), false, true);
+    xy = hgcons_.locateCell(id.zside(), lay, id.waferU(), id.waferV(), id.cellU(), id.cellV(), false, true, false, false);
     z1 = hgcons_.waferZ(lay, false);
     ok = true;
   }
@@ -87,8 +87,8 @@ void HFNoseNumberingScheme::checkPosition(uint32_t index, const G4ThreeVector& p
         int zside = (pos.z() > 0) ? 1 : -1;
         double wt = 0, xx = (zside * pos.x());
         int waferU, waferV, cellU, cellV, waferType;
-        hgcons_.waferFromPosition(xx, pos.y(), zside, lay, waferU, waferV, cellU, cellV, waferType, wt, true);
-        xy = hgcons_.locateCell(zside, lay, waferU, waferV, cellU, cellV, false, true, true);
+        hgcons_.waferFromPosition(xx, pos.y(), zside, lay, waferU, waferV, cellU, cellV, waferType, wt, false, true);
+        xy = hgcons_.locateCell(zside, lay, waferU, waferV, cellU, cellV, false, true, false, true);
         edm::LogVerbatim("HGCSim") << "HFNoseNumberingScheme " << HFNoseDetId(index) << " position " << xy.first << ":"
                                    << xy.second;
       }

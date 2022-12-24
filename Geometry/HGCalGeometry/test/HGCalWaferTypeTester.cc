@@ -125,7 +125,7 @@ void HGCalWaferTypeTester::analyze(const edm::Event& iEvent, const edm::EventSet
     int all(0), total(0), good(0), bad(0);
     for (auto id : ids) {
       HGCSiliconDetId hid(id);
-      auto type = hgdc.waferTypeRotation(hid.layer(), hid.waferU(), hid.waferV());
+      auto type = hgdc.waferTypeRotation(hid.layer(), hid.waferU(), hid.waferV(), false, false);
       if (hid.zside() > 0)
         ++all;
       // Not a full wafer
@@ -139,7 +139,7 @@ void HGCalWaferTypeTester::analyze(const edm::Event& iEvent, const edm::EventSet
       }
       if (part > 0 && part < 10 && hid.zside() > 0) {
         ++total;
-        int wtype = hgdc.waferType(hid.layer(), hid.waferU(), hid.waferV());
+        int wtype = hgdc.waferType(hid.layer(), hid.waferU(), hid.waferV(), false);
         int indx = (part - 1) * 6 + type.second;
         GlobalPoint xyz = geom->getWaferPosition(id);
         auto range = hgdc.rangeRLayer(hid.layer(), true);
@@ -189,7 +189,7 @@ void HGCalWaferTypeTester::analyze(const edm::Event& iEvent, const edm::EventSet
         if (!match) {
           ++bad;
           // Need debug information here
-          hgdc.waferTypeRotation(hid.layer(), hid.waferU(), hid.waferV(), true);
+          hgdc.waferTypeRotation(hid.layer(), hid.waferU(), hid.waferV(), true, false);
           HGCalWaferMask::getTypeMode(xyz.x(), xyz.y(), r, R, range.first, range.second, wtype, 0, true);
           for (unsigned int i = 0; i < 24; ++i) {
             double rp = std::sqrt((xyz.x() + dx[i]) * (xyz.x() + dx[i]) + (xyz.y() + dy[i]) * (xyz.y() + dy[i]));

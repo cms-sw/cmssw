@@ -807,7 +807,7 @@ std::pair<float, float> HGCalDDDConstants::locateCell(const HGCSiliconDetId& id,
 }
 
 std::pair<float, float> HGCalDDDConstants::locateCell(const HGCScintillatorDetId& id, bool debug) const {
-  return locateCellTrap(id.layer(), id.iradius(), id.iphi(), true, debug);
+  return locateCellTrap(id.zside(), id.layer(), id.iradius(), id.iphi(), true, debug);
 }
 
 std::pair<float, float> HGCalDDDConstants::locateCellHex(int cell, int wafer, bool reco) const {
