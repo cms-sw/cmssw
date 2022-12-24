@@ -201,7 +201,7 @@ void HGCalNumberingScheme::checkPosition(uint32_t index, const G4ThreeVector& po
   } else if (DetId(index).det() == DetId::HGCalHSi) {
     HGCSiliconDetId id = HGCSiliconDetId(index);
     lay = id.layer();
-    xy = hgcons_.locateCell(id.zside(), lay, id.waferU(), id.waferV(), id.cellU(), id.cellV(), false, true);
+    xy = hgcons_.locateCell(id.zside(), lay, id.waferU(), id.waferV(), id.cellU(), id.cellV(), false, true, false, false);
     z1 = hgcons_.waferZ(lay, false);
     ok = true;
     tolR = 14.0;
@@ -209,7 +209,7 @@ void HGCalNumberingScheme::checkPosition(uint32_t index, const G4ThreeVector& po
   } else if (DetId(index).det() == DetId::HGCalHSc) {
     HGCScintillatorDetId id = HGCScintillatorDetId(index);
     lay = id.layer();
-    xy = hgcons_.locateCellTrap(id.zside(), lay, id.ietaAbs(), id.iphi(), false);
+    xy = hgcons_.locateCellTrap(id.zside(), lay, id.ietaAbs(), id.iphi(), false, false);
     z1 = hgcons_.waferZ(lay, false);
     ok = true;
     tolR = 50.0;
@@ -241,8 +241,8 @@ void HGCalNumberingScheme::checkPosition(uint32_t index, const G4ThreeVector& po
         int zside = (pos.z() > 0) ? 1 : -1;
         double wt(0), xx(zside * pos.x());
         int waferU, waferV, cellU, cellV, waferType;
-        hgcons_.waferFromPosition(xx, pos.y(), zside, lay, waferU, waferV, cellU, cellV, waferType, wt, false, false);
-        xy = hgcons_.locateCell(zside, lay, waferU, waferV, cellU, cellV, false, true, true);
+        hgcons_.waferFromPosition(xx, pos.y(), zside, lay, waferU, waferV, cellU, cellV, waferType, wt, false, true);
+        xy = hgcons_.locateCell(zside, lay, waferU, waferV, cellU, cellV, false, true, false, true);
         double dx = (xx - xy.first);
         double dy = (pos.y() - xy.second);
         double dR = std::sqrt(dx * dx + dy * dy);

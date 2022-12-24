@@ -473,7 +473,7 @@ bool HGCalTopology::valid(const DetId& idin) const {
   } else if (tileTrapezoid()) {
     flag = ((idin.det() == det_) && hdcons_.isValidTrap(id.zSide, id.iLay, id.iSec1, id.iCell1));
   } else {
-    flag = ((idin.det() == det_) && hdcons_.isValidHex8(id.iLay, id.iSec1, id.iSec2, id.iCell1, id.iCell2));
+    flag = ((idin.det() == det_) && hdcons_.isValidHex8(id.iLay, id.iSec1, id.iSec2, id.iCell1, id.iCell2, false));
   }
   return flag;
 }
@@ -579,9 +579,9 @@ void HGCalTopology::addHGCSiliconId(
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "addHGCSiliconId " << det << ":" << zside << ":" << type << ":" << lay << ":"
                                 << waferU << ":" << waferV << ":" << cellU << ":" << cellV << " ==> Validity "
-                                << hdcons_.isValidHex8(lay, waferU, waferV, cellU, cellV);
+                                << hdcons_.isValidHex8(lay, waferU, waferV, cellU, cellV, false);
 #endif
-  if (hdcons_.isValidHex8(lay, waferU, waferV, cellU, cellV)) {
+  if (hdcons_.isValidHex8(lay, waferU, waferV, cellU, cellV, false)) {
     HGCSiliconDetId id((DetId::Detector)(det), zside, type, lay, waferU, waferV, cellU, cellV);
     ids.emplace_back(DetId(id));
   }

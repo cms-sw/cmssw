@@ -140,7 +140,7 @@ void HGCalTestPartialWaferHits::analyze(const edm::Event& e, const edm::EventSet
             ++good;
             GlobalPoint pos = geom->getPosition(id);
             bool valid1 = geom->topology().valid(id);
-            bool valid2 = hgc.isValidHex8(hid.layer(), hid.waferU(), hid.waferV(), hid.cellU(), hid.cellV());
+            bool valid2 = hgc.isValidHex8(hid.layer(), hid.waferU(), hid.waferV(), hid.cellU(), hid.cellV(), false);
             edm::LogVerbatim("HGCalSim") << "Hit[" << all << ":" << allSi << ":" << good << "]" << HGCSiliconDetId(id)
                                          << " Wafer Type:Part:Orient:Cassette " << info.type << ":" << info.part << ":"
                                          << info.orient << ":" << info.cassette << " at (" << pos.x() << ", " << pos.y()

@@ -81,7 +81,7 @@ void HGCalGeometryRotTest::beginRun(const edm::Run&, const edm::EventSetup& iSet
       HGCSiliconDetId detId(det, 1, types_[k], lay - layerOff, waferU_[k], waferV_[k], cellU_[k], cellV_[k]);
       GlobalPoint global = geom->getPosition(DetId(detId));
       double phi2 = global.phi();
-      auto xy = geom->topology().dddConstants().waferPosition(lay - layerOff, waferU_[k], waferV_[k], true);
+      auto xy = geom->topology().dddConstants().waferPosition(lay - layerOff, waferU_[k], waferV_[k], true, false);
       double phi1 = std::atan2(xy.second, xy.first);
       edm::LogVerbatim("HGCalGeom") << "Layer: " << lay << " U " << waferU_[k] << " V " << waferV_[k] << " Position ("
                                     << xy.first << ", " << xy.second << ") phi " << convertRadToDeg(phi1);
