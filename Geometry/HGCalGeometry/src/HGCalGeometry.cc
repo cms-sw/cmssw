@@ -550,7 +550,8 @@ DetId HGCalGeometry::getClosestCell(const GlobalPoint& r) const {
       edm::LogVerbatim("HGCalGeom") << "ZZ " << r.z() << ":" << zside << " Layer " << id.iLay << " Global " << r
                                     << "  Local " << local;
 #endif
-      const auto& kxy = m_topology.dddConstants().assignCellHex(local.x(), local.y(), zside, id.iLay, true, false, true);
+      const auto& kxy =
+          m_topology.dddConstants().assignCellHex(local.x(), local.y(), zside, id.iLay, true, false, true);
       id.iSec1 = kxy[0];
       id.iSec2 = kxy[1];
       id.iType = kxy[2];
@@ -593,7 +594,8 @@ DetId HGCalGeometry::getClosestCellHex(const GlobalPoint& r, bool extend) const 
       edm::LogVerbatim("HGCalGeom") << "ZZ " << r.z() << ":" << zside << " Layer " << id.iLay << " Global " << r
                                     << "  Local " << local;
 #endif
-      const auto& kxy = m_topology.dddConstants().assignCellHex(local.x(), local.y(), zside, id.iLay, true, extend, true);
+      const auto& kxy =
+          m_topology.dddConstants().assignCellHex(local.x(), local.y(), zside, id.iLay, true, extend, true);
       id.iSec1 = kxy[0];
       id.iSec2 = kxy[1];
       id.iType = kxy[2];

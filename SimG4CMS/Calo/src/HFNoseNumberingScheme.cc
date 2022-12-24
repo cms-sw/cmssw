@@ -59,7 +59,8 @@ void HFNoseNumberingScheme::checkPosition(uint32_t index, const G4ThreeVector& p
   } else if ((DetId(index).det() == DetId::Forward) && (DetId(index).subdetId() == static_cast<int>(HFNose))) {
     HFNoseDetId id = HFNoseDetId(index);
     lay = id.layer();
-    xy = hgcons_.locateCell(id.zside(), lay, id.waferU(), id.waferV(), id.cellU(), id.cellV(), false, true, false, false);
+    xy = hgcons_.locateCell(
+        id.zside(), lay, id.waferU(), id.waferV(), id.cellU(), id.cellV(), false, true, false, false);
     z1 = hgcons_.waferZ(lay, false);
     ok = true;
   }

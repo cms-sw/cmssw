@@ -201,7 +201,8 @@ void HGCalNumberingScheme::checkPosition(uint32_t index, const G4ThreeVector& po
   } else if (DetId(index).det() == DetId::HGCalHSi) {
     HGCSiliconDetId id = HGCSiliconDetId(index);
     lay = id.layer();
-    xy = hgcons_.locateCell(id.zside(), lay, id.waferU(), id.waferV(), id.cellU(), id.cellV(), false, true, false, false);
+    xy = hgcons_.locateCell(
+        id.zside(), lay, id.waferU(), id.waferV(), id.cellU(), id.cellV(), false, true, false, false);
     z1 = hgcons_.waferZ(lay, false);
     ok = true;
     tolR = 14.0;

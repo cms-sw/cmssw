@@ -38,8 +38,7 @@ public:
   ~HGCalDDDConstants() = default;
 
   std::pair<int, int> assignCell(float x, float y, int lay, int subSec, bool reco) const;
-  std::array<int, 5> assignCellHex(
-      float x, float y, int zside, int lay, bool reco, bool extend, bool debug) const;
+  std::array<int, 5> assignCellHex(float x, float y, int zside, int lay, bool reco, bool extend, bool debug) const;
   std::array<int, 3> assignCellTrap(float x, float y, float z, int lay, bool reco) const;
   std::pair<double, double> cellEtaPhiTrap(int type, int irad) const;
   bool cellInLayer(int waferU, int waferV, int cellU, int cellV, int lay, int zside, bool reco) const;
@@ -93,16 +92,9 @@ public:
   std::pair<float, float> localToGlobal8(
       int zside, int lay, int waferU, int waferV, double localX, double localY, bool reco, bool debug) const;
   std::pair<float, float> locateCell(int cell, int lay, int type, bool reco) const;
-  std::pair<float, float> locateCell(int zside,
-                                     int lay,
-                                     int waferU,
-                                     int waferV,
-                                     int cellU,
-                                     int cellV,
-                                     bool reco,
-                                     bool all,
-                                     bool norot,
-                                     bool debug) const;
+  std::pair<float, float> locateCell(
+      int zside, int lay, int waferU, int waferV, int cellU, int cellV, bool reco, bool all, bool norot, bool debug)
+      const;
   std::pair<float, float> locateCell(const HGCSiliconDetId&, bool debug) const;
   std::pair<float, float> locateCell(const HGCScintillatorDetId&, bool debug) const;
   std::pair<float, float> locateCellHex(int cell, int wafer, bool reco) const;
@@ -213,8 +205,7 @@ public:
   int waferType(DetId const& id, bool fromFile) const;
   int waferType(int layer, int waferU, int waferV, bool fromFile) const;
   std::tuple<int, int, int> waferType(HGCSiliconDetId const& id, bool fromFile) const;
-  std::pair<int, int> waferTypeRotation(
-      int layer, int waferU, int waferV, bool fromFile, bool debug) const;
+  std::pair<int, int> waferTypeRotation(int layer, int waferU, int waferV, bool fromFile, bool debug) const;
   inline int waferUVMax() const { return hgpar_->waferUVMax_; }
   bool waferVirtual(int layer, int waferU, int waferV) const;
   double waferZ(int layer, bool reco) const;
@@ -225,15 +216,9 @@ private:
               const double& cellR,
               const std::vector<double>& posX,
               const std::vector<double>& posY) const;
-  void cellHex(double xloc,
-               double yloc,
-               int cellType,
-               int place,
-               int part,
-               int& cellU,
-               int& cellV,
-               bool extend,
-               bool debug) const;
+  void cellHex(
+      double xloc, double yloc, int cellType, int place, int part, int& cellU, int& cellV, bool extend, bool debug)
+      const;
   std::pair<int, float> getIndex(int lay, bool reco) const;
   int layerFromIndex(int index, bool reco) const;
   bool isValidCell(int layindex, int wafer, int cell) const;
