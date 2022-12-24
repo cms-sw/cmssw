@@ -56,6 +56,7 @@ void PFHBHERecHitParamsGPUESProducer::fillDescriptions(edm::ConfigurationDescrip
 }
 
 std::unique_ptr<PFHBHERecHitParamsGPU> PFHBHERecHitParamsGPUESProducer::produce(JobConfigurationGPURecord const&) {
+  std::cout << "PFHBHERecHitParamsGPUESProducer::produce" << std::endl;
   return std::make_unique<PFHBHERecHitParamsGPU>(pset_);
 }
 

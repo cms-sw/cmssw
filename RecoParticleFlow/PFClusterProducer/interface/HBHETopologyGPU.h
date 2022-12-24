@@ -2,6 +2,9 @@
 #define RecoParticleFlow_PFClusterProducer_interface_HBHETopologyGPU_h
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #ifndef __CUDACC__
 #include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
@@ -20,7 +23,7 @@ public:
 
 #ifndef __CUDACC__
   // rearrange reco params
-  HBHETopologyGPU(edm::ParameterSet const&);
+  HBHETopologyGPU(edm::ParameterSet const&, const CaloGeometry &geom, const HcalTopology &topo);
 
   // will trigger deallocation of Product thru ~Product
   ~HBHETopologyGPU() = default;

@@ -33,6 +33,7 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitNavigatorBase.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFHBHERecHitParamsGPU.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/HBHETopologyGPU.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/HBHETopologyGPURcd.h"
 
 #include "DeclsForKernels.h"
 #include "SimplePFGPUAlgos.h"
@@ -85,7 +86,7 @@ private:
   const edm::ESGetToken<PFHBHERecHitParamsGPU, JobConfigurationGPURecord> recoParamsToken_;
   edm::ESHandle<PFHBHERecHitParamsGPU> recHitParametersHandle_;
 
-  const edm::ESGetToken<HBHETopologyGPU, JobConfigurationGPURecord> hbheTopologyToken_;
+  const edm::ESGetToken<HBHETopologyGPU, HBHETopologyGPURcd> hbheTopologyToken_;
   edm::ESHandle<HBHETopologyGPU> hbheTopologyHandle_;
 
   // Miscellaneous
@@ -285,7 +286,10 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
   auto const& recHitParams = setup.getData(recoParamsToken_);
   auto const& recHitParamsProduct = recHitParams.getProduct(ctx.stream());
 
-  recHitParametersHandle_ = setup.getHandle(recoParamsToken_);
+  hbheTopologyHandle_ = setup.getHandle(hbheTopologyToken_);
+  auto const& hbheTopoData = setup.getData(hbheTopologyToken_);
+
+  std::cout << (hbheTopoData.getValuesDetId()).size() << std::endl;
 
   std::cout << (recHitParametersHandle_->getValuesdepthHB())[0] << std::endl;
   std::cout << (recHitParametersHandle_->getValuesdepthHB())[1] << std::endl;
