@@ -244,7 +244,6 @@ inline std::vector<EtaPhiBin> L2_clustering(std::vector<std::vector<EtaPhiBin>> 
       clusters.erase(clusters.begin() + nclust);
 
       nclust--;
-      m = -1;
     }  // end of n-loop
   }    // end of m-loop
   return clusters;
