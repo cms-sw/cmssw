@@ -371,7 +371,7 @@ caloDict = {
         "sim" : [
             'from Geometry.EcalCommonData.ecalSimulationParameters_cff import *',
             'from Geometry.HcalCommonData.hcalDDDSimConstants_cff import *',
-            'from Geometry.HGCalCommonData.hgcalV15ParametersInitialization_cfi import *',
+            'from Geometry.HGCalCommonData.hgcalParametersInitialization_cfi import *',
             'from Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi import *'
         ],
         "reco" : [
@@ -445,7 +445,7 @@ caloDict = {
         "sim" : [
             'from Geometry.EcalCommonData.ecalSimulationParameters_cff import *',
             'from Geometry.HcalCommonData.hcalDDDSimConstants_cff import *',
-            'from Geometry.HGCalCommonData.hgcalV15ParametersInitialization_cfi import *',
+            'from Geometry.HGCalCommonData.hgcalParametersInitialization_cfi import *',
             'from Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi import *'
         ],
         "reco" : [
@@ -518,7 +518,7 @@ caloDict = {
         "sim" : [
             'from Geometry.EcalCommonData.ecalSimulationParameters_cff import *',
             'from Geometry.HcalCommonData.hcalDDDSimConstants_cff import *',
-            'from Geometry.HGCalCommonData.hgcalV15ParametersInitialization_cfi import *',
+            'from Geometry.HGCalCommonData.hgcalParametersInitialization_cfi import *',
             'from Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi import *'
         ],
         "reco" : [
@@ -599,9 +599,9 @@ caloDict = {
         "sim" : [
             'from Geometry.EcalCommonData.ecalSimulationParameters_cff import *',
             'from Geometry.HcalCommonData.hcalDDDSimConstants_cff import *',
-            'from Geometry.HGCalCommonData.hgcalV15ParametersInitialization_cfi import *',
+            'from Geometry.HGCalCommonData.hgcalParametersInitialization_cfi import *',
             'from Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi import *',
-            'from Geometry.ForwardCommonData.hfnoseV15ParametersInitialization_cfi import *',
+            'from Geometry.ForwardCommonData.hfnoseParametersInitialization_cfi import *',
             'from Geometry.ForwardCommonData.hfnoseNumberingInitialization_cfi  import *',
         ],
         "reco" : [
