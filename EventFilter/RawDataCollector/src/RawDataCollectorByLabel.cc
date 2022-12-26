@@ -56,7 +56,7 @@ void RawDataCollectorByLabel::produce(Event &e, const EventSetup &c) {
       std::cout << "process index = " << rawData[i].provenance()->productID().processIndex() << std::endl;
     }
 
-    for (int j = 0; j < FEDNumbering::MAXFEDID; ++j) {
+    for (int j = 0; j <= FEDNumbering::MAXFEDID; ++j) {
       const FEDRawData &fedData = rdc->FEDData(j);
       size_t size = fedData.size();
 
