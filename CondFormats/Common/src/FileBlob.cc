@@ -42,8 +42,8 @@ void FileBlob::read(std::istream& is) {
     }
     std::cout<<std::endl;
     */
-    blob.resize(isize);
     uLongf destLen = compressBound(in.size());
+    blob.resize(destLen);
     int zerr = compress2(&*blob.begin(), &destLen, &*in.begin(), in.size(), 9);
     if (zerr != 0)
       edm::LogError("FileBlob") << "Compression error " << zerr;
