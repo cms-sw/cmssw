@@ -48,7 +48,7 @@ public:
   virtual ~L1MuDTSecProcMap();
 
   /// return pointer to Sector Processor
-  L1MuDTSectorProcessor* sp(const L1MuDTSecProcId&) const;
+  const L1MuDTSectorProcessor* sp(const L1MuDTSecProcId&) const;
 
   /// insert a Sector Processor into the container
   void insert(const L1MuDTSecProcId&, std::unique_ptr<L1MuDTSectorProcessor> sp);
