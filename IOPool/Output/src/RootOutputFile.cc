@@ -937,7 +937,7 @@ namespace edm {
             << "The parentage ID index value " << toStore.parentageIDIndex_
             << " is out of bounds.  The maximum value is currently " << parentageIDs_.size() - 1 << ".\n"
             << "This should never happen.\n"
-            << "Please report this to the framework hypernews forum 'hn-cms-edmFramework@cern.ch'.\n";
+            << "Please report this to the framework developers.";
       }
 
       oToInsert.insert(toStore);
