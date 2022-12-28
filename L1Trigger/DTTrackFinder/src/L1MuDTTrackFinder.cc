@@ -53,11 +53,7 @@ using namespace std;
 
 L1MuDTTrackFinder::L1MuDTTrackFinder(const edm::ParameterSet& ps, edm::ConsumesCollector&& iC) {
   // set configuration parameters
-  if (not m_config) {
-    auto temp = std::make_shared<L1MuDTTFConfig>(ps);
-    std::shared_ptr<L1MuDTTFConfig> empty;
-    std::atomic_compare_exchange_strong(&m_config, &empty, temp);
-  }
+  m_config = std::make_unique<L1MuDTTFConfig>(ps);
 
   if (m_config->Debug(1))
     cout << endl;
@@ -291,7 +287,3 @@ int L1MuDTTrackFinder::numberOfTracks(int bx) {
 
   return number;
 }
-
-// static data members
-
-std::shared_ptr<L1MuDTTFConfig> L1MuDTTrackFinder::m_config;
