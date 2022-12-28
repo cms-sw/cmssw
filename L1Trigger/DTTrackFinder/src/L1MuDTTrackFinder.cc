@@ -158,15 +158,13 @@ void L1MuDTTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
     reset();
 
     // run sector processors
-    L1MuDTSecProcMap::SPmap_iter it_sp = m_spmap->begin();
-    while (it_sp != m_spmap->end()) {
+    for (auto& sp : *m_spmap) {
       if (m_config->Debug(2))
-        cout << "running " << (*it_sp).second->id() << endl;
-      if ((*it_sp).second)
-        (*it_sp).second->run(bx, e, c);
-      if (m_config->Debug(2) && (*it_sp).second)
-        (*it_sp).second->print();
-      it_sp++;
+        cout << "running " << sp.second->id() << endl;
+      if (sp.second)
+        sp.second->run(bx, e, c);
+      if (m_config->Debug(2) && sp.second)
+        sp.second->print();
     }
 
     // run eta processors
@@ -180,12 +178,11 @@ void L1MuDTTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
     }
 
     // read sector processors
-    it_sp = m_spmap->begin();
-    while (it_sp != m_spmap->end()) {
+    for (auto& sp : *m_spmap) {
       if (m_config->Debug(2))
-        cout << "reading " << (*it_sp).second->id() << endl;
+        cout << "reading " << sp.second->id() << endl;
       for (int number = 0; number < 2; number++) {
-        const L1MuDTTrack* cand = (*it_sp).second->tracK(number);
+        const L1MuDTTrack* cand = sp.second->tracK(number);
         if (cand && !cand->empty())
           _cache0.push_back(L1MuDTTrackCand(cand->getDataWord(),
                                             cand->bx(),
@@ -198,7 +195,6 @@ void L1MuDTTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
                                             cand->address(4),
                                             cand->tc()));
       }
-      it_sp++;
     }
 
     // run wedge sorters
@@ -221,11 +217,9 @@ void L1MuDTTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
 
     // store found track candidates in container (cache)
     if (m_ms->numberOfTracks() > 0) {
-      const vector<const L1MuDTTrack*>& mttf_cont = m_ms->tracks();
-      vector<const L1MuDTTrack*>::const_iterator iter;
-      for (iter = mttf_cont.begin(); iter != mttf_cont.end(); iter++) {
-        if (*iter)
-          _cache.push_back(L1MuRegionalCand((*iter)->getDataWord(), (*iter)->bx()));
+      for (auto const& mttf : m_ms->tracks()) {
+        if (mttf)
+          _cache.push_back(L1MuRegionalCand(mttf->getDataWord(), mttf->bx()));
       }
     }
   }
@@ -235,11 +229,9 @@ void L1MuDTTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
 // reset MTTF
 //
 void L1MuDTTrackFinder::reset() {
-  L1MuDTSecProcMap::SPmap_iter it_sp = m_spmap->begin();
-  while (it_sp != m_spmap->end()) {
-    if ((*it_sp).second)
-      (*it_sp).second->reset();
-    it_sp++;
+  for (auto& sp : *m_spmap) {
+    if (sp.second)
+      sp.second->reset();
   }
 
   for (auto& ep : m_epvec) {
@@ -280,8 +272,8 @@ void L1MuDTTrackFinder::clear() {
 //
 int L1MuDTTrackFinder::numberOfTracks(int bx) {
   int number = 0;
-  for (TFtracks_const_iter it = _cache.begin(); it != _cache.end(); it++) {
-    if ((*it).bx() == bx)
+  for (auto const& elem : _cache) {
+    if (elem.bx() == bx)
       number++;
   }
 
