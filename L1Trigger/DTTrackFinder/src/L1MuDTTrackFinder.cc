@@ -124,7 +124,7 @@ void L1MuDTTrackFinder::setup(edm::ConsumesCollector&& iC) {
       continue;
     for (int sc = 0; sc < 12; sc++) {
       L1MuDTSecProcId tmpspid(wh, sc);
-      L1MuDTSectorProcessor* sp = new L1MuDTSectorProcessor(*this, tmpspid, std::move(iC));
+      L1MuDTSectorProcessor* sp = new L1MuDTSectorProcessor(*this, tmpspid, iC);
       if (m_config->Debug(2))
         cout << "creating " << tmpspid << endl;
       m_spmap->insert(tmpspid, sp);
@@ -133,7 +133,7 @@ void L1MuDTTrackFinder::setup(edm::ConsumesCollector&& iC) {
 
   // create new eta processors and wedge sorters
   for (int sc = 0; sc < 12; sc++) {
-    L1MuDTEtaProcessor* ep = new L1MuDTEtaProcessor(*this, sc, std::move(iC));
+    L1MuDTEtaProcessor* ep = new L1MuDTEtaProcessor(*this, sc, iC);
     if (m_config->Debug(2))
       cout << "creating Eta Processor " << sc << endl;
     m_epvec.push_back(ep);
