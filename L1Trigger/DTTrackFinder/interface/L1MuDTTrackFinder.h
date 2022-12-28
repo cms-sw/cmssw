@@ -100,7 +100,7 @@ public:
   int numberOfTracks(int bx);
 
   /// return configuration
-  static L1MuDTTFConfig* config() { return m_config.get(); }
+  const L1MuDTTFConfig* config() const { return m_config.get(); }
 
   std::vector<L1MuDTTrackCand>& getcache0() { return _cache0; }
 
@@ -115,7 +115,7 @@ private:
   std::unique_ptr<L1MuDTMuonSorter> m_ms;                    ///< DT Muon Sorter
   edm::EDGetTokenT<L1MuDTChambPhContainer> m_DTDigiToken;
 
-  static std::shared_ptr<L1MuDTTFConfig> m_config;  ///< Track Finder configuration
+  std::unique_ptr<L1MuDTTFConfig> m_config;  ///< Track Finder configuration
 };
 
 #endif
