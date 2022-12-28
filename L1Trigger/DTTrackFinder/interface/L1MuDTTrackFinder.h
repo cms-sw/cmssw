@@ -64,7 +64,7 @@ public:
   L1MuDTTrackFinder(const edm::ParameterSet& ps, edm::ConsumesCollector&& iC);
 
   /// destructor
-  virtual ~L1MuDTTrackFinder();
+  ~L1MuDTTrackFinder();
 
   /// build the structure of the barrel MTTF
   void setup(edm::ConsumesCollector&& iC);
@@ -105,13 +105,6 @@ public:
   std::vector<L1MuDTTrackCand>& getcache0() { return _cache0; }
 
   std::vector<L1MuRegionalCand>& getcache() { return _cache; }
-
-private:
-  /// run Track Finder and store candidates in cache
-  virtual void reconstruct(const edm::Event& e, const edm::EventSetup& c) {
-    reset();
-    run(e, c);
-  }
 
 private:
   std::vector<L1MuDTTrackCand> _cache0;

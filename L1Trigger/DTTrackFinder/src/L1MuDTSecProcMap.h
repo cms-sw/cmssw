@@ -45,7 +45,7 @@ public:
   L1MuDTSecProcMap();
 
   /// destructor
-  virtual ~L1MuDTSecProcMap();
+  ~L1MuDTSecProcMap();
 
   /// return pointer to Sector Processor
   const L1MuDTSectorProcessor* sp(const L1MuDTSecProcId&) const;
