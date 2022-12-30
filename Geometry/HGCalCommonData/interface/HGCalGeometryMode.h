@@ -14,7 +14,7 @@ class HGCalStringToEnumParser {
 public:
   HGCalStringToEnumParser(void);
 
-  T parseString(const std::string &value) {
+  T parseString(const std::string& value) {
     typename std::map<std::string, T>::const_iterator itr = enumMap.find(value);
     if (itr == enumMap.end())
       throw cms::Exception("Configuration") << "the value " << value << " is not defined.";
@@ -47,6 +47,6 @@ namespace HGCalGeometryMode {
   WaferMode getGeometryWaferMode(const char* s, const DDsvalues_type& sv);
 
   WaferMode getGeometryWaferMode(std::string& s);
-}; // namespace HGCalGeometryMode
+};  // namespace HGCalGeometryMode
 
 #endif
