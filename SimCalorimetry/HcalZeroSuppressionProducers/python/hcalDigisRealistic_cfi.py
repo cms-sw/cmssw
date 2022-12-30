@@ -43,8 +43,8 @@ run2_HE_2018.toModify( simHcalDigis,
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify( simHcalDigis, 
                              use1ts = cms.bool(True),
-                             HBregion = cms.vint32(4,7),
-                             HEregion = cms.vint32(4,7)
+                             HBregion = cms.vint32(5,6),  # SOI in 10TS
+                             HEregion = cms.vint32(5,6)   # SOI in 10TS
 ) 
 
 
