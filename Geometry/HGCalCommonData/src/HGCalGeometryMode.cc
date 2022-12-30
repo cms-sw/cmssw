@@ -30,7 +30,7 @@ HGCalGeometryMode::GeometryMode HGCalGeometryMode::getGeometryMode(const char* s
     if (fvec.empty()) {
       throw cms::Exception("HGCalGeom") << "getGeometryMode::Failed to get " << s << " tag.";
     }
-    
+
     HGCalStringToEnumParser<HGCalGeometryMode::GeometryMode> eparser;
     HGCalGeometryMode::GeometryMode result = (HGCalGeometryMode::GeometryMode)eparser.parseString(fvec[0]);
     return result;
@@ -44,7 +44,7 @@ HGCalGeometryMode::GeometryMode HGCalGeometryMode::getGeometryMode(const std::st
   HGCalGeometryMode::GeometryMode result = (HGCalGeometryMode::GeometryMode)eparser.parseString(s);
   return result;
 };
-  
+
 HGCalGeometryMode::WaferMode HGCalGeometryMode::getGeometryWaferMode(const char* s, const DDsvalues_type& sv) {
   DDValue val(s);
   if (DDfetch(&sv, val)) {
