@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <map>
 #include <string>
+#include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 template <typename T>
@@ -36,7 +37,16 @@ namespace HGCalGeometryMode {
     Hexagon8Cassette = 10,
     TrapezoidCassette = 11,
   };
+
   enum WaferMode { Polyhedra = 0, ExtrudedPolygon = 1 };
-}  // namespace HGCalGeometryMode
+
+  // Gets Geometry mode
+  GeometryMode getGeometryMode(const char* s, const DDsvalues_type& sv);
+  GeometryMode getGeometryMode(const std::string& s);
+  // Gets wafer mode
+  WaferMode getGeometryWaferMode(const char* s, const DDsvalues_type& sv);
+
+  WaferMode getGeometryWaferMode(std::string& s);
+}; // namespace HGCalGeometryMode
 
 #endif
