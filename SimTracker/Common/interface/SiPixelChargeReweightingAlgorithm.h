@@ -3,6 +3,7 @@
 
 // Original Author Caroline Collard
 // September 2020 : Extraction of the code for cluster charge reweighting from SiPixelDigitizerAlgorithm to a new class
+// Jan 2023: Generalize so it can be used for Phase-2 IT as well (M. Musich, T.A. Vami)
 
 // forward declarations
 #include <map>
@@ -56,10 +57,8 @@ public:
   // initialization that cannot be done in the constructor
   void init(const edm::EventSetup& es);
 
-  typedef std::map<int, digitizerUtility::Amplitude, std::less<int> > signal_map_type;  // from Digi.Skel.
-  typedef signal_map_type::iterator signal_map_iterator;                                // from Digi.Skel.
-  typedef signal_map_type::const_iterator signal_map_const_iterator;                    // from Digi.Skel.
-
+  // template this so it can be used for Phase-2 as well
+  template <class AmplitudeType, typename SignalType>
   bool hitSignalReweight(const PSimHit& hit,
                          std::map<int, float, std::less<int> >& hit_signal,
                          const size_t hitIndex,
@@ -67,20 +66,20 @@ public:
                          const unsigned int tofBin,
                          const PixelTopology* topol,
                          uint32_t detID,
-                         signal_map_type& theSignal,
+                         SignalType& theSignal,
                          unsigned short int processType,
                          const bool& boolmakeDigiSimLinks);
 
+  template <class AmplitudeType, typename SignalType>
   bool lateSignalReweight(const PixelGeomDetUnit* pixdet,
                           std::vector<PixelDigi>& digis,
                           PixelSimHitExtraInfo& loopTempSH,
-                          signal_map_type& theNewDigiSignal,
+                          SignalType& theNewDigiSignal,
                           const TrackerTopology* tTopo,
                           CLHEP::HepRandomEngine* engine);
 
 private:
   // Internal typedef
-  typedef std::map<uint32_t, signal_map_type> signalMaps;
   typedef GloballyPositioned<double> Frame;
   typedef std::vector<edm::ParameterSet> Parameters;
   typedef boost::multi_array<float, 2> array_2d;
@@ -143,8 +142,8 @@ inline SiPixelChargeReweightingAlgorithm::SiPixelChargeReweightingAlgorithm(cons
       UseReweighting(conf.getParameter<bool>("UseReweighting")),
       applyLateReweighting_(conf.exists("applyLateReweighting") ? conf.getParameter<bool>("applyLateReweighting")
                                                                 : false),
-      PrintClusters(conf.getParameter<bool>("PrintClusters")),
-      PrintTemplates(conf.getParameter<bool>("PrintTemplates")) {
+      PrintClusters(conf.exists("PrintClusters") ? conf.getParameter<bool>("PrintClusters") : false),
+      PrintTemplates(conf.exists("PrintTemplates") ? conf.getParameter<bool>("PrintTemplates") : false) {
   if (UseReweighting || applyLateReweighting_) {
     SiPixel2DTemp_den_token_ = iC.esConsumes(edm::ESInputTag("", "denominator"));
     SiPixel2DTemp_num_token_ = iC.esConsumes(edm::ESInputTag("", "numerator"));
@@ -160,17 +159,17 @@ inline SiPixelChargeReweightingAlgorithm::~SiPixelChargeReweightingAlgorithm() {
 }
 
 //============================================================================
-
-inline bool SiPixelChargeReweightingAlgorithm::hitSignalReweight(const PSimHit& hit,
-                                                                 std::map<int, float, std::less<int> >& hit_signal,
-                                                                 const size_t hitIndex,
-                                                                 const size_t hitIndex4CR,
-                                                                 const unsigned int tofBin,
-                                                                 const PixelTopology* topol,
-                                                                 uint32_t detID,
-                                                                 signal_map_type& theSignal,
-                                                                 unsigned short int processType,
-                                                                 const bool& boolmakeDigiSimLinks) {
+template <class AmplitudeType, typename SignalType>
+bool SiPixelChargeReweightingAlgorithm::hitSignalReweight(const PSimHit& hit,
+                                                          std::map<int, float, std::less<int> >& hit_signal,
+                                                          const size_t hitIndex,
+                                                          const size_t hitIndex4CR,
+                                                          const unsigned int tofBin,
+                                                          const PixelTopology* topol,
+                                                          uint32_t detID,
+                                                          SignalType& theSignal,
+                                                          unsigned short int processType,
+                                                          const bool& boolmakeDigiSimLinks) {
   int irow_min = topol->nrows();
   int irow_max = 0;
   int icol_min = topol->ncolumns();
@@ -178,16 +177,19 @@ inline bool SiPixelChargeReweightingAlgorithm::hitSignalReweight(const PSimHit& 
 
   float chargeBefore = 0;
   float chargeAfter = 0;
-  signal_map_type hitSignal;
+  SignalType hitSignal;
   LocalVector direction = hit.exitPoint() - hit.entryPoint();
 
   for (std::map<int, float, std::less<int> >::const_iterator im = hit_signal.begin(); im != hit_signal.end(); ++im) {
     int chan = (*im).first;
     std::pair<int, int> pixelWithCharge = PixelDigi::channelToPixel(chan);
-
-    hitSignal[chan] += (boolmakeDigiSimLinks ? digitizerUtility::Amplitude(
-                                                   (*im).second, &hit, hitIndex, hitIndex4CR, tofBin, (*im).second)
-                                             : digitizerUtility::Amplitude((*im).second, (*im).second));
+    if constexpr (std::is_same_v<AmplitudeType, digitizerUtility::Ph2Amplitude>) {
+      hitSignal[chan] += AmplitudeType((*im).second, &hit, (*im).second, 0., hitIndex, tofBin);
+    } else {
+      hitSignal[chan] +=
+          (boolmakeDigiSimLinks ? AmplitudeType((*im).second, &hit, hitIndex, hitIndex4CR, tofBin, (*im).second)
+                                : AmplitudeType((*im).second, (*im).second));
+    }
     chargeBefore += (*im).second;
 
     if (pixelWithCharge.first < irow_min)
@@ -353,9 +355,14 @@ inline bool SiPixelChargeReweightingAlgorithm::hitSignalReweight(const PSimHit& 
       float charge = pixrewgt[row][col];
       if (charge > 0) {
         chargeAfter += charge;
-        theSignal[PixelDigi::pixelToChannel(hitPixel.first + row - THX, hitPixel.second + col - THY)] +=
-            (boolmakeDigiSimLinks ? digitizerUtility::Amplitude(charge, &hit, hitIndex, hitIndex4CR, tofBin, charge)
-                                  : digitizerUtility::Amplitude(charge, charge));
+        if constexpr (std::is_same_v<AmplitudeType, digitizerUtility::Ph2Amplitude>) {
+          theSignal[PixelDigi::pixelToChannel(hitPixel.first + row - THX, hitPixel.second + col - THY)] +=
+              AmplitudeType(charge, &hit, charge, 0., hitIndex, tofBin);
+        } else {
+          theSignal[PixelDigi::pixelToChannel(hitPixel.first + row - THX, hitPixel.second + col - THY)] +=
+              (boolmakeDigiSimLinks ? AmplitudeType(charge, &hit, hitIndex, hitIndex4CR, tofBin, charge)
+                                    : AmplitudeType(charge, charge));
+        }
       }
     }
   }
@@ -631,12 +638,13 @@ inline void SiPixelChargeReweightingAlgorithm::printCluster(float arr[TXSIZE][TY
   }
 }
 
-inline bool SiPixelChargeReweightingAlgorithm::lateSignalReweight(const PixelGeomDetUnit* pixdet,
-                                                                  std::vector<PixelDigi>& digis,
-                                                                  PixelSimHitExtraInfo& loopTempSH,
-                                                                  signal_map_type& theNewDigiSignal,
-                                                                  const TrackerTopology* tTopo,
-                                                                  CLHEP::HepRandomEngine* engine) {
+template <class AmplitudeType, typename SignalType>
+bool SiPixelChargeReweightingAlgorithm::lateSignalReweight(const PixelGeomDetUnit* pixdet,
+                                                           std::vector<PixelDigi>& digis,
+                                                           PixelSimHitExtraInfo& loopTempSH,
+                                                           SignalType& theNewDigiSignal,
+                                                           const TrackerTopology* tTopo,
+                                                           CLHEP::HepRandomEngine* engine) {
   uint32_t detID = pixdet->geographicalId().rawId();
   const PixelTopology* topol = &pixdet->specificTopology();
 
@@ -653,7 +661,7 @@ inline bool SiPixelChargeReweightingAlgorithm::lateSignalReweight(const PixelGeo
     return false;
   }
 
-  signal_map_type theDigiSignal;
+  SignalType theDigiSignal;
 
   int irow_min = topol->nrows();
   int irow_max = 0;
@@ -669,7 +677,14 @@ inline bool SiPixelChargeReweightingAlgorithm::lateSignalReweight(const PixelGeo
     unsigned int chan = loopDigi->channel();
     if (loopTempSH.isInTheList(chan)) {
       float corresponding_charge = loopDigi->adc();
-      theDigiSignal[chan] += digitizerUtility::Amplitude(corresponding_charge, corresponding_charge);
+      if constexpr (std::is_same_v<AmplitudeType, digitizerUtility::Ph2Amplitude>) {
+        edm::LogError("SiPixelChargeReweightingAlgorithm")
+            << "Phase-2 late charge reweighting not supported (not sure we need it at all)";
+        return false;
+        //theDigiSignal[chan] += AmplitudeType(corresponding_charge, &hit, corresponding_charge, 0., hitIndex, tofBin);
+      } else {
+        theDigiSignal[chan] += AmplitudeType(corresponding_charge, corresponding_charge);
+      }
       chargeBefore += corresponding_charge;
       if (loopDigi->row() < irow_min)
         irow_min = loopDigi->row();
@@ -794,8 +809,14 @@ inline bool SiPixelChargeReweightingAlgorithm::lateSignalReweight(const PixelGeo
       if ((hitPixel.first + row - THX) >= 0 && (hitPixel.first + row - THX) < topol->nrows() &&
           (hitPixel.second + col - THY) >= 0 && (hitPixel.second + col - THY) < topol->ncolumns() && charge > 0) {
         chargeAfter += charge;
-        theNewDigiSignal[PixelDigi::pixelToChannel(hitPixel.first + row - THX, hitPixel.second + col - THY)] +=
-            digitizerUtility::Amplitude(charge, charge);
+        if constexpr (std::is_same_v<AmplitudeType, digitizerUtility::Ph2Amplitude>) {
+          edm::LogError("SiPixelChargeReweightingAlgorithm")
+              << "Phase-2 late charge reweighting not supported (not sure we need it at all)";
+          return false;
+        } else {
+          theNewDigiSignal[PixelDigi::pixelToChannel(hitPixel.first + row - THX, hitPixel.second + col - THY)] +=
+              AmplitudeType(charge, charge);
+        }
       }
     }
   }
@@ -810,9 +831,10 @@ inline bool SiPixelChargeReweightingAlgorithm::lateSignalReweight(const PixelGeo
   }
 
   // need to store the digi out of the 21x13 box.
-  for (signal_map_const_iterator i = theDigiSignal.begin(); i != theDigiSignal.end(); ++i) {
+  for (auto& i : theDigiSignal) {
     // check if in the 21x13 box
-    int chanDigi = (*i).first;
+    int chanDigi = i.first;
+    //int chanDigi = i;
     std::pair<int, int> ip = PixelDigi::channelToPixel(chanDigi);
     int row_digi = ip.first;
     int col_digi = ip.second;
@@ -820,8 +842,14 @@ inline bool SiPixelChargeReweightingAlgorithm::lateSignalReweight(const PixelGeo
     int i_transformed_col = col_digi - hitPixel.second + THY;
     if (i_transformed_row < 0 || i_transformed_row > TXSIZE || i_transformed_col < 0 || i_transformed_col > TYSIZE) {
       // not in the box
-      if (chanDigi >= 0 && (*i).second > 0) {
-        theNewDigiSignal[chanDigi] += digitizerUtility::Amplitude((*i).second, (*i).second);
+      if (chanDigi >= 0 && i.second > 0) {
+        if constexpr (std::is_same_v<AmplitudeType, digitizerUtility::Ph2Amplitude>) {
+          edm::LogError("SiPixelChargeReweightingAlgorithm")
+              << "Phase-2 late charge reweighting not supported (not sure we need it at all)";
+          return false;
+        } else {
+          theNewDigiSignal[chanDigi] += AmplitudeType(i.second, i.second);
+        }
       }
     }
   }

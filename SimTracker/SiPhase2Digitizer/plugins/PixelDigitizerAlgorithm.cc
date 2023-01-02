@@ -35,6 +35,9 @@ void PixelDigitizerAlgorithm::init(const edm::EventSetup& es) {
   // gets the map and geometry from the DB (to kill ROCs)
   fedCablingMap_ = &es.getData(fedCablingMapToken_);
   geom_ = &es.getData(geomToken_);
+  if (useChargeReweighting_) {
+    theSiPixelChargeReweightingAlgorithm_->init(es);
+  }
 }
 
 PixelDigitizerAlgorithm::PixelDigitizerAlgorithm(const edm::ParameterSet& conf, edm::ConsumesCollector iC)
@@ -70,7 +73,9 @@ PixelDigitizerAlgorithm::PixelDigitizerAlgorithm(const edm::ParameterSet& conf, 
                                       << " The delta cut-off is set to " << tMax_ << " pix-inefficiency "
                                       << addPixelInefficiency_;
 }
+
 PixelDigitizerAlgorithm::~PixelDigitizerAlgorithm() { LogDebug("PixelDigitizerAlgorithm") << "Algorithm deleted"; }
+
 //
 // -- Select the Hit for Digitization
 //
