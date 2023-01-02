@@ -104,15 +104,10 @@ ParametrisedEMPhysics::ParametrisedEMPhysics(const std::string& name, const edm:
 
   edm::LogVerbatim("SimG4CoreApplication")
       << "### ParametrisedEMPhysics parameters:"
-      << "\n verbosity= " << verb 
-      << "\n fluoFlag: " << fluo
-      << "\n fluo below K-shell: " << pe
-      << "\n transportation with msc: " << type
-      << "\n modifyTransport: " << modifyT << "  Ntrials= " << nt
-      << "\n ThWarning(MeV)= " << th1/CLHEP::MeV 
-      << "\n ThException(MeV)= " << th2/CLHEP::MeV
-      << "\n read muon data: " << mudat
-      << "\n bremsstrahlung threshold Eth(GeV)= " << bremth/CLHEP::GeV;
+      << "\n verbosity= " << verb << "\n fluoFlag: " << fluo << "\n fluo below K-shell: " << pe
+      << "\n transportation with msc: " << type << "\n modifyTransport: " << modifyT << "  Ntrials= " << nt
+      << "\n ThWarning(MeV)= " << th1 / CLHEP::MeV << "\n ThException(MeV)= " << th2 / CLHEP::MeV
+      << "\n read muon data: " << mudat << "\n bremsstrahlung threshold Eth(GeV)= " << bremth / CLHEP::GeV;
 
   // Russian roulette and tracking cut for e+-
   double energyLim = theParSet.getParameter<double>("RusRoElectronEnergyLimit") * MeV;
