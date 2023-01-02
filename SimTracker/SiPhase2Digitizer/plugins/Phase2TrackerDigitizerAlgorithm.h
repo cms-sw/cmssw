@@ -1,5 +1,5 @@
-#ifndef __SimTracker_SiPhase2Digitizer_Phase2TrackerDigitizerAlgorithm_h
-#define __SimTracker_SiPhase2Digitizer_Phase2TrackerDigitizerAlgorithm_h
+#ifndef SimTracker_SiPhase2Digitizer_Phase2TrackerDigitizerAlgorithm_h
+#define SimTracker_SiPhase2Digitizer_Phase2TrackerDigitizerAlgorithm_h
 
 #include <map>
 #include <memory>
@@ -14,6 +14,7 @@
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
 
 #include "SimTracker/Common/interface/DigitizerUtility.h"
+#include "SimTracker/Common/interface/SiPixelChargeReweightingAlgorithm.h"
 #include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerFwd.h"
 
 // Units and Constants
@@ -39,6 +40,7 @@ class SiPixelQuality;
 class SiPhase2OuterTrackerLorentzAngle;
 class TrackerGeometry;
 class TrackerTopology;
+class SiPixelChargeReweightingAlgorithm;
 
 // REMEMBER CMS conventions:
 // -- Energy: GeV
@@ -168,6 +170,11 @@ protected:
   const double pseudoRadDamage_;        // Decrease the amount off freed charge that reaches the collector
   const double pseudoRadDamageRadius_;  // Only apply pseudoRadDamage to pixels with radius<=pseudoRadDamageRadius
 
+  // charge reweighting
+  const bool useChargeReweighting_;
+  // access 2D templates from DB. Only gets initialized if useChargeReweighting_ is set to true
+  const std::unique_ptr<SiPixelChargeReweightingAlgorithm> theSiPixelChargeReweightingAlgorithm_;
+
   // The PDTable
   // HepPDTable *particleTable;
   // ParticleDataTable *particleTable;
@@ -190,8 +197,10 @@ protected:
       const Phase2TrackerGeomDetUnit* pixdet,
       const GlobalVector& bfield,
       const std::vector<digitizerUtility::EnergyDepositUnit>& ionization_points) const;
-  virtual void induce_signal(const PSimHit& hit,
+  virtual void induce_signal(std::vector<PSimHit>::const_iterator inputBegin,
+                             const PSimHit& hit,
                              const size_t hitIndex,
+                             const size_t firstHitIndex,
                              const uint32_t tofBin,
                              const Phase2TrackerGeomDetUnit* pixdet,
                              const std::vector<digitizerUtility::SignalPoint>& collection_points);
@@ -208,7 +217,8 @@ protected:
 
   // access to the gain calibration payloads in the db. Only gets initialized if check_dead_pixels_ is set to true.
   const std::unique_ptr<SiPixelGainCalibrationOfflineSimService> theSiPixelGainCalibrationService_;
-  LocalVector DriftDirection(const Phase2TrackerGeomDetUnit* pixdet,
+
+  LocalVector driftDirection(const Phase2TrackerGeomDetUnit* pixdet,
                              const GlobalVector& bfield,
                              const DetId& detId) const;
 

@@ -50,8 +50,10 @@ PixelBrickedDigitizerAlgorithm::PixelBrickedDigitizerAlgorithm(const edm::Parame
 PixelBrickedDigitizerAlgorithm::~PixelBrickedDigitizerAlgorithm() {
   LogDebug("PixelBrickedDigitizerAlgorithm") << "Algorithm deleted";
 }
-void PixelBrickedDigitizerAlgorithm::induce_signal(const PSimHit& hit,
+void PixelBrickedDigitizerAlgorithm::induce_signal(std::vector<PSimHit>::const_iterator inputBegin,
+                                                   const PSimHit& hit,
                                                    const size_t hitIndex,
+                                                   const size_t firstHitIndex,
                                                    const uint32_t tofBin,
                                                    const Phase2TrackerGeomDetUnit* pixdet,
                                                    const std::vector<digitizerUtility::SignalPoint>& collection_points) {

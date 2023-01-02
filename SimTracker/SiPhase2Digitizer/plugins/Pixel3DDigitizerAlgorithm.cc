@@ -1,20 +1,13 @@
-#include "SimTracker/SiPhase2Digitizer/plugins/Pixel3DDigitizerAlgorithm.h"
-
-// Framework infrastructure
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-// Calibration & Conditions
-#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationOfflineSimService.h"
-
-// Geometry
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-
-//#include <iostream>
 #include <cmath>
 #include <vector>
 #include <algorithm>
+
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationOfflineSimService.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "SimTracker/SiPhase2Digitizer/plugins/Pixel3DDigitizerAlgorithm.h"
 
 using namespace sipixelobjects;
 
@@ -343,8 +336,10 @@ std::vector<digitizerUtility::SignalPoint> Pixel3DDigitizerAlgorithm::drift(
 // Signal is already "induced" (actually electrons transported to the
 // n-column) at the electrode. Just collecting and adding-up all pixel
 // signal and linking it to the simulated energy deposit (hit)
-void Pixel3DDigitizerAlgorithm::induce_signal(const PSimHit& hit,
+void Pixel3DDigitizerAlgorithm::induce_signal(std::vector<PSimHit>::const_iterator inputBegin,
+                                              const PSimHit& hit,
                                               const size_t hitIndex,
+                                              const size_t firstHitIndex,
                                               const uint32_t tofBin,
                                               const Phase2TrackerGeomDetUnit* pixdet,
                                               const std::vector<digitizerUtility::SignalPoint>& collection_points) {
@@ -372,7 +367,7 @@ void Pixel3DDigitizerAlgorithm::induce_signal(const PSimHit& hit,
       the_signal[channel] += digitizerUtility::Ph2Amplitude(pt.amplitude(), nullptr, pt.amplitude());
     }
 
-    LogDebug("Pixel3DDigitizerAlgorithm::induce_signal")
+    LogDebug("Pixel3DDigitizerAlgorithm")
         << " Induce charge at row,col:" << pt.position() << " N_electrons:" << pt.amplitude() << " [Channel:" << channel
         << "]\n   [Accumulated signal in this channel:" << the_signal[channel].ampl() << "] "
         << " Global index linked PSimHit:" << hitIndex;
