@@ -16,20 +16,18 @@ from Configuration.Applications.ConfigBuilder import filesFromDASQuery
 
 options = VarParsing.VarParsing("analysis")
 
-options.register(
-    "runkey",
-    "pp_run",
-    VarParsing.VarParsing.multiplicity.singleton,
-    VarParsing.VarParsing.varType.string,
-    "Run Keys of CMS"
-)
+options.register("runkey",
+                 "pp_run",
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Run Keys of CMS")
 
 # Parameter for frontierKey
 options.register('runUniqueKey',
-    'InValid',
-    VarParsing.VarParsing.multiplicity.singleton,
-    VarParsing.VarParsing.varType.string,
-    "Unique run key from RCMS for Frontier")
+                 'InValid',
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Unique run key from RCMS for Frontier")
 
 options.register('runNumber',
                  355380,
