@@ -1,19 +1,22 @@
-#ifndef IOPool_DQMStreamer_DQMFilerIterator_h
-#define IOPool_DQMStreamer_DQMFilerIterator_h
+#ifndef DQMServices_StreamerIO_DQMFileIterator_h
+#define DQMServices_StreamerIO_DQMFileIterator_h
+
+#include <chrono>
+#include <map>
+#include <string>
+#include <unordered_set>
+#include <vector>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include <filesystem>
-
-#include <map>
-#include <unordered_set>
-#include <chrono>
-
-#include "DQMMonitoringService.h"
+namespace edm {
+  class ParameterSet;
+  class ParameterSetDescription;
+}  // namespace edm
 
 namespace dqmservices {
+
+  class DQMMonitoringService;
 
   class DQMFileIterator {
   public:
@@ -54,10 +57,10 @@ namespace dqmservices {
     };
 
     DQMFileIterator(edm::ParameterSet const& pset);
-    ~DQMFileIterator();
+    ~DQMFileIterator() = default;
     void initialise(int run, const std::string&, const std::string&);
 
-    State state();
+    State state() const { return state_; }
 
     /* methods to iterate the actual files */
 
@@ -83,7 +86,7 @@ namespace dqmservices {
 
     void delay();
 
-    unsigned int runNumber();
+    unsigned int runNumber() const { return runNumber_; }
     unsigned int lastLumiFound();
     void advanceToLumi(unsigned int lumi, std::string reason);
 
@@ -127,4 +130,4 @@ namespace dqmservices {
 
 }  // namespace dqmservices
 
-#endif
+#endif  // DQMServices_StreamerIO_DQMFileIterator_h
