@@ -1,9 +1,16 @@
-<use name="FWCore/Framework"/>
-<use name="FWCore/ServiceRegistry"/>
-<use name="IOPool/Streamer"/>
-<use name="IOPool/Output"/>
-<use name="DQMServices/Core"/>
 <use name="DQMServices/Components"/>
+<use name="DQMServices/Core"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/Histograms"/>
+<use name="DataFormats/Provenance"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Sources"/>
+<use name="FWCore/Utilities"/>
+<use name="IOPool/Output"/>
+<use name="IOPool/Streamer"/>
 <use name="stdcxx-fs"/>
 <use name="boost_regex"/>
 <library file="*.cc" name="DQMServicesStreamerIOPlugins">

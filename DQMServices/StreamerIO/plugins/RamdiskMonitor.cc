@@ -1,31 +1,37 @@
+#include <exception>
 #include <filesystem>
 #include <map>
-#include <vector>
+#include <memory>
+#include <string>
 #include <sys/stat.h>
+#include <vector>
 
-#include <fmt/printf.h>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/range.hpp>
 #include <boost/regex.hpp>
 
+#include <fmt/printf.h>
+
 #include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/StreamerIO/plugins/DQMFileIterator.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "DQMFileIterator.h"
 
 namespace dqm {
+
   namespace rdm {
     struct Empty {};
   }  // namespace rdm
+
   class RamdiskMonitor : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<rdm::Empty>> {
   public:
     RamdiskMonitor(const edm::ParameterSet &ps);
-    ~RamdiskMonitor() override;
+    ~RamdiskMonitor() override = default;
     static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
   protected:
@@ -33,7 +39,7 @@ namespace dqm {
     std::shared_ptr<rdm::Empty> globalBeginLuminosityBlock(edm::LuminosityBlock const &lumi,
                                                            edm::EventSetup const &eSetup) const override;
     void globalEndLuminosityBlock(edm::LuminosityBlock const &lumi, edm::EventSetup const &eSetup) final {}
-    void analyze(edm::Event const &e, edm::EventSetup const &eSetup) override{};
+    void analyze(edm::Event const &e, edm::EventSetup const &eSetup) override {}
 
     void analyzeFile(std::string fn, unsigned int run, unsigned int lumi, std::string label) const;
     double getRunTimestamp() const;
@@ -62,11 +68,7 @@ namespace dqm {
       : runNumber_{ps.getUntrackedParameter<unsigned int>("runNumber")},
         runInputDir_{ps.getUntrackedParameter<std::string>("runInputDir")},
         streamLabels_{ps.getUntrackedParameter<std::vector<std::string>>("streamLabels")},
-        runPath_{fmt::sprintf("%s/run%06d", runInputDir_, runNumber_)}
-
-  {}
-
-  RamdiskMonitor::~RamdiskMonitor(){};
+        runPath_{fmt::sprintf("%s/run%06d", runInputDir_, runNumber_)} {}
 
   void RamdiskMonitor::bookHistograms(DQMStore::IBooker &ib, edm::Run const &, edm::EventSetup const &) {
     for (const auto &stream : streamLabels_) {
@@ -241,6 +243,5 @@ namespace dqm {
 }  // namespace dqm
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 typedef dqm::RamdiskMonitor RamdiskMonitor;
 DEFINE_FWK_MODULE(RamdiskMonitor);
