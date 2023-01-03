@@ -32,15 +32,18 @@ namespace edm {
     std::vector<std::string> eventLabels_;
     std::vector<std::string> lumiLabels_;
     std::vector<std::string> runLabels_;
+    std::vector<std::string> processLabels_;
   };
 
   GenericConsumer::GenericConsumer(ParameterSet const& config)
       : eventLabels_(config.getUntrackedParameter<std::vector<std::string>>("eventProducts")),
         lumiLabels_(config.getUntrackedParameter<std::vector<std::string>>("lumiProducts")),
-        runLabels_(config.getUntrackedParameter<std::vector<std::string>>("runProducts")) {
+        runLabels_(config.getUntrackedParameter<std::vector<std::string>>("runProducts")),
+        processLabels_(config.getUntrackedParameter<std::vector<std::string>>("processProducts")) {
     std::sort(eventLabels_.begin(), eventLabels_.end());
     std::sort(lumiLabels_.begin(), lumiLabels_.end());
     std::sort(runLabels_.begin(), runLabels_.end());
+    std::sort(processLabels_.begin(), processLabels_.end());
 
     callWhenNewProductsRegistered([this](edm::BranchDescription const& branch) {
       static const std::string kWildcard("*");
@@ -72,6 +75,13 @@ namespace edm {
                 edm::InputTag{branch.moduleLabel(), branch.productInstanceName(), branch.processName()});
           break;
 
+        case InProcess:
+          if (std::binary_search(processLabels_.begin(), processLabels_.end(), branch.moduleLabel()) or
+              std::binary_search(processLabels_.begin(), processLabels_.end(), kWildcard))
+            this->consumes<edm::InProcess>(
+                edm::TypeToGet{branch.unwrappedTypeID(), PRODUCT_TYPE},
+                edm::InputTag{branch.moduleLabel(), branch.productInstanceName(), branch.processName()});
+          break;
         default:
           throw Exception(errors::LogicError)
               << "Unexpected branch type " << branch.branchType() << "\nPlease contact a Framework developer\n";
@@ -92,11 +102,15 @@ namespace edm {
     desc.addUntracked<std::vector<std::string>>("lumiProducts", {})
         ->setComment(
             "List of modules whose lumi products this module will depend on. "
-            "Use \"*\" to depend on all event products.");
+            "Use \"*\" to depend on all lumi products.");
     desc.addUntracked<std::vector<std::string>>("runProducts", {})
         ->setComment(
             "List of modules whose run products this module will depend on. "
-            "Use \"*\" to depend on all event products.");
+            "Use \"*\" to depend on all run products.");
+    desc.addUntracked<std::vector<std::string>>("processProducts", {})
+        ->setComment(
+            "List of modules whose process products this module will depend on. "
+            "Use \"*\" to depend on all process products.");
     descriptions.addWithDefaultLabel(desc);
   }
 
