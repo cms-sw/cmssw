@@ -1,4 +1,5 @@
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
+#include "DetectorDescription/Core/interface/DDutils.h"
 
 template <>
 HGCalStringToEnumParser<HGCalGeometryMode::GeometryMode>::HGCalStringToEnumParser() {
@@ -21,3 +22,47 @@ HGCalStringToEnumParser<HGCalGeometryMode::WaferMode>::HGCalStringToEnumParser()
   enumMap["HGCalGeometryMode::Polyhedra"] = HGCalGeometryMode::Polyhedra;
   enumMap["HGCalGeometryMode::ExtrudedPolygon"] = HGCalGeometryMode::ExtrudedPolygon;
 }
+
+HGCalGeometryMode::GeometryMode HGCalGeometryMode::getGeometryMode(const char* s, const DDsvalues_type& sv) {
+  DDValue val(s);
+  if (DDfetch(&sv, val)) {
+    const std::vector<std::string>& fvec = val.strings();
+    if (fvec.empty()) {
+      throw cms::Exception("HGCalGeom") << "getGeometryMode::Failed to get " << s << " tag.";
+    }
+
+    HGCalStringToEnumParser<HGCalGeometryMode::GeometryMode> eparser;
+    HGCalGeometryMode::GeometryMode result = (HGCalGeometryMode::GeometryMode)eparser.parseString(fvec[0]);
+    return result;
+  } else {
+    throw cms::Exception("HGCalGeom") << "getGeometryMode::Failed to fetch " << s << " tag";
+  }
+};
+
+HGCalGeometryMode::GeometryMode HGCalGeometryMode::getGeometryMode(const std::string& s) {
+  HGCalStringToEnumParser<HGCalGeometryMode::GeometryMode> eparser;
+  HGCalGeometryMode::GeometryMode result = (HGCalGeometryMode::GeometryMode)eparser.parseString(s);
+  return result;
+};
+
+HGCalGeometryMode::WaferMode HGCalGeometryMode::getGeometryWaferMode(const char* s, const DDsvalues_type& sv) {
+  DDValue val(s);
+  if (DDfetch(&sv, val)) {
+    const std::vector<std::string>& fvec = val.strings();
+    if (fvec.empty()) {
+      throw cms::Exception("HGCalGeom") << "getGeometryWaferMode::Failed to get " << s << " tag.";
+    }
+
+    HGCalStringToEnumParser<HGCalGeometryMode::WaferMode> eparser;
+    HGCalGeometryMode::WaferMode result = (HGCalGeometryMode::WaferMode)eparser.parseString(fvec[0]);
+    return result;
+  } else {
+    throw cms::Exception("HGCalGeom") << "getGeometryWaferMode::Failed to fetch " << s << " tag";
+  }
+};
+
+HGCalGeometryMode::WaferMode HGCalGeometryMode::getGeometryWaferMode(std::string& s) {
+  HGCalStringToEnumParser<HGCalGeometryMode::WaferMode> eparser;
+  HGCalGeometryMode::WaferMode result = (HGCalGeometryMode::WaferMode)eparser.parseString(s);
+  return result;
+};
