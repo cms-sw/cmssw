@@ -35,4 +35,17 @@ namespace edm::path_configuration {
     return iConfig;
   }
 
+  std::string removeSchedulingTokensFromModuleLabel(std::string iLabel) {
+    constexpr std::array<char, 4> s_tokens = {{'!', '-', '+', '|'}};
+    if (not iLabel.empty()) {
+      for (auto t : s_tokens) {
+        if (t == iLabel[0]) {
+          iLabel.erase(0, 1);
+          break;
+        }
+      }
+    }
+    return iLabel;
+  }
+
 }  // namespace edm::path_configuration
