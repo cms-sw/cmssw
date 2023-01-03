@@ -6,17 +6,6 @@
 using namespace std;
 using namespace reco;
 
-namespace {
-  // FIXME
-  // hard-coded tracker bounds
-  // workaround while waiting for Geometry service
-  const float TrackerBoundsRadius = 112;
-  const float TrackerBoundsHalfLength = 273.5;
-  bool insideTrackerBounds(const GlobalPoint& point) {
-    return ((point.transverse() < TrackerBoundsRadius) && (abs(point.z()) < TrackerBoundsHalfLength));
-  }
-}  // namespace
-
 template <unsigned int N>
 SequentialVertexFitter<N>::SequentialVertexFitter(const LinearizationPointFinder& linP,
                                                   const VertexUpdator<N>& updator,
