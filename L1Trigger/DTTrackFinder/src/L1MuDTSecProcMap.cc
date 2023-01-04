@@ -46,14 +46,7 @@ L1MuDTSecProcMap::L1MuDTSecProcMap() : m_map() {}
 // Destructor --
 //--------------
 
-L1MuDTSecProcMap::~L1MuDTSecProcMap() {
-  SPmap_iter iter = m_map.begin();
-  while (iter != m_map.end()) {
-    delete (*iter).second;
-    iter++;
-  }
-  m_map.clear();
-}
+L1MuDTSecProcMap::~L1MuDTSecProcMap() = default;
 
 //--------------
 // Operations --
@@ -62,22 +55,22 @@ L1MuDTSecProcMap::~L1MuDTSecProcMap() {
 //
 // return Sector Processor
 //
-L1MuDTSectorProcessor* L1MuDTSecProcMap::sp(const L1MuDTSecProcId& id) const {
+const L1MuDTSectorProcessor* L1MuDTSecProcMap::sp(const L1MuDTSecProcId& id) const {
   SPmap::const_iterator it = m_map.find(id);
   if (it == m_map.end()) {
     //    cerr << "Error: Sector Processor not in the map" << endl;
     return nullptr;
   }
-  return (*it).second;
+  return (*it).second.get();
 }
 
 //
 // insert Sector Processor into container
 //
-void L1MuDTSecProcMap::insert(const L1MuDTSecProcId& id, L1MuDTSectorProcessor* sp) {
+void L1MuDTSecProcMap::insert(const L1MuDTSecProcId& id, std::unique_ptr<L1MuDTSectorProcessor> sp) {
   //SPmap::const_iterator it = m_map.find(id);
   //  if ( it != m_map.end() )
   //    cerr << "Error: More than one Sector Processor with same identifier"
   //         << endl;
-  m_map[id] = sp;
+  m_map[id] = std::move(sp);
 }
