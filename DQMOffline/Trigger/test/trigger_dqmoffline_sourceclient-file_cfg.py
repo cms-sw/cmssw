@@ -64,7 +64,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         'cout')
 )
 
-process.psource = cms.Path(process.hltFiltersDQMonitor)
+process.psource = cms.Path(process.dqmHLTFiltersDQMonitor)
 process.p = cms.EndPath(process.dqmSaver)
 process.DQMStore.verbose = 0
 process.DQM.collectorHost = ''
