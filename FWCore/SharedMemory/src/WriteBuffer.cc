@@ -40,7 +40,10 @@ WriteBuffer::~WriteBuffer() {
 //
 void WriteBuffer::growBuffer(std::size_t iLength) {
   int newBuffer = (bufferInfo_->index_ + 1) % 2;
+  bool destroyedBuffer = false;
+  auto oldIndex = bufferInfo_->index_;
   if (sm_) {
+    destroyedBuffer = true;
     try {
       sm_->destroy<char>(buffer_names::kBuffer);
     } catch (boost::interprocess::interprocess_exception const& iExcept) {
@@ -71,7 +74,24 @@ void WriteBuffer::growBuffer(std::size_t iLength) {
   bufferSize_ = iLength;
   bufferInfo_->index_ = newBuffer;
   bufferInfo_->identifier_ = bufferInfo_->identifier_ + 1;
-  buffer_ = sm_->construct<char>(buffer_names::kBuffer)[iLength](0);
+  try {
+    buffer_ = sm_->construct<char>(buffer_names::kBuffer)[iLength](0);
+  } catch (boost::interprocess::interprocess_exception const& iExcept) {
+    cms::Exception except("SharedMemory");
+    except << "boost::interprocess exception caught: " << iExcept.what();
+    {
+      std::ostringstream os;
+      os << "in growBuffer while creating the buffer within the shared memory object '" << bufferNames_[newBuffer]
+         << "' with index " << newBuffer << " where the buffer is of length " << iLength;
+
+      if (destroyedBuffer) {
+        os << " after destroying the previous shared memory object '" << bufferNames_[oldIndex] << "' with index "
+           << oldIndex;
+      }
+      except.addContext(os.str());
+    }
+    throw except;
+  }
   assert(buffer_);
 }
 
