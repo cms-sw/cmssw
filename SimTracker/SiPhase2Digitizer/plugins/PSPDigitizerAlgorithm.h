@@ -1,5 +1,5 @@
-#ifndef _SimTracker_SiPhase2Digitizer_PSPDigitizerAlgorithm_h
-#define _SimTracker_SiPhase2Digitizer_PSPDigitizerAlgorithm_h
+#ifndef SimTracker_SiPhase2Digitizer_PSPDigitizerAlgorithm_h
+#define SimTracker_SiPhase2Digitizer_PSPDigitizerAlgorithm_h
 
 #include "CondFormats/DataRecord/interface/SiPhase2OuterTrackerLorentzAngleRcd.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"

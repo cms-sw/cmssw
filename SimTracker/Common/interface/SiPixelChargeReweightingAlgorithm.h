@@ -5,7 +5,6 @@
 // September 2020 : Extraction of the code for cluster charge reweighting from SiPixelDigitizerAlgorithm to a new class
 // Jan 2023: Generalize so it can be used for Phase-2 IT as well (M. Musich, T.A. Vami)
 
-// forward declarations
 #include <map>
 #include <memory>
 #include <vector>
@@ -124,6 +123,7 @@ inline void SiPixelChargeReweightingAlgorithm::init(const edm::EventSetup& es) {
     SiPixelTemplate2D::pushfile(*dbobject_num, templateStores_);
 
     track.resize(6);
+    LogDebug("SiPixelChargeReweightingAlgorithm") << "Init SiPixelChargeReweightingAlgorithm";
   }
 }
 
@@ -148,14 +148,14 @@ inline SiPixelChargeReweightingAlgorithm::SiPixelChargeReweightingAlgorithm(cons
     SiPixel2DTemp_den_token_ = iC.esConsumes(edm::ESInputTag("", "denominator"));
     SiPixel2DTemp_num_token_ = iC.esConsumes(edm::ESInputTag("", "numerator"));
   }
-  edm::LogVerbatim("PixelDigitizer ") << "SiPixelChargeReweightingAlgorithm constructed"
-                                      << " with UseReweighting = " << UseReweighting
-                                      << " and applyLateReweighting_ = " << applyLateReweighting_;
+  LogDebug("SiPixelChargeReweightingAlgorithm")
+      << "SiPixelChargeReweightingAlgorithm constructed"
+      << " with UseReweighting = " << UseReweighting << " and applyLateReweighting_ = " << applyLateReweighting_;
 }
 
 //=========================================================================
 inline SiPixelChargeReweightingAlgorithm::~SiPixelChargeReweightingAlgorithm() {
-  LogDebug("PixelDigitizer") << "SiPixelChargeReweightingAlgorithm deleted";
+  LogDebug("SiPixelChargeReweightingAlgorithm") << "SiPixelChargeReweightingAlgorithm deleted";
 }
 
 //============================================================================
@@ -239,45 +239,40 @@ bool SiPixelChargeReweightingAlgorithm::hitSignalReweight(const PSimHit& hit,
     hitcol_max = exitPixel.second;
   }
 
-#ifdef TP_DEBUG
   LocalPoint CMSSWhitPosition = hit.localPosition();
+  LogDebug("SiPixelChargeReweightingAlgorithm")
+      << "\n"
+      << "Particle ID is: " << hit.particleType() << "\n"
+      << "Process type: " << hit.processType() << "\n"
+      << "HitPosition:"
+      << "\n"
+      << "Hit entry x/y/z: " << hit.entryPoint().x() << "  " << hit.entryPoint().y() << "  " << hit.entryPoint().z()
+      << "  "
+      << "Hit exit x/y/z: " << hit.exitPoint().x() << "  " << hit.exitPoint().y() << "  " << hit.exitPoint().z() << "  "
 
-  LogDebug("Pixel Digitizer") << "\n"
-                              << "Particle ID is: " << hit.particleType() << "\n"
-                              << "Process type: " << hit.processType() << "\n"
-                              << "HitPosition:"
-                              << "\n"
-                              << "Hit entry x/y/z: " << hit.entryPoint().x() << "  " << hit.entryPoint().y() << "  "
-                              << hit.entryPoint().z() << "  "
-                              << "Hit exit x/y/z: " << hit.exitPoint().x() << "  " << hit.exitPoint().y() << "  "
-                              << hit.exitPoint().z() << "  "
+      << "Pixel Pos - X: " << hitPositionPixel.x() << " Y: " << hitPositionPixel.y() << "\n"
+      << "Cart.Cor. - X: " << CMSSWhitPosition.x() << " Y: " << CMSSWhitPosition.y() << "\n"
+      << "Z=0 Pos - X: " << hitPosition.x() << " Y: " << hitPosition.y() << "\n"
 
-                              << "Pixel Pos - X: " << hitPositionPixel.x() << " Y: " << hitPositionPixel.y() << "\n"
-                              << "Cart.Cor. - X: " << CMSSWhitPosition.x() << " Y: " << CMSSWhitPosition.y() << "\n"
-                              << "Z=0 Pos - X: " << hitPosition.x() << " Y: " << hitPosition.y() << "\n"
+      << "Origin of the template:"
+      << "\n"
+      << "Pixel Pos - X: " << originPixel.x() << " Y: " << originPixel.y() << "\n"
+      << "Cart.Cor. - X: " << origin.x() << " Y: " << origin.y() << "\n"
+      << "\n"
+      << "Entry/Exit:"
+      << "\n"
+      << "Entry - X: " << hit.entryPoint().x() << " Y: " << hit.entryPoint().y() << " Z: " << hit.entryPoint().z()
+      << "\n"
+      << "Exit - X: " << hit.exitPoint().x() << " Y: " << hit.exitPoint().y() << " Z: " << hit.exitPoint().z() << "\n"
 
-                              << "Origin of the template:"
-                              << "\n"
-                              << "Pixel Pos - X: " << originPixel.x() << " Y: " << originPixel.y() << "\n"
-                              << "Cart.Cor. - X: " << origin.x() << " Y: " << origin.y() << "\n"
-                              << "\n"
-                              << "Entry/Exit:"
-                              << "\n"
-                              << "Entry - X: " << hit.entryPoint().x() << " Y: " << hit.entryPoint().y()
-                              << " Z: " << hit.entryPoint().z() << "\n"
-                              << "Exit - X: " << hit.exitPoint().x() << " Y: " << hit.exitPoint().y()
-                              << " Z: " << hit.exitPoint().z() << "\n"
+      << "Entry - X Pixel: " << hitEntryPointPixel.x() << " Y Pixel: " << hitEntryPointPixel.y() << "\n"
+      << "Exit - X Pixel: " << hitExitPointPixel.x() << " Y Pixel: " << hitExitPointPixel.y() << "\n"
 
-                              << "Entry - X Pixel: " << hitEntryPointPixel.x() << " Y Pixel: " << hitEntryPointPixel.y()
-                              << "\n"
-                              << "Exit - X Pixel: " << hitExitPointPixel.x() << " Y Pixel: " << hitExitPointPixel.y()
-                              << "\n"
-
-                              << "row min: " << irow_min << " col min: " << icol_min << "\n";
-#endif
+      << "row min: " << irow_min << " col min: " << icol_min << "\n";
 
   if (!(irow_min <= hitrow_max && irow_max >= hitrow_min && icol_min <= hitcol_max && icol_max >= hitcol_min)) {
     // The clusters do not have an overlap, hence the hit is NOT reweighted
+    LogDebug("SiPixelChargeReweightingAlgorithm") << "Outside the row/col boundary, exit charge reweighting";
     return false;
   }
 
@@ -288,6 +283,7 @@ bool SiPixelChargeReweightingAlgorithm::hitSignalReweight(const PSimHit& hit,
   track[4] = direction.y();
   track[5] = direction.z();
 
+  LogDebug("SiPixelChargeReweightingAlgorithm") << "Init array of size x = " << TXSIZE << " and y = " << TYSIZE;
   array_2d pixrewgt(boost::extents[TXSIZE][TYSIZE]);
 
   for (int row = 0; row < TXSIZE; ++row) {
@@ -320,7 +316,7 @@ bool SiPixelChargeReweightingAlgorithm::hitSignalReweight(const PSimHit& hit,
   }
 
   if (PrintClusters) {
-    LogDebug("PixelDigitizer ") << "Cluster before reweighting: ";
+    LogDebug("SiPixelChargeReweightingAlgorithm ") << "Cluster before reweighting: ";
     printCluster(pixrewgt);
   }
 
@@ -339,14 +335,12 @@ bool SiPixelChargeReweightingAlgorithm::hitSignalReweight(const PSimHit& hit,
     ierr = PixelTempRewgt2D(IDden, IDden, pixrewgt);
   }
   if (ierr != 0) {
-#ifdef TP_DEBUG
-    LogDebug("PixelDigitizer ") << "Cluster Charge Reweighting did not work properly.";
-#endif
+    LogDebug("SiPixelChargeReweightingAlgorithm ") << "Cluster Charge Reweighting did not work properly.";
     return false;
   }
 
   if (PrintClusters) {
-    LogDebug("PixelDigitizer ") << "Cluster after reweighting: ";
+    LogDebug("SiPixelChargeReweightingAlgorithm ") << "Cluster after reweighting: ";
     printCluster(pixrewgt);
   }
 
@@ -372,8 +366,10 @@ bool SiPixelChargeReweightingAlgorithm::hitSignalReweight(const PSimHit& hit,
   }
 
   if (PrintClusters) {
-    LogDebug("PixelDigitizer ") << "Charges (before->after): " << chargeBefore << " -> " << chargeAfter;
-    LogDebug("PixelDigitizer ") << "Charge loss: " << (1 - chargeAfter / chargeBefore) * 100 << " % \n";
+    LogDebug("SiPixelChargeReweightingAlgorithm ")
+        << "Charges (before->after): " << chargeBefore << " -> " << chargeAfter;
+    LogDebug("SiPixelChargeReweightingAlgorithm ")
+        << "Charge loss: " << (1 - chargeAfter / chargeBefore) * 100 << " % \n";
   }
 
   return true;
@@ -414,7 +410,7 @@ inline int SiPixelChargeReweightingAlgorithm::PixelTempRewgt2D(int id_in, int id
     cotalpha = track[3] / track[5];  //if track[5] (direction in z) is 0 the hit is not processed by re-weighting
     cotbeta = track[4] / track[5];
   } else {
-    LogDebug("Pixel Digitizer") << "Reweighting angle is not good! \n";
+    LogDebug("SiPixelChargeReweightingAlgorithm") << "Reweighting angle is not good! \n";
     return 9;  //returned value here indicates that no reweighting was done in this case
   }
 
@@ -444,14 +440,12 @@ inline int SiPixelChargeReweightingAlgorithm::PixelTempRewgt2D(int id_in, int id
     success = 1;
   }
   if (success != 0) {
-#ifdef TP_DEBUG
-    LogDebug("Pixel Digitizer") << "No matching template found \n";
-#endif
+    LogDebug("SiPixelChargeReweightingAlgorithm") << "No matching template found \n";
     return 2;
   }
 
   if (PrintTemplates) {
-    LogDebug("Pixel Digitizer") << "Template unirrad: \n";
+    LogDebug("SiPixelChargeReweightingAlgorithm") << "Template unirrad: \n";
     printCluster(xy_in);
   }
 
@@ -462,18 +456,19 @@ inline int SiPixelChargeReweightingAlgorithm::PixelTempRewgt2D(int id_in, int id
   // Check that the cluster container is a 13x21 matrix
 
   if (cluster.num_dimensions() != 2) {
-    edm::LogWarning("Pixel Digitizer") << "Cluster is not 2-dimensional. Return. \n";
+    edm::LogWarning("SiPixelChargeReweightingAlgorithm") << "Cluster is not 2-dimensional. Return. \n";
     return 3;
   }
   nclusx = (int)cluster.shape()[0];
   nclusy = (int)cluster.shape()[1];
   if (nclusx != TXSIZE || xdouble.size() != TXSIZE) {
-    edm::LogWarning("Pixel Digitizer") << "Sizes in x do not match: nclusx=" << nclusx
-                                       << "  xdoubleSize=" << xdouble.size() << "  TXSIZE=" << TXSIZE << ". Return. \n";
+    edm::LogWarning("SiPixelChargeReweightingAlgorithm")
+        << "Sizes in x do not match: nclusx=" << nclusx << "  xdoubleSize=" << xdouble.size() << "  TXSIZE=" << TXSIZE
+        << ". Return. \n";
     return 4;
   }
   if (nclusy != TYSIZE || ydouble.size() != TYSIZE) {
-    edm::LogWarning("Pixel Digitizer") << "Sizes in y do not match. Return. \n";
+    edm::LogWarning("SiPixelChargeReweightingAlgorithm") << "Sizes in y do not match. Return. \n";
     return 5;
   }
 
@@ -498,7 +493,7 @@ inline int SiPixelChargeReweightingAlgorithm::PixelTempRewgt2D(int id_in, int id
   }
 
   if (PrintTemplates) {
-    LogDebug("Pixel Digitizer") << "Template irrad: \n";
+    LogDebug("SiPixelChargeReweightingAlgorithm") << "Template irrad: \n";
     printCluster(xy_rewgt);
   }
 
@@ -551,7 +546,7 @@ inline int SiPixelChargeReweightingAlgorithm::PixelTempRewgt2D(int id_in, int id
   }
 
   if (PrintTemplates) {
-    LogDebug("Pixel Digitizer") << "Weights: \n";
+    LogDebug("SiPixelChargeReweightingAlgorithm") << "Weights: \n";
     printCluster(xy_clust);
   }
 
@@ -614,27 +609,27 @@ inline int SiPixelChargeReweightingAlgorithm::PixelTempRewgt2D(int id_in, int id
 inline void SiPixelChargeReweightingAlgorithm::printCluster(array_2d& cluster) {
   for (int col = 0; col < TYSIZE; ++col) {
     for (int row = 0; row < TXSIZE; ++row) {
-      LogDebug("Pixel Digitizer") << cluster[row][col];
+      LogDebug("SiPixelChargeReweightingAlgorithm") << cluster[row][col];
     }
-    LogDebug("Pixel Digitizer") << "\n";
+    LogDebug("SiPixelChargeReweightingAlgorithm") << "\n";
   }
 }
 
 inline void SiPixelChargeReweightingAlgorithm::printCluster(float arr[BXM2][BYM2]) {
   for (int col = 0; col < BYM2; ++col) {
     for (int row = 0; row < BXM2; ++row) {
-      LogDebug("Pixel Digitizer") << arr[row][col];
+      LogDebug("SiPixelChargeReweightingAlgorithm") << arr[row][col];
     }
-    LogDebug("Pixel Digitizer") << "\n";
+    LogDebug("SiPixelChargeReweightingAlgorithm") << "\n";
   }
 }
 
 inline void SiPixelChargeReweightingAlgorithm::printCluster(float arr[TXSIZE][TYSIZE]) {
   for (int col = 0; col < TYSIZE; ++col) {
     for (int row = 0; row < TXSIZE; ++row) {
-      LogDebug("Pixel Digitizer") << arr[row][col];
+      LogDebug("SiPixelChargeReweightingAlgorithm") << arr[row][col];
     }
-    LogDebug("Pixel Digitizer") << "\n";
+    LogDebug("SiPixelChargeReweightingAlgorithm") << "\n";
   }
 }
 
@@ -649,15 +644,15 @@ bool SiPixelChargeReweightingAlgorithm::lateSignalReweight(const PixelGeomDetUni
   const PixelTopology* topol = &pixdet->specificTopology();
 
   if (UseReweighting) {
-    edm::LogError("Pixel Digitizer") << " ******************************** \n";
-    edm::LogError("Pixel Digitizer") << " ******************************** \n";
-    edm::LogError("Pixel Digitizer") << " ******************************** \n";
-    edm::LogError("Pixel Digitizer") << " *****  INCONSISTENCY !!!   ***** \n";
-    edm::LogError("Pixel Digitizer")
+    edm::LogError("SiPixelChargeReweightingAlgorithm") << " ******************************** \n";
+    edm::LogError("SiPixelChargeReweightingAlgorithm") << " ******************************** \n";
+    edm::LogError("SiPixelChargeReweightingAlgorithm") << " ******************************** \n";
+    edm::LogError("SiPixelChargeReweightingAlgorithm") << " *****  INCONSISTENCY !!!   ***** \n";
+    edm::LogError("SiPixelChargeReweightingAlgorithm")
         << " applyLateReweighting_ and UseReweighting can not be true at the same time for PU ! \n";
-    edm::LogError("Pixel Digitizer") << " ---> DO NOT APPLY CHARGE REWEIGHTING TWICE !!! \n";
-    edm::LogError("Pixel Digitizer") << " ******************************** \n";
-    edm::LogError("Pixel Digitizer") << " ******************************** \n";
+    edm::LogError("SiPixelChargeReweightingAlgorithm") << " ---> DO NOT APPLY CHARGE REWEIGHTING TWICE !!! \n";
+    edm::LogError("SiPixelChargeReweightingAlgorithm") << " ******************************** \n";
+    edm::LogError("SiPixelChargeReweightingAlgorithm") << " ******************************** \n";
     return false;
   }
 
@@ -681,7 +676,6 @@ bool SiPixelChargeReweightingAlgorithm::lateSignalReweight(const PixelGeomDetUni
         edm::LogError("SiPixelChargeReweightingAlgorithm")
             << "Phase-2 late charge reweighting not supported (not sure we need it at all)";
         return false;
-        //theDigiSignal[chan] += AmplitudeType(corresponding_charge, &hit, corresponding_charge, 0., hitIndex, tofBin);
       } else {
         theDigiSignal[chan] += AmplitudeType(corresponding_charge, corresponding_charge);
       }
@@ -776,7 +770,7 @@ bool SiPixelChargeReweightingAlgorithm::lateSignalReweight(const PixelGeomDetUni
   }
 
   if (PrintClusters) {
-    LogDebug("Pixel Digitizer") << " Cluster before reweighting: ";
+    LogDebug("SiPixelChargeReweightingAlgorithm") << " Cluster before reweighting: ";
     printCluster(pixrewgt);
   }
 
@@ -787,18 +781,16 @@ bool SiPixelChargeReweightingAlgorithm::lateSignalReweight(const PixelGeomDetUni
   int ID0 = dbobject_den->getTemplateID(detID);
 
   if (ID0 == ID1) {
-    LogDebug("Pixel Digitizer") << " same template for num and den ";
+    LogDebug("SiPixelChargeReweightingAlgorithm") << " same template for num and den ";
     return false;
   }
   ierr = PixelTempRewgt2D(ID0, ID1, pixrewgt);
   if (ierr != 0) {
-#ifdef TP_DEBUG
-    LogDebug("PixelDigitizer ") << "Cluster Charge Reweighting did not work properly.";
-#endif
+    edm::LogError("SiPixelChargeReweightingAlgorithm") << "Cluster Charge Reweighting did not work properly.";
     return false;
   }
   if (PrintClusters) {
-    LogDebug("Pixel Digitizer") << " Cluster after reweighting: ";
+    LogDebug("SiPixelChargeReweightingAlgorithm") << " Cluster after reweighting: ";
     printCluster(pixrewgt);
   }
 
@@ -826,15 +818,15 @@ bool SiPixelChargeReweightingAlgorithm::lateSignalReweight(const PixelGeomDetUni
   }
 
   if (PrintClusters) {
-    LogDebug("Pixel Digitizer") << "Charges (before->after): " << chargeBefore << " -> " << chargeAfter;
-    LogDebug("Pixel Digitizer") << "Charge loss: " << (1 - chargeAfter / chargeBefore) * 100 << " %";
+    LogDebug("SiPixelChargeReweightingAlgorithm")
+        << "Charges (before->after): " << chargeBefore << " -> " << chargeAfter;
+    LogDebug("SiPixelChargeReweightingAlgorithm") << "Charge loss: " << (1 - chargeAfter / chargeBefore) * 100 << " %";
   }
 
   // need to store the digi out of the 21x13 box.
   for (auto& i : theDigiSignal) {
     // check if in the 21x13 box
     int chanDigi = i.first;
-    //int chanDigi = i;
     std::pair<int, int> ip = PixelDigi::channelToPixel(chanDigi);
     int row_digi = ip.first;
     int col_digi = ip.second;
