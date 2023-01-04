@@ -316,11 +316,12 @@ void HLTFiltersDQMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
       continue;
     }
 
-    if (binIndexMap_.find(iPathName) == binIndexMap_.end()) {
+    auto const foundBin = binIndexMap_.find(iPathName);
+    if (foundBin == binIndexMap_.end()) {
       throw cms::Exception("HLTFiltersDQMonitorInvalidBinLabel")
           << "invalid key for bin-index map (name of Path bin in MonitorElement of HLT Menu): \"" << iPathName << "\"";
     }
-    auto const ibin = binIndexMap_[iPathName];
+    auto const ibin = foundBin->second;
     if ((0 < ibin) and (ibin <= size_t(meMenu_->getNbinsX()))) {
       auto const pathAccept = triggerResults->accept(pathIndex);
       meMenu_->Fill(ibin - 0.5, pathAccept);
@@ -378,12 +379,13 @@ void HLTFiltersDQMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
 
       // consider only Datasets with a MonitorElement (see bookHistograms)
       auto const meDatasetName = efficPlotNamePrefix_ + idset;
-      if (meDatasetMap_.find(meDatasetName) == meDatasetMap_.end()) {
+      auto const meDatasetMapFindIt = meDatasetMap_.find(meDatasetName);
+      if (meDatasetMapFindIt == meDatasetMap_.end()) {
         LogDebug("HLTFiltersDQMonitor") << "No MonitorElement associated to Dataset \"" << idset << "\" in Stream \""
                                         << istream << "\" (will be ignored)";
         continue;
       }
-      MonitorElement* const meDatasetProf = meDatasetMap_[meDatasetName];
+      MonitorElement* const meDatasetProf = meDatasetMapFindIt->second;
 
       // loop over Paths in PrimaryDataset
       auto const& dsetPathNames = hltConfigProvider_.datasetContent(idset);
@@ -404,11 +406,12 @@ void HLTFiltersDQMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
 
         // fill MonitorElement: PrimaryDataset (bin: Path)
         auto const ibinKey = idset + "." + iPathName;
-        if (binIndexMap_.find(ibinKey) == binIndexMap_.end()) {
+        auto const foundBin = binIndexMap_.find(ibinKey);
+        if (foundBin == binIndexMap_.end()) {
           throw cms::Exception("HLTFiltersDQMonitorInvalidBinLabel")
               << "invalid key for bin-index map (name of Path bin in MonitorElement of Dataset): \"" << ibinKey << "\"";
         }
-        auto const ibin = binIndexMap_[ibinKey];
+        auto const ibin = foundBin->second;
         if (0 < ibin and ibin <= size_t(meDatasetProf->getNbinsX())) {
           meDatasetProf->Fill(ibin - 0.5, pathAccept);
         } else {
@@ -421,13 +424,13 @@ void HLTFiltersDQMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
         auto const mePathName = efficPlotNamePrefix_ + idset + "_" + iPathName;
 
         // consider only Paths with a MonitorElement
-        if (mePathMap_.find(mePathName) == mePathMap_.end()) {
+        auto const mePathMapFindIt = mePathMap_.find(mePathName);
+        if (mePathMapFindIt == mePathMap_.end()) {
           LogDebug("HLTFiltersDQMonitor") << "No MonitorElement associated to Path \"" << iPathName
                                           << "\" in Dataset \"" << idset << "\" (will be ignored)";
           continue;
         }
-
-        MonitorElement* const mePathProf = mePathMap_[mePathName];
+        MonitorElement* const mePathProf = mePathMapFindIt->second;
 
         unsigned int indexLastFilterInPath = triggerResults->index(pathIndex) + 1;
         LogTrace("HLTFiltersDQMonitor") << "[HLTFiltersDQMonitor::analyze]         "
@@ -491,12 +494,13 @@ void HLTFiltersDQMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
               << ", filterAccept = " << filterAccept << ", previousFilterAccept = " << previousFilterAccept;
 
           auto const ibinKey = idset + "." + iPathName + "." + moduleLabel;
-          if (binIndexMap_.find(ibinKey) == binIndexMap_.end()) {
+          auto const foundBin = binIndexMap_.find(ibinKey);
+          if (foundBin == binIndexMap_.end()) {
             throw cms::Exception("HLTFiltersDQMonitorInvalidBinLabel")
                 << "invalid key for bin-index map (name of Module bin in MonitorElement of Path): \"" << ibinKey
                 << "\"";
           }
-          auto const ibin = binIndexMap_[ibinKey];
+          auto const ibin = foundBin->second;
           if (0 < ibin and ibin <= size_t(mePathProf->getNbinsX())) {
             mePathProf->Fill(ibin - 0.5, filterAccept);
           } else {
