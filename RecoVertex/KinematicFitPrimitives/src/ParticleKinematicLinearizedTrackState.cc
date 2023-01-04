@@ -188,7 +188,7 @@ void ParticleKinematicLinearizedTrackState::computeChargedJacobians() const {
   double transverseCurvatureAtEP = field / ptAtEP * signTC;
 
   // Fix calculation for case where magnetic field swaps sign between previous state and current state
-  if (field/part->currentState().magneticField()->inInverseGeV(part->currentState().globalPosition()).z() < 0.) {
+  if (field * part->currentState().magneticField()->inInverseGeV(part->currentState().globalPosition()).z() < 0.) {
     signTC = -signTC;
   }
 
