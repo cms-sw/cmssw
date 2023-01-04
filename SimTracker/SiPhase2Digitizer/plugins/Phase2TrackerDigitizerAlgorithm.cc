@@ -22,7 +22,6 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "SimGeneral/NoiseGenerators/interface/GaussianTailNoiseGenerator.h"
 #include "SimTracker/Common/interface/SiG4UniversalFluctuation.h"
-#include "SimTracker/Common/interface/SiPixelChargeReweightingAlgorithm.h"
 #include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerAlgorithm.h"
 
 using namespace edm;
@@ -170,6 +169,7 @@ Phase2TrackerDigitizerAlgorithm::SubdetEfficiencies::SubdetEfficiencies(const ed
   barrel_efficiencies = conf.getParameter<std::vector<double> >("EfficiencyFactors_Barrel");
   endcap_efficiencies = conf.getParameter<std::vector<double> >("EfficiencyFactors_Endcap");
 }
+
 void Phase2TrackerDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterator inputBegin,
                                                         std::vector<PSimHit>::const_iterator inputEnd,
                                                         const size_t inputBeginGlobalIndex,
@@ -202,6 +202,7 @@ void Phase2TrackerDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::co
       // compute induced signal on readout elements and add to _signal
       // hit needed only for SimHit<-->Digi link
       induce_signal(inputBegin, hit, simHitGlobalIndex, inputBeginGlobalIndex, tofBin, pixdet, collection_points);
+      LogDebug("Phase2DigitizerAlgorithm") << "Induced signal was computed";
     }
     ++simHitGlobalIndex;
   }
@@ -251,7 +252,8 @@ std::vector<digitizerUtility::EnergyDepositUnit> Phase2TrackerDigitizerAlgorithm
     digitizerUtility::EnergyDepositUnit edu(energy, point);  // define position,energy point
     ionization_points.push_back(edu);                        // save
     LogDebug("Phase2TrackerDigitizerAlgorithm")
-        << i << " " << edu.x() << " " << edu.y() << " " << edu.z() << " " << edu.energy();
+        << "For index = " << i << " EnergyDepositUnit-x = " << edu.x() << " EnergyDepositUnit-y = " << edu.y()
+        << " EnergyDepositUnit-z = " << edu.z() << " EnergyDepositUnit-energy = " << edu.energy();
   }
   return ionization_points;
 }
@@ -323,11 +325,11 @@ std::vector<digitizerUtility::SignalPoint> Phase2TrackerDigitizerAlgorithm::drif
     const Phase2TrackerGeomDetUnit* pixdet,
     const GlobalVector& bfield,
     const std::vector<digitizerUtility::EnergyDepositUnit>& ionization_points) const {
-  LogDebug("Phase2TrackerDigitizerAlgorithm") << "enter drift ";
+  LogDebug("Phase2TrackerDigitizerAlgorithm") << "Enter drift ";
 
   std::vector<digitizerUtility::SignalPoint> collection_points;
   collection_points.reserve(ionization_points.size());                     // set size
-  LocalVector driftDir = DriftDirection(pixdet, bfield, hit.detUnitId());  // get the charge drift direction
+  LocalVector driftDir = driftDirection(pixdet, bfield, hit.detUnitId());  // get the charge drift direction
   if (driftDir.z() == 0.) {
     LogWarning("Phase2TrackerDigitizerAlgorithm") << " pxlx: drift in z is zero ";
     return collection_points;
@@ -347,8 +349,9 @@ std::vector<digitizerUtility::SignalPoint> Phase2TrackerDigitizerAlgorithm::drif
   float stripPitch = pixdet->specificTopology().pitch().first;
 
   LogDebug("Phase2TrackerDigitizerAlgorithm")
-      << " Lorentz Tan " << TanLorenzAngleX << " " << TanLorenzAngleY << " " << CosLorenzAngleX << " "
-      << CosLorenzAngleY << " " << moduleThickness * TanLorenzAngleX << " " << driftDir;
+      << " Lorentz Tan-X " << TanLorenzAngleX << "  Lorentz Tan-Y " << TanLorenzAngleY << " Lorentz Cos-X "
+      << CosLorenzAngleX << " Lorentz Cos-Y " << CosLorenzAngleY
+      << " ticknes * Lorentz Tan-X = " << moduleThickness * TanLorenzAngleX << " drift direction " << driftDir;
 
   for (auto const& val : ionization_points) {
     // position
@@ -431,7 +434,7 @@ void Phase2TrackerDigitizerAlgorithm::induce_signal(
   signal_map_type& theSignal = _signal[detID];
 
   LogDebug("Phase2TrackerDigitizerAlgorithm")
-      << " enter induce_signal, " << topol->pitch().first << " " << topol->pitch().second;
+      << "Enter induce_signal, Pitch size is " << topol->pitch().first << " cm vs " << topol->pitch().second << " cm";
 
   // local map to store pixels hit by 1 Hit.
   using hit_map_type = std::map<int, float, std::less<int> >;
@@ -758,6 +761,7 @@ void Phase2TrackerDigitizerAlgorithm::pixel_inefficiency(const SubdetEfficiencie
     }
   }
 }
+
 void Phase2TrackerDigitizerAlgorithm::initializeEvent(CLHEP::HepRandomEngine& eng) {
   if (addNoise_ || addPixelInefficiency_ || fluctuateCharge_ || addThresholdSmearing_) {
     gaussDistribution_ = std::make_unique<CLHEP::RandGaussQ>(eng, 0., theNoiseInElectrons_);
@@ -781,7 +785,7 @@ void Phase2TrackerDigitizerAlgorithm::initializeEvent(CLHEP::HepRandomEngine& en
 // Configurations for barrel and foward pixels possess different tanLorentzAngleperTesla
 // parameter value
 
-LocalVector Phase2TrackerDigitizerAlgorithm::DriftDirection(const Phase2TrackerGeomDetUnit* pixdet,
+LocalVector Phase2TrackerDigitizerAlgorithm::driftDirection(const Phase2TrackerGeomDetUnit* pixdet,
                                                             const GlobalVector& bfield,
                                                             const DetId& detId) const {
   Frame detFrame(pixdet->surface().position(), pixdet->surface().rotation());
@@ -798,6 +802,11 @@ LocalVector Phase2TrackerDigitizerAlgorithm::DriftDirection(const Phase2TrackerG
   // Read Lorentz angle from DB:
   if (use_LorentzAngle_DB_) {
     bool isPixel = (Sub_detid == PixelSubdetector::PixelBarrel || Sub_detid == PixelSubdetector::PixelEndcap);
+    if (isPixel) {
+      LogDebug("Phase2TrackerDigitizerAlgorithm") << "Read Lorentz angle from DB for Phase-2 IT";
+    } else {
+      LogDebug("Phase2TrackerDigitizerAlgorithm") << "Read Lorentz angle from DB for Phase-2 OT";
+    }
 
     float lorentzAngle =
         isPixel ? siPixelLorentzAngle_->getLorentzAngle(detId) : siPhase2OTLorentzAngle_->getLorentzAngle(detId);
@@ -809,6 +818,7 @@ LocalVector Phase2TrackerDigitizerAlgorithm::DriftDirection(const Phase2TrackerG
     scale = (1 + alpha2 * std::pow(Bfield.z(), 2));
   } else {
     // Read Lorentz angle from cfg file:
+    LogDebug("Phase2TrackerDigitizerAlgorithm") << "Read Lorentz angle from cfg file";
     float alpha2_Endcap = 0.0;
     float alpha2_Barrel = 0.0;
     if (alpha2Order_) {
