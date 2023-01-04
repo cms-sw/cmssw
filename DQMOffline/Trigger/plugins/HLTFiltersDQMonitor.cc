@@ -16,7 +16,7 @@
 
 #include <string>
 #include <vector>
-#include <map>
+#include <unordered_map>
 #include <algorithm>
 
 class HLTFiltersDQMonitor : public DQMEDAnalyzer {
@@ -42,8 +42,11 @@ private:
   bool skipRun_;
 
   MonitorElement* meMenu_;
-  std::map<std::string, MonitorElement*> meDatasetMap_;
-  std::map<std::string, MonitorElement*> mePathMap_;
+  std::unordered_map<std::string, MonitorElement*> meDatasetMap_;
+  std::unordered_map<std::string, MonitorElement*> mePathMap_;
+
+  // map of bin-label-keyword -> bin-index in ME
+  std::unordered_map<std::string, size_t> binIndexMap_;
 
   edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
   edm::EDGetTokenT<trigger::TriggerEvent> triggerSummaryTokenAOD_;
@@ -132,6 +135,9 @@ void HLTFiltersDQMonitor::bookHistograms(DQMStore::IBooker& iBooker,
     return;
   }
 
+  // clear map of bin-label-keyword -> bin-index in ME
+  binIndexMap_.clear();
+
   iBooker.setCurrentFolder(folderName_);
 
   iBooker.bookString("HLTMenu", hltConfigProvider_.tableName().c_str());
@@ -152,11 +158,15 @@ void HLTFiltersDQMonitor::bookHistograms(DQMStore::IBooker& iBooker,
                                 triggerNames.size(),
                                 -0.1,
                                 1.1,
-                                "");
-  if (meMenu_ and meMenu_->getTProfile() and meMenu_->getTProfile()->GetXaxis()) {
-    for (size_t idx = 0; idx < triggerNames.size(); ++idx) {
-      meMenu_->getTProfile()->GetXaxis()->SetBinLabel(idx + 1, triggerNames.at(idx).c_str());
-    }
+                                "",
+                                [&triggerNames](TProfile* tprof) {
+                                  for (size_t idx = 0; idx < triggerNames.size(); ++idx) {
+                                    tprof->GetXaxis()->SetBinLabel(idx + 1, triggerNames[idx].c_str());
+                                  }
+                                });
+
+  for (size_t idx = 0; idx < triggerNames.size(); ++idx) {
+    binIndexMap_[triggerNames[idx]] = idx + 1;
   }
 
   LogTrace("") << "[HLTFiltersDQMonitor::bookHistograms] HLTConfigProvider::size() = " << hltConfigProvider_.size()
@@ -173,19 +183,32 @@ void HLTFiltersDQMonitor::bookHistograms(DQMStore::IBooker& iBooker,
         LogTrace("") << "[HLTFiltersDQMonitor::bookHistograms]   Dataset = \"" << idset << "\"";
         const std::string meDatasetName(efficPlotNamePrefix_ + idset);
         meDatasetMap_[meDatasetName] = iBooker.bookProfile(
-            meDatasetName.c_str(), meDatasetName.c_str(), dsetPathNames.size(), 0., dsetPathNames.size(), -0.1, 1.1, "");
-        TProfile* meDatasetTProf(nullptr);
-        if (meDatasetMap_.at(meDatasetName)) {
-          meDatasetTProf = meDatasetMap_.at(meDatasetName)->getTProfile();
-        }
+            meDatasetName.c_str(),
+            meDatasetName.c_str(),
+            dsetPathNames.size(),
+            0.,
+            dsetPathNames.size(),
+            -0.1,
+            1.1,
+            "",
+            [&dsetPathNames, &triggerNames](TProfile* tprof) {
+              for (size_t idxPath = 0; idxPath < dsetPathNames.size(); ++idxPath) {
+                auto const& iPathName = dsetPathNames[idxPath];
+                if (std::find(triggerNames.begin(), triggerNames.end(), iPathName) == triggerNames.end()) {
+                  continue;
+                }
+                tprof->GetXaxis()->SetBinLabel(idxPath + 1, iPathName.c_str());
+              }
+            });
+
         for (size_t idxPath = 0; idxPath < dsetPathNames.size(); ++idxPath) {
-          auto const& iPathName(dsetPathNames.at(idxPath));
+          auto const& iPathName = dsetPathNames[idxPath];
           if (std::find(triggerNames.begin(), triggerNames.end(), iPathName) == triggerNames.end()) {
             continue;
           }
-          if (meDatasetTProf and meDatasetTProf->GetXaxis()) {
-            meDatasetTProf->GetXaxis()->SetBinLabel(idxPath + 1, iPathName.c_str());
-          }
+
+          binIndexMap_[idset + "." + iPathName] = idxPath + 1;
+
           if (this->skipPathMonitorElement(iPathName)) {
             continue;
           }
@@ -221,22 +244,24 @@ void HLTFiltersDQMonitor::bookHistograms(DQMStore::IBooker& iBooker,
           }
 
           const std::string mePathName(efficPlotNamePrefix_ + idset + "_" + iPathName);
-          mePathMap_[mePathName] = iBooker.bookProfile(mePathName.c_str(),
-                                                       iPathName.c_str(),
-                                                       mePath_binLabels.size(),
-                                                       0.,
-                                                       mePath_binLabels.size(),
-                                                       -0.1,
-                                                       1.1,
-                                                       "");
 
-          if (mePathMap_.at(mePathName)) {
-            auto* const mePathTProf(mePathMap_.at(mePathName)->getTProfile());
-            if (mePathTProf and mePathTProf->GetXaxis()) {
-              for (size_t iMod = 0; iMod < mePath_binLabels.size(); ++iMod) {
-                mePathTProf->GetXaxis()->SetBinLabel(iMod + 1, mePath_binLabels.at(iMod).c_str());
-              }
-            }
+          mePathMap_[mePathName] =
+              iBooker.bookProfile(mePathName.c_str(),
+                                  iPathName.c_str(),
+                                  mePath_binLabels.size(),
+                                  0.,
+                                  mePath_binLabels.size(),
+                                  -0.1,
+                                  1.1,
+                                  "",
+                                  [&mePath_binLabels](TProfile* tprof) {
+                                    for (size_t iMod = 0; iMod < mePath_binLabels.size(); ++iMod) {
+                                      tprof->GetXaxis()->SetBinLabel(iMod + 1, mePath_binLabels[iMod].c_str());
+                                    }
+                                  });
+
+          for (size_t iMod = 0; iMod < mePath_binLabels.size(); ++iMod) {
+            binIndexMap_[idset + "." + iPathName + "." + mePath_binLabels[iMod]] = iMod + 1;
           }
         }
       }
@@ -262,7 +287,7 @@ void HLTFiltersDQMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
   }
 
   // fill MonitorElement: HLT-Menu (bin: path)
-  if (meMenu_ and meMenu_->getTProfile() and meMenu_->getTProfile()->GetXaxis()) {
+  if (meMenu_) {
     auto const& triggerNames(hltConfigProvider_.triggerNames());
     for (auto const& iPathName : triggerNames) {
       const uint pathIndex(hltConfigProvider_.triggerIndex(iPathName));
@@ -273,10 +298,13 @@ void HLTFiltersDQMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
                                << ") -> plugin will not fill bin associated to this path in HLT-Menu MonitorElement";
         continue;
       }
-      auto const pathAccept(triggerResults->accept(pathIndex));
-      auto* const axis(meMenu_->getTProfile()->GetXaxis());
-      auto const ibin(axis->FindBin(iPathName.c_str()));
-      if ((0 < ibin) and (ibin <= axis->GetNbins())) {
+      if (binIndexMap_.find(iPathName) == binIndexMap_.end()) {
+        throw cms::Exception("HLTFiltersDQMonitorInvalidBinLabel")
+            << "invalid key for bin-index map (name of Path in HLT-menu ME): \"" << iPathName << "\"";
+      }
+      auto const ibin = binIndexMap_[iPathName];
+      auto const pathAccept = triggerResults->accept(pathIndex);
+      if ((0 < ibin) and (ibin <= size_t(meMenu_->getNbinsX()))) {
         meMenu_->Fill(ibin - 0.5, pathAccept);
       }
     }
@@ -311,10 +339,10 @@ void HLTFiltersDQMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
     // loop over PrimaryDatasets in Stream
     for (auto const& idset : dsets) {
       LogTrace("") << "[HLTFiltersDQMonitor::analyze]     Dataset = \"" << idset << "\"";
-      TProfile* meDatasetTProf(nullptr);
+      MonitorElement* meDatasetProf(nullptr);
       const std::string meDatasetName(efficPlotNamePrefix_ + idset);
       if (meDatasetMap_.find(meDatasetName) != meDatasetMap_.end()) {
-        meDatasetTProf = meDatasetMap_.at(meDatasetName)->getTProfile();
+        meDatasetProf = meDatasetMap_[meDatasetName];
       }
       auto const& dsetPathNames(hltConfigProvider_.datasetContent(idset));
       // loop over Paths in PrimaryDataset
@@ -332,20 +360,23 @@ void HLTFiltersDQMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
                      << "Path = \"" << iPathName << "\", HLTConfigProvider::triggerIndex(\"" << iPathName
                      << "\") = " << pathIndex << ", Accept = " << pathAccept;
         // fill MonitorElement: PrimaryDataset (bin: path)
-        if (meDatasetTProf and meDatasetTProf->GetXaxis()) {
-          auto* const axis(meDatasetTProf->GetXaxis());
-          auto const ibin(axis->FindBin(iPathName.c_str()));
-          if ((0 < ibin) and (ibin <= axis->GetNbins())) {
-            meDatasetTProf->Fill(ibin - 0.5, pathAccept);
+        if (meDatasetProf) {
+          auto const ibinKey = idset + "." + iPathName;
+          if (binIndexMap_.find(ibinKey) == binIndexMap_.end()) {
+            throw cms::Exception("HLTFiltersDQMonitorInvalidBinLabel")
+                << "invalid key for bin-index map (name of Path in Dataset ME): \"" << ibinKey << "\"";
+          }
+          auto const ibin = binIndexMap_[ibinKey];
+          if (0 < ibin and ibin <= size_t(meDatasetProf->getNbinsX())) {
+            meDatasetProf->Fill(ibin - 0.5, pathAccept);
           }
         }
         // fill MonitorElement: Path (bin: filter)
         auto const mePathName(efficPlotNamePrefix_ + idset + "_" + iPathName);
         if (mePathMap_.find(mePathName) != mePathMap_.end()) {
-          auto* const mePathTProf(mePathMap_.at(mePathName)->getTProfile());
-          if (mePathTProf) {
-            auto* const axis(mePathTProf->GetXaxis());
-            if (axis) {
+          auto* const mePathProf(mePathMap_[mePathName]);
+          if (true) {
+            if (true) {
               unsigned indexLastFilterPathModules(triggerResults->index(pathIndex) + 1);
               LogTrace("") << "[HLTFiltersDQMonitor::analyze]         "
                            << "indexLastFilterPathModules = " << indexLastFilterPathModules;
@@ -408,9 +439,15 @@ void HLTFiltersDQMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
                              << moduleLabel << "\", HLTConfigProvider::moduleIndex(" << pathIndex << ", \""
                              << moduleLabel << "\") = " << slotModule << ", filterAccept = " << filterAccept
                              << ", previousFilterAccept = " << previousFilterAccept;
-                auto const ibin(axis->FindBin(moduleLabel.c_str()));
-                if ((0 < ibin) and (ibin <= axis->GetNbins())) {
-                  mePathTProf->Fill(ibin - 0.5, filterAccept);
+
+                auto const ibinKey = idset + "." + iPathName + "." + moduleLabel;
+                if (binIndexMap_.find(ibinKey) == binIndexMap_.end()) {
+                  throw cms::Exception("HLTFiltersDQMonitorInvalidBinLabel")
+                      << "invalid key for bin-index map (name of Module in Path ME): \"" << ibinKey << "\"";
+                }
+                auto const ibin = binIndexMap_[ibinKey];
+                if (0 < ibin and ibin <= size_t(mePathProf->getNbinsX())) {
+                  mePathProf->Fill(ibin - 0.5, filterAccept);
                 }
                 previousFilterAccept = filterAccept;
               }
