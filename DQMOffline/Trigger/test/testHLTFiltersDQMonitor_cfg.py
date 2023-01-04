@@ -76,13 +76,13 @@ process.FastTimerService = _FastTimerService.clone(
 process.MessageLogger.FastReport = dict()
 
 ## EventData Modules
-from DQMOffline.Trigger.hltFiltersDQMonitor_cfi import hltFiltersDQMonitor as _hltFiltersDQMonitor
-process.dqmHLTFiltersDQMonitor = _hltFiltersDQMonitor.clone(
+from DQMOffline.Trigger.dqmHLTFiltersDQMonitor_cfi import dqmHLTFiltersDQMonitor as _dqmHLTFiltersDQMonitor
+process.dqmHLTFiltersDQMonitor = _dqmHLTFiltersDQMonitor.clone(
     folderName = 'HLT/Filters',
     efficPlotNamePrefix = 'effic_',
     triggerResults = 'TriggerResults::HLT',
-    triggerSummaryAOD = 'hltTriggerSummaryAOD::HLT',
-    triggerSummaryRAW = 'hltTriggerSummaryRAW::HLT'
+    triggerEvent = 'hltTriggerSummaryAOD::HLT',
+    triggerEventWithRefs = 'hltTriggerSummaryRAW::HLT'
 )
 process.MessageLogger.HLTFiltersDQMonitor = dict()
 if args.debugMode:
