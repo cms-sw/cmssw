@@ -61,7 +61,7 @@ process.source = cms.Source("PoolSource",
 )
 
 
-process.p = cms.EndPath(process.hltFiltersDQMonitor)
+process.p = cms.EndPath(process.dqmHLTFiltersDQMonitor)
   
 process.pp = cms.Path(process.dqmEnv+process.dqmSaver)
 process.DQMStore.verbose = 0
@@ -92,7 +92,7 @@ process.dqmSaver.saveAtJobEnd = True
 # 
 # # copy stdout to a file
 # process.MessageLogger.detailedInfo = process.MessageLogger.cout
-# process.MessageLogger.debugModules = ['hltFiltersDQMonitor']
+# process.MessageLogger.debugModules = ['dqmHLTFiltersDQMonitor']
 # process.MessageLogger.critical = cms.untracked.PSet(
 #     threshold = cms.untracked.string('ERROR'),
 #     #threshold = cms.untracked.string('INFO'),

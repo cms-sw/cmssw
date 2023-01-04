@@ -55,7 +55,7 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True))
 #    critical = cms.untracked.PSet(
 #        threshold = cms.untracked.string('ERROR')
 #    ),
-#    debugModules = cms.untracked.vstring('hltFiltersDQMonitor'),
+#    debugModules = cms.untracked.vstring('dqmHLTFiltersDQMonitor'),
 ##debugModules = cms.untracked.vstring('*'),
 #    cout = cms.untracked.PSet(
 #        threshold = cms.untracked.string('WARNING'),
@@ -73,7 +73,7 @@ process.triggerOfflineDQMSource.remove(process.l1tgmt)
 process.triggerOfflineDQMSource.remove(process.l1tcsctf)
 
 process.AllPath = cms.Path(process.triggerOfflineDQMSource *  process.MEtoEDMConverter)
-#process.AllPath = cms.Path(process.hltFiltersDQMonitor *  process.MEtoEDMConverter)
+#process.AllPath = cms.Path(process.dqmHLTFiltersDQMonitor *  process.MEtoEDMConverter)
 
 process.outpath = cms.EndPath(process.EDM)
 
