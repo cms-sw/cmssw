@@ -41,6 +41,7 @@
 <class name="pat::UserHolder<edm::Ref<vector<reco::Vertex>,reco::Vertex,edm::refhelper::FindUsingAdvance<vector<reco::Vertex>,reco::Vertex> > >" />
 <class name="pat::UserHolder<reco::Track>" />
 <class name="pat::UserHolder<reco::Vertex>" />
+<class name="pat::UserHolder<edm::Ptr<pat::PackedCandidate> >" />
 <class name="pat::UserHolder<vector<unsigned int> >" />
 
   </selection>
