@@ -49,15 +49,8 @@ Bools toBools(std::array<bool, nb> const& t) {
 }
 
 void testone(const Strings& paths, const Strings& pattern, const Bools& mask, bool answer, int jmask) {
-  ParameterSet pset;  //, parent;
-  pset.addParameter<Strings>("SelectEvents", pattern);
-  pset.registerIt();
-  //parent.addUntrackedParameter<ParameterSet>("SelectEvents",pset);
-  //parent.registerIt();
-
-  // There are 3 different ways to build the EventSelector.  All
-  // should give the same result.  We exercise all 3 here.
-  EventSelector select_based_on_pset(pset, paths);
+  // There are 2 different ways to build the EventSelector.
+  // Both should give the same result.  We exercise both here.
   EventSelector select_based_on_pattern_paths(pattern, paths);
   EventSelector select_based_on_pattern(pattern);
 
@@ -93,19 +86,17 @@ void testone(const Strings& paths, const Strings& pattern, const Bools& mask, bo
 
   TriggerResults results(bm, paths);
 
-  bool a = select_based_on_pset.acceptEvent(results);
-  bool b = select_based_on_pattern_paths.acceptEvent(results);
-  bool c = select_based_on_pattern.acceptEvent(results);
-  bool ab = select_based_on_pset.acceptEvent(&(bitArray[0]), number_of_trigger_paths);
-  bool bb = select_based_on_pattern_paths.acceptEvent(&(bitArray[0]), number_of_trigger_paths);
+  bool a = select_based_on_pattern_paths.acceptEvent(results);
+  bool b = select_based_on_pattern.acceptEvent(results);
+  bool aa = select_based_on_pattern_paths.acceptEvent(&(bitArray[0]), number_of_trigger_paths);
   // select_based_on_pattern.acceptEvent(&(bitArray[0]),
   //                                     number_of_trigger_paths);
   // is not a valid way to use acceptEvent.
 
-  if (a != answer || b != answer || c != answer || ab != answer || bb != answer) {
+  if (a != answer || b != answer || aa != answer) {
     std::cerr << "failed to compare pattern with mask: "
               << "correct=" << answer << " "
-              << "results=" << a << "  " << b << "  " << c << "  " << ab << "  " << bb << "\n"
+              << "results=" << a << "  " << b << "  " << aa << "\n"
               << "pattern=" << pattern << "\n"
               << "mask=" << mask << "\n"
               << "jmask = " << jmask << "\n";
@@ -121,14 +112,13 @@ void testone(const Strings& paths, const Strings& pattern, const Bools& mask, bo
 
   TriggerResults results_id(bm, trigger_pset.id());
 
-  bool x = select_based_on_pset.acceptEvent(results_id);
-  bool y = select_based_on_pattern_paths.acceptEvent(results_id);
-  bool z = select_based_on_pattern.acceptEvent(results_id);
+  bool x = select_based_on_pattern_paths.acceptEvent(results_id);
+  bool y = select_based_on_pattern.acceptEvent(results_id);
 
-  if (x != answer || y != answer || z != answer) {
+  if (x != answer || y != answer) {
     std::cerr << "failed to compare pattern with mask using pset ID: "
               << "correct=" << answer << " "
-              << "results=" << x << "  " << y << "  " << z << "\n"
+              << "results=" << x << "  " << y << "\n"
               << "pattern=" << pattern << "\n"
               << "mask=" << mask << "\n"
               << "jmask = " << jmask << "\n";
