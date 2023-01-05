@@ -1645,11 +1645,13 @@ class UpgradeWorkflow_ecalDevel(UpgradeWorkflow):
                 'DigiTrigger',
                 'RecoGlobal',
                 'HARVESTGlobal',
+                'ALCAPhase2',
             ],
             PU = [
                 'DigiTrigger',
                 'RecoGlobal',
                 'HARVESTGlobal',
+                'ALCAPhase2',
             ],
             **kwargs)
         self.__digi = digi
@@ -1671,6 +1673,9 @@ class UpgradeWorkflow_ecalDevel(UpgradeWorkflow):
             mods['-s'] = 'HARVESTING:@ecalOnlyValidation+@ecal'
             mods |= self.__harvest
         stepDict[stepName][k] = merge([mods, stepDict[step][k]])
+        # skip ALCA step
+        if 'ALCA' in step:
+            stepDict[stepName][k] = None
 
     def condition(self, fragment, stepList, key, hasHarvest):
         return fragment=="TTbar_14TeV" and '2026' in key
