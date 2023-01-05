@@ -122,6 +122,8 @@ private:
   int triggerCellLayer_ = 0;
   int triggerCellWaferU_ = 0;
   int triggerCellWaferV_ = 0;
+  int triggerCellWaferPart_ = -1;
+  int triggerCellWaferOrient_ = -1;
   int triggerCellU_ = 0;
   int triggerCellV_ = 0;
   int triggerCellIEta_ = 0;
@@ -300,6 +302,8 @@ HGCalTriggerGeomTesterV9Imp3::HGCalTriggerGeomTesterV9Imp3(const edm::ParameterS
   treeTriggerCells_->Branch("layer", &triggerCellLayer_, "layer/I");
   treeTriggerCells_->Branch("waferu", &triggerCellWaferU_, "waferu/I");
   treeTriggerCells_->Branch("waferv", &triggerCellWaferV_, "waferv/I");
+  treeTriggerCells_->Branch("waferpart", &triggerCellWaferPart_, "waferpart/I");
+  treeTriggerCells_->Branch("waferorient", &triggerCellWaferOrient_, "waferorient/I");
   treeTriggerCells_->Branch("triggercellu", &triggerCellU_, "triggercellu/I");
   treeTriggerCells_->Branch("triggercellv", &triggerCellV_, "triggercellv/I");
   treeTriggerCells_->Branch("triggercellieta", &triggerCellIEta_, "triggercellieta/I");
@@ -977,7 +981,12 @@ void HGCalTriggerGeomTesterV9Imp3::fillTriggerGeometry()
   // Loop over trigger cells
   edm::LogPrint("TreeFilling") << "Filling trigger cells tree";
   for (const auto& triggercell_cells : trigger_cells) {
+    if (!triggercell_cells.second.size()) {
+      throw cms::Exception("BadGeometry") << "HGCalTriggerGeometry: No cells in trigger cell!";
+    }
+
     DetId id(triggercell_cells.first);
+    std::tuple<int, int, int> wafertype;
     GlobalPoint position = triggerGeometry_->getTriggerCellPosition(triggercell_cells.first);
     triggerCellId_ = id.rawId();
     if (id.det() == DetId::HGCalHSc) {
@@ -989,6 +998,8 @@ void HGCalTriggerGeomTesterV9Imp3::fillTriggerGeometry()
       triggerCellIPhi_ = id_sc.iphi();
       triggerCellWaferU_ = 0;
       triggerCellWaferV_ = 0;
+      triggerCellWaferPart_ = -1;
+      triggerCellWaferOrient_ = -1;
       triggerCellU_ = 0;
       triggerCellV_ = 0;
     } else if (HFNoseTriggerDetId(triggercell_cells.first).det() == DetId::HGCalTrigger &&
@@ -1001,6 +1012,8 @@ void HGCalTriggerGeomTesterV9Imp3::fillTriggerGeometry()
       triggerCellIPhi_ = 0;
       triggerCellWaferU_ = id_nose_trig.waferU();
       triggerCellWaferV_ = id_nose_trig.waferV();
+      triggerCellWaferPart_ = -1;
+      triggerCellWaferOrient_ = -1;
       triggerCellU_ = id_nose_trig.triggerCellU();
       triggerCellV_ = id_nose_trig.triggerCellV();
     } else {
@@ -1014,6 +1027,18 @@ void HGCalTriggerGeomTesterV9Imp3::fillTriggerGeometry()
       triggerCellWaferV_ = id_si_trig.waferV();
       triggerCellU_ = id_si_trig.triggerCellU();
       triggerCellV_ = id_si_trig.triggerCellV();
+
+      const HGCSiliconDetId& firstCellId(*triggercell_cells.second.begin());
+      if (firstCellId.det() == DetId::HGCalEE) {
+        wafertype = triggerGeometry_->eeTopology().dddConstants().waferType(firstCellId);
+      } else if (firstCellId.det() == DetId::HGCalHSi) {
+        wafertype = triggerGeometry_->hsiTopology().dddConstants().waferType(firstCellId);
+      } else {
+        throw cms::Exception("BadGeometry")
+            << "HGCalTriggerGeometry: Found inconsistency in cell <-> trigger cell type mapping";
+      }
+      triggerCellWaferPart_ = std::get<1>(wafertype);
+      triggerCellWaferOrient_ = std::get<2>(wafertype);
     }
     triggerCellX_ = position.x();
     triggerCellY_ = position.y();
