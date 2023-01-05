@@ -35,6 +35,9 @@ namespace edm::path_configuration {
   //Takes the Parameter associated to a given Path and converts it to the list of modules
   // in the same order as the Path's position bits
   std::vector<std::string> configurationToModuleBitPosition(std::vector<std::string>);
+
+  //removes any scheduling tokens from the module's label
+  std::string removeSchedulingTokensFromModuleLabel(std::string iLabel);
 }  // namespace edm::path_configuration
 
 #endif
