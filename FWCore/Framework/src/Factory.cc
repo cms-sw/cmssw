@@ -20,7 +20,7 @@ namespace edm {
 
   Factory const* Factory::get() { return &singleInstance_; }
 
-  Maker* Factory::findMaker(const MakeModuleParams& p, ModuleTypeResolverMaker const* resolverMaker) const {
+  Maker const* Factory::findMaker(const MakeModuleParams& p, ModuleTypeResolverMaker const* resolverMaker) const {
     std::string modtype = p.pset_->getParameter<std::string>("@module_type");
     FDEBUG(1) << "Factory: module_type = " << modtype << std::endl;
     MakerMap::iterator it = makers_.find(modtype);

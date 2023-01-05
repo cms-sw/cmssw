@@ -49,7 +49,7 @@ namespace edm {
       //~ComponentFactory();
 
       typedef ComponentMakerBase<T> Maker;
-      typedef std::map<std::string, std::shared_ptr<Maker>> MakerMap;
+      typedef std::map<std::string, std::shared_ptr<Maker const>> MakerMap;
       typedef typename T::base_type base_type;
       // ---------- const member functions ---------------------
       std::shared_ptr<base_type> addTo(EventSetupsController& esController,
@@ -60,7 +60,7 @@ namespace edm {
         std::string modtype = iConfiguration.template getParameter<std::string>("@module_type");
         //cerr << "Factory: module_type = " << modtype << endl;
         typename MakerMap::iterator it = makers_.find(modtype);
-        Maker* maker = nullptr;
+        Maker const* maker = nullptr;
 
         if (it == makers_.end()) {
           maker = detail::resolveMaker<edmplugin::PluginFactory<ComponentMakerBase<T>*()>>(
