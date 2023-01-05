@@ -29,7 +29,7 @@ if sys.getrecursionlimit()<5000:
 
 class edm(object):
     class errors(object):
-        #Allowed errors to used within Python
+        #Allowed errors to be used within Python
         Configuration = "{Configuration}"
         UnavailableAccelerator = "{UnavailableAccelerator}"
 
