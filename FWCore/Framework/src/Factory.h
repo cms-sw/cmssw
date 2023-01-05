@@ -17,7 +17,7 @@ namespace edm {
 
   class Factory {
   public:
-    typedef std::map<std::string, edm::propagate_const<std::unique_ptr<Maker>>> MakerMap;
+    typedef std::map<std::string, std::unique_ptr<Maker const>> MakerMap;
 
     ~Factory();
 
@@ -33,7 +33,7 @@ namespace edm {
 
   private:
     Factory();
-    Maker* findMaker(const MakeModuleParams& p, const ModuleTypeResolverMaker*) const;
+    Maker const* findMaker(const MakeModuleParams& p, const ModuleTypeResolverMaker*) const;
     static Factory const singleInstance_;
     //It is not safe to create modules across threads
     CMS_SA_ALLOW mutable MakerMap makers_;

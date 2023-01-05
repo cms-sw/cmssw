@@ -20,7 +20,7 @@ namespace edm::detail {
   auto resolveMaker(std::string const& moduleType,
                     ModuleTypeResolverMaker const* resolverMaker,
                     edm::ParameterSet const& modulePSet,
-                    TCache& makerCache) -> typename TCache::mapped_type::element_type* {
+                    TCache& makerCache) -> typename TCache::mapped_type::element_type const* {
     if (resolverMaker) {
       auto resolver = resolverMaker->makeResolver(modulePSet);
       auto index = resolver->kInitialIndex;
