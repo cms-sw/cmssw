@@ -46,7 +46,9 @@ class OfflineConverter:
     ips_for_proxy = {
         'cmsr1-s.cern.ch' : '10.116.96.89',
         'cmsr2-s.cern.ch' : '10.116.96.139',
-        'cmsr3-s.cern.ch' : '10.116.96.105'
+        'cmsr3-s.cern.ch' : '10.116.96.105',
+        'cmsonr1-adg1-s.cern.ch' : '10.116.96.109',
+        'cmsonr1-s.cms' : '10.176.84.78'
     }
 
     databases['v3-beta'] = dict(databases['v3'])
@@ -70,7 +72,8 @@ class OfflineConverter:
 
 
     def __init__(self, version = 'v3', database = 'run3', url = None, verbose = False,
-                 proxy = False, proxyHost = 'localhost', proxyPort = '8080'): 
+                 proxy = False, proxyHost = 'localhost', proxyPort = '8080',
+                 tunnel = False, tunnelPort = '10121'):
         self.verbose = verbose
         self.version = version
         self.baseDir = '/afs/cern.ch/user/c/confdb/www/%s/lib' % version
@@ -83,6 +86,12 @@ class OfflineConverter:
         self.proxy = proxy
         self.proxyHost = proxyHost
         self.proxyPort = proxyPort
+        self.tunnel = tunnel
+        self.tunnelPort = tunnelPort
+
+        if self.proxy and self.tunnel:
+            sys.stderr.write( "ERROR: proxy and tunnel options can not both be true" )
+            sys.exit(1)
 
         # check the schema version
         if version not in self.databases:
@@ -108,6 +117,16 @@ class OfflineConverter:
             self.connect  = tuple(temp_connect)
         else:
             self.proxy_connect_args = ()
+
+        # this sets the host to localhost
+        if self.tunnel:
+            temp_connect = list(self.connect)
+            host_index = temp_connect.index('-h')
+            temp_connect[host_index+1] = "localhost"
+            self.connect = tuple(temp_connect)
+            self.tunnel_connect_args = ('--dbport', self.tunnelPort)
+        else:
+            self.tunnel_connect_args = ()
 
         # check for a custom base URL
         if url is not None:
@@ -165,7 +184,7 @@ class OfflineConverter:
 
 
     def query(self, *args):
-        args = self.javaCmd + self.connect + self.proxy_connect_args + args 
+        args = self.javaCmd + self.connect + self.proxy_connect_args + self.tunnel_connect_args + args 
         if self.verbose:
             sys.stderr.write("\n" + ' '.join(args) + "\n\n" )
         sub = subprocess.Popen(
@@ -288,7 +307,20 @@ def main():
     if '--dbproxyport' in args:
         proxy_port = args.pop(args.index('--dbproxyport')+1)
         args.remove('--dbproxyport')
-        
+
+    tunnel = False
+    tunnel_port = "10121"
+    if '--dbtunnel' in args:
+        tunnel = True
+        args.remove('--dbtunnel')
+
+    if '--dbtunnelport' in args:
+        tunnel_port = args.pop(args.index('--dbtunnelport')+1)
+        args.remove('--dbtunnelport')
+
+    if tunnel and proxy:
+        sys.stderr.write( 'ERROR: conflicting connection specifications, "--dbtunnel" and "--dbproxy" are mutually exclusive options\n' )
+        sys.exit(1)
 
     _dbs = {}
     _dbs['v1'] = [ '--%s' % _db for _db in OfflineConverter.databases['v1'] ] + [ '--runNumber' ]
@@ -315,7 +347,8 @@ def main():
             sys.exit(1)
 
     converter = OfflineConverter(version = version, database = db, verbose = verbose,
-                                 proxy = proxy, proxyHost = proxy_host, proxyPort=proxy_port)
+                                 proxy = proxy, proxyHost = proxy_host, proxyPort=proxy_port,
+                                 tunnel = tunnel, tunnelPort = tunnel_port)
     out, err = converter.query( * args )
     if 'ERROR' in err:
         sys.stderr.write( "%s: error while retriving the HLT menu\n\n%s\n\n" % (sys.argv[0], err) )
