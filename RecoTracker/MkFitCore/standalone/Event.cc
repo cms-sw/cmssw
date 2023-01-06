@@ -1,4 +1,5 @@
 #include "Event.h"
+#include "RecoTracker/MkFitCore/interface/IterationConfig.h"
 #include "RecoTracker/MkFitCore/interface/TrackerInfo.h"
 
 //#define DEBUG
@@ -538,7 +539,7 @@ namespace mkfit {
 
   void Event::print_tracks(const TrackVec &tracks, bool print_hits) const {
     const int nt = tracks.size();
-
+    auto score_func = IterationConfig::get_track_scorer("default");
     //WARNING: Printouts for hits will not make any sense if mkFit is not run with a validation flag such as --quality-val
     printf("Event::print_tracks printing %d tracks %s hits:\n", nt, (print_hits ? "with" : "without"));
     for (int it = 0; it < nt; it++) {
@@ -551,7 +552,7 @@ namespace mkfit {
              t.nFoundHits(),
              t.label(),
              t.isFindable(),
-             getScoreCand(t),
+             getScoreCand(score_func, t),
              t.chi2());
 
       if (print_hits) {
