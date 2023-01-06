@@ -44,7 +44,6 @@
 #include "Geometry/CommonTopologies/interface/GeometryAligner.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "Geometry/Records/interface/PTrackerParametersRcd.h"
-#include "Geometry/Records/interface/PTrackerAdditionalParametersPerDetRcd.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
@@ -89,7 +88,6 @@ private:
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> esTokenTTopo_;
   const edm::ESGetToken<GeometricDet, IdealGeometryRecord> esTokenGeomDet_;
   const edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> esTokenPTP_;
-  const edm::ESGetToken<PTrackerAdditionalParametersPerDet, PTrackerAdditionalParametersPerDetRcd> esTokenPtitp_;
   const edm::ESGetToken<DTGeometry, MuonGeometryRecord> esTokenDT_;
   const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> esTokenCSC_;
   const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> esTokenGEM_;
@@ -123,7 +121,6 @@ AlignmentMonitorAsAnalyzer::AlignmentMonitorAsAnalyzer(const edm::ParameterSet& 
       esTokenTTopo_(esConsumes()),
       esTokenGeomDet_(esConsumes()),
       esTokenPTP_(esConsumes()),
-      esTokenPtitp_(esConsumes()),
       esTokenDT_(esConsumes(edm::ESInputTag("", "idealForAlignmentMonitorAsAnalyzer"))),
       esTokenCSC_(esConsumes(edm::ESInputTag("", "idealForAlignmentMonitorAsAnalyzer"))),
       esTokenGEM_(esConsumes(edm::ESInputTag("", "idealForAlignmentMonitorAsAnalyzer"))),
@@ -160,9 +157,8 @@ void AlignmentMonitorAsAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 
     const GeometricDet* geom = &iSetup.getData(esTokenGeomDet_);
     const PTrackerParameters& ptp = iSetup.getData(esTokenPTP_);
-    const PTrackerAdditionalParametersPerDet* ptitp = &iSetup.getData(esTokenPtitp_);
     TrackerGeomBuilderFromGeometricDet trackerBuilder;
-    std::shared_ptr<TrackerGeometry> theTracker(trackerBuilder.build(geom, ptitp, ptp, tTopo));
+    std::shared_ptr<TrackerGeometry> theTracker(trackerBuilder.build(geom, ptp, tTopo));
 
     edm::ESHandle<DTGeometry> theMuonDT = iSetup.getHandle(esTokenDT_);
     edm::ESHandle<CSCGeometry> theMuonCSC = iSetup.getHandle(esTokenCSC_);

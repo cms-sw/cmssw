@@ -99,8 +99,7 @@ void TrackerDigiGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::E
     if (dynamic_cast<const PixelGeomDetType*>((it)) != nullptr) {
       const PixelTopology& p = (dynamic_cast<const PixelGeomDetType*>((it)))->specificTopology();
       PRINT("TrackerDigiGeometryAnalyzer") << " PIXEL Det "  // << it->geographicalId()
-                                           << "   isBricked    " << p.isBricked() << "    Rows    " << p.nrows()
-                                           << "    Columns " << p.ncolumns() << '\n';
+                                           << "    Rows    " << p.nrows() << "    Columns " << p.ncolumns() << '\n';
     } else {
       const StripTopology& p = (dynamic_cast<const StripGeomDetType*>((it)))->specificTopology();
       PRINT("TrackerDigiGeometryAnalyzer") << " STRIP Det "  // << it->geographicalId()

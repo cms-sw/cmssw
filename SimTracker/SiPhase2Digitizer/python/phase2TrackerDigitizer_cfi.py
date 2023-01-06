@@ -93,8 +93,6 @@ phase2TrackerDigitizer = cms.PSet(
         NPColumnGap = cms.double(46.0),
         UseReweighting = cms.bool(False),  # will be True for realistic simulations
     ),
-#Pixel-Bricked Digitizer Algorithm
-    PixelBrickedDigitizerAlgorithm   = PixelDigitizerAlgorithmCommon.clone(),
 #Pixel in PS Module
     PSPDigitizerAlgorithm = cms.PSet(
       ElectronPerAdc = cms.double(135.0),
