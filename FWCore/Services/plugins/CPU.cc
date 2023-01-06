@@ -166,6 +166,9 @@ namespace edm {
               modelsSet.insert(entry.second);
             }
           }
+          if (modelsSet.empty()) {  // "model name" not found, try models string
+            modelsSet.insert(models);
+          }
           std::vector<std::string> modelsVector(modelsSet.begin(), modelsSet.end());
           resourceInformationService->setCPUModels(modelsVector);
         }
