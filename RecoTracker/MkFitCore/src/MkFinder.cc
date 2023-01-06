@@ -36,19 +36,25 @@ namespace mkfit {
   void MkFinder::setup(const PropagationConfig &pc,
                        const IterationParams &ip,
                        const IterationLayerConfig &ilc,
+                       const SteeringParams &sp,
                        const std::vector<bool> *ihm) {
     m_prop_config = &pc;
     m_iteration_params = &ip;
     m_iteration_layer_config = &ilc;
+    m_steering_params = &sp;
     m_iteration_hit_mask = ihm;
   }
 
-  void MkFinder::setup_bkfit(const PropagationConfig &pc) { m_prop_config = &pc; }
+  void MkFinder::setup_bkfit(const PropagationConfig &pc, const SteeringParams &sp) {
+    m_prop_config = &pc;
+    m_steering_params = &sp;
+  }
 
   void MkFinder::release() {
     m_prop_config = nullptr;
     m_iteration_params = nullptr;
     m_iteration_layer_config = nullptr;
+    m_steering_params = nullptr;
     m_iteration_hit_mask = nullptr;
   }
 
@@ -1072,7 +1078,10 @@ namespace mkfit {
                 copy_out(newcand, itrack, iC);
                 newcand.setCharge(tmpChg(itrack, 0, 0));
                 newcand.addHitIdx(hit_idx, layer_of_hits.layer_id(), chi2);
-                newcand.setScore(getScoreCand(newcand, true /*penalizeTailMissHits*/, true /*inFindCandidates*/));
+                newcand.setScore(getScoreCand(m_steering_params->m_track_scorer,
+                                              newcand,
+                                              true /*penalizeTailMissHits*/,
+                                              true /*inFindCandidates*/));
                 newcand.setOriginIndex(m_CandIdx(itrack, 0, 0));
 
                 // To apply a fixed cut instead of dynamic cut for overlap: m_iteration_params->chi2CutOverlap
@@ -1129,7 +1138,8 @@ namespace mkfit {
       TrackCand newcand;
       copy_out(newcand, itrack, iP);
       newcand.addHitIdx(fake_hit_idx, layer_of_hits.layer_id(), 0.);
-      newcand.setScore(getScoreCand(newcand, true /*penalizeTailMissHits*/, true /*inFindCandidates*/));
+      newcand.setScore(getScoreCand(
+          m_steering_params->m_track_scorer, newcand, true /*penalizeTailMissHits*/, true /*inFindCandidates*/));
       // Only relevant when we actually add a hit
       // newcand.setOriginIndex(m_CandIdx(itrack, 0, 0));
       tmp_candidates[m_SeedIdx(itrack, 0, 0) - offset].emplace_back(newcand);
@@ -1266,7 +1276,7 @@ namespace mkfit {
               tmpList.pt = std::abs(1.0f / m_Par[iP].At(itrack, 3, 0));
               tmpList.chi2 = m_Chi2(itrack, 0, 0) + chi2;
               tmpList.chi2_hit = chi2;
-              tmpList.score = getScoreStruct(tmpList);
+              tmpList.score = getScoreStruct(m_steering_params->m_track_scorer, tmpList);
               cloner.add_cand(m_SeedIdx(itrack, 0, 0) - offset, tmpList);
 
               dprint("  adding hit with hit_cnt=" << hit_cnt << " for trkIdx=" << tmpList.trkIdx
@@ -1318,7 +1328,7 @@ namespace mkfit {
       tmpList.pt = std::abs(1.0f / m_Par[iP].At(itrack, 3, 0));
       tmpList.chi2 = m_Chi2(itrack, 0, 0);
       tmpList.chi2_hit = 0;
-      tmpList.score = getScoreStruct(tmpList);
+      tmpList.score = getScoreStruct(m_steering_params->m_track_scorer, tmpList);
       cloner.add_cand(m_SeedIdx(itrack, 0, 0) - offset, tmpList);
       dprint("adding invalid hit " << fake_hit_idx);
     }
@@ -1439,7 +1449,7 @@ namespace mkfit {
 
       trk.setChi2(m_Chi2(itrack, 0, 0));
       if (isFinite(trk.chi2())) {
-        trk.setScore(getScoreCand(trk));
+        trk.setScore(getScoreCand(m_steering_params->m_track_scorer, trk));
       }
     }
   }
@@ -1460,7 +1470,7 @@ namespace mkfit {
 
       trk.setChi2(m_Chi2(itrack, 0, 0));
       if (isFinite(trk.chi2())) {
-        trk.setScore(getScoreCand(trk));
+        trk.setScore(getScoreCand(m_steering_params->m_track_scorer, trk));
       }
     }
   }

@@ -3,6 +3,7 @@
 
 #include "RecoTracker/MkFitCore/interface/Config.h"
 #include "RecoTracker/MkFitCore/interface/MatrixSTypes.h"
+#include "RecoTracker/MkFitCore/interface/FunctionTypes.h"
 #include "RecoTracker/MkFitCore/interface/Hit.h"
 #include "RecoTracker/MkFitCore/interface/TrackerInfo.h"
 
@@ -603,31 +604,10 @@ namespace mkfit {
     return -1e16;  // somewhat arbitrary value, used for handling of best short track during finding (will try to take it out)
   }
 
-  inline float getScoreCalc(const int nfoundhits,
-                            const int ntailholes,
-                            const int noverlaphits,
-                            const int nmisshits,
-                            const float chi2,
-                            const float pt,
-                            const bool inFindCandidates = false) {
-    //// Do not allow for chi2<0 in score calculation
-    // if(chi2<0) chi2=0.f;
-
-    float maxBonus = 8.0;
-    float bonus = Config::validHitSlope_ * nfoundhits + Config::validHitBonus_;
-    float penalty = Config::missingHitPenalty_;
-    float tailPenalty = Config::tailMissingHitPenalty_;
-    float overlapBonus = Config::overlapHitBonus_;
-    if (pt < 0.9) {
-      penalty *= inFindCandidates ? 1.7f : 1.5f;
-      bonus = std::min(bonus * (inFindCandidates ? 0.9f : 1.0f), maxBonus);
-    }
-    float score_ =
-        bonus * nfoundhits + overlapBonus * noverlaphits - penalty * nmisshits - tailPenalty * ntailholes - chi2;
-    return score_;
-  }
-
-  inline float getScoreCand(const Track& cand1, bool penalizeTailMissHits = false, bool inFindCandidates = false) {
+  inline float getScoreCand(const track_score_func& score_func,
+                            const Track& cand1,
+                            bool penalizeTailMissHits = false,
+                            bool inFindCandidates = false) {
     int nfoundhits = cand1.nFoundHits();
     int noverlaphits = cand1.nOverlapHits();
     int nmisshits = cand1.nInsideMinusOneHits();
@@ -637,10 +617,10 @@ namespace mkfit {
     // Do not allow for chi2<0 in score calculation
     if (chi2 < 0)
       chi2 = 0.f;
-    return getScoreCalc(nfoundhits, ntailmisshits, noverlaphits, nmisshits, chi2, pt, inFindCandidates);
+    return score_func(nfoundhits, ntailmisshits, noverlaphits, nmisshits, chi2, pt, inFindCandidates);
   }
 
-  inline float getScoreStruct(const IdxChi2List& cand1) {
+  inline float getScoreStruct(const track_score_func& score_func, const IdxChi2List& cand1) {
     int nfoundhits = cand1.nhits;
     int ntailholes = cand1.ntailholes;
     int noverlaphits = cand1.noverlaps;
@@ -650,7 +630,7 @@ namespace mkfit {
     // Do not allow for chi2<0 in score calculation
     if (chi2 < 0)
       chi2 = 0.f;
-    return getScoreCalc(nfoundhits, ntailholes, noverlaphits, nmisshits, chi2, pt, true /*inFindCandidates*/);
+    return score_func(nfoundhits, ntailholes, noverlaphits, nmisshits, chi2, pt, true /*inFindCandidates*/);
   }
 
   template <typename Vector>

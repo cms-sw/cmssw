@@ -91,9 +91,11 @@ namespace mkfit {
         else
           return m_steering_params.m_layer_plan[m_end_index + 1].m_layer;
       }
-    };
+    };  // class iterator
 
     std::vector<LayerControl> m_layer_plan;
+    track_score_func m_track_scorer;
+    std::string m_track_scorer_name;
 
     int m_region;
 

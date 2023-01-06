@@ -301,7 +301,7 @@ namespace mkfit {
 
   //------------------------------------------------------------------------------
 
-  int MkBuilder::filter_comb_cands(IterationConfig::filter_candidates_func filter) {
+  int MkBuilder::filter_comb_cands(filter_candidates_func filter) {
     EventOfCombCandidates &eoccs = m_event_of_comb_cands;
     int i = 0, place_pos = 0;
 
@@ -527,6 +527,7 @@ namespace mkfit {
             mkfndr->setup(prop_config,
                           m_job->m_iter_config.m_params,
                           m_job->m_iter_config.m_layer_configs[curr_layer],
+                          st_par,
                           m_job->get_mask_for_layer(curr_layer));
 
             const LayerOfHits &layer_of_hits = m_job->m_event_of_hits[curr_layer];
@@ -618,7 +619,7 @@ namespace mkfit {
     m_event_of_comb_cands.reset((int)in_seeds.size(), m_job->max_max_cands());
 
     import_seeds(in_seeds, seeds_sorted, [&](const Track &seed, int region, int pos) {
-      m_event_of_comb_cands.insertSeed(seed, region, pos);
+      m_event_of_comb_cands.insertSeed(seed, m_job->steering_params(region).m_track_scorer, region, pos);
     });
   }
 
@@ -810,6 +811,7 @@ namespace mkfit {
           mkfndr->setup(prop_config,
                         iter_params,
                         m_job->m_iter_config.m_layer_configs[curr_layer],
+                        st_par,
                         m_job->get_mask_for_layer(curr_layer));
 
           dprintf("\n* Processing layer %d\n", curr_layer);
@@ -912,7 +914,7 @@ namespace mkfit {
 
         // final sorting
         for (int iseed = start_seed; iseed < end_seed; ++iseed) {
-          eoccs[iseed].mergeCandsAndBestShortOne(m_job->params(), true, true);
+          eoccs[iseed].mergeCandsAndBestShortOne(m_job->params(), st_par.m_track_scorer, true, true);
         }
       });  // end parallel-for over chunk of seeds within region
     });    // end of parallel-for-each over eta regions
@@ -1018,6 +1020,7 @@ namespace mkfit {
       mkfndr->setup(prop_config,
                     iter_params,
                     m_job->m_iter_config.m_layer_configs[curr_layer],
+                    st_par,
                     m_job->get_mask_for_layer(curr_layer));
 
       const bool pickup_only = layer_plan_it.is_pickup_only();
@@ -1144,7 +1147,7 @@ namespace mkfit {
 
     // final sorting
     for (int iseed = start_seed; iseed < end_seed; ++iseed) {
-      eoccs[iseed].mergeCandsAndBestShortOne(m_job->params(), true, true);
+      eoccs[iseed].mergeCandsAndBestShortOne(m_job->params(), st_par.m_track_scorer, true, true);
     }
   }
 
@@ -1316,7 +1319,7 @@ namespace mkfit {
     EventOfCombCandidates &eoccs = m_event_of_comb_cands;
     const SteeringParams &st_par = m_job->steering_params(region);
     const PropagationConfig &prop_config = PropagationConfig::get_default();
-    mkfndr->setup_bkfit(prop_config);
+    mkfndr->setup_bkfit(prop_config, st_par);
 
     int step = NN;
     for (int icand = start_cand; icand < end_cand; icand += step) {
