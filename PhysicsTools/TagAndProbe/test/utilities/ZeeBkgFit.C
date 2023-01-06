@@ -23,7 +23,6 @@
 #include "RooAddPdf.h"
 #include "RooSimultaneous.h"
 #include "RooGaussian.h"
-#include "RooNLLVar.h"
 #include "RooConstVar.h"
 #include "RooFitResult.h"
 #include "RooExponential.h"
