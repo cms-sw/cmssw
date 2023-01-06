@@ -48,7 +48,7 @@ void Phase2Tracker::Phase2TrackerCommissioningDigiProducer::produce(edm::StreamI
 
   // Analyze strip tracker FED buffers in data
   size_t fedIndex;
-  for (fedIndex = 0; fedIndex < Phase2Tracker::CMS_FED_ID_MAX; ++fedIndex) {
+  for (fedIndex = 0; fedIndex <= Phase2Tracker::CMS_FED_ID_MAX; ++fedIndex) {
     const FEDRawData& fed = buffers->FEDData(fedIndex);
     if (fed.size() != 0 && fedIndex >= Phase2Tracker::FED_ID_MIN && fedIndex <= Phase2Tracker::FED_ID_MAX) {
       // construct buffer
