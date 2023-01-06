@@ -86,7 +86,7 @@ void ECALRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
     const FEDRawDataCollection* rdc = rawIn.product();
 
-    for (int j = 0; j < FEDNumbering::MAXFEDID; j++) {
+    for (int j = 0; j <= FEDNumbering::MAXFEDID; j++) {
       bool rightFED = false;
       for (uint32_t k = 0; k < EC_FED_IDs.size(); k++) {
         if (j == EcalRegionCabling::fedIndex(EC_FED_IDs[k])) {
