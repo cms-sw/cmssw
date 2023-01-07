@@ -45,6 +45,7 @@
 #endif
 
 namespace edm {
+  using CPUInfoType = std::vector<std::pair<std::string, std::string>>;
 
   namespace service {
     class CPU : public CPUServiceBase {
@@ -58,10 +59,11 @@ namespace edm {
       const bool reportCPUProperties_;
       const bool disableJobReportOutput_;
 
-      bool parseCPUInfo(std::vector<std::pair<std::string, std::string>> &info);
-      std::string getModels(const std::vector<std::pair<std::string, std::string>> &info);
+      bool parseCPUInfo(CPUInfoType &info);
+      std::vector<std::string> getModels(const CPUInfoType &info);
+      std::string formatModels(const std::vector<std::string> &models);
       std::string getModelFromCPUFeatures();
-      double getAverageSpeed(const std::vector<std::pair<std::string, std::string>> &info);
+      double getAverageSpeed(const CPUInfoType &info);
       void postEndJob();
     };
 
@@ -85,7 +87,7 @@ namespace edm {
         return t.str();
       }
 
-      double str2d(std::string s) { return atof(s.c_str()); }
+      double str2d(std::string s) { return std::atof(s.c_str()); }
 
       void trim(std::string &s, const std::string &drop = " \t") {
         std::string::size_type p = s.find_last_not_of(drop);
@@ -153,24 +155,12 @@ namespace edm {
           disableJobReportOutput_(iPS.getUntrackedParameter<bool>("disableJobReportOutput")) {
       edm::Service<edm::ResourceInformation> resourceInformationService;
       if (resourceInformationService.isAvailable()) {
-        std::vector<std::pair<std::string, std::string>> info;
+        CPUInfoType info;
         if (parseCPUInfo(info)) {
-          std::string models = getModels(info);
-          double averageSpeed = getAverageSpeed(info);
-          resourceInformationService->setCpuModelsFormatted(models);
-          resourceInformationService->setCpuAverageSpeed(averageSpeed);
-
-          std::set<std::string> modelsSet;
-          for (const auto &entry : info) {
-            if (entry.first == "model name") {
-              modelsSet.insert(entry.second);
-            }
-          }
-          if (modelsSet.empty()) {  // "model name" not found, try models string
-            modelsSet.insert(models);
-          }
-          std::vector<std::string> modelsVector(modelsSet.begin(), modelsSet.end());
-          resourceInformationService->setCPUModels(modelsVector);
+          const auto models{getModels(info)};
+          resourceInformationService->setCPUModels(models);
+          resourceInformationService->setCpuModelsFormatted(formatModels(models));
+          resourceInformationService->setCpuAverageSpeed(getAverageSpeed(info));
         }
       }
       iRegistry.watchPostEndJob(this, &CPU::postEndJob);
@@ -192,13 +182,12 @@ namespace edm {
 
       Service<JobReport> reportSvc;
 
-      std::vector<std::pair<std::string, std::string>> info;
+      CPUInfoType info;
       if (!parseCPUInfo(info)) {
         return;
       }
 
-      std::string models = getModels(info);
-      double avgSpeed = getAverageSpeed(info);
+      const auto models{formatModels(getModels(info))};
       unsigned totalNumberCPUs = 0;
       std::map<std::string, std::string> currentCoreProperties;
       std::string currentCore;
@@ -224,7 +213,7 @@ namespace edm {
       }
 
       std::map<std::string, std::string> reportCPUProperties{
-          {"totalCPUs", i2str(totalNumberCPUs)}, {"averageCoreSpeed", d2str(avgSpeed)}, {"CPUModels", models}};
+          {"totalCPUs", i2str(totalNumberCPUs)}, {"averageCoreSpeed", d2str(getAverageSpeed(info))}, {"CPUModels", models}};
       unsigned set_size = -1;
       if (getCpuSetSize(set_size)) {
         reportCPUProperties.insert(std::make_pair("cpusetCount", i2str(set_size)));
@@ -232,7 +221,7 @@ namespace edm {
       reportSvc->reportPerformanceSummary("SystemCPU", reportCPUProperties);
     }
 
-    bool CPU::parseCPUInfo(std::vector<std::pair<std::string, std::string>> &info) {
+    bool CPU::parseCPUInfo(CPUInfoType &info) {
       info.clear();
       std::ifstream fcpuinfo("/proc/cpuinfo");
       if (!fcpuinfo.is_open()) {
@@ -297,13 +286,23 @@ namespace edm {
       return model;
     }
 
-    std::string CPU::getModels(const std::vector<std::pair<std::string, std::string>> &info) {
-      std::set<std::string> models;
+    std::vector<std::string> CPU::getModels(const CPUInfoType &info) {
+      std::set<std::string> modelSet;
       for (const auto &entry : info) {
         if (entry.first == "model name") {
-          models.insert(entry.second);
+          modelSet.insert(entry.second);
         }
       }
+      std::vector<std::string> modelsVector(modelSet.begin(), modelSet.end());
+      // If "model name" isn't present in /proc/cpuinfo, see what we can get
+      // from cpu_features
+      if (modelsVector.empty()) {
+        modelsVector.emplace_back(getModelFromCPUFeatures());
+      }
+      return modelsVector;
+    }
+
+    std::string CPU::formatModels(const std::vector<std::string> &models) {
       std::stringstream ss;
       int model = 0;
       for (const auto &modelname : models) {
@@ -312,15 +311,10 @@ namespace edm {
         }
         ss << modelname;
       }
-      // If "model name" isn't present in /proc/cpuinfo, see what we can get
-      // from cpu_features
-      if (0 == model) {
-        return getModelFromCPUFeatures();
-      }
       return ss.str();
     }
 
-    double CPU::getAverageSpeed(const std::vector<std::pair<std::string, std::string>> &info) {
+    double CPU::getAverageSpeed(const CPUInfoType &info) {
       double averageCoreSpeed = 0.0;
       unsigned coreCount = 0;
       for (const auto &entry : info) {
