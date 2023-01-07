@@ -212,8 +212,9 @@ namespace edm {
         reportSvc->reportPerformanceForModule("SystemCPU", "CPU-" + currentCore, currentCoreProperties);
       }
 
-      std::map<std::string, std::string> reportCPUProperties{
-          {"totalCPUs", i2str(totalNumberCPUs)}, {"averageCoreSpeed", d2str(getAverageSpeed(info))}, {"CPUModels", models}};
+      std::map<std::string, std::string> reportCPUProperties{{"totalCPUs", i2str(totalNumberCPUs)},
+                                                             {"averageCoreSpeed", d2str(getAverageSpeed(info))},
+                                                             {"CPUModels", models}};
       unsigned set_size = -1;
       if (getCpuSetSize(set_size)) {
         reportCPUProperties.insert(std::make_pair("cpusetCount", i2str(set_size)));
