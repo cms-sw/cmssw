@@ -12,10 +12,10 @@ useLockRecords = True
 import sys
 if 'runkey=hi_run' in sys.argv:
   from Configuration.Eras.Era_Run3_pp_on_PbPb_approxSiStripClusters_cff import Run3_pp_on_PbPb_approxSiStripClusters
-  process = cms.Process("BeamMonitor", Run3_pp_on_PbPb_approxSiStripClusters)
+  process = cms.Process("FakeBeamMonitorHLT", Run3_pp_on_PbPb_approxSiStripClusters)
 else:
   from Configuration.Eras.Era_Run3_cff import Run3
-  process = cms.Process("BeamMonitor", Run3)
+  process = cms.Process("FakeBeamMonitorHLT", Run3)
 
 # switch
 live = True # FIXME
