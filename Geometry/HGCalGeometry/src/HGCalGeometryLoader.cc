@@ -107,7 +107,7 @@ HGCalGeometry* HGCalGeometryLoader::build(const HGCalTopology& topology) {
 #endif
           if (ok) {
             DetId detId = static_cast<DetId>(id);
-            const auto& w = topology.dddConstants().locateCellTrap(layer, ring, iphi, true, false);
+            const auto& w = topology.dddConstants().locateCellTrap(zside, layer, ring, iphi, true, false);
             double xx = (zside > 0) ? w.first : -w.first;
             CLHEP::Hep3Vector h3v(xx, w.second, mytr.h3v.z());
             const HepGeom::Transform3D ht3d(mytr.hr, h3v);

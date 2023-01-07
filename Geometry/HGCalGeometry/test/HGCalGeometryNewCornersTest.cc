@@ -77,7 +77,7 @@ void HGCalGeometryNewCornersTest::beginRun(const edm::Run&, const edm::EventSetu
       HGCSiliconDetId detId(det, 1, types_[k], lay - layerOff, waferU_[k], waferV_[k], 0, 0);
       GlobalPoint global = geom->getPosition(DetId(detId), debug_);
       double phi2 = global.phi();
-      auto xy = geom->topology().dddConstants().waferPosition(lay - layerOff, waferU_[k], waferV_[k], debug_);
+      auto xy = geom->topology().dddConstants().waferPosition(lay - layerOff, waferU_[k], waferV_[k], true, debug_);
       double phi1 = std::atan2(xy.second, xy.first);
       edm::LogVerbatim("HGCalGeom") << "Layer: " << lay << " U " << waferU_[k] << " V " << waferV_[k] << " Position ("
                                     << xy.first << ", " << xy.second << ") phi " << convertRadToDeg(phi1);

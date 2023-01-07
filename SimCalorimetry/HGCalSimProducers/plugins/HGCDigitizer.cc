@@ -34,7 +34,7 @@ namespace {
 
   int getCellThickness(const HGCalGeometry* geom, const DetId& detid) {
     const auto& dddConst = geom->topology().dddConstants();
-    return (1 + dddConst.waferType(detid));
+    return (1 + dddConst.waferType(detid, false));
   }
 
   void getValidDetIds(const HGCalGeometry* geom, std::unordered_set<DetId>& valid) {
