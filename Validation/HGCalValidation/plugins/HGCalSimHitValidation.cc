@@ -206,9 +206,9 @@ void HGCalSimHitValidation::analyzeHits(std::vector<PCaloHit>& hits) {
     HepGeom::Point3D<float> gcoord;
     std::pair<float, float> xy;
     if (hgcons_->waferHexagon8()) {
-      xy = hgcons_->locateCell(layer, sector, subsector, cell, cell2, false, true);
+      xy = hgcons_->locateCell(zside, layer, sector, subsector, cell, cell2, false, true, false, false);
     } else {
-      xy = hgcons_->locateCellTrap(layer, sector, cell, false);
+      xy = hgcons_->locateCellTrap(zside, layer, sector, cell, false, false);
     }
     double zp = hgcons_->waferZ(layer, false);
     if (zside < 0)
@@ -264,7 +264,7 @@ void HGCalSimHitValidation::analyzeHits(std::vector<PCaloHit>& hits) {
     int partialType = -1;
     if ((nameDetector_ == "HGCalEESensitive") || (nameDetector_ == "HGCalHESiliconSensitive")) {
       HGCSiliconDetId detId = HGCSiliconDetId((*itr).first);
-      std::tie(type, part, orient) = hgcons_->waferType(detId);
+      std::tie(type, part, orient) = hgcons_->waferType(detId, false);
       partialType = part;
     }
 

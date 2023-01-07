@@ -77,7 +77,7 @@ void HGCalWaferCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     for (int layer = 1; layer <= 2; ++layer) {
       for (int waferU = -12; waferU <= 12; ++waferU) {
         int waferV(0);
-        int type = hgdc.waferType(layer, waferU, waferV);
+        int type = hgdc.waferType(layer, waferU, waferV, false);
         int cell = (type == 0) ? 12 : 8;
         HGCSiliconDetId id1(det, 1, type, layer, waferU, waferV, cell, cell);
         if (geom->topology().valid(id1))
@@ -88,7 +88,7 @@ void HGCalWaferCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       }
       for (int waferV = -12; waferV <= 12; ++waferV) {
         int waferU(0);
-        int type = hgdc.waferType(layer, waferU, waferV);
+        int type = hgdc.waferType(layer, waferU, waferV, false);
         int cell = (type == 0) ? 12 : 8;
         HGCSiliconDetId id1(det, 1, type, layer, waferU, waferV, cell, cell);
         if (geom->topology().valid(id1))

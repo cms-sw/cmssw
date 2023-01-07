@@ -169,7 +169,7 @@ void HGCalSimHitStudy::analyzeHits(int ih, std::string const& name, std::vector<
       type = detId.type();
       layer = detId.layer();
       zside = detId.zside();
-      xy = hgcons_[ih]->locateCell(layer, sector, sector2, cell, cell2, false, true);
+      xy = hgcons_[ih]->locateCell(zside, layer, sector, sector2, cell, cell2, false, true, false, false);
       h_W2_[ih]->Fill(sector2);
       h_C2_[ih]->Fill(cell2);
     } else if (hgcons_[ih]->waferHexagon8()) {
@@ -182,7 +182,7 @@ void HGCalSimHitStudy::analyzeHits(int ih, std::string const& name, std::vector<
       type = detId.type();
       layer = detId.layer();
       zside = detId.zside();
-      xy = hgcons_[ih]->locateCell(layer, sector, sector2, cell, cell2, false, true);
+      xy = hgcons_[ih]->locateCell(zside, layer, sector, sector2, cell, cell2, false, true, false, false);
       h_W2_[ih]->Fill(sector2);
       h_C2_[ih]->Fill(cell2);
     } else if (hgcons_[ih]->tileTrapezoid()) {
@@ -193,7 +193,7 @@ void HGCalSimHitStudy::analyzeHits(int ih, std::string const& name, std::vector<
       type = detId.type();
       layer = detId.layer();
       zside = detId.zside();
-      xy = hgcons_[ih]->locateCellTrap(layer, sector, cell, false);
+      xy = hgcons_[ih]->locateCellTrap(zside, layer, sector, cell, false, false);
     } else {
       edm::LogError("HGCalValidation") << "HGCalSimHitStudy: Wrong geometry mode " << hgcons_[ih]->geomMode();
       continue;
