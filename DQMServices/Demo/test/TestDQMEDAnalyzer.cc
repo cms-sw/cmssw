@@ -332,15 +332,17 @@ private:
 };
 DEFINE_FWK_MODULE(TestDQMGlobalRunSummaryEDAnalyzer);
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-class TestLegacyEDAnalyzer : public edm::EDAnalyzer {
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+class TestLegacyEDAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchRuns> {
 public:
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
 
   explicit TestLegacyEDAnalyzer(const edm::ParameterSet& iConfig)
       : mymes_(iConfig.getParameter<std::string>("folder"), iConfig.getParameter<int>("howmany")),
-        myvalue_(iConfig.getParameter<double>("value")) {}
+        myvalue_(iConfig.getParameter<double>("value")) {
+    usesResource("DQMStore");
+  }
 
   ~TestLegacyEDAnalyzer() override{};
 
@@ -357,6 +359,7 @@ private:
     edm::Service<DQMStore> store;
     mymes_.bookall(*store);
   }
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
 
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override {
     mymes_.fillall(iEvent.luminosityBlock(), iEvent.run(), myvalue_);
@@ -367,14 +370,16 @@ private:
 };
 DEFINE_FWK_MODULE(TestLegacyEDAnalyzer);
 
-class TestLegacyFillRunEDAnalyzer : public edm::EDAnalyzer {
+class TestLegacyFillRunEDAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchRuns> {
 public:
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
 
   explicit TestLegacyFillRunEDAnalyzer(const edm::ParameterSet& iConfig)
       : mymes_(iConfig.getParameter<std::string>("folder"), iConfig.getParameter<int>("howmany")),
-        myvalue_(iConfig.getParameter<double>("value")) {}
+        myvalue_(iConfig.getParameter<double>("value")) {
+    usesResource("DQMStore");
+  }
 
   ~TestLegacyFillRunEDAnalyzer() override{};
 
@@ -392,6 +397,7 @@ private:
     mymes_.bookall(*store);
     mymes_.fillall(0, run.run(), myvalue_);
   }
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
 
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override {}
 
@@ -400,14 +406,17 @@ private:
 };
 DEFINE_FWK_MODULE(TestLegacyFillRunEDAnalyzer);
 
-class TestLegacyFillLumiEDAnalyzer : public edm::EDAnalyzer {
+class TestLegacyFillLumiEDAnalyzer
+    : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
 public:
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
 
   explicit TestLegacyFillLumiEDAnalyzer(const edm::ParameterSet& iConfig)
       : mymes_(iConfig.getParameter<std::string>("folder"), iConfig.getParameter<int>("howmany")),
-        myvalue_(iConfig.getParameter<double>("value")) {}
+        myvalue_(iConfig.getParameter<double>("value")) {
+    usesResource("DQMStore");
+  }
 
   ~TestLegacyFillLumiEDAnalyzer() override{};
 
@@ -424,10 +433,12 @@ private:
     edm::Service<DQMStore> store;
     mymes_.bookall(*store);
   }
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
 
   void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const&) override {
     mymes_.fillall(lumi.luminosityBlock(), lumi.run(), myvalue_);
   }
+  void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const&) override {}
 
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override {}
 
