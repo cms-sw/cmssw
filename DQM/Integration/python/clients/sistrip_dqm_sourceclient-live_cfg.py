@@ -621,9 +621,9 @@ if (process.runType.getRunType() == process.runType.hi_run):
     # Select events based on the pixel cluster multiplicity
     import  HLTrigger.special.hltPixelActivityFilter_cfi
     process.multFilter = HLTrigger.special.hltPixelActivityFilter_cfi.hltPixelActivityFilter.clone(
-        inputTag  = cms.InputTag('siPixelClusters'),
-        minClusters = cms.uint32(1),
-        maxClusters = cms.uint32(50000)
+        inputTag  = 'siPixelClusters',
+        minClusters = 1,
+        maxClusters = 50000
         )
 
     # BaselineValidator Module
@@ -666,7 +666,8 @@ if (process.runType.getRunType() == process.runType.hi_run):
 
     # append the approximate clusters monitoring for the HI run case
     from DQM.SiStripMonitorApproximateCluster.SiStripMonitorApproximateCluster_cfi import SiStripMonitorApproximateCluster
-    process.siStripApproximateClusterComparator = SiStripMonitorApproximateCluster.clone(compareClusters = cms.bool(True))
+    process.siStripApproximateClusterComparator = SiStripMonitorApproximateCluster.clone(compareClusters = True,
+                                                                                         ClustersProducer = "hltSiStripClusterizerForRawPrime")
     process.p.insert(process.p.index(process.TrackingClient)+1,process.siStripApproximateClusterComparator)
 
 ### process customizations included here

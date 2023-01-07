@@ -199,6 +199,7 @@ void SiStripMonitorApproximateCluster::analyze(const edm::Event& iEvent, const e
         for (const auto& stripCluster : strip_clusters_detset) {
           // by construction the approximated cluster width has same
           // size as the original cluster
+
           if (cluster.width() != stripCluster.size()) {
             continue;
           }
@@ -214,18 +215,17 @@ void SiStripMonitorApproximateCluster::analyze(const edm::Event& iEvent, const e
         // - if exists a closest cluster in the DetId
         // - the size coincides with the original one
         if (closestCluster) {
+          // comparisong plots
           h_deltaBarycenter_->Fill(closestCluster->barycenter() - convertedCluster.barycenter());
           h_deltaSize_->Fill(closestCluster->size() - convertedCluster.size());
           h_deltaCharge_->Fill(closestCluster->charge() - convertedCluster.charge());
           h_deltaFirstStrip_->Fill(closestCluster->firstStrip() - convertedCluster.firstStrip());
           h_deltaEndStrip_->Fill(closestCluster->endStrip() - convertedCluster.endStrip());
-        }
-
-        // perfect match (also barycenter coindices)
-        if (std::abs(distance) <= 1.f) {
+          // monitoring plots
           matchedClusters.fill(cluster);
           h_isMatched_->Fill(1);
         } else {
+          // monitoring plots
           unMatchedClusters.fill(cluster);
           h_isMatched_->Fill(-1);
         }
@@ -251,14 +251,14 @@ void SiStripMonitorApproximateCluster::bookHistograms(DQMStore::IBooker& ibook,
 
     ibook.setCurrentFolder(fmt::format("{}/ClusterComparisons", folder_));
     h_deltaBarycenter_ =
-        ibook.book1D("deltaBarycenter", "#Delta barycenter;#Delta barycenter;cluster pairs", 501, -1000.5, 1000.5);
+        ibook.book1D("deltaBarycenter", "#Delta barycenter;#Delta barycenter;cluster pairs", 101, -50.5, 50.5);
     h_deltaSize_ = ibook.book1D("deltaSize", "#Delta size;#Delta size;cluster pairs", 201, -100.5, 100.5);
-    h_deltaCharge_ = ibook.book1D("deltaCharge", "#Delta charge;#Delta charge;cluster pairs", 501, -1000.5, 1000.5);
+    h_deltaCharge_ = ibook.book1D("deltaCharge", "#Delta charge;#Delta charge;cluster pairs", 401, -200.5, 200.5);
 
     h_deltaFirstStrip_ =
-        ibook.book1D("deltaFirstStrip", "#Delta FirstStrip; #Delta firstStrip;cluster pairs", 501, -1000.5, 1000.5);
+        ibook.book1D("deltaFirstStrip", "#Delta FirstStrip; #Delta firstStrip;cluster pairs", 101, -50.5, 50.5);
     h_deltaEndStrip_ =
-        ibook.book1D("deltaEndStrip", "#Delta EndStrip; #Delta endStrip; cluster pairs", 501, -1000.5, 1000.5);
+        ibook.book1D("deltaEndStrip", "#Delta EndStrip; #Delta endStrip; cluster pairs", 101, -50.5, 50.5);
 
     h_isMatched_ = ibook.book1D("isClusterMatched", "cluster matching;is matched?;#clusters", 3, -1.5, 1.5);
     h_isMatched_->getTH1F()->GetXaxis()->SetBinLabel(1, "Not matched");
@@ -269,10 +269,13 @@ void SiStripMonitorApproximateCluster::bookHistograms(DQMStore::IBooker& ibook,
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void SiStripMonitorApproximateCluster::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<bool>("compareClusters", false);
-  desc.add<edm::InputTag>("ApproxClustersProducer", edm::InputTag("hltSiStripClusters2ApproxClusters"));
-  desc.add<edm::InputTag>("ClustersProducer", edm::InputTag("siStripClusters"));
-  desc.add<std::string>("folder", "SiStripApproximateClusters");
+  desc.setComment("Monitor SiStripApproximateCluster collection and compare with regular SiStrip clusters");
+  desc.add<bool>("compareClusters", false)->setComment("if true, will compare with regualr Strip clusters");
+  desc.add<edm::InputTag>("ApproxClustersProducer", edm::InputTag("hltSiStripClusters2ApproxClusters"))
+      ->setComment("approxmate clusters collection");
+  desc.add<edm::InputTag>("ClustersProducer", edm::InputTag("hltSiStripClusterizerForRawPrime"))
+      ->setComment("regular clusters collection");
+  desc.add<std::string>("folder", "SiStripApproximateClusters")->setComment("Top Level Folder");
   descriptions.addWithDefaultLabel(desc);
 }
 
