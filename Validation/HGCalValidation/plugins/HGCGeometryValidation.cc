@@ -198,13 +198,14 @@ void HGCGeometryValidation::analyze(const edm::Event &iEvent, const edm::EventSe
         dtype = (id.det() == DetId::HGCalEE) ? 0 : 1;
         layer = id.layer();
         zside = id.zside();
-        xy = hgcGeometry_[dtype]->locateCell(layer, id.waferU(), id.waferV(), id.cellU(), id.cellV(), true, true);
+        xy = hgcGeometry_[dtype]->locateCell(
+            zside, layer, id.waferU(), id.waferV(), id.cellU(), id.cellV(), true, true, false, false);
       } else {
         HGCScintillatorDetId id(hitIdx[i]);
         dtype = 2;
         layer = id.layer();
         zside = id.zside();
-        xy = hgcGeometry_[dtype]->locateCellTrap(layer, id.ietaAbs(), id.iphi(), true);
+        xy = hgcGeometry_[dtype]->locateCellTrap(zside, layer, id.ietaAbs(), id.iphi(), true, false);
       }
       double zz = hgcGeometry_[dtype]->waferZ(layer, true);  //cm
       if (zside < 0)

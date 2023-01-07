@@ -173,22 +173,19 @@ void HGCalValidityTester::beginRun(edm::Run const &iRun, edm::EventSetup const &
       HGCScintillatorDetId id(detIds_[k].first);
       layer = id.layer();
       zside = id.zside();
-      xy = cons->locateCellTrap(layer, id.ring(), id.iphi(), true, false);
-      if (zside < 0)
-        xy.first = -xy.first;
+      xy = cons->locateCellTrap(zside, layer, id.ring(), id.iphi(), true, false);
+      double z = zside * (cons->waferZ(layer, true));
       valid = cons->isValidTrap(zside, layer, id.ring(), id.iphi());
-      auto cell = cons->assignCellTrap(xy.first, xy.second, layer, true, false);
+      auto cell = cons->assignCellTrap(zside * xy.first, xy.second, z, layer, true);
       HGCScintillatorDetId newId(cell[2], layer, zside * cell[0], cell[1], id.trigger(), id.sipm());
       st1 << "Old: " << id << " New: " << newId << " OK " << (id.rawId() == newId.rawId());
     } else {
       HGCSiliconDetId id(detIds_[k].first);
       layer = id.layer();
       zside = id.zside();
-      xy = cons->locateCell(layer, id.waferU(), id.waferV(), id.cellU(), id.cellV(), true, true, false, false);
-      if (zside < 0)
-        xy.first = -xy.first;
+      xy = cons->locateCell(zside, layer, id.waferU(), id.waferV(), id.cellU(), id.cellV(), true, true, false, false);
       valid = cons->isValidHex8(layer, id.waferU(), id.waferV(), id.cellU(), id.cellV(), false);
-      auto cell = cons->assignCellHex(xy.first, xy.second, layer, true, false, false);
+      auto cell = cons->assignCellHex(zside * xy.first, xy.second, zside, layer, true, false, false);
       HGCSiliconDetId newId(id.det(), id.zside(), cell[2], id.layer(), cell[0], cell[1], cell[3], cell[4]);
       st1 << "Old: " << id << " New: " << newId << " OK " << (id.rawId() == newId.rawId());
     }
