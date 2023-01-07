@@ -48,8 +48,9 @@ public:
 
 DEFINE_FWK_MODULE(TestHarvester);
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-class TestLegacyHarvester : public edm::EDAnalyzer {
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+class TestLegacyHarvester
+    : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
 private:
   std::string folder_;
   std::string whathappened;
@@ -59,7 +60,9 @@ public:
   typedef dqm::legacy::MonitorElement MonitorElement;
 
   explicit TestLegacyHarvester(const edm::ParameterSet &iConfig)
-      : folder_(iConfig.getParameter<std::string>("folder")) {}
+      : folder_(iConfig.getParameter<std::string>("folder")) {
+    usesResource("DQMStore");
+  }
   ~TestLegacyHarvester() override {}
 
   void beginRun(const edm::Run &run, const edm::EventSetup &iSetup) override {
@@ -73,6 +76,7 @@ public:
     out->Fill(whathappened);
   }
 
+  void beginLuminosityBlock(edm::LuminosityBlock const &lumi, edm::EventSetup const &) override {}
   void endLuminosityBlock(edm::LuminosityBlock const &lumi, edm::EventSetup const &) override {
     whathappened += "endLumi(" + std::to_string(lumi.run()) + "," + std::to_string(lumi.luminosityBlock()) + ") ";
   }
