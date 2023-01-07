@@ -60,7 +60,7 @@ process.RandomNumberGeneratorService.generator.initialSeed = rndm
 print("Processing with random number seed: ", rndm)
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(5000)
 )
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1

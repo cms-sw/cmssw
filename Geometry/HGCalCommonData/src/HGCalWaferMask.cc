@@ -239,27 +239,27 @@ bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
     case (HGCalTypes::WaferSemi): {  //WaferSemi
       switch (rotn) {
         case (HGCalTypes::WaferCorner0): {
-          good = ((u + v) < (2 * n));
+          good = ((u + v) <= (2 * n));
           break;
         }
         case (HGCalTypes::WaferCorner1): {
-          good = ((2 * u - v) < n);
+          good = ((2 * u - v) <= (n + 1));
           break;
         }
         case (HGCalTypes::WaferCorner2): {
-          good = ((2 * v - u) >= n);
+          good = ((2 * v - u) >= (n - 2));
           break;
         }
         case (HGCalTypes::WaferCorner3): {
-          good = ((u + v) >= (2 * n));
+          good = ((u + v) >= (2 * n - 2));
           break;
         }
         case (HGCalTypes::WaferCorner4): {
-          good = ((2 * u - v) > n);
+          good = ((2 * u - v) >= n);
           break;
         }
         default: {
-          good = ((2 * v - u) < n);
+          good = ((2 * v - u) <= n);
           break;
         }
       }
@@ -268,31 +268,28 @@ bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
     case (HGCalTypes::WaferThree): {  //WaferThree
       switch (rotn) {
         case (HGCalTypes::WaferCorner0): {
-          good = ((v + u) < n);
+          good = ((v + u) <= n);
           break;
         }
         case (HGCalTypes::WaferCorner1): {
-          int v2 = v / 2;
-          good = (u <= v2);
+          good = ((2 * u - v) <= 1);
           break;
         }
         case (HGCalTypes::WaferCorner2): {
           int u2 = (u / 2);
-          good = ((v - u2) >= n);
+          good = ((v - u2) >= (n - 1));
           break;
         }
         case (HGCalTypes::WaferCorner3): {
-          good = ((v + u) >= (3 * n - 1));
+          good = ((v + u) >= (3 * n - 2));
           break;
         }
         case (HGCalTypes::WaferCorner4): {
-          int v2 = ((v + 1) / 2);
-          good = ((u - v2) >= n);
+          good = ((2 * u - v) >= (2 * n - 1));
           break;
         }
         default: {
-          int u2 = ((u + 1) / 2);
-          good = (v < u2);
+          good = ((u - 2 * v) >= 0);
           break;
         }
       }
