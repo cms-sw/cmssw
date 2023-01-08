@@ -51,7 +51,7 @@ namespace edm {
     class CPU : public CPUServiceBase {
     public:
       CPU(ParameterSet const &, ActivityRegistry &);
-      ~CPU() = default;
+      ~CPU() override = default;
 
       static void fillDescriptions(ConfigurationDescriptions &descriptions);
 
