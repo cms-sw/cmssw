@@ -765,8 +765,6 @@ void TagProbeFitter::createPdf(RooWorkspace* w, vector<string>& pdfCommands) {
 
 void TagProbeFitter::setInitialValues(RooWorkspace* w) {
   // calculate initial values
-  double signalEfficiency = w->var("efficiency")->getVal();
-  double signalFractionInPassing = w->var("signalFractionInPassing")->getVal();
   double totPassing = w->data("data")->sumEntries("_efficiencyCategory_==_efficiencyCategory_::Passed");
   double totFailing = w->data("data")->sumEntries("_efficiencyCategory_==_efficiencyCategory_::Failed");
   //std::cout << "Number of probes: " << totPassing+totFailing << std::endl;
@@ -786,10 +784,6 @@ void TagProbeFitter::setInitialValues(RooWorkspace* w) {
   } else {
     w->var("efficiency")->setConstant(false);
   }
-
-  // if signal fraction is 1 then set the number of background events to 0.
-  //RooRealVar* fBkgPass = w->var("numBackgroundPass");
-  //if(signalFractionInPassing==1.0) { fBkgPass->setVal(0.0); fBkgPass->setConstant(true); }
 
   // save initial state for reference
   w->saveSnapshot("initialState", w->components());
