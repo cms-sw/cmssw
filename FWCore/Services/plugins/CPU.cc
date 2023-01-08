@@ -51,7 +51,7 @@ namespace edm {
     class CPU : public CPUServiceBase {
     public:
       CPU(ParameterSet const &, ActivityRegistry &);
-      ~CPU() override;
+      ~CPU() = default;
 
       static void fillDescriptions(ConfigurationDescriptions &descriptions);
 
@@ -59,11 +59,11 @@ namespace edm {
       const bool reportCPUProperties_;
       const bool disableJobReportOutput_;
 
-      bool parseCPUInfo(CPUInfoType &info);
-      std::vector<std::string> getModels(const CPUInfoType &info);
-      std::string formatModels(const std::vector<std::string> &models);
-      std::string getModelFromCPUFeatures();
-      double getAverageSpeed(const CPUInfoType &info);
+      bool parseCPUInfo(CPUInfoType &info) const;
+      std::vector<std::string> getModels(const CPUInfoType &info) const;
+      std::string formatModels(const std::vector<std::string> &models) const;
+      std::string getModelFromCPUFeatures() const;
+      double getAverageSpeed(const CPUInfoType &info) const;
       void postEndJob();
     };
 
@@ -75,20 +75,6 @@ namespace edm {
   namespace service {
     namespace {
 
-      std::string i2str(int i) {
-        std::ostringstream t;
-        t << i;
-        return t.str();
-      }
-
-      std::string d2str(double d) {
-        std::ostringstream t;
-        t << d;
-        return t.str();
-      }
-
-      double str2d(std::string s) { return std::atof(s.c_str()); }
-
       void trim(std::string &s, const std::string &drop = " \t") {
         std::string::size_type p = s.find_last_not_of(drop);
         if (p != std::string::npos) {
@@ -97,26 +83,10 @@ namespace edm {
         s = s.erase(0, s.find_first_not_of(drop));
       }
 
-      std::string eraseExtraSpaces(std::string s) {
-        bool founded = false;
-        std::string aux;
-        for (std::string::const_iterator iter = s.begin(); iter != s.end(); iter++) {
-          if (founded) {
-            if (*iter == ' ')
-              founded = true;
-            else {
-              aux += " ";
-              aux += *iter;
-              founded = false;
-            }
-          } else {
-            if (*iter == ' ')
-              founded = true;
-            else
-              aux += *iter;
-          }
-        }
-        return aux;
+      void compressWhitespace(std::string &s) {
+        auto last = std::unique(
+            s.begin(), s.end(), [](unsigned char a, unsigned char b) -> bool { return std::isspace(a) && a == b; });
+        s.erase(last, s.end());
       }
 
       // Determine the CPU set size; if this can be successfully determined, then this
@@ -166,8 +136,6 @@ namespace edm {
       iRegistry.watchPostEndJob(this, &CPU::postEndJob);
     }
 
-    CPU::~CPU() {}
-
     void CPU::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
       edm::ParameterSetDescription desc;
       desc.addUntracked<bool>("reportCPUProperties", false);
@@ -212,17 +180,18 @@ namespace edm {
         reportSvc->reportPerformanceForModule("SystemCPU", "CPU-" + currentCore, currentCoreProperties);
       }
 
-      std::map<std::string, std::string> reportCPUProperties{{"totalCPUs", i2str(totalNumberCPUs)},
-                                                             {"averageCoreSpeed", d2str(getAverageSpeed(info))},
-                                                             {"CPUModels", models}};
+      std::map<std::string, std::string> reportCPUProperties{
+          {"totalCPUs", std::to_string(totalNumberCPUs)},
+          {"averageCoreSpeed", std::to_string(getAverageSpeed(info))},
+          {"CPUModels", models}};
       unsigned set_size = -1;
       if (getCpuSetSize(set_size)) {
-        reportCPUProperties.insert(std::make_pair("cpusetCount", i2str(set_size)));
+        reportCPUProperties.insert(std::make_pair("cpusetCount", std::to_string(set_size)));
       }
       reportSvc->reportPerformanceSummary("SystemCPU", reportCPUProperties);
     }
 
-    bool CPU::parseCPUInfo(CPUInfoType &info) {
+    bool CPU::parseCPUInfo(CPUInfoType &info) const {
       info.clear();
       std::ifstream fcpuinfo("/proc/cpuinfo");
       if (!fcpuinfo.is_open()) {
@@ -260,14 +229,14 @@ namespace edm {
         }
 
         if (property == "model name") {
-          value = eraseExtraSpaces(value);
+          compressWhitespace(value);
         }
         info.emplace_back(property, value);
       }
       return true;
     }
 
-    std::string CPU::getModelFromCPUFeatures() {
+    std::string CPU::getModelFromCPUFeatures() const {
       using namespace cpu_features;
 
       std::string model;
@@ -287,7 +256,7 @@ namespace edm {
       return model;
     }
 
-    std::vector<std::string> CPU::getModels(const CPUInfoType &info) {
+    std::vector<std::string> CPU::getModels(const CPUInfoType &info) const {
       std::set<std::string> modelSet;
       for (const auto &entry : info) {
         if (entry.first == "model name") {
@@ -303,7 +272,7 @@ namespace edm {
       return modelsVector;
     }
 
-    std::string CPU::formatModels(const std::vector<std::string> &models) {
+    std::string CPU::formatModels(const std::vector<std::string> &models) const {
       std::stringstream ss;
       int model = 0;
       for (const auto &modelname : models) {
@@ -315,12 +284,12 @@ namespace edm {
       return ss.str();
     }
 
-    double CPU::getAverageSpeed(const CPUInfoType &info) {
+    double CPU::getAverageSpeed(const CPUInfoType &info) const {
       double averageCoreSpeed = 0.0;
       unsigned coreCount = 0;
       for (const auto &entry : info) {
         if (entry.first == "cpu MHz") {
-          averageCoreSpeed += str2d(entry.second);
+          averageCoreSpeed += std::stod(entry.second);
           coreCount++;
         }
       }
@@ -335,5 +304,5 @@ namespace edm {
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
 using edm::service::CPU;
-typedef edm::serviceregistry::AllArgsMaker<edm::CPUServiceBase, CPU> CPUMaker;
+using CPUMaker = edm::serviceregistry::AllArgsMaker<edm::CPUServiceBase, CPU>;
 DEFINE_FWK_SERVICE_MAKER(CPU, CPUMaker);
