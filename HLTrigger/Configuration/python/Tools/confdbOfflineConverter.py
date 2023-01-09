@@ -242,6 +242,14 @@ def help():
         --modules <p1[,p2]>         (include modules, referenced or not!)
         --blocks <m1::p1[,p2][,m2]> (generate parameter blocks)
 
+        Options to connect to target db via SOCKS proxy, or direct tunnel:
+          [the options --dbproxy and --dbtunnel are mutually exclusive]
+        --dbproxy                   (use a SOCKS proxy to connect outside CERN network [default: False])
+        --dbproxyhost <hostname>    (host of the SOCKS proxy [default: "localhost"])
+        --dbproxyport <port>        (port of the SOCKS proxy [default: 8080])
+        --dbtunnel                  (use direct tunnel to connect outside CERN network [default: False])
+        --dbtunnelport <port>       (port when using a direct tunnel on localhost [default: 10121])
+
         --verbose                   (print additional details)
 """)
 
@@ -294,8 +302,8 @@ def main():
         version = 'v3-test'
         db      = 'dev'
         args.remove('--v3-test')
-    
-    proxy=False
+
+    proxy = False
     proxy_host = "localhost"
     proxy_port = "8080"
     if '--dbproxy' in args:
@@ -347,11 +355,11 @@ def main():
             sys.exit(1)
 
     converter = OfflineConverter(version = version, database = db, verbose = verbose,
-                                 proxy = proxy, proxyHost = proxy_host, proxyPort=proxy_port,
+                                 proxy = proxy, proxyHost = proxy_host, proxyPort = proxy_port,
                                  tunnel = tunnel, tunnelPort = tunnel_port)
     out, err = converter.query( * args )
     if 'ERROR' in err:
-        sys.stderr.write( "%s: error while retriving the HLT menu\n\n%s\n\n" % (sys.argv[0], err) )
+        sys.stderr.write( "%s: error while retrieving the HLT menu\n\n%s\n\n" % (sys.argv[0], err) )
         sys.exit(1)
     else:
         sys.stdout.write( out )
