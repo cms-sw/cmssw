@@ -45,3 +45,11 @@ positiveSoftPFMuonComputer = cms.ESProducer("MuonTaggerESProducer",
     softPFMuonCommon,
     ipSign = cms.string("positive")
 )
+
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(softPFElectronComputer,
+                     useCondDB = cms.bool(False),
+)
+run3_common.toModify(softPFMuonComputer,
+                     useCondDB = cms.bool(False),
+)
