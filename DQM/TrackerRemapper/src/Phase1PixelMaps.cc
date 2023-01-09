@@ -543,6 +543,10 @@ void Phase1PixelMaps::rescaleAllBarrel(const std::string& currentHistoName) {
   auto globalMax = *std::max_element(maxima.begin(), maxima.end());
   auto globalMin = *std::min_element(minima.begin(), minima.end());
 
+  // in case the two coincide do not rescale
+  if (globalMax == globalMin)
+    return;
+
   for (auto& histo : pxbTh2PolyBarrel[currentHistoName]) {
     histo->GetZaxis()->SetRangeUser(globalMin, globalMax);
   }
@@ -568,6 +572,10 @@ void Phase1PixelMaps::rescaleAllForward(const std::string& currentHistoName) {
 
   auto globalMax = *std::max_element(maxima.begin(), maxima.end());
   auto globalMin = *std::min_element(minima.begin(), minima.end());
+
+  // in case the two coincide do not rescale
+  if (globalMax == globalMin)
+    return;
 
   for (auto& histo : pxfTh2PolyForward[currentHistoName]) {
     histo->GetZaxis()->SetRangeUser(globalMin, globalMax);

@@ -154,6 +154,16 @@ bool Phase1PixelSummaryMap::fillTrackerMap(unsigned int id, double value) {
 }
 
 //============================================================================
+const std::pair<float, float> Phase1PixelSummaryMap::getZAxisRange() const {
+  return std::make_pair(m_BaseTrackerMap->GetMinimum(), m_BaseTrackerMap->GetMaximum());
+}
+
+//============================================================================
+void Phase1PixelSummaryMap::setZAxisRange(const double min, const double max) {
+  m_BaseTrackerMap->GetZaxis()->SetRangeUser(min, max);
+}
+
+//============================================================================
 void Phase1PixelSummaryMap::addNamedBins(
     edm::FileInPath geoFile, int tX, int tY, int sX, int sY, bool applyModuleRotation) {
   auto cornerFileName = geoFile.fullPath();
