@@ -79,6 +79,8 @@ public:
   void createTrackerBaseMap();
   void printTrackerMap(TCanvas& canvas, const float topMargin = 0.02);
   bool fillTrackerMap(unsigned int id, double value);
+  void setZAxisRange(const double min, const double max);
+  const std::pair<float, float> getZAxisRange() const;
 
 protected:
   void addNamedBins(edm::FileInPath geoFile, int tX, int tY, int sX, int sY, bool applyModuleRotation = false);
