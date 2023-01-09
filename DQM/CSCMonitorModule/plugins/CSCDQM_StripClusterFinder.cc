@@ -245,12 +245,7 @@ namespace cscdqm {
     return ic1;
   }
   void StripClusterFinder::RefindMax(void) {
-    //int iLS, iRS, iLT, iRT;
-    //int iS, jT;
-    //int ilocal;
-    //float GlobalMax;
-    //bool Erased;
-    //             SEARCHING EXTREMUMS IN THE CLASTERS
+    //             SEARCHING EXTREMUMS IN THE CLUSTERS
 
     for (uint32_t i = 0; i < MEStripClusters.size(); i++) {
       MEStripClusters[i].localMax.clear();
@@ -260,10 +255,6 @@ namespace cscdqm {
       int iLT = MEStripClusters[i].LFTBNDTime;
       int iRT = MEStripClusters[i].IRTBNDTime;
 
-      /*
-    for(iS=iLS+1;iS<=iRS-1;iS++){ 
-      for(jT=iLT+1;jT<=iRT-1;jT++){
-    */
       for (int iS = iLS; iS <= iRS; iS++) {
         if (isME11 && (thePulseHeightMap[iS].channel_ == 63 || thePulseHeightMap[iS].channel_ == 64))
           continue;
