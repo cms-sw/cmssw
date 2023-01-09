@@ -13,7 +13,6 @@ l1tBJetProducerPuppi = cms.EDProducer("L1BJetProducer",
     minPt = cms.double(10),
     maxEta = cms.double(2.4),
     vtx = cms.InputTag("l1tVertexFinderEmulator","l1verticesEmulation"),
-    vtxEmulation = cms.bool(True),
 )
 l1tBJetProducerPuppiCorrectedEmulator = l1tBJetProducerPuppi.clone(
     jets = cms.InputTag("l1tSCPFL1PuppiExtendedCorrectedEmulator", ""),

@@ -11,8 +11,6 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/BJetId.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
-#include "DataFormats/L1TCorrelator/interface/TkPrimaryVertex.h"
-#include "DataFormats/L1Trigger/interface/Vertex.h"
 #include "DataFormats/L1Trigger/interface/VertexWord.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
@@ -40,9 +38,7 @@ private:
   double fMaxEta_;
   unsigned int fMaxJets_;
   int fNParticles_;
-  edm::EDGetTokenT<std::vector<l1t::TkPrimaryVertex>> fTkVtx_;
   edm::EDGetTokenT<std::vector<l1t::VertexWord>> fVtxEmu_;
-  bool fVtxEmulation_;
 };
 
 static constexpr float track_trigger_eta_max = 2.5;
@@ -54,15 +50,10 @@ L1BJetProducer::L1BJetProducer(const edm::ParameterSet& cfg, const BJetTFCache* 
       fMaxEta_(cfg.getParameter<double>("maxEta")),
       fMaxJets_(cfg.getParameter<int>("maxJets")),
       fNParticles_(cfg.getParameter<int>("nParticles")),
-      fVtxEmulation_(cfg.getParameter<bool>("vtxEmulation")) {
+      fVtxEmu_(consumes<std::vector<l1t::VertexWord>>(cfg.getParameter<edm::InputTag>("vtx"))) {
   std::string lNNFile = cfg.getParameter<std::string>("NNFileName");
   fBJetId_ = std::make_unique<BJetId>(
       cfg.getParameter<std::string>("NNInput"), cfg.getParameter<std::string>("NNOutput"), cache, lNNFile, fNParticles_);
-  if (fVtxEmulation_) {
-    fVtxEmu_ = consumes<std::vector<l1t::VertexWord>>(cfg.getParameter<edm::InputTag>("vtx"));
-  } else {
-    fTkVtx_ = consumes<std::vector<l1t::TkPrimaryVertex>>(cfg.getParameter<edm::InputTag>("vtx"));
-  }
   produces<edm::ValueMap<float>>("L1PFBJets");
 }
 std::unique_ptr<BJetTFCache> L1BJetProducer::initializeGlobalCache(const edm::ParameterSet& cfg) {
@@ -79,23 +70,12 @@ void L1BJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   float vz = 0.;
   double ptsum = 0;
-  if (fVtxEmulation_) {
-    edm::Handle<std::vector<l1t::VertexWord>> vtxEmuHandle;
-    iEvent.getByToken(fVtxEmu_, vtxEmuHandle);
-    for (const auto& vtx : *vtxEmuHandle) {
-      if (ptsum == 0 || vtx.pt() > ptsum) {
-        ptsum = vtx.pt();
-        vz = vtx.z0();
-      }
-    }
-  } else {
-    edm::Handle<std::vector<l1t::TkPrimaryVertex>> vtxHandle;
-    iEvent.getByToken(fTkVtx_, vtxHandle);
-    for (const l1t::TkPrimaryVertex& vtx : *vtxHandle) {
-      if (ptsum == 0 || vtx.sum() > ptsum) {
-        ptsum = vtx.sum();
-        vz = vtx.zvertex();
-      }
+  edm::Handle<std::vector<l1t::VertexWord>> vtxEmuHandle;
+  iEvent.getByToken(fVtxEmu_, vtxEmuHandle);
+  for (const auto& vtx : *vtxEmuHandle) {
+    if (ptsum == 0 || vtx.pt() > ptsum) {
+      ptsum = vtx.pt();
+      vz = vtx.z0();
     }
   }
 
@@ -132,7 +112,6 @@ void L1BJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<double>("minPt", 20);
   desc.add<double>("maxEta", 2.4);
   desc.add<edm::InputTag>("vtx", edm::InputTag("L1VertexFinderEmulator", "l1verticesEmulation"));
-  desc.add<bool>("vtxEmulation", true);
   descriptions.add("L1BJetProducer", desc);
 }
 L1BJetProducer::~L1BJetProducer() {}
