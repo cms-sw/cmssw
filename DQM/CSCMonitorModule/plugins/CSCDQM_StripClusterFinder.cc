@@ -1,5 +1,6 @@
 
 #include "CSCDQM_StripClusterFinder.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace cscdqm {
 
@@ -127,7 +128,7 @@ namespace cscdqm {
 
     for (uint32_t i = 0; i < MEStripClusters.size(); i++) {
       if (MEStripClusters[i].localMax.empty()) {
-        std::cout << "!!!Warning Cluster has'nt local Maxima" << std::endl;
+        edm::LogWarning("NoLocalMax") << "Cluster " << i << " has no local Maxima";
         continue;
       }
       iS = MEStripClusters[i].localMax[0].Strip;
