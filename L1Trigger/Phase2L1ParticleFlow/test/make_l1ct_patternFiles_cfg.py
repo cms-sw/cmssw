@@ -32,7 +32,7 @@ process.load('L1Trigger.Phase2L1ParticleFlow.l1ctLayer1_cff')
 process.load('L1Trigger.Phase2L1ParticleFlow.l1ctLayer2EG_cff')
 process.load('L1Trigger.L1TTrackMatch.l1tGTTInputProducer_cfi')
 process.load('L1Trigger.VertexFinder.l1tVertexProducer_cfi')
-process.l1tVertexFinderEmulator = process.VertexProducer.clone()
+process.l1tVertexFinderEmulator = process.l1tVertexProducer.clone()
 process.l1tVertexFinderEmulator.VertexReconstruction.Algorithm = "fastHistoEmulation"
 process.l1tVertexFinderEmulator.l1TracksInputTag = cms.InputTag("l1tGTTInputProducer", "Level1TTTracksConverted")
 from L1Trigger.Phase2L1GMT.gmt_cfi import l1tStandaloneMuons
@@ -82,7 +82,7 @@ process.runPF = cms.Path(
         process.l1tLayer2SeedConeJetWriter +
         process.l1tLayer2EG
     )
-process.runPF.associate(process.l1tLayer1TaskInputsTask)
+process.runPF.associate(process.L1TLayer1TaskInputsTask)
 
 
 #####################################################################################################################
@@ -98,4 +98,10 @@ process.l1tLayer2EG.outPatternFile.maxLinesPerFile = eventsPerFile_*54
 process.l1tLayer2SeedConeJetWriter.maxLinesPerFile = eventsPerFile_*54
 
 process.source.fileNames  = [ '/store/cmst3/group/l1tr/gpetrucc/11_1_0/NewInputs110X/110121.done/TTbar_PU200/inputs110X_%d.root' % i for i in (1,3,7,8,9) ]
-process.pfClustersFromCombinedCaloHCal.phase2barrelCaloTowers = [cms.InputTag("l1tEGammaClusterEmuProducer",)]
+process.l1tPFClustersFromL1EGClusters.src = cms.InputTag("L1EGammaClusterEmuProducer",)
+process.l1tPFClustersFromCombinedCaloHCal.phase2barrelCaloTowers = [cms.InputTag("L1EGammaClusterEmuProducer",)]
+process.l1tPFClustersFromHGC3DClusters.src  = cms.InputTag("hgcalBackEndLayer2Producer","HGCalBackendLayer2Processor3DClustering")
+process.l1tPFClustersFromCombinedCaloHF.hcalCandidates = [ cms.InputTag("hgcalBackEndLayer2Producer","HGCalBackendLayer2Processor3DClustering")]
+process.l1tPFTracksFromL1Tracks.L1TrackTag = cms.InputTag("TTTracksFromTrackletEmulation","Level1TTTracks")
+process.l1tGTTInputProducer.l1TracksInputTag = cms.InputTag("TTTracksFromTrackletEmulation","Level1TTTracks")
+

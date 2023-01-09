@@ -59,14 +59,14 @@ process.l1tLayer1Barrel9.boards=cms.VPSet(
             regions=cms.vuint32(*[6+9*ie+i for ie in range(3) for i in range(3)])),
     )
 
-from L1Trigger.Phase2L1ParticleFlow.l1tLayer1_patternWriters_cff import *
+from L1Trigger.Phase2L1ParticleFlow.l1ctLayer1_patternWriters_cff import *
 process.l1tLayer1Barrel.patternWriters = cms.untracked.VPSet(*barrelWriterConfigs)
 #process.l1tLayer1Barrel9.patternWriters = cms.untracked.VPSet(*barrel9WriterConfigs) # not enabled for now
 process.l1tLayer1HGCal.patternWriters = cms.untracked.VPSet(*hgcalWriterConfigs)
 process.l1tLayer1HGCalNoTK.patternWriters = cms.untracked.VPSet(*hgcalNoTKWriterConfigs)
 process.l1tLayer1HF.patternWriters = cms.untracked.VPSet(*hfWriterConfigs)
 
-process.L1TPFInputsTask = cms.Task(
+process.PFInputsTask = cms.Task(
     process.TTClustersFromPhase2TrackerDigis,
     process.TTStubsFromPhase2TrackerDigis,
     process.TrackerDTCProducer,
@@ -86,7 +86,7 @@ process.runPF = cms.Path(
         process.l1tLayer2SeedConeJetWriter +
         process.l1tLayer2EG
     )
-process.runPF.associate(process.L1TPFInputsTask)
+process.runPF.associate(process.PFInputsTask)
 process.schedule = cms.Schedule(process.runPF)
 
 

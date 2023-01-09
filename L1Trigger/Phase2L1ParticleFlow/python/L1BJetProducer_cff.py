@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from L1Trigger.Phase2L1ParticleFlow.l1pfJetMet_cff import l1PFJetsExtendedTask
+from L1Trigger.Phase2L1ParticleFlow.l1pfJetMet_cff import L1TPFJetsExtendedTask
 
 l1tBJetProducerPuppi = cms.EDProducer("L1BJetProducer",
     jets = cms.InputTag("l1tSCPFL1PuppiExtended", ""),
