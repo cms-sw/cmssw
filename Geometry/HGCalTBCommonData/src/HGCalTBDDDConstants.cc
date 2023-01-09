@@ -29,8 +29,8 @@ HGCalTBDDDConstants::HGCalTBDDDConstants(const HGCalTBParameters* hp, const std:
     hexsideT_ = 2.0 * rmaxT_ * tan30deg_;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "rmax_ " << rmax_ << ":" << rmaxT_ << ":" << hexside_ << ":" << hexsideT_
-                                  << " CellSize " << 0.5 * HGCalTBParameters::k_ScaleFromDDD * hgpar_->cellSize_[0] << ":"
-                                  << 0.5 * HGCalTBParameters::k_ScaleFromDDD * hgpar_->cellSize_[1];
+                                  << " CellSize " << 0.5 * HGCalTBParameters::k_ScaleFromDDD * hgpar_->cellSize_[0]
+                                  << ":" << 0.5 * HGCalTBParameters::k_ScaleFromDDD * hgpar_->cellSize_[1];
 #endif
   }
   // init maps and constants
@@ -151,7 +151,7 @@ double HGCalTBDDDConstants::cellSizeHex(int type) const {
 double HGCalTBDDDConstants::cellThickness(int layer, int wafer) const {
   double thick(-1);
   int type = waferType(layer, wafer);
-  if (type >= 0) 
+  if (type >= 0)
     thick = 100.0 * (type + 1);  // type = 1,2,3 for 100,200,300 micron
   return thick;
 }
@@ -267,8 +267,8 @@ bool HGCalTBDDDConstants::isValidHex(int lay, int mod, int cell, bool reco) cons
       result = resultMod = (moditr != the_modules.end());
 #ifdef EDM_ML_DEBUG
       if (!result)
-        edm::LogVerbatim("HGCalGeom") << "HGCalTBDDDConstants: Layer " << lay << ":" << lay_idx << " Copy " << copyNumber
-                                      << ":" << mod << " Flag " << result;
+        edm::LogVerbatim("HGCalGeom") << "HGCalTBDDDConstants: Layer " << lay << ":" << lay_idx << " Copy "
+                                      << copyNumber << ":" << mod << " Flag " << result;
 #endif
       if (result) {
         if (moditr->second >= 0) {
@@ -382,9 +382,10 @@ int HGCalTBDDDConstants::maxCells(int lay, bool reco) const {
   unsigned int cells(0);
   for (unsigned int k = 0; k < hgpar_->waferTypeT_.size(); ++k) {
     if (waferInLayerTest(k, index.first)) {
-      unsigned int cell = (hgpar_->waferTypeT_[k] - 1 == HGCalTBParameters::HGCalFine) ? (hgpar_->cellFineX_.size()) : (hgpar_->cellCoarseX_.size());
+      unsigned int cell = (hgpar_->waferTypeT_[k] - 1 == HGCalTBParameters::HGCalFine) ? (hgpar_->cellFineX_.size())
+                                                                                       : (hgpar_->cellCoarseX_.size());
       if (cell > cells)
-	cells = cell;
+        cells = cell;
     }
   }
   return static_cast<int>(cells);
@@ -451,8 +452,10 @@ std::vector<int> HGCalTBDDDConstants::numberCells(int lay, bool reco) const {
   if ((i >= 0) && (waferHexagon6())) {
     for (unsigned int k = 0; k < hgpar_->waferTypeT_.size(); ++k) {
       if (waferInLayerTest(k, i)) {
-	unsigned int cell = (hgpar_->waferTypeT_[k] - 1 == HGCalTBParameters::HGCalFine) ? (hgpar_->cellFineX_.size()) : (hgpar_->cellCoarseX_.size());
-	ncell.emplace_back(static_cast<int>(cell));
+        unsigned int cell = (hgpar_->waferTypeT_[k] - 1 == HGCalTBParameters::HGCalFine)
+                                ? (hgpar_->cellFineX_.size())
+                                : (hgpar_->cellCoarseX_.size());
+        ncell.emplace_back(static_cast<int>(cell));
       }
     }
   }
@@ -477,7 +480,8 @@ std::pair<double, double> HGCalTBDDDConstants::rangeR(double z, bool reco) const
     rmax *= HGCalTBParameters::k_ScaleToDDD;
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalTBDDDConstants:rangeR: " << z << ":0" << " R " << rmin << ":" << rmax;
+  edm::LogVerbatim("HGCalGeom") << "HGCalTBDDDConstants:rangeR: " << z << ":0"
+                                << " R " << rmin << ":" << rmax;
 #endif
   return std::make_pair(rmin, rmax);
 }
@@ -573,8 +577,11 @@ void HGCalTBDDDConstants::waferFromPosition(const double x, const double y, int&
   }
   if (wafer < size_) {
     if (celltyp - 1 == HGCalTBParameters::HGCalFine)
-      icell = cellHex(
-          xx, yy, 0.5 * HGCalTBParameters::k_ScaleFromDDD * hgpar_->cellSize_[0], hgpar_->cellFineX_, hgpar_->cellFineY_);
+      icell = cellHex(xx,
+                      yy,
+                      0.5 * HGCalTBParameters::k_ScaleFromDDD * hgpar_->cellSize_[0],
+                      hgpar_->cellFineX_,
+                      hgpar_->cellFineY_);
     else
       icell = cellHex(xx,
                       yy,
@@ -628,9 +635,7 @@ std::pair<double, double> HGCalTBDDDConstants::waferPosition(int wafer, bool rec
   return std::make_pair(xx, yy);
 }
 
-int HGCalTBDDDConstants::wafers() const {
-  return static_cast<int>(hgpar_->moduleLayR_.size());
-}
+int HGCalTBDDDConstants::wafers() const { return static_cast<int>(hgpar_->moduleLayR_.size()); }
 
 int HGCalTBDDDConstants::wafers(int layer, int type) const {
   int wafer(0);
@@ -643,13 +648,13 @@ int HGCalTBDDDConstants::wafers(int layer, int type) const {
 }
 
 int HGCalTBDDDConstants::waferType(DetId const& id) const {
-  return  waferType(HGCalDetId(id).layer(), HGCalDetId(id).wafer());
+  return waferType(HGCalDetId(id).layer(), HGCalDetId(id).wafer());
 }
 
 int HGCalTBDDDConstants::waferType(int layer, int wafer) const {
   int type(HGCalTBParameters::HGCalCoarseThick);
   if ((wafer >= 0) && (wafer < static_cast<int>(hgpar_->waferTypeL_.size())))
-    type = (hgpar_->waferTypeL_[wafer] - 1) ;
+    type = (hgpar_->waferTypeL_[wafer] - 1);
   return type;
 }
 

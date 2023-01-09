@@ -65,7 +65,7 @@ void HGCalTBParameterTester::analyze(const edm::Event& iEvent, const edm::EventS
   edm::LogVerbatim("HGCalGeom") << "nSectors_: " << phgp->nSectors_;
   edm::LogVerbatim("HGCalGeom") << "FirstLayer: " << phgp->firstLayer_;
   edm::LogVerbatim("HGCalGeom") << "mode_: " << phgp->mode_;
-  
+
   myPrint("CellSize", phgp->cellSize_, 10);
   myPrint("slopeMin", phgp->slopeMin_, 10);
   myPrint("slopeTop", phgp->slopeTop_, 10);
@@ -146,11 +146,10 @@ void HGCalTBParameterTester::myPrint(std::string const& s, std::vector<T> const&
     edm::LogVerbatim("HGCalGeom") << st1[kk].str();
 }
 
-
 void HGCalTBParameterTester::myPrint(std::string const& s,
-				     std::vector<double> const& obj1,
-				     std::vector<double> const& obj2,
-				     int n) const {
+                                     std::vector<double> const& obj1,
+                                     std::vector<double> const& obj2,
+                                     int n) const {
   int k(0), kk(0);
   std::ostringstream st1[250];
   edm::LogVerbatim("HGCalGeom") << s << " with " << obj1.size() << " elements with n " << n << ": 250";
