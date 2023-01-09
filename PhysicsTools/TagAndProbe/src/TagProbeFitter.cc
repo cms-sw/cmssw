@@ -754,36 +754,25 @@ void TagProbeFitter::createPdf(RooWorkspace* w, vector<string>& pdfCommands) {
 
 void TagProbeFitter::setInitialValues(RooWorkspace* w) {
   // calculate initial values
-  double signalEfficiency = w->var("efficiency")->getVal();
-  double signalFractionInPassing = w->var("signalFractionInPassing")->getVal();
   double totPassing = w->data("data")->sumEntries("_efficiencyCategory_==_efficiencyCategory_::Passed");
-  double totFailinging = w->data("data")->sumEntries("_efficiencyCategory_==_efficiencyCategory_::Failed");
-  double numSignalAll = totPassing * signalFractionInPassing / signalEfficiency;
+  double totFailing = w->data("data")->sumEntries("_efficiencyCategory_==_efficiencyCategory_::Failed");
+  //std::cout << "Number of probes: " << totPassing+totFailing << std::endl;
 
-  //std::cout << "Number of probes: " << totPassing+totFailinging << std::endl;
-
-  // check if this value is inconsistent on the failing side
-  if (numSignalAll * (1 - signalEfficiency) > totFailinging)
-    numSignalAll = totFailinging;
   // now set the values
-  w->var("numTot")->setVal(totPassing + totFailinging);
-  w->var("numTot")->setMax(2.0 * (totPassing + totFailinging) + 10);  //wiggle room in case of 0 events in bin
+  w->var("numTot")->setVal(totPassing + totFailing);
+  w->var("numTot")->setMax(2.0 * (totPassing + totFailing) + 10);  //wiggle room in case of 0 events in bin
 
   if (totPassing == 0) {
     w->var("efficiency")->setVal(0.0);
     w->var("efficiency")->setAsymError(0, 1);
     w->var("efficiency")->setConstant(false);
-  } else if (totFailinging == 0) {
+  } else if (totFailing == 0) {
     w->var("efficiency")->setVal(1.0);
     w->var("efficiency")->setAsymError(-1, 0);
     w->var("efficiency")->setConstant(false);
   } else {
     w->var("efficiency")->setConstant(false);
   }
-
-  // if signal fraction is 1 then set the number of background events to 0.
-  //RooRealVar* fBkgPass = w->var("numBackgroundPass");
-  //if(signalFractionInPassing==1.0) { fBkgPass->setVal(0.0); fBkgPass->setConstant(true); }
 
   // save initial state for reference
   w->saveSnapshot("initialState", w->components());
