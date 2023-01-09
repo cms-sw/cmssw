@@ -81,10 +81,10 @@ process.runPF = cms.Path(
         process.l1tLayer1HGCalNoTK +
         process.l1tLayer1HF +
         process.l1tLayer1 +
-        process.l1tLayer2EG +
         process.l1tLayer2Deregionizer +
         process.l1tLayer2SeedConeJetsCorrected +
-        process.l1tLayer2SeedConeJetWriter
+        process.l1tLayer2SeedConeJetWriter +
+        process.l1tLayer2EG
     )
 process.runPF.associate(process.L1TPFInputsTask)
 process.schedule = cms.Schedule(process.runPF)
