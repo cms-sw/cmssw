@@ -33,12 +33,12 @@ HGCalTBGeomParameters::HGCalTBGeomParameters() : sqrt3_(std::sqrt(3.0)) {
 }
 
 void HGCalTBGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
-                                              HGCalTBParameters& php,
-                                              const std::string& sdTag1,
-                                              const DDCompactView* cpv,
-                                              const std::string& sdTag2,
-                                              const std::string& sdTag3,
-                                              HGCalGeometryMode::WaferMode mode) {
+                                                HGCalTBParameters& php,
+                                                const std::string& sdTag1,
+                                                const DDCompactView* cpv,
+                                                const std::string& sdTag2,
+                                                const std::string& sdTag3,
+                                                HGCalGeometryMode::WaferMode mode) {
   DDFilteredView fv = _fv;
   bool dodet(true);
   std::map<int, HGCalTBGeomParameters::layerParameters> layers;
@@ -259,11 +259,11 @@ void HGCalTBGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
 }
 
 void HGCalTBGeomParameters::loadGeometryHexagon(const cms::DDCompactView* cpv,
-                                              HGCalTBParameters& php,
-                                              const std::string& sdTag1,
-                                              const std::string& sdTag2,
-                                              const std::string& sdTag3,
-                                              HGCalGeometryMode::WaferMode mode) {
+                                                HGCalTBParameters& php,
+                                                const std::string& sdTag1,
+                                                const std::string& sdTag2,
+                                                const std::string& sdTag3,
+                                                HGCalGeometryMode::WaferMode mode) {
   const cms::DDFilter filter("Volume", sdTag1);
   cms::DDFilteredView fv((*cpv), filter);
   std::map<int, HGCalTBGeomParameters::layerParameters> layers;
@@ -481,16 +481,16 @@ void HGCalTBGeomParameters::loadGeometryHexagon(const cms::DDCompactView* cpv,
 }
 
 void HGCalTBGeomParameters::loadGeometryHexagon(const std::map<int, HGCalTBGeomParameters::layerParameters>& layers,
-                                              std::vector<HGCalTBParameters::hgtrform>& trforms,
-                                              std::vector<bool>& trformUse,
-                                              const std::unordered_map<int32_t, int32_t>& copies,
-                                              const HGCalTBParameters::layer_map& copiesInLayers,
-                                              const std::vector<int32_t>& wafer2copy,
-                                              const std::vector<HGCalTBGeomParameters::cellParameters>& wafers,
-                                              const std::map<int, int>& wafertype,
-                                              const std::map<int, HGCalTBGeomParameters::cellParameters>& cellsf,
-                                              const std::map<int, HGCalTBGeomParameters::cellParameters>& cellsc,
-                                              HGCalTBParameters& php) {
+                                                std::vector<HGCalTBParameters::hgtrform>& trforms,
+                                                std::vector<bool>& trformUse,
+                                                const std::unordered_map<int32_t, int32_t>& copies,
+                                                const HGCalTBParameters::layer_map& copiesInLayers,
+                                                const std::vector<int32_t>& wafer2copy,
+                                                const std::vector<HGCalTBGeomParameters::cellParameters>& wafers,
+                                                const std::map<int, int>& wafertype,
+                                                const std::map<int, HGCalTBGeomParameters::cellParameters>& cellsf,
+                                                const std::map<int, HGCalTBGeomParameters::cellParameters>& cellsc,
+                                                HGCalTBParameters& php) {
   if (((cellsf.size() + cellsc.size()) == 0) || (wafers.empty()) || (layers.empty())) {
     throw cms::Exception("DDException") << "HGCalTBGeomParameters: mismatch between geometry and specpar: cells "
                                         << cellsf.size() << ":" << cellsc.size() << " wafers " << wafers.size()
@@ -669,12 +669,11 @@ void HGCalTBGeomParameters::loadGeometryHexagon(const std::map<int, HGCalTBGeomP
 #endif
 }
 
-
 void HGCalTBGeomParameters::loadSpecParsHexagon(const DDFilteredView& fv,
-                                              HGCalTBParameters& php,
-                                              const DDCompactView* cpv,
-                                              const std::string& sdTag1,
-                                              const std::string& sdTag2) {
+                                                HGCalTBParameters& php,
+                                                const DDCompactView* cpv,
+                                                const std::string& sdTag1,
+                                                const std::string& sdTag2) {
   DDsvalues_type sv(fv.mergedSpecifics());
   php.boundR_ = getDDDArray("RadiusBound", sv, 4);
   rescale(php.boundR_, HGCalTBParameters::k_ScaleFromDDD);
@@ -710,11 +709,11 @@ void HGCalTBGeomParameters::loadSpecParsHexagon(const DDFilteredView& fv,
 }
 
 void HGCalTBGeomParameters::loadSpecParsHexagon(const cms::DDFilteredView& fv,
-                                              HGCalTBParameters& php,
-                                              const std::string& sdTag1,
-                                              const std::string& sdTag2,
-                                              const std::string& sdTag3,
-                                              const std::string& sdTag4) {
+                                                HGCalTBParameters& php,
+                                                const std::string& sdTag1,
+                                                const std::string& sdTag2,
+                                                const std::string& sdTag3,
+                                                const std::string& sdTag4) {
   php.boundR_ = fv.get<std::vector<double> >(sdTag4, "RadiusBound");
   rescale(php.boundR_, HGCalTBParameters::k_ScaleFromDD4hep);
   php.rLimit_ = fv.get<std::vector<double> >(sdTag4, "RadiusLimits");
@@ -745,9 +744,11 @@ void HGCalTBGeomParameters::loadSpecParsHexagon(const HGCalTBParameters& php) {
   edm::LogVerbatim("HGCalGeom") << "HGCalTBGeomParameters: wafer radius ranges"
                                 << " for cell grouping " << php.boundR_[0] << ":" << php.boundR_[1] << ":"
                                 << php.boundR_[2] << ":" << php.boundR_[3];
-  edm::LogVerbatim("HGCalGeom") << "HGCalTBGeomParameters: Minimum/maximum R " << php.rLimit_[0] << ":" << php.rLimit_[1];
+  edm::LogVerbatim("HGCalGeom") << "HGCalTBGeomParameters: Minimum/maximum R " << php.rLimit_[0] << ":"
+                                << php.rLimit_[1];
   edm::LogVerbatim("HGCalGeom") << "HGCalTBGeomParameters: LevelTop " << php.levelT_[0];
-  edm::LogVerbatim("HGCalGeom") << "HGCalTBGeomParameters: minimum slope " << php.slopeMin_[0] << " and layer groupings "
+  edm::LogVerbatim("HGCalGeom") << "HGCalTBGeomParameters: minimum slope " << php.slopeMin_[0]
+                                << " and layer groupings "
                                 << "for the 3 ranges:";
   for (unsigned int k = 0; k < php.layerGroup_.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << php.layerGroup_[k] << ":" << php.layerGroupM_[k] << ":"
@@ -897,7 +898,9 @@ void HGCalTBGeomParameters::loadCellParsHexagon(const HGCalTBParameters& php) {
 #endif
 }
 
-std::vector<double> HGCalTBGeomParameters::getDDDArray(const std::string& str, const DDsvalues_type& sv, const int nmin) {
+std::vector<double> HGCalTBGeomParameters::getDDDArray(const std::string& str,
+                                                       const DDsvalues_type& sv,
+                                                       const int nmin) {
   DDValue value(str);
   if (DDfetch(&sv, value)) {
     const std::vector<double>& fvec = value.doubles();

@@ -12,11 +12,11 @@
 using namespace geant_units::operators;
 
 bool HGCalTBParametersFromDD::build(const DDCompactView* cpv,
-				    HGCalTBParameters& php,
-				    const std::string& name,
-				    const std::string& namew,
-				    const std::string& namec,
-				    const std::string& namet) {
+                                    HGCalTBParameters& php,
+                                    const std::string& name,
+                                    const std::string& namew,
+                                    const std::string& namec,
+                                    const std::string& namet) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalTBParametersFromDD (DDD)::build called with "
                                 << "names " << name << ":" << namew << ":" << namec << ":" << namet;
@@ -40,9 +40,9 @@ bool HGCalTBParametersFromDD::build(const DDCompactView* cpv,
     edm::LogVerbatim("HGCalGeom") << "Volume " << name << " GeometryMode " << php.mode_ << ":"
                                   << HGCalGeometryMode::Hexagon << ":" << HGCalGeometryMode::HexagonFull;
 #endif
-    php.levelZSide_ = 3;        // Default level for ZSide
-    php.detectorType_ = 0;      // These two parameters are
-    php.useSimWt_ = 1;          // energy weighting for SimHits
+    php.levelZSide_ = 3;    // Default level for ZSide
+    php.detectorType_ = 0;  // These two parameters are
+    php.useSimWt_ = 1;      // energy weighting for SimHits
     std::unique_ptr<HGCalTBGeomParameters> geom = std::make_unique<HGCalTBGeomParameters>();
     if ((php.mode_ == HGCalGeometryMode::Hexagon) || (php.mode_ == HGCalGeometryMode::HexagonFull)) {
       attribute = "OnlyForHGCalNumbering";
@@ -99,12 +99,12 @@ bool HGCalTBParametersFromDD::build(const DDCompactView* cpv,
 }
 
 bool HGCalTBParametersFromDD::build(const cms::DDCompactView* cpv,
-				    HGCalTBParameters& php,
-				    const std::string& name,
-				    const std::string& namew,
-				    const std::string& namec,
-				    const std::string& namet,
-				    const std::string& name2) {
+                                    HGCalTBParameters& php,
+                                    const std::string& name,
+                                    const std::string& namew,
+                                    const std::string& namec,
+                                    const std::string& namet,
+                                    const std::string& name2) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalTBParametersFromDD (DD4hep)::build called with "
                                 << "names " << name << ":" << namew << ":" << namec << ":" << namet << ":" << name2;
@@ -131,9 +131,9 @@ bool HGCalTBParametersFromDD::build(const cms::DDCompactView* cpv,
     edm::LogVerbatim("HGCalGeom") << "Volume " << name << " GeometryMode " << php.mode_ << ":"
                                   << HGCalGeometryMode::Hexagon << ":" << HGCalGeometryMode::HexagonFull;
 #endif
-    php.levelZSide_ = 3;        // Default level for ZSide
-    php.detectorType_ = 0;      // These two parameters are
-    php.useSimWt_ = 1;          // energy weighting for SimHits
+    php.levelZSide_ = 3;    // Default level for ZSide
+    php.detectorType_ = 0;  // These two parameters are
+    php.useSimWt_ = 1;      // energy weighting for SimHits
     std::unique_ptr<HGCalTBGeomParameters> geom = std::make_unique<HGCalTBGeomParameters>();
     if ((php.mode_ == HGCalGeometryMode::Hexagon) || (php.mode_ == HGCalGeometryMode::HexagonFull)) {
       tempS = fv.get<std::vector<std::string> >(namet, "WaferMode");
