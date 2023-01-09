@@ -255,14 +255,14 @@ parser.add_argument('--help',
 # parse command line arguments and options
 config = parser.parse_args(namespace = options.HLTProcessOptions())
 
-# do not include db-proxy options in 1st-line comment
+# do not include db-proxy/tunnel options in 1st-line comment
 cmdArgs, skipNext = [], False
 for cmdArg in sys.argv:
   if skipNext:
     skipNext = False
     continue
-  if cmdArg.startswith('--dbproxy'):
-    if cmdArg.startswith('--dbproxyh') or cmdArg.startswith('--dbproxyp'):
+  if cmdArg.startswith('--dbproxy') or cmdArg.startswith('--dbtunnel'):
+    if cmdArg.startswith('--dbproxyh') or cmdArg.startswith('--dbproxyp') or cmdArg.startswith('--dbtunnelp'):
       skipNext = '=' not in cmdArg
     continue
   cmdArgs += [cmdArg]
