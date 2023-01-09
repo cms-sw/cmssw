@@ -75,11 +75,18 @@ parser.add_argument('--l1-emulator',
                     const   = 'Full',
                     help    = 'Run the Full stage-2 L1T emulator.' )
 
-parser.add_argument('--dbproxy',
+group = parser.add_mutually_exclusive_group()
+group.add_argument('--dbproxy',
                     dest    = 'proxy',
                     action  = 'store_true',
                     default = defaults.proxy,
                     help    = 'Use a socks proxy to connect outside CERN network (default: False)' )
+group.add_argument('--dbtunnel',
+                    dest    = 'tunnel',
+                    action  = 'store_true',
+                    default = defaults.tunnel,
+                    help    = 'Use direct tunnel to connect outside CERN network (default: False)' )
+
 parser.add_argument('--dbproxyport',
                     dest    = 'proxy_port',
                     action  = 'store',
@@ -92,6 +99,12 @@ parser.add_argument('--dbproxyhost',
                     metavar = 'PROXYHOST',
                     default = defaults.proxy_host,
                     help    = 'Host of the socks proxy (default: "localhost")' )
+parser.add_argument('--dbtunnelport',
+                    dest    = 'tunnel_port',
+                    action  = 'store',
+                    metavar = 'TUNNELPORT',
+                    default = defaults.tunnel_port,
+                    help    = 'Port when using a direct tunnel on localhost (default: 10121)' )
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument('--prescale',
@@ -242,14 +255,14 @@ parser.add_argument('--help',
 # parse command line arguments and options
 config = parser.parse_args(namespace = options.HLTProcessOptions())
 
-# do not include db-proxy options in 1st-line comment
+# do not include db-proxy/tunnel options in 1st-line comment
 cmdArgs, skipNext = [], False
 for cmdArg in sys.argv:
   if skipNext:
     skipNext = False
     continue
-  if cmdArg.startswith('--dbproxy'):
-    if cmdArg.startswith('--dbproxyh') or cmdArg.startswith('--dbproxyp'):
+  if cmdArg.startswith('--dbproxy') or cmdArg.startswith('--dbtunnel'):
+    if cmdArg.startswith('--dbproxyh') or cmdArg.startswith('--dbproxyp') or cmdArg.startswith('--dbtunnelp'):
       skipNext = '=' not in cmdArg
     continue
   cmdArgs += [cmdArg]
