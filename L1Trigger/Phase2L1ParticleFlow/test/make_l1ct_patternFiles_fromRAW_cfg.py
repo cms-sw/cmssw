@@ -41,8 +41,11 @@ from L1Trigger.Phase2L1ParticleFlow.l1tSeedConePFJetProducer_cfi import l1tSeedC
 from L1Trigger.Phase2L1ParticleFlow.l1tDeregionizerProducer_cfi import l1tDeregionizerProducer
 from L1Trigger.Phase2L1ParticleFlow.l1tJetFileWriter_cfi import l1tSeededConeJetFileWriter
 process.l1tLayer2Deregionizer = l1tDeregionizerProducer.clone()
-process.l1tLayer2SeedConeJets = l1tSeedConePFJetEmulatorProducer.clone(L1PFObject = cms.InputTag('l1tLayer2Deregionizer', 'Puppi'))
-process.l1tLayer2SeedConeJetWriter = l1tSeededConeJetFileWriter.clone(jets = "l1tLayer2SeedConeJets")
+process.l1tLayer2SeedConeJetsCorrected = l1tSeedConePFJetEmulatorProducer.clone(L1PFObject = cms.InputTag('l1tLayer2Deregionizer', 'Puppi'),
+                                                                                doCorrections = cms.bool(True),
+                                                                                correctorFile = cms.string("L1Trigger/Phase2L1ParticleFlow/data/jecs/jecs_20220308.root"),
+                                                                                correctorDir = cms.string('L1PuppiSC4EmuJets'))
+process.l1tLayer2SeedConeJetWriter = l1tSeededConeJetFileWriter.clone(jets = "l1tLayer2SeedConeJetsCorrected")
 
 process.l1tLayer1Barrel9 = process.l1tLayer1Barrel.clone()
 process.l1tLayer1Barrel9.puAlgo.nFinalSort = 32
@@ -80,7 +83,7 @@ process.runPF = cms.Path(
         process.l1tLayer1 +
         process.l1tLayer2EG +
         process.l1tLayer2Deregionizer +
-        process.l1tLayer2SeedConeJets +
+        process.l1tLayer2SeedConeJetsCorrected +
         process.l1tLayer2SeedConeJetWriter
     )
 process.runPF.associate(process.L1TPFInputsTask)

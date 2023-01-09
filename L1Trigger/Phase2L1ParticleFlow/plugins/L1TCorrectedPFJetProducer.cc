@@ -7,7 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "L1Trigger/Phase2L1ParticleFlow/src/corrector.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/corrector.h"
 
 #include <vector>
 
@@ -26,7 +26,10 @@ private:
 L1TCorrectedPFJetProducer::L1TCorrectedPFJetProducer(const edm::ParameterSet& iConfig)
     : jets_(consumes<edm::View<l1t::PFJet>>(iConfig.getParameter<edm::InputTag>("jets"))),
       corrector_(iConfig.getParameter<std::string>("correctorFile"),
-                 iConfig.getParameter<std::string>("correctorDir")) {
+                 iConfig.getParameter<std::string>("correctorDir"),
+                 -1,
+                 false,
+                 iConfig.getParameter<bool>("emulate")) {
   produces<std::vector<l1t::PFJet>>();
 }
 
