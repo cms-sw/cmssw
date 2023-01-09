@@ -9,6 +9,7 @@
 // CPU.cc: v 1.0 2009/01/08 11:31:07
 
 #include "FWCore/MessageLogger/interface/JobReport.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -84,8 +85,8 @@ namespace edm {
       }
 
       void compressWhitespace(std::string &s) {
-        auto last = std::unique(
-            s.begin(), s.end(), [](unsigned char a, unsigned char b) -> bool { return std::isspace(a) && a == b; });
+        auto last =
+            std::unique(s.begin(), s.end(), [](const auto a, const auto b) { return std::isspace(a) && a == b; });
         s.erase(last, s.end());
       }
 
@@ -289,7 +290,11 @@ namespace edm {
       unsigned coreCount = 0;
       for (const auto &entry : info) {
         if (entry.first == "cpu MHz") {
-          averageCoreSpeed += std::stod(entry.second);
+          try {
+            averageCoreSpeed += std::stod(entry.second);
+          } catch (const std::logic_error &e) {
+            LogWarning("CPU::getAverageSpeed") << "stod(" << entry.second << ") conversion error: " << e.what();
+          }
           coreCount++;
         }
       }
