@@ -12,6 +12,7 @@
 
 // system include files
 #include <algorithm>
+#include <array>
 
 // user include files
 #include "FWCore/Utilities/interface/path_configuration.h"
