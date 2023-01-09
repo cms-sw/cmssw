@@ -14,20 +14,20 @@ bool ClusterClusterMapping::overlap(const reco::CaloCluster &sc1,
     // consider only with a minimum fraction of minfrac (default 1%) of the RecHit
     if (hits1[i1].second < minfrac) {
       if (debug)
-        std::cout << " Discarding " << hits1[i1].first << " with " << hits1[i1].second << std::endl;
+        std::cout << " Discarding " << hits1[i1].first.rawId() << " with " << hits1[i1].second << std::endl;
       continue;
     }
     for (unsigned i2 = 0; i2 < nhits2; ++i2) {
       // consider only with a minimum fraction of minfract (default 1%) of the RecHit
       if (hits2[i2].second < minfrac) {
         if (debug)
-          std::cout << " Discarding " << hits2[i2].first << " with " << hits2[i2].second << std::endl;
+          std::cout << " Discarding " << hits2[i2].first.rawId() << " with " << hits2[i2].second << std::endl;
         continue;
       }
       if (hits1[i1].first == hits2[i2].first) {
         if (debug) {
-          std::cout << " Matching hits " << hits1[i1].first << " with " << hits1[i1].second << " and "
-                    << hits2[i2].first;
+          std::cout << " Matching hits " << hits1[i1].first.rawId() << " with " << hits1[i1].second << " and "
+                    << hits2[i2].first.rawId();
           std::cout << " with " << hits2[i2].second << std::endl;
         }
         return true;
