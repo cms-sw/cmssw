@@ -23,7 +23,7 @@
 #include "RooPolynomial.h"
 #include "RooCBShape.h"
 #include "RooChi2Var.h"
-#include "RooMinuit.h"
+#include "RooMinimizer.h"
 #include "RooBreitWigner.h"
 #include "RooFFTConvPdf.h"
 
@@ -126,7 +126,7 @@ public:
     // Fit with chi^2
     else {
       std::cout << "FITTING WITH CHI^2" << std::endl;
-      RooMinuit m(chi2);
+      RooMinimizer m(chi2);
       m.migrad();
       m.hesse();
       // RooFitResult* r_chi2_wgt = m.save();
