@@ -149,32 +149,29 @@ namespace reco {
 
     const int seedCrysIEtaOrIx() const {
       auto detid = seed_->seed();
-      int ietaorix=0;
+      int ietaorix = 0;
       if (detid.subdetId() == EcalBarrel) {
-	EBDetId ebdetid(detid);
-	ietaorix=ebdetid.ieta();
+        EBDetId ebdetid(detid);
+        ietaorix = ebdetid.ieta();
+      } else if (detid.subdetId() == EcalEndcap) {
+        EEDetId eedetid(detid);
+        ietaorix = eedetid.ix();
       }
-      else if (detid.subdetId() == EcalEndcap) {
-	EEDetId eedetid(detid);
-	ietaorix=eedetid.ix();
-      } 
       return ietaorix;
     }
 
     const int seedCrysIPhiOrIy() const {
       auto detid = seed_->seed();
-      int iphioriy=0;
+      int iphioriy = 0;
       if (detid.subdetId() == EcalBarrel) {
-	EBDetId ebdetid(detid);
-	iphioriy=ebdetid.iphi();
+        EBDetId ebdetid(detid);
+        iphioriy = ebdetid.iphi();
+      } else if (detid.subdetId() == EcalEndcap) {
+        EEDetId eedetid(detid);
+        iphioriy = eedetid.iy();
       }
-      else if (detid.subdetId() == EcalEndcap) {
-	EEDetId eedetid(detid);
-	iphioriy=eedetid.iy();
-      } 
       return iphioriy;
     }
-
 
   private:
     void computeRawEnergy();
