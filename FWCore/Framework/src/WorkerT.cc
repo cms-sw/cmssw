@@ -1,8 +1,6 @@
 #include "FWCore/Framework/interface/maker/WorkerT.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/one/EDProducerBase.h"
 #include "FWCore/Framework/interface/one/EDFilterBase.h"
@@ -164,22 +162,6 @@ namespace edm {
     return nullptr;
   }
   template <>
-  SerialTaskQueue* WorkerT<EDProducer>::globalRunsQueue() {
-    return module_->globalRunsQueue();
-  }
-  template <>
-  SerialTaskQueue* WorkerT<EDProducer>::globalLuminosityBlocksQueue() {
-    return module_->globalLuminosityBlocksQueue();
-  }
-  template <>
-  SerialTaskQueue* WorkerT<EDFilter>::globalRunsQueue() {
-    return module_->globalRunsQueue();
-  }
-  template <>
-  SerialTaskQueue* WorkerT<EDFilter>::globalLuminosityBlocksQueue() {
-    return module_->globalLuminosityBlocksQueue();
-  }
-  template <>
   SerialTaskQueue* WorkerT<EDAnalyzer>::globalRunsQueue() {
     return module_->globalRunsQueue();
   }
@@ -287,18 +269,6 @@ namespace edm {
     iTask.doneWaiting(std::exception_ptr());
   }
 
-  template <>
-  inline void WorkerT<EDFilter>::implDoTransformAsync(WaitingTaskHolder task,
-                                                      size_t iTransformIndex,
-                                                      EventPrincipal const& iEvent,
-                                                      ParentContext const& iParent,
-                                                      ServiceWeakToken const& weakToken) {}
-  template <>
-  inline void WorkerT<EDProducer>::implDoTransformAsync(WaitingTaskHolder task,
-                                                        size_t iTransformIndex,
-                                                        EventPrincipal const& iEvent,
-                                                        ParentContext const& iParent,
-                                                        ServiceWeakToken const& weakToken) {}
   template <>
   inline void WorkerT<EDAnalyzer>::implDoTransformAsync(WaitingTaskHolder task,
                                                         size_t iTransformIndex,
@@ -674,14 +644,6 @@ namespace edm {
     return &(module_->sharedResourcesAcquirer().serialQueueChain());
   }
   template <>
-  Worker::TaskQueueAdaptor WorkerT<EDFilter>::serializeRunModule() {
-    return &(module_->sharedResourcesAcquirer().serialQueueChain());
-  }
-  template <>
-  Worker::TaskQueueAdaptor WorkerT<EDProducer>::serializeRunModule() {
-    return &(module_->sharedResourcesAcquirer().serialQueueChain());
-  }
-  template <>
   Worker::TaskQueueAdaptor WorkerT<one::EDAnalyzerBase>::serializeRunModule() {
     return &(module_->sharedResourcesAcquirer().serialQueueChain());
   }
@@ -720,14 +682,6 @@ namespace edm {
 
     template <>
     bool mustPrefetchMayGet<EDAnalyzer>() {
-      return true;
-    }
-    template <>
-    bool mustPrefetchMayGet<EDProducer>() {
-      return true;
-    }
-    template <>
-    bool mustPrefetchMayGet<EDFilter>() {
       return true;
     }
 
@@ -858,14 +812,6 @@ namespace edm {
     return Worker::kAnalyzer;
   }
   template <>
-  Worker::Types WorkerT<EDProducer>::moduleType() const {
-    return Worker::kProducer;
-  }
-  template <>
-  Worker::Types WorkerT<EDFilter>::moduleType() const {
-    return Worker::kFilter;
-  }
-  template <>
   Worker::Types WorkerT<edm::one::EDProducerBase>::moduleType() const {
     return Worker::kProducer;
   }
@@ -934,14 +880,6 @@ namespace edm {
     return Worker::kLegacy;
   }
   template <>
-  Worker::ConcurrencyTypes WorkerT<EDProducer>::moduleConcurrencyType() const {
-    return Worker::kLegacy;
-  }
-  template <>
-  Worker::ConcurrencyTypes WorkerT<EDFilter>::moduleConcurrencyType() const {
-    return Worker::kLegacy;
-  }
-  template <>
   Worker::ConcurrencyTypes WorkerT<edm::one::EDProducerBase>::moduleConcurrencyType() const {
     return Worker::kOne;
   }
@@ -1007,8 +945,6 @@ namespace edm {
 
   //Explicitly instantiate our needed templates to avoid having the compiler
   // instantiate them in all of our libraries
-  template class WorkerT<EDProducer>;
-  template class WorkerT<EDFilter>;
   template class WorkerT<EDAnalyzer>;
   template class WorkerT<one::EDProducerBase>;
   template class WorkerT<one::EDFilterBase>;
