@@ -17,6 +17,12 @@ namespace edm {
               newLine = errorNameEnd + 1;
             }
             throw edm::Exception(edm::errors::Configuration) << error.substr(newLine + 1, std::string::npos);
+          } else if ("UnavailableAccelerator" == errorName) {
+            auto newLine = error.find('\n', errorNameEnd + 1);
+            if (newLine == std::string::npos) {
+              newLine = errorNameEnd + 1;
+            }
+            throw edm::Exception(edm::errors::UnavailableAccelerator) << error.substr(newLine + 1, std::string::npos);
           }
         }
       }

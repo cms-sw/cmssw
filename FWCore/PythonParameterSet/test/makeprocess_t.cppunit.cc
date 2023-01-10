@@ -515,22 +515,43 @@ void testmakeprocess::taskTestWithSchedule() {
 }
 
 void testmakeprocess::edmException() {
-  char const* const kTest =
-      "import FWCore.ParameterSet.Config as cms\n"
-      "raise cms.EDMException(cms.edm.errors.Configuration,'test message')\n";
+  {
+    char const* const kTest =
+        "import FWCore.ParameterSet.Config as cms\n"
+        "raise cms.EDMException(cms.edm.errors.Configuration,'test message')\n";
 
-  bool exceptionHappened = false;
-  try {
-    (void)pSet(kTest);
-  } catch (edm::Exception const& e) {
-    exceptionHappened = true;
-    CPPUNIT_ASSERT(e.categoryCode() == edm::errors::Configuration);
-  } catch (std::exception const& e) {
-    std::cout << "wrong error " << e.what() << std::endl;
-    exceptionHappened = true;
-    CPPUNIT_ASSERT(false);
+    bool exceptionHappened = false;
+    try {
+      (void)pSet(kTest);
+    } catch (edm::Exception const& e) {
+      exceptionHappened = true;
+      CPPUNIT_ASSERT(e.categoryCode() == edm::errors::Configuration);
+    } catch (std::exception const& e) {
+      std::cout << "wrong error " << e.what() << std::endl;
+      exceptionHappened = true;
+      CPPUNIT_ASSERT(false);
+    }
+    CPPUNIT_ASSERT(exceptionHappened);
   }
-  CPPUNIT_ASSERT(exceptionHappened);
+
+  {
+    char const* const kTest =
+        "import FWCore.ParameterSet.Config as cms\n"
+        "raise cms.EDMException(cms.edm.errors.UnavailableAccelerator,'test message')\n";
+
+    bool exceptionHappened = false;
+    try {
+      (void)pSet(kTest);
+    } catch (edm::Exception const& e) {
+      exceptionHappened = true;
+      CPPUNIT_ASSERT(e.categoryCode() == edm::errors::UnavailableAccelerator);
+    } catch (std::exception const& e) {
+      std::cout << "wrong error " << e.what() << std::endl;
+      exceptionHappened = true;
+      CPPUNIT_ASSERT(false);
+    }
+    CPPUNIT_ASSERT(exceptionHappened);
+  }
 }
 
 /*

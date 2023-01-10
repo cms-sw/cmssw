@@ -19,6 +19,7 @@
 //
 
 // system include files
+#include <memory>
 #include <string>
 
 // user include files
@@ -35,7 +36,7 @@ namespace edm {
        to kInitialIndex. The int returned from the function is the new index to use on next call or is a value of kLastIndex which
        means no further calls should be made. The returned string is the next concrete type to be used when making a call.
        On subsequent call, the argument basename can be the same string as returned from the previous call to the function.
-        **/
+    **/
     virtual std::pair<std::string, int> resolveType(std::string basename, int index) const = 0;
   };
 }  // namespace edm

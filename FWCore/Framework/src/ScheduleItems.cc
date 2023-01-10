@@ -147,10 +147,18 @@ namespace edm {
                                                         bool hasSubprocesses,
                                                         PreallocationConfiguration const& config,
                                                         ProcessContext const* processContext,
+                                                        ModuleTypeResolverMaker const* typeResolverMaker,
                                                         ProcessBlockHelperBase& processBlockHelper) {
     auto& tns = ServiceRegistry::instance().get<service::TriggerNamesService>();
-    auto ret = std::make_unique<Schedule>(
-        parameterSet, tns, *preg_, *act_table_, actReg_, processConfiguration(), config, processContext);
+    auto ret = std::make_unique<Schedule>(parameterSet,
+                                          tns,
+                                          *preg_,
+                                          *act_table_,
+                                          actReg_,
+                                          processConfiguration(),
+                                          config,
+                                          processContext,
+                                          typeResolverMaker);
     ret->finishSetup(parameterSet,
                      tns,
                      *preg_,
@@ -169,9 +177,17 @@ namespace edm {
   ScheduleItems::MadeModules ScheduleItems::initModules(ParameterSet& parameterSet,
                                                         service::TriggerNamesService const& tns,
                                                         PreallocationConfiguration const& config,
-                                                        ProcessContext const* processContext) {
-    return MadeModules(std::make_unique<Schedule>(
-        parameterSet, tns, *preg_, *act_table_, actReg_, processConfiguration(), config, processContext));
+                                                        ProcessContext const* processContext,
+                                                        ModuleTypeResolverMaker const* typeResolverMaker) {
+    return MadeModules(std::make_unique<Schedule>(parameterSet,
+                                                  tns,
+                                                  *preg_,
+                                                  *act_table_,
+                                                  actReg_,
+                                                  processConfiguration(),
+                                                  config,
+                                                  processContext,
+                                                  typeResolverMaker));
   }
 
   std::unique_ptr<Schedule> ScheduleItems::finishSchedule(MadeModules madeModules,
