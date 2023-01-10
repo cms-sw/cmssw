@@ -90,7 +90,7 @@ namespace edm {
     }
 
     // ---------------------------------------------------------------
-    void fillEventSetupProvider(ModuleTypeResolverBase const* resolver,
+    void fillEventSetupProvider(ModuleTypeResolverMaker const* resolverMaker,
                                 EventSetupsController& esController,
                                 EventSetupProvider& cp,
                                 ParameterSet& params) {
@@ -100,7 +100,7 @@ namespace edm {
            itName != itNameEnd;
            ++itName) {
         ParameterSet* providerPSet = params.getPSetForUpdate(*itName);
-        ModuleFactory::get()->addTo(esController, cp, *providerPSet, resolver);
+        ModuleFactory::get()->addTo(esController, cp, *providerPSet, resolverMaker);
       }
 
       std::vector<std::string> sources = params.getParameter<std::vector<std::string> >("@all_essources");
@@ -108,7 +108,7 @@ namespace edm {
       for (std::vector<std::string>::iterator itName = sources.begin(), itNameEnd = sources.end(); itName != itNameEnd;
            ++itName) {
         ParameterSet* providerPSet = params.getPSetForUpdate(*itName);
-        SourceFactory::get()->addTo(esController, cp, *providerPSet, resolver);
+        SourceFactory::get()->addTo(esController, cp, *providerPSet, resolverMaker);
       }
     }
   }  // namespace eventsetup

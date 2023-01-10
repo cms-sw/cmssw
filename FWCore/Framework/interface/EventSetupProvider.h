@@ -32,7 +32,7 @@ namespace edm {
   class EventSetupImpl;
   class EventSetupRecordIntervalFinder;
   class IOVSyncValue;
-  class ModuleTypeResolverBase;
+  class ModuleTypeResolverMaker;
   class ParameterSet;
 
   namespace eventsetup {
@@ -90,7 +90,7 @@ namespace edm {
       void forceCacheClear();
 
       void checkESProducerSharing(
-          ModuleTypeResolverBase const* resolver,
+          ModuleTypeResolverMaker const* resolverMaker,
           EventSetupProvider& precedingESProvider,
           std::set<ParameterSetIDHolder>& sharingCheckDone,
           std::map<EventSetupRecordKey, std::vector<ComponentDescription const*>>& referencedESProducers,

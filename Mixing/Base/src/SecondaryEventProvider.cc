@@ -52,7 +52,8 @@ namespace edm {
                                                  ProductRegistry& preg,
                                                  std::shared_ptr<ProcessConfiguration> processConfiguration)
       : exceptionToActionTable_(new ExceptionToActionTable),
-        workerManager_(std::make_shared<ActivityRegistry>(), *exceptionToActionTable_) {
+        // no type resolver for modules in SecondaryEventProvider for now
+        workerManager_(std::make_shared<ActivityRegistry>(), *exceptionToActionTable_, nullptr) {
     std::vector<std::string> shouldBeUsedLabels;
     std::set<std::string> unscheduledLabels;
     const PreallocationConfiguration preallocConfig;

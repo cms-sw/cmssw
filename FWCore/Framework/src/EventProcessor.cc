@@ -21,6 +21,7 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/MergeableRunProductMetadata.h"
 #include "FWCore/Framework/interface/ModuleChanger.h"
+#include "FWCore/Framework/interface/makeModuleTypeResolverMaker.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/ProcessBlockPrincipal.h"
 #include "FWCore/Framework/interface/ProcessingController.h"
@@ -220,7 +221,8 @@ namespace edm {
         branchIDListHelper_(),
         serviceToken_(),
         input_(),
-        espController_(new eventsetup::EventSetupsController),
+        moduleTypeResolverMaker_(makeModuleTypeResolverMaker(*parameterSet)),
+        espController_(std::make_unique<eventsetup::EventSetupsController>(moduleTypeResolverMaker_.get())),
         esp_(),
         act_table_(),
         processConfiguration_(),
@@ -256,7 +258,8 @@ namespace edm {
         branchIDListHelper_(),
         serviceToken_(),
         input_(),
-        espController_(new eventsetup::EventSetupsController),
+        moduleTypeResolverMaker_(makeModuleTypeResolverMaker(*parameterSet)),
+        espController_(std::make_unique<eventsetup::EventSetupsController>(moduleTypeResolverMaker_.get())),
         esp_(),
         act_table_(),
         processConfiguration_(),
@@ -292,7 +295,8 @@ namespace edm {
         branchIDListHelper_(),
         serviceToken_(),
         input_(),
-        espController_(new eventsetup::EventSetupsController),
+        moduleTypeResolverMaker_(makeModuleTypeResolverMaker(*processDesc->getProcessPSet())),
+        espController_(std::make_unique<eventsetup::EventSetupsController>(moduleTypeResolverMaker_.get())),
         esp_(),
         act_table_(),
         processConfiguration_(),
@@ -489,7 +493,8 @@ namespace edm {
           // initialize the Schedule
           ServiceRegistry::Operate operate(serviceToken_);
           auto const& tns = ServiceRegistry::instance().get<service::TriggerNamesService>();
-          madeModules = items.initModules(*parameterSet, tns, preallocations_, &processContext_);
+          madeModules =
+              items.initModules(*parameterSet, tns, preallocations_, &processContext_, moduleTypeResolverMaker_.get());
         });
 
         group.run([&, this, tempReg]() {
@@ -583,7 +588,8 @@ namespace edm {
                                    token,
                                    serviceregistry::kConfigurationOverrides,
                                    preallocations_,
-                                   &processContext_);
+                                   &processContext_,
+                                   moduleTypeResolverMaker_);
       }
     } catch (...) {
       //in case of an exception, make sure Services are available

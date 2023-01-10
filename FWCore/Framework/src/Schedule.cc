@@ -490,12 +490,13 @@ namespace edm {
                      std::shared_ptr<ActivityRegistry> areg,
                      std::shared_ptr<ProcessConfiguration const> processConfiguration,
                      PreallocationConfiguration const& prealloc,
-                     ProcessContext const* processContext)
+                     ProcessContext const* processContext,
+                     ModuleTypeResolverMaker const* resolverMaker)
       :  //Only create a resultsInserter if there is a trigger path
         resultsInserter_{tns.getTrigPaths().empty()
                              ? std::shared_ptr<TriggerResultInserter>{}
                              : makeInserter(proc_pset, prealloc, preg, actions, areg, processConfiguration)},
-        moduleRegistry_(new ModuleRegistry()),
+        moduleRegistry_(std::make_shared<ModuleRegistry>(resolverMaker)),
         all_output_communicators_(),
         preallocConfig_(prealloc),
         pathNames_(&tns.getTrigPaths()),
