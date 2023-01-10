@@ -16,7 +16,6 @@ namespace edm {
   class ConsumesCollector;
   class DelayedReader;
   class EDAnalyzer;
-  class EDFilter;
   class EDLooper;
   class EDProducer;
   class Event;
