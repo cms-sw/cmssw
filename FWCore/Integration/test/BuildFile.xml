@@ -160,16 +160,11 @@
     <use name="FWCore/Utilities"/>
   </bin>
 
-  <bin file="ProcessConfiguration_t.cpp">
-    <use name="FWCore/ParameterSet"/>
-    <use name="DataFormats/Provenance"/>
-  </bin>
-
-  <bin file="ProcessHistory_t.cpp">
+  <bin file="ProcessConfiguration_t.cpp,ProcessHistory_t.cpp" name="TestIntegrationDataFormatsProvenance">
     <use name="FWCore/ParameterSet"/>
     <use name="DataFormats/Provenance"/>
     <use name="FWCore/Version"/>
-    <use name="FWCore/Utilities"/>
+    <use name="catch2"/>
   </bin>
 
   <bin file="SwitchProducer_t.cpp">
