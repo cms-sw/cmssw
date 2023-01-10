@@ -1,5 +1,6 @@
-<use name="DataFormats/Provenance"/>
+<use name="tbb"/>
 <use name="DataFormats/Common"/>
+<use name="DataFormats/Provenance"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
 <export>

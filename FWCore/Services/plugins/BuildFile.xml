@@ -1,15 +1,16 @@
+<use name="boost"/>
+<use name="cpu_features"/>
+<use name="gcc-atomic"/>
+<use name="tbb"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/Provenance"/>
 <use name="FWCore/Concurrency"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/PluginManager"/>
-<use name="FWCore/Services"/>
 <use name="FWCore/Reflection"/>
+<use name="FWCore/Services"/>
 <use name="Utilities/StorageFactory"/>
 <use name="Utilities/XrdAdaptor"/>
-<use name="boost"/>
-<use name="gcc-atomic"/>
-<use name="cpu_features"/>
 <library file="*.cc" name="FWCoreServicesPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
