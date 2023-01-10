@@ -370,7 +370,7 @@ namespace edm {
     bool lookForException = (s == hlt::Exception);
     for (auto const& bit : b) {
       hlt::HLTState bstate = lookForException ? hlt::Exception : bit.accept_state_ ? hlt::Pass : hlt::Fail;
-      if (tr[bit.pos_].state() == bstate)
+      if (tr.at(bit.pos_).state() == bstate)
         return true;
     }
     return false;
@@ -381,7 +381,7 @@ namespace edm {
   bool EventSelector::acceptAllBits(Bits const& b, HLTGlobalStatus const& tr) const {
     for (auto const& bit : b) {
       hlt::HLTState bstate = bit.accept_state_ ? hlt::Pass : hlt::Fail;
-      if (tr[bit.pos_].state() != bstate)
+      if (tr.at(bit.pos_).state() != bstate)
         return false;
     }
     return true;
