@@ -36,7 +36,7 @@
 
 // forward declarations
 namespace edm {
-  class ModuleTypeResolverBase;
+  class ModuleTypeResolverMaker;
 
   namespace eventsetup {
     class EventSetupProvider;
@@ -49,37 +49,33 @@ namespace edm {
       //~ComponentFactory();
 
       typedef ComponentMakerBase<T> Maker;
-      typedef std::map<std::string, std::shared_ptr<Maker>> MakerMap;
+      typedef std::map<std::string, std::shared_ptr<Maker const>> MakerMap;
       typedef typename T::base_type base_type;
       // ---------- const member functions ---------------------
       std::shared_ptr<base_type> addTo(EventSetupsController& esController,
                                        EventSetupProvider& iProvider,
                                        edm::ParameterSet& iConfiguration,
-                                       ModuleTypeResolverBase const* resolver,
+                                       ModuleTypeResolverMaker const* resolverMaker,
                                        bool replaceExisting = false) const {
         std::string modtype = iConfiguration.template getParameter<std::string>("@module_type");
         //cerr << "Factory: module_type = " << modtype << endl;
         typename MakerMap::iterator it = makers_.find(modtype);
+        Maker const* maker = nullptr;
 
         if (it == makers_.end()) {
-          std::shared_ptr<Maker> wm(
-              detail::resolveMaker<edmplugin::PluginFactory<ComponentMakerBase<T>*()>>(modtype, resolver));
+          maker = detail::resolveMaker<edmplugin::PluginFactory<ComponentMakerBase<T>*()>>(
+              modtype, resolverMaker, iConfiguration, makers_);
 
-          //cerr << "Factory: created the worker" << endl;
-
-          std::pair<typename MakerMap::iterator, bool> ret =
-              makers_.insert(std::pair<std::string, std::shared_ptr<Maker>>(modtype, wm));
-
-          if (ret.second == false) {
+          if (not maker) {
             Exception::throwThis(errors::Configuration, "Maker Factory map insert failed");
           }
-
-          it = ret.first;
+        } else {
+          maker = it->second.get();
         }
 
         try {
           return convertException::wrap([&]() -> std::shared_ptr<base_type> {
-            return it->second->addTo(esController, iProvider, iConfiguration, replaceExisting);
+            return maker->addTo(esController, iProvider, iConfiguration, replaceExisting);
           });
         } catch (cms::Exception& iException) {
           std::string edmtype = iConfiguration.template getParameter<std::string>("@module_edm_type");

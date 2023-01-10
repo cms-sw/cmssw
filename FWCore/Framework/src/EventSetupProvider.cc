@@ -394,7 +394,7 @@ namespace edm {
     }
 
     void EventSetupProvider::checkESProducerSharing(
-        ModuleTypeResolverBase const* resolver,
+        ModuleTypeResolverMaker const* resolverMaker,
         EventSetupProvider& precedingESProvider,
         std::set<ParameterSetIDHolder>& sharingCheckDone,
         std::map<EventSetupRecordKey, std::vector<ComponentDescription const*>>& referencedESProducers,
@@ -531,7 +531,7 @@ namespace edm {
         } else {
           if (esController.isLastMatch(psetID, subProcessIndex_, precedingESProvider.subProcessIndex_)) {
             ParameterSet& pset = esController.getESProducerPSet(psetID, subProcessIndex_);
-            ModuleFactory::get()->addTo(esController, *this, pset, resolver, true);
+            ModuleFactory::get()->addTo(esController, *this, pset, resolverMaker, true);
           }
         }
       }

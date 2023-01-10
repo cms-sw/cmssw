@@ -344,6 +344,39 @@ namespace edmtest {
   }
 }  // namespace edmtest
 
+namespace edm::test {
+  namespace other {
+    class ESTestProducerA : public edm::ESProducer {
+    public:
+      ESTestProducerA(edm::ParameterSet const& pset) : value_(pset.getParameter<int>("valueOther")) {
+        setWhatProduced(this);
+      }
+      std::optional<edmtest::ESTestDataA> produce(ESTestRecordA const& rec) {
+        ++value_;
+        return edmtest::ESTestDataA(value_);
+      }
+
+    private:
+      int value_;
+    };
+  }  // namespace other
+  namespace cpu {
+    class ESTestProducerA : public edm::ESProducer {
+    public:
+      ESTestProducerA(edm::ParameterSet const& pset) : value_(pset.getParameter<int>("valueCpu")) {
+        setWhatProduced(this);
+      }
+      std::optional<edmtest::ESTestDataA> produce(ESTestRecordA const& rec) {
+        ++value_;
+        return edmtest::ESTestDataA(value_);
+      }
+
+    private:
+      int value_;
+    };
+  }  // namespace cpu
+}  // namespace edm::test
+
 using namespace edmtest;
 DEFINE_FWK_EVENTSETUP_MODULE(ESTestProducerA);
 DEFINE_FWK_EVENTSETUP_MODULE(ESTestProducerB);
@@ -359,3 +392,5 @@ DEFINE_FWK_EVENTSETUP_MODULE(ESTestProducerJ);
 DEFINE_FWK_EVENTSETUP_MODULE(ESTestProducerK);
 DEFINE_FWK_EVENTSETUP_MODULE(ESTestProducerAZ);
 DEFINE_FWK_EVENTSETUP_MODULE(ESTestDataProxyProviderJ);
+DEFINE_FWK_EVENTSETUP_MODULE(edm::test::other::ESTestProducerA);
+DEFINE_FWK_EVENTSETUP_MODULE(edm::test::cpu::ESTestProducerA);

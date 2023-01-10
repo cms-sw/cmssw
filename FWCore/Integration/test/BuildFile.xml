@@ -149,6 +149,8 @@
 
   <test name="TestIntegrationProcessAccelerator" command="run_TestProcessAccelerator.sh"/>
 
+  <test name="TestFWCoreIntegrationModuleTypeResolver" command="run_TestModuleTypeResolver.sh"/>
+
   <test name="CatchStdExceptiontest" command="CatchStdExceptiontest.sh"/>
 
   <test name="CatchCmsExceptiontest" command="CatchCmsExceptiontest.sh"/>
