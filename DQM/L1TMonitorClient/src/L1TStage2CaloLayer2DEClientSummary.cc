@@ -37,34 +37,37 @@ void L1TStage2CaloLayer2DEClientSummary::book(DQMStore::IBooker &ibooker) {
   }
 
   if (jetSummary == nullptr) {
-    jetSummary = ibooker.book1D("Jet Agreement Summary", "Jet Agreement Summary", 3, 1, 4);
+    jetSummary = ibooker.book1D("Jet Agreement Summary", "Jet Agreement Summary", 4, 1, 5);
     jetSummary->setBinLabel(1, "good jets");
     jetSummary->setBinLabel(2, "jets pos off only");
     jetSummary->setBinLabel(3, "jets Et off only ");
+    jetSummary->setBinLabel(4, "jets qual off only ");
   } else {
     jetSummary->Reset();
   }
 
   if (egSummary == nullptr) {
-    egSummary = ibooker.book1D("EG Agreement Summary", "EG Agreement Summary", 6, 1, 7);
+    egSummary = ibooker.book1D("EG Agreement Summary", "EG Agreement Summary", 7, 1, 8);
     egSummary->setBinLabel(1, "good non-iso e/gs");
     egSummary->setBinLabel(2, "non-iso e/gs pos off");
     egSummary->setBinLabel(3, "non-iso e/gs Et off");
     egSummary->setBinLabel(4, "good iso e/gs");
     egSummary->setBinLabel(5, "iso e/gs pos off");
     egSummary->setBinLabel(6, "iso e/gs Et off");
+    egSummary->setBinLabel(7, "e/gs Iso off");
   } else {
     egSummary->Reset();
   }
 
   if (tauSummary == nullptr) {
-    tauSummary = ibooker.book1D("Tau Agreement Summary", "Tau Agremeent Summary", 6, 1, 7);
+    tauSummary = ibooker.book1D("Tau Agreement Summary", "Tau Agremeent Summary", 7, 1, 8);
     tauSummary->setBinLabel(1, "good non-iso taus");
     tauSummary->setBinLabel(2, "non-iso taus pos off");
     tauSummary->setBinLabel(3, "non-iso taus Et off");
     tauSummary->setBinLabel(4, "good iso taus");
     tauSummary->setBinLabel(5, "iso taus pos off");
     tauSummary->setBinLabel(6, "iso taus Et off");
+    tauSummary->setBinLabel(7, "taus Iso off");
   } else {
     tauSummary->Reset();
   }
@@ -152,7 +155,7 @@ void L1TStage2CaloLayer2DEClientSummary::processHistograms(DQMStore::IGetter &ig
     // double totalJets = 0, goodJets = 0, jetPosOff = 0, jetEtOff = 0;
 
     // by default show 0% agreement (for edge case when no objects are found)
-    double goodRatio = 0, posOffRatio = 0, etOffRatio = 0;
+    double goodRatio = 0, posOffRatio = 0, etOffRatio = 0, qualOffRatio = 0;
 
     // hist = jetSummary_->getTH1F();
     // newHist = jetSummary->getTH1F();
@@ -161,16 +164,19 @@ void L1TStage2CaloLayer2DEClientSummary::processHistograms(DQMStore::IGetter &ig
     double goodJets = jetSummary_->getBinContent(2);
     double jetPosOff = jetSummary_->getBinContent(3);
     double jetEtOff = jetSummary_->getBinContent(4);
+    double jetQualOff = jetSummary_->getBinContent(5);
 
     if (totalJets != 0) {
       goodRatio = goodJets / totalJets;
       posOffRatio = jetPosOff / totalJets;
       etOffRatio = jetEtOff / totalJets;
+      qualOffRatio = jetQualOff / totalJets;
     }
 
     jetSummary->setBinContent(1, goodRatio);
     jetSummary->setBinContent(2, posOffRatio);
     jetSummary->setBinContent(3, etOffRatio);
+    jetSummary->setBinContent(4, qualOffRatio);
   }
 
   if (egSummary_) {
@@ -179,7 +185,7 @@ void L1TStage2CaloLayer2DEClientSummary::processHistograms(DQMStore::IGetter &ig
 
     // by default show 0% agreement (for edge case when no objects are found)
     double goodEgRatio = 0, egPosOffRatio = 0, egEtOffRatio = 0, goodIsoEgRatio = 0, isoEgPosOffRatio = 0,
-           isoEgEtOffRatio = 0;
+      isoEgEtOffRatio = 0, egIsoOffRatio = 0;
 
     // hist = egSummary_->getTH1F();
     // newHist = egSummary->getTH1F();
@@ -194,6 +200,8 @@ void L1TStage2CaloLayer2DEClientSummary::processHistograms(DQMStore::IGetter &ig
     double isoEgPosOff = egSummary_->getBinContent(7);
     double isoEgEtOff = egSummary_->getBinContent(8);
 
+    double egIsoOff = egSummary_->getBinContent(9);
+
     if (totalEgs != 0) {
       goodEgRatio = goodEgs / totalEgs;
       egPosOffRatio = egPosOff / totalEgs;
@@ -206,6 +214,9 @@ void L1TStage2CaloLayer2DEClientSummary::processHistograms(DQMStore::IGetter &ig
       isoEgEtOffRatio = isoEgEtOff / totalIsoEgs;
     }
 
+    if((totalEgs + totalIsoEgs) > 0)
+      egIsoOffRatio = egIsoOff / (totalEgs+totalIsoEgs);
+
     egSummary->setBinContent(1, goodEgRatio);
     egSummary->setBinContent(2, egPosOffRatio);
     egSummary->setBinContent(3, egEtOffRatio);
@@ -213,6 +224,8 @@ void L1TStage2CaloLayer2DEClientSummary::processHistograms(DQMStore::IGetter &ig
     egSummary->setBinContent(4, goodIsoEgRatio);
     egSummary->setBinContent(5, isoEgPosOffRatio);
     egSummary->setBinContent(6, isoEgEtOffRatio);
+
+    egSummary->setBinContent(7, egIsoOffRatio);
   }
 
   if (tauSummary_) {
@@ -221,7 +234,7 @@ void L1TStage2CaloLayer2DEClientSummary::processHistograms(DQMStore::IGetter &ig
 
     // by default show 0% agreement (for edge case when no objects are found)
     double goodTauRatio = 0, tauPosOffRatio = 0, tauEtOffRatio = 0, goodIsoTauRatio = 0, isoTauPosOffRatio = 0,
-           isoTauEtOffRatio = 0;
+      isoTauEtOffRatio = 0, tauIsoOffRatio = 0;
 
     // hist = tauSummary_->getTH1F();
     // newHist = tauSummary->getTH1F();
@@ -236,6 +249,8 @@ void L1TStage2CaloLayer2DEClientSummary::processHistograms(DQMStore::IGetter &ig
     double isoTauPosOff = tauSummary_->getBinContent(7);
     double isoTauEtOff = tauSummary_->getBinContent(8);
 
+    double tauIsoOff = tauSummary_->getBinContent(9);
+
     if (totalTaus != 0) {
       goodTauRatio = goodTaus / totalTaus;
       tauPosOffRatio = tauPosOff / totalTaus;
@@ -248,6 +263,9 @@ void L1TStage2CaloLayer2DEClientSummary::processHistograms(DQMStore::IGetter &ig
       isoTauEtOffRatio = isoTauEtOff / totalIsoTaus;
     }
 
+    if((totalTaus + totalIsoTaus) > 0)
+      tauIsoOffRatio = tauIsoOff / (totalTaus+totalIsoTaus);
+
     tauSummary->setBinContent(1, goodTauRatio);
     tauSummary->setBinContent(2, tauPosOffRatio);
     tauSummary->setBinContent(3, tauEtOffRatio);
@@ -255,6 +273,8 @@ void L1TStage2CaloLayer2DEClientSummary::processHistograms(DQMStore::IGetter &ig
     tauSummary->setBinContent(4, goodIsoTauRatio);
     tauSummary->setBinContent(5, isoTauPosOffRatio);
     tauSummary->setBinContent(6, isoTauEtOffRatio);
+
+    tauSummary->setBinContent(7, tauIsoOffRatio);
   }
 
   if (sumSummary_) {
