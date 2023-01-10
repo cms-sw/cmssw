@@ -1,7 +1,8 @@
+<use name="boost"/>
+<use name="tbb"/>
 <use name="DataFormats/Provenance"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
-<use name="boost"/>
 <export>
   <lib name="1"/>
 </export>

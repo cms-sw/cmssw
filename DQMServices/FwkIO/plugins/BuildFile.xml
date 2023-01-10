@@ -1,12 +1,13 @@
-<use name="DataFormats/Histograms"/>
+<use name="roothistmatrix"/>
+<use name="tbb"/>
 <use name="DQMServices/Core"/>
+<use name="DataFormats/Histograms"/>
+<use name="FWCore/Catalog"/>
 <use name="FWCore/Framework"/>
-<use name="FWCore/Sources"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Sources"/>
 <use name="FWCore/Utilities"/>
-<use name="FWCore/Catalog"/>
-<use name="roothistmatrix"/>
 <library file="*.cc" name="DQMServicesFwkIOPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
