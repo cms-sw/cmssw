@@ -14,7 +14,7 @@
 <use name="FWCore/Version"/>
 <flags ADD_SUBDIR="1"/>
 <!-- Disable header consistency checks: https://github.com/cms-sw/cmssw/pull/39710 -->
-<flags IGNORE_HEADER_CHECK="EDFilter.h EDProducer.h"/>
+<flags IGNORE_HEADER_CHECK="EDFilter.h EDProducer.h EDAnalyzer.h"/>
 <export>
   <lib name="1"/>
 </export>
