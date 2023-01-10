@@ -370,6 +370,7 @@ void HcalRecHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
         }
         nrechitsCone++;
 
+        HcalCone += en;
         // alternative: ietamax -> closest to MC eta  !!!
         float eta_diff = fabs(eta_MC - eta);
         if (eta_diff < etaMax) {
