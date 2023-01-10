@@ -605,28 +605,6 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const &ev, edm::EventSetup const &i
     }
   }
 
-  //===========================================================================
-  // IN ALL other CASES : ieta-iphi maps
-  //===========================================================================
-  /*
-  // ECAL
-  if (ecalselector_ == "yes" && (subdet_ == 1 || subdet_ == 2 || subdet_ == 5)) {
-    Handle<EBRecHitCollection> rhitEB;
-    if (ev.getByToken(tok_EB_, rhitEB)) {
-      for (const auto &recHit : *(rhitEB.product())) {
-        double en = recHit.energy();
-      }
-    }
-
-    Handle<EERecHitCollection> rhitEE;
-    if (ev.getByToken(tok_EE_, rhitEE)) {
-      for (const auto &recHit : *(rhitEE.product())) {
-        double en = recHit.energy();
-      }
-    }
-  }  // end of ECAL selection
-  */
-
   // Counting, including ZS items
   // Filling HCAL maps  ----------------------------------------------------
   //   double maxE = -99999.;
