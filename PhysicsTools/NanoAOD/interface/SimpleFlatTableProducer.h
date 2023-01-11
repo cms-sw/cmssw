@@ -131,6 +131,8 @@ public:
         vars_.push_back(std::make_unique<UIntVar>(vname, varPSet));
       else if (type == "float")
         vars_.push_back(std::make_unique<FloatVar>(vname, varPSet));
+      else if (type == "double")
+        vars_.push_back(std::make_unique<DoubleVar>(vname, varPSet));
       else if (type == "int8")
         vars_.push_back(std::make_unique<Int8Var>(vname, varPSet));
       else if (type == "uint8")
@@ -165,7 +167,7 @@ public:
     variable.add<std::string>("doc")->setComment("few words description of the branch content");
     variable.ifValue(edm::ParameterDescription<std::string>(
                          "type", "int", true, edm::Comment("the c++ type of the branch in the flat table")),
-                     edm::allowedValues<std::string>("int", "uint", "float", "int8", "uint8", "int16", "uint16", "bool"));
+                     edm::allowedValues<std::string>("int", "uint", "float", "double", "int8", "uint8", "int16", "uint16", "bool"));
     variable.addOptionalNode(
         edm::ParameterDescription<int>(
             "precision", true, edm::Comment("the precision with which to store the value in the flat table")) xor
@@ -205,6 +207,7 @@ protected:
   typedef FuncVariable<T, StringObjectFunction<T>, int32_t> IntVar;
   typedef FuncVariable<T, StringObjectFunction<T>, uint32_t> UIntVar;
   typedef FuncVariable<T, StringObjectFunction<T>, float> FloatVar;
+  typedef FuncVariable<T, StringObjectFunction<T>, double> DoubleVar;
   typedef FuncVariable<T, StringObjectFunction<T>, int8_t> Int8Var;
   typedef FuncVariable<T, StringObjectFunction<T>, uint8_t> UInt8Var;
   typedef FuncVariable<T, StringObjectFunction<T>, int16_t> Int16Var;
@@ -278,7 +281,7 @@ public:
     extvariable.add<std::string>("doc")->setComment("few words description of the branch content");
     extvariable.ifValue(edm::ParameterDescription<std::string>(
                             "type", "int", true, edm::Comment("the c++ type of the branch in the flat table")),
-                        edm::allowedValues<std::string>("int", "uint", "float", "int8", "uint8", "int16", "uint16", "bool"));
+                        edm::allowedValues<std::string>("int", "uint", "float", "double", "int8", "uint8", "int16", "uint16", "bool"));
     extvariable.addOptionalNode(
         edm::ParameterDescription<int>(
             "precision", true, edm::Comment("the precision with which to store the value in the flat table")) xor
