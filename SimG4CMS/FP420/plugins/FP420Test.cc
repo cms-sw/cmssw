@@ -1033,7 +1033,7 @@ void FP420Test::update(const EndOfEvent* evt) {
       //    if(theCAFI->entries() > 0) {
       //    if(theCAFI->entries() > -1) {
       // .............
-      int nhit11 = 0, nhit12 = 0, nhit13 = 0;
+      //int nhit11 = 0, nhit12 = 0, nhit13 = 0;
       double totallosenergy = 0.;
       for (int j = 0; j < nhits; j++) {
         FP420G4Hit* aHit = (*theCAFI)[j];
@@ -1145,6 +1145,7 @@ void FP420Test::update(const EndOfEvent* evt) {
         }
         //	   }
         //
+        /*
         if (sector == 1) {
           nhit11 += 1;
           //UserNtuples->fillg33(rr,1.);
@@ -1160,6 +1161,7 @@ void FP420Test::update(const EndOfEvent* evt) {
           //UserNtuples->fillg35(rr,1.);
           //UserNtuples->fillg87(yy,1.);
         }
+        */
         //UserNtuples->fillg10(xx,1.);
         //UserNtuples->fillg12(zz,1.);
         //UserNtuples->fillg32(rr,1.);
@@ -1373,8 +1375,9 @@ void FP420Test::update(const EndOfEvent* evt) {
       //====================================================================================================== HIT  START
 
       //   FIBRE Hit collected analysis
+      /*
       double totalEnergy = 0.;
-      int nhitsX = 0, nhitsY = 0, nsumhit = 0;
+      int  nhitsX = 0, nhitsY = 0, nsumhit = 0;
       for (int sector = 1; sector < 4; sector++) {
         int nhitsecX = 0, nhitsecY = 0;
         for (int zmodule = 1; zmodule < 11; zmodule++) {
@@ -1429,7 +1432,7 @@ void FP420Test::update(const EndOfEvent* evt) {
       if (nsumhit >= 2) {  //UserNtuples->fillp212(vy,float(1.),1.);
       } else {             //UserNtuples->fillp212(vy,float(0.),1.);
       }
-
+      */
       //====================================================================================================== HIT  ALL
 
       //====================================================================================================== number of hits
