@@ -98,7 +98,8 @@ public:
       iEvent.getByToken(genPartsToken_, genParts);
     }
 
-    std::vector<int> key(ncand, -1), flav(ncand, 0);
+    std::vector<int16_t> key(ncand, -1);
+    std::vector<uint8_t> flav(ncand, 0);
     for (unsigned int i = 0; i < ncand; ++i) {
       //std::cout << "cand #" << i << ": pT = " << cands->ptrAt(i)->pt() << ", eta = " << cands->ptrAt(i)->eta() << ", phi = " << cands->ptrAt(i)->phi() << std::endl;
       const auto& cand = candProd.ptrAt(i);
@@ -192,7 +193,7 @@ public:
       };
     }
 
-    tab->addColumn<int>(branchName_ + "Idx", key, "Index into genParticle list for " + doc_);
+    tab->addColumn<int16_t>(branchName_ + "Idx", key, "Index into genParticle list for " + doc_);
     tab->addColumn<uint8_t>(branchName_ + "Flav",
                             flav,
                             "Flavour of genParticle (DressedLeptons for electrons) for " + doc_ + ": " + flavDoc_);
