@@ -34,17 +34,18 @@ public:
         l1Jet_(consumes<l1t::JetBxCollection>(iConfig.getParameter<edm::InputTag>("l1Jet"))),
         l1Muon_(consumes<l1t::MuonBxCollection>(iConfig.getParameter<edm::InputTag>("l1Muon"))),
         l1Tau_(consumes<l1t::TauBxCollection>(iConfig.getParameter<edm::InputTag>("l1Tau"))) {
-    std::vector<edm::ParameterSet> selPSets = iConfig.getParameter<std::vector<edm::ParameterSet>>("selections");
-    sels_.reserve(selPSets.size());
+    edm::ParameterSet selPSet = iConfig.getParameter<edm::ParameterSet>("selections");
+    const auto selNames = selPSet.getParameterNames();
     std::stringstream idstr, qualitystr;
     idstr << "ID of the object: ";
-    for (auto &pset : selPSets) {
-      sels_.emplace_back(pset);
-      idstr << sels_.back().id << " = " << sels_.back().name;
-      if (sels_.size() < selPSets.size())
+    for (const auto &name : selNames) {
+      sels_.emplace_back(selPSet.getParameter<edm::ParameterSet>(name));
+      const auto &sel = sels_.back();
+      idstr << sel.id << " = " << name + sel.doc;
+      if (sels_.size() < selNames.size())
         idstr << ", ";
-      if (!sels_.back().qualityBitsDoc.empty()) {
-        qualitystr << sels_.back().qualityBitsDoc << " for " << sels_.back().name << "; ";
+      if (!sel.qualityBitsDoc.empty()) {
+        qualitystr << sel.qualityBitsDoc << " for " << name << "; ";
       }
     }
     idDoc_ = idstr.str();
@@ -71,7 +72,7 @@ private:
   edm::EDGetTokenT<l1t::TauBxCollection> l1Tau_;
 
   struct SelectedObject {
-    std::string name;
+    std::string doc;
     int id;
     StringCutObjectSelector<pat::TriggerObjectStandAlone> cut;
     StringCutObjectSelector<pat::TriggerObjectStandAlone> l1cut, l1cut_2, l2cut;
@@ -81,7 +82,7 @@ private:
     std::string qualityBitsDoc;
 
     SelectedObject(const edm::ParameterSet &pset)
-        : name(pset.getParameter<std::string>("name")),
+        : doc(pset.getParameter<std::string>("doc")),
           id(pset.getParameter<int>("id")),
           cut(pset.getParameter<std::string>("sel")),
           l1cut(""),
@@ -94,34 +95,32 @@ private:
           qualityBits("0"),   //will be overwritten from configuration
           qualityBitsDoc("")  //will be created from configuration
     {
-      if (pset.existsAs<std::string>("qualityBits")) {
-        qualityBits = StringObjectFunction<pat::TriggerObjectStandAlone>(pset.getParameter<std::string>("qualityBits"));
-        qualityBitsDoc = pset.getParameter<std::string>("qualityBitsDoc");
-      } else {
-        std::vector<edm::ParameterSet> qualityBitsConfig =
-            pset.getParameter<std::vector<edm::ParameterSet>>("qualityBits");
-        std::stringstream qualityBitsFunc;
-        std::vector<bool> bits(qualityBitsConfig.size(), false);
-        for (size_t i = 0; i != qualityBitsConfig.size(); ++i) {
-          if (i != 0) {
-            qualityBitsFunc << " + ";
-            qualityBitsDoc += ", ";
-          }
-          unsigned int bit = i;
-          if (qualityBitsConfig[i].existsAs<unsigned int>("bit"))
-            bit = qualityBitsConfig[i].getParameter<unsigned int>("bit");
-          assert(!bits[bit] && "a quality bit was inserted twice");  // the bit should not have been set already
-          assert(bit < 31 && "quality bits are store on 32 bit");
-          bits[bit] = true;
-          qualityBitsFunc << std::to_string(int(pow(2, bit))) << "*("
-                          << qualityBitsConfig[i].getParameter<std::string>("selection") << ")";
-          qualityBitsDoc += std::to_string(bit) + " => " + qualityBitsConfig[i].getParameter<std::string>("doc");
+      if (!doc.empty()) {
+        doc = "(" + doc + ")";
+      }
+      std::vector<edm::ParameterSet> qualityBitsConfig =
+          pset.getParameter<std::vector<edm::ParameterSet>>("qualityBits");
+      std::stringstream qualityBitsFunc;
+      std::vector<bool> bits(qualityBitsConfig.size(), false);
+      for (size_t i = 0; i != qualityBitsConfig.size(); ++i) {
+        if (i != 0) {
+          qualityBitsFunc << " + ";
+          qualityBitsDoc += ", ";
         }
-        if (!qualityBitsFunc.str().empty()) {
-          //std::cout << "The quality bit string is :" << qualityBitsFunc.str() << std::endl;
-          //std::cout << "The quality bit documentation is :" << qualityBitsDoc << std::endl;
-          qualityBits = StringObjectFunction<pat::TriggerObjectStandAlone>(qualityBitsFunc.str());
-        }
+        unsigned int bit = i;
+        if (qualityBitsConfig[i].existsAs<unsigned int>("bit"))
+          bit = qualityBitsConfig[i].getParameter<unsigned int>("bit");
+        assert(!bits[bit] && "a quality bit was inserted twice");  // the bit should not have been set already
+        assert(bit < 31 && "quality bits are store on 32 bit");
+        bits[bit] = true;
+        qualityBitsFunc << std::to_string(int(pow(2, bit))) << "*("
+                        << qualityBitsConfig[i].getParameter<std::string>("selection") << ")";
+        qualityBitsDoc += std::to_string(bit) + " => " + qualityBitsConfig[i].getParameter<std::string>("doc");
+      }
+      if (!qualityBitsFunc.str().empty()) {
+        //std::cout << "The quality bit string is :" << qualityBitsFunc.str() << std::endl;
+        //std::cout << "The quality bit documentation is :" << qualityBitsDoc << std::endl;
+        qualityBits = StringObjectFunction<pat::TriggerObjectStandAlone>(qualityBitsFunc.str());
       }
       if (pset.existsAs<std::string>("l1seed")) {
         l1cut = StringCutObjectSelector<pat::TriggerObjectStandAlone>(pset.getParameter<std::string>("l1seed"));
@@ -339,26 +338,18 @@ void TriggerObjectTableProducer::fillDescriptions(edm::ConfigurationDescriptions
 
   edm::ParameterSetDescription selection;
   selection.setComment("a parameterset to define a trigger collection in flat table");
-  selection.add<std::string>("name")->setComment("name of the leaf in the flat table");
+  selection.add<std::string>("doc", "")->setComment(
+      "optional additional info to be added to the table doc for that object");
   selection.add<int>("id")->setComment("identifier of the trigger collection in the flat table");
   selection.add<std::string>("sel")->setComment("function to selection on pat::TriggerObjectStandAlone");
   selection.add<bool>("skipObjectsNotPassingQualityBits")->setComment("flag to skip object on quality bit");
 
-  edm::ParameterDescription<std::string> oldSelection(
-      "qualityBits", "0", true, edm::Comment("function on pat::TriggerObjectStandAlone to define quality bits"));
-  edm::ParameterDescription<std::string> oldDoc(
-      "qualityBitsDoc", "", true, edm::Comment("documentation of the quality bits"));
   edm::ParameterSetDescription bit;
   bit.add<std::string>("selection")->setComment("function on pat::TriggerObjectStandAlone to define quality bit");
   bit.add<std::string>("doc")->setComment("definition of the quality bit");
   bit.addOptional<uint>("bit")->setComment("value of the bit, if not the order in the VPset");
   bit.setComment("parameter set to define quality bit of matching object");
-
-  //selection.addVPSet("qualityBits", bit); // non-backqard compatible
-  edm::ParameterDescription<std::vector<edm::ParameterSet>> bits(
-      "qualityBits", bit, true, std::vector<edm::ParameterSet>());
-  //allow for backward compatible configuration with qualityBits and qualityBitsDoc as strings
-  selection.addNode(bits xor (oldSelection and oldDoc));
+  selection.addVPSet("qualityBits", bit);
 
   selection.ifExists(edm::ParameterDescription<std::string>("l1seed", "selection on pat::TriggerObjectStandAlone"),
                      edm::ParameterDescription<double>(
@@ -369,7 +360,11 @@ void TriggerObjectTableProducer::fillDescriptions(edm::ConfigurationDescriptions
   selection.ifExists(edm::ParameterDescription<std::string>("l2seed", "selection on pat::TriggerObjectStandAlone"),
                      edm::ParameterDescription<double>(
                          "l2deltaR", "deltaR criteria to match pat::TriggerObjectStandAlone to 'L2' primitive"));
-  desc.addVPSet("selections", selection);
+
+  edm::ParameterWildcard<edm::ParameterSetDescription> selectionsNode("*", edm::RequireAtLeastOne, true, selection);
+  edm::ParameterSetDescription selections;
+  selections.addNode(selectionsNode);
+  desc.add<edm::ParameterSetDescription>("selections", selections);
 
   descriptions.addWithDefaultLabel(desc);
 }
