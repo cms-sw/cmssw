@@ -72,7 +72,8 @@ void LumiOutputBranches::fill(const edm::LuminosityBlockForOutput &iLumi, TTree 
   // ROOT native array size branches may only be signed integers,
   // until this is changed we need to make sure the vector sizes do not exceed that
   if (size > std::numeric_limits<CounterType>::max()) {
-      throw cms::Exception("Table " + tab.name() + " size is " + std::to_string(size) + ", is too large for ROOT native array branch");
+    throw cms::Exception("Table " + tab.name() + " size is " + std::to_string(size) +
+                         ", is too large for ROOT native array branch");
   }
   m_counter = size;
   m_singleton = tab.singleton();
