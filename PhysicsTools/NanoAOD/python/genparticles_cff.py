@@ -57,7 +57,7 @@ genParticleTable = simpleCandidateFlatTableProducer.clone(
             "statusFlags().isTauDecayProduct()                    * 4     +"
             "statusFlags().isDecayedLeptonHadron()                * 2     +"
             "statusFlags().isPrompt()                             * 1      ",
-            "uint8", doc=("gen status flags stored bitwise, bits are: "
+            "uint16", doc=("gen status flags stored bitwise, bits are: "
                 "0 : isPrompt, "
                 "1 : isDecayedLeptonHadron, "
                 "2 : isTauDecayProduct, "
