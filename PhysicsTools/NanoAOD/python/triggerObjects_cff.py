@@ -50,9 +50,9 @@ triggerObjectTable = triggerObjectTableProducer.clone(
     l1Jet = cms.InputTag("caloStage2Digis","Jet"),
     l1Muon = cms.InputTag("gmtStage2Digis","Muon"),
     l1Tau = cms.InputTag("caloStage2Digis","Tau"),
-    selections = cms.VPSet(
-        cms.PSet(
-            name = cms.string("Electron (PixelMatched e/gamma)"), # this selects also photons for the moment!
+    selections = cms.PSet(
+        Electron = cms.PSet(
+            doc = cms.string("PixelMatched e/gamma"), # this may also select photons!
             id = cms.int32(11),
             sel = cms.string("type(92) && pt > 7 && coll('hltEgammaCandidates') && filter('*PixelMatchFilter')"),
             l1seed = cms.string("type(-98)"),  l1deltaR = cms.double(0.3),
@@ -75,8 +75,7 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 mksel(["hltEG175HEFilter","hltEG200HEFilter"],"1e (Photon175_OR_Photon200)"),
                 )
         ),
-        cms.PSet(
-            name = cms.string("Photon"),
+        Photon = cms.PSet(
             id = cms.int32(22),
             sel = cms.string("type(92) && pt > 20 && coll('hltEgammaCandidates')"),
             l1seed = cms.string("type(-98)"),  l1deltaR = cms.double(0.3),
@@ -97,8 +96,7 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 mksel("filter('hltMu17Photon30IsoCaloIdPhotonlegTrackIsoFilter')","1mu-1photon")
             )
         ),
-        cms.PSet(
-            name = cms.string("Muon"),
+        Muon = cms.PSet(
             id = cms.int32(13),
             sel = cms.string("type(83) && pt > 5 && (coll('hltIterL3MuonCandidates') || (pt > 45 && coll('hltHighPtTkMuonCands')) || (pt > 95 && coll('hltOldL3MuonCandidates')))"),
             l1seed = cms.string("type(-81)"), l1deltaR = cms.double(0.5),
@@ -120,8 +118,7 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 mksel("filter('hltMu17Photon30IsoCaloIdMuonlegL3Filtered17Q')","1mu-1photon")
             )
         ),
-        cms.PSet(
-            name = cms.string("Tau"),
+        Tau = cms.PSet(
             id = cms.int32(15),
             sel = cms.string("type(84) && pt > 5 && coll('*Tau*') && ( filter('*LooseChargedIso*') || filter('*MediumChargedIso*') || filter('*DeepTau*') || filter('*TightChargedIso*') || filter('*TightOOSCPhotons*') || filter('hltL2TauIsoFilter') || filter('*OverlapFilterIsoMu*') || filter('*OverlapFilterIsoEle*') || filter('*L1HLTMatched*') || filter('*Dz02*') || filter('*DoublePFTau*') || filter('*SinglePFTau*') || filter('hlt*SelectedPFTau') || filter('*DisplPFTau*') )"), #All trigger objects from a Tau collection + passing at least one filter
             l1seed = cms.string("type(-100)"), l1deltaR = cms.double(0.3),
@@ -150,8 +147,7 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 mksel("filter('*1Prong')","1 prong tau paths")
             )
         ),
-        cms.PSet(
-            name = cms.string("BoostedTau"),
+        BoostedTau = cms.PSet(
             id = cms.int32(1515),
             sel = cms.string("type(85) && pt > 120 && coll('hltAK8PFJetsCorrected') && filter('hltAK8SinglePFJets*SoftDropMass40*ParticleNetTauTau')"),
             l1seed = cms.string("type(-99)"), l1deltaR = cms.double(0.3),
@@ -161,47 +157,45 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 mksel("filter('hltAK8SinglePFJets*SoftDropMass40*ParticleNetTauTau')","HLT_AK8PFJetX_SoftDropMass40_PFAK8ParticleNetTauTau0p30")
             )
         ),
-        cms.PSet(
-            name = cms.string("Jet"),
+        Jet = cms.PSet(
             id = cms.int32(1),
             sel = cms.string("( type(0) || type(85) || type(86) || type(-99) )"),
             l1seed = cms.string("type(-99)"), l1deltaR = cms.double(0.3),
             l2seed = cms.string("type(85) || type(86) || type(-99)"),  l2deltaR = cms.double(0.3),
             skipObjectsNotPassingQualityBits = cms.bool(True),
             qualityBits = cms.VPSet(
-                mksel(["hlt4PixelOnlyPFCentralJetTightIDPt20"]),
-                mksel(["hlt3PixelOnlyPFCentralJetTightIDPt30"]),
-                mksel(["hltPFJetFilterTwoC30"]),
-                mksel(["hlt4PFCentralJetTightIDPt30"]),
-                mksel(["hlt4PFCentralJetTightIDPt35"]),
-                mksel(["hltQuadCentralJet30"]),
-                mksel(["hlt2PixelOnlyPFCentralJetTightIDPt40"]),
-                mksel(["hltL1sTripleJet1008572VBFIorHTTIorDoubleJetCIorSingleJet","hltL1sTripleJet1058576VBFIorHTTIorDoubleJetCIorSingleJet","hltL1sTripleJetVBFIorHTTIorSingleJet"]),
-                mksel(["hlt3PFCentralJetTightIDPt40"]),
-                mksel(["hlt3PFCentralJetTightIDPt45"]),
-                mksel(["hltL1sQuadJetC60IorHTT380IorHTT280QuadJetIorHTT300QuadJet","hltL1sQuadJetC50to60IorHTT280to500IorHTT250to340QuadJet"]),
-                mksel(["hltBTagCaloDeepCSVp17Double"]),
-                mksel(["hltPFCentralJetLooseIDQuad30"]),
-                mksel(["hlt1PFCentralJetLooseID75"]),
-                mksel(["hlt2PFCentralJetLooseID60"]),
-                mksel(["hlt3PFCentralJetLooseID45"]),
-                mksel(["hlt4PFCentralJetLooseID40"]),
-                mksel(["hltBTagPFDeepCSV4p5Triple"]),
-                mksel("filter('hltHpsOverlapFilterDeepTauDoublePFTau*PFJet*')","(Double tau + jet) hltHpsOverlapFilterDeepTauDoublePFTau*PFJet*"),
-                mksel("filter('*CrossCleaned*MediumDeepTauDitauWPPFTau*')","(VBF cross-cleaned from medium deeptau PFTau) *CrossCleaned*MediumDeepTauDitauWPPFTau*"),
-                mksel("filter('*CrossCleanedUsingDiJetCorrChecker*')","(VBF cross-cleaned using dijet correlation checker) *CrossCleanedUsingDiJetCorrChecker*"),
-                mksel("filter('hltHpsOverlapFilterDeepTauPFTau*PFJet*')","(monitoring muon + tau + jet)  hltHpsOverlapFilterDeepTauPFTau*PFJet*"),
-                mksel(["hlt2PFCentralJetTightIDPt50"]),
-                mksel(["hlt1PixelOnlyPFCentralJetTightIDPt60"]),
-                mksel(["hlt1PFCentralJetTightIDPt70"]),
-                mksel(["hltBTagPFDeepJet1p5Single"]),
-                mksel(["hltBTagPFDeepJet4p5Triple"]),
-                mksel(["hltBTagCentralJetPt35PFParticleNet2BTagSum0p65","hltBTagCentralJetPt30PFParticleNet2BTagSum0p65","hltPFJetTwoC30PFBTagParticleNet2BTagSum0p65"]),
-                mksel(["hltBTagPFDeepCSV1p5Single"])
+                mksel(["hlt4PixelOnlyPFCentralJetTightIDPt20"]), # 0
+                mksel(["hlt3PixelOnlyPFCentralJetTightIDPt30"]), # 1
+                mksel(["hltPFJetFilterTwoC30"]), # 2
+                mksel(["hlt4PFCentralJetTightIDPt30"]), # 3
+                mksel(["hlt4PFCentralJetTightIDPt35"]), # 4
+                mksel(["hltQuadCentralJet30"]), # 5
+                mksel(["hlt2PixelOnlyPFCentralJetTightIDPt40"]), # 6
+                mksel(["hltL1sTripleJet1008572VBFIorHTTIorDoubleJetCIorSingleJet","hltL1sTripleJet1058576VBFIorHTTIorDoubleJetCIorSingleJet","hltL1sTripleJetVBFIorHTTIorSingleJet"]), # 7
+                mksel(["hlt3PFCentralJetTightIDPt40"]), # 8
+                mksel(["hlt3PFCentralJetTightIDPt45"]), # 9
+                mksel(["hltL1sQuadJetC60IorHTT380IorHTT280QuadJetIorHTT300QuadJet","hltL1sQuadJetC50to60IorHTT280to500IorHTT250to340QuadJet"]), # 10
+                mksel(["hltBTagCaloDeepCSVp17Double"]), # 11
+                mksel(["hltPFCentralJetLooseIDQuad30"]), # 12
+                mksel(["hlt1PFCentralJetLooseID75"]), # 13
+                mksel(["hlt2PFCentralJetLooseID60"]), # 14
+                mksel(["hlt3PFCentralJetLooseID45"]), # 15
+                mksel(["hlt4PFCentralJetLooseID40"]), # 16
+                mksel(["hltBTagPFDeepCSV4p5Triple"]), # 17
+                mksel("filter('hltHpsOverlapFilterDeepTauDoublePFTau*PFJet*')","(Double tau + jet) hltHpsOverlapFilterDeepTauDoublePFTau*PFJet*"), # 18
+                mksel("filter('*CrossCleaned*MediumDeepTauDitauWPPFTau*')","(VBF cross-cleaned from medium deeptau PFTau) *CrossCleaned*MediumDeepTauDitauWPPFTau*"), # 19
+                mksel("filter('*CrossCleanedUsingDiJetCorrChecker*')","(VBF cross-cleaned using dijet correlation checker) *CrossCleanedUsingDiJetCorrChecker*"), # 20
+                mksel("filter('hltHpsOverlapFilterDeepTauPFTau*PFJet*')","(monitoring muon + tau + jet)  hltHpsOverlapFilterDeepTauPFTau*PFJet*"), # 21
+                mksel(["hlt2PFCentralJetTightIDPt50"]), # 22
+                mksel(["hlt1PixelOnlyPFCentralJetTightIDPt60"]), # 23
+                mksel(["hlt1PFCentralJetTightIDPt70"]), # 24
+                mksel(["hltBTagPFDeepJet1p5Single"]), # 25
+                mksel(["hltBTagPFDeepJet4p5Triple"]), # 26
+                mksel(["hltBTagCentralJetPt35PFParticleNet2BTagSum0p65","hltBTagCentralJetPt30PFParticleNet2BTagSum0p65","hltPFJetTwoC30PFBTagParticleNet2BTagSum0p65"]), # 27
+                mksel(["hltBTagPFDeepCSV1p5Single"]) # 28
             ),
         ),
-        cms.PSet(
-            name = cms.string("FatJet"),
+        FatJet = cms.PSet(
             id = cms.int32(6),
             sel = cms.string("type(85) && pt > 120 && coll('hltAK8PFJetsCorrected')"),
             l1seed = cms.string("type(-99)"), l1deltaR = cms.double(0.3),
@@ -209,8 +203,7 @@ triggerObjectTable = triggerObjectTableProducer.clone(
             skipObjectsNotPassingQualityBits = cms.bool(True),
             qualityBits = cms.VPSet()
         ),
-        cms.PSet(
-            name = cms.string("MET"),
+        MET = cms.PSet(
             id = cms.int32(2),
             sel = cms.string("type(87) && pt > 30 && coll('hltPFMETProducer')"),
             l1seed = cms.string("type(-87) && coll('L1ETM')"), l1deltaR = cms.double(9999),
@@ -219,8 +212,7 @@ triggerObjectTable = triggerObjectTableProducer.clone(
             skipObjectsNotPassingQualityBits = cms.bool(True),
             qualityBits = cms.VPSet()
         ),
-        cms.PSet(
-            name = cms.string("HT"),
+        HT = cms.PSet(
             id = cms.int32(3),
             sel = cms.string("type(89) || type(-89)"),
             l1seed = cms.string("type(-89) && coll('L1HTT')"), l1deltaR = cms.double(9999),
@@ -235,8 +227,7 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 mksel(["hltPFCentralJetsLooseIDQuad30HT300","hltPFCentralJetsLooseIDQuad30HT330"])
             ),
         ),
-        cms.PSet(
-            name = cms.string("MHT"),
+        MHT = cms.PSet(
             id = cms.int32(4),
             sel = cms.string("type(90)"),
             l1seed = cms.string("type(-90) && coll('L1HTM')"), l1deltaR = cms.double(9999),
@@ -254,35 +245,69 @@ triggerObjectTable = triggerObjectTableProducer.clone(
 # ERA-dependent configuration
 # Tune filter and collection names to 2016 HLT menus
 # FIXME: check non-lepton objects and cross check leptons
-selections2016 = copy.deepcopy(triggerObjectTable.selections)
-for sel in selections2016:
-    if sel.name=='Muon':
-        sel.sel = cms.string("type(83) && pt > 5 && (coll('hlt*L3MuonCandidates') || coll('hlt*TkMuonCands') || coll('hlt*TrkMuonCands'))")
-        sel.qualityBits = cms.VPSet(
+run2_HLTconditions_2016.toModify(
+    triggerObjectTable.selections.Muon,
+    sel = "type(83) && pt > 5 && (coll('hlt*L3MuonCandidates') || coll('hlt*TkMuonCands') || coll('hlt*TrkMuonCands'))",
+    qualityBits = cms.VPSet(
             mksel("filter('*RelTrkIso*Filtered0p4')","TrkIsoVVL"),
             mksel("filter('hltL3cr*IsoFiltered0p09')","Iso"),
             mksel("filter('*OverlapFilter*IsoMu*PFTau*')","OverlapFilter PFTau"),
             mksel("filter('hltL3f*IsoFiltered0p09')","IsoTkMu"),
             mksel(["hltL3fL1sMu*L3Filtered50*","hltL3fL1sMu*TkFiltered50*"],"1mu (Mu50)", bit=10)
-        )
-    elif sel.name=='Tau':
-        sel.sel = cms.string("type(84) && pt > 5 && coll('*Tau*') && ( filter('*LooseIso*') || filter('*MediumIso*') || filter('*MediumComb*Iso*') || filter('hltL2TauIsoFilter') || filter('*OverlapFilter*IsoMu*') || filter('*OverlapFilter*IsoEle*') || filter('*L1HLTMatched*') || filter('*Dz02*') )")
-        sel.qualityBits = cms.VPSet(
-            mksel("(filter('*LooseIso*')-filter('*VLooseIso*'))","LooseIso"),
-            mksel("filter('*Medium*Iso*')","Medium(Comb)Iso"),
-            mksel("filter('*VLooseIso*')","VLooseIso"),
-            mksel("0","None"),
-            mksel("filter('hltL2TauIsoFilter')","L2p5 pixel iso"),
-            mksel("filter('*OverlapFilter*IsoMu*')","OverlapFilter IsoMu"),
-            mksel("filter('*OverlapFilter*IsoEle*')","OverlapFilter IsoEle"),
-            mksel("filter('*L1HLTMatched*')","L1-HLT matched"),
-            mksel("filter('*Dz02*')","Dz")
-        )
-
-run2_HLTconditions_2016.toModify(
-  triggerObjectTable,
-  selections = selections2016
+    )
+).toModify(
+    triggerObjectTable.selections.Tau,
+    sel = "type(84) && pt > 5 && coll('*Tau*') && ( filter('*LooseIso*') || filter('*MediumIso*') || filter('*MediumComb*Iso*') || filter('hltL2TauIsoFilter') || filter('*OverlapFilter*IsoMu*') || filter('*OverlapFilter*IsoEle*') || filter('*L1HLTMatched*') || filter('*Dz02*') )",
+    qualityBits = cms.VPSet(
+        mksel("(filter('*LooseIso*')-filter('*VLooseIso*'))","LooseIso"),
+        mksel("filter('*Medium*Iso*')","Medium(Comb)Iso"),
+        mksel("filter('*VLooseIso*')","VLooseIso"),
+        mksel("0","None"),
+        mksel("filter('hltL2TauIsoFilter')","L2p5 pixel iso"),
+        mksel("filter('*OverlapFilter*IsoMu*')","OverlapFilter IsoMu"),
+        mksel("filter('*OverlapFilter*IsoEle*')","OverlapFilter IsoEle"),
+        mksel("filter('*L1HLTMatched*')","L1-HLT matched"),
+        mksel("filter('*Dz02*')","Dz")
+    )
 )
+
+_run2_HLTconditions = run2_HLTconditions_2016 | run2_HLTconditions_2017 | run2_HLTconditions_2018
+
+_run2_2016_jet_filters = [
+        mksel(["*CrossCleaned*LooseChargedIsoPFTau*"], "VBF cross-cleaned from loose iso PFTau"), # 0
+        mksel(["hltBTagCaloCSVp087Triple"], "hltBTagCaloCSVp087Triple"), # 1
+        mksel(["hltDoubleCentralJet90"], "hltDoubleCentralJet90"), # 2
+        mksel(["hltDoublePFCentralJetLooseID90"], "hltDoublePFCentralJetLooseID90"), # 3
+        mksel(["hltL1sTripleJetVBFIorHTTIorDoubleJetCIorSingleJet"], "hltL1sTripleJetVBFIorHTTIorDoubleJetCIorSingleJet"), # 4
+        mksel(["hltQuadCentralJet30"], "hltQuadCentralJet30"), # 5
+        mksel(["hltQuadPFCentralJetLooseID30"], "hltQuadPFCentralJetLooseID30"), # 6
+        mksel(["hltL1sQuadJetC50IorQuadJetC60IorHTT280IorHTT300IorHTT320IorTripleJet846848VBFIorTripleJet887256VBFIorTripleJet927664VBF", "hltL1sQuadJetCIorTripleJetVBFIorHTT"], "hltL1sQuadJetC50IorQuadJetC60IorHTT280IorHTT300IorHTT320IorTripleJet846848VBFIorTripleJet887256VBFIorTripleJet927664VBF or hltL1sQuadJetCIorTripleJetVBFIorHTT"), # 7
+        mksel(["hltQuadCentralJet45"], "hltQuadCentralJet45"), # 8
+        mksel(["hltQuadPFCentralJetLooseID45"], "hltQuadPFCentralJetLooseID45"), # 9
+        mksel(["hltL1sQuadJetC60IorHTT380IorHTT280QuadJetIorHTT300QuadJet", "hltL1sQuadJetC50to60IorHTT280to500IorHTT250to340QuadJet"], "hltL1sQuadJetC60IorHTT380IorHTT280QuadJetIorHTT300QuadJet or hltL1sQuadJetC50to60IorHTT280to500IorHTT250to340QuadJet"), # 10
+        mksel(["hltBTagCaloCSVp05Double", "hltBTagCaloDeepCSVp17Double"], "hltBTagCaloCSVp05Double or hltBTagCaloDeepCSVp17Double"), # 11
+        mksel(["hltPFCentralJetLooseIDQuad30"], "hltPFCentralJetLooseIDQuad30"), # 12
+        mksel(["hlt1PFCentralJetLooseID75"], "hlt1PFCentralJetLooseID75"), # 13
+        mksel(["hlt2PFCentralJetLooseID60"], "hlt2PFCentralJetLooseID60"), # 14
+        mksel(["hlt3PFCentralJetLooseID45"], "hlt3PFCentralJetLooseID45"), # 15
+        mksel(["hlt4PFCentralJetLooseID40"], "hlt4PFCentralJetLooseID40"), # 16
+        mksel(["hltBTagPFCSVp070Triple", "hltBTagPFDeepCSVp24Triple", "hltBTagPFDeepCSV4p5Triple"], "hltBTagPFCSVp070Triple or hltBTagPFDeepCSVp24Triple or hltBTagPFDeepCSV4p5Triple"), # 17
+        mksel(["hltHpsOverlapFilterDeepTauDoublePFTau*PFJet*"], "Double tau + jet"), # 18
+        mksel(["*CrossCleaned*MediumDeepTauDitauWPPFTau*"], "VBF cross-cleaned from medium deeptau PFTau"), # 19
+        mksel(["*CrossCleanedUsingDiJetCorrChecker*"], "VBF cross-cleaned using dijet correlation checker"), # 20
+        mksel(["hltHpsOverlapFilterDeepTauPFTau*PFJet*"], "monitoring muon + tau + jet"), # 21
+]
+run2_HLTconditions_2016.toModify(triggerObjectTable.selections.Jet, qualityBits = cms.VPSet(_run2_2016_jet_filters))
+
+_run2_2017_jet_filters = copy.deepcopy(_run2_2016_jet_filters)
+_run2_2017_jet_filters[7] = mksel(["hltL1sTripleJet1008572VBFIorHTTIorDoubleJetCIorSingleJet","hltL1sTripleJet1058576VBFIorHTTIorDoubleJetCIorSingleJet","hltL1sTripleJetVBFIorHTTIorSingleJet"])
+run2_HLTconditions_2017.toModify(triggerObjectTable.selections.Jet, qualityBits = cms.VPSet(_run2_2017_jet_filters))
+
+_run2_2018_jet_filters = copy.deepcopy(_run2_2017_jet_filters)
+_run2_2018_jet_filters[2] = mksel(["hltPFJetFilterTwoC30"])
+_run2_2018_jet_filters.append(mksel(["hltBTagPFDeepCSV1p5Single"])) # 22
+run2_HLTconditions_2018.toModify(triggerObjectTable.selections.Jet, qualityBits = cms.VPSet(_run2_2018_jet_filters))
+
 
 from PhysicsTools.PatUtils.L1PrefiringWeightProducer_cff import prefiringweight
 #Next lines are for UL2016 maps
@@ -334,6 +359,6 @@ l1bits=cms.EDProducer("L1TriggerResultsConverter",
 
 triggerObjectTablesTask = cms.Task( unpackedPatTrigger,triggerObjectTable,l1bits)
 
-(run2_HLTconditions_2016 | run2_HLTconditions_2017 | run2_HLTconditions_2018).toReplaceWith(
+_run2_HLTconditions.toReplaceWith(
     triggerObjectTablesTask, triggerObjectTablesTask.copyAndAdd(prefiringweight,l1PreFiringEventWeightTable)
 )
