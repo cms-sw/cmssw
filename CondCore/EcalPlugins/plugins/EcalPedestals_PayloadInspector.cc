@@ -35,9 +35,9 @@ namespace {
       TH1F** barrel_r = new TH1F*[kGains];
       TH1F** endcap_r = new TH1F*[kGains];
       float bmin[kGains] = {0.7, 0.5, 0.4};
-      float bmax[kGains] = {2.2, 1.3, 0.7};
+      float bmax[kGains] = {3.3, 2.0, 1.0};  //  11/01/2023
       float emin[kGains] = {1.5, 0.8, 0.4};
-      float emax[kGains] = {2.5, 1.5, 0.8};
+      float emax[kGains] = {3.0, 2.0, 1.0};  //  11/01/2023
       for (int gainId = 0; gainId < kGains; gainId++) {
         barrel_m[gainId] = new TH1F(Form("EBm%i", gainId), Form("mean %i EB", gainValues[gainId]), 100, 150., 250.);
         endcap_m[gainId] = new TH1F(Form("EEm%i", gainId), Form("mean %i EE", gainValues[gainId]), 100, 150., 250.);
@@ -372,15 +372,15 @@ namespace {
       //      l->SetLineWidth(1);
       for (int gId = 0; gId < kGains; gId++) {
         pad[gId][0]->cd();
-        DrawEE(endc_m_m[gId], 175., 225.);
+        DrawEE(endc_m_m[gId], 185., 235.);  //   11/01/2023
         pad[gId + kGains][0]->cd();
         DrawEE(endc_m_r[gId], pEEmin[gId], pEEmax[gId]);
         pad[gId][1]->cd();
-        DrawEB(barrel_m[gId], 175., 225.);
+        DrawEB(barrel_m[gId], 185., 235.);  //   11/01/2023
         pad[gId + kGains][1]->cd();
         DrawEB(barrel_r[gId], pEBmin[gId], pEBmax[gId]);
         pad[gId][2]->cd();
-        DrawEE(endc_p_m[gId], 175., 225.);
+        DrawEE(endc_p_m[gId], 185., 235.);  //   11/01/2023
         pad[gId + kGains][2]->cd();
         DrawEE(endc_p_r[gId], pEEmin[gId], pEEmax[gId]);
       }
