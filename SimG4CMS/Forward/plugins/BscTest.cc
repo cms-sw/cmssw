@@ -758,7 +758,7 @@ void BscTest::update(const EndOfEvent* evt) {
     }
 
     if (varia == 2) {
-      int nhit11 = 0, nhit12 = 0, nhit13 = 0;
+      //int nhit11 = 0, nhit12 = 0, nhit13 = 0;
       double totallosenergy = 0.;
       for (int j = 0; j < nhits; j++) {
         BscG4Hit* aHit = (*theCAFI)[j];
@@ -766,7 +766,7 @@ void BscTest::update(const EndOfEvent* evt) {
         const CLHEP::Hep3Vector& hitEntryLocalPoint = aHit->getEntryLocalP();
         const CLHEP::Hep3Vector& hitExitLocalPoint = aHit->getExitLocalP();
         const CLHEP::Hep3Vector& hitPoint = aHit->getEntry();
-        int trackIDhit = aHit->getTrackID();
+        //int trackIDhit = aHit->getTrackID();
         unsigned int unitID = aHit->getUnitID();
         double losenergy = aHit->getEnergyLoss();
 
@@ -781,10 +781,11 @@ void BscTest::update(const EndOfEvent* evt) {
         themap[unitID] += losenergy;
         totallosenergy += losenergy;
 
-        int zside, sector;
+        int zside;
+        //int sector;
         BscNumberingScheme::unpackBscIndex(unitID);
         zside = (unitID & 32) >> 5;
-        sector = (unitID & 7);
+        //sector = (unitID & 7);
 
         //
         //=======================================
@@ -799,7 +800,7 @@ void BscTest::update(const EndOfEvent* evt) {
           }
         }
         //X
-        if (zside == 2) {
+        else if (zside == 2) {
           //UserNtuples->fillg25(losenergy,1.);
           if (losenergy > 0.00005) {
             themap1[unitID] += 1.;
@@ -807,6 +808,7 @@ void BscTest::update(const EndOfEvent* evt) {
         }
         //	   }
         //
+        /*
         if (sector == 1) {
           nhit11 += 1;
           //UserNtuples->fillg33(rr,1.);
@@ -900,6 +902,7 @@ void BscTest::update(const EndOfEvent* evt) {
             }
           }
         }
+        */
       }  // MIonly or noMIonly ENDED
       if (totallosenergy == 0.0) {
         edm::LogVerbatim("BscTest") << "BscTest:     number of hits = " << theCAFI->entries();
@@ -910,6 +913,7 @@ void BscTest::update(const EndOfEvent* evt) {
         }
       }
       //   FIBRE Hit collected analysis
+      /*
       double totalEnergy = 0.;
       int nhitsX = 0, nhitsY = 0, nsumhit = 0;
       for (int sector = 1; sector < 4; sector++) {
@@ -953,6 +957,7 @@ void BscTest::update(const EndOfEvent* evt) {
       if (nsumhit >= 2) {  //UserNtuples->fillp212(vy,float(1.),1.);
       } else {             //UserNtuples->fillp212(vy,float(0.),1.);
       }
+      */
     }  // MI or no MI or all  - end
   }    // primary end
 
