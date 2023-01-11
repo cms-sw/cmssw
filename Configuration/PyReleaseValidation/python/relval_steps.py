@@ -2477,11 +2477,11 @@ steps['RECOCOSDRUN2']=merge([{'--conditions':'auto:run2_data','--era':'Run2_2016
 # Run 3
 steps['RECODR3']=merge([{'--scenario':'pp',
                          '-s':'RAW2DIGI,L1Reco,RECO,DQM',
-                         '--conditions':'auto:run3_data_relval',
+                         '--conditions':'auto:run3_data',
                          '--era':'Run3',
                          '--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run3'},dataReco])
 
-steps['RECODR3_reHLT']=merge([{'--hltProcess':'reHLT'},steps['RECODR3']])
+steps['RECODR3_reHLT']=merge([{'--conditions':'auto:run3_data_relval', '--hltProcess':'reHLT'},steps['RECODR3']])
 
 steps['RECODR3Splash']=merge([{'-n': 2,
                                '-s': 'RAW2DIGI,L1Reco,RECO,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+EcalESAlign,DQM:@standardDQMFakeHLT+@miniAODDQM'
@@ -2510,12 +2510,14 @@ steps['RECOALCAECALPHISYMDR3']=merge([{'--scenario':'pp',
 
 # Run-3 skims
 for s in autoSkim.keys():
-    steps['SKIM'+s.upper()+'RUN3']={'-s':'SKIM:%s'%(autoSkim[s]),
-                                    '--data':'',
-                                    '--era':'Run3',
-                                    '--scenario':'pp',
-                                    '--conditions':'auto:run3_data_relval'}
-    if 'Cosmics' in s: steps['SKIM'+s.upper()+'RUN3']['--scenario'] = 'cosmics'
+    steps['SKIM'+s.upper()+'RUN3_reHLT'] = {'-s':'SKIM:%s'%(autoSkim[s]),
+                                            '--data':'',
+                                            '--era':'Run3',
+                                            '--scenario':'pp',
+                                            '--conditions':'auto:run3_data_relval',
+                                            '--hltProcess':'reHLT'}
+    if 'Cosmics' in s:
+        steps['SKIM'+s.upper()+'RUN3_reHLT']['--scenario'] = 'cosmics'
 
 # step1 gensim for HI mixing
 step1Up2018HiMixDefaults = merge ([{'--beamspot':'MatchHI', '--pileup':'HiMixGEN', '--scenario':'HeavyIons'},hiDefaults2018_ppReco,PUHI,step1Up2018HiProdDefaults])
@@ -3014,7 +3016,7 @@ steps['ALCAEXPRUN3']={'-s':'ALCAOUTPUT:@allForPrompt+@allForExpress,ALCA:PromptC
 steps['ALCAEXPHI']=merge([{'-s':'ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains+PromptCalibProdSiStripGainsAAG',
                   '--scenario':'HeavyIons'},steps['ALCAEXP']])
 steps['ALCAEXPTE']={'-s':'ALCA:PromptCalibProdEcalPedestals',
-                    '--conditions':'auto:run2_data_relval',
+                    '--conditions':'auto:run2_data',
                     '--datatier':'ALCARECO',
                     '--eventcontent':'ALCARECO',
                     '--triggerResultsProcess': 'RECO'}
@@ -3188,8 +3190,8 @@ steps['HARVESTDR1']={'-s':'HARVESTING:@standardDQMFakeHLT+@miniAODDQM',
                    '--filetype':'DQM',
                    '--scenario':'pp'}
 
-steps['HARVESTDreHLT'] = merge([ {'--conditions':'auto:run1_data_%s'%menu}, steps['HARVESTD'] ])
-steps['HARVESTDR1reHLT'] = merge([ {'--conditions':'auto:run1_data_%s'%menu}, steps['HARVESTDR1'] ])
+steps['HARVESTDreHLT'] = merge([ {'--conditions':'auto:run1_data_%s'%menu,'--hltProcess':'reHLT'}, steps['HARVESTD'] ])
+steps['HARVESTDR1reHLT'] = merge([ {'--conditions':'auto:run1_data_%s'%menu,'--hltProcess':'reHLT'}, steps['HARVESTDR1'] ])
 steps['HARVESTDR2'] = merge([ {'--conditions':'auto:run2_data_relval'}, steps['HARVESTD'] ])
 steps['HARVESTDR2_skimDoubleEG'] = merge([ {'-s':'HARVESTING:@commonFakeHLT+@ecal+@egamma'}, steps['HARVESTDR2'] ])
 steps['HARVESTDR2_skimJetHT'] = merge([ {'-s':'HARVESTING:@commonFakeHLT+@jetmet+@hcalOnly'}, steps['HARVESTDR2'] ])
@@ -3302,10 +3304,11 @@ steps['HARVESTDC']={'-s':'HARVESTING:dqmHarvestingFakeHLT',
 
 steps['HARVESTDCRUN2']=merge([{'--conditions':'auto:run2_data','--era':'Run2_2016'},steps['HARVESTDC']])
 
-steps['HARVESTDR3']  = merge([{'--conditions':'auto:run3_data_relval','--era':'Run3'}, steps['HARVESTD']])
-steps['HARVESTD2021MB'] = merge([{'-s':'HARVESTING:@commonSiStripZeroBias+@ExtraHLT+@miniAODDQM'}, steps['HARVESTDR3'] ])
-steps['HARVESTD2021ZB'] = merge([{'-s':'HARVESTING:@rerecoZeroBias+@ExtraHLT+@miniAODDQM'}, steps['HARVESTDR3'] ])
-steps['HARVESTD2021HLTPhy'] = merge([{'-s':'HARVESTING:@commonReduced+@miniAODDQM'}, steps['HARVESTDR3'] ])
+steps['HARVESTDR3']  = merge([{'--conditions':'auto:run3_data','--era':'Run3'}, steps['HARVESTD']])
+steps['HARVESTDR3_reHLT']  = merge([{'--conditions':'auto:run3_data_relval','--hltProcess':'reHLT'}, steps['HARVESTDR3']])
+steps['HARVESTD2021MB_reHLT'] = merge([{'-s':'HARVESTING:@commonSiStripZeroBias+@ExtraHLT+@miniAODDQM'}, steps['HARVESTDR3_reHLT'] ])
+steps['HARVESTD2021ZB_reHLT'] = merge([{'-s':'HARVESTING:@rerecoZeroBias+@ExtraHLT+@miniAODDQM'}, steps['HARVESTDR3_reHLT'] ])
+steps['HARVESTD2021HLTPhy_reHLT'] = merge([{'-s':'HARVESTING:@commonReduced+@miniAODDQM'}, steps['HARVESTDR3_reHLT'] ])
 
 steps['HARVESTDPROMPTR3']=merge([{'--conditions':'auto:run3_data_prompt','-s':'HARVESTING:dqmHarvestingFakeHLT'},steps['HARVESTDR3']])
 steps['HARVESTDEXPR3']=merge([{'--conditions':'auto:run3_data_express','--filein':'file:step2_inDQM.root'},steps['HARVESTDR3']])
@@ -3582,7 +3585,7 @@ steps['SKIMD']={'-s':'SKIM:all',
                 '--filein':'file:step2.root',
                 '--secondfilein':'filelist:step1_dasquery.log'}
 
-steps['SKIMDreHLT'] = merge([ {'--conditions':'auto:run1_data_%s'%menu,'--filein':'file:step3.root'}, steps['SKIMD'] ])
+steps['SKIMDreHLT'] = merge([ {'--conditions':'auto:run1_data_%s'%menu, '--hltProcess':'reHLT', '--filein':'file:step3.root'}, steps['SKIMD'] ])
 
 steps['SKIMCOSD']={'-s':'SKIM:all',
                    '--conditions':'auto:run1_data',
@@ -3624,7 +3627,7 @@ stepMiniAODDataUP15 = merge([{'--conditions'   : 'auto:run1_data',
 steps['REMINIAOD_data2016'] = merge([{'-s' : 'PAT,DQM:@miniAODDQM',
                                       '--process' : 'PAT',
                                       '--era' : 'Run2_2016,run2_miniAOD_80XLegacy',
-                                      '--conditions' : 'auto:run2_data_relval',
+                                      '--conditions' : 'auto:run2_data',
                                       '--data' : '',
                                       '--scenario' : 'pp',
                                       '--eventcontent' : 'MINIAOD,DQM',
@@ -3634,7 +3637,7 @@ steps['REMINIAOD_data2016'] = merge([{'-s' : 'PAT,DQM:@miniAODDQM',
 steps['REMININANO_data2016'] = merge([{'-s' : 'PAT,NANO,DQM:@miniAODDQM+@nanoAODDQM',
                                        '--process' : 'PATnano',
                                        '--era' : 'Run2_2016',
-                                       '--conditions' : 'auto:run2_data_relval',
+                                       '--conditions' : 'auto:run2_data',
                                        '--data' : '',
                                        '--scenario' : 'pp',
                                        '--eventcontent' : 'MINIAOD,NANOEDMAOD,DQM',
