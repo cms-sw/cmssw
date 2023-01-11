@@ -1,15 +1,15 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
-## L1REPACK FULL:  Re-Emulate all of L1 and repack into RAW
-
+## L1REPACK FullMC : Re-Emulate all of L1 and repack into RAW
 
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
-def _print(ignored):
-    print("# L1T WARN:  L1REPACK:FullMC (intended for MC events with RAW eventcontent) only supports Stage 2 eras for now.")
-    print("# L1T WARN:  Use a legacy version of L1REPACK for now.")
-stage2L1Trigger.toModify(None, _print)
-(~stage2L1Trigger).toModify(None, lambda x: print("# L1T INFO:  L1REPACK:FullMC  will unpack Calorimetry and Muon L1T inputs, re-emulate L1T (Stage-2), and pack uGT, uGMT, and Calo Stage-2 output."))
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+
+(~stage2L1Trigger).toModify(None, lambda x:
+    print("# L1T WARN:  L1REPACK:FullMC (intended for MC events with RAW eventcontent) only supports Stage-2 eras for now.\n# L1T WARN:  Use a legacy version of L1REPACK for now."))
+stage2L1Trigger.toModify(None, lambda x:
+    print("# L1T INFO:  L1REPACK:FullMC will unpack Calorimetry and Muon L1T inputs, re-emulate L1T (Stage-2), and pack uGT, uGMT, and Calo Stage-2 output."))
 
 # First, Unpack all inputs to L1:
 
@@ -24,6 +24,10 @@ unpackDT = EventFilter.DTRawToDigi.dtunpacker_cfi.muonDTDigis.clone(
 import EventFilter.CSCRawToDigi.cscUnpacker_cfi
 unpackCSC = EventFilter.CSCRawToDigi.cscUnpacker_cfi.muonCSCDigis.clone(
     InputObjects = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))
+
+import EventFilter.GEMRawToDigi.muonGEMDigis_cfi
+unpackGEM = EventFilter.GEMRawToDigi.muonGEMDigis_cfi.muonGEMDigis.clone(
+    InputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))
 
 import EventFilter.EcalRawToDigi.EcalUnpackerData_cfi
 unpackEcal = EventFilter.EcalRawToDigi.EcalUnpackerData_cfi.ecalEBunpacker.clone(
@@ -60,6 +64,8 @@ simDtTriggerPrimitiveDigis.digiTag                    = 'unpackDT'
 # CSC TPs
 simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = 'unpackCSC:MuonCSCComparatorDigi'
 simCscTriggerPrimitiveDigis.CSCWireDigiProducer       = 'unpackCSC:MuonCSCWireDigi'
+# GEM
+(stage2L1Trigger & run3_GEM).toModify(simMuonGEMPadDigis, InputCollection = 'unpackGEM')
 
 # TWIN-MUX
 simTwinMuxDigis.RPC_Source         = 'unpackRPC'
@@ -114,4 +120,9 @@ stage2L1Trigger.toReplaceWith(SimL1EmulatorTask, cms.Task(unpackRPC
                                                           , packGmtStage2
                                                           , packGtStage2
                                                           , rawDataCollector))
+
+_SimL1EmulatorTaskWithGEM = SimL1EmulatorTask.copy()
+_SimL1EmulatorTaskWithGEM.add(unpackGEM)
+(stage2L1Trigger & run3_GEM).toReplaceWith(SimL1EmulatorTask, _SimL1EmulatorTaskWithGEM)
+
 SimL1Emulator = cms.Sequence(SimL1EmulatorTask)
