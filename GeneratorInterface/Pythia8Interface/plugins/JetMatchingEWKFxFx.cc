@@ -549,7 +549,7 @@ int JetMatchingEWKFxFx::matchPartonsToJetsLight() {
   //Step-FxFx-4:For FxFx veto the real emissions that have only typeIdx=2 partons
   //From Step-FxFx-3 they already have negative nRequested, so this step may not be necessary
   //Exclude the highest multiplicity sample
-  if (doFxFx && npNLO() < nJetMax && typeIdx[2].empty() && npNLO() == (int)(typeIdx[2].size() - 1)) {
+  if (doFxFx && npNLO() < nJetMax && !typeIdx[2].empty() && npNLO() == (int)(typeIdx[2].size() - 1)) {
     return MORE_JETS;
   }
   //----------------
@@ -916,7 +916,7 @@ int JetMatchingEWKFxFx::matchPartonsToJetsOther() {
   // Count the number of clusters with pT>qCut.  This includes the
   //  original hard partons plus any hard emissions.
   for (int idx = 0; idx < hjSlowJet->sizeAll(); ++idx) {
-    if (hjSlowJet->pT(idx) > sqrt(qCutSq))
+    if (hjSlowJet->pT(idx) > qCut)
       nCLjets++;
   }
 
@@ -989,7 +989,7 @@ bool JetMatchingEWKFxFx::doShowerKtVeto(double pTfirst) {
 
 int JetMatchingEWKFxFx::npNLO() {
   string npIn = infoPtr->getEventAttribute("npNLO", true);
-  int np = (npIn.empty()) ? atoi((char*)npIn.c_str()) : -1;
+  int np = !npIn.empty() ? std::atoi(npIn.c_str()) : -1;
   if (np < 0) {
     ;
   } else
