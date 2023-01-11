@@ -1,26 +1,26 @@
 <environment>
   <bin file="testAlignmentOfflineValidation.cpp" name="validateAlignments">
-    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test validateAlignments.sh"/>
+    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test testingScripts/validateAlignments.sh"/>
     <use name="FWCore/Utilities"/>
   </bin>
   <bin file="testAlignmentOfflineValidation.cpp" name="DMRall">
     <flags PRE_TEST="validateAlignments"/>
-    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test test_unitDMR.sh"/>
+    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test testingScripts/test_unitDMR.sh"/>
     <use name="FWCore/Utilities"/>
   </bin>
   <bin file="testAlignmentOfflineValidation.cpp" name="PVall">
     <flags PRE_TEST="validateAlignments"/>
-    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test test_unitPV.sh"/>
+    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test testingScripts/test_unitPV.sh"/>
     <use name="FWCore/Utilities"/>
   </bin>
   <bin file="testAlignmentOfflineValidation.cpp" name="SplitVall">
     <flags PRE_TEST="validateAlignments"/>
-    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test test_unitSplitV.sh"/>
+    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test testingScripts/test_unitSplitV.sh"/>
     <use name="FWCore/Utilities"/>
   </bin>
   <bin file="testAlignmentOfflineValidation.cpp" name="GCPall">
     <flags PRE_TEST="validateAlignments"/>
-    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test test_unitGCP.sh"/>
+    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test testingScripts/test_unitGCP.sh"/>
     <use name="FWCore/Utilities"/>
   </bin>
   <bin file="testTrackAnalyzers.cc" name="testTrackAnalysis">
@@ -28,7 +28,7 @@
     <use name="catch2"/>
   </bin>
   <bin file="testAlignmentOfflineValidation.cpp" name="GeneralTrackAnalyser">
-    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test test_unitGeneralTrackAnalyser.sh"/>
+    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test testingScripts/test_unitGeneralTrackAnalyser.sh"/>
     <use name="FWCore/Utilities"/>
   </bin>
   <bin file="testPVPlotting.cpp" name="testPVPlotting">
@@ -39,19 +39,19 @@
     <use name="Alignment/OfflineValidation"/>
   </bin>
   <bin file="testAlignmentOfflineValidation.cpp" name="DiMuonVertex">
-    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test test_unitDiMuonVertex.sh"/>
+    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test testingScripts/test_unitDiMuonVertex.sh"/>
     <use name="FWCore/Utilities"/>
   </bin>
   <bin file="testAlignmentOfflineValidation.cpp" name="SubmitPVrbr">
-    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test test_unitSubmitPVrbr.sh"/>
+    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test testingScripts/test_unitSubmitPVrbr.sh"/>
     <use name="FWCore/Utilities"/>
   </bin>
   <bin file="testAlignmentOfflineValidation.cpp" name="SubmitPVsplit">
-    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test test_unitSubmitPVsplit.sh"/>
+    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test testingScripts/test_unitSubmitPVsplit.sh"/>
     <use name="FWCore/Utilities"/>
   </bin>
   <bin file="testAlignmentOfflineValidation.cpp" name="EoP">
-    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test test_unitEoP.sh"/>
+    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test testingScripts/test_unitEoP.sh"/>
     <use name="FWCore/Utilities"/>
   </bin>
   <bin file="testEoPPlotting.cpp" name="testEoPPlotting">
@@ -62,7 +62,7 @@
     <use name="Alignment/OfflineValidation"/>
   </bin>
   <bin file="testAlignmentOfflineValidation.cpp" name="Miscellanea">
-    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test test_unitMiscellanea.sh"/>
+    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test testingScripts/test_unitMiscellanea.sh"/>
     <use name="FWCore/Utilities"/>
   </bin>
 </environment>
