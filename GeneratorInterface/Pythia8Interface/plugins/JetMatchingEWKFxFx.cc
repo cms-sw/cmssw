@@ -840,7 +840,7 @@ int JetMatchingEWKFxFx::matchPartonsToJetsHeavy() {
   // Count the number of clusters with pT>qCut.  This includes the
   //  original hard partons plus any hard emissions.
   for (int idx = 0; idx < hjSlowJet->sizeAll(); ++idx) {
-    if (hjSlowJet->pT(idx) > sqrt(qCutSq))
+    if (hjSlowJet->pT(idx) > qCut)
       nCLjets++;
   }
 
