@@ -65,17 +65,14 @@ void TableOutputBranches::branch(TTree &tree) {
     }
   }
   std::string varsize = m_singleton ? "" : "[n" + m_baseName + "]";
-  for (std::vector<NamedBranchPtr> *branches :
-       {
-       &m_int8Branches,
-       &m_uint8Branches,
-       &m_int16Branches,
-       &m_uint16Branches,
-       &m_int32Branches,
-       &m_uint32Branches,
-       &m_floatBranches,
-       &m_doubleBranches
-       }) {
+  for (std::vector<NamedBranchPtr> *branches : {&m_int8Branches,
+                                                &m_uint8Branches,
+                                                &m_int16Branches,
+                                                &m_uint16Branches,
+                                                &m_int32Branches,
+                                                &m_uint32Branches,
+                                                &m_floatBranches,
+                                                &m_doubleBranches}) {
     for (auto &pair : *branches) {
       std::string branchName = makeBranchName(m_baseName, pair.name);
       pair.branch =
@@ -98,7 +95,8 @@ void TableOutputBranches::fill(const edm::OccurrenceForOutput &iWhatever, TTree 
   // ROOT native array size branches may only be signed integers,
   // until this is changed we need to make sure the vector sizes do not exceed that
   if (size > std::numeric_limits<CounterType>::max()) {
-      throw cms::Exception("Table " + tab.name() + " size is " + std::to_string(size) + ", is too large for ROOT native array branch");
+    throw cms::Exception("Table " + tab.name() + " size is " + std::to_string(size) +
+                         ", is too large for ROOT native array branch");
   }
   m_counter = size;
   m_singleton = tab.singleton();
