@@ -156,7 +156,6 @@ void HcalSiPMHitResponse::addPEnoise(CLHEP::HepRandomEngine* engine) {
     int nPreciseBins = nbins * getReadoutFrameSize(id);
 
     unsigned int sumnoisePE(0);
-    double elapsedTime(0.);
     for (int tprecise(0); tprecise < nPreciseBins; ++tprecise) {
       int noisepe = CLHEP::RandPoissonQ::shoot(engine, dc_pe_avg);  // add dark current noise
 
@@ -171,7 +170,6 @@ void HcalSiPMHitResponse::addPEnoise(CLHEP::HepRandomEngine* engine) {
 
         sumnoisePE += noisepe;
       }
-      elapsedTime += dt;
 
     }  // precise time loop
 
@@ -206,8 +204,6 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
   signal.resetPrecise();
   unsigned int pe(0);
   double hitPixels(0.), elapsedTime(0.);
-  unsigned int sumPE(0);
-  double sumHits(0.);
 
   auto& sipmPulseShape(shapeMap[pars.signalShape(id)]);
 
@@ -218,7 +214,6 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
 
   for (unsigned int tbin(0); tbin < photonTimeBins.size(); ++tbin) {
     pe = photonTimeBins[tbin];
-    sumPE += pe;
     preciseBin = tbin;
     sampleBin = preciseBin / nbins;
     if (pe > 0) {
@@ -231,7 +226,6 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
       }
 
       hitPixels = theSiPM.hitCells(engine, pe, 0., elapsedTime);
-      sumHits += hitPixels;
       LogDebug("HcalSiPMHitResponse") << " elapsedTime: " << elapsedTime << " sampleBin: " << sampleBin
                                       << " preciseBin: " << preciseBin << " pe: " << pe << " hitPixels: " << hitPixels;
       if (pars.doSiPMSmearing()) {
