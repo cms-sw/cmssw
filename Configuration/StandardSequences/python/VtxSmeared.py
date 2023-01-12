@@ -68,6 +68,7 @@ VtxSmeared = {
     'Realistic25ns900GeV2021Collision' : 'IOMC.EventVertexGenerators.VtxSmearedRealistic25ns900GeV2021Collision_cfi',
     'Realistic25ns13p6TeVEarly2022Collision' : 'IOMC.EventVertexGenerators.VtxSmearedRealistic25ns13p6TeVEarly2022Collision_cfi',
     'Nominal2022PbPbCollision' : 'IOMC.EventVertexGenerators.VtxSmearedNominal2022PbPbCollision_cfi',
+    'Realistic2022PbPbCollision' : 'IOMC.EventVertexGenerators.VtxSmearedRealistic2022PbPbCollision_cfi',
 }
 VtxSmearedDefaultKey='Realistic50ns13TeVCollision'
 VtxSmearedHIDefaultKey='RealisticPbPbCollision2018'
