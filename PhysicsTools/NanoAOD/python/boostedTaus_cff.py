@@ -26,7 +26,7 @@ boostedTauTable = simpleCandidateFlatTableProducer.clone(
 )
 _boostedTauVarsBase = cms.PSet(P4Vars,
        charge = Var("charge", int, doc="electric charge"),
-       jetIdx = Var("?hasUserCand('jet')?userCand('jet').key():-1", "uint16", doc="index of the associated jet (-1 if none)"),
+       jetIdx = Var("?hasUserCand('jet')?userCand('jet').key():-1", "int16", doc="index of the associated jet (-1 if none)"),
        decayMode = Var("decayMode()",int),
        leadTkPtOverTauPt = Var("leadChargedHadrCand.pt/pt ",float, doc="pt of the leading track divided by tau pt",precision=10),
        leadTkDeltaEta = Var("leadChargedHadrCand.eta - eta ",float, doc="eta of the leading track, minus tau eta",precision=8),
