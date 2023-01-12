@@ -28,9 +28,10 @@ public:
   template <typename P, typename E, typename B>
   RZLine(const P& points, const E& errors, const B& isBarrel) {
     const size_t n = points.size();
-    declareDynArray(float, n, r);
-    declareDynArray(float, n, z);
-    declareDynArray(float, n, errZ2);
+    const size_t nSafe = n > 0 ? n : 1;
+    float r[nSafe];
+    float z[nSafe];
+    float errZ2[nSafe];
     for (size_t i = 0; i < n; ++i) {
       const GlobalPoint& p = points[i];
       r[i] = p.perp();
@@ -42,7 +43,7 @@ public:
       errZ2[i] = (isBarrel[i]) ? errors[i].czz() : errors[i].rerr(points[i]) * simpleCot2;
     }
 
-    calculate(r, z, errZ2);
+    calculate(r, z, errZ2, n);
   }
 
   /**
@@ -50,10 +51,10 @@ public:
    */
   RZLine(const std::vector<float>& r, const std::vector<float>& z, const std::vector<float>& errZ) {
     const size_t n = errZ.size();
-    declareDynArray(float, n, errZ2);
+    float errZ2[n > 0 ? n : n + 1];
     for (size_t i = 0; i < n; ++i)
       errZ2[i] = sqr(errZ[i]);
-    calculate(r, z, errZ2);
+    calculate(r.data(), z.data(), errZ2, n);
   }
 
   /**
@@ -64,7 +65,7 @@ public:
     std::array<float, N> errZ2;
     for (size_t i = 0; i < N; ++i)
       errZ2[i] = sqr(errZ[i]);
-    calculate(r, z, errZ2);
+    calculate(r.data(), z.data(), errZ2.data(), N);
   }
 
   /**
@@ -82,7 +83,7 @@ public:
    */
   template <typename T>
   RZLine(const T& r, const T& z, const T& errZ2, ErrZ2_tag) {
-    calculate(r, z, errZ2);
+    calculate(r.data(), z.data(), errZ2.data(), r.size());
   }
 
   float cotTheta() const { return cotTheta_; }
@@ -94,10 +95,9 @@ public:
   float chi2() const { return chi2_; }
 
 private:
-  template <typename R, typename Z, typename E>
-  void calculate(const R& r, const Z& z, const E& errZ2) {
-    const size_t n = r.size();
-    linearFit(r.data(), z.data(), n, errZ2.data(), cotTheta_, intercept_, covss_, covii_, covsi_);
+  template <typename T>
+  void calculate(const T* r, const T* z, const T* errZ2, size_t n) {
+    linearFit(r, z, n, errZ2, cotTheta_, intercept_, covss_, covii_, covsi_);
     chi2_ = 0.f;
     for (size_t i = 0; i < n; ++i) {
       chi2_ += sqr(((z[i] - intercept_) - cotTheta_ * r[i])) / errZ2[i];
@@ -105,7 +105,7 @@ private:
   }
 
   template <typename T>
-  T sqr(T t) {
+  static constexpr T sqr(T t) {
     return t * t;
   }
 
