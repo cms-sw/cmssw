@@ -255,7 +255,7 @@ namespace mkfit {
     return cand1.score() > cand2.score();
   }
 
-  inline float getScoreCand(const track_score_func& scoreFunc,
+  inline float getScoreCand(const track_score_func& score_func,
                             const TrackCand& cand1,
                             bool penalizeTailMissHits = false,
                             bool inFindCandidates = false) {
@@ -268,7 +268,7 @@ namespace mkfit {
     // Do not allow for chi2<0 in score calculation
     if (chi2 < 0)
       chi2 = 0.f;
-    return scoreFunc(nfoundhits, ntailmisshits, noverlaphits, nmisshits, chi2, pt, inFindCandidates);
+    return score_func(nfoundhits, ntailmisshits, noverlaphits, nmisshits, chi2, pt, inFindCandidates);
   }
 
   // CombCandidate -- a set of candidates from a given seed.
