@@ -89,3 +89,19 @@ def replace_with(fromObj, toObj):
     else:
         raise TypeError('replaceWith does not work with "%s" objects' % str(type(fromObj)))
 
+
+# update or set the HLT prescale for the given path to the given value, in all the prescale columns
+def set_prescale(process, path, prescale):
+    columns = len(process.PrescaleService.lvl1Labels.value())
+    prescales = cms.vuint32([prescale] * columns)
+
+    for pset in process.PrescaleService.prescaleTable:
+      if pset.pathName.value() == path:
+        pset.prescales = prescales
+        break
+    else:
+      process.PrescaleService.prescaleTable.append(cms.PSet(
+        pathName = cms.string(path),
+        prescales = prescales
+      ))
+
