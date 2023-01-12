@@ -32,7 +32,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::device {
     template <typename T, typename R>
     T const& getData(device::ESGetToken<T, R> const& iToken) const {
       auto const& product = setup_.getData(iToken.underlyingToken());
-      if constexpr (std::is_same_v<typename detail::ESDeviceProductType<T>::type, T>) {
+      if constexpr (detail::useESProductDirectly<T>) {
         return product;
       } else {
         return product.get(device_);
@@ -49,7 +49,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::device {
     template <typename T, typename R>
     edm::ESHandle<T> getHandle(device::ESGetToken<T, R> const& iToken) const {
       auto handle = setup_.getHandle(iToken.underlyingToken());
-      if constexpr (std::is_same_v<typename detail::ESDeviceProductType<T>::type, T>) {
+      if constexpr (detail::useESProductDirectly<T>) {
         return handle;
       } else {
         if (not handle) {

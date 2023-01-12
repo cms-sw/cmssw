@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/moduleAbilities.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Utilities/interface/Transition.h"
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/DeviceProductType.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDMetadataAcquireSentry.h"
 #include "HeterogeneousCore/AlpakaCore/interface/EventCache.h"
 #include "HeterogeneousCore/AlpakaCore/interface/QueueCache.h"
@@ -77,29 +78,28 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     template <typename TProduct, typename TToken, edm::Transition Tr>
     edm::EDPutTokenT<TToken> deviceProduces(std::string instanceName) {
       edm::EDPutTokenT<TToken> token = Base::template produces<TToken, Tr>(std::move(instanceName));
-#ifndef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
-      // All device backends or devices with asynchronous queue
 
-      this->registerTransformAsync(
-          token,
-          [](TToken const& deviceProduct, edm::WaitingTaskWithArenaHolder holder) {
-            auto const& device = alpaka::getDev(deviceProduct.template metadata<EDMetadata>().queue());
-            detail::EDMetadataAcquireSentry sentry(device, std::move(holder));
-            auto metadataPtr = sentry.metadata();
-            constexpr bool tryReuseQueue = true;
-            TProduct const& productOnDevice =
-                deviceProduct.template getSynchronized<EDMetadata>(*metadataPtr, tryReuseQueue);
+      if constexpr (not detail::useProductDirectly<TProduct>) {
+        this->registerTransformAsync(
+            token,
+            [](TToken const& deviceProduct, edm::WaitingTaskWithArenaHolder holder) {
+              auto const& device = alpaka::getDev(deviceProduct.template metadata<EDMetadata>().queue());
+              detail::EDMetadataAcquireSentry sentry(device, std::move(holder));
+              auto metadataPtr = sentry.metadata();
+              constexpr bool tryReuseQueue = true;
+              TProduct const& productOnDevice =
+                  deviceProduct.template getSynchronized<EDMetadata>(*metadataPtr, tryReuseQueue);
 
-            auto productOnHost = copyToHostAsync(metadataPtr->queue(), productOnDevice);
+              auto productOnHost = copyToHostAsync(metadataPtr->queue(), productOnDevice);
 
-            // Need to keep the EDMetadata object from sentry.finish()
-            // alive until the synchronization
-            using TplType = std::tuple<decltype(productOnHost), std::shared_ptr<EDMetadata>>;
-            // Wrap possibly move-only type into a copyable type
-            return std::make_shared<TplType>(std::move(productOnHost), sentry.finish());
-          },
-          [](auto tplPtr) { return std::move(std::get<0>(*tplPtr)); });
-#endif
+              // Need to keep the EDMetadata object from sentry.finish()
+              // alive until the synchronization
+              using TplType = std::tuple<decltype(productOnHost), std::shared_ptr<EDMetadata>>;
+              // Wrap possibly move-only type into a copyable type
+              return std::make_shared<TplType>(std::move(productOnHost), sentry.finish());
+            },
+            [](auto tplPtr) { return std::move(std::get<0>(*tplPtr)); });
+      }
       return token;
     }
   };
