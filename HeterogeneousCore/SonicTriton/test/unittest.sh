@@ -4,11 +4,12 @@ LOCALTOP=$1
 DEVICE=$2
 
 # the test is not possible if:
+
 # 1. GPU not available (only if GPU test requested) / avx instructions not supported (needed for singularity on CPU)
 # 1b. Nvidia drivers not available
 # 2. wrong architecture (not amd64)
-# 3. singularity not found or not usable and
-# inside singularity container w/o unprivileged user namespace enabled (needed for singularity-in-singularity)
+# 3. apptainer/singularity not found or not usable
+# 4. inside apptainer/singularity container w/o unprivileged user namespace enabled (needed for nested containers)
 # so just return true in those cases
 
 if [ "$DEVICE" = "GPU" ]; then
@@ -36,14 +37,14 @@ fi
 
 THIS_ARCH=$(echo $SCRAM_ARCH | cut -d'_' -f2)
 if [ "$THIS_ARCH" == "amd64" ]; then
-       echo "has amd64"
+	echo "has amd64"
 else
-       echo "missing amd64"
-       exit 0
+	echo "missing amd64"
+	exit 0
 fi
 
-if ! singularity-check.sh; then
-	echo "missing singularity or missing unprivileged user namespace support"
+if ! apptainer-check.sh; then
+	echo "missing apptainer/singularity or missing unprivileged user namespace support"
 	exit 0
 fi
 
