@@ -272,6 +272,8 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
                                       edm::EventSetup const& setup,
                                       edm::WaitingTaskWithArenaHolder holder) {
 
+  std::cout << "PFHBHERecHitProducerGPU::acquire" << std::endl;
+
   auto const& HBHERecHitSoAProduct = event.get(InputRecHitSoA_Token_);
   cms::cuda::ScopedContextAcquire ctx{HBHERecHitSoAProduct, std::move(holder), cudaState_};
   auto const& HBHERecHitSoA = ctx.get(HBHERecHitSoAProduct);
@@ -288,6 +290,7 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
 
   hbheTopologyHandle_ = setup.getHandle(hbheTopologyToken_);
   auto const& hbheTopoData = setup.getData(hbheTopologyToken_);
+  auto const& hbheTopoDataProduct = hbheTopoData.getProduct(ctx.stream());
 
   std::cout << (hbheTopoData.getValuesDetId()).size() << std::endl;
 
@@ -397,8 +400,11 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
 	recHitParams.getValuesdepthHB(),
 	recHitParams.getValuesdepthHE(),
 	recHitParams.getValuesthresholdE_HB(),
-	recHitParams.getValuesthresholdE_HE()
-	  };
+	recHitParams.getValuesthresholdE_HE(),
+	hbheTopoDataProduct,
+	hbheTopoData.getValuesDetId(),
+	hbheTopoData.getValuesNeighbours()
+  };
 
   // Entry point for GPU calls
   GPU_timers.fill(0.0);

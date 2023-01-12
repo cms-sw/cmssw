@@ -49,12 +49,11 @@ private:
   // HCAL geometry/topology
   edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> hcalToken_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
-  edm::ESHandle<CaloGeometry> geoHandle;
-  edm::ESHandle<HcalTopology> topoHandle;
+  //edm::ESHandle<CaloGeometry> geoHandle;
+  //edm::ESHandle<HcalTopology> topoHandle;
 
-  std::unique_ptr<PFRecHitNavigatorBase> navigator_;
-
-  std::unique_ptr<const HcalTopology> topology_;
+  //std::unique_ptr<PFRecHitNavigatorBase> navigator_;
+  //std::unique_ptr<const HcalTopology> topology_;
 
 };
 
@@ -95,21 +94,12 @@ void HBHETopologyGPUESProducer::fillDescriptions(edm::ConfigurationDescriptions&
 
 std::unique_ptr<HBHETopologyGPU> HBHETopologyGPUESProducer::produce(HBHETopologyGPURcd const& iRecord) {
 
+  std::cout << "HBHETopologyGPUESProducer::produce" << std::endl;
+
   // geoHandle = iRecord.getHandle(geomToken_);
   // topoHandle = iRecord.getHandle(hcalToken_);
 
-  // topology_.release();
-  // topology_.reset(topoHandle.product());
-
-  // const CaloSubdetectorGeometry* hcalBarrelGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
-  // const CaloSubdetectorGeometry* hcalEndcapGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalEndcap);
-
-  // const std::vector<DetId>& validBarrelDetIds = hcalBarrelGeo->getValidDetIds(DetId::Hcal, HcalBarrel);
-  // const std::vector<DetId>& validEndcapDetIds = hcalEndcapGeo->getValidDetIds(DetId::Hcal, HcalEndcap);
-
-  // std::cout << "HBHETopologyGPUESProducer test " << validBarrelDetIds.size() << " " << validEndcapDetIds.size() << std::endl;
-  std::cout << "HBHETopologyGPUESProducer::produce" << std::endl;
-
+  // Handles
   auto geom = iRecord.getHandle(geomToken_);
   auto topo = iRecord.getHandle(hcalToken_);
 

@@ -271,10 +271,13 @@ namespace PFRecHit {
         uint32_t size,
 	uint32_t denseIdHcalMin,        // min denseIdHcal
         uint32_t const* rh_detIdRef,    // Reference table index -> detId
+	uint32_t const* detId,
         int* rh_inputToFullIdx,     // Map for input rechit detId -> reference table index
         int* rh_fullToInputIdx,     // Map for reference table index -> input rechit index
         uint32_t const* recHits_did)    // Input rechit detIds
         {
+
+	  printf("Access detId via ES on device %8d\n",detId[1]);
 
           int first = blockIdx.x*blockDim.x + threadIdx.x;
           for (int i = first; i < size; i += gridDim.x * blockDim.x) {
@@ -647,7 +650,8 @@ namespace PFRecHit {
 
       //printf("bb %8d\n",recHitParametersProduct.valuesdepthHB[1]);
       printf("bb %8d\n",constantProducts.depthHB[1]);
-      
+      printf("bb2 %8d\n",constantProducts.detId[1]);
+
       uint32_t nRHIn = HBHERecHits_asInput.size;  // Number of input rechits
       if (nRHIn == 0) {
         HBHEPFRecHits_asOutput.PFRecHits.size = 0;
@@ -723,6 +727,7 @@ namespace PFRecHit {
       buildDetIdMapKH2<<<(nRHIn + threadsPerBlock - 1)/threadsPerBlock, threadsPerBlock, 0, cudaStream>>>(nRHIn,
 							   cudaConstants.denseIdHcalMin,
                                                            persistentDataGPU.rh_detId.get(),
+							   constantProducts.hbheTopoDataProduct.detId,
                                                            scratchDataGPU.rh_inputToFullIdx.get(),
                                                            scratchDataGPU.rh_fullToInputIdx.get(),
                                                            HBHERecHits_asInput.did.get());
@@ -751,7 +756,7 @@ namespace PFRecHit {
       //applyQTests<<<(nRHIn+127)/128, 256, 0, cudaStream>>>(nRHIn, scratchDataGPU.rh_mask.get(), HBHERecHits_asInput.did.get(), HBHERecHits_asInput.energy.get());
 
       applyDepthThresholdQTests<<<(nRHIn + threadsPerBlock - 1) / threadsPerBlock, threadsPerBlock, 0, cudaStream>>>(
-          nRHIn,	  
+          nRHIn,
 	  //constantProducts.recHitParametersProduct,
 	  constantProducts.recHitParametersProduct.valuesdepthHB,
 	  constantProducts.recHitParametersProduct.valuesdepthHE,

@@ -10,6 +10,7 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFHBHERecHitParamsGPU.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/HBHETopologyGPU.h"
 
 namespace PFRecHit {
   namespace HCAL {
@@ -86,8 +87,11 @@ namespace PFRecHit {
       std::vector<int, cms::cuda::HostAllocator<int>> const& depthHE;
       std::vector<double, cms::cuda::HostAllocator<double>> const& thresholdE_HB;
       std::vector<double, cms::cuda::HostAllocator<double>> const& thresholdE_HE;
+      HBHETopologyGPU::Product const& hbheTopoDataProduct;
+      std::vector<uint, cms::cuda::HostAllocator<uint32_t>> const& detId;
+      std::vector<int, cms::cuda::HostAllocator<int>> const& neighbours;
     };
-    
+
     struct Constants {
       uint32_t nValidBarrelIds;
       uint32_t nValidEndcapIds;
