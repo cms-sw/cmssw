@@ -208,6 +208,7 @@ namespace mkfit {
       m_pre_bkfit_filter_name = o.m_pre_bkfit_filter_name;
       m_post_bkfit_filter_name = o.m_post_bkfit_filter_name;
       m_duplicate_cleaner_name = o.m_duplicate_cleaner_name;
+      m_default_track_scorer_name = o.m_default_track_scorer_name;
     }
 
     void set_iteration_index_and_track_algorithm(int idx, int trk_alg) {
