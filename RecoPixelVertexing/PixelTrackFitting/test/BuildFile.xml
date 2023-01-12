@@ -9,6 +9,11 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
+<bin file="RZLine_catch2.cc" name="testRecoPixelVertexingPixelTrackFittingRZLine">
+  <use name="catch2"/>
+  <use name="RecoPixelVertexing/PixelTrackFitting"/>
+</bin>
+
 <bin file="testFits.cpp">
   <use name="cuda"/>
   <use name="eigen"/>
