@@ -166,7 +166,6 @@ namespace {
 
     /* 
     //(Not used for the moment)
-
     //_________________________________________________
     bool matches(const DetId& detid, const DetId& db_id, const std::vector<uint32_t>& DetIdmasks) {
       if (detid.subdetId() != db_id.subdetId())
@@ -181,26 +180,45 @@ namespace {
       }
       return true;
     }
-
-    //_________________________________________________
-    bool isPhase1(const std::map<unsigned int, double>& map_geomfactor, const std::vector<uint32_t>& detIdmasks) {
-      SiPixelDetInfoFileReader reader =
-          SiPixelDetInfoFileReader(edm::FileInPath(SiPixelDetInfoFileReader::kPh1DefaultFile).fullPath());
-      const auto& p1detIds = reader.getAllDetIds();
-
-      for (const auto& det : p1detIds) {
-        const DetId detid = DetId(det);
-        for (const auto& element : map_geomfactor) {
-          if (SiPixDynIneff::matches(detid, DetId(element.first), detIdmasks)) {
-            return true;
-          }
-        }
-      }
-      return false;
-    }
-    
     */
 
+    //_________________________________________________
+    bool checkPhase(const SiPixelPI::phase phase, const std::vector<uint32_t>& masks_db) {
+      const char* inputFile;
+      switch (phase) {
+        case SiPixelPI::phase::zero:
+          inputFile = "Geometry/TrackerCommonData/data/trackerParameters.xml";
+          break;
+        case SiPixelPI::phase::one:
+          inputFile = "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+          break;
+        case SiPixelPI::phase::two:
+          inputFile = "Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml";
+          break;
+      }
+
+      // create the standalone tracker topology
+      const auto& tkTopo =
+          StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(inputFile).fullPath());
+
+      // Check what masks we would get using the current geometry
+      // It has to match what is in the db content!!
+
+      std::vector<uint32_t> masks_geom;
+      uint32_t max = std::numeric_limits<uint32_t>::max();
+
+      masks_geom.push_back(tkTopo.pxbDetId(max, 0, 0).rawId());
+      masks_geom.push_back(tkTopo.pxbDetId(0, max, 0).rawId());
+      masks_geom.push_back(tkTopo.pxbDetId(0, 0, max).rawId());
+      masks_geom.push_back(tkTopo.pxfDetId(max, 0, 0, 0, 0).rawId());
+      masks_geom.push_back(tkTopo.pxfDetId(0, max, 0, 0, 0).rawId());
+      masks_geom.push_back(tkTopo.pxfDetId(0, 0, max, 0, 0).rawId());
+      masks_geom.push_back(tkTopo.pxfDetId(0, 0, 0, max, 0).rawId());
+      masks_geom.push_back(tkTopo.pxfDetId(0, 0, 0, 0, max).rawId());
+
+      return (masks_geom.size() == masks_db.size() &&
+              std::equal(masks_geom.begin(), masks_geom.end(), masks_db.begin()));
+    }
   }  // namespace SiPixDynIneff
 
   /************************************************
@@ -546,18 +564,14 @@ namespace {
 
         std::vector<uint32_t> detIdmasks_db = payload->getDetIdmasks();
 
-        /*
-	  // in case there is need to filter on the phase
-
-	  if (!SiPixDynIneff::isPhase1(theMap, detIdmasks_db)) {
+        if (!SiPixDynIneff::checkPhase(SiPixelPI::phase::one, detIdmasks_db)) {
           edm::LogError(label_) << label_ << " maps are not supported for non-Phase1 Pixel geometries !";
           TCanvas canvas("Canv", "Canv", 1200, 1000);
           SiPixelPI::displayNotSupported(canvas, 0);
           std::string fileName(m_imageFileName);
           canvas.SaveAs(fileName.c_str());
           return false;
-	  }
-	*/
+        }
 
         SiPixelDetInfoFileReader reader =
             SiPixelDetInfoFileReader(edm::FileInPath(SiPixelDetInfoFileReader::kPh1DefaultFile).fullPath());
@@ -623,6 +637,15 @@ namespace {
 
         SiPixDynIneff::PUFactorMap theMap = payload->getPUFactors();
         std::vector<uint32_t> detIdmasks_db = payload->getDetIdmasks();
+
+        if (!SiPixDynIneff::checkPhase(SiPixelPI::phase::one, detIdmasks_db)) {
+          edm::LogError(label_) << label_ << " maps are not supported for non-Phase1 Pixel geometries !";
+          TCanvas canvas("Canv", "Canv", 1200, 1000);
+          SiPixelPI::displayNotSupported(canvas, 0);
+          std::string fileName(m_imageFileName);
+          canvas.SaveAs(fileName.c_str());
+          return false;
+        }
 
         unsigned int depth = maxDepthOfPUArray(theMap);
 
