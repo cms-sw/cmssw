@@ -3620,6 +3620,7 @@ defaultDataSets['2018']='CMSSW_12_0_0_pre4-113X_upgrade2018_realistic_v5-v'
 defaultDataSets['2018Design']='CMSSW_12_0_0_pre4-113X_upgrade2018_design_v5-v'
 defaultDataSets['2021']='CMSSW_12_4_9_patch1-124X_mcRun3_2022_realistic_v10_BS2022-v'
 defaultDataSets['2021Design']='CMSSW_12_4_9_patch1-124X_mcRun3_2022_design_v7_BS2022-v'
+defaultDataSets['2021FS']='CMSSW_12_4_0_pre4-124X_mcRun3_2021_realistic_v1_Run3FastSim_FastSim-v'
 defaultDataSets['2023']='CMSSW_12_0_0_pre4-120X_mcRun3_2023_realistic_v2-v'
 defaultDataSets['2024']='CMSSW_12_0_0_pre4-120X_mcRun3_2024_realistic_v2-v'
 defaultDataSets['2026D49']='CMSSW_12_0_0_pre4-113X_mcRun4_realistic_v7_2026D49noPU-v'
@@ -3652,7 +3653,10 @@ for ds in defaultDataSets:
     elif '2018' in ds:
         PUDataSets[ds]={'-n':10,'--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
     elif '2021' in ds:
-      PUDataSets[ds]={'-n':10,'--pileup':'Run3_Flat55To75_PoissonOOTPU','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
+        if 'FS' not in ds:
+            PUDataSets[ds]={'-n':10,'--pileup':'Run3_Flat55To75_PoissonOOTPU','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
+        else:
+            PUDataSets[ds]={'-n':10,'--pileup':'Run3_Flat55To75_PoissonOOTPU','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM-RECO'%(name,)}
     elif 'postLS2' in ds:
         PUDataSets[ds]={'-n':10,'--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
     elif '2026' in ds:
@@ -3680,6 +3684,16 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
     beamspot=upgradeProperties[year][k].get('BeamSpot', None)
 
     # setup baseline steps
+    upgradeStepDict['Gen'][k]= {'-s' : 'GEN',
+                                '-n' : 10,
+                                '--conditions' : gt,
+                                '--beamspot' : 'Realistic25ns13TeVEarly2017Collision',
+                                '--datatier' : 'GEN',
+                                '--eventcontent': 'FEVTDEBUG',
+                                '--geometry' : geom
+                                }
+    if beamspot is not None: upgradeStepDict['Gen'][k]['--beamspot']=beamspot
+
     upgradeStepDict['GenSim'][k]= {'-s' : 'GEN,SIM',
                                        '-n' : 10,
                                        '--conditions' : gt,
@@ -3841,6 +3855,25 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                     '--geometry' : geom,
                                     '--scenario' : 'pp'
                                     }
+    
+    upgradeStepDict['FastSimRun3'][k]={'-s':'SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,PAT,NANO,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQMFS+@miniAODDQM+@nanoAODDQM',
+                                       '--fast':'',
+                                       '--era':'Run3_FastSim',
+                                       '--beamspot':beamspot,
+                                       '--conditions':gt,
+                                       '--geometry':geom,
+                                       '--eventcontent':'FEVTDEBUGHLT,MINIAODSIM,NANOEDMAODSIM,DQM',
+                                       '--datatier':'GEN-SIM-DIGI-RECO,MINIAODSIM,NANOAODSIM,DQMIO',
+                                       }
+
+    upgradeStepDict['HARVESTFastRun3'][k]={'-s':'HARVESTING:validationHarvesting+@miniAODValidation+@miniAODDQM+@nanoAODDQM',
+                                           '--conditions':gt,
+                                           '--mc':'',
+                                           '--fast':'',
+                                           '--geometry':geom,
+                                           '--scenario':'pp',
+                                           '--filetype':'DQM',
+                                           '--filein':'file:step2_inDQM.root'}
 
     upgradeStepDict['Nano'][k] = {'-s':'NANO,DQM:@nanoAODDQM',
                                       '--conditions':gt,
@@ -3879,7 +3912,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
 
 for step in upgradeStepDict.keys():
     # we need to do this for each fragment
-   if 'Sim' in step or 'Premix' in step:
+    if ('Sim' in step and 'Fast' not in step) or ('Premix' in step) or ('Sim' not in step and 'Gen' in step):
         for frag,info in upgradeFragments.items():
             howMuch=info.howMuch
             for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
@@ -3902,10 +3935,13 @@ for step in upgradeStepDict.keys():
                         s=frag[:-4]+'_'+key
                         # exclude upgradeKeys without input dataset, and special WFs that disable reuse
                         istep = step+preventReuseKeyword
-                        if 'FastSim' not in k and 'Run3FS' not in k and s+'INPUT' not in steps and s in baseDataSetReleaseBetter and defaultDataSets[key] != '' and \
+                        if 'FastSim' not in k and s+'INPUT' not in steps and s in baseDataSetReleaseBetter and defaultDataSets[key] != '' and \
                            (istep not in upgradeStepDict or key not in upgradeStepDict[istep] or upgradeStepDict[istep][key] is not None):
-                            steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+info.dataset+'/%s/GEN-SIM'%(baseDataSetReleaseBetter[s],),location='STD')}
-   else:
+                            if 'FS' not in key: #For FullSim
+                                steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+info.dataset+'/%s/GEN-SIM'%(baseDataSetReleaseBetter[s],),location='STD')}
+                            #else: #For FastSim to recycle GEN (to enable when datasets are available)
+                            #    steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+info.dataset+'/%s/GEN'%(baseDataSetReleaseBetter[s],),location='STD')}
+    else:
         for key in [key for year in upgradeKeys for key in upgradeKeys[year]]:
             k=step+'_'+key
             if step in upgradeStepDict and key in upgradeStepDict[step]:

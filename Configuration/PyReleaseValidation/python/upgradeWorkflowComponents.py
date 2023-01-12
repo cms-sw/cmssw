@@ -24,8 +24,10 @@ upgradeKeys[2017] = [
     '2023PU',
     '2024',
     '2024PU',
+    '2021FS',
+    '2021FSPU',
     '2021postEE',
-    '2021postEEPU', 
+    '2021postEEPU',
 ]
 
 upgradeKeys[2026] = [
@@ -78,7 +80,7 @@ numWFStart={
 }
 numWFSkip=200
 # temporary measure to keep other WF numbers the same
-numWFConflict = [[13200,13600],[20000,23200],[23600,28200],[28600,31400],[31800,32200],[32600,34600],[50000,51000]]
+numWFConflict = [[20000,23200],[23600,28200],[28600,31400],[31800,32200],[32600,34600],[50000,51000]]
 numWFAll={
     2017: [],
     2026: []
@@ -152,6 +154,8 @@ class UpgradeWorkflow(object):
     def preventReuse(self, stepName, stepDict, k):
         if "Sim" in stepName:
             stepDict[stepName][k] = None
+        if "Gen" in stepName:
+            stepDict[stepName][k] = None
 upgradeWFs = OrderedDict()
 
 class UpgradeWorkflow_baseline(UpgradeWorkflow):
@@ -167,6 +171,7 @@ class UpgradeWorkflow_baseline(UpgradeWorkflow):
         return True
 upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
     steps =  [
+        'Gen',
         'GenSim',
         'GenSimHLBeamSpot',
         'GenSimHLBeamSpot14',
@@ -189,6 +194,8 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'Nano',
         'MiniAOD',
         'HLT75e33',
+        'FastSimRun3',
+        'HARVESTFastRun3',
     ],
     PU =  [
         'DigiTrigger',
@@ -205,6 +212,8 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'MiniAOD',
         'Nano',
         'HLT75e33',
+        'FastSimRun3',
+        'HARVESTFastRun3',
     ],
     suffix = '',
     offset = 0.0,
@@ -335,7 +344,7 @@ class UpgradeWorkflow_pixelTrackingOnly(UpgradeWorkflowTracking):
         if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
         elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'}, stepDict[step][k]])
     def condition_(self, fragment, stepList, key, hasHarvest):
-        return '2017' in key or '2018' in key or '2021' in key or '2026' in key
+        return ('2017' in key or '2018' in key or '2021' in key or '2026' in key) and ('FS' not in key)
 upgradeWFs['pixelTrackingOnly'] = UpgradeWorkflow_pixelTrackingOnly(
     steps = [
         'Reco',
@@ -583,9 +592,9 @@ class PatatrackWorkflow(UpgradeWorkflow):
         # select only a subset of the workflows
         selected = [
             ('2018' in key and fragment == "TTbar_13"),
-            ('2021' in key and fragment == "TTbar_14TeV"),
+            ('2021' in key and fragment == "TTbar_14TeV" and 'FS' not in key),
             ('2018' in key and fragment == "ZMM_13"),
-            ('2021' in key and fragment == "ZMM_14"),
+            ('2021' in key and fragment == "ZMM_14" and 'FS' not in key),
             ('2026D88' in key and fragment == "TTbar_14TeV" and "PixelOnly" in self.suffix)
         ]
         result = any(selected) and hasHarvest
@@ -1372,7 +1381,7 @@ class UpgradeWorkflow_0T(UpgradeWorkflow):
         # override '-n' setting from PUDataSets in relval_steps.py
         stepDict[stepName][k] = merge([{'-n':'1'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return (fragment=="TTbar_13" or fragment=="TTbar_14TeV") and ('2017' in key or '2018' in key or '2021' in key)
+        return (fragment=="TTbar_13" or fragment=="TTbar_14TeV") and ('2017' in key or '2018' in key or '2021' in key) and ('FS' not in key)
 upgradeWFs['0T'] = UpgradeWorkflow_0T(
     steps = [
         'GenSim',
@@ -1724,88 +1733,49 @@ upgradeWFs['PMXS1S2ProdLike'] = UpgradeWorkflowPremixProdLike(
     offset = 0.9921,
 )
 
-class UpgradeWorkflow_Run3FS(UpgradeWorkflow):
-    def setup_(self, step, stepName, stepDict, k, properties):
-        if 'GenSim' in step:
-            stepDict[stepName][k] = merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,PAT,VALIDATION:@standardValidation,DQM:@standardDQMFS',
-                                            '--fast':'',
-                                            '--era':'Run3_FastSim',
-                                            '--eventcontent':'FEVTDEBUGHLT,MINIAODSIM,DQM',
-                                            '--datatier':'GEN-SIM-DIGI-RECO,MINIAODSIM,DQMIO',
-                                            '--relval':'27000,3000'}, stepDict[step][k]])
-        if 'Digi' in step or 'RecoNano' in step or 'ALCA' in step:
-            stepDict[stepName][k] = None
-        if 'HARVESTNano' in step:
-            stepDict[stepName][k] = merge([{'-s':'HARVESTING:validationHarvesting',
-                                            '--fast':'',
-                                            '--era':'Run3_FastSim',
-                                            '--filein':'file:step1_inDQM.root'}, stepDict[step][k]])
-    def condition(self, fragment, stepList, key, hasHarvest):
-        return '2021' in key
-upgradeWFs['Run3FS'] = UpgradeWorkflow_Run3FS(
-    steps = [
-        'GenSim',
-        'Digi',
-        'RecoNano',
-        'HARVESTNano',
-        'ALCA'
-    ],
-    PU = [],
-    suffix = '_Run3FS',
-    offset = 0.301,
-)
-
 class UpgradeWorkflow_Run3FStrackingOnly(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
-        if 'GenSim' in step:
-            stepDict[stepName][k] = merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,PAT,VALIDATION:@trackingOnlyValidation',
-                                            '--fast':'',
-                                            '--era':'Run3_FastSim',
-                                            '--eventcontent':'FEVTDEBUGHLT,MINIAODSIM,DQM',
-                                            '--datatier':'GEN-SIM-DIGI-RECO,MINIAODSIM,DQMIO',
-                                            '--relval':'27000,3000'}, stepDict[step][k]])
-        if 'Digi' in step or 'RecoNano' in step or 'ALCA' in step:
-            stepDict[stepName][k] = None
-        if 'HARVESTNano' in step:
+        if 'HARVESTFastRun3' in step:
             stepDict[stepName][k] = merge([{'-s':'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM',
                                             '--fast':'',
                                             '--era':'Run3_FastSim',
                                             '--filein':'file:step1_inDQM.root'}, stepDict[step][k]])
+        else:
+            stepDict[stepName][k] = merge([stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return '2021' in key
+        return '2021FS' in key
 upgradeWFs['Run3FStrackingOnly'] = UpgradeWorkflow_Run3FStrackingOnly(
     steps = [
-        'GenSim',
-        'Digi',
-        'RecoNano',
-        'HARVESTNano',
-        'ALCA'
+        'Gen',
+        'FastSimRun3',
+        'HARVESTFastRun3'
     ],
-    PU = [],
+    PU = [
+        'FastSimRun3',
+        'HARVESTFastRun3'
+    ],
     suffix = '_Run3FSTrackingOnly',
     offset = 0.302,
 )
 
 class UpgradeWorkflow_Run3FSMBMixing(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
-        if 'GenSim' in step:
+        if 'Gen' in step:
             stepDict[stepName][k] = merge([{'-s':'GEN,SIM,RECOBEFMIX',
                                             '--fast':'',
                                             '--era':'Run3_FastSim',
                                             '--eventcontent':'FASTPU',
                                             '--datatier':'GEN-SIM-RECO',
                                             '--relval':'27000,3000'}, stepDict[step][k]])
-        if 'Digi' in step or 'RecoNano' in step or 'ALCA' in step or 'HARVESTNano' in step:
+        else:
             stepDict[stepName][k] = None
     def condition(self, fragment, stepList, key, hasHarvest):
-        return '2021' in key and fragment=="MinBias_14TeV"
+        return '2021FS' in key and fragment=="MinBias_14TeV"
 upgradeWFs['Run3FSMBMixing'] = UpgradeWorkflow_Run3FSMBMixing(
     steps = [
-        'GenSim',
-        'Digi',
-        'RecoNano',
-        'HARVESTNano',
-        'ALCA'
+        'Gen',
+        'FastSimRun3',
+        'HARVESTFastRun3'
     ],
     PU = [],
     suffix = '_Run3FSMBMixing',
@@ -1814,14 +1784,14 @@ upgradeWFs['Run3FSMBMixing'] = UpgradeWorkflow_Run3FSMBMixing(
 
 class UpgradeWorkflow_DD4hep(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
-        if 'Run3' in stepDict[step][k]['--era']:
+        if 'Run3' in stepDict[step][k]['--era'] and 'Fast' not in stepDict[step][k]['--era']:
             stepDict[stepName][k] = merge([{'--geometry': 'DD4hepExtended2021'}, stepDict[step][k]])
         elif 'Phase2' in stepDict[step][k]['--era']:
             dd4hepGeom="DD4hep"
             dd4hepGeom+=stepDict[step][k]['--geometry']
             stepDict[stepName][k] = merge([{'--geometry' : dd4hepGeom, '--procModifiers': 'dd4hep'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return '2021' in key or '2026' in key
+        return ('2021' in key or '2026' in key) and ('FS' not in key)
 upgradeWFs['DD4hep'] = UpgradeWorkflow_DD4hep(
     steps = [
         'GenSim',
@@ -1847,10 +1817,10 @@ upgradeWFs['DD4hep'].allowReuse = False
 #Keep it for future use in Phase-2, then delete
 class UpgradeWorkflow_DD4hepDB(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
-        if 'Run3' in stepDict[step][k]['--era']:
+        if 'Run3' in stepDict[step][k]['--era'] and 'Fast' not in stepDict[step][k]['--era']:
             stepDict[stepName][k] = merge([{'--conditions': 'auto:phase1_2022_realistic', '--geometry': 'DB:Extended'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return '2021' in key
+        return '2021' in key and 'FS' not in key
 upgradeWFs['DD4hepDB'] = UpgradeWorkflow_DD4hepDB(
     steps = [
         'GenSim',
@@ -1874,14 +1844,14 @@ upgradeWFs['DD4hepDB'].allowReuse = False
 
 class UpgradeWorkflow_DDDDB(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
-        if 'Run3' in stepDict[step][k]['--era']:
+        if 'Run3' in stepDict[step][k]['--era'] and 'Fast' not in stepDict[step][k]['--era']:
             # retain any other eras
             tmp_eras = stepDict[step][k]['--era'].split(',')
             tmp_eras[tmp_eras.index("Run3")] = 'Run3_DDD'
             tmp_eras = ','.join(tmp_eras)
             stepDict[stepName][k] = merge([{'--conditions': 'auto:phase1_2022_realistic_ddd', '--geometry': 'DB:Extended', '--era': tmp_eras}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return '2021' in key
+        return '2021' in key and 'FS' not in key
 upgradeWFs['DDDDB'] = UpgradeWorkflow_DDDDB(
     steps = [
         'GenSim',
@@ -2015,6 +1985,14 @@ upgradeProperties[2017] = {
         'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
         'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
     },
+    '2021FS' : {
+        'Geom' : 'DB:Extended',
+        'GT' : 'auto:phase1_2022_realistic',
+        'HLTmenu': '@relval2022',
+        'Era' : 'Run3_FastSim',
+        'BeamSpot': 'Realistic25ns13p6TeVEarly2022Collision',
+        'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
+    },
     '2021postEE' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2022_realistic_postEE',
@@ -2028,9 +2006,12 @@ upgradeProperties[2017] = {
 # standard PU sequences
 for key in list(upgradeProperties[2017].keys()):
     upgradeProperties[2017][key+'PU'] = deepcopy(upgradeProperties[2017][key])
-    upgradeProperties[2017][key+'PU']['ScenToRun'] = ['GenSim','DigiPU'] + \
-                                                     (['RecoNanoPU','HARVESTNanoPU'] if '202' in key else ['RecoFakeHLTPU','HARVESTFakeHLTPU']) + \
-                                                     (['Nano'] if 'Nano' in upgradeProperties[2017][key]['ScenToRun'] else [])
+    if "FS" not in key:
+        upgradeProperties[2017][key+'PU']['ScenToRun'] = ['GenSim','DigiPU'] + \
+                                                         (['RecoNanoPU','HARVESTNanoPU'] if '202' in key else ['RecoFakeHLTPU','HARVESTFakeHLTPU']) + \
+                                                         (['Nano'] if 'Nano' in upgradeProperties[2017][key]['ScenToRun'] else [])
+    else:
+        upgradeProperties[2017][key+'PU']['ScenToRun'] = ['Gen','FastSimRun3PU','HARVESTFastRun3PU']
 
 upgradeProperties[2026] = {
     '2026D49' : {
