@@ -29,15 +29,15 @@
 #include <iostream>
 
 // include ROOT
-#include "TH2F.h"
-#include "TLegend.h"
 #include "TCanvas.h"
-#include "TLine.h"
 #include "TGraph.h"
-#include "TStyle.h"
+#include "TH2F.h"
 #include "TLatex.h"
+#include "TLegend.h"
+#include "TLine.h"
 #include "TPave.h"
 #include "TPaveStats.h"
+#include "TStyle.h"
 
 namespace {
 
@@ -50,6 +50,7 @@ namespace {
         {"pixel geometry", "column geometry", "chip geometry", "PU", "invalid"}};
 
     using FactorMap = std::map<unsigned int, double>;
+    using PUFactorMap = std::map<unsigned int, std::vector<double> >;
 
     // constants for ROC level simulation for Phase1
     enum shiftEnumerator { FPixRocIdShift = 3, BPixRocIdShift = 6 };
@@ -143,7 +144,7 @@ namespace {
                                              const std::map<unsigned int, std::vector<double> >& map_pufactory,
                                              const std::vector<uint32_t>& detIdmasks) {
       std::vector<double> pufactors_db;
-      for (auto map_element : map_pufactory) {
+      for (const auto& map_element : map_pufactory) {
         const DetId mapid = DetId(map_element.first);
         if (mapid.subdetId() != detid.subdetId())
           continue;
@@ -162,6 +163,9 @@ namespace {
       }
       return pufactors_db;
     }
+
+    /* 
+    //(Not used for the moment)
 
     //_________________________________________________
     bool matches(const DetId& detid, const DetId& db_id, const std::vector<uint32_t>& DetIdmasks) {
@@ -194,6 +198,8 @@ namespace {
       }
       return false;
     }
+    
+    */
 
   }  // namespace SiPixDynIneff
 
@@ -502,7 +508,7 @@ namespace {
   using SiPixelFullIneffROCsMapCompareTwoTags = SiPixelIneffROCComparisonBase<SiPixelPI::t_all, SINGLE_IOV, 2>;
 
   /************************************************
-   Full Pixel Tracker Map class
+   Full Pixel Tracker Map class (for geometrical factors)
   *************************************************/
   template <SiPixDynIneff::factor theFactor>
   class SiPixelDynamicInefficiencyFullPixelMap : public PlotImage<SiPixelDynamicInefficiency, SINGLE_IOV> {
@@ -540,14 +546,18 @@ namespace {
 
         std::vector<uint32_t> detIdmasks_db = payload->getDetIdmasks();
 
-        if (!SiPixDynIneff::isPhase1(theMap, detIdmasks_db)) {
+        /*
+	  // in case there is need to filter on the phase
+
+	  if (!SiPixDynIneff::isPhase1(theMap, detIdmasks_db)) {
           edm::LogError(label_) << label_ << " maps are not supported for non-Phase1 Pixel geometries !";
           TCanvas canvas("Canv", "Canv", 1200, 1000);
           SiPixelPI::displayNotSupported(canvas, 0);
           std::string fileName(m_imageFileName);
           canvas.SaveAs(fileName.c_str());
           return false;
-        }
+	  }
+	*/
 
         SiPixelDetInfoFileReader reader =
             SiPixelDetInfoFileReader(edm::FileInPath(SiPixelDetInfoFileReader::kPh1DefaultFile).fullPath());
@@ -591,6 +601,113 @@ namespace {
   using SiPixelDynamicInefficiencyColGeomFactorMap = SiPixelDynamicInefficiencyFullPixelMap<SiPixDynIneff::colgeom>;
   using SiPixelDynamicInefficiencyChipGeomFactorMap = SiPixelDynamicInefficiencyFullPixelMap<SiPixDynIneff::chipgeom>;
 
+  /************************************************
+   Full Pixel Tracker Map class (for PU factors)
+  *************************************************/
+  class SiPixelDynamicInefficiencyPUPixelMaps : public PlotImage<SiPixelDynamicInefficiency, SINGLE_IOV> {
+  public:
+    SiPixelDynamicInefficiencyPUPixelMaps()
+        : PlotImage<SiPixelDynamicInefficiency, SINGLE_IOV>("SiPixelDynamicInefficiency Map") {
+      label_ = "SiPixelDynamicInefficiencyFullPixelMap";
+      payloadString = fmt::sprintf("%s Dynamic Inefficiency", SiPixDynIneff::factorString[SiPixDynIneff::pu]);
+    }
+
+    bool fill() override {
+      gStyle->SetPalette(1);
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
+      std::shared_ptr<SiPixelDynamicInefficiency> payload = this->fetchPayload(std::get<1>(iov));
+
+      if (payload.get()) {
+        std::vector<Phase1PixelSummaryMap> maps;
+
+        SiPixDynIneff::PUFactorMap theMap = payload->getPUFactors();
+        std::vector<uint32_t> detIdmasks_db = payload->getDetIdmasks();
+
+        unsigned int depth = maxDepthOfPUArray(theMap);
+
+        // create the maps
+        for (unsigned int i = 0; i < depth; i++) {
+          maps.emplace_back(
+              "", fmt::sprintf("%s, factor %i", payloadString, i), fmt::sprintf("%s, factor %i", payloadString, i));
+          maps[i].createTrackerBaseMap();
+        }
+
+        // retrieve the list of phase1 detids
+        const auto& reader =
+            SiPixelDetInfoFileReader(edm::FileInPath(SiPixelDetInfoFileReader::kPh1DefaultFile).fullPath());
+        const auto& p1detIds = reader.getAllDetIds();
+
+        // fill the maps
+        for (const auto& det : p1detIds) {
+          const auto& values = SiPixDynIneff::getMatchingPUFactors(det, theMap, detIdmasks_db);
+          int index = 0;
+          for (const auto& value : values) {
+            maps[index].fillTrackerMap(det, value);
+            index++;
+          }
+        }
+
+        // in case the map is completely filled with one value;
+        // set the z-axis to be meaningful
+        for (unsigned int i = 0; i < depth; i++) {
+          const auto& range = maps[i].getZAxisRange();
+          if (range.first == range.second) {
+            maps[i].setZAxisRange(range.first - 0.01, range.second + 0.01);
+          }
+        }
+
+        // determine how the plot will be paginated
+        auto sides = getClosestFactors(depth);
+        TCanvas canvas("Canv", "Canv", sides.second * 900, sides.first * 600);
+        canvas.Divide(sides.second, sides.first);
+
+        // print the sub-canvases
+        for (unsigned int i = 0; i < depth; i++) {
+          maps[i].printTrackerMap(canvas, 0.035, i + 1);
+          auto ltx = TLatex();
+          ltx.SetTextFont(62);
+          ltx.SetTextSize(0.025);
+          ltx.SetTextAlign(11);
+          ltx.DrawLatexNDC(
+              gPad->GetLeftMargin() + 0.01,
+              gPad->GetBottomMargin() + 0.01,
+              ("#color[4]{" + tag.name + "}, IOV: #color[4]{" + std::to_string(std::get<0>(iov)) + "}").c_str());
+        }
+
+        std::string fileName(this->m_imageFileName);
+        canvas.SaveAs(fileName.c_str());
+      }
+      return true;
+    }
+
+  protected:
+    std::string payloadString;
+    std::string label_;
+
+  private:
+    unsigned int maxDepthOfPUArray(const std::map<unsigned int, std::vector<double> >& map_pufactor) {
+      unsigned int size{0};
+      for (const auto& [id, vec] : map_pufactor) {
+        if (vec.size() > size)
+          size = vec.size();
+      }
+      return size;
+    }
+
+    std::pair<int, int> getClosestFactors(int input) {
+      if ((input % 2 != 0) && input > 1) {
+        input += 1;
+      }
+
+      int testNum = (int)sqrt(input);
+      while (input % testNum != 0) {
+        testNum--;
+      }
+      return std::make_pair(testNum, input / testNum);
+    }
+  };
+
 }  // namespace
 
 // Register the classes as boost python plugin
@@ -605,4 +722,5 @@ PAYLOAD_INSPECTOR_MODULE(SiPixelDynamicInefficiency) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelDynamicInefficiencyGeomFactorMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelDynamicInefficiencyColGeomFactorMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelDynamicInefficiencyChipGeomFactorMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelDynamicInefficiencyPUPixelMaps);
 }
