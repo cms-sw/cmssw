@@ -1,4 +1,4 @@
-1  TestDescriptionComments  (global::EDAnalyzer)  "pluginTestDescriptionComments.so"
+1  TestDescriptionComments  (global::EDAnalyzer)  "pluginFWCoreIntegrationTestPSet.so"
 
 This plugin has 1 PSet description. This description is always used to validate 
 configurations. The label below is used when generating the cfi file.
