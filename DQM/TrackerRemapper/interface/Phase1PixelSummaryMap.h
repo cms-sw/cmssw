@@ -77,7 +77,7 @@ public:
 
   void resetOption(const char* option);
   void createTrackerBaseMap();
-  void printTrackerMap(TCanvas& canvas, const float topMargin = 0.02);
+  void printTrackerMap(TCanvas& canvas, const float topMargin = 0.02, int index = 0);
   bool fillTrackerMap(unsigned int id, double value);
   void setZAxisRange(const double min, const double max);
   const std::pair<float, float> getZAxisRange() const;
