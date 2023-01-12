@@ -19,6 +19,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::detail {
                                     // all device backends need to be wrapped
                                     ESDeviceProduct<TProduct>>;
   };
+
+  template <typename TProduct>
+  inline constexpr bool useESProductDirectly = std::is_same_v<typename ESDeviceProductType<TProduct>::type, TProduct>;
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::detail
 
 #endif
