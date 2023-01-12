@@ -50,7 +50,7 @@ class HLTProcess(object):
 
     # get the configuration from ConfdB
     from .confdbOfflineConverter import OfflineConverter
-    self.converter = OfflineConverter(version = self.config.menu.version, database = self.config.menu.database, proxy = self.config.proxy, proxyHost = self.config.proxy_host, proxyPort = self.config.proxy_port)
+    self.converter = OfflineConverter(version = self.config.menu.version, database = self.config.menu.database, proxy = self.config.proxy, proxyHost = self.config.proxy_host, proxyPort = self.config.proxy_port, tunnel = self.config.tunnel, tunnelPort = self.config.tunnel_port)
     self.buildPathList()
     self.buildOptions()
     self.getSetupConfigurationFromDB()
