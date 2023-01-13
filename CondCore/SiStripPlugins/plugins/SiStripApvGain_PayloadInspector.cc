@@ -682,15 +682,12 @@ namespace {
       float G2default = 1.;
 
       int totalG1DefaultAPVs = 0;
-      int totalG2DefaultAPVs = 0;
 
       for (const auto& d : detid) {
         SiStripApvGain::Range range = payload->getRange(d);
         float sumOfGains = 0;
-        float nAPVsPerModule = 0.;
         int countDefaults = 0;
         for (int it = 0; it < range.second - range.first; it++) {
-          nAPVsPerModule += 1;
           sumOfGains += payload->getApvGain(it, range);
           if ((payload->getApvGain(it, range)) == G1default || (payload->getApvGain(it, range)) == G2default)
             countDefaults++;
@@ -701,8 +698,6 @@ namespace {
 
           if (std::fmod((sumOfGains / countDefaults), G1default) == 0.) {
             totalG1DefaultAPVs += countDefaults;
-          } else if (std::fmod((sumOfGains / countDefaults), G2default) == 0.) {
-            totalG2DefaultAPVs += countDefaults;
           }
         }
       }  // loop over detIds
