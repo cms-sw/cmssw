@@ -192,8 +192,6 @@ void HcalRecHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
   //  double cutHB = 0.9, cutHE = 1.4, cutHO = 1.1, cutHFL = 1.2, cutHFS = 1.8;
 
   // energy in HCAL
-  double eHcal = 0.;
-  double eHcalCone = 0.;
   double eHcalConeHB = 0.;
   double eHcalConeHE = 0.;
   double eHcalConeHO = 0.;
@@ -207,9 +205,6 @@ void HcalRecHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
   int nrechitsThresh = 0;
 
   // energy in ECAL
-  double eEcal = 0.;
-  double eEcalB = 0.;
-  double eEcalE = 0.;
   double eEcalCone = 0.;
   int numrechitsEcal = 0;
 
@@ -288,8 +283,6 @@ void HcalRecHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
         double eta = cellGeometry->getPosition().eta();
         double phi = cellGeometry->getPosition().phi();
         double en = RecHit->energy();
-        eEcal += en;
-        eEcalB += en;
 
         double r = dR(eta_MC, phi_MC, eta, phi);
         if (r < partR) {
@@ -312,8 +305,6 @@ void HcalRecHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
         double eta = cellGeometry->getPosition().eta();
         double phi = cellGeometry->getPosition().phi();
         double en = RecHit->energy();
-        eEcal += en;
-        eEcalE += en;
 
         double r = dR(eta_MC, phi_MC, eta, phi);
         if (r < partR) {
@@ -359,7 +350,6 @@ void HcalRecHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
         chi2_log10 = log10(chi2);
 
       nrechits++;
-      eHcal += en;
       if (en > 1.)
         nrechitsThresh++;
 
@@ -378,11 +368,9 @@ void HcalRecHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
           else
             eHcalConeHFS += en;
         }
-        eHcalCone += en;
         nrechitsCone++;
 
         HcalCone += en;
-
         // alternative: ietamax -> closest to MC eta  !!!
         float eta_diff = fabs(eta_MC - eta);
         if (eta_diff < etaMax) {
@@ -444,7 +432,6 @@ void HcalRecHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
     if (hcalHits.isValid()) {
       const PCaloHitContainer *SimHitResult = hcalHits.product();
 
-      double enSimHits = 0.;
       double enSimHitsHB = 0.;
       double enSimHitsHE = 0.;
       double enSimHitsHO = 0.;
@@ -481,7 +468,6 @@ void HcalRecHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
 
         if (r < partR) {  // just energy in the small cone
 
-          enSimHits += en;
           if (sub == static_cast<int>(HcalBarrel))
             enSimHitsHB += en;
           if (sub == static_cast<int>(HcalEndcap))

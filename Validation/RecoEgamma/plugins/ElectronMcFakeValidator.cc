@@ -2497,14 +2497,11 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
   // get a vector with EB  & EE
   //===============================================
   std::vector<reco::GsfElectron> localCollection;
-  int iBarrels = 0;
-  int iEndcaps = 0;
 
   // looking for EB
   for (gsfIter = gsfElectrons->begin(); gsfIter != gsfElectrons->end(); gsfIter++) {
     if (gsfIter->isEB()) {
       localCollection.push_back(*gsfIter);
-      iBarrels += 1;
     }
   }
 
@@ -2512,7 +2509,6 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
   for (gsfIter = gsfElectronsEndcaps->begin(); gsfIter != gsfElectronsEndcaps->end(); gsfIter++) {
     if (gsfIter->isEE()) {
       localCollection.push_back(*gsfIter);
-      iEndcaps += 1;
     }
   }
 
