@@ -69,9 +69,6 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
   }
 
   // Start of time computation
-  float tStart = startTime_ + GLOBAL_TIME_SHIFT;
-  float tStop = stopTime_ + GLOBAL_TIME_SHIFT;
-
   float t0 = startTime_ + GLOBAL_TIME_SHIFT;
   float t3 = stopTime_ + GLOBAL_TIME_SHIFT;
   float t2 = (t3 + t0) / 2;
