@@ -181,9 +181,9 @@ namespace sistrip {
 
   inline bool FEDBuffer::doChecks(bool doCRC) const {
     //check that all channels were unpacked properly
-    return (validChannels_ == FEDCH_PER_FED) &
+    return (validChannels_ == FEDCH_PER_FED) &&
            //do checks from base class
-           (FEDBufferBase::doChecks()) &
+           (FEDBufferBase::doChecks()) &&
            // check crc if required
            (!doCRC || checkCRC());
   }
