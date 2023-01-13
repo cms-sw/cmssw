@@ -71,10 +71,9 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
   // Start of time computation
   float tStart = startTime_ + GLOBAL_TIME_SHIFT;
   float tStop = stopTime_ + GLOBAL_TIME_SHIFT;
-  float tM = (tStart + tStop) / 2;
 
-  float t0 = tStart;
-  float t3 = tStop;
+  float t0 = startTime_ + GLOBAL_TIME_SHIFT;
+  float t3 = stopTime_ + GLOBAL_TIME_SHIFT;
   float t2 = (t3 + t0) / 2;
   float t1 = t2 - ONE_MINUS_GOLDEN_RATIO * (t3 - t0);
 
@@ -85,7 +84,7 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
   float cc2 = computeCC(pedSubSamples, fullpulse, t2);
   ++counter;
 
-  while (abs(t3 - t0) > targetTimePrecision && counter < MAX_NUM_OF_ITERATIONS) {
+  while (std::abs(t3 - t0) > targetTimePrecision && counter < MAX_NUM_OF_ITERATIONS) {
     if (cc2 > cc1) {
       t0 = t1;
       t1 = t2;
@@ -103,8 +102,8 @@ double EcalUncalibRecHitTimingCCAlgo::computeTimeCC(const EcalDataFrame& dataFra
     }
   }
 
-  tM = (t3 + t0) / 2 - GLOBAL_TIME_SHIFT;
-  errOnTime = abs(t3 - t0) / ecalPh1::Samp_Period;
+  float tM = (t3 + t0) / 2 - GLOBAL_TIME_SHIFT;
+  errOnTime = std::abs(t3 - t0) / ecalPh1::Samp_Period;
 
   if (counter < MIN_NUM_OF_ITERATIONS || counter > MAX_NUM_OF_ITERATIONS - 1) {
     tM = TIME_WHEN_NOT_CONVERGING * ecalPh1::Samp_Period;
