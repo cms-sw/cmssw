@@ -27,12 +27,25 @@ using namespace edm::shared_memory;
 //
 // constructors and destructor
 //
+WriteBuffer::SMOwner::SMOwner(std::string const& iName, std::size_t iLength) : name_(iName) {
+  //do a remove first just in case a previous job had a failure and left a same named
+  // memory object
+  boost::interprocess::shared_memory_object::remove(iName.c_str());
+  sm_ = std::make_unique<boost::interprocess::managed_shared_memory>(
+      boost::interprocess::create_only, iName.c_str(), iLength);
+}
+
+WriteBuffer::SMOwner::~SMOwner() {
+  if (sm_) {
+    boost::interprocess::shared_memory_object::remove(name_.c_str());
+  }
+}
+
+void WriteBuffer::SMOwner::reset() { *this = SMOwner(); }
 
 WriteBuffer::~WriteBuffer() {
   if (sm_) {
     sm_->destroy<char>(buffer_names::kBuffer);
-    sm_.reset();
-    boost::interprocess::shared_memory_object::remove(bufferNames_[bufferInfo_->index_].c_str());
   }
 }
 //
@@ -51,9 +64,8 @@ void WriteBuffer::growBuffer(std::size_t iLength) {
           << "in growBuffer while destroying the shared memory object the following exception was caught\n"
           << iExcept.what();
     }
-    sm_.reset();
     try {
-      boost::interprocess::shared_memory_object::remove(bufferNames_[bufferInfo_->index_].c_str());
+      sm_.reset();
     } catch (boost::interprocess::interprocess_exception const& iExcept) {
       throw cms::Exception("SharedMemory")
           << "in growBuffer while removing the shared memory object named '" << bufferNames_[bufferInfo_->index_]
@@ -62,8 +74,7 @@ void WriteBuffer::growBuffer(std::size_t iLength) {
     }
   }
   try {
-    sm_ = std::make_unique<boost::interprocess::managed_shared_memory>(
-        boost::interprocess::open_or_create, bufferNames_[newBuffer].c_str(), iLength + 1024);
+    sm_ = SMOwner(bufferNames_[newBuffer], iLength + 1024);
   } catch (boost::interprocess::interprocess_exception const& iExcept) {
     throw cms::Exception("SharedMemory") << "in growBuffer while creating the shared memory object '"
                                          << bufferNames_[newBuffer] << "' of length " << iLength + 1024
