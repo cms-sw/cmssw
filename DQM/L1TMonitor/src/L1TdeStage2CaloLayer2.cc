@@ -454,15 +454,15 @@ bool L1TdeStage2CaloLayer2::compareJets(const edm::Handle<l1t::JetBxCollection>&
       if (etGood && !posGood) {
         l1t::JetBxCollection::const_iterator emulItCheckSort;
         for (emulItCheckSort = emulCol->begin(currBx); emulItCheckSort != emulCol->end(currBx); ++emulItCheckSort) {
-	  if (dataIt->hwPt() == emulItCheckSort->hwPt() && dataIt->hwPhi() == emulItCheckSort->hwPhi() &&
-	      dataIt->hwEta() == emulItCheckSort->hwEta()){
-	    posGood = true;
-	    if (dataIt->hwQual() == emulItCheckSort->hwQual())
-	      qualGood = true;
-	    else
-	      qualGood = false;
-	  }
-	}
+          if (dataIt->hwPt() == emulItCheckSort->hwPt() && dataIt->hwPhi() == emulItCheckSort->hwPhi() &&
+              dataIt->hwEta() == emulItCheckSort->hwEta()) {
+            posGood = true;
+            if (dataIt->hwQual() == emulItCheckSort->hwQual())
+              qualGood = true;
+            else
+              qualGood = false;
+          }
+        }
       }
 
       // if position, energy & qual agree, jet is good
@@ -470,7 +470,7 @@ bool L1TdeStage2CaloLayer2::compareJets(const edm::Handle<l1t::JetBxCollection>&
         agreementSummary->Fill(JETGOOD_S);
         jetSummary->Fill(JETGOOD);
       } else {
-	eventGood = false;
+        eventGood = false;
         jetEtData->Fill(dataIt->hwPt());
         jetEtaData->Fill(dataIt->hwEta());
         jetPhiData->Fill(dataIt->hwPhi());
@@ -565,7 +565,7 @@ bool L1TdeStage2CaloLayer2::compareEGs(const edm::Handle<l1t::EGammaBxCollection
           if (enable2DComp)
             eg2DEtaPhiData->Fill(dataIt->eta(), dataIt->phi());
         }
-	egIsoData->Fill(dataIt->hwIso());
+        egIsoData->Fill(dataIt->hwIso());
 
         ++dataIt;
 
@@ -591,7 +591,7 @@ bool L1TdeStage2CaloLayer2::compareEGs(const edm::Handle<l1t::EGammaBxCollection
           if (enable2DComp)
             eg2DEtaPhiEmul->Fill(emulIt->eta(), emulIt->phi());
         }
-	egIsoEmul->Fill(emulIt->hwIso());
+        egIsoEmul->Fill(emulIt->hwIso());
         ++emulIt;
 
         if (emulIt == emulCol->end(currBx))
@@ -635,15 +635,15 @@ bool L1TdeStage2CaloLayer2::compareEGs(const edm::Handle<l1t::EGammaBxCollection
       if (etGood && !posGood) {
         l1t::EGammaBxCollection::const_iterator emulItCheckSort;
         for (emulItCheckSort = emulCol->begin(currBx); emulItCheckSort != emulCol->end(currBx); ++emulItCheckSort) {
-	  if (dataIt->hwPt() == emulItCheckSort->hwPt() && dataIt->hwPhi() == emulItCheckSort->hwPhi() &&
-	      dataIt->hwEta() == emulItCheckSort->hwEta()){
-	    posGood = true;
-	    if (dataIt->hwIso() == emulItCheckSort->hwIso())
-	      isoGood = true;
-	    else
-	      isoGood = false;
-	  }
-	}
+          if (dataIt->hwPt() == emulItCheckSort->hwPt() && dataIt->hwPhi() == emulItCheckSort->hwPhi() &&
+              dataIt->hwEta() == emulItCheckSort->hwEta()) {
+            posGood = true;
+            if (dataIt->hwIso() == emulItCheckSort->hwIso())
+              isoGood = true;
+            else
+              isoGood = false;
+          }
+        }
       }
 
       // if position, energy and isolation agree, object is good
@@ -657,7 +657,7 @@ bool L1TdeStage2CaloLayer2::compareEGs(const edm::Handle<l1t::EGammaBxCollection
         }
 
       } else {
-	eventGood = false;
+        eventGood = false;
         if (hwIso) {
           isoEgEtData->Fill(dataIt->hwPt());
           isoEgEtaData->Fill(dataIt->hwEta());
@@ -683,8 +683,8 @@ bool L1TdeStage2CaloLayer2::compareEGs(const edm::Handle<l1t::EGammaBxCollection
           if (enable2DComp)
             eg2DEtaPhiEmul->Fill(emulIt->eta(), emulIt->phi());
         }
-	egIsoData->Fill(dataIt->hwIso());
-	egIsoEmul->Fill(emulIt->hwIso());
+        egIsoData->Fill(dataIt->hwIso());
+        egIsoEmul->Fill(emulIt->hwIso());
 
         if (verbose) {
           edm::LogInfo("L1TdeStage2CaloLayer2") << "--- eg ---" << std::endl;
@@ -720,7 +720,7 @@ bool L1TdeStage2CaloLayer2::compareEGs(const edm::Handle<l1t::EGammaBxCollection
 
       // if only isolation wrong
       if (posGood && etGood && !isoGood) {
-	egSummary->Fill(EGISOOFF);
+        egSummary->Fill(EGISOOFF);
       }
 
       // keep track of number of objects
@@ -780,7 +780,7 @@ bool L1TdeStage2CaloLayer2::compareTaus(const edm::Handle<l1t::TauBxCollection>&
           if (enable2DComp)
             tau2DEtaPhiData->Fill(dataIt->eta(), dataIt->phi());
         }
-	tauIsoData->Fill(dataIt->hwIso());
+        tauIsoData->Fill(dataIt->hwIso());
 
         ++dataIt;
 
@@ -809,7 +809,7 @@ bool L1TdeStage2CaloLayer2::compareTaus(const edm::Handle<l1t::TauBxCollection>&
           if (enable2DComp)
             tau2DEtaPhiEmul->Fill(emulIt->eta(), emulIt->phi());
         }
-	tauIsoEmul->Fill(emulIt->hwIso());
+        tauIsoEmul->Fill(emulIt->hwIso());
 
         ++emulIt;
 
@@ -854,15 +854,15 @@ bool L1TdeStage2CaloLayer2::compareTaus(const edm::Handle<l1t::TauBxCollection>&
       if (etGood && !posGood) {
         l1t::TauBxCollection::const_iterator emulItCheckSort;
         for (emulItCheckSort = emulCol->begin(currBx); emulItCheckSort != emulCol->end(currBx); ++emulItCheckSort) {
-	  if (dataIt->hwPt() == emulItCheckSort->hwPt() && dataIt->hwPhi() == emulItCheckSort->hwPhi() &&
-	      dataIt->hwEta() == emulItCheckSort->hwEta()){
-	    posGood = true;
-	    if (dataIt->hwIso() == emulItCheckSort->hwIso())
-	      isoGood = true;
-	    else
-	      isoGood = false;
-	  }
-	}
+          if (dataIt->hwPt() == emulItCheckSort->hwPt() && dataIt->hwPhi() == emulItCheckSort->hwPhi() &&
+              dataIt->hwEta() == emulItCheckSort->hwEta()) {
+            posGood = true;
+            if (dataIt->hwIso() == emulItCheckSort->hwIso())
+              isoGood = true;
+            else
+              isoGood = false;
+          }
+        }
       }
 
       // if position, energy and isolation agree, object is good
@@ -875,7 +875,7 @@ bool L1TdeStage2CaloLayer2::compareTaus(const edm::Handle<l1t::TauBxCollection>&
           tauSummary->Fill(TAUGOOD);
         }
       } else {
-	eventGood = false;
+        eventGood = false;
         if (hwIso) {
           isoTauEtData->Fill(dataIt->hwPt());
           isoTauEtaData->Fill(dataIt->hwEta());
@@ -902,8 +902,8 @@ bool L1TdeStage2CaloLayer2::compareTaus(const edm::Handle<l1t::TauBxCollection>&
           if (enable2DComp)
             tau2DEtaPhiEmul->Fill(emulIt->eta(), emulIt->phi());
         }
-	tauIsoData->Fill(dataIt->hwIso());
-	tauIsoEmul->Fill(emulIt->hwIso());
+        tauIsoData->Fill(dataIt->hwIso());
+        tauIsoEmul->Fill(emulIt->hwIso());
 
         if (verbose) {
           edm::LogInfo("L1TdeStage2CaloLayer2") << "--- tau ---" << std::endl;
@@ -939,7 +939,7 @@ bool L1TdeStage2CaloLayer2::compareTaus(const edm::Handle<l1t::TauBxCollection>&
 
       // if only isolation is wrong
       if (posGood && etGood && !isoGood) {
-          tauSummary->Fill(TAUISOOFF);
+        tauSummary->Fill(TAUISOOFF);
       }
 
       // keep track of number of objects
