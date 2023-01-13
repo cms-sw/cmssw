@@ -165,13 +165,8 @@ QGLVARS = cms.PSet(
 )
 BTAGVARS = cms.PSet(
   btagDeepB = Var("?(pt>=15)&&((bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb'))>=0)?bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb'):-1",float,doc="DeepCSV b+bb tag discriminator",precision=10),
-  btagCSVV2 = Var("?(pt>=15)?bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags'):-1",float,doc=" pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)",precision=10),
   btagDeepCvL = Var("?(pt>=15)&&(bDiscriminator('pfDeepCSVJetTags:probc')>=0)?bDiscriminator('pfDeepCSVJetTags:probc')/(bDiscriminator('pfDeepCSVJetTags:probc')+bDiscriminator('pfDeepCSVJetTags:probudsg')):-1", float,doc="DeepCSV c vs udsg discriminator",precision=10),
   btagDeepCvB = Var("?(pt>=15)&&bDiscriminator('pfDeepCSVJetTags:probc')>=0?bDiscriminator('pfDeepCSVJetTags:probc')/(bDiscriminator('pfDeepCSVJetTags:probc')+bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb')):-1",float,doc="DeepCSV c vs b+bb discriminator",precision=10),
-)
-
-run3_common.toModify(
-    BTAGVARS, btagCSVV2 = None
 )
 
 DEEPJETVARS = cms.PSet(
@@ -369,7 +364,6 @@ def AddBTaggingScores(proc, jetTableName=""):
   """
 
   getattr(proc, jetTableName).variables.btagDeepB       = BTAGVARS.btagDeepB
-  getattr(proc, jetTableName).variables.btagCSVV2       = BTAGVARS.btagCSVV2
   getattr(proc, jetTableName).variables.btagDeepCvL     = BTAGVARS.btagDeepCvL
   getattr(proc, jetTableName).variables.btagDeepCvB     = BTAGVARS.btagDeepCvB
   getattr(proc, jetTableName).variables.btagDeepFlavB   = DEEPJETVARS.btagDeepFlavB
@@ -686,7 +680,6 @@ def ReclusterAK4PuppiJets(proc, recoJA, runOnMC):
   # Save standard b-tagging and c-tagging variables
   #
   proc.jetPuppiTable.variables.btagDeepB = BTAGVARS.btagDeepB
-  proc.jetPuppiTable.variables.btagCSVV2 = BTAGVARS.btagCSVV2
   proc.jetPuppiTable.variables.btagDeepCvL = BTAGVARS.btagDeepCvL
   proc.jetPuppiTable.variables.btagDeepCvB = BTAGVARS.btagDeepCvB
   #
@@ -861,7 +854,6 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   # Save standard b-tagging and c-tagging variables
   #
   proc.jetTable.variables.btagDeepB = BTAGVARS.btagDeepB
-  proc.jetTable.variables.btagCSVV2 = BTAGVARS.btagCSVV2
   proc.jetTable.variables.btagDeepCvL = BTAGVARS.btagDeepCvL
   proc.jetTable.variables.btagDeepCvB = BTAGVARS.btagDeepCvB
   #
