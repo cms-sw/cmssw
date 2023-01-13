@@ -164,14 +164,14 @@ private:
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testCallback);
 
-template <typename P, typename F>
-using UniquePtrCallbackT = Callback<P, F, std::unique_ptr<Data>, Record>;
+template <typename P, typename A, typename F>
+using UniquePtrCallbackT = Callback<P, A, F, std::unique_ptr<Data>, Record>;
 
 void testCallback::uniquePtrTest() {
   UniquePtrProd prod;
 
   auto func = [&prod](Record const& rec) { return prod.method(rec); };
-  using UniquePtrCallback = UniquePtrCallbackT<UniquePtrProd, decltype(func)>;
+  using UniquePtrCallback = UniquePtrCallbackT<UniquePtrProd, DummyAcquireFunctor<Record>, decltype(func)>;
   UniquePtrCallback callback(&prod, func, 0);
   std::unique_ptr<Data> handle;
   callback.holdOntoPointer(&handle);
@@ -224,15 +224,15 @@ void testCallback::uniquePtrTest() {
   CPPUNIT_ASSERT(handle->value_ == 5);
 }
 
-template <typename P, typename F>
-using SharedPtrCallbackT = Callback<P, F, std::shared_ptr<Data>, Record>;
+template <typename P, typename A, typename F>
+using SharedPtrCallbackT = Callback<P, A, F, std::shared_ptr<Data>, Record>;
 
 void testCallback::sharedPtrTest() {
   SharedPtrProd prod;
 
   auto func = [&prod](Record const& rec) { return prod.method(rec); };
 
-  using SharedPtrCallback = SharedPtrCallbackT<SharedPtrProd, decltype(func)>;
+  using SharedPtrCallback = SharedPtrCallbackT<SharedPtrProd, DummyAcquireFunctor<Record>, decltype(func)>;
   SharedPtrCallback callback(&prod, func, 0);
   std::shared_ptr<Data> handle;
 
@@ -256,15 +256,15 @@ void testCallback::sharedPtrTest() {
   CPPUNIT_ASSERT(prod.ptr_->value_ == 2);
 }
 
-template <typename P, typename F>
-using OptionalCallbackT = Callback<P, F, std::optional<Data>, Record>;
+template <typename P, typename A, typename F>
+using OptionalCallbackT = Callback<P, A, F, std::optional<Data>, Record>;
 
 void testCallback::optionalTest() {
   OptionalProd prod;
 
   auto func = [&prod](Record const& rec) { return prod.method(rec); };
 
-  using OptionalCallback = OptionalCallbackT<OptionalProd, decltype(func)>;
+  using OptionalCallback = OptionalCallbackT<OptionalProd, DummyAcquireFunctor<Record>, decltype(func)>;
   OptionalCallback callback(&prod, func, 0);
   std::optional<Data> handle;
 
@@ -291,15 +291,15 @@ void testCallback::optionalTest() {
   CPPUNIT_ASSERT(prod.value_ == handle->value_);
 }
 
-template <typename P, typename F>
-using PtrProductsCallbackT = Callback<P, F, edm::ESProducts<std::shared_ptr<Data>, std::shared_ptr<Double>>, Record>;
+template <typename P, typename A, typename F>
+using PtrProductsCallbackT = Callback<P, A, F, edm::ESProducts<std::shared_ptr<Data>, std::shared_ptr<Double>>, Record>;
 
 void testCallback::ptrProductsTest() {
   PtrProductsProd prod;
 
   auto func = [&prod](Record const& rec) { return prod.method(rec); };
 
-  using PtrProductsCallback = PtrProductsCallbackT<PtrProductsProd, decltype(func)>;
+  using PtrProductsCallback = PtrProductsCallbackT<PtrProductsProd, DummyAcquireFunctor<Record>, decltype(func)>;
   PtrProductsCallback callback(&prod, func, 0);
   std::shared_ptr<Data> handle;
   std::shared_ptr<Double> doubleHandle;
@@ -331,7 +331,7 @@ void testCallback::uniquePtrLambdaTest() {
 
   int value = 0;
   auto func = [&value](Record const& rec) mutable { return std::make_unique<Data>(++value); };
-  using UniquePtrCallback = UniquePtrCallbackT<Base, decltype(func)>;
+  using UniquePtrCallback = UniquePtrCallbackT<Base, DummyAcquireFunctor<Record>, decltype(func)>;
   UniquePtrCallback callback(&prod, func, 0);
   std::unique_ptr<Data> handle;
   callback.holdOntoPointer(&handle);
@@ -388,7 +388,7 @@ void testCallback::uniquePtrLambdaCaptureTest() {
   Base prod;
 
   auto func = [value = int(0)](Record const& rec) mutable { return std::make_unique<Data>(++value); };
-  using UniquePtrCallback = UniquePtrCallbackT<Base, decltype(func)>;
+  using UniquePtrCallback = UniquePtrCallbackT<Base, DummyAcquireFunctor<Record>, decltype(func)>;
   UniquePtrCallback callback(&prod, func, 0);
   std::unique_ptr<Data> handle;
   callback.holdOntoPointer(&handle);
@@ -444,7 +444,7 @@ void testCallback::sharedPtrLambdaTest() {
     return ptr;
   };
 
-  using SharedPtrCallback = SharedPtrCallbackT<Base, decltype(func)>;
+  using SharedPtrCallback = SharedPtrCallbackT<Base, DummyAcquireFunctor<Record>, decltype(func)>;
   SharedPtrCallback callback(&prod, func, 0);
   std::shared_ptr<Data> handle;
 
@@ -474,7 +474,7 @@ void testCallback::optionalLambdaTest() {
   int value = 0;
   auto func = [&value](Record const& rec) { return std::optional<Data>(++value); };
 
-  using OptionalCallback = OptionalCallbackT<Base, decltype(func)>;
+  using OptionalCallback = OptionalCallbackT<Base, DummyAcquireFunctor<Record>, decltype(func)>;
   OptionalCallback callback(&prod, func, 0);
   std::optional<Data> handle;
 
@@ -513,7 +513,7 @@ void testCallback::ptrProductsLambdaTest() {
     return edm::es::products(dataT, doubleT);
   };
 
-  using PtrProductsCallback = PtrProductsCallbackT<Base, decltype(func)>;
+  using PtrProductsCallback = PtrProductsCallbackT<Base, DummyAcquireFunctor<Record>, decltype(func)>;
   PtrProductsCallback callback(&prod, func, 0);
   std::shared_ptr<Data> handle;
   std::shared_ptr<Double> doubleHandle;

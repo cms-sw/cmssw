@@ -18,19 +18,31 @@
 // Created:     Sun Apr 17 14:30:24 EDT 2005
 //
 
-// system include files
 #include <array>
+#include <exception>
+#include <memory>
+#include <optional>
+#include <utility>
 #include <vector>
 #include <type_traits>
 #include <atomic>
-// user include files
+
+#include "oneapi/tbb/task_group.h"
+
 #include "FWCore/Framework/interface/produce_helpers.h"
 #include "FWCore/Framework/interface/EventSetupImpl.h"
+#include "FWCore/Framework/interface/EventSetupRecordImpl.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 #include "FWCore/Utilities/interface/ESIndices.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
+#include "FWCore/Utilities/interface/Signal.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "FWCore/Concurrency/interface/SerialTaskQueueChain.h"
+#include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
@@ -40,7 +52,6 @@ namespace edm {
   void exceptionContext(cms::Exception&, ESModuleCallingContext const&);
 
   namespace eventsetup {
-    class EventSetupRecordImpl;
 
     // The default decorator that does nothing
     template <typename TRecord>
@@ -49,30 +60,248 @@ namespace edm {
       void post(const TRecord&) {}
     };
 
-    template <typename T,          //producer's type
-              typename TFunc,      //functor type
-              typename TReturn,    //return type of the producer's method
-              typename TRecord,    //the record passed in as an argument
-              typename TDecorator  //allows customization using pre/post calls
+    template <typename TRecord>
+    class DummyAcquireFunctor {
+    public:
+      void operator()(TRecord const&, WaitingTaskWithArenaHolder) {}
+    };
+
+    template <typename T,             //producer's type
+              typename TAcquireFunc,  //acquire functor type
+              typename TProduceFunc,  //produce functor type
+              typename TReturn,       //return type of the producer's method
+              typename TRecord,       //the record passed in as an argument
+              typename TDecorator     //allows customization using pre/post calls
               = CallbackSimpleDecorator<TRecord>>
     class Callback {
     public:
-      Callback(T* iProd, TFunc iFunc, unsigned int iID, const TDecorator& iDec = TDecorator())
-          : Callback(iProd, std::make_shared<TFunc>(std::move(iFunc)), iID, iDec) {}
+      Callback(T* iProd, TProduceFunc iProduceFunc, unsigned int iID, const TDecorator& iDec = TDecorator())
+          : Callback(iProd,
+                     std::shared_ptr<TAcquireFunc>(),
+                     std::make_shared<TProduceFunc>(std::move(iProduceFunc)),
+                     iID,
+                     iDec) {}
 
-      Callback(T* iProd, std::shared_ptr<TFunc> iFunc, unsigned int iID, const TDecorator& iDec = TDecorator())
+      Callback(T* iProd,
+               TAcquireFunc iAcquireFunc,
+               TProduceFunc iProduceFunc,
+               unsigned int iID,
+               const TDecorator& iDec = TDecorator())
+          : Callback(iProd,
+                     std::make_shared<TAcquireFunc>(std::move(iAcquireFunc)),
+                     std::make_shared<TProduceFunc>(std::move(iProduceFunc)),
+                     iID,
+                     iDec) {}
+
+      Callback(T* iProd,
+               std::shared_ptr<TAcquireFunc> iAcquireFunc,
+               std::shared_ptr<TProduceFunc> iProduceFunc,
+               unsigned int iID,
+               const TDecorator& iDec = TDecorator())
           : proxyData_{},
             producer_(iProd),
             callingContext_(&iProd->description()),
-            function_(std::move(iFunc)),
+            acquireFunction_(std::move(iAcquireFunc)),
+            produceFunction_(std::move(iProduceFunc)),
             id_(iID),
             wasCalledForThisRecord_(false),
             decorator_(iDec) {}
 
-      Callback* clone() { return new Callback(producer_.get(), function_, id_, decorator_); }
+      Callback* clone() { return new Callback(producer_.get(), acquireFunction_, produceFunction_, id_, decorator_); }
 
       Callback(const Callback&) = delete;
       const Callback& operator=(const Callback&) = delete;
+
+      class ESProduceTask : public WaitingTask {
+      public:
+        ESProduceTask(Callback* iCallback,
+                      oneapi::tbb::task_group* iGroup,
+                      ServiceToken const& iServiceToken,
+                      EventSetupRecordImpl const* iRecord,
+                      EventSetupImpl const* iEventSetupImpl)
+            : callback_(iCallback),
+              group_(iGroup),
+              serviceToken_(iServiceToken),
+              record_(iRecord),
+              eventSetupImpl_(iEventSetupImpl) {}
+
+        void execute() final {
+          auto excptr = exceptionPtr();
+          if (!callback_->acquireFunction_) {
+            CMS_SA_ALLOW try {
+              convertException::wrap([this] {
+                ServiceRegistry::Operate guard(serviceToken_.lock());
+                record_->activityRegistry()->postESModulePrefetchingSignal_.emit(record_->key(),
+                                                                                 callback_->callingContext_);
+              });
+            } catch (cms::Exception& iException) {
+              if (not excptr) {
+                edm::exceptionContext(iException, callback_->callingContext_);
+                excptr = std::current_exception();
+              }
+            }
+          }
+          if (excptr) {
+            callback_->taskList_.doneWaiting(excptr);
+            return;
+          }
+
+          callback_->producer_->queue().push(
+              *group_,
+              [callback = callback_,
+               serviceToken = std::move(serviceToken_),
+               record = record_,
+               eventSetupImpl = eventSetupImpl_]() {
+                callback->callingContext_.setState(ESModuleCallingContext::State::kRunning);
+                std::exception_ptr exceptPtr;
+                try {
+                  convertException::wrap([&callback, &serviceToken, &record, &eventSetupImpl] {
+                    ESModuleCallingContext const& context = callback->callingContext_;
+                    auto proxies = callback->getTokenIndices();
+                    if (callback->postMayGetProxies_) {
+                      proxies = &((*callback->postMayGetProxies_).front());
+                    }
+                    TRecord rec;
+                    edm::ESParentContext pc{&context};
+                    rec.setImpl(record, callback->transitionID(), proxies, eventSetupImpl, &pc);
+                    ServiceRegistry::Operate operate(serviceToken.lock());
+                    record->activityRegistry()->preESModuleSignal_.emit(record->key(), context);
+                    struct EndGuard {
+                      EndGuard(EventSetupRecordImpl const* iRecord, ESModuleCallingContext const& iContext)
+                          : record_{iRecord}, context_{iContext} {}
+                      ~EndGuard() { record_->activityRegistry()->postESModuleSignal_.emit(record_->key(), context_); }
+                      EventSetupRecordImpl const* record_;
+                      ESModuleCallingContext const& context_;
+                    };
+                    EndGuard guard(record, context);
+                    callback->decorator_.pre(rec);
+                    callback->storeReturnedValues((*callback->produceFunction_)(rec));
+                    callback->decorator_.post(rec);
+                  });
+                } catch (cms::Exception& iException) {
+                  edm::exceptionContext(iException, callback->callingContext_);
+                  exceptPtr = std::current_exception();
+                }
+                callback->taskList_.doneWaiting(exceptPtr);
+              });
+        }
+
+      private:
+        Callback* callback_;
+        oneapi::tbb::task_group* group_;
+        ServiceWeakToken serviceToken_;
+        EventSetupRecordImpl const* record_;
+        EventSetupImpl const* eventSetupImpl_;
+      };
+
+      class ESAcquireTask : public WaitingTask {
+      public:
+        ESAcquireTask(Callback* iCallback,
+                      WaitingTaskWithArenaHolder iHolder,
+                      ServiceToken const& iServiceToken,
+                      EventSetupRecordImpl const* iRecord,
+                      EventSetupImpl const* iEventSetupImpl)
+            : callback_(iCallback),
+              holder_(std::move(iHolder)),
+              serviceToken_(iServiceToken),
+              record_(iRecord),
+              eventSetupImpl_(iEventSetupImpl) {}
+
+        void execute() final {
+          auto excptr = exceptionPtr();
+          CMS_SA_ALLOW try {
+            convertException::wrap([this] {
+              ServiceRegistry::Operate guard(serviceToken_.lock());
+              record_->activityRegistry()->postESModulePrefetchingSignal_.emit(record_->key(),
+                                                                               callback_->callingContext_);
+            });
+          } catch (cms::Exception& iException) {
+            if (not excptr) {
+              edm::exceptionContext(iException, callback_->callingContext_);
+              excptr = std::current_exception();
+            }
+          }
+          if (excptr) {
+            holder_.doneWaiting(excptr);
+            return;
+          }
+
+          auto group = holder_.group();
+          callback_->producer_->queue().push(
+              *group,
+              [callback = callback_,
+               holder = std::move(holder_),
+               serviceToken = std::move(serviceToken_),
+               record = record_,
+               eventSetupImpl = eventSetupImpl_]() mutable {
+                callback->callingContext_.setState(ESModuleCallingContext::State::kRunning);
+                std::exception_ptr exceptPtr;
+                try {
+                  convertException::wrap([&callback, &holder, &serviceToken, &record, &eventSetupImpl] {
+                    ESModuleCallingContext const& context = callback->callingContext_;
+                    auto proxies = callback->getTokenIndices();
+                    if (callback->postMayGetProxies_) {
+                      proxies = &((*callback->postMayGetProxies_).front());
+                    }
+                    TRecord rec;
+                    edm::ESParentContext pc{&context};
+                    rec.setImpl(record, callback->transitionID(), proxies, eventSetupImpl, &pc);
+                    ServiceRegistry::Operate operate(serviceToken.lock());
+                    record->activityRegistry()->preESModuleAcquireSignal_.emit(record->key(), context);
+                    struct EndGuard {
+                      EndGuard(EventSetupRecordImpl const* iRecord, ESModuleCallingContext const& iContext)
+                          : record_{iRecord}, context_{iContext} {}
+                      ~EndGuard() {
+                        record_->activityRegistry()->postESModuleAcquireSignal_.emit(record_->key(), context_);
+                      }
+                      EventSetupRecordImpl const* record_;
+                      ESModuleCallingContext const& context_;
+                    };
+                    EndGuard guard(record, context);
+                    (*callback->acquireFunction_)(rec, holder);
+                  });
+                } catch (cms::Exception& iException) {
+                  iException.addContext("Running acquire");
+                  exceptPtr = std::current_exception();
+                }
+                holder.doneWaiting(exceptPtr);
+              });
+        }
+
+      private:
+        Callback* callback_;
+        WaitingTaskWithArenaHolder holder_;
+        ServiceWeakToken serviceToken_;
+        EventSetupRecordImpl const* record_;
+        EventSetupImpl const* eventSetupImpl_;
+      };
+
+      class HandleESExternalWorkExceptionTask : public WaitingTask {
+      public:
+        HandleESExternalWorkExceptionTask(Callback* callback,
+                                          oneapi::tbb::task_group* group,
+                                          WaitingTask* esProduceTask)
+            : callback_(callback), group_(group), esProduceTask_(esProduceTask) {}
+
+        void execute() final {
+          auto excptr = exceptionPtr();
+          WaitingTaskHolder holder(*group_, esProduceTask_);
+          if (excptr) {
+            try {
+              convertException::wrap([excptr]() { std::rethrow_exception(excptr); });
+            } catch (cms::Exception& exception) {
+              exception.addContext("Running acquire and external work");
+              edm::exceptionContext(exception, callback_->callingContext_);
+              holder.doneWaiting(std::current_exception());
+            }
+          }
+        }
+
+      private:
+        Callback* callback_;
+        oneapi::tbb::task_group* group_;
+        WaitingTask* esProduceTask_;
+      };
 
       void prefetchAsync(WaitingTaskHolder iTask,
                          EventSetupRecordImpl const* iRecord,
@@ -84,40 +313,39 @@ namespace edm {
         taskList_.add(iTask);
         auto group = iTask.group();
         if (doPrefetch) {
+          WaitingTask* runModuleTask = new ESProduceTask(this, group, token, iRecord, iEventSetupImpl);
+          if (acquireFunction_) {
+            WaitingTaskWithArenaHolder waitingTaskWithArenaHolder(
+                *group, new HandleESExternalWorkExceptionTask(this, group, runModuleTask));
+            runModuleTask =
+                new ESAcquireTask(this, std::move(waitingTaskWithArenaHolder), token, iRecord, iEventSetupImpl);
+          }
+          WaitingTaskHolder runModuleTaskHolder(*group, runModuleTask);
+
           callingContext_.setContext(ESModuleCallingContext::State::kPrefetching, iParent);
           iRecord->activityRegistry()->preESModulePrefetchingSignal_.emit(iRecord->key(), callingContext_);
           if UNLIKELY (producer_->hasMayConsumes()) {
             //after prefetching need to do the mayGet
             ServiceWeakToken weakToken = token;
             auto mayGetTask = edm::make_waiting_task(
-                [this, iRecord, iEventSetupImpl, weakToken, group](std::exception_ptr const* iExcept) {
+                [this, iRecord, iEventSetupImpl, weakToken, runModuleTaskHolder = std::move(runModuleTaskHolder)](
+                    std::exception_ptr const* iExcept) mutable {
                   if (iExcept) {
-                    runProducerAsync(group, iExcept, iRecord, iEventSetupImpl, weakToken.lock());
+                    runModuleTaskHolder.doneWaiting(*iExcept);
                     return;
                   }
                   if (handleMayGet(iRecord, iEventSetupImpl)) {
-                    auto runTask = edm::make_waiting_task(
-                        [this, group, iRecord, iEventSetupImpl, weakToken](std::exception_ptr const* iExcept) {
-                          runProducerAsync(group, iExcept, iRecord, iEventSetupImpl, weakToken.lock());
-                        });
-                    prefetchNeededDataAsync(WaitingTaskHolder(*group, runTask),
-                                            iEventSetupImpl,
-                                            &((*postMayGetProxies_).front()),
-                                            weakToken.lock());
+                    prefetchNeededDataAsync(
+                        runModuleTaskHolder, iEventSetupImpl, &((*postMayGetProxies_).front()), weakToken.lock());
                   } else {
-                    runProducerAsync(group, iExcept, iRecord, iEventSetupImpl, weakToken.lock());
+                    runModuleTaskHolder.doneWaiting(std::exception_ptr{});
                   }
                 });
 
             //Get everything we can before knowing about the mayGets
             prefetchNeededDataAsync(WaitingTaskHolder(*group, mayGetTask), iEventSetupImpl, getTokenIndices(), token);
           } else {
-            ServiceWeakToken weakToken = token;
-            auto task = edm::make_waiting_task(
-                [this, group, iRecord, iEventSetupImpl, weakToken](std::exception_ptr const* iExcept) {
-                  runProducerAsync(group, iExcept, iRecord, iEventSetupImpl, weakToken.lock());
-                });
-            prefetchNeededDataAsync(WaitingTaskHolder(*group, task), iEventSetupImpl, getTokenIndices(), token);
+            prefetchNeededDataAsync(runModuleTaskHolder, iEventSetupImpl, getTokenIndices(), token);
           }
         }
       }
@@ -174,60 +402,15 @@ namespace edm {
         return static_cast<bool>(postMayGetProxies_);
       }
 
-      void runProducerAsync(oneapi::tbb::task_group* iGroup,
-                            std::exception_ptr const* iExcept,
-                            EventSetupRecordImpl const* iRecord,
-                            EventSetupImpl const* iEventSetupImpl,
-                            ServiceToken const& token) {
-        if (iExcept) {
-          //The cache held by the CallbackProxy was already set to invalid at the beginning of the IOV
-          taskList_.doneWaiting(*iExcept);
-          return;
-        }
-        iRecord->activityRegistry()->postESModulePrefetchingSignal_.emit(iRecord->key(), callingContext_);
-        ServiceWeakToken weakToken = token;
-        producer_->queue().push(*iGroup, [this, iRecord, iEventSetupImpl, weakToken]() {
-          callingContext_.setState(ESModuleCallingContext::State::kRunning);
-          std::exception_ptr exceptPtr;
-          try {
-            convertException::wrap([this, iRecord, iEventSetupImpl, weakToken] {
-              auto proxies = getTokenIndices();
-              if (postMayGetProxies_) {
-                proxies = &((*postMayGetProxies_).front());
-              }
-              TRecord rec;
-              edm::ESParentContext pc{&callingContext_};
-              rec.setImpl(iRecord, transitionID(), proxies, iEventSetupImpl, &pc);
-              ServiceRegistry::Operate operate(weakToken.lock());
-              iRecord->activityRegistry()->preESModuleSignal_.emit(iRecord->key(), callingContext_);
-              struct EndGuard {
-                EndGuard(EventSetupRecordImpl const* iRecord, ESModuleCallingContext const& iContext)
-                    : record_{iRecord}, context_{iContext} {}
-                ~EndGuard() { record_->activityRegistry()->postESModuleSignal_.emit(record_->key(), context_); }
-                EventSetupRecordImpl const* record_;
-                ESModuleCallingContext const& context_;
-              };
-              EndGuard guard(iRecord, callingContext_);
-              decorator_.pre(rec);
-              storeReturnedValues((*function_)(rec));
-              decorator_.post(rec);
-            });
-          } catch (cms::Exception& iException) {
-            edm::exceptionContext(iException, callingContext_);
-            exceptPtr = std::current_exception();
-          }
-          taskList_.doneWaiting(exceptPtr);
-        });
-      }
-
       std::array<void*, produce::size<TReturn>::value> proxyData_;
       std::optional<std::vector<ESProxyIndex>> postMayGetProxies_;
       edm::propagate_const<T*> producer_;
       ESModuleCallingContext callingContext_;
       edm::WaitingTaskList taskList_;
       // Using std::shared_ptr in order to share the state of the
-      // functor across all clones
-      std::shared_ptr<TFunc> function_;
+      // functors across all clones
+      std::shared_ptr<TAcquireFunc> acquireFunction_;
+      std::shared_ptr<TProduceFunc> produceFunction_;
       // This transition id identifies which setWhatProduced call this Callback is associated with
       const unsigned int id_;
       std::atomic<bool> wasCalledForThisRecord_;

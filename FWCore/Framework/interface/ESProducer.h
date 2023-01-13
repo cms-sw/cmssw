@@ -74,6 +74,7 @@ Example: two algorithms each creating only one objects
 #include <optional>
 
 // user include files
+#include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
 #include "FWCore/Framework/interface/ESConsumesCollector.h"
 #include "FWCore/Framework/interface/es_impl/MayConsumeChooserBase.h"
 #include "FWCore/Framework/interface/es_impl/ReturnArgumentTypes.h"
@@ -91,6 +92,7 @@ Example: two algorithms each creating only one objects
 // forward declarations
 namespace edm {
   namespace eventsetup {
+
     class ESRecordsToProxyIndices;
     //used by ESProducer to create the proper Decorator based on the
     //  argument type passed.  The default it to just 'pass through'
@@ -168,6 +170,7 @@ namespace edm {
     auto setWhatProduced(T* iThis, const char* iLabel) {
       return setWhatProduced(iThis, es::Label(iLabel));
     }
+
     template <typename T>
     auto setWhatProduced(T* iThis, const std::string& iLabel) {
       return setWhatProduced(iThis, es::Label(iLabel));
@@ -178,24 +181,22 @@ namespace edm {
       return setWhatProduced(iThis, &T::produce, iDec, iLabel);
     }
     /** \param iThis the 'this' pointer to an inheriting class instance
-        \param iMethod a member method of then inheriting class
-        The method determines the Record argument and return value of the iMethod argument
-        method in order to do the registration with the EventSetup
+        \param iMethod a member method of the inheriting class
+        The TRecord and TReturn template parameters can be deduced
+        from iMethod in order to do the registration with the EventSetup
     */
     template <typename T, typename TReturn, typename TRecord>
-    auto setWhatProduced(T* iThis, TReturn (T ::*iMethod)(const TRecord&), const es::Label& iLabel = {}) {
+    auto setWhatProduced(T* iThis, TReturn (T::*iMethod)(const TRecord&), const es::Label& iLabel = {}) {
       return setWhatProduced(iThis, iMethod, eventsetup::CallbackSimpleDecorator<TRecord>(), iLabel);
     }
-    /** \param iThis the 'this' pointer to an inheriting class instance
-        \param iMethod a member method of then inheriting class
-        \param iDecorator a class with 'pre'&'post' methods which are placed around the method call
-        The method determines the Record argument and return value of the iMethod argument
-        method in order to do the registration with the EventSetup
+    /** \param iDecorator a class with 'pre'&'post' methods which are placed around the method call
+        This function has the same template parameters and arguments as the previous function
+        except for the addition of the decorator.
     */
-    template <typename T, typename TReturn, typename TRecord, typename TArg>
+    template <typename T, typename TReturn, typename TRecord, typename TDecorator>
     auto setWhatProduced(T* iThis,
                          TReturn (T ::*iMethod)(const TRecord&),
-                         const TArg& iDec,
+                         const TDecorator& iDec,
                          const es::Label& iLabel = {}) {
       return setWhatProduced<TReturn, TRecord>(
           [iThis, iMethod](TRecord const& iRecord) { return (iThis->*iMethod)(iRecord); },
@@ -208,13 +209,10 @@ namespace edm {
      * production function. As of now it is not intended for wide use
      * (we are thinking for a better API for users)
      *
-     * The decorator functionality is not implemented yet. In
-     * principle the lambda provides the ability for pre(Record
-     * const&) and post(Record const&) functions (in addition to much
-     * more). The main use case of dependsOn() also in practice became
-     * unused with the concurrent IOVs, so it is not clear if the
-     * decorator functionality would really be needed. In principle it
-     * should be straightforward to add.
+     * The main use case of the decorator functionality was
+     * dependsOn(), but in practice that became unused with
+     * concurrent IOVs, so it is not clear if the
+     * decorator functionality is still needed.
      */
     template <typename TFunc>
     auto setWhatProduced(TFunc&& func, const es::Label& iLabel = {}) {
@@ -229,9 +227,109 @@ namespace edm {
     ESConsumesCollectorT<TRecord> setWhatProduced(TFunc&& func, TDecorator&& iDec, const es::Label& iLabel = {}) {
       const auto id = consumesInfos_.size();
       using DecoratorType = std::decay_t<TDecorator>;
-      using CallbackType = eventsetup::Callback<ESProducer, TFunc, TReturn, TRecord, DecoratorType>;
+      using CallbackType = eventsetup::
+          Callback<ESProducer, eventsetup::DummyAcquireFunctor<TRecord>, TFunc, TReturn, TRecord, DecoratorType>;
       unsigned int iovIndex = 0;  // Start with 0, but later will cycle through all of them
       auto temp = std::make_shared<CallbackType>(this, std::forward<TFunc>(func), id, std::forward<TDecorator>(iDec));
+      auto callback =
+          std::make_shared<std::pair<unsigned int, std::shared_ptr<CallbackType>>>(iovIndex, std::move(temp));
+      registerProducts(std::move(callback),
+                       static_cast<const typename eventsetup::produce::product_traits<TReturn>::type*>(nullptr),
+                       static_cast<const TRecord*>(nullptr),
+                       iLabel);
+      consumesInfos_.push_back(std::make_unique<ESConsumesInfo>());
+      return ESConsumesCollectorT<TRecord>(consumesInfos_.back().get(), id);
+    }
+
+    // These replicate the setWhatProduced functions but add a second functor for
+    // the acquire step. The acquire step is analogous to the acquire step for
+    // EDProducers with the ExternalWork ability.
+
+    template <typename T>
+    auto setWhatProducedExternalWork(T* iThis, const es::Label& iLabel = {}) {
+      return setWhatProducedExternalWork(iThis, &T::acquire, &T::produce, iLabel);
+    }
+
+    template <typename T>
+    auto setWhatProducedExternalWork(T* iThis, const char* iLabel) {
+      return setWhatProducedExternalWork(iThis, es::Label(iLabel));
+    }
+    template <typename T>
+    auto setWhatProducedExternalWork(T* iThis, const std::string& iLabel) {
+      return setWhatProducedExternalWork(iThis, es::Label(iLabel));
+    }
+
+    template <typename T, typename TDecorator>
+    auto setWhatProducedExternalWork(T* iThis, const TDecorator& iDec, const es::Label& iLabel = {}) {
+      return setWhatProducedExternalWork(iThis, &T::acquire, &T::produce, iDec, iLabel);
+    }
+
+    /** \param iThis the 'this' pointer to an inheriting class instance
+        \param iAcquireMethod a member method of the inheriting class
+        \param iProduceMethod a member method of the inheriting class
+        The TRecord and TReturn template parameters can be deduced
+        from iAquireMethod and iPRoduceMethod in order to do the
+        registration with the EventSetup
+    */
+    template <typename T, typename TReturn, typename TRecord>
+    auto setWhatProducedExternalWork(T* iThis,
+                                     void (T::*iAcquireMethod)(const TRecord&, WaitingTaskWithArenaHolder),
+                                     TReturn (T::*iProduceMethod)(const TRecord&),
+                                     const es::Label& iLabel = {}) {
+      return setWhatProducedExternalWork(
+          iThis, iAcquireMethod, iProduceMethod, eventsetup::CallbackSimpleDecorator<TRecord>(), iLabel);
+    }
+
+    template <typename T, typename TReturn, typename TRecord, typename TDecorator>
+    auto setWhatProducedExternalWork(T* iThis,
+                                     void (T::*iAcquireMethod)(const TRecord&, WaitingTaskWithArenaHolder),
+                                     TReturn (T ::*iProduceMethod)(const TRecord&),
+                                     const TDecorator& iDec,
+                                     const es::Label& iLabel = {}) {
+      return setWhatProducedExternalWorkWithLambda<TReturn, TRecord>(
+          [iThis, iAcquireMethod](TRecord const& iRecord, WaitingTaskWithArenaHolder iHolder) {
+            (iThis->*iAcquireMethod)(iRecord, std::move(iHolder));
+          },
+          [iThis, iProduceMethod](TRecord const& iRecord) { return (iThis->*iProduceMethod)(iRecord); },
+          createDecoratorFrom(iThis, static_cast<const TRecord*>(nullptr), iDec),
+          iLabel);
+    }
+
+    /**
+     * This overload allows lambdas (functors) to be used as the
+     * production function. As of now it is not intended for wide use
+     * (we are thinking for a better API for users)
+     */
+    template <typename TAcquireFunc, typename TProduceFunc>
+    auto setWhatProducedExternalWorkWithLambda(TAcquireFunc&& acquireFunc,
+                                               TProduceFunc&& produceFunc,
+                                               const es::Label& iLabel = {}) {
+      using Types = eventsetup::impl::ReturnArgumentTypes<TProduceFunc>;
+      using TReturn = typename Types::return_type;
+      using TRecord = typename Types::argument_type;
+      using DecoratorType = eventsetup::CallbackSimpleDecorator<TRecord>;
+
+      return setWhatProducedExternalWorkWithLambda<TReturn, TRecord>(
+          std::forward<TAcquireFunc>(acquireFunc), std::forward<TProduceFunc>(produceFunc), DecoratorType(), iLabel);
+    }
+
+    // In this template, TReturn and TRecord cannot be deduced. They must be explicitly provided when called.
+    // The previous 7 functions all end up calling this one (directly or indirectly).
+    template <typename TReturn, typename TRecord, typename TAcquireFunc, typename TProduceFunc, typename TDecorator>
+    ESConsumesCollectorT<TRecord> setWhatProducedExternalWorkWithLambda(TAcquireFunc&& acquireFunc,
+                                                                        TProduceFunc&& produceFunc,
+                                                                        TDecorator&& iDec,
+                                                                        const es::Label& iLabel = {}) {
+      const auto id = consumesInfos_.size();
+      using DecoratorType = std::decay_t<TDecorator>;
+      using CallbackType =
+          eventsetup::Callback<ESProducer, TAcquireFunc, TProduceFunc, TReturn, TRecord, DecoratorType>;
+      unsigned int iovIndex = 0;  // Start with 0, but later will cycle through all of them
+      auto temp = std::make_shared<CallbackType>(this,
+                                                 std::forward<TAcquireFunc>(acquireFunc),
+                                                 std::forward<TProduceFunc>(produceFunc),
+                                                 id,
+                                                 std::forward<TDecorator>(iDec));
       auto callback =
           std::make_shared<std::pair<unsigned int, std::shared_ptr<CallbackType>>>(iovIndex, std::move(temp));
       registerProducts(std::move(callback),

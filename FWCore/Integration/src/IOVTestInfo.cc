@@ -7,7 +7,7 @@
 //         Created:  21 March 2019
 //
 
-#include "IOVTestInfo.h"
+#include "FWCore/Integration/interface/IOVTestInfo.h"
 
 #include "FWCore/Utilities/interface/typelookup.h"
 
