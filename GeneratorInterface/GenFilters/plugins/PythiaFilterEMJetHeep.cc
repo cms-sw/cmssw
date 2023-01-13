@@ -200,7 +200,6 @@ bool PythiaFilterEMJetHeep::filter(edm::StreamID, edm::Event& iEvent, const edm:
     float setCone_iso = 0;
     float setCone_clust = 0;
     float setEM = 0;
-    float setHAD = 0;
     float ptMaxHadron = 0;
     float setCharged = 0;
     unsigned int Ncharged = 0;
@@ -231,8 +230,6 @@ bool PythiaFilterEMJetHeep::filter(edm::StreamID, edm::Event& iEvent, const edm:
         setCone_clust += pt_;
         if (apid == 22 || apid == 11)
           setEM += pt_;
-        if (apid > 100)
-          setHAD += pt_;
         if (apid > 100 && pt_ > ptMaxHadron)
           ptMaxHadron = pt_;
         if (charged && pt_ > 1) {
