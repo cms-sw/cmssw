@@ -236,7 +236,6 @@ void EcalDigisValidation::analyze(edm::Event const& e, edm::EventSetup const& c)
 
       double Emax = 0.;
       int Pmax = 0;
-      double pedestalPreSample = 0.;
       double pedestalPreSampleAnalog = 0.;
 
       for (int sample = 0; sample < nrSamples; ++sample) {
@@ -256,14 +255,12 @@ void EcalDigisValidation::analyze(edm::Event const& e, edm::EventSetup const& c)
           Pmax = sample;
         }
         if (sample < 3) {
-          pedestalPreSample += ebADCCounts[sample];
           pedestalPreSampleAnalog += ebADCCounts[sample] * gainConv_[(int)ebADCGains[sample]] * barrelADCtoGeV_;
         }
         LogDebug("DigiInfo") << "EB sample " << sample << " ADC counts = " << ebADCCounts[sample]
                              << " Gain Id = " << ebADCGains[sample] << " Analog eq = " << ebAnalogSignal[sample];
       }
 
-      pedestalPreSample /= 3.;
       pedestalPreSampleAnalog /= 3.;
       double Erec = Emax - pedestalPreSampleAnalog * gainConv_[(int)ebADCGains[Pmax]];
 
@@ -322,7 +319,6 @@ void EcalDigisValidation::analyze(edm::Event const& e, edm::EventSetup const& c)
 
       double Emax = 0.;
       int Pmax = 0;
-      double pedestalPreSample = 0.;
       double pedestalPreSampleAnalog = 0.;
 
       for (int sample = 0; sample < nrSamples; ++sample) {
@@ -342,13 +338,11 @@ void EcalDigisValidation::analyze(edm::Event const& e, edm::EventSetup const& c)
           Pmax = sample;
         }
         if (sample < 3) {
-          pedestalPreSample += eeADCCounts[sample];
           pedestalPreSampleAnalog += eeADCCounts[sample] * gainConv_[(int)eeADCGains[sample]] * endcapADCtoGeV_;
         }
         LogDebug("DigiInfo") << "EE sample " << sample << " ADC counts = " << eeADCCounts[sample]
                              << " Gain Id = " << eeADCGains[sample] << " Analog eq = " << eeAnalogSignal[sample];
       }
-      pedestalPreSample /= 3.;
       pedestalPreSampleAnalog /= 3.;
       double Erec = Emax - pedestalPreSampleAnalog * gainConv_[(int)eeADCGains[Pmax]];
 

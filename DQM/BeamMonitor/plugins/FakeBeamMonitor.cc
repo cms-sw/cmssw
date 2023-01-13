@@ -854,7 +854,6 @@ void FakeBeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, 
 
   int MaxPVs = 0;
   int countEvtLastNLS_ = 0;
-  int countTotPV_ = 0;
 
   std::map<int, std::vector<int> >::iterator mnpv = mapNPV.begin();
   std::map<int, std::vector<float> >::iterator mpv2 = mapPVy.begin();
@@ -878,7 +877,6 @@ void FakeBeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, 
       if ((*mnpvs > 0) && (resetHistoFlag_))
         h_nVtx_st->Fill((*mnpvs) * (1.0));
       countEvtLastNLS_++;
-      countTotPV_ += (*mnpvs);
       if ((*mnpvs) > MaxPVs)
         MaxPVs = (*mnpvs);
     }  //loop over second of mapNPV
@@ -891,26 +889,6 @@ void FakeBeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, 
 
   std::vector<float> DipPVInfo_;
   DipPVInfo_.clear();
-  //
-  //  if (countTotPV_ != 0) {
-  //    DipPVInfo_.push_back((float)countEvtLastNLS_);
-  //    DipPVInfo_.push_back(h_nVtx_st->getMean());
-  //    DipPVInfo_.push_back(h_nVtx_st->getMeanError());
-  //    DipPVInfo_.push_back(h_nVtx_st->getRMS());
-  //    DipPVInfo_.push_back(h_nVtx_st->getRMSError());
-  //    DipPVInfo_.push_back((float)MaxPVs);
-  //    DipPVInfo_.push_back((float)countTotPV_);
-  //    MaxPVs = 0;
-  //  } else {
-  //    for (size_t i = 0; i < 7; i++) {
-  //      if (i > 0) {
-  //        DipPVInfo_.push_back(0.);
-  //      } else {
-  //        DipPVInfo_.push_back((float)countEvtLastNLS_);
-  //      }
-  //    }
-  //  }
-  //  theBeamFitter->SetPVInfo(DipPVInfo_);
   DipPVInfo_.push_back(rndm_->Gaus(1000., 100.));  // Events used
   DipPVInfo_.push_back(rndm_->Gaus(100., 10.));    // Mean PV
   DipPVInfo_.push_back(rndm_->Gaus(10., 5.));      // Mean PV err
