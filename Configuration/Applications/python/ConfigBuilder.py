@@ -868,7 +868,7 @@ class ConfigBuilder(object):
             if opt.count('.')>1:
                 raise Exception("more than . in the specification:"+opt)
             fileName=opt.split('.')[0]
-            if opt.count('.')==0:	rest='customise'
+            if opt.count('.')==0: rest='customise'
             else:
                 rest=opt.split('.')[1]
                 if rest=='py': rest='customise' #catch the case of --customise file.py
@@ -1750,15 +1750,21 @@ class ConfigBuilder(object):
         ## support @Mu+DiJet+@Electron configuration via autoSkim.py
         from Configuration.Skimming.autoSkim import autoSkim
         self.expandMapping(skimlist,autoSkim)
-
-        #print "dictionnary for skims:",skimConfig.__dict__
+        #print("dictionary for skims:", skimConfig.__dict__)
         for skim in skimConfig.__dict__:
-            skimstream = getattr(skimConfig,skim)
-            if isinstance(skimstream,cms.Path):
-            #black list the alca path so that they do not appear in the cfg
+            skimstream = getattr(skimConfig, skim)
+
+            # blacklist AlCa paths so that they do not appear in the cfg
+            if isinstance(skimstream, cms.Path):
                 self.blacklist_paths.append(skimstream)
-            if (not isinstance(skimstream,cms.FilteredStream)):
+            # if enabled, apply "hltProcess" renaming to Sequences
+            elif isinstance(skimstream, cms.Sequence):
+                if self._options.hltProcess or ('HLT' in self.stepMap):
+                    self.renameHLTprocessInSequence(skim)
+
+            if not isinstance(skimstream, cms.FilteredStream):
                 continue
+
             shortname = skim.replace('SKIMStream','')
             if (sequence=="all"):
                 self.addExtraStream(skim,skimstream)
@@ -1779,11 +1785,10 @@ class ConfigBuilder(object):
                 for i in range(skimlist.count(shortname)):
                     skimlist.remove(shortname)
 
-
-
         if (skimlist.__len__()!=0 and sequence!="all"):
             print('WARNING, possible typo with SKIM:'+'+'.join(skimlist))
             raise Exception('WARNING, possible typo with SKIM:'+'+'.join(skimlist))
+
 
     def prepare_USER(self, stepSpec = None):
         ''' Enrich the schedule with a user defined sequence '''
@@ -1877,7 +1882,7 @@ class ConfigBuilder(object):
             self._verbose = verbose
             self._whitelist = whitelist
 
-        def doIt(self,pset,base):
+        def doIt(self, pset, base):
             if isinstance(pset, cms._Parameterizable):
                 for name in pset.parameters_().keys():
                     # skip whitelisted parameters
@@ -1885,17 +1890,17 @@ class ConfigBuilder(object):
                         continue
                     # if I use pset.parameters_().items() I get copies of the parameter values
                     # so I can't modify the nested pset
-                    value = getattr(pset,name)
-                    type = value.pythonTypeName()
-                    if type in ('cms.PSet', 'cms.untracked.PSet'):
+                    value = getattr(pset, name)
+                    valueType = type(value)
+                    if valueType in [cms.PSet, cms.untracked.PSet, cms.EDProducer]:
                         self.doIt(value,base+"."+name)
-                    elif type in ('cms.VPSet', 'cms.untracked.VPSet'):
+                    elif valueType in [cms.VPSet, cms.untracked.VPSet]:
                         for (i,ps) in enumerate(value): self.doIt(ps, "%s.%s[%d]"%(base,name,i) )
-                    elif type in ('cms.string', 'cms.untracked.string'):
+                    elif valueType in [cms.string, cms.untracked.string]:
                         if value.value() == self._paramSearch:
                             if self._verbose: print("set string process name %s.%s %s ==> %s"% (base, name, value, self._paramReplace))
                             setattr(pset, name,self._paramReplace)
-                    elif type in ('cms.VInputTag', 'cms.untracked.VInputTag'):
+                    elif valueType in [cms.VInputTag, cms.untracked.VInputTag]:
                         for (i,n) in enumerate(value):
                             if not isinstance(n, cms.InputTag):
                                 n=cms.InputTag(n)
@@ -1904,11 +1909,11 @@ class ConfigBuilder(object):
                                 if self._verbose:print("set process name %s.%s[%d] %s ==> %s " % (base, name, i, n, self._paramReplace))
                                 setattr(n,"processName",self._paramReplace)
                                 value[i]=n
-                    elif type in ('cms.vstring', 'cms.untracked.vstring'):
+                    elif valueType in [cms.vstring, cms.untracked.vstring]:
                         for (i,n) in enumerate(value):
                             if n==self._paramSearch:
                                 getattr(pset,name)[i]=self._paramReplace
-                    elif type in ('cms.InputTag', 'cms.untracked.InputTag'):
+                    elif valueType in [cms.InputTag, cms.untracked.InputTag]:
                         if value.processName == self._paramSearch:
                             if self._verbose: print("set process name %s.%s %s ==> %s " % (base, name, value, self._paramReplace))
                             setattr(getattr(pset, name),"processName",self._paramReplace)
@@ -1938,13 +1943,11 @@ class ConfigBuilder(object):
 
     #change the process name used to address HLT results in any sequence
     def renameHLTprocessInSequence(self,sequence,proc=None,HLTprocess='HLT'):
-        if self._options.hltProcess:
-            proc=self._options.hltProcess
-        else:
-            proc=self.process.name_()
-        if proc==HLTprocess:    return
-        # look up all module in dqm sequence
-        print("replacing %s process name - sequence %s will use '%s'" % (HLTprocess,sequence, proc))
+        proc = self._options.hltProcess if self._options.hltProcess else self.process.name_()
+        if proc == HLTprocess:
+            return
+        # look up all module in sequence
+        print("replacing %s process name - sequence %s will use '%s'" % (HLTprocess, sequence, proc))
         getattr(self.process,sequence).visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor(HLTprocess,proc,whitelist = ("subSystemFolder",)))
         if 'from Configuration.Applications.ConfigBuilder import ConfigBuilder' not in self.additionalCommands:
             self.additionalCommands.append('from Configuration.Applications.ConfigBuilder import ConfigBuilder')
@@ -2004,7 +2007,7 @@ class ConfigBuilder(object):
 
         pathName='dqmofflineOnPAT_step'
         for (i,_sequence) in enumerate(postSequenceList):
-	    #Fix needed to avoid duplication of sequences not defined in autoDQM or without a PostDQM
+            #Fix needed to avoid duplication of sequences not defined in autoDQM or without a PostDQM
             if (sequenceList[i]==postSequenceList[i]):
                       continue
             if (i!=0):
@@ -2046,6 +2049,10 @@ class ConfigBuilder(object):
             if isinstance(harvestingstream,cms.Sequence):
                 setattr(self.process,name+"_step",cms.Path(harvestingstream))
                 self.schedule.append(getattr(self.process,name+"_step"))
+
+        # # NOTE: the "hltProcess" option currently does nothing in the HARVEST step
+        # if self._options.hltProcess or ('HLT' in self.stepMap):
+        #     pass
 
         self.scheduleSequence('DQMSaver','dqmsave_step')
         return
