@@ -9,7 +9,6 @@
 #include "RooGlobalFunc.h"
 #include "RooCategory.h"
 #include "RooSimultaneous.h"
-#include "RooChi2Var.h"
 #include "TFile.h"
 #include "TH1F.h"
 #include "TH2F.h"
@@ -320,9 +319,10 @@ namespace dqmTnP {
       }
       RooDataHist dataFail("fail", "fail", mass, fail);
       RooDataHist dataPass("pass", "pass", mass, pass);
-      chi2 = (RooChi2Var("chi2Fail", "chi2Fail", pdfFail, dataFail, DataError(RooAbsData::Poisson)).getVal() +
-              RooChi2Var("chi2Pass", "chi2Pass", pdfPass, dataPass, DataError(RooAbsData::Poisson)).getVal()) /
-             (2 * pass->GetNbinsX() - 8);
+      using AbsRealPtr = std::unique_ptr<RooAbsReal>;
+      const double chi2Fail = AbsRealPtr(pdfFail.createChi2(dataFail, DataError(RooAbsData::Poisson)))->getVal();
+      const double chi2Pass = AbsRealPtr(pdfPass.createChi2(dataPass, DataError(RooAbsData::Poisson)))->getVal();
+      chi2 = (chi2Fail + chi2Pass) / (2 * pass->GetNbinsX() - 8);
       if (chi2 > 3) {
         efficiency.setVal(0.5);
         efficiency.setError(0.5);
@@ -396,9 +396,10 @@ namespace dqmTnP {
       }
       RooDataHist dataFail("fail", "fail", mass, fail);
       RooDataHist dataPass("pass", "pass", mass, pass);
-      chi2 = (RooChi2Var("chi2Fail", "chi2Fail", pdfFail, dataFail, DataError(RooAbsData::Poisson)).getVal() +
-              RooChi2Var("chi2Pass", "chi2Pass", pdfPass, dataPass, DataError(RooAbsData::Poisson)).getVal()) /
-             (2 * all->GetNbinsX() - 8);
+      using AbsRealPtr = std::unique_ptr<RooAbsReal>;
+      const double chi2Fail = AbsRealPtr(pdfFail.createChi2(dataFail, DataError(RooAbsData::Poisson)))->getVal();
+      const double chi2Pass = AbsRealPtr(pdfPass.createChi2(dataPass, DataError(RooAbsData::Poisson)))->getVal();
+      chi2 = (chi2Fail + chi2Pass) / (2 * all->GetNbinsX() - 8);
       if (chi2 > 3) {
         efficiency.setVal(0.5);
         efficiency.setError(0.5);

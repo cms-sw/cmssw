@@ -22,7 +22,6 @@
 #include "RooAddModel.h"
 #include "RooPolynomial.h"
 #include "RooCBShape.h"
-#include "RooChi2Var.h"
 #include "RooMinimizer.h"
 #include "RooBreitWigner.h"
 #include "RooFFTConvPdf.h"
@@ -112,7 +111,7 @@ public:
     // Build the composite model
     RooAbsPdf* model = buildModel(&x, signalType, backgroundType);
 
-    RooChi2Var chi2("chi2", "chi2", *model, *dh, RooFit::DataError(RooAbsData::SumW2));
+    std::unique_ptr<RooAbsReal> chi2{model->createChi2(*dh, RooFit::DataError(RooAbsData::SumW2))};
 
     // Fit the composite model
     // -----------------------
@@ -126,7 +125,7 @@ public:
     // Fit with chi^2
     else {
       std::cout << "FITTING WITH CHI^2" << std::endl;
-      RooMinimizer m(chi2);
+      RooMinimizer m(*chi2);
       m.migrad();
       m.hesse();
       // RooFitResult* r_chi2_wgt = m.save();
