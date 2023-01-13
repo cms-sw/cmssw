@@ -83,7 +83,6 @@ namespace pixeltemp {
     //    }
     float sumUp = 0;
     float sumDown = 0;
-    float err = 0;
     for (typename std::vector<Cluster1D<T> >::const_iterator ic = (clust.begin()) + 1; ic != clust.end(); ic++) {
       float err2 = ic->position().error();
       err2 *= err2;
@@ -91,7 +90,6 @@ namespace pixeltemp {
         sumUp += ic->position().value() / err2;  // error-weighted average of Z at IP
         sumDown += 1 / err2;
       }
-      err += std::sqrt(err2);
     }
     return (sumDown > 0) ? sumUp / sumDown : 0;
   }

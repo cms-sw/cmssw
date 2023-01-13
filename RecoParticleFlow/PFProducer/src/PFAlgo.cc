@@ -3439,7 +3439,6 @@ void PFAlgo::associatePSClusters(unsigned iEcal,
   block.associatedElements(iEcal, linkData, sortedPS, psElementType, reco::PFBlock::LINKTEST_ALL);
 
   // Loop over these PS clusters
-  double totalPS = 0.;
   for (auto const& ps : sortedPS) {
     // CLuster index and distance to iEcal
     unsigned iPS = ps.second;
@@ -3461,7 +3460,6 @@ void PFAlgo::associatePSClusters(unsigned iEcal,
     assert(pstype == psElementType);
     PFClusterRef psclusterref = elements[iPS].clusterRef();
     assert(!psclusterref.isNull());
-    totalPS += psclusterref->energy();
     psEne[0] += psclusterref->energy();
     active[iPS] = false;
   }

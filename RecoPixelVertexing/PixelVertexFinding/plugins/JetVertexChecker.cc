@@ -121,8 +121,6 @@ bool JetVertexChecker::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   bool result = true;
   int i = 0;
-  float calopt = 0;
-  float trkpt = 0;
   //limit to first two jets
   for (reco::JetTracksAssociationCollection::const_iterator it = jetTracksAssociation->begin(),
                                                             et = jetTracksAssociation->end();
@@ -137,12 +135,7 @@ bool JetVertexChecker::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
         if (m_newMethod && iTrack.chi2() > m_maxChi2)
           continue;
         trMomentum += iTrack.momentum();
-        if (m_newMethod)
-          trkpt += std::min(m_maxTrackPt, (iTrack.pt()));
-        else
-          trkpt += iTrack.pt();
       }
-      calopt += jetMomentum.rho();
       if (trMomentum.rho() / jetMomentum.rho() < m_cutMinPtRatio || trMomentum.rho() < m_cutMinPt) {
         pOut->push_back(*dynamic_cast<const reco::CaloJet*>(&(*it->first)));
       }
