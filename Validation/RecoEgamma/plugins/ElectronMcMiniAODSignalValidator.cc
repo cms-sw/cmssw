@@ -445,14 +445,11 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
   // get a vector with EB  & EE
   //===============================================
   std::vector<pat::Electron> localCollection;
-  int iBarrels = 0;
-  int iEndcaps = 0;
 
   // looking for EB
   for (el1 = electrons->begin(); el1 != electrons->end(); el1++) {
     if (el1->isEB()) {
       localCollection.push_back(*el1);
-      iBarrels += 1;
     }
   }
 
@@ -460,7 +457,6 @@ void ElectronMcSignalValidatorMiniAOD::analyze(const edm::Event& iEvent, const e
   for (el1 = electrons_endcaps->begin(); el1 != electrons_endcaps->end(); el1++) {
     if (el1->isEE()) {
       localCollection.push_back(*el1);
-      iEndcaps += 1;
     }
   }
 
