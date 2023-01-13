@@ -236,11 +236,9 @@ namespace mkfit {
 
   void TrackerInfo::print_tracker(int level) const {
     if (level > 0) {
-      int n_modules = 0;
       for (int i = 0; i < n_layers(); ++i) {
         const LayerInfo& li = layer(i);
         li.print_layer();
-        n_modules += li.n_modules();
         if (level > 1) {
           printf("  Detailed module list N=%d\n", li.n_modules());
           for (int j = 0; j < li.n_modules(); ++j) {
