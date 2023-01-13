@@ -47,6 +47,7 @@
 
   <library file="ValueExample.cc" name="FWCoreIntegrationValueExample">
     <use name="FWCore/ParameterSet"/>
+    <flags EDM_PLUGIN="0"/>
   </library>
 
   <library file="ValueExamplePlugin.cc" name="FWCoreIntegrationValueExamplePlugin">
