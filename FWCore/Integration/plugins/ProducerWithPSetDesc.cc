@@ -304,8 +304,8 @@ namespace edmtest {
     assert(vESInputTag[2] == esinputTag3);
 
     // For purposes of the test, this just needs to point to any file
-    // that exists.  I guess pointing to itself cannot ever fail ...
-    edm::FileInPath fileInPath("FWCore/Integration/test/ProducerWithPSetDesc.cc");
+    // that exists.
+    edm::FileInPath fileInPath("FWCore/Integration/plugins/ProducerWithPSetDesc.cc");
     assert(fileInPath == ps.getParameter<edm::FileInPath>("fileInPath"));
 
     edm::ParameterSet const& pset = ps.getParameterSet("bar");
@@ -687,8 +687,8 @@ namespace edmtest {
     iDesc.add<std::vector<edm::ESInputTag>>("vESInputTagv4", vESInputTag);
 
     // For purposes of the test, this just needs to point to any file
-    // that exists.  I guess pointing to itself cannot ever fail ...
-    edm::FileInPath fileInPath("FWCore/Integration/test/ProducerWithPSetDesc.cc");
+    // that exists.
+    edm::FileInPath fileInPath("FWCore/Integration/plugins/ProducerWithPSetDesc.cc");
     iDesc.add<edm::FileInPath>("fileInPath", fileInPath);
 
     edm::EmptyGroupDescription emptyGroup;

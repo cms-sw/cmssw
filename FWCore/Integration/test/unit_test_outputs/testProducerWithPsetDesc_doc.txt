@@ -433,7 +433,7 @@ generated for each configuration with a module label.
 
     fileInPath
                         type: FileInPath 
-                        default: 'FWCore/Integration/test/ProducerWithPSetDesc.cc'
+                        default: 'FWCore/Integration/plugins/ProducerWithPSetDesc.cc'
 
     Empty group description
 
