@@ -1129,7 +1129,6 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
       HERE("fill PF jet");
 
-      int types = 0;
       int ntypes = 0;
 
       /////////////////////////////////////////////
@@ -1385,7 +1384,6 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
           float HFEM_E = 0;
           int HFHAD_n_ = 0;
           int HFEM_n_ = 0;
-          int HF_type_ = 0;
           int maxElement = (*it)->elementsInBlocks().size();
           if (debug_ > 1)
             edm::LogVerbatim("GammaJetAnalysis") << "maxElement=" << maxElement;
@@ -1402,7 +1400,6 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
             for (unsigned iEle = 0; iEle < elements.size(); iEle++) {
               if (elements[iEle].index() == (*it)->elementsInBlocks()[e].second) {
                 if (elements[iEle].type() == reco::PFBlockElement::HCAL) {  // Element is HB or HE
-                  HF_type_ |= 0x1;
                   // Get cluster and hits
                   reco::PFClusterRef clusterref = elements[iEle].clusterRef();
                   reco::PFCluster cluster = *clusterref;
@@ -1493,10 +1490,8 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                   }                                                               // Loop over hits
                 }                                                                 // Test if element is from HCAL
                 else if (elements[iEle].type() == reco::PFBlockElement::HFHAD) {  // Element is HF
-                  types |= 0x2;
                   ntypes++;
                   HFHAD_n_++;
-                  HF_type_ |= 0x2;
 
                   ////	h_etaHFHAD_->Fill((*it)->eta());
 
@@ -1547,10 +1542,8 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                     }
                   }
                 } else if (elements[iEle].type() == reco::PFBlockElement::HFEM) {  // Element is HF
-                  types |= 0x4;
                   ntypes++;
                   HFEM_n_++;
-                  HF_type_ |= 0x4;
 
                   for (edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>::const_iterator ith =
                            hfreco->begin();
@@ -1599,9 +1592,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                     }
                   }
                 } else if (elements[iEle].type() == reco::PFBlockElement::HO) {  // Element is HO
-                  types |= 0x8;
                   ntypes++;
-                  HF_type_ |= 0x8;
                   reco::PFClusterRef clusterref = elements[iEle].clusterRef();
                   reco::PFCluster cluster = *clusterref;
                   double cluster_dR = deltaR(ppfjet_eta_, ppfjet_phi_, cluster.eta(), cluster.phi());
