@@ -185,7 +185,7 @@ void L1TStage2CaloLayer2DEClientSummary::processHistograms(DQMStore::IGetter &ig
 
     // by default show 0% agreement (for edge case when no objects are found)
     double goodEgRatio = 0, egPosOffRatio = 0, egEtOffRatio = 0, goodIsoEgRatio = 0, isoEgPosOffRatio = 0,
-      isoEgEtOffRatio = 0, egIsoOffRatio = 0;
+           isoEgEtOffRatio = 0, egIsoOffRatio = 0;
 
     // hist = egSummary_->getTH1F();
     // newHist = egSummary->getTH1F();
@@ -214,8 +214,8 @@ void L1TStage2CaloLayer2DEClientSummary::processHistograms(DQMStore::IGetter &ig
       isoEgEtOffRatio = isoEgEtOff / totalIsoEgs;
     }
 
-    if((totalEgs + totalIsoEgs) > 0)
-      egIsoOffRatio = egIsoOff / (totalEgs+totalIsoEgs);
+    if ((totalEgs + totalIsoEgs) > 0)
+      egIsoOffRatio = egIsoOff / (totalEgs + totalIsoEgs);
 
     egSummary->setBinContent(1, goodEgRatio);
     egSummary->setBinContent(2, egPosOffRatio);
@@ -234,7 +234,7 @@ void L1TStage2CaloLayer2DEClientSummary::processHistograms(DQMStore::IGetter &ig
 
     // by default show 0% agreement (for edge case when no objects are found)
     double goodTauRatio = 0, tauPosOffRatio = 0, tauEtOffRatio = 0, goodIsoTauRatio = 0, isoTauPosOffRatio = 0,
-      isoTauEtOffRatio = 0, tauIsoOffRatio = 0;
+           isoTauEtOffRatio = 0, tauIsoOffRatio = 0;
 
     // hist = tauSummary_->getTH1F();
     // newHist = tauSummary->getTH1F();
@@ -263,8 +263,8 @@ void L1TStage2CaloLayer2DEClientSummary::processHistograms(DQMStore::IGetter &ig
       isoTauEtOffRatio = isoTauEtOff / totalIsoTaus;
     }
 
-    if((totalTaus + totalIsoTaus) > 0)
-      tauIsoOffRatio = tauIsoOff / (totalTaus+totalIsoTaus);
+    if ((totalTaus + totalIsoTaus) > 0)
+      tauIsoOffRatio = tauIsoOff / (totalTaus + totalIsoTaus);
 
     tauSummary->setBinContent(1, goodTauRatio);
     tauSummary->setBinContent(2, tauPosOffRatio);
