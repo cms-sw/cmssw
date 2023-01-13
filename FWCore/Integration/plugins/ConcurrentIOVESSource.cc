@@ -19,7 +19,7 @@
 #include "FWCore/Framework/interface/ValidityInterval.h"
 #include "FWCore/Integration/interface/ESTestData.h"
 #include "FWCore/Integration/interface/ESTestRecords.h"
-#include "IOVTestInfo.h"
+#include "FWCore/Integration/interface/IOVTestInfo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -113,6 +113,8 @@ namespace edmtest {
       }
     }
 
+    data->iovStartRun_ = iov.first().eventID().run();
+    data->iovEndRun_ = iov.last().eventID().run();
     data->iovStartLumi_ = iov.first().luminosityBlockNumber();
     data->iovEndLumi_ = iov.last().luminosityBlockNumber();
     data->iovIndex_ = record.iovIndex();

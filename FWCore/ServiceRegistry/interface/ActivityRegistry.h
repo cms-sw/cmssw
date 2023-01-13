@@ -575,6 +575,24 @@ namespace edm {
     void watchPostESModule(PostESModule::slot_type const& iSlot) { postESModuleSignal_.connect_front(iSlot); }
     AR_WATCH_USING_METHOD_2(watchPostESModule)
 
+    /// signal is emitted before an esmodule starts running its acquire method
+    typedef signalslot::Signal<void(eventsetup::EventSetupRecordKey const&, ESModuleCallingContext const&)>
+        PreESModuleAcquire;
+    PreESModuleAcquire preESModuleAcquireSignal_;
+    void watchPreESModuleAcquire(PreESModuleAcquire::slot_type const& iSlot) {
+      preESModuleAcquireSignal_.connect(iSlot);
+    }
+    AR_WATCH_USING_METHOD_2(watchPreESModuleAcquire)
+
+    /// signal is emitted after an esmodule finishes running its acquire method
+    typedef signalslot::Signal<void(eventsetup::EventSetupRecordKey const&, ESModuleCallingContext const&)>
+        PostESModuleAcquire;
+    PostESModuleAcquire postESModuleAcquireSignal_;
+    void watchPostESModuleAcquire(PostESModuleAcquire::slot_type const& iSlot) {
+      postESModuleAcquireSignal_.connect_front(iSlot);
+    }
+    AR_WATCH_USING_METHOD_2(watchPostESModuleAcquire)
+
     /* Note M:
 	   Concerning use of address of module descriptor
 	   during functions called before/after module or source construction:

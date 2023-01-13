@@ -163,6 +163,7 @@ namespace edm {
   private:
     //only ESProducer is allowed to make an instance of this class
     friend class ESProducer;
+    friend class ESProducerExternalWork;
     friend class ::testEventsetupRecord;
 
     explicit ESConsumesCollectorT(ESConsumesInfo* const iConsumer, unsigned int iTransitionID)

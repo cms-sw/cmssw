@@ -64,11 +64,12 @@
     <use name="FWCore/Framework"/>
   </library>
 
-  <library file="AcquireIntProducer.cc, AcquireIntFilter.cc, AcquireIntStreamProducer.cc, AcquireIntStreamFilter.cc, WaitingService.cc, WaitingServer.cc" name="FWCoreIntegrationWaitingServiceModules">
+  <library file="AcquireIntProducer.cc, AcquireIntFilter.cc, AcquireIntStreamProducer.cc, AcquireIntStreamFilter.cc, WaitingService.cc, WaitingServer.cc,AcquireIntESProducer.cc" name="FWCoreIntegrationWaitingServiceModules">
     <flags EDM_PLUGIN="1"/>
     <use name="FWCore/Framework"/>
     <use name="DataFormats/TestObjects"/>
     <use name="FWCore/Concurrency"/>
+    <use name="FWCore/Integration"/>
     <use name="FWCore/ParameterSet"/>
     <use name="FWCore/ServiceRegistry"/>
   </library>
@@ -81,7 +82,7 @@
     <use name="FWCore/ServiceRegistry"/>
   </library>
 
-  <library file="ConcurrentIOVESSource.cc,ConcurrentIOVESProducer.cc,ConcurrentIOVAnalyzer.cc,GadgetRcd.cc,IOVTestInfo.cc,RunLumiESAnalyzer.cc,RunLumiESSource.cc,TestESSource.cc,TestESConcurrentSource.cc" name="ConcurrentIOVESSource">
+  <library file="ConcurrentIOVESSource.cc,ConcurrentIOVESProducer.cc,ConcurrentIOVAnalyzer.cc,GadgetRcd.cc,RunLumiESAnalyzer.cc,RunLumiESSource.cc,TestESSource.cc,TestESConcurrentSource.cc" name="ConcurrentIOVESSource">
     <flags EDM_PLUGIN="1"/>
     <use name="FWCore/Integration"/>
     <use name="FWCore/Framework"/>
