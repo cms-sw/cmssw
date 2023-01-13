@@ -182,7 +182,6 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection &castorHits)
     h2RHentriesMap->Fill(module - 1, sector - 1);
   }  // end for(CASTORiter=castorHits.begin(); CASTORiter!= ...
 
-  double etot = 0.;
   for (int phi = 0; phi < 16; phi++) {
     double es = 0.;
     for (int z = 0; z < 14; z++) {
@@ -197,7 +196,6 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection &castorHits)
       es += rh;
     }
     h2RHvsSec->Fill(phi, es);
-    etot += es;
   }  // end for(int phi=0;
 
   if (fVerbosity > 0)
