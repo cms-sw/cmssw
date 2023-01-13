@@ -22,8 +22,8 @@ int main(int argc, char** argv) {
 
   unsigned long int verbosity = 0;
   if (argc > 2)
-    verbosity =  std::stoul(argv[2], nullptr, 0);
-  
+    verbosity = std::stoul(argv[2], nullptr, 0);
+
   // init static values
   uint16_t fedid(0);
   uint8_t captureblock(0), econdidx(0), econderx(0), halfrocch(0);
@@ -35,24 +35,24 @@ int main(int argc, char** argv) {
   // do the trials: time/performance test and exploit randomisation to check
   unsigned long int u = 0;
   for (; u < repetitions; u++) {
+    fedid = myrand() % 576;
+    captureblock = myrand() % 10;
+    econdidx = myrand() % 12;
+    econderx = myrand() % 12;
+    halfrocch = myrand() % 39;
 
-      fedid = myrand() % 576;
-      captureblock = myrand() % 10;
-      econdidx = myrand() % 12;
-      econderx = myrand() % 12;
-      halfrocch = myrand() % 39;
- 
-      HGCalElectronicsId eid(fedid,captureblock,econdidx,econderx,halfrocch);
-      assert(fedid==eid.fedId());
-      assert(captureblock==eid.captureBlock());
-      assert(econdidx==eid.econdIdx());
-      assert(econderx==eid.econdeRx());
-      assert(halfrocch==eid.halfrocChannel());
+    HGCalElectronicsId eid(fedid, captureblock, econdidx, econderx, halfrocch);
+    assert(fedid == eid.fedId());
+    assert(captureblock == eid.captureBlock());
+    assert(econdidx == eid.econdIdx());
+    assert(econderx == eid.econdeRx());
+    assert(halfrocch == eid.halfrocChannel());
 
-      if(verbosity>0) eid.print(std::cout);
+    if (verbosity > 0)
+      eid.print(std::cout);
   }
-  
+
   std::cout << "\nDone " << repetitions << "\t" << u << std::endl;
-  
+
   return 0;
 }
