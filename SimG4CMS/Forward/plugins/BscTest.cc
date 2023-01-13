@@ -651,8 +651,10 @@ void BscTest::update(const EndOfEvent* evt) {
 
   for (int i = 0; i < nvertex; i++) {
     G4PrimaryVertex* avertex = (*evt)()->GetPrimaryVertex(i);
-    if (avertex == nullptr)
+    if (avertex == nullptr) {
       edm::LogVerbatim("BscTest") << "BscTest  End Of Event ERR: pointer to vertex = 0";
+      continue;
+    }
     G4int npart = avertex->GetNumberOfParticle();
     if (npart != 1)
       edm::LogVerbatim("BscTest") << "BscTest: My warning: NumberOfPrimaryPart != 1  -->  = " << npart;

@@ -870,8 +870,10 @@ void FP420Test::update(const EndOfEvent* evt) {
 
   for (int i = 0; i < nvertex; i++) {
     G4PrimaryVertex* avertex = (*evt)()->GetPrimaryVertex(i);
-    if (avertex == nullptr)
+    if (avertex == nullptr) {
       edm::LogVerbatim("FP420Test") << "FP420Test  End Of Event ERR: pointer to vertex = 0";
+      continue;
+    }
     G4int npart = avertex->GetNumberOfParticle();
     if (npart != 1)
       edm::LogVerbatim("FP420Test") << "FP420Test: My warning: NumberOfPrimaryPart != 1  -->  = " << npart;
