@@ -81,13 +81,26 @@ void Phase1PixelSummaryMap::createTrackerBaseMap() {
 }
 
 //============================================================================
-void Phase1PixelSummaryMap::printTrackerMap(TCanvas& canvas, const float topMargin) {
+void Phase1PixelSummaryMap::printTrackerMap(TCanvas& canvas, const float topMargin, int index) {
   //canvas = TCanvas("c1","c1",plotWidth,plotHeight);
-  canvas.cd();
-  canvas.SetTopMargin(topMargin);
-  canvas.SetBottomMargin(0.02);
-  canvas.SetLeftMargin(0.02);
-  canvas.SetRightMargin(0.14);
+  if (index != 0)
+    canvas.cd(index);
+  else
+    canvas.cd();
+
+  if (index == 0) {
+    canvas.SetTopMargin(topMargin);
+    canvas.SetBottomMargin(0.02);
+    canvas.SetLeftMargin(0.02);
+    canvas.SetRightMargin(0.14);
+  } else {
+    m_BaseTrackerMap->GetZaxis()->SetTitleOffset(1.5);
+    canvas.cd(index)->SetTopMargin(topMargin);
+    canvas.cd(index)->SetBottomMargin(0.02);
+    canvas.cd(index)->SetLeftMargin(0.02);
+    canvas.cd(index)->SetRightMargin(0.14);
+  }
+
   m_BaseTrackerMap->Draw("AL");
   m_BaseTrackerMap->Draw("AC COLZ0 L SAME");
 
@@ -123,7 +136,7 @@ void Phase1PixelSummaryMap::printTrackerMap(TCanvas& canvas, const float topMarg
 
   //# draw new-style title
   txt.SetTextSize((topMargin == 0.02) ? 0.05 : 0.03);
-  txt.DrawLatex(0.5, 0.95, (fmt::sprintf("Pixel Tracker Map: %s", m_title)).c_str());
+  txt.DrawLatex(0.5, ((index == 0) ? 0.95 : 0.93), (fmt::sprintf("Pixel Tracker Map: %s", m_title)).c_str());
   txt.SetTextSize(0.03);
 
   txt.DrawLatex(0.55, 0.125, "-DISK");
@@ -131,8 +144,8 @@ void Phase1PixelSummaryMap::printTrackerMap(TCanvas& canvas, const float topMarg
 
   txt.DrawLatex(0.08, 0.28, "+z");
   txt.DrawLatex(0.25, 0.70, "+phi");
-  txt.DrawLatex(0.31, 0.78, "+x");
-  txt.DrawLatex(0.21, 0.96, "+y");
+  txt.DrawLatex((index == 0) ? 0.31 : 0.33, 0.78, "+x");
+  txt.DrawLatex((index == 0) ? 0.21 : 0.22, ((index == 0) ? 0.96 : 0.94), "+y");
 
   txt.SetTextAngle(90);
   txt.DrawLatex(0.04, 0.5, "BARREL");
@@ -151,6 +164,16 @@ bool Phase1PixelSummaryMap::fillTrackerMap(unsigned int id, double value) {
     m_BaseTrackerMap->Fill(TString::Format("%u", id), value);
     return true;
   }
+}
+
+//============================================================================
+const std::pair<float, float> Phase1PixelSummaryMap::getZAxisRange() const {
+  return std::make_pair(m_BaseTrackerMap->GetMinimum(), m_BaseTrackerMap->GetMaximum());
+}
+
+//============================================================================
+void Phase1PixelSummaryMap::setZAxisRange(const double min, const double max) {
+  m_BaseTrackerMap->GetZaxis()->SetRangeUser(min, max);
 }
 
 //============================================================================
