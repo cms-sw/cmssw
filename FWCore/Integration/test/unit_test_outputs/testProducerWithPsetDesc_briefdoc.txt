@@ -159,7 +159,7 @@
       [0]: 'One:Two'
       [1]: 'One:'
       [2]: ':Two'
-    fileInPath              FileInPath                     'FWCore/Integration/test/ProducerWithPSetDesc.cc'
+    fileInPath              FileInPath                     'FWCore/Integration/plugins/ProducerWithPSetDesc.cc'
     Empty group description
     bar                     PSet                           see Section 1.1.2
     test101                 PSet                  optional see Section 1.1.3 (do not write to cfi)
