@@ -174,7 +174,7 @@ namespace edm {
 
   void Path::recordStatus(int nwrwue, hlt::HLTState state) {
     if (trptr_) {
-      (*trptr_)[bitpos_] = HLTPathStatus(state, nwrwue);
+      trptr_->at(bitpos_) = HLTPathStatus(state, nwrwue);
     }
   }
 

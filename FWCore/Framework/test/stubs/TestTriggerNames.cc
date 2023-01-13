@@ -239,6 +239,11 @@ namespace edmtest {
 
     if (expectedTriggerResultsHLT_.size() > 0) {
       if (e.getByLabel(tag, hTriggerResults)) {
+        if (hTriggerResults->size() == 0) {
+          throw cms::Exception("Test Failure") << "TestTriggerNames: TriggerResults object from the Event "
+                                                  "(InputTag = \"TriggerResults::HLT\") is empty (size == 0)";
+        }
+
         edm::TriggerResultsByName resultsByNameHLT = e.triggerResultsByName(*hTriggerResults);
 
         if (hTriggerResults->parameterSetID() != resultsByNameHLT.parameterSetID() ||
@@ -263,9 +268,8 @@ namespace edmtest {
             hTriggerResults->error(0) != resultsByNameHLT.error(0) ||
             hTriggerResults->state(0) != resultsByNameHLT.state(0) ||
             hTriggerResults->index(0) != resultsByNameHLT.index(0)) {
-          throw cms::Exception("Test Failure")
-              << "TestTriggerNames: While testing TriggerResultsByName class\n"
-              << "TriggerResults values do not match TriggerResultsByName values" << std::endl;
+          throw cms::Exception("Test Failure") << "TestTriggerNames: While testing TriggerResultsByName class\n"
+                                               << "TriggerResults values do not match TriggerResultsByName values";
         }
         edm::TriggerNames const& names = e.triggerNames(*hTriggerResults);
         if (names.triggerNames() != resultsByNameHLT.triggerNames() || names.size() != resultsByNameHLT.size() ||

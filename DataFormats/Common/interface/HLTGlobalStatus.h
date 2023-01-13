@@ -18,10 +18,12 @@
 #include "DataFormats/Common/interface/HLTenums.h"
 #include "DataFormats/Common/interface/HLTPathStatus.h"
 
-#include <vector>
+#include <string>
 #include <ostream>
+#include <vector>
 
 namespace edm {
+
   class HLTGlobalStatus {
   private:
     /// Status of each HLT path
@@ -50,12 +52,12 @@ namespace edm {
     /// Has any path encountered an error (exception)
     bool error() const { return State(2); }
 
-    // get hold of individual elements, using safe indexing with "at" which throws!
+    // accessors to ith element of paths_
 
     const HLTPathStatus& at(const unsigned int i) const { return paths_.at(i); }
     HLTPathStatus& at(const unsigned int i) { return paths_.at(i); }
-    const HLTPathStatus& operator[](const unsigned int i) const { return paths_.at(i); }
-    HLTPathStatus& operator[](const unsigned int i) { return paths_.at(i); }
+    const HLTPathStatus& operator[](const unsigned int i) const { return paths_[i]; }
+    HLTPathStatus& operator[](const unsigned int i) { return paths_[i]; }
 
     /// Was ith path run?
     bool wasrun(const unsigned int i) const { return at(i).wasrun(); }
@@ -102,7 +104,7 @@ namespace edm {
   /// Free swap function
   inline void swap(HLTGlobalStatus& lhs, HLTGlobalStatus& rhs) { lhs.swap(rhs); }
 
-  /// Formatted printout of trigger tbale
+  /// Formatted printout of trigger table
   inline std::ostream& operator<<(std::ostream& ost, const HLTGlobalStatus& hlt) {
     std::vector<std::string> text(4);
     text[0] = "n";
@@ -111,7 +113,7 @@ namespace edm {
     text[3] = "e";
     const unsigned int n(hlt.size());
     for (unsigned int i = 0; i != n; ++i)
-      ost << text.at(hlt.state(i));
+      ost << text[hlt.state(i)];
     return ost;
   }
 
