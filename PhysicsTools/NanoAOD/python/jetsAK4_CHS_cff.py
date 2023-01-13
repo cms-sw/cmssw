@@ -169,6 +169,10 @@ run2_jme_2017.toModify(
     jetTable.variables.puId, doc="Pileup ID flags with 106X (2017) training"
 )
 
+run3_common.toModify(
+    jetTable.variables, btagCSVV2 = None
+)
+
 bjetNN = cms.EDProducer("BJetEnergyRegressionMVA",
     backend = cms.string("ONNX"),
     batch_eval = cms.bool(True),

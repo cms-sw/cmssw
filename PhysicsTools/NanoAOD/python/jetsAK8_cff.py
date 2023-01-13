@@ -138,6 +138,10 @@ fatJetTable = simpleCandidateFlatTableProducer.clone(
     )
 )
 
+run3_common.toModify(
+    fatJetTable.variables, btagCSVV2 = None
+)
+
 ##############################################################
 ## DeepInfoAK8:Start
 ## - To be used in nanoAOD_customizeCommon() in nano_cff.py
@@ -223,6 +227,10 @@ subJetTable = simpleCandidateFlatTableProducer.clone(
         n2b1 = Var("userFloat('nb1AK8PuppiSoftDropSubjets:ecfN2')", float, doc="N2 with beta=1", precision=10),
         n3b1 = Var("userFloat('nb1AK8PuppiSoftDropSubjets:ecfN3')", float, doc="N3 with beta=1", precision=10),
     )
+)
+
+run3_common.toModify(
+    subJetTable.variables, btagCSVV2 = None
 )
 
 #jets are not as precise as muons
