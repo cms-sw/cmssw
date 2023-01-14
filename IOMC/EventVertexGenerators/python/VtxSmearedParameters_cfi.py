@@ -983,6 +983,19 @@ Nominal2022PbPbCollisionVtxSmearingParameters = cms.PSet(
     Z0 = cms.double(1.298155)
 )
 
+# From 2022 PbPb test data 362294
+Realistic2022PbPbCollisionVtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(50),
+    Emittance = cms.double(3.36e-08),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(5.01265),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.1017599),
+    Y0 = cms.double(-0.015602),
+    Z0 = cms.double(0.131175)
+)
+
 # Parameters for HL-LHC operation at 13TeV
 HLLHCVtxSmearingParameters = cms.PSet(
     MeanXIncm = cms.double(0.),
