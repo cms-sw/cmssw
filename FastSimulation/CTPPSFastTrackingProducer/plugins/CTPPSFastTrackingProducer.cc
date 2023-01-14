@@ -226,10 +226,8 @@ void CTPPSFastTrackingProducer::produce(edm::Event& iEvent, const edm::EventSetu
   TrackerStationClear();
 
   std::unique_ptr<CTPPSFastTrackContainer> output_tracks(new CTPPSFastTrackContainer);
-  int n = 0;
   for (std::vector<CTPPSFastTrack>::const_iterator i = theCTPPSFastTrack.begin(); i != theCTPPSFastTrack.end(); i++) {
     output_tracks->push_back(*i);
-    n += 1;
   }
 
   iEvent.put(std::move(output_tracks), "CTPPSFastTrack");
