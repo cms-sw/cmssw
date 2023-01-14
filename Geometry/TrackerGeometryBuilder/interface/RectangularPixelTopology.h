@@ -145,7 +145,7 @@ public:
   bool isItEdgePixelInX(int ixbin) const override { return ((ixbin == 0) | (ixbin == (m_nrows - 1))); }
   bool isItEdgePixelInY(int iybin) const override { return ((iybin == 0) | (iybin == (m_ncols - 1))); }
   bool isItEdgePixel(int ixbin, int iybin) const override {
-    return (isItEdgePixelInX(ixbin) | isItEdgePixelInY(iybin));
+    return (isItEdgePixelInX(ixbin) || isItEdgePixelInY(iybin));
   }
 
   //------------------------------------------------------------------
