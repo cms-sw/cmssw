@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from ..modules.hltFixedGridRhoFastjetAllCaloForMuons_cfi import *
+from ..modules.hltFixedGridRhoFastjetAllCaloForEGamma_cfi import *
 
 HLTFastJetForEgammaTask = cms.Task(
-    hltFixedGridRhoFastjetAllCaloForMuons
+    hltFixedGridRhoFastjetAllCaloForEGamma
 )
