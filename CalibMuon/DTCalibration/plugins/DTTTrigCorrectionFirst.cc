@@ -56,7 +56,6 @@ void DTTTrigCorrectionFirst::endJob() {
   double average2 = 0.;
   double rms = 0.;
   double averageSigma = 0.;
-  double average2Sigma = 0.;
   double counter = 0.;
   double averagekfactor = 0;
   float kfactor = 0;
@@ -86,7 +85,6 @@ void DTTTrigCorrectionFirst::endJob() {
     tTrigMap->get((*sl)->id(), ttrigMean, ttrigSigma, kfactor, DTTimeUnits::ns);
     if (ttrigMean < ttrigMax && ttrigMean > ttrigMin) {
       average2 += (ttrigMean - average) * (ttrigMean - average);
-      average2Sigma += (ttrigSigma - averageSigma) * (ttrigSigma - averageSigma);
     }
   }  //End of loop on superlayers
 

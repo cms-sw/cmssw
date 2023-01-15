@@ -390,12 +390,10 @@ void TShapeAnalysis::computetmaxVal(int i, double *tm_val) {
   double tm_mean = 0;  //double tm_sig=0;
 
   double tm = 0.;
-  double sigtm = 0.;
   for (int k = 0; k < npass[i] - 1; k++) {
     if (1. < tm_val[k] && tm_val[k] < 10.) {
       npassok[i]++;
       tm += tm_val[k];
-      sigtm += tm_val[k] * tm_val[k];
     }
   }
   if (npassok[i] <= 0) {
