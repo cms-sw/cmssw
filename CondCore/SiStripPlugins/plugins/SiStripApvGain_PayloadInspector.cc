@@ -674,12 +674,12 @@ namespace {
       payload->getDetIds(detid);
 
       /*
-	the defaul G1 value comes from the ratio of DefaultTickHeight/GainNormalizationFactor
+	the default G1 value comes from the ratio of DefaultTickHeight/GainNormalizationFactor
 	as defined in the default of the O2O producer: OnlineDB/SiStripESSources/src/SiStripCondObjBuilderFromDb.cc
       */
 
-      float G1default = 690. / 640.;
-      float G2default = 1.;
+      constexpr float G1default = 690. / 640.;
+      constexpr float G2default = 1.f;
 
       int totalG1DefaultAPVs = 0;
       int totalG2DefaultAPVs = 0;
@@ -698,18 +698,24 @@ namespace {
         // fill the tracker map taking the average gain on a single DetId
         if (countDefaults > 0.) {
           tmap->fill(d, countDefaults);
-
-          if (std::fmod((sumOfGains / countDefaults), G1default) == 0.) {
-            totalG1DefaultAPVs += countDefaults;
-          } else if (std::fmod((sumOfGains / countDefaults), G2default) == 0.) {
-            totalG2DefaultAPVs += countDefaults;
+          // check here if it exists at least a full module with all APVs defaulted
+          if (countDefaults == nAPVsPerModule) {
+            if (std::fmod((sumOfGains / countDefaults), G1default) == 0.) {
+              totalG1DefaultAPVs += countDefaults;
+            } else if (std::fmod((sumOfGains / countDefaults), G2default) == 0.) {
+              totalG2DefaultAPVs += countDefaults;
+            }
           }
         }
       }  // loop over detIds
 
       //=========================
-
-      std::string gainType = totalG1DefaultAPVs == 0 ? "G2 value (=1)" : "G1 value (=690./640.)";
+      std::string gainType{""};
+      if (totalG2DefaultAPVs == 0) {
+        gainType = "G1 value (=690./640.)";
+      } else if (totalG1DefaultAPVs == 0) {
+        gainType = "G2 value (=1)";
+      }
 
       std::string titleMap = "# of APVs/module w/ default " + gainType + " (payload : " + std::get<1>(iov) + ")";
       tmap->setTitle(titleMap);
