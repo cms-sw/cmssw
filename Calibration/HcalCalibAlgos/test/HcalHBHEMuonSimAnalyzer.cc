@@ -189,7 +189,7 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
       unsigned int thisTrk = simTrkItr.trackId();
       spr::propagatedTrackDirection trkD = spr::propagateCALO(thisTrk, SimTk, SimVtx, geo, bField, debug);
 
-      double eEcal(0), eHcal(0), activeLengthTot(0), activeLengthHotTot(0);
+      double eEcal(0), eHcal(0), activeLengthHotTot(0);
       double eHcalDepth[depthMax_], eHcalDepthHot[depthMax_];
       double activeL[depthMax_], activeHotL[depthMax_];
       unsigned int isHot(0);
@@ -272,7 +272,6 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
           HcalDetId hcid0(subdet0, ieta, iphi, ehdepth[i].second);
           double actL = activeLength(DetId(hcid0));
           activeL[ehdepth[i].second - 1] = actL;
-          activeLengthTot += actL;
 #ifdef EDM_ML_DEBUG
           if ((verbosity_ % 10) > 0)
             edm::LogVerbatim("HBHEMuon") << hcid0 << " E " << ehdepth[i].first << " L " << actL;

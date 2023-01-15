@@ -2664,7 +2664,7 @@ void GlobalTrackerMuonAlignment::misalignMuon(
   MuGlShift = d;
   MuGlAngle = a;
 
-  if ((d(1) == 0.) & (d(2) == 0.) & (d(3) == 0.) & (a(1) == 0.) & (a(2) == 0.) & (a(3) == 0.)) {
+  if ((d(1) == 0.) && (d(2) == 0.) && (d(3) == 0.) && (a(1) == 0.) && (a(2) == 0.) && (a(3) == 0.)) {
     Rm = GRm;
     Pm = GPm;
     if (debug_)
@@ -2822,7 +2822,7 @@ void GlobalTrackerMuonAlignment::misalignMuonL(GlobalVector& GRm,
   MuGlShift = d;
   MuGlAngle = a;
 
-  if ((d(1) == 0.) & (d(2) == 0.) & (d(3) == 0.) & (a(1) == 0.) & (a(2) == 0.) & (a(3) == 0.)) {
+  if ((d(1) == 0.) && (d(2) == 0.) && (d(3) == 0.) && (a(1) == 0.) && (a(2) == 0.) && (a(3) == 0.)) {
     Rm = GRm;
     Pm = GPm;
     AlgebraicVector4 Vm0;
