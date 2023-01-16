@@ -96,9 +96,6 @@ void L1TStage2CaloLayer2DEClientSummary::processHistograms(DQMStore::IGetter &ig
   // - jet agreement summary
   // - tau agreement summary
 
-  // TH1F * hist;
-  // TH1F * newHist;
-
   MonitorElement *hlSummary_ = igetter.get(monitor_dir_ + "/expert/CaloL2 Object Agreement Summary");
   MonitorElement *jetSummary_ = igetter.get(monitor_dir_ + "/expert/Jet Agreement Summary");
   MonitorElement *egSummary_ = igetter.get(monitor_dir_ + "/expert/EG Agreement Summary");
@@ -107,13 +104,6 @@ void L1TStage2CaloLayer2DEClientSummary::processHistograms(DQMStore::IGetter &ig
 
   // check for existance of object
   if (hlSummary_) {
-    // reference the histogram in MonitorElement
-    // hist = hlSummary_->getTH1F();
-    // newHist = hlSummary->getTH1F();
-
-    // double totalEvents = 0, goodEvents = 0, totalJets = 0, goodJets = 0,
-    //   totalEg = 0, goodEg = 0, totalTau = 0, goodTau = 0, totalSums = 0,
-    //   goodSums = 0;
 
     // by default show 0% agreement (for edge case when no objects are found)
     double evtRatio = 0, jetRatio = 0, egRatio = 0, tauRatio = 0, sumRatio = 0;
@@ -152,13 +142,9 @@ void L1TStage2CaloLayer2DEClientSummary::processHistograms(DQMStore::IGetter &ig
   }
 
   if (jetSummary_) {
-    // double totalJets = 0, goodJets = 0, jetPosOff = 0, jetEtOff = 0;
 
     // by default show 0% agreement (for edge case when no objects are found)
     double goodRatio = 0, posOffRatio = 0, etOffRatio = 0, qualOffRatio = 0;
-
-    // hist = jetSummary_->getTH1F();
-    // newHist = jetSummary->getTH1F();
 
     double totalJets = jetSummary_->getBinContent(1);
     double goodJets = jetSummary_->getBinContent(2);
@@ -180,15 +166,11 @@ void L1TStage2CaloLayer2DEClientSummary::processHistograms(DQMStore::IGetter &ig
   }
 
   if (egSummary_) {
-    // double totalEgs = 0, goodEgs = 0, egPosOff = 0, egEtOff = 0,
-    //   totalIsoEgs = 0, goodIsoEgs = 0, isoEgPosOff = 0, isoEgEtOff = 0;
 
     // by default show 0% agreement (for edge case when no objects are found)
     double goodEgRatio = 0, egPosOffRatio = 0, egEtOffRatio = 0, goodIsoEgRatio = 0, isoEgPosOffRatio = 0,
            isoEgEtOffRatio = 0, egIsoOffRatio = 0;
 
-    // hist = egSummary_->getTH1F();
-    // newHist = egSummary->getTH1F();
 
     double totalEgs = egSummary_->getBinContent(1);
     double goodEgs = egSummary_->getBinContent(2);
@@ -229,15 +211,10 @@ void L1TStage2CaloLayer2DEClientSummary::processHistograms(DQMStore::IGetter &ig
   }
 
   if (tauSummary_) {
-    // double totalTaus = 0, goodTaus = 0, tauPosOff = 0, tauEtOff = 0,
-    //   totalIsoTaus = 0, goodIsoTaus = 0, isoTauPosOff = 0, isoTauEtOff = 0;
 
     // by default show 0% agreement (for edge case when no objects are found)
     double goodTauRatio = 0, tauPosOffRatio = 0, tauEtOffRatio = 0, goodIsoTauRatio = 0, isoTauPosOffRatio = 0,
            isoTauEtOffRatio = 0, tauIsoOffRatio = 0;
-
-    // hist = tauSummary_->getTH1F();
-    // newHist = tauSummary->getTH1F();
 
     double totalTaus = tauSummary_->getBinContent(1);
     double goodTaus = tauSummary_->getBinContent(2);
@@ -278,9 +255,6 @@ void L1TStage2CaloLayer2DEClientSummary::processHistograms(DQMStore::IGetter &ig
   }
 
   if (sumSummary_) {
-    // double totalSums = 0, goodSums = 0, totalETT = 0, goodETT = 0, totalHTT = 0,
-    //   goodHTT = 0, totalMET = 0, goodMET = 0, totalMHT = 0, goodMHT = 0,
-    //   totalMBHF = 0, goodMBHF = 0, totalTowCount = 0, goodTowCount = 0
 
     // by default show 0% agreement (for edge case when no objects are found)
     double goodSumRatio = 0, goodETTRatio = 0, goodHTTRatio = 0, goodMETRatio = 0, goodMHTRatio = 0, goodMBHFRatio = 0,
