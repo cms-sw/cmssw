@@ -1,6 +1,8 @@
 #ifndef RecoTracker_MkFitCore_interface_SteeringParams_h
 #define RecoTracker_MkFitCore_interface_SteeringParams_h
 
+#include "RecoTracker/MkFitCore/interface/FunctionTypes.h"
+
 #include <vector>
 #include <stdexcept>
 
