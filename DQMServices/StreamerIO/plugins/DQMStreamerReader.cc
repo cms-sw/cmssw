@@ -1,40 +1,33 @@
+#include "DQMStreamerReader.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Sources/interface/EventSkipperByID.h"
-#include "FWCore/Utilities/interface/UnixSignalHandlers.h"
-
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/RegexMatch.h"
-#include "DQMStreamerReader.h"
+#include "FWCore/Utilities/interface/UnixSignalHandlers.h"
+#include "IOPool/Streamer/interface/DumpTools.h"
 
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
-#include <memory>
 #include <queue>
 #include <algorithm>
 #include <cctype>
 
-#include <IOPool/Streamer/interface/DumpTools.h>
-
 namespace dqmservices {
 
   DQMStreamerReader::DQMStreamerReader(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc)
-      : StreamerInputSource(pset, desc), fiterator_(pset) {
-    runNumber_ = pset.getUntrackedParameter<unsigned int>("runNumber");
-    runInputDir_ = pset.getUntrackedParameter<std::string>("runInputDir");
-    hltSel_ = pset.getUntrackedParameter<std::vector<std::string> >("SelectEvents");
-
-    minEventsPerLs_ = pset.getUntrackedParameter<int>("minEventsPerLumi");
-    flagSkipFirstLumis_ = pset.getUntrackedParameter<bool>("skipFirstLumis");
-    flagEndOfRunKills_ = pset.getUntrackedParameter<bool>("endOfRunKills");
-    flagDeleteDatFiles_ = pset.getUntrackedParameter<bool>("deleteDatFiles");
-
-    triggerSel();
-
+      : StreamerInputSource(pset, desc),
+        fiterator_(pset),
+        minEventsPerLs_(pset.getUntrackedParameter<int>("minEventsPerLumi")),
+        flagSkipFirstLumis_(pset.getUntrackedParameter<bool>("skipFirstLumis")),
+        flagEndOfRunKills_(pset.getUntrackedParameter<bool>("endOfRunKills")),
+        flagDeleteDatFiles_(pset.getUntrackedParameter<bool>("deleteDatFiles")),
+        hltSel_(pset.getUntrackedParameter<std::vector<std::string>>("SelectEvents")) {
+    setAcceptAllEvt();
     reset_();
   }
 
@@ -90,7 +83,6 @@ namespace dqmservices {
 
   void DQMStreamerReader::openFileImp_(const DQMFileIterator::LumiEntry& entry) {
     processedEventPerLs_ = 0;
-    edm::ParameterSet pset;
 
     std::string path = entry.get_data_path();
 
@@ -105,18 +97,15 @@ namespace dqmservices {
     // dump the list of HLT trigger name from the header
     //  dumpInitHeader(header);
 
-    // if specific trigger selection is requested, check if the requested triggers
-    // match with trigger paths in the header file
+    // if specific trigger selection is requested, check if the requested triggers match with trigger paths in the header file
     if (!acceptAllEvt_) {
-      Strings tnames;
+      std::vector<std::string> tnames;
       header->hltTriggerNames(tnames);
 
-      pset.addParameter<Strings>("SelectEvents", hltSel_);
-      eventSelector_.reset(new TriggerSelector(pset, tnames));
+      triggerSelector_.reset(new TriggerSelector(hltSel_, tnames));
 
-      // check if any trigger path name requested matches with trigger name in the
-      // header file
-      matchTriggerSel(tnames);
+      // check if any trigger path name requested matches with trigger name in the header file
+      setMatchTriggerSel(tnames);
     }
 
     // our initialization
@@ -339,16 +328,15 @@ namespace dqmservices {
  * If hlt trigger selection is '*', return a boolean variable to accept all
  * events
  */
-  bool DQMStreamerReader::triggerSel() {
+  bool DQMStreamerReader::setAcceptAllEvt() {
     acceptAllEvt_ = false;
-    for (Strings::const_iterator i(hltSel_.begin()), end(hltSel_.end()); i != end; ++i) {
-      std::string hltPath(*i);
-      hltPath.erase(
-          std::remove_if(
-              hltPath.begin(), hltPath.end(), [](char c) { return std::isspace(static_cast<unsigned char>(c)); }),
-          hltPath.end());
-      if (hltPath == "*")
+    for (auto hltPath : hltSel_) {
+      hltPath.erase(std::remove_if(hltPath.begin(), hltPath.end(), [](unsigned char c) { return std::isspace(c); }),
+                    hltPath.end());
+      if (hltPath == "*") {
         acceptAllEvt_ = true;
+        break;
+      }
     }
     return acceptAllEvt_;
   }
@@ -356,22 +344,20 @@ namespace dqmservices {
   /**
  * Check if hlt selection matches any trigger name taken from the header file
  */
-  bool DQMStreamerReader::matchTriggerSel(Strings const& tnames) {
+  bool DQMStreamerReader::setMatchTriggerSel(std::vector<std::string> const& tnames) {
     matchTriggerSel_ = false;
-    for (Strings::const_iterator i(hltSel_.begin()), end(hltSel_.end()); i != end; ++i) {
-      std::string hltPath(*i);
-      hltPath.erase(
-          std::remove_if(
-              hltPath.begin(), hltPath.end(), [](char c) { return std::isspace(static_cast<unsigned char>(c)); }),
-          hltPath.end());
-      std::vector<Strings::const_iterator> matches = edm::regexMatch(tnames, hltPath);
-      if (!matches.empty()) {
+    for (auto hltPath : hltSel_) {
+      hltPath.erase(std::remove_if(hltPath.begin(), hltPath.end(), [](unsigned char c) { return std::isspace(c); }),
+                    hltPath.end());
+      auto const matches = edm::regexMatch(tnames, hltPath);
+      if (not matches.empty()) {
         matchTriggerSel_ = true;
+        break;
       }
     }
 
-    if (!matchTriggerSel_) {
-      edm::LogWarning("Trigger selection does not match any trigger path!!!") << std::endl;
+    if (not matchTriggerSel_) {
+      edm::LogWarning("DQMStreamerReader") << "Trigger selection does not match any trigger path!!!";
     }
 
     return matchTriggerSel_;
@@ -393,11 +379,7 @@ namespace dqmservices {
     }
     evtmsg->hltTriggerBits(&hltTriggerBits_[0]);
 
-    if (eventSelector_->wantAll() || eventSelector_->acceptEvent(&hltTriggerBits_[0], evtmsg->hltCount())) {
-      return true;
-    } else {
-      return false;
-    }
+    return (triggerSelector_->wantAll() || triggerSelector_->acceptEvent(&hltTriggerBits_[0], evtmsg->hltCount()));
   }
 
   void DQMStreamerReader::skip(int toSkip) {
@@ -420,7 +402,7 @@ namespace dqmservices {
     edm::ParameterSetDescription desc;
     desc.setComment("Reads events from streamer files.");
 
-    desc.addUntracked<std::vector<std::string> >("SelectEvents")->setComment("HLT path to select events ");
+    desc.addUntracked<std::vector<std::string>>("SelectEvents")->setComment("HLT path to select events");
 
     desc.addUntracked<int>("minEventsPerLumi", 1)
         ->setComment(
