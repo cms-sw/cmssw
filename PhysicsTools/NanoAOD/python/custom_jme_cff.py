@@ -18,7 +18,7 @@ from PhysicsTools.PatAlgos.tools.jetCollectionTools import GenJetAdder, RecoJetA
 from PhysicsTools.PatAlgos.tools.jetTools import supportedJetAlgos
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 
-import copy
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
 
 bTagCSVV2    = ['pfCombinedInclusiveSecondaryVertexV2BJetTags']
 bTagDeepCSV  = ['pfDeepCSVJetTags:probb','pfDeepCSVJetTags:probbb','pfDeepCSVJetTags:probc']
@@ -27,7 +27,9 @@ bTagDeepJet  = [
   'pfDeepFlavourJetTags:probc','pfDeepFlavourJetTags:probuds','pfDeepFlavourJetTags:probg'
 ]
 from RecoBTag.ONNXRuntime.pfParticleNetAK4_cff import _pfParticleNetAK4JetTagsAll
-bTagDiscriminatorsForAK4 = bTagCSVV2+bTagDeepCSV+bTagDeepJet+_pfParticleNetAK4JetTagsAll
+bTagDiscriminatorsForAK4 = cms.PSet(foo = cms.vstring(bTagCSVV2+bTagDeepCSV+bTagDeepJet+_pfParticleNetAK4JetTagsAll))
+run3_common.toModify(bTagDiscriminatorsForAK4, foo = bTagDeepCSV+bTagDeepJet+_pfParticleNetAK4JetTagsAll)
+bTagDiscriminatorsForAK4 = bTagDiscriminatorsForAK4.foo.value()
 
 from RecoBTag.ONNXRuntime.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsAll
 from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetJetTagsAll
