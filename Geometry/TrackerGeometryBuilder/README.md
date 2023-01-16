@@ -64,7 +64,7 @@ of these methods for the three scenarios available so far are described in the t
 | `DetId::subDetId()` | `TrackerGeometry::geomDetSubDetector(subdet)` | `TrackerGeometry::numberOfLayers(subdet)` |
 |--------|--------|-------|
 | 1 | `GeomDetEnumerators::P2PXB` | 4 |
-| 2 | `GeomDetEnumerators::P2PXEC` | 10 |
+| 2 | `GeomDetEnumerators::P2PXEC` | 12 |
 | 3 | `GeomDetEnumerators::invalidDet` | 0 |
 | 4 | `GeomDetEnumerators::P2OTEC` | 5 |
 | 5 | `GeomDetEnumerators::P2OTB` | 6 |
