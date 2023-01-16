@@ -19,8 +19,10 @@ public:
     ~Product();
     //int* values;
     //float3* pos; // KH CAUTION we need this one too later.
+    //uint32_t size;
     uint32_t* detId;
     int* neighbours;
+    float3* position;
   };
 
 #ifndef __CUDACC__
@@ -37,12 +39,14 @@ public:
 
   std::vector<uint32_t, cms::cuda::HostAllocator<uint32_t>> const& getValuesDetId() const { return detId_; }
   std::vector<int, cms::cuda::HostAllocator<int>> const& getValuesNeighbours() const { return neighbours_; }
+  std::vector<float3, cms::cuda::HostAllocator<float3>> const& getValuesPosition() const { return position_; }
 
 private:
   //std::vector<int, cms::cuda::HostAllocator<int>> values_;
 
   std::vector<uint, cms::cuda::HostAllocator<uint32_t>> detId_;
   std::vector<int, cms::cuda::HostAllocator<int>> neighbours_;
+  std::vector<float3, cms::cuda::HostAllocator<float3>> position_;
 
   cms::cuda::ESProduct<Product> product_;
 

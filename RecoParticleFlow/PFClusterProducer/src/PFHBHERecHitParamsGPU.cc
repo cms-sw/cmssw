@@ -32,8 +32,8 @@ PFHBHERecHitParamsGPU::Product const& PFHBHERecHitParamsGPU::getProduct(cudaStre
         // malloc
         cudaCheck(cudaMalloc((void**)&product.valuesdepthHB, this->valuesdepthHB_.size() * sizeof(int)));
         cudaCheck(cudaMalloc((void**)&product.valuesdepthHE, this->valuesdepthHE_.size() * sizeof(int)));
-        cudaCheck(cudaMalloc((void**)&product.valuesthresholdE_HB, this->valuesthresholdE_HB_.size() * sizeof(double)));
-        cudaCheck(cudaMalloc((void**)&product.valuesthresholdE_HE, this->valuesthresholdE_HE_.size() * sizeof(double)));
+        cudaCheck(cudaMalloc((void**)&product.valuesthresholdE_HB, this->valuesthresholdE_HB_.size() * sizeof(float)));
+        cudaCheck(cudaMalloc((void**)&product.valuesthresholdE_HE, this->valuesthresholdE_HE_.size() * sizeof(float)));
 
         // transfer
         cudaCheck(cudaMemcpyAsync(product.valuesdepthHB,
@@ -48,12 +48,12 @@ PFHBHERecHitParamsGPU::Product const& PFHBHERecHitParamsGPU::getProduct(cudaStre
                                   cudaStream));
         cudaCheck(cudaMemcpyAsync(product.valuesthresholdE_HB,
                                   this->valuesthresholdE_HB_.data(),
-                                  this->valuesthresholdE_HB_.size() * sizeof(double),
+                                  this->valuesthresholdE_HB_.size() * sizeof(float),
                                   cudaMemcpyHostToDevice,
                                   cudaStream));
         cudaCheck(cudaMemcpyAsync(product.valuesthresholdE_HE,
                                   this->valuesthresholdE_HE_.data(),
-                                  this->valuesthresholdE_HE_.size() * sizeof(double),
+                                  this->valuesthresholdE_HE_.size() * sizeof(float),
                                   cudaMemcpyHostToDevice,
                                   cudaStream));
       });

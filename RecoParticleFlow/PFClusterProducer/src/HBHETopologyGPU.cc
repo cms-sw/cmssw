@@ -47,31 +47,6 @@ HBHETopologyGPU::HBHETopologyGPU(edm::ParameterSet const& ps,
   const int detIdArraySize = denseIdHcalMax_ - denseIdHcalMin_ + 1;
 
   //
-  // Filling HcalDetId and positions in arrays indexed based on denseId
-  std::vector<uint32_t> detId2;
-  detId2.clear();
-  detId2.reserve(detIdArraySize);
-  std::vector<GlobalPoint> validDetIdPositions;
-  validDetIdPositions.clear();
-  validDetIdPositions.reserve(detIdArraySize);
-
-  for (auto denseid : vDenseIdHcal_) {
-
-    DetId detid = topo.denseId2detId(denseid);
-    HcalDetId hid = HcalDetId(detid);
-    GlobalPoint pos;
-    if (hid.subdet() == HcalBarrel) pos = hcalBarrelGeo->getGeometry(detid)->getPosition();
-    else if (hid.subdet() == HcalEndcap) pos = hcalEndcapGeo->getGeometry(detid)->getPosition();
-    else std::cout << "Invalid subdetector found for detId " << hid.rawId() << ": " << hid.subdet() << std::endl;
-
-    //validDetIdPositions.emplace_back(pos);
-    unsigned index = getIdx(denseid);
-    detId2[index] = detid;
-    validDetIdPositions[index] = pos;
-
-  }
-
-  //
   // Filling a vector of cell neighbours
   //std::vector<std::vector<DetId>> neighboursHcal_;
   neighboursHcal_.clear(); // vector of neighbors
@@ -138,7 +113,8 @@ HBHETopologyGPU::HBHETopologyGPU(edm::ParameterSet const& ps,
       if (hid_n.depth()!=hid_c.depth() && hid_n.depth()!=0) std::cout << "WARNING8" << std::endl;
 
       // Corners
-
+      navigator.home();
+      navigator.east();
       if (hid_c.ieta() > 0.) {  // positive eta: east -> move to smaller |ieta| (finner phi granularity) first
         if (E != DetId(0)) {
           // SE
@@ -152,6 +128,8 @@ HBHETopologyGPU::HBHETopologyGPU(edm::ParameterSet const& ps,
         }
       }  // ieta<0 is handled later.
 
+      navigator.home();
+      navigator.west();
       if (hid_c.ieta() < 0.) {  // negative eta: west -> move to smaller |ieta| (finner phi granularity) first
         if (W != DetId(0)) {
           NW = navigator.north();
@@ -164,6 +142,8 @@ HBHETopologyGPU::HBHETopologyGPU(edm::ParameterSet const& ps,
         }
       }  // ieta>0 is handled later.
 
+      navigator.home();
+      navigator.north();
       if (N != DetId(0)) {
         if (hid_c.ieta() < 0.) {  // negative eta: move in phi first then move to east (coarser phi granularity)
           NE = navigator.east();
@@ -174,6 +154,8 @@ HBHETopologyGPU::HBHETopologyGPU(edm::ParameterSet const& ps,
         }
       }
 
+      navigator.home();
+      navigator.south();
       if (S != DetId(0)) {
         if (hid_c.ieta() > 0.) {  // positive eta: move in phi first then move to west (coarser phi granularity)
           SW = navigator.west();
@@ -253,13 +235,33 @@ HBHETopologyGPU::HBHETopologyGPU(edm::ParameterSet const& ps,
     }    // loop over vDenseIdHcal_
 
   //
-  std::vector<int> neighbours2;
-  neighbours2.clear();
-  neighbours2.reserve(detIdArraySize*8);
+  // Filling detId, positions, neighbours in arrays indexed based on denseId
+  std::vector<uint32_t> detId;
+  detId.clear();
+  detId.resize(detIdArraySize);
+  std::vector<float3> position;
+  position.clear();
+  position.resize(detIdArraySize);
+  std::vector<int> neighbours;
+  neighbours.clear();
+  neighbours.resize(detIdArraySize*8);
+
+  std::cout << "detid size " <<  detId.size() << std::endl;
+
   for (auto denseid : vDenseIdHcal_) {
-    //DetId detid = topo.denseId2detId(denseid);
-    //HcalDetId hid = HcalDetId(detid);
+
+    DetId detid = topo.denseId2detId(denseid);
+    HcalDetId hid = HcalDetId(detid);
+    GlobalPoint pos;
+    if (hid.subdet() == HcalBarrel) pos = hcalBarrelGeo->getGeometry(detid)->getPosition();
+    else if (hid.subdet() == HcalEndcap) pos = hcalEndcapGeo->getGeometry(detid)->getPosition();
+    else std::cout << "Invalid subdetector found for detId " << hid.rawId() << ": " << hid.subdet() << std::endl;
+
+    //validDetIdPositions.emplace_back(pos);
     unsigned index = getIdx(denseid);
+    detId[index] = (uint32_t)detid;
+    position[index] = make_float3(pos.x(),pos.y(),pos.z());
+
     auto neigh = neighboursHcal_.at(index);
 
     for (uint32_t n = 0; n < 8; n++) {
@@ -272,18 +274,17 @@ HBHETopologyGPU::HBHETopologyGPU(edm::ParameterSet const& ps,
       if (neighDetId > 0
 	  && (&topo)->detId2denseId(neighDetId)>=denseIdHcalMin_
 	  && (&topo)->detId2denseId(neighDetId)<=denseIdHcalMax_) {
-	neighbours2[index * 8 + n] = getIdx(topo.detId2denseId(neighDetId));
+	neighbours[index * 8 + n] = getIdx(topo.detId2denseId(neighDetId));
       } else
-	neighbours2[index * 8 + n] = -1;
+	neighbours[index * 8 + n] = -1;
     }
 
   }
-  //KH---ends
 
   //
   // KH - of course these are dummy
-  auto const& detId = ps.getParameter<std::vector<uint32_t>>("pulseOffsets");
-  auto const& neighbours = ps.getParameter<std::vector<int>>("pulseOffsets2");
+  auto const& detId2 = ps.getParameter<std::vector<uint32_t>>("pulseOffsets");
+  auto const& neighbours2 = ps.getParameter<std::vector<int>>("pulseOffsets2");
 
   //
   // Fill variables for HostAllocator
@@ -291,13 +292,16 @@ HBHETopologyGPU::HBHETopologyGPU(edm::ParameterSet const& ps,
   std::copy(detId.begin(), detId.end(), detId_.begin());
   neighbours_.resize(neighbours.size());
   std::copy(neighbours.begin(), neighbours.end(), neighbours_.begin());
+  position_.resize(position.size());
+  std::copy(position.begin(), position.end(), position_.begin());
+
 }
 
 HBHETopologyGPU::Product::~Product() {
   // deallocation
-  //cudaCheck(cudaFree(pos));
   cudaCheck(cudaFree(detId));
   cudaCheck(cudaFree(neighbours));
+  cudaCheck(cudaFree(position));
 }
 
 HBHETopologyGPU::Product const& HBHETopologyGPU::getProduct(cudaStream_t cudaStream) const {
@@ -307,6 +311,7 @@ HBHETopologyGPU::Product const& HBHETopologyGPU::getProduct(cudaStream_t cudaStr
         //cudaCheck(cudaMalloc((void**)&product.values, this->values_.size() * sizeof(int)));
         cudaCheck(cudaMalloc((void**)&product.detId, this->detId_.size() * sizeof(uint32_t)));
         cudaCheck(cudaMalloc((void**)&product.neighbours, this->neighbours_.size() * sizeof(int)));
+        cudaCheck(cudaMalloc((void**)&product.position, this->position_.size() * sizeof(float3)));
 
         // transfer
         // cudaCheck(cudaMemcpyAsync(product.values,
@@ -322,6 +327,11 @@ HBHETopologyGPU::Product const& HBHETopologyGPU::getProduct(cudaStream_t cudaStr
         cudaCheck(cudaMemcpyAsync(product.neighbours,
                                   this->neighbours_.data(),
                                   this->neighbours_.size() * sizeof(int),
+                                  cudaMemcpyHostToDevice,
+                                  cudaStream));
+        cudaCheck(cudaMemcpyAsync(product.position,
+                                  this->position_.data(),
+                                  this->position_.size() * sizeof(float3),
                                   cudaMemcpyHostToDevice,
                                   cudaStream));
 

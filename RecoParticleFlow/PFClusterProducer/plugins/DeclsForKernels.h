@@ -85,8 +85,8 @@ namespace PFRecHit {
       PFHBHERecHitParamsGPU::Product const& recHitParametersProduct;
       std::vector<int, cms::cuda::HostAllocator<int>> const& depthHB;
       std::vector<int, cms::cuda::HostAllocator<int>> const& depthHE;
-      std::vector<double, cms::cuda::HostAllocator<double>> const& thresholdE_HB;
-      std::vector<double, cms::cuda::HostAllocator<double>> const& thresholdE_HE;
+      std::vector<float, cms::cuda::HostAllocator<float>> const& thresholdE_HB;
+      std::vector<float, cms::cuda::HostAllocator<float>> const& thresholdE_HE;
       HBHETopologyGPU::Product const& hbheTopoDataProduct;
       std::vector<uint, cms::cuda::HostAllocator<uint32_t>> const& detId;
       std::vector<int, cms::cuda::HostAllocator<int>> const& neighbours;

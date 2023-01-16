@@ -14,8 +14,8 @@ public:
     ~Product();
     int* valuesdepthHB;
     int* valuesdepthHE;
-    double* valuesthresholdE_HB;
-    double* valuesthresholdE_HE;
+    float* valuesthresholdE_HB;
+    float* valuesthresholdE_HE;
     /*
     edm::propagate_const_array<cms::cuda::device::unique_ptr<uint32_t[]>> depthHB;
     edm::propagate_const_array<cms::cuda::device::unique_ptr<uint32_t[]>> depthHE;
@@ -43,12 +43,12 @@ public:
 
   using intvec = std::reference_wrapper<std::vector<int, cms::cuda::HostAllocator<int>> const>;
   using uint32vec = std::reference_wrapper<std::vector<uint32_t, cms::cuda::HostAllocator<uint32_t>> const>;
-  using doublevec = std::reference_wrapper<std::vector<double, cms::cuda::HostAllocator<double>> const>;
-  
+  using doublevec = std::reference_wrapper<std::vector<float, cms::cuda::HostAllocator<float>> const>;
+
   std::vector<int, cms::cuda::HostAllocator<int>> const& getValuesdepthHB() const { return valuesdepthHB_; }
   std::vector<int, cms::cuda::HostAllocator<int>> const& getValuesdepthHE() const { return valuesdepthHE_; }
-  std::vector<double, cms::cuda::HostAllocator<double>> const& getValuesthresholdE_HB() const { return valuesthresholdE_HB_; }
-  std::vector<double, cms::cuda::HostAllocator<double>> const& getValuesthresholdE_HE() const { return valuesthresholdE_HE_; }
+  std::vector<float, cms::cuda::HostAllocator<float>> const& getValuesthresholdE_HB() const { return valuesthresholdE_HB_; }
+  std::vector<float, cms::cuda::HostAllocator<float>> const& getValuesthresholdE_HE() const { return valuesthresholdE_HE_; }
 
   /* std::array<std::reference_wrapper<std::vector<double, cms::cuda::HostAllocator<double>> const>, 4> getValues() const { */
   /*   return {{depthHB_, depthHE_, thresholdE_HB_, thresholdE_HE_}}; */
@@ -63,8 +63,8 @@ public:
 private:
   std::vector<int, cms::cuda::HostAllocator<int>> valuesdepthHB_;
   std::vector<int, cms::cuda::HostAllocator<int>> valuesdepthHE_;
-  std::vector<double, cms::cuda::HostAllocator<double>> valuesthresholdE_HB_;
-  std::vector<double, cms::cuda::HostAllocator<double>> valuesthresholdE_HE_;
+  std::vector<float, cms::cuda::HostAllocator<float>> valuesthresholdE_HB_;
+  std::vector<float, cms::cuda::HostAllocator<float>> valuesthresholdE_HE_;
   /*
   std::vector<int, cms::cuda::HostAllocator<int>> depthHB_;
   std::vector<int, cms::cuda::HostAllocator<int>> depthHE_;

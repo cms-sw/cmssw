@@ -368,8 +368,8 @@ namespace PFRecHit {
 					      //const PFHBHERecHitParamsGPU::Product recHitParamsProduct,
 					      int const* depthHB,
 					      int const* depthHE,
-					      double const* thresholdE_HB,
-					      double const* thresholdE_HE,
+					      float const* thresholdE_HB,
+					      float const* thresholdE_HE,
                                               int* rh_mask,                   // Mask for rechit index
                                               const uint32_t* recHits_did,    // Input rechit detIds
                                               const float* recHits_energy) {  // Input rechit energy
@@ -493,6 +493,8 @@ namespace PFRecHit {
                                                  const int* inputToPFRHIdx,
                                                  const float3* rh_pos,
                                                  const int* rh_neighbours,
+						 const float3* position,
+						 const int* neighbours,
                                                  const int* rh_inputToFullIdx,
                                                  const int* rh_fullToInputIdx,
                                                  const float* recHits_energy,
@@ -548,11 +550,43 @@ namespace PFRecHit {
         int index = rh_inputToFullIdx[i];  // Determine reference table index corresponding to this input index
         if (index < 0)
           printf("convert kernel with pfIdx = %u has full index = %u\n", pfIdx, index);
+	float3 pos2 = position[index];
         float3 pos = rh_pos[index];  // position vector of this rechit
+	if (pos.x!=pos2.x || pos.y!=pos2.y || pos.z!=pos2.z)
+	  printf("DDD pos check %8.2f %8.2f %8.2f vs %8.2f %8.2f %8.2f\n",
+		 pos.x,pos.y,pos.z,
+		 position[index].x,position[index].y,position[index].z);
         pfrechits_x[pfIdx] = pos.x;
         pfrechits_y[pfIdx] = pos.y;
         pfrechits_z[pfIdx] = pos.z;
 
+	if (rh_neighbours[index * 8]    !=neighbours[index * 8])     printf("neigh  %8d %8d\n",rh_neighbours[index * 8],     neighbours[index * 8]);
+	if (rh_neighbours[index * 8 + 1]!=neighbours[index * 8 + 1]) printf("neigh1 %8d %8d\n",rh_neighbours[index * 8 + 1], neighbours[index * 8 + 1]);
+	if (rh_neighbours[index * 8 + 2]!=neighbours[index * 8 + 2]) printf("neigh2 %8d %8d\n",rh_neighbours[index * 8 + 2], neighbours[index * 8 + 2]);
+	if (rh_neighbours[index * 8 + 3]!=neighbours[index * 8 + 3]) printf("neigh3 %8d %8d\n",rh_neighbours[index * 8 + 3], neighbours[index * 8 + 3]);
+	if (rh_neighbours[index * 8 + 4]!=neighbours[index * 8 + 4]) printf("neigh4 %8d %8d\n",rh_neighbours[index * 8 + 4], neighbours[index * 8 + 4]);
+	if (rh_neighbours[index * 8 + 5]!=neighbours[index * 8 + 5]) printf("neigh5 %8d %8d\n",rh_neighbours[index * 8 + 5], neighbours[index * 8 + 5]);
+	if (rh_neighbours[index * 8 + 6]!=neighbours[index * 8 + 6]) printf("neigh6 %8d %8d\n",rh_neighbours[index * 8 + 6], neighbours[index * 8 + 6]);
+	if (rh_neighbours[index * 8 + 7]!=neighbours[index * 8 + 7]) printf("neigh7 %8d %8d\n",rh_neighbours[index * 8 + 7], neighbours[index * 8 + 7]);
+
+          printf("\trh_neighbours = [%d, %d, %d, %d, %d, %d, %d, %d] [%d, %d, %d, %d, %d, %d, %d, %d]\n",
+                 rh_neighbours[index * 8],
+                 rh_neighbours[index * 8 + 1],
+                 rh_neighbours[index * 8 + 2],
+                 rh_neighbours[index * 8 + 3],
+                 rh_neighbours[index * 8 + 4],
+                 rh_neighbours[index * 8 + 5],
+                 rh_neighbours[index * 8 + 6],
+                 rh_neighbours[index * 8 + 7],
+                 neighbours[index * 8],
+                 neighbours[index * 8 + 1],
+                 neighbours[index * 8 + 2],
+                 neighbours[index * 8 + 3],
+                 neighbours[index * 8 + 4],
+                 neighbours[index * 8 + 5],
+                 neighbours[index * 8 + 6],
+                 neighbours[index * 8 + 7]);
+	
         if (debug) {
           printf("Now debugging rechit %d\tpfIdx %u\ti = %d\tindex = %d\tpos = (%f, %f, %f)\n",
                  detid,
@@ -809,6 +843,8 @@ namespace PFRecHit {
           scratchDataGPU.inputToPFRHIdx.get(),
           persistentDataGPU.rh_pos.get(),
           persistentDataGPU.rh_neighbours.get(),
+	  constantProducts.hbheTopoDataProduct.position,
+	  constantProducts.hbheTopoDataProduct.neighbours,
           scratchDataGPU.rh_inputToFullIdx.get(),
           scratchDataGPU.rh_fullToInputIdx.get(),
           HBHERecHits_asInput.energy.get(),
