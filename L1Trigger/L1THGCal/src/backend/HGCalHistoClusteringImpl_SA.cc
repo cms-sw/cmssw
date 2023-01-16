@@ -60,12 +60,6 @@ std::vector<l1thgcfirmware::HGCalMulticluster> HGCalHistoClusteringImplSA::clust
     // Leaving in some redundant functionality in case we need
     // EnergySplit option
 
-    //Loop over target seeds and divide up the clusters energy
-    double totalTargetSeedEnergy = 0;
-    for (const auto& energy : targetSeedsEnergy) {
-      totalTargetSeedEnergy += energy.second;
-    }
-
     for (const auto& energy : targetSeedsEnergy) {
       double seedWeight = 1;
       if (mapSeedMulticluster[energy.first].size() == 0) {
