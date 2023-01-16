@@ -217,7 +217,6 @@ namespace tmtt {
     // If user asked to add up to 7 layers to track, increase number of iterations by 1.
     const unsigned int maxIterations = std::max(nTypicalLayers, settings_->kalmanMaxNumStubs());
     for (unsigned iteration = 0; iteration < maxIterations; iteration++) {
-
       bool easy = (l1track3D.numStubs() < settings_->kalmanMaxStubsEasy());
       unsigned int kalmanMaxSkipLayers =
           easy ? settings_->kalmanMaxSkipLayersEasy() : settings_->kalmanMaxSkipLayersHard();

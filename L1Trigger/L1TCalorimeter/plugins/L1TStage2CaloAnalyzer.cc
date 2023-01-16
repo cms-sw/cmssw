@@ -497,7 +497,6 @@ namespace l1t {
       }
     }
 
-
     // get sums
     if (m_doMPSums) {
       Handle<BXVector<l1t::EtSum> > mpsums;
