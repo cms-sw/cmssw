@@ -10,14 +10,9 @@
 #include "DQMMonitoringService.h"
 #include "TriggerSelector.h"
 
-#include <filesystem>
-
 #include <memory>
 #include <string>
 #include <vector>
-#include <iterator>
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
 
 namespace dqmservices {
 
@@ -26,10 +21,9 @@ namespace dqmservices {
     DQMStreamerReader(edm::ParameterSet const& pset, edm::InputSourceDescription const& desc);
     ~DQMStreamerReader() override;
 
-    bool newHeader();
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-    typedef std::vector<std::string> Strings;
+    bool newHeader();
 
   protected:
     Next checkNext() override;      /* from raw input source */
@@ -51,28 +45,25 @@ namespace dqmservices {
     EventMsgView const* getEventMsg();
 
     EventMsgView const* prepareNextEvent();
+
+    bool isFirstFile_ = true;
     bool prepareNextFile();
     bool acceptEvent(const EventMsgView*);
 
-    bool triggerSel();
-    bool matchTriggerSel(Strings const& tnames);
-    bool acceptAllEvt_;
-    bool matchTriggerSel_;
-    bool isFirstFile_ = true;
-
-    unsigned int runNumber_;
-    std::string runInputDir_;
-    std::string streamLabel_;
-    Strings hltSel_;
-
-    unsigned int processedEventPerLs_;
-    unsigned int minEventsPerLs_;
-
-    bool flagSkipFirstLumis_;
-    bool flagEndOfRunKills_;
-    bool flagDeleteDatFiles_;
-
     DQMFileIterator fiterator_;
+    unsigned int processedEventPerLs_ = 0;
+
+    unsigned int const minEventsPerLs_;
+    bool const flagSkipFirstLumis_;
+    bool const flagEndOfRunKills_;
+    bool const flagDeleteDatFiles_;
+    std::vector<std::string> const hltSel_;
+
+    bool acceptAllEvt_ = false;
+    bool setAcceptAllEvt();
+
+    bool matchTriggerSel_ = false;
+    bool setMatchTriggerSel(std::vector<std::string> const& tnames);
 
     struct OpenFile {
       std::unique_ptr<edm::StreamerInputFile> streamFile_;
@@ -83,7 +74,7 @@ namespace dqmservices {
     } file_;
 
     std::shared_ptr<edm::EventSkipperByID> eventSkipperByID_;
-    std::shared_ptr<TriggerSelector> eventSelector_;
+    std::shared_ptr<TriggerSelector> triggerSelector_;
 
     /* this is for monitoring */
     edm::Service<DQMMonitoringService> mon_;
@@ -91,4 +82,4 @@ namespace dqmservices {
 
 }  // namespace dqmservices
 
-#endif
+#endif  // DQMServices_StreamerIO_DQMStreamerReader_h
