@@ -189,8 +189,8 @@ photonTable = simpleCandidateFlatTableProducer.clone(
     name= cms.string("Photon"),
     doc = cms.string("slimmedPhotons after basic selection (" + finalPhotons.cut.value()+")"),
     variables = cms.PSet(P3Vars,
-        jetIdx = Var("?hasUserCand('jet')?userCand('jet').key():-1", int, doc="index of the associated jet (-1 if none)"),
-        electronIdx = Var("?hasUserCand('electron')?userCand('electron').key():-1", int, doc="index of the associated electron (-1 if none)"),
+        jetIdx = Var("?hasUserCand('jet')?userCand('jet').key():-1", "int16", doc="index of the associated jet (-1 if none)"),
+        electronIdx = Var("?hasUserCand('electron')?userCand('electron').key():-1", "int16", doc="index of the associated electron (-1 if none)"),
         energyErr = Var("getCorrectedEnergyError('regression2')",float,doc="energy error of the cluster from regression",precision=6),
         energyRaw = Var("superCluster().rawEnergy()",float,doc="raw energy of photon supercluster", precision=10),
         r9 = Var("full5x5_r9()",float,doc="R9 of the supercluster, calculated with full 5x5 region",precision=8),
@@ -202,12 +202,12 @@ photonTable = simpleCandidateFlatTableProducer.clone(
         phiWidth = Var("superCluster().phiWidth()",float,doc="Width of the photon supercluster in phi", precision=8),
         cutBased = Var(
             "userInt('cutBasedID_loose')+userInt('cutBasedID_medium')+userInt('cutBasedID_tight')",
-            int,
+            "uint8",
             doc="cut-based ID bitmap, RunIIIWinter22V1, (0:fail, 1:loose, 2:medium, 3:tight)",
         ),
         cutBased_Fall17V2 = Var(
             "userInt('cutBasedID_Fall17V2_loose')+userInt('cutBasedID_Fall17V2_medium')+userInt('cutBasedID_Fall17V2_tight')",
-            int,
+            "uint8",
             doc="cut-based ID bitmap, Fall17V2, (0:fail, 1:loose, 2:medium, 3:tight)",
         ),
         vidNestedWPBitmap = Var(

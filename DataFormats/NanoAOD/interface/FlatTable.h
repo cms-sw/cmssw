@@ -38,13 +38,15 @@ namespace nanoaod {
   class FlatTable {
   public:
     enum class ColumnType {
-      Float,
-      Int,
+      Int8,
       UInt8,
-      Bool,
+      Int16,
+      UInt16,
+      Int32,
       UInt32,
+      Bool,
+      Float,
       Double,
-      Int8
     };  // We could have other Float types with reduced mantissa, and similar
 
     FlatTable() : size_(0) {}
@@ -138,18 +140,22 @@ namespace nanoaod {
     struct dependent_false : std::false_type {};
     template <typename T>
     static ColumnType defaultColumnType() {
-      if constexpr (std::is_same<T, float>())
-        return ColumnType::Float;
-      else if constexpr (std::is_same<T, int>())
-        return ColumnType::Int;
+      if constexpr (std::is_same<T, int8_t>())
+        return ColumnType::Int8;
       else if constexpr (std::is_same<T, uint8_t>())
         return ColumnType::UInt8;
-      else if constexpr (std::is_same<T, int8_t>())
-        return ColumnType::Int8;
-      else if constexpr (std::is_same<T, bool>())
-        return ColumnType::Bool;
+      else if constexpr (std::is_same<T, int16_t>())
+        return ColumnType::Int16;
+      else if constexpr (std::is_same<T, uint16_t>())
+        return ColumnType::UInt16;
+      else if constexpr (std::is_same<T, int32_t>())
+        return ColumnType::Int32;
       else if constexpr (std::is_same<T, uint32_t>())
         return ColumnType::UInt32;
+      else if constexpr (std::is_same<T, bool>())
+        return ColumnType::Bool;
+      else if constexpr (std::is_same<T, float>())
+        return ColumnType::Float;
       else if constexpr (std::is_same<T, double>())
         return ColumnType::Double;
       else
@@ -188,18 +194,22 @@ namespace nanoaod {
     template <typename T, class This>
     static auto &bigVectorImpl(This &table) {
       // helper function to avoid code duplication, for the two accessor functions that differ only in const-ness
-      if constexpr (std::is_same<T, float>())
-        return table.floats_;
-      else if constexpr (std::is_same<T, int>())
-        return table.ints_;
+      if constexpr (std::is_same<T, int8_t>())
+        return table.int8s_;
       else if constexpr (std::is_same<T, uint8_t>())
         return table.uint8s_;
-      else if constexpr (std::is_same<T, int8_t>())
-        return table.int8s_;
-      else if constexpr (std::is_same<T, bool>())
-        return table.uint8s_;
+      else if constexpr (std::is_same<T, int16_t>())
+        return table.int16s_;
+      else if constexpr (std::is_same<T, uint16_t>())
+        return table.uint16s_;
+      else if constexpr (std::is_same<T, int32_t>())
+        return table.int32s_;
       else if constexpr (std::is_same<T, uint32_t>())
         return table.uint32s_;
+      else if constexpr (std::is_same<T, bool>())
+        return table.uint8s_;  // special case: bool stored as vector of uint8
+      else if constexpr (std::is_same<T, float>())
+        return table.floats_;
       else if constexpr (std::is_same<T, double>())
         return table.doubles_;
       else
@@ -210,11 +220,13 @@ namespace nanoaod {
     std::string name_, doc_;
     bool singleton_, extension_;
     std::vector<Column> columns_;
-    std::vector<float> floats_;
-    std::vector<int> ints_;
-    std::vector<uint8_t> uint8s_;
     std::vector<int8_t> int8s_;
+    std::vector<uint8_t> uint8s_;
+    std::vector<int16_t> int16s_;
+    std::vector<uint16_t> uint16s_;
+    std::vector<int32_t> int32s_;
     std::vector<uint32_t> uint32s_;
+    std::vector<float> floats_;
     std::vector<double> doubles_;
   };
 
