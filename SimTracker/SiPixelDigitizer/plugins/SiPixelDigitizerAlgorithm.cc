@@ -1454,8 +1454,8 @@ void SiPixelDigitizerAlgorithm::induce_signal(std::vector<PSimHit>::const_iterat
     int IPixLeftDownY = int(floor(mp.y()));
 
 #ifdef TP_DEBUG
-    emd::LogDebug("Pixel Digitizer") << " left-down " << PointLeftDown << " " << mp.x() << " " << mp.y() << " "
-                                     << IPixLeftDownX << " " << IPixLeftDownY;
+    LogDebug("Pixel Digitizer") << " left-down " << PointLeftDown << " " << mp.x() << " " << mp.y() << " "
+                                << IPixLeftDownX << " " << IPixLeftDownY;
 #endif
 
     // Check detector limits to correct for pixels outside range.
@@ -1564,7 +1564,7 @@ void SiPixelDigitizerAlgorithm::induce_signal(std::vector<PSimHit>::const_iterat
   if (UseReweighting) {
     if (hit.processType() == 0) {
       ReferenceIndex4CR = hitIndex;
-      reweighted = TheNewSiPixelChargeReweightingAlgorithmClass->hitSignalReweight(
+      reweighted = TheNewSiPixelChargeReweightingAlgorithmClass->hitSignalReweight<digitizerUtility::Amplitude>(
           hit, hit_signal, hitIndex, ReferenceIndex4CR, tofBin, topol, detID, theSignal, hit.processType(), makeDSLinks);
     } else {
       std::vector<PSimHit>::const_iterator crSimHit = inputBegin;
@@ -1587,16 +1587,17 @@ void SiPixelDigitizerAlgorithm::induce_signal(std::vector<PSimHit>::const_iterat
         }
       }
 
-      reweighted = TheNewSiPixelChargeReweightingAlgorithmClass->hitSignalReweight((*crSimHit),
-                                                                                   hit_signal,
-                                                                                   hitIndex,
-                                                                                   ReferenceIndex4CR,
-                                                                                   tofBin,
-                                                                                   topol,
-                                                                                   detID,
-                                                                                   theSignal,
-                                                                                   hit.processType(),
-                                                                                   makeDSLinks);
+      reweighted = TheNewSiPixelChargeReweightingAlgorithmClass->hitSignalReweight<digitizerUtility::Amplitude>(
+          (*crSimHit),
+          hit_signal,
+          hitIndex,
+          ReferenceIndex4CR,
+          tofBin,
+          topol,
+          detID,
+          theSignal,
+          hit.processType(),
+          makeDSLinks);
     }
   }
   if (!reweighted) {
@@ -2556,7 +2557,7 @@ void SiPixelDigitizerAlgorithm::lateSignalReweight(const PixelGeomDetUnit* pixde
   for (loopTempSH = newClass_Sim_extra.begin(); loopTempSH != newClass_Sim_extra.end(); ++loopTempSH) {
     signal_map_type theDigiSignal;
     PixelSimHitExtraInfo TheNewInfo = *loopTempSH;
-    reweighted = TheNewSiPixelChargeReweightingAlgorithmClass->lateSignalReweight(
+    reweighted = TheNewSiPixelChargeReweightingAlgorithmClass->lateSignalReweight<digitizerUtility::Amplitude>(
         pixdet, digis, TheNewInfo, theDigiSignal, tTopo, engine);
     if (!reweighted) {
       // loop on the non-reweighthed digis associated to the considered SimHit
