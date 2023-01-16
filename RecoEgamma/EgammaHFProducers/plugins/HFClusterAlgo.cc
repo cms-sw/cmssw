@@ -197,13 +197,9 @@ bool HFClusterAlgo::makeCluster(const HcalDetId& seedid,
                                 SuperCluster& Sclus) {
   double w = 0;  //sum over all log E's
   double wgt = 0;
-  double w_e = 0;  //sum over ieat*energy
   double w_x = 0;
   double w_y = 0;
   double w_z = 0;
-  double wp_e = 0;  //sum over iphi*energy
-  double e_e = 0;   //nonwieghted eta sum
-  double e_ep = 0;  //nonweighted phi sum
 
   double l_3 = 0;  //sum for enenergy in 3x3 long fibers etc.
   double s_3 = 0;
@@ -308,15 +304,10 @@ bool HFClusterAlgo::makeCluster(const HcalDetId& seedid,
             d_p += 2 * M_PI;
           while (d_p > M_PI)
             d_p -= 2 * M_PI;
-          double d_e = p.eta() - sp.eta();
 
           wgt = log((e_long));
           if (wgt > 0) {
             w += wgt;
-            w_e += (d_e)*wgt;
-            wp_e += (d_p)*wgt;
-            e_e += d_e;
-            e_ep += d_p;
 
             w_x += (p.x()) * wgt;  //(p.x()-sp.x())*wgt;
             w_y += (p.y()) * wgt;
