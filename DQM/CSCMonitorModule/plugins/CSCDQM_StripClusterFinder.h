@@ -48,7 +48,7 @@ namespace cscdqm {
     void SearchBorders(void);
     void Match(void);
     bool FindAndMatch(void);
-    uint32_t KillCluster(uint32_t ic1, uint32_t ic2, C1 const&, C2 const&);
+    void KillCluster(uint32_t ic1, uint32_t ic2, C1 const&, C2 const&);
     void RefindMax(void);
     bool is7DCFEBs;
     bool isME11;

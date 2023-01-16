@@ -191,8 +191,7 @@ namespace cscdqm {
 
   bool StripClusterFinder::FindAndMatch(void) {
     // Find clusters to match
-    uint32_t icstart = 0;  //!!!???
-    for (uint32_t ic1 = icstart; ic1 < MEStripClusters.size(); ic1++) {
+    for (uint32_t ic1 = 0; ic1 < MEStripClusters.size(); ic1++) {
       C1 c1;
       c1.IC1MIN = MEStripClusters[ic1].LFTBNDStrip;
       c1.IC1MAX = MEStripClusters[ic1].IRTBNDStrip;
@@ -208,14 +207,14 @@ namespace cscdqm {
             (c2.IC2MIN >= c1.IC1MIN && c2.IC2MIN <= c1.IC1MAX && c2.JC2MAX >= c1.JC1MIN && c2.JC2MAX <= c1.JC1MAX) ||
             (c2.IC2MAX >= c1.IC1MIN && c2.IC2MAX <= c1.IC1MAX && c2.JC2MIN >= c1.JC1MIN && c2.JC2MIN <= c1.JC1MAX) ||
             (c2.IC2MAX >= c1.IC1MIN && c2.IC2MAX <= c1.IC1MAX && c2.JC2MAX >= c1.JC1MIN && c2.JC2MAX <= c1.JC1MAX)) {
-          icstart = KillCluster(ic1, ic2, c1, c2);
+          KillCluster(ic1, ic2, c1, c2);
           return true;
         } else {
           if ((c1.IC1MIN >= c2.IC2MIN && c1.IC1MIN <= c2.IC2MAX && c1.JC1MIN >= c2.JC2MIN && c1.JC1MIN <= c2.JC2MAX) ||
               (c1.IC1MIN >= c2.IC2MIN && c1.IC1MIN <= c2.IC2MAX && c1.JC1MAX >= c2.JC2MIN && c1.JC1MAX <= c2.JC2MAX) ||
               (c1.IC1MAX >= c2.IC2MIN && c1.IC1MAX <= c2.IC2MAX && c1.JC1MIN >= c2.JC2MIN && c1.JC1MIN <= c2.JC2MAX) ||
               (c1.IC1MAX >= c2.IC2MIN && c1.IC1MAX <= c2.IC2MAX && c1.JC1MAX >= c2.JC2MIN && c1.JC1MAX <= c2.JC2MAX)) {
-            icstart = KillCluster(ic1, ic2, c1, c2);
+            KillCluster(ic1, ic2, c1, c2);
             return true;
           }
         }
@@ -223,7 +222,7 @@ namespace cscdqm {
     }
     return false;
   }
-  uint32_t StripClusterFinder::KillCluster(uint32_t ic1, uint32_t ic2, C1 const& c1, C2 const& c2) {
+  void StripClusterFinder::KillCluster(uint32_t ic1, uint32_t ic2, C1 const& c1, C2 const& c2) {
     // Match Clusters and kill one of clusters.
     if (c1.IC1MIN < c2.IC2MIN)
       MEStripClusters[ic1].LFTBNDStrip = c1.IC1MIN;
@@ -243,7 +242,7 @@ namespace cscdqm {
       MEStripClusters[ic1].IRTBNDTime = c2.JC2MAX;
 
     MEStripClusters.erase(MEStripClusters.begin() + ic2);
-    return ic1;
+    return;
   }
   void StripClusterFinder::RefindMax(void) {
     //             SEARCHING EXTREMUMS IN THE CLUSTERS
