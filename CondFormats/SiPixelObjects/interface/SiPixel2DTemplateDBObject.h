@@ -61,7 +61,7 @@ public:
   int maxIndex() const { return maxIndex_; }
   int numOfTempl() const { return numOfTempl_; }
   float version() const { return version_; }
-  std::vector<float> sVector() const { return sVector_; }
+  std::vector<float> const& sVector() const { return sVector_; }
 
   //- Able to set the index for template header
   void incrementIndex(int i) { index_ += i; }
@@ -96,6 +96,44 @@ public:
           << "2Dtemplate ID for DetID " << detid << " is not stored" << std::endl;
     return 0;
   }
+
+  class Reader {
+  public:
+    Reader(SiPixel2DTemplateDBObject const& object) : object_(object), index_(0), isInvalid_(false) {}
+
+    bool fail() { return isInvalid_; }
+
+    int index() const { return index_; }
+    //- Able to set the index for template header
+    void incrementIndex(int i) { index_ += i; }
+
+    //- Fills integer from dbobject
+    Reader& operator>>(int& i) {
+      isInvalid_ = false;
+      if (index_ <= object_.maxIndex_) {
+        i = (int)object_.sVector_[index_];
+        index_++;
+      } else
+        isInvalid_ = true;
+      return *this;
+    }
+    //- Fills float from dbobject
+    Reader& operator>>(float& f) {
+      isInvalid_ = false;
+      if (index_ <= object_.maxIndex_) {
+        f = object_.sVector_[index_];
+        index_++;
+      } else
+        isInvalid_ = true;
+      return *this;
+    }
+
+  private:
+    SiPixel2DTemplateDBObject const& object_;
+    int index_;
+    bool isInvalid_;
+  };
+  friend class Reader;
 
 private:
   int index_;
