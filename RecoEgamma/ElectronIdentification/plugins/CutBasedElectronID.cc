@@ -385,11 +385,11 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
     }
 
     // ID part
-    if (cut_results[0] & cut_results[1] & cut_results[2] & cut_results[3] & cut_results[4])
+    if (cut_results[0] && cut_results[1] && cut_results[2] && cut_results[3] && cut_results[4])
       result = result + 1;
 
     // ISO part
-    if (cut_results[5] & cut_results[6])
+    if (cut_results[5] && cut_results[6])
       result = result + 2;
 
     // IP part
@@ -397,7 +397,7 @@ double CutBasedElectronID::cicSelection(const reco::GsfElectron* electron,
       result = result + 8;
 
     // Conversion part
-    if (cut_results[8] & cut_results[9])
+    if (cut_results[8] && cut_results[9])
       result = result + 4;
 
     return result;
