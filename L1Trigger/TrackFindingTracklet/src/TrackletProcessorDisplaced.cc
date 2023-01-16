@@ -236,17 +236,12 @@ void TrackletProcessorDisplaced::execute(unsigned int iSector, double phimin, do
   unsigned int countpass = 0;
   unsigned int countpass_ = 0;
   // unsigned int nThirdStubs = 0;
-  unsigned int nInnerStubs = 0;
   // unsigned int nOuterStubs = 0;
   count_ = 0;
 
   phimin_ = phimin;
   phimax_ = phimax;
   iSector_ = iSector;
-
-  for (unsigned int iInnerMem = 0; iInnerMem < middleallstubs_.size();
-       nInnerStubs += middleallstubs_.at(iInnerMem)->nStubs(), iInnerMem++)
-    ;
 
   assert(!innerallstubs_.empty());
   assert(!middleallstubs_.empty());

@@ -164,7 +164,7 @@ void BestTrackSelection::cancel_one_bx(const std::deque<EMTFTrackCollection>& ex
   // remove ghosts according to kill mask
   //exists = exists & (~kill1);
   for (i = 0; i < max_zn; ++i) {
-    exists[i] = exists[i] & (!killed[i]);
+    exists[i] = exists[i] && (!killed[i]);
   }
 
   bool anything_exists = (std::find(exists.begin(), exists.end(), 1) != exists.end());
@@ -177,7 +177,7 @@ void BestTrackSelection::cancel_one_bx(const std::deque<EMTFTrackCollection>& ex
       //if  (exists[i]) larger[i] = larger[i] | (~exists); // if this track exists make it larger than all non-existing tracks
       //else  larger[i] = 0; // else make it smaller than anything
       if (exists[i])
-        larger[i][j] = larger[i][j] | (!exists[j]);
+        larger[i][j] = larger[i][j] || (!exists[j]);
       else
         larger[i][j] = false;
     }
@@ -371,7 +371,7 @@ void BestTrackSelection::cancel_multi_bx(const std::deque<EMTFTrackCollection>& 
   // remove ghosts according to kill mask
   //exists = exists & (~kill1);
   for (i = 0; i < max_hzn; ++i) {
-    exists[i] = exists[i] & (!killed[i]);
+    exists[i] = exists[i] && (!killed[i]);
   }
 
   // remove tracks that are not at correct BX number
@@ -390,7 +390,7 @@ void BestTrackSelection::cancel_multi_bx(const std::deque<EMTFTrackCollection>& 
       //if  (exists[i]) larger[i] = larger[i] | (~exists); // if this track exists make it larger than all non-existing tracks
       //else  larger[i] = 0; // else make it smaller than anything
       if (exists[i])
-        larger[i][j] = larger[i][j] | (!exists[j]);
+        larger[i][j] = larger[i][j] || (!exists[j]);
       else
         larger[i][j] = false;
     }
