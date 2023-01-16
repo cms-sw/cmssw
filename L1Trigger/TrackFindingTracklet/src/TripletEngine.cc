@@ -125,20 +125,16 @@ void TripletEngine::execute() {
 
   print = print && nThirdStubs > 0;
 
-  int hacksum = 0;
   if (print) {
     edm::LogVerbatim("Tracklet") << "In TripletEngine::execute : " << getName() << " " << nThirdStubs << ":";
     for (unsigned int i = 0; i < thirdvmstubs_.size(); ++i) {
       edm::LogVerbatim("Tracklet") << thirdvmstubs_.at(i)->getName() << " " << thirdvmstubs_.at(i)->nVMStubs();
     }
-    int s = 0;
     std::string oss = "";
     for (unsigned int i = 0; i < stubpairs_.size(); ++i) {
       oss += std::to_string(stubpairs_.at(i)->nStubPairs());
       oss += " ";
-      s += stubpairs_.at(i)->nStubPairs();
     }
-    hacksum += nThirdStubs * s;
     edm::LogVerbatim("Tracklet") << oss;
     for (unsigned int i = 0; i < stubpairs_.size(); ++i) {
       edm::LogVerbatim("Tracklet") << "                                          " << stubpairs_.at(i)->getName();
