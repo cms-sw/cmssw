@@ -17,8 +17,10 @@ public:
   ~PixelBrickedDigitizerAlgorithm() override;
 
   // Specific for bricked pixel
-  void induce_signal(const PSimHit& hit,
+  void induce_signal(std::vector<PSimHit>::const_iterator inputBegin,
+                     const PSimHit& hit,
                      const size_t hitIndex,
+                     const size_t firstHitIndex,
                      const unsigned int tofBin,
                      const Phase2TrackerGeomDetUnit* pixdet,
                      const std::vector<digitizerUtility::SignalPoint>& collection_points) override;
