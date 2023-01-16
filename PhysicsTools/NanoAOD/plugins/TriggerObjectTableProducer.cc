@@ -267,7 +267,9 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
 
   unsigned int nobj = selected.size();
   std::vector<float> pt(nobj, 0), eta(nobj, 0), phi(nobj, 0), l1pt(nobj, 0), l1pt_2(nobj, 0), l2pt(nobj, 0);
-  std::vector<int> id(nobj, 0), bits(nobj, 0), l1iso(nobj, 0), l1charge(nobj, 0);
+  std::vector<int16_t> l1charge(nobj, 0);
+  std::vector<uint16_t> id(nobj, 0);
+  std::vector<int> bits(nobj, 0), l1iso(nobj, 0);
   for (unsigned int i = 0; i < nobj; ++i) {
     const auto &obj = *selected[i].first;
     const auto &sel = *selected[i].second;
@@ -313,13 +315,13 @@ void TriggerObjectTableProducer::produce(edm::Event &iEvent, const edm::EventSet
   }
 
   auto tab = std::make_unique<nanoaod::FlatTable>(nobj, name_, false, false);
-  tab->addColumn<int>("id", id, idDoc_);
+  tab->addColumn<uint16_t>("id", id, idDoc_);
   tab->addColumn<float>("pt", pt, "pt", 12);
   tab->addColumn<float>("eta", eta, "eta", 12);
   tab->addColumn<float>("phi", phi, "phi", 12);
   tab->addColumn<float>("l1pt", l1pt, "pt of associated L1 seed", 8);
   tab->addColumn<int>("l1iso", l1iso, "iso of associated L1 seed");
-  tab->addColumn<int>("l1charge", l1charge, "charge of associated L1 seed");
+  tab->addColumn<int16_t>("l1charge", l1charge, "charge of associated L1 seed");
   tab->addColumn<float>("l1pt_2", l1pt_2, "pt of associated secondary L1 seed", 8);
   tab->addColumn<float>("l2pt", l2pt, "pt of associated 'L2' seed (i.e. HLT before tracking/PF)", 10);
   tab->addColumn<int>("filterBits", bits, "extra bits of associated information: " + bitsDoc_);

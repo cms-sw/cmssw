@@ -68,8 +68,8 @@ lowPtElectronTable = simpleCandidateFlatTableProducer.clone(
         # Basic variables
         CandVars,
         # Overlaps with PF electron and photon
-        electronIdx = Var("?overlaps('electrons').size()>0?overlaps('electrons')[0].key():-1", int, doc="index of the overlapping PF electron (-1 if none)"),
-        photonIdx = Var("?overlaps('photons').size()>0?overlaps('photons')[0].key():-1", int, doc="index of the first associated photon (-1 if none)"),
+        electronIdx = Var("?overlaps('electrons').size()>0?overlaps('electrons')[0].key():-1", "int16", doc="index of the overlapping PF electron (-1 if none)"),
+        photonIdx = Var("?overlaps('photons').size()>0?overlaps('photons')[0].key():-1", "int16", doc="index of the first associated photon (-1 if none)"),
         # BDT scores and WPs
         ID = Var("electronID('ID')",float,doc="ID, BDT (raw) score"),
         unbiased = Var("electronID('unbiased')",float,doc="ElectronSeed, pT- and dxy- agnostic BDT (raw) score"),
@@ -82,7 +82,7 @@ lowPtElectronTable = simpleCandidateFlatTableProducer.clone(
         # Conversions
         convVeto = Var("passConversionVeto()",bool,doc="pass conversion veto"),
         convWP = Var("userInt('convOpen')*1 + userInt('convLoose')*2 + userInt('convTight')*4",
-                     int,doc="conversion flag bit map: 1=Veto, 2=Loose, 3=Tight"),
+                     "uint8", doc="conversion flag bit map: 1=Veto, 2=Loose, 3=Tight"),
         convVtxRadius = Var("userFloat('convVtxRadius')",float,doc="conversion vertex radius (cm)",precision=7),
         # Tracking
         lostHits = Var("gsfTrack.hitPattern.numberOfLostHits('MISSING_INNER_HITS')","uint8",doc="number of missing inner hits"),

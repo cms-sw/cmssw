@@ -26,7 +26,7 @@ boostedTauTable = simpleCandidateFlatTableProducer.clone(
 )
 _boostedTauVarsBase = cms.PSet(P4Vars,
        charge = Var("charge", int, doc="electric charge"),
-       jetIdx = Var("?hasUserCand('jet')?userCand('jet').key():-1", int, doc="index of the associated jet (-1 if none)"),
+       jetIdx = Var("?hasUserCand('jet')?userCand('jet').key():-1", "int16", doc="index of the associated jet (-1 if none)"),
        decayMode = Var("decayMode()",int),
        leadTkPtOverTauPt = Var("leadChargedHadrCand.pt/pt ",float, doc="pt of the leading track divided by tau pt",precision=10),
        leadTkDeltaEta = Var("leadChargedHadrCand.eta - eta ",float, doc="eta of the leading track, minus tau eta",precision=8),
@@ -55,7 +55,7 @@ _boostedTauVarsMVAIsoDr03 = cms.PSet(
 #AntiEle MVA 2018 variables
 _boostedTauVarsAntiEleMVA = cms.PSet(
        rawAntiEle2018 = Var("tauID('againstElectronMVA6Raw')", float, doc= "Anti-electron MVA discriminator V6 raw output discriminator (2018)", precision=10),
-       rawAntiEleCat2018 = Var("tauID('againstElectronMVA6category')", int, doc="Anti-electron MVA discriminator V6 category (2018)"),
+       rawAntiEleCat2018 = Var("tauID('againstElectronMVA6category')", "int16", doc="Anti-electron MVA discriminator V6 category (2018)"),
        idAntiEle2018 = _tauIdWPMask("againstElectron%sMVA6", choices=("VLoose","Loose","Medium","Tight","VTight"), doc= "Anti-electron MVA discriminator V6 (2018)")
 )
 
@@ -80,7 +80,7 @@ run2_nanoAOD_106Xv2.toModify(
     idMVAnewDM2017v2 = _tauIdWPMask("by%sIsolationMVArun2017v2DBnewDMwLT2017", choices=("VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"),doc="IsolationMVArun2DBnewDMwLT ID working point (2017v2)"),
     idMVAoldDM2017v2 = _tauIdWPMask("by%sIsolationMVArun2017v2DBoldDMwLT2017",choices=("VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"),doc="IsolationMVArun2DBoldDMwLT ID working point (2017v2)"),
     rawAntiEle2018 = Var("tauID('againstElectronMVA6Raw2018')", float, doc= "Anti-electron MVA discriminator V6 raw output discriminator (2018)", precision=10),
-    rawAntiEleCat2018 = Var("tauID('againstElectronMVA6category2018')", int, doc="Anti-electron MVA discriminator V6 category (2018)"),
+    rawAntiEleCat2018 = Var("tauID('againstElectronMVA6category2018')", "int16", doc="Anti-electron MVA discriminator V6 category (2018)"),
     idAntiEle2018 = _tauIdWPMask("againstElectron%sMVA62018", choices=("VLoose","Loose","Medium","Tight","VTight"), doc= "Anti-electron MVA discriminator V6 (2018)")
 )
 

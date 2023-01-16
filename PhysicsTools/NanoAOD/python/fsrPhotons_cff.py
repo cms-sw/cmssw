@@ -17,8 +17,8 @@ fsrTable = simpleCandidateFlatTableProducer.clone(
     variables = cms.PSet(P3Vars,
         relIso03 = Var("userFloat('relIso03')",float,doc="relative isolation in a 0.3 cone without CHS"),
         dROverEt2 = Var("userFloat('dROverEt2')",float,doc="deltaR to associated muon divided by photon et2"),
-        muonIdx = Var("?hasUserCand('associatedMuon')?userCand('associatedMuon').key():-1",int, doc="index of associated muon"),
-        electronIdx = Var("?hasUserCand('associatedElectron')?userCand('associatedElectron').key():-1",int, doc="index of associated electron")
+        muonIdx = Var("?hasUserCand('associatedMuon')?userCand('associatedMuon').key():-1", "int16", doc="index of associated muon"),
+        electronIdx = Var("?hasUserCand('associatedElectron')?userCand('associatedElectron').key():-1", "int16", doc="index of associated electron")
         )
     )
 
