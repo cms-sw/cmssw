@@ -131,16 +131,18 @@ void L1TriggerResultsConverter::produce(edm::Event& iEvent, const edm::EventSetu
   if (!legacyL1_) {
     edm::Handle<GlobalAlgBlkBxCollection> handleResults;
     iEvent.getByToken(token_, handleResults);
-    wordp = &handleResults->at(0, 0).getAlgoDecisionFinal();
-    if (store_unprefireable_bit_) {
-      edm::Handle<GlobalExtBlkBxCollection> handleExtResults;
-      iEvent.getByToken(token_ext_, handleExtResults);
-      if (handleExtResults.isValid()) {
-        if (handleExtResults->size() != 0) {
-          unprefireable_bit = handleExtResults->at(0, 0).getExternalDecision(GlobalExtBlk::maxExternalConditions - 1);
+    if (handleResults->size(0) != 0) {
+      wordp = &handleResults->at(0, 0).getAlgoDecisionFinal();
+      if (store_unprefireable_bit_) {
+        edm::Handle<GlobalExtBlkBxCollection> handleExtResults;
+        iEvent.getByToken(token_ext_, handleExtResults);
+        if (handleExtResults.isValid()) {
+          if (handleExtResults->size() != 0) {
+            unprefireable_bit = handleExtResults->at(0, 0).getExternalDecision(GlobalExtBlk::maxExternalConditions - 1);
+          }
+        } else {
+          LogDebug("Unprefirable bit not found, always set to false");
         }
-      } else {
-        LogDebug("Unprefirable bit not found, always set to false");
       }
     }
   } else {
