@@ -35,7 +35,8 @@ private:
   bool m_singleton;
   enum { IsMain = 0, IsExtension = 1, DontKnowYetIfMainOrExtension = 2 } m_extension;
   std::string m_doc;
-  UInt_t m_counter;
+  typedef Int_t CounterType;
+  CounterType m_counter;
   struct NamedBranchPtr {
     std::string name, title, rootTypeCode;
     TBranch *branch;
