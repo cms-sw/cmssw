@@ -518,7 +518,7 @@ void TrackerHitAssociator::associatePhase2TrackerRecHit(const Phase2TrackerRecHi
   auto isearch = ph2trackerdigisimlink->find(detID);
   if (isearch != ph2trackerdigisimlink->end()) {  //if it is not empty
     auto link_detset = (*isearch);
-    Phase2TrackerRecHit1D::CluRef const& cluster = rechit->cluster();
+    Phase2TrackerRecHit1D::ClusterRef const& cluster = rechit->cluster();
 
     //check the reference is valid
     if (!(cluster.isNull())) {  //if the cluster is valid

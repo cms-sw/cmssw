@@ -9,21 +9,20 @@
 
 class Phase2TrackerRecHit1D final : public TrackerSingleRecHit {
 public:
-  typedef OmniClusterRef::Phase2Cluster1DRef CluRef;
   typedef OmniClusterRef::Phase2Cluster1DRef ClusterRef;
 
   Phase2TrackerRecHit1D() {}
 
   ~Phase2TrackerRecHit1D() override {}
 
-  Phase2TrackerRecHit1D(const LocalPoint& pos, const LocalError& err, GeomDet const& idet, CluRef const& clus)
+  Phase2TrackerRecHit1D(const LocalPoint& pos, const LocalError& err, GeomDet const& idet, ClusterRef const& clus)
       : TrackerSingleRecHit(pos, err, idet, clus) {}
 
   Phase2TrackerRecHit1D* clone() const override { return new Phase2TrackerRecHit1D(*this); }
   RecHitPointer cloneSH() const override { return std::make_shared<Phase2TrackerRecHit1D>(*this); }
 
-  CluRef cluster() const { return cluster_phase2OT(); }
-  void setClusterRef(CluRef const& ref) { setClusterPhase2Ref(ref); }
+  ClusterRef cluster() const { return cluster_phase2OT(); }
+  void setClusterRef(ClusterRef const& ref) { setClusterPhase2Ref(ref); }
 
   bool isPhase2() const override { return true; }
   //FIXME::check dimension of this!!
