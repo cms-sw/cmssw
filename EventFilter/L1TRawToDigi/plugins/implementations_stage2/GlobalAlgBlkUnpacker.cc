@@ -111,11 +111,8 @@ namespace l1t {
         }
 
         //Redetermine Final (multiboard)  FINOR
-        if (alg.getFinalORPreVeto() & !alg.getFinalORVeto()) {
-          alg.setFinalOR(true);
-        } else {
-          alg.setFinalOR(false);  //be explicit and must set to false if we find a board with veto set.
-        }
+        //be explicit and must set to false if we find a board with veto set.
+        alg.setFinalOR(alg.getFinalORPreVeto() && !alg.getFinalORVeto());
 
         // Put the object back into place (Must be better way)
         res_->set(bx, 0, alg);
