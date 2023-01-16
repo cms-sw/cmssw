@@ -1,12 +1,20 @@
+#include "DQMMonitoringService.h"
+
+#include "DataFormats/Provenance/interface/Timestamp.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/GlobalContext.h"
+#include "FWCore/Utilities/interface/StreamID.h"
+
+#include <cstdlib>
 #include <ctime>
+#include <exception>
 #include <iostream>
 
+#include <boost/property_tree/json_parser.hpp>
+
 #include <fmt/printf.h>
-
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/predicate.hpp>
-
-#include "DQMMonitoringService.h"
 
 /*
  * This service is very similar to the FastMonitoringService in the HLT,
@@ -38,15 +46,10 @@ namespace dqmservices {
     ar.watchPreSourceEvent(this, &DQMMonitoringService::evEvent);
   }
 
-  DQMMonitoringService::~DQMMonitoringService() {}
-
   void DQMMonitoringService::outputLumiUpdate() {
-    using std::chrono::duration_cast;
-    using std::chrono::milliseconds;
-
     auto now = std::chrono::high_resolution_clock::now();
 
-    ptree doc;
+    boost::property_tree::ptree doc;
 
     // these might be different than the numbers we want to report
     // rate/stats per lumi are calculated from last_*_ fields
@@ -55,7 +58,7 @@ namespace dqmservices {
     doc.put("events_total", nevents_);
 
     // do statistics for the last (elapsed) ls
-    auto lumi_millis = duration_cast<milliseconds>(now - last_lumi_time_).count();
+    auto lumi_millis = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_lumi_time_).count();
     auto lumi_events = nevents_ - last_lumi_nevents_;
     auto lumi_last = last_lumi_;
 
@@ -68,7 +71,7 @@ namespace dqmservices {
       doc.put("events_rate", rate);
 
       // also save the history entry
-      ptree plumi;
+      boost::property_tree::ptree plumi;
       plumi.put("n", lumi_last);
       plumi.put("nevents", lumi_events);
       plumi.put("nmillis", lumi_millis);
@@ -81,10 +84,7 @@ namespace dqmservices {
     outputUpdate(doc);
   }
 
-  void DQMMonitoringService::evLumi(GlobalContext const& iContext) {
-    using std::chrono::duration_cast;
-    using std::chrono::milliseconds;
-
+  void DQMMonitoringService::evLumi(edm::GlobalContext const& iContext) {
     // these might be different than the numbers we want to report
     // rate/stats per lumi are calculated from last_*_ fields
     run_ = iContext.luminosityBlockID().run();
@@ -97,15 +97,12 @@ namespace dqmservices {
     last_lumi_ = lumi_;
   }
 
-  void DQMMonitoringService::evEvent(StreamID const& iContext) {
+  void DQMMonitoringService::evEvent(edm::StreamID const& iContext) {
     nevents_ += 1;
     tryUpdate();
   }
 
-  void DQMMonitoringService::outputUpdate(ptree& doc) {
-    using std::chrono::duration_cast;
-    using std::chrono::milliseconds;
-
+  void DQMMonitoringService::outputUpdate(boost::property_tree::ptree& doc) {
     if (!mstream_)
       return;
 
@@ -115,8 +112,8 @@ namespace dqmservices {
 
       write_json(mstream_, doc, false);
       mstream_.flush();
-    } catch (...) {
-      // pass
+    } catch (std::exception const& exc) {
+      LogDebug("DQMMonitoringService") << "Exception thrown in outputUpdate method: " << exc.what();
     }
   }
 
@@ -131,17 +128,14 @@ namespace dqmservices {
   }
 
   void DQMMonitoringService::tryUpdate() {
-    using std::chrono::duration_cast;
-    using std::chrono::milliseconds;
-
     if (!mstream_)
       return;
 
     // sometimes we don't see any transition for a very long time
     // but we still want updates
     // luckily, keepAlive is called rather often by the input source
-    auto now = std::chrono::high_resolution_clock::now();
-    auto millis = duration_cast<milliseconds>(now - last_update_time_).count();
+    auto const now = std::chrono::high_resolution_clock::now();
+    auto const millis = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_update_time_).count();
     if (millis >= (25 * 1000)) {
       outputLumiUpdate();
     }

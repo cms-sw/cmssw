@@ -1,19 +1,20 @@
+#include "DQMFileIterator.h"
+#include "DQMMonitoringService.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/TimeOfDay.h"
+
 #include <filesystem>
-#include <iterator>
-#include <memory>
-#include <string>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
-#include <boost/range.hpp>
 #include <boost/regex.hpp>
-#include <fmt/printf.h>
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/TimeOfDay.h"
-#include "DQMFileIterator.h"
+#include <fmt/printf.h>
 
 namespace dqmservices {
 
@@ -86,8 +87,6 @@ namespace dqmservices {
     reset();
   }
 
-  DQMFileIterator::~DQMFileIterator() {}
-
   void DQMFileIterator::reset() {
     runPath_.clear();
 
@@ -110,15 +109,13 @@ namespace dqmservices {
     update_state();
 
     if (mon_.isAvailable()) {
-      ptree doc;
+      boost::property_tree::ptree doc;
       doc.put("run", runNumber_);
       doc.put("next_lumi", nextLumiNumber_);
       doc.put("fi_state", std::to_string(state_));
       mon_->outputUpdate(doc);
     }
   }
-
-  DQMFileIterator::State DQMFileIterator::state() { return state_; }
 
   DQMFileIterator::LumiEntry DQMFileIterator::open() {
     LumiEntry& lumi = lumiSeen_[nextLumiNumber_];
@@ -134,8 +131,6 @@ namespace dqmservices {
     return false;
   }
 
-  unsigned int DQMFileIterator::runNumber() { return runNumber_; }
-
   unsigned int DQMFileIterator::lastLumiFound() {
     if (!lumiSeen_.empty()) {
       return lumiSeen_.rbegin()->first;
@@ -145,9 +140,6 @@ namespace dqmservices {
   }
 
   void DQMFileIterator::advanceToLumi(unsigned int lumi, std::string reason) {
-    using boost::str;
-    using boost::property_tree::ptree;
-
     unsigned int currentLumi = nextLumiNumber_;
 
     nextLumiNumber_ = lumi;
@@ -164,7 +156,7 @@ namespace dqmservices {
 
     if (mon_.isAvailable()) {
       // report the successful lumi file open
-      ptree doc;
+      boost::property_tree::ptree doc;
       doc.put("next_lumi", nextLumiNumber_);
       mon_->outputUpdate(doc);
     }
@@ -174,7 +166,7 @@ namespace dqmservices {
     if (!mon_.isAvailable())
       return;
 
-    ptree doc;
+    boost::property_tree::ptree doc;
     doc.put(fmt::sprintf("extra.lumi_seen.lumi%06d", lumi.file_ls), lumi.state);
     mon_->outputUpdate(doc);
   }
@@ -365,7 +357,7 @@ namespace dqmservices {
       logFileAction("Streamer state changed: ", std::to_string(old_state) + "->" + std::to_string(state_));
 
       if (mon_) {
-        ptree doc;
+        boost::property_tree::ptree doc;
         doc.put("fi_state", std::to_string(state_));
         mon_->outputUpdate(doc);
       }

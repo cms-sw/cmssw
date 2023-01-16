@@ -1,23 +1,24 @@
-#include <filesystem>
-
-#include <fmt/printf.h>
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
+#include "JsonWritingTimeoutPoolOutputModule.h"
 
 #include "DQMServices/Components/interface/fillJson.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "JsonWritingTimeoutPoolOutputModule.h"
+
+#include <filesystem>
+
+#include <boost/property_tree/json_parser.hpp>
+
+#include <fmt/printf.h>
 
 namespace dqmservices {
 
   JsonWritingTimeoutPoolOutputModule::JsonWritingTimeoutPoolOutputModule(edm::ParameterSet const& ps)
-      : edm::one::OutputModuleBase::OutputModuleBase(ps), edm::TimeoutPoolOutputModule(ps) {
-    runNumber_ = ps.getUntrackedParameter<uint32_t>("runNumber");
-    outputPath_ = ps.getUntrackedParameter<std::string>("outputPath");
-    streamLabel_ = ps.getUntrackedParameter<std::string>("streamLabel");
-
-    sequence_ = 0;
-  }
+      : edm::one::OutputModuleBase::OutputModuleBase(ps),
+        edm::TimeoutPoolOutputModule(ps),
+        runNumber_(ps.getUntrackedParameter<uint32_t>("runNumber")),
+        streamLabel_(ps.getUntrackedParameter<std::string>("streamLabel")),
+        outputPath_(ps.getUntrackedParameter<std::string>("outputPath")),
+        sequence_(0) {}
 
   std::pair<std::string, std::string> JsonWritingTimeoutPoolOutputModule::physicalAndLogicalNameForNewFile() {
     sequence_++;

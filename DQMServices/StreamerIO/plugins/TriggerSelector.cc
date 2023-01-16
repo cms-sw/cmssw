@@ -1,58 +1,24 @@
 #include "TriggerSelector.h"
 
+#include "DataFormats/Common/interface/HLTPathStatus.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Framework/interface/EventSelector.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
-#include "FWCore/Utilities/interface/RegexMatch.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/RegexMatch.h"
 
 #include <iostream>
-#include <boost/regex.hpp>
 #include <algorithm>
-#include <cassert>
+
+#include <boost/regex.hpp>
 
 namespace dqmservices {
 
   // compatibility constructor
 
-  TriggerSelector::TriggerSelector(Strings const& pathspecs, Strings const& names) : useOld_(true) {
+  TriggerSelector::TriggerSelector(Strings const& pathspecs, Strings const& triggernames) : useOld_(true) {
     acceptAll_ = false;
-    eventSelector_.reset(new edm::EventSelector(pathspecs, names));
-  }
-
-  TriggerSelector::TriggerSelector(edm::ParameterSet const& config, Strings const& triggernames, bool old_)
-      : useOld_(old_) {
-    acceptAll_ = false;
-    if (old_) {
-      // old mode forced
-      acceptAll_ = false;
-      eventSelector_.reset(new edm::EventSelector(config, triggernames));
-      return;
-    }
-    if (!config.empty()) {
-      // let's see if non empty TriggerSelector is present
-      try {
-        std::string myPath = trim(config.getParameter<std::string>("TriggerSelector"));
-        if (!myPath.empty()) {
-          init(myPath, triggernames);
-          return;
-        }
-      } catch (...) {
-      }
-
-      // now try with the SelectEvents
-      try {
-        Strings paths;
-        paths = config.getParameter<Strings>("SelectEvents");
-        if (!paths.empty()) {
-          useOld_ = true;
-          eventSelector_.reset(new edm::EventSelector(config, triggernames));
-          return;
-        }
-      } catch (...) {
-      }
-    }
-    // if selection parameters aren't present, don't do selection
-    // log
-    acceptAll_ = true;
+    eventSelector_.reset(new edm::EventSelector(pathspecs, triggernames));
   }
 
   TriggerSelector::TriggerSelector(std::string const& expression, Strings const& triggernames) : useOld_(false) {
@@ -82,13 +48,6 @@ namespace dqmservices {
 
     // build decision tree
     masterElement_.reset(new TreeElement(expression_, triggernames));
-  }
-
-  /*
-      Obsolete
-*/
-  std::vector<std::string> TriggerSelector::getEventSelectionVString(edm::ParameterSet const& pset) {
-    return edm::EventSelector::getEventSelectionVString(pset);
   }
 
   bool TriggerSelector::acceptEvent(edm::TriggerResults const& tr) const {
@@ -142,7 +101,7 @@ namespace dqmservices {
     bool occurrences_ = false;
 
     if (str_.empty())
-      throw edm::Exception(edm::errors::Configuration) << "Syntax Error (empty element)" << std::endl;
+      throw edm::Exception(edm::errors::Configuration) << "Syntax Error (empty element)";
 
     static const size_t bopsSize_ = 2;
     static const std::string binaryOperators_[bopsSize_] = {"||", "&&"};
@@ -295,7 +254,7 @@ namespace dqmservices {
       std::vector<Strings::const_iterator> matches = edm::regexMatch(tr, str_);
       if (matches.empty()) {
         if (!ignore_if_missing)  // && !edm::is_glob(str_))
-          throw edm::Exception(edm::errors::Configuration) << "Trigger name (or match) not present" << std::endl;
+          throw edm::Exception(edm::errors::Configuration) << "Trigger name (or match) not present";
         else {
           if (debug_)
             std::cout << "TriggerSelector: Couldn't match any triggers from: " << str_ << std::endl
@@ -354,7 +313,7 @@ namespace dqmservices {
         return true;
 
       if (trigBit_ < 0 || (unsigned int)trigBit_ >= trStatus.size())
-        throw edm::Exception(edm::errors::Configuration) << "Internal Error: array out of bounds " << std::endl;
+        throw edm::Exception(edm::errors::Configuration) << "Internal Error: array out of bounds.";
 
       if ((trStatus[trigBit_]).state() == edm::hlt::Pass)
         return true;
@@ -380,7 +339,7 @@ namespace dqmservices {
       return status;
     }
     throw edm::Exception(edm::errors::Configuration)
-        << "Internal error: reached end of returnStatus(...)  op:state= " << op_ << std::endl;
+        << "Internal error: reached end of returnStatus(...), op:state = " << op_;
     return false;
   }
 

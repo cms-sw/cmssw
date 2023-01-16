@@ -3,15 +3,20 @@
 
 #include "IOPool/Output/interface/TimeoutPoolOutputModule.h"
 
-namespace dqmservices {
+#include <string>
+#include <utility>
 
-  class ModuleCallingContext;
+namespace edm {
+  class ConfigurationDescriptions;
   class ParameterSet;
+}  // namespace edm
+
+namespace dqmservices {
 
   class JsonWritingTimeoutPoolOutputModule : public edm::TimeoutPoolOutputModule {
   public:
     explicit JsonWritingTimeoutPoolOutputModule(edm::ParameterSet const& ps);
-    ~JsonWritingTimeoutPoolOutputModule() override{};
+    ~JsonWritingTimeoutPoolOutputModule() override = default;
 
     static void fillDescriptions(edm::ConfigurationDescriptions&);
 
@@ -20,15 +25,15 @@ namespace dqmservices {
     void doExtrasAfterCloseFile() override;
 
   protected:
-    uint32_t sequence_;
-    uint32_t runNumber_;
-    std::string streamLabel_;
-    std::string outputPath_;
+    uint32_t const runNumber_;
+    std::string const streamLabel_;
+    std::string const outputPath_;
 
+    uint32_t sequence_;
     std::string currentFileName_;
     std::string currentJsonName_;
   };
 
 }  // namespace dqmservices
 
-#endif
+#endif  // DQMServices_StreamerIO_JsonWritingTimeoutPoolOutputModule_h
