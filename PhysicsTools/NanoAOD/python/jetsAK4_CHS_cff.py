@@ -369,15 +369,16 @@ def nanoAOD_refineFastSim_bTagDeepFlav(process):
     )
 
     fastSim.toModify( process.jetTable.externalVariables,
-      btagDeepFlavB = process.jetTable.variables.btagDeepFlavBunrefined.clone(src=cms.InputTag("btagDeepFlavRefineNN:btagDeepFlavBrefined")),
-      btagDeepFlavCvB = process.jetTable.variables.btagDeepFlavCvBunrefined.clone(src=cms.InputTag("btagDeepFlavRefineNN:btagDeepFlavCvBrefined")),
-      btagDeepFlavCvL = process.jetTable.variables.btagDeepFlavCvLunrefined.clone(src=cms.InputTag("btagDeepFlavRefineNN:btagDeepFlavCvLrefined")),
-      btagDeepFlavQG = process.jetTable.variables.btagDeepFlavQGunrefined.clone(src=cms.InputTag("btagDeepFlavRefineNN:btagDeepFlavQGrefined")),
+      btagDeepFlavB = ExtVar(cms.InputTag("btagDeepFlavRefineNN:btagDeepFlavBrefined"), float, doc="DeepJet b+bb+lepb tag discriminator", precision=10),
+      btagDeepFlavCvB = ExtVar(cms.InputTag("btagDeepFlavRefineNN:btagDeepFlavCvBrefined"), float, doc="DeepJet c vs b+bb+lepb discriminator", precision=10),
+      btagDeepFlavCvL = ExtVar(cms.InputTag("btagDeepFlavRefineNN:btagDeepFlavCvLrefined"), float, doc="DeepJet c vs uds+g discriminator", precision=10),
+      btagDeepFlavQG = ExtVar(cms.InputTag("btagDeepFlavRefineNN:btagDeepFlavQGrefined"), float, doc="DeepJet g vs uds discriminator", precision=10),
     )
 
     process.btagDeepFlavRefineNN= cms.EDProducer("JetBaseMVAValueMapProducer",
         backend = cms.string("ONNX"),
         batch_eval = cms.bool(True),
+        disableONNXGraphOpt = cms.bool(True),
 
         src = cms.InputTag("linkedObjects","jets"),
 
