@@ -7,9 +7,9 @@
 
 #include "SimTracker/TrackHistory/interface/TrackClassifier.h"
 
-#define update(a, b) \
-  do {               \
-    (a) = (a) | (b); \
+#define update(a, b)  \
+  do {                \
+    (a) = (a) || (b); \
   } while (0)
 
 TrackClassifier::TrackClassifier(edm::ParameterSet const &config, edm::ConsumesCollector &&collector)
