@@ -483,7 +483,9 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent* evt) {
   int idHC, j;
   CaloG4HitCollection* theHC;
   std::map<int, float, std::less<int> > primaries;
+#ifdef EDM_ML_DEBUG
   double etot1 = 0, etot2 = 0;
+#endif
 
   // Look for the Hit Collection of HCal
   G4HCofThisEvent* allHC = (*evt)()->GetHCofThisEvent();
@@ -521,8 +523,8 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent* evt) {
       CaloHit hitl(det, layer, escl, eta, phi, jitter, id);
       hhitl.push_back(hitl);
       primaries[aHit->getTrackID()] += e;
-      etot1 += escl;
 #ifdef EDM_ML_DEBUG
+      etot1 += escl;
       edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Hcal Hit i/p " << j << "  ID 0x" << std::hex << id << " 0x"
                                     << idx << std::dec << " time " << std::setw(6) << time << " " << std::setw(6)
                                     << jitter << " theta " << std::setw(8) << theta << " eta " << std::setw(8) << eta
@@ -558,9 +560,9 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent* evt) {
     nhit++;
     CaloHit hit(det, layer, ehit, eta, phi, jitter, unitID);
     hcalHitCache.push_back(hit);
-    etot2 += ehit;
     k1 += jump;
 #ifdef EDM_ML_DEBUG
+    etot2 += ehit;
     edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Hcal Hit store " << nhit << "  ID 0x" << std::hex << unitID
                                   << std::dec << " time " << std::setw(6) << jitter << " eta " << std::setw(8) << eta
                                   << " phi " << std::setw(8) << phi << " e " << std::setw(8) << ehit;
@@ -576,7 +578,9 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent* evt) {
   }
   sort(hits.begin(), hits.end(), CaloHitIdMore());
   int nhitl = 0;
+#ifdef EDM_ML_DEBUG
   double etotl = 0;
+#endif
   for (k1 = hits.begin(); k1 != hits.end(); k1++) {
     int det = (**k1).det();
     int layer = (**k1).layer();
@@ -593,7 +597,9 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent* evt) {
     nhitl++;
     CaloHit hit(det, layer, ehit, eta, phi, jitter, unitID);
     hcalHitLayer.push_back(hit);
+#ifdef EDM_ML_DEBUG
     etotl += ehit;
+#endif
     k1 += jump;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Hcal Hit store " << nhitl << "  ID 0x" << std::hex << unitID
@@ -610,8 +616,8 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent* evt) {
   sdName = names[1];
   idHC = G4SDManager::GetSDMpointer()->GetCollectionID(sdName);
   theHC = (CaloG4HitCollection*)allHC->GetHC(idHC);
-  etot1 = etot2 = 0;
 #ifdef EDM_ML_DEBUG
+  etot1 = etot2 = 0;
   edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Hit Collection for " << sdName << " of ID " << idHC
                                 << " is obtained at " << theHC << " with " << theHC->entries() << " entries";
 #endif
@@ -635,8 +641,8 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent* evt) {
         CaloHit hit(det, 0, e, eta, phi, time, id);
         ehits.push_back(hit);
         primaries[aHit->getTrackID()] += e;
-        etot1 += e;
 #ifdef EDM_ML_DEBUG
+        etot1 += e;
         edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Ecal Hit i/p " << j << "  ID 0x" << std::hex << id
                                       << std::dec << " time " << std::setw(6) << time << " theta " << std::setw(8)
                                       << theta << " eta " << std::setw(8) << eta << " phi " << std::setw(8) << phi
@@ -670,9 +676,9 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent* evt) {
     nhit++;
     CaloHit hit(det, layer, ehit, eta, phi, jitter, unitID);
     ecalHitCache.push_back(hit);
-    etot2 += ehit;
     k1 += jump;
 #ifdef EDM_ML_DEBUG
+    etot2 += ehit;
     edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Ecal Hit store " << nhit << "  ID 0x" << std::hex << unitID
                                   << std::dec << " time " << std::setw(6) << jitter << " eta " << std::setw(8) << eta
                                   << " phi " << std::setw(8) << phi << " e " << std::setw(8) << ehit;

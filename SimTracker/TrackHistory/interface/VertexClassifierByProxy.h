@@ -78,7 +78,7 @@ public:
 
       // Combine OR the flag information
       for (std::size_t i = 0; i < flags_.size(); ++i)
-        flags_[i] = flags_[i] | flags[i];
+        flags_[i] = flags_[i] || flags[i];
     }
 
     return *this;
