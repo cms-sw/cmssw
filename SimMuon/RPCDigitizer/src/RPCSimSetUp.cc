@@ -512,18 +512,6 @@ const std::vector<double>& RPCSimSetUp::getAsymmetricClsDistribution(uint32_t id
     }
   }
 
-  double control = 0;
-  for (int j = 0; j < distributionFewStrips; j++) {
-    control += sliceVsFewStripsDistribution[0][j];
-  }
-
-  double control1 = 0;
-  for (int j = 0; j < distributionFewStrips; j++) {
-    for (int i = 0; i < slices; i++) {
-      control1 += dataForAsymmCls[j * slices + i];
-    }
-  }
-
   int i = slice;
   double sum = 0;
   int counter = 0;
