@@ -8,6 +8,6 @@ hltFixedGridRhoFastjetAllCaloForEGamma = cms.EDProducer("FixedGridRhoProducerFas
     eeRecHitsTag = cms.InputTag( 'hltEcalRecHit','EcalRecHitsEE' ),
     skipHCAL = cms.bool( False ),
     skipECAL = cms.bool( False ),
-    eThresHB = cms.vdouble( 0.1, 0.2, 0.3, 0.3 ),
+    eThresHB = cms.vdouble( 0.8, 1.2, 1.2, 1.2 ),
     eThresHE = cms.vdouble( 0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2 )
 )
