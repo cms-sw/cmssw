@@ -1,5 +1,5 @@
-#ifndef _SimTracker_SiPhase2Digitizer_Pixel3DDigitizerAlgorithm_h
-#define _SimTracker_SiPhase2Digitizer_Pixel3DDigitizerAlgorithm_h
+#ifndef SimTracker_SiPhase2Digitizer_Pixel3DDigitizerAlgorithm_h
+#define SimTracker_SiPhase2Digitizer_Pixel3DDigitizerAlgorithm_h
 
 //-------------------------------------------------------------
 // class Pixel3DDigitizerAlgorithm
@@ -52,8 +52,10 @@ public:
                                                              const std::pair<float, float> pitches,
                                                              const float& thickness) const;
   // Specific for 3D-pixel
-  void induce_signal(const PSimHit& hit,
+  void induce_signal(std::vector<PSimHit>::const_iterator inputBegin,
+                     const PSimHit& hit,
                      const size_t hitIndex,
+                     const size_t firstHitIndex,
                      const uint32_t tofBin,
                      const Phase2TrackerGeomDetUnit* pixdet,
                      const std::vector<digitizerUtility::SignalPoint>& collection_points) override;
