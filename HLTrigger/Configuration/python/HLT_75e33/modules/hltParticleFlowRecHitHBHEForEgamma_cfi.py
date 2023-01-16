@@ -22,7 +22,7 @@ hltParticleFlowRecHitHBHEForEgamma = cms.EDProducer("PFRecHitProducer",
                     cms.PSet(
                         depth = cms.vint32(1, 2, 3, 4),
                         detectorEnum = cms.int32(1),
-                        threshold = cms.vdouble(0.8, 0.8, 0.8, 0.8)
+                        threshold = cms.vdouble(0.8, 1.2, 1.2, 1.2)
                     ),
                     cms.PSet(
                         depth = cms.vint32(

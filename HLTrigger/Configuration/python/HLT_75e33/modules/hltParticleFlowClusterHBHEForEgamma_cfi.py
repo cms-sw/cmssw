@@ -10,7 +10,7 @@ hltParticleFlowClusterHBHEForEgamma = cms.EDProducer("PFClusterProducer",
             cms.PSet(
                 depths = cms.vint32(1, 2, 3, 4),
                 detector = cms.string('HCAL_BARREL1'),
-                gatheringThreshold = cms.vdouble(0.8, 0.8, 0.8, 0.8),
+                gatheringThreshold = cms.vdouble(0.8, 1.2, 1.2, 1.2),
                 gatheringThresholdPt = cms.vdouble(0.0, 0.0, 0.0, 0.0)
             ),
             cms.PSet(
