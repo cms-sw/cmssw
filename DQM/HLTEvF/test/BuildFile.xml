@@ -1,0 +1,2 @@
+<!-- test of HLT monitoring plugins (DQM + Harvesting) -->
+<test name="testTriggerMonitors" command="testTriggerMonitors.sh"/>

@@ -248,6 +248,17 @@ def customizeHLTfor40264(process):
 
     return process
 
+def customizeHLTfor40334(process):
+
+  for producer in producers_by_type(process, 'PSMonitor'):
+    if hasattr(producer, 'FolderName'):
+      if not hasattr(producer, 'folderName'):
+        producer.folderName = producer.FolderName
+      del producer.FolderName
+
+  return process
+
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -258,5 +269,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
  
     process = customizeHLTfor38761(process)
     process = customizeHLTfor40264(process)
+    process = customizeHLTfor40334(process)
 
     return process
