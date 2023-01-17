@@ -14,7 +14,7 @@ namespace {
         case nanoaod::FlatTable::ColumnType::Float:
           std::cout << "f32,";
           break;
-        case nanoaod::FlatTable::ColumnType::Int:
+        case nanoaod::FlatTable::ColumnType::Int32:
           std::cout << "i32,";
           break;
         case nanoaod::FlatTable::ColumnType::UInt8:
@@ -56,7 +56,7 @@ void TableOutputFields::createFields(const edm::EventForOutput& event, RNTupleMo
       case nanoaod::FlatTable::ColumnType::Float:
         m_floatFields.emplace_back(FlatTableField<float>(table, i, model));
         break;
-      case nanoaod::FlatTable::ColumnType::Int:
+      case nanoaod::FlatTable::ColumnType::Int32:
         m_intFields.emplace_back(FlatTableField<int>(table, i, model));
         break;
       case nanoaod::FlatTable::ColumnType::UInt8:
@@ -99,7 +99,7 @@ void TableOutputVectorFields::createFields(const edm::EventForOutput& event, RNT
       case nanoaod::FlatTable::ColumnType::Float:
         m_vfloatFields.emplace_back(FlatTableField<std::vector<float>>(table, i, model));
         break;
-      case nanoaod::FlatTable::ColumnType::Int:
+      case nanoaod::FlatTable::ColumnType::Int32:
         m_vintFields.emplace_back(FlatTableField<std::vector<int>>(table, i, model));
         break;
       case nanoaod::FlatTable::ColumnType::UInt8:
