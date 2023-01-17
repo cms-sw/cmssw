@@ -18,8 +18,6 @@ from PhysicsTools.PatAlgos.tools.jetCollectionTools import GenJetAdder, RecoJetA
 from PhysicsTools.PatAlgos.tools.jetTools import supportedJetAlgos
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 
-from Configuration.Eras.Modifier_run3_common_cff import run3_common
-
 bTagCSVV2    = ['pfCombinedInclusiveSecondaryVertexV2BJetTags']
 bTagDeepCSV  = ['pfDeepCSVJetTags:probb','pfDeepCSVJetTags:probbb','pfDeepCSVJetTags:probc']
 bTagDeepJet  = [
@@ -373,6 +371,11 @@ def AddBTaggingScores(proc, jetTableName=""):
   getattr(proc, jetTableName).variables.btagDeepFlavB   = DEEPJETVARS.btagDeepFlavB
   getattr(proc, jetTableName).variables.btagDeepFlavCvL = DEEPJETVARS.btagDeepFlavCvL
   getattr(proc, jetTableName).variables.btagDeepFlavCvB = DEEPJETVARS.btagDeepFlavCvB
+
+  run2_nanoAOD_ANY.toModify(
+    getattr(proc, jetTableName).variables,
+    btagCSVV2 = Var("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')",float,doc=" pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)",precision=10)
+  )
 
   return proc
 
