@@ -22,22 +22,7 @@ namespace heppy {
     const double ht = accumulate(et.begin(), et.end(), 0.);
 
     // jets are pt-sorted
-    double firstjet_phi = atan2(py[0], px[0]);
-
-    double apcjet(0.), apcmet(0.), apcjetmet(0.);
     double apcjetmetmin(0.);
-
-    for (size_t i = 0; i < et.size(); i++) {
-      double jet_phi = atan2(py[i], px[i]);
-      double met_phi = atan2(mety, metx);
-
-      double dphisignaljet = fabs(deltaPhi(jet_phi, firstjet_phi));
-      double dphimet = fabs(deltaPhi(jet_phi, met_phi));
-
-      apcjet += et[i] * cos(dphisignaljet / 2.0);
-      apcmet += et[i] * sin(dphimet / 2.0);
-      apcjetmet += et[i] * cos(dphisignaljet / 2.0) * sin(dphimet / 2.0);
-    }
 
     std::vector<double> apcjetvector;
     std::vector<double> apcjetmetvector;
