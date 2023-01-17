@@ -1,11 +1,11 @@
-#include "RecoParticleFlow/PFClusterProducer/interface/HBHETopologyGPU.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFHBHETopologyGPU.h"
 
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 #include <unordered_set>
 
-HBHETopologyGPU::HBHETopologyGPU(edm::ParameterSet const& ps,
+PFHBHETopologyGPU::PFHBHETopologyGPU(edm::ParameterSet const& ps,
 				 const CaloGeometry& geom,
 				 const HcalTopology& topo){
 				 // const edm::ESHandle<CaloGeometry>& geoHandle,
@@ -21,26 +21,26 @@ HBHETopologyGPU::HBHETopologyGPU(edm::ParameterSet const& ps,
   vecHcal.insert(vecHcal.end(), validBarrelDetIds.begin(), validBarrelDetIds.end());
   vecHcal.insert(vecHcal.end(), validEndcapDetIds.begin(), validEndcapDetIds.end());
 
-  std::cout << "HBHETopologyGPU test " << validBarrelDetIds.size() << " " << validEndcapDetIds.size() << std::endl;
-  std::cout << "HBHETopologyGPU test " << vecHcal.size() << std::endl;
-  std::cout << "HBHETopologyGPU constructor" << std::endl;
+  std::cout << "PFHBHETopologyGPU test " << validBarrelDetIds.size() << " " << validEndcapDetIds.size() << std::endl;
+  std::cout << "PFHBHETopologyGPU test " << vecHcal.size() << std::endl;
+  std::cout << "PFHBHETopologyGPU constructor" << std::endl;
 
   //
   // Filling HCAL DenseID vectors
-  //std::vector<unsigned int> vDenseIdHcal_;
-  vDenseIdHcal_.clear(); // vector of DenseIds
+  std::vector<uint32_t> denseId;
+  denseId.clear(); // vector of DenseIds
 
-  vDenseIdHcal_.reserve(vecHcal.size());
+  denseId.reserve(vecHcal.size());
   for (auto hDetId : vecHcal) {
-    vDenseIdHcal_.push_back(topo.detId2denseId(hDetId));
+    denseId.push_back(topo.detId2denseId(hDetId));
     std::cout << topo.detId2denseId(hDetId) << std::endl;
   }
-  std::sort(vDenseIdHcal_.begin(), vDenseIdHcal_.end());
+  std::sort(denseId.begin(), denseId.end());
 
   //
   // Filling information to define arrays for all relevant HBHE DetIds
-  denseIdHcalMax_ = *max_element(vDenseIdHcal_.begin(), vDenseIdHcal_.end());
-  denseIdHcalMin_ = *min_element(vDenseIdHcal_.begin(), vDenseIdHcal_.end());
+  denseIdHcalMax_ = *max_element(denseId.begin(), denseId.end());
+  denseIdHcalMin_ = *min_element(denseId.begin(), denseId.end());
   std::cout << "denseIdHcalMin_ " << denseIdHcalMin_ << std::endl;
   std::cout << "denseIdHcalMax_ " << denseIdHcalMax_ << std::endl;
   const int denseIdOffset = denseIdHcalMin_;
@@ -52,7 +52,7 @@ HBHETopologyGPU::HBHETopologyGPU(edm::ParameterSet const& ps,
   neighboursHcal_.clear(); // vector of neighbors
   neighboursHcal_.resize(detIdArraySize);
 
-    for (auto denseid : vDenseIdHcal_) {
+    for (auto denseid : denseId) {
       DetId N(0);
       DetId E(0);
       DetId S(0);
@@ -174,7 +174,7 @@ HBHETopologyGPU::HBHETopologyGPU(edm::ParameterSet const& ps,
     //
     // Check backward compatibility (does a neighbour of a channel have the channel as a neighbour?)
     //
-    for (auto denseid : vDenseIdHcal_) {
+    for (auto denseid : denseId) {
       DetId detid = topo.denseId2detId(denseid);
       HcalDetId hid = HcalDetId(detid);
       if (detid == DetId(0)) {
@@ -232,7 +232,7 @@ HBHETopologyGPU::HBHETopologyGPU(edm::ParameterSet const& ps,
           }
         }
       }  // loop over neighbours
-    }    // loop over vDenseIdHcal_
+    }    // loop over denseId
 
   //
   // Filling detId, positions, neighbours in arrays indexed based on denseId
@@ -248,7 +248,7 @@ HBHETopologyGPU::HBHETopologyGPU(edm::ParameterSet const& ps,
 
   std::cout << "detid size " <<  detId.size() << std::endl;
 
-  for (auto denseid : vDenseIdHcal_) {
+  for (auto denseid : denseId) {
 
     DetId detid = topo.denseId2detId(denseid);
     HcalDetId hid = HcalDetId(detid);
@@ -283,11 +283,13 @@ HBHETopologyGPU::HBHETopologyGPU(edm::ParameterSet const& ps,
 
   //
   // KH - of course these are dummy
-  auto const& detId2 = ps.getParameter<std::vector<uint32_t>>("pulseOffsets");
-  auto const& neighbours2 = ps.getParameter<std::vector<int>>("pulseOffsets2");
+  //auto const& detId2 = ps.getParameter<std::vector<uint32_t>>("pulseOffsets");
+  //auto const& neighbours2 = ps.getParameter<std::vector<int>>("pulseOffsets2");
 
   //
   // Fill variables for HostAllocator
+  denseId_.resize(denseId.size());
+  std::copy(denseId.begin(), denseId.end(), denseId_.begin());  
   detId_.resize(detId.size());
   std::copy(detId.begin(), detId.end(), detId_.begin());
   neighbours_.resize(neighbours.size());
@@ -297,18 +299,19 @@ HBHETopologyGPU::HBHETopologyGPU(edm::ParameterSet const& ps,
 
 }
 
-HBHETopologyGPU::Product::~Product() {
+PFHBHETopologyGPU::Product::~Product() {
   // deallocation
   cudaCheck(cudaFree(detId));
   cudaCheck(cudaFree(neighbours));
   cudaCheck(cudaFree(position));
 }
 
-HBHETopologyGPU::Product const& HBHETopologyGPU::getProduct(cudaStream_t cudaStream) const {
+PFHBHETopologyGPU::Product const& PFHBHETopologyGPU::getProduct(cudaStream_t cudaStream) const {
   auto const& product = product_.dataForCurrentDeviceAsync(
-      cudaStream, [this](HBHETopologyGPU::Product& product, cudaStream_t cudaStream) {
+      cudaStream, [this](PFHBHETopologyGPU::Product& product, cudaStream_t cudaStream) {
         // malloc
         //cudaCheck(cudaMalloc((void**)&product.values, this->values_.size() * sizeof(int)));
+        cudaCheck(cudaMalloc((void**)&product.denseId, this->denseId_.size() * sizeof(uint32_t)));
         cudaCheck(cudaMalloc((void**)&product.detId, this->detId_.size() * sizeof(uint32_t)));
         cudaCheck(cudaMalloc((void**)&product.neighbours, this->neighbours_.size() * sizeof(int)));
         cudaCheck(cudaMalloc((void**)&product.position, this->position_.size() * sizeof(float3)));
@@ -319,6 +322,11 @@ HBHETopologyGPU::Product const& HBHETopologyGPU::getProduct(cudaStream_t cudaStr
         //                           this->values_.size() * sizeof(int),
         //                           cudaMemcpyHostToDevice,
         //                           cudaStream));
+        cudaCheck(cudaMemcpyAsync(product.denseId,
+                                  this->denseId_.data(),
+                                  this->denseId_.size() * sizeof(int),
+                                  cudaMemcpyHostToDevice,
+                                  cudaStream));
         cudaCheck(cudaMemcpyAsync(product.detId,
                                   this->detId_.data(),
                                   this->detId_.size() * sizeof(int),
@@ -335,11 +343,9 @@ HBHETopologyGPU::Product const& HBHETopologyGPU::getProduct(cudaStream_t cudaStr
                                   cudaMemcpyHostToDevice,
                                   cudaStream));
 
-	// We want (1) detId_ and (2) neighbours_ transferred to devices
-
       });
 
   return product;
 }
 
-TYPELOOKUP_DATA_REG(HBHETopologyGPU);
+TYPELOOKUP_DATA_REG(PFHBHETopologyGPU);

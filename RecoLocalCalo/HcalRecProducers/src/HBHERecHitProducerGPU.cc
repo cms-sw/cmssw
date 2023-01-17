@@ -200,8 +200,6 @@ void HBHERecHitProducerGPU::acquire(edm::Event const& event,
   auto const& pulseOffsets = setup.getData(pulseOffsetsToken_);
   auto const& pulseOffsetsProduct = pulseOffsets.getProduct(ctx.stream());
 
-  std::cout << "HBHERecHitProducerGPU: " << (pulseOffsets.getValues()).size()  << std::endl;
-  
   // bundle up conditions
   hcal::reconstruction::ConditionsProducts conditions{gainWidthsProduct,
                                                       gainsProduct,

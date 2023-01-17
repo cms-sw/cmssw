@@ -6,36 +6,31 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESProductHost.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
-//KH #include "FWCore/Framework/interface/EventSetup.h"
-//KH #include "FWCore/Framework/interface/ESHandle.h"
-//KH #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
-//KH #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/ReusableObjectHolder.h"
 #include "FWCore/Utilities/interface/typelookup.h"
 //
-//#include "HeterogeneousCore/CUDACore/interface/JobConfigurationGPURecord.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/HBHETopologyGPURcd.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/HBHETopologyGPU.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFHBHETopologyGPURcd.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFHBHETopologyGPU.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFHCALDenseIdNavigator.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitNavigatorBase.h"
 
 typedef PFHCALDenseIdNavigator<HcalDetId, HcalTopology, false> PFRecHitHCALDenseIdNavigator;
 
-class HBHETopologyGPUESProducer : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
-  //class HBHETopologyGPUESProducer : public edm::ESProducer {
+class PFHBHETopologyGPUESProducer : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+  //class PFHBHETopologyGPUESProducer : public edm::ESProducer {
 public:
-  HBHETopologyGPUESProducer(edm::ParameterSet const&);
-  ~HBHETopologyGPUESProducer() override = default;
+  PFHBHETopologyGPUESProducer(edm::ParameterSet const&);
+  ~PFHBHETopologyGPUESProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
-  std::unique_ptr<HBHETopologyGPU> produce(HBHETopologyGPURcd const&);
+  std::unique_ptr<PFHBHETopologyGPU> produce(PFHBHETopologyGPURcd const&);
   void beginRun(edm::Run const&, edm::EventSetup const&);
 
 protected:
@@ -57,14 +52,14 @@ private:
 
 };
 
-HBHETopologyGPUESProducer::HBHETopologyGPUESProducer(edm::ParameterSet const& pset) : pset_{pset} {
+PFHBHETopologyGPUESProducer::PFHBHETopologyGPUESProducer(edm::ParameterSet const& pset) : pset_{pset} {
       //hcalToken_(esConsumes<edm::Transition::BeginRun>()),
       //geomToken_(iC.esConsumes()){
 
   auto cc = setWhatProduced(this);
 
   //
-  // navigator-related parameters
+  //navigator-related parameters
   //const auto& navSet = pset.getParameterSet("navigator");
   //edm::ConsumesCollector& ccref = *cc;
   //navigator_ = PFRecHitNavigationFactory::get()->create(navSet.getParameter<std::string>("name"), navSet, cc);
@@ -72,29 +67,29 @@ HBHETopologyGPUESProducer::HBHETopologyGPUESProducer(edm::ParameterSet const& ps
   hcalToken_ = cc.consumes();
   geomToken_ = cc.consumes();
 
-  //isUsingRecord<HBHETopologyGPURcd>();
+  //isUsingRecord<PFHBHETopologyGPURcd>();
 
-  std::cout << "HBHETopologyGPUESProducer::HBHETopologyGPUESProducer" << std::endl;
+  std::cout << "PFHBHETopologyGPUESProducer::PFHBHETopologyGPUESProducer" << std::endl;
 
 }
 
 
-void HBHETopologyGPUESProducer::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& iKey,
+void PFHBHETopologyGPUESProducer::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& iKey,
                                                        const edm::IOVSyncValue& iTime,
                                                        edm::ValidityInterval& oInterval) {
   oInterval = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
 }
 
-void HBHETopologyGPUESProducer::fillDescriptions(edm::ConfigurationDescriptions& desc) {
+void PFHBHETopologyGPUESProducer::fillDescriptions(edm::ConfigurationDescriptions& desc) {
   edm::ParameterSetDescription d;
-  d.add<std::vector<uint32_t>>("pulseOffsets", { 3, 2, 1, 0, 1, 2, 3, 4});
-  d.add<std::vector<int>>("pulseOffsets2", {-3, -2, -1, 0, 1, 2, 3, 4});
+  //d.add<std::vector<uint32_t>>("pulseOffsets", { 3, 2, 1, 0, 1, 2, 3, 4});
+  //d.add<std::vector<int>>("pulseOffsets2", {-3, -2, -1, 0, 1, 2, 3, 4});
   desc.addWithDefaultLabel(d);
 }
 
-std::unique_ptr<HBHETopologyGPU> HBHETopologyGPUESProducer::produce(HBHETopologyGPURcd const& iRecord) {
+std::unique_ptr<PFHBHETopologyGPU> PFHBHETopologyGPUESProducer::produce(PFHBHETopologyGPURcd const& iRecord) {
 
-  std::cout << "HBHETopologyGPUESProducer::produce" << std::endl;
+  std::cout << "PFHBHETopologyGPUESProducer::produce" << std::endl;
 
   // geoHandle = iRecord.getHandle(geomToken_);
   // topoHandle = iRecord.getHandle(hcalToken_);
@@ -103,8 +98,8 @@ std::unique_ptr<HBHETopologyGPU> HBHETopologyGPUESProducer::produce(HBHETopology
   auto geom = iRecord.getHandle(geomToken_);
   auto topo = iRecord.getHandle(hcalToken_);
 
-  return std::make_unique<HBHETopologyGPU>(pset_,*geom,*topo);
+  return std::make_unique<PFHBHETopologyGPU>(pset_,*geom,*topo);
   //return std::make_unique<SiPixelGainCalibrationForHLTGPU>(*gains, *geom);
 }
 
-DEFINE_FWK_EVENTSETUP_SOURCE(HBHETopologyGPUESProducer);
+DEFINE_FWK_EVENTSETUP_SOURCE(PFHBHETopologyGPUESProducer);

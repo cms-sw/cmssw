@@ -40,10 +40,10 @@ public:
   //using uint32vec = std::reference_wrapper<std::vector<uint32_t, cms::cuda::HostAllocator<uint32_t>> const>;
   //using floatvec = std::reference_wrapper<std::vector<float, cms::cuda::HostAllocator<float>> const>;
 
-  std::vector<int, cms::cuda::HostAllocator<int>> const& getValuesdepthHB() const { return depthHB_; }
-  std::vector<int, cms::cuda::HostAllocator<int>> const& getValuesdepthHE() const { return depthHE_; }
-  std::vector<float, cms::cuda::HostAllocator<float>> const& getValuesthresholdE_HB() const { return thresholdE_HB_; }
-  std::vector<float, cms::cuda::HostAllocator<float>> const& getValuesthresholdE_HE() const { return thresholdE_HE_; }
+  std::vector<int, cms::cuda::HostAllocator<int>> const& getValuesDepthHB() const { return depthHB_; }
+  std::vector<int, cms::cuda::HostAllocator<int>> const& getValuesDepthHE() const { return depthHE_; }
+  std::vector<float, cms::cuda::HostAllocator<float>> const& getValuesThresholdE_HB() const { return thresholdE_HB_; }
+  std::vector<float, cms::cuda::HostAllocator<float>> const& getValuesThresholdE_HE() const { return thresholdE_HE_; }
 
 private:
 

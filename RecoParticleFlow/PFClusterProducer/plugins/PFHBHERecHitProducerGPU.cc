@@ -32,8 +32,8 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFHCALDenseIdNavigator.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitNavigatorBase.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFHBHERecHitParamsGPU.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/HBHETopologyGPU.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/HBHETopologyGPURcd.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFHBHETopologyGPU.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFHBHETopologyGPURcd.h"
 
 #include "DeclsForKernels.h"
 #include "SimplePFGPUAlgos.h"
@@ -86,8 +86,8 @@ private:
   const edm::ESGetToken<PFHBHERecHitParamsGPU, JobConfigurationGPURecord> recoParamsToken_;
   edm::ESHandle<PFHBHERecHitParamsGPU> recHitParametersHandle_;
 
-  const edm::ESGetToken<HBHETopologyGPU, HBHETopologyGPURcd> hbheTopologyToken_;
-  edm::ESHandle<HBHETopologyGPU> hbheTopologyHandle_;
+  const edm::ESGetToken<PFHBHETopologyGPU, PFHBHETopologyGPURcd> topologyToken_;
+  edm::ESHandle<PFHBHETopologyGPU> topologyHandle_;
 
   // Miscellaneous
   PFRecHit::HCAL::PersistentDataCPU persistentDataCPU;
@@ -108,6 +108,8 @@ private:
   bool initCuda = true;
   std::array<float, 5> GPU_timers;
 
+  bool debug=false;
+
   unsigned int getIdx(const unsigned int denseid) const {
     unsigned index = denseid - denseIdHcalMin_;
     return index;
@@ -125,7 +127,7 @@ PFHBHERecHitProducerGPU::PFHBHERecHitProducerGPU(edm::ParameterSet const& ps)
       hcalToken_(esConsumes<edm::Transition::BeginRun>()),
       geomToken_(esConsumes<edm::Transition::BeginRun>()),
       recoParamsToken_{esConsumes()},
-      hbheTopologyToken_{esConsumes()}{
+      topologyToken_{esConsumes()}{
   edm::ConsumesCollector cc = consumesCollector();
 
   produces<reco::PFRecHitCollection>();
@@ -272,7 +274,7 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
                                       edm::EventSetup const& setup,
                                       edm::WaitingTaskWithArenaHolder holder) {
 
-  std::cout << "PFHBHERecHitProducerGPU::acquire" << std::endl;
+  if (debug) std::cout << "PFHBHERecHitProducerGPU::acquire" << std::endl;
 
   auto const& HBHERecHitSoAProduct = event.get(InputRecHitSoA_Token_);
   cms::cuda::ScopedContextAcquire ctx{HBHERecHitSoAProduct, std::move(holder), cudaState_};
@@ -288,43 +290,46 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
   auto const& recHitParams = setup.getData(recoParamsToken_);
   auto const& recHitParamsProduct = recHitParams.getProduct(ctx.stream());
 
-  hbheTopologyHandle_ = setup.getHandle(hbheTopologyToken_);
-  auto const& hbheTopoData = setup.getData(hbheTopologyToken_);
-  auto const& hbheTopoDataProduct = hbheTopoData.getProduct(ctx.stream());
+  topologyHandle_ = setup.getHandle(topologyToken_);
+  auto const& topoData = setup.getData(topologyToken_);
+  auto const& topoDataProduct = topoData.getProduct(ctx.stream());
 
-  std::cout << (hbheTopoData.getValuesDetId()).size() << std::endl;
+  if (debug) {
+  std::cout << (topoData.getValuesDetId()).size() << std::endl;
 
-  std::cout << (recHitParametersHandle_->getValuesdepthHB())[0] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesdepthHB())[1] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesdepthHB())[2] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesdepthHB())[3] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesdepthHB()).size() << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesDepthHB())[0] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesDepthHB())[1] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesDepthHB())[2] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesDepthHB())[3] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesDepthHB()).size() << std::endl;
 
-  std::cout << (recHitParams.getValuesdepthHB()).size() << std::endl;
+  std::cout << (recHitParams.getValuesDepthHB()).size() << std::endl;
 
-  std::cout << (recHitParametersHandle_->getValuesdepthHE())[0] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesdepthHE())[1] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesdepthHE())[2] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesdepthHE())[3] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesdepthHE())[4] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesdepthHE())[5] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesdepthHE())[6] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesdepthHE()).size() << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesDepthHE())[0] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesDepthHE())[1] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesDepthHE())[2] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesDepthHE())[3] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesDepthHE())[4] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesDepthHE())[5] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesDepthHE())[6] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesDepthHE()).size() << std::endl;
 
-  std::cout << (recHitParametersHandle_->getValuesthresholdE_HB())[0] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesthresholdE_HB())[1] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesthresholdE_HB())[2] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesthresholdE_HB())[3] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesThresholdE_HB())[0] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesThresholdE_HB())[1] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesThresholdE_HB())[2] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesThresholdE_HB())[3] << std::endl;
 
-  std::cout << (recHitParametersHandle_->getValuesthresholdE_HE())[0] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesthresholdE_HE())[1] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesthresholdE_HE())[2] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesthresholdE_HE())[3] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesthresholdE_HE())[4] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesthresholdE_HE())[5] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesthresholdE_HE())[6] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesThresholdE_HE())[0] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesThresholdE_HE())[1] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesThresholdE_HE())[2] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesThresholdE_HE())[3] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesThresholdE_HE())[4] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesThresholdE_HE())[5] << std::endl;
+  std::cout << (recHitParametersHandle_->getValuesThresholdE_HE())[6] << std::endl;
 
   std::cout << "init starts" << std::endl;
+
+  }
 
   if (initCuda) {
     // Initialize persistent arrays for rechit positions
@@ -388,7 +393,7 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
 
   }
 
-  std::cout << "init done" << std::endl;
+  if (debug) std::cout << "init done" << std::endl;
 
   if (num_rechits == 0) return; // if no rechit, there is nothing to do.
 
@@ -397,13 +402,15 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
   // bundle up constants
   PFRecHit::HCAL::ConstantProducts constantProducts{
         recHitParamsProduct,
-	recHitParams.getValuesdepthHB(),
-	recHitParams.getValuesdepthHE(),
-	recHitParams.getValuesthresholdE_HB(),
-	recHitParams.getValuesthresholdE_HE(),
-	hbheTopoDataProduct,
-	hbheTopoData.getValuesDetId(),
-	hbheTopoData.getValuesNeighbours()
+	recHitParams.getValuesDepthHB(),
+	recHitParams.getValuesDepthHE(),
+	recHitParams.getValuesThresholdE_HB(),
+	recHitParams.getValuesThresholdE_HE(),
+	topoDataProduct,
+	topoData.getValuesDenseId(),
+	topoData.getValuesDetId(),
+	topoData.getValuesNeighbours(),
+	topoData.getValuesPosition()
   };
 
   // Entry point for GPU calls

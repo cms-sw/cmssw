@@ -1,6 +1,6 @@
 // RecoParticleFlow/PFClusterProducer/interface/HBHETopologyGPURcd.h 
-#ifndef RecoParticleFlow_PFClusterProducer_HBHETopologyGPURcd_h
-#define RecoParticleFlow_PFClusterProducer_HBHETopologyGPURcd_h
+#ifndef RecoParticleFlow_PFClusterProducer_PFHBHETopologyGPURcd_h
+#define RecoParticleFlow_PFClusterProducer_PFHBHETopologyGPURcd_h
 
 //#include "CondFormats/DataRecord/interface/SiPixelGainCalibrationForHLTRcd.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
@@ -9,9 +9,9 @@
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-class HBHETopologyGPURcd
+class PFHBHETopologyGPURcd
 //: public edm::eventsetup::EventSetupRecordImplementation<HBHETopologyGPURcd> {};
-: public edm::eventsetup::DependentRecordImplementation<HBHETopologyGPURcd,
+: public edm::eventsetup::DependentRecordImplementation<PFHBHETopologyGPURcd,
 edm::mpl::Vector<HcalRecNumberingRecord, CaloGeometryRecord>> {};
 
-#endif  // RecoParticleFlow_PFClusterProducer_HBHETopologyGPURcd_h
+#endif  // RecoParticleFlow_PFClusterProducer_PFHBHETopologyGPURcd_h

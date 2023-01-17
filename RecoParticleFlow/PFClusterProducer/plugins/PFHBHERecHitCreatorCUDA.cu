@@ -277,7 +277,7 @@ namespace PFRecHit {
         uint32_t const* recHits_did)    // Input rechit detIds
         {
 
-	  printf("Access detId via ES on device %8d\n",detId[1]);
+	  //printf("Access detId via ES on device %8d\n",detId[1]);
 
           int first = blockIdx.x*blockDim.x + threadIdx.x;
           for (int i = first; i < size; i += gridDim.x * blockDim.x) {
@@ -383,10 +383,12 @@ namespace PFRecHit {
 	  bool found = false;
 	  for (uint32_t j=0; j<4; j++){
 	    if (depth == depthHB[j]){
+	      /*
 	      printf("aa %6d %8.2f %8d\n",
 		     depthHB[j],
 		     thresholdE_HB[j],
 		     depthHB[j]);
+	      */
 	      threshold = thresholdE_HB[j];
 	      found = true; // found depth and threshold
 	    }
@@ -569,6 +571,7 @@ namespace PFRecHit {
 	if (rh_neighbours[index * 8 + 6]!=neighbours[index * 8 + 6]) printf("neigh6 %8d %8d\n",rh_neighbours[index * 8 + 6], neighbours[index * 8 + 6]);
 	if (rh_neighbours[index * 8 + 7]!=neighbours[index * 8 + 7]) printf("neigh7 %8d %8d\n",rh_neighbours[index * 8 + 7], neighbours[index * 8 + 7]);
 
+	/*
           printf("\trh_neighbours = [%d, %d, %d, %d, %d, %d, %d, %d] [%d, %d, %d, %d, %d, %d, %d, %d]\n",
                  rh_neighbours[index * 8],
                  rh_neighbours[index * 8 + 1],
@@ -586,6 +589,7 @@ namespace PFRecHit {
                  neighbours[index * 8 + 5],
                  neighbours[index * 8 + 6],
                  neighbours[index * 8 + 7]);
+	*/
 
         if (debug) {
           printf("Now debugging rechit %d\tpfIdx %u\ti = %d\tindex = %d\tpos = (%f, %f, %f)\n",
@@ -683,8 +687,8 @@ namespace PFRecHit {
                     std::array<float, 5>& timer) {
 
       //printf("bb %8d\n",recHitParametersProduct.valuesdepthHB[1]);
-      printf("bb %8d\n",constantProducts.depthHB[1]);
-      printf("bb2 %8d\n",constantProducts.detId[1]);
+      //printf("bb %8d\n",constantProducts.depthHB[1]);
+      //printf("bb2 %8d\n",constantProducts.detId[1]);
 
       uint32_t nRHIn = HBHERecHits_asInput.size;  // Number of input rechits
       if (nRHIn == 0) {
