@@ -55,7 +55,7 @@
 
 class BaseMVACache {
 public:
-  BaseMVACache(const std::string& model_path, const std::string& backend, const bool& disableONNXGraphOpt) {
+  BaseMVACache(const std::string& model_path, const std::string& backend, const bool disableONNXGraphOpt) {
     if (backend == "TF") {
       graph_.reset(tensorflow::loadGraphDef(model_path));
       tf_session_ = tensorflow::createSession(graph_.get());
