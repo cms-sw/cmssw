@@ -85,6 +85,10 @@ namespace tensorflow {
     // objects to create the session
     Status status;
 
+    // hotfix: disable GPU usage whatsoever for now, add a convenient interface in a future PR
+    (*sessionOptions.config.mutable_device_count())["GPU"] = 0;
+    sessionOptions.config.mutable_gpu_options()->set_visible_device_list("");
+
     // create a new, empty session
     Session* session = nullptr;
     status = NewSession(sessionOptions, &session);
