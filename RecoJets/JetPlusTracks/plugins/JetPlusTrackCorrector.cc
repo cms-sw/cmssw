@@ -1324,6 +1324,7 @@ double JetPlusTrackCorrector::correctAA(const reco::Jet& fJet,
 
   //=================================================================>
 
+  /*
   //=================================================================>
   // Look for in-out tracks
 
@@ -1356,6 +1357,7 @@ double JetPlusTrackCorrector::correctAA(const reco::Jet& fJet,
   //===================================================================>
 
   //=>
+*/
   double SquareEtaRingWithoutJets = ja;
 
   EnergyOfBackgroundCharged = EnergyOfBackgroundCharged / SquareEtaRingWithoutJets;

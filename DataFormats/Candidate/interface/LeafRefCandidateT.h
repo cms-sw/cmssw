@@ -197,11 +197,11 @@ namespace reco {
   };
 
   inline bool LeafRefCandidateT::overlap(const Candidate& o) const {
-    return p4() == o.p4() && vertex() == o.vertex() && charge() == o.charge();
+    return (p4() == o.p4()) && (vertex() == o.vertex()) && (charge() == o.charge());
   }
 
   inline bool LeafRefCandidateT::overlap(const LeafRefCandidateT& o) const {
-    return (ref_.id() == o.ref_.id()) & (ref_.index() == o.ref_.index());
+    return (ref_.id() == o.ref_.id()) && (ref_.index() == o.ref_.index());
   }
 
 }  // namespace reco

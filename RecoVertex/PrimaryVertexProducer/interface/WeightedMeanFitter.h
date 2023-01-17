@@ -325,8 +325,7 @@ namespace WeightedMeanFitter {
   inline TransientVertex weightedMeanOutlierRejectionVarianceAsError(
       const std::vector<std::pair<GlobalPoint, GlobalPoint>>& points,
       std::vector<std::vector<reco::TransientTrack>>::const_iterator iclus) {
-    float x = 0, y = 0, z = 0, s_wx = 0, s_wy = 0, s_wz = 0, s2_wx = 0, s2_wy = 0, s2_wz = 0, wx = 0, wy = 0, wz = 0,
-          chi2 = 0;
+    float x = 0, y = 0, z = 0, s_wx = 0, s_wy = 0, s_wz = 0, wx = 0, wy = 0, wz = 0, chi2 = 0;
     float ndof_x = 0;
     AlgebraicSymMatrix33 err;
     err(2, 2) = startError * startError;  // error is 20 cm, so cov -> is 20 ^ 2
@@ -371,9 +370,6 @@ namespace WeightedMeanFitter {
       s_wx = 0;
       s_wy = 0;
       s_wz = 0;
-      s2_wx = 0;
-      s2_wy = 0;
-      s2_wz = 0;
       x = 0;
       y = 0;
       z = 0;
@@ -413,10 +409,6 @@ namespace WeightedMeanFitter {
         s_wx += wx;
         s_wy += wy;
         s_wz += wz;
-
-        s2_wx += wx * wx;
-        s2_wy += wy * wy;
-        s2_wz += wz * wz;
 
         s_err_x += wx * pow(p.first.x() - old_x, 2);
         s_err_y += wy * pow(p.first.y() - old_y, 2);
