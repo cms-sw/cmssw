@@ -1242,7 +1242,7 @@ private:
     edm::Handle<double> rho;
     event.getByToken(rho_token_, rho);
 
-    unsigned int eventnr = static_cast<unsigned int>(event.id().event());
+    auto const& eventnr = event.id().event();
 
     tensorflow::Tensor predictions(tensorflow::DT_FLOAT, {static_cast<int>(taus->size()), deep_tau::NumberOfOutputs});
 
@@ -1320,14 +1320,14 @@ private:
                         const edm::View<reco::Candidate>& pfCands,
                         const reco::Vertex& pv,
                         double rho,
-                        unsigned int eventnr,
+                        const edm::EventNumber_t eventnr,
                         std::vector<tensorflow::Tensor>& pred_vector,
                         TauFunc tau_funcs) {
     using namespace dnn_inputs_v2;
     if (debug_level >= 2) {
       std::cout << "<DeepTauId::getPredictionsV2 (moduleLabel = " << moduleDescription().moduleLabel()
                 << ")>:" << std::endl;
-      std::cout << " tau: pT = " << tau.pt() << ", eta = " << tau.eta() << ", phi = " << tau.phi() << ", eventnr = " << std::to_string(eventnr) << std::endl;
+      std::cout << " tau: pT = " << tau.pt() << ", eta = " << tau.eta() << ", phi = " << tau.phi() << ", eventnr = " << eventnr << std::endl;
     }
     CellGrid inner_grid(number_of_inner_cell, number_of_inner_cell, 0.02, 0.02, disable_CellIndex_workaround_);
     CellGrid outer_grid(number_of_outer_cell, number_of_outer_cell, 0.05, 0.05, disable_CellIndex_workaround_);
