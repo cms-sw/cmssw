@@ -41,14 +41,8 @@ std::ostream& operator<<(std::ostream& ost, const Bools& b) {
 }
 
 void testone(const Strings& paths, const Strings& pattern, const Bools& mask, bool answer, int jmask) {
-  ParameterSet pset;  //, parent;
-  pset.addParameter<Strings>("SelectEvents", pattern);
-  //parent.addUntrackedParameter<ParameterSet>("SelectEvents",pset);
-  pset.registerIt();
-
-  // There are 3 different ways to build the EventSelector.  All
-  // should give the same result.  We exercise all 3 here.
-  EventSelector select(pset, paths);
+  // There are 2 different ways to build the EventSelector.
+  // Both should give the same result.  We exercise both here.
   EventSelector select1(pattern, paths);
   EventSelector select2(pattern);
 
@@ -87,8 +81,6 @@ void testone(const Strings& paths, const Strings& pattern, const Bools& mask, bo
   //        std::cerr << "pattern=" << pattern
   //	 	  << "mask=" << mask << "\n";  // DBG
 
-  //  	std:: cerr << "a \n";
-  bool a = select.acceptEvent(results);
   //  	std:: cerr << "a1 \n";
   bool a1 = select1.acceptEvent(results);
   //  	std:: cerr << "a2 \n";
@@ -98,10 +90,10 @@ void testone(const Strings& paths, const Strings& pattern, const Bools& mask, bo
   //  	std:: cerr << "c1 \n";
   bool c1 = select1.acceptEvent(&(bitArray[0]), number_of_trigger_paths);
 
-  if (a != answer || a1 != answer || a2 != answer || b2 != answer || c1 != answer) {
+  if (a1 != answer || a2 != answer || b2 != answer || c1 != answer) {
     std::cerr << "failed to compare pattern with mask: "
               << "correct=" << answer << " "
-              << "results=" << a << "  " << a1 << "  " << a2 << "  " << b2 << "  " << c1 << "\n"
+              << "results=" << a1 << "  " << a2 << "  " << b2 << "  " << c1 << "\n"
               << "pattern=" << pattern << "\n"
               << "mask=" << mask << "\n"
               << "jmask = " << jmask << "\n";
@@ -118,18 +110,16 @@ void testone(const Strings& paths, const Strings& pattern, const Bools& mask, bo
   TriggerResults results_id(bm, trigger_pset.id());
 
   //  	std:: cerr << "a11 \n";
-  bool a11 = select.acceptEvent(results_id);
+  bool a11 = select1.acceptEvent(results_id);
   //  	std:: cerr << "a12 \n";
-  bool a12 = select1.acceptEvent(results_id);
+  bool a12 = select2.acceptEvent(results_id);
   //  	std:: cerr << "a13 \n";
   bool a13 = select2.acceptEvent(results_id);
-  //  	std:: cerr << "a14 \n";
-  bool a14 = select2.acceptEvent(results_id);
 
-  if (a11 != answer || a12 != answer || a13 != answer || a14 != answer) {
+  if (a11 != answer || a12 != answer || a13 != answer) {
     std::cerr << "failed to compare pattern with mask using pset ID: "
               << "correct=" << answer << " "
-              << "results=" << a11 << "  " << a12 << "  " << a13 << "  " << a14 << "\n"
+              << "results=" << a11 << "  " << a12 << "  " << a13 << "\n"
               << "pattern=" << pattern << "\n"
               << "mask=" << mask << "\n"
               << "jmask = " << jmask << "\n";
