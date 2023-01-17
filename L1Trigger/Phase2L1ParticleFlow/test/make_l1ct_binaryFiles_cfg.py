@@ -14,8 +14,10 @@ if '--' in argv:
     argv.remove("--")
 args, unknown = parser.parse_known_args(argv)
 
-print(args.dumpFilesOFF)
-print(args.patternFilesOFF)
+if args.dumpFilesOFF:
+    print(f'Switching off dump file creation: dumpFilesOFF is {args.dumpFilesOFF}')
+if args.patternFilesOFF:
+    print(f'Switching off pattern file creation: patternFilesOFF is {args.patternFilesOFF}')
 
 
 import FWCore.ParameterSet.Config as cms
