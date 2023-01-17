@@ -221,8 +221,8 @@ void Trend::operator()(TObject* obj, TString drawOpt, TString lgdOpt, bool fullR
     if (fullRange) {
       g->Set(n);
       g->SetPoint(n, GetLumi.lastRun, 0);
-    } else
-      g = GetLumi(g);
+    }
+    g = GetLumi(g);
     g->Draw("same" + drawOpt);
   } else if (classname.Contains("TH1")) {
     auto h = dynamic_cast<TH1*>(obj);
