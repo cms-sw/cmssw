@@ -1320,7 +1320,7 @@ private:
                         const edm::View<reco::Candidate>& pfCands,
                         const reco::Vertex& pv,
                         double rho,
-                        const edm::EventNumber_t eventnr,
+                        const edm::EventNumber_t& eventnr,
                         std::vector<tensorflow::Tensor>& pred_vector,
                         TauFunc tau_funcs) {
     using namespace dnn_inputs_v2;
