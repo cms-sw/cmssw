@@ -57,6 +57,38 @@ run2_egamma.toModify(
      plots = _Photon_Run2_plots
 )
 
+_FatJet_Run2_plots = cms.VPSet()
+for plot in nanoDQM.vplots.FatJet.plots:
+    _FatJet_Run2_plots.append(plot)
+_FatJet_Run2_plots.extend([
+    Plot1D('btagCSVV2', 'btagCSVV2', 20, -1, 1, ' pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)'),
+])
+
+_Jet_Run2_plots = cms.VPSet()
+for plot in nanoDQM.vplots.Jet.plots:
+    _Jet_Run2_plots.append(plot)
+_Jet_Run2_plots.extend([
+    Plot1D('btagCSVV2', 'btagCSVV2', 20, -1, 1, ' pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)'),
+])
+
+_SubJet_Run2_plots = cms.VPSet()
+for plot in nanoDQM.vplots.SubJet.plots:
+    _SubJet_Run2_plots.append(plot)
+_SubJet_Run2_plots.extend([
+    Plot1D('btagCSVV2', 'btagCSVV2', 20, -1, 1, ' pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)'),
+])
+
+run2_nanoAOD_ANY.toModify(
+    nanoDQM.vplots.FatJet,
+    plots = _FatJet_Run2_plots
+).toModify(
+    nanoDQM.vplots.Jet,
+    plots = _Jet_Run2_plots
+).toModify(
+    nanoDQM.vplots.SubJet,
+    plots = _SubJet_Run2_plots
+)
+
 ## MC
 nanoDQMMC = nanoDQM.clone()
 nanoDQMMC.vplots.Electron.sels.Prompt = cms.string("genPartFlav == 1")
