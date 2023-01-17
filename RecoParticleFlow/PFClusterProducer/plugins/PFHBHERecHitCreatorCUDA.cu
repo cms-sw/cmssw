@@ -586,7 +586,7 @@ namespace PFRecHit {
                  neighbours[index * 8 + 5],
                  neighbours[index * 8 + 6],
                  neighbours[index * 8 + 7]);
-	
+
         if (debug) {
           printf("Now debugging rechit %d\tpfIdx %u\ti = %d\tindex = %d\tpos = (%f, %f, %f)\n",
                  detid,
@@ -792,10 +792,10 @@ namespace PFRecHit {
       applyDepthThresholdQTests<<<(nRHIn + threadsPerBlock - 1) / threadsPerBlock, threadsPerBlock, 0, cudaStream>>>(
           nRHIn,
 	  //constantProducts.recHitParametersProduct,
-	  constantProducts.recHitParametersProduct.valuesdepthHB,
-	  constantProducts.recHitParametersProduct.valuesdepthHE,
-	  constantProducts.recHitParametersProduct.valuesthresholdE_HB,
-	  constantProducts.recHitParametersProduct.valuesthresholdE_HE,
+	  constantProducts.recHitParametersProduct.depthHB,
+	  constantProducts.recHitParametersProduct.depthHE,
+	  constantProducts.recHitParametersProduct.thresholdE_HB,
+	  constantProducts.recHitParametersProduct.thresholdE_HE,
 	  scratchDataGPU.rh_mask.get(), HBHERecHits_asInput.did.get(), HBHERecHits_asInput.energy.get());
       cudaCheck(cudaGetLastError());
 
