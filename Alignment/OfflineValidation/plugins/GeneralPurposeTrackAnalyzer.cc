@@ -34,6 +34,7 @@
 // user include files
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "CondCore/SiPixelPlugins/interface/SiPixelPayloadInspectorHelper.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
@@ -90,10 +91,14 @@ public:
   GeneralPurposeTrackAnalyzer(const edm::ParameterSet &pset)
       : geomToken_(esConsumes()),
         magFieldToken_(esConsumes<edm::Transition::BeginRun>()),
-        latencyToken_(esConsumes<edm::Transition::BeginRun>()),
         geomTokenBR_(esConsumes<edm::Transition::BeginRun>()),
         trackerTopologyTokenBR_(esConsumes<edm::Transition::BeginRun>()),
         siPixelFedCablingMapTokenBR_(esConsumes<edm::Transition::BeginRun>()) {
+    doLatencyAnalysis_ = pset.getParameter<bool>("doLatencyAnalysis");
+    if (doLatencyAnalysis_) {
+      latencyToken_ = esConsumes<edm::Transition::BeginRun>();
+    }
+
     usesResource(TFileService::kSharedResource);
 
     TkTag_ = pset.getParameter<edm::InputTag>("TkTag");
@@ -152,7 +157,7 @@ private:
   // tokens for the event setup
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
-  const edm::ESGetToken<SiStripLatency, SiStripLatencyRcd> latencyToken_;
+  edm::ESGetToken<SiStripLatency, SiStripLatencyRcd> latencyToken_;
 
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomTokenBR_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyTokenBR_;
@@ -282,9 +287,8 @@ private:
   int ievt;
   int itrks;
   int mode;
-  bool firstEvent_;
-  bool isPhase1_;
   float etaMax_;
+  SiPixelPI::phase phase_;
 
   const TrackerGeometry *trackerGeometry_;
 
@@ -294,6 +298,7 @@ private:
   edm::InputTag VerticesTag_;
 
   bool isCosmics_;
+  bool doLatencyAnalysis_;
 
   edm::EDGetTokenT<reco::TrackCollection> theTrackCollectionToken_;
   edm::EDGetTokenT<edm::TriggerResults> hltresultsToken_;
@@ -310,18 +315,10 @@ private:
   {
     ievt++;
 
-    edm::Handle<reco::TrackCollection> trackCollection = event.getHandle(theTrackCollectionToken_);
-
     // geometry setup
     const TrackerGeometry *theGeometry = &setup.getData(geomToken_);
 
-    // switch on the phase1
-    if ((theGeometry->isThere(GeomDetEnumerators::P1PXB)) || (theGeometry->isThere(GeomDetEnumerators::P1PXEC))) {
-      isPhase1_ = true;
-    } else {
-      isPhase1_ = false;
-    }
-
+    edm::Handle<reco::TrackCollection> trackCollection = event.getHandle(theTrackCollectionToken_);
     const reco::TrackCollection tC = *(trackCollection.product());
     itrks += tC.size();
 
@@ -387,12 +384,12 @@ private:
             int row = cluster.x() - 0.5, col = cluster.y() - 0.5;
             int rocId = coord_.roc(detId, std::make_pair(row, col));
 
-            rocsToMask.set(rocId);
-            pixelrocsmap_->fillSelectedRocs(detid_db, rocsToMask, 1);
-
-            if (!isPhase1_) {
+            if (phase_ == SiPixelPI::phase::zero) {
               pmap->fill(detid_db, 1);
-            } else {
+            } else if (phase_ == SiPixelPI::phase::one) {
+              rocsToMask.set(rocId);
+              pixelrocsmap_->fillSelectedRocs(detid_db, rocsToMask, 1);
+
               if (subid == PixelSubdetector::PixelBarrel) {
                 pixelmap->fillBarrelBin("entriesBarrel", detid_db, 1);
               } else {
@@ -426,7 +423,7 @@ private:
             }
           }
         } else {
-          if ((*iHit)->isValid()) {
+          if ((*iHit)->isValid() && phase_ != SiPixelPI::phase::two) {
             tmap->fill(detId.rawId(), 1);
           }
         }
@@ -720,19 +717,37 @@ private:
           << "run number:" << run.run() << " magnetic field: " << B_ << " [T]" << std::endl;
     }
 
-    //SiStrip Latency
-    const SiStripLatency *apvlat = &setup.getData(latencyToken_);
-    if (apvlat->singleReadOutMode() == 1) {
-      mode = 1;  // peak mode
-    } else if (apvlat->singleReadOutMode() == 0) {
-      mode = -1;  // deco mode
+    const TrackerGeometry *trackerGeometry = &setup.getData(geomTokenBR_);
+    if (trackerGeometry->isThere(GeomDetEnumerators::P2PXB) || trackerGeometry->isThere(GeomDetEnumerators::P2PXEC)) {
+      phase_ = SiPixelPI::phase::two;
+    } else if (trackerGeometry->isThere(GeomDetEnumerators::P1PXB) ||
+               trackerGeometry->isThere(GeomDetEnumerators::P1PXEC)) {
+      phase_ = SiPixelPI::phase::one;
+    } else {
+      phase_ = SiPixelPI::phase::zero;
+    }
+
+    // if it's a phase-2 geometry there are no phase-1 conditions
+    if (phase_ == SiPixelPI::phase::two) {
+      mode = 0;
+    } else {
+      if (doLatencyAnalysis_) {
+        //SiStrip Latency
+        const SiStripLatency *apvlat = &setup.getData(latencyToken_);
+        if (apvlat->singleReadOutMode() == 1) {
+          mode = 1;  // peak mode
+        } else if (apvlat->singleReadOutMode() == 0) {
+          mode = -1;  // deco mode
+        }
+      } else {
+        mode = 0;
+      }
     }
 
     conditionsMap_[run.run()].first = mode;
     conditionsMap_[run.run()].second = B_;
 
     // init the sipixel coordinates
-    const TrackerGeometry *trackerGeometry = &setup.getData(geomTokenBR_);
     const TrackerTopology *trackerTopology = &setup.getData(trackerTopologyTokenBR_);
     const SiPixelFedCablingMap *siPixelFedCablingMap = &setup.getData(siPixelFedCablingMapTokenBR_);
 
@@ -753,8 +768,6 @@ private:
     }
 
     TH1D::SetDefaultSumw2(kTRUE);
-
-    isPhase1_ = true;
     etaMax_ = 3.0;
 
     ievt = 0;
@@ -971,8 +984,6 @@ private:
 
     // clang-format on
 
-    firstEvent_ = true;
-
   }  //beginJob
 
   //*************************************************************
@@ -1059,28 +1070,30 @@ private:
       fieldByRun_->GetXaxis()->SetBinLabel((the_r - theRuns_.front()) + 1, std::to_string(the_r).c_str());
     }
 
-    if (!isPhase1_) {
-      pmap->save(true, 0, 0, "PixelHitMap.pdf", 600, 800);
-      pmap->save(true, 0, 0, "PixelHitMap.png", 500, 750);
+    if (phase_ < SiPixelPI::phase::two) {
+      if (phase_ == SiPixelPI::phase::zero) {
+        pmap->save(true, 0, 0, "PixelHitMap.pdf", 600, 800);
+        pmap->save(true, 0, 0, "PixelHitMap.png", 500, 750);
+      }
+
+      tmap->save(true, 0, 0, "StripHitMap.pdf");
+      tmap->save(true, 0, 0, "StripHitMap.png");
+
+      gStyle->SetPalette(kRainBow);
+      pixelmap->beautifyAllHistograms();
+
+      TCanvas cB("CanvBarrel", "CanvBarrel", 1200, 1000);
+      pixelmap->drawBarrelMaps("entriesBarrel", cB);
+      cB.SaveAs("pixelBarrelEntries.png");
+
+      TCanvas cF("CanvForward", "CanvForward", 1600, 1000);
+      pixelmap->drawForwardMaps("entriesForward", cF);
+      cF.SaveAs("pixelForwardEntries.png");
+
+      TCanvas cRocs = TCanvas("cRocs", "cRocs", 1200, 1600);
+      pixelrocsmap_->drawMaps(cRocs, "Pixel on-track clusters occupancy");
+      cRocs.SaveAs("Phase1PixelROCMaps_fullROCs.png");
     }
-
-    tmap->save(true, 0, 0, "StripHitMap.pdf");
-    tmap->save(true, 0, 0, "StripHitMap.png");
-
-    gStyle->SetPalette(kRainBow);
-    pixelmap->beautifyAllHistograms();
-
-    TCanvas cB("CanvBarrel", "CanvBarrel", 1200, 1000);
-    pixelmap->drawBarrelMaps("entriesBarrel", cB);
-    cB.SaveAs("pixelBarrelEntries.png");
-
-    TCanvas cF("CanvForward", "CanvForward", 1600, 1000);
-    pixelmap->drawForwardMaps("entriesForward", cF);
-    cF.SaveAs("pixelForwardEntries.png");
-
-    TCanvas cRocs = TCanvas("cRocs", "cRocs", 1200, 1600);
-    pixelrocsmap_->drawMaps(cRocs, "Pixel on-track clusters occupancy");
-    cRocs.SaveAs("Phase1PixelROCMaps_fullROCs.png");
   }
 
   //*************************************************************
@@ -1138,6 +1151,7 @@ void GeneralPurposeTrackAnalyzer::fillDescriptions(edm::ConfigurationDescription
   desc.add<edm::InputTag>("BeamSpotTag", edm::InputTag("offlineBeamSpot"));
   desc.add<edm::InputTag>("VerticesTag", edm::InputTag("offlinePrimaryVertices"));
   desc.add<bool>("isCosmics", false);
+  desc.add<bool>("doLatencyAnalysis", true);
   descriptions.addWithDefaultLabel(desc);
 }
 
