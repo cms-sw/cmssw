@@ -85,7 +85,7 @@ process.l1tLayer1Barrel9.boards=cms.VPSet(
 from L1Trigger.Phase2L1ParticleFlow.l1ctLayer1_patternWriters_cff import *
 if not args.patternFilesOFF:
     process.l1tLayer1Barrel.patternWriters = cms.untracked.VPSet(*barrelWriterConfigs)
-    #process.l1tLayer1Barrel9.patternWriters = cms.untracked.VPSet(*barrel9WriterConfigs) # not enabled for now
+    # process.l1tLayer1Barrel9.patternWriters = cms.untracked.VPSet(*barrel9WriterConfigs) # not enabled for now
     process.l1tLayer1HGCal.patternWriters = cms.untracked.VPSet(*hgcalWriterConfigs)
     process.l1tLayer1HGCalNoTK.patternWriters = cms.untracked.VPSet(*hgcalNoTKWriterConfigs)
     process.l1tLayer1HF.patternWriters = cms.untracked.VPSet(*hfWriterConfigs)
@@ -95,7 +95,7 @@ process.runPF = cms.Path(
         process.l1tGTTInputProducer +
         process.l1tVertexFinderEmulator +
         process.l1tLayer1Barrel +
-        #process.l1tLayer1Barrel9 +
+        process.l1tLayer1Barrel9 +
         process.l1tLayer1HGCal +
         process.l1tLayer1HGCalNoTK +
         process.l1tLayer1HF +
