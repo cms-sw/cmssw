@@ -12,6 +12,7 @@
 <bin name="DMRmerge" file="DMRmerge.cc,Options.cc" />
 <bin name="DMRtrends" file="DMRtrends.cc,Options.cc" />
 <bin name="GCP" file="GCP.cc,Options.cc" />
+<bin name="GCPtrends" file="GCPtrends.cc" />
 <bin name="PVmerge" file="PVmerge.cc,Options.cc" />
 <bin name="PVtrends" file="PVtrends.cc,Options.cc" />
 <bin name="SplitVmerge" file="SplitVmerge.cc,Options.cc" />
