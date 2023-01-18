@@ -629,7 +629,7 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
                                   << "Element is not crosssed: " << DetIdInfo::info(*detId, nullptr) << "\n";
       continue;
     }
-    LocalPoint localPoint = geomDet->surface().toLocal(stateOnSurface.freeState()->position()); 
+    LocalPoint localPoint = geomDet->surface().toLocal(stateOnSurface.freeState()->position());
     LocalError localError = stateOnSurface.localError().positionError();
     float distanceX = 0.f;
     float distanceY = 0.f;
@@ -667,9 +667,7 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
       distanceX = std::abs(localPoint.x()) - halfWidthAtYPrime;
       distanceY = std::abs(localPoint.y() - yCOWPOffset) - 0.5f * length;
     } else if (const GEMChamber* gemchamber = dynamic_cast<const GEMChamber*>(geomDet)) {
-
     } else if (dynamic_cast<const GEMChamber*>(geomDet) || dynamic_cast<const GEMSuperChamber*>(geomDet)) {
-      
       const TrapezoidalPlaneBounds* bounds = dynamic_cast<const TrapezoidalPlaneBounds*>(&geomDet->surface().bounds());
 
       float wideWidth = bounds->width();
@@ -677,7 +675,7 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
       float length = bounds->length();
       float tangent = (wideWidth - narrowWidth) / (2.f * length);
       float halfWidthAtY = tangent * localPoint.y() + 0.5f * narrowWidth;
-      
+
       distanceX = std::abs(localPoint.x()) - halfWidthAtY;
       distanceY = std::abs(localPoint.y()) - 0.5f * length;
     } else {
