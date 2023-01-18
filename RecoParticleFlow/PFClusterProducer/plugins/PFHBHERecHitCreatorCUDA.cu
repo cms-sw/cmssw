@@ -52,7 +52,7 @@ namespace PFRecHit {
 
     // Initialize arrays used to store temporary values for each event
     __global__ void initializeArrays(uint32_t nTopoArraySize,
-				     uint32_t nRHIn,          // Number of input rechits
+                                     uint32_t nRHIn,          // Number of input rechits
                                      int* rh_mask,            // Mask for input rechit index
                                      int* rh_inputToFullIdx,  // Mapping of input rechit index -> reference table index
                                      int* rh_fullToInputIdx,  // Mapping of reference table index -> input rechit index
@@ -67,10 +67,23 @@ namespace PFRecHit {
 
       // Reset mappings of reference table index. Total length = number of all valid HCAL detIds
       //for (uint32_t i = blockIdx.x * blockDim.x + threadIdx.x; i < (constantsGPU_d.nValidBarrelIds + constantsGPU_d.nValidEndcapIds); i += blockDim.x * gridDim.x) {
+      //for (uint32_t i = blockIdx.x * blockDim.x + threadIdx.x; i < (sizeof(detId)/sizeof(detId[0])); i += blockDim.x * gridDim.x) {
       for (uint32_t i = blockIdx.x * blockDim.x + threadIdx.x; i < (constantsGPU_d.nDenseIdsInRange); i += blockDim.x * gridDim.x) {
         rh_fullToInputIdx[i] = -1;
       }
+      //int nd = sizeof(denseId)/sizeof(denseId[0]);
+      //int densemax = denseId[0];
+      //int densemin = denseId[0];
 
+      //for (int i=1; i<nd; i++)
+      //    if(denseId[i]>densemax)
+      //        densemax = denseId[i];
+      //for (int i=1; i<nd; i++)
+      //    if(denseId[i]<densemin)
+      //        densemin = denseId[i];
+      //int len = *(&detId + 1) - detId;
+
+      printf("computed: %d, nDenseId: %d\n", (int)(nTopoArraySize), (int)constantsGPU_d.nDenseIdsInRange);
       // Reset mappings of input,output indices and rechit mask
       for (uint32_t i = blockIdx.x * blockDim.x + threadIdx.x; i < nRHIn; i += blockDim.x * gridDim.x) {
         pfrhToInputIdx[i] = -1;
@@ -80,112 +93,113 @@ namespace PFRecHit {
       }
     }
 
-    __global__ void buildDetIdMapPerBlockMulti(
-        uint32_t size,
-        uint32_t const* rh_detIdRef,    // Reference table index -> detId
-        uint32_t* rh_detIdMap,          // Map for input rechit detId -> reference table index
-        uint32_t const* recHits_did) {  // Input rechit detIds
+    //__global__ void buildDetIdMapPerBlockMulti(
+    //    //uint32_t const* detId,
+    //    uint32_t size,
+    //    uint32_t const* rh_detIdRef,    // Reference table index -> detId
+    //    uint32_t* rh_detIdMap,          // Map for input rechit detId -> reference table index
+    //    uint32_t const* recHits_did) {  // Input rechit detIds
 
-      __shared__ uint32_t detId, subdet, minval, maxval, notDone;
+    //  __shared__ uint32_t detId, subdet, minval, maxval, notDone;
 
-      for (uint32_t i = blockIdx.x; i < size; i += gridDim.x) {
-        if (threadIdx.x == 0) {
-          notDone = 1;
-          detId = recHits_did[i];
+    //  for (uint32_t i = blockIdx.x; i < size; i += gridDim.x) {
+    //    if (threadIdx.x == 0) {
+    //      notDone = 1;
+    //      detId = recHits_did[i];
 
-          // Get subdetector encoded in detId
-          // cmssdt.cern.ch/lxr/source/DataFormats/DetId/interface/DetId.h#0048
-          subdet = (detId >> DetId::kSubdetOffset) & DetId::kSubdetMask;
-          if (subdet == HcalBarrel) {
-            minval = 0;
-            maxval = constantsGPU_d.nValidBarrelIds;
-          } else if (subdet == HcalEndcap) {
-            minval = constantsGPU_d.nValidEndcapIds;
-            maxval = (constantsGPU_d.nValidBarrelIds + constantsGPU_d.nValidEndcapIds);
-          } else {
-            printf("Rechit %u detId %u has invalid subdetector %u!\n", blockIdx.x, detId, subdet);
-            return;
-          }
-        }
-        __syncthreads();
+    //      // Get subdetector encoded in detId
+    //      // cmssdt.cern.ch/lxr/source/DataFormats/DetId/interface/DetId.h#0048
+    //      subdet = (detId >> DetId::kSubdetOffset) & DetId::kSubdetMask;
+    //      if (subdet == HcalBarrel) {
+    //        minval = 0;
+    //        maxval = constantsGPU_d.nValidBarrelIds;
+    //      } else if (subdet == HcalEndcap) {
+    //        minval = constantsGPU_d.nValidEndcapIds;
+    //        maxval = (constantsGPU_d.nValidBarrelIds + constantsGPU_d.nValidEndcapIds);
+    //      } else {
+    //        printf("Rechit %u detId %u has invalid subdetector %u!\n", blockIdx.x, detId, subdet);
+    //        return;
+    //      }
+    //    }
+    //    __syncthreads();
 
-        for (uint32_t j = threadIdx.x + minval; j < maxval && notDone; j += blockDim.x) {
-          if (detId == rh_detIdRef[j]) {
-            // Found it
-            rh_detIdMap[i] = j;
-            notDone = 0;
-            //atomicAdd(&notDone, -1);
-            //    break;
-          }
-          __syncthreads();
-        }
-      }
-    }
+    //    for (uint32_t j = threadIdx.x + minval; j < maxval && notDone; j += blockDim.x) {
+    //      if (detId == rh_detIdRef[j]) {
+    //        // Found it
+    //        rh_detIdMap[i] = j;
+    //        notDone = 0;
+    //        //atomicAdd(&notDone, -1);
+    //        //    break;
+    //      }
+    //      __syncthreads();
+    //    }
+    //  }
+    //}
 
 
 
-    __global__ void buildDetIdMapHackathon(
-        uint32_t size,
-        uint32_t const* rh_detIdRef,    // Reference table index -> detId
-        int* rh_inputToFullIdx,     // Map for input rechit detId -> reference table index
-        int* rh_fullToInputIdx,     // Map for reference table index -> input rechit index
-        uint32_t const* recHits_did)    // Input rechit detIds
-        {
+    //__global__ void buildDetIdMapHackathon(
+    //    uint32_t size,
+    //    uint32_t const* rh_detIdRef,    // Reference table index -> detId
+    //    int* rh_inputToFullIdx,     // Map for input rechit detId -> reference table index
+    //    int* rh_fullToInputIdx,     // Map for reference table index -> input rechit index
+    //    uint32_t const* recHits_did)    // Input rechit detIds
+    //    {
 
-          int first = blockIdx.x*blockDim.x + threadIdx.x;
-          for (int i = first; i < size; i += gridDim.x * blockDim.x) {
-            auto detId = rh_detIdRef[i];
-            for(int j = 0; j< size; ++j)
-            {
-              if(recHits_did[j] == detId)
-              {
-                rh_inputToFullIdx[j] = i;
-                rh_fullToInputIdx[i] = j;
-                return;
-              }
-            }
-          }
-        }
+    //      int first = blockIdx.x*blockDim.x + threadIdx.x;
+    //      for (int i = first; i < size; i += gridDim.x * blockDim.x) {
+    //        auto detId = rh_detIdRef[i];
+    //        for(int j = 0; j< size; ++j)
+    //        {
+    //          if(recHits_did[j] == detId)
+    //          {
+    //            rh_inputToFullIdx[j] = i;
+    //            rh_fullToInputIdx[i] = j;
+    //            return;
+    //          }
+    //        }
+    //      }
+    //    }
 
-    __global__ void buildDetIdMapKH(
-        uint32_t size,
-        uint32_t const* rh_detIdRef,    // Reference table index -> detId
-        int* rh_inputToFullIdx,     // Map for input rechit detId -> reference table index
-        int* rh_fullToInputIdx,     // Map for reference table index -> input rechit index
-        uint32_t const* recHits_did)    // Input rechit detIds
-        {
+    //__global__ void buildDetIdMapKH(
+    //    uint32_t size,
+    //    uint32_t const* rh_detIdRef,    // Reference table index -> detId
+    //    int* rh_inputToFullIdx,     // Map for input rechit detId -> reference table index
+    //    int* rh_fullToInputIdx,     // Map for reference table index -> input rechit index
+    //    uint32_t const* recHits_did)    // Input rechit detIds
+    //    {
 
-          int first = blockIdx.x*blockDim.x + threadIdx.x;
-          for (int i = first; i < size; i += gridDim.x * blockDim.x) {
-            auto detId = recHits_did[i];
+    //      int first = blockIdx.x*blockDim.x + threadIdx.x;
+    //      for (int i = first; i < size; i += gridDim.x * blockDim.x) {
+    //        auto detId = recHits_did[i];
 
-            // Get subdetector encoded in detId to narrow the range of reference table values to search
-            // cmssdt.cern.ch/lxr/source/DataFormats/DetId/interface/DetId.h#0048
-            uint32_t subdet = (detId >> DetId::kSubdetOffset) & DetId::kSubdetMask;
-            uint32_t minval, maxval;
-            if (subdet == HcalBarrel) {
-              minval = 0;
-              maxval = constantsGPU_d.nValidBarrelIds;
-            } else if (subdet == HcalEndcap) {
-              minval = constantsGPU_d.nValidEndcapIds;
-              maxval = (constantsGPU_d.nValidBarrelIds + constantsGPU_d.nValidEndcapIds);
-            } else {
-              printf("Rechit %u detId %u has invalid subdetector %u!\n", blockIdx.x, detId, subdet);
-              return;
-            }
+    //        // Get subdetector encoded in detId to narrow the range of reference table values to search
+    //        // cmssdt.cern.ch/lxr/source/DataFormats/DetId/interface/DetId.h#0048
+    //        uint32_t subdet = (detId >> DetId::kSubdetOffset) & DetId::kSubdetMask;
+    //        uint32_t minval, maxval;
+    //        if (subdet == HcalBarrel) {
+    //          minval = 0;
+    //          maxval = constantsGPU_d.nValidBarrelIds;
+    //        } else if (subdet == HcalEndcap) {
+    //          minval = constantsGPU_d.nValidEndcapIds;
+    //          maxval = (constantsGPU_d.nValidBarrelIds + constantsGPU_d.nValidEndcapIds);
+    //        } else {
+    //          printf("Rechit %u detId %u has invalid subdetector %u!\n", blockIdx.x, detId, subdet);
+    //          return;
+    //        }
 
-            // Search all valid rechits for matching detId
-            for (uint32_t j = minval; j < maxval; j += 1) {
-              if (detId == rh_detIdRef[j]) {
-                // Found it
-                rh_inputToFullIdx[i] = j;  // Input rechit index -> reference table index
-                rh_fullToInputIdx[j] = i;  // Reference table index -> input rechit index
-                return;
-              }
-            }
-          }
+    //        // Search all valid rechits for matching detId
+    //        for (uint32_t j = minval; j < maxval; j += 1) {
+    //          if (detId == rh_detIdRef[j]) {
+    //            // Found it
+    //            rh_inputToFullIdx[i] = j;  // Input rechit index -> reference table index
+    //            rh_fullToInputIdx[j] = i;  // Reference table index -> input rechit index
+    //            return;
+    //          }
+    //        }
+    //      }
 
-        }
+    //    }
 
     // Get subdetector encoded in detId to narrow the range of reference table values to search
     // cmssdt.cern.ch/lxr/source/DataFormats/DetId/interface/DetId.h#0048
@@ -274,9 +288,9 @@ namespace PFRecHit {
 
     __global__ void buildDetIdMapKH2(
         uint32_t size,
-	uint32_t denseIdHcalMin,        // min denseIdHcal
+	    uint32_t const* denseIdarr,        // min denseIdHcal
         uint32_t const* rh_detIdRef,    // Reference table index -> detId
-	uint32_t const* detId,
+	    uint32_t const* detId,
         int* rh_inputToFullIdx,     // Map for input rechit detId -> reference table index
         int* rh_fullToInputIdx,     // Map for reference table index -> input rechit index
         uint32_t const* recHits_did)    // Input rechit detIds
@@ -289,7 +303,7 @@ namespace PFRecHit {
 	    // i: index for input rechits
             auto detId = recHits_did[i];
 	    auto denseId = detId2denseId(detId);
-	    auto fullIdx = denseId - denseIdHcalMin;
+        auto fullIdx = denseId - denseIdarr[0];
 	    rh_inputToFullIdx[i] = fullIdx;  // Input rechit index -> reference table index
 	    rh_fullToInputIdx[fullIdx] = i;  // Reference table index -> input rechit index
 	  }
@@ -297,44 +311,44 @@ namespace PFRecHit {
 
     // Build detId map with 1 block per input rechit
     // Searches by detId for the matching index in reference table
-    __global__ void buildDetIdMapPerBlock(
-        uint32_t size,                  // Number of input rechits
-        uint32_t const* rh_detIdRef,    // Reference table index -> detId
-        int* rh_inputToFullIdx,         // Map for input rechit index -> reference table index
-        int* rh_fullToInputIdx,         // Map for reference table index -> input rechit index
-        uint32_t const* recHits_did) {  // Input rechit detIds
+    //__global__ void buildDetIdMapPerBlock(
+    //    uint32_t size,                  // Number of input rechits
+    //    uint32_t const* rh_detIdRef,    // Reference table index -> detId
+    //    int* rh_inputToFullIdx,         // Map for input rechit index -> reference table index
+    //    int* rh_fullToInputIdx,         // Map for reference table index -> input rechit index
+    //    uint32_t const* recHits_did) {  // Input rechit detIds
 
-      __shared__ uint32_t detId, subdet, minval, maxval;
+    //  __shared__ uint32_t detId, subdet, minval, maxval;
 
-      if (threadIdx.x == 0) {
-        detId = recHits_did[blockIdx.x];
+    //  if (threadIdx.x == 0) {
+    //    detId = recHits_did[blockIdx.x];
 
-        // Get subdetector encoded in detId to narrow the range of reference table values to search
-        // cmssdt.cern.ch/lxr/source/DataFormats/DetId/interface/DetId.h#0048
-        subdet = (detId >> DetId::kSubdetOffset) & DetId::kSubdetMask;
-        if (subdet == HcalBarrel) {
-          minval = 0;
-          maxval = constantsGPU_d.nValidBarrelIds;
-        } else if (subdet == HcalEndcap) {
-          minval = constantsGPU_d.nValidEndcapIds;
-          maxval = (constantsGPU_d.nValidBarrelIds + constantsGPU_d.nValidEndcapIds);
-        } else {
-          printf("Rechit %u detId %u has invalid subdetector %u!\n", blockIdx.x, detId, subdet);
-          return;
-        }
-      }
-      __syncthreads();
+    //    // Get subdetector encoded in detId to narrow the range of reference table values to search
+    //    // cmssdt.cern.ch/lxr/source/DataFormats/DetId/interface/DetId.h#0048
+    //    subdet = (detId >> DetId::kSubdetOffset) & DetId::kSubdetMask;
+    //    if (subdet == HcalBarrel) {
+    //      minval = 0;
+    //      maxval = constantsGPU_d.nValidBarrelIds;
+    //    } else if (subdet == HcalEndcap) {
+    //      minval = constantsGPU_d.nValidEndcapIds;
+    //      maxval = (constantsGPU_d.nValidBarrelIds + constantsGPU_d.nValidEndcapIds);
+    //    } else {
+    //      printf("Rechit %u detId %u has invalid subdetector %u!\n", blockIdx.x, detId, subdet);
+    //      return;
+    //    }
+    //  }
+    //  __syncthreads();
 
-      // Search all valid rechits for matching detId
-      for (uint32_t j = threadIdx.x + minval; j < maxval; j += blockDim.x) {
-        if (detId == rh_detIdRef[j]) {
-          // Found it
-          rh_inputToFullIdx[blockIdx.x] = j;  // Input rechit index -> reference table index
-          rh_fullToInputIdx[j] = blockIdx.x;  // Reference table index -> input rechit index
-          return;
-        }
-      }
-    }
+    //  // Search all valid rechits for matching detId
+    //  for (uint32_t j = threadIdx.x + minval; j < maxval; j += blockDim.x) {
+    //    if (detId == rh_detIdRef[j]) {
+    //      // Found it
+    //      rh_inputToFullIdx[blockIdx.x] = j;  // Input rechit index -> reference table index
+    //      rh_fullToInputIdx[j] = blockIdx.x;  // Reference table index -> input rechit index
+    //      return;
+    //    }
+    //  }
+    //}
 
     // Debugging function used to check the mapping of input index <-> reference table index
     __global__ void testDetIdMap(uint32_t size,                  // Number of input rechits
@@ -492,7 +506,8 @@ namespace PFRecHit {
     }
 
     // Fill output PFRecHit arrays
-    __global__ void convert_rechits_to_PFRechits(const uint32_t nRHIn,
+    __global__ void convert_rechits_to_PFRechits(
+                                                 const uint32_t nRHIn,
                                                  const uint32_t* nPFRHOut,
                                                  const uint32_t* nPFRHCleaned,
                                                  const int* rh_mask,
@@ -500,8 +515,8 @@ namespace PFRecHit {
                                                  const int* inputToPFRHIdx,
                                                  const float3* rh_pos,
                                                  const int* rh_neighbours,
-						 const float3* position,
-						 const int* neighbours,
+						                         const float3* position,
+						                         const int* neighbours,
                                                  const int* rh_inputToFullIdx,
                                                  const int* rh_fullToInputIdx,
                                                  const float* recHits_energy,
@@ -544,7 +559,7 @@ namespace PFRecHit {
           layer = PFLayer::HCAL_BARREL1;
         else if (subdet == HcalEndcap)
           layer = PFLayer::HCAL_ENDCAP;
-        else
+         else
           printf("Invalid subdetector (%d) for detId %d: pfIdx = %d\tinputIdx = %d\tfullIdx = %d\n",
                  subdet,
                  detid,
@@ -739,9 +754,10 @@ namespace PFRecHit {
 #endif
       int threadsPerBlock = 256;
       // Initialize scratch arrays
-      initializeArrays<<<(max(scratchDataGPU.maxSize,cudaConstants.nDenseIdsInRange) + threadsPerBlock-1) / threadsPerBlock,
+      initializeArrays<<<(max(scratchDataGPU.maxSize, (int)constantProducts.detId.size()) + threadsPerBlock-1) / threadsPerBlock,
+      //initializeArrays<<<(max(scratchDataGPU.maxSize,cudaConstants.nDenseIdsInRange) + threadsPerBlock-1) / threadsPerBlock,
 	threadsPerBlock, 0, cudaStream>>>(
-	  constantProducts.detId.size(),
+          constantProducts.detId.size(),
           nRHIn,
           scratchDataGPU.rh_mask.get(),
           scratchDataGPU.rh_inputToFullIdx.get(),
@@ -778,12 +794,12 @@ namespace PFRecHit {
       // buildDetIdMapHackathon<<<(nRHIn + threadsPerBlock - 1)/threadsPerBlock, threadsPerBlock, 0, cudaStream>>>(nRHIn,
       // buildDetIdMapKH<<<(nRHIn + threadsPerBlock - 1)/threadsPerBlock, threadsPerBlock, 0, cudaStream>>>(nRHIn,
       buildDetIdMapKH2<<<(nRHIn + threadsPerBlock - 1)/threadsPerBlock, threadsPerBlock, 0, cudaStream>>>(nRHIn,
-							   cudaConstants.denseIdHcalMin,
-                                                           persistentDataGPU.rh_detId.get(),
-							   constantProducts.topoDataProduct.detId,
-                                                           scratchDataGPU.rh_inputToFullIdx.get(),
-                                                           scratchDataGPU.rh_fullToInputIdx.get(),
-                                                           HBHERecHits_asInput.did.get());
+							    constantProducts.hbheTopoDataProduct.denseId,
+                                persistentDataGPU.rh_detId.get(),
+							    constantProducts.hbheTopoDataProduct.detId,
+                                scratchDataGPU.rh_inputToFullIdx.get(),
+                                scratchDataGPU.rh_fullToInputIdx.get(),
+                                HBHERecHits_asInput.did.get());
       cudaCheck(cudaGetLastError());
 
 
