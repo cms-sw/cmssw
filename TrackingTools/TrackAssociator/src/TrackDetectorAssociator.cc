@@ -668,7 +668,7 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
       distanceY = std::abs(localPoint.y() - yCOWPOffset) - 0.5f * length;
     } else if (const GEMChamber* gemchamber = dynamic_cast<const GEMChamber*>(geomDet)) {
 
-    } else if ((const GEMChamber* gemchamber = dynamic_cast<const GEMChamber*>(geomDet)) || (const GEMSuperChamber* gemsuperchamber = dynamic_cast<const GEMSuperChamber*>(geomDet))) {
+    } else if (dynamic_cast<const GEMChamber*>(geomDet) || dynamic_cast<const GEMSuperChamber*>(geomDet)) {
       
       const TrapezoidalPlaneBounds* bounds = dynamic_cast<const TrapezoidalPlaneBounds*>(&geomDet->surface().bounds());
 
