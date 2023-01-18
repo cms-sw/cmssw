@@ -667,30 +667,8 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
       distanceX = std::abs(localPoint.x()) - halfWidthAtYPrime;
       distanceY = std::abs(localPoint.y() - yCOWPOffset) - 0.5f * length;
     } else if (const GEMChamber* gemchamber = dynamic_cast<const GEMChamber*>(geomDet)) {
-      const std::vector<const GEMEtaPartition*>& gemetapartition = gemchamber->etaPartitions();
-      
-      const GEMEtaPartitionSpecs* gemchamberspecsbottom = gemetapartition[0]->specs();
-      const std::vector<float>& _p_bottom = gemchamberspecsbottom->parameters();
-      
-      const GEMEtaPartitionSpecs* gemchamberspecstop = gemetapartition.back()->specs();
-      const std::vector<float>& _p_top = gemchamberspecstop->parameters();
 
-      float halfnarrowWidth = _p_top[0];
-      float halfwideWidth = _p_bottom[1];
-      float halflength=0;
-      
-      for (long unsigned int i=0;i < gemetapartition.size();i++){
-        const GEMEtaPartitionSpecs* gemetaspecs  = gemetapartition[i]->specs();
-        const std::vector<float>& _p = gemetaspecs->parameters();
-        halflength+=_p[2];
-      }
-      
-      float tangent = (halfwideWidth - halfnarrowWidth) / (2.f * halflength);
-      float halfWidthAtY = tangent * localPoint.y() + halfnarrowWidth;
-      
-      distanceX = std::abs(localPoint.x()) - halfWidthAtY;
-      distanceY = std::abs(localPoint.y()) - halflength;
-    } else if (const GEMSuperChamber* gemsuperchamber = dynamic_cast<const GEMSuperChamber*>(geomDet)) {
+    } else if ((const GEMChamber* gemchamber = dynamic_cast<const GEMChamber*>(geomDet)) || (const GEMSuperChamber* gemsuperchamber = dynamic_cast<const GEMSuperChamber*>(geomDet))) {
       
       const TrapezoidalPlaneBounds* bounds = dynamic_cast<const TrapezoidalPlaneBounds*>(&geomDet->surface().bounds());
 
