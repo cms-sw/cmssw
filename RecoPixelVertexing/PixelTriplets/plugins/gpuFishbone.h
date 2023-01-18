@@ -27,18 +27,16 @@ namespace gpuPixelDoublets {
   template <typename TrackerTraits>
   using OuterHitOfCell = caStructures::OuterHitOfCellT<TrackerTraits>;
   template <typename TrackerTraits>
-  using Hits = typename GPUCACellT<TrackerTraits>::Hits;
+  using HitsConstView = typename GPUCACellT<TrackerTraits>::HitsConstView;
 
   template <typename TrackerTraits>
-  __global__ void fishbone(Hits<TrackerTraits> const* __restrict__ hhp,
+  __global__ void fishbone(HitsConstView<TrackerTraits> hh,
                            GPUCACellT<TrackerTraits>* cells,
                            uint32_t const* __restrict__ nCells,
                            OuterHitOfCell<TrackerTraits> const isOuterHitOfCellWrap,
                            int32_t nHits,
                            bool checkTrack) {
     constexpr auto maxCellsPerHit = GPUCACellT<TrackerTraits>::maxCellsPerHit;
-
-    auto const& hh = *hhp;
 
     auto const isOuterHitOfCell = isOuterHitOfCellWrap.container;
     int32_t offset = isOuterHitOfCellWrap.offset;

@@ -19,7 +19,8 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DHeterogeneous.h"
+#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitSoAHost.h"
+#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitsUtilities.h"
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -31,8 +32,8 @@
 template <typename T>
 class SiPixelMonitorRecHitsSoA : public DQMEDAnalyzer {
 public:
-  using HitSoA = TrackingRecHit2DSOAViewT<T>;
-  using HitsOnCPU = TrackingRecHit2DCPUT<T>;
+  using HitSoA = TrackingRecHitSoAView<T>;
+  using HitsOnHost = TrackingRecHitSoAHost<T>;
 
   explicit SiPixelMonitorRecHitsSoA(const edm::ParameterSet&);
   ~SiPixelMonitorRecHitsSoA() override = default;
@@ -44,7 +45,7 @@ public:
 private:
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
-  const edm::EDGetTokenT<HitsOnCPU> tokenSoAHitsCPU_;
+  const edm::EDGetTokenT<HitsOnHost> tokenSoAHitsCPU_;
   const std::string topFolderName_;
   const TrackerGeometry* tkGeom_ = nullptr;
   const TrackerTopology* tTopo_ = nullptr;
@@ -101,21 +102,21 @@ void SiPixelMonitorRecHitsSoA<T>::analyze(const edm::Event& iEvent, const edm::E
     return;
   }
   auto const& rhsoa = *rhsoaHandle;
-  const HitSoA* soa2d = rhsoa.view();
+  auto const& soa2d = rhsoa.const_view();
 
-  uint32_t nHits_ = soa2d->nHits();
+  uint32_t nHits_ = soa2d.nHits();
   hnHits->Fill(nHits_);
   auto detIds = tkGeom_->detUnitIds();
   for (uint32_t i = 0; i < nHits_; i++) {
-    DetId id = detIds[soa2d->detectorIndex(i)];
-    float xG = soa2d->xGlobal(i);
-    float yG = soa2d->yGlobal(i);
-    float zG = soa2d->zGlobal(i);
-    float rG = soa2d->rGlobal(i);
-    float fphi = short2phi(soa2d->iphi(i));
-    uint32_t charge = soa2d->charge(i);
-    int16_t sizeX = std::ceil(float(std::abs(soa2d->clusterSizeX(i)) / 8.));
-    int16_t sizeY = std::ceil(float(std::abs(soa2d->clusterSizeY(i)) / 8.));
+    DetId id = detIds[soa2d[i].detectorIndex()];
+    float xG = soa2d[i].xGlobal();
+    float yG = soa2d[i].yGlobal();
+    float zG = soa2d[i].zGlobal();
+    float rG = soa2d[i].rGlobal();
+    float fphi = short2phi(soa2d[i].iphi());
+    uint32_t charge = soa2d[i].chargeAndStatus().charge;
+    int16_t sizeX = std::ceil(float(std::abs(soa2d[i].clusterSizeX()) / 8.));
+    int16_t sizeY = std::ceil(float(std::abs(soa2d[i].clusterSizeY()) / 8.));
     hBFposZP->Fill(zG, fphi);
     int16_t ysign = yG >= 0 ? 1 : -1;
     hBFposZR->Fill(zG, rG * ysign);

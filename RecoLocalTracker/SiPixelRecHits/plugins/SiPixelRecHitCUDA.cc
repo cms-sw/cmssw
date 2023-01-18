@@ -4,7 +4,7 @@
 #include "CUDADataFormats/Common/interface/Product.h"
 #include "CUDADataFormats/SiPixelCluster/interface/SiPixelClustersCUDA.h"
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDA.h"
-#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DHeterogeneous.h"
+#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitSoADevice.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -39,7 +39,7 @@ private:
   const edm::EDGetTokenT<cms::cuda::Product<BeamSpotCUDA>> tBeamSpot;
   const edm::EDGetTokenT<cms::cuda::Product<SiPixelClustersCUDA>> token_;
   const edm::EDGetTokenT<cms::cuda::Product<SiPixelDigisCUDA>> tokenDigi_;
-  const edm::EDPutTokenT<cms::cuda::Product<TrackingRecHit2DGPUT<TrackerTraits>>> tokenHit_;
+  const edm::EDPutTokenT<cms::cuda::Product<TrackingRecHitSoADevice<TrackerTraits>>> tokenHit_;
 
   const pixelgpudetails::PixelRecHitGPUKernel<TrackerTraits> gpuAlgo_;
 };
@@ -50,7 +50,7 @@ SiPixelRecHitCUDAT<TrackerTraits>::SiPixelRecHitCUDAT(const edm::ParameterSet& i
       tBeamSpot(consumes<cms::cuda::Product<BeamSpotCUDA>>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
       token_(consumes<cms::cuda::Product<SiPixelClustersCUDA>>(iConfig.getParameter<edm::InputTag>("src"))),
       tokenDigi_(consumes<cms::cuda::Product<SiPixelDigisCUDA>>(iConfig.getParameter<edm::InputTag>("src"))),
-      tokenHit_(produces<cms::cuda::Product<TrackingRecHit2DGPUT<TrackerTraits>>>()) {}
+      tokenHit_(produces<cms::cuda::Product<TrackingRecHitSoADevice<TrackerTraits>>>()) {}
 
 template <typename TrackerTraits>
 void SiPixelRecHitCUDAT<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

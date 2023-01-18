@@ -1,7 +1,11 @@
-#include "CUDADataFormats/Track/interface/TrajectoryStateSoAT.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
+#include "CUDADataFormats/Track/interface/PixelTrackUtilities.h"
+#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousHost.h"
+#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousDevice.h"
 
 using Vector5d = Eigen::Matrix<double, 5, 1>;
 using Matrix5d = Eigen::Matrix<double, 5, 5>;
+using helper = TracksUtilities<pixelTopology::Phase1>;
 
 __host__ __device__ Matrix5d loadCov(Vector5d const& e) {
   Matrix5d cov;
@@ -17,26 +21,21 @@ __host__ __device__ Matrix5d loadCov(Vector5d const& e) {
   return cov;
 }
 
-using TS = TrajectoryStateSoAT<128>;
-
-__global__ void testTSSoA(TS* pts, int n) {
-  assert(n <= 128);
-
+template <typename TrackerTraits>
+__global__ void testTSSoA(TrackSoAView<TrackerTraits> ts) {
   Vector5d par0;
   par0 << 0.2, 0.1, 3.5, 0.8, 0.1;
   Vector5d e0;
   e0 << 0.01, 0.01, 0.035, -0.03, -0.01;
   auto cov0 = loadCov(e0);
 
-  TS& ts = *pts;
-
   int first = threadIdx.x + blockIdx.x * blockDim.x;
 
-  for (int i = first; i < n; i += blockDim.x * gridDim.x) {
-    ts.copyFromDense(par0, cov0, i);
+  for (int i = first; i < ts.metadata().size(); i += blockDim.x * gridDim.x) {
+    helper::copyFromDense(ts, par0, cov0, i);
     Vector5d par1;
     Matrix5d cov1;
-    ts.copyToDense(par1, cov1, i);
+    helper::copyToDense(ts, par1, cov1, i);
     Vector5d delV = par1 - par0;
     Matrix5d delM = cov1 - cov0;
     for (int j = 0; j < 5; ++j) {
@@ -58,18 +57,29 @@ __global__ void testTSSoA(TS* pts, int n) {
 int main() {
 #ifdef __CUDACC__
   cms::cudatest::requireDevices();
+  cudaStream_t stream;
+  cudaCheck(cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking));
 #endif
 
-  TS ts;
+#ifdef __CUDACC__
+  // Since we are going to copy data from ts_d to ts_h, we
+  // need to initialize the Host collection with a stream.
+  TrackSoAHeterogeneousHost<pixelTopology::Phase1> ts_h(stream);
+  TrackSoAHeterogeneousDevice<pixelTopology::Phase1> ts_d(stream);
+#else
+  // If CUDA is not available, Host collection must not be initialized
+  // with a stream.
+  TrackSoAHeterogeneousHost<pixelTopology::Phase1> ts_h;
+#endif
 
 #ifdef __CUDACC__
-  TS* ts_d;
-  cudaCheck(cudaMalloc(&ts_d, sizeof(TS)));
-  testTSSoA<<<1, 64>>>(ts_d, 128);
+  testTSSoA<pixelTopology::Phase1><<<1, 64, 0, stream>>>(ts_d.view());
   cudaCheck(cudaGetLastError());
-  cudaCheck(cudaMemcpy(&ts, ts_d, sizeof(TS), cudaMemcpyDefault));
-  cudaCheck(cudaDeviceSynchronize());
+  cudaCheck(cudaMemcpyAsync(
+      ts_h.buffer().get(), ts_d.const_buffer().get(), ts_d.bufferSize(), cudaMemcpyDeviceToHost, stream));
+  cudaCheck(cudaGetLastError());
+  cudaCheck(cudaStreamSynchronize(stream));
 #else
-  testTSSoA(&ts, 128);
+  testTSSoA<pixelTopology::Phase1>(ts_h.view());
 #endif
 }

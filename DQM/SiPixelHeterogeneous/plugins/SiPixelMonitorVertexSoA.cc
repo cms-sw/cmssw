@@ -21,7 +21,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "CUDADataFormats/Vertex/interface/ZVertexHeterogeneous.h"
+#include "CUDADataFormats/Vertex/interface/ZVertexSoAHeterogeneousHost.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 class SiPixelMonitorVertexSoA : public DQMEDAnalyzer {
@@ -34,7 +34,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  edm::EDGetTokenT<ZVertexHeterogeneous> tokenSoAVertex_;
+  edm::EDGetTokenT<ZVertexSoAHost> tokenSoAVertex_;
   edm::EDGetTokenT<reco::BeamSpot> tokenBeamSpot_;
   std::string topFolderName_;
   MonitorElement* hnVertex;
@@ -52,7 +52,7 @@ private:
 //
 
 SiPixelMonitorVertexSoA::SiPixelMonitorVertexSoA(const edm::ParameterSet& iConfig) {
-  tokenSoAVertex_ = consumes<ZVertexHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelVertexSrc"));
+  tokenSoAVertex_ = consumes(iConfig.getParameter<edm::InputTag>("pixelVertexSrc"));
   tokenBeamSpot_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotSrc"));
   topFolderName_ = iConfig.getParameter<std::string>("topFolderName");
 }
@@ -67,8 +67,8 @@ void SiPixelMonitorVertexSoA::analyze(const edm::Event& iEvent, const edm::Event
     return;
   }
 
-  auto const& vsoa = *((vsoaHandle.product())->get());
-  int nVertices = vsoa.nvFinal;
+  auto const& vsoa = *vsoaHandle;
+  int nVertices = vsoa.view().nvFinal();
   auto bsHandle = iEvent.getHandle(tokenBeamSpot_);
   float x0 = 0., y0 = 0., z0 = 0., dxdz = 0., dydz = 0.;
   if (!bsHandle.isValid()) {
@@ -83,8 +83,8 @@ void SiPixelMonitorVertexSoA::analyze(const edm::Event& iEvent, const edm::Event
   }
 
   for (int iv = 0; iv < nVertices; iv++) {
-    auto si = vsoa.sortInd[iv];
-    auto z = vsoa.zv[si];
+    auto si = vsoa.view()[iv].sortInd();
+    auto z = vsoa.view()[si].zv();
     auto x = x0 + dxdz * z;
     auto y = y0 + dydz * z;
 
@@ -92,10 +92,10 @@ void SiPixelMonitorVertexSoA::analyze(const edm::Event& iEvent, const edm::Event
     hx->Fill(x);
     hy->Fill(y);
     hz->Fill(z);
-    auto ndof = vsoa.ndof[si];
-    hchi2->Fill(vsoa.chi2[si]);
-    hchi2oNdof->Fill(vsoa.chi2[si] / ndof);
-    hptv2->Fill(vsoa.ptv2[si]);
+    auto ndof = vsoa.view()[si].ndof();
+    hchi2->Fill(vsoa.view()[si].chi2());
+    hchi2oNdof->Fill(vsoa.view()[si].chi2() / ndof);
+    hptv2->Fill(vsoa.view()[si].ptv2());
     hntrks->Fill(ndof + 1);
   }
   hnVertex->Fill(nVertices);

@@ -2,7 +2,7 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 
 template <typename TrackerTraits>
-void HelixFitOnGPU<TrackerTraits>::launchBrokenLineKernels(HitsView const *hv,
+void HelixFitOnGPU<TrackerTraits>::launchBrokenLineKernels(const TrackingRecHitSoAConstView<TrackerTraits>& hv,
                                                            uint32_t hitsInFit,
                                                            uint32_t maxNumberOfTuples,
                                                            cudaStream_t stream) {

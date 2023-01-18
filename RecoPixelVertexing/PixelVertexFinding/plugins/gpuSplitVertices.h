@@ -12,24 +12,26 @@
 
 namespace gpuVertexFinder {
 
-  __device__ __forceinline__ void splitVertices(ZVertices* pdata, WorkSpace* pws, float maxChi2) {
+  __device__ __forceinline__ void splitVertices(VtxSoAView& pdata, WsSoAView& pws, float maxChi2) {
     constexpr bool verbose = false;  // in principle the compiler should optmize out if false
 
-    auto& __restrict__ data = *pdata;
-    auto& __restrict__ ws = *pws;
-    auto nt = ws.ntrks;
-    float const* __restrict__ zt = ws.zt;
-    float const* __restrict__ ezt2 = ws.ezt2;
-    float* __restrict__ zv = data.zv;
-    float* __restrict__ wv = data.wv;
-    float const* __restrict__ chi2 = data.chi2;
-    uint32_t& nvFinal = data.nvFinal;
+    auto& __restrict__ data = pdata;
+    auto& __restrict__ ws = pws;
+    auto nt = ws.ntrks();
+    float const* __restrict__ zt = ws.zt();
+    float const* __restrict__ ezt2 = ws.ezt2();
+    float* __restrict__ zv = data.zv();
+    float* __restrict__ wv = data.wv();
+    float const* __restrict__ chi2 = data.chi2();
+    uint32_t& nvFinal = data.nvFinal();
 
-    int32_t const* __restrict__ nn = data.ndof;
-    int32_t* __restrict__ iv = ws.iv;
+    int32_t const* __restrict__ nn = data.ndof();
+    int32_t* __restrict__ iv = ws.iv();
 
-    assert(pdata);
     assert(zt);
+    assert(wv);
+    assert(chi2);
+    assert(nn);
 
     // one vertex per block
     for (auto kv = blockIdx.x; kv < nvFinal; kv += gridDim.x) {
@@ -120,7 +122,7 @@ namespace gpuVertexFinder {
       // get a new global vertex
       __shared__ uint32_t igv;
       if (0 == threadIdx.x)
-        igv = atomicAdd(&ws.nvIntermediate, 1);
+        igv = atomicAdd(&ws.nvIntermediate(), 1);
       __syncthreads();
       for (auto k = threadIdx.x; k < nq; k += blockDim.x) {
         if (1 == newV[k])
@@ -130,7 +132,7 @@ namespace gpuVertexFinder {
     }  // loop on vertices
   }
 
-  __global__ void splitVerticesKernel(ZVertices* pdata, WorkSpace* pws, float maxChi2) {
+  __global__ void splitVerticesKernel(VtxSoAView pdata, WsSoAView pws, float maxChi2) {
     splitVertices(pdata, pws, maxChi2);
   }
 

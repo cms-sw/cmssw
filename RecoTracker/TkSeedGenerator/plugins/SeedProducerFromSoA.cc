@@ -1,4 +1,4 @@
-#include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
+#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousHost.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -46,7 +46,7 @@ private:
 
   // Event data tokens
   const edm::EDGetTokenT<reco::BeamSpot> tBeamSpot_;
-  const edm::EDGetTokenT<PixelTrackHeterogeneousT<TrackerTraits>> tokenTrack_;
+  const edm::EDGetTokenT<TrackSoAHeterogeneousHost<TrackerTraits>> tokenTrack_;
   // Event setup tokens
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> idealMagneticFieldToken_;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerDigiGeometryToken_;
@@ -84,6 +84,8 @@ void SeedProducerFromSoAT<TrackerTraits>::produce(edm::StreamID streamID,
   // std::cout << "Converting gpu helix to trajectory seed" << std::endl;
   auto result = std::make_unique<TrajectorySeedCollection>();
 
+  using trackHelper = TracksUtilities<TrackerTraits>;
+
   auto const& fieldESH = iSetup.getHandle(idealMagneticFieldToken_);
   auto const& tracker = iSetup.getHandle(trackerDigiGeometryToken_);
   auto const& dus = tracker->detUnits();
@@ -95,16 +97,15 @@ void SeedProducerFromSoAT<TrackerTraits>::produce(edm::StreamID streamID,
   // std::cout << "beamspot " << bsh.x0() << ' ' << bsh.y0() << ' ' << bsh.z0() << std::endl;
   GlobalPoint bs(bsh.x0(), bsh.y0(), bsh.z0());
 
-  const auto& tsoa = *(iEvent.get(tokenTrack_));
+  auto const& tsoa = iEvent.get(tokenTrack_);
 
-  auto const* quality = tsoa.qualityData();
-  auto const& fit = tsoa.stateAtBS;
-  auto const& detIndices = tsoa.detIndices;
-  auto maxTracks = tsoa.stride();
+  auto const* quality = tsoa.view().quality();
+  auto const& detIndices = tsoa.view().detIndices();
+  auto maxTracks = tsoa.view().metadata().size();
 
   int32_t nt = 0;
   for (int32_t it = 0; it < maxTracks; ++it) {
-    auto nHits = tsoa.nHits(it);
+    auto nHits = trackHelper::nHits(tsoa.view(), it);
     if (nHits == 0)
       break;  // this is a guard: maybe we need to move to nTracks...
 
@@ -126,11 +127,11 @@ void SeedProducerFromSoAT<TrackerTraits>::produce(edm::StreamID streamID,
 
     // mind: this values are respect the beamspot!
 
-    float phi = tsoa.phi(it);
+    float phi = trackHelper::nHits(tsoa.view(), it);
 
     riemannFit::Vector5d ipar, opar;
     riemannFit::Matrix5d icov, ocov;
-    fit.copyToDense(ipar, icov, it);
+    trackHelper::copyToDense(tsoa.view(), ipar, icov, it);
     riemannFit::transformToPerigeePlane(ipar, icov, opar, ocov);
 
     LocalTrajectoryParameters lpar(opar(0), opar(1), opar(2), opar(3), opar(4), 1.);

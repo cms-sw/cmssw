@@ -4,7 +4,7 @@
 
 #include "CUDADataFormats/Common/interface/HostProduct.h"
 #include "CUDADataFormats/Common/interface/Product.h"
-#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DHeterogeneous.h"
+#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitSoADevice.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
@@ -33,7 +33,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   using HMSstorage = HostProduct<uint32_t[]>;
-  using HitsOnGPU = TrackingRecHit2DGPUT<TrackerTraits>;
+  using HitsOnGPU = TrackingRecHitSoADevice<TrackerTraits>;
 
 private:
   void acquire(edm::Event const& iEvent,

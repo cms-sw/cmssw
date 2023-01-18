@@ -4,45 +4,29 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "CUDADataFormats/Vertex/interface/ZVertexHeterogeneous.h"
-#include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
+#include "CUDADataFormats/Track/interface/PixelTrackUtilities.h"
+#include "CUDADataFormats/Vertex/interface/ZVertexSoAHeterogeneousHost.h"
+#include "CUDADataFormats/Vertex/interface/ZVertexSoAHeterogeneousDevice.h"
+#include "CUDADataFormats/Vertex/interface/ZVertexUtilities.h"
+#include "PixelVertexWorkSpaceUtilities.h"
+#include "PixelVertexWorkSpaceSoAHost.h"
+#include "PixelVertexWorkSpaceSoADevice.h"
 
 namespace gpuVertexFinder {
 
-  using ZVertices = ZVertexSoA;
-  // workspace used in the vertex reco algos
-  struct WorkSpace {
-    static constexpr uint32_t MAXTRACKS = ZVertexSoA::MAXTRACKS;
-    static constexpr uint32_t MAXVTX = ZVertexSoA::MAXVTX;
+  using VtxSoAView = zVertex::ZVertexSoAView;
+  using WsSoAView = gpuVertexFinder::workSpace::PixelVertexWorkSpaceSoAView;
 
-    uint32_t ntrks;            // number of "selected tracks"
-    uint32_t itrk[MAXTRACKS];  // index of original track
-    float zt[MAXTRACKS];       // input track z at bs
-    float ezt2[MAXTRACKS];     // input error^2 on the above
-    float ptt2[MAXTRACKS];     // input pt^2 on the above
-    uint8_t izt[MAXTRACKS];    // interized z-position of input tracks
-    int32_t iv[MAXTRACKS];     // vertex index for each associated track
-
-    uint32_t nvIntermediate;  // the number of vertices after splitting pruning etc.
-
-    __host__ __device__ void init() {
-      ntrks = 0;
-      nvIntermediate = 0;
-    }
-  };
-
-  __global__ void init(ZVertexSoA* pdata, WorkSpace* pws) {
-    pdata->init();
-    pws->init();
+  __global__ void init(VtxSoAView pdata, WsSoAView pws) {
+    zVertex::utilities::init(pdata);
+    gpuVertexFinder::workSpace::utilities::init(pws);
   }
 
   template <typename TrackerTraits>
   class Producer {
-  public:
-    using ZVertices = ZVertexSoA;
-    using WorkSpace = gpuVertexFinder::WorkSpace;
-    using TkSoA = pixelTrack::TrackSoAT<TrackerTraits>;
+    using TkSoAConstView = TrackSoAConstView<TrackerTraits>;
 
+  public:
     Producer(bool oneKernel,
              bool useDensity,
              bool useDBSCAN,
@@ -63,8 +47,8 @@ namespace gpuVertexFinder {
 
     ~Producer() = default;
 
-    ZVertexHeterogeneous makeAsync(cudaStream_t stream, TkSoA const* tksoa, float ptMin, float ptMax) const;
-    ZVertexHeterogeneous make(TkSoA const* tksoa, float ptMin, float ptMax) const;
+    ZVertexSoADevice makeAsync(cudaStream_t stream, const TkSoAConstView &tracks_view, float ptMin, float ptMax) const;
+    ZVertexSoAHost make(const TkSoAConstView &tracks_view, float ptMin, float ptMax) const;
 
   private:
     const bool oneKernel_;
