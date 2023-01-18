@@ -11,6 +11,7 @@
 #include "HeterogeneousCore/AlpakaCore/interface/EventCache.h"
 #include "HeterogeneousCore/AlpakaCore/interface/QueueCache.h"
 #include "HeterogeneousCore/AlpakaCore/interface/module_backend_config.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/CopyToHost.h"
 
 #include <memory>
 #include <tuple>
@@ -29,8 +30,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
    * backends the deviceProduces() registers the automatic copy to
    * host and a transformation from edm::DeviceProduct<T> to U, where
    * U is the host-equivalent of T. The transformation from T to U is
-   * done by an overload of copyToHost() function, that should be
-   * provided in the same file and in the same namespace where T is
+   * done by a specialization of cms::alpakatools::CopyToHost<T> class
+   * template, that should be provided in the same file where T is
    * defined
    *
    * TODO: add "override" for labelsForToken()
@@ -90,7 +91,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               TProduct const& productOnDevice =
                   deviceProduct.template getSynchronized<EDMetadata>(*metadataPtr, tryReuseQueue);
 
-              auto productOnHost = copyToHostAsync(metadataPtr->queue(), productOnDevice);
+              using CopyT = cms::alpakatools::CopyToHost<TProduct>;
+              auto productOnHost = CopyT::copyAsync(metadataPtr->queue(), productOnDevice);
 
               // Need to keep the EDMetadata object from sentry.finish()
               // alive until the synchronization

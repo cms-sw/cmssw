@@ -8,6 +8,7 @@
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESDeviceProductType.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/Record.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/devices.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/CopyToDevice.h"
 
 #include <functional>
 
@@ -47,7 +48,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         auto ccDev = setWhatProducedDevice<TRecord>(
             [tokenPtr](device::Record<TRecord> const& iRecord) {
               auto handle = iRecord.getTransientHandle(*tokenPtr);
-              return std::optional{copyToDeviceAsync(iRecord.queue(), *handle)};
+              using CopyT = cms::alpakatools::CopyToDevice<TProduct>;
+              return std::optional{CopyT::copyAsync(iRecord.queue(), *handle)};
             },
             label);
         *tokenPtr = ccDev.consumes();
