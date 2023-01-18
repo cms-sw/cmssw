@@ -8,22 +8,6 @@
 namespace gpuPixelDoublets {
 
   template <typename TrackerTraits>
-  using CellNeighbors = caStructures::CellNeighborsT<TrackerTraits>;
-  template <typename TrackerTraits>
-  using CellTracks = caStructures::CellTracksT<TrackerTraits>;
-  template <typename TrackerTraits>
-  using CellNeighborsVector = caStructures::CellNeighborsVectorT<TrackerTraits>;
-  template <typename TrackerTraits>
-  using CellTracksVector = caStructures::CellTracksVectorT<TrackerTraits>;
-  template <typename TrackerTraits>
-  using OuterHitOfCell = caStructures::OuterHitOfCellT<TrackerTraits>;
-  template <typename TrackerTraits>
-  using Hits = typename GPUCACellT<TrackerTraits>::Hits;
-
-  // end constants
-  // clang-format on
-
-  template <typename TrackerTraits>
   __global__ void initDoublets(OuterHitOfCell<TrackerTraits> isOuterHitOfCell,
                                int nHits,
                                CellNeighborsVector<TrackerTraits>* cellNeighbors,
@@ -59,11 +43,10 @@ namespace gpuPixelDoublets {
                                 uint32_t* nCells,
                                 CellNeighborsVector<TrackerTraits>* cellNeighbors,
                                 CellTracksVector<TrackerTraits>* cellTracks,
-                                TrackingRecHit2DSOAViewT<TrackerTraits> const* __restrict__ hhp,
+                                HitsConstView<TrackerTraits> hh,
                                 OuterHitOfCell<TrackerTraits> isOuterHitOfCell,
                                 int nActualPairs,
                                 CellCutsT<TrackerTraits> cuts) {
-    auto const& __restrict__ hh = *hhp;
 
     doubletsFromHisto<TrackerTraits>(
         nActualPairs, cells, nCells, cellNeighbors, cellTracks, hh, isOuterHitOfCell, cuts);

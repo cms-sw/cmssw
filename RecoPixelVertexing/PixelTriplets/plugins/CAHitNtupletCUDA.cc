@@ -17,19 +17,23 @@
 #include "FWCore/Utilities/interface/RunningAverage.h"
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 
 #include "CAHitNtupletGeneratorOnGPU.h"
-#include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
-#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DHeterogeneous.h"
+
+#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousHost.h"
+#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousDevice.h"
 
 template <typename TrackerTraits>
 class CAHitNtupletCUDAT : public edm::global::EDProducer<> {
-  using PixelTrackHeterogeneous = PixelTrackHeterogeneousT<TrackerTraits>;
+  using HitsConstView = TrackingRecHitSoAConstView<TrackerTraits>;
+  using HitsOnGPU = TrackingRecHitSoADevice<TrackerTraits>;  //TODO move to OnDevice
+  using HitsOnCPU = TrackingRecHitSoAHost<TrackerTraits>;    //TODO move to OnHost
 
-  using HitsView = TrackingRecHit2DSOAViewT<TrackerTraits>;
-  using HitsOnGPU = TrackingRecHit2DGPUT<TrackerTraits>;
-  using HitsOnCPU = TrackingRecHit2DCPUT<TrackerTraits>;
+  using TrackSoAHost = TrackSoAHeterogeneousHost<TrackerTraits>;
+  using TrackSoADevice = TrackSoAHeterogeneousDevice<TrackerTraits>;
+
   using GPUAlgo = CAHitNtupletGeneratorOnGPU<TrackerTraits>;
 
 public:
@@ -48,9 +52,9 @@ private:
 
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tokenField_;
   edm::EDGetTokenT<cms::cuda::Product<HitsOnGPU>> tokenHitGPU_;
-  edm::EDPutTokenT<cms::cuda::Product<PixelTrackHeterogeneous>> tokenTrackGPU_;
+  edm::EDPutTokenT<cms::cuda::Product<TrackSoADevice>> tokenTrackGPU_;
   edm::EDGetTokenT<HitsOnCPU> tokenHitCPU_;
-  edm::EDPutTokenT<PixelTrackHeterogeneous> tokenTrackCPU_;
+  edm::EDPutTokenT<TrackSoAHost> tokenTrackCPU_;
 
   GPUAlgo gpuAlgo_;
 };
@@ -60,10 +64,10 @@ CAHitNtupletCUDAT<TrackerTraits>::CAHitNtupletCUDAT(const edm::ParameterSet& iCo
     : onGPU_(iConfig.getParameter<bool>("onGPU")), tokenField_(esConsumes()), gpuAlgo_(iConfig, consumesCollector()) {
   if (onGPU_) {
     tokenHitGPU_ = consumes(iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"));
-    tokenTrackGPU_ = produces<cms::cuda::Product<PixelTrackHeterogeneous>>();
+    tokenTrackGPU_ = produces<cms::cuda::Product<TrackSoADevice>>();
   } else {
     tokenHitCPU_ = consumes(iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"));
-    tokenTrackCPU_ = produces<PixelTrackHeterogeneous>();
+    tokenTrackCPU_ = produces<TrackSoAHost>();
   }
 }
 
@@ -95,13 +99,14 @@ void CAHitNtupletCUDAT<TrackerTraits>::produce(edm::StreamID streamID,
   auto bf = 1. / es.getData(tokenField_).inverseBzAtOriginInGeV();
 
   if (onGPU_) {
-    auto hHits = iEvent.getHandle(tokenHitGPU_);
-    cms::cuda::ScopedContextProduce ctx{*hHits};
-    auto const& hits = ctx.get(*hHits);
-    ctx.emplace(iEvent, tokenTrackGPU_, gpuAlgo_.makeTuplesAsync(hits, bf, ctx.stream()));
+    auto const& hits = iEvent.get(tokenHitGPU_);
+
+    cms::cuda::ScopedContextProduce ctx{hits};
+    auto& hits_d = ctx.get(hits);
+    ctx.emplace(iEvent, tokenTrackGPU_, gpuAlgo_.makeTuplesAsync(hits_d, bf, ctx.stream()));
   } else {
-    auto const& hits = iEvent.get(tokenHitCPU_);
-    iEvent.emplace(tokenTrackCPU_, gpuAlgo_.makeTuples(hits, bf));
+    auto& hits_h = iEvent.get(tokenHitCPU_);
+    iEvent.emplace(tokenTrackCPU_, gpuAlgo_.makeTuples(hits_h, bf));
   }
 }
 

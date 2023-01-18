@@ -15,6 +15,9 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"
 
+#include "CUDADataFormats/Track/interface/PixelTrackUtilities.h"
+#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitsUtilities.h"
+
 #include "CAStructures.h"
 #include "CAHitNtupletGeneratorKernels.h"
 #include "GPUCACell.h"
@@ -28,8 +31,6 @@ namespace caHitNtupletGeneratorKernels {
   constexpr float nSigma2 = 25.f;
 
   //all of these below are mostly to avoid brining around the relative namespace
-  template <typename TrackerTraits>
-  using HitsView = TrackingRecHit2DSOAViewT<TrackerTraits>;
 
   template <typename TrackerTraits>
   using HitToTuple = caStructures::HitToTupleT<TrackerTraits>;
@@ -49,13 +50,13 @@ namespace caHitNtupletGeneratorKernels {
   using Quality = pixelTrack::Quality;
 
   template <typename TrackerTraits>
-  using TkSoA = pixelTrack::TrackSoAT<TrackerTraits>;
+  using TkSoAView = TrackSoAView<TrackerTraits>;
 
   template <typename TrackerTraits>
-  using HitContainer = pixelTrack::HitContainerT<TrackerTraits>;
+  using HitContainer = typename TrackSoA<TrackerTraits>::HitContainer;
 
   template <typename TrackerTraits>
-  using Hits = typename GPUCACellT<TrackerTraits>::Hits;
+  using HitsConstView = typename GPUCACellT<TrackerTraits>::HitsConstView;
 
   template <typename TrackerTraits>
   using QualityCuts = pixelTrack::QualityCutsT<TrackerTraits>;
@@ -66,7 +67,7 @@ namespace caHitNtupletGeneratorKernels {
   using Counters = caHitNtupletGenerator::Counters;
 
   template <typename TrackerTraits>
-  __global__ void kernel_checkOverflows(HitContainer<TrackerTraits> const *foundNtuplets,
+  __global__ void kernel_checkOverflows(TkSoAView<TrackerTraits> tracks_view,
                                         TupleMultiplicity<TrackerTraits> const *tupleMultiplicity,
                                         HitToTuple<TrackerTraits> const *hitToTuple,
                                         cms::cuda::AtomicPairCounter *apc,
@@ -99,16 +100,16 @@ namespace caHitNtupletGeneratorKernels {
              nHits,
              hitToTuple->totOnes());
       if (apc->get().m < TrackerTraits::maxNumberOfQuadruplets) {
-        assert(foundNtuplets->size(apc->get().m) == 0);
-        assert(foundNtuplets->size() == apc->get().n);
+        assert(tracks_view.hitIndices().size(apc->get().m) == 0);
+        assert(tracks_view.hitIndices().size() == apc->get().n);
       }
     }
 
-    for (int idx = first, nt = foundNtuplets->nOnes(); idx < nt; idx += gridDim.x * blockDim.x) {
-      if (foundNtuplets->size(idx) > TrackerTraits::maxHitsOnTrack)  // current real limit
-        printf("ERROR %d, %d\n", idx, foundNtuplets->size(idx));
-      assert(foundNtuplets->size(idx) <= TrackerTraits::maxHitsOnTrack);
-      for (auto ih = foundNtuplets->begin(idx); ih != foundNtuplets->end(idx); ++ih)
+    for (int idx = first, nt = tracks_view.hitIndices().nOnes(); idx < nt; idx += gridDim.x * blockDim.x) {
+      if (tracks_view.hitIndices().size(idx) > TrackerTraits::maxHitsOnTrack)  // current real limit
+        printf("ERROR %d, %d\n", idx, tracks_view.hitIndices().size(idx));
+      assert(ftracks_view.hitIndices().size(idx) <= TrackerTraits::maxHitsOnTrack);
+      for (auto ih = tracks_view.hitIndices().begin(idx); ih != tracks_view.hitIndices().end(idx); ++ih)
         assert(int(*ih) < nHits);
     }
 #endif
@@ -168,7 +169,7 @@ namespace caHitNtupletGeneratorKernels {
   template <typename TrackerTraits>
   __global__ void kernel_fishboneCleaner(GPUCACellT<TrackerTraits> const *cells,
                                          uint32_t const *__restrict__ nCells,
-                                         Quality *quality) {
+                                         TkSoAView<TrackerTraits> tracks_view) {
     constexpr auto reject = pixelTrack::Quality::dup;
 
     auto first = threadIdx.x + blockIdx.x * blockDim.x;
@@ -178,7 +179,7 @@ namespace caHitNtupletGeneratorKernels {
         continue;
 
       for (auto it : thisCell.tracks())
-        quality[it] = reject;
+        tracks_view[it].quality() = reject;
     }
   }
 
@@ -187,13 +188,10 @@ namespace caHitNtupletGeneratorKernels {
   template <typename TrackerTraits>
   __global__ void kernel_earlyDuplicateRemover(GPUCACellT<TrackerTraits> const *cells,
                                                uint32_t const *__restrict__ nCells,
-                                               TkSoA<TrackerTraits> const *__restrict__ ptracks,
-                                               Quality *quality,
+                                               TkSoAView<TrackerTraits> tracks_view,
                                                bool dupPassThrough) {
     // quality to mark rejected
     constexpr auto reject = pixelTrack::Quality::edup;  /// cannot be loose
-
-    auto const &tracks = *ptracks;
 
     assert(nCells);
     auto first = threadIdx.x + blockIdx.x * blockDim.x;
@@ -207,7 +205,7 @@ namespace caHitNtupletGeneratorKernels {
 
       // find maxNl
       for (auto it : thisCell.tracks()) {
-        auto nl = tracks.nLayers(it);
+        auto nl = tracks_view[it].nLayers();
         maxNl = std::max(nl, maxNl);
       }
 
@@ -216,8 +214,8 @@ namespace caHitNtupletGeneratorKernels {
       //  maxNl = std::min(4, maxNl);
 
       for (auto it : thisCell.tracks()) {
-        if (tracks.nLayers(it) < maxNl)
-          quality[it] = reject;  //no race:  simple assignment of the same constant
+        if (tracks_view[it].nLayers() < maxNl)
+          tracks_view[it].quality() = reject;  //no race:  simple assignment of the same constant
       }
     }
   }
@@ -226,7 +224,7 @@ namespace caHitNtupletGeneratorKernels {
   template <typename TrackerTraits>
   __global__ void kernel_fastDuplicateRemover(GPUCACellT<TrackerTraits> const *__restrict__ cells,
                                               uint32_t const *__restrict__ nCells,
-                                              TkSoA<TrackerTraits> *__restrict__ tracks,
+                                              TkSoAView<TrackerTraits> tracks_view,
                                               bool dupPassThrough) {
     // quality to mark rejected
     auto const reject = dupPassThrough ? pixelTrack::Quality::loose : pixelTrack::Quality::dup;
@@ -243,45 +241,37 @@ namespace caHitNtupletGeneratorKernels {
       float mc = maxScore;
       uint16_t im = tkNotFound;
 
-      /* chi2 penalize higher-pt tracks  (try rescale it?)
-    auto score = [&](auto it) {
-      return tracks->nLayers(it) < 4 ?
-              std::abs(tracks->tip(it)) :  // tip for triplets
-              tracks->chi2(it);            //chi2 for quads
-    };
-    */
-
-      auto score = [&](auto it) { return std::abs(tracks->tip(it)); };
+      auto score = [&](auto it) { return std::abs(TracksUtilities<TrackerTraits>::tip(tracks_view, it)); };
 
       // full crazy combinatorics
       // full crazy combinatorics
       int ntr = thisCell.tracks().size();
       for (int i = 0; i < ntr - 1; ++i) {
         auto it = thisCell.tracks()[i];
-        auto qi = tracks->quality(it);
+        auto qi = tracks_view[it].quality();
         if (qi <= reject)
           continue;
-        auto opi = tracks->stateAtBS.state(it)(2);
-        auto e2opi = tracks->stateAtBS.covariance(it)(9);
-        auto cti = tracks->stateAtBS.state(it)(3);
-        auto e2cti = tracks->stateAtBS.covariance(it)(12);
+        auto opi = tracks_view[it].state()(2);
+        auto e2opi = tracks_view[it].covariance()(9);
+        auto cti = tracks_view[it].state()(3);
+        auto e2cti = tracks_view[it].covariance()(12);
         for (auto j = i + 1; j < ntr; ++j) {
           auto jt = thisCell.tracks()[j];
-          auto qj = tracks->quality(jt);
+          auto qj = tracks_view[jt].quality();
           if (qj <= reject)
             continue;
-          auto opj = tracks->stateAtBS.state(jt)(2);
-          auto ctj = tracks->stateAtBS.state(jt)(3);
-          auto dct = nSigma2 * (tracks->stateAtBS.covariance(jt)(12) + e2cti);
+          auto opj = tracks_view[jt].state()(2);
+          auto ctj = tracks_view[jt].state()(3);
+          auto dct = nSigma2 * (tracks_view[jt].covariance()(12) + e2cti);
           if ((cti - ctj) * (cti - ctj) > dct)
             continue;
-          auto dop = nSigma2 * (tracks->stateAtBS.covariance(jt)(9) + e2opi);
+          auto dop = nSigma2 * (tracks_view[jt].covariance()(9) + e2opi);
           if ((opi - opj) * (opi - opj) > dop)
             continue;
           if ((qj < qi) || (qj == qi && score(it) < score(jt)))
-            tracks->quality(jt) = reject;
+            tracks_view[jt].quality() = reject;
           else {
-            tracks->quality(it) = reject;
+            tracks_view[it].quality() = reject;
             break;
           }
         }
@@ -290,8 +280,8 @@ namespace caHitNtupletGeneratorKernels {
       // find maxQual
       auto maxQual = reject;  // no duplicate!
       for (auto it : thisCell.tracks()) {
-        if (tracks->quality(it) > maxQual)
-          maxQual = tracks->quality(it);
+        if (tracks_view[it].quality() > maxQual)
+          maxQual = tracks_view[it].quality();
       }
 
       if (maxQual <= loose)
@@ -299,7 +289,7 @@ namespace caHitNtupletGeneratorKernels {
 
       // find min score
       for (auto it : thisCell.tracks()) {
-        if (tracks->quality(it) == maxQual && score(it) < mc) {
+        if (tracks_view[it].quality() == maxQual && score(it) < mc) {
           mc = score(it);
           im = it;
         }
@@ -310,8 +300,8 @@ namespace caHitNtupletGeneratorKernels {
 
       // mark all other duplicates  (not yet, keep it loose)
       for (auto it : thisCell.tracks()) {
-        if (tracks->quality(it) > loose && it != im)
-          tracks->quality(it) = loose;  //no race:  simple assignment of the same constant
+        if (tracks_view[it].quality() > loose && it != im)
+          tracks_view[it].quality() = loose;  //no race:  simple assignment of the same constant
       }
     }
   }
@@ -319,14 +309,13 @@ namespace caHitNtupletGeneratorKernels {
   template <typename TrackerTraits>
   __global__ void kernel_connect(cms::cuda::AtomicPairCounter *apc1,
                                  cms::cuda::AtomicPairCounter *apc2,  // just to zero them,
-                                 Hits<TrackerTraits> const *__restrict__ hhp,
+                                 HitsConstView<TrackerTraits> hh,
                                  GPUCACellT<TrackerTraits> *cells,
                                  uint32_t const *__restrict__ nCells,
                                  CellNeighborsVector<TrackerTraits> *cellNeighbors,
                                  OuterHitOfCell<TrackerTraits> const isOuterHitOfCell,
                                  CAParams<TrackerTraits> params) {
     using Cell = GPUCACellT<TrackerTraits>;
-    auto const &hh = *hhp;
 
     auto firstCellIndex = threadIdx.y + blockIdx.y * blockDim.y;
     auto first = threadIdx.x;
@@ -383,16 +372,14 @@ namespace caHitNtupletGeneratorKernels {
   }
 
   template <typename TrackerTraits>
-  __global__ void kernel_find_ntuplets(Hits<TrackerTraits> const *__restrict__ hhp,
+  __global__ void kernel_find_ntuplets(HitsConstView<TrackerTraits> hh,
+                                       TkSoAView<TrackerTraits> tracks_view,
                                        GPUCACellT<TrackerTraits> *__restrict__ cells,
                                        uint32_t const *nCells,
                                        CellTracksVector<TrackerTraits> *cellTracks,
-                                       HitContainer<TrackerTraits> *foundNtuplets,
                                        cms::cuda::AtomicPairCounter *apc,
-                                       Quality *__restrict__ quality,
                                        CAParams<TrackerTraits> params) {
     // recursive: not obvious to widen
-    auto const &hh = *hhp;
 
     using Cell = GPUCACellT<TrackerTraits>;
 
@@ -422,8 +409,15 @@ namespace caHitNtupletGeneratorKernels {
 
         bool bpix1Start = params.startAt0(pid);
 
-        thisCell.template find_ntuplets<maxDepth>(
-            hh, cells, *cellTracks, *foundNtuplets, *apc, quality, stack, params.minHitsPerNtuplet_, bpix1Start);
+        thisCell.template find_ntuplets<maxDepth>(hh,
+                                                  cells,
+                                                  *cellTracks,
+                                                  tracks_view.hitIndices(),
+                                                  *apc,
+                                                  tracks_view.quality(),
+                                                  stack,
+                                                  params.minHitsPerNtuplet_,
+                                                  bpix1Start);
 
         assert(stack.empty());
       }
@@ -441,17 +435,16 @@ namespace caHitNtupletGeneratorKernels {
   }
 
   template <typename TrackerTraits>
-  __global__ void kernel_countMultiplicity(HitContainer<TrackerTraits> const *__restrict__ foundNtuplets,
-                                           Quality const *__restrict__ quality,
+  __global__ void kernel_countMultiplicity(TkSoAView<TrackerTraits> tracks_view,
                                            TupleMultiplicity<TrackerTraits> *tupleMultiplicity) {
     auto first = blockIdx.x * blockDim.x + threadIdx.x;
-    for (int it = first, nt = foundNtuplets->nOnes(); it < nt; it += gridDim.x * blockDim.x) {
-      auto nhits = foundNtuplets->size(it);
+    for (int it = first, nt = tracks_view.hitIndices().nOnes(); it < nt; it += gridDim.x * blockDim.x) {
+      auto nhits = tracks_view.hitIndices().size(it);
       if (nhits < 3)
         continue;
-      if (quality[it] == pixelTrack::Quality::edup)
+      if (tracks_view[it].quality() == pixelTrack::Quality::edup)
         continue;
-      assert(quality[it] == pixelTrack::Quality::bad);
+      assert(tracks_view[it].quality() == pixelTrack::Quality::bad);
       if (nhits > TrackerTraits::maxHitsOnTrack)  // current limit
         printf("wrong mult %d %d\n", it, nhits);
       assert(nhits <= TrackerTraits::maxHitsOnTrack);
@@ -460,17 +453,16 @@ namespace caHitNtupletGeneratorKernels {
   }
 
   template <typename TrackerTraits>
-  __global__ void kernel_fillMultiplicity(HitContainer<TrackerTraits> const *__restrict__ foundNtuplets,
-                                          Quality const *__restrict__ quality,
+  __global__ void kernel_fillMultiplicity(TkSoAView<TrackerTraits> tracks_view,
                                           TupleMultiplicity<TrackerTraits> *tupleMultiplicity) {
     auto first = blockIdx.x * blockDim.x + threadIdx.x;
-    for (int it = first, nt = foundNtuplets->nOnes(); it < nt; it += gridDim.x * blockDim.x) {
-      auto nhits = foundNtuplets->size(it);
+    for (int it = first, nt = tracks_view.hitIndices().nOnes(); it < nt; it += gridDim.x * blockDim.x) {
+      auto nhits = tracks_view.hitIndices().size(it);
       if (nhits < 3)
         continue;
-      if (quality[it] == pixelTrack::Quality::edup)
+      if (tracks_view[it].quality() == pixelTrack::Quality::edup)
         continue;
-      assert(quality[it] == pixelTrack::Quality::bad);
+      assert(tracks_view[it].quality() == pixelTrack::Quality::bad);
       if (nhits > TrackerTraits::maxHitsOnTrack)
         printf("wrong mult %d %d\n", it, nhits);
       assert(nhits <= TrackerTraits::maxHitsOnTrack);
@@ -478,22 +470,21 @@ namespace caHitNtupletGeneratorKernels {
     }
   }
 
+  ///TODO : why there was quality here?
   template <typename TrackerTraits>
-  __global__ void kernel_classifyTracks(HitContainer<TrackerTraits> const *__restrict__ tuples,
-                                        TkSoA<TrackerTraits> const *__restrict__ tracks,
-                                        QualityCuts<TrackerTraits> cuts,
-                                        Quality *__restrict__ quality) {
+  __global__ void kernel_classifyTracks(TkSoAView<TrackerTraits> tracks_view, QualityCuts<TrackerTraits> cuts) {
+    // Quality *__restrict__ quality) {
     int first = blockDim.x * blockIdx.x + threadIdx.x;
-    for (int it = first, nt = tuples->nOnes(); it < nt; it += gridDim.x * blockDim.x) {
-      auto nhits = tuples->size(it);
+    for (int it = first, nt = tracks_view.hitIndices().nOnes(); it < nt; it += gridDim.x * blockDim.x) {
+      auto nhits = tracks_view.hitIndices().size(it);
       if (nhits == 0)
         break;  // guard
 
       // if duplicate: not even fit
-      if (quality[it] == pixelTrack::Quality::edup)
+      if (tracks_view[it].quality() == pixelTrack::Quality::edup)
         continue;
 
-      assert(quality[it] == pixelTrack::Quality::bad);
+      assert(tracks_view[it].quality() == pixelTrack::Quality::bad);
 
       // mark doublets as bad
       if (nhits < 3)
@@ -502,101 +493,91 @@ namespace caHitNtupletGeneratorKernels {
       // if the fit has any invalid parameters, mark it as bad
       bool isNaN = false;
       for (int i = 0; i < 5; ++i) {
-        isNaN |= std::isnan(tracks->stateAtBS.state(it)(i));
+        isNaN |= std::isnan(tracks_view[it].state()(i));
       }
       if (isNaN) {
 #ifdef NTUPLE_DEBUG
-        printf("NaN in fit %d size %d chi2 %f\n", it, tuples->size(it), tracks->chi2(it));
+        printf("NaN in fit %d size %d chi2 %f\n", it, tracks_view.hitIndices().size(it), tracks_view[it].chi2());
 #endif
         continue;
       }
 
-      quality[it] = pixelTrack::Quality::strict;
+      tracks_view[it].quality() = pixelTrack::Quality::strict;
 
-      if (cuts.strictCut(tracks, it))
+      if (cuts.strictCut(tracks_view, it))
         continue;
 
-      quality[it] = pixelTrack::Quality::tight;
+      tracks_view[it].quality() = pixelTrack::Quality::tight;
 
-      if (cuts.isHP(tracks, nhits, it))
-        quality[it] = pixelTrack::Quality::highPurity;
+      if (cuts.isHP(tracks_view, nhits, it))
+        tracks_view[it].quality() = pixelTrack::Quality::highPurity;
     }
   }
 
   template <typename TrackerTraits>
-  __global__ void kernel_doStatsForTracks(HitContainer<TrackerTraits> const *__restrict__ tuples,
-                                          Quality const *__restrict__ quality,
-                                          Counters *counters) {
+  __global__ void kernel_doStatsForTracks(TkSoAView<TrackerTraits> tracks_view, Counters *counters) {
     int first = blockDim.x * blockIdx.x + threadIdx.x;
-    for (int idx = first, ntot = tuples->nOnes(); idx < ntot; idx += gridDim.x * blockDim.x) {
-      if (tuples->size(idx) == 0)
+    for (int idx = first, ntot = tracks_view.hitIndices().nOnes(); idx < ntot; idx += gridDim.x * blockDim.x) {
+      if (tracks_view.hitIndices().size(idx) == 0)
         break;  //guard
-      if (quality[idx] < pixelTrack::Quality::loose)
+      if (tracks_view[idx].quality() < pixelTrack::Quality::loose)
         continue;
       atomicAdd(&(counters->nLooseTracks), 1);
-      if (quality[idx] < pixelTrack::Quality::strict)
+      if (tracks_view[idx].quality() < pixelTrack::Quality::strict)
         continue;
       atomicAdd(&(counters->nGoodTracks), 1);
     }
   }
 
   template <typename TrackerTraits>
-  __global__ void kernel_countHitInTracks(HitContainer<TrackerTraits> const *__restrict__ tuples,
-                                          Quality const *__restrict__ quality,
-                                          HitToTuple<TrackerTraits> *hitToTuple) {
+  __global__ void kernel_countHitInTracks(TkSoAView<TrackerTraits> tracks_view, HitToTuple<TrackerTraits> *hitToTuple) {
     int first = blockDim.x * blockIdx.x + threadIdx.x;
-    for (int idx = first, ntot = tuples->nOnes(); idx < ntot; idx += gridDim.x * blockDim.x) {
-      if (tuples->size(idx) == 0)
+    for (int idx = first, ntot = tracks_view.hitIndices().nOnes(); idx < ntot; idx += gridDim.x * blockDim.x) {
+      if (tracks_view.hitIndices().size(idx) == 0)
         break;  // guard
-      for (auto h = tuples->begin(idx); h != tuples->end(idx); ++h)
+      for (auto h = tracks_view.hitIndices().begin(idx); h != tracks_view.hitIndices().end(idx); ++h)
         hitToTuple->count(*h);
     }
   }
 
   template <typename TrackerTraits>
-  __global__ void kernel_fillHitInTracks(HitContainer<TrackerTraits> const *__restrict__ tuples,
-                                         Quality const *__restrict__ quality,
-                                         HitToTuple<TrackerTraits> *hitToTuple) {
+  __global__ void kernel_fillHitInTracks(TkSoAView<TrackerTraits> tracks_view, HitToTuple<TrackerTraits> *hitToTuple) {
     int first = blockDim.x * blockIdx.x + threadIdx.x;
-    for (int idx = first, ntot = tuples->nOnes(); idx < ntot; idx += gridDim.x * blockDim.x) {
-      if (tuples->size(idx) == 0)
+    for (int idx = first, ntot = tracks_view.hitIndices().nOnes(); idx < ntot; idx += gridDim.x * blockDim.x) {
+      if (tracks_view.hitIndices().size(idx) == 0)
         break;  // guard
-      for (auto h = tuples->begin(idx); h != tuples->end(idx); ++h)
+      for (auto h = tracks_view.hitIndices().begin(idx); h != tracks_view.hitIndices().end(idx); ++h)
         hitToTuple->fill(*h, idx);
     }
   }
 
   template <typename TrackerTraits>
-  __global__ void kernel_fillHitDetIndices(HitContainer<TrackerTraits> const *__restrict__ tuples,
-                                           HitsView<TrackerTraits> const *__restrict__ hhp,
-                                           HitContainer<TrackerTraits> *__restrict__ hitDetIndices) {
+  __global__ void kernel_fillHitDetIndices(TkSoAView<TrackerTraits> tracks_view, HitsConstView<TrackerTraits> hh) {
     int first = blockDim.x * blockIdx.x + threadIdx.x;
     // copy offsets
-    for (int idx = first, ntot = tuples->totOnes(); idx < ntot; idx += gridDim.x * blockDim.x) {
-      hitDetIndices->off[idx] = tuples->off[idx];
+    for (int idx = first, ntot = tracks_view.hitIndices().totOnes(); idx < ntot; idx += gridDim.x * blockDim.x) {
+      tracks_view.detIndices().off[idx] = tracks_view.hitIndices().off[idx];
     }
     // fill hit indices
-    auto const &hh = *hhp;
     auto nhits = hh.nHits();
 
-    for (int idx = first, ntot = tuples->size(); idx < ntot; idx += gridDim.x * blockDim.x) {
-      assert(tuples->content[idx] < nhits);
-      hitDetIndices->content[idx] = hh.detectorIndex(tuples->content[idx]);
+    for (int idx = first, ntot = tracks_view.hitIndices().size(); idx < ntot; idx += gridDim.x * blockDim.x) {
+      assert(tracks_view.hitIndices().content[idx] < nhits);
+      tracks_view.detIndices().content[idx] = hh[tracks_view.hitIndices().content[idx]].detectorIndex();
     }
   }
 
   template <typename TrackerTraits>
-  __global__ void kernel_fillNLayers(TkSoA<TrackerTraits> *__restrict__ ptracks, cms::cuda::AtomicPairCounter *apc) {
-    auto &tracks = *ptracks;
+  __global__ void kernel_fillNLayers(TkSoAView<TrackerTraits> tracks_view, cms::cuda::AtomicPairCounter *apc) {
     auto first = blockIdx.x * blockDim.x + threadIdx.x;
     // clamp the number of tracks to the capacity of the SoA
-    auto ntracks = std::min<int>(apc->get().m, tracks.stride() - 1);
+    auto ntracks = std::min<int>(apc->get().m, tracks_view.metadata().size() - 1);
     if (0 == first)
-      tracks.setNTracks(ntracks);
+      tracks_view.nTracks() = ntracks;
     for (int idx = first, nt = ntracks; idx < nt; idx += gridDim.x * blockDim.x) {
-      auto nHits = tracks.nHits(idx);
+      auto nHits = TracksUtilities<TrackerTraits>::nHits(tracks_view, idx);
       assert(nHits >= 3);
-      tracks.nLayers(idx) = tracks.computeNumberOfLayers(idx);
+      tracks_view[idx].nLayers() = TracksUtilities<TrackerTraits>::computeNumberOfLayers(tracks_view, idx);
     }
   }
 
@@ -677,8 +658,7 @@ namespace caHitNtupletGeneratorKernels {
 
   // mostly for very forward triplets.....
   template <typename TrackerTraits>
-  __global__ void kernel_rejectDuplicate(TkSoA<TrackerTraits> const *__restrict__ ptracks,
-                                         Quality *__restrict__ quality,
+  __global__ void kernel_rejectDuplicate(TkSoAView<TrackerTraits> tracks_view,
                                          uint16_t nmin,
                                          bool dupPassThrough,
                                          HitToTuple<TrackerTraits> const *__restrict__ phitToTuple) {
@@ -686,50 +666,43 @@ namespace caHitNtupletGeneratorKernels {
     auto const reject = dupPassThrough ? pixelTrack::Quality::loose : pixelTrack::Quality::dup;
 
     auto &hitToTuple = *phitToTuple;
-    auto const &tracks = *ptracks;
 
     int first = blockDim.x * blockIdx.x + threadIdx.x;
     for (int idx = first, ntot = hitToTuple.nOnes(); idx < ntot; idx += gridDim.x * blockDim.x) {
       if (hitToTuple.size(idx) < 2)
         continue;
 
-      /* chi2 is bad for large pt
-    auto score = [&](auto it, auto nl) {
-      return nl < 4 ? std::abs(tracks.tip(it)) :  // tip for triplets
-                 tracks.chi2(it);                 //chi2
-    };
-    */
-      auto score = [&](auto it, auto nl) { return std::abs(tracks.tip(it)); };
+      auto score = [&](auto it, auto nl) { return std::abs(TracksUtilities<TrackerTraits>::tip(tracks_view, it)); };
 
       // full combinatorics
       for (auto ip = hitToTuple.begin(idx); ip < hitToTuple.end(idx) - 1; ++ip) {
         auto const it = *ip;
-        auto qi = quality[it];
+        auto qi = tracks_view[it].quality();
         if (qi <= reject)
           continue;
-        auto opi = tracks.stateAtBS.state(it)(2);
-        auto e2opi = tracks.stateAtBS.covariance(it)(9);
-        auto cti = tracks.stateAtBS.state(it)(3);
-        auto e2cti = tracks.stateAtBS.covariance(it)(12);
-        auto nli = tracks.nLayers(it);
+        auto opi = tracks_view[it].state()(2);
+        auto e2opi = tracks_view[it].covariance()(9);
+        auto cti = tracks_view[it].state()(3);
+        auto e2cti = tracks_view[it].covariance()(12);
+        auto nli = tracks_view[it].nLayers();
         for (auto jp = ip + 1; jp < hitToTuple.end(idx); ++jp) {
           auto const jt = *jp;
-          auto qj = quality[jt];
+          auto qj = tracks_view[jt].quality();
           if (qj <= reject)
             continue;
-          auto opj = tracks.stateAtBS.state(jt)(2);
-          auto ctj = tracks.stateAtBS.state(jt)(3);
-          auto dct = nSigma2 * (tracks.stateAtBS.covariance(jt)(12) + e2cti);
+          auto opj = tracks_view[jt].state()(2);
+          auto ctj = tracks_view[jt].state()(3);
+          auto dct = nSigma2 * (tracks_view[jt].covariance()(12) + e2cti);
           if ((cti - ctj) * (cti - ctj) > dct)
             continue;
-          auto dop = nSigma2 * (tracks.stateAtBS.covariance(jt)(9) + e2opi);
+          auto dop = nSigma2 * (tracks_view[jt].covariance()(9) + e2opi);
           if ((opi - opj) * (opi - opj) > dop)
             continue;
-          auto nlj = tracks.nLayers(jt);
+          auto nlj = tracks_view[jt].nLayers();
           if (nlj < nli || (nlj == nli && (qj < qi || (qj == qi && score(it, nli) < score(jt, nlj)))))
-            quality[jt] = reject;
+            tracks_view[jt].quality() = reject;
           else {
-            quality[it] = reject;
+            tracks_view[it].quality() = reject;
             break;
           }
         }
@@ -738,9 +711,8 @@ namespace caHitNtupletGeneratorKernels {
   }
 
   template <typename TrackerTraits>
-  __global__ void kernel_sharedHitCleaner(HitsView<TrackerTraits> const *__restrict__ hhp,
-                                          TkSoA<TrackerTraits> const *__restrict__ ptracks,
-                                          Quality *__restrict__ quality,
+  __global__ void kernel_sharedHitCleaner(HitsConstView<TrackerTraits> hh,
+                                          TkSoAView<TrackerTraits> tracks_view,
                                           int nmin,
                                           bool dupPassThrough,
                                           HitToTuple<TrackerTraits> const *__restrict__ phitToTuple) {
@@ -750,9 +722,7 @@ namespace caHitNtupletGeneratorKernels {
     auto const longTqual = pixelTrack::Quality::highPurity;
 
     auto &hitToTuple = *phitToTuple;
-    auto const &tracks = *ptracks;
 
-    auto const &hh = *hhp;
     int l1end = hh.hitsLayerStart()[1];
 
     int first = blockDim.x * blockIdx.x + threadIdx.x;
@@ -764,10 +734,10 @@ namespace caHitNtupletGeneratorKernels {
 
       // find maxNl
       for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
-        if (quality[*it] < longTqual)
+        if (tracks_view[*it].quality() < longTqual)
           continue;
-        // if (tracks.nHits(*it)==3) continue;
-        auto nl = tracks.nLayers(*it);
+        // if (tracks_view[*it].nHits()==3) continue;
+        auto nl = tracks_view[*it].nLayers();
         maxNl = std::max(nl, maxNl);
       }
 
@@ -779,21 +749,20 @@ namespace caHitNtupletGeneratorKernels {
 
       // kill all tracks shorter than maxHl (only triplets???
       for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
-        auto nl = tracks.nLayers(*it);
+        auto nl = tracks_view[*it].nLayers();
 
         //checking if shared hit is on bpix1 and if the tuple is short enough
         if (idx < l1end and nl > nmin)
           continue;
 
-        if (nl < maxNl && quality[*it] > reject)
-          quality[*it] = reject;
+        if (nl < maxNl && tracks_view[*it].quality() > reject)
+          tracks_view[*it].quality() = reject;
       }
     }
   }
 
   template <typename TrackerTraits>
-  __global__ void kernel_tripletCleaner(TkSoA<TrackerTraits> const *__restrict__ ptracks,
-                                        Quality *__restrict__ quality,
+  __global__ void kernel_tripletCleaner(TkSoAView<TrackerTraits> tracks_view,
                                         uint16_t nmin,
                                         bool dupPassThrough,
                                         HitToTuple<TrackerTraits> const *__restrict__ phitToTuple) {
@@ -803,7 +772,6 @@ namespace caHitNtupletGeneratorKernels {
     auto const good = pixelTrack::Quality::strict;
 
     auto &hitToTuple = *phitToTuple;
-    auto const &tracks = *ptracks;
 
     int first = blockDim.x * blockIdx.x + threadIdx.x;
     for (int idx = first, ntot = hitToTuple.nOnes(); idx < ntot; idx += gridDim.x * blockDim.x) {
@@ -816,9 +784,9 @@ namespace caHitNtupletGeneratorKernels {
 
       // check if only triplets
       for (auto it = hitToTuple.begin(idx); it != hitToTuple.end(idx); ++it) {
-        if (quality[*it] <= good)
+        if (tracks_view[*it].quality() <= good)
           continue;
-        onlyTriplets &= tracks.isTriplet(*it);
+        onlyTriplets &= TracksUtilities<TrackerTraits>::isTriplet(tracks_view, *it);
         if (!onlyTriplets)
           break;
       }
@@ -830,8 +798,8 @@ namespace caHitNtupletGeneratorKernels {
       // for triplets choose best tip!  (should we first find best quality???)
       for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
         auto const it = *ip;
-        if (quality[it] >= good && std::abs(tracks.tip(it)) < mc) {
-          mc = std::abs(tracks.tip(it));
+        if (tracks_view[it].quality() >= good && std::abs(TracksUtilities<TrackerTraits>::tip(tracks_view, it)) < mc) {
+          mc = std::abs(TracksUtilities<TrackerTraits>::tip(tracks_view, it));
           im = it;
         }
       }
@@ -842,16 +810,15 @@ namespace caHitNtupletGeneratorKernels {
       // mark worse ambiguities
       for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
         auto const it = *ip;
-        if (quality[it] > reject && it != im)
-          quality[it] = reject;  //no race:  simple assignment of the same constant
+        if (tracks_view[it].quality() > reject && it != im)
+          tracks_view[it].quality() = reject;  //no race:  simple assignment of the same constant
       }
 
     }  // loop over hits
   }
 
   template <typename TrackerTraits>
-  __global__ void kernel_simpleTripletCleaner(TkSoA<TrackerTraits> const *__restrict__ ptracks,
-                                              Quality *__restrict__ quality,
+  __global__ void kernel_simpleTripletCleaner(TkSoAView<TrackerTraits> tracks_view,
                                               uint16_t nmin,
                                               bool dupPassThrough,
                                               HitToTuple<TrackerTraits> const *__restrict__ phitToTuple) {
@@ -861,7 +828,6 @@ namespace caHitNtupletGeneratorKernels {
     auto const good = pixelTrack::Quality::loose;
 
     auto &hitToTuple = *phitToTuple;
-    auto const &tracks = *ptracks;
 
     int first = blockDim.x * blockIdx.x + threadIdx.x;
     for (int idx = first, ntot = hitToTuple.nOnes(); idx < ntot; idx += gridDim.x * blockDim.x) {
@@ -874,8 +840,8 @@ namespace caHitNtupletGeneratorKernels {
       // choose best tip!  (should we first find best quality???)
       for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
         auto const it = *ip;
-        if (quality[it] >= good && std::abs(tracks.tip(it)) < mc) {
-          mc = std::abs(tracks.tip(it));
+        if (tracks_view[it].quality() >= good && std::abs(TracksUtilities<TrackerTraits>::tip(tracks_view, it)) < mc) {
+          mc = std::abs(TracksUtilities<TrackerTraits>::tip(tracks_view, it));
           im = it;
         }
       }
@@ -886,53 +852,50 @@ namespace caHitNtupletGeneratorKernels {
       // mark worse ambiguities
       for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
         auto const it = *ip;
-        if (quality[it] > reject && tracks.isTriplet(it) && it != im)
-          quality[it] = reject;  //no race:  simple assignment of the same constant
+        if (tracks_view[it].quality() > reject && TracksUtilities<TrackerTraits>::isTriplet(tracks_view, it) &&
+            it != im)
+          tracks_view[it].quality() = reject;  //no race:  simple assignment of the same constant
       }
 
     }  // loop over hits
   }
 
   template <typename TrackerTraits>
-  __global__ void kernel_print_found_ntuplets(HitsView<TrackerTraits> const *__restrict__ hhp,
-                                              HitContainer<TrackerTraits> const *__restrict__ ptuples,
-                                              TkSoA<TrackerTraits> const *__restrict__ ptracks,
-                                              Quality const *__restrict__ quality,
+  __global__ void kernel_print_found_ntuplets(HitsConstView<TrackerTraits> hh,
+                                              TkSoAView<TrackerTraits> tracks_view,
                                               HitToTuple<TrackerTraits> const *__restrict__ phitToTuple,
                                               int32_t firstPrint,
                                               int32_t lastPrint,
                                               int iev) {
     constexpr auto loose = pixelTrack::Quality::loose;
-    auto const &hh = *hhp;
-    auto const &foundNtuplets = *ptuples;
-    auto const &tracks = *ptracks;
+
     int first = firstPrint + blockDim.x * blockIdx.x + threadIdx.x;
-    for (int i = first, np = std::min(lastPrint, foundNtuplets.nOnes()); i < np; i += blockDim.x * gridDim.x) {
-      auto nh = foundNtuplets.size(i);
+    for (int i = first, np = std::min(lastPrint, tracks_view.hitIndices().nOnes()); i < np;
+         i += blockDim.x * gridDim.x) {
+      auto nh = tracks_view.hitIndices().size(i);
       if (nh < 3)
         continue;
-      if (quality[i] < loose)
+      if (tracks_view[i].quality() < loose)
         continue;
       printf("TK: %d %d %d %d %f %f %f %f %f %f %f %.3f %.3f %.3f %.3f %.3f %.3f %.3f\n",
              10000 * iev + i,
-             int(quality[i]),
+             int(tracks_view[i].quality()),
              nh,
-             tracks.nLayers(i),
-             tracks.charge(i),
-             tracks.pt(i),
-             tracks.eta(i),
-             tracks.phi(i),
-             tracks.tip(i),
-             tracks.zip(i),
-             //           asinhf(fit_results[i].par(3)),
-             tracks.chi2(i),
-             hh.zGlobal(*foundNtuplets.begin(i)),
-             hh.zGlobal(*(foundNtuplets.begin(i) + 1)),
-             hh.zGlobal(*(foundNtuplets.begin(i) + 2)),
-             nh > 3 ? hh.zGlobal(int(*(foundNtuplets.begin(i) + 3))) : 0,
-             nh > 4 ? hh.zGlobal(int(*(foundNtuplets.begin(i) + 4))) : 0,
-             nh > 5 ? hh.zGlobal(int(*(foundNtuplets.begin(i) + 5))) : 0,
-             nh > 6 ? hh.zGlobal(int(*(foundNtuplets.begin(i) + nh - 1))) : 0);
+             tracks_view[i].nLayers(),
+             TracksUtilities<TrackerTraits>::charge(tracks_view, i),
+             tracks_view[i].pt(),
+             tracks_view[i].eta(),
+             TracksUtilities<TrackerTraits>::phi(tracks_view, i),
+             TracksUtilities<TrackerTraits>::tip(tracks_view, i),
+             TracksUtilities<TrackerTraits>::zip(tracks_view, i),
+             tracks_view[i].chi2(),
+             hh[*tracks_view.hitIndices().begin(i)].zGlobal(),
+             hh[*(tracks_view.hitIndices().begin(i) + 1)].zGlobal(),
+             hh[*(tracks_view.hitIndices().begin(i) + 2)].zGlobal(),
+             nh > 3 ? hh[int(*(tracks_view.hitIndices().begin(i) + 3))].zGlobal() : 0,
+             nh > 4 ? hh[int(*(tracks_view.hitIndices().begin(i) + 4))].zGlobal() : 0,
+             nh > 5 ? hh[int(*(tracks_view.hitIndices().begin(i) + 5))].zGlobal() : 0,
+             nh > 6 ? hh[int(*(tracks_view.hitIndices().begin(i) + nh - 1))].zGlobal() : 0);
     }
   }
 

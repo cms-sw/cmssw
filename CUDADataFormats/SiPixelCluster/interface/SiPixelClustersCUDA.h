@@ -5,16 +5,34 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h"
 
+#include "DataFormats/SoATemplate/interface/SoALayout.h"
+#include "CUDADataFormats/Common/interface/PortableDeviceCollection.h"
+
 #include <cuda_runtime.h>
 
-class SiPixelClustersCUDA {
+GENERATE_SOA_LAYOUT(SiPixelClustersCUDALayout,
+                    SOA_COLUMN(uint32_t, moduleStart),
+                    SOA_COLUMN(uint32_t, clusInModule),
+                    SOA_COLUMN(uint32_t, moduleId),
+                    SOA_COLUMN(uint32_t, clusModuleStart))
+
+using SiPixelClustersCUDASoA = SiPixelClustersCUDALayout<>;
+using SiPixelClustersCUDASOAView = SiPixelClustersCUDALayout<>::View;
+using SiPixelClustersCUDASOAConstView = SiPixelClustersCUDALayout<>::ConstView;
+
+// TODO: The class is created via inheritance of the PortableDeviceCollection.
+// This is generally discouraged, and should be done via composition, i.e.,
+// by adding a public class attribute like:
+// cms::cuda::Portabledevicecollection<SiPixelClustersCUDALayout<>> collection;
+// See: https://github.com/cms-sw/cmssw/pull/40465#discussion_r1067364306
+class SiPixelClustersCUDA : public cms::cuda::PortableDeviceCollection<SiPixelClustersCUDALayout<>> {
 public:
   SiPixelClustersCUDA() = default;
-  explicit SiPixelClustersCUDA(size_t maxModules, cudaStream_t stream);
   ~SiPixelClustersCUDA() = default;
 
-  SiPixelClustersCUDA(const SiPixelClustersCUDA &) = delete;
-  SiPixelClustersCUDA &operator=(const SiPixelClustersCUDA &) = delete;
+  explicit SiPixelClustersCUDA(size_t maxModules, cudaStream_t stream)
+      : PortableDeviceCollection<SiPixelClustersCUDALayout<>>(maxModules + 1, stream) {}
+
   SiPixelClustersCUDA(SiPixelClustersCUDA &&) = default;
   SiPixelClustersCUDA &operator=(SiPixelClustersCUDA &&) = default;
 
@@ -26,41 +44,7 @@ public:
   uint32_t nClusters() const { return nClusters_h; }
   int32_t offsetBPIX2() const { return offsetBPIX2_h; }
 
-  uint32_t *moduleStart() { return moduleStart_d.get(); }
-  uint32_t *clusInModule() { return clusInModule_d.get(); }
-  uint32_t *moduleId() { return moduleId_d.get(); }
-  uint32_t *clusModuleStart() { return clusModuleStart_d.get(); }
-
-  uint32_t const *moduleStart() const { return moduleStart_d.get(); }
-  uint32_t const *clusInModule() const { return clusInModule_d.get(); }
-  uint32_t const *moduleId() const { return moduleId_d.get(); }
-  uint32_t const *clusModuleStart() const { return clusModuleStart_d.get(); }
-
-  class SiPixelClustersCUDASOAView {
-  public:
-    __device__ __forceinline__ uint32_t moduleStart(int i) const { return __ldg(moduleStart_ + i); }
-    __device__ __forceinline__ uint32_t clusInModule(int i) const { return __ldg(clusInModule_ + i); }
-    __device__ __forceinline__ uint32_t moduleId(int i) const { return __ldg(moduleId_ + i); }
-    __device__ __forceinline__ uint32_t clusModuleStart(int i) const { return __ldg(clusModuleStart_ + i); }
-
-    uint32_t const *moduleStart_;
-    uint32_t const *clusInModule_;
-    uint32_t const *moduleId_;
-    uint32_t const *clusModuleStart_;
-  };
-
-  SiPixelClustersCUDASOAView const *view() const { return view_d.get(); }
-
 private:
-  cms::cuda::device::unique_ptr<uint32_t[]> moduleStart_d;   // index of the first pixel of each module
-  cms::cuda::device::unique_ptr<uint32_t[]> clusInModule_d;  // number of clusters found in each module
-  cms::cuda::device::unique_ptr<uint32_t[]> moduleId_d;      // module id of each module
-
-  // originally from rechits
-  cms::cuda::device::unique_ptr<uint32_t[]> clusModuleStart_d;  // index of the first cluster of each module
-
-  cms::cuda::device::unique_ptr<SiPixelClustersCUDASOAView> view_d;  // "me" pointer
-
   uint32_t nClusters_h = 0;
   int32_t offsetBPIX2_h = 0;
 };

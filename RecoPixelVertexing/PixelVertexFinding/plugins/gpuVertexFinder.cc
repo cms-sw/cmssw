@@ -1,5 +1,12 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
+#include "CUDADataFormats/Track/interface/PixelTrackUtilities.h"
+#include "CUDADataFormats/Vertex/interface/ZVertexUtilities.h"
+
+#include "PixelVertexWorkSpaceUtilities.h"
+#include "PixelVertexWorkSpaceSoAHost.h"
+#include "PixelVertexWorkSpaceSoADevice.h"
+
 #include "gpuClusterTracksByDensity.h"
 #include "gpuClusterTracksDBSCAN.h"
 #include "gpuClusterTracksIterative.h"
@@ -20,28 +27,23 @@ namespace gpuVertexFinder {
 
   template <typename TrackerTraits>
   __global__ void loadTracks(
-      pixelTrack::TrackSoAT<TrackerTraits> const* ptracks, ZVertexSoA* soa, WorkSpace* pws, float ptMin, float ptMax) {
-    assert(ptracks);
-    assert(soa);
-    auto const& tracks = *ptracks;
-    auto const& fit = tracks.stateAtBS;
-    auto const* quality = tracks.qualityData();
-
+      TrackSoAConstView<TrackerTraits> tracks_view, VtxSoAView soa, WsSoAView pws, float ptMin, float ptMax) {
+    auto const* quality = tracks_view.quality();
+    using helper = TracksUtilities<TrackerTraits>;
     auto first = blockIdx.x * blockDim.x + threadIdx.x;
-
-    for (int idx = first, nt = tracks.nTracks(); idx < nt; idx += gridDim.x * blockDim.x) {
-      auto nHits = tracks.nHits(idx);
+    for (int idx = first, nt = tracks_view.nTracks(); idx < nt; idx += gridDim.x * blockDim.x) {
+      auto nHits = helper::nHits(tracks_view, idx);
       assert(nHits >= 3);
 
       // initialize soa...
-      soa->idv[idx] = -1;
+      soa[idx].idv() = -1;
 
-      if (tracks.isTriplet(idx))
+      if (helper::isTriplet(tracks_view, idx))
         continue;  // no triplets
       if (quality[idx] < pixelTrack::Quality::highPurity)
         continue;
 
-      auto pt = tracks.pt(idx);
+      auto pt = tracks_view[idx].pt();
 
       if (pt < ptMin)
         continue;
@@ -49,19 +51,19 @@ namespace gpuVertexFinder {
       // clamp pt
       pt = std::min(pt, ptMax);
 
-      auto& data = *pws;
-      auto it = atomicAdd(&data.ntrks, 1);
-      data.itrk[it] = idx;
-      data.zt[it] = tracks.zip(idx);
-      data.ezt2[it] = fit.covariance(idx)(14);
-      data.ptt2[it] = pt * pt;
+      auto& data = pws;
+      auto it = atomicAdd(&data.ntrks(), 1);
+      data[it].itrk() = idx;
+      data[it].zt() = helper::zip(tracks_view, idx);
+      data[it].ezt2() = tracks_view[idx].covariance()(14);
+      data[it].ptt2() = pt * pt;
     }
   }
 
 // #define THREE_KERNELS
 #ifndef THREE_KERNELS
-  __global__ void vertexFinderOneKernel(gpuVertexFinder::ZVertices* pdata,
-                                        gpuVertexFinder::WorkSpace* pws,
+  __global__ void vertexFinderOneKernel(VtxSoAView pdata,
+                                        WsSoAView pws,
                                         int minT,      // min number of neighbours to be "seed"
                                         float eps,     // max absolute distance to cluster
                                         float errmax,  // max error to be "seed"
@@ -78,8 +80,8 @@ namespace gpuVertexFinder {
     sortByPt2(pdata, pws);
   }
 #else
-  __global__ void vertexFinderKernel1(gpuVertexFinder::ZVertices* pdata,
-                                      gpuVertexFinder::WorkSpace* pws,
+  __global__ void vertexFinderKernel1(VtxSoAView pdata,
+                                      WsSoAView pws,
                                       int minT,      // min number of neighbours to be "seed"
                                       float eps,     // max absolute distance to cluster
                                       float errmax,  // max error to be "seed"
@@ -90,7 +92,7 @@ namespace gpuVertexFinder {
     fitVertices(pdata, pws, maxChi2ForFirstFit);
   }
 
-  __global__ void vertexFinderKernel2(gpuVertexFinder::ZVertices* pdata, gpuVertexFinder::WorkSpace* pws) {
+  __global__ void vertexFinderKernel2(VtxSoAView pdata, WsSoAView pws) {
     fitVertices(pdata, pws, maxChi2ForFinalFit);
     __syncthreads();
     sortByPt2(pdata, pws);
@@ -99,44 +101,42 @@ namespace gpuVertexFinder {
 
   template <typename TrackerTraits>
 #ifdef __CUDACC__
-  ZVertexHeterogeneous Producer<TrackerTraits>::makeAsync(cudaStream_t stream,
-                                                          pixelTrack::TrackSoAT<TrackerTraits> const* tksoa,
-                                                          float ptMin,
-                                                          float ptMax) const {
+  ZVertexSoADevice Producer<TrackerTraits>::makeAsync(cudaStream_t stream,
+                                                      const TrackSoAConstView<TrackerTraits>& tracks_view,
+                                                      float ptMin,
+                                                      float ptMax) const {
 #ifdef PIXVERTEX_DEBUG_PRODUCE
     std::cout << "producing Vertices on GPU" << std::endl;
 #endif  // PIXVERTEX_DEBUG_PRODUCE
-    ZVertexHeterogeneous vertices(cms::cuda::make_device_unique<ZVertexSoA>(stream));
+    ZVertexSoADevice vertices(stream);
 #else
-
-  ZVertexHeterogeneous Producer<TrackerTraits>::make(pixelTrack::TrackSoAT<TrackerTraits> const* tksoa,
-                                                     float ptMin,
-                                                     float ptMax) const {
-
+  ZVertexSoAHost Producer<TrackerTraits>::make(const TrackSoAConstView<TrackerTraits>& tracks_view,
+                                               float ptMin,
+                                               float ptMax) const {
 #ifdef PIXVERTEX_DEBUG_PRODUCE
     std::cout << "producing Vertices on  CPU" << std::endl;
 #endif  // PIXVERTEX_DEBUG_PRODUCE
-    ZVertexHeterogeneous vertices(std::make_unique<ZVertexSoA>());
+    ZVertexSoAHost vertices;
 #endif
-    assert(tksoa);
-    auto* soa = vertices.get();
-    assert(soa);
+    auto soa = vertices.view();
+
+    assert(vertices.buffer());
 
 #ifdef __CUDACC__
-    auto ws_d = cms::cuda::make_device_unique<WorkSpace>(stream);
+    auto ws_d = gpuVertexFinder::workSpace::PixelVertexWorkSpaceSoADevice(stream);
 #else
-    auto ws_d = std::make_unique<WorkSpace>();
+    auto ws_d = gpuVertexFinder::workSpace::PixelVertexWorkSpaceSoAHost();
 #endif
 
 #ifdef __CUDACC__
-    init<<<1, 1, 0, stream>>>(soa, ws_d.get());
+    init<<<1, 1, 0, stream>>>(soa, ws_d.view());
     auto blockSize = 128;
-    auto numberOfBlocks = (pixelTrack::TrackSoAT<TrackerTraits>::stride() + blockSize - 1) / blockSize;
-    loadTracks<TrackerTraits><<<numberOfBlocks, blockSize, 0, stream>>>(tksoa, soa, ws_d.get(), ptMin, ptMax);
+    auto numberOfBlocks = (tracks_view.metadata().size() + blockSize - 1) / blockSize;
+    loadTracks<TrackerTraits><<<numberOfBlocks, blockSize, 0, stream>>>(tracks_view, soa, ws_d.view(), ptMin, ptMax);
     cudaCheck(cudaGetLastError());
 #else
-    init(soa, ws_d.get());
-    loadTracks<TrackerTraits>(tksoa, soa, ws_d.get(), ptMin, ptMax);
+    init(soa, ws_d.view());
+    loadTracks<TrackerTraits>(tracks_view, soa, ws_d.view(), ptMin, ptMax);
 #endif
 
 #ifdef __CUDACC__
@@ -148,50 +148,51 @@ namespace gpuVertexFinder {
     if (oneKernel_) {
       // implemented only for density clustesrs
 #ifndef THREE_KERNELS
-      vertexFinderOneKernel<<<1, maxThreadsForPrint, 0, stream>>>(soa, ws_d.get(), minT, eps, errmax, chi2max);
+      vertexFinderOneKernel<<<1, maxThreadsForPrint, 0, stream>>>(soa, ws_d.view(), minT, eps, errmax, chi2max);
 #else
-      vertexFinderKernel1<<<1, maxThreadsForPrint, 0, stream>>>(soa, ws_d.get(), minT, eps, errmax, chi2max);
+      vertexFinderKernel1<<<1, maxThreadsForPrint, 0, stream>>>(soa, ws_d.view(), minT, eps, errmax, chi2max);
       cudaCheck(cudaGetLastError());
       // one block per vertex...
-      splitVerticesKernel<<<numBlocks, threadsPerBlock, 0, stream>>>(soa, ws_d.get(), maxChi2ForSplit);
+      splitVerticesKernel<<<numBlocks, threadsPerBlock, 0, stream>>>(soa, ws_d.view(), maxChi2ForSplit);
       cudaCheck(cudaGetLastError());
-      vertexFinderKernel2<<<1, maxThreadsForPrint, 0, stream>>>(soa, ws_d.get());
+      vertexFinderKernel2<<<1, maxThreadsForPrint, 0, stream>>>(soa, ws_d.view());
 #endif
     } else {  // five kernels
       if (useDensity_) {
-        clusterTracksByDensityKernel<<<1, maxThreadsForPrint, 0, stream>>>(soa, ws_d.get(), minT, eps, errmax, chi2max);
+        clusterTracksByDensityKernel<<<1, maxThreadsForPrint, 0, stream>>>(
+            soa, ws_d.view(), minT, eps, errmax, chi2max);
       } else if (useDBSCAN_) {
-        clusterTracksDBSCAN<<<1, maxThreadsForPrint, 0, stream>>>(soa, ws_d.get(), minT, eps, errmax, chi2max);
+        clusterTracksDBSCAN<<<1, maxThreadsForPrint, 0, stream>>>(soa, ws_d.view(), minT, eps, errmax, chi2max);
       } else if (useIterative_) {
-        clusterTracksIterative<<<1, maxThreadsForPrint, 0, stream>>>(soa, ws_d.get(), minT, eps, errmax, chi2max);
+        clusterTracksIterative<<<1, maxThreadsForPrint, 0, stream>>>(soa, ws_d.view(), minT, eps, errmax, chi2max);
       }
       cudaCheck(cudaGetLastError());
-      fitVerticesKernel<<<1, maxThreadsForPrint, 0, stream>>>(soa, ws_d.get(), maxChi2ForFirstFit);
+      fitVerticesKernel<<<1, maxThreadsForPrint, 0, stream>>>(soa, ws_d.view(), maxChi2ForFirstFit);
       cudaCheck(cudaGetLastError());
       // one block per vertex...
-      splitVerticesKernel<<<numBlocks, threadsPerBlock, 0, stream>>>(soa, ws_d.get(), maxChi2ForSplit);
+      splitVerticesKernel<<<numBlocks, threadsPerBlock, 0, stream>>>(soa, ws_d.view(), maxChi2ForSplit);
       cudaCheck(cudaGetLastError());
-      fitVerticesKernel<<<1, maxThreadsForPrint, 0, stream>>>(soa, ws_d.get(), maxChi2ForFinalFit);
+      fitVerticesKernel<<<1, maxThreadsForPrint, 0, stream>>>(soa, ws_d.view(), maxChi2ForFinalFit);
       cudaCheck(cudaGetLastError());
-      sortByPt2Kernel<<<1, maxThreadsForPrint, 0, stream>>>(soa, ws_d.get());
+      sortByPt2Kernel<<<1, maxThreadsForPrint, 0, stream>>>(soa, ws_d.view());
     }
     cudaCheck(cudaGetLastError());
 #else  // __CUDACC__
     if (useDensity_) {
-      clusterTracksByDensity(soa, ws_d.get(), minT, eps, errmax, chi2max);
+      clusterTracksByDensity(soa, ws_d.view(), minT, eps, errmax, chi2max);
     } else if (useDBSCAN_) {
-      clusterTracksDBSCAN(soa, ws_d.get(), minT, eps, errmax, chi2max);
+      clusterTracksDBSCAN(soa, ws_d.view(), minT, eps, errmax, chi2max);
     } else if (useIterative_) {
-      clusterTracksIterative(soa, ws_d.get(), minT, eps, errmax, chi2max);
+      clusterTracksIterative(soa, ws_d.view(), minT, eps, errmax, chi2max);
     }
 #ifdef PIXVERTEX_DEBUG_PRODUCE
-    std::cout << "found " << (*ws_d).nvIntermediate << " vertices " << std::endl;
+    std::cout << "found " << ws_d.view().nvIntermediate() << " vertices " << std::endl;
 #endif  // PIXVERTEX_DEBUG_PRODUCE
-    fitVertices(soa, ws_d.get(), maxChi2ForFirstFit);
+    fitVertices(soa, ws_d.view(), maxChi2ForFirstFit);
     // one block per vertex!
-    splitVertices(soa, ws_d.get(), maxChi2ForSplit);
-    fitVertices(soa, ws_d.get(), maxChi2ForFinalFit);
-    sortByPt2(soa, ws_d.get());
+    splitVertices(soa, ws_d.view(), maxChi2ForSplit);
+    fitVertices(soa, ws_d.view(), maxChi2ForFinalFit);
+    sortByPt2(soa, ws_d.view());
 #endif
 
     return vertices;
@@ -199,5 +200,4 @@ namespace gpuVertexFinder {
 
   template class Producer<pixelTopology::Phase1>;
   template class Producer<pixelTopology::Phase2>;
-
 }  // namespace gpuVertexFinder

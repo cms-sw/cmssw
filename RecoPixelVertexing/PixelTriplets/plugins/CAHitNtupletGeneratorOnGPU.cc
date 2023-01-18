@@ -21,6 +21,12 @@
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 
+#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousHost.h"
+#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousDevice.h"
+
+#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitSoAHost.h"
+#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitSoADevice.h"
+
 #include "CAHitNtupletGeneratorOnGPU.h"
 
 namespace {
@@ -66,25 +72,25 @@ namespace {
                                        (float)cfg.getParameter<double>("dcaCutOuterTriplet")}};
     };
 
-    static constexpr QualityCutsT<TrackerTraits> makeQualityCuts(edm::ParameterSet const& pset) {
+    static constexpr pixelTrack::QualityCutsT<TrackerTraits> makeQualityCuts(edm::ParameterSet const& pset) {
       auto coeff = pset.getParameter<std::array<double, 2>>("chi2Coeff");
       auto ptMax = pset.getParameter<double>("chi2MaxPt");
 
       coeff[1] = (coeff[1] - coeff[0]) / log2(ptMax);
-      return QualityCutsT<TrackerTraits>{// polynomial coefficients for the pT-dependent chi2 cut
-                                         {(float)coeff[0], (float)coeff[1], 0.f, 0.f},
-                                         // max pT used to determine the chi2 cut
-                                         (float)ptMax,
-                                         // chi2 scale factor: 8 for broken line fit, ?? for Riemann fit
-                                         (float)pset.getParameter<double>("chi2Scale"),
-                                         // regional cuts for triplets
-                                         {(float)pset.getParameter<double>("tripletMaxTip"),
-                                          (float)pset.getParameter<double>("tripletMinPt"),
-                                          (float)pset.getParameter<double>("tripletMaxZip")},
-                                         // regional cuts for quadruplets
-                                         {(float)pset.getParameter<double>("quadrupletMaxTip"),
-                                          (float)pset.getParameter<double>("quadrupletMinPt"),
-                                          (float)pset.getParameter<double>("quadrupletMaxZip")}};
+      return pixelTrack::QualityCutsT<TrackerTraits>{// polynomial coefficients for the pT-dependent chi2 cut
+                                                     {(float)coeff[0], (float)coeff[1], 0.f, 0.f},
+                                                     // max pT used to determine the chi2 cut
+                                                     (float)ptMax,
+                                                     // chi2 scale factor: 8 for broken line fit, ?? for Riemann fit
+                                                     (float)pset.getParameter<double>("chi2Scale"),
+                                                     // regional cuts for triplets
+                                                     {(float)pset.getParameter<double>("tripletMaxTip"),
+                                                      (float)pset.getParameter<double>("tripletMinPt"),
+                                                      (float)pset.getParameter<double>("tripletMaxZip")},
+                                                     // regional cuts for quadruplets
+                                                     {(float)pset.getParameter<double>("quadrupletMaxTip"),
+                                                      (float)pset.getParameter<double>("quadrupletMinPt"),
+                                                      (float)pset.getParameter<double>("quadrupletMaxZip")}};
     }
   };
 
@@ -101,8 +107,8 @@ namespace {
                                       {(bool)cfg.getParameter<bool>("includeFarForwards")}};
     }
 
-    static constexpr QualityCutsT<TrackerTraits> makeQualityCuts(edm::ParameterSet const& pset) {
-      return QualityCutsT<TrackerTraits>{
+    static constexpr pixelTrack::QualityCutsT<TrackerTraits> makeQualityCuts(edm::ParameterSet const& pset) {
+      return pixelTrack::QualityCutsT<TrackerTraits>{
           (float)pset.getParameter<double>("maxChi2"),
           (float)pset.getParameter<double>("minPt"),
           (float)pset.getParameter<double>("maxTip"),
@@ -274,37 +280,30 @@ void CAHitNtupletGeneratorOnGPU<TrackerTraits>::endJob() {
 }
 
 template <typename TrackerTraits>
-PixelTrackHeterogeneousT<TrackerTraits> CAHitNtupletGeneratorOnGPU<TrackerTraits>::makeTuplesAsync(
+TrackSoAHeterogeneousDevice<TrackerTraits> CAHitNtupletGeneratorOnGPU<TrackerTraits>::makeTuplesAsync(
     HitsOnGPU const& hits_d, float bfield, cudaStream_t stream) const {
   using HelixFitOnGPU = HelixFitOnGPU<TrackerTraits>;
-  using PixelTrackHeterogeneous = PixelTrackHeterogeneousT<TrackerTraits>;
+  using TrackSoA = TrackSoAHeterogeneousDevice<TrackerTraits>;
   using GPUKernels = CAHitNtupletGeneratorKernelsGPU<TrackerTraits>;
 
-  PixelTrackHeterogeneous tracks(cms::cuda::make_device_unique<OutputSoA>(stream));
-
-  auto* soa = tracks.get();
-  assert(soa);
-  cudaCheck(cudaGetLastError());
+  TrackSoA tracks(stream);
 
   GPUKernels kernels(m_params);
   kernels.setCounters(m_counters);
   kernels.allocateOnGPU(hits_d.nHits(), stream);
-  cudaCheck(cudaGetLastError());
 
-  kernels.buildDoublets(hits_d, stream);
-  cudaCheck(cudaGetLastError());
+  kernels.buildDoublets(hits_d.view(), hits_d.offsetBPIX2(), stream);
 
-  kernels.launchKernels(hits_d, soa, stream);
-  cudaCheck(cudaGetLastError());
+  kernels.launchKernels(hits_d.view(), tracks.view(), stream);
 
   HelixFitOnGPU fitter(bfield, m_params.fitNas4_);
-  fitter.allocateOnGPU(&(soa->hitIndices), kernels.tupleMultiplicity(), soa);
+  fitter.allocateOnGPU(kernels.tupleMultiplicity(), tracks.view());
   if (m_params.useRiemannFit_) {
     fitter.launchRiemannKernels(hits_d.view(), hits_d.nHits(), TrackerTraits::maxNumberOfQuadruplets, stream);
   } else {
     fitter.launchBrokenLineKernels(hits_d.view(), hits_d.nHits(), TrackerTraits::maxNumberOfQuadruplets, stream);
   }
-  kernels.classifyTuples(hits_d, soa, stream);
+  kernels.classifyTuples(hits_d.view(), tracks.view(), stream);
 #ifdef GPU_DEBUG
   cudaDeviceSynchronize();
   cudaCheck(cudaGetLastError());
@@ -315,47 +314,43 @@ PixelTrackHeterogeneousT<TrackerTraits> CAHitNtupletGeneratorOnGPU<TrackerTraits
 }
 
 template <typename TrackerTraits>
-PixelTrackHeterogeneousT<TrackerTraits> CAHitNtupletGeneratorOnGPU<TrackerTraits>::makeTuples(HitsOnCPU const& hits_d,
-                                                                                              float bfield) const {
+TrackSoAHeterogeneousHost<TrackerTraits> CAHitNtupletGeneratorOnGPU<TrackerTraits>::makeTuples(HitsOnCPU const& hits_h,
+                                                                                               float bfield) const {
   using HelixFitOnGPU = HelixFitOnGPU<TrackerTraits>;
-  using PixelTrackHeterogeneous = PixelTrackHeterogeneousT<TrackerTraits>;
+  using TrackSoA = TrackSoAHeterogeneousHost<TrackerTraits>;
   using CPUKernels = CAHitNtupletGeneratorKernelsCPU<TrackerTraits>;
 
-  PixelTrackHeterogeneous tracks(std::make_unique<OutputSoA>());
-
-  auto* soa = tracks.get();
-  assert(soa);
+  TrackSoA tracks;
 
   CPUKernels kernels(m_params);
   kernels.setCounters(m_counters);
-  kernels.allocateOnGPU(hits_d.nHits(), nullptr);
+  kernels.allocateOnGPU(hits_h.nHits(), nullptr);
 
-  kernels.buildDoublets(hits_d, nullptr);
-  kernels.launchKernels(hits_d, soa, nullptr);
+  kernels.buildDoublets(hits_h.view(), hits_h.offsetBPIX2(), nullptr);
+  kernels.launchKernels(hits_h.view(), tracks.view(), nullptr);
 
-  if (0 == hits_d.nHits())
+  if (0 == hits_h.nHits())
     return tracks;
 
   // now fit
   HelixFitOnGPU fitter(bfield, m_params.fitNas4_);
-  fitter.allocateOnGPU(&(soa->hitIndices), kernels.tupleMultiplicity(), soa);
+  fitter.allocateOnGPU(kernels.tupleMultiplicity(), tracks.view());
 
   if (m_params.useRiemannFit_) {
-    fitter.launchRiemannKernelsOnCPU(hits_d.view(), hits_d.nHits(), TrackerTraits::maxNumberOfQuadruplets);
+    fitter.launchRiemannKernelsOnCPU(hits_h.view(), hits_h.nHits(), TrackerTraits::maxNumberOfQuadruplets);
   } else {
-    fitter.launchBrokenLineKernelsOnCPU(hits_d.view(), hits_d.nHits(), TrackerTraits::maxNumberOfQuadruplets);
+    fitter.launchBrokenLineKernelsOnCPU(hits_h.view(), hits_h.nHits(), TrackerTraits::maxNumberOfQuadruplets);
   }
 
-  kernels.classifyTuples(hits_d, soa, nullptr);
+  kernels.classifyTuples(hits_h.view(), tracks.view(), nullptr);
 
 #ifdef GPU_DEBUG
   std::cout << "finished building pixel tracks on CPU" << std::endl;
 #endif
 
   // check that the fixed-size SoA does not overflow
-  auto const& tsoa = *soa;
-  auto maxTracks = tsoa.stride();
-  auto nTracks = tsoa.nTracks();
+  auto maxTracks = tracks.view().metadata().size();
+  auto nTracks = tracks.view().nTracks();
   assert(nTracks < maxTracks);
   if (nTracks == maxTracks - 1) {
     edm::LogWarning("PixelTracks") << "Unsorted reconstructed pixel tracks truncated to " << maxTracks - 1
