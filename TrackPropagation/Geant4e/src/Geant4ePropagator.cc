@@ -75,7 +75,7 @@ Geant4ePropagator::~Geant4ePropagator() {
 
 void Geant4ePropagator::ensureGeant4eIsInitilized(bool forceInit) const {
   LogDebug("Geant4e") << "ensureGeant4eIsInitilized called" << std::endl;
-  if ( forceInit ) {
+  if (forceInit) {
     LogDebug("Geant4e") << "Initializing G4 propagator" << std::endl;
 
     //G4UImanager::GetUIpointer()->ApplyCommand("/exerror/setField -10. kilogauss");
