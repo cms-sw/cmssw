@@ -21,6 +21,9 @@ process.load('HLTrigger.Configuration.HLT_GRun_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
+process.load("RecoParticleFlow.PFClusterProducer.pfhbheRecHitParamsGPUESProducer_cfi")
+process.load("RecoParticleFlow.PFClusterProducer.pfhbheTopologyGPUESProducer_cfi")
+
 process.maxEvents = cms.untracked.PSet(
     #input = cms.untracked.int32(5),
     input = cms.untracked.int32(100),

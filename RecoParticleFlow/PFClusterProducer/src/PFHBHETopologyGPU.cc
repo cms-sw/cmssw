@@ -289,7 +289,8 @@ PFHBHETopologyGPU::PFHBHETopologyGPU(edm::ParameterSet const& ps,
   //
   // Fill variables for HostAllocator
   denseId_.resize(denseId.size());
-  std::copy(denseId.begin(), denseId.end(), denseId_.begin());  
+  std::copy(denseId.begin(), denseId.end(), denseId_.begin());
+  //
   detId_.resize(detId.size());
   std::copy(detId.begin(), detId.end(), detId_.begin());
   neighbours_.resize(neighbours.size());
@@ -301,6 +302,7 @@ PFHBHETopologyGPU::PFHBHETopologyGPU(edm::ParameterSet const& ps,
 
 PFHBHETopologyGPU::Product::~Product() {
   // deallocation
+  cudaCheck(cudaFree(denseId));
   cudaCheck(cudaFree(detId));
   cudaCheck(cudaFree(neighbours));
   cudaCheck(cudaFree(position));
@@ -311,10 +313,13 @@ PFHBHETopologyGPU::Product const& PFHBHETopologyGPU::getProduct(cudaStream_t cud
       cudaStream, [this](PFHBHETopologyGPU::Product& product, cudaStream_t cudaStream) {
         // malloc
         //cudaCheck(cudaMalloc((void**)&product.values, this->values_.size() * sizeof(int)));
+	//cudaCheck(cudaMalloc((void**)&product.nChannels, sizeof(uint32_t)));
         cudaCheck(cudaMalloc((void**)&product.denseId, this->denseId_.size() * sizeof(uint32_t)));
+	//cudaCheck(cudaMalloc((void**)&product.topoArraySize, sizeof(uint32_t)));
         cudaCheck(cudaMalloc((void**)&product.detId, this->detId_.size() * sizeof(uint32_t)));
-        cudaCheck(cudaMalloc((void**)&product.neighbours, this->neighbours_.size() * sizeof(int)));
         cudaCheck(cudaMalloc((void**)&product.position, this->position_.size() * sizeof(float3)));
+        cudaCheck(cudaMalloc((void**)&product.neighbours, this->neighbours_.size() * sizeof(int)));
+
 
         // transfer
         // cudaCheck(cudaMemcpyAsync(product.values,
@@ -332,14 +337,14 @@ PFHBHETopologyGPU::Product const& PFHBHETopologyGPU::getProduct(cudaStream_t cud
                                   this->detId_.size() * sizeof(int),
                                   cudaMemcpyHostToDevice,
                                   cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.neighbours,
-                                  this->neighbours_.data(),
-                                  this->neighbours_.size() * sizeof(int),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
         cudaCheck(cudaMemcpyAsync(product.position,
                                   this->position_.data(),
                                   this->position_.size() * sizeof(float3),
+                                  cudaMemcpyHostToDevice,
+                                  cudaStream));
+        cudaCheck(cudaMemcpyAsync(product.neighbours,
+                                  this->neighbours_.data(),
+                                  this->neighbours_.size() * sizeof(int),
                                   cudaMemcpyHostToDevice,
                                   cudaStream));
 

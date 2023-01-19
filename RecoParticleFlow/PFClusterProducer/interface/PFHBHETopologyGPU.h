@@ -19,10 +19,12 @@ public:
     ~Product();
     //int* values;
     //uint32_t size;
+    //uint32_t nChannels;
+    //uint32_t topoArraySize;
     uint32_t* denseId;
     uint32_t* detId;
-    int* neighbours;
     float3* position;
+    int* neighbours; // size of array is x8
   };
 
 #ifndef __CUDACC__
@@ -53,7 +55,6 @@ private:
   cms::cuda::ESProduct<Product> product_;
 
   //for internal use
-  //std::vector<unsigned int> vDenseIdHcal_;
   std::vector<std::vector<DetId>> neighboursHcal_;
   unsigned int denseIdHcalMax_;
   unsigned int denseIdHcalMin_;

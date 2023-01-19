@@ -409,8 +409,8 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
 	topoDataProduct,
 	topoData.getValuesDenseId(),
 	topoData.getValuesDetId(),
-	topoData.getValuesNeighbours(),
-	topoData.getValuesPosition()
+	topoData.getValuesPosition(),
+	topoData.getValuesNeighbours()
   };
 
   // Entry point for GPU calls

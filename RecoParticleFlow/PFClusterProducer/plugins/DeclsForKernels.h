@@ -87,11 +87,11 @@ namespace PFRecHit {
       std::vector<int, cms::cuda::HostAllocator<int>> const& depthHE;
       std::vector<float, cms::cuda::HostAllocator<float>> const& thresholdE_HB;
       std::vector<float, cms::cuda::HostAllocator<float>> const& thresholdE_HE;
-      PFHBHETopologyGPU::Product const& hbheTopoDataProduct;
+      PFHBHETopologyGPU::Product const& topoDataProduct;
       std::vector<uint, cms::cuda::HostAllocator<uint32_t>> const& denseId;
       std::vector<uint, cms::cuda::HostAllocator<uint32_t>> const& detId;
+      std::vector<float3, cms::cuda::HostAllocator<float3>> const& position;
       std::vector<int, cms::cuda::HostAllocator<int>> const& neighbours;
-      std::vector<float3, cms::cuda::HostAllocator<float3>> const& positions;
     };
 
     struct Constants {
