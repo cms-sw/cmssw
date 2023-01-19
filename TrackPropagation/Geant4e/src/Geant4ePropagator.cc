@@ -28,9 +28,9 @@
 #include "G4GeometryTolerance.hh"
 #include "G4SteppingControl.hh"
 #include "G4TransportationManager.hh"
+#include "G4RunManagerKernel.hh"
 #include "G4Tubs.hh"
 #include "G4UImanager.hh"
-#include "G4ErrorPropagationNavigator.hh"
 
 // CLHEP
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
@@ -74,11 +74,12 @@ Geant4ePropagator::~Geant4ePropagator() {
 
 void Geant4ePropagator::ensureGeant4eIsInitilized(bool forceInit) const {
   LogDebug("Geant4e") << "ensureGeant4eIsInitilized called" << std::endl;
-  if ((G4ErrorPropagatorData::GetErrorPropagatorData()->GetState() == G4ErrorState_PreInit) || forceInit) {
-    LogDebug("Geant4e") << "Initializing G4 propagator" << std::endl;
+  if (forceInit) {
+    LogDebug("Geant4e") << "Initializing G4 propagator";
 
     //G4UImanager::GetUIpointer()->ApplyCommand("/exerror/setField -10. kilogauss");
-
+    auto man = G4RunManagerKernel::GetRunManagerKernel();
+    man->SetVerboseLevel(0);
     theG4eManager->InitGeant4e();
 
     const G4Field *field = G4TransportationManager::GetTransportationManager()->GetFieldManager()->GetDetectorField();
@@ -86,9 +87,6 @@ void Geant4ePropagator::ensureGeant4eIsInitilized(bool forceInit) const {
       edm::LogError("Geant4e") << "No G4 magnetic field defined";
     }
     LogDebug("Geant4e") << "G4 propagator initialized" << std::endl;
-  } else {
-    LogDebug("Geant4e") << "G4 not in preinit state: " << G4ErrorPropagatorData::GetErrorPropagatorData()->GetState()
-                        << std::endl;
   }
   // define 10 mm step limit for propagator
   G4UImanager::GetUIpointer()->ApplyCommand("/geant4e/limits/stepLength 10.0 mm");
@@ -312,17 +310,10 @@ std::pair<TrajectoryStateOnSurface, double> Geant4ePropagator::propagateGeneric(
 
   theG4eManager->InitTrackPropagation();
 
-  // re-initialize navigator to avoid mismatches and/or segfaults
-  theG4eManager->GetErrorPropagationNavigator()->LocateGlobalPointAndSetup(
-      g4InitPos, &g4InitMom, /*pRelativeSearch = */ false, /*ignoreDirection = */ false);
-
   bool continuePropagation = true;
   while (continuePropagation) {
     iterations++;
     LogDebug("Geant4e") << std::endl << "step count " << iterations << " step length " << finalPathLength;
-
-    // re-initialize navigator to avoid mismatches and/or segfaults
-    theG4eManager->GetErrorPropagationNavigator()->LocateGlobalPointWithinVolume(g4eTrajState.GetPosition());
 
     const int ierr = theG4eManager->PropagateOneStep(&g4eTrajState, mode);
 
