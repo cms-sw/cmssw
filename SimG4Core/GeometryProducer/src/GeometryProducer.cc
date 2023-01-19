@@ -1,4 +1,4 @@
-.#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
 
 #include "SimG4Core/GeometryProducer/interface/GeometryProducer.h"
 
@@ -91,7 +91,7 @@ GeometryProducer::GeometryProducer(edm::ParameterSet const &p)
   } else {
     tokDDD_ = esConsumes<DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
   }
-  pr.oduces<int>();
+  produces<int>();
 }
 
 GeometryProducer::~GeometryProducer() { delete m_kernel; }
