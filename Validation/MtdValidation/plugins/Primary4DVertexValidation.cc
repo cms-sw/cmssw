@@ -162,7 +162,7 @@ class Primary4DVertexValidation : public DQMEDAnalyzer {
         return wosmatch;
       return -1;
     }
-    bool other_fake() { return (is_fake() & (split_from() < 0)); }
+    bool other_fake() { return (is_fake() && (split_from() < 0)); }
 
     void addTrack(unsigned int iev, double twos, double wt) {
       sumwnt += wt;
