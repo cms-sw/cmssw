@@ -66,9 +66,8 @@ namespace PFRecHit {
       }
 
       // Reset mappings of reference table index. Total length = number of all valid HCAL detIds
-      for (uint32_t i = blockIdx.x * blockDim.x + threadIdx.x; i < (nTopoArraySize); i += blockDim.x * gridDim.x) {
+      for (uint32_t i = blockIdx.x * blockDim.x + threadIdx.x; i < nTopoArraySize; i += blockDim.x * gridDim.x)
         rh_fullToInputIdx[i] = -1;
-      }
 
       // Reset mappings of input,output indices and rechit mask
       for (uint32_t i = blockIdx.x * blockDim.x + threadIdx.x; i < nRHIn; i += blockDim.x * gridDim.x) {
