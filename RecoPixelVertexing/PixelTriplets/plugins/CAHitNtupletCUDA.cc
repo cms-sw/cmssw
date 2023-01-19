@@ -1,35 +1,33 @@
 #include <cuda_runtime.h>
 
 #include "CUDADataFormats/Common/interface/Product.h"
+#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousDevice.h"
+#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousHost.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/RunningAverage.h"
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 
 #include "CAHitNtupletGeneratorOnGPU.h"
 
-#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousHost.h"
-#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousDevice.h"
-
 template <typename TrackerTraits>
 class CAHitNtupletCUDAT : public edm::global::EDProducer<> {
   using HitsConstView = TrackingRecHitSoAConstView<TrackerTraits>;
-  using HitsOnGPU = TrackingRecHitSoADevice<TrackerTraits>;  //TODO move to OnDevice
-  using HitsOnCPU = TrackingRecHitSoAHost<TrackerTraits>;    //TODO move to OnHost
+  using HitsOnDevice = TrackingRecHitSoADevice<TrackerTraits>;
+  using HitsOnHost = TrackingRecHitSoAHost<TrackerTraits>;
 
   using TrackSoAHost = TrackSoAHeterogeneousHost<TrackerTraits>;
   using TrackSoADevice = TrackSoAHeterogeneousDevice<TrackerTraits>;
@@ -51,9 +49,9 @@ private:
   bool onGPU_;
 
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tokenField_;
-  edm::EDGetTokenT<cms::cuda::Product<HitsOnGPU>> tokenHitGPU_;
+  edm::EDGetTokenT<cms::cuda::Product<HitsOnDevice>> tokenHitGPU_;
   edm::EDPutTokenT<cms::cuda::Product<TrackSoADevice>> tokenTrackGPU_;
-  edm::EDGetTokenT<HitsOnCPU> tokenHitCPU_;
+  edm::EDGetTokenT<HitsOnHost> tokenHitCPU_;
   edm::EDPutTokenT<TrackSoAHost> tokenTrackCPU_;
 
   GPUAlgo gpuAlgo_;

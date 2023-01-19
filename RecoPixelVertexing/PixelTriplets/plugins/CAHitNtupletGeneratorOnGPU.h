@@ -2,24 +2,20 @@
 #define RecoPixelVertexing_PixelTriplets_plugins_CAHitNtupletGeneratorOnGPU_h
 
 #include <cuda_runtime.h>
-// #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DHeterogeneous.h"
-// #include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
-#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousHost.h"
+
 #include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousDevice.h"
-
-#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitsUtilities.h"
-#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitSoAHost.h"
+#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousHost.h"
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitSoADevice.h"
-
+#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitSoAHost.h"
+#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitsUtilities.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/SimpleVector.h"
 
 #include "CAHitNtupletGeneratorKernels.h"
-#include "HelixFitOnGPU.h"
-
 #include "GPUCACell.h"
+#include "HelixFitOnGPU.h"
 
 namespace edm {
   class Event;
@@ -32,8 +28,8 @@ class CAHitNtupletGeneratorOnGPU {
 public:
   using HitsView = TrackingRecHitSoAView<TrackerTraits>;
   using HitsConstView = TrackingRecHitSoAConstView<TrackerTraits>;
-  using HitsOnGPU = TrackingRecHitSoADevice<TrackerTraits>;  //TODO move to OnDevice
-  using HitsOnCPU = TrackingRecHitSoAHost<TrackerTraits>;    //TODO move to OnHost
+  using HitsOnDevice = TrackingRecHitSoADevice<TrackerTraits>;
+  using HitsOnHost = TrackingRecHitSoAHost<TrackerTraits>;
   using hindex_type = typename TrackingRecHitSoA<TrackerTraits>::hindex_type;
 
   using HitToTuple = caStructures::HitToTupleT<TrackerTraits>;
@@ -66,9 +62,9 @@ public:
   void beginJob();
   void endJob();
 
-  TrackSoADevice makeTuplesAsync(HitsOnGPU const& hits_d, float bfield, cudaStream_t stream) const;
+  TrackSoADevice makeTuplesAsync(HitsOnDevice const& hits_d, float bfield, cudaStream_t stream) const;
 
-  TrackSoAHost makeTuples(HitsOnCPU const& hits_d, float bfield) const;
+  TrackSoAHost makeTuples(HitsOnHost const& hits_d, float bfield) const;
 
 private:
   void buildDoublets(const HitsConstView& hh, cudaStream_t stream) const;
