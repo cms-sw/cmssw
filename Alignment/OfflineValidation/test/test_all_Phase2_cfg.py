@@ -33,7 +33,7 @@ process.source = cms.Source("PoolSource",
 
 runboundary = 1
 process.source.firstRun = cms.untracked.uint32(int(runboundary))
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 ###################################################################
 # JSON Filtering
