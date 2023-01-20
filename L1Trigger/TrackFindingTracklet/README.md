@@ -1,6 +1,6 @@
 To run L1 tracking & create TTree of tracking performance:
 
-cmsRun L1TrackNtupleMaker_cfg.py
+cmsRun L1TrackNtupleMaker_cfg.py 
 
 By setting variable L1TRKALGO inside this script, you can change the 
 L1 tracking algo used. 
