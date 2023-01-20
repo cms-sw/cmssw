@@ -46,7 +46,6 @@ void CaloTowerFromL1TCreatorForTauHLT::produce(StreamID sid, Event& evt, const E
   if (jetsgen.isValid()) {
     for (auto myL1Jet = jetsgen->begin(mBX); myL1Jet != jetsgen->end(mBX); myL1Jet++) {
       if (idTau == mTauId) {
-        double Sum08 = 0.;
         unsigned idx = 0;
         for (; idx < caloTowers->size(); idx++) {
           const CaloTower* cal = &((*caloTowers)[idx]);
@@ -61,7 +60,6 @@ void CaloTowerFromL1TCreatorForTauHLT::produce(StreamID sid, Event& evt, const E
             double delta = ROOT::Math::VectorUtil::DeltaR((*myL1Jet).p4().Vect(), p);
             if (delta < mCone) {
               isAccepted = true;
-              Sum08 += cal->et();
               cands->push_back(*cal);
             }
           }

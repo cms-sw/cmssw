@@ -46,8 +46,6 @@ void CaloTowerCreatorForTauHLT::produce(StreamID sid, Event& evt, const EventSet
   L1JetParticleCollection::const_iterator myL1Jet = jetsgen->begin();
   for (; myL1Jet != jetsgen->end(); myL1Jet++) {
     if (idTau == mTauId) {
-      double Sum08 = 0.;
-
       unsigned idx = 0;
       for (; idx < caloTowers->size(); idx++) {
         const CaloTower* cal = &((*caloTowers)[idx]);
@@ -63,7 +61,6 @@ void CaloTowerCreatorForTauHLT::produce(StreamID sid, Event& evt, const EventSet
 
           if (delta < mCone) {
             isAccepted = true;
-            Sum08 += cal->et();
             cands->push_back(*cal);
           }
         }
