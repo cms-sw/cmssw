@@ -226,7 +226,10 @@ uint32_t HGCScintSD::setDetUnitId(const G4Step* aStep) {
     bool valid = hgcons_->isValidTrap(hid1.zside(), hid1.layer(), hid1.ring(), hid1.iphi());
     if ((diff > tol) || (!valid))
       pid = "HGCalError";
-    edm::LogVerbatim(pid) << "CheckID " << HGCScintillatorDetId(id) << " input position: (" << hitPoint.x() / CLHEP::cm << ", " << hitPoint.y() / CLHEP::cm << "); position from ID (" << xy.first << ", " << xy.second << ") distance " << diff << " Valid " << valid << " Rho = " << hitPoint.perp() / CLHEP::cm;
+    edm::LogVerbatim(pid) << "CheckID " << HGCScintillatorDetId(id) << " input position: (" << hitPoint.x() / CLHEP::cm
+                          << ", " << hitPoint.y() / CLHEP::cm << "); position from ID (" << xy.first << ", "
+                          << xy.second << ") distance " << diff << " Valid " << valid
+                          << " Rho = " << hitPoint.perp() / CLHEP::cm;
   }
   return id;
 }

@@ -225,7 +225,7 @@ bool HGCalDDDConstants::cassetteShiftSilicon(int layer, int waferU, int waferV) 
     if (ktr != hgpar_->waferInfoMap_.end()) {
       auto cshift = hgcassette_.getShift(layer, 1, (ktr->second).cassette);
       if ((cshift.first != 0) || (cshift.second != 0))
-	shift = true;
+        shift = true;
     }
   }
   return shift;
