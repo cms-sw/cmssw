@@ -5,6 +5,7 @@
 
 #include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousDevice.h"
 #include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousHost.h"
+
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitSoADevice.h"
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitSoAHost.h"
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitsUtilities.h"
