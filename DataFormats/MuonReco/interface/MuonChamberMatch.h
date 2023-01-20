@@ -4,6 +4,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/MuonReco/interface/MuonSegmentMatch.h"
 #include "DataFormats/MuonReco/interface/MuonRPCHitMatch.h"
+#include "DataFormats/MuonReco/interface/MuonGEMHitMatch.h"
 #include <vector>
 
 namespace reco {
@@ -11,6 +12,7 @@ namespace reco {
   public:
     std::vector<reco::MuonSegmentMatch> segmentMatches;  // segments matching propagated track trajectory
     std::vector<reco::MuonSegmentMatch> gemMatches;      // segments matching propagated track trajectory
+    std::vector<reco::MuonGEMHitMatch> gemHitMatches;    // segments matching propagated track trajectory
     std::vector<reco::MuonSegmentMatch> me0Matches;      // segments matching propagated track trajectory
     std::vector<reco::MuonSegmentMatch> truthMatches;    // SimHit projection matching propagated track trajectory
     std::vector<reco::MuonRPCHitMatch> rpcMatches;       // rpc hits matching propagated track trajectory

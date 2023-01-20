@@ -191,7 +191,8 @@ namespace reco {
       SegmentAndTrackArbitrationCleaned,
       RPCHitAndTrackArbitration,
       GEMSegmentAndTrackArbitration,
-      ME0SegmentAndTrackArbitration
+      ME0SegmentAndTrackArbitration,
+      GEMHitAndTrackArbitration
     };
 
     ///
