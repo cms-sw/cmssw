@@ -187,6 +187,11 @@ void ParticleKinematicLinearizedTrackState::computeChargedJacobians() const {
   double ptAtEP = thePredState.theState().globalMomentum().perp();
   double transverseCurvatureAtEP = field / ptAtEP * signTC;
 
+  // Fix calculation for case where magnetic field swaps sign between previous state and current state
+  if (field * part->currentState().magneticField()->inInverseGeV(part->currentState().globalPosition()).z() < 0.) {
+    signTC = -signTC;
+  }
+
   double x_v = thePredState.theState().globalPosition().x();
   double y_v = thePredState.theState().globalPosition().y();
   double z_v = thePredState.theState().globalPosition().z();
