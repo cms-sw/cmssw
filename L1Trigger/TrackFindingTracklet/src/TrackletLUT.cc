@@ -1100,10 +1100,12 @@ void TrackletLUT::initVMRTable(unsigned int layerdisk, VMRTableType type, int re
 
   if (settings_.combined()) {
     if (type == VMRTableType::me) {
+      nbits_ = 2 * settings_.NLONGVMBITS();
       positive_ = false;
       name_ = "VMRME_" + TrackletConfigBuilder::LayerName(layerdisk) + ".tab";
     }
     if (type == VMRTableType::disk) {
+      nbits_ = 2 * settings_.NLONGVMBITS();
       positive_ = false;
       name_ = "VMRTE_" + TrackletConfigBuilder::LayerName(layerdisk) + ".tab";
     }
