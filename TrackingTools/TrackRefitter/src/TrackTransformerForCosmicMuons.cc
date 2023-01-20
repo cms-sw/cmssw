@@ -446,7 +446,6 @@ bool TrackTransformerForCosmicMuons::SlopeSum(const TransientTrackingRecHit::Con
   std::vector<float> pz;
   //	int quadrant = -1;
 
-  float sumdy = 0;
   float sumdz = 0;
 
   for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator hit = tkHits.begin(); hit != tkHits.end(); ++hit) {
@@ -470,7 +469,6 @@ bool TrackTransformerForCosmicMuons::SlopeSum(const TransientTrackingRecHit::Con
       dslope = dy / dz;
     if (!first) {
       retval += dslope;
-      sumdy += dy;
       sumdz += dz;
     }
     first = false;
@@ -492,7 +490,6 @@ bool TrackTransformerForCosmicMuons::SlopeSum(const TransientTrackingRecHit::Con
 
 ///decide if the track should be reversed
 float TrackTransformerForCosmicMuons::SumDy(const TransientTrackingRecHit::ConstRecHitContainer& tkHits) const {
-  bool retval = false;
   float y1 = 0;
   float z1 = 0;
 
@@ -503,7 +500,6 @@ float TrackTransformerForCosmicMuons::SumDy(const TransientTrackingRecHit::Const
   //	int quadrant = -1;
 
   float sumdy = 0;
-  float sumdz = 0;
 
   for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator hit = tkHits.begin(); hit != tkHits.end(); ++hit) {
     DetId hitId = (*hit)->geographicalId();
@@ -513,21 +509,15 @@ float TrackTransformerForCosmicMuons::SumDy(const TransientTrackingRecHit::Const
 
     float y2 = glbpoint.y();
     float z2 = glbpoint.z();
-    float dslope = 0;
     float dy = y2 - y1;
-    float dz = z2 - z1;
 
     //		if (y2 > 0 && z2 > 0) quadrant = 1;
     //		else if (y2 > 0 && z2 < 0) quadrant = 2;
     //		else if (y2 < 0 && z2 < 0) quadrant = 3;
     //		else if (y2 < 0 && z2 > 0) quadrant = 4;
 
-    if (fabs(dz) > 1e-3)
-      dslope = dy / dz;
     if (!first) {
-      retval += dslope;
       sumdy += dy;
-      sumdz += dz;
     }
     first = false;
     py.push_back(y1);
