@@ -32,30 +32,6 @@ public:
 
   ~Geant4ePropagator() override;
 
-  /** Propagate from a free state (e.g. position and momentum in
-   *  in global cartesian coordinates) to a surface.
-   */
-  /*
-          virtual TrajectoryStateOnSurface
-          propagate(const FreeTrajectoryState& ftsStart, const Plane& pDest)
-     const override;
-
-          virtual TrajectoryStateOnSurface
-          propagate(const FreeTrajectoryState& ftsStart, const Cylinder& cDest)
-     const override;
-  */
-  /** Propagate from a state on surface (e.g. position and momentum in
-   *  in global cartesian coordinates associated with a layer) to a surface.
-   */
-  /*
-          virtual TrajectoryStateOnSurface
-          propagate(const TrajectoryStateOnSurface& tsos, const Plane& plane)
-     const override;
-
-          virtual TrajectoryStateOnSurface
-          propagate(const TrajectoryStateOnSurface& tsos, const Cylinder& cyl)
-     const override;
-  */
   /** The methods propagateWithPath() are identical to the corresponding
    *  methods propagate() in what concerns the resulting
    *  TrajectoryStateOnSurface, but they provide in addition the
