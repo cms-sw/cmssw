@@ -219,7 +219,10 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
     if ((diff > tol) || (!valid1))
       pid = "HGCalError";
     auto partn = hgcons_->waferTypeRotation(hid1.layer(), hid1.waferU(), hid1.waferV(), false, false);
-    edm::LogVerbatim(pid) << "CheckID " << HGCSiliconDetId(id) << " input position: (" << hitPoint.x() / CLHEP::cm << ", " << hitPoint.y() / CLHEP::cm << "); position from ID (" << xx << ", " << xy.second << ") distance " << diff << " Valid " << valid1 << " Wafer type|rotation " << partn.first << ":" << partn.second << " CassetteShift " << cshift;
+    edm::LogVerbatim(pid) << "CheckID " << HGCSiliconDetId(id) << " input position: (" << hitPoint.x() / CLHEP::cm
+                          << ", " << hitPoint.y() / CLHEP::cm << "); position from ID (" << xx << ", " << xy.second
+                          << ") distance " << diff << " Valid " << valid1 << " Wafer type|rotation " << partn.first
+                          << ":" << partn.second << " CassetteShift " << cshift;
   }
   return id;
 }
