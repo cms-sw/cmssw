@@ -35,19 +35,8 @@ std::vector<int> PTrackerAdditionalParametersPerDet::getAllGeographicalIds() con
   return getAllParams(intParams_, GEOGRAPHICAL_ID);
 }
 
-bool PTrackerAdditionalParametersPerDet::getBricked(int theIndex) const {
-  return getThisParam(boolParams_, BRICKEDNESS, theIndex);
-}
-
-std::vector<bool> PTrackerAdditionalParametersPerDet::getAllBricked() const {
-  return getAllParams(boolParams_, BRICKEDNESS);
-}
-
 void PTrackerAdditionalParametersPerDet::setGeographicalId(int geographicalId) {
   setThisParam(intParams_, GEOGRAPHICAL_ID, geographicalId);
 }
 
-void PTrackerAdditionalParametersPerDet::setBricked(bool isBricked) {
-  setThisParam(boolParams_, BRICKEDNESS, isBricked);
-}
 //This doesn't work properly because intParams_ and boolParams_ are vectors of vecotrs - the outer vector should be the number of parameters and the inner vector the number of geometricDets.

@@ -29,7 +29,6 @@ MillePedeDQMModule ::MillePedeDQMModule(const edm::ParameterSet& config)
     : tTopoToken_(esConsumes<edm::Transition::BeginRun>()),
       gDetToken_(esConsumes<edm::Transition::BeginRun>()),
       ptpToken_(esConsumes<edm::Transition::BeginRun>()),
-      ptitpToken_(esConsumes<edm::Transition::BeginRun>()),
       aliThrToken_(esConsumes<edm::Transition::BeginRun>()),
       geomToken_(esConsumes<edm::Transition::BeginRun>()),
       mpReaderConfig_(config.getParameter<edm::ParameterSet>("MillePedeFileReader")),
@@ -167,7 +166,6 @@ void MillePedeDQMModule ::beginRun(const edm::Run&, const edm::EventSetup& setup
   const TrackerTopology* const tTopo = &setup.getData(tTopoToken_);
   const GeometricDet* geometricDet = &setup.getData(gDetToken_);
   const PTrackerParameters* ptp = &setup.getData(ptpToken_);
-  const PTrackerAdditionalParametersPerDet* ptitp = &setup.getData(ptitpToken_);
   const TrackerGeometry* geom = &setup.getData(geomToken_);
 
   pixelTopologyMap_ = std::make_shared<PixelTopologyMap>(geom, tTopo);
@@ -181,7 +179,7 @@ void MillePedeDQMModule ::beginRun(const edm::Run&, const edm::EventSetup& setup
 
   TrackerGeomBuilderFromGeometricDet builder;
 
-  const auto trackerGeometry = builder.build(geometricDet, ptitp, *ptp, tTopo);
+  const auto trackerGeometry = builder.build(geometricDet, *ptp, tTopo);
   tracker_ = std::make_unique<AlignableTracker>(trackerGeometry, tTopo);
 
   const std::string labelerPlugin{"PedeLabeler"};
