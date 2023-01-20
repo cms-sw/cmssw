@@ -48,7 +48,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 #include "Geometry/Records/interface/PTrackerParametersRcd.h"
-#include "Geometry/Records/interface/PTrackerAdditionalParametersPerDetRcd.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
@@ -75,7 +74,6 @@ private:
   // ----------member data ---------------------------
   const edm::ESGetToken<GeometricDet, IdealGeometryRecord> geomDetToken_;
   const edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> ptpToken_;
-  const edm::ESGetToken<PTrackerAdditionalParametersPerDet, PTrackerAdditionalParametersPerDetRcd> ptitpToken_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
 
   const bool createEntryForDoubleSidedModule_;
@@ -97,7 +95,6 @@ private:
 TrackerTreeGenerator::TrackerTreeGenerator(const edm::ParameterSet& config)
     : geomDetToken_(esConsumes()),
       ptpToken_(esConsumes()),
-      ptitpToken_(esConsumes()),
       topoToken_(esConsumes()),
       createEntryForDoubleSidedModule_(config.getParameter<bool>("createEntryForDoubleSidedModule")),
       config_(config) {
@@ -113,11 +110,10 @@ void TrackerTreeGenerator::analyze(const edm::Event& iEvent, const edm::EventSet
   // now try to take directly the ideal geometry independent of used geometry in Global Tag
   const GeometricDet* geometricDet = &iSetup.getData(geomDetToken_);
   const PTrackerParameters& ptp = iSetup.getData(ptpToken_);
-  const PTrackerAdditionalParametersPerDet* ptitp = &iSetup.getData(ptitpToken_);
   const TrackerTopology* tTopo = &iSetup.getData(topoToken_);
 
   TrackerGeomBuilderFromGeometricDet trackerBuilder;
-  const TrackerGeometry* tkGeom = trackerBuilder.build(geometricDet, ptitp, ptp, tTopo);
+  const TrackerGeometry* tkGeom = trackerBuilder.build(geometricDet, ptp, tTopo);
   AlignableTracker alignableTracker{tkGeom, tTopo};
   const auto& ns = alignableTracker.trackerNameSpace();
 

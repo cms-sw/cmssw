@@ -89,7 +89,6 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type)
   if (type_ == DetUnit) {
     radLength_ = getDouble("TrackerRadLength", *fv);
     xi_ = getDouble("TrackerXi", *fv);
-    isBricked_ = (getString("isBricked", *fv) == strue);
     pixROCRows_ = getDouble("PixelROCRows", *fv);
     pixROCCols_ = getDouble("PixelROCCols", *fv);
     pixROCx_ = getDouble("PixelROC_X", *fv);
@@ -124,7 +123,6 @@ GeometricDet::GeometricDet(cms::DDFilteredView* fv, GeometricEnumType type)
   // Only look for sensor-related info on sensor volumes!
   if (type_ == DetUnit) {
     // IT sensors only (NB: hence could add a branch here, but not a critical part on perf)
-    isBricked_ = (fv->get<std::string_view>("isBricked") == strue);
     pixROCRows_ = fv->get<double>("PixelROCRows");
     pixROCCols_ = fv->get<double>("PixelROCCols");
     pixROCx_ = fv->get<double>("PixelROC_X");

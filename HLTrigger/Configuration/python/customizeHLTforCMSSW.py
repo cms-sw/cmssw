@@ -265,6 +265,11 @@ def customizeHLTfor40465(process):
         pass
     return process
 
+def customizeHLTfor40443(process):
+     for producer in [producers for producers in esproducers_by_type(process, "TrackerAdditionalParametersPerDetESModule")]:
+        delattr(process, producer.label())
+     return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -277,5 +282,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     process = customizeHLTfor40264(process)
     process = customizeHLTfor40334(process)
     process = customizeHLTfor40465(process)
+    process = customizeHLTfor40443(process)
 
     return process

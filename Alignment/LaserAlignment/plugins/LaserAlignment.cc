@@ -23,7 +23,6 @@ LaserAlignment::LaserAlignment(edm::ParameterSet const& theConf)
       geomToken_(esConsumes()),
       geomDetToken_(esConsumes()),
       ptpToken_(esConsumes()),
-      ptitpToken_(esConsumes()),
       gprToken_(esConsumes()),
       stripPedestalsToken_(esConsumes()),
       theEvents(0),
@@ -301,10 +300,9 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
       // the AlignableTracker object is initialized with the ideal geometry
       const GeometricDet* theGeometricDet = &theSetup.getData(geomDetToken_);
       const PTrackerParameters* ptp = &theSetup.getData(ptpToken_);
-      const PTrackerAdditionalParametersPerDet* ptitp = &theSetup.getData(ptitpToken_);
 
       TrackerGeomBuilderFromGeometricDet trackerBuilder;
-      TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet, &*ptitp, *ptp, tTopo);
+      TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet, *ptp, tTopo);
 
       theAlignableTracker = new AlignableTracker(&(*theRefTracker), tTopo);
     } else {
