@@ -94,7 +94,7 @@ void Multi5x5BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::CaloClusterP
       };
 
       auto match = [&](int i, int j) {
-        return (dphi(phi[i], phi[j]) < phiRoad) & (std::abs(eta[i] - eta[j]) < etaRoad);
+        return (dphi(phi[i], phi[j]) < phiRoad) && (std::abs(eta[i] - eta[j]) < etaRoad);
       };
 
       // does the cluster match the phi road for this candidate supercluster

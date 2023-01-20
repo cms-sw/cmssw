@@ -23,7 +23,7 @@ bool PixelHitMatcher::ForwardMeasurementEstimator::operator()(const GlobalPoint 
   float rMin = theRMin;
   float rMax = theRMax;
   float myZ = gp.z();
-  if ((std::abs(myZ) > 70.f) & (std::abs(myZ) < 170.f)) {
+  if ((std::abs(myZ) > 70.f) && (std::abs(myZ) < 170.f)) {
     rMin = theRMinI;
     rMax = theRMaxI;
   }
@@ -47,7 +47,7 @@ bool PixelHitMatcher::BarrelMeasurementEstimator::operator()(const GlobalPoint &
   float zDiff = myZ - ts.z();
   float myZmax = theZMax;
   float myZmin = theZMin;
-  if ((std::abs(myZ) < 30.f) & (gp.perp() > 8.f)) {
+  if ((std::abs(myZ) < 30.f) && (gp.perp() > 8.f)) {
     myZmax = 0.09f;
     myZmin = -0.09f;
   }
