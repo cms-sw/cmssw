@@ -532,6 +532,7 @@ workflows[135.9] = ['ZMMFS_13',['ZMMFS_13','HARVESTUP15FS','MINIAODMCUP15FS','NA
 workflows[135.11] = ['SMS-T1tttt_mGl-1500_mLSP-100FS_13', ['SMS-T1tttt_mGl-1500_mLSP-100FS_13','HARVESTUP15FS','MINIAODMCUP15FS','NANOUP15FS']]
 workflows[135.12] = ['QCD_Pt_80_120FS_13', ['QCD_Pt_80_120FS_13','HARVESTUP15FS','MINIAODMCUP15FS','NANOUP15FS']]
 workflows[135.13] = ['TTbarFS_13', ['TTbarFS_13_trackingOnlyValidation','HARVESTUP15FS_trackingOnly']]
+workflows[135.14] = ['TTbarFS_13', ['TTbarFS_13','HARVESTUP15FS','MINIAODMCUP15FS','NANOUP15FSrefine']]
 
 ### MinBias fastsim_13 TeV for mixing ###
 workflows[135.8] = ['MinBiasFS_13',['MinBiasFS_13_ForMixing']]
