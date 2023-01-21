@@ -53,7 +53,7 @@ void HLTMETCleanerUsingJetID::produce(edm::Event& iEvent, const edm::EventSetup&
 
   double mex_jets = 0.;
   double mey_jets = 0.;
-  double sumet_jets = 0.;
+  //double sumet_jets = 0.;
   if (!jets->empty()) {
     for (auto const& j : *jets) {
       double pt = j.pt();
@@ -64,14 +64,14 @@ void HLTMETCleanerUsingJetID::produce(edm::Event& iEvent, const edm::EventSetup&
       if (pt > minPt_ && std::abs(eta) < maxEta_) {
         mex_jets -= px;
         mey_jets -= py;
-        sumet_jets += pt;
+        //sumet_jets += pt;
       }
     }
   }
 
   double mex_goodJets = 0.;
   double mey_goodJets = 0.;
-  double sumet_goodJets = 0.;
+  //double sumet_goodJets = 0.;
   if (!goodJets->empty()) {
     for (auto const& j : *goodJets) {
       double pt = j.pt();
@@ -82,7 +82,7 @@ void HLTMETCleanerUsingJetID::produce(edm::Event& iEvent, const edm::EventSetup&
       if (pt > minPt_ && std::abs(eta) < maxEta_) {
         mex_goodJets -= px;
         mey_goodJets -= py;
-        sumet_goodJets += pt;
+        //sumet_goodJets += pt;
       }
     }
   }
