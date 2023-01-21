@@ -66,7 +66,7 @@ process.maxEvents = cms.untracked.PSet(
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.HGCalError=dict()
-    process.MessageLogger.HGCSim=dict()
+#   process.MessageLogger.HGCSim=dict()
 #   process.MessageLogger.HGCalSim=dict()
 
 # Input source

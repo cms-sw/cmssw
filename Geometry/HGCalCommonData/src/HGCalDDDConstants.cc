@@ -217,6 +217,30 @@ std::array<int, 3> HGCalDDDConstants::assignCellTrap(float x, float y, float z, 
   return std::array<int, 3>{{irad, iphi, type}};
 }
 
+bool HGCalDDDConstants::cassetteShiftSilicon(int layer, int waferU, int waferV) const {
+  bool shift(false);
+  if (mode_ == HGCalGeometryMode::Hexagon8Cassette) {
+    int indx = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
+    auto ktr = hgpar_->waferInfoMap_.find(indx);
+    if (ktr != hgpar_->waferInfoMap_.end()) {
+      auto cshift = hgcassette_.getShift(layer, 1, (ktr->second).cassette);
+      if ((cshift.first != 0) || (cshift.second != 0))
+        shift = true;
+    }
+  }
+  return shift;
+}
+
+bool HGCalDDDConstants::cassetteShiftScintillator(int layer, int iphi) const {
+  bool shift(false);
+  if (mode_ == HGCalGeometryMode::TrapezoidCassette) {
+    auto cshift = hgcassette_.getShift(layer, 1, cassetteTile(iphi));
+    if ((cshift.first != 0) || (cshift.second != 0))
+      shift = true;
+  }
+  return shift;
+}
+
 std::pair<double, double> HGCalDDDConstants::cellEtaPhiTrap(int type, int irad) const {
   double dr(0), df(0);
   if (tileTrapezoid()) {
