@@ -40,6 +40,11 @@ public:
   std::pair<int, int> assignCell(float x, float y, int lay, int subSec, bool reco) const;
   std::array<int, 5> assignCellHex(float x, float y, int zside, int lay, bool reco, bool extend, bool debug) const;
   std::array<int, 3> assignCellTrap(float x, float y, float z, int lay, bool reco) const;
+  bool cassetteShiftScintillator(int layer, int iphi) const;
+  bool cassetteShiftSilicon(int layer, int waferU, int waferV) const;
+  int cassetteTile(int iphi) const {
+    return (HGCalTileIndex::tileCassette(iphi, hgpar_->phiOffset_, hgpar_->nphiCassette_, hgpar_->cassettes_));
+  }
   std::pair<double, double> cellEtaPhiTrap(int type, int irad) const;
   bool cellInLayer(int waferU, int waferV, int cellU, int cellV, int lay, int zside, bool reco) const;
   double cellSizeHex(int type) const;
