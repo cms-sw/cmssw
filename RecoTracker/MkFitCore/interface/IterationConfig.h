@@ -1,6 +1,7 @@
 #ifndef RecoTracker_MkFitCore_interface_IterationConfig_h
 #define RecoTracker_MkFitCore_interface_IterationConfig_h
 
+#include "RecoTracker/MkFitCore/interface/FunctionTypes.h"
 #include "RecoTracker/MkFitCore/interface/SteeringParams.h"
 
 #include "nlohmann/json_fwd.hpp"
@@ -8,15 +9,6 @@
 #include <functional>
 
 namespace mkfit {
-
-  struct BeamSpot;
-  class EventOfHits;
-  class TrackerInfo;
-  class Track;
-  class TrackCand;
-  class MkJob;
-
-  typedef std::vector<Track> TrackVec;
 
   //==============================================================================
   // Hit masks / IterationMaskIfc
@@ -129,22 +121,6 @@ namespace mkfit {
 
   class IterationConfig {
   public:
-    // Called directly.
-    using clean_seeds_cf = int(TrackVec &, const IterationConfig &, const BeamSpot &);
-    using clean_seeds_func = std::function<clean_seeds_cf>;
-    // Called from MkBuilder::find_tracks_load_seeds().
-    using partition_seeds_cf = void(const TrackerInfo &,
-                                    const TrackVec &,
-                                    const EventOfHits &,
-                                    IterationSeedPartition &);
-    using partition_seeds_func = std::function<partition_seeds_cf>;
-    // Passed to MkBuilder::filter_comb_cands().
-    using filter_candidates_cf = bool(const TrackCand &, const MkJob &);
-    using filter_candidates_func = std::function<filter_candidates_cf>;
-    // Called directly.
-    using clean_duplicates_cf = void(TrackVec &, const IterationConfig &);
-    using clean_duplicates_func = std::function<clean_duplicates_cf>;
-
     int m_iteration_index = -1;
     int m_track_algorithm = -1;
 
@@ -181,17 +157,24 @@ namespace mkfit {
     std::vector<SteeringParams> m_steering_params;
     std::vector<IterationLayerConfig> m_layer_configs;
 
-    // Standard functions
+    // *** Standard functions
+    // - seed cleaning: called directly from top-level per-iteration steering code.
     clean_seeds_func m_seed_cleaner;
+    // - seed partitioning into eta regions: called from MkBuilder::find_tracks_load_seeds().
     partition_seeds_func m_seed_partitioner;
+    // - candidate filtering: passed to MkBuilder::filter_comb_cands().
     filter_candidates_func m_pre_bkfit_filter, m_post_bkfit_filter;
+    // - duplicate cleaning: called directly from top-level per-iteration steering code.
     clean_duplicates_func m_duplicate_cleaner;
+    // - default track scoring function, can be overriden in SteeringParams for each eta region.
+    track_score_func m_default_track_scorer;
 
     // Names for Standard functions that get saved to / loaded from JSON.
     std::string m_seed_cleaner_name;
     std::string m_seed_partitioner_name;
     std::string m_pre_bkfit_filter_name, m_post_bkfit_filter_name;
     std::string m_duplicate_cleaner_name;
+    std::string m_default_track_scorer_name = "default";
 
     //----------------------------------------------------------------------------
 
@@ -225,6 +208,7 @@ namespace mkfit {
       m_pre_bkfit_filter_name = o.m_pre_bkfit_filter_name;
       m_post_bkfit_filter_name = o.m_post_bkfit_filter_name;
       m_duplicate_cleaner_name = o.m_duplicate_cleaner_name;
+      m_default_track_scorer_name = o.m_default_track_scorer_name;
     }
 
     void set_iteration_index_and_track_algorithm(int idx, int trk_alg) {
@@ -275,11 +259,13 @@ namespace mkfit {
     static void register_seed_partitioner(const std::string &name, partition_seeds_func func);
     static void register_candidate_filter(const std::string &name, filter_candidates_func func);
     static void register_duplicate_cleaner(const std::string &name, clean_duplicates_func func);
+    static void register_track_scorer(const std::string &name, track_score_func func);
 
     static clean_seeds_func get_seed_cleaner(const std::string &name);
     static partition_seeds_func get_seed_partitioner(const std::string &name);
     static filter_candidates_func get_candidate_filter(const std::string &name);
     static clean_duplicates_func get_duplicate_cleaner(const std::string &name);
+    static track_score_func get_track_scorer(const std::string &name);
   };
 
   //==============================================================================
