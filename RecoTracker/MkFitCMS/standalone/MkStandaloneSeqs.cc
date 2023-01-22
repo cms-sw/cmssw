@@ -3,6 +3,7 @@
 
 #include "RecoTracker/MkFitCore/interface/HitStructures.h"
 #include "RecoTracker/MkFitCore/standalone/Event.h"
+#include "RecoTracker/MkFitCore/interface/IterationConfig.h"
 
 #include "RecoTracker/MkFitCore/src/Debug.h"
 
@@ -396,8 +397,9 @@ namespace mkfit {
     }
 
     void score_tracks(TrackVec &tracks) {
+      auto score_func = IterationConfig::get_track_scorer("default");
       for (auto &track : tracks) {
-        track.setScore(getScoreCand(track));
+        track.setScore(getScoreCand(score_func, track));
       }
     }
 

@@ -733,5 +733,39 @@ namespace mkfit {
       } rqf_instance;
     }  // namespace
 
+    //=========================================================================
+    // Track scoring
+    //=========================================================================
+
+    float trackScoreDefault(const int nfoundhits,
+                            const int ntailholes,
+                            const int noverlaphits,
+                            const int nmisshits,
+                            const float chi2,
+                            const float pt,
+                            const bool inFindCandidates) {
+      float maxBonus = 8.0;
+      float bonus = Config::validHitSlope_ * nfoundhits + Config::validHitBonus_;
+      float penalty = Config::missingHitPenalty_;
+      float tailPenalty = Config::tailMissingHitPenalty_;
+      float overlapBonus = Config::overlapHitBonus_;
+      if (pt < 0.9) {
+        penalty *= inFindCandidates ? 1.7f : 1.5f;
+        bonus = std::min(bonus * (inFindCandidates ? 0.9f : 1.0f), maxBonus);
+      }
+      float score =
+          bonus * nfoundhits + overlapBonus * noverlaphits - penalty * nmisshits - tailPenalty * ntailholes - chi2;
+      return score;
+    }
+
+    namespace {
+      CMS_SA_ALLOW struct register_track_scorers {
+        register_track_scorers() {
+          IterationConfig::register_track_scorer("default", trackScoreDefault);
+          IterationConfig::register_track_scorer("phase1:default", trackScoreDefault);
+        }
+      } rts_instance;
+    }  // namespace
+
   }  // namespace StdSeq
 }  // namespace mkfit
