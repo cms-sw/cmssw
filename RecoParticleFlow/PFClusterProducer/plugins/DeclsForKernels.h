@@ -82,20 +82,6 @@ namespace PFRecHit {
       std::vector<int, cms::cuda::HostAllocator<int>> const& neighbours;
     };
 
-    struct Constants {
-      uint32_t nValidBarrelIds;
-      uint32_t nValidEndcapIds;
-      uint32_t nValidDetIds;
-      uint32_t nDenseIdsInRange;
-      uint32_t denseIdHcalMin;
-      float qTestThresh;
-      uint32_t qTestDepthHB[4];
-      uint32_t qTestDepthHE[7];
-      float qTestThreshVsDepthHB[4];
-      float qTestThreshVsDepthHE[7];
-    };
-
-
   }  // namespace HCAL
 
   namespace ECAL {

@@ -92,7 +92,7 @@ private:
   // Miscellaneous
   PFRecHit::HCAL::PersistentDataCPU persistentDataCPU;
   PFRecHit::HCAL::ScratchDataGPU scratchDataGPU;
-  PFRecHit::HCAL::Constants cudaConstants;
+
   uint32_t nValidDetIds = 0;
   uint32_t nDenseIdsInRange = 0;
   std::vector<std::vector<DetId>>* neighboursHcal_;
@@ -137,9 +137,7 @@ PFHBHERecHitProducerGPU::PFHBHERecHitProducerGPU(edm::ParameterSet const& ps)
 
   // Single threshold
   const std::string& qualityTestName = qualityConf.getParameter<std::string>("name");
-
   // Thresholds vs depth
-  const auto& qualityCutConfs = qualityConf.getParameterSetVector("cuts");
   //
   // navigator-related parameters
   const auto& navSet = ps.getParameterSet("navigator");
@@ -184,10 +182,7 @@ void PFHBHERecHitProducerGPU::beginRun(edm::Run const& r, edm::EventSetup const&
   const std::vector<DetId>& validBarrelDetIds = hcalBarrelGeo->getValidDetIds(DetId::Hcal, HcalBarrel);
   const std::vector<DetId>& validEndcapDetIds = hcalEndcapGeo->getValidDetIds(DetId::Hcal, HcalEndcap);
 
-  cudaConstants.nValidBarrelIds = validBarrelDetIds.size();
-  cudaConstants.nValidEndcapIds = validEndcapDetIds.size();
-  nValidDetIds = cudaConstants.nValidBarrelIds + cudaConstants.nValidEndcapIds;
-  cudaConstants.nValidDetIds = nValidDetIds;
+  nValidDetIds = validBarrelDetIds.size() + validEndcapDetIds.size();
 
   vDenseIdHcal = reinterpret_cast<PFRecHitHCALDenseIdNavigator*>(&(*navigator_))->getValidDenseIds();
   //std::cout << "Found vDenseIdHcal->size() = " << vDenseIdHcal->size() << std::endl;
@@ -197,9 +192,6 @@ void PFHBHERecHitProducerGPU::beginRun(edm::Run const& r, edm::EventSetup const&
   denseIdHcalMin_ = *std::min_element(vDenseIdHcal->begin(), vDenseIdHcal->end());
   //std::cout << denseIdHcalMax_ << " " << denseIdHcalMin_ << std::endl;
   nDenseIdsInRange = denseIdHcalMax_ - denseIdHcalMin_ + 1;
-  cudaConstants.nDenseIdsInRange = nDenseIdsInRange;
-  cudaConstants.denseIdHcalMin = denseIdHcalMin_;
-
 
   validDetIdPositions.clear();
   validDetIdPositions.reserve(nValidDetIds);

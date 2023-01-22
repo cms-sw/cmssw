@@ -17,7 +17,6 @@
 namespace PFRecHit {
   namespace HCAL {
 
-    __constant__ Constants constantsGPU_d;
     // member methods:
     //  initializeArrays
     //  buildDetIdMap
@@ -34,7 +33,7 @@ namespace PFRecHit {
 
 
     // Initialize arrays used to store temporary values for each event
-    __global__ void initializeArrays(uint32_t nTopoArraySize, // Previously nDenseIdsInRange, now takes detId.size() but needs work
+    __global__ void initializeArrays(uint32_t nTopoArraySize, // Takes detId.size() but needs work
                                      uint32_t nRHIn,          // Number of input rechits
                                      int* rh_mask,            // Mask for input rechit index
                                      int* rh_inputToFullIdx,  // Mapping of input rechit index -> reference table index
