@@ -10,6 +10,10 @@
 #include <functional>
 #include <vector>
 
+#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousDevice.h"
+#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousHost.h"
+#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitSoADevice.h"
+#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitSoAHost.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -20,12 +24,6 @@
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
-
-#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousHost.h"
-#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousDevice.h"
-
-#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitSoAHost.h"
-#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitSoADevice.h"
 
 #include "CAHitNtupletGeneratorOnGPU.h"
 
@@ -281,7 +279,7 @@ void CAHitNtupletGeneratorOnGPU<TrackerTraits>::endJob() {
 
 template <typename TrackerTraits>
 TrackSoAHeterogeneousDevice<TrackerTraits> CAHitNtupletGeneratorOnGPU<TrackerTraits>::makeTuplesAsync(
-    HitsOnGPU const& hits_d, float bfield, cudaStream_t stream) const {
+    HitsOnDevice const& hits_d, float bfield, cudaStream_t stream) const {
   using HelixFitOnGPU = HelixFitOnGPU<TrackerTraits>;
   using TrackSoA = TrackSoAHeterogeneousDevice<TrackerTraits>;
   using GPUKernels = CAHitNtupletGeneratorKernelsGPU<TrackerTraits>;
@@ -314,7 +312,7 @@ TrackSoAHeterogeneousDevice<TrackerTraits> CAHitNtupletGeneratorOnGPU<TrackerTra
 }
 
 template <typename TrackerTraits>
-TrackSoAHeterogeneousHost<TrackerTraits> CAHitNtupletGeneratorOnGPU<TrackerTraits>::makeTuples(HitsOnCPU const& hits_h,
+TrackSoAHeterogeneousHost<TrackerTraits> CAHitNtupletGeneratorOnGPU<TrackerTraits>::makeTuples(HitsOnHost const& hits_h,
                                                                                                float bfield) const {
   using HelixFitOnGPU = HelixFitOnGPU<TrackerTraits>;
   using TrackSoA = TrackSoAHeterogeneousHost<TrackerTraits>;
