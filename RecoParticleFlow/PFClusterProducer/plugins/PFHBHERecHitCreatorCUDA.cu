@@ -10,7 +10,6 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 #include "DeclsForKernels.h"
 #include "SimplePFGPUAlgos.h"
-//#include "RecoParticleFlow/PFClusterProducer/interface/PFHBHERecHitParamsGPU.h"
 
 // Uncomment for debug mode
 //#define DEBUG_ENABLE
@@ -36,6 +35,15 @@ namespace PFRecHit {
     //   applyDepthThresholdQTests
     //   applyMask
     //   convert_rechits_to_PFRechits
+
+    // some constants
+    constexpr int maxDepthHB = 4;
+    constexpr int maxDepthHE = 7;
+    constexpr int firstHBRing = 1;
+    constexpr int lastHBRing = 16;
+    constexpr int firstHERing = 16;
+    constexpr int lastHERing = 29;
+    constexpr int IPHI_MAX = 72;
 
     void initializeCudaConstants(const PFRecHit::HCAL::Constants& cudaConstants, const cudaStream_t cudaStream) {
       cudaCheck(cudaMemcpyToSymbolAsync(constantsGPU_d, &cudaConstants, sizeof(cudaConstants),
@@ -197,46 +205,36 @@ namespace PFRecHit {
 
     //https://cmssdt.cern.ch/lxr/source/Geometry/CaloTopology/src/HcalTopology.cc#1170
     __device__ uint32_t detId2denseIdHB(uint32_t detId) {
-      const int maxDepthHB_ = 4;
-      //const int maxDepthHE_ = 7;
-      const int firstHBRing_ = 1;
-      const int lastHBRing_ = 16;
-      const int nEtaHB_ = (lastHBRing_ - firstHBRing_ + 1);
-      const int IPHI_MAX = 72;
+      const int nEtaHB = (lastHBRing - firstHBRing + 1);
       const int ip = getIphi(detId);
       const int ie = getIetaAbs(detId);
       const int dp = getDepth(detId);
       const int zn = getZside(detId);
       unsigned int retval = 0xFFFFFFFFu;
-      retval = (dp - 1) + maxDepthHB_ * (ip - 1);
+      retval = (dp - 1) + maxDepthHB * (ip - 1);
       if (zn > 0)
-	retval += maxDepthHB_ * IPHI_MAX * (ie*zn - firstHBRing_);
+	retval += maxDepthHB * IPHI_MAX * (ie*zn - firstHBRing);
       else
-	retval += maxDepthHB_ * IPHI_MAX * (ie*zn + lastHBRing_ + nEtaHB_);
+	retval += maxDepthHB * IPHI_MAX * (ie*zn + lastHBRing + nEtaHB);
 
       return retval;
     }
 
     //https://cmssdt.cern.ch/lxr/source/Geometry/CaloTopology/src/HcalTopology.cc#1189
     __device__ uint32_t detId2denseIdHE(uint32_t detId) {
-      const int maxDepthHB_ = 4;
-      const int maxDepthHE_ = 7;
-      const int firstHERing_ = 16;
-      const int lastHERing_ = 29;
-      const int nEtaHE_ = (lastHERing_ - firstHERing_ + 1);
-      const int maxPhiHE_ = 72;
-      const int IPHI_MAX = 72;
+      const int nEtaHE = (lastHERing - firstHERing + 1);
+      const int maxPhiHE = IPHI_MAX;
       const int ip = getIphi(detId);
       const int ie = getIetaAbs(detId);
       const int dp = getDepth(detId);
       const int zn = getZside(detId);
       unsigned int retval = 0xFFFFFFFFu;
-      const int HBSize_ = maxDepthHB_ * 16 * IPHI_MAX * 2;
-      retval = (dp - 1) + maxDepthHE_ * (ip - 1) + HBSize_;
+      const int HBSize = maxDepthHB * 16 * IPHI_MAX * 2;
+      retval = (dp - 1) + maxDepthHE * (ip - 1) + HBSize;
       if (zn > 0)
-	retval += maxDepthHE_ * maxPhiHE_ * (ie*zn - firstHERing_);
+	retval += maxDepthHE * maxPhiHE * (ie*zn - firstHERing);
       else
-	retval += maxDepthHE_ * maxPhiHE_ * (ie*zn + lastHERing_ + nEtaHE_);
+	retval += maxDepthHE * maxPhiHE * (ie*zn + lastHERing + nEtaHE);
 
       return retval;
     }
