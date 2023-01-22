@@ -31,6 +31,14 @@ namespace PFRecHit {
     //   applyMask
     //   convert_rechits_to_PFRechits
 
+    // some constants
+    constexpr int maxDepthHB = 4;
+    constexpr int maxDepthHE = 7;
+    constexpr int firstHBRing = 1;
+    constexpr int lastHBRing = 16;
+    constexpr int firstHERing = 16;
+    constexpr int lastHERing = 29;
+    constexpr int IPHI_MAX = 72;
 
     // Initialize arrays used to store temporary values for each event
     __global__ void initializeArrays(uint32_t nTopoArraySize, // Takes detId.size() but needs work
@@ -42,14 +50,15 @@ namespace PFRecHit {
                                      int* inputToPFRHIdx) {   // Mapping of input rechit index -> output PFRecHit index
 
       // Reset mappings of reference table index. Total length = number of all valid HCAL detIds
-      for (uint32_t i = blockIdx.x * blockDim.x + threadIdx.x; i < nTopoArraySize; i += blockDim.x * gridDim.x)
+      for (uint32_t i = blockIdx.x * blockDim.x + threadIdx.x; i < nTopoArraySize; i += blockDim.x * gridDim.x){
         rh_fullToInputIdx[i] = -1;
+        rh_inputToFullIdx[i] = -1;
+      }
 
       // Reset mappings of input,output indices and rechit mask
       for (uint32_t i = blockIdx.x * blockDim.x + threadIdx.x; i < nRHIn; i += blockDim.x * gridDim.x) {
         pfrhToInputIdx[i] = -1;
         inputToPFRHIdx[i] = -1;
-        rh_inputToFullIdx[i] = -1;
         rh_mask[i] = -2;
       }
     }
@@ -112,38 +121,10 @@ namespace PFRecHit {
       else printf("invalid detId\n");
     }
 
-    __global__ void checkPersistentDataInputs( // Utilized persistentData, which is now deprecated
-	uint32_t denseIdHcalMin,        // min denseIdHcal
-	uint32_t nDenseIdsInRange,      // denseIdHcal ranges (# of elements) i.e. max-min+1
-        uint32_t const* rh_detIdRef,    // Reference table index -> detId
-        float3 const* rh_posRef,      // Reference table index -> position
-        int const* rh_neighboursRef)    // Reference table index -> neighbours
-    {
-      for (int i = 0; i < nDenseIdsInRange; i++ ){
-        float3 pos = rh_posRef[i];  // position vector of this rechit
-	int denseid = -1;
-	if (rh_detIdRef[i]>0) denseid = detId2denseId(rh_detIdRef[i]);
- 	printf("check dense, hid, dense: %d %d %d  %8.3f %8.3f %8.3f  %d %d %d %d %d %d %d %d\n",
-	       i,rh_detIdRef[i],
-	       denseid,
-	       pos.x,pos.y,pos.z,
-	       rh_neighboursRef[8*i],
-	       rh_neighboursRef[8*i+1],
-	       rh_neighboursRef[8*i+2],
-	       rh_neighboursRef[8*i+3],
-	       rh_neighboursRef[8*i+4],
-	       rh_neighboursRef[8*i+5],
-	       rh_neighboursRef[8*i+6],
-	       rh_neighboursRef[8*i+7]
-	       );
-      }
-    }
-
     __global__ void buildDetIdMap(
         uint32_t size,
-	    uint32_t const* denseIdarr,        // min denseIdHcal
-        //uint32_t const* rh_detIdRef,    // Reference table index -> detId
-	    uint32_t const* detId,      // Takes in topoDataProduct.detId
+        uint32_t const* denseIdarr,       // denseId array
+        uint32_t const* detId,      // Takes in topoDataProduct.detId
         int* rh_inputToFullIdx,     // Map for input rechit detId -> reference table index
         int* rh_fullToInputIdx,     // Map for reference table index -> input rechit index
         uint32_t const* recHits_did)    // Input rechit detIds
@@ -152,8 +133,8 @@ namespace PFRecHit {
           for (int i = first; i < size; i += gridDim.x * blockDim.x) {
 	    // i: index for input rechits
             auto detId = recHits_did[i];
-	    auto denseId = detId2denseId(detId);
-        auto fullIdx = denseId - denseIdarr[0];
+            auto denseId = detId2denseId(detId);
+            auto fullIdx = denseId - denseIdarr[0];
 	    rh_inputToFullIdx[i] = fullIdx;  // Input rechit index -> reference table index
 	    rh_fullToInputIdx[fullIdx] = i;  // Reference table index -> input rechit index
 	  }
@@ -161,7 +142,7 @@ namespace PFRecHit {
 
     // Phase I threshold test corresponding to PFRecHitQTestHCALThresholdVsDepth
     __global__ void applyDepthThresholdQTests(const uint32_t nRHIn,           // Number of input rechits
-					                          int const* depthHB,             // The following from recHitParamsProduct
+					      int const* depthHB,             // The following from recHitParamsProduct
                                               int const* depthHE,
                                               float const* thresholdE_HB,
                                               float const* thresholdE_HE,
@@ -178,12 +159,6 @@ namespace PFRecHit {
 	  bool found = false;
 	  for (uint32_t j=0; j<4; j++){
 	    if (depth == depthHB[j]){
-	      /*
-	      printf("aa %6d %8.2f %8d\n",
-		     depthHB[j],
-		     thresholdE_HB[j],
-		     depthHB[j]);
-	      */
 	      threshold = thresholdE_HB[j];
 	      found = true; // found depth and threshold
 	    }
@@ -289,8 +264,8 @@ namespace PFRecHit {
                                                  const int* rh_mask,
                                                  const int* pfrhToInputIdx,
                                                  const int* inputToPFRHIdx,
-						                         const float3* position,     
-						                         const int* neighbours,
+						 const float3* position,
+						 const int* neighbours,
                                                  const int* rh_inputToFullIdx,
                                                  const int* rh_fullToInputIdx,
                                                  const float* recHits_energy,
@@ -488,21 +463,6 @@ namespace PFRecHit {
       cudaEventRecord(start, cudaStream);
 #endif
 
-      // checkPersistentDataInputs<<<1,1,0, cudaStream>>>(cudaConstants.denseIdHcalMin,
-      // 					 cudaConstants.nDenseIdsInRange,
-      // 					 persistentDataGPU.rh_detId.get(),
-      // 					 persistentDataGPU.rh_pos.get(),
-      // 					 persistentDataGPU.rh_neighbours.get()
-      // 						       );
-
-      // // First build the mapping for input rechits to reference table indices
-      // buildDetIdMapPerBlock<<<nRHIn, 256, 0, cudaStream>>>(nRHIn,
-      //                                                      persistentDataGPU.rh_detId.get(),
-      //                                                      scratchDataGPU.rh_inputToFullIdx.get(),
-      //                                                      scratchDataGPU.rh_fullToInputIdx.get(),
-      //                                                      HBHERecHits_asInput.did.get());
-      // cudaCheck(cudaGetLastError());
-
       // First build the mapping for input rechits to reference table indices
       buildDetIdMap<<<(nRHIn + threadsPerBlock - 1)/threadsPerBlock, threadsPerBlock, 0, cudaStream>>>(nRHIn,
 							    constantProducts.topoDataProduct.denseId,
@@ -513,12 +473,6 @@ namespace PFRecHit {
       cudaCheck(cudaGetLastError());
 
 
-    // Debugging function used to check the mapping of input index <-> reference table index
-    // testDetIdMap<<<(nRHIn + threadsPerBlock - 1)/threadsPerBlock, threadsPerBlock, 0, cudaStream>>>(nRHIn,
-    //                                                        persistentDataGPU.rh_detId.get(),
-    //                                                        scratchDataGPU.rh_inputToFullIdx.get(),
-    //                                                        scratchDataGPU.rh_fullToInputIdx.get(),
-    //                                                        HBHERecHits_asInput.did.get());
      cudaCheck(cudaGetLastError());
 #ifdef DEBUG_ENABLE
       cudaEventRecord(stop, cudaStream);
@@ -531,9 +485,6 @@ namespace PFRecHit {
 #endif
 
       // Apply PFRecHit threshold & quality tests
-
-      //applyQTests<<<(nRHIn+127)/128, 256, 0, cudaStream>>>(nRHIn, scratchDataGPU.rh_mask.get(), HBHERecHits_asInput.did.get(), HBHERecHits_asInput.energy.get());
-
       applyDepthThresholdQTests<<<(nRHIn + threadsPerBlock - 1) / threadsPerBlock, threadsPerBlock, 0, cudaStream>>>(
           nRHIn,
 	  constantProducts.recHitParametersProduct.depthHB,
