@@ -19,12 +19,8 @@ namespace PFRecHit {
 
     __constant__ Constants constantsGPU_d;
     // member methods:
-    //  initializeCudaConstants [called from producer]
     //  initializeArrays
-    //  buildDetIdMapPerBlockMulti (not used)
-    //  buildDetIdMapPerBlock
-    //  testDetIdMap (can be used for tesing maps)
-    //  applyQTests (apply a single threshold)
+    //  buildDetIdMap
     //  applyDepthThresholdQTests
     //  applyMaskSerial (simplier version)
     //  applyMask
@@ -36,19 +32,6 @@ namespace PFRecHit {
     //   applyMask
     //   convert_rechits_to_PFRechits
 
-    // some constants
-    constexpr int maxDepthHB = 4;
-    constexpr int maxDepthHE = 7;
-    constexpr int firstHBRing = 1;
-    constexpr int lastHBRing = 16;
-    constexpr int firstHERing = 16;
-    constexpr int lastHERing = 29;
-    constexpr int IPHI_MAX = 72;
-
-    void initializeCudaConstants(const PFRecHit::HCAL::Constants& cudaConstants, const cudaStream_t cudaStream) {
-      cudaCheck(cudaMemcpyToSymbolAsync(constantsGPU_d, &cudaConstants, sizeof(cudaConstants),
-					0, cudaMemcpyHostToDevice, cudaStream));
-    }
 
     // Initialize arrays used to store temporary values for each event
     __global__ void initializeArrays(uint32_t nTopoArraySize, // Previously nDenseIdsInRange, now takes detId.size() but needs work
@@ -157,7 +140,7 @@ namespace PFRecHit {
       }
     }
 
-    __global__ void buildDetIdMapKH2(
+    __global__ void buildDetIdMap(
         uint32_t size,
 	    uint32_t const* denseIdarr,        // min denseIdHcal
         //uint32_t const* rh_detIdRef,    // Reference table index -> detId
@@ -176,39 +159,6 @@ namespace PFRecHit {
 	    rh_fullToInputIdx[fullIdx] = i;  // Reference table index -> input rechit index
 	  }
         }
-
-
-    // Debugging function used to check the mapping of input index <-> reference table index
-    //__global__ void testDetIdMap(uint32_t size,                  // Number of input rechits
-    //                             const uint32_t* rh_detIdRef,    // Reference table index -> detId
-    //                             const int* rh_inputToFullIdx,   //  Map for input rh index -> reference table index
-    //                             const int* rh_fullToInputIdx,   //  Map for reference table index -> input rh index
-    //                             const uint32_t* recHits_did) {  //  Rechit detIds
-
-    //  uint32_t i = blockIdx.x * blockDim.x + threadIdx.x;
-    //  if (i >= size)
-    //    return;
-
-    //  uint32_t detId = recHits_did[i];
-    //  int index = rh_inputToFullIdx[i];
-    //  int fullToInputIdx = index > -1 ? rh_fullToInputIdx[index] : -1;
-    //  if (fullToInputIdx != i) {
-    //    printf("Rechit %d detId %u doesn't match index from rh_fullToInputIdx %d!\n", i, detId, fullToInputIdx);
-    //  }
-    //  if (index >= (constantsGPU_d.nValidBarrelIds + constantsGPU_d.nValidEndcapIds) || detId != rh_detIdRef[index])
-    //    printf(
-    //        "Rechit %u detId %u MISMATCH with reference table index %u detId %u\n", i, detId, index, rh_detIdRef[index]);
-    //}
-
-    // Phase 0 threshold test corresponding to PFRecHitQTestThreshold
-    //__global__ void applyQTests(const uint32_t nRHIn,
-    //                            int* rh_mask,  // Mask for rechits by input index
-    //                            const uint32_t* recHits_did,
-    //                            const float* recHits_energy) {
-    //  for (uint32_t i = blockIdx.x * blockDim.x + threadIdx.x; i < nRHIn; i += gridDim.x * blockDim.x) {
-    //    rh_mask[i] = (recHits_energy[i] > constantsGPU_d.qTestThresh);
-    //  }
-    //}
 
     // Phase I threshold test corresponding to PFRecHitQTestHCALThresholdVsDepth
     __global__ void applyDepthThresholdQTests(const uint32_t nRHIn,           // Number of input rechits
@@ -340,8 +290,8 @@ namespace PFRecHit {
                                                  const int* rh_mask,
                                                  const int* pfrhToInputIdx,
                                                  const int* inputToPFRHIdx,
-						                         const float3* position,    // From topoDataProduct
-						                         const int* neighbours,     // From topoDataProduct
+						                         const float3* position,     
+						                         const int* neighbours,
                                                  const int* rh_inputToFullIdx,
                                                  const int* rh_fullToInputIdx,
                                                  const float* recHits_energy,
@@ -479,19 +429,19 @@ namespace PFRecHit {
     }
 
     void entryPoint(::hcal::RecHitCollection<::calo::common::DevStoragePolicy> const& HBHERecHits_asInput,
-		    const PFRecHit::HCAL::Constants& cudaConstants,
 		    const ConstantProducts& constantProducts,
                     OutputPFRecHitDataGPU& HBHEPFRecHits_asOutput,
-                    PersistentDataGPU& persistentDataGPU,
                     ScratchDataGPU& scratchDataGPU,
                     cudaStream_t cudaStream,
-                    std::array<float, 5>& timer) {
+                 std::array<float, 5>& timer) {
 
+      bool debug = false ;
+      if (debug) {
       std::cout << constantProducts.denseId.size() << std::endl;
       std::cout << constantProducts.detId.size() << std::endl;
       std::cout << constantProducts.position.size() << std::endl;
       std::cout << constantProducts.neighbours.size() << std::endl;
-
+      }
       uint32_t nRHIn = HBHERecHits_asInput.size;  // Number of input rechits
       if (nRHIn == 0) {
         HBHEPFRecHits_asOutput.PFRecHits.size = 0;
@@ -555,9 +505,7 @@ namespace PFRecHit {
       // cudaCheck(cudaGetLastError());
 
       // First build the mapping for input rechits to reference table indices
-      // buildDetIdMapHackathon<<<(nRHIn + threadsPerBlock - 1)/threadsPerBlock, threadsPerBlock, 0, cudaStream>>>(nRHIn,
-      // buildDetIdMapKH<<<(nRHIn + threadsPerBlock - 1)/threadsPerBlock, threadsPerBlock, 0, cudaStream>>>(nRHIn,
-      buildDetIdMapKH2<<<(nRHIn + threadsPerBlock - 1)/threadsPerBlock, threadsPerBlock, 0, cudaStream>>>(nRHIn,
+      buildDetIdMap<<<(nRHIn + threadsPerBlock - 1)/threadsPerBlock, threadsPerBlock, 0, cudaStream>>>(nRHIn,
 							    constantProducts.topoDataProduct.denseId,
 							    constantProducts.topoDataProduct.detId,
                                 scratchDataGPU.rh_inputToFullIdx.get(),

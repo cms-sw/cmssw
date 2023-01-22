@@ -45,18 +45,6 @@ namespace PFRecHit {
       }
     };
 
-    struct PersistentDataGPU {
-      cms::cuda::device::unique_ptr<float3[]> rh_pos;
-      cms::cuda::device::unique_ptr<uint32_t[]> rh_detId;
-      cms::cuda::device::unique_ptr<int[]> rh_neighbours;
-
-      void allocate(uint32_t length, cudaStream_t cudaStream) {
-        rh_pos = cms::cuda::make_device_unique<float3[]>(sizeof(float3) * length, cudaStream);
-        rh_detId = cms::cuda::make_device_unique<uint32_t[]>(sizeof(uint32_t) * length, cudaStream);
-        rh_neighbours = cms::cuda::make_device_unique<int[]>(sizeof(int) * length * 8, cudaStream);
-      }
-    };
-
     struct ScratchDataGPU {
       uint32_t maxSize;
       //cms::cuda::device::unique_ptr<bool[]> rh_mask;
@@ -106,6 +94,7 @@ namespace PFRecHit {
       float qTestThreshVsDepthHB[4];
       float qTestThreshVsDepthHE[7];
     };
+
 
   }  // namespace HCAL
 

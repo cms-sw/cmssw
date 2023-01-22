@@ -10,13 +10,9 @@
 
 namespace PFRecHit {
   namespace HCAL {
-    void initializeCudaConstants(const PFRecHit::HCAL::Constants& cudaConstants, const cudaStream_t cudaStream = cudaStreamDefault);
-
     void entryPoint(::hcal::RecHitCollection<::calo::common::DevStoragePolicy> const&,
-		    const PFRecHit::HCAL::Constants&,
 		    const PFRecHit::HCAL::ConstantProducts&,
                     OutputPFRecHitDataGPU&,
-                    PersistentDataGPU&,
                     ScratchDataGPU&,
                     cudaStream_t,
                     std::array<float, 5>& timer);
