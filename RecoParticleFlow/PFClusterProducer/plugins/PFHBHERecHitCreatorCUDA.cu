@@ -281,8 +281,7 @@ namespace PFRecHit {
                                                  float* pfrechits_x,
                                                  float* pfrechits_y,
                                                  float* pfrechits_z,
-                                                 int* pfrechits_neighbours,
-                                                 short* pfrechits_neighbourInfos) {
+                                                 int* pfrechits_neighbours) {
       for (uint32_t pfIdx = blockIdx.x * blockDim.x + threadIdx.x; pfIdx < (*nPFRHOut + *nPFRHCleaned);
            pfIdx += blockDim.x * gridDim.x) {
 
@@ -347,7 +346,6 @@ namespace PFRecHit {
           int fullIdx = neighbours[index * 8 + refPos];                // Reference table index for this neighbour
           int inputIdx = fullIdx > -1 ? rh_fullToInputIdx[fullIdx] : -1;  // Input rechit index for this neighbour
           int pfrhIdx = inputIdx > -1 ? inputToPFRHIdx[inputIdx] : -1;    // Output PFRecHit index for this neighbour
-          short infos = pfrhIdx > -1 ? 0 : -1;
           if (debug)
             printf(
                 "associateNeighbour for rechit %d pos %d refPos %d: fullIdx = %d%sinputIdx = %d\tpfrhIdx = "
@@ -363,28 +361,13 @@ namespace PFRecHit {
           if (pfrhIdx < 0 ||
               pfrhIdx >= *nPFRHOut) {  // Only include valid PFRecHit indices. Don't include cleaned rechits
             pfrechits_neighbours[pfIdx * 8 + pos] = -1;
-            pfrechits_neighbourInfos[pfIdx * 8 + pos] = -1;
             if (debug)
               printf("\tNeigh %u has invalid pfrhIdx %d!\n", pos, pfrhIdx);
           } else {
-            // Valid neighbour found. Compute neighbour infos
-            if (eta > 0)
-              infos |= 1;
-            infos |= (abs(eta) << 1);
-
-            if (phi > 0)
-              infos |= (1 << 4);
-            infos |= (abs(phi) << 5);
-
-            if (depth > 0)
-              infos |= (1 << 8);
-            infos |= (abs(depth) << 9);
-
             // Set PFRecHit index and infos for this neighbour
             pfrechits_neighbours[pfIdx * 8 + pos] = pfrhIdx;
-            pfrechits_neighbourInfos[pfIdx * 8 + pos] = infos;
             if (debug)
-              printf("\tNeigh %u has pfrhIdx %d and infos %d\n", pos, pfrhIdx, infos);
+	      printf("\tNeigh %u has pfrhIdx %d.\n", pos, pfrhIdx);
           }
         };
 
@@ -552,8 +535,7 @@ namespace PFRecHit {
           HBHEPFRecHits_asOutput.PFRecHits.pfrh_x.get(),
           HBHEPFRecHits_asOutput.PFRecHits.pfrh_y.get(),
           HBHEPFRecHits_asOutput.PFRecHits.pfrh_z.get(),
-          HBHEPFRecHits_asOutput.PFRecHits.pfrh_neighbours.get(),
-          HBHEPFRecHits_asOutput.PFRecHits.pfrh_neighbourInfos.get());
+          HBHEPFRecHits_asOutput.PFRecHits.pfrh_neighbours.get());
 
       cudaCheck(cudaGetLastError());
 

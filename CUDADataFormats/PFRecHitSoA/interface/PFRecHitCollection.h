@@ -20,7 +20,6 @@ namespace hcal {
     typename StoragePolicy::template StorageSelector<int>::type pfrh_layer;
     typename StoragePolicy::template StorageSelector<int>::type pfrh_detId;
     typename StoragePolicy::template StorageSelector<int>::type pfrh_neighbours;
-    typename StoragePolicy::template StorageSelector<short>::type pfrh_neighbourInfos;
 
     typename StoragePolicy::template StorageSelector<float>::type pfrh_time;
     typename StoragePolicy::template StorageSelector<float>::type pfrh_energy;
@@ -28,15 +27,12 @@ namespace hcal {
     typename StoragePolicy::template StorageSelector<float>::type pfrh_y;
     typename StoragePolicy::template StorageSelector<float>::type pfrh_z;
 
-    //m_dEta, m_dPhi, m_repCorners, backPoint
-
     template <typename U = typename StoragePolicy::TagType>
     typename std::enable_if<std::is_same<U, ::pf::common::tags::Vec>::value, void>::type resize(size_t size) {
       pfrh_depth.resize(size);
       pfrh_layer.resize(size);
       pfrh_detId.resize(size);
       pfrh_neighbours.resize(8 * size);
-      pfrh_neighbourInfos.resize(8 * size);
 
       pfrh_time.resize(size);
       pfrh_energy.resize(size);

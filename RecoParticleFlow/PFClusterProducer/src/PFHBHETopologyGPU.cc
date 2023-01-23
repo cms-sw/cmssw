@@ -21,10 +21,6 @@ PFHBHETopologyGPU::PFHBHETopologyGPU(edm::ParameterSet const& ps,
   vecHcal.insert(vecHcal.end(), validBarrelDetIds.begin(), validBarrelDetIds.end());
   vecHcal.insert(vecHcal.end(), validEndcapDetIds.begin(), validEndcapDetIds.end());
 
-  std::cout << "PFHBHETopologyGPU test " << validBarrelDetIds.size() << " " << validEndcapDetIds.size() << std::endl;
-  std::cout << "PFHBHETopologyGPU test " << vecHcal.size() << std::endl;
-  std::cout << "PFHBHETopologyGPU constructor" << std::endl;
-
   //
   // Filling HCAL DenseID vectors
   std::vector<uint32_t> denseId;
@@ -33,7 +29,6 @@ PFHBHETopologyGPU::PFHBHETopologyGPU(edm::ParameterSet const& ps,
   denseId.reserve(vecHcal.size());
   for (auto hDetId : vecHcal) {
     denseId.push_back(topo.detId2denseId(hDetId));
-    std::cout << topo.detId2denseId(hDetId) << std::endl;
   }
   std::sort(denseId.begin(), denseId.end());
 
@@ -41,9 +36,6 @@ PFHBHETopologyGPU::PFHBHETopologyGPU(edm::ParameterSet const& ps,
   // Filling information to define arrays for all relevant HBHE DetIds
   denseIdHcalMax_ = *max_element(denseId.begin(), denseId.end());
   denseIdHcalMin_ = *min_element(denseId.begin(), denseId.end());
-  std::cout << "denseIdHcalMin_ " << denseIdHcalMin_ << std::endl;
-  std::cout << "denseIdHcalMax_ " << denseIdHcalMax_ << std::endl;
-  const int denseIdOffset = denseIdHcalMin_;
   const int detIdArraySize = denseIdHcalMax_ - denseIdHcalMin_ + 1;
 
   //
@@ -77,40 +69,40 @@ PFHBHETopologyGPU::PFHBHETopologyGPU(edm::ParameterSet const& ps,
       navigator.home();
       E = navigator.east(); // smaller ieta values
       neighbours.at(EAST) = E;
-      HcalDetId hid_e = HcalDetId(E);
+      //HcalDetId hid_e = HcalDetId(E);
 
       navigator.home();
       W = navigator.west(); // larger ieta values
       neighbours.at(WEST) = W;
-      HcalDetId hid_w = HcalDetId(W);
+      //HcalDetId hid_w = HcalDetId(W);
 
-      std::cout << "C,E,W: ("
-		<< hid_c.ieta() << " " << hid_c.iphi() << " " << hid_c.depth() << ") ("
-		<< hid_e.ieta() << " " << hid_e.iphi() << " " << hid_e.depth() << ") ("
-		<< hid_w.ieta() << " " << hid_w.iphi() << " " << hid_w.depth() << ") " << std::endl;
-      if (hid_e.ieta()>hid_c.ieta() && hid_e.ieta()!=0) std::cout << "WARNING1" << std::endl;
-      if (hid_w.ieta()<hid_c.ieta() && hid_w.ieta()!=0) std::cout << "WARNING2" << std::endl;
-      if (hid_e.depth()!=hid_c.depth() && hid_e.depth()!=0) std::cout << "WARNING3" << std::endl;
-      if (hid_w.depth()!=hid_c.depth() && hid_w.depth()!=0) std::cout << "WARNING4" << std::endl;
+      // std::cout << "C,E,W: ("
+      // 		<< hid_c.ieta() << " " << hid_c.iphi() << " " << hid_c.depth() << ") ("
+      // 		<< hid_e.ieta() << " " << hid_e.iphi() << " " << hid_e.depth() << ") ("
+      // 		<< hid_w.ieta() << " " << hid_w.iphi() << " " << hid_w.depth() << ") " << std::endl;
+      // if (hid_e.ieta()>hid_c.ieta() && hid_e.ieta()!=0) std::cout << "WARNING1" << std::endl;
+      // if (hid_w.ieta()<hid_c.ieta() && hid_w.ieta()!=0) std::cout << "WARNING2" << std::endl;
+      // if (hid_e.depth()!=hid_c.depth() && hid_e.depth()!=0) std::cout << "WARNING3" << std::endl;
+      // if (hid_w.depth()!=hid_c.depth() && hid_w.depth()!=0) std::cout << "WARNING4" << std::endl;
 
       navigator.home();
       N = navigator.north(); // larger iphi values (except phi boundary)
       neighbours.at(NORTH) = N;
-      HcalDetId hid_n = HcalDetId(N);
+      //HcalDetId hid_n = HcalDetId(N);
 
       navigator.home();
       S = navigator.south(); // smaller iphi values (except phi boundary)
       neighbours.at(SOUTH) = S;
-      HcalDetId hid_s = HcalDetId(S);
+      //HcalDetId hid_s = HcalDetId(S);
 
-      std::cout << "C,N,S: ("
-		<< hid_c.ieta() << " " << hid_c.iphi() << " " << hid_c.depth() << ") ("
-		<< hid_n.ieta() << " " << hid_n.iphi() << " " << hid_n.depth() << ") ("
-		<< hid_s.ieta() << " " << hid_s.iphi() << " " << hid_s.depth() << ") " << std::endl;
-      if (hid_s.iphi()>hid_c.iphi() && hid_s.iphi()<65) std::cout << "WARNING5" << std::endl;
-      if (hid_n.iphi()<hid_c.iphi() && hid_n.iphi()>5) std::cout << "WARNING6" << std::endl;
-      if (hid_s.depth()!=hid_c.depth() && hid_s.depth()!=0) std::cout << "WARNING7" << std::endl;
-      if (hid_n.depth()!=hid_c.depth() && hid_n.depth()!=0) std::cout << "WARNING8" << std::endl;
+      // std::cout << "C,N,S: ("
+      // 		<< hid_c.ieta() << " " << hid_c.iphi() << " " << hid_c.depth() << ") ("
+      // 		<< hid_n.ieta() << " " << hid_n.iphi() << " " << hid_n.depth() << ") ("
+      // 		<< hid_s.ieta() << " " << hid_s.iphi() << " " << hid_s.depth() << ") " << std::endl;
+      // if (hid_s.iphi()>hid_c.iphi() && hid_s.iphi()<65) std::cout << "WARNING5" << std::endl;
+      // if (hid_n.iphi()<hid_c.iphi() && hid_n.iphi()>5) std::cout << "WARNING6" << std::endl;
+      // if (hid_s.depth()!=hid_c.depth() && hid_s.depth()!=0) std::cout << "WARNING7" << std::endl;
+      // if (hid_n.depth()!=hid_c.depth() && hid_n.depth()!=0) std::cout << "WARNING8" << std::endl;
 
       // Corners
       navigator.home();
@@ -246,8 +238,6 @@ PFHBHETopologyGPU::PFHBHETopologyGPU(edm::ParameterSet const& ps,
   neighbours.clear();
   neighbours.resize(detIdArraySize*8);
 
-  std::cout << "detid size " <<  detId.size() << std::endl;
-
   for (auto denseid : denseId) {
 
     DetId detid = topo.denseId2detId(denseid);
@@ -257,7 +247,6 @@ PFHBHETopologyGPU::PFHBHETopologyGPU(edm::ParameterSet const& ps,
     else if (hid.subdet() == HcalEndcap) pos = hcalEndcapGeo->getGeometry(detid)->getPosition();
     else std::cout << "Invalid subdetector found for detId " << hid.rawId() << ": " << hid.subdet() << std::endl;
 
-    //validDetIdPositions.emplace_back(pos);
     unsigned index = getIdx(denseid);
     detId[index] = (uint32_t)detid;
     position[index] = make_float3(pos.x(),pos.y(),pos.z());
@@ -280,11 +269,6 @@ PFHBHETopologyGPU::PFHBHETopologyGPU(edm::ParameterSet const& ps,
     }
 
   }
-
-  //
-  // KH - of course these are dummy
-  //auto const& detId2 = ps.getParameter<std::vector<uint32_t>>("pulseOffsets");
-  //auto const& neighbours2 = ps.getParameter<std::vector<int>>("pulseOffsets2");
 
   //
   // Fill variables for HostAllocator
@@ -313,9 +297,7 @@ PFHBHETopologyGPU::Product const& PFHBHETopologyGPU::getProduct(cudaStream_t cud
       cudaStream, [this](PFHBHETopologyGPU::Product& product, cudaStream_t cudaStream) {
         // malloc
         //cudaCheck(cudaMalloc((void**)&product.values, this->values_.size() * sizeof(int)));
-	//cudaCheck(cudaMalloc((void**)&product.nChannels, sizeof(uint32_t)));
         cudaCheck(cudaMalloc((void**)&product.denseId, this->denseId_.size() * sizeof(uint32_t)));
-	//cudaCheck(cudaMalloc((void**)&product.topoArraySize, sizeof(uint32_t)));
         cudaCheck(cudaMalloc((void**)&product.detId, this->detId_.size() * sizeof(uint32_t)));
         cudaCheck(cudaMalloc((void**)&product.position, this->position_.size() * sizeof(float3)));
         cudaCheck(cudaMalloc((void**)&product.neighbours, this->neighbours_.size() * sizeof(int)));

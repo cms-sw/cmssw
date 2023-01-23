@@ -122,8 +122,6 @@ void PFHBHERecHitProducerCPU::acquire(edm::Event const& event,
   auto const& PFHBHERecHitSoAProduct = event.get(InputPFRecHitSoA_Token_);
   cms::cuda::ScopedContextAcquire ctx{PFHBHERecHitSoAProduct, std::move(holder), cudaState_};
   auto const& PFHBHERecHitSoA = ctx.get(PFHBHERecHitSoAProduct);
-  //    size_t num_rechits = PFHBHERecHitSoA.size;
-  //    tmpPFRecHits.resize(num_rechits);
 
   auto lambdaToTransferSize = [&ctx](auto& dest, auto* src, auto size) {
     using vector_type = typename std::remove_reference<decltype(dest)>::type;
@@ -165,8 +163,6 @@ void PFHBHERecHitProducerCPU::acquire(edm::Event const& event,
   lambdaToTransferSize(tmpPFRecHits.pfrh_detId, PFHBHERecHitSoA.pfrh_detId.get() + offset, nRechitsTotal);
   lambdaToTransferSize(
       tmpPFRecHits.pfrh_neighbours, PFHBHERecHitSoA.pfrh_neighbours.get() + 8 * offset, 8 * nRechitsTotal);
-  lambdaToTransferSize(
-      tmpPFRecHits.pfrh_neighbourInfos, PFHBHERecHitSoA.pfrh_neighbourInfos.get() + 8 * offset, 8 * nRechitsTotal);
   lambdaToTransferSize(tmpPFRecHits.pfrh_time, PFHBHERecHitSoA.pfrh_time.get() + offset, nRechitsTotal);
   lambdaToTransferSize(tmpPFRecHits.pfrh_energy, PFHBHERecHitSoA.pfrh_energy.get() + offset, nRechitsTotal);
   lambdaToTransferSize(tmpPFRecHits.pfrh_x, PFHBHERecHitSoA.pfrh_x.get() + offset, nRechitsTotal);

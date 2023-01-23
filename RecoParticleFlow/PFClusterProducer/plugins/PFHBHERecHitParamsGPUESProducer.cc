@@ -35,7 +35,6 @@ private:
 };
 
 PFHBHERecHitParamsGPUESProducer::PFHBHERecHitParamsGPUESProducer(edm::ParameterSet const& pset) : pset_{pset} {
-  std::cout << "PFHBHERecHitParamsGPUESProducer::PFHBHERecHitParamsGPUESProducer" << std::endl;
   setWhatProduced(this);
   findingRecord<JobConfigurationGPURecord>();
 }
@@ -56,7 +55,6 @@ void PFHBHERecHitParamsGPUESProducer::fillDescriptions(edm::ConfigurationDescrip
 }
 
 std::unique_ptr<PFHBHERecHitParamsGPU> PFHBHERecHitParamsGPUESProducer::produce(JobConfigurationGPURecord const&) {
-  std::cout << "PFHBHERecHitParamsGPUESProducer::produce" << std::endl;
   return std::make_unique<PFHBHERecHitParamsGPU>(pset_);
 }
 

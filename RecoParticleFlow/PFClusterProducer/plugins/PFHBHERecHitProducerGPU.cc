@@ -90,27 +90,17 @@ private:
   edm::ESHandle<PFHBHETopologyGPU> topologyHandle_;
 
   // Miscellaneous
-  PFRecHit::HCAL::PersistentDataCPU persistentDataCPU;
   PFRecHit::HCAL::ScratchDataGPU scratchDataGPU;
 
   uint32_t nValidDetIds = 0;
   uint32_t nDenseIdsInRange = 0;
-  std::vector<std::vector<DetId>>* neighboursHcal_;
   std::vector<unsigned>* vDenseIdHcal;
-  std::vector<GlobalPoint> validDetIdPositions;
-  unsigned denseIdHcalMax_ = 0;
-  unsigned denseIdHcalMin_ = 0;
   std::unordered_map<unsigned, std::shared_ptr<const CaloCellGeometry>>
-      detIdToCell;  // Mapping of detId to cell geometry.
+  detIdToCell;  // Mapping of detId to cell geometry.
 
   std::array<float, 5> GPU_timers;
 
   bool debug=false;
-
-  unsigned int getIdx(const unsigned int denseid) const {
-    unsigned index = denseid - denseIdHcalMin_;
-    return index;
-  }
 
 };
 
@@ -130,14 +120,6 @@ PFHBHERecHitProducerGPU::PFHBHERecHitProducerGPU(edm::ParameterSet const& ps)
   produces<reco::PFRecHitCollection>();
   produces<reco::PFRecHitCollection>("Cleaned");
 
-  // producer-related parameters
-  const auto& prodConf = ps.getParameterSetVector("producers")[0];
-  const std::string& prodName = prodConf.getParameter<std::string>("name");
-  const auto& qualityConf = prodConf.getParameterSetVector("qualityTests")[0];
-
-  // Single threshold
-  const std::string& qualityTestName = qualityConf.getParameter<std::string>("name");
-  // Thresholds vs depth
   //
   // navigator-related parameters
   const auto& navSet = ps.getParameterSet("navigator");
@@ -185,16 +167,7 @@ void PFHBHERecHitProducerGPU::beginRun(edm::Run const& r, edm::EventSetup const&
   nValidDetIds = validBarrelDetIds.size() + validEndcapDetIds.size();
 
   vDenseIdHcal = reinterpret_cast<PFRecHitHCALDenseIdNavigator*>(&(*navigator_))->getValidDenseIds();
-  //std::cout << "Found vDenseIdHcal->size() = " << vDenseIdHcal->size() << std::endl;
 
-  // Fill a vector of cell neighbours
-  denseIdHcalMax_ = *std::max_element(vDenseIdHcal->begin(), vDenseIdHcal->end());
-  denseIdHcalMin_ = *std::min_element(vDenseIdHcal->begin(), vDenseIdHcal->end());
-  //std::cout << denseIdHcalMax_ << " " << denseIdHcalMin_ << std::endl;
-  nDenseIdsInRange = denseIdHcalMax_ - denseIdHcalMin_ + 1;
-
-  validDetIdPositions.clear();
-  validDetIdPositions.reserve(nValidDetIds);
   detIdToCell.clear();
   detIdToCell.reserve(nValidDetIds);
 
@@ -202,27 +175,14 @@ void PFHBHERecHitProducerGPU::beginRun(edm::Run const& r, edm::EventSetup const&
     DetId detid_c = topology_.get()->denseId2detId(denseid);
     HcalDetId hid_c = HcalDetId(detid_c);
 
-    //DetId detId = topology_.get()->denseId2detId(denseId);
-    //HcalDetId hid(detId.rawId());
-
-    if (hid_c.subdet() == HcalBarrel)
-      validDetIdPositions.emplace_back(hcalBarrelGeo->getGeometry(detid_c)->getPosition());
-    else if (hid_c.subdet() == HcalEndcap)
-      validDetIdPositions.emplace_back(hcalEndcapGeo->getGeometry(detid_c)->getPosition());
-    else
-      std::cout << "Invalid subdetector found for detId " << hid_c.rawId() << ": " << hid_c.subdet() << std::endl;
-
     std::shared_ptr<const CaloCellGeometry> thisCell = nullptr;
-    //PFLayer::Layer layer = PFLayer::HCAL_BARREL1;
     switch (hid_c.subdet()) {
     case HcalBarrel:
       thisCell = hcalBarrelGeo->getGeometry(hid_c);
-      //layer = PFLayer::HCAL_BARREL1;
       break;
 
     case HcalEndcap:
       thisCell = hcalEndcapGeo->getGeometry(hid_c);
-      //layer = PFLayer::HCAL_ENDCAP;
       break;
     default:
       break;
@@ -231,10 +191,7 @@ void PFHBHERecHitProducerGPU::beginRun(edm::Run const& r, edm::EventSetup const&
     detIdToCell[hid_c.rawId()] = thisCell;
 
   }
-  // -> vDenseIdHcal, validDetIdPositions
 
-  //initCuda = true;  // (Re)initialize cuda arrays
-  //KenH: for now comment this out, as we know we don't change the channel status on lumisection basis
 }
 
 void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
@@ -249,10 +206,7 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
   size_t num_rechits = HBHERecHitSoA.size;
 
   //
-  //auto const& pulseOffsets = setup.getData(recoParamsToken_);
-  //auto const& pulseOffsetsProduct = pulseOffsets.getProduct(ctx.stream());
   recHitParametersHandle_ = setup.getHandle(recoParamsToken_);
-  //auto const& recHitParametersProduct2 = recHitParametersHandle_->getProduct(ctx.stream()); // to be passed to CUDA
 
   auto const& recHitParams = setup.getData(recoParamsToken_);
   auto const& recHitParamsProduct = recHitParams.getProduct(ctx.stream());
@@ -294,15 +248,12 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
   std::cout << (recHitParametersHandle_->getValuesThresholdE_HE())[5] << std::endl;
   std::cout << (recHitParametersHandle_->getValuesThresholdE_HE())[6] << std::endl;
 
-  std::cout << "init starts" << std::endl;
-
   }
 
-  scratchDataGPU.allocate(nValidDetIds, ctx.stream()); //Initialize scratchData array
-
-  if (debug) std::cout << "init done" << std::endl;
+  scratchDataGPU.allocate(topoData.getValuesDetId().size(), ctx.stream()); //Initialize scratchData array
 
   if (num_rechits == 0) return; // if no rechit, there is nothing to do.
+                                // KH: should ensure that the code doesn't crash when num_rechits=0
 
   outputGPU.allocate(num_rechits, ctx.stream());
 
@@ -322,9 +273,9 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
 
   // Entry point for GPU calls
   GPU_timers.fill(0.0);
-  PFRecHit::HCAL::entryPoint(HBHERecHitSoA, 
-			                constantProducts,
-			                outputGPU, 
+  PFRecHit::HCAL::entryPoint(HBHERecHitSoA,
+			    constantProducts,
+			    outputGPU,
                             scratchDataGPU, ctx.stream(), GPU_timers);
 
   // if (cudaStreamQuery(ctx.stream()) != cudaSuccess)
@@ -364,10 +315,6 @@ void PFHBHERecHitProducerGPU::produce(edm::Event& event, edm::EventSetup const& 
     auto pfrhLegacy = std::make_unique<reco::PFRecHitCollection>();
     auto pfrhLegacyCleaned = std::make_unique<reco::PFRecHitCollection>();
 
-    //Use pre-filled unordered_map, but we may go back to directly using geometry
-    //const CaloSubdetectorGeometry* hcalBarrelGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
-    //const CaloSubdetectorGeometry* hcalEndcapGeo = geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalEndcap);
-
     auto nPFRHTotal = outputGPU.PFRecHits.size + outputGPU.PFRecHits.sizeCleaned;
     tmpPFRecHits.size = outputGPU.PFRecHits.size;
     tmpPFRecHits.sizeCleaned = outputGPU.PFRecHits.sizeCleaned;
@@ -379,7 +326,6 @@ void PFHBHERecHitProducerGPU::produce(edm::Event& event, edm::EventSetup const& 
     for (unsigned i = 0; i < nPFRHTotal; i++) {
       HcalDetId hid(tmpPFRecHits.pfrh_detId[i]);
 
-      //std::shared_ptr<const CaloCellGeometry> thisCell = nullptr;
       PFLayer::Layer layer = PFLayer::HCAL_BARREL1;
       switch (hid.subdet()) {
         case HcalBarrel:
