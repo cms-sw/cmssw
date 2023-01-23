@@ -26,9 +26,8 @@ public:
   ~PFHCALDenseIdNavigator() override {
     if (!ownsTopo) {
       topology_.release();
+      navicore_.release();
     }
-    //Comment out to avoid seg fault. Move ot unique_ptr?
-    //delete pfHcalDenseIdNavigatorCore_;
   }
 
   PFHCALDenseIdNavigator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
@@ -44,17 +43,15 @@ public:
     edm::ESHandle<HcalTopology> hcalTopology = iSetup.getHandle(hcalToken_);
     topology_.release();
     topology_.reset(hcalTopology.product());
-    const HcalTopology& topo = *hcalTopology;
-    // Probably nwe don't need to utilize both topo and topology_
 
     // Fill a vector of valid denseid's
     edm::ESHandle<CaloGeometry> hGeom = iSetup.getHandle(geomToken_);
     const CaloGeometry& caloGeom = *hGeom;
 
     // Utilize PFHCALDenseIdNavigatorCore
-    pfHcalDenseIdNavigatorCore_ = new PFHCALDenseIdNavigatorCore(vhcalEnum_,caloGeom,topo);
+    navicore_ = std::make_unique<PFHCALDenseIdNavigatorCore>(vhcalEnum_,caloGeom,*topology_.get());
     vDenseIdHcal_.clear();
-    vDenseIdHcal_ = pfHcalDenseIdNavigatorCore_->getValidDenseIds();
+    vDenseIdHcal_ = navicore_.get()->getValidDenseIds();
 
   }
 
@@ -62,9 +59,8 @@ public:
                            std::unique_ptr<reco::PFRecHitCollection>& hits,
                            edm::RefProd<reco::PFRecHitCollection>& refProd) override {
     DetId detid(hit.detId());
-    unsigned denseid = topology_.get()->detId2denseId(detid);
-
-    auto neighbours = pfHcalDenseIdNavigatorCore_->getNeighbours(denseid);
+    auto denseid = topology_.get()->detId2denseId(detid);
+    auto neighbours = navicore_.get()->getNeighbours(denseid);
 
     associateNeighbour(neighbours.at(NORTH), hit, hits, refProd, 0, 1, 0);        // N
     associateNeighbour(neighbours.at(NORTHEAST), hit, hits, refProd, 1, 1, 0);    // NE
@@ -81,6 +77,7 @@ public:
 protected:
   edm::ESWatcher<HcalRecNumberingRecord> theRecNumberWatcher_;
   std::unique_ptr<const TOPO> topology_;
+  std::unique_ptr<PFHCALDenseIdNavigatorCore> navicore_;
   std::vector<int> vhcalEnum_;
   std::vector<unsigned int> vDenseIdHcal_;
   PFHCALDenseIdNavigatorCore *pfHcalDenseIdNavigatorCore_;

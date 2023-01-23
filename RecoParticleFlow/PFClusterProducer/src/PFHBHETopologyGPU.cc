@@ -17,11 +17,11 @@ PFHBHETopologyGPU::PFHBHETopologyGPU(edm::ParameterSet const& ps,
   const CaloSubdetectorGeometry* hcalEndcapGeo = geom.getSubdetectorGeometry(DetId::Hcal, HcalEndcap);
 
   // Utilize PFHCALDenseIdNavigatorCore
-  PFHCALDenseIdNavigatorCore *pfHcalDenseIdNavigatorCore = new PFHCALDenseIdNavigatorCore(vhcalEnum_,geom,topo);
+  std::unique_ptr<PFHCALDenseIdNavigatorCore> navicore = std::make_unique<PFHCALDenseIdNavigatorCore>(vhcalEnum_,geom,topo);
 
   //
   // Filling HCAL DenseID vectors
-  const std::vector<uint32_t> denseId = pfHcalDenseIdNavigatorCore->getValidDenseIds();
+  const std::vector<uint32_t> denseId = navicore.get()->getValidDenseIds();
 
   //
   // Filling information to define arrays for all relevant HBHE DetIds
@@ -54,7 +54,7 @@ PFHBHETopologyGPU::PFHBHETopologyGPU(edm::ParameterSet const& ps,
     detId[index] = (uint32_t)detid;
     position[index] = make_float3(pos.x(),pos.y(),pos.z());
 
-    auto neigh = pfHcalDenseIdNavigatorCore->getNeighbours(denseid);
+    auto neigh = navicore.get()->getNeighbours(denseid);
 
     for (uint32_t n = 0; n < 8; n++) {
       // cmssdt.cern.ch/lxr/source/RecoParticleFlow/PFClusterProducer/interface/PFHCALDenseIdNavigator.h#0087
@@ -85,7 +85,7 @@ PFHBHETopologyGPU::PFHBHETopologyGPU(edm::ParameterSet const& ps,
   position_.resize(position.size());
   std::copy(position.begin(), position.end(), position_.begin());
 
-  delete pfHcalDenseIdNavigatorCore;
+  navicore.release();
 
 }
 
