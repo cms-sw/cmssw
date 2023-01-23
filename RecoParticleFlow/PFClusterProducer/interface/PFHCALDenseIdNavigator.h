@@ -27,7 +27,8 @@ public:
     if (!ownsTopo) {
       topology_.release();
     }
-    delete pfHcalDenseIdNavigatorCore_;
+    //Comment out to avoid seg fault. Move ot unique_ptr?
+    //delete pfHcalDenseIdNavigatorCore_;
   }
 
   PFHCALDenseIdNavigator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
