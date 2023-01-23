@@ -8,8 +8,6 @@
 PFHBHETopologyGPU::PFHBHETopologyGPU(edm::ParameterSet const& ps,
 				 const CaloGeometry& geom,
 				 const HcalTopology& topo){
-				 // const edm::ESHandle<CaloGeometry>& geoHandle,
-				 // const edm::ESHandle<HcalTopology>& topoHandle) {
 
   // Checking geom
   const CaloSubdetectorGeometry* hcalBarrelGeo = geom.getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
@@ -40,7 +38,6 @@ PFHBHETopologyGPU::PFHBHETopologyGPU(edm::ParameterSet const& ps,
 
   //
   // Filling a vector of cell neighbours
-  //std::vector<std::vector<DetId>> neighboursHcal_;
   neighboursHcal_.clear(); // vector of neighbors
   neighboursHcal_.resize(detIdArraySize);
 
