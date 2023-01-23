@@ -183,76 +183,121 @@ namespace cms::alpakatools {
 
     class iterator {
       friend class elements_with_stride_nd;
-      constexpr static const auto last_dimension = Dim::value - 1;
-
-      ALPAKA_FN_ACC inline iterator(Vec elements, Vec stride, Vec extent, Vec first)
-          : elements_{elements},
-            stride_{stride},
-            extent_{extent},
-            first_{alpaka::elementwise_min(first, extent)},
-            index_{first_},
-            last_{std::min(first[last_dimension] + elements[last_dimension], extent[last_dimension])} {}
 
     public:
       ALPAKA_FN_ACC inline Vec operator*() const { return index_; }
 
       // pre-increment the iterator
-      ALPAKA_FN_ACC inline iterator& operator++() {
-        // increment the index along the elements processed by the current thread
-        ++index_[last_dimension];
-        if (index_[last_dimension] < last_)
-          return *this;
-
-        // increment the thread index along with the last dimension with the grid stride
-        first_[last_dimension] += stride_[last_dimension];
-        index_[last_dimension] = first_[last_dimension];
-        last_ = std::min(first_[last_dimension] + elements_[last_dimension], extent_[last_dimension]);
-        if (index_[last_dimension] < extent_[last_dimension])
-          return *this;
-
-        // increment the thread index along the outer dimensions with the grid stride
-        if constexpr (last_dimension > 0)
-          for (auto dimension = last_dimension - 1; dimension >= 0; --dimension) {
-            first_[dimension] += stride_[dimension];
-            index_[dimension] = first_[dimension];
-            if (index_[dimension] < extent_[dimension])
-              return *this;
-          }
-
-        // the iterator has reached or passed the end of the extent, clamp it to the extent
-        first_ = extent_;
-        index_ = extent_;
-        last_ = extent_[last_dimension];
+      ALPAKA_FN_ACC constexpr inline iterator operator++() {
+        increment();
         return *this;
       }
 
       // post-increment the iterator
-      ALPAKA_FN_ACC inline iterator operator++(int) {
+      ALPAKA_FN_ACC constexpr inline iterator operator++(int) {
         iterator old = *this;
-        ++(*this);
+        increment();
         return old;
       }
 
-      ALPAKA_FN_ACC inline bool operator==(iterator const& other) const {
-        return (index_ == other.index_) and (first_ == other.first_);
-      }
+      ALPAKA_FN_ACC constexpr inline bool operator==(iterator const& other) const { return (index_ == other.index_); }
 
-      ALPAKA_FN_ACC inline bool operator!=(iterator const& other) const { return not(*this == other); }
+      ALPAKA_FN_ACC constexpr inline bool operator!=(iterator const& other) const { return not(*this == other); }
 
     private:
-      // non-const to support iterator copy and assignment
-      Vec elements_;
-      Vec stride_;
-      Vec extent_;
+      // private, explicit constructor
+      ALPAKA_FN_ACC inline iterator(elements_with_stride_nd const* loop, Vec first)
+          : loop_{loop},
+            thread_{alpaka::elementwise_min(first, loop->extent_)},
+            range_{alpaka::elementwise_min(first + loop->elements_, loop->extent_)},
+            index_{thread_} {}
+
+      template <size_t I>
+      ALPAKA_FN_ACC inline constexpr bool nth_elements_loop() {
+        bool overflow = false;
+        ++index_[I];
+        if (index_[I] >= range_[I]) {
+          index_[I] = thread_[I];
+          overflow = true;
+        }
+        return overflow;
+      }
+
+      template <size_t N>
+      ALPAKA_FN_ACC inline constexpr bool do_elements_loops() {
+        if constexpr (N == 0) {
+          // overflow
+          return true;
+        } else {
+          if (not nth_elements_loop<N - 1>()) {
+            return false;
+          } else {
+            return do_elements_loops<N - 1>();
+          }
+        }
+      }
+
+      template <size_t I>
+      ALPAKA_FN_ACC inline constexpr bool nth_strided_loop() {
+        bool overflow = false;
+        thread_[I] += loop_->stride_[I];
+        if (thread_[I] >= loop_->extent_[I]) {
+          thread_[I] = loop_->first_[I];
+          overflow = true;
+        }
+        index_[I] = thread_[I];
+        range_[I] = std::min(thread_[I] + loop_->elements_[I], loop_->extent_[I]);
+        return overflow;
+      }
+
+      template <size_t N>
+      ALPAKA_FN_ACC inline constexpr bool do_strided_loops() {
+        if constexpr (N == 0) {
+          // overflow
+          return true;
+        } else {
+          if (not nth_strided_loop<N - 1>()) {
+            return false;
+          } else {
+            return do_strided_loops<N - 1>();
+          }
+        }
+      }
+
+      // increment the iterator
+      ALPAKA_FN_ACC inline constexpr void increment() {
+        // linear N-dimensional loops over the elements associated to the thread;
+        // do_elements_loops<>() returns true if any of those loops overflows
+        if (not do_elements_loops<Dim::value>()) {
+          // the elements loops did not overflow, return the next index
+          return;
+        }
+
+        // strided N-dimensional loop over the threads in the kernel launch grid;
+        // do_strided_loops<>() returns true if any of those loops overflows
+        if (not do_strided_loops<Dim::value>()) {
+          // the strided loops did not overflow, return the next index
+          return;
+        }
+
+        // the iterator has reached or passed the end of the extent, clamp it to the extent
+        thread_ = loop_->extent_;
+        range_ = loop_->extent_;
+        index_ = loop_->extent_;
+      }
+
+      // const pointer to the elements_with_stride_nd that the iterator refers to
+      const elements_with_stride_nd* loop_;
+
       // modified by the pre/post-increment operator
-      Vec first_;
-      Vec index_;
-      Idx last_;
+      Vec thread_;  // first element processed by this thread
+      Vec range_;   // last element processed by this thread
+      Vec index_;   // current element processed by this thread
     };
 
-    ALPAKA_FN_ACC inline iterator begin() const { return iterator(elements_, stride_, extent_, first_); }
+    ALPAKA_FN_ACC inline iterator begin() const { return iterator{this, first_}; }
 
-    ALPAKA_FN_ACC inline iterator end() const { return iterator(elements_, stride_, extent_, extent_); }
+    ALPAKA_FN_ACC inline iterator end() const { return iterator{this, extent_}; }
 
   private:
     const Vec elements_;
