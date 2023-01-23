@@ -1,6 +1,8 @@
 /*
  * \file GEMTnPEfficiencyTask.cc
+ * \author Qianying
  *
+ * \interited from the TnP framework of  
  * \author L. Lunerti - INFN Bologna
  *
  */
@@ -49,8 +51,6 @@ void GEMTnPEfficiencyTask::bookHistograms(DQMStore::IBooker& iBooker,
   auto baseDir = topFolder() + "Task/";
   iBooker.setCurrentFolder(baseDir);
 
-  MonitorElement* me_GEM_pass_allCh = iBooker.book2D("GEM_nPassingProbe_allCh", "GEM_nPassingProbe_allCh", 2, -1.5, 1.5, 4, 0, 4.5);
-  MonitorElement* me_GEM_fail_allCh = iBooker.book2D("GEM_nFailingProbe_allCh", "GEM_nFailingProbe_allCh", 2, -1.5, 1.5, 4, 0, 4.5);
   MonitorElement* me_GEM_pass_Ch_region = iBooker.book2D("GEM_nPassingProbe_Ch_region", "GEM_nPassingProbe_Ch_region", 2, -1.5, 1.5, 37, 0, 37);
   MonitorElement* me_GEM_fail_Ch_region = iBooker.book2D("GEM_nFailingProbe_Ch_region", "GEM_nFailingProbe_Ch_region", 2, -1.5, 1.5, 37, 0, 37);
   MonitorElement* me_GEM_pass_Ch_region_GE1 = iBooker.book2D("GEM_nPassingProbe_Ch_region_GE1", "GEM_nPassingProbe_Ch_region_GE1", 4, 0, 4, 37, 0, 37);
@@ -84,21 +84,6 @@ void GEMTnPEfficiencyTask::bookHistograms(DQMStore::IBooker& iBooker,
   MonitorElement* me_GEM_pass_Ch_region_layer_phase2 = iBooker.book2D("GEM_nPassingProbe_Ch_region_layer_phase2", "GEM_nPassingProbe_Ch_region_layer_phase2", 10, 0, 10, 37, 0, 37);
   MonitorElement* me_GEM_fail_Ch_region_layer_phase2 = iBooker.book2D("GEM_nFailingProbe_Ch_region_layer_phase2", "GEM_nFailingProbe_Ch_region_layer_phase2", 10, 0, 10, 37, 0, 37);
 
-  me_GEM_pass_allCh->setBinLabel(1, "GE-11", 1);
-  me_GEM_pass_allCh->setBinLabel(2, "GE11", 1);
-  for (int i=1; i<5; ++i){
-    me_GEM_pass_allCh->setBinLabel(i, std::to_string(i), 2);
-  }
-  me_GEM_pass_allCh->setAxisTitle("Ring", 2);
-  me_GEM_pass_allCh->setAxisTitle("Number of passing probes", 3);
-
-  me_GEM_fail_allCh->setBinLabel(1, "GE-11", 1);
-  me_GEM_fail_allCh->setBinLabel(2, "GE11", 1);
-  for (int i=1; i<5; ++i){
-    me_GEM_fail_allCh->setBinLabel(i, std::to_string(i), 2);
-  }
-  me_GEM_fail_allCh->setAxisTitle("Ring", 2);
-  me_GEM_fail_allCh->setAxisTitle("Number of failing probes", 3);
 
   me_GEM_pass_allCh_1D->setBinLabel(1, "GE-11", 1);
   me_GEM_pass_allCh_1D->setBinLabel(2, "GE11", 1);
@@ -273,8 +258,6 @@ void GEMTnPEfficiencyTask::bookHistograms(DQMStore::IBooker& iBooker,
   me_GEM_pass_Ch_region_layer_phase2->setAxisTitle("Number of passing probes", 3);
 
   /////
-  m_histos["GEM_nPassingProbe_allCh"] = me_GEM_pass_allCh;
-  m_histos["GEM_nFailingProbe_allCh"] = me_GEM_fail_allCh;
   m_histos["GEM_nPassingProbe_Ch_region"] = me_GEM_pass_Ch_region;
   m_histos["GEM_nFailingProbe_Ch_region"] = me_GEM_fail_Ch_region;
   m_histos["GEM_nPassingProbe_Ch_region_GE1"] = me_GEM_pass_Ch_region_GE1;
@@ -312,9 +295,6 @@ void GEMTnPEfficiencyTask::bookHistograms(DQMStore::IBooker& iBooker,
   iBooker.setCurrentFolder(baseDir_);
   m_histos["GEMhit_dx"] = iBooker.book1D("GEMhit_dx", "GEMhit_dx;probe dx [cm];Events", 100, 0., 10.);
   m_histos["GEMseg_dx"] = iBooker.book1D("GEMseg_dx", "GEMseg_dx;probe dx [cm];Events", 100, 0., 20.);
-  m_histos["GEMhit_dy"] = iBooker.book1D("GEMhit_dy", "GEMhit_dy;probe dy [cm];Events", 100, 0., 10.);
-  m_histos["GEMhit_dphi"] = iBooker.book1D("GEMhit_dphi", "GEMhit_dphi;probe dphi;Events", 100, -3.15, 3.15);
-  m_histos["GEMhit_deta"] = iBooker.book1D("GEMhit_deta", "GEMhit_deta;probe deta;Events", 100, -10., 10.);
 
   m_histos["GEMhit_x"] = iBooker.book1D("GEMhit_x", "GEMhit_x;probe x [cm];Events", 100, -10., 10.);
   m_histos["GEMhit_x_GE2"] = iBooker.book1D("GEMhit_x_GE2", "GEMhit_x;probe x [cm];Events", 100, -10., 10.);
@@ -322,9 +302,6 @@ void GEMTnPEfficiencyTask::bookHistograms(DQMStore::IBooker& iBooker,
   m_histos["Cham_x_GE2"] = iBooker.book1D("Cham_x_GE2", "Cham_x;probe x [cm];Events", 100, -10., 10.);
 
   m_histos["GEMhit_dx_GE2"] = iBooker.book1D("GEMhit_dx_GE2", "GEMhit_dx;probe dx [cm];Events", 100, 0., 10.);
-  m_histos["GEMhit_dy_GE2"] = iBooker.book1D("GEMhit_dy_GE2", "GEMhit_dy;probe dy [cm];Events", 100, 0., 10.);
-  m_histos["GEMhit_dphi_GE2"] = iBooker.book1D("GEMhit_dphi_GE2", "GEMhit_dphi;probe dphi;Events", 100, -3.15, 3.15);
-  m_histos["GEMhit_deta_GE2"] = iBooker.book1D("GEMhit_deta_GE2", "GEMhit_deta;probe deta;Events", 100, -10., 10.);
 }
 
 void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& context) {
@@ -425,29 +402,6 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
             }
           }
 
-
-          double smallestDy = 99999.;
-          double smallestDphi = 99999.;
-          double smallestDeta = 99999.;
-
-          //for (auto& seg : chambMatch.gemMatches) { 
-          for (auto& gemHit : chambMatch.gemHitMatches) { 
-            float dy = std::abs(chambMatch.y - gemHit.y);
-            if (dy < smallestDy) {
-              smallestDy = dy;
-            }
-
-            float dphi = deltaPhi(phi, gemHit.phi);
-            if (dphi < smallestDphi) {
-              smallestDphi = dphi;
-            }
-
-            float deta = std::abs(eta - gemHit.eta);
-            if (deta < smallestDeta) {
-              smallestDeta = deta;
-            }
-          }
-
           //////////
 
           reco::MuonSegmentMatch closest_matchedSegment;
@@ -465,16 +419,10 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
             m_histos.find("GEMhit_x")->second->Fill(matched_GEMHit_x);
             m_histos.find("Cham_x")->second->Fill(chambMatch.x);
             m_histos.find("GEMseg_dx")->second->Fill(smallestDx_seg);
-            m_histos.find("GEMhit_dy")->second->Fill(smallestDy);
-            m_histos.find("GEMhit_dphi")->second->Fill(smallestDphi);
-            m_histos.find("GEMhit_deta")->second->Fill(smallestDeta);
             if (station==2) {
               m_histos.find("GEMhit_dx_GE2")->second->Fill(smallestDx);
               m_histos.find("GEMhit_x_GE2")->second->Fill(matched_GEMHit_x);
               m_histos.find("Cham_x_GE2")->second->Fill(chambMatch.x);
-              m_histos.find("GEMhit_dy_GE2")->second->Fill(smallestDy);
-              m_histos.find("GEMhit_dphi_GE2")->second->Fill(smallestDphi);
-              m_histos.find("GEMhit_deta_GE2")->second->Fill(smallestDeta);
             }
           }
 
@@ -558,7 +506,7 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
 
   }  //loop over probe collection
 
-  bool verbose = true;
+  bool verbose = false;
   //Loop over probes
   for (unsigned i = 0; i < probe_indices.size(); ++i) {
     uint8_t GEM_matchPatt = probe_coll_GEM_staMatch.at(i);
@@ -585,7 +533,6 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
       if(verbose) std::cout<<"              ----ME0_matchPatt:"<<ME0_matchPatt<<std::endl;
       if(verbose) std::cout<<"              -----selection: "<<(ME0_matchPatt & (1<<(ME0_sta-1)))<<std::endl;
       if(verbose) std::cout<<"              ----2selection: "<<((ME0_matchPatt & (1<<(ME0_sta-1))) !=ME0_matchPatt)<<std::endl;
-      //m_histos.find("GEM_station0_Pt_Eta_TnP")->second->Fill(ME0_pt,ME0_eta);
       if(ME0_sta==0)
       //if ((ME0_matchPatt & (1<<(ME0_sta-1))) == 0) //avoids 0 station matching
       //if ((ME0_matchPatt & (1<<(ME0_sta-1))) != 0 && //avoids 0 station matching
@@ -593,21 +540,12 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
       {
         if (ME0_dx < m_dxCut)
         {
-          //m_nME0_Passing++;
           if(verbose) std::cout<<"            Filling ME0_nPassingProbe: ME0_region: "<<ME0_region<<"; sta: "<<ME0_sta<<"; roll: "<<ME0_roll<<"; chamber: "<<ME0_chamber<<"; lay: "<<ME0_lay<<std::endl;
           if(verbose) std::cout<<"              ----dx:"<<ME0_dx<<std::endl;
           if(verbose) std::cout<<"              ----pt:"<<ME0_pt<<std::endl;
           if(verbose) std::cout<<"              ---eta:"<<ME0_eta<<std::endl;
           if(verbose) std::cout<<"              ---phi:"<<ME0_phi<<std::endl;
-          //m_histos.find("ME0_nPassingProbe_allCh")->second->Fill(ME0_region*ME0_sta, ME0_roll);
-          //m_histos.find("ME0_nPassingProbe_Ch_region")->second->Fill(ME0_region*ME0_sta, ME0_chamber);
-          //m_histos.find("ME0_nPassingProbe_Ch_eta")->second->Fill(ME0_eta, ME0_chamber);
-          //m_histos.find("ME0_nPassingProbe_Ch_phi")->second->Fill(ME0_phi, ME0_chamber);
-          //m_histos.find("ME0_nPassingProbe_allCh_1D")->second->Fill(ME0_region*ME0_sta);
           m_histos.find("ME0_nPassingProbe_chamber_1D")->second->Fill(ME0_chamber);
-          //m_histos.find("ME0_nPassingProbe_pt_1D")->second->Fill(ME0_pt);
-          //m_histos.find("ME0_nPassingProbe_eta_1D")->second->Fill(ME0_eta);
-          //m_histos.find("ME0_nPassingProbe_phi_1D")->second->Fill(ME0_phi);
           if (ME0_region<0)
               m_histos.find("GEM_nPassingProbe_Ch_region_layer_phase2")->second->Fill(4, ME0_chamber);
           else if (ME0_region>0)
@@ -615,21 +553,12 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
         }
         else
         {
-          //m_nME0_Failing++;
           if(verbose) std::cout<<"            Filling ME0_nFailingProbe: ME0_region: "<<ME0_region<<"; sta: "<<ME0_sta<<"; roll: "<<ME0_roll<<"; chamber: "<<ME0_chamber<<"; lay: "<<ME0_lay<<std::endl;
           if(verbose) std::cout<<"              ----dx:"<<ME0_dx<<std::endl;
           if(verbose) std::cout<<"              ----pt:"<<ME0_pt<<std::endl;
           if(verbose) std::cout<<"              ---eta:"<<ME0_eta<<std::endl;
           if(verbose) std::cout<<"              ---phi:"<<ME0_phi<<std::endl;
-          //m_histos.find("ME0_nFailingProbe_allCh")->second->Fill(ME0_region*ME0_sta, ME0_roll);
-          //m_histos.find("ME0_nFailingProbe_Ch_region")->second->Fill(ME0_region*ME0_sta, ME0_chamber);
-          //m_histos.find("ME0_nFailingProbe_Ch_eta")->second->Fill(ME0_eta, ME0_chamber);
-          //m_histos.find("ME0_nFailingProbe_Ch_phi")->second->Fill(ME0_phi, ME0_chamber);
-          //m_histos.find("ME0_nFailingProbe_allCh_1D")->second->Fill(ME0_region*ME0_sta);
           m_histos.find("ME0_nFailingProbe_chamber_1D")->second->Fill(ME0_chamber);
-          //m_histos.find("ME0_nFailingProbe_pt_1D")->second->Fill(ME0_pt);
-          //m_histos.find("ME0_nFailingProbe_eta_1D")->second->Fill(ME0_eta);
-          //m_histos.find("ME0_nFailingProbe_phi_1D")->second->Fill(ME0_phi);
           if (ME0_region<0)
               m_histos.find("GEM_nFailingProbe_Ch_region_layer_phase2")->second->Fill(4, ME0_chamber);
           else if (ME0_region>0)
@@ -674,14 +603,10 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
           if(verbose)  std::cout<<"              ----pt:"<<GEM_pt<<std::endl;
           if(verbose)  std::cout<<"              ---eta:"<<GEM_eta<<std::endl;
           if(verbose)  std::cout<<"              ---phi:"<<GEM_phi<<std::endl;
-          //m_histos.find("GEM_nPassingProbe_allCh")->second->Fill(GEM_region*GEM_sta, GEM_ring);
-          //m_histos.find("GEM_nPassingProbe_Ch_region")->second->Fill(GEM_region*GEM_sta, GEM_chamber);
-          if (GEM_region==1 && GEM_lay==0 && GEM_sta==2 && GEM_chamber==16)  continue;
-          m_histos.find("GEM_nPassingProbe_allCh")->second->Fill(GEM_region, GEM_lay);
+          if (GEM_region==1 && GEM_lay==0 && GEM_sta==2 && GEM_chamber==16)  continue; //exclude GE2 ch16 of Run3
           m_histos.find("GEM_nPassingProbe_Ch_region")->second->Fill(GEM_region, GEM_chamber);
           m_histos.find("GEM_nPassingProbe_Ch_eta")->second->Fill(GEM_eta, GEM_chamber);
           m_histos.find("GEM_nPassingProbe_Ch_phi")->second->Fill(GEM_phi, GEM_chamber);
-          //m_histos.find("GEM_nPassingProbe_allCh_1D")->second->Fill(GEM_region*GEM_sta);
           m_histos.find("GEM_nPassingProbe_allCh_1D")->second->Fill(GEM_region);
           m_histos.find("GEM_nPassingProbe_chamber_1D")->second->Fill(GEM_chamber);
           if(GEM_region<0)
@@ -741,14 +666,10 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
           if(verbose)  std::cout<<"              ----pt:"<<GEM_pt<<std::endl;
           if(verbose)  std::cout<<"              ---eta:"<<GEM_eta<<std::endl;
           if(verbose)  std::cout<<"              ---phi:"<<GEM_phi<<std::endl;
-          //m_histos.find("GEM_nFailingProbe_allCh")->second->Fill(GEM_region*GEM_sta, GEM_ring);
-          //m_histos.find("GEM_nFailingProbe_Ch_region")->second->Fill(GEM_region*GEM_sta, GEM_chamber);
           if (GEM_region==1 && GEM_lay==0 && GEM_sta==2 && GEM_chamber==16)  continue;
-          m_histos.find("GEM_nFailingProbe_allCh")->second->Fill(GEM_region, GEM_lay);
           m_histos.find("GEM_nFailingProbe_Ch_region")->second->Fill(GEM_region, GEM_chamber);
           m_histos.find("GEM_nFailingProbe_Ch_eta")->second->Fill(GEM_eta, GEM_chamber);
           m_histos.find("GEM_nFailingProbe_Ch_phi")->second->Fill(GEM_phi, GEM_chamber);
-          //m_histos.find("GEM_nFailingProbe_allCh_1D")->second->Fill(GEM_region*GEM_sta);
           m_histos.find("GEM_nFailingProbe_allCh_1D")->second->Fill(GEM_region);
           m_histos.find("GEM_nFailingProbe_chamber_1D")->second->Fill(GEM_chamber);
           if(GEM_region<0)
