@@ -36,7 +36,7 @@ public:
       std::vector<DetId> vecDetIds(geom.getValidDetIds(DetId::Hcal, hcalSubdet));
       vecHcal.insert(vecHcal.end(), vecDetIds.begin(), vecDetIds.end());
     }
-    std::cout << vecHcal.size() << std::endl;
+    //std::cout << vecHcal.size() << std::endl;
 
     //
     // Filling HCAL DenseID vectors
