@@ -19,27 +19,34 @@ namespace cms::alpakatools {
   // Return the integer division of the first argument by the second argument, rounded up to the next integer
   inline constexpr Idx divide_up_by(Idx value, Idx divisor) { return (value + divisor - 1) / divisor; }
 
+  // Trait describing whether or not the accelerator expects the threads-per-block and elements-per-thread to be swapped
+  template <typename TAcc, typename = std::enable_if_t<cms::alpakatools::is_accelerator_v<TAcc>>>
+  struct requires_single_thread_per_block : public std::true_type {};
+
+#ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
+  template <typename TDim>
+  struct requires_single_thread_per_block<alpaka::AccGpuCudaRt<TDim, Idx>> : public std::false_type {};
+#endif  // ALPAKA_ACC_GPU_CUDA_ENABLED
+
+#ifdef ALPAKA_ACC_GPU_HIP_ENABLED
+  template <typename TDim>
+  struct requires_single_thread_per_block<alpaka::AccGpuHipRt<TDim, Idx>> : public std::false_type {};
+#endif  // ALPAKA_ACC_GPU_HIP_ENABLED
+
+  // Whether or not the accelerator expects the threads-per-block and elements-per-thread to be swapped
+  template <typename TAcc, typename = std::enable_if_t<cms::alpakatools::is_accelerator_v<TAcc>>>
+  inline constexpr bool requires_single_thread_per_block_v = requires_single_thread_per_block<TAcc>::value;
+
   // Create an accelerator-dependent work division for 1-dimensional kernels
   template <typename TAcc,
             typename = std::enable_if_t<cms::alpakatools::is_accelerator_v<TAcc> and alpaka::Dim<TAcc>::value == 1>>
   inline WorkDiv<Dim1D> make_workdiv(Idx blocks, Idx elements) {
-#ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
-    if constexpr (std::is_same_v<TAcc, alpaka::AccGpuCudaRt<Dim1D, Idx>>) {
+    if constexpr (not requires_single_thread_per_block_v<TAcc>) {
       // On GPU backends, each thread is looking at a single element:
       //   - the number of threads per block is "elements";
       //   - the number of elements per thread is always 1.
       return WorkDiv<Dim1D>(blocks, elements, Idx{1});
-    } else
-#endif  // ALPAKA_ACC_GPU_CUDA_ENABLED
-#if ALPAKA_ACC_GPU_HIP_ENABLED
-        if constexpr (std::is_same_v<TAcc, alpaka::AccGpuHipRt<Dim1D, Idx>>) {
-      // On GPU backends, each thread is looking at a single element:
-      //   - the number of threads per block is "elements";
-      //   - the number of elements per thread is always 1.
-      return WorkDiv<Dim1D>(blocks, elements, Idx{1});
-    } else
-#endif  // ALPAKA_ACC_GPU_HIP_ENABLED
-    {
+    } else {
       // On CPU backends, run serially with a single thread per block:
       //   - the number of threads per block is always 1;
       //   - the number of elements per thread is "elements".
@@ -52,23 +59,12 @@ namespace cms::alpakatools {
   inline WorkDiv<alpaka::Dim<TAcc>> make_workdiv(const Vec<alpaka::Dim<TAcc>>& blocks,
                                                  const Vec<alpaka::Dim<TAcc>>& elements) {
     using Dim = alpaka::Dim<TAcc>;
-#ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
-    if constexpr (std::is_same_v<TAcc, alpaka::AccGpuCudaRt<Dim, Idx>>) {
+    if constexpr (not requires_single_thread_per_block_v<TAcc>) {
       // On GPU backends, each thread is looking at a single element:
       //   - the number of threads per block is "elements";
       //   - the number of elements per thread is always 1.
       return WorkDiv<Dim>(blocks, elements, Vec<Dim>::ones());
-    } else
-#endif  // ALPAKA_ACC_GPU_CUDA_ENABLED
-#ifdef ALPAKA_ACC_GPU_HIP_ENABLED
-        if constexpr (std::is_same_v<TAcc, alpaka::AccGpuHipRt<Dim, Idx>>) {
-      // On GPU backends, each thread is looking at a single element:
-      //   - the number of threads per block is "elements";
-      //   - the number of elements per thread is always 1.
-      return WorkDiv<Dim>(blocks, elements, Vec<Dim>::ones());
-    } else
-#endif  // ALPAKA_ACC_GPU_HIP_ENABLED
-    {
+    } else {
       // On CPU backends, run serially with a single thread per block:
       //   - the number of threads per block is always 1;
       //   - the number of elements per thread is "elements".
@@ -108,10 +104,12 @@ namespace cms::alpakatools {
 
       // pre-increment the iterator
       ALPAKA_FN_ACC inline iterator& operator++() {
-        // increment the index along the elements processed by the current thread
-        ++index_;
-        if (index_ < last_)
-          return *this;
+        if constexpr (requires_single_thread_per_block_v<TAcc>) {
+          // increment the index along the elements processed by the current thread
+          ++index_;
+          if (index_ < last_)
+            return *this;
+        }
 
         // increment the thread index with the grid stride
         first_ += stride_;
@@ -266,11 +264,13 @@ namespace cms::alpakatools {
 
       // increment the iterator
       ALPAKA_FN_ACC inline constexpr void increment() {
-        // linear N-dimensional loops over the elements associated to the thread;
-        // do_elements_loops<>() returns true if any of those loops overflows
-        if (not do_elements_loops<Dim::value>()) {
-          // the elements loops did not overflow, return the next index
-          return;
+        if constexpr (requires_single_thread_per_block_v<TAcc>) {
+          // linear N-dimensional loops over the elements associated to the thread;
+          // do_elements_loops<>() returns true if any of those loops overflows
+          if (not do_elements_loops<Dim::value>()) {
+            // the elements loops did not overflow, return the next index
+            return;
+          }
         }
 
         // strided N-dimensional loop over the threads in the kernel launch grid;
