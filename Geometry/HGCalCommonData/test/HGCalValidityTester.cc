@@ -73,7 +73,7 @@ HGCalValidityTester::HGCalValidityTester(const edm::ParameterSet &iC)
   for (const auto &name : nameDetectors_)
     st1 << " : " << name;
   edm::LogVerbatim("HGCGeom") << "Test validity of cells for " << nameDetectors_.size() << " detectors" << st1.str()
-			      << " with inputs from " << fileName_;
+                              << " with inputs from " << fileName_;
   if (!fileName_.empty()) {
     edm::FileInPath filetmp("Geometry/HGCalCommonData/data/" + fileName_);
     std::string fileName = filetmp.fullPath();
@@ -94,9 +94,9 @@ HGCalValidityTester::HGCalValidityTester(const edm::ParameterSet &iC)
             uint32_t pos = static_cast<uint32_t>(itr - dets.begin());
             DetId id(0);
             if ((det == DetId::HGCalEE) || (det == DetId::HGCalHSi)) {
-	      int type = std::atoi(items[1].c_str());
-	      int zside = std::atoi(items[2].c_str());
-	      int layer = std::atoi(items[3].c_str());
+              int type = std::atoi(items[1].c_str());
+              int zside = std::atoi(items[2].c_str());
+              int layer = std::atoi(items[3].c_str());
               int waferU = std::atoi(items[4].c_str());
               int waferV = std::atoi(items[5].c_str());
               int cellU = std::atoi(items[6].c_str());
@@ -104,10 +104,10 @@ HGCalValidityTester::HGCalValidityTester(const edm::ParameterSet &iC)
               id = static_cast<DetId>(HGCSiliconDetId(det, zside, type, layer, waferU, waferV, cellU, cellV));
             } else if (det == DetId::HGCalHSc) {
               bool trig = (std::atoi(items[1].c_str()) > 0);
-	      int type = std::atoi(items[2].c_str());
-	      int zside = std::atoi(items[3].c_str());
+              int type = std::atoi(items[2].c_str());
+              int zside = std::atoi(items[3].c_str());
               int sipm = std::atoi(items[4].c_str());
-	      int layer = std::atoi(items[5].c_str());
+              int layer = std::atoi(items[5].c_str());
               int ring = std::atoi(items[6].c_str());
               int iphi = std::atoi(items[7].c_str());
               id = static_cast<DetId>(HGCScintillatorDetId(type, layer, zside * ring, iphi, trig, sipm));
@@ -147,7 +147,7 @@ void HGCalValidityTester::beginRun(edm::Run const &iRun, edm::EventSetup const &
   std::map<DetId::Detector, uint32_t> detMap;
   for (uint32_t i = 0; i < nameDetectors_.size(); i++) {
     edm::LogVerbatim("HGCGeom") << "Tries to initialize HGCalGeometry and HGCalDDDConstants for " << i << ":"
-                                   << nameDetectors_[i];
+                                << nameDetectors_[i];
     const edm::ESHandle<HGCalDDDConstants> &hgcCons = iSetup.getHandle(tok_hgcal_[i]);
     if (hgcCons.isValid()) {
       hgcCons_.push_back(hgcCons.product());
@@ -164,7 +164,7 @@ void HGCalValidityTester::beginRun(edm::Run const &iRun, edm::EventSetup const &
 
   for (auto itr = detMap.begin(); itr != detMap.end(); ++itr)
     edm::LogVerbatim("HGCGeom") << "[" << itr->second << "]: " << nameDetectors_[itr->second] << " for Detector "
-                                  << itr->first;
+                                << itr->first;
 
   for (unsigned int k = 0; k < detIds_.size(); ++k) {
     std::ostringstream st1;
@@ -196,7 +196,8 @@ void HGCalValidityTester::beginRun(edm::Run const &iRun, edm::EventSetup const &
     double z = zside * (cons->waferZ(layer, true));
     auto range = cons->getRangeR(layer, true);
     edm::LogVerbatim("HGCalMiss") << "Hit[" << k << "] " << st1.str() << " Position (" << xy.first << ", " << xy.second
-                                  << ", " << z << ") Valid " << valid << " R " << r << " (" << range.first << ":" << range.second << ")";
+                                  << ", " << z << ") Valid " << valid << " R " << r << " (" << range.first << ":"
+                                  << range.second << ")";
   }
 }
 

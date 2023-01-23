@@ -410,7 +410,7 @@ int HGCalDDDConstants::getPhiBins(int lay) const { return (tileTrapezoid() ? hgp
 
 std::pair<double, double> HGCalDDDConstants::getRangeR(int lay, bool reco) const {
   int indx = layerIndex(lay, false);
-  if ((indx >= 0) && (indx < static_cast<int>(hgpar_->rMinLayHex_.size()))) 
+  if ((indx >= 0) && (indx < static_cast<int>(hgpar_->rMinLayHex_.size())))
     return std::make_pair(hgpar_->rMinLayHex_[indx], hgpar_->rMaxLayHex_[indx]);
   else
     return std::make_pair(0, -1.);
