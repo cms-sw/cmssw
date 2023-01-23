@@ -114,7 +114,7 @@ namespace cms::alpakatools {
           return *this;
 
         // increment the thread index with the grid stride
-        first_ += stride_ * elements_;
+        first_ += stride_;
         index_ = first_;
         last_ = std::min(first_ + elements_, extent_);
         if (index_ < extent_)
@@ -204,7 +204,7 @@ namespace cms::alpakatools {
           return *this;
 
         // increment the thread index along with the last dimension with the grid stride
-        first_[last_dimension] += stride_[last_dimension] * elements_[last_dimension];
+        first_[last_dimension] += stride_[last_dimension];
         index_[last_dimension] = first_[last_dimension];
         last_ = std::min(first_[last_dimension] + elements_[last_dimension], extent_[last_dimension]);
         if (index_[last_dimension] < extent_[last_dimension])
