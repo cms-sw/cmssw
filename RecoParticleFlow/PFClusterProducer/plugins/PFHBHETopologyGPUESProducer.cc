@@ -65,6 +65,7 @@ void PFHBHETopologyGPUESProducer::setIntervalFor(const edm::eventsetup::EventSet
 
 void PFHBHETopologyGPUESProducer::fillDescriptions(edm::ConfigurationDescriptions& desc) {
   edm::ParameterSetDescription d;
+  d.add<std::vector<int>>("hcalEnums", { 1, 2}); // HB+HE
   desc.addWithDefaultLabel(d);
 }
 

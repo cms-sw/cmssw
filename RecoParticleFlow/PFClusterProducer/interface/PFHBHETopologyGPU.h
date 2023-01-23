@@ -55,20 +55,12 @@ private:
   cms::cuda::ESProduct<Product> product_;
 
   //for internal use
-  std::vector<std::vector<DetId>> neighboursHcal_;
-  unsigned int denseIdHcalMax_;
-  unsigned int denseIdHcalMin_;
-
-  bool validNeighbours(const unsigned int denseid) const {
-    bool ok = true;
-    unsigned index = getIdx(denseid);
-    if (index >= neighboursHcal_.size() || neighboursHcal_.at(index).size() != 9)
-      ok = false;  // the neighbour vector size should be 3x3
-    return ok;
-  }
+  unsigned int denseIdMax_;
+  unsigned int denseIdMin_;
+  std::vector<int> vhcalEnum_;
 
   unsigned int getIdx(const unsigned int denseid) const {
-    unsigned index = denseid - denseIdHcalMin_;
+    unsigned index = denseid - denseIdMin_;
     return index;
   }
 
