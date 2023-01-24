@@ -77,11 +77,14 @@ void HGCalTBNumberingTester::analyze(const edm::Event& iEvent, const edm::EventS
   edm::LogVerbatim("HGCalGeom") << nameDetector_ << " Layers = " << hgdc.layers(false)
                                 << " Sectors = " << hgdc.sectors() << " Minimum Slope = " << hgdc.minSlope();
 
-  edm::LogVerbatim("HGCalGeom") << "Minimum Wafer # " << hgdc.waferMin() << " Mamximum Wafer # " << hgdc.waferMax() << " Wafer counts " << hgdc.waferCount(0) << ":" << hgdc.waferCount(1);
+  edm::LogVerbatim("HGCalGeom") << "Minimum Wafer # " << hgdc.waferMin() << " Mamximum Wafer # " << hgdc.waferMax()
+                                << " Wafer counts " << hgdc.waferCount(0) << ":" << hgdc.waferCount(1);
   for (unsigned int i = 0; i < hgdc.layers(true); ++i) {
     int lay = i + 1;
     double z = hgdc.waferZ(lay, false);
-    edm::LogVerbatim("HGCalGeom") << "Layer " << lay << " Wafers " << hgdc.wafers(lay, 0) << ":" << hgdc.wafers(lay, 1) << ":" << hgdc.wafers(lay, 2) << " Z " << z << " R " << hgdc.rangeR(z, false).first << ":" << hgdc.rangeR(z, false).second;
+    edm::LogVerbatim("HGCalGeom") << "Layer " << lay << " Wafers " << hgdc.wafers(lay, 0) << ":" << hgdc.wafers(lay, 1)
+                                  << ":" << hgdc.wafers(lay, 2) << " Z " << z << " R " << hgdc.rangeR(z, false).first
+                                  << ":" << hgdc.rangeR(z, false).second;
   }
 
   edm::LogVerbatim("HGCalGeom") << std::endl;
@@ -97,12 +100,18 @@ void HGCalTBNumberingTester::analyze(const edm::Event& iEvent, const edm::EventS
       xy = hgdc.locateCell(kxy.second, i + loff, kxy.first, false);
       lxy = hgdc.assignCell(xy.first, xy.second, i + loff, 0, false);
       flg = (kxy == lxy) ? " " : " ***** Error *****";
-      edm::LogVerbatim("HGCalGeom") << "Input: (" << localx << "," << localy << "," << i + loff << ", " << subsec << "), assignCell o/p (" << kxy.first << ", " << kxy.second << ") locateCell o/p (" << xy.first << ", " << xy.second << ")," << " final (" << lxy.first << ", " << lxy.second << ")" << flg;
+      edm::LogVerbatim("HGCalGeom") << "Input: (" << localx << "," << localy << "," << i + loff << ", " << subsec
+                                    << "), assignCell o/p (" << kxy.first << ", " << kxy.second << ") locateCell o/p ("
+                                    << xy.first << ", " << xy.second << "),"
+                                    << " final (" << lxy.first << ", " << lxy.second << ")" << flg;
       kxy = hgdc.assignCell(-localx, -localy, i + loff, subsec, false);
       xy = hgdc.locateCell(kxy.second, i + loff, kxy.first, false);
       lxy = hgdc.assignCell(xy.first, xy.second, i + loff, 0, false);
       flg = (kxy == lxy) ? " " : " ***** Error *****";
-      edm::LogVerbatim("HGCalGeom") << "Input: (" << -localx << "," << -localy << "," << i + loff << ", " << subsec << "), assignCell o/p (" << kxy.first << ", " << kxy.second << ") locateCell o/p (" << xy.first << ", " << xy.second << "), final (" << lxy.first << ", " << lxy.second << ")" << flg;
+      edm::LogVerbatim("HGCalGeom") << "Input: (" << -localx << "," << -localy << "," << i + loff << ", " << subsec
+                                    << "), assignCell o/p (" << kxy.first << ", " << kxy.second << ") locateCell o/p ("
+                                    << xy.first << ", " << xy.second << "), final (" << lxy.first << ", " << lxy.second
+                                    << ")" << flg;
 
       if (k == 0 && i == 0) {
         std::vector<int> ncells = hgdc.numberCells(i + 1, false);
@@ -122,7 +131,8 @@ void HGCalTBNumberingTester::analyze(const edm::Event& iEvent, const edm::EventS
   unsigned int kk(0);
   for (auto const& zz : hgdc.getParameter()->zLayerHex_) {
     std::pair<double, double> rr = hgdc.rangeR(zz, true);
-    edm::LogVerbatim("HGCalGeom") << "[" << kk << "]\t z = " << zz << "\t rMin = " << rr.first << "\t rMax = " << rr.second;
+    edm::LogVerbatim("HGCalGeom") << "[" << kk << "]\t z = " << zz << "\t rMin = " << rr.first
+                                  << "\t rMax = " << rr.second;
     ++kk;
   }
 }
