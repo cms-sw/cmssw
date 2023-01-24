@@ -188,11 +188,15 @@ _phase2_siml1emulator.add(L1TLayer1TaskInputsTask, L1TLayer1Task, L1TLayer2EGTas
 
 # PF Jet
 # ########################################################################
-from L1Trigger.L1CaloTrigger.Phase1L1TJets_cff import *
 # Describe here l1PFJets_a_la_Phase1 Task
 # ###############################
-L1TPFJetsPhase1Task = cms.Task(l1tPhase1JetProducer , l1tPhase1JetCalibrator, l1tPhase1JetSumsProducer)
-_phase2_siml1emulator.add(L1TPFJetsPhase1Task)
+from L1Trigger.L1CaloTrigger.Phase1L1TJets_9x9_cff import *
+L1TPFJetsPhase1Task_9x9 = cms.Task( l1tPhase1JetProducer9x9, l1tPhase1JetCalibrator9x9, l1tPhase1JetSumsProducer9x9)
+_phase2_siml1emulator.add(L1TPFJetsPhase1Task_9x9)
+
+from L1Trigger.L1CaloTrigger.Phase1L1TJets_9x9trimmed_cff import *
+L1TPFJetsPhase1Task_9x9trimmed = cms.Task(  l1tPhase1JetProducer9x9trimmed, l1tPhase1JetCalibrator9x9trimmed, l1tPhase1JetSumsProducer9x9trimmed)
+_phase2_siml1emulator.add(L1TPFJetsPhase1Task_9x9trimmed)
 
 from L1Trigger.Phase2L1Taus.HPSPFTauProducerPF_cfi import *
 _phase2_siml1emulator.add(l1tHPSPFTauProducerPF)
@@ -200,15 +204,10 @@ _phase2_siml1emulator.add(l1tHPSPFTauProducerPF)
 from L1Trigger.Phase2L1Taus.HPSPFTauProducerPuppi_cfi import *
 _phase2_siml1emulator.add(l1tHPSPFTauProducerPuppi)
 
-from L1Trigger.L1CaloTrigger.Phase1L1TJets_9x9_cff import *
-L1TPFJetsPhase1Task_9x9 = cms.Task(  l1tPhase1JetProducer9x9, l1tPhase1JetCalibrator9x9, l1tPhase1JetSumsProducer9x9)
-_phase2_siml1emulator.add(L1TPFJetsPhase1Task_9x9)
-
-
 # PF MET
 # ########################################################################
 from L1Trigger.Phase2L1ParticleFlow.l1pfJetMet_cff import *
-_phase2_siml1emulator.add(L1TPFJetsTask)
+_phase2_siml1emulator.add(L1TPFJetsEmulationTask)
 
 from L1Trigger.Phase2L1ParticleFlow.l1tMETPFProducer_cfi import *
 _phase2_siml1emulator.add(l1tMETPFProducer)
