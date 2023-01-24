@@ -1,0 +1,12 @@
+<iftool name="cuda-gcc-support">
+  <library file="*.cc" name="HeterogeneousTestCUDAOpaquePlugins">
+    <use name="cuda"/>
+    <use name="FWCore/Framework"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/ServiceRegistry"/>
+    <use name="HeterogeneousCore/CUDAServices"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
+    <use name="HeterogeneousTest/CUDAOpaque"/>
+    <flags EDM_PLUGIN="1"/>
+  </library>
+</iftool>

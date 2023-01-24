@@ -1,0 +1,10 @@
+<iftool name="cuda-gcc-support">
+  <bin file="testDeviceAdditionWrapper.cc" name="testCudaDeviceAdditionWrapper">
+    <use name="catch2"/>
+    <use name="cuda"/>
+    <use name="HeterogeneousTest/CUDAWrapper"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
+  </bin>
+
+  <test name="testCUDATestWrapperAdditionModule" command="cmsRun ${LOCALTOP}/src/HeterogeneousTest/CUDAWrapper/test/testCUDATestWrapperAdditionModule.py"/>
+</iftool>
