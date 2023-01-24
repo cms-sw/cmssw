@@ -120,7 +120,7 @@ DDCMSDetElementCreator::~DDCMSDetElementCreator() {
            total.sensitives,
            total.volumes);
   printout(INFO, "DDCMSDetElementCreator", "+++++++++++++++ Summary of geometry depth analysis  ++++++++++++++++++");
-  int totalCount = 0, totalDepth = 0;
+  int totalCount = 0;
   map<dd4hep::DetElement, vector<pair<int, int> > > fields;
   for (const auto& l : m_leafCount) {
     dd4hep::DetElement de = l.first.first;
@@ -133,7 +133,6 @@ DDCMSDetElementCreator::~DDCMSDetElementCreator() {
              l.second.second,
              l.second.first);
     fields[de].push_back(make_pair(l.first.second, l.second.first));
-    totalDepth += l.second.second;
     ++totalCount;
   }
   printout(INFO, "DDCMSDetElementCreator", "++ Summary:     %-24s  %d.", "Total DetElements:", totalCount);
