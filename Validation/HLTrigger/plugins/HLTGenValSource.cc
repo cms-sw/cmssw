@@ -179,7 +179,8 @@ void HLTGenValSource::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& i
       // here, exactly two parts are expected
       if (hltPathToCheckInputSeglist.size() != 2)
         throw cms::Exception("InputError")
-            << "Path string can not be properly split into path and cuts: please use exactly one colon!.\n";
+            << "Path string " << pathToCheck
+            << " can not be properly split into path and cuts: please use exactly one colon!.\n";
 
       // the first part is the name of the path
       cleanedPathToCheck = hltPathToCheckInputSeglist.at(0);

@@ -36,6 +36,7 @@ public:
   double eta() const { return p4Polar_.eta(); }
   double phi() const { return p4Polar_.phi(); }
   double et() const { return (pt() <= 0) ? 0 : p4Cartesian_.Et(); }
+  double mass() const { return p4Cartesian_.mass(); }
 
 private:
   // containing information in two "shapes"

@@ -60,6 +60,8 @@ namespace hltdqm {
       varFunc = &ObjType::eta;
     else if (varName == "phi")
       varFunc = &ObjType::phi;
+    else if (varName == "mass")
+      varFunc = &ObjType::mass;
     else
       varFunc = getUnaryFuncExtraFloat<ObjType>(varName);
     //check if we never set varFunc and throw an error for anything but an empty input string
