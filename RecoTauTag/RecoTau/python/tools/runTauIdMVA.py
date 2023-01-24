@@ -669,7 +669,7 @@ class TauIDEmbedder(object):
                 disable_CellIndex_workaround    = True
             ))
 
-            self.process.slimmedElectronsMerged = cms.EDProducer("SlimmedElectronMerger",
+            self.process.slimmedElectronsMerged = cms.EDProducer("PATElectronCollectionMerger",
                 src = cms.VInputTag("slimmedElectrons","slimmedElectronsHGC")
             )
             setattr(getattr(self.process, _deepTauName+self.postfix), "electrons", cms.InputTag("slimmedElectronsMerged"))
