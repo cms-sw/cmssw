@@ -432,6 +432,14 @@ std::vector<HGCalParameters::hgtrap> HGCalDDDConstants::getModules() const {
 
 int HGCalDDDConstants::getPhiBins(int lay) const { return (tileTrapezoid() ? hgpar_->scintCells(lay) : 0); }
 
+std::pair<double, double> HGCalDDDConstants::getRangeR(int lay, bool reco) const {
+  int indx = layerIndex(lay, false);
+  if ((indx >= 0) && (indx < static_cast<int>(hgpar_->rMinLayHex_.size())))
+    return std::make_pair(hgpar_->rMinLayHex_[indx], hgpar_->rMaxLayHex_[indx]);
+  else
+    return std::make_pair(0, -1.);
+}
+
 std::pair<int, int> HGCalDDDConstants::getREtaRange(int lay) const {
   int irmin(0), irmax(0);
   if (tileTrapezoid()) {
