@@ -71,6 +71,7 @@ public:
   std::vector<HGCalParameters::hgtrap> getModules() const;
   inline const HGCalParameters* getParameter() const { return hgpar_; }
   int getPhiBins(int lay) const;
+  std::pair<double, double> getRangeR(int, bool reco) const;
   std::pair<int, int> getREtaRange(int lay) const;
   inline const std::vector<double>& getRadiusLayer(int layer) const {
     return hgpar_->radiusLayer_[(tileTrapezoid() ? hgpar_->scintType(layer) : 0)];
