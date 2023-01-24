@@ -10,7 +10,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
                                'Geometry/HGCalTBCommonData/data/TB181/Oct181/hgcalHE.xml',
                                'Geometry/HGCalTBCommonData/data/TB181/Oct181/ahcal.xml',
                                'Geometry/HGCalTBCommonData/data/TB181/Oct180/hgcalBeam.xml',
-                               'Geometry/HGCalCommonData/data/hgcalwafer/v7/hgcalwafer.xml',
+                               'Geometry/HGCalTBCommonData/data/hgcalwafer/v7/hgcalwafer.xml',
                                'Geometry/HGCalTBCommonData/data/TB181/Oct181/hgcalsense.xml',
                                'Geometry/HGCalTBCommonData/data/TB181/hgcProdCuts.xml',
                                'Geometry/HGCalTBCommonData/data/TB181/Oct181/hgcalCons.xml'
