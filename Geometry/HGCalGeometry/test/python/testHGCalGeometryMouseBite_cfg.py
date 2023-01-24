@@ -22,8 +22,8 @@ options.register('geometry',
 options.parseArguments()
 print(options)
 
-from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-process = cms.Process("HGCalGeometryMouseBite",Phase2C11I13M9)
+from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+process = cms.Process("HGCalGeometryMouseBite",Phase2C17I13M9)
 
 ####################################################################
 # Use the options

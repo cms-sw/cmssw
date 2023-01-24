@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun testHGCalGeomCheck_cfg.py geometry=V17
 #
-#   Options for geometry V15, V16, V17
+#   Options for geometry V16, V17
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('geometry',
                  "V17",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: V15, V16, V17")
+                  "geometry of operations: V16, V17")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -26,19 +26,14 @@ print(options)
 ####################################################################
 # Use the options
 
-if (options.geometry == "V15"):
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('HGCGeomCheck',Phase2C11M9)
-    process.load("Geometry.HGCalCommonData.testHGCalV15XML_cfi")
-    fileName = 'HGCGeomCheckV15.root'
-elif (options.geometry == "V16"):
-    from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
-    process = cms.Process('HGCGeomCheck',Phase2C11)
+if (options.geometry == "V16"):
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process('HGCGeomCheck',Phase2C17I13M9)
     process.load("Geometry.HGCalCommonData.testHGCalV16XML_cfi")
     fileName = 'HGCGeomCheckV16.root'
 else:
-    from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
-    process = cms.Process('HGCGeomCheck',Phase2C11)
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process('HGCGeomCheck',Phase2C17I13M9)
     process.load("Geometry.HGCalCommonData.testHGCalV17XML_cfi")
     fileName = 'HGCGeomCheckV17.root'
 
