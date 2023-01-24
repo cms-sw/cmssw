@@ -14,15 +14,16 @@ phase2 = False
 
 process = cms.Process('TauID')
 process.load('Configuration.StandardSequences.MagneticField_cff')
-process.load('Configuration.Geometry.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 if phase2:
+    process.load('Configuration.Geometry.GeometryExtended2026D94Reco_cff')
     process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T15', '')
     inputfile = '/store/mc/Phase2HLTTDRWinter20RECOMiniAOD/VBFHToTauTau_M125_14TeV_powheg_pythia8_correctedGridpack_tuneCP5/MINIAODSIM/PU200_110X_mcRun4_realistic_v3-v3/20000/1EF484CA-52F4-F044-B0CC-D4C636C5F0B9.root'
 else:
+    process.load('Configuration.Geometry.GeometryRecoDB_cff')
     process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2018_realistic', '')
     inputfile = '/store/mc/RunIISummer20UL18MiniAOD/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/106X_upgrade2018_realistic_v11_L1v1-v2/00000/009636D7-07B2-DB49-882D-C251FD62CCE7.root'
 
