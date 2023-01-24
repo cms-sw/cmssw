@@ -669,19 +669,18 @@ class TauIDEmbedder(object):
                 disable_CellIndex_workaround    = True
             ))
 
-            self.process.slimmedElectronsMerged = cms.EDProducer("PATElectronCollectionMerger",
-                src = cms.VInputTag("slimmedElectrons","slimmedElectronsHGC")
-            )
-            setattr(getattr(self.process, _deepTauName+self.postfix), "electrons", cms.InputTag("slimmedElectronsMerged"))
+            from RecoTauTag.RecoTau.mergedPhase2SlimmedElectronsForTauId_cff import mergedSlimmedElectronsForTauId
+            if not hasattr(self.process,"mergedSlimmedElectronsForTauId"):
+                self.process.mergedSlimmedElectronsForTauId = mergedSlimmedElectronsForTauId
+            setattr(getattr(self.process, _deepTauName+self.postfix), "electrons", cms.InputTag("mergedSlimmedElectronsForTauId"))
             setattr(getattr(self.process, _deepTauName+self.postfix), "vertices", cms.InputTag("offlineSlimmedPrimaryVertices4D"))
 
             self.processDeepProducer(_deepTauName, tauIDSources, workingPoints_)
 
             _deepTauProducer = getattr(self.process,_deepTauName+self.postfix)
-            _mergedElectrons = self.process.slimmedElectronsMerged
-            _rerunMvaIsolationTask.add(_mergedElectrons)
+            _rerunMvaIsolationTask.add(self.process.mergedSlimmedElectronsForTauId)
             _rerunMvaIsolationTask.add(_deepTauProducer)
-            _rerunMvaIsolationSequence += _mergedElectrons
+            _rerunMvaIsolationSequence += self.process.mergedSlimmedElectronsForTauId
             _rerunMvaIsolationSequence += _deepTauProducer
 
         if "againstEle2018" in self.toKeep:
