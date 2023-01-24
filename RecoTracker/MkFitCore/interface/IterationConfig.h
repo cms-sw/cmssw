@@ -55,22 +55,22 @@ namespace mkfit {
     float min_dq() const { return m_select_min_dq; }
     float max_dq() const { return m_select_max_dq; }
 
-    //Hit selection windows: 2D fit/layer (72 in phase-1 CMS geometry)
-    //cut = [0]*1/pT + [1]*std::fabs(theta-pi/2) + [2])
-    float c_dp_sf = 1.1;
-    float c_dp_0 = 0.0;
-    float c_dp_1 = 0.0;
-    float c_dp_2 = 0.0;
-    //
-    float c_dq_sf = 1.1;
-    float c_dq_0 = 0.0;
-    float c_dq_1 = 0.0;
-    float c_dq_2 = 0.0;
-    //
-    float c_c2_sf = 1.1;
-    float c_c2_0 = 0.0;
-    float c_c2_1 = 0.0;
-    float c_c2_2 = 0.0;
+    const std::vector<float> &get_window_params(bool forward, bool fallback_to_other) const {
+      if (fallback_to_other) {
+        // Empty vector is a valid result, we do not need to check both.
+        if (forward)
+          return m_winpars_fwd.empty() ? m_winpars_bkw : m_winpars_fwd;
+        else
+          return m_winpars_bkw.empty() ? m_winpars_fwd : m_winpars_bkw;
+      } else {
+        return forward ? m_winpars_fwd : m_winpars_bkw;
+      }
+    }
+
+    //Hit selection window parameters: 2D fit/layer (72 in phase-1 CMS geometry).
+    //Used in MkFinder::selectHitIndices().
+    std::vector<float> m_winpars_fwd;
+    std::vector<float> m_winpars_bkw;
 
     //----------------------------------------------------------------------------
 
