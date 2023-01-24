@@ -26,7 +26,9 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
@@ -52,6 +54,7 @@ class SiPixelChargeReweightingAlgorithm {
 public:
   SiPixelChargeReweightingAlgorithm(const edm::ParameterSet& conf, edm::ConsumesCollector iC);
   ~SiPixelChargeReweightingAlgorithm();
+  static void fillPSetDescription(edm::ParameterSetDescription& desc);
 
   // initialization that cannot be done in the constructor
   void init(const edm::EventSetup& es);
@@ -136,14 +139,12 @@ inline SiPixelChargeReweightingAlgorithm::SiPixelChargeReweightingAlgorithm(cons
       templ2D(templateStores_),
       xdouble(TXSIZE),
       ydouble(TYSIZE),
-      IDnum(conf.exists("TemplateIDnumerator") ? conf.getParameter<int>("TemplateIDnumerator") : 0),
-      IDden(conf.exists("TemplateIDdenominator") ? conf.getParameter<int>("TemplateIDdenominator") : 0),
-
+      IDnum(conf.getParameter<int>("TemplateIDnumerator")),
+      IDden(conf.getParameter<int>("TemplateIDdenominator")),
       UseReweighting(conf.getParameter<bool>("UseReweighting")),
-      applyLateReweighting_(conf.exists("applyLateReweighting") ? conf.getParameter<bool>("applyLateReweighting")
-                                                                : false),
-      PrintClusters(conf.exists("PrintClusters") ? conf.getParameter<bool>("PrintClusters") : false),
-      PrintTemplates(conf.exists("PrintTemplates") ? conf.getParameter<bool>("PrintTemplates") : false) {
+      applyLateReweighting_(conf.getParameter<bool>("ApplyLateReweighting")),
+      PrintClusters(conf.getParameter<bool>("PrintClusters")),
+      PrintTemplates(conf.getParameter<bool>("PrintTemplates")) {
   if (UseReweighting || applyLateReweighting_) {
     SiPixel2DTemp_den_token_ = iC.esConsumes(edm::ESInputTag("", "denominator"));
     SiPixel2DTemp_num_token_ = iC.esConsumes(edm::ESInputTag("", "numerator"));
@@ -485,6 +486,7 @@ inline int SiPixelChargeReweightingAlgorithm::PixelTempRewgt2D(int id_in, int id
       }
     }
   }
+  LogDebug("SiPixelChargeReweightingAlgorithm") << "Total cluster charge in the initial cluster: " << qclust;
 
   // Next, interpolate the physical output template needed to reweight
 
@@ -602,6 +604,8 @@ inline int SiPixelChargeReweightingAlgorithm::PixelTempRewgt2D(int id_in, int id
       }
     }
   }
+
+  LogDebug("SiPixelChargeReweightingAlgorithm") << "Total cluster charge in the final cluster: " << qclust;
 
   return success;
 }  // PixelTempRewgt2D
@@ -847,6 +851,16 @@ bool SiPixelChargeReweightingAlgorithm::lateSignalReweight(const PixelGeomDetUni
   }
 
   return true;
+}
+
+inline void SiPixelChargeReweightingAlgorithm::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.setComment("Charge reweighting algo to simulate irradiation damage in SiPixel detectors");
+  desc.add("TemplateIDnumerator", 0);
+  desc.add("TemplateIDdenominator", 0);
+  desc.add("UseReweighting", false);
+  desc.add("ApplyLateReweighting", false);
+  desc.add("PrintClusters", false);
+  desc.add("PrintTemplates", false);
 }
 
 #endif

@@ -18,6 +18,9 @@
 
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/ProducesCollector.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
@@ -56,6 +59,8 @@ namespace cms {
                                     edm::ProducesCollector,
                                     edm::ConsumesCollector& iC);
     ~Phase2TrackerDigitizer() override;
+
+    void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
     void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
     void accumulate(edm::Event const& e, edm::EventSetup const& c) override;

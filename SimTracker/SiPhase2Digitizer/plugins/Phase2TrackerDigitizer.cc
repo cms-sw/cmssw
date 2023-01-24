@@ -76,7 +76,7 @@ namespace cms {
     if (makeDigiSimLinks_)
       producesCollector.produces<edm::DetSetVector<PixelDigiSimLink> >("Pixel").setBranchAlias(alias1);
 
-    if (!iConfig.getParameter<bool>("isOTreadoutAnalog")) {
+    if (!isOuterTrackerReadoutAnalog_) {
       const std::string alias2("simSiTrackerDigis");
       if (premixStage1_) {
         // Premixing exploits the ADC field of PixelDigi to store the collected charge
@@ -115,8 +115,8 @@ namespace cms {
 
           // access to magnetic field in global coordinates
           GlobalVector bfield = pSetup_->inTesla(phase2det->surface().position());
-          LogDebug("PixelDigitizer") << "B-field(T) at " << phase2det->surface().position()
-                                     << " (cm): " << pSetup_->inTesla(phase2det->surface().position());
+          LogDebug("Phase2TrackerDigitizer") << "B-field(T) at " << phase2det->surface().position()
+                                             << " (cm): " << pSetup_->inTesla(phase2det->surface().position());
 
           auto kiter = algomap_.find(getAlgoType(detId_raw));
           if (kiter != algomap_.end())
@@ -317,7 +317,21 @@ namespace cms {
     if (makeDigiSimLinks_)
       iEvent.put(std::move(outputlink), "Pixel");
   }
+  void Phase2TrackerDigitizer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<std::string>("hitsProducer", "g4SimHits");
+    desc.add("ROUList",
+             std::vector<std::string>{"TrackerHitsPixelBarrelLowTof",
+                                      "TrackerHitsPixelBarrelHighTof",
+                                      "TrackerHitsPixelEndcapLowTof",
+                                      "TrackerHitsPixelEndcapHighTof"});
+    desc.add<std::string>("GeometryType", "idealForDigi");
+    desc.add("isOTreadoutAnalog", false);
+    desc.add("premixStage1", false);
+    descriptions.addWithDefaultLabel(desc);
+  }
 }  // namespace cms
+
 namespace {
   void addToCollector(edm::DetSet<PixelDigi>& collector, const int channel, const digitizerUtility::DigiSimInfo& info) {
     // For premixing stage1 the channel must be decoded with PixelDigi
@@ -334,6 +348,7 @@ namespace {
     collector.data.emplace_back(ip.first, ip.second, info.ot_bit);
   }
 }  // namespace
+
 namespace cms {
   template <typename DigiType>
   void Phase2TrackerDigitizer::addOuterTrackerCollection(edm::Event& iEvent, const edm::EventSetup& iSetup) {

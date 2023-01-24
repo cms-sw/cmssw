@@ -1025,3 +1025,50 @@ float Phase2TrackerDigitizerAlgorithm::calcQ(float x) {
   auto xx = std::min(0.5f * x * x, p1);
   return 0.5f * (1.f - std::copysign(std::sqrt(1.f - unsafe_expf<4>(-xx * (1.f + p2 / (1.f + p3 * xx)))), x));
 }
+
+void Phase2TrackerDigitizerAlgorithm::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  SiPixelChargeReweightingAlgorithm::fillPSetDescription(desc);
+  desc.addUntracked<bool>("makeDigiSimLinks", true);
+  desc.add<bool>("InefficiencyDB", false);
+  desc.add<bool>("KillModules", false);
+  desc.add<bool>("DeadModules_DB", false);
+  desc.add<bool>("LorentzAngle_DB", false);
+  edm::ParameterSetDescription desc_deadModules;
+  desc.addVPSet("DeadModules", desc_deadModules, {});
+  desc.add<bool>("Alpha2Order", false);
+  desc.add<bool>("AddXTalk", false);
+  desc.add<double>("InterstripCoupling", 0.0);
+  desc.add<double>("SigmaZero", 0.00037);
+  desc.add<double>("SigmaCoeff", 0.0);
+  desc.add<double>("ClusterWidth", 3);
+  desc.add<int>("Phase2ReadoutMode", 3);
+  desc.add<double>("ElectronPerAdc", 135);
+  desc.add<int>("AdcFullScale", 255);
+  desc.add<double>("NoiseInElectrons", 0.0);
+  desc.add<double>("ReadoutNoiseInElec", -99.9);
+  desc.add<double>("ThresholdInElectrons_Endcap", 1000.0);
+  desc.add<double>("ThresholdInElectrons_Barrel", 1000.0);
+  desc.add<double>("ThresholdSmearing_Endcap", 0.0);
+  desc.add<double>("ThresholdSmearing_Barrel", 0.0);
+  desc.add<double>("HIPThresholdInElectrons_Endcap", 1.0e10);
+  desc.add<double>("HIPThresholdInElectrons_Barrel", 1.0e10);
+  desc.add<double>("TofLowerCut", 12.5);
+  desc.add<double>("TofUpperCut", -12.5);
+  desc.add<double>("TanLorentzAnglePerTesla_Endcap", 0.0);
+  desc.add<double>("TanLorentzAnglePerTesla_Barrel", 0.0);
+  desc.add<bool>("AddNoise", false);
+  desc.add<bool>("AddNoisyPixels", false);
+  desc.addUntracked<bool>("FluctuateCharge", true);
+  desc.add<bool>("AddInefficiency", false);
+  desc.add<bool>("AddThresholdSmearing", false);
+  desc.add<double>("PseudoRadDamage", 0.0);
+  desc.add<double>("PseudoRadDamageRadius", 0.0);
+  desc.add<double>("DeltaProductionCut", 0.03);
+  edm::ParameterSetDescription desc_cellsToKill;
+  desc.addVPSet("CellsToKill", desc_cellsToKill, {});
+  desc.add<std::vector<double> >("EfficiencyFactors_Barrel", {});
+  desc.add<std::vector<double> >("EfficiencyFactors_Endcap", {});
+  desc.add("UseReweighting", false);
+  descriptions.addWithDefaultLabel(desc);
+}

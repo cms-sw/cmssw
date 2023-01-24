@@ -18,6 +18,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
@@ -55,6 +56,8 @@ namespace edm {
 
     /**Default destructor*/
     ~MixingModule() override;
+
+    static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 
     virtual void beginJob() {}
 
