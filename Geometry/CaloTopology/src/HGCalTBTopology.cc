@@ -26,9 +26,7 @@ HGCalTBTopology::HGCalTBTopology(const HGCalTBDDDConstants& hdcons, int det) : h
 #endif
 }
 
-unsigned int HGCalTBTopology::allGeomModules() const {
-  return (static_cast<unsigned int>(2 * hdcons_.wafers()));
-}
+unsigned int HGCalTBTopology::allGeomModules() const { return (static_cast<unsigned int>(2 * hdcons_.wafers())); }
 
 DetId HGCalTBTopology::denseId2detId(uint32_t hi) const {
   HGCalTBTopology::DecodedDetId id;
@@ -41,7 +39,8 @@ DetId HGCalTBTopology::denseId2detId(uint32_t hi) const {
     id.iLay = (((((di - type) / types_) - id.iSec1 + 1) / sectors_) % layers_ + 1);
     id.iCell1 = (((((di - type) / types_) - id.iSec1 + 1) / sectors_ - id.iLay + 1) / layers_ + 1);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "Input Hex " << hi << " o/p " << id.zSide << ":" << id.iLay << ":" << id.iType << ":" << id.iSec1 << ":" << id.iCell1;
+    edm::LogVerbatim("HGCalGeom") << "Input Hex " << hi << " o/p " << id.zSide << ":" << id.iLay << ":" << id.iType
+                                  << ":" << id.iSec1 << ":" << id.iCell1;
 #endif
   }
   return encode(id);
@@ -52,7 +51,8 @@ uint32_t HGCalTBTopology::detId2denseGeomId(const DetId& idin) const {
   uint32_t idx;
   idx = (uint32_t)(((id.zSide > 0) ? kHGeomHalf_ : 0) + (id.iLay - 1) * sectors_ + id.iSec1);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "Geom Hex I/P " << id.zSide << ":" << id.iLay << ":" << id.iSec1 << ":" << id.iType << " Constants " << kHGeomHalf_ << ":" << layers_ << ":" << sectors_ << " o/p " << idx;
+  edm::LogVerbatim("HGCalGeom") << "Geom Hex I/P " << id.zSide << ":" << id.iLay << ":" << id.iSec1 << ":" << id.iType
+                                << " Constants " << kHGeomHalf_ << ":" << layers_ << ":" << sectors_ << " o/p " << idx;
 #endif
   return idx;
 }
@@ -60,7 +60,8 @@ uint32_t HGCalTBTopology::detId2denseGeomId(const DetId& idin) const {
 bool HGCalTBTopology::valid(const DetId& idin) const {
   HGCalTBTopology::DecodedDetId id = decode(idin);
   bool flag;
-  flag = (idin.det() == det_ && idin.subdetId() == (int)(subdet_) && id.iCell1 >= 0 && id.iCell1 < cells_ && id.iLay > 0 && id.iLay <= layers_ && id.iSec1 >= 0 && id.iSec1 <= sectors_);
+  flag = (idin.det() == det_ && idin.subdetId() == (int)(subdet_) && id.iCell1 >= 0 && id.iCell1 < cells_ &&
+          id.iLay > 0 && id.iLay <= layers_ && id.iSec1 >= 0 && id.iSec1 <= sectors_);
   if (flag)
     flag = hdcons_.isValidHex(id.iLay, id.iSec1, id.iCell1, true);
   return flag;
@@ -95,7 +96,8 @@ HGCalTBTopology::DecodedDetId HGCalTBTopology::geomDenseId2decId(const uint32_t&
     id.iLay = (di % layers_) + 1;
     id.iType = ((di - id.iLay + 1) / layers_ == 0) ? -1 : 1;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "Geom Hex I/P " << hi << " O/P " << id.zSide << ":" << id.iType << ":" << id.iLay << ":" << id.iSec1;
+    edm::LogVerbatim("HGCalGeom") << "Geom Hex I/P " << hi << " O/P " << id.zSide << ":" << id.iType << ":" << id.iLay
+                                  << ":" << id.iSec1;
 #endif
   }
   return id;
@@ -121,7 +123,8 @@ DetId HGCalTBTopology::encode(const HGCalTBTopology::DecodedDetId& idx) const {
   edm::LogVerbatim("HGCalGeomX") << "Encode " << idx.det << ":" << idx.zSide << ":" << idx.iType << ":" << idx.iLay
                                  << ":" << idx.iSec1 << ":" << idx.iSec2 << ":" << idx.iCell1 << ":" << idx.iCell2;
 #endif
-  id = HGCalDetId((ForwardSubdetector)(idx.det), idx.zSide, idx.iLay, ((idx.iType > 0) ? 1 : 0), idx.iSec1, idx.iCell1).rawId();
+  id = HGCalDetId((ForwardSubdetector)(idx.det), idx.zSide, idx.iLay, ((idx.iType > 0) ? 1 : 0), idx.iSec1, idx.iCell1)
+           .rawId();
   return id;
 }
 
