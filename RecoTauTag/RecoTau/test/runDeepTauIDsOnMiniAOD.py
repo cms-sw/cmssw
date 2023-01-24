@@ -19,9 +19,9 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 if phase2:
-    process.load('Configuration.Geometry.GeometryExtended2026D94Reco_cff')
-    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T15', '')
-    inputfile = '/store/mc/Phase2HLTTDRWinter20RECOMiniAOD/VBFHToTauTau_M125_14TeV_powheg_pythia8_correctedGridpack_tuneCP5/MINIAODSIM/PU200_110X_mcRun4_realistic_v3-v3/20000/1EF484CA-52F4-F044-B0CC-D4C636C5F0B9.root'
+    process.load('Configuration.Geometry.GeometryExtended2026D97Reco_cff')
+    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T25', '')
+    inputfile = '/store/mc/Phase2Spring21DRMiniAOD/TTbar_TuneCP5_14TeV-pythia8/MINIAODSIM/PU200Phase2D80_113X_mcRun4_realistic_T25_v1_ext1-v1/280000/04e6741c-489a-4fed-9e0c-d7703c274b5a.root'
 else:
     process.load('Configuration.Geometry.GeometryRecoDB_cff')
     process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2018_realistic', '')
@@ -43,9 +43,14 @@ toKeep = [ "2017v2", "dR0p32017v2", "newDM2017v2",
            "deepTau2018v2p5",
            # "DPFTau_2016_v0",
            # "DPFTau_2016_v1",
-           #"againstEle2018",
+           "againstEle2018",
            ]
-if not phase2: toKeep.append("againstEle2018")
+if phase2:
+    toKeep = [ "newDMPhase2v1",
+               # "deepTau2018v2p5",
+               "deepTau2026v2p5",
+               "againstElePhase2v1",
+              ]
 tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, debug = False,
                     updatedTauName = updatedTauName,
                     toKeep = toKeep)
@@ -74,6 +79,10 @@ if not minimalOutput:
      process.out.overrideBranchesSplitLevel = MiniAODOverrideBranchesSplitLevel
 process.out.outputCommands.append("keep *_"+updatedTauName+"_*_*")
 process.out.outputCommands.append("keep *_"+updatedTauName+postfix+"_*_*")
+
+# Adapt to old phase2 input samples where slimmedElectronsHGC are called slimmedElectronsFromMultiCl
+if phase2:
+    process.mergedSlimmedElectronsForTauId.src = ["slimmedElectrons","slimmedElectronsFromMultiCl"]
 
 # Path and EndPath definitions
 process.p = cms.Path(
