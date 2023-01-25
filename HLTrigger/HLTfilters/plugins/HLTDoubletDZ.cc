@@ -401,11 +401,17 @@ bool HLTDoubletDZ<reco::RecoEcalCandidate, reco::RecoEcalCandidate>::computeDZ(e
     if (eleIt.superCluster() == r1->superCluster())
       e1 = eleIt;
   }
+  
+  if (e1.gsfTrack().isNull())
+    edm::LogError("HLTDoubletDZ") << "HLTDoubletDZ: Electron 1 gsfTrack not valid.";
+  if (e2.gsfTrack().isNull())
+    edm::LogError("HLTDoubletDZ") << "HLTDoubletDZ: Electron 2 gsfTrack not valid.";
 
   bool skipDZ = false;
-  if (minPixHitsForDZ_ > 0 && (e1.gsfTrack()->hitPattern().numberOfValidPixelHits() < minPixHitsForDZ_ ||
-                               e2.gsfTrack()->hitPattern().numberOfValidPixelHits() < minPixHitsForDZ_))
-    skipDZ = true;
+  if (!(e1.gsfTrack().isNull()) && !(e2.gsfTrack().isNull())){
+    if (minPixHitsForDZ_ > 0 && (e1.gsfTrack()->hitPattern().numberOfValidPixelHits() < minPixHitsForDZ_ || e2.gsfTrack()->hitPattern().numberOfValidPixelHits() < minPixHitsForDZ_))
+      skipDZ = true;
+  }
   if (!skipDZ && std::abs(e2.vz() - e1.vz()) > maxDZ_)
     return false;
 
