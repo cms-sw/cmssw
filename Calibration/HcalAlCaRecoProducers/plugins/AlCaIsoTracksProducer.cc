@@ -86,7 +86,7 @@ namespace alCaIsoTracksProducer {
 class AlCaIsoTracksProducer : public edm::stream::EDProducer<edm::GlobalCache<alCaIsoTracksProducer::Counters> > {
 public:
   explicit AlCaIsoTracksProducer(edm::ParameterSet const&, const alCaIsoTracksProducer::Counters* count);
-  ~AlCaIsoTracksProducer() override;
+  ~AlCaIsoTracksProducer() override = default;
 
   static std::unique_ptr<alCaIsoTracksProducer::Counters> initializeGlobalCache(edm::ParameterSet const&) {
     return std::make_unique<alCaIsoTracksProducer::Counters>();
@@ -245,8 +245,6 @@ AlCaIsoTracksProducer::AlCaIsoTracksProducer(edm::ParameterSet const& iConfig,
                                    << "EcalRecHitCollection with label EcalRecHitsEE\n"
                                    << "HBHERecHitCollection with label " << labelHBHE_.label();
 }
-
-AlCaIsoTracksProducer::~AlCaIsoTracksProducer() {}
 
 void AlCaIsoTracksProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;

@@ -16,6 +16,9 @@
 //
 //        This will plot the heistograms and save the canvases
 //
+// .L CalibPlotProperties.C+g
+//  CalibSplit c1(fname, dirname, outFileName, pmin, pmax, debug);
+//  c1.Loop(nentries);
 //
 //   where:
 //
@@ -101,6 +104,11 @@
 //                               Default = 111
 //   save (int)                = flag to create or not save the plot in a file
 //                               (0 = no save, > 0 pdf file, < 0 hpg file)
+//
+//   outFileName (std::string)= name of the file containing saved tree
+//   pmin (double)            = minimum track momentum (40.0)
+//   pmax (double)            = maximum track momentum (60.0)
+//   debug (bool)             = debug flag (false)
 //////////////////////////////////////////////////////////////////////////////
 #include <TROOT.h>
 #include <TChain.h>
@@ -1581,4 +1589,507 @@ void PlotHist(const char *hisFileName,
       }
     }
   }
+}
+
+class CalibSplit {
+public:
+  TChain *fChain;  //!pointer to the analyzed TTree or TChain
+  Int_t fCurrent;  //!current Tree number in a TChain
+
+  // Declaration of leaf types
+  Int_t t_Run;
+  Int_t t_Event;
+  Int_t t_DataType;
+  Int_t t_ieta;
+  Int_t t_iphi;
+  Double_t t_EventWeight;
+  Int_t t_nVtx;
+  Int_t t_nTrk;
+  Int_t t_goodPV;
+  Double_t t_l1pt;
+  Double_t t_l1eta;
+  Double_t t_l1phi;
+  Double_t t_l3pt;
+  Double_t t_l3eta;
+  Double_t t_l3phi;
+  Double_t t_p;
+  Double_t t_pt;
+  Double_t t_phi;
+  Double_t t_mindR1;
+  Double_t t_mindR2;
+  Double_t t_eMipDR;
+  Double_t t_eHcal;
+  Double_t t_eHcal10;
+  Double_t t_eHcal30;
+  Double_t t_hmaxNearP;
+  Double_t t_rhoh;
+  Bool_t t_selectTk;
+  Bool_t t_qltyFlag;
+  Bool_t t_qltyMissFlag;
+  Bool_t t_qltyPVFlag;
+  Double_t t_gentrackP;
+  std::vector<unsigned int> *t_DetIds;
+  std::vector<double> *t_HitEnergies;
+  std::vector<bool> *t_trgbits;
+  std::vector<unsigned int> *t_DetIds1;
+  std::vector<unsigned int> *t_DetIds3;
+  std::vector<double> *t_HitEnergies1;
+  std::vector<double> *t_HitEnergies3;
+
+  // List of branches
+  TBranch *b_t_Run;           //!
+  TBranch *b_t_Event;         //!
+  TBranch *b_t_DataType;      //!
+  TBranch *b_t_ieta;          //!
+  TBranch *b_t_iphi;          //!
+  TBranch *b_t_EventWeight;   //!
+  TBranch *b_t_nVtx;          //!
+  TBranch *b_t_nTrk;          //!
+  TBranch *b_t_goodPV;        //!
+  TBranch *b_t_l1pt;          //!
+  TBranch *b_t_l1eta;         //!
+  TBranch *b_t_l1phi;         //!
+  TBranch *b_t_l3pt;          //!
+  TBranch *b_t_l3eta;         //!
+  TBranch *b_t_l3phi;         //!
+  TBranch *b_t_p;             //!
+  TBranch *b_t_pt;            //!
+  TBranch *b_t_phi;           //!
+  TBranch *b_t_mindR1;        //!
+  TBranch *b_t_mindR2;        //!
+  TBranch *b_t_eMipDR;        //!
+  TBranch *b_t_eHcal;         //!
+  TBranch *b_t_eHcal10;       //!
+  TBranch *b_t_eHcal30;       //!
+  TBranch *b_t_hmaxNearP;     //!
+  TBranch *b_t_rhoh;          //!
+  TBranch *b_t_selectTk;      //!
+  TBranch *b_t_qltyFlag;      //!
+  TBranch *b_t_qltyMissFlag;  //!
+  TBranch *b_t_qltyPVFlag;    //!
+  TBranch *b_t_gentrackP;     //!
+  TBranch *b_t_DetIds;        //!
+  TBranch *b_t_HitEnergies;   //!
+  TBranch *b_t_trgbits;       //!
+  TBranch *b_t_DetIds1;       //!
+  TBranch *b_t_DetIds3;       //!
+  TBranch *b_t_HitEnergies1;  //!
+  TBranch *b_t_HitEnergies3;  //!
+
+  // Declaration of output leaf types
+  Int_t tout_Run;
+  Int_t tout_Event;
+  Int_t tout_DataType;
+  Int_t tout_ieta;
+  Int_t tout_iphi;
+  Double_t tout_EventWeight;
+  Int_t tout_nVtx;
+  Int_t tout_nTrk;
+  Int_t tout_goodPV;
+  Double_t tout_l1pt;
+  Double_t tout_l1eta;
+  Double_t tout_l1phi;
+  Double_t tout_l3pt;
+  Double_t tout_l3eta;
+  Double_t tout_l3phi;
+  Double_t tout_p;
+  Double_t tout_pt;
+  Double_t tout_phi;
+  Double_t tout_mindR1;
+  Double_t tout_mindR2;
+  Double_t tout_eMipDR;
+  Double_t tout_eHcal;
+  Double_t tout_eHcal10;
+  Double_t tout_eHcal30;
+  Double_t tout_hmaxNearP;
+  Double_t tout_rhoh;
+  Bool_t tout_selectTk;
+  Bool_t tout_qltyFlag;
+  Bool_t tout_qltyMissFlag;
+  Bool_t tout_qltyPVFlag;
+  Double_t tout_gentrackP;
+  std::vector<unsigned int> *tout_DetIds;
+  std::vector<double> *tout_HitEnergies;
+  std::vector<bool> *tout_trgbits;
+  std::vector<unsigned int> *tout_DetIds1;
+  std::vector<unsigned int> *tout_DetIds3;
+  std::vector<double> *tout_HitEnergies1;
+  std::vector<double> *tout_HitEnergies3;
+
+  CalibSplit(const char *fname,
+             const std::string &dirname,
+             const std::string &outFileName,
+             double pmin = 40.0,
+             double pmax = 60.0,
+             bool debug = false);
+  virtual ~CalibSplit();
+  virtual Int_t Cut(Long64_t entry);
+  virtual Int_t GetEntry(Long64_t entry);
+  virtual Long64_t LoadTree(Long64_t entry);
+  virtual void Init(TChain *);
+  virtual void Loop(Long64_t nentries = -1);
+  virtual Bool_t Notify();
+  virtual void Show(Long64_t entry = -1);
+  void copyTree();
+  void close();
+
+private:
+  const std::string fname_, dirnm_, outFileName_;
+  const double pmin_, pmax_;
+  const bool debug_;
+  TFile *outputFile_;
+  TDirectoryFile *outputDir_;
+  TTree *outputTree_;
+};
+
+CalibSplit::CalibSplit(
+    const char *fname, const std::string &dirnm, const std::string &outFileName, double pmin, double pmax, bool debug)
+    : fname_(fname),
+      dirnm_(dirnm),
+      outFileName_(outFileName),
+      pmin_(pmin),
+      pmax_(pmax),
+      debug_(debug),
+      outputFile_(nullptr),
+      outputDir_(nullptr),
+      outputTree_(nullptr) {
+  char treeName[400];
+  sprintf(treeName, "%s/CalibTree", dirnm.c_str());
+  TChain *chain = new TChain(treeName);
+  std::cout << "Create a chain for " << treeName << " from " << fname << " to write tracs of momentum in the range "
+            << pmin_ << ":" << pmax_ << " to file " << outFileName_ << std::endl;
+  if (!fillChain(chain, fname)) {
+    std::cout << "*****No valid tree chain can be obtained*****" << std::endl;
+  } else {
+    std::cout << "Proceed with a tree chain with " << chain->GetEntries() << " entries" << std::endl;
+    Init(chain);
+  }
+}
+
+CalibSplit::~CalibSplit() {
+  if (!fChain)
+    return;
+  delete fChain->GetCurrentFile();
+}
+
+Int_t CalibSplit::GetEntry(Long64_t entry) {
+  // Read contents of entry.
+  if (!fChain)
+    return 0;
+  return fChain->GetEntry(entry);
+}
+
+Long64_t CalibSplit::LoadTree(Long64_t entry) {
+  // Set the environment to read one entry
+  if (!fChain)
+    return -5;
+  Long64_t centry = fChain->LoadTree(entry);
+  if (centry < 0)
+    return centry;
+  if (!fChain->InheritsFrom(TChain::Class()))
+    return centry;
+  TChain *chain = (TChain *)fChain;
+  if (chain->GetTreeNumber() != fCurrent) {
+    fCurrent = chain->GetTreeNumber();
+    Notify();
+  }
+  return centry;
+}
+
+void CalibSplit::Init(TChain *tree) {
+  // The Init() function is called when the selector needs to initialize
+  // a new tree or chain. Typically here the branch addresses and branch
+  // pointers of the tree will be set.
+  // It is normally not necessary to make changes to the generated
+  // code, but the routine can be extended by the user if needed.
+  // Init() will be called many times when running on PROOF
+  // (once per file to be processed).
+
+  // Set object pointer
+  t_DetIds = nullptr;
+  t_DetIds1 = nullptr;
+  t_DetIds3 = nullptr;
+  t_HitEnergies = nullptr;
+  t_HitEnergies1 = nullptr;
+  t_HitEnergies3 = nullptr;
+  t_trgbits = nullptr;
+  // Set branch addresses and branch pointers
+  fChain = tree;
+  fCurrent = -1;
+  if (!tree)
+    return;
+  fChain->SetMakeClass(1);
+
+  fChain->SetBranchAddress("t_Run", &t_Run, &b_t_Run);
+  fChain->SetBranchAddress("t_Event", &t_Event, &b_t_Event);
+  fChain->SetBranchAddress("t_DataType", &t_DataType, &b_t_DataType);
+  fChain->SetBranchAddress("t_ieta", &t_ieta, &b_t_ieta);
+  fChain->SetBranchAddress("t_iphi", &t_iphi, &b_t_iphi);
+  fChain->SetBranchAddress("t_EventWeight", &t_EventWeight, &b_t_EventWeight);
+  fChain->SetBranchAddress("t_nVtx", &t_nVtx, &b_t_nVtx);
+  fChain->SetBranchAddress("t_nTrk", &t_nTrk, &b_t_nTrk);
+  fChain->SetBranchAddress("t_goodPV", &t_goodPV, &b_t_goodPV);
+  fChain->SetBranchAddress("t_l1pt", &t_l1pt, &b_t_l1pt);
+  fChain->SetBranchAddress("t_l1eta", &t_l1eta, &b_t_l1eta);
+  fChain->SetBranchAddress("t_l1phi", &t_l1phi, &b_t_l1phi);
+  fChain->SetBranchAddress("t_l3pt", &t_l3pt, &b_t_l3pt);
+  fChain->SetBranchAddress("t_l3eta", &t_l3eta, &b_t_l3eta);
+  fChain->SetBranchAddress("t_l3phi", &t_l3phi, &b_t_l3phi);
+  fChain->SetBranchAddress("t_p", &t_p, &b_t_p);
+  fChain->SetBranchAddress("t_pt", &t_pt, &b_t_pt);
+  fChain->SetBranchAddress("t_phi", &t_phi, &b_t_phi);
+  fChain->SetBranchAddress("t_mindR1", &t_mindR1, &b_t_mindR1);
+  fChain->SetBranchAddress("t_mindR2", &t_mindR2, &b_t_mindR2);
+  fChain->SetBranchAddress("t_eMipDR", &t_eMipDR, &b_t_eMipDR);
+  fChain->SetBranchAddress("t_eHcal", &t_eHcal, &b_t_eHcal);
+  fChain->SetBranchAddress("t_eHcal10", &t_eHcal10, &b_t_eHcal10);
+  fChain->SetBranchAddress("t_eHcal30", &t_eHcal30, &b_t_eHcal30);
+  fChain->SetBranchAddress("t_hmaxNearP", &t_hmaxNearP, &b_t_hmaxNearP);
+  fChain->SetBranchAddress("t_rhoh", &t_rhoh, &b_t_rhoh);
+  fChain->SetBranchAddress("t_selectTk", &t_selectTk, &b_t_selectTk);
+  fChain->SetBranchAddress("t_qltyFlag", &t_qltyFlag, &b_t_qltyFlag);
+  fChain->SetBranchAddress("t_qltyMissFlag", &t_qltyMissFlag, &b_t_qltyMissFlag);
+  fChain->SetBranchAddress("t_qltyPVFlag", &t_qltyPVFlag, &b_t_qltyPVFlag);
+  fChain->SetBranchAddress("t_gentrackP", &t_gentrackP, &b_t_gentrackP);
+  fChain->SetBranchAddress("t_DetIds", &t_DetIds, &b_t_DetIds);
+  fChain->SetBranchAddress("t_HitEnergies", &t_HitEnergies, &b_t_HitEnergies);
+  fChain->SetBranchAddress("t_trgbits", &t_trgbits, &b_t_trgbits);
+  fChain->SetBranchAddress("t_DetIds1", &t_DetIds1, &b_t_DetIds1);
+  fChain->SetBranchAddress("t_DetIds3", &t_DetIds3, &b_t_DetIds3);
+  fChain->SetBranchAddress("t_HitEnergies1", &t_HitEnergies1, &b_t_HitEnergies1);
+  fChain->SetBranchAddress("t_HitEnergies3", &t_HitEnergies3, &b_t_HitEnergies3);
+  Notify();
+
+  tout_DetIds = new std::vector<unsigned int>();
+  tout_HitEnergies = new std::vector<double>();
+  tout_trgbits = new std::vector<bool>();
+  tout_DetIds1 = new std::vector<unsigned int>();
+  tout_DetIds3 = new std::vector<unsigned int>();
+  tout_HitEnergies1 = new std::vector<double>();
+  tout_HitEnergies3 = new std::vector<double>();
+
+  outputFile_ = TFile::Open(outFileName_.c_str(), "RECREATE");
+  outputFile_->cd();
+  outputDir_ = new TDirectoryFile(dirnm_.c_str(), dirnm_.c_str());
+  outputDir_->cd();
+  outputTree_ = new TTree("CalibTree", "CalibTree");
+  outputTree_->Branch("t_Run", &tout_Run);
+  outputTree_->Branch("t_Event", &tout_Event);
+  outputTree_->Branch("t_DataType", &tout_DataType);
+  outputTree_->Branch("t_ieta", &tout_ieta);
+  outputTree_->Branch("t_iphi", &tout_iphi);
+  outputTree_->Branch("t_EventWeight", &tout_EventWeight);
+  outputTree_->Branch("t_nVtx", &tout_nVtx);
+  outputTree_->Branch("t_nTrk", &tout_nTrk);
+  outputTree_->Branch("t_goodPV", &tout_goodPV);
+  outputTree_->Branch("t_l1pt", &tout_l1pt);
+  outputTree_->Branch("t_l1eta", &tout_l1eta);
+  outputTree_->Branch("t_l1phi", &tout_l1phi);
+  outputTree_->Branch("t_l3pt", &tout_l3pt);
+  outputTree_->Branch("t_l3eta", &tout_l3eta);
+  outputTree_->Branch("t_l3phi", &tout_l3phi);
+  outputTree_->Branch("t_p", &tout_p);
+  outputTree_->Branch("t_pt", &tout_pt);
+  outputTree_->Branch("t_phi", &tout_phi);
+  outputTree_->Branch("t_mindR1", &tout_mindR1);
+  outputTree_->Branch("t_mindR2", &tout_mindR2);
+  outputTree_->Branch("t_eMipDR", &tout_eMipDR);
+  outputTree_->Branch("t_eHcal", &tout_eHcal);
+  outputTree_->Branch("t_eHcal10", &tout_eHcal10);
+  outputTree_->Branch("t_eHcal30", &tout_eHcal30);
+  outputTree_->Branch("t_hmaxNearP", &tout_hmaxNearP);
+  outputTree_->Branch("t_rhoh", &tout_rhoh);
+  outputTree_->Branch("t_selectTk", &tout_selectTk);
+  outputTree_->Branch("t_qltyFlag", &tout_qltyFlag);
+  outputTree_->Branch("t_qltyMissFlag", &tout_qltyMissFlag);
+  outputTree_->Branch("t_qltyPVFlag", &tout_qltyPVFlag);
+  outputTree_->Branch("t_gentrackP", &tout_gentrackP);
+  outputTree_->Branch("t_DetIds", &tout_DetIds);
+  outputTree_->Branch("t_HitEnergies", &tout_HitEnergies);
+  outputTree_->Branch("t_trgbits", &tout_trgbits);
+  outputTree_->Branch("t_DetIds1", &tout_DetIds1);
+  outputTree_->Branch("t_DetIds3", &tout_DetIds3);
+  outputTree_->Branch("t_HitEnergies1", &tout_HitEnergies1);
+  outputTree_->Branch("t_HitEnergies3", &tout_HitEnergies3);
+
+  std::cout << "Output CalibTree is created in directory " << dirnm_ << " of " << outFileName_ << std::endl;
+}
+
+Bool_t CalibSplit::Notify() {
+  // The Notify() function is called when a new file is opened. This
+  // can be either for a new TTree in a TChain or when when a new TTree
+  // is started when using PROOF. It is normally not necessary to make changes
+  // to the generated code, but the routine can be extended by the
+  // user if needed. The return value is currently not used.
+
+  return kTRUE;
+}
+
+void CalibSplit::Show(Long64_t entry) {
+  // Print contents of entry.
+  // If entry is not specified, print current entry
+  if (!fChain)
+    return;
+  fChain->Show(entry);
+}
+
+Int_t CalibSplit::Cut(Long64_t) {
+  // This function may be called from Loop.
+  // returns  1 if entry is accepted.
+  // returns -1 otherwise.
+  return 1;
+}
+
+void CalibSplit::Loop(Long64_t nentries) {
+  //   In a ROOT session, you can do:
+  //      Root > .L CalibMonitor.C
+  //      Root > CalibMonitor t
+  //      Root > t.GetEntry(12); // Fill t data members with entry number 12
+  //      Root > t.Show();       // Show values of entry 12
+  //      Root > t.Show(16);     // Read and show values of entry 16
+  //      Root > t.Loop();       // Loop on all entries
+  //
+
+  //   This is the loop skeleton where:
+  //      jentry is the global entry number in the chain
+  //      ientry is the entry number in the current Tree
+  //   Note that the argument to GetEntry must be:
+  //      jentry for TChain::GetEntry
+  //      ientry for TTree::GetEntry and TBranch::GetEntry
+  //
+  //       To read only selected branches, Insert statements like:
+  // METHOD1:
+  //    fChain->SetBranchStatus("*",0);  // disable all branches
+  //    fChain->SetBranchStatus("branchname",1);  // activate branchname
+  // METHOD2: replace line
+  //    fChain->GetEntry(jentry);       //read all branches
+  //by  b_branchname->GetEntry(ientry); //read only this branch
+
+  if (fChain == 0)
+    return;
+
+  // Find list of duplicate events
+  if (nentries < 0)
+    nentries = fChain->GetEntriesFast();
+  std::cout << "Total entries " << nentries << ":" << fChain->GetEntriesFast() << std::endl;
+  Long64_t nbytes(0), nb(0);
+  unsigned int good(0), reject(0), kount(0);
+  for (Long64_t jentry = 0; jentry < nentries; jentry++) {
+    Long64_t ientry = LoadTree(jentry);
+    if (ientry < 0)
+      break;
+    nb = fChain->GetEntry(jentry);
+    nbytes += nb;
+    if (jentry % 1000000 == 0)
+      std::cout << "Entry " << jentry << " Run " << t_Run << " Event " << t_Event << std::endl;
+    ++kount;
+    bool select = ((t_p >= pmin_) && (t_p < pmax_));
+    if (!select) {
+      ++reject;
+      if (debug_)
+        std::cout << "Rejected event " << t_Run << " " << t_Event << " " << t_p << std::endl;
+      continue;
+    }
+    ++good;
+    copyTree();
+    outputTree_->Fill();
+  }
+  std::cout << "\nSelect " << good << " Reject " << reject << " entries out of a total of " << kount << " counts"
+            << std::endl;
+  close();
+}
+
+void CalibSplit::copyTree() {
+  tout_Run = t_Run;
+  tout_Event = t_Event;
+  tout_DataType = t_DataType;
+  tout_ieta = t_ieta;
+  tout_iphi = t_iphi;
+  tout_EventWeight = t_EventWeight;
+  tout_nVtx = t_nVtx;
+  tout_nTrk = t_nTrk;
+  tout_goodPV = t_goodPV;
+  tout_l1pt = t_l1pt;
+  tout_l1eta = t_l1eta;
+  tout_l1phi = t_l1phi;
+  tout_l3pt = t_l3pt;
+  tout_l3eta = t_l3eta;
+  tout_l3phi = t_l3phi;
+  tout_p = t_p;
+  tout_pt = t_pt;
+  tout_phi = t_phi;
+  tout_mindR1 = t_mindR1;
+  tout_mindR2 = t_mindR2;
+  tout_eMipDR = t_eMipDR;
+  tout_eHcal = t_eHcal;
+  tout_eHcal10 = t_eHcal10;
+  tout_eHcal30 = t_eHcal30;
+  tout_hmaxNearP = t_hmaxNearP;
+  tout_rhoh = t_rhoh;
+  tout_selectTk = t_selectTk;
+  tout_qltyFlag = t_qltyFlag;
+  tout_qltyMissFlag = t_qltyMissFlag;
+  tout_qltyPVFlag = t_qltyPVFlag;
+  tout_gentrackP = t_gentrackP;
+  if (t_DetIds != nullptr) {
+    tout_DetIds->reserve(t_DetIds->size());
+    for (unsigned int i = 0; i < t_DetIds->size(); ++i)
+      tout_DetIds->push_back((*t_DetIds)[i]);
+  } else {
+    tout_DetIds->clear();
+  }
+  if (t_HitEnergies != nullptr) {
+    tout_HitEnergies->reserve(t_HitEnergies->size());
+    for (unsigned int i = 0; i < t_HitEnergies->size(); ++i)
+      tout_HitEnergies->push_back((*t_HitEnergies)[i]);
+  } else {
+    tout_HitEnergies->clear();
+  }
+  if (t_trgbits != nullptr) {
+    tout_trgbits->reserve(t_trgbits->size());
+    for (unsigned int i = 0; i < t_trgbits->size(); ++i)
+      tout_trgbits->push_back((*t_trgbits)[i]);
+  } else {
+    tout_trgbits->clear();
+  }
+  if (t_DetIds1 != nullptr) {
+    tout_DetIds1->reserve(t_DetIds1->size());
+    for (unsigned int i = 0; i < t_DetIds1->size(); ++i)
+      tout_DetIds1->push_back((*t_DetIds1)[i]);
+  } else {
+    tout_DetIds1->clear();
+  }
+  if (t_DetIds3 != nullptr) {
+    tout_DetIds3->reserve(t_DetIds3->size());
+    for (unsigned int i = 0; i < t_DetIds3->size(); ++i)
+      tout_DetIds3->push_back((*t_DetIds3)[i]);
+  } else {
+    tout_DetIds3->clear();
+  }
+  if (t_HitEnergies1 != nullptr) {
+    tout_HitEnergies1->reserve(t_HitEnergies1->size());
+    for (unsigned int i = 0; i < t_HitEnergies1->size(); ++i)
+      tout_HitEnergies1->push_back((*t_HitEnergies1)[i]);
+  } else {
+    tout_HitEnergies1->clear();
+  }
+  if (t_HitEnergies1 != nullptr) {
+    tout_HitEnergies3->reserve(t_HitEnergies3->size());
+    for (unsigned int i = 0; i < t_HitEnergies3->size(); ++i)
+      tout_HitEnergies3->push_back((*t_HitEnergies3)[i]);
+  } else {
+    tout_HitEnergies3->clear();
+  }
+}
+
+void CalibSplit::close() {
+  if (!outputFile_) {
+    outputDir_->cd();
+    std::cout << "file yet to be Written" << std::endl;
+    outputTree_->Write();
+    std::cout << "file Written" << std::endl;
+    outputFile_->Close();
+    std::cout << "now doing return" << std::endl;
+  }
+  outputFile_ = nullptr;
 }

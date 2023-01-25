@@ -1248,16 +1248,17 @@ void AnalyzeLepTree::getBins(int type, int ieta, int phi, int depth, int& nbin, 
   int eta = (ieta >= 0) ? ieta : -ieta;
   bool barrel = (eta < 16) || ((eta == 16) && (depth <= 2));
   bool rbx17 = (phi >= 63) && (phi <= 66) && (ieta >= 16) && (!barrel);
-  nbin = 5000;
-  xmax = 10.0;
+  nbin = 50000;
+  xmax = 500.0;
   if (type >= 4) {
     if ((modeLHC_ == 1) || (((modeLHC_ == 2) || (modeLHC_ == 4)) && barrel) || ((modeLHC_ == 4) && (!rbx17))) {
       // HPD Channels
+      nbin = 5000;
       xmax = 50.0;
     } else {
       // SiPM Channels
-      xmax = 10000.0;
-      nbin = 10000;
+      xmax = 50000.0;
+      nbin = 50000;
     }
   }
 }
