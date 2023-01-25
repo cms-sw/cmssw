@@ -2,7 +2,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-SiTrivialDigitalConverter::SiTrivialDigitalConverter(float in, bool PreMix) : electronperADC(in), PreMixing_(PreMix) {
+SiTrivialDigitalConverter::SiTrivialDigitalConverter(float in, bool PreMix)
+    : ADCperElectron(1.f / in), PreMixing_(PreMix) {
   _temp.reserve(800);
   _tempRaw.reserve(800);
 }
@@ -18,7 +19,7 @@ SiDigitalConverter::DigitalVecType SiTrivialDigitalConverter::convert(const std:
         continue;
       // convert analog amplitude to digital - special algorithm for PreMixing.
       // Need to keep all hits, including those at very low pulse heights.
-      int adc = truncate(sqrt(9.0 * analogSignal[i]));
+      int adc = truncate(std::sqrt(9.0f * analogSignal[i]));
       if (adc > 0)
         _temp.push_back(SiStripDigi(i, adc));
     }
@@ -77,7 +78,7 @@ SiDigitalConverter::DigitalRawVecType SiTrivialDigitalConverter::convertRaw(cons
 
 int SiTrivialDigitalConverter::truncate(float in_adc) const {
   //Rounding the ADC number instead of truncating it
-  int adc = int(in_adc + 0.5);
+  int adc = int(in_adc + 0.5f);
   /*
     254 ADC: 254  <= raw charge < 1023
     255 ADC: raw charge >= 1023
@@ -101,7 +102,7 @@ int SiTrivialDigitalConverter::truncate(float in_adc) const {
 
 int SiTrivialDigitalConverter::truncateRaw(float in_adc) const {
   //Rounding the ADC number
-  int adc = int(in_adc + 0.5);
+  int adc = int(in_adc + 0.5f);
   if (adc > 1023)
     return 1023;
   //Protection
