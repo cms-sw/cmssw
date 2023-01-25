@@ -8,9 +8,9 @@ SiTrivialDigitalConverter::SiTrivialDigitalConverter(float in, bool PreMix)
   _tempRaw.reserve(800);
 }
 
-SiDigitalConverter::DigitalVecType SiTrivialDigitalConverter::convert(const std::vector<float>& analogSignal,
-                                                                      const SiStripGain* gain,
-                                                                      unsigned int detid) {
+SiDigitalConverter::DigitalVecType const& SiTrivialDigitalConverter::convert(const std::vector<float>& analogSignal,
+                                                                             const SiStripGain* gain,
+                                                                             unsigned int detid) {
   _temp.clear();
 
   if (PreMixing_) {
@@ -46,9 +46,8 @@ SiDigitalConverter::DigitalVecType SiTrivialDigitalConverter::convert(const std:
   return _temp;
 }
 
-SiDigitalConverter::DigitalRawVecType SiTrivialDigitalConverter::convertRaw(const std::vector<float>& analogSignal,
-                                                                            const SiStripGain* gain,
-                                                                            unsigned int detid) {
+SiDigitalConverter::DigitalRawVecType const& SiTrivialDigitalConverter::convertRaw(
+    const std::vector<float>& analogSignal, const SiStripGain* gain, unsigned int detid) {
   _tempRaw.clear();
 
   if (gain) {

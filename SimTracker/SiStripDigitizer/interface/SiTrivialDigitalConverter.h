@@ -5,16 +5,16 @@
 /**
  * Concrete implementation of SiDigitalConverter.
  */
-class SiTrivialDigitalConverter : public SiDigitalConverter {
+class SiTrivialDigitalConverter final : public SiDigitalConverter {
 public:
   SiTrivialDigitalConverter(float in, bool PreMix);
 
-  DigitalVecType convert(const std::vector<float>&, const SiStripGain*, unsigned int detid) override;
-  DigitalRawVecType convertRaw(const std::vector<float>&, const SiStripGain*, unsigned int detid) override;
+  DigitalVecType const& convert(const std::vector<float>&, const SiStripGain*, unsigned int detid) override;
+  DigitalRawVecType const& convertRaw(const std::vector<float>&, const SiStripGain*, unsigned int detid) override;
 
 private:
-  int convert(float in) { return truncate(in * ADCperElectron); }
-  int convertRaw(float in) { return truncateRaw(in * ADCperElectron); }
+  int convert(float in) const { return truncate(in * ADCperElectron); }
+  int convertRaw(float in) const { return truncateRaw(in * ADCperElectron); }
   int truncate(float in_adc) const;
   int truncateRaw(float in_adc) const;
 

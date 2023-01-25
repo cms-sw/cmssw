@@ -38,6 +38,12 @@ void SiStripFedZeroSuppression::suppress(const std::vector<SiStripDigi>& in,
   selectedSignal.clear();
   selectedSignal.reserve(inSize);
   for (i = 0; i < inSize; i++) {
+    // if algo is "5" just do it here
+    if (5 == theFEDalgorithm && adc > 0) {
+      selectedSignal.emplace_back(in[i]);
+      continue;
+    }
+
     //Find adc values for neighbouring strips
     const uint32_t strip = (uint32_t)in[i].strip();
 
