@@ -97,6 +97,10 @@ public:
 private:
   template <typename T>
   void calculate(const T* r, const T* z, const T* errZ2, size_t n) {
+    //Have 0 and 1 cases return same value
+    if (n < 2) [[unlikely]] {
+      n = 0;
+    }
     linearFit(r, z, n, errZ2, cotTheta_, intercept_, covss_, covii_, covsi_);
     chi2_ = 0.f;
     for (size_t i = 0; i < n; ++i) {

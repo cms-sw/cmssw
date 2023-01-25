@@ -13,7 +13,8 @@ TEST_CASE("test RZLine", "[RZLine]") {
     constexpr float covss = 124.99996f;
     constexpr float covii = 0.0003249999136f;
     constexpr float covsi = -0.175f;
-    constexpr float chi2 = 1.110223025e-12;
+    constexpr float chi2 = 0;
+    constexpr float chi2_diff = 1e-10;
 
     SECTION("array") {
       RZLine l(r, z, errz);
@@ -23,7 +24,7 @@ TEST_CASE("test RZLine", "[RZLine]") {
       REQUIRE(l.covss() == Approx(covss));
       REQUIRE(l.covii() == Approx(covii));
       REQUIRE(l.covsi() == Approx(covsi));
-      REQUIRE(l.chi2() == Approx(chi2));
+      REQUIRE_THAT(l.chi2(), Catch::Matchers::WithinAbs(chi2, chi2_diff));
     }
 
     SECTION("vector") {
@@ -37,7 +38,7 @@ TEST_CASE("test RZLine", "[RZLine]") {
       REQUIRE(l.covss() == Approx(covss));
       REQUIRE(l.covii() == Approx(covii));
       REQUIRE(l.covsi() == Approx(covsi));
-      REQUIRE(l.chi2() == Approx(chi2));
+      REQUIRE_THAT(l.chi2(), Catch::Matchers::WithinAbs(chi2, chi2_diff));
     }
 
     SECTION("vector ErrZ2_tag") {
@@ -52,7 +53,7 @@ TEST_CASE("test RZLine", "[RZLine]") {
       REQUIRE(l.covss() == Approx(covss));
       REQUIRE(l.covii() == Approx(covii));
       REQUIRE(l.covsi() == Approx(covsi));
-      REQUIRE(l.chi2() == Approx(chi2));
+      REQUIRE_THAT(l.chi2(), Catch::Matchers::WithinAbs(chi2, chi2_diff));
     }
 
     SECTION("points&errors") {
@@ -77,7 +78,7 @@ TEST_CASE("test RZLine", "[RZLine]") {
       REQUIRE(l.covss() == Approx(covss));
       REQUIRE(l.covii() == Approx(covii));
       REQUIRE(l.covsi() == Approx(covsi));
-      REQUIRE(l.chi2() == Approx(chi2));
+      REQUIRE_THAT(l.chi2(), Catch::Matchers::WithinAbs(chi2, chi2_diff));
     }
   }
   SECTION("no points") {
@@ -100,11 +101,12 @@ TEST_CASE("test RZLine", "[RZLine]") {
     const std::vector<float> errzv = {0.01};
     RZLine l(rv, zv, errzv);
 
-    REQUIRE(l.cotTheta() == 0.0f);
-    REQUIRE(l.intercept() == Approx(0.125f));
-    REQUIRE(l.covss() == Approx(1310720000.0f));
-    REQUIRE(l.covii() == Approx(1310.72009f));
-    REQUIRE(l.covsi() == Approx(-1310720.0f));
-    REQUIRE(l.chi2() == Approx(6.25f));
+    //NOTE a NaN is a number that is not equal to itself
+    REQUIRE(l.cotTheta() != l.cotTheta());
+    REQUIRE(l.intercept() != l.intercept());
+    REQUIRE(l.covss() != l.covss());
+    REQUIRE(l.covii() != l.covii());
+    REQUIRE(l.covsi() != l.covsi());
+    REQUIRE(l.chi2() == 0.0f);
   }
 }
