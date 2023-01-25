@@ -76,7 +76,7 @@ HGCalTBTopologyBuilder::ReturnType HGCalTBTopologyBuilder::produce(const IdealGe
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Create HGCalTBTopology(hgdc,det)";
 #endif
-  return std::make_unique<HGCalTBTopology>(hgdc, det_);
+  return std::make_unique<HGCalTBTopology>(&hgdc, det_);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(HGCalTBTopologyBuilder);

@@ -5,13 +5,13 @@
 
 #define EDM_ML_DEBUG
 
-HGCalTBTopology::HGCalTBTopology(const HGCalTBDDDConstants& hdcons, int det) : hdcons_(hdcons) {
-  sectors_ = hdcons_.sectors();
-  layers_ = hdcons_.layers(true);
-  cells_ = hdcons_.maxCells(true);
-  mode_ = hdcons_.geomMode();
+HGCalTBTopology::HGCalTBTopology(const HGCalTBDDDConstants* hdcons, int det) : hdcons_(hdcons) {
+  sectors_ = hdcons_->sectors();
+  layers_ = hdcons_->layers(true);
+  cells_ = hdcons_->maxCells(true);
+  mode_ = hdcons_->geomMode();
   kHGhalf_ = sectors_ * layers_ * cells_;
-  firstLay_ = hdcons_.firstLayer();
+  firstLay_ = hdcons_->firstLayer();
   det_ = DetId::Forward;
   subdet_ = (ForwardSubdetector)(det);
   kHGeomHalf_ = sectors_ * layers_;
@@ -26,7 +26,7 @@ HGCalTBTopology::HGCalTBTopology(const HGCalTBDDDConstants& hdcons, int det) : h
 #endif
 }
 
-unsigned int HGCalTBTopology::allGeomModules() const { return (static_cast<unsigned int>(2 * hdcons_.wafers())); }
+unsigned int HGCalTBTopology::allGeomModules() const { return (static_cast<unsigned int>(2 * hdcons_->wafers())); }
 
 DetId HGCalTBTopology::denseId2detId(uint32_t hi) const {
   HGCalTBTopology::DecodedDetId id;
@@ -63,7 +63,7 @@ bool HGCalTBTopology::valid(const DetId& idin) const {
   flag = (idin.det() == det_ && idin.subdetId() == (int)(subdet_) && id.iCell1 >= 0 && id.iCell1 < cells_ &&
           id.iLay > 0 && id.iLay <= layers_ && id.iSec1 >= 0 && id.iSec1 <= sectors_);
   if (flag)
-    flag = hdcons_.isValidHex(id.iLay, id.iSec1, id.iCell1, true);
+    flag = hdcons_->isValidHex(id.iLay, id.iSec1, id.iCell1, true);
   return flag;
 }
 
