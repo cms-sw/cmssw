@@ -87,8 +87,13 @@ void L1uGTTreeProducer::analyze(edm::Event const &event, edm::EventSetup const &
 
   edm::Handle<GlobalAlgBlkBxCollection> ugt;
   event.getByToken(ugtToken_, ugt);
-  if (ugt.isValid()) {
+  if (ugt.isValid() && ugt.product()->size() != 0) {
     results_ = &ugt->at(0, 0);
+  } else {
+    edm::LogWarning("MissingProduct")
+        << "L1uGTTree or L1uGTTestcrateTree GlobalAlgBlkBxCollection not found. Branch will not be filled.\n"
+        << "Please note that the L1uGTTestcrateTree is not expected to exist in MC, so this warning can be ignored!"
+        << std::endl;
   }
 
   tree_->Fill();
