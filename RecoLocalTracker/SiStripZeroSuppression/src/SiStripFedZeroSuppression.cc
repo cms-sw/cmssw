@@ -44,8 +44,15 @@ void SiStripFedZeroSuppression::suppress(const std::vector<SiStripDigi>& in,
     adc = in[i].adc();
 
     SiStripThreshold::Data thresholds = threshold.getData(strip, detThRange);
-    theFEDlowThresh = static_cast<int16_t>(thresholds.getLth() * noise.getNoiseFast(strip, detNoiseRange) + 0.5);
     theFEDhighThresh = static_cast<int16_t>(thresholds.getHth() * noise.getNoiseFast(strip, detNoiseRange) + 0.5);
+
+    // do not bother with the rest if large enough
+    if (adc > theFEDhighThresh) {
+      selectedSignal.push_back(SiStripDigi(strip, adc));
+      return;
+    }
+
+    theFEDlowThresh = static_cast<int16_t>(thresholds.getLth() * noise.getNoiseFast(strip, detNoiseRange) + 0.5);
 
     adcPrev = -9999;
     adcNext = -9999;
