@@ -12,10 +12,10 @@
 class HGCalTBTopology : public CaloSubdetectorTopology {
 public:
   /// create a new Topology
+  HGCalTBTopology() {}
   HGCalTBTopology(const HGCalTBDDDConstants& hdcons, int subdet);
 
-  /// virtual destructor
-  ~HGCalTBTopology() override = default;
+  /// default destructor
 
   /// move the Topology north (increment iy)
   DetId goNorth(const DetId& id) const override { return changeXY(id, 0, +1); }
