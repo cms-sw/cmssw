@@ -368,7 +368,7 @@ caloDict = {
             'from Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi import *'
         ],
         "reco" : [
-            'from Geometry.CaloEventSetup.HGCalV9Topology_cfi import *',
+            'from Geometry.CaloEventSetup.HGCalTopology_cfi import *',
             'from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *',
             'from Geometry.CaloEventSetup.CaloTopology_cfi import *',
             'from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *',
@@ -442,7 +442,7 @@ caloDict = {
             'from Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi import *'
         ],
         "reco" : [
-            'from Geometry.CaloEventSetup.HGCalV9Topology_cfi import *',
+            'from Geometry.CaloEventSetup.HGCalTopology_cfi import *',
             'from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *',
             'from Geometry.CaloEventSetup.CaloTopology_cfi import *',
             'from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *',
@@ -515,7 +515,7 @@ caloDict = {
             'from Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi import *'
         ],
         "reco" : [
-            'from Geometry.CaloEventSetup.HGCalV9Topology_cfi import *',
+            'from Geometry.CaloEventSetup.HGCalTopology_cfi import *',
             'from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *',
             'from Geometry.CaloEventSetup.CaloTopology_cfi import *',
             'from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *',
@@ -598,7 +598,7 @@ caloDict = {
             'from Geometry.ForwardCommonData.hfnoseNumberingInitialization_cfi  import *',
         ],
         "reco" : [
-            'from Geometry.CaloEventSetup.HGCalV9Topology_cfi import *',
+            'from Geometry.CaloEventSetup.HGCalTopology_cfi import *',
             'from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *',
             'from Geometry.CaloEventSetup.HFNoseTopology_cfi import *',
             'from Geometry.ForwardGeometry.HFNoseGeometryESProducer_cfi import *',
