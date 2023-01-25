@@ -93,7 +93,7 @@ private:
       auto const &hit = *(*itm).recHit()->hit();
       if ((removeNoDet) & ((*itm).recHitR().det() == nullptr))
         continue;
-      if (trackerHitRTTI::isUndef(hit) | trackerHitRTTI::isNotFromCluster(hit) | (hit.dimension() != 2)) {
+      if (trackerHitRTTI::isUndef(hit) || trackerHitRTTI::isNotFromCluster(hit) || (hit.dimension() != 2)) {
         hits.push_back(hit.clone());
         continue;
       }

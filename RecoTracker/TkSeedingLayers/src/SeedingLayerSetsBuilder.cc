@@ -296,7 +296,7 @@ void SeedingLayerSetsBuilder::updateEventSetup(const edm::EventSetup& es) {
   // We want to evaluate both in the first invocation (to properly
   // initialize ESWatcher), and this way we avoid one branch compared
   // to || (should be tiny effect)
-  if (!(geometryWatcher_.check(es) | trhWatcher_.check(es)))
+  if (!(geometryWatcher_.check(es) || trhWatcher_.check(es)))
     return;
 
   const GeometricSearchTracker& tracker = es.getData(trackerToken_);

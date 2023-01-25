@@ -246,7 +246,7 @@ void PixelCPEBase::setTheClu(DetParam const& theDetParam, ClusterParam& theClust
   //if(theClusterParam.theCluster->pixelADC()[i] == 0) { hasBadPixels_ = true; break;}
   //}
 
-  theClusterParam.spansTwoROCs_ = theDetParam.theRecTopol->containsBigPixelInX(minInX, maxInX) |
+  theClusterParam.spansTwoROCs_ = theDetParam.theRecTopol->containsBigPixelInX(minInX, maxInX) ||
                                   theDetParam.theRecTopol->containsBigPixelInY(minInY, maxInY);
 }
 
