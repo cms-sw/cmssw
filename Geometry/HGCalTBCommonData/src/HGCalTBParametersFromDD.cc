@@ -8,7 +8,7 @@
 #include "Geometry/HGCalTBCommonData/interface/HGCalTBGeomParameters.h"
 #include "Geometry/HGCalTBCommonData/interface/HGCalTBParameters.h"
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 using namespace geant_units::operators;
 
 bool HGCalTBParametersFromDD::build(const DDCompactView* cpv,

@@ -25,7 +25,7 @@
     <Include ref="Geometry/HGCalCommonData/data/hgcalMaterial/v1/hgcalMaterial.xml"/>
     <Include ref="Geometry/HGCalTBCommonData/data/TB181/cms.xml"/>
     <Include ref="Geometry/HGCalTBCommonData/data/TB181/Oct181/hgcal.xml"/>
-    <Include ref="Geometry/HGCalCommonData/data/hgcalwafer/v7/hgcalwafer.xml"/>
+    <Include ref="Geometry/HGCalTBCommonData/data/hgcalwafer/v7/hgcalwafer.xml"/>
     <Include ref="Geometry/HGCalTBCommonData/data/TB181/Oct181/hgcalEE.xml"/>
     <Include ref="Geometry/HGCalTBCommonData/data/TB181/Oct181/hgcalsense.xml"/>
     <Include ref="Geometry/HGCalTBCommonData/data/TB181/hgcProdCuts.xml"/>
