@@ -157,7 +157,7 @@ void Basic2DGenericPFlowPositionCalc::calculateAndSetPositionActual(reco::PFClus
     hits[i] = {p, (*p).energy(), float(hf.fraction())};
   }
 
-  bool resGiven = bool(_timeResolutionCalcBarrel) & bool(_timeResolutionCalcEndcap);
+  bool resGiven = bool(_timeResolutionCalcBarrel) && bool(_timeResolutionCalcEndcap);
   LHit mySeed = {};
   for (auto const& rhf : hits) {
     const reco::PFRecHit& refhit = *rhf.hit;

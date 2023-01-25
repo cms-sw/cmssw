@@ -316,8 +316,8 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo &channe
   double noiseADCArr[hcal::constants::maxSamples] = {};
   double noiseArrSq[hcal::constants::maxSamples] = {};
   double noisePHArr[hcal::constants::maxSamples] = {};
-  double tsTOT = 0, tstrig = 0;  // in fC
-  double tsTOTen = 0;            // in GeV
+  double tstrig = 0;   // in fC
+  double tsTOTen = 0;  // in GeV
 
   // go over the time slices
   for (unsigned int ip = 0; ip < cssize; ++ip) {
@@ -355,7 +355,6 @@ void PulseShapeFitOOTPileupCorrection::phase1Apply(const HBHEChannelInfo &channe
                      channelData.tsPedestalWidth(ip) * channelData.tsPedestalWidth(ip) +
                      noisePHArr[ip] * noisePHArr[ip];
 
-    tsTOT += charge - ped;
     tsTOTen += energy - peden;
     if (ip == soi || ip == soi + 1) {
       tstrig += charge - ped;

@@ -226,7 +226,7 @@ void KDTreeLinkerAlgo<DATA, DIM>::recSearch(int current, const KDTreeBox<DIM> &t
       bool isInside = true;
       for (unsigned i = 0; i < DIM; ++i) {
         float dimCurr = nodePool_.dims[i][current];
-        isInside &= (dimCurr >= trackBox.dimmin[i]) & (dimCurr <= trackBox.dimmax[i]);
+        isInside &= (dimCurr >= trackBox.dimmin[i]) && (dimCurr <= trackBox.dimmax[i]);
       }
       if (isInside) {
         closestNeighbour->push_back(nodePool_.data[current]);
