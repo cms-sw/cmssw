@@ -5,6 +5,7 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 #include "DataFormats/Math/interface/liblogintpack.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "TMatrixDSym.h"
 #include "TVectorD.h"
@@ -182,7 +183,7 @@ const reco::Track pat::PackedCandidate::pseudoPosDefTrack() const {
     TMatrixDSym eigenCov(5);
     for (int i = 0; i < 5; i++) {
       for (int j = 0; j < 5; j++) {
-        if (std::isnan((m)(i, j)) || std::isinf((m)(i, j)))
+        if (edm::isNotFinite((m)(i, j)))
           eigenCov(i, j) = 1e-6;
         else
           eigenCov(i, j) = (m)(i, j);
