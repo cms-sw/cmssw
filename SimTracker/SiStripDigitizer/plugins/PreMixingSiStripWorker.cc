@@ -682,11 +682,8 @@ void PreMixingSiStripWorker::put(edm::Event& e,
         }
       }
 
-      DigitalVecType digis;
       theSiZeroSuppress->suppress(
-          theSiDigitalConverter->convert(detAmpl, &gain, detID), digis, detID, noise, threshold);
-
-      SSD.data = digis;
+          theSiDigitalConverter->convert(detAmpl, &gain, detID), SSD.data, detID, noise, threshold);
 
       // stick this into the global vector of detector info
       vSiStripDigi.push_back(SSD);
