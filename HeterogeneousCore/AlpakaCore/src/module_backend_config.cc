@@ -4,7 +4,9 @@
 
 namespace {
   const std::string kPSetName("alpaka");
-  const char* const kComment = "PSet allows to override the Alpaka backend per module instance";
+  const char* const kComment =
+      "PSet allows to override the Alpaka backend per module instance. Has an effect only when the module class name "
+      "has '@alpaka' suffix, i.e. has no effect when the Alpaka backend namespace is used explicitly.";
 }  // namespace
 
 namespace cms::alpakatools {
