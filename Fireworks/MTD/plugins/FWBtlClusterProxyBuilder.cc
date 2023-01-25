@@ -1,4 +1,3 @@
-
 // -*- C++ -*-
 //
 // Package:     MTD
@@ -11,7 +10,7 @@
 
 #include "TEvePointSet.h"
 #include "TEveCompound.h"
-#include "TEveBox.h"
+
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGeometry.h"
@@ -37,7 +36,6 @@ private:
 };
 
 void FWBtlClusterProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) {
-
   const FTLClusterCollection* clusters = nullptr;
 
   iItem->get(clusters);
@@ -47,31 +45,29 @@ void FWBtlClusterProxyBuilder::build(const FWEventItem* iItem, TEveElementList* 
     return;
   }
 
-  for (const auto& detSet : *clusters) {
+  const FWGeometry* geom = iItem->getGeom();
 
+  TEvePointSet* pointSet = new TEvePointSet();
+
+  for (const auto& detSet : *clusters) {
     unsigned int id = detSet.detId();
 
-    const FWGeometry* geom = iItem->getGeom();
     const float* pars = geom->getParameters(id);
 
     for (const auto& cluster : detSet) {
-
       TEveElement* itemHolder = createCompound();
       product->AddElement(itemHolder);
 
-      TEvePointSet* pointSet = new TEvePointSet;
-
       if (!geom->contains(id)) {
-	fwLog(fwlog::kWarning) << "failed to get geometry of FTLCluster with detid: " << id << std::endl;
-	continue;
+        fwLog(fwlog::kWarning) << "failed to get geometry of FTLCluster with detid: " << id << std::endl;
+        continue;
       }
 
-      // --- Get the BTL cluster local position: 
-      float x_local = ( cluster.getClusterErrorX() < 0.          ?
-			(cluster.x() + 0.5f) * pars[0] + pars[2] :
-			cluster.getClusterPosX()                 );
-      float y_local =  (cluster.y() + 0.5f) * pars[1] + pars[3];
-     
+      // --- Get the BTL cluster local position:
+      float x_local =
+          (cluster.getClusterErrorX() < 0. ? (cluster.x() + 0.5f) * pars[0] + pars[2] : cluster.getClusterPosX());
+      float y_local = (cluster.y() + 0.5f) * pars[1] + pars[3];
+
       const float localPoint[3] = {x_local, y_local, 0.0};
 
       float globalPoint[3];
@@ -84,7 +80,6 @@ void FWBtlClusterProxyBuilder::build(const FWEventItem* iItem, TEveElementList* 
     }  // cluster loop
 
   }  // detSet loop
-
 }
 
 REGISTER_FWPROXYBUILDER(FWBtlClusterProxyBuilder,

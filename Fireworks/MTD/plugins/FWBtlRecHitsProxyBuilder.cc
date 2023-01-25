@@ -1,4 +1,3 @@
-
 // -*- C++ -*-
 //
 // Package:     MTD
@@ -11,7 +10,7 @@
 
 #include "TEvePointSet.h"
 #include "TEveCompound.h"
-#include "TEveBox.h"
+
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FWGeometry.h"
@@ -37,7 +36,6 @@ private:
 };
 
 void FWBtlRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) {
-
   const FTLRecHitCollection* recHits = nullptr;
 
   iItem->get(recHits);
@@ -47,28 +45,26 @@ void FWBtlRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* p
     return;
   }
 
-  for (const auto& hit : *recHits) {
+  const FWGeometry* geom = iItem->getGeom();
 
+  TEvePointSet* pointSet = new TEvePointSet();
+
+  for (const auto& hit : *recHits) {
     unsigned int id = hit.id().rawId();
 
-    const FWGeometry* geom = iItem->getGeom();
     const float* pars = geom->getParameters(id);
 
     TEveElement* itemHolder = createCompound();
     product->AddElement(itemHolder);
-
-    TEvePointSet* pointSet = new TEvePointSet;
 
     if (!geom->contains(id)) {
       fwLog(fwlog::kWarning) << "failed to get geometry of FTLRecHit with detid: " << id << std::endl;
       continue;
     }
 
-    // --- Get the BTL RecHit local position: 
-    float x_local = ( hit.positionError() > 0.               ?
-		      hit.position()                         :
-		      (hit.row() + 0.5f) * pars[0] + pars[2] );
-    float y_local = (hit.column() + 0.5f) * pars[1] + pars[3]; 
+    // --- Get the BTL RecHit local position:
+    float x_local = (hit.positionError() > 0. ? hit.position() : (hit.row() + 0.5f) * pars[0] + pars[2]);
+    float y_local = (hit.column() + 0.5f) * pars[1] + pars[3];
 
     const float localPoint[3] = {x_local, y_local, 0.0};
 
@@ -80,7 +76,6 @@ void FWBtlRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* p
     setupAddElement(pointSet, itemHolder);
 
   }  // recHits loop
-
 }
 
 REGISTER_FWPROXYBUILDER(FWBtlRecHitProxyBuilder,
