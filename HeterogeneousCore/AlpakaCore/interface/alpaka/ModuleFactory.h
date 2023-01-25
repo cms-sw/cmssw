@@ -7,16 +7,13 @@
 // force expanding ALPAKA_ACCELERATOR_NAMESPACE before stringification
 // use the serial_sync variant for cfi file generation with the type@alpaka C++ type
 #ifdef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
-#define DEFINE_FWK_EVENTSETUP_ALPAKA_MODULE3(type_ns, type)                                                 \
-  DEFINE_EDM_PLUGIN(edm::eventsetup::ModulePluginFactory, edm::eventsetup::ModuleMaker<type_ns>, #type_ns); \
-  DEFINE_DESC_FILLER_FOR_ESPRODUCERS_IMPL(type_ns, #type "@alpaka")
-#define DEFINE_FWK_EVENTSETUP_ALPAKA_MODULE2(type_ns, type) DEFINE_FWK_EVENTSETUP_ALPAKA_MODULE3(type_ns, type)
+#define DEFINE_FWK_EVENTSETUP_ALPAKA_MODULE2(type_ns, type) \
+  DEFINE_FWK_EVENTSETUP_MODULE(type_ns);                    \
+  DEFINE_DESC_FILLER_FOR_ESPRODUCERS_IMPL(type_ns, #type "@alpaka", _1)
 #define DEFINE_FWK_EVENTSETUP_ALPAKA_MODULE(type) \
   DEFINE_FWK_EVENTSETUP_ALPAKA_MODULE2(ALPAKA_ACCELERATOR_NAMESPACE::type, type)
 #else
-#define DEFINE_FWK_EVENTSETUP_ALPAKA_MODULE3(type_ns) \
-  DEFINE_EDM_PLUGIN(edm::eventsetup::ModulePluginFactory, edm::eventsetup::ModuleMaker<type_ns>, #type_ns);
-#define DEFINE_FWK_EVENTSETUP_ALPAKA_MODULE2(type_ns) DEFINE_FWK_EVENTSETUP_ALPAKA_MODULE3(type_ns)
+#define DEFINE_FWK_EVENTSETUP_ALPAKA_MODULE2(type_ns) DEFINE_FWK_EVENTSETUP_MODULE(type_ns)
 #define DEFINE_FWK_EVENTSETUP_ALPAKA_MODULE(type) \
   DEFINE_FWK_EVENTSETUP_ALPAKA_MODULE2(ALPAKA_ACCELERATOR_NAMESPACE::type)
 #endif
