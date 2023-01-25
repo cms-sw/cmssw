@@ -643,7 +643,6 @@ void FWRPZViewGeometry::showMtdEndcap(bool show) {
 
       addToCompound(shape, kFWMtdEndcapColorIndex);
       m_mtdEndcapElements->AddElement(shape);
-      //gEve->AddToListTree(shape, true);
     }
     AddElement(m_mtdEndcapElements);
     importNew(m_mtdEndcapElements);
