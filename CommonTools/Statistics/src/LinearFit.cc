@@ -11,7 +11,7 @@ void LinearFit::fit(const std::vector<float>& x,
                     float& covsi) const {
   float g1 = 0, g2 = 0;
   float s11 = 0, s12 = 0, s22 = 0;
-  for (int i = 0; i != ndat; i++) {
+  for (int i = 0; i < ndat; i++) {
     float sy2 = sigy[i] * sigy[i];
     g1 += y[i] / sy2;
     g2 += x[i] * y[i] / sy2;
