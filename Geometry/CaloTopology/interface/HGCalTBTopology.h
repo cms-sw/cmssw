@@ -12,8 +12,7 @@
 class HGCalTBTopology : public CaloSubdetectorTopology {
 public:
   /// create a new Topology
-  HGCalTBTopology() {}
-  HGCalTBTopology(const HGCalTBDDDConstants& hdcons, int subdet);
+  HGCalTBTopology(const HGCalTBDDDConstants* hdcons, int subdet);
 
   /// default destructor
 
@@ -89,7 +88,7 @@ public:
   unsigned int totalGeomModules() const { return (unsigned int)(2 * kHGeomHalf_); }
   unsigned int allGeomModules() const;
 
-  const HGCalTBDDDConstants& dddConstants() const { return hdcons_; }
+  const HGCalTBDDDConstants& dddConstants() const { return *hdcons_; }
 
   /** returns a new DetId offset by nrStepsX and nrStepsY (can be negative),
    * returns DetId(0) if invalid */
@@ -113,13 +112,15 @@ public:
   bool detectorType() const { return false; }
 
 private:
+  HGCalTBTopology() : hdcons_(nullptr) {}
+
   /// move the nagivator along x, y
   DetId changeXY(const DetId& id, int nrStepsX, int nrStepsY) const;
 
   /// move the nagivator along z
   DetId changeZ(const DetId& id, int nrStepsZ) const;
 
-  const HGCalTBDDDConstants& hdcons_;
+  const HGCalTBDDDConstants* hdcons_;
   HGCalGeometryMode::GeometryMode mode_;
 
   DetId::Detector det_;
