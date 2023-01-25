@@ -52,7 +52,7 @@ tmbPhase2 = tmbPhase1.clone(
     # ALCT-CLCT stays at 7 for the moment
     matchTrigWindowSize = 7,
     #use CLCT sorted by Bx only for ALCT-CLCTmatch for now
-    sortClctBx = cms.bool(True),
+    sortClctBx = True,
     # LCTs found in the window [5, 6, 7, 8, 9, 10, 11] are good
     tmbL1aWindowSize = 7,
     tmbDropUsedClcts = False,

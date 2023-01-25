@@ -417,10 +417,7 @@ void CSCCathodeLCTProcessor::checkLocalShower(
           totalHits++;
     }
 
-    if (totalHits >= localShowerThresh)
-      localShowerFlag[bx] = true;
-    else
-      localShowerFlag[bx] = false;
+    localShowerFlag[bx] = totalHits >= localShowerThresh;
     if (infoV > 1)
       LogDebug("CSCCathodeLCTProcessor") << " bx " << bx << " bestCLCT key HS " << keyHS
                                          << " localshower zone: " << minHS << ", " << maxHS << " totalHits "
