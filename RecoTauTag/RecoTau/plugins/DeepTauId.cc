@@ -1327,7 +1327,8 @@ private:
     if (debug_level >= 2) {
       std::cout << "<DeepTauId::getPredictionsV2 (moduleLabel = " << moduleDescription().moduleLabel()
                 << ")>:" << std::endl;
-      std::cout << " tau: pT = " << tau.pt() << ", eta = " << tau.eta() << ", phi = " << tau.phi() << ", eventnr = " << eventnr << std::endl;
+      std::cout << " tau: pT = " << tau.pt() << ", eta = " << tau.eta() << ", phi = " << tau.phi()
+                << ", eventnr = " << eventnr << std::endl;
     }
     CellGrid inner_grid(number_of_inner_cell, number_of_inner_cell, 0.02, 0.02, disable_CellIndex_workaround_);
     CellGrid outer_grid(number_of_outer_cell, number_of_outer_cell, 0.05, 0.05, disable_CellIndex_workaround_);
@@ -1953,18 +1954,21 @@ private:
           sp.scale(ele.deltaPhiSuperClusterTrackAtVtx(), dnn::ele_deltaPhiSuperClusterTrackAtVtx - e_index_offset);
       get(dnn::ele_deltaPhiSeedClusterTrackAtCalo + fill_index_offset_e) =
           sp.scale(ele.deltaPhiSeedClusterTrackAtCalo(), dnn::ele_deltaPhiSeedClusterTrackAtCalo - e_index_offset);
-      const bool mva_valid = (ele.mvaInput().earlyBrem > -2) || (year_ != 2026); // Known issue that input can be invalid in Phase2 samples (early/lateBrem==-2, hadEnergy==0, sigmaEtaEta/deltaEta==3.40282e+38). Unknown if also in Run2/3, so don't change there
+      const bool mva_valid =
+          (ele.mvaInput().earlyBrem > -2) ||
+          (year_ !=
+           2026);  // Known issue that input can be invalid in Phase2 samples (early/lateBrem==-2, hadEnergy==0, sigmaEtaEta/deltaEta==3.40282e+38). Unknown if also in Run2/3, so don't change there
       if (mva_valid) {
         get(dnn::ele_mvaInput_earlyBrem + fill_index_offset_e) =
-          sp.scale(ele.mvaInput().earlyBrem, dnn::ele_mvaInput_earlyBrem - e_index_offset);
+            sp.scale(ele.mvaInput().earlyBrem, dnn::ele_mvaInput_earlyBrem - e_index_offset);
         get(dnn::ele_mvaInput_lateBrem + fill_index_offset_e) =
-          sp.scale(ele.mvaInput().lateBrem, dnn::ele_mvaInput_lateBrem - e_index_offset);
+            sp.scale(ele.mvaInput().lateBrem, dnn::ele_mvaInput_lateBrem - e_index_offset);
         get(dnn::ele_mvaInput_sigmaEtaEta + fill_index_offset_e) =
-          sp.scale(ele.mvaInput().sigmaEtaEta, dnn::ele_mvaInput_sigmaEtaEta - e_index_offset);
+            sp.scale(ele.mvaInput().sigmaEtaEta, dnn::ele_mvaInput_sigmaEtaEta - e_index_offset);
         get(dnn::ele_mvaInput_hadEnergy + fill_index_offset_e) =
-          sp.scale(ele.mvaInput().hadEnergy, dnn::ele_mvaInput_hadEnergy - e_index_offset);
+            sp.scale(ele.mvaInput().hadEnergy, dnn::ele_mvaInput_hadEnergy - e_index_offset);
         get(dnn::ele_mvaInput_deltaEta + fill_index_offset_e) =
-          sp.scale(ele.mvaInput().deltaEta, dnn::ele_mvaInput_deltaEta - e_index_offset);
+            sp.scale(ele.mvaInput().deltaEta, dnn::ele_mvaInput_deltaEta - e_index_offset);
       }
       const auto& gsfTrack = ele.gsfTrack();
       if (gsfTrack.isNonnull()) {
