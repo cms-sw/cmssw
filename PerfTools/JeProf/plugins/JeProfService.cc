@@ -34,10 +34,10 @@ namespace {
     if (mallctl == nullptr)
       return false;
     // check if heap profiling available, if --enable-prof was specified at build time
-    bool enable_stats = false;
+    bool enable_prof = false;
     size_t bool_s = sizeof(bool);
-    mallctl("prof.dump", &enable_stats, &bool_s, nullptr, 0);
-    return enable_stats;
+    mallctl("prof.active", &enable_prof, &bool_s, nullptr, 0);
+    return enable_prof;
   }
 
 }  // namespace
