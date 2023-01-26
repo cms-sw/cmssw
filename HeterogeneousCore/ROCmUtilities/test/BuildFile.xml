@@ -1,0 +1,7 @@
+<use name="HeterogeneousCore/ROCmUtilities"/>
+<iftool name="rocm">
+  <bin file="testHipCheck.cpp" name="testHipCheck">
+    <use name="catch2"/>
+    <use name="rocm"/>
+  </bin>
+</iftool>
