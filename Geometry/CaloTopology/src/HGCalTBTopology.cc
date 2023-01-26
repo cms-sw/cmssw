@@ -26,6 +26,8 @@ HGCalTBTopology::HGCalTBTopology(const HGCalTBDDDConstants* hdcons, int det) : h
 #endif
 }
 
+HGCalTBTopology::~HGCalTBTopology() {}
+
 unsigned int HGCalTBTopology::allGeomModules() const { return (static_cast<unsigned int>(2 * hdcons_->wafers())); }
 
 DetId HGCalTBTopology::denseId2detId(uint32_t hi) const {

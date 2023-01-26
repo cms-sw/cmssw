@@ -15,6 +15,7 @@ public:
   HGCalTBTopology(const HGCalTBDDDConstants* hdcons, int subdet);
 
   /// default destructor
+  ~HGCalTBTopology() override;
 
   /// move the Topology north (increment iy)
   DetId goNorth(const DetId& id) const override { return changeXY(id, 0, +1); }
