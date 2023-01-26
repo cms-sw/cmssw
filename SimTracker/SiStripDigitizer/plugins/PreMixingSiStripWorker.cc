@@ -174,7 +174,6 @@ PreMixingSiStripWorker::PreMixingSiStripWorker(const edm::ParameterSet& ps,
       apv_fCPerElectron_(ps.getParameter<double>("apvfCPerElectron"))
 
 {
-  std::cout << "Fed Algo " << theFedAlgo << std::endl;
   // declare the products to produce
 
   SistripLabelSig_ = ps.getParameter<edm::InputTag>("SistripLabelSig");
@@ -690,7 +689,7 @@ void PreMixingSiStripWorker::put(edm::Event& e,
       else
         theSiZeroSuppress->suppress(data, SSD.data, detID, noise, threshold);
 
-      std::cout << detID << " " << detAmpl.size() << ' ' << SSD.data.size() << std::endl;
+      LogDebug("PreMixingSiStripWorker") << detID << " " << data.size() << ' ' << SSD.data.size();
 
       // stick this into the global vector of detector info
       vSiStripDigi.push_back(SSD);
