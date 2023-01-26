@@ -51,9 +51,13 @@ DetId HGCalTBTopology::denseId2detId(uint32_t hi) const {
 uint32_t HGCalTBTopology::detId2denseId(const DetId& idin) const {
   HGCalTBTopology::DecodedDetId id = decode(idin);
   int type = (id.iType > 0) ? 1 : 0;
-  uint32_t idx = static_cast<uint32_t>(((id.zSide > 0) ? kHGhalfType_ : 0) + ((((id.iCell1 - 1) * layers_ + id.iLay - 1) * sectors_ + id.iSec1) * types_ + type));
+  uint32_t idx =
+      static_cast<uint32_t>(((id.zSide > 0) ? kHGhalfType_ : 0) +
+                            ((((id.iCell1 - 1) * layers_ + id.iLay - 1) * sectors_ + id.iSec1) * types_ + type));
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "Input Hex " << id.zSide << ":" << id.iLay << ":" << id.iSec1 << ":" << id.iCell1 << ":" << id.iType << " Constants " << kHGeomHalf_ << ":" << layers_ << ":" << sectors_ << ":" << types_ << " o/p " << idx;
+  edm::LogVerbatim("HGCalGeom") << "Input Hex " << id.zSide << ":" << id.iLay << ":" << id.iSec1 << ":" << id.iCell1
+                                << ":" << id.iType << " Constants " << kHGeomHalf_ << ":" << layers_ << ":" << sectors_
+                                << ":" << types_ << " o/p " << idx;
 #endif
   return idx;
 }
