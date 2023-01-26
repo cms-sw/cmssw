@@ -52,7 +52,6 @@ namespace edm {
       static std::string replaceU64(const std::string &s, const char *pat, unsigned long long val);
       static std::string replace(const std::string &s, const char *pat, std::string_view val);
 
-
       std::string atPostBeginJob_;
       std::string atPostBeginRun_;
       std::string atPostBeginLumi_;
@@ -89,4 +88,4 @@ namespace edm {
   }  // namespace service
 }  // namespace edm
 
-#endif 
+#endif

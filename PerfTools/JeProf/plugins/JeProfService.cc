@@ -18,7 +18,6 @@
 #include <cstdio>
 #include <cstring>
 
-
 extern "C" {
 typedef int (*mallctl_t)(const char *name, void *oldp, size_t *oldlenp, void *newp, size_t newlen);
 }
@@ -46,18 +45,10 @@ namespace {
 using namespace edm::service;
 
 JeProfService::JeProfService(ParameterSet const &ps, ActivityRegistry &iRegistry)
-    : 
-      mineventrecord_(1),
-      prescale_(1),
-      nrecord_(0),
-      nevent_(0),
-      nrun_(0),
-      nlumi_(0),
-      nfileopened_(0),
-      nfileclosed_(0) {
-      if (! have_jemalloc_and_prof ) {
-          edm::LogWarning("JeProfModule") << "JeProfModule requested but application is not"
-                                          << " currently being profiled with jemalloc profiling\n";
+    : mineventrecord_(1), prescale_(1), nrecord_(0), nevent_(0), nrun_(0), nlumi_(0), nfileopened_(0), nfileclosed_(0) {
+  if (!have_jemalloc_and_prof) {
+    edm::LogWarning("JeProfModule") << "JeProfModule requested but application is not"
+                                    << " currently being profiled with jemalloc profiling\n";
   }
   // Get the configuration
   prescale_ = ps.getUntrackedParameter<int>("reportEventInterval", prescale_);
@@ -210,7 +201,7 @@ void JeProfService::makeDump(const std::string &format, std::string_view moduleL
   final = replace(final, "%C", nfileclosed_);
   final = replace(final, "%M", moduleLabel);
   const char *fileName = final.c_str();
-  mallctl("prof.dump", NULL, NULL, &fileName, sizeof(const char *));
+  mallctl("prof.dump", nullptr, nullptr, &fileName, sizeof(const char *));
 }
 
 std::string JeProfService::replace(const std::string &s, const char *pat, int val) {
