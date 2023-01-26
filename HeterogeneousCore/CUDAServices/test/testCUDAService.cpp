@@ -10,6 +10,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 
@@ -32,6 +34,11 @@ TEST_CASE("Tests of CUDAService", "[CUDAService]") {
     WARN("Unable to query the CUDA capable devices from the CUDA runtime API: ("
          << ret << ") " << cudaGetErrorString(ret) << ". Running only tests not requiring devices.");
   }
+
+  // Make Service system available as CUDAService depends on ResourceInformationService
+  std::vector<edm::ParameterSet> psets;
+  edm::ServiceToken serviceToken = edm::ServiceRegistry::createSet(psets);
+  edm::ServiceRegistry::Operate operate(serviceToken);
 
   SECTION("CUDAService enabled") {
     edm::ParameterSet ps;
