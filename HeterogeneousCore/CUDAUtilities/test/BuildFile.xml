@@ -133,4 +133,9 @@
     <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
     <flags CXXFLAGS="-g -DGPU_DEBUG"/>
   </bin>
+
+  <bin file="testCudaCheck.cpp" name="testCudaCheck">
+    <use name="catch2"/>
+    <use name="cuda"/>
+  </bin>
 </iftool>
