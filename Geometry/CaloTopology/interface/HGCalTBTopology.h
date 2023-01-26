@@ -112,8 +112,6 @@ public:
   bool detectorType() const { return false; }
 
 private:
-  HGCalTBTopology() : hdcons_(nullptr) {}
-
   /// move the nagivator along x, y
   DetId changeXY(const DetId& id, int nrStepsX, int nrStepsY) const;
 
