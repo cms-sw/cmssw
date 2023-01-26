@@ -418,8 +418,8 @@ class ConfigBuilder(object):
             self.process.JeProfService = cms.Service("JeProfService",
                                                      reportFirstEvent            = cms.untracked.int32(start),
                                                      reportEventInterval         = cms.untracked.int32(interval),
-                                                     reportToFileAtPostEvent     = cms.untracked.string("| gzip -c > %s"%(eventFormat)),
-                                                     reportToFileAtPostEndJob    = cms.untracked.string("| gzip -c > %s"%(jobFormat)))
+                                                     reportToFileAtPostEvent     = cms.untracked.string("%s"%(eventFormat)),
+                                                     reportToFileAtPostEndJob    = cms.untracked.string("%s"%(jobFormat)))
             self.addedObjects.append(("Setup JeProf Service for heap profiling","JeProfService"))
 
     def addMaxEvents(self):
