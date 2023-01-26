@@ -4,7 +4,7 @@
 //               dump functionality
 //
 
-#include "PerTools/JeProf/plugins/JeProfService.h"
+#include "PerfTools/JeProf/plugins/JeProfService.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -18,10 +18,35 @@
 #include <cstdio>
 #include <cstring>
 
+
+extern "C" {
+typedef int (*mallctl_t)(const char *name, void *oldp, size_t *oldlenp, void *newp, size_t newlen);
+}
+
+namespace {
+  bool initialize_prof();
+
+  mallctl_t mallctl = nullptr;
+  const bool have_jemalloc_and_prof = initialize_prof();
+
+  bool initialize_prof() {
+    // check if mallctl and friends are available, if we are using jemalloc
+    mallctl = (mallctl_t)::dlsym(RTLD_DEFAULT, "mallctl");
+    if (mallctl == nullptr)
+      return false;
+    // check if heap profiling available, if --enable-prof was specified at build time
+    bool enable_stats = false;
+    size_t bool_s = sizeof(bool);
+    mallctl("prof.dump", &enable_stats, &bool_s, nullptr, 0);
+    return enable_stats;
+  }
+
+}  // namespace
+
 using namespace edm::service;
 
 JeProfService::JeProfService(ParameterSet const &ps, ActivityRegistry &iRegistry)
-    : dump_(nullptr),
+    : 
       mineventrecord_(1),
       prescale_(1),
       nrecord_(0),
@@ -30,21 +55,10 @@ JeProfService::JeProfService(ParameterSet const &ps, ActivityRegistry &iRegistry
       nlumi_(0),
       nfileopened_(0),
       nfileclosed_(0) {
-  // Removing the __extension__ gives a warning which
-  // is acknowledged as a language problem in the C++ Standard Core
-  // Language Defect Report
-  //
-  // http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_defects.html#195
-  //
-  // since the suggested decision seems to be that the syntax should
-  // actually be "Conditionally-Supported Behavior" in some
-  // future C++ standard I simply silence the warning.
-  if (void *sym = dlsym(nullptr, "mallctl")) {
-    dump_ = __extension__(void (*)(const char *)) sym;
-  } else
-    edm::LogWarning("JeProfModule") << "JeProfModule requested but application is not"
-                                    << " currently being profiled with jemalloc profiling\n";
-
+      if (! have_jemalloc_and_prof ) {
+          edm::LogWarning("JeProfModule") << "JeProfModule requested but application is not"
+                                          << " currently being profiled with jemalloc profiling\n";
+  }
   // Get the configuration
   prescale_ = ps.getUntrackedParameter<int>("reportEventInterval", prescale_);
   mineventrecord_ = ps.getUntrackedParameter<int>("reportFirstEvent", mineventrecord_);
@@ -184,7 +198,7 @@ void JeProfService::postCloseFile(std::string const &) {
 }
 
 void JeProfService::makeDump(const std::string &format, std::string_view moduleLabel) {
-  if (!dump_ || format.empty())
+  if (!have_jemalloc_and_prof || format.empty())
     return;
 
   std::string final(format);
@@ -196,7 +210,7 @@ void JeProfService::makeDump(const std::string &format, std::string_view moduleL
   final = replace(final, "%C", nfileclosed_);
   final = replace(final, "%M", moduleLabel);
   const char *fileName = final.c_str();
-  dump_("prof.dump", NULL, NULL, &fileName, sizeof(const char *));
+  mallctl("prof.dump", NULL, NULL, &fileName, sizeof(const char *));
 }
 
 std::string JeProfService::replace(const std::string &s, const char *pat, int val) {
