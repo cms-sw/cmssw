@@ -27,12 +27,12 @@
     <use name="FWCore/TestProcessor"/>
     <use name="catch2"/>
   </bin>
-  <bin file="testAlignmentOfflineValidation.cpp" name="GeneralTrackAnalyser">
-    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test testingScripts/test_unitGeneralTrackAnalyser.sh"/>
+  <bin file="testAlignmentOfflineValidation.cpp" name="PrimaryVertex">
+    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test testingScripts/test_unitPrimaryVertex.sh"/>
     <use name="FWCore/Utilities"/>
   </bin>
   <bin file="testPVPlotting.cpp" name="testPVPlotting">
-    <flags PRE_TEST="GeneralTrackAnalyser"/>
+    <flags PRE_TEST="PrimaryVertex"/>
     <use name="rootmath"/>
     <use name="roothistmatrix"/>
     <use name="rootgraphics"/>

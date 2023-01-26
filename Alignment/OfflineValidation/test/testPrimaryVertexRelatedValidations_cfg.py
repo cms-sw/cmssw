@@ -1,23 +1,51 @@
-import FWCore.ParameterSet.Config as cms
 import sys
-from enum import Enum
-from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultMC_MinBiasPUPhase2RECO
+import FWCore.ParameterSet.Config as cms
 
+import FWCore.ParameterSet.VarParsing as VarParsing
+options = VarParsing.VarParsing()
+options.register("isPhase2",
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "is the test running with phase-2 geometry")
+options.register("maxEvents",
+                 -1,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "number of events to run")
+options.parseArguments()
+
+if (options.isPhase2):
+     from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultMC_TTbarPhase2RECO
+else:
+     from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultMC_TTBarPU
+
+from enum import Enum
 class RefitType(Enum):
      STANDARD = 1
      COMMON   = 2
  
-isDA = True
-isMC = True
-allFromGT = True
-applyBows = True
-applyExtraConditions = True
-theRefitter = RefitType.STANDARD
-_theTrackCollection = "generalTracks" #"ALCARECOTkAlMinBias" unfortunately not yet
+_isDA = True
+_isMC = True
+_allFromGT = True
+_applyBows = True
+_applyExtraConditions = True
+if(options.isPhase2):
+     _theRefitter = RefitType.STANDARD # FIXME: once the sequence is cleared out    
+else: 
+     _theRefitter = RefitType.COMMON  
+_theTrackCollection = 'generalTracks' # FIXME: 'ALCARECOTkAlMinBias' once a sample is available
 
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-process = cms.Process("Demo",Phase2C17I13M9) 
-
+###################################################################
+# Set the era
+###################################################################
+if(options.isPhase2):
+     from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+     process = cms.Process("Demo",Phase2C17I13M9) 
+else:
+     from Configuration.Eras.Era_Run3_cff import Run3
+     process = cms.Process("Demo", Run3)
+     
 ###################################################################
 # Set the process to run multi-threaded
 ###################################################################
@@ -27,18 +55,17 @@ process.options.numberOfThreads = 8
 # Event source and run selection
 ###################################################################
 process.source = cms.Source("PoolSource",
-                            fileNames = filesDefaultMC_MinBiasPUPhase2RECO,
-                            duplicateCheckMode = cms.untracked.string('checkAllFilesOpened')
-                            )
+                            fileNames = (filesDefaultMC_TTbarPhase2RECO if (options.isPhase2) else filesDefaultMC_TTBarPU),
+                            duplicateCheckMode = cms.untracked.string('checkAllFilesOpened'))
 
 runboundary = 1
 process.source.firstRun = cms.untracked.uint32(int(runboundary))
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(options.maxEvents))  #(10 if (options.isPhase2) else 100)
 
 ###################################################################
 # JSON Filtering
 ###################################################################
-if isMC:
+if _isMC:
      print("############ testPVValidation_cfg.py: msg%-i: This is Simulation!")
      runboundary = 1
 else:
@@ -59,8 +86,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
     threshold = cms.untracked.string("INFO"),
     default   = cms.untracked.PSet(limit = cms.untracked.int32(0)),                       
     FwkReport = cms.untracked.PSet(limit = cms.untracked.int32(-1),
-                                   reportEvery = cms.untracked.int32(1000)
-                                   ),                                                      
+                                   reportEvery = cms.untracked.int32(1 if (options.isPhase2) else 10)),                                                      
     PrimaryVertexValidation = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
     SplitVertexResolution   = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
     FilterOutLowPt          = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
@@ -80,8 +106,10 @@ process.load('Configuration.StandardSequences.MagneticField_cff')
 ###################################################################
 # Standard loads
 ###################################################################
-#process.load("Configuration.Geometry.GeometryRecoDB_cff")
-process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
+if(options.isPhase2):
+     process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
+else:
+     process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
 ####################################################################
 # Get the BeamSpot
@@ -93,58 +121,62 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 ####################################################################
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, ('auto:phase2_realistic' if options.isPhase2 else 'auto:phase1_2022_realistic'), '')
 
-if allFromGT:
+if _allFromGT:
      print("############ testPVValidation_cfg.py: msg%-i: All is taken from GT")
 else:
-     ####################################################################
-     # Get Alignment constants
-     ####################################################################
-     from CondCore.DBCommon.CondDBSetup_cfi import *
-     process.trackerAlignment = cms.ESSource("PoolDBESSource",CondDBSetup,
-                                             connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
-                                             timetype = cms.string("runnumber"),
-                                             toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentRcd'),
-                                                                        tag = cms.string('TrackerAlignment_Upgrade2017_design_v4')
+     if(options.isPhase2):
+          print("########## overriding of phase-2 alignment conditions is not yet supported")
+          pass
+     else:
+          ####################################################################
+          # Get Alignment constants
+          ####################################################################
+          from CondCore.DBCommon.CondDBSetup_cfi import *
+          process.trackerAlignment = cms.ESSource("PoolDBESSource",CondDBSetup,
+                                                  connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
+                                                  timetype = cms.string("runnumber"),
+                                                  toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentRcd'),
+                                                                             tag = cms.string('TrackerAlignment_Upgrade2017_design_v4')
                                                                         )
                                                                )
                                              )
-     process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource", "trackerAlignment")
+          process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource", "trackerAlignment")
 
-     ####################################################################
-     # Get APE
-     ####################################################################
-     process.setAPE = cms.ESSource("PoolDBESSource",CondDBSetup,
-                                   connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
-                                   timetype = cms.string("runnumber"),
-                                   toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentErrorExtendedRcd'),
-                                                              tag = cms.string('TrackerAlignmentErrorsExtended_Upgrade2017_design_v0')
+          ####################################################################
+          # Get APE
+          ####################################################################
+          process.setAPE = cms.ESSource("PoolDBESSource",CondDBSetup,
+                                        connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
+                                        timetype = cms.string("runnumber"),
+                                        toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerAlignmentErrorExtendedRcd'),
+                                                                   tag = cms.string('TrackerAlignmentErrorsExtended_Upgrade2017_design_v0')
                                                               )
                                                      )
                                    )
-     process.es_prefer_setAPE = cms.ESPrefer("PoolDBESSource", "setAPE")
+          process.es_prefer_setAPE = cms.ESPrefer("PoolDBESSource", "setAPE")
 
-     ####################################################################
-     # Kinks and Bows (optional)
-     ####################################################################
-     if applyBows:
-          print("############ testPVValidation_cfg.py: msg%-i: Applying TrackerSurfaceDeformations!")
-          process.trackerBows = cms.ESSource("PoolDBESSource",CondDBSetup,
-                                             connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
-                                             toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerSurfaceDeformationRcd'),
-                                                                        tag = cms.string('TrackerSurfaceDeformations_zero')
+          ####################################################################
+          # Kinks and Bows (optional)
+          ####################################################################
+          if _applyBows:
+               print("############ testPVValidation_cfg.py: msg%-i: Applying TrackerSurfaceDeformations!")
+               process.trackerBows = cms.ESSource("PoolDBESSource",CondDBSetup,
+                                                  connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
+                                                  toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerSurfaceDeformationRcd'),
+                                                                             tag = cms.string('TrackerSurfaceDeformations_zero')
                                                                         )
                                                                )
                                              )
-          process.es_prefer_Bows = cms.ESPrefer("PoolDBESSource", "trackerBows")
-     else:
-          print("############ testPVValidation_cfg.py: msg%-i: MultiPVValidation: Not applying TrackerSurfaceDeformations!")
+               process.es_prefer_Bows = cms.ESPrefer("PoolDBESSource", "trackerBows")
+          else:
+               print("############ testPVValidation_cfg.py: msg%-i: MultiPVValidation: Not applying TrackerSurfaceDeformations!")
 
      ####################################################################
      # Extra corrections not included in the GT
      ####################################################################
-     if applyExtraConditions:
+     if _applyExtraConditions:
 
           import CalibTracker.Configuration.Common.PoolDBESSource_cfi
           ##### END OF EXTRA CONDITIONS
@@ -180,20 +212,20 @@ process.noslowpt = cms.EDFilter("FilterOutLowPt",
                                 runControlNumber = cms.untracked.vuint32(int(runboundary))
                                 )
 
-if isMC:
+if _isMC:
      process.goodvertexSkim = cms.Sequence(process.noscraping)
 else:
      process.goodvertexSkim = cms.Sequence(process.primaryVertexFilter + process.noscraping + process.noslowpt)
 
 
-if(theRefitter == RefitType.COMMON):
+if(_theRefitter == RefitType.COMMON):
 
      print("############ testPVValidation_cfg.py: msg%-i: using the common track selection and refit sequence!")
      ####################################################################
      # Load and Configure Common Track Selection and refitting sequence
      ####################################################################
      import Alignment.CommonAlignment.tools.trackselectionRefitting as trackselRefit
-     process.seqTrackselRefit = trackselRefit.getSequence(process, 'ALCARECOTkAlMinBias',
+     process.seqTrackselRefit = trackselRefit.getSequence(process, _theTrackCollection,
                                                           isPVValidation=True, 
                                                           TTRHBuilder='WithAngleAndTemplate',
                                                           usePixelQualityFlag=True,
@@ -205,7 +237,7 @@ if(theRefitter == RefitType.COMMON):
                                                           use_d0cut=False,
                                                           )
      
-elif (theRefitter == RefitType.STANDARD):
+elif (_theRefitter == RefitType.STANDARD):
 
      print("############ testPVValidation_cfg.py: msg%-i: using the standard single refit sequence!")
      ####################################################################
@@ -213,8 +245,8 @@ elif (theRefitter == RefitType.STANDARD):
      # (needed in case NavigationSchool is set != '')
      ####################################################################
      # process.load("RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi") 
-     # process.MeasurementTrackerEvent.pixelClusterProducer = 'ALCARECOTkAlMinBias'
-     # process.MeasurementTrackerEvent.stripClusterProducer = 'ALCARECOTkAlMinBias'
+     # process.MeasurementTrackerEvent.pixelClusterProducer = '_theTrackCollection'
+     # process.MeasurementTrackerEvent.stripClusterProducer = '_theTrackCollection'
      # process.MeasurementTrackerEvent.inactivePixelDetectorLabels = cms.VInputTag()
      # process.MeasurementTrackerEvent.inactiveStripDetectorLabels = cms.VInputTag()
 
@@ -275,6 +307,23 @@ def switchClusterizerParameters(da):
           return GapClusterizationParams
 
 ####################################################################
+# Print table of execution parameters
+####################################################################
+from prettytable import PrettyTable
+x = PrettyTable()
+x.field_names = ["Parameter","Value"]
+x.add_row(["is DA",_isDA])
+x.add_row(["is MC",_isMC])
+x.add_row(["applyBows",_applyBows])
+x.add_row(["all from GT",_allFromGT])
+x.add_row(["extra conditions",_applyExtraConditions])
+x.add_row(["refitter type",_theRefitter])
+x.add_row(["track collection",_theTrackCollection])
+x.add_row(["GlobalTag",process.GlobalTag.globaltag.value()])
+x.add_row(["# events",options.maxEvents])
+print(x)
+
+####################################################################
 # Configure the PVValidation Analyzer module
 ####################################################################
 process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
@@ -292,7 +341,7 @@ process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
                                       runControl = cms.untracked.bool(True),
                                       runControlNumber = cms.untracked.vuint32(int(runboundary)),
                                       TkFilterParameters = FilteringParams,
-                                      TkClusParameters = switchClusterizerParameters(isDA)
+                                      TkClusParameters = switchClusterizerParameters(_isDA)
                                       )
 
 ####################################################################
@@ -332,7 +381,6 @@ process.HLTFilter = triggerResultsFilter.clone(
 ###################################################################
 process.myanalysis = cms.EDAnalyzer("GeneralPurposeTrackAnalyzer",
                                     TkTag  = cms.InputTag('FinalTrackRefitter'),
-                                    doLatencyAnalysis =  cms.bool(False),
                                     isCosmics = cms.bool(False)
                                     )
 
