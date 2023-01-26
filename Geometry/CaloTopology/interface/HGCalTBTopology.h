@@ -76,18 +76,18 @@ public:
   ///Geometry mode
   HGCalGeometryMode::GeometryMode geomMode() const { return mode_; }
 
+  unsigned int totalModules() const { return kSizeForDenseIndexing; }
+  unsigned int totalGeomModules() const { return (unsigned int)(2 * kHGeomHalf_); }
+  unsigned int allGeomModules() const;
+
   ///Dense indexing
-  uint32_t detId2denseId(const DetId& id) const override;
   DetId denseId2detId(uint32_t denseId) const override;
+  uint32_t detId2denseId(const DetId& id) const override;
   virtual uint32_t detId2denseGeomId(const DetId& id) const;
 
   ///Is this a valid cell id
   bool valid(const DetId& id) const override;
   bool validHashIndex(uint32_t ix) const { return (ix < kSizeForDenseIndexing); }
-
-  unsigned int totalModules() const { return kSizeForDenseIndexing; }
-  unsigned int totalGeomModules() const { return (unsigned int)(2 * kHGeomHalf_); }
-  unsigned int allGeomModules() const;
 
   const HGCalTBDDDConstants& dddConstants() const { return *hdcons_; }
 
