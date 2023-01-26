@@ -13,7 +13,7 @@ HGCalTBTopology::HGCalTBTopology(const HGCalTBDDDConstants* hdcons, int det) : h
   kHGhalf_ = sectors_ * layers_ * cells_;
   firstLay_ = hdcons_->firstLayer();
   det_ = DetId::Forward;
-  subdet_ = (ForwardSubdetector)(det);
+  subdet_ = static_cast<ForwardSubdetector>(det);
   kHGeomHalf_ = sectors_ * layers_;
   types_ = 2;
   kHGhalfType_ = sectors_ * layers_ * cells_ * types_;
