@@ -10,7 +10,14 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/ResourceInformation.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 
 namespace {
@@ -33,6 +40,11 @@ TEST_CASE("Tests of CUDAService", "[CUDAService]") {
          << ret << ") " << cudaGetErrorString(ret) << ". Running only tests not requiring devices.");
   }
 
+  // Make Service system available as CUDAService depends on ResourceInformationService
+  std::vector<edm::ParameterSet> psets;
+  edm::ServiceToken serviceToken = edm::ServiceRegistry::createSet(psets);
+  edm::ServiceRegistry::Operate operate(serviceToken);
+
   SECTION("CUDAService enabled") {
     edm::ParameterSet ps;
     ps.addUntrackedParameter("enabled", true);
@@ -52,19 +64,18 @@ TEST_CASE("Tests of CUDAService", "[CUDAService]") {
     }
 
     auto cs = makeCUDAService(ps);
+    int driverVersion = 0, runtimeVersion = 0;
+    ret = cudaDriverGetVersion(&driverVersion);
+    if (ret != cudaSuccess) {
+      FAIL("Unable to query the CUDA driver version from the CUDA runtime API: (" << ret << ") "
+                                                                                  << cudaGetErrorString(ret));
+    }
+    ret = cudaRuntimeGetVersion(&runtimeVersion);
+    if (ret != cudaSuccess) {
+      FAIL("Unable to query the CUDA runtime API version: (" << ret << ") " << cudaGetErrorString(ret));
+    }
 
     SECTION("CUDA Queries") {
-      int driverVersion = 0, runtimeVersion = 0;
-      ret = cudaDriverGetVersion(&driverVersion);
-      if (ret != cudaSuccess) {
-        FAIL("Unable to query the CUDA driver version from the CUDA runtime API: (" << ret << ") "
-                                                                                    << cudaGetErrorString(ret));
-      }
-      ret = cudaRuntimeGetVersion(&runtimeVersion);
-      if (ret != cudaSuccess) {
-        FAIL("Unable to query the CUDA runtime API version: (" << ret << ") " << cudaGetErrorString(ret));
-      }
-
       WARN("CUDA Driver Version / Runtime Version: " << driverVersion / 1000 << "." << (driverVersion % 100) / 10
                                                      << " / " << runtimeVersion / 1000 << "."
                                                      << (runtimeVersion % 100) / 10);
@@ -106,6 +117,27 @@ TEST_CASE("Tests of CUDAService", "[CUDAService]") {
       }
       WARN("Device with most free memory " << dev << "\n"
                                            << "     as given by CUDAService " << cs.deviceWithMostFreeMemory());
+    }
+
+    SECTION("With ResourceInformationService available") {
+      edmplugin::PluginManager::configure(edmplugin::standard::config());
+
+      std::string const config = R"_(import FWCore.ParameterSet.Config as cms
+process = cms.Process('Test')
+process.add_(cms.Service('ResourceInformationService'))
+)_";
+      std::unique_ptr<edm::ParameterSet> params;
+      edm::makeParameterSets(config, params);
+      edm::ServiceToken tempToken(edm::ServiceRegistry::createServicesFromConfig(std::move(params)));
+      edm::ServiceRegistry::Operate operate2(tempToken);
+
+      auto cs = makeCUDAService(edm::ParameterSet{});
+      REQUIRE(cs.enabled());
+      edm::Service<edm::ResourceInformation> ri;
+      REQUIRE(ri->gpuModels().size() > 0);
+      REQUIRE(ri->nvidiaDriverVersion().size() > 0);
+      REQUIRE(ri->cudaDriverVersion() == driverVersion);
+      REQUIRE(ri->cudaRuntimeVersion() == runtimeVersion);
     }
   }
 
