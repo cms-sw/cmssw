@@ -113,7 +113,7 @@ A script [`cmsTriton`](./scripts/cmsTriton) is provided to launch and manage loc
 The script has two operations (`start` and `stop`) and the following options:
 * `-c`: don't cleanup temporary dir (for debugging)
 * `-D`: dry run: print container commands rather than executing them
-* `-d`: use Docker instead of Singularity
+* `-d`: use Docker instead of Apptainer
 * `-f`: force reuse of (possibly) existing container instance
 * `-g`: use GPU instead of CPU
 * `-i` [name]`: server image name (default: fastml/triton-torchgeo:20.09-py3-geometric)
@@ -123,7 +123,7 @@ The script has two operations (`start` and `stop`) and the following options:
 * `-P [port]`: base port number for services (-1: automatically find an unused port range) (default: 8000)
 * `-p [pid]`: automatically shut down server when process w/ specified PID ends (-1: use parent process PID)
 * `-r [num]`: number of retries when starting container (default: 3)
-* `-s [dir]`: Singularity sandbox directory (default: /cvmfs/unpacked.cern.ch/registry.hub.docker.com/fastml/triton-torchgeo:20.09-py3-geometric)
+* `-s [dir]`: Apptainer sandbox directory (default: /cvmfs/unpacked.cern.ch/registry.hub.docker.com/fastml/triton-torchgeo:20.09-py3-geometric)
 * `-t [dir]`: non-default hidden temporary dir
 * `-v`: (verbose) start: activate server debugging info; stop: keep server logs
 * `-w [time]`: maximum time to wait for server to start (default: 300 seconds)
@@ -137,7 +137,7 @@ in order to ensure that everything is properly cleaned up.
 (In the example below, `$CMSSW_BASE/src/HeterogeneousCore/SonicTriton/data/models` is a model repository,
 while `$CMSSW_BASE/src/HeterogeneousCore/SonicTriton/data/models/resnet50_netdef` is a model directory.)
 If a model repository is provided, all of the models it contains will be provided to the server.
-* Older versions of Singularity have a short timeout that may cause launching the server to fail the first time the command is executed.
+* Older versions of Apptainer (Singularity) have a short timeout that may cause launching the server to fail the first time the command is executed.
 The `-r` (retry) flag exists to work around this issue.
 
 A central `TritonService` is provided to keep track of all available servers and which models they can serve.
@@ -160,7 +160,7 @@ The fallback server has a separate set of options, mostly related to the invocat
 * `enable`: enable the fallback server
 * `debug`: enable debugging (equivalent to `-c` in `cmsTriton`)
 * `verbose`: enable verbose output in logs (equivalent to `-v` in `cmsTriton`)
-* `useDocker`: use Docker instead of Singularity (equivalent to `-d` in `cmsTriton`)
+* `useDocker`: use Docker instead of Apptainer (equivalent to `-d` in `cmsTriton`)
 * `useGPU`: run on local GPU (equivalent to `-g` in `cmsTriton`)
 * `retries`: number of retries when starting container (passed to `-r [num]` in `cmsTriton` if >= 0; default: -1)
 * `wait`: maximum time to wait for server to start (passed to `-w time` in `cmsTriton` if >= 0; default: -1)
@@ -168,7 +168,7 @@ The fallback server has a separate set of options, mostly related to the invocat
 * `instanceName`: specific name for server instance as alternative to random name (passed to `-n [name]` in `cmsTriton` if non-empty)
 * `tempDir`: specific name for server temporary directory (passed to `-t [dir]` in `cmsTriton` if non-empty; if `"."`, uses `cmsTriton` default)
 * `imageName`: server image name (passed to `-i [name]` in `cmsTriton` if non-empty)
-* `sandboxName`: Singularity sandbox directory (passed to `-s [dir]` in `cmsTriton` if non-empty)
+* `sandboxName`: Apptainer sandbox directory (passed to `-s [dir]` in `cmsTriton` if non-empty)
 
 ## Examples
 
