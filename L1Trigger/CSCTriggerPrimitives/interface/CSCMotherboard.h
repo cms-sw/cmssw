@@ -161,6 +161,9 @@ protected:
   */
   std::vector<int> preferred_bx_match_;
 
+  /* sort CLCT by bx if true, otherwise sort CLCT by quality+bending */
+  bool sort_clct_bx_;
+
   /** Default values of configuration parameters. */
   static const unsigned int def_mpc_block_me1a;
   static const unsigned int def_alct_trig_enable, def_clct_trig_enable;
@@ -184,6 +187,10 @@ protected:
   /** Make sure that the parameter values are within the allowed range. */
   void checkConfigParameters();
 
+  /*sort CLCT by quality+bending and if CLCTs from different BX have
+    same quality+bending, then rank CLCT by timing
+   */
+  void sortCLCTByQualBend(int alct_bx, std::vector<unsigned>& clctBxVector);
   /*
      For valid ALCTs in the trigger time window, look for CLCTs within the
      match-time window. Valid CLCTs are matched in-time. If a match was found

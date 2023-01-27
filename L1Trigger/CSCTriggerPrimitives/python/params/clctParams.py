@@ -29,6 +29,10 @@ clctPhase1 = cms.PSet(
 
     # BX to start CLCT finding (poor man's dead-time shortening):
     clctStartBxShift  = cms.int32(0),
+    # local shower zone 
+    clctLocalShowerZone = cms.int32(25),
+    # local shower thresh 
+    clctLocalShowerThresh = cms.int32(12),
 )
 
 # Parameters for upgrade CLCT processors
