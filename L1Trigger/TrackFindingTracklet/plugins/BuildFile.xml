@@ -1,9 +1,6 @@
 <library file="*.cc" name="TrackFindingTrackletPlugins">
   <use name="hepmc"/>
-  <use name="root"/>
-  <use name="DataFormats/L1TrackTrigger"/>
   <use name="L1Trigger/TrackFindingTracklet"/>
-  <use name="L1Trigger/TrackTrigger"/>
   <use name="MagneticField/Engine"/>
   <use name="MagneticField/Records"/>
   <flags EDM_PLUGIN="1"/>
