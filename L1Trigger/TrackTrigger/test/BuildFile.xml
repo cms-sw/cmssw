@@ -15,7 +15,6 @@
     <use name="SimDataFormats/TrackingAnalysis"/>
     <use name="FWCore/ServiceRegistry"/>
     <use name="clhep"/>
-    <flags CXXFLAGS="-g -O0"/>
   </library>
 
 </environment>

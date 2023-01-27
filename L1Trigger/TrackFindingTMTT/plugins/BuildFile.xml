@@ -1,7 +1,8 @@
-<use name="L1Trigger/TrackFindingTMTT"/>
-<use name="MagneticField/Engine"/>
-<use name="MagneticField/Records"/>
-
-<flags CXXFLAGS="-g -Wno-unused-variable -Wno-misleading-indentation"/>
-<flags EDM_PLUGIN="1"/>
+<library file="*.cc" name="TrackFindingTMTTPlugins">
+  <use name="L1Trigger/TrackFindingTMTT"/>
+  <use name="MagneticField/Engine"/>
+  <use name="MagneticField/Records"/>
+  <flags CXXFLAGS="-Wno-unused-variable -Wno-misleading-indentation"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
 

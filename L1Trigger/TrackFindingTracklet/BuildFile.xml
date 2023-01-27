@@ -3,9 +3,9 @@
 <use name="root"/>
 <use name="rootrflx"/>
 <use name="xerces-c"/>
-<use name="DataFormats/L1TrackTrigger"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
+<use name="L1Trigger/TrackTrigger"/>
 <use name="L1Trigger/TrackFindingTMTT"/>
 <use name="L1Trigger/TrackerTFP"/>
 <flags CXXFLAGS="-DUSEHYBRID"/>

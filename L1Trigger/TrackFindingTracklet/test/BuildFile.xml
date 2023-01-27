@@ -1,26 +1,19 @@
-<environment>
-  <library   file="*.cc" name="TrackFindingTrackletTests">
-    <flags   EDM_PLUGIN="1"/>
-    <flags   SKIP_FILES="fpga.cc"/>
-    <flags   CXXFLAGS="-DUSEHYBRID"/>
-    <use   name="clhep"/>
-    <use   name="root"/>
-    <use   name="heppdt"/>
-    <use   name="CommonTools/UtilAlgos"/>
-    <use   name="DataFormats/Common"/>
-    <use   name="DataFormats/L1TrackTrigger"/>
-    <use   name="FWCore/Framework"/>
-    <use   name="FWCore/MessageLogger"/>
-    <use   name="FWCore/PluginManager"/>
-    <use   name="FWCore/ParameterSet"/>
-    <use   name="FWCore/ServiceRegistry"/>
-    <use   name="Geometry/CommonDetUnit"/>
-    <use   name="Geometry/Records"/>
-    <use   name="Geometry/TrackerGeometryBuilder"/>
-    <use   name="SimTracker/TrackTriggerAssociation"/>
-    <use   name="SimDataFormats/TrackingHit"/>
-    <use   name="SimDataFormats/TrackingAnalysis"/>
-    <use name="L1Trigger/TrackerTFP"/>
-    <use name="L1Trigger/TrackFindingTracklet"/>
-  </library>
-</environment>
+<library   file="*.cc" name="TrackFindingTrackletTests">
+  <flags   EDM_PLUGIN="1"/>
+  <flags   SKIP_FILES="fpga.cc"/>
+  <flags   CXXFLAGS="-DUSEHYBRID"/>
+  <use name="heppdt"/>
+  <use name="CommonTools/UtilAlgos"/>
+  <use name="CondFormats/Alignment"/>
+  <use name="DataFormats/Common"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="PhysicsTools/UtilAlgos"/>
+  <use name="SimTracker/TrackerHitAssociation"/>
+  <use name="RecoLocalTracker/SiPixelRecHits"/>
+  <use name="SimDataFormats/Vertex"/>
+  <use name="SimDataFormats/TrackingHit"/>
+  <use name="SimDataFormats/CrossingFrame"/>
+  <use name="TrackingTools/TrackAssociator"/>
+  <use name="TrackingTools/TrajectoryState"/>
+  <use name="L1Trigger/TrackFindingTracklet"/>
+</library>
