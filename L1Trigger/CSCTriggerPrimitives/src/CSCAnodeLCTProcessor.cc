@@ -1278,9 +1278,17 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::getALCTs() const {
   return tmpV;
 }
 
-CSCALCTDigi CSCAnodeLCTProcessor::getBestALCT(int bx) const { return bestALCT[bx]; }
+CSCALCTDigi CSCAnodeLCTProcessor::getBestALCT(int bx) const {
+  if (bx >= CSCConstants::MAX_CLCT_TBINS or bx < 0)
+    return CSCALCTDigi();
+  return bestALCT[bx];
+}
 
-CSCALCTDigi CSCAnodeLCTProcessor::getSecondALCT(int bx) const { return secondALCT[bx]; }
+CSCALCTDigi CSCAnodeLCTProcessor::getSecondALCT(int bx) const {
+  if (bx >= CSCConstants::MAX_CLCT_TBINS or bx < 0)
+    return CSCALCTDigi();
+  return secondALCT[bx];
+}
 
 /** return vector of CSCShower digi **/
 std::vector<CSCShowerDigi> CSCAnodeLCTProcessor::getAllShower() const {

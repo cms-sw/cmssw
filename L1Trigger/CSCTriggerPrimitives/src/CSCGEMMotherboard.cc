@@ -152,18 +152,33 @@ void CSCGEMMotherboard::matchALCTCLCTGEM() {
     // Find best and second CLCTs by preferred CLCT BX, taking into account that there is an offset in the simulation
 
     unsigned matchingBX = 0;
+    unsigned matching_clctbx = 0;
+    unsigned bx_clct = 0;
 
+    std::vector<unsigned> clctBx_qualbend_match;
+    sortCLCTByQualBend(bx_alct, clctBx_qualbend_match);
+
+    bool hasLocalShower = false;
+    for (unsigned ibx = 1; ibx <= match_trig_window_size / 2; ibx++)
+      hasLocalShower = (hasLocalShower or clctProc->getLocalShowerFlag(bx_alct - CSCConstants::ALCT_CLCT_OFFSET - ibx));
     // BestCLCT and secondCLCT
     for (unsigned mbx = 0; mbx < match_trig_window_size; mbx++) {
-      unsigned bx_clct = bx_alct + preferred_bx_match_[mbx] - CSCConstants::ALCT_CLCT_OFFSET;
+      //bx_clct_run2 would be overflow when bx_alct is small but it is okay
+      unsigned bx_clct_run2 = bx_alct + preferred_bx_match_[mbx] - CSCConstants::ALCT_CLCT_OFFSET;
+      unsigned bx_clct_qualbend = clctBx_qualbend_match[mbx];
+      bx_clct = (sort_clct_bx_ or not(hasLocalShower)) ? bx_clct_run2 : bx_clct_qualbend;
+
       if (bx_clct >= CSCConstants::MAX_CLCT_TBINS)
         continue;
-      bestCLCT = clctProc->getBestCLCT(bx_clct);
-      secondCLCT = clctProc->getSecondCLCT(bx_clct);
       matchingBX = mbx;
-      if (bestCLCT.isValid())
+      matching_clctbx = mbx;
+
+      if ((clctProc->getBestCLCT(bx_clct)).isValid())
         break;
     }
+
+    bestCLCT = clctProc->getBestCLCT(bx_clct);
+    secondCLCT = clctProc->getSecondCLCT(bx_clct);
 
     if (!bestALCT.isValid() and !secondALCT.isValid() and !bestCLCT.isValid() and !secondCLCT.isValid())
       continue;
@@ -172,6 +187,11 @@ void CSCGEMMotherboard::matchALCTCLCTGEM() {
     if (!build_lct_from_alct_gem_ and !bestCLCT.isValid())
       continue;
 
+    if (infoV > 1)
+      LogTrace("CSCGEMMotherboard") << "GEMCSCOTMB: Successful ALCT-CLCT match: bx_alct = " << bx_alct
+                                    << "; bx_clct = " << matching_clctbx << "; mbx = " << matchingBX << " bestALCT "
+                                    << bestALCT << " secondALCT " << secondALCT << " bestCLCT " << bestCLCT
+                                    << " secondCLCT " << secondCLCT;
     // ALCT + CLCT + GEM
 
     for (unsigned gmbx = 0; gmbx < alct_gem_bx_window_size_; gmbx++) {
