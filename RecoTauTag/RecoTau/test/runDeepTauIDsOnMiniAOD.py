@@ -19,7 +19,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 if phase2:
-    process.load('Configuration.Geometry.GeometryExtended2026D97Reco_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
     process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T25', '')
     inputfile = '/store/mc/Phase2Spring21DRMiniAOD/TTbar_TuneCP5_14TeV-pythia8/MINIAODSIM/PU200Phase2D80_113X_mcRun4_realistic_T25_v1_ext1-v1/280000/04e6741c-489a-4fed-9e0c-d7703c274b5a.root'
 else:
