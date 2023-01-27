@@ -2,6 +2,11 @@
   <bin file="testCUDAService.cpp test_main.cpp" name="testCUDAService">
     <use name="catch2"/>
     <use name="cuda"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/ParameterSetReader"/>
+    <use name="FWCore/PluginManager"/>
+    <use name="FWCore/ServiceRegistry"/>
+    <use name="FWCore/Utilities"/>
     <use name="HeterogeneousCore/CUDAServices"/>
   </bin>
 </iftool>
