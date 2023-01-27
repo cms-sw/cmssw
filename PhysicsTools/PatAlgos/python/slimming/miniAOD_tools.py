@@ -382,7 +382,7 @@ def miniAOD_customizeCommon(process):
         toKeep = ['deepTau2017v2p1','deepTau2018v2p5']
     )
     from Configuration.Eras.Modifier_phase2_common_cff import phase2_common #Phase2 Tau MVA
-    _tauIds_phase2 = ['deepTau2026v2p5']
+    _tauIds_phase2 = ['newDMPhase2v1','againstElePhase2v1']
     phase2_common.toModify(tauIdEmbedder.toKeep, func=lambda t:t.extend(_tauIds_phase2))
     tauIdEmbedder.runTauID()
     addToProcessAndTask(_noUpdatedTauName, process.slimmedTaus.clone(),process,task)
