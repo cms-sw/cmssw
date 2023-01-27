@@ -115,7 +115,7 @@ void SeedClusterRemoverPhase2::process(const TrackingRecHit *hit, float chi2, co
     const Phase2TrackerRecHit1D *ph2OThit = static_cast<const Phase2TrackerRecHit1D *>(hit);
     LogDebug("SeedClusterRemoverPhase2") << "Plain Phase2TrackerRecHit1D in det " << detid.rawId();
 
-    Phase2TrackerRecHit1D::CluRef cluster = ph2OThit->cluster();
+    Phase2TrackerRecHit1D::ClusterRef cluster = ph2OThit->cluster();
     if (cluster.id() != outerTrackerSourceProdID)
       throw cms::Exception("Inconsistent Data")
           << "SeedClusterRemoverPhase2: strip cluster ref from Product ID = " << cluster.id()
@@ -135,7 +135,7 @@ void SeedClusterRemoverPhase2::process(const TrackingRecHit *hit, float chi2, co
     LogDebug("SeedClusterRemoverPhase2") << "Plain VectorHit in det " << detid.rawId();
 
     //lower cluster
-    Phase2TrackerRecHit1D::CluRef cluster = vhit->lowerCluster();
+    Phase2TrackerRecHit1D::ClusterRef cluster = vhit->lowerCluster();
     if (cluster.id() != outerTrackerSourceProdID)
       throw cms::Exception("Inconsistent Data")
           << "SeedClusterRemoverPhase2: strip cluster ref from Product ID = " << cluster.id()
