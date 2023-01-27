@@ -7,6 +7,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Framework/interface/GetterOfProducts.h"
+#include "FWCore/Framework/interface/ProcessMatch.h"
 
 #include "DataFormats/HLTReco/interface/EgammaObject.h"
 #include "DataFormats/HLTReco/interface/EgammaObjectFwd.h"
@@ -183,6 +185,8 @@ private:
   bool saveHitsPlusPi_;
   bool saveHitsPlusHalfPi_;
   std::vector<double> recHitCountThresholds_;
+  edm::GetterOfProducts<reco::RecoEcalCandidateIsolationMap> getterOfProducts_;
+
 };
 
 EgammaHLTExtraProducer::Tokens::Tokens(const edm::ParameterSet& pset, edm::ConsumesCollector&& cc) {
@@ -200,30 +204,32 @@ EgammaHLTExtraProducer::EgammaHLTExtraProducer(const edm::ParameterSet& pset)
       saveHitsPlusPi_(pset.getParameter<bool>("saveHitsPlusPi")),
       saveHitsPlusHalfPi_(pset.getParameter<bool>("saveHitsPlusHalfPi")),
       recHitCountThresholds_(pset.getParameter<std::vector<double>>("recHitCountThresholds")) {
-  consumesMany<reco::RecoEcalCandidateIsolationMap>();
+        getterOfProducts_ = edm::GetterOfProducts<reco::RecoEcalCandidateIsolationMap>(edm::ProcessMatch("*"), this); 
+        callWhenNewProductsRegistered(getterOfProducts_);
 
-  for (auto& tokenLabel : tokens_.egCands) {
-    produces<trigger::EgammaObjectCollection>(tokenLabel.second);
-  }
-  for (auto& tokenLabel : tokens_.ecal) {
-    produces<EcalRecHitCollection>(tokenLabel.second);
-    for (const auto& thres : recHitCountThresholds_) {
-      produces<int>("countEcalRecHits" + tokenLabel.second + "Thres" + convertToProdNameStr(thres) + "GeV");
-    }
-  }
-  for (auto& tokenLabel : tokens_.hcal) {
-    produces<HBHERecHitCollection>(tokenLabel.second);
-    for (const auto& thres : recHitCountThresholds_) {
-      produces<int>("countHcalRecHits" + tokenLabel.second + "Thres" + convertToProdNameStr(thres) + "GeV");
-    }
-  }
-  for (auto& tokenLabel : tokens_.trks) {
-    produces<reco::TrackCollection>(tokenLabel.second);
-  }
-  for (auto& tokenLabel : tokens_.pfClusIso) {
-    produces<reco::PFClusterCollection>(tokenLabel.second);
-  }
+        for (auto& tokenLabel : tokens_.egCands) {
+          produces<trigger::EgammaObjectCollection>(tokenLabel.second);
+        }
+        for (auto& tokenLabel : tokens_.ecal) {
+          produces<EcalRecHitCollection>(tokenLabel.second);
+          for (const auto& thres : recHitCountThresholds_) {
+            produces<int>("countEcalRecHits" + tokenLabel.second + "Thres" + convertToProdNameStr(thres) + "GeV");
+          }
+        }
+        for (auto& tokenLabel : tokens_.hcal) {
+          produces<HBHERecHitCollection>(tokenLabel.second);
+          for (const auto& thres : recHitCountThresholds_) {
+            produces<int>("countHcalRecHits" + tokenLabel.second + "Thres" + convertToProdNameStr(thres) + "GeV");
+          }
+        }
+        for (auto& tokenLabel : tokens_.trks) {
+          produces<reco::TrackCollection>(tokenLabel.second);
+        }
+        for (auto& tokenLabel : tokens_.pfClusIso) {
+          produces<reco::PFClusterCollection>(tokenLabel.second);
+        }
 }
+
 
 void EgammaHLTExtraProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -278,8 +284,7 @@ void EgammaHLTExtraProducer::produce(edm::StreamID streamID,
                                      edm::Event& event,
                                      const edm::EventSetup& eventSetup) const {
   std::vector<edm::Handle<reco::RecoEcalCandidateIsolationMap>> valueMapHandles;
-  event.getManyByType(valueMapHandles);
-
+  getterOfProducts_.fillHandles(event, valueMapHandles);
   std::vector<std::unique_ptr<trigger::EgammaObjectCollection>> egTrigObjColls;
   for (const auto& egCandsToken : tokens_.egCands) {
     auto ecalCandsHandle = event.getHandle(egCandsToken.first.ecalCands);
