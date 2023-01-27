@@ -268,8 +268,8 @@ namespace edm {
     //let enforce that site-local-config.xml and storage.json contains valid catalogs in <data-access>, in which site defined in site-local-config.xml <data-access> should be found in storage.json
     if (found_site == json.end()) {
       cms::Exception ex("FileCatalog");
-      ex << "Can not find site and volume " << aCatalog.site << ", " << aCatalog.volume
-         << " in storage.json. Check site-local-config.xml <data-access> and storage.json";
+      ex << "Can not find site and volume " << aCatalog.site << ", " << aCatalog.volume << " in " << filename_storage
+         << ". Check site-local-config.xml <data-access> and storage.json";
       ex.addContext("edm::FileLocator:init()");
       throw ex;
     }
