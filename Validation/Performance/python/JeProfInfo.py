@@ -7,5 +7,5 @@ def customise(process):
         reportEventInterval         = cms.untracked.int32( ((process.maxEvents.input.value()-1)//2) ), # dump in the middle of the run
         reportToFileAtPostEvent     = cms.untracked.string("jeprof.%I.heap")
         )
-    
+
     return(process)
