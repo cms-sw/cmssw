@@ -1,0 +1,8 @@
+<iftool name="rocm">
+  <use name="rocm"/>
+  <use name="HeterogeneousTest/ROCmKernel"/>
+  <use name="HeterogeneousCore/ROCmUtilities" source_only="true"/>
+  <export>
+    <lib name="1"/>
+  </export>
+</iftool>

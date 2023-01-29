@@ -1,0 +1,11 @@
+<iftool name="rocm">
+  <bin file="testDeviceAdditionOpaque.cc" name="testRocmDeviceAdditionOpaque">
+    <use name="catch2"/>
+    <use name="HeterogeneousTest/ROCmOpaque"/>
+    <use name="HeterogeneousCore/ROCmUtilities"/>
+  </bin>
+
+  <test name="testROCmTestOpaqueAdditionModule" command="cmsRun ${LOCALTOP}/src/HeterogeneousTest/ROCmOpaque/test/testROCmTestOpaqueAdditionModule.py"/>
+
+  <test name="testROCmTestOpaqueAdditionModule" command="cmsRun ${LOCALTOP}/src/HeterogeneousTest/ROCmOpaque/test/testROCmTestAdditionModules.py"/>
+</iftool>
