@@ -6,6 +6,7 @@
 <use name="Geometry/CaloGeometry"/>
 <use name="Geometry/HcalCommonData"/>
 <use name="Geometry/HGCalCommonData"/>
+<use name="Geometry/HGCalTBCommonData"/>
 <use name="boost"/>
 <export>
   <lib name="1"/>
