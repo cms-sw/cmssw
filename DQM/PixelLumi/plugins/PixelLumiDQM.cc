@@ -411,7 +411,6 @@ void PixelLumiDQM::endLuminosityBlock(edm::LuminosityBlock const &lumiBlock, edm
   // Obtain bunch-by-bunch cluster counts and compute totals for lumi
   // calculation.
   double totalcounts = 0.0;
-  double etotalcounts = 0.0;
   double totalevents = 0.0;
   double lumi_factor_per_bx = 0.0;
   if (useInnerBarrelLayer)
@@ -426,11 +425,10 @@ void PixelLumiDQM::endLuminosityBlock(edm::LuminosityBlock const &lumiBlock, edm
     if (useInnerBarrelLayer)
       total += (*it).second.numB.at(0);
     totalcounts += total;
-    double etotal = (*it).second.dnumB.at(1) + (*it).second.dnumB.at(2) + (*it).second.dnumFP.at(0) +
-                    (*it).second.dnumFP.at(1) + (*it).second.dnumFM.at(0) + (*it).second.dnumFM.at(1);
-    if (useInnerBarrelLayer)
-      etotal = (*it).second.dnumB.at(0);
-    etotalcounts += etotal;
+    double etotal = useInnerBarrelLayer
+                        ? (*it).second.dnumB.at(0)
+                        : (*it).second.dnumB.at(1) + (*it).second.dnumB.at(2) + (*it).second.dnumFP.at(0) +
+                              (*it).second.dnumFP.at(1) + (*it).second.dnumFM.at(0) + (*it).second.dnumFM.at(1);
     etotal = sqrt(etotal);
 
     fHistClusterCountByBxLastLumi->setBinContent((*it).first, total);

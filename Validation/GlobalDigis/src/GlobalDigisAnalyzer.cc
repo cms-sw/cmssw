@@ -570,7 +570,6 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event &iEvent, const edm::EventSet
 
         double Emax = 0;
         int Pmax = 0;
-        double pedestalPreSample = 0.;
         double pedestalPreSampleAnalog = 0.;
 
         for (int sample = 0; sample < nrSamples; ++sample) {
@@ -590,12 +589,10 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event &iEvent, const edm::EventSet
             Pmax = sample;
           }
           if (sample < 3) {
-            pedestalPreSample += ebADCCounts[sample];
             pedestalPreSampleAnalog +=
                 ebADCCounts[sample] * ECalgainConv_[(int)ebADCGains[sample]] * ECalbarrelADCtoGeV_;
           }
         }
-        pedestalPreSample /= 3.;
         pedestalPreSampleAnalog /= 3.;
 
         // calculate pedestal subtracted digi energy in the crystal
@@ -682,7 +679,6 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event &iEvent, const edm::EventSet
 
         double Emax = 0;
         int Pmax = 0;
-        double pedestalPreSample = 0.;
         double pedestalPreSampleAnalog = 0.;
 
         for (int sample = 0; sample < nrSamples; ++sample) {
@@ -703,12 +699,10 @@ void GlobalDigisAnalyzer::fillECal(const edm::Event &iEvent, const edm::EventSet
             Pmax = sample;
           }
           if (sample < 3) {
-            pedestalPreSample += eeADCCounts[sample];
             pedestalPreSampleAnalog +=
                 eeADCCounts[sample] * ECalgainConv_[(int)eeADCGains[sample]] * ECalbarrelADCtoGeV_;
           }
         }
-        pedestalPreSample /= 3.;
         pedestalPreSampleAnalog /= 3.;
 
         // calculate pedestal subtracted digi energy in the crystal

@@ -248,16 +248,13 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt, const edm::Eve
 
   double theElectronTrackIsoPt = 1.e+3;
   double theElectronEcalIsoPt = 1.e+3;
-  double theElectronHcalIsoPt = 1.e+3;
   if (theElectron) {
     theElectronTrackIsoPt = theElectron->dr03TkSumPt();
     theElectronEcalIsoPt = theElectron->dr03EcalRecHitSumEt();
-    theElectronHcalIsoPt = theElectron->dr03HcalTowerSumEt();
 
     if (electronIsoMode_ == kRelativeIso && theElectron->pt() > 0.) {
       theElectronTrackIsoPt /= theElectron->pt();
       theElectronEcalIsoPt /= theElectron->pt();
-      theElectronHcalIsoPt /= theElectron->pt();
     }
   }
 

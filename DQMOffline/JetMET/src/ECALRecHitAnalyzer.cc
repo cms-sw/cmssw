@@ -267,7 +267,6 @@ void ECALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup) {
   }
 
   //-------Set the cell size for each (ieta, iphi) bin-------//
-  double currentLowEdge_eta = 0;
   //double currentHighEdge_eta = 0;
   for (int ieta = 1; ieta <= 85; ieta++) {
     int ieta_ = 86 + ieta;
@@ -284,7 +283,6 @@ void ECALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup) {
     double deta = fabs(eta - etam1);
     double dphi = fabs(hEB_ieta_iphi_phiMap->getBinContent(ieta_, 1) - hEB_ieta_iphi_phiMap->getBinContent(ieta_, 2));
 
-    currentLowEdge_eta += deta;
     hEB_ieta_detaMap->setBinContent(ieta_, deta);      // positive rings
     hEB_ieta_dphiMap->setBinContent(ieta_, dphi);      // positive rings
     hEB_ieta_detaMap->setBinContent(86 - ieta, deta);  // negative rings
