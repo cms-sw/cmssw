@@ -122,7 +122,7 @@ void MatchEngineUnit::processPipeline() {
     int diskps = (!barrel_) && isPSmodule;
 
     //here we always use the larger number of bits for the bend
-    unsigned int index = (diskps << (N_BENDBITS_2S + NRINVBITS)) + (projrinv___ << nbits) + vmstub___.bend().value();
+    unsigned int index = (diskps << (nbits + NRINVBITS)) + (projrinv___ << nbits) + vmstub___.bend().value();
 
     //Check if stub z position consistent
     int idrz = stubfinerz - projfinerz___;
