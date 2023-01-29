@@ -1,0 +1,11 @@
+<library file="alpaka/*.cc" name="HeterogeneousTestAlpakaDevicePlugins">
+  <use name="alpaka"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <use name="HeterogeneousCore/AlpakaServices"/>
+  <use name="HeterogeneousTest/AlpakaDevice"/>
+  <flags ALPAKA_BACKENDS="1"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

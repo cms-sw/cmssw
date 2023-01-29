@@ -1,0 +1,10 @@
+<bin file="alpaka/testDeviceAdditionOpaque.cc" name="testAlpakaDeviceAdditionOpaque">
+  <use name="catch2"/>
+  <use name="HeterogeneousTest/AlpakaOpaque"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
+
+<test name="testAlpakaTestOpaqueAdditionModule" command="cmsRun ${LOCALTOP}/src/HeterogeneousTest/AlpakaOpaque/test/testAlpakaTestOpaqueAdditionModule.py"/>
+
+<test name="testAlpakaTestAdditionModules" command="cmsRun ${LOCALTOP}/src/HeterogeneousTest/AlpakaOpaque/test/testAlpakaTestAdditionModules.py"/>
