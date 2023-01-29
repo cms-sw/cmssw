@@ -1,0 +1,7 @@
+<use name="alpaka"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
+<use name="HeterogeneousTest/AlpakaWrapper"/>
+<flags ALPAKA_BACKENDS="1"/>
+<export>
+  <lib name="1"/>
+</export>
