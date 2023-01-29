@@ -1746,10 +1746,17 @@ class ConfigBuilder(object):
         ''' Enrich the schedule with skimming fragments'''
         skimConfig,sequence,_ = self.loadDefaultOrSpecifiedCFF(stepSpec,self.SKIMDefaultCFF)
 
-        skimlist=sequence.split('+')
+        stdHLTProcName = 'HLT'
+        newHLTProcName = self._options.hltProcess
+        customiseForReHLT = (newHLTProcName or (stdHLTProcName in self.stepMap)) and (newHLTProcName != stdHLTProcName)
+        if customiseForReHLT:
+            print("replacing %s process name - step SKIM:%s will use '%s'" % (stdHLTProcName, sequence, newHLTProcName))
+
         ## support @Mu+DiJet+@Electron configuration via autoSkim.py
         from Configuration.Skimming.autoSkim import autoSkim
+        skimlist = sequence.split('+')
         self.expandMapping(skimlist,autoSkim)
+
         #print("dictionary for skims:", skimConfig.__dict__)
         for skim in skimConfig.__dict__:
             skimstream = getattr(skimConfig, skim)
@@ -1759,8 +1766,8 @@ class ConfigBuilder(object):
                 self.blacklist_paths.append(skimstream)
             # if enabled, apply "hltProcess" renaming to Sequences
             elif isinstance(skimstream, cms.Sequence):
-                if self._options.hltProcess or ('HLT' in self.stepMap):
-                    self.renameHLTprocessInSequence(skim)
+                if customiseForReHLT:
+                    self.renameHLTprocessInSequence(skim, proc = newHLTProcName, HLTprocess = stdHLTProcName, verbosityLevel = 0)
 
             if not isinstance(skimstream, cms.FilteredStream):
                 continue
@@ -1942,17 +1949,22 @@ class ConfigBuilder(object):
         self.additionalCommands.append('massSearchReplaceAnyInputTag(process.%s,"%s","%s",False,True)'%(sequence,oldT,newT))
 
     #change the process name used to address HLT results in any sequence
-    def renameHLTprocessInSequence(self,sequence,proc=None,HLTprocess='HLT'):
-        proc = self._options.hltProcess if self._options.hltProcess else self.process.name_()
+    def renameHLTprocessInSequence(self, sequence, proc=None, HLTprocess='HLT', verbosityLevel=1):
+        if proc == None:
+            proc = self._options.hltProcess if self._options.hltProcess else self.process.name_()
         if proc == HLTprocess:
             return
         # look up all module in sequence
-        print("replacing %s process name - sequence %s will use '%s'" % (HLTprocess, sequence, proc))
-        getattr(self.process,sequence).visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor(HLTprocess,proc,whitelist = ("subSystemFolder",)))
+        if verbosityLevel > 0:
+            print("replacing %s process name - sequence %s will use '%s'" % (HLTprocess, sequence, proc))
+        verboseVisit = (verbosityLevel > 1)
+        getattr(self.process,sequence).visit(
+            ConfigBuilder.MassSearchReplaceProcessNameVisitor(HLTprocess, proc, whitelist = ("subSystemFolder",), verbose = verboseVisit))
         if 'from Configuration.Applications.ConfigBuilder import ConfigBuilder' not in self.additionalCommands:
             self.additionalCommands.append('from Configuration.Applications.ConfigBuilder import ConfigBuilder')
-        self.additionalCommands.append('process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("%s", "%s", whitelist = ("subSystemFolder",)))'% (sequence,HLTprocess, proc))
-
+        self.additionalCommands.append(
+            'process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("%s", "%s", whitelist = ("subSystemFolder",), verbose = %s))'
+            % (sequence, HLTprocess, proc, verboseVisit))
 
     def expandMapping(self,seqList,mapping,index=None):
         maxLevel=30
