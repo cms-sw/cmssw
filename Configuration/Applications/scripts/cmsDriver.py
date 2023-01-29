@@ -45,10 +45,8 @@ def run():
             commandString = options.prefix+" cmsRun "+options.suffix
             print("Starting "+commandString+' '+options.python_filename)
             commands = commandString.lstrip().split()
+            sys.stdout.flush()
             os.execvpe(commands[0],commands+[options.python_filename],os.environ)
             sys.exit()
 
 run()
-
-
-    
