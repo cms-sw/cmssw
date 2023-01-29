@@ -166,7 +166,7 @@ void ME0DigisValidation::analyze(const edm::Event &e, const edm::EventSetup &iSe
   edm::Handle<ME0DigiPreRecoCollection> ME0Digis;
   e.getByToken(InputTagToken_Digi, ME0Digis);
 
-  if (!ME0Hits.isValid() | !ME0Digis.isValid()) {
+  if (!ME0Hits.isValid() || !ME0Digis.isValid()) {
     edm::LogError("ME0DigisValidation") << "Cannot get ME0Hits/ME0Digis by Token simInputTagToken";
     return;
   }
