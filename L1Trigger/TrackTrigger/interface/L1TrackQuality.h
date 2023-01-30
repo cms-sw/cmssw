@@ -23,7 +23,7 @@ C.Brown 28/07/20
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 #include <memory>
 
-#include "conifer.h" 
+#include "conifer.h"
 #include "ap_fixed.h"
 
 class L1TrackQuality {
@@ -46,7 +46,7 @@ public:
   // Passed by reference a track without MVA filled, method fills the track's MVA field
   void setL1TrackQuality(TTTrack<Ref_Phase2TrackerDigi_>& aTrack);
 
-  float runEmulatedTQ(std::vector<ap_fixed<10,5>> inputFeatures);
+  float runEmulatedTQ(std::vector<ap_fixed<10, 5>> inputFeatures);
   // To set private member data
   void setCutParameters(std::string const& AlgorithmString,
                         float maxZ0,
@@ -62,6 +62,7 @@ public:
                     std::vector<std::string> const& featureNames);
 
   void setBonusFeatures(std::vector<float> bonusFeatures);
+
 private:
   // Private Member Data
   QualityAlgorithm qualityAlgorithm_ = QualityAlgorithm::None;

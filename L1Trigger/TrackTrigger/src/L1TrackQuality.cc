@@ -119,12 +119,12 @@ void L1TrackQuality::setL1TrackQuality(TTTrack<Ref_Phase2TrackerDigi_>& aTrack) 
 
   else if (this->qualityAlgorithm_ == QualityAlgorithm::GBDT_cpp) {
     // load in bdt
-    conifer::BDT<float,float> bdt(this->ONNXmodel_.fullPath());
+    conifer::BDT<float, float> bdt(this->ONNXmodel_.fullPath());
 
     // collect features and classify using bdt
     std::vector<float> inputs = featureTransform(aTrack, this->featureNames_);
     std::vector<float> output = bdt.decision_function(inputs);
-    aTrack.settrkMVA1(1./(1.+exp(-output.at(0)))); // need logistic sigmoid fcn applied to xgb output
+    aTrack.settrkMVA1(1. / (1. + exp(-output.at(0))));  // need logistic sigmoid fcn applied to xgb output
   }
 
   else if ((this->qualityAlgorithm_ == QualityAlgorithm::NN) || (this->qualityAlgorithm_ == QualityAlgorithm::GBDT)) {
@@ -166,14 +166,14 @@ void L1TrackQuality::setL1TrackQuality(TTTrack<Ref_Phase2TrackerDigi_>& aTrack) 
   }
 }
 
-float L1TrackQuality::runEmulatedTQ(std::vector<ap_fixed<10,5>> inputFeatures) {
-    // load in bdt
-    
-    conifer::BDT<ap_fixed<10,5>,ap_fixed<10,5>> bdt(this->ONNXmodel_.fullPath());
+float L1TrackQuality::runEmulatedTQ(std::vector<ap_fixed<10, 5>> inputFeatures) {
+  // load in bdt
 
-    // collect features and classify using bdt
-    std::vector<ap_fixed<10,5>> output = bdt.decision_function(inputFeatures);
-    return output.at(0).to_float(); // need logistic sigmoid fcn applied to xgb output
+  conifer::BDT<ap_fixed<10, 5>, ap_fixed<10, 5>> bdt(this->ONNXmodel_.fullPath());
+
+  // collect features and classify using bdt
+  std::vector<ap_fixed<10, 5>> output = bdt.decision_function(inputFeatures);
+  return output.at(0).to_float();  // need logistic sigmoid fcn applied to xgb output
 }
 
 void L1TrackQuality::setCutParameters(std::string const& AlgorithmString,
@@ -201,7 +201,7 @@ void L1TrackQuality::setONNXModel(std::string const& AlgorithmString,
     qualityAlgorithm_ = QualityAlgorithm::NN;
   } else if (AlgorithmString == "GBDT") {
     qualityAlgorithm_ = QualityAlgorithm::GBDT;
-  } else if (AlgorithmString == "GBDT_cpp" ) {
+  } else if (AlgorithmString == "GBDT_cpp") {
     qualityAlgorithm_ = QualityAlgorithm::GBDT_cpp;
   } else {
     qualityAlgorithm_ = QualityAlgorithm::None;

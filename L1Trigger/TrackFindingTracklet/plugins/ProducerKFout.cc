@@ -76,10 +76,10 @@ namespace trklet {
 
     // Helper function to convert floating chi2 to chi2 bin
     template <typename T>
-    unsigned int digitise(const T& bins, double value, double factor ) {
+    unsigned int digitise(const T& bins, double value, double factor) {
       unsigned int bin = 0;
-      for (unsigned int i=0; i < bins.size() - 1; i++){
-        if (value*factor > bins[i] && value*factor <= bins[i + 1])
+      for (unsigned int i = 0; i < bins.size() - 1; i++) {
+        if (value * factor > bins[i] && value * factor <= bins[i + 1])
           bin = i;
       }
       return bin;
@@ -110,7 +110,6 @@ namespace trklet {
     tqBins_ = trackQualityPSset.getParameter<vector<int>>("tqemu_bins");
     tqTanlScale_ = trackQualityPSset.getParameter<double>("tqemu_TanlScale");
     tqZ0Scale_ = trackQualityPSset.getParameter<double>("tqemu_Z0Scale");
-
   }
 
   void ProducerKFout::beginRun(const Run& iRun, const EventSetup& iSetup) {
@@ -130,25 +129,23 @@ namespace trklet {
     float temp_dz = 0.0;
     for (int i = 0;
          i < pow(2, dataFormats_->width(Variable::dPhi, Process::kfin)) / pow(2, setup_->weightBinFraction());
-         i++){
-              temp_dphi = pow(dataFormats_->base(Variable::dPhi, Process::kfin) * (i + 1) * pow(2, setup_->weightBinFraction()), -2);
-              temp_dphi = temp_dphi/setup_->dphiTruncation();
-              temp_dphi = std::floor(temp_dphi);
-              dPhiBins_.push_back(temp_dphi*setup_->dphiTruncation()); 
-
-              
-         }
+         i++) {
+      temp_dphi =
+          pow(dataFormats_->base(Variable::dPhi, Process::kfin) * (i + 1) * pow(2, setup_->weightBinFraction()), -2);
+      temp_dphi = temp_dphi / setup_->dphiTruncation();
+      temp_dphi = std::floor(temp_dphi);
+      dPhiBins_.push_back(temp_dphi * setup_->dphiTruncation());
+    }
     for (int i = 0; i < pow(2, dataFormats_->width(Variable::dZ, Process::kfin)) / pow(2, setup_->weightBinFraction());
-         i++){
-
-              temp_dz = pow(dataFormats_->base(Variable::dZ, Process::kfin) * (i + 1) * pow(2, setup_->weightBinFraction()), -2);              
-              temp_dz = temp_dz*setup_->dzTruncation();
-              temp_dz = std::ceil(temp_dz);
-              dZBins_.push_back(temp_dz/setup_->dzTruncation()); 
-         }
+         i++) {
+      temp_dz =
+          pow(dataFormats_->base(Variable::dZ, Process::kfin) * (i + 1) * pow(2, setup_->weightBinFraction()), -2);
+      temp_dz = temp_dz * setup_->dzTruncation();
+      temp_dz = std::ceil(temp_dz);
+      dZBins_.push_back(temp_dz / setup_->dzTruncation());
+    }
     numWorkers_ = setup_->kfNumWorker();
     partialTrackWordBits_ = TTBV::S_ / 2;
-
   }
 
   void ProducerKFout::produce(Event& iEvent, const EventSetup& iSetup) {
@@ -201,13 +198,7 @@ namespace trklet {
       // Setup containers for track quality
       float tempTQMVA = 0.0;
       // Due to ap_fixed implementation in CMSSW this 10,5 must be specified at compile time, TODO make this a changeable parameter
-      std::vector<ap_fixed<10,5>> trackQuality_inputs = { 0.0,
-                                                          0.0,
-                                                          0.0,
-                                                          0.0,
-                                                          0.0,
-                                                          0.0,
-                                                          0.0}; 
+      std::vector<ap_fixed<10, 5>> trackQuality_inputs = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
       for (int iLink = 0; iLink < (int)streamsTracks.size(); iLink++) {
         for (int iTrack = 0; iTrack < (int)streamsTracks[iLink].size(); iTrack++) {
@@ -236,8 +227,9 @@ namespace trklet {
             const auto& stub = streamsStubs[setup_->numLayers() * iLink + iStub].at(iTrack);
             StubKF InStub(stub, dataFormats_, iStub);
 
-            if (!stub.first.isNonnull()){
-              if (counter) temp_ninterior += 1;
+            if (!stub.first.isNonnull()) {
+              if (counter)
+                temp_ninterior += 1;
               continue;
             }
 
@@ -262,32 +254,47 @@ namespace trklet {
 
           // Create bit vectors for eacch output, including digitisation of chi2
           // TODO implement extraMVA, BendChi2, D0
-          TTBV TrackValid(1,  TTTrack_TrackWord::TrackBitWidths::kValidSize, false);
+          TTBV TrackValid(1, TTTrack_TrackWord::TrackBitWidths::kValidSize, false);
           TTBV extraMVA(0, TTTrack_TrackWord::TrackBitWidths::kMVAOtherSize, false);
-          TTBV BendChi2(0,  TTTrack_TrackWord::TrackBitWidths::kBendChi2Size, false);
-          TTBV Chi2rphi( digitise(TTTrack_TrackWord::chi2RPhiBins, tempchi2rphi, (double)setup_->kfoutchi2rphiConv()),  TTTrack_TrackWord::TrackBitWidths::kChi2RPhiSize, false);
-          TTBV Chi2rz( digitise(TTTrack_TrackWord::chi2RZBins, tempchi2rz, (double)setup_->kfoutchi2rzConv()),  TTTrack_TrackWord::TrackBitWidths::kChi2RZSize, false);
-          TTBV D0(0,  TTTrack_TrackWord::TrackBitWidths::kD0Size, false);
-          TTBV Z0(temp_z0, dataFormats_->base(Variable::zT, Process::kf),  TTTrack_TrackWord::TrackBitWidths::kZ0Size, true);
-          TTBV TanL(temp_tanL, dataFormats_->base(Variable::cot, Process::kf),  TTTrack_TrackWord::TrackBitWidths::kTanlSize, true);
-          TTBV Phi0(temp_phi0, dataFormats_->base(Variable::phiT, Process::kf),  TTTrack_TrackWord::TrackBitWidths::kPhiSize, true);
-          TTBV InvR(-InTrack.inv2R(), dataFormats_->base(Variable::inv2R, Process::kf),  TTTrack_TrackWord::TrackBitWidths::kRinvSize+1, true);
-          InvR.resize( TTTrack_TrackWord::TrackBitWidths::kRinvSize);
-          
+          TTBV BendChi2(0, TTTrack_TrackWord::TrackBitWidths::kBendChi2Size, false);
+          TTBV Chi2rphi(digitise(TTTrack_TrackWord::chi2RPhiBins, tempchi2rphi, (double)setup_->kfoutchi2rphiConv()),
+                        TTTrack_TrackWord::TrackBitWidths::kChi2RPhiSize,
+                        false);
+          TTBV Chi2rz(digitise(TTTrack_TrackWord::chi2RZBins, tempchi2rz, (double)setup_->kfoutchi2rzConv()),
+                      TTTrack_TrackWord::TrackBitWidths::kChi2RZSize,
+                      false);
+          TTBV D0(0, TTTrack_TrackWord::TrackBitWidths::kD0Size, false);
+          TTBV Z0(
+              temp_z0, dataFormats_->base(Variable::zT, Process::kf), TTTrack_TrackWord::TrackBitWidths::kZ0Size, true);
+          TTBV TanL(temp_tanL,
+                    dataFormats_->base(Variable::cot, Process::kf),
+                    TTTrack_TrackWord::TrackBitWidths::kTanlSize,
+                    true);
+          TTBV Phi0(temp_phi0,
+                    dataFormats_->base(Variable::phiT, Process::kf),
+                    TTTrack_TrackWord::TrackBitWidths::kPhiSize,
+                    true);
+          TTBV InvR(-InTrack.inv2R(),
+                    dataFormats_->base(Variable::inv2R, Process::kf),
+                    TTTrack_TrackWord::TrackBitWidths::kRinvSize + 1,
+                    true);
+          InvR.resize(TTTrack_TrackWord::TrackBitWidths::kRinvSize);
+
           // Create input vector for BDT
-          trackQuality_inputs = { (std::trunc(TanL.val()/tqTanlScale_))/ap_fixed_rescale,
-                                  (std::trunc(Z0.val()/tqZ0Scale_))/ap_fixed_rescale,
-                                  0,
-                                  temp_nstub,
-                                  temp_ninterior,
-                                  digitise(TTTrack_TrackWord::chi2RPhiBins, tempchi2rphi, (double)setup_->kfoutchi2rphiConv()),
-                                  digitise(TTTrack_TrackWord::chi2RZBins, tempchi2rz, (double)setup_->kfoutchi2rzConv()) };  
+          trackQuality_inputs = {
+              (std::trunc(TanL.val() / tqTanlScale_)) / ap_fixed_rescale,
+              (std::trunc(Z0.val() / tqZ0Scale_)) / ap_fixed_rescale,
+              0,
+              temp_nstub,
+              temp_ninterior,
+              digitise(TTTrack_TrackWord::chi2RPhiBins, tempchi2rphi, (double)setup_->kfoutchi2rphiConv()),
+              digitise(TTTrack_TrackWord::chi2RZBins, tempchi2rz, (double)setup_->kfoutchi2rzConv())};
 
           // Run BDT emulation and package output into 3 bits
 
           tempTQMVA = trackQualityModel_->runEmulatedTQ(trackQuality_inputs);
-          tempTQMVA = std::trunc(tempTQMVA*ap_fixed_rescale);
-          TTBV TQMVA(digitise(tqBins_, tempTQMVA,1.0),  TTTrack_TrackWord::TrackBitWidths::kMVAQualitySize, false);
+          tempTQMVA = std::trunc(tempTQMVA * ap_fixed_rescale);
+          TTBV TQMVA(digitise(tqBins_, tempTQMVA, 1.0), TTTrack_TrackWord::TrackBitWidths::kMVAQualitySize, false);
 
           // Build 32 bit partial tracks for outputting in 64 bit packets
           //                  12 +  3       +  7         +  3    +  6
@@ -299,19 +306,29 @@ namespace trklet {
 
           int sortKey = (InTrack.sectorEta() < (int)(setup_->numSectorsEta() / 2)) ? 0 : 1;
           // Set correct bit to valid for track valid
-          TrackKFOut Temp_track(
-              PartialTrack1.set( (partialTrackWordBits_ - 1)), PartialTrack2, PartialTrack3, sortKey, track, iTrack, iLink, true);
+          TrackKFOut Temp_track(PartialTrack1.set((partialTrackWordBits_ - 1)),
+                                PartialTrack2,
+                                PartialTrack3,
+                                sortKey,
+                                track,
+                                iTrack,
+                                iLink,
+                                true);
 
-          InTrackStreams[iLink /  setup_->kfNumWorker()][iLink %  setup_->kfNumWorker()][iTrack] = (std::make_shared<TrackKFOut>(Temp_track));
+          InTrackStreams[iLink / setup_->kfNumWorker()][iLink % setup_->kfNumWorker()][iTrack] =
+              (std::make_shared<TrackKFOut>(Temp_track));
         }  // Iterate over Tracks
-      }  // Iterate over Links
+      }    // Iterate over Links
 
       for (int iRegion = 0; iRegion < setup_->numRegions(); iRegion++) {
-        int buffered_tracks [] = {0,0};
-        for (int iTrack = 0; iTrack < setup_->numFramesIO() * ((double)TTBV::S_ / TTTrack_TrackWord::TrackBitWidths::kTrackWordSize); iTrack++) {
-          for (int iWorker = 0; iWorker <  setup_->kfNumWorker(); iWorker++){
-            for (int iLink = 0; iLink < setup_->tfpNumChannel(); iLink++){
-              if ((InTrackStreams[iRegion][iWorker][iTrack]->sortKey() == iLink) && (InTrackStreams[iRegion][iWorker][iTrack]->dataValid() == true)){
+        int buffered_tracks[] = {0, 0};
+        for (int iTrack = 0;
+             iTrack < setup_->numFramesIO() * ((double)TTBV::S_ / TTTrack_TrackWord::TrackBitWidths::kTrackWordSize);
+             iTrack++) {
+          for (int iWorker = 0; iWorker < setup_->kfNumWorker(); iWorker++) {
+            for (int iLink = 0; iLink < setup_->tfpNumChannel(); iLink++) {
+              if ((InTrackStreams[iRegion][iWorker][iTrack]->sortKey() == iLink) &&
+                  (InTrackStreams[iRegion][iWorker][iTrack]->dataValid() == true)) {
                 OutTrackStreams[iRegion][iLink][buffered_tracks[iLink]] = InTrackStreams[iRegion][iWorker][iTrack];
                 buffered_tracks[iLink] = buffered_tracks[iLink] + 1;
               }
@@ -335,8 +352,8 @@ namespace trklet {
         }
       }
       // Fill products and match up tracks
-    // store products
-    const TTBV NullBitTrack(0, partialTrackWordBits_, false);
+      // store products
+      const TTBV NullBitTrack(0, partialTrackWordBits_, false);
       for (int iLink = 0; iLink < (int)OutputStreamsTracks.size(); iLink++) {
         // Iterate through partial tracks
         int numLinkTracks = (int)OutputStreamsTracks[iLink].size();
@@ -355,7 +372,8 @@ namespace trklet {
             if (it.second == OutputStreamsTracks[iLink][(int)(iTrack - 1) / 3].first)
               TrackRef = it.first;
           }
-          if ((int)iTrack / 3 <= setup_->numFramesIO() * ((double)TTBV::S_ / TTTrack_TrackWord::TrackBitWidths::kTrackWordSize))
+          if ((int)iTrack / 3 <=
+              setup_->numFramesIO() * ((double)TTBV::S_ / TTTrack_TrackWord::TrackBitWidths::kTrackWordSize))
             accepted[iLink].emplace_back(
                 std::make_pair(TrackRef,
                                (SortedPartialTracks[iLink][iTrack - 1].slice(partialTrackWordBits_) +

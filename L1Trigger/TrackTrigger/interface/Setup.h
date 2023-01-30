@@ -926,9 +926,9 @@ namespace tt {
     // Fraction of total dphi and dz ranges to calculate v0 and v1 LUT for
     int weightBinFraction_;
     // Constant used in FW to prevent 32-bit int overflow
-    int dzTruncation_; 
+    int dzTruncation_;
     // Constant used in FW to prevent 32-bit int overflow
-    int dphiTruncation_; 
+    int dphiTruncation_;
 
     // Parameter specifying DuplicateRemoval
     edm::ParameterSet pSetDR_;
