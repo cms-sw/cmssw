@@ -78,8 +78,8 @@ void HGCalTBTopologyTester::doTest(const HGCalTBTopology& topology) {
       unsigned int k(0);
       edm::LogVerbatim("HGCalGeom") << static_cast<HGCalDetId>(id) << " has " << ids.size() << " neighbours:";
       for (const auto& idn : ids) {
-	edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << (HGCSiliconDetId)(idn);
-	++k;
+        edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << (HGCSiliconDetId)(idn);
+        ++k;
       }
     }
   }
