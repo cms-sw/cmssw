@@ -38,7 +38,7 @@ usage() {
 	$ECHO "-c          \t don't cleanup temporary dir (for debugging)"
 	$ECHO "-C [dir]    \t directory containing Nvidia compatibility drivers (checks CMSSW_BASE by default if available)"
 	$ECHO "-D          \t dry run: print container commands rather than executing them"
-	$ECHO "-d          \t use Docker instead of Singularity"
+	$ECHO "-d          \t use Docker instead of Apptainer"
 	$ECHO "-f          \t force reuse of (possibly) existing container instance"
 	$ECHO "-g          \t use GPU instead of CPU"
 	$ECHO "-i [name]   \t server image name (default: ${IMAGE})"
@@ -48,7 +48,7 @@ usage() {
 	$ECHO "-P [port]   \t base port number for services (-1: automatically find an unused port range) (default: ${BASEPORT})"
 	$ECHO "-p [pid]    \t automatically shut down server when process w/ specified PID ends (-1: use parent process PID)"
 	$ECHO "-r [num]    \t number of retries when starting container (default: ${RETRIES})"
-	$ECHO "-s [dir]    \t Singularity sandbox directory (default: $(get_sandbox))"
+	$ECHO "-s [dir]    \t Apptainer sandbox directory (default: $(get_sandbox))"
 	$ECHO "-t [dir]    \t non-default hidden temporary dir"
 	$ECHO "-v          \t (verbose) start: activate server debugging info; stop: keep server logs"
 	$ECHO "-w [time]   \t maximum time to wait for server to start (default: ${WTIME} seconds)"
@@ -126,9 +126,27 @@ else
 	TMPDIR=$(readlink -f $TMPDIR)
 fi
 
+# find executables
+if [ -n "$USEDOCKER" ]; then
+	if [ -z "$DOCKER" ]; then
+		DOCKER="sudo docker"
+	fi
+else
+	if [ -z "$APPTAINER" ]; then
+		if type apptainer >& /dev/null; then
+			APPTAINER=apptainer
+		elif type singularity >& /dev/null; then
+			APPTAINER=singularity
+		else
+			echo "Missing apptainer and singularity"
+			exit 1
+		fi
+	fi
+fi
+
+
 SANDBOX=$(get_sandbox)
 SANDBOX=$(readlink -f ${SANDBOX})
-DOCKER="sudo docker"
 LOG="log_${SERVER}.log"
 STOPLOG="log_stop_${SERVER}.log"
 LIB=lib
@@ -204,7 +222,7 @@ start_docker(){
 		${IMAGE} tritonserver $PORTARGS $REPOARGS $VERBOSE
 }
 
-start_singularity(){
+start_apptainer(){
 	# triton server image may need to modify contents of opt/tritonserver/lib/
 	# but cvmfs is read-only
 	# -> make a writable local directory with the same contents
@@ -241,7 +259,7 @@ start_singularity(){
 
 	# start instance
 	# need to bind /cvmfs for above symlinks to work inside container
-	$DRYRUN singularity instance start \
+	$DRYRUN $APPTAINER instance start \
 		-B ${SHM}:/run/shm -B ${LIB}:/opt/tritonserver/lib -B ${SANDBOX} $MOUNTARGS $EXTRA \
 		${SANDBOX} ${SERVER}
 
@@ -257,7 +275,7 @@ start_singularity(){
 	else
 		REDIR=/dev/stdout
 	fi
-	$DRYRUN singularity run instance://${SERVER} \
+	$DRYRUN $APPTAINER run instance://${SERVER} \
 		tritonserver $PORTARGS $REPOARGS $VERBOSE >& ${REDIR} &
 	[ -z "$DRYRUN" ] || wait
 }
@@ -272,8 +290,8 @@ stop_docker(){
 	$DRYRUN $DOCKER rm ${SERVER}
 }
 
-stop_singularity(){
-	$DRYRUN singularity instance stop ${SERVER}
+stop_apptainer(){
+	$DRYRUN $APPTAINER instance stop ${SERVER}
 }
 
 test_docker(){
@@ -281,7 +299,7 @@ test_docker(){
 	${DOCKER} logs ${SERVER} |& grep "$1"
 }
 
-test_singularity(){
+test_apptainer(){
 	grep "$1" $LOG
 }
 
@@ -401,18 +419,18 @@ scram_tag(){
 }
 
 driver_docker(){
-	docker run --rm --entrypoint env ${IMAGE} | grep "CUDA_DRIVER_VERSION="
+	$DOCKER run --rm --entrypoint env ${IMAGE} | grep "CUDA_DRIVER_VERSION="
 }
 
-driver_singularity(){
+driver_apptainer(){
 	source ${SANDBOX}/.singularity.d/env/10-docker2singularity.sh && echo $CUDA_DRIVER_VERSION
 }
 
 compat_docker(){
-	docker cp $(docker create --rm ${IMAGE}):${COMPAT_SCRIPT} .
+	$DOCKER cp $($DOCKER create --rm ${IMAGE}):${COMPAT_SCRIPT} .
 }
 
-compat_singularity(){
+compat_apptainer(){
 	cp ${SANDBOX}/${COMPAT_SCRIPT} .
 }
 
@@ -480,12 +498,12 @@ else
 	if [ -n "$GPU" ]; then
 		EXTRA="--nv"
 	fi
-	START_FN=start_singularity
-	TEST_FN=test_singularity
-	STOP_FN=stop_singularity
-	DRIVER_FN=driver_singularity
-	COMPAT_FN=compat_singularity
-	PROG_NAME=Singularity
+	START_FN=start_apptainer
+	TEST_FN=test_apptainer
+	STOP_FN=stop_apptainer
+	DRIVER_FN=driver_apptainer
+	COMPAT_FN=compat_apptainer
+	PROG_NAME=Apptainer
 fi
 
 if [ "$OP" == check ]; then
