@@ -3,7 +3,7 @@
     "destinationTags": {
         "BeamSpotObjects_PCL_byRun_v1_express": {}, 
         "BeamSpotObjects_PCL_byRun_v1_hlt": {}, 
-        "BeamSpotObjects_PCL_byRun_v1_prompt": {}
+        "BeamSpotObjects_PCL_byRun_prep_prompt": {}
     }, 
     "inputTag": "BeamSpotObject_ByRun", 
     "since": null, 
