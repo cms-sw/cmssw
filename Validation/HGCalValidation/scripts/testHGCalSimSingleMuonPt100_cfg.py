@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun testHGCalSingleMuonPt100_cfg.py geometry=D92
 #
-#   Options for geometry D49, D88, D92, D93
+#   Options for geometry D88, D92, D93
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('geometry',
                  "D92",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D49, D88, D92, D93")
+                  "geometry of operations: D88, D92, D93")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -26,7 +26,6 @@ print(options)
 ####################################################################
 # Use the options
 
-<<<<<<<< HEAD:Validation/HGCalValidation/scripts/testHGCalSimSingleMuonPt100_cfg.py
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 process = cms.Process('SingleMuonSim',Phase2C17I13M9)
 
@@ -37,34 +36,6 @@ outFile = "file:step1" + options.geometry + "mu.root"
 print("Geometry file: ", geomFile)
 print("Global Tag:    ", globalTag)
 print("Output file:   ", outFile)
-========
-if (options.geometry == "D49"):
-    from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
-    process = cms.Process('SingleMuon',Phase2C9)
-    process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
-    process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
-    globalTag = "auto:phase2_realistic_T15"
-elif (options.geometry == "D88"):
-    from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-    process = cms.Process('SingleMuon',Phase2C11I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D88_cff')
-    process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
-    globalTag = "auto:phase2_realistic_T21"
-elif (options.geometry == "D93"):
-    from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-    process = cms.Process('SingleMuon',Phase2C11I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D93_cff')
-    process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
-    globalTag = "auto:phase2_realistic_T21"
-else:
-    from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-    process = cms.Process('SingleMuon',Phase2C11I13M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D92_cff')
-    process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
-    globalTag = "auto:phase2_realistic_T21"
-
-print("Global Tag: ", globalTag)
->>>>>>>> 84e6f756250 (Add scripts to test muon tomography for 2026D49 as well as a few others - backport of #39299):Validation/HGCalValidation/scripts/testHGCalSIMSingleMuonPt100_cfg.py
 
 # import of standard configurations
 process.load(geomFile)
@@ -126,11 +97,7 @@ process.output = cms.OutputModule("PoolOutputModule",
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW-RECO')
     ),
-<<<<<<<< HEAD:Validation/HGCalValidation/scripts/testHGCalSimSingleMuonPt100_cfg.py
     fileName = cms.untracked.string(outFile),
-========
-    fileName = cms.untracked.string('step1.root'),
->>>>>>>> 84e6f756250 (Add scripts to test muon tomography for 2026D49 as well as a few others - backport of #39299):Validation/HGCalValidation/scripts/testHGCalSIMSingleMuonPt100_cfg.py
     outputCommands = process.FEVTDEBUGEventContent.outputCommands,
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
     splitLevel = cms.untracked.int32(0)
@@ -172,10 +139,7 @@ process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.endjob_step = cms.EndPath(process.endOfProcess)
-<<<<<<<< HEAD:Validation/HGCalValidation/scripts/testHGCalSimSingleMuonPt100_cfg.py
 process.analysis_step = cms.Path(process.hgcalHitPartialEE+process.hgcalHitPartialHE+process.hgcalHitPartialHEB)
-========
->>>>>>>> 84e6f756250 (Add scripts to test muon tomography for 2026D49 as well as a few others - backport of #39299):Validation/HGCalValidation/scripts/testHGCalSIMSingleMuonPt100_cfg.py
 process.out_step = cms.EndPath(process.output)
 
 # Schedule definition
@@ -183,10 +147,7 @@ process.schedule = cms.Schedule(process.generation_step,
                                 process.genfiltersummary_step,
 				process.simulation_step,
                                 process.endjob_step,
-<<<<<<<< HEAD:Validation/HGCalValidation/scripts/testHGCalSimSingleMuonPt100_cfg.py
                                 process.analysis_step,
-========
->>>>>>>> 84e6f756250 (Add scripts to test muon tomography for 2026D49 as well as a few others - backport of #39299):Validation/HGCalValidation/scripts/testHGCalSIMSingleMuonPt100_cfg.py
 				process.out_step
 				)
 
