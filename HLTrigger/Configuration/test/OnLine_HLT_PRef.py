@@ -1,6 +1,6 @@
-# hltGetConfiguration /dev/CMSSW_12_6_0/PRef --full --data --type PRef --unprescale --process HLTPRef --globaltag auto:run3_hlt_PRef --input file:RelVal_Raw_PRef_DATA.root
+# hltGetConfiguration /dev/CMSSW_13_0_0/PRef --full --data --type PRef --unprescale --process HLTPRef --globaltag auto:run3_hlt_PRef --input file:RelVal_Raw_PRef_DATA.root
 
-# /dev/CMSSW_12_6_0/PRef/V16 (CMSSW_12_6_0)
+# /dev/CMSSW_13_0_0/PRef/V5 (CMSSW_13_0_0_pre3)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ process = cms.Process( "HLTPRef" )
 process.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_6_0/PRef/V16')
+  tableName = cms.string('/dev/CMSSW_13_0_0/PRef/V5')
 )
 
 process.transferSystem = cms.PSet( 
@@ -2599,7 +2599,8 @@ process.streams = cms.PSet(
 )
 process.datasets = cms.PSet( 
   AlCaLumiPixelsCountsExpress = cms.vstring( 'AlCa_LumiPixelsCounts_Random_v4' ),
-  AlCaLumiPixelsCountsPrompt = cms.vstring( 'AlCa_LumiPixelsCounts_ZeroBias_v4' ),
+  AlCaLumiPixelsCountsPrompt = cms.vstring( 'AlCa_LumiPixelsCounts_Random_v4',
+    'AlCa_LumiPixelsCounts_ZeroBias_v4' ),
   AlCaP0 = cms.vstring( 'AlCa_HIEcalEtaEBonly_v3',
     'AlCa_HIEcalEtaEEonly_v3',
     'AlCa_HIEcalPi0EBonly_v3',
@@ -4404,7 +4405,7 @@ process.hltESPMuonDetLayerGeometryESProducer = cms.ESProducer( "MuonDetLayerGeom
 process.hltESPMuonTransientTrackingRecHitBuilder = cms.ESProducer( "MuonTransientTrackingRecHitBuilderESProducer",
   ComponentName = cms.string( "hltESPMuonTransientTrackingRecHitBuilder" )
 )
-process.hltESPPixelCPEFast = cms.ESProducer( "PixelCPEFastESProducer",
+process.hltESPPixelCPEFast = cms.ESProducer( "PixelCPEFastESProducerPhase1",
   LoadTemplatesFromDB = cms.bool( True ),
   Alpha2Order = cms.bool( True ),
   ClusterProbComputationFlag = cms.int32( 0 ),
@@ -4426,7 +4427,6 @@ process.hltESPPixelCPEFast = cms.ESProducer( "PixelCPEFastESProducer",
   yerr_barrel_ln_def = cms.double( 0.0021 ),
   xerr_endcap_def = cms.double( 0.002 ),
   yerr_endcap_def = cms.double( 7.5E-4 ),
-  isPhase2 = cms.bool( False ),
   EdgeClusterErrorX = cms.double( 50.0 ),
   EdgeClusterErrorY = cms.double( 85.0 ),
   UseErrorsFromTemplates = cms.bool( True ),
@@ -4472,7 +4472,7 @@ process.hltESPPixelCPEGeneric = cms.ESProducer( "PixelCPEGenericESProducer",
   TruncatePixelCharge = cms.bool( True ),
   IrradiationBiasCorrection = cms.bool( True ),
   DoCosmics = cms.bool( False ),
-  Upgrade = cms.bool( False ),
+  isPhase2 = cms.bool( False ),
   SmallPitch = cms.bool( False ),
   ComponentName = cms.string( "hltESPPixelCPEGeneric" ),
   MagneticFieldRecord = cms.ESInputTag( "","" ),
@@ -4914,7 +4914,16 @@ process.siPixelGainCalibrationForHLTGPU = cms.ESProducer( "SiPixelGainCalibratio
 )
 process.siPixelQualityESProducer = cms.ESProducer( "SiPixelQualityESProducer",
   siPixelQualityLabel = cms.string( "" ),
-  siPixelQualityLabel_RawToDigi = cms.string( "" )
+  siPixelQualityLabel_RawToDigi = cms.string( "" ),
+  ListOfRecordToMerge = cms.VPSet( 
+    cms.PSet(  record = cms.string( "SiPixelQualityFromDbRcd" ),
+      tag = cms.string( "" )
+    ),
+    cms.PSet(  record = cms.string( "SiPixelDetVOffRcd" ),
+      tag = cms.string( "" )
+    )
+  ),
+  appendToDataLabel = cms.string( "" )
 )
 process.siPixelROCsStatusAndMappingWrapperESProducer = cms.ESProducer( "SiPixelROCsStatusAndMappingWrapperESProducer",
   ComponentName = cms.string( "" ),
@@ -6382,35 +6391,33 @@ process.hltSiPixelClustersGPU = cms.EDProducer( "SiPixelRawToClusterCUDA",
     Regions = cms.PSet(  ),
     CablingMapLabel = cms.string( "" )
 )
-process.hltSiPixelClustersFromSoA = cms.EDProducer( "SiPixelDigisClustersFromSoA",
+process.hltSiPixelClustersFromSoA = cms.EDProducer( "SiPixelDigisClustersFromSoAPhase1",
     src = cms.InputTag( "hltSiPixelDigisSoA" ),
     clusterThreshold_layer1 = cms.int32( 4000 ),
     clusterThreshold_otherLayers = cms.int32( 4000 ),
     produceDigis = cms.bool( False ),
-    storeDigis = cms.bool( False ),
-    isPhase2 = cms.bool( False )
+    storeDigis = cms.bool( False )
 )
 process.hltSiPixelClustersCache = cms.EDProducer( "SiPixelClusterShapeCacheProducer",
     src = cms.InputTag( "hltSiPixelClusters" ),
     onDemand = cms.bool( False )
 )
-process.hltSiPixelRecHitsFromLegacy = cms.EDProducer( "SiPixelRecHitSoAFromLegacy",
+process.hltSiPixelRecHitsFromLegacy = cms.EDProducer( "SiPixelRecHitSoAFromLegacyPhase1",
     beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
     src = cms.InputTag( "hltSiPixelClusters" ),
     CPE = cms.string( "hltESPPixelCPEFast" ),
-    convertToLegacy = cms.bool( True ),
-    isPhase2 = cms.bool( False )
+    convertToLegacy = cms.bool( True )
 )
-process.hltSiPixelRecHitsGPU = cms.EDProducer( "SiPixelRecHitCUDA",
+process.hltSiPixelRecHitsGPU = cms.EDProducer( "SiPixelRecHitCUDAPhase1",
     beamSpot = cms.InputTag( "hltOnlineBeamSpotToGPU" ),
     src = cms.InputTag( "hltSiPixelClustersGPU" ),
     CPE = cms.string( "hltESPPixelCPEFast" )
 )
-process.hltSiPixelRecHitsFromGPU = cms.EDProducer( "SiPixelRecHitFromCUDA",
+process.hltSiPixelRecHitsFromGPU = cms.EDProducer( "SiPixelRecHitFromCUDAPhase1",
     pixelRecHitSrc = cms.InputTag( "hltSiPixelRecHitsGPU" ),
     src = cms.InputTag( "hltSiPixelClusters" )
 )
-process.hltSiPixelRecHitsSoAFromGPU = cms.EDProducer( "SiPixelRecHitSoAFromCUDA",
+process.hltSiPixelRecHitsSoAFromGPU = cms.EDProducer( "SiPixelRecHitSoAFromCUDAPhase1",
     pixelRecHitSrc = cms.InputTag( "hltSiPixelRecHitsGPU" )
 )
 process.hltSiStripExcludedFEDListProducer = cms.EDProducer( "SiStripExcludedFEDListProducer",
@@ -6717,7 +6724,7 @@ process.hltPixelTracksFilter = cms.EDProducer( "PixelTrackFilterByKinematicsProd
     nSigmaTipMaxTolerance = cms.double( 0.0 ),
     chi2 = cms.double( 1000.0 )
 )
-process.hltPixelTracksCPU = cms.EDProducer( "CAHitNtupletCUDA",
+process.hltPixelTracksCPU = cms.EDProducer( "CAHitNtupletCUDAPhase1",
     onGPU = cms.bool( False ),
     pixelRecHitSrc = cms.InputTag( "hltSiPixelRecHitsFromLegacy" ),
     ptmin = cms.double( 0.899999976158 ),
@@ -6728,12 +6735,10 @@ process.hltPixelTracksCPU = cms.EDProducer( "CAHitNtupletCUDA",
     dcaCutOuterTriplet = cms.double( 0.25 ),
     earlyFishbone = cms.bool( True ),
     lateFishbone = cms.bool( False ),
-    idealConditions = cms.bool( False ),
     fillStatistics = cms.bool( False ),
     minHitsPerNtuplet = cms.uint32( 3 ),
     maxNumberOfDoublets = cms.uint32( 524288 ),
     minHitsForSharingCut = cms.uint32( 10 ),
-    includeJumpingForwardDoublets = cms.bool( True ),
     fitNas4 = cms.bool( False ),
     doClusterCut = cms.bool( True ),
     doZ0Cut = cms.bool( True ),
@@ -6742,6 +6747,8 @@ process.hltPixelTracksCPU = cms.EDProducer( "CAHitNtupletCUDA",
     doSharedHitCut = cms.bool( True ),
     dupPassThrough = cms.bool( False ),
     useSimpleTripletCleaner = cms.bool( True ),
+    idealConditions = cms.bool( False ),
+    includeJumpingForwardDoublets = cms.bool( True ),
     trackQualityCuts = cms.PSet( 
       chi2MaxPt = cms.double( 10.0 ),
       tripletMaxTip = cms.double( 0.3 ),
@@ -6754,7 +6761,7 @@ process.hltPixelTracksCPU = cms.EDProducer( "CAHitNtupletCUDA",
       chi2Coeff = cms.vdouble( 0.9, 1.8 )
     )
 )
-process.hltPixelTracksGPU = cms.EDProducer( "CAHitNtupletCUDA",
+process.hltPixelTracksGPU = cms.EDProducer( "CAHitNtupletCUDAPhase1",
     onGPU = cms.bool( True ),
     pixelRecHitSrc = cms.InputTag( "hltSiPixelRecHitsGPU" ),
     ptmin = cms.double( 0.899999976158 ),
@@ -6765,12 +6772,10 @@ process.hltPixelTracksGPU = cms.EDProducer( "CAHitNtupletCUDA",
     dcaCutOuterTriplet = cms.double( 0.25 ),
     earlyFishbone = cms.bool( True ),
     lateFishbone = cms.bool( False ),
-    idealConditions = cms.bool( False ),
     fillStatistics = cms.bool( False ),
     minHitsPerNtuplet = cms.uint32( 3 ),
     maxNumberOfDoublets = cms.uint32( 524288 ),
     minHitsForSharingCut = cms.uint32( 10 ),
-    includeJumpingForwardDoublets = cms.bool( True ),
     fitNas4 = cms.bool( False ),
     doClusterCut = cms.bool( True ),
     doZ0Cut = cms.bool( True ),
@@ -6779,6 +6784,8 @@ process.hltPixelTracksGPU = cms.EDProducer( "CAHitNtupletCUDA",
     doSharedHitCut = cms.bool( True ),
     dupPassThrough = cms.bool( False ),
     useSimpleTripletCleaner = cms.bool( True ),
+    idealConditions = cms.bool( False ),
+    includeJumpingForwardDoublets = cms.bool( True ),
     trackQualityCuts = cms.PSet( 
       chi2MaxPt = cms.double( 10.0 ),
       tripletMaxTip = cms.double( 0.3 ),
@@ -6791,10 +6798,10 @@ process.hltPixelTracksGPU = cms.EDProducer( "CAHitNtupletCUDA",
       chi2Coeff = cms.vdouble( 0.9, 1.8 )
     )
 )
-process.hltPixelTracksFromGPU = cms.EDProducer( "PixelTrackSoAFromCUDA",
+process.hltPixelTracksFromGPU = cms.EDProducer( "PixelTrackSoAFromCUDAPhase1",
     src = cms.InputTag( "hltPixelTracksGPU" )
 )
-process.hltPixelTracks = cms.EDProducer( "PixelTrackProducerFromSoA",
+process.hltPixelTracks = cms.EDProducer( "PixelTrackProducerFromSoAPhase1",
     beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
     trackSrc = cms.InputTag( "hltPixelTracksSoA" ),
     pixelRecHitLegacySrc = cms.InputTag( "hltSiPixelRecHits" ),
@@ -6810,7 +6817,7 @@ process.hltPixelTracksTrackingRegions = cms.EDProducer( "GlobalTrackingRegionFro
       precise = cms.bool( True )
     )
 )
-process.hltPixelVerticesCPU = cms.EDProducer( "PixelVertexProducerCUDA",
+process.hltPixelVerticesCPU = cms.EDProducer( "PixelVertexProducerCUDAPhase1",
     onGPU = cms.bool( False ),
     oneKernel = cms.bool( True ),
     useDensity = cms.bool( True ),
@@ -6824,7 +6831,7 @@ process.hltPixelVerticesCPU = cms.EDProducer( "PixelVertexProducerCUDA",
     PtMax = cms.double( 75.0 ),
     pixelTrackSrc = cms.InputTag( "hltPixelTracksSoA" )
 )
-process.hltPixelVerticesGPU = cms.EDProducer( "PixelVertexProducerCUDA",
+process.hltPixelVerticesGPU = cms.EDProducer( "PixelVertexProducerCUDAPhase1",
     onGPU = cms.bool( True ),
     oneKernel = cms.bool( True ),
     useDensity = cms.bool( True ),
@@ -8848,13 +8855,15 @@ process.hltEcalConsumerCPU = cms.EDAnalyzer( "GenericConsumer",
     eventProducts = cms.untracked.vstring( 'hltEcalDigis@cpu',
       'hltEcalUncalibRecHit@cpu' ),
     lumiProducts = cms.untracked.vstring(  ),
-    runProducts = cms.untracked.vstring(  )
+    runProducts = cms.untracked.vstring(  ),
+    processProducts = cms.untracked.vstring(  )
 )
 process.hltEcalConsumerGPU = cms.EDAnalyzer( "GenericConsumer",
     eventProducts = cms.untracked.vstring( 'hltEcalDigis@cuda',
       'hltEcalUncalibRecHit@cuda' ),
     lumiProducts = cms.untracked.vstring(  ),
-    runProducts = cms.untracked.vstring(  )
+    runProducts = cms.untracked.vstring(  ),
+    processProducts = cms.untracked.vstring(  )
 )
 process.hltL1sDQMHIHcalReconstruction = cms.EDFilter( "HLTL1TSeed",
     saveTags = cms.bool( True ),
@@ -8875,12 +8884,14 @@ process.hltPreDQMHIHcalReconstruction = cms.EDFilter( "HLTPrescaler",
 process.hltHcalConsumerCPU = cms.EDAnalyzer( "GenericConsumer",
     eventProducts = cms.untracked.vstring( 'hltHbhereco@cpu' ),
     lumiProducts = cms.untracked.vstring(  ),
-    runProducts = cms.untracked.vstring(  )
+    runProducts = cms.untracked.vstring(  ),
+    processProducts = cms.untracked.vstring(  )
 )
 process.hltHcalConsumerGPU = cms.EDAnalyzer( "GenericConsumer",
     eventProducts = cms.untracked.vstring( 'hltHbhereco@cuda' ),
     lumiProducts = cms.untracked.vstring(  ),
-    runProducts = cms.untracked.vstring(  )
+    runProducts = cms.untracked.vstring(  ),
+    processProducts = cms.untracked.vstring(  )
 )
 process.hltL1sDQMHIPixelReconstruction = cms.EDFilter( "HLTL1TSeed",
     saveTags = cms.bool( True ),
@@ -8903,19 +8914,22 @@ process.hltPixelConsumerCPU = cms.EDAnalyzer( "GenericConsumer",
       'hltPixelTracksSoA@cpu',
       'hltPixelVerticesSoA@cpu' ),
     lumiProducts = cms.untracked.vstring(  ),
-    runProducts = cms.untracked.vstring(  )
+    runProducts = cms.untracked.vstring(  ),
+    processProducts = cms.untracked.vstring(  )
 )
 process.hltPixelConsumerGPU = cms.EDAnalyzer( "GenericConsumer",
     eventProducts = cms.untracked.vstring( 'hltSiPixelRecHitsSoA@cuda',
       'hltPixelTracksSoA@cuda',
       'hltPixelVerticesSoA@cuda' ),
     lumiProducts = cms.untracked.vstring(  ),
-    runProducts = cms.untracked.vstring(  )
+    runProducts = cms.untracked.vstring(  ),
+    processProducts = cms.untracked.vstring(  )
 )
 process.hltPixelConsumerTrimmedVertices = cms.EDAnalyzer( "GenericConsumer",
     eventProducts = cms.untracked.vstring( 'hltTrimmedPixelVertices' ),
     lumiProducts = cms.untracked.vstring(  ),
-    runProducts = cms.untracked.vstring(  )
+    runProducts = cms.untracked.vstring(  ),
+    processProducts = cms.untracked.vstring(  )
 )
 process.hltSiPixelRecHitsSoAMonitorCPU = cms.EDProducer( "SiPixelPhase1MonitorRecHitsSoA",
     pixelHitsSrc = cms.InputTag( "hltSiPixelRecHitsSoA@cpu" ),
@@ -8951,17 +8965,17 @@ process.hltPixelTracksSoACompareGPUvsCPU = cms.EDProducer( "SiPixelPhase1Compare
     minQuality = cms.string( "loose" ),
     deltaR2cut = cms.double( 0.04 )
 )
-process.hltPixelVertexSoAMonitorCPU = cms.EDProducer( "SiPixelPhase1MonitorVertexSoA",
+process.hltPixelVertexSoAMonitorCPU = cms.EDProducer( "SiPixelMonitorVertexSoA",
     pixelVertexSrc = cms.InputTag( "hltPixelVerticesSoA@cpu" ),
     beamSpotSrc = cms.InputTag( "hltOnlineBeamSpot" ),
     topFolderName = cms.string( "SiPixelHeterogeneous/PixelVerticesCPU" )
 )
-process.hltPixelVertexSoAMonitorGPU = cms.EDProducer( "SiPixelPhase1MonitorVertexSoA",
+process.hltPixelVertexSoAMonitorGPU = cms.EDProducer( "SiPixelMonitorVertexSoA",
     pixelVertexSrc = cms.InputTag( "hltPixelVerticesSoA@cuda" ),
     beamSpotSrc = cms.InputTag( "hltOnlineBeamSpot" ),
     topFolderName = cms.string( "SiPixelHeterogeneous/PixelVerticesGPU" )
 )
-process.hltPixelVertexSoACompareGPUvsCPU = cms.EDProducer( "SiPixelPhase1CompareVertexSoA",
+process.hltPixelVertexSoACompareGPUvsCPU = cms.EDProducer( "SiPixelCompareVertexSoA",
     pixelVertexSrcCPU = cms.InputTag( "hltPixelVerticesSoA@cpu" ),
     pixelVertexSrcGPU = cms.InputTag( "hltPixelVerticesSoA@cuda" ),
     beamSpotSrc = cms.InputTag( "hltOnlineBeamSpot" ),
@@ -9023,7 +9037,8 @@ process.hltDatasetAlCaLumiPixelsCountsPrompt = cms.EDFilter( "TriggerResultsFilt
     l1tResults = cms.InputTag( "" ),
     l1tIgnoreMaskAndPrescale = cms.bool( False ),
     throw = cms.bool( True ),
-    triggerConditions = cms.vstring( 'AlCa_LumiPixelsCounts_ZeroBias_v4' )
+    triggerConditions = cms.vstring( 'AlCa_LumiPixelsCounts_Random_v4',
+      'AlCa_LumiPixelsCounts_ZeroBias_v4' )
 )
 process.hltPreDatasetAlCaLumiPixelsCountsPrompt = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 ),
@@ -9518,7 +9533,7 @@ process.hltSiPixelRecHits = SwitchProducerCUDA(
 process.hltSiPixelRecHitsSoA = SwitchProducerCUDA(
    cpu = cms.EDAlias(
        hltSiPixelRecHitsFromLegacy = cms.VPSet( 
-         cms.PSet(  type = cms.string( "cmscudacompatCPUTraitsTrackingRecHit2DHeterogeneous" )         ),
+         cms.PSet(  type = cms.string( "pixelTopologyPhase1TrackingRecHitSoAHost" )         ),
          cms.PSet(  type = cms.string( "uintAsHostProduct" )         )
        )
    ),
