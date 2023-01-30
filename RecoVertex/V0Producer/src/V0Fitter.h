@@ -48,6 +48,7 @@ public:
 private:
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> esTokenMF_;
 
+  bool doFit_;
   bool vertexFitter_;
   bool useRefTracks_;
   bool doKShorts_;
@@ -63,8 +64,13 @@ private:
   double vtxChi2Cut_;
   double vtxDecaySigXYCut_;
   double vtxDecaySigXYZCut_;
+  double vtxDecayXYCut_;
+  double ssVtxDecayXYCut_;
   // miscellaneous cuts
-  double tkDCACut_;
+  bool allowSS_;
+  double innerTkDCACut_;
+  double outerTkDCACut_;
+  bool allowWideAngleVtx_;
   double mPiPiCut_;
   double innerHitPosCut_;
   double cosThetaXYCut_;
