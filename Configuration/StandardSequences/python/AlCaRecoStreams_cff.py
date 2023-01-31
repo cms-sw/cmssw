@@ -161,6 +161,7 @@ from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStripGainsAAG_cff 
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStripHitEfficiency_cff import *
 
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiPixelLorentzAngle_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiPixelLorentzAngleMCS_cff import *
 
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripPCLHistos_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOPromptCalibProdSiPixelAli_cff import *
@@ -286,6 +287,7 @@ pathALCARECOPromptCalibProdSiStripGains = cms.Path(seqALCARECOPromptCalibProdSiS
 pathALCARECOPromptCalibProdSiStripGainsAAG = cms.Path(seqALCARECOPromptCalibProdSiStripGainsAAG)
 pathALCARECOPromptCalibProdSiStripHitEfficiency = cms.Path(seqALCARECOPromptCalibProdSiStripHitEfficiency)
 pathALCARECOPromptCalibProdSiPixelLorentzAngle = cms.Path(seqALCARECOPromptCalibProdSiPixelLorentzAngle) 
+pathALCARECOPromptCalibProdSiPixelLorentzAngleMCS = cms.Path(seqALCARECOPromptCalibProdSiPixelLorentzAngleMCS)
 pathALCARECOPromptCalibProdSiPixelAli = cms.Path(seqALCARECOPromptCalibProdSiPixelAli)
 pathALCARECOPromptCalibProdSiPixelAliHG = cms.Path(seqALCARECOPromptCalibProdSiPixelAliHG)
 pathALCARECOPromptCalibProdSiPixel = cms.Path(seqALCARECOPromptCalibProdSiPixel)
@@ -1035,6 +1037,15 @@ ALCARECOStreamPromptCalibProdSiPixelLA = cms.FilteredStream(
         paths  = (pathALCARECOPromptCalibProdSiPixelLorentzAngle),
         content = OutALCARECOPromptCalibProdSiPixelLA.outputCommands,
         selectEvents = OutALCARECOPromptCalibProdSiPixelLA.SelectEvents,
+        dataTier = cms.untracked.string('ALCARECO')
+        )
+
+ALCARECOStreamPromptCalibProdSiPixelLAMCS = cms.FilteredStream(
+        responsible = 'Tanja Susa',
+        name = 'PromptCalibProdSiPixelLAMCS',
+        paths  = (pathALCARECOPromptCalibProdSiPixelLorentzAngleMCS),
+        content = OutALCARECOPromptCalibProdSiPixelLAMCS.outputCommands,
+        selectEvents = OutALCARECOPromptCalibProdSiPixelLAMCS.SelectEvents,
         dataTier = cms.untracked.string('ALCARECO')
         )
 
