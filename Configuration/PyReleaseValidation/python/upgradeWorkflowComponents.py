@@ -438,6 +438,27 @@ upgradeWFs['seedingDeepCore'] = UpgradeWorkflow_seedingDeepCore(
     offset = 0.17,
 )
 
+#Workflow to enable displacedRegionalStep tracking iteration
+class UpgradeWorkflow_displacedRegional(UpgradeWorkflowTracking):
+    def setup__(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+    def condition_(self, fragment, stepList, key, hasHarvest):
+        return '2021' in key
+upgradeWFs['displacedRegional'] = UpgradeWorkflow_displacedRegional(
+    steps = [
+        'Reco',
+        'RecoFakeHLT',
+        'RecoGlobal',
+        'RecoNano',
+    ],
+    PU = [],
+    suffix = '_displacedRegional',
+    offset = 0.71,
+)
+upgradeWFs['displacedRegional'].step3 = {
+    '--procModifiers': 'displacedRegionalStep'
+}
+
 # Vector Hits workflows
 class UpgradeWorkflow_vectorHits(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
