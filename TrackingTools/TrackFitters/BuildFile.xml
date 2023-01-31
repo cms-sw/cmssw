@@ -1,5 +1,4 @@
 <flags CXXFLAGS="-ffp-contract=off"/>
-<use name="ofast-flag"/>
 <use name="boost"/>
 <use name="CLHEP"/>
 <export>

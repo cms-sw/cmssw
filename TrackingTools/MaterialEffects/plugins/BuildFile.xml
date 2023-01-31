@@ -1,4 +1,3 @@
-<use name="ofast-flag"/>
 <use name="TrackingTools/Records"/>
 <use name="TrackingTools/MaterialEffects"/>
 <library file="*.cc" name="TrackingToolsMaterialEffectsPlugins">

@@ -1,4 +1,3 @@
-<use name="ofast-flag"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="Geometry/CaloGeometry"/>

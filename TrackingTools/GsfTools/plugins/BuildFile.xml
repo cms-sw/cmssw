@@ -1,4 +1,3 @@
-<use name="ofast-flag"/>
 <use name="TrackingTools/Records"/>
 <use name="TrackingTools/GsfTools"/>
 <use name="FWCore/Framework"/>

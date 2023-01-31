@@ -27,5 +27,4 @@
 <export>
   <lib name="1"/>
 </export>
-<use name="ofast-flag"/>
 <flags CXXFLAGS="-fno-math-errno"/>

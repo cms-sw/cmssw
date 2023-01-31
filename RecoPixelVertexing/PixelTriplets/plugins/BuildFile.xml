@@ -1,4 +1,3 @@
-<use name="ofast-flag"/>
 <use name="CUDADataFormats/Track"/>
 <use name="CUDADataFormats/TrackingRecHit"/>
 <use name="CommonTools/RecoAlgos"/>

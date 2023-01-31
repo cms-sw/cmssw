@@ -1,4 +1,3 @@
-<use name="ofast-flag"/>
 <use name="CLHEP"/>
 <export>
   <lib name="1"/>
