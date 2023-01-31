@@ -75,7 +75,7 @@ void DDHGCalCell::initialize(const DDNumericArguments& nArgs,
   edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: Wafer r " << waferSize_ << " T " << waferT_ << " Cell T " << cellT_
                                 << " Cells/Wafer " << nCells_ << " Material " << material_ << "Sensitive Position "
                                 << posSens_ << " NameSpace " << nameSpace_ << ": Full Cell: " << fullCN_ << ":"
-                                << fullSensN_;
+                                << fullSensN_ << " Separation " << waferSeparation_ << ":" << addWaferSeparation_;
   for (unsigned int k = 0; k < truncCN_.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: Truncated Cell[" << k << "] " << truncCN_[k] << ":"
                                   << truncSensN_[k];
@@ -96,7 +96,7 @@ void DDHGCalCell::execute(DDCompactView& cpv) {
 
   static const double sqrt3 = std::sqrt(3.0);
   double R =
-      (addWaferSeparation_ == 0) ? waferSize_ / (3.0 * nCells_) : (waferSize_ + waferSeparation_) / (3.0 * nCells_);
+      (addWaferSeparation_ <= 1) ? waferSize_ / (3.0 * nCells_) : (waferSize_ + waferSeparation_) / (3.0 * nCells_);
   double r = 0.5 * R * sqrt3;
   double dx1 = R;
   double dx2 = 0.5 * dx1;
