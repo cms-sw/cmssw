@@ -94,7 +94,9 @@ void DDHGCalWaferFullRotated::initialize(const DDNumericArguments& nArgs,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: " << layerNames_.size() << " types of volumes";
   for (unsigned int i = 0; i < layerNames_.size(); ++i)
-    edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << layerNames_[i] << " of thickness " << layerThick_[i] << " size offset " << layerSizeOff_[i] << " filled with " << materials_[i] << " type " << layerType_[i];
+    edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << layerNames_[i] << " of thickness " << layerThick_[i]
+                                  << " size offset " << layerSizeOff_[i] << " filled with " << materials_[i] << " type "
+                                  << layerType_[i];
 #endif
   layers_ = dbl_to_int(vArgs["Layers"]);
 #ifdef EDM_ML_DEBUG
@@ -177,9 +179,10 @@ void DDHGCalWaferFullRotated::execute(DDCompactView& cpv) {
           zw[0] = -0.5 * layerThick_[i];
           zw[1] = 0.5 * layerThick_[i];
         }
-	std::string layerName = layerNames_[i] + tag_[k] + waferTag_;
+        std::string layerName = layerNames_[i] + tag_[k] + waferTag_;
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: Layer " << l << ": " << i << ": " << layerName << " " << layerSizeOff_[i] << " r " << r2 << ":" << R2;
+        edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: Layer " << l << ": " << i << ": " << layerName << " "
+                                      << layerSizeOff_[i] << " r " << r2 << ":" << R2;
 #endif
         solid = DDSolidFactory::extrudedpolygon(layerName, xL, yL, zw, zx, zy, scale);
         DDName matN(DDSplit(materials_[i]).first, DDSplit(materials_[i]).second);

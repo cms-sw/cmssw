@@ -47,7 +47,9 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: " << layerNames.size() << " types of volumes";
   for (unsigned int i = 0; i < layerNames.size(); ++i)
-    edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << layerNames[i] << " of thickness " << layerThick[i] << " size offset " << layerSizeOff[i] << " filled with " << materials[i] << " type " << layerType[i];
+    edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << layerNames[i] << " of thickness " << layerThick[i]
+                                  << " size offset " << layerSizeOff[i] << " filled with " << materials[i] << " type "
+                                  << layerType[i];
 #endif
   const auto& layers = args.value<std::vector<int> >("Layers");
 #ifdef EDM_ML_DEBUG
@@ -128,7 +130,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         }
         std::string layerName = layerNames[i] + tag[k] + waferTag;
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: Layer " << l << ": " << i << ":" << layerName << " " << layerSizeOff[i] << " r " << r2 << ":" << R2;
+        edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: Layer " << l << ": " << i << ":" << layerName << " "
+                                      << layerSizeOff[i] << " r " << r2 << ":" << R2;
 #endif
         solid = dd4hep::ExtrudedPolygon(xL, yL, zw, zx, zy, scale);
         ns.addSolidNS(ns.prepend(layerName), solid);

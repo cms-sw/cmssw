@@ -17,7 +17,7 @@
 #include <vector>
 #include <sstream>
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 class DDHGCalWaferPartialRotated : public DDAlgorithm {
 public:
@@ -92,7 +92,9 @@ void DDHGCalWaferPartialRotated::initialize(const DDNumericArguments& nArgs,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferPartialRotated: " << layerNames_.size() << " types of volumes";
   for (unsigned int i = 0; i < layerNames_.size(); ++i)
-    edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << layerNames_[i] << " of thickness " << layerThick_[i] << " size offset " << layerSizeOff_[i] << " filled with " << materials_[i] << " type " << layerType_[i];
+    edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << layerNames_[i] << " of thickness " << layerThick_[i]
+                                  << " size offset " << layerSizeOff_[i] << " filled with " << materials_[i] << " type "
+                                  << layerType_[i];
 #endif
   layers_ = dbl_to_int(vArgs["Layers"]);
 #ifdef EDM_ML_DEBUG
@@ -156,16 +158,18 @@ void DDHGCalWaferPartialRotated::execute(DDCompactView& cpv) {
       double zi(-0.5 * thick_), thickTot(0.0);
       for (unsigned int l = 0; l < layers_.size(); l++) {
         unsigned int i = layers_[l];
-	double r2 = 0.5 * (waferSize_ - layerSizeOff_[i]);
-	double R2 = r2 / sqrt3;
-	wxy = HGCalWaferMask::waferXY(partialTypes_[k], placementIndex_[m], r2, R2, 0.0, 0.0);
-	std::vector<double> xL, yL;
-	for (unsigned int i0 = 0; i0 < (wxy.size() - 1); ++i0) {
-	  xL.emplace_back(wxy[i0].first);
-	  yL.emplace_back(wxy[i0].second);
-	}
+        double r2 = 0.5 * (waferSize_ - layerSizeOff_[i]);
+        double R2 = r2 / sqrt3;
+        wxy = HGCalWaferMask::waferXY(partialTypes_[k], placementIndex_[m], r2, R2, 0.0, 0.0);
+        std::vector<double> xL, yL;
+        for (unsigned int i0 = 0; i0 < (wxy.size() - 1); ++i0) {
+          xL.emplace_back(wxy[i0].first);
+          yL.emplace_back(wxy[i0].second);
+        }
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferPartialRotated:Layer " << l << ":" << i << " T " << layerThick_[i] << " Size offset " << layerSizeOff_[i] << " Copy " << copyNumber[i] << " Partial type " << partialTypes_[k] << " r " << r2 << ":" << r;
+        edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferPartialRotated:Layer " << l << ":" << i << " T " << layerThick_[i]
+                                      << " Size offset " << layerSizeOff_[i] << " Copy " << copyNumber[i]
+                                      << " Partial type " << partialTypes_[k] << " r " << r2 << ":" << r;
 #endif
         DDRotation rot;
         if (copyNumber[i] == 1) {
