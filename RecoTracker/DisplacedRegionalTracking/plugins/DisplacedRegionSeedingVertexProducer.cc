@@ -39,16 +39,16 @@ public:
 
 private:
   // clustering parameters
-  double rParam_;
+  const double rParam_;
 
   // selection parameters
-  double minRadius_;
-  double discriminatorCut_;
-  vector<string> input_names_;
-  vector<string> output_names_;
+  const double minRadius_;
+  const double discriminatorCut_;
+  const vector<string> input_names_;
+  const vector<string> output_names_;
 
-  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
-  edm::EDGetTokenT<edm::View<reco::VertexCompositeCandidate> > trackClustersToken_;
+  const edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
+  const edm::EDGetTokenT<edm::View<reco::VertexCompositeCandidate> > trackClustersToken_;
 
   tensorflow::Session *session_;
 
