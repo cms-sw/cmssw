@@ -1,22 +1,73 @@
-    ),
-    secondaryFileNames = cms.untracked.vstring()
-)
+#eoscms ls -l /eos/cms/store/group/dpg_hcal/comm_hcal/USC/run327785/USC_327785.root
+# choose run in /store/group/dpg_hcal/comm_hcal/USC/
+#how to run: cmsRun remoteMonitoring_LASER_era2019_cfg.py 331311 /store/group/dpg_hcal/comm_hcal/USC/ /afs/cern.ch/work/z/zhokin/hcal/voc2/CMSSW_11_1_0_pre3/src/DPGAnalysis/HcalTools/scripts/rmt
 
-process.options = cms.untracked.PSet(
-        SkipEvent = cms.untracked.vstring('ProductNotFound')
-)
+import sys
+import FWCore.ParameterSet.Config as cms
+from Configuration.StandardSequences.Eras import eras
+#process = cms.Process("TEST", eras.Run2_2018)
+process = cms.Process("TEST", eras.Run3)
+process.load("Configuration.StandardSequences.GeometryDB_cff")
+process.load("CondCore.CondDB.CondDB_cfi")
+process.load("EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi")
+process.l1GtUnpack.DaqGtInputTag = 'source'
+# from RelValAlCaPedestal_cfg_2018.py
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load('Configuration.EventContent.EventContent_cff')
+process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
+process.load('Configuration.StandardSequences.Reconstruction_Data_cff')
+process.load('Configuration.StandardSequences.EndOfProcess_cff')
+#process.load('RecoLocalCalo.Configuration.hcalLocalReco_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
-# Production Info
-process.configurationMetadata = cms.untracked.PSet(
-    annotation = cms.untracked.string('Reconstruction.py nevts:10'),
-    name = cms.untracked.string('Applications'),
-    version = cms.untracked.string('$Revision: 1.19 $')
-)
-###########################################################################################################3
+##runnumber = sys.argv[2][4:-5] 
+runnumber = sys.argv[2]
+rundir = sys.argv[3]
+histodir = sys.argv[4]
+
+#print 'RUN = '+runnumber
+#print 'Input file = '+rundir+'/run'+runnumber+'/USC_'+runnumber+'.root'
+##print 'Input file = '+rundir+'/USC_'+runnumber+'.root'
+#print 'Output file = '+histodir+'/LASER_'+runnumber+'.root'
+
+process.maxEvents = cms.untracked.PSet(
+#    input = cms.untracked.int32(100)
+  input = cms.untracked.int32(-1)
+  )
+
+process.TFileService = cms.Service("TFileService",
+      fileName = cms.string(histodir+'/LASER_'+runnumber+'.root')
+#      ,closeFileFast = cms.untracked.bool(True)
+  )
+
+
+#process.source = cms.Source("PoolSource",
+process.source = cms.Source("HcalTBSource",
+                            skipBadFiles=cms.untracked.bool(True),
+                            firstLuminosityBlockForEachRun = cms.untracked.VLuminosityBlockID([]),
+                            firstRun = cms.untracked.uint32(331370),
+#                            firstRun = cms.untracked.uint32(330153),
+#                            firstRun = cms.untracked.uint32(329416),
+                            fileNames = cms.untracked.vstring(
+rundir+'/run'+runnumber+'/USC_'+runnumber+'.root'
+#rundir+'/USC_'+runnumber+'.root'
+#                       '/store/group/dpg_hcal/comm_hcal/USC/run331370/USC_331370.root'
+
+), 
+                            secondaryFileNames = cms.untracked.vstring()
+                            )
+
 process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   #
                                   Verbosity = cms.untracked.int32(0),
-                                  #Verbosity = cms.untracked.int32(-9504),
+                                  #Verbosity = cms.untracked.int32(-9062),
+                                  #Verbosity = cms.untracked.int32(-9063),
+                                  #Verbosity = cms.untracked.int32(-9064),
+                                  #Verbosity = cms.untracked.int32(-9065),
+                                  #Verbosity = cms.untracked.int32(-84),
                                   #Verbosity = cms.untracked.int32(-91),
                                   #Verbosity = cms.untracked.int32(-92),
                                   #
@@ -90,43 +141,43 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   #
                                   # -53 for  BAD HBHEHF channels from study on shape Ratio
                                   #Verbosity = cms.untracked.int32(-53),
-                                  ratioHBMin = cms.double(0.10),
-                                  ratioHBMax = cms.double(0.95),
-                                  ratioHEMin = cms.double(0.10),
-                                  ratioHEMax = cms.double(0.98),
-                                  ratioHFMin = cms.double(0.30),
-                                  ratioHFMax = cms.double(1.04),
-                                  ratioHOMin = cms.double(0.18),
-                                  ratioHOMax = cms.double(0.96),
+                                  ratioHBMin = cms.double(0.50),
+                                  ratioHBMax = cms.double(1.00),
+                                  ratioHEMin = cms.double(0.55),
+                                  ratioHEMax = cms.double(1.00),
+                                  ratioHFMin = cms.double(0.60),
+                                  ratioHFMax = cms.double(1.02),
+                                  ratioHOMin = cms.double(0.55),
+                                  ratioHOMax = cms.double(1.04),
                                   # -54 for  BAD HBHEHF channels from study on RMS of shapes
                                   #Verbosity = cms.untracked.int32(-54),
-                                  rmsHBMin = cms.double(1.0),
-                                  rmsHBMax = cms.double(3.9),
-                                  rmsHEMin = cms.double(1.0),
-                                  rmsHEMax = cms.double(3.9),
-                                  rmsHFMin = cms.double(0.1),
-                                  rmsHFMax = cms.double(2.0),
+                                  rmsHBMin = cms.double(0.3),
+                                  rmsHBMax = cms.double(2.5),
+                                  rmsHEMin = cms.double(0.9),
+                                  rmsHEMax = cms.double(3.6),
+                                  rmsHFMin = cms.double(0.2),
+                                  rmsHFMax = cms.double(2.1),
                                   rmsHOMin = cms.double(0.2),
-                                  rmsHOMax = cms.double(4.4),
+                                  rmsHOMax = cms.double(2.6),
                                   # -55 for  BAD HBHEHF channels from study on TSmean of shapes
                                   #Verbosity = cms.untracked.int32(-55),
-                                  TSmeanHBMin = cms.double(1.8),
-                                  TSmeanHBMax = cms.double(8.0),
-                                  TSmeanHEMin = cms.double(1.8),
-                                  TSmeanHEMax = cms.double(8.0),
-                                  TSmeanHFMin = cms.double(0.4),
-                                  TSmeanHFMax = cms.double(2.8),
-                                  TSmeanHOMin = cms.double(1.8),
-                                  TSmeanHOMax = cms.double(7.0),
+                                  TSmeanHBMin = cms.double(5.0),
+                                  TSmeanHBMax = cms.double(7.5),
+                                  TSmeanHEMin = cms.double(2.5),
+                                  TSmeanHEMax = cms.double(6.5),
+                                  TSmeanHFMin = cms.double(5.5),
+                                  TSmeanHFMax = cms.double(8.5),
+                                  TSmeanHOMin = cms.double(1.5),
+                                  TSmeanHOMax = cms.double(4.4),
                                   # -55 for  BAD HBHEHF channels from study on TSmax of shapes
                                   #Verbosity = cms.untracked.int32(-55),
-                                  TSpeakHBMin = cms.double(-0.5),
-                                  TSpeakHBMax = cms.double(6.5),
-                                  TSpeakHEMin = cms.double(-0.5),
-                                  TSpeakHEMax = cms.double(6.5),
-                                  TSpeakHFMin = cms.double(-0.5),
-                                  TSpeakHFMax = cms.double(3.5),
-                                  TSpeakHOMin = cms.double(-0.5),
+                                  TSpeakHBMin = cms.double(1.8),
+                                  TSpeakHBMax = cms.double(8.5),
+                                  TSpeakHEMin = cms.double(1.5),
+                                  TSpeakHEMax = cms.double(8.5),
+                                  TSpeakHFMin = cms.double(1.5),
+                                  TSpeakHFMax = cms.double(8.5),
+                                  TSpeakHOMin = cms.double(0.5),
                                   TSpeakHOMax = cms.double(6.5),
                                   # -56 for  BAD HBHEHOHF channels from study on ADC Amplitude
                                   #Verbosity = cms.untracked.int32(-56),
@@ -161,7 +212,7 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   #calibrADCHEMin = cms.double(15.0),
                                   #calibrADCHOMin = cms.double(15.0),
                                   #calibrADCHFMin = cms.double(15.0),
-                                  # cuts for LED runs:
+                                  # cuts for LASER runs:
                                   calibrADCHBMin = cms.double(1000.),
 				  calibrADCHBMax = cms.double(100000000.),
                                   calibrADCHEMin = cms.double(1000.),
@@ -212,23 +263,21 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   #
                                   # flag for ask runs of LSs for RMT & CMT accordingly:
                                   #=0-runs, =1-LSs
-                                  # keep for LED runs this flags =0 always
-                                  flagtoaskrunsorls = cms.int32(1),
+                                  # keep for LASER runs this flags =0 always
+                                  flagtoaskrunsorls = cms.int32(0),
                                   #
                                   # flag for choice of criterion of bad channels:
                                   #=0-CapIdErr, =1-Ratio, =2-Width, =3-TSmax, =4-TSmean, =5-adcAmplitud
                                   # keep for CMT (global runs) this flags =0 always
                                   flagtodefinebadchannel = cms.int32(0),
                                   #how many bins you want on the plots:better to choice (#LS+1)
-                                  howmanybinsonplots = cms.int32(2600),
-                                  #
+                                  howmanybinsonplots = cms.int32(25),
                                   #
                                   # ls - range for RBX study (and ??? perhaps for gain stability via abort gap):
                                   lsmin = cms.int32(1),
                                   #lsmax = cms.int32(620),
                                   lsmax = cms.int32(2600),
                                   #
-                                   #
                                   flagabortgaprejected = cms.int32(1),
                                   bcnrejectedlow = cms.int32(3446),
                                   bcnrejectedhigh= cms.int32(3564),
@@ -270,24 +319,24 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   #                                  nbadchannels3 = cms.int32(50),
                                   #
                                   #Verbosity = cms.untracked.int32(-79),
-                                  # cuts on Estimator1 to see LS dependences: default for normal pp - 2500 everywhere;
-                                  lsdep_estimator1_HBdepth1 = cms.double(1500.),
-                                  lsdep_estimator1_HBdepth2 = cms.double(1500.),
-                                  lsdep_estimator1_HBdepth3 = cms.double(1500.),
-                                  lsdep_estimator1_HBdepth4 = cms.double(1500.),
-                                  lsdep_estimator1_HEdepth1 = cms.double(1500.),
-                                  lsdep_estimator1_HEdepth2 = cms.double(1500.),
-                                  lsdep_estimator1_HEdepth3 = cms.double(1500.),
-                                  lsdep_estimator1_HEdepth4 = cms.double(1500.),
-                                  lsdep_estimator1_HEdepth5 = cms.double(1500.),
-                                  lsdep_estimator1_HEdepth6 = cms.double(1500.),
-                                  lsdep_estimator1_HEdepth7 = cms.double(1500.),
-                                  lsdep_estimator1_HFdepth1 = cms.double(140.),
-                                  lsdep_estimator1_HFdepth2 = cms.double(140.),
-                                  lsdep_estimator1_HFdepth3 = cms.double(140.),
-                                  lsdep_estimator1_HFdepth4 = cms.double(140.),
-                                  lsdep_estimator1_HOdepth4 = cms.double(180.),
-                                  # cuts on Estimator2 to see LS dependences: default 7.
+                                  # cuts on Estimator1 to see LS dependences:
+                                  lsdep_estimator1_HBdepth1 = cms.double(2500.),
+                                  lsdep_estimator1_HBdepth2 = cms.double(2500.),
+                                  lsdep_estimator1_HBdepth3 = cms.double(2500.),
+                                  lsdep_estimator1_HBdepth4 = cms.double(2500.),
+                                  lsdep_estimator1_HEdepth1 = cms.double(2500.),
+                                  lsdep_estimator1_HEdepth2 = cms.double(2500.),
+                                  lsdep_estimator1_HEdepth3 = cms.double(2500.),
+                                  lsdep_estimator1_HEdepth4 = cms.double(2500.),
+                                  lsdep_estimator1_HEdepth5 = cms.double(2500.),
+                                  lsdep_estimator1_HEdepth6 = cms.double(2500.),
+                                  lsdep_estimator1_HEdepth7 = cms.double(2500.),
+                                  lsdep_estimator1_HFdepth1 = cms.double(2500.),
+                                  lsdep_estimator1_HFdepth2 = cms.double(2500.),
+                                  lsdep_estimator1_HFdepth3 = cms.double(2500.),
+                                  lsdep_estimator1_HFdepth4 = cms.double(2500.),
+                                  lsdep_estimator1_HOdepth4 = cms.double(2500.),
+                                  # cuts on Estimator2 to see LS dependences:
                                   lsdep_estimator2_HBdepth1 = cms.double(7.),
                                   lsdep_estimator2_HBdepth2 = cms.double(7.),
                                   lsdep_estimator2_HEdepth1 = cms.double(7.),
@@ -296,7 +345,7 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   lsdep_estimator2_HFdepth1 = cms.double(7.),
                                   lsdep_estimator2_HFdepth2 = cms.double(7.),
                                   lsdep_estimator2_HOdepth4 = cms.double(7.),
-                                  # cuts on Estimator3 to see LS dependences: default 7.
+                                  # cuts on Estimator3 to see LS dependences:
                                   lsdep_estimator3_HBdepth1 = cms.double(7.),
                                   lsdep_estimator3_HBdepth2 = cms.double(7.),
                                   lsdep_estimator3_HEdepth1 = cms.double(7.),
@@ -305,7 +354,7 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   lsdep_estimator3_HFdepth1 = cms.double(7.),
                                   lsdep_estimator3_HFdepth2 = cms.double(7.),
                                   lsdep_estimator3_HOdepth4 = cms.double(7.),
-                                  # cuts on Estimator4 to see LS dependences: default 5.
+                                  # cuts on Estimator4 to see LS dependences:
                                   lsdep_estimator4_HBdepth1 = cms.double(5.),
                                   lsdep_estimator4_HBdepth2 = cms.double(5.),
                                   lsdep_estimator4_HEdepth1 = cms.double(5.),
@@ -314,7 +363,7 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   lsdep_estimator4_HFdepth1 = cms.double(5.),
                                   lsdep_estimator4_HFdepth2 = cms.double(5.),
                                   lsdep_estimator4_HOdepth4 = cms.double(5.),
-                                  # cuts on Estimator5 to see LS dependences: default 1.8
+                                  # cuts on Estimator5 to see LS dependences:
                                   lsdep_estimator5_HBdepth1 = cms.double(1.8),
                                   lsdep_estimator5_HBdepth2 = cms.double(1.8),
                                   lsdep_estimator5_HEdepth1 = cms.double(1.8),
@@ -344,12 +393,12 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   forallestimators_amplitude_bigger = cms.double(-100.),
                                   #
                                   #
-                                  #
-                                  usecontinuousnumbering = cms.untracked.bool(False),
-                                  #usecontinuousnumbering = cms.untracked.bool(True),
-                                  #
                                   # if 0 - do not use digis at all
                                   flagToUseDigiCollectionsORNot = cms.int32(1),
+                                  #
+                                  #usecontinuousnumbering = cms.untracked.bool(False),
+                                  usecontinuousnumbering = cms.untracked.bool(True),
+                                  #
                                   #
                                   #
                                   hcalCalibDigiCollectionTag = cms.InputTag('hcalDigis'),
@@ -375,7 +424,7 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   #  3       -        +       -     +     new w/o high depthes
                                   #  4       +        -       +     +     2016fall
                                   #  5       +        -       +     +     2016fall w/o high depthes
-                                  #  6       +        +       -     +     2017 &&  2018 && 2021
+                                  #  6       +        +       -     +     2017 && 2018 && 2021
                                   #  7       +        +       -     +     2017begin w/o high depthes in HEonly
                                   #  8       +        +       -     +     2017begin w/o high depthes
                                   #  9       +        +       +     +     all  w/o high depthes
@@ -383,24 +432,26 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   # 
                                   flagupgradeqie1011 = cms.int32(6),
                                   # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-                                  #end upgrade: --------------------------------------------------------- end upgrade
                                   # flaguseshunt = 1 or 6 (6 is default for global runs) 
                                   flaguseshunt = cms.int32(6),
                                   # flagsipmcorrection: != 0 yes,apply; = 0 do not use;
                                   flagsipmcorrection = cms.int32(1),
+                                  #end upgrade: --------------------------------------------------------- end upgrade
                                   #
                                   #
                                   # for local LASER runs ONLY!!! to be > 0    (,else = 0)
-                                  flagLaserRaddam = cms.int32(0),
+                                  flagLaserRaddam = cms.int32(1),
                                   # for gaussian fit for local shunt1 (Gsel0) led low-intensity or ped ONLY!!! to be  > 0    (,else = 0)
                                   flagfitshunt1pedorledlowintensity = cms.int32(0),
                                   #
-                                  # use in CMT w/o PSM, the next flags as 0: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                                  # for use in IterativeMethod of CalibrationGroup!!! to be > 1    (,else = 0)
-                                  flagIterativeMethodCalibrationGroupDigi = cms.int32(0),
+                                  splashesUpperLimit = cms.int32(10000),
+                                  #
                                   #
                                   # for use in IterativeMethod of CalibrationGroup!!! to be > 1    (,else = 0)
-                                  flagIterativeMethodCalibrationGroupReco = cms.int32(0),
+                                  flagIterativeMethodCalibrationGroupDigi = cms.int32(1),
+                                  #
+                                  # for use in IterativeMethod of CalibrationGroup!!! to be > 1    (,else = 0)
+                                  flagIterativeMethodCalibrationGroupReco = cms.int32(1),
                                   #
                                   hbheInputSignalTag = cms.InputTag('hbherecoMBNZS'),
                                   hbheInputNoiseTag = cms.InputTag('hbherecoNoise'),
@@ -409,27 +460,18 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   #
                                   #
                                   #
-                                  splashesUpperLimit = cms.int32(10000),
                                   #
                                   #
                                   #
-                                  #HistOutFile = cms.untracked.string(histodir+'/LED_'+runnumber+'.root'),
-                                  #HistOutFile = cms.untracked.string('Global.root'),
-                                  #
+                                  #HistOutFile = cms.untracked.string('LASER_331370.root'),
+                                  #HistOutFile = cms.untracked.string(histodir+'/LASER_'+runnumber+'.root'),
                                   #MAPOutFile = cms.untracked.string('LogEleMapdb.h')
                                   #
                                   ##OutputFilePath = cms.string('/tmp/zhokin/'),        
                                   ##OutputFileExt = cms.string(''),
                                   #
                                   )		
-###########################################################################
-process.TFileService = cms.Service("TFileService",
-      fileName = cms.string("Global.root")
-#      ,closeFileFast = cms.untracked.bool(True)
-  )
 
-###########################################################################
-# Other statements
 process.hcal_db_producer = cms.ESProducer("HcalDbProducer",
     dump = cms.untracked.vstring(''),
     file = cms.untracked.string('')
@@ -446,49 +488,92 @@ process.es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         'ZSThresholds',
         'RespCorrs')
 )
-############################################################################ GlobalTag :
-#process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-#from Configuration.AlCa.GlobalTag import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, '101X_dataRun2_HLT_v7', '')
+
+## Jula's recipe for too many files 
+#process.options = cms.untracked.PSet(
+#   wantSummary = cms.untracked.bool(False),
+#   Rethrow = cms.untracked.vstring("ProductNotFound"), # make this exception fatal
+#   fileMode  =  cms.untracked.string('NOMERGE') # no ordering needed, but calls endRun/beginRun etc. at file boundaries
+#)
+
+######################################################################################## Global Tags for 2018 data taking :
+# use twiki site to specify HLT reconstruction Global tags:
+#   https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideFrontierConditions
 #
+#   100X_dataRun2_HLT_v2        for CMSSW_10_0_3 onwards        CRUZET 2018     update of 0T templates for SiPixels
+#   100X_dataRun2_HLT_v1        for CMSSW_10_0_0 onwards        MWGRs 2018      first HLT GT for 2018 
+#
+#
+############################################################################ GlobalTag :1+ good as 5
+#from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+#process.GlobalTag = GlobalTag(process.GlobalTag, '100X_dataRun2_HLT_v2', '')
+
+#from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data_FULL', '')
+
+
+#from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+#process.GlobalTag = GlobalTag(process.GlobalTag, '101X_dataRun2_HLT_v7', '')
+
+# 2019 Ultra Legacy 2017
+#process.GlobalTag.globaltag = '106X_dataRun2_trackerAlignment2017_v1'
+# 2019 Ultra Legacy 2018 test TkAl
+#process.GlobalTag.globaltag = '106X_dataRun2_v17'
+# 2019 Ultra Legacy 2018 
+#process.GlobalTag.globaltag = '106X_dataRun2_newTkAl_v18'
+# 2019 Ultra Legacy 2016
+#process.GlobalTag.globaltag = '106X_dataRun2_UL2016TkAl_v24'
+#process.GlobalTag.globaltag = '105X_dataRun2_v8'
+
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
 #process.GlobalTag.globaltag = '104X_dataRun2_v1'
 #process.GlobalTag.globaltag = '105X_postLS2_design_v4'
-#process.GlobalTag.globaltag = '106X_dataRun3_HLT_v3'
-#process.GlobalTag.globaltag = '113X_dataRun3_HLT_v3'
-#process.GlobalTag.globaltag = '120X_dataRun3_HLT_v3'
-process.GlobalTag.globaltag = '123X_dataRun3_HLT_v7'
-###########################################################################
-process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
-#process.hcalDigis.FilterDataQuality = cms.bool(False)
-#process.hcalDigis.InputLabel = cms.InputTag("source")
-###########################################################################
+process.GlobalTag.globaltag = '106X_dataRun3_HLT_v3'
+
+
+############################################################################
+# V.EPSHTEIN:
+#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#process.GlobalTag.globaltag = '100X_dataRun2_Prompt_Candidate_2018_01_31_16_01_36'
+###
+#process.hcal_db_producer = cms.ESProducer("HcalDbProducer",
+#    dump = cms.untracked.vstring(''),
+#    file = cms.untracked.string('')
+#)
+#
 #process.hcalDigis= cms.EDProducer("HcalRawToDigi",
-##    FilterDataQuality = cms.bool(True),
-#    FilterDataQuality = cms.bool(False),
+#    FilterDataQuality = cms.bool(True),
 #    HcalFirstFED = cms.untracked.int32(700),
 #    InputLabel = cms.InputTag("source"),
-#    #InputLabel = cms.InputTag("rawDataCollector"),
+#    UnpackCalib = cms.untracked.bool(True),
+#    FEDs = cms.untracked.vint32(1100, 1101, 1102, 1103, 1104, 1105, 1106, 1107, 1108, 1109, 1110, 1111, 1112, 1113, 1114, 1115, 1116, 1117),
 #)
-###########################################################################
-#process.load("Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalMinBias_cff")
-###########################################################################
-# Schedule definition
-# pure CMT:
-process.p = cms.Path(process.hcalDigis*process.Analyzer)
-# for CMT use with GlobalPSM:
-#process.p = cms.Path(process.hcalDigis*process.seqALCARECOHcalCalMinBiasDigiNoHLT*process.seqALCARECOHcalCalMinBias*process.Analyzer)
+###
+############################################################################
+process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
+process.hcalDigis.FilterDataQuality = cms.bool(False)
+process.hcalDigis.InputLabel = cms.InputTag("source")
+############################################################################
+process.load('EventFilter.HcalRawToDigi.hcalRawToDigi_cfi')
+process.hcalDigis= process.hcalRawToDigi.clone(
+    FilterDataQuality = False,
+    InputLabel = "source",
+    #InputLabel = cms.InputTag("rawDataCollector"),
+)
+############################################################################
+##process.load("Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalPedestal_cff")
+process.load("Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalPedestalLocal_cff")
+##process.load("Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalMinBias_cff")
+#process.load("ALCARECOHcalCalPedestalLocal_cff")
+############################################################################
+#process.p = cms.Path(process.hcalDigis*process.Analyzer)
+#process.p = cms.Path(process.seqALCARECOHcalCalMinBiasDigiNoHLT*process.seqALCARECOHcalCalMinBias*process.minbiasana)
+
+process.p = cms.Path(process.hcalDigis*process.seqALCARECOHcalCalMinBiasDigiNoHLT*process.seqALCARECOHcalCalMinBias*process.Analyzer)
+#process.p = cms.Path(process.seqALCARECOHcalCalMinBiasDigiNoHLT*process.seqALCARECOHcalCalMinBias*process.Analyzer)
+
 # see   /afs/cern.ch/work/z/zhokin/public/CMSSW_10_4_0_patch1/src/Calibration/HcalAlCaRecoProducers/python/ALCARECOHcalCalMinBias_cff.py
-############################################################################
-# customisation of the process.
-# Automatic addition of the customisation function from HLTrigger.Configuration.CustomConfigs
-#from HLTrigger.Configuration.CustomConfigs import L1THLT 
-#call to customisation function L1THLT imported from HLTrigger.Configuration.CustomConfigs
-#process = L1THLT(process)
-# End of customisation functions
-############################################################################
-############################################################################
 ############################################################################
 process.MessageLogger = cms.Service("MessageLogger",
      categories   = cms.untracked.vstring(''),
@@ -500,3 +585,6 @@ process.MessageLogger = cms.Service("MessageLogger",
      )
  )
 ############################################################################
+
+
+

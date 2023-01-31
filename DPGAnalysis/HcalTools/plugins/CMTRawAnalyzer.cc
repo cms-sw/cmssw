@@ -2256,6 +2256,19 @@ private:
   TH1F* h_sigLayer1RADDAM6_HED2;
   TH1F* h_sigLayer2RADDAM5_HED2;
   TH1F* h_sigLayer2RADDAM6_HED2;
+  TH2F* h2_TSnVsAyear2023_HB;
+  TH2F* h2_TSnVsAyear2023_HE;
+  TH2F* h2_TSnVsAyear2023_HF;
+  TH2F* h2_TSnVsAyear2023_HO;
+  TH1F* h1_TSnVsAyear2023_HB;
+  TH1F* h1_TSnVsAyear2023_HE;
+  TH1F* h1_TSnVsAyear2023_HF;
+  TH1F* h1_TSnVsAyear2023_HO;
+  TH1F* h1_TSnVsAyear20230_HB;
+  TH1F* h1_TSnVsAyear20230_HE;
+  TH1F* h1_TSnVsAyear20230_HF;
+  TH1F* h1_TSnVsAyear20230_HO;
+
   int calibcapiderror[ndepth][neta][nphi];
   float calibt[ndepth][neta][nphi];
   double caliba[ndepth][neta][nphi];
@@ -7730,6 +7743,20 @@ void CMTRawAnalyzer::beginJob() {
     h_timecorr_HO = fs_->make<TH1F>("h_timecorr_HO", " ", 100, 0., 30.);
     h_lutcorr_HO = fs_->make<TH1F>("h_lutcorr_HO", " ", 100, 0., 10.);
     //--------------------------------------------------
+    h2_TSnVsAyear2023_HB = fs_->make<TH2F>("h2_TSnVsAyear2023_HB", " ", 100, 200., 30200., 100, 0., 175.);
+    h2_TSnVsAyear2023_HE = fs_->make<TH2F>("h2_TSnVsAyear2023_HE", " ", 100, 200., 75200., 100, 0., 175.);
+    h2_TSnVsAyear2023_HF = fs_->make<TH2F>("h2_TSnVsAyear2023_HF", " ", 100, 0., 2000., 100, 0., 50.);
+    h2_TSnVsAyear2023_HO = fs_->make<TH2F>("h2_TSnVsAyear2023_HO", " ", 100, 0., 1000., 100, 0., 225.);
+    //-----------------------------
+    h1_TSnVsAyear2023_HB = fs_->make<TH1F>("h1_TSnVsAyear2023_HB", " ", 100, 200., 15200);
+    h1_TSnVsAyear2023_HE = fs_->make<TH1F>("h1_TSnVsAyear2023_HE", " ", 100, 200., 25200);
+    h1_TSnVsAyear2023_HF = fs_->make<TH1F>("h1_TSnVsAyear2023_HF", " ", 100, 0., 1500);
+    h1_TSnVsAyear2023_HO = fs_->make<TH1F>("h1_TSnVsAyear2023_HO", " ", 100, 0., 750);
+    h1_TSnVsAyear20230_HB = fs_->make<TH1F>("h1_TSnVsAyear20230_HB", " ", 100, 200., 15200);
+    h1_TSnVsAyear20230_HE = fs_->make<TH1F>("h1_TSnVsAyear20230_HE", " ", 100, 200., 25200);
+    h1_TSnVsAyear20230_HF = fs_->make<TH1F>("h1_TSnVsAyear20230_HF", " ", 100, 0., 1500);
+    h1_TSnVsAyear20230_HO = fs_->make<TH1F>("h1_TSnVsAyear20230_HO", " ", 100, 0., 750);
+    //--------------------------------------------------
     float est6 = 2500.;
     int ist6 = 30;
     int ist2 = 60;
@@ -8013,6 +8040,7 @@ void CMTRawAnalyzer::fillDigiErrors(HBHEDigiCollection::const_iterator& digiItr)
   bool anydv = true;
   // for help:
   int firstcapid = 0;
+  int sumcapid = 0;
   int lastcapid = 0, capid = 0;
   int ERRORfiber = -10;
   int ERRORfiberChan = -10;
@@ -8043,6 +8071,7 @@ void CMTRawAnalyzer::fillDigiErrors(HBHEDigiCollection::const_iterator& digiItr)
 
     if (ii == 0)
       firstcapid = capid;
+    sumcapid += capid;
 
     if (er) {
       anyer = true;
@@ -8174,6 +8203,7 @@ void CMTRawAnalyzer::fillDigiErrorsQIE11(QIE11DataFrame qie11df) {
   //    bool anydv      =  true;
   // for help:
   int firstcapid = 0;
+  int sumcapid = 0;
   int lastcapid = 0, capid = 0;
   int repetedcapid = 0;
   // loop over the samples in the digi
@@ -8191,6 +8221,7 @@ void CMTRawAnalyzer::fillDigiErrorsQIE11(QIE11DataFrame qie11df) {
     lastcapid = capid;
     if (ii == 0)
       firstcapid = capid;
+    sumcapid += capid;
   }  // for
   ///////////////////////////////////////
   if (!anycapid)
@@ -8286,6 +8317,7 @@ void CMTRawAnalyzer::fillDigiErrorsHF(HFDigiCollection::const_iterator& digiItr)
   bool anydv = true;
   // for help:
   int firstcapid = 0;
+  int sumcapid = 0;
   int lastcapid = 0, capid = 0;
   int ERRORfiber = -10;
   int ERRORfiberChan = -10;
@@ -8315,6 +8347,7 @@ void CMTRawAnalyzer::fillDigiErrorsHF(HFDigiCollection::const_iterator& digiItr)
     lastcapid = capid;
     if (ii == 0)
       firstcapid = capid;
+    sumcapid += capid;
     if (er) {
       anyer = true;
       ERRORfiber = fiber;
@@ -8409,6 +8442,7 @@ void CMTRawAnalyzer::fillDigiErrorsHFQIE10(QIE10DataFrame qie10df) {
   //    bool anydv      =  true;
   // for help:
   int firstcapid = 0;
+  int sumcapid = 0;
   int lastcapid = 0, capid = 0;
   int repetedcapid = 0;
   // loop over the samples in the digi
@@ -8426,6 +8460,7 @@ void CMTRawAnalyzer::fillDigiErrorsHFQIE10(QIE10DataFrame qie10df) {
     lastcapid = capid;
     if (ii == 0)
       firstcapid = capid;
+    sumcapid += capid;
   }  // for
   ///////////////////////////////////////
   if (!anycapid)
@@ -8486,6 +8521,7 @@ void CMTRawAnalyzer::fillDigiErrorsHO(HODigiCollection::const_iterator& digiItr)
   bool anydv = true;
   // for help:
   int firstcapid = 0;
+  int sumcapid = 0;
   int lastcapid = 0, capid = 0;
   int ERRORfiber = -10;
   int ERRORfiberChan = -10;
@@ -8512,6 +8548,7 @@ void CMTRawAnalyzer::fillDigiErrorsHO(HODigiCollection::const_iterator& digiItr)
 
     if (ii == 0)
       firstcapid = capid;
+    sumcapid += capid;
 
     if (er) {
       anyer = true;
@@ -8634,12 +8671,10 @@ void CMTRawAnalyzer::fillDigiAmplitude(HBHEDigiCollection::const_iterator& digiI
   double difpedestal2 = 0.;
   double difpedestal3 = 0.;
 
-  /*
   double amplitudewithPedSubtr1 = 0.;
   double amplitudewithPedSubtr2 = 0.;
   double amplitudewithPedSubtr3 = 0.;
   double amplitudewithPedSubtr4 = 0.;
-*/
   double amplitude = 0.;
   double absamplitude = 0.;
   double amplitude345 = 0.;
@@ -8743,7 +8778,6 @@ void CMTRawAnalyzer::fillDigiAmplitude(HBHEDigiCollection::const_iterator& digiI
       max_signal = ampldefault;
       ts_with_max_signal = ii;
     }
-    /*
     ///   for choice TSs, raddam only:
     //     TS = 1 to 10:  1  2  3  4  5  6  7  8  9  10
     //     ii = 0 to  9:  0  1  2  3  4  5  6  7  8   9
@@ -8765,7 +8799,6 @@ void CMTRawAnalyzer::fillDigiAmplitude(HBHEDigiCollection::const_iterator& digiI
     if (ii > 2 && ii < 6)
       amplitudewithPedSubtr4 += ampldefaultwithPedSubtr;  //
     //
-    */
     amplitude += ampldefault;          //
     absamplitude += abs(ampldefault);  //
 
@@ -9117,6 +9150,10 @@ void CMTRawAnalyzer::fillDigiAmplitude(HBHEDigiCollection::const_iterator& digiI
     //   //   //   //   //   //   //   //   //  HB       TSmean:
     if (studyTSmeanShapeHist_) {
       h_TSmeanA_HB->Fill(aveamplitude1, 1.);
+      //      h2_TSnVsAyear2023_HB->Fill(25.*aveamplitude1, amplitude);
+      h2_TSnVsAyear2023_HB->Fill(amplitude, 25. * aveamplitude1);
+      h1_TSnVsAyear2023_HB->Fill(amplitude, 25. * aveamplitude1);
+      h1_TSnVsAyear20230_HB->Fill(amplitude, 1.);
       if (aveamplitude1 < TSmeanHBMin_ || aveamplitude1 > TSmeanHBMax_) {
         if (studyRunDependenceHist_ && flagtodefinebadchannel_ == 4)
           ++badchannels[sub - 1][mdepth - 1][ieta + 41][iphi];  // 0-neta ; 0-71
@@ -9369,6 +9406,10 @@ void CMTRawAnalyzer::fillDigiAmplitude(HBHEDigiCollection::const_iterator& digiI
     //   //   //   //   //   //   //   //   //  HE       TSmean:
     if (studyTSmeanShapeHist_) {
       h_TSmeanA_HE->Fill(aveamplitude1, 1.);
+      //      h2_TSnVsAyear2023_HE->Fill(25.*aveamplitude1, amplitude);
+      h2_TSnVsAyear2023_HE->Fill(amplitude, 25. * aveamplitude1);
+      h1_TSnVsAyear2023_HE->Fill(amplitude, 25. * aveamplitude1);
+      h1_TSnVsAyear20230_HE->Fill(amplitude, 1.);
       if (aveamplitude1 < TSmeanHEMin_ || aveamplitude1 > TSmeanHEMax_) {
         if (studyRunDependenceHist_ && flagtodefinebadchannel_ == 4)
           ++badchannels[sub - 1][mdepth - 1][ieta + 41][iphi];  // 0-neta ; 0-71
@@ -10142,6 +10183,10 @@ void CMTRawAnalyzer::fillDigiAmplitudeQIE11(QIE11DataFrame qie11df) {
     //   //   //   //   //   //   //   //   //  HB       TSmean:
     if (studyTSmeanShapeHist_) {
       h_TSmeanA_HB->Fill(aveamplitude1, 1.);
+      //      h2_TSnVsAyear2023_HB->Fill(25.*aveamplitude1, amplitude);
+      h2_TSnVsAyear2023_HB->Fill(amplitude, 25. * aveamplitude1);
+      h1_TSnVsAyear2023_HB->Fill(amplitude, 25. * aveamplitude1);
+      h1_TSnVsAyear20230_HB->Fill(amplitude, 1.);
       if (aveamplitude1 < TSmeanHBMin_ || aveamplitude1 > TSmeanHBMax_) {
         if (studyRunDependenceHist_ && flagtodefinebadchannel_ == 4)
           ++badchannels[sub - 1][mdepth - 1][ieta + 41][iphi];  // 0-neta ; 0-71
@@ -10520,6 +10565,10 @@ void CMTRawAnalyzer::fillDigiAmplitudeQIE11(QIE11DataFrame qie11df) {
     //   //   //   //   //   //   //   //   //  HE  QIE11     TSmean:
     if (studyTSmeanShapeHist_) {
       h_TSmeanA_HE->Fill(aveamplitude1, 1.);
+      //    h2_TSnVsAyear2023_HE->Fill(25.*aveamplitude1, amplitude);
+      h2_TSnVsAyear2023_HE->Fill(amplitude, 25. * aveamplitude1);
+      h1_TSnVsAyear2023_HE->Fill(amplitude, 25. * aveamplitude1);
+      h1_TSnVsAyear20230_HE->Fill(amplitude, 1.);
       if (aveamplitude1 < TSmeanHEMin_ || aveamplitude1 > TSmeanHEMax_) {
         if (studyRunDependenceHist_ && flagtodefinebadchannel_ == 4)
           ++badchannels[sub - 1][mdepth - 1][ieta + 41][iphi];  // 0-neta ; 0-71
@@ -11093,6 +11142,10 @@ void CMTRawAnalyzer::fillDigiAmplitudeHF(HFDigiCollection::const_iterator& digiI
     //   //   //   //   //   //   //   //   //  HF       TSmean:
     if (studyTSmeanShapeHist_) {
       h_TSmeanA_HF->Fill(aveamplitude1, 1.);
+      //    h2_TSnVsAyear2023_HF->Fill(25.*aveamplitude1, amplitude);
+      h2_TSnVsAyear2023_HF->Fill(amplitude, 25. * aveamplitude1);
+      h1_TSnVsAyear2023_HF->Fill(amplitude, 25. * aveamplitude1);
+      h1_TSnVsAyear20230_HF->Fill(amplitude, 1.);
       if (aveamplitude1 < TSmeanHFMin_ || aveamplitude1 > TSmeanHFMax_) {
         if (studyRunDependenceHist_ && flagtodefinebadchannel_ == 4)
           ++badchannels[sub - 1][mdepth - 1][ieta + 41][iphi];  // 0-neta ; 0-71
@@ -11594,6 +11647,10 @@ void CMTRawAnalyzer::fillDigiAmplitudeHFQIE10(QIE10DataFrame qie10df) {
     //   //   //   //   //   //   //   //   //  HFQIE10       TSmean:
     if (studyTSmeanShapeHist_) {
       h_TSmeanA_HF->Fill(aveamplitude1, 1.);
+      //    h2_TSnVsAyear2023_HF->Fill(25.*aveamplitude1, amplitude);
+      h2_TSnVsAyear2023_HF->Fill(amplitude, 25. * aveamplitude1);
+      h1_TSnVsAyear2023_HF->Fill(amplitude, 25. * aveamplitude1);
+      h1_TSnVsAyear20230_HF->Fill(amplitude, 1.);
       if (aveamplitude1 < TSmeanHFMin_ || aveamplitude1 > TSmeanHFMax_) {
         if (studyRunDependenceHist_ && flagtodefinebadchannel_ == 4)
           ++badchannels[sub - 1][mdepth - 1][ieta + 41][iphi];  // 0-neta ; 0-71
@@ -12053,6 +12110,10 @@ void CMTRawAnalyzer::fillDigiAmplitudeHO(HODigiCollection::const_iterator& digiI
     }  //if(studyADCAmplHist_
     if (studyTSmeanShapeHist_) {
       h_TSmeanA_HO->Fill(aveamplitude1, 1.);
+      //    h2_TSnVsAyear2023_HO->Fill(25.*aveamplitude1, amplitude);
+      h2_TSnVsAyear2023_HO->Fill(amplitude, 25. * aveamplitude1);
+      h1_TSnVsAyear2023_HO->Fill(amplitude, 25. * aveamplitude1);
+      h1_TSnVsAyear20230_HO->Fill(amplitude, 1.);
       if (aveamplitude1 < TSmeanHOMin_ || aveamplitude1 > TSmeanHOMax_) {
         if (studyRunDependenceHist_ && flagtodefinebadchannel_ == 4)
           ++badchannels[sub - 1][mdepth - 1][ieta + 41][iphi];  // 0-neta ; 0-71
