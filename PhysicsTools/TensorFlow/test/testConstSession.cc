@@ -14,19 +14,20 @@
 
 class testConstSession : public testBase {
   CPPUNIT_TEST_SUITE(testConstSession);
-  CPPUNIT_TEST(checkAll);
+  CPPUNIT_TEST(checkCPU);
+  CPPUNIT_TEST(checkGPU);
   CPPUNIT_TEST_SUITE_END();
 
 public:
   std::string pyScript() const override;
-  void checkAll() override;
+  void test(tensorflow::Backend backend) override;
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testConstSession);
 
 std::string testConstSession::pyScript() const { return "createconstantgraph.py"; }
 
-void testConstSession::checkAll() {
+void testConstSession::test(tensorflow::Backend backend) {
   std::string pbFile = dataPath_ + "/constantgraph.pb";
 
   // load the graph
@@ -35,7 +36,7 @@ void testConstSession::checkAll() {
   CPPUNIT_ASSERT(graphDef != nullptr);
 
   // create a new session and add the graphDef
-  const tensorflow::Session* session = tensorflow::createSession(graphDef);
+  const tensorflow::Session* session = tensorflow::createSession(graphDef, backend);
   CPPUNIT_ASSERT(session != nullptr);
 
   // example evaluation
