@@ -1,13 +1,11 @@
 #include "RecoTracker/DisplacedRegionalTracking/interface/DisplacedVertexCluster.h"
 
-DisplacedVertexCluster::DisplacedVertexCluster(const edm::View<reco::VertexCompositeCandidate> &trackClusters,
-                                               const unsigned index,
+DisplacedVertexCluster::DisplacedVertexCluster(const reco::VertexCompositeCandidate * const trackClusterPtr,
                                                const double rParam)
     : valid_(true),
       rParam2_(rParam * rParam),
-      sumOfCenters_(trackClusters.at(index).vertex()),
-      centerOfMass_(trackClusters.at(index).vertex()) {
-  const auto trackClusterPtr = &trackClusters.at(index);
+      sumOfCenters_(trackClusterPtr->vertex()),
+      centerOfMass_(trackClusterPtr->vertex()) {
   constituents_.push_back(trackClusterPtr);
 }
 

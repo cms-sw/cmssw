@@ -20,7 +20,7 @@ public:
   DisplacedVertexCluster()
       : valid_(false), rParam2_(kInvalidDouble), sumOfCenters_(0.0, 0.0, 0.0), centerOfMass_(0.0, 0.0, 0.0) {}
 
-  DisplacedVertexCluster(const edm::View<reco::VertexCompositeCandidate> &, const unsigned, const double);
+  DisplacedVertexCluster(const reco::VertexCompositeCandidate * const, const double);
 
   ~DisplacedVertexCluster() { constituents_.clear(); }
 

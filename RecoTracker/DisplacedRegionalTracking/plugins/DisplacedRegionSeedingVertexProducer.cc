@@ -96,7 +96,7 @@ void DisplacedRegionSeedingVertexProducer::produce(edm::StreamID streamID,
     const reco::VertexCompositeCandidate &trackCluster = trackClusters[i];
     const math::XYZVector x(trackCluster.vertex());
     if (minRadius_ < 0.0 || minTrackClusterRadius < 0.0 || (x - bs).rho() > minTrackClusterRadius)
-      pseudoROIs.emplace_back(trackClusters, i, rParam_);
+      pseudoROIs.emplace_back(&trackClusters.at(i), rParam_);
   }
   if (pseudoROIs.size() > 1) {
     DisplacedVertexClusterItr secondToLast = pseudoROIs.end();
