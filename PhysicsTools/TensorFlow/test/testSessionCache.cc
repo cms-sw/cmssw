@@ -13,25 +13,26 @@
 
 class testSessionCache : public testBase {
   CPPUNIT_TEST_SUITE(testSessionCache);
-  CPPUNIT_TEST(checkAll);
+  CPPUNIT_TEST(checkCPU);
+  CPPUNIT_TEST(checkGPU);
   CPPUNIT_TEST_SUITE_END();
 
 public:
   std::string pyScript() const override;
-  void checkAll() override;
+  void test(tensorflow::Backend backend) override;
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testSessionCache);
 
 std::string testSessionCache::pyScript() const { return "createconstantgraph.py"; }
 
-void testSessionCache::checkAll() {
+void testSessionCache::test(tensorflow::Backend backend) {
   std::string pbFile = dataPath_ + "/constantgraph.pb";
 
   tensorflow::setLogging();
 
   // load the graph and the session
-  tensorflow::SessionCache cache(pbFile);
+  tensorflow::SessionCache cache(pbFile, backend);
   CPPUNIT_ASSERT(cache.graph.load() != nullptr);
   CPPUNIT_ASSERT(cache.session.load() != nullptr);
 

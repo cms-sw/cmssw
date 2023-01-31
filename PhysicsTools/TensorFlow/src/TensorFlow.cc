@@ -25,6 +25,23 @@ namespace tensorflow {
     setThreading(sessionOptions, nThreads);
   }
 
+  void setBackend(SessionOptions& sessionOptions, Backend backend) {
+    if (backend == Backend::cpu) {
+      // hotfix: disable GPU usage whatsoever for now, add a convenient interface in a future PR
+      (*sessionOptions.config.mutable_device_count())["GPU"] = 0;
+      sessionOptions.config.mutable_gpu_options()->set_visible_device_list("");
+    } else if (backend == Backend::cuda) {
+      // Options from https://github.com/tensorflow/tensorflow/blob/c53dab9fbc9de4ea8b1df59041a5ffd3987328c3/tensorflow/core/protobuf/config.proto#L20
+      edm::LogInfo("PhysicsTools/TensorFlow") << "Setting up TensorFlow to use 1 GPU";
+      edm::LogInfo("PhysicsTools/TensorFlow")
+          << "Visible GPU devices << " << sessionOptions.config.mutable_gpu_options()->visible_device_list();
+      // Take only the first GPU in the CUDA_VISIBLE_DEVICE list
+      (*sessionOptions.config.mutable_device_count())["GPU"] = 1;
+      // Do not allocate all the memory on the GPU at the beginning.
+      sessionOptions.config.mutable_gpu_options()->set_allow_growth(true);
+    }
+  }
+
   MetaGraphDef* loadMetaGraphDef(const std::string& exportDir, const std::string& tag, SessionOptions& sessionOptions) {
     // objects to load the graph
     Status status;
@@ -49,19 +66,20 @@ namespace tensorflow {
     return loadMetaGraphDef(exportDir, tag, sessionOptions);
   }
 
-  MetaGraphDef* loadMetaGraphDef(const std::string& exportDir, const std::string& tag, int nThreads) {
+  MetaGraphDef* loadMetaGraphDef(const std::string& exportDir, const std::string& tag, Backend backend, int nThreads) {
     // create session options and set thread options
     SessionOptions sessionOptions;
     setThreading(sessionOptions, nThreads);
+    setBackend(sessionOptions, backend);
 
     return loadMetaGraphDef(exportDir, tag, sessionOptions);
   }
 
-  MetaGraphDef* loadMetaGraph(const std::string& exportDir, const std::string& tag, int nThreads) {
+  MetaGraphDef* loadMetaGraph(const std::string& exportDir, const std::string& tag, Backend backend, int nThreads) {
     edm::LogInfo("PhysicsTools/TensorFlow")
         << "tensorflow::loadMetaGraph() is deprecated, use tensorflow::loadMetaGraphDef() instead";
 
-    return loadMetaGraphDef(exportDir, tag, nThreads);
+    return loadMetaGraphDef(exportDir, tag, backend, nThreads);
   }
 
   GraphDef* loadGraphDef(const std::string& pbFile) {
@@ -85,10 +103,6 @@ namespace tensorflow {
     // objects to create the session
     Status status;
 
-    // hotfix: disable GPU usage whatsoever for now, add a convenient interface in a future PR
-    (*sessionOptions.config.mutable_device_count())["GPU"] = 0;
-    sessionOptions.config.mutable_gpu_options()->set_visible_device_list("");
-
     // create a new, empty session
     Session* session = nullptr;
     status = NewSession(sessionOptions, &session);
@@ -99,10 +113,11 @@ namespace tensorflow {
     return session;
   }
 
-  Session* createSession(int nThreads) {
+  Session* createSession(Backend backend, int nThreads) {
     // create session options and set thread options
     SessionOptions sessionOptions;
     setThreading(sessionOptions, nThreads);
+    setBackend(sessionOptions, backend);
 
     return createSession(sessionOptions);
   }
@@ -156,10 +171,11 @@ namespace tensorflow {
     return session;
   }
 
-  Session* createSession(const MetaGraphDef* metaGraphDef, const std::string& exportDir, int nThreads) {
+  Session* createSession(const MetaGraphDef* metaGraphDef, const std::string& exportDir, Backend backend, int nThreads) {
     // create session options and set thread options
     SessionOptions sessionOptions;
     setThreading(sessionOptions, nThreads);
+    setBackend(sessionOptions, backend);
 
     return createSession(metaGraphDef, exportDir, sessionOptions);
   }
@@ -190,10 +206,11 @@ namespace tensorflow {
     return session;
   }
 
-  Session* createSession(const GraphDef* graphDef, int nThreads) {
+  Session* createSession(const GraphDef* graphDef, Backend backend, int nThreads) {
     // create session options and set thread options
     SessionOptions sessionOptions;
     setThreading(sessionOptions, nThreads);
+    setBackend(sessionOptions, backend);
 
     return createSession(graphDef, sessionOptions);
   }

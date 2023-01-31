@@ -14,19 +14,20 @@
 
 class testMetaGraphLoading : public testBase {
   CPPUNIT_TEST_SUITE(testMetaGraphLoading);
-  CPPUNIT_TEST(checkAll);
+  CPPUNIT_TEST(checkCPU);
+  CPPUNIT_TEST(checkGPU);
   CPPUNIT_TEST_SUITE_END();
 
 public:
   std::string pyScript() const override;
-  void checkAll() override;
+  void test(tensorflow::Backend backend) override;
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testMetaGraphLoading);
 
 std::string testMetaGraphLoading::pyScript() const { return "creategraph.py"; }
 
-void testMetaGraphLoading::checkAll() {
+void testMetaGraphLoading::test(tensorflow::Backend backend) {
   std::string exportDir = dataPath_ + "/simplegraph";
 
   // load the graph
@@ -35,15 +36,15 @@ void testMetaGraphLoading::checkAll() {
   CPPUNIT_ASSERT(metaGraphDef != nullptr);
 
   // create a new, empty session
-  tensorflow::Session* session1 = tensorflow::createSession();
+  tensorflow::Session* session1 = tensorflow::createSession(backend);
   CPPUNIT_ASSERT(session1 != nullptr);
 
   // create a new session, using the meta graph
-  tensorflow::Session* session2 = tensorflow::createSession(metaGraphDef, exportDir);
+  tensorflow::Session* session2 = tensorflow::createSession(metaGraphDef, exportDir, backend);
   CPPUNIT_ASSERT(session2 != nullptr);
 
   // check for exception
-  CPPUNIT_ASSERT_THROW(tensorflow::createSession(nullptr, exportDir), cms::Exception);
+  CPPUNIT_ASSERT_THROW(tensorflow::createSession(nullptr, exportDir, backend), cms::Exception);
 
   // example evaluation
   tensorflow::Tensor input(tensorflow::DT_FLOAT, {1, 10});
