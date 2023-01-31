@@ -542,6 +542,11 @@ steps['RunEGamma2022D']={'INPUT':InputInfo(dataSet='/EGamma/Run2022D-v1/RAW',lab
 steps['RunTau2022D']={'INPUT':InputInfo(dataSet='/Tau/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
 steps['RunMuonEG2022D']={'INPUT':InputInfo(dataSet='/MuonEG/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D)}
 
+Run2022FCosmics_LS24={360336: [[24, 24]]}
+Run2022F={360333: [[1,105]]}
+steps['RunCosmics2022F']={'INPUT':InputInfo(dataSet='/Cosmics/Run2022F-v1/RAW',label='2022F',events=100000,location='STD', ls=Run2022FCosmics_LS24)}
+steps['RunSiPixelCalCosmics2022F']={'INPUT':InputInfo(dataSet='/Cosmics/Run2022F-SiPixelCalCosmics-PromptReco-v1/ALCARECO',label='2022F',events=100000,location='STD', ls=Run2022F)}
+
 # Highstat HLTPhysics
 Run2015DHS=selectedLS([258712,258713,258714,258741,258742,258745,258749,258750,259626,259637,259683,259685,259686,259721,259809,259810,259818,259820,259821,259822,259862,259890,259891])
 steps['RunHLTPhy2015DHS']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2015D-v1/RAW',label='2015DHS',events=100000,location='STD', ls=Run2015DHS)}
@@ -2158,6 +2163,17 @@ steps['TIER0EXPRUN3']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@allForExp
                           '--conditions':'auto:run3_data_express'
                           },steps['TIER0']])
 
+steps['TIER0EXPCOSMICSRUN3']=merge([{'--scenario':'cosmics',
+                                     '-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@allForExpressCosmics,ENDJOB',
+                                     '-n':1000,
+                                     '--data':'',
+                                     '--process':'RECO',
+                                     '--era':'Run3',
+                                     '--conditions':'auto:run3_data_express',
+                                     '--datatier':'ALCARECO',
+                                     '--eventcontent':'ALCARECO',
+                                     '--customise_commands':'"process.source.eventsToProcess = cms.untracked.VEventRange(\'360336:24:422152-360336:24:422152\')"'},steps['TIER0EXP']])
+
 steps['TIER0PROMPTRUN3']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@allForPrompt+@allForExpress,DQM:@allForPrompt,ENDJOB',
                           '--process':'RECO',
                           '--datatier':'ALCARECO,DQMIO',
@@ -2293,6 +2309,18 @@ steps['TIER0EXPPPSCALALIG']={'-s':'RAW2DIGI,L1Reco,ALCAPRODUCER:PPSCalTrackBased
                              '--eventcontent':'ALCARECO',
                              }
 
+steps['TIER0EXPSIPIXELCOSLAMCSRUN3']= {'--scenario':'cosmics',
+                                    '-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:SiPixelCalCosmics,ENDJOB',
+                                    '-n':1000,
+                                    '--data':'',
+                                    '--process':'ALCARECO',
+                                    '--era':'Run3',
+                                    '--conditions':'auto:run3_data_express',
+                                    '--datatier':'ALCARECO',
+                                    '--eventcontent':'ALCARECO',
+                                    '--customise_commands':'"process.source.eventsToProcess = cms.untracked.VEventRange(\'360336:24:422152-360336:24:422152\')"'
+}
+
 steps['ALCASPLITHPBS']={'-s':'ALCAOUTPUT:TkAlMinBias,ALCA:PromptCalibProdBeamSpotHP+PromptCalibProdBeamSpotHPLowPU',
                         '--scenario':'pp',
                         '--data':'',
@@ -2361,6 +2389,16 @@ steps['ALCASPLITPPSALIGRUN3']={'-s':'ALCAOUTPUT:PPSCalMaxTracks,ALCA:PromptCalib
                            '-n':1000,
                            '--scenario':'pp',
                            '--data':'',
+                           '--era':'Run3',
+                           '--datatier':'ALCARECO',
+                           '--eventcontent':'ALCARECO',
+                           '--conditions':'auto:run3_data_express',
+                           '--triggerResultsProcess':'ALCARECO',
+                           }
+
+steps['ALCASPLITSIPIXELLAMCS']={'-s':'ALCA:PromptCalibProdSiPixelLAMCS',
+                           '-n':1000,
+                           '--scenario':'cosmics',
                            '--era':'Run3',
                            '--datatier':'ALCARECO',
                            '--eventcontent':'ALCARECO',
@@ -2448,6 +2486,13 @@ steps['ALCAHARVDPPSALIGRUN3']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdPP
                            '--data':'',
                            '--era':'Run3',
                            '--filein':'file:PromptCalibProdPPSAlignment.root'}
+
+steps['ALCAHARVDSIPIXELLAMCS']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiPixelLAMCS']),
+                           '--conditions':'auto:run3_data_express',
+                           '--scenario':'cosmics',
+                           '--data':'',
+                           '--era':'Run3',
+                           '--filein':'file:PromptCalibProdSiPixelLAMCS.root'}
 
 steps['RECOCOSD']=merge([{'--scenario':'cosmics',
                           '-s':'RAW2DIGI,L1Reco,RECO,DQM',
