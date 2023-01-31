@@ -128,7 +128,5 @@ void SiPixelMonitorVertexSoA::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<std::string>("topFolderName", "SiPixelHeterogeneous/PixelVertexSoA");
   descriptions.addWithDefaultLabel(desc);
 }
-DEFINE_FWK_MODULE(SiPixelMonitorVertexSoA);
 
-using SiPixelPhase1MonitorVertexSoA = SiPixelMonitorVertexSoA;
-DEFINE_FWK_MODULE(SiPixelPhase1MonitorVertexSoA);
+DEFINE_FWK_MODULE(SiPixelMonitorVertexSoA);

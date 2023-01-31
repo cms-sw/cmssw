@@ -103,9 +103,6 @@ void PixelTrackSoAFromCUDAT<TrackerTraits>::produce(edm::Event& iEvent, edm::Eve
   assert(!tracks_h_.buffer());
 }
 
-using PixelTrackSoAFromCUDA = PixelTrackSoAFromCUDAT<pixelTopology::Phase1>;
-DEFINE_FWK_MODULE(PixelTrackSoAFromCUDA);
-
 using PixelTrackSoAFromCUDAPhase1 = PixelTrackSoAFromCUDAT<pixelTopology::Phase1>;
 DEFINE_FWK_MODULE(PixelTrackSoAFromCUDAPhase1);
 

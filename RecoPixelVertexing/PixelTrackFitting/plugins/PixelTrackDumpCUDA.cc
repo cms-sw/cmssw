@@ -94,9 +94,6 @@ void PixelTrackDumpCUDAT<TrackerTraits>::analyze(edm::StreamID streamID,
   }
 }
 
-using PixelTrackDumpCUDA = PixelTrackDumpCUDAT<pixelTopology::Phase1>;
-DEFINE_FWK_MODULE(PixelTrackDumpCUDA);
-
 using PixelTrackDumpCUDAPhase1 = PixelTrackDumpCUDAT<pixelTopology::Phase1>;
 DEFINE_FWK_MODULE(PixelTrackDumpCUDAPhase1);
 

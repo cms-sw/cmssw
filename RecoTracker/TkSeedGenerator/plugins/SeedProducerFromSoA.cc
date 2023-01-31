@@ -174,9 +174,6 @@ void SeedProducerFromSoAT<TrackerTraits>::produce(edm::StreamID streamID,
   iEvent.put(std::move(result));
 }
 
-using SeedProducerFromSoA = SeedProducerFromSoAT<pixelTopology::Phase1>;
-DEFINE_FWK_MODULE(SeedProducerFromSoA);
-
 using SeedProducerFromSoAPhase1 = SeedProducerFromSoAT<pixelTopology::Phase1>;
 DEFINE_FWK_MODULE(SeedProducerFromSoAPhase1);
 
