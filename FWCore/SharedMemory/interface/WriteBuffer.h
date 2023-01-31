@@ -73,7 +73,7 @@ namespace edm::shared_memory {
       SMOwner() = default;
       SMOwner(std::string const& iName, std::size_t iLength);
       ~SMOwner();
-      SMOwner& operator=(SMOwner&&) = default;
+      SMOwner& operator=(SMOwner&&);
       boost::interprocess::managed_shared_memory* operator->() { return sm_.get(); }
       boost::interprocess::managed_shared_memory* get() { return sm_.get(); }
       operator bool() const { return bool(sm_); }
