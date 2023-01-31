@@ -56,9 +56,13 @@ generalV0Candidates = cms.EDProducer("V0Producer",
    # -- miscellaneous cuts --
    # allow same-sign pairs of tracks
    allowSS = cms.bool(False),
-   # POCA distance between tracks when POCA is less than 5 cm from the z-axis <
+   # Threshold for inner/outer DCA cuts:
+   #    inner tracks = distance between POCA and z-axis <
+   #    outer tracks = distance between POCA and z-axis >=
+   innerOuterTkDCAThreshold = cms.double(5.),
+   # POCA distance between inner tracks <
    innerTkDCACut = cms.double(1.),
-   # POCA distance between tracks when POCA is more than 5 cm from the z-axis <
+   # POCA distance between outer tracks <
    outerTkDCACut = cms.double(1.),
    # allow vertices where the angle between the tracks is more than 90 degrees
    allowWideAngleVtx = cms.bool(False),

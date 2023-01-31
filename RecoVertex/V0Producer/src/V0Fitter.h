@@ -68,6 +68,7 @@ private:
   double ssVtxDecayXYCut_;
   // miscellaneous cuts
   bool allowSS_;
+  double innerOuterTkDCAThreshold_;
   double innerTkDCACut_;
   double outerTkDCACut_;
   bool allowWideAngleVtx_;

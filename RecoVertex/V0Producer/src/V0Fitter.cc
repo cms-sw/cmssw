@@ -77,6 +77,7 @@ V0Fitter::V0Fitter(const edm::ParameterSet& theParameters, edm::ConsumesCollecto
   ssVtxDecayXYCut_ = theParameters.getParameter<double>("ssVtxDecayXYCut");
   // miscellaneous cuts
   allowSS_ = theParameters.getParameter<bool>("allowSS");
+  innerOuterTkDCAThreshold_ = theParameters.getParameter<double>("innerOuterTkDCAThreshold");
   innerTkDCACut_ = theParameters.getParameter<double>("innerTkDCACut");
   outerTkDCACut_ = theParameters.getParameter<double>("outerTkDCACut");
   allowWideAngleVtx_ = theParameters.getParameter<bool>("allowWideAngleVtx");
@@ -188,7 +189,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent,
       if ((cxPt.x() * cxPt.x() + cxPt.y() * cxPt.y()) > 120. * 120. || std::abs(cxPt.z()) > 300.)
         continue;
 
-      if (cxPt.x() * cxPt.x() + cxPt.y() * cxPt.y() < 25.0) {
+      if (cxPt.x() * cxPt.x() + cxPt.y() * cxPt.y() < innerOuterTkDCAThreshold_) {
         if (dca > innerTkDCACut_)
           continue;
       } else {
