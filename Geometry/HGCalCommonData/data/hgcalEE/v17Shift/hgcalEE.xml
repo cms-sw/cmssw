@@ -2377,7 +2377,7 @@
        6042, 6372, 6678, 7020, 7362, 7716 
     </Vector>
     <Vector name="CassetteShift" type="numeric" nEntries="312">
-             10*mm,        0*mm,        0*mm,        0*mm,        0*mm,        0*mm,
+             20*mm,        0*mm,        0*mm,        0*mm,        0*mm,        0*mm,
               0*mm,        0*mm,        0*mm,        0*mm,        0*mm,        0*mm,
               0*mm,        0*mm,        0*mm,        0*mm,        0*mm,        0*mm,
               0*mm,        0*mm,        0*mm,        0*mm,        0*mm,        0*mm,

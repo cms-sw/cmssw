@@ -902,7 +902,7 @@
        2328, 2448, 2568, 2688 
     </Vector>
     <Vector name="CassetteShift" type="numeric" nEntries="336">
-             15*mm,        0*mm,        0*mm,        0*mm,        0*mm,        0*mm,
+             25*mm,        0*mm,        0*mm,        0*mm,        0*mm,        0*mm,
               0*mm,        0*mm,        0*mm,        0*mm,        0*mm,        0*mm,
               0*mm,        0*mm,        0*mm,        0*mm,        0*mm,        0*mm,
               0*mm,        0*mm,        0*mm,        0*mm,        0*mm,        0*mm,
