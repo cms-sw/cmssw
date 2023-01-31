@@ -101,6 +101,8 @@ public:
                                   bool readPrescalesFromFile);
 
 private:
+  static constexpr const char* l1tGlobalDecisionKeyword_ = "L1GlobalDecision";
+
   void checkL1GtUtils() const;
   void checkL1TGlobalUtil() const;
 
