@@ -10,9 +10,13 @@ echo "myStart: set dir pwd"
 set m=`pwd`
 
 cd ${m}
-setenv SCRAM_ARCH slc7_amd64_gcc10
-cmsrel CMSSW_12_3_0_pre4
-cd CMSSW_12_3_0_pre4/src 
+#setenv SCRAM_ARCH slc7_amd64_gcc10
+#cmsrel CMSSW_12_3_4
+#cd CMSSW_12_3_4/src 
+#setenv SCRAM_ARCH ec8_amd64_gcc10
+setenv SCRAM_ARCH ec8_amd64_gcc11
+cmsrel CMSSW_13_0_0_pre1
+cd CMSSW_13_0_0_pre1/src 
 
 mkdir DPGAnalysis
 cd DPGAnalysis
@@ -63,7 +67,9 @@ cmsRun PYTHON_${1}/Reco_${j}_${k}_cfg.py
 
 ### Copy output files to EOS
 ### xrdcp -f Global_${j}_${k}.root /eos/cms/store/user/zhokin/CMT/test/Global_${j}_${k}.root
-eoscp Global_${j}_${k}.root /eos/cms/store/user/zhokin/CMT/RootFilesToBeMarched/2022/Global_${j}_${k}.root
+#eoscp Global_${j}_${k}.root /eos/cms/store/user/zhokin/CMT/RootFilesToBeMarched/2022/Global_${j}_${k}.root
+#eoscp Global_${j}_${k}.root /eos/cms/store/user/zhokin/CMT/RootFilesToBeMarched/2022/run3a1/Global_${j}_${k}.root
+eoscp Global_${j}_${k}.root /eos/cms/store/user/zhokin/CMT/RootFilesToBeMarched/2023/Global_${j}_${k}.root
 #eoscp Global_${j}_${k}.root /eos/cms/store/user/zhokin/CMT/test/Global_${j}_${k}.root
 
 ################################################################
