@@ -156,6 +156,7 @@ void CTPPSPixelDataFormatter::interpretRawData(
       if ((roc - 1) < maxRocIndex) {
         skipROC = false;
       } else {
+        // using dummy detId - recovering of FED channel foreseen in DQM
         iD = RPixErrorChecker::dummyDetId;
         skipROC = !m_ErrorCheck.checkROC(errorsInEvent, fedId, iD, ww, errors);
       }
