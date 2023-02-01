@@ -173,229 +173,225 @@ int main(int argc, char *argv[]) {
   hfile1->ls();
   TDirectory *dir = (TDirectory *)hfile1->FindObjectAny(dirnm.c_str());
 
-    //=============================================================================================== 1
-    //======================================================================
-    //======================================================================
-    //================
-    //======================================================================
-      c1->Clear();
-      c1->Divide(2,2);
+  //=============================================================================================== 1
+  //======================================================================
+  //======================================================================
+  //================
+  //======================================================================
+  c1->Clear();
+  c1->Divide(2, 2);
 
-      c1->cd(1);
-      TH1F *twod1= (TH1F*)dir->FindObjectAny("h_pedvsampl_HB");
-      TH1F *twod0= (TH1F*)dir->FindObjectAny("h_pedvsampl0_HB");
-      twod1->Sumw2();
-      twod0->Sumw2();
-//      if(twod0->IsA()->InheritsFrom("TH1F")){
-	TH1F* Cefz225= (TH1F*)twod1->Clone("Cefz225");
-	Cefz225->Divide(twod1,twod0, 1, 1, "B");
-	Cefz225->Sumw2();
-//      }
-      gPad->SetGridy();
-      gPad->SetGridx();
-      Cefz225->SetMarkerStyle(20);
-      Cefz225->SetMarkerSize(0.4);
-          Cefz225->SetXTitle("Pedestals \b");
-          Cefz225->SetYTitle("<A> \b");
-      Cefz225->SetMarkerColor(2);
-      Cefz225->SetLineColor(2);
-      //    Cefz225->SetMaximum(1.000);
-      //    Cefz225->SetMinimum(0.0001);
-      Cefz225->Draw("COLZ");
-      
-      c1->cd(2);
-      TH1F *twod61= (TH1F*)dir->FindObjectAny("h_pedwvsampl_HB");
-      TH1F *twod60= (TH1F*)dir->FindObjectAny("h_pedwvsampl0_HB");
-      twod61->Sumw2();
-      twod60->Sumw2();
-//      if(twod60->IsA()->InheritsFrom("TH1F")){
-	TH1F* Cefz226= (TH1F*)twod61->Clone("Cefz226");
-	Cefz226->Divide(twod61,twod60, 1, 1, "B");
-	Cefz226->Sumw2();
-//      }
-      gPad->SetGridy();
-      gPad->SetGridx();
-      Cefz226->SetMarkerStyle(20);
-      Cefz226->SetMarkerSize(0.4);
-          Cefz226->SetXTitle("Width_Pedestals \b");
-          Cefz226->SetYTitle("<A> \b");
-      Cefz226->SetMarkerColor(2);
-      Cefz226->SetLineColor(2);
-      //    Cefz226->SetMaximum(1.000);
-      //    Cefz226->SetMinimum(0.0001);
-      Cefz226->Draw("COLZ");
-      
-      c1->cd(3);
-      TH1F *twod71= (TH1F*)dir->FindObjectAny("h_amplvsped_HB");
-      TH1F *twod70= (TH1F*)dir->FindObjectAny("h_amplvsped0_HB");
-      twod71->Sumw2();
-      twod70->Sumw2();
-//      if(twod70->IsA()->InheritsFrom("TH1F")){
-	TH1F* Cefz227= (TH1F*)twod71->Clone("Cefz227");
-	Cefz227->Divide(twod71,twod70, 1, 1, "B");
-	Cefz227->Sumw2();
-//      }
-      gPad->SetGridy();
-      gPad->SetGridx();
-      Cefz227->SetMarkerStyle(20);
-      Cefz227->SetMarkerSize(0.4);
-          Cefz227->SetXTitle("Amplitude \b");
-          Cefz227->SetYTitle("<Pedestals> \b");
-      Cefz227->SetMarkerColor(2);
-      Cefz227->SetLineColor(2);
-      //    Cefz227->SetMaximum(1.000);
-      //    Cefz227->SetMinimum(0.0001);
-      Cefz227->Draw("COLZ");
-      
-      c1->cd(4);
-      TH1F *twod81= (TH1F*)dir->FindObjectAny("h_amplvspedw_HB");
-      TH1F *twod80= (TH1F*)dir->FindObjectAny("h_amplvsped0_HB");
-      twod81->Sumw2();
-      twod80->Sumw2();
-//      if(twod80->IsA()->InheritsFrom("TH1F")){
-	TH1F* Cefz228= (TH1F*)twod81->Clone("Cefz228");
-	Cefz228->Divide(twod81,twod80, 1, 1, "B");
-	Cefz228->Sumw2();
-//      }
-      gPad->SetGridy();
-      gPad->SetGridx();
-      Cefz228->SetMarkerStyle(20);
-      Cefz228->SetMarkerSize(0.4);
-          Cefz228->SetXTitle("Amplitude \b");
-          Cefz228->SetYTitle("<Width_Pedestals> \b");
-      Cefz228->SetMarkerColor(2);
-      Cefz228->SetLineColor(2);
-      //    Cefz228->SetMaximum(1.000);
-      //    Cefz228->SetMinimum(0.0001);
-      Cefz228->Draw("COLZ");
-      
-      
-      c1->Update();
-      
-      
-            
-    //========================================================================================= 2
-    //======================================================================
-    //======================================================================
-    //================
-    //======================================================================
-      c1->Clear();
-      c1->Divide(2,2);
-      
-      c1->cd(1);
-      TH2F *two11= (TH2F*)dir->FindObjectAny("h2_pedvsampl_HB");
-      gPad->SetGridy();
-      gPad->SetGridx();
-      two11->SetMarkerStyle(20);
-      two11->SetMarkerSize(0.4);
-      two11->SetXTitle("Pedestals HB \b");
-      two11->SetYTitle("Amplitude HB\b");
-      two11->SetMarkerColor(2);
-      two11->SetLineColor(2);
-      //         gPad->SetLogy();
-      two11->Draw("COLZ");
-      
-      c1->cd(2);
-      TH2F *two12= (TH2F*)dir->FindObjectAny("h2_pedwvsampl_HB");
-      gPad->SetGridy();
-      gPad->SetGridx();
-      two12->SetMarkerStyle(20);
-      two12->SetMarkerSize(0.4);
-      two12->SetXTitle("Width_Pedestals HB \b");
-      two12->SetYTitle("Amplitude HB\b");
-      two12->SetMarkerColor(2);
-      two12->SetLineColor(2);
-      //   gPad->SetLogy();
-      two12->Draw("COLZ");
-      
-      c1->cd(3);
-      TH2F *two22= (TH2F*)dir->FindObjectAny("h2_amplvsped_HB");
-      gPad->SetGridy();
-      gPad->SetGridx();
-      two22->SetMarkerStyle(20);
-      two22->SetMarkerSize(0.4);
-      two22->SetYTitle("Pedestals HB \b");
-      two22->SetXTitle("Amplitude HB\b");
-      two22->SetMarkerColor(2);
-      two22->SetLineColor(2);
-      two22->Draw("COLZ");
-      
-      c1->cd(4);
-      TH2F *two23= (TH2F*)dir->FindObjectAny("h2_amplvspedw_HB");
-      gPad->SetGridy();
-      gPad->SetGridx();
-      two23->SetMarkerStyle(20);
-      two23->SetMarkerSize(0.4);
-      two23->SetYTitle("Width_Pedestals HB \b");
-      two23->SetXTitle("Amplitude HB\b");
-      two23->SetMarkerColor(2);
-      two23->SetLineColor(2);
-      two23->Draw("COLZ");
-      
-      c1->Update();
-      
-    //========================================================================================= 3
-    //======================================================================
-    //======================================================================
-    //================
-    //======================================================================
-      c1->Clear();
-      c1->Divide(2,2);
-           
-     
-      c1->cd(1);
-      TH1F *aaaaaa1= (TH1F*)dir->FindObjectAny("h_sumADCAmplLS1copy2");
-      gPad->SetLogy();
-      aaaaaa1->SetMarkerStyle(20);
-      aaaaaa1->SetMarkerSize(0.8);
-      aaaaaa1->GetYaxis()->SetLabelSize(0.04);
-      aaaaaa1->SetXTitle("<A>(ev.in LS) in LSs & channels - HB depth1\b");
-      aaaaaa1->SetMarkerColor(4);
-      aaaaaa1->SetLineColor(0);
-      aaaaaa1->Draw("Error");
-      
-      c1->cd(2);
-      TH1F *aaaaaa2= (TH1F*)dir->FindObjectAny("h_sumADCAmplLS1copy3");
-      gPad->SetLogy();
-      aaaaaa2->SetMarkerStyle(20);
-      aaaaaa2->SetMarkerSize(0.8);
-      aaaaaa2->GetYaxis()->SetLabelSize(0.04);
-      aaaaaa2->SetXTitle("<A>(ev.in LS) in LSs & channels - HB depth1\b");
-      aaaaaa2->SetMarkerColor(4);
-      aaaaaa2->SetLineColor(0);
-      aaaaaa2->Draw("Error");
-      
-      c1->cd(3);
-      TH1F *aaaaaa3= (TH1F*)dir->FindObjectAny("h_sumADCAmplLS1copy4");
-      gPad->SetLogy();
-      aaaaaa3->SetMarkerStyle(20);
-      aaaaaa3->SetMarkerSize(0.8);
-      aaaaaa3->GetYaxis()->SetLabelSize(0.04);
-      aaaaaa3->SetXTitle("<A>(ev.in LS) in LSs & channels - HB depth1\b");
-      aaaaaa3->SetMarkerColor(4);
-      aaaaaa3->SetLineColor(0);
-      aaaaaa3->Draw("Error");
-      c1->cd(4);
-      TH1F *aaaaaa4= (TH1F*)dir->FindObjectAny("h_sumADCAmplLS1copy5");
-      gPad->SetLogy();
-      aaaaaa4->SetMarkerStyle(20);
-      aaaaaa4->SetMarkerSize(0.8);
-      aaaaaa4->GetYaxis()->SetLabelSize(0.04);
-      aaaaaa4->SetXTitle("<A>(ev.in LS) in LSs & channels - HB depth1\b");
-      aaaaaa4->SetMarkerColor(4);
-      aaaaaa4->SetLineColor(0);
-      aaaaaa4->Draw("Error");
-      
-      c1->Update();
-            
-    //=============================================================================================== 4
-    //======================================================================
-    //======================================================================
-    //================
-    //======================================================================
-      c1->Clear();
-      c1->Divide(2,2);
-      /*
+  c1->cd(1);
+  TH1F *twod1 = (TH1F *)dir->FindObjectAny("h_pedvsampl_HB");
+  TH1F *twod0 = (TH1F *)dir->FindObjectAny("h_pedvsampl0_HB");
+  twod1->Sumw2();
+  twod0->Sumw2();
+  //      if(twod0->IsA()->InheritsFrom("TH1F")){
+  TH1F *Cefz225 = (TH1F *)twod1->Clone("Cefz225");
+  Cefz225->Divide(twod1, twod0, 1, 1, "B");
+  Cefz225->Sumw2();
+  //      }
+  gPad->SetGridy();
+  gPad->SetGridx();
+  Cefz225->SetMarkerStyle(20);
+  Cefz225->SetMarkerSize(0.4);
+  Cefz225->SetXTitle("Pedestals \b");
+  Cefz225->SetYTitle("<A> \b");
+  Cefz225->SetMarkerColor(2);
+  Cefz225->SetLineColor(2);
+  //    Cefz225->SetMaximum(1.000);
+  //    Cefz225->SetMinimum(0.0001);
+  Cefz225->Draw("COLZ");
+
+  c1->cd(2);
+  TH1F *twod61 = (TH1F *)dir->FindObjectAny("h_pedwvsampl_HB");
+  TH1F *twod60 = (TH1F *)dir->FindObjectAny("h_pedwvsampl0_HB");
+  twod61->Sumw2();
+  twod60->Sumw2();
+  //      if(twod60->IsA()->InheritsFrom("TH1F")){
+  TH1F *Cefz226 = (TH1F *)twod61->Clone("Cefz226");
+  Cefz226->Divide(twod61, twod60, 1, 1, "B");
+  Cefz226->Sumw2();
+  //      }
+  gPad->SetGridy();
+  gPad->SetGridx();
+  Cefz226->SetMarkerStyle(20);
+  Cefz226->SetMarkerSize(0.4);
+  Cefz226->SetXTitle("Width_Pedestals \b");
+  Cefz226->SetYTitle("<A> \b");
+  Cefz226->SetMarkerColor(2);
+  Cefz226->SetLineColor(2);
+  //    Cefz226->SetMaximum(1.000);
+  //    Cefz226->SetMinimum(0.0001);
+  Cefz226->Draw("COLZ");
+
+  c1->cd(3);
+  TH1F *twod71 = (TH1F *)dir->FindObjectAny("h_amplvsped_HB");
+  TH1F *twod70 = (TH1F *)dir->FindObjectAny("h_amplvsped0_HB");
+  twod71->Sumw2();
+  twod70->Sumw2();
+  //      if(twod70->IsA()->InheritsFrom("TH1F")){
+  TH1F *Cefz227 = (TH1F *)twod71->Clone("Cefz227");
+  Cefz227->Divide(twod71, twod70, 1, 1, "B");
+  Cefz227->Sumw2();
+  //      }
+  gPad->SetGridy();
+  gPad->SetGridx();
+  Cefz227->SetMarkerStyle(20);
+  Cefz227->SetMarkerSize(0.4);
+  Cefz227->SetXTitle("Amplitude \b");
+  Cefz227->SetYTitle("<Pedestals> \b");
+  Cefz227->SetMarkerColor(2);
+  Cefz227->SetLineColor(2);
+  //    Cefz227->SetMaximum(1.000);
+  //    Cefz227->SetMinimum(0.0001);
+  Cefz227->Draw("COLZ");
+
+  c1->cd(4);
+  TH1F *twod81 = (TH1F *)dir->FindObjectAny("h_amplvspedw_HB");
+  TH1F *twod80 = (TH1F *)dir->FindObjectAny("h_amplvsped0_HB");
+  twod81->Sumw2();
+  twod80->Sumw2();
+  //      if(twod80->IsA()->InheritsFrom("TH1F")){
+  TH1F *Cefz228 = (TH1F *)twod81->Clone("Cefz228");
+  Cefz228->Divide(twod81, twod80, 1, 1, "B");
+  Cefz228->Sumw2();
+  //      }
+  gPad->SetGridy();
+  gPad->SetGridx();
+  Cefz228->SetMarkerStyle(20);
+  Cefz228->SetMarkerSize(0.4);
+  Cefz228->SetXTitle("Amplitude \b");
+  Cefz228->SetYTitle("<Width_Pedestals> \b");
+  Cefz228->SetMarkerColor(2);
+  Cefz228->SetLineColor(2);
+  //    Cefz228->SetMaximum(1.000);
+  //    Cefz228->SetMinimum(0.0001);
+  Cefz228->Draw("COLZ");
+
+  c1->Update();
+
+  //========================================================================================= 2
+  //======================================================================
+  //======================================================================
+  //================
+  //======================================================================
+  c1->Clear();
+  c1->Divide(2, 2);
+
+  c1->cd(1);
+  TH2F *two11 = (TH2F *)dir->FindObjectAny("h2_pedvsampl_HB");
+  gPad->SetGridy();
+  gPad->SetGridx();
+  two11->SetMarkerStyle(20);
+  two11->SetMarkerSize(0.4);
+  two11->SetXTitle("Pedestals HB \b");
+  two11->SetYTitle("Amplitude HB\b");
+  two11->SetMarkerColor(2);
+  two11->SetLineColor(2);
+  //         gPad->SetLogy();
+  two11->Draw("COLZ");
+
+  c1->cd(2);
+  TH2F *two12 = (TH2F *)dir->FindObjectAny("h2_pedwvsampl_HB");
+  gPad->SetGridy();
+  gPad->SetGridx();
+  two12->SetMarkerStyle(20);
+  two12->SetMarkerSize(0.4);
+  two12->SetXTitle("Width_Pedestals HB \b");
+  two12->SetYTitle("Amplitude HB\b");
+  two12->SetMarkerColor(2);
+  two12->SetLineColor(2);
+  //   gPad->SetLogy();
+  two12->Draw("COLZ");
+
+  c1->cd(3);
+  TH2F *two22 = (TH2F *)dir->FindObjectAny("h2_amplvsped_HB");
+  gPad->SetGridy();
+  gPad->SetGridx();
+  two22->SetMarkerStyle(20);
+  two22->SetMarkerSize(0.4);
+  two22->SetYTitle("Pedestals HB \b");
+  two22->SetXTitle("Amplitude HB\b");
+  two22->SetMarkerColor(2);
+  two22->SetLineColor(2);
+  two22->Draw("COLZ");
+
+  c1->cd(4);
+  TH2F *two23 = (TH2F *)dir->FindObjectAny("h2_amplvspedw_HB");
+  gPad->SetGridy();
+  gPad->SetGridx();
+  two23->SetMarkerStyle(20);
+  two23->SetMarkerSize(0.4);
+  two23->SetYTitle("Width_Pedestals HB \b");
+  two23->SetXTitle("Amplitude HB\b");
+  two23->SetMarkerColor(2);
+  two23->SetLineColor(2);
+  two23->Draw("COLZ");
+
+  c1->Update();
+
+  //========================================================================================= 3
+  //======================================================================
+  //======================================================================
+  //================
+  //======================================================================
+  c1->Clear();
+  c1->Divide(2, 2);
+
+  c1->cd(1);
+  TH1F *aaaaaa1 = (TH1F *)dir->FindObjectAny("h_sumADCAmplLS1copy2");
+  gPad->SetLogy();
+  aaaaaa1->SetMarkerStyle(20);
+  aaaaaa1->SetMarkerSize(0.8);
+  aaaaaa1->GetYaxis()->SetLabelSize(0.04);
+  aaaaaa1->SetXTitle("<A>(ev.in LS) in LSs & channels - HB depth1\b");
+  aaaaaa1->SetMarkerColor(4);
+  aaaaaa1->SetLineColor(0);
+  aaaaaa1->Draw("Error");
+
+  c1->cd(2);
+  TH1F *aaaaaa2 = (TH1F *)dir->FindObjectAny("h_sumADCAmplLS1copy3");
+  gPad->SetLogy();
+  aaaaaa2->SetMarkerStyle(20);
+  aaaaaa2->SetMarkerSize(0.8);
+  aaaaaa2->GetYaxis()->SetLabelSize(0.04);
+  aaaaaa2->SetXTitle("<A>(ev.in LS) in LSs & channels - HB depth1\b");
+  aaaaaa2->SetMarkerColor(4);
+  aaaaaa2->SetLineColor(0);
+  aaaaaa2->Draw("Error");
+
+  c1->cd(3);
+  TH1F *aaaaaa3 = (TH1F *)dir->FindObjectAny("h_sumADCAmplLS1copy4");
+  gPad->SetLogy();
+  aaaaaa3->SetMarkerStyle(20);
+  aaaaaa3->SetMarkerSize(0.8);
+  aaaaaa3->GetYaxis()->SetLabelSize(0.04);
+  aaaaaa3->SetXTitle("<A>(ev.in LS) in LSs & channels - HB depth1\b");
+  aaaaaa3->SetMarkerColor(4);
+  aaaaaa3->SetLineColor(0);
+  aaaaaa3->Draw("Error");
+  c1->cd(4);
+  TH1F *aaaaaa4 = (TH1F *)dir->FindObjectAny("h_sumADCAmplLS1copy5");
+  gPad->SetLogy();
+  aaaaaa4->SetMarkerStyle(20);
+  aaaaaa4->SetMarkerSize(0.8);
+  aaaaaa4->GetYaxis()->SetLabelSize(0.04);
+  aaaaaa4->SetXTitle("<A>(ev.in LS) in LSs & channels - HB depth1\b");
+  aaaaaa4->SetMarkerColor(4);
+  aaaaaa4->SetLineColor(0);
+  aaaaaa4->Draw("Error");
+
+  c1->Update();
+
+  //=============================================================================================== 4
+  //======================================================================
+  //======================================================================
+  //================
+  //======================================================================
+  c1->Clear();
+  c1->Divide(2, 2);
+  /*
       c1->cd(1);
       TH1F *twodhe1= (TH1F*)dir->FindObjectAny("h_pedvsampl_HE");
       TH1F *twodhe0= (TH1F*)dir->FindObjectAny("h_pedvsampl0_HE");
@@ -484,18 +480,17 @@ int main(int argc, char *argv[]) {
       //    Cefzhe228->SetMinimum(0.0001);
       Cefzhe228->Draw("COLZ");
       
- */     
-      c1->Update();
-      
-      
-    //=============================================================================================== 5
-    //======================================================================
-    //======================================================================
-    //================
-    //======================================================================
-      c1->Clear();
-      c1->Divide(2,2);
-      /*
+ */
+  c1->Update();
+
+  //=============================================================================================== 5
+  //======================================================================
+  //======================================================================
+  //================
+  //======================================================================
+  c1->Clear();
+  c1->Divide(2, 2);
+  /*
       c1->cd(1);
       TH1F *twodhf1= (TH1F*)dir->FindObjectAny("h_pedvsampl_HF");
       TH1F *twodhf0= (TH1F*)dir->FindObjectAny("h_pedvsampl0_HF");
@@ -584,19 +579,18 @@ int main(int argc, char *argv[]) {
       //    Cefzhf228->SetMinimum(0.0001);
       Cefzhf228->Draw("COLZ");
       
- */     
-      
-      c1->Update();
-      
-      
-    //=============================================================================================== 6
-    //======================================================================
-    //======================================================================
-    //================
-    //======================================================================
-      c1->Clear();
-      c1->Divide(2,2);
-      /*
+ */
+
+  c1->Update();
+
+  //=============================================================================================== 6
+  //======================================================================
+  //======================================================================
+  //================
+  //======================================================================
+  c1->Clear();
+  c1->Divide(2, 2);
+  /*
       c1->cd(1);
       TH1F *twodho1= (TH1F*)dir->FindObjectAny("h_pedvsampl_HO");
       TH1F *twodho0= (TH1F*)dir->FindObjectAny("h_pedvsampl0_HO");
@@ -685,16 +679,14 @@ int main(int argc, char *argv[]) {
       //    Cefzho228->SetMinimum(0.0001);
       Cefzho228->Draw("COLZ");
       
- */     
-      
-      c1->Update();
-      
-      
-            
-    //======================================================================
-    //======================================================================================== end
-    //======================================================================
-    //======================================================================
+ */
+
+  c1->Update();
+
+  //======================================================================
+  //======================================================================================== end
+  //======================================================================
+  //======================================================================
   // close and delete all possible things:
 
   //   psfile->Close();

@@ -41,14 +41,14 @@ int main(int argc, char *argv[]) {
   printf("reco: gROOT Reset \n");
   gROOT->Reset();
   gROOT->SetStyle("Plain");
-  			gStyle->SetOptStat(0);   //  no statistics _or_
+  gStyle->SetOptStat(0);  //  no statistics _or_
   //	        	  gStyle->SetOptStat(11111111);
   //gStyle->SetOptStat(1101);// name mean and rms
   //	gStyle->SetOptStat(0101);// name and entries
   //	   gStyle->SetOptStat(1100);// mean and rms only !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   //	gStyle->SetOptStat(1110000);// und over, integral !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//  gStyle->SetOptStat(101110);  // entries, mean, rms, overflow !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                               //	gStyle->SetOptStat(100000);//  over !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  //  gStyle->SetOptStat(101110);  // entries, mean, rms, overflow !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  //	gStyle->SetOptStat(100000);//  over !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   //
   //gStyle->SetOptFit(00010);// constant, mean and sigma only !!
   //	gStyle->SetOptFit(00001);// hi2/nu, constant, mean and sigma only !!
@@ -112,9 +112,7 @@ int main(int argc, char *argv[]) {
   //======================================================================
   //  TBrowser *b = new TBrowser
 
-
-
-    TFile *hfile1 = new TFile("Global_362596.root", "READ");
+  TFile *hfile1 = new TFile("Global_362596.root", "READ");
   //TFile *hfile1 = new TFile("Global_362365.root", "READ");
 
   TPostScript psfile("zcorrtsnvsampltest.ps", 111);
@@ -126,72 +124,72 @@ int main(int argc, char *argv[]) {
   hfile1->ls();
   TDirectory *dir = (TDirectory *)hfile1->FindObjectAny(dirnm.c_str());
 
-    //=============================================================================================== 1
-    //======================================================================
-    //======================================================================
-    //================
-    //======================================================================
-      c1->Clear();
-      c1->Divide(2,2);
-      
-      c1->cd(1);
-      TH2F *two11= (TH2F*)dir->FindObjectAny("h2_TSnVsAyear2023_HB");
-      gPad->SetGridy();
-      gPad->SetGridx();
-      two11->SetMarkerStyle(20);
-      two11->SetMarkerSize(0.4);
-      two11->SetYTitle("timing HB \b");
-      two11->SetXTitle("Q HB\b");
-      two11->SetMarkerColor(1);
-      two11->SetLineColor(1);
-      //               gPad->SetLogx();
-      //               gPad->SetLogy();
-      two11->Draw("BOX");
-      //   two11->Draw("");
-      //    two11->Draw("COLZ");
-      
-      c1->cd(2);
-      TH2F *two12= (TH2F*)dir->FindObjectAny("h2_TSnVsAyear2023_HE");
-      gPad->SetGridy();
-      gPad->SetGridx();
-      two12->SetMarkerStyle(20);
-      two12->SetMarkerSize(0.4);
-      two12->SetYTitle("timing HE \b");
-      two12->SetXTitle("Q HE\b");
-      two12->SetMarkerColor(1);
-      two12->SetLineColor(1);
-      //   gPad->SetLogy();
-      two12->Draw("BOX");
-      //    two12->Draw("SCAT");
-      
-      c1->cd(3);
-      TH2F *two22= (TH2F*)dir->FindObjectAny("h2_TSnVsAyear2023_HF");
-      gPad->SetGridy();
-      gPad->SetGridx();
-      two22->SetMarkerStyle(20);
-      two22->SetMarkerSize(0.4);
-      two22->SetYTitle("timing HF \b");
-      two22->SetXTitle("Q HF\b");
-      two22->SetMarkerColor(1);
-      two22->SetLineColor(1);
-      two22->Draw("BOX");
-      //    two22->Draw("ARR");
-      
-      c1->cd(4);
-      TH2F *two23= (TH2F*)dir->FindObjectAny("h2_TSnVsAyear2023_HO");
-      gPad->SetGridy();
-      gPad->SetGridx();
-      two23->SetMarkerStyle(20);
-      two23->SetMarkerSize(0.4);
-      two23->SetYTitle("timing HO \b");
-      two23->SetXTitle("Q HO\b");
-      two23->SetMarkerColor(1);
-      two23->SetLineColor(1);
-      two23->Draw("BOX");
-      
-      c1->Update();
-      
-   //========================================================================================== 2
+  //=============================================================================================== 1
+  //======================================================================
+  //======================================================================
+  //================
+  //======================================================================
+  c1->Clear();
+  c1->Divide(2, 2);
+
+  c1->cd(1);
+  TH2F *two11 = (TH2F *)dir->FindObjectAny("h2_TSnVsAyear2023_HB");
+  gPad->SetGridy();
+  gPad->SetGridx();
+  two11->SetMarkerStyle(20);
+  two11->SetMarkerSize(0.4);
+  two11->SetYTitle("timing HB \b");
+  two11->SetXTitle("Q HB\b");
+  two11->SetMarkerColor(1);
+  two11->SetLineColor(1);
+  //               gPad->SetLogx();
+  //               gPad->SetLogy();
+  two11->Draw("BOX");
+  //   two11->Draw("");
+  //    two11->Draw("COLZ");
+
+  c1->cd(2);
+  TH2F *two12 = (TH2F *)dir->FindObjectAny("h2_TSnVsAyear2023_HE");
+  gPad->SetGridy();
+  gPad->SetGridx();
+  two12->SetMarkerStyle(20);
+  two12->SetMarkerSize(0.4);
+  two12->SetYTitle("timing HE \b");
+  two12->SetXTitle("Q HE\b");
+  two12->SetMarkerColor(1);
+  two12->SetLineColor(1);
+  //   gPad->SetLogy();
+  two12->Draw("BOX");
+  //    two12->Draw("SCAT");
+
+  c1->cd(3);
+  TH2F *two22 = (TH2F *)dir->FindObjectAny("h2_TSnVsAyear2023_HF");
+  gPad->SetGridy();
+  gPad->SetGridx();
+  two22->SetMarkerStyle(20);
+  two22->SetMarkerSize(0.4);
+  two22->SetYTitle("timing HF \b");
+  two22->SetXTitle("Q HF\b");
+  two22->SetMarkerColor(1);
+  two22->SetLineColor(1);
+  two22->Draw("BOX");
+  //    two22->Draw("ARR");
+
+  c1->cd(4);
+  TH2F *two23 = (TH2F *)dir->FindObjectAny("h2_TSnVsAyear2023_HO");
+  gPad->SetGridy();
+  gPad->SetGridx();
+  two23->SetMarkerStyle(20);
+  two23->SetMarkerSize(0.4);
+  two23->SetYTitle("timing HO \b");
+  two23->SetXTitle("Q HO\b");
+  two23->SetMarkerColor(1);
+  two23->SetLineColor(1);
+  two23->Draw("BOX");
+
+  c1->Update();
+
+  //========================================================================================== 2
   //======================================================================
   //======================================================================
   //================
@@ -201,9 +199,9 @@ int main(int argc, char *argv[]) {
 
   c1->cd(1);
   TH1F *TSNvsQ_HB = (TH1F *)dir->FindObjectAny("h1_TSnVsAyear20230_HB");
-    gPad->SetGridy();
-    gPad->SetGridx();
-           gPad->SetLogy();
+  gPad->SetGridy();
+  gPad->SetGridx();
+  gPad->SetLogy();
   TSNvsQ_HB->SetMarkerStyle(20);
   TSNvsQ_HB->SetMarkerSize(0.6);
   TSNvsQ_HB->GetYaxis()->SetLabelSize(0.04);
@@ -215,11 +213,11 @@ int main(int argc, char *argv[]) {
   //TSNvsQ_HB->GetXaxis()->SetRangeUser(0, MaxLumDanila + 5.);
   TSNvsQ_HB->Draw("E");
 
-   c1->cd(2);
+  c1->cd(2);
   TH1F *TSNvsQ_HE = (TH1F *)dir->FindObjectAny("h1_TSnVsAyear20230_HE");
-    gPad->SetGridy();
-    gPad->SetGridx();
-         gPad->SetLogy();
+  gPad->SetGridy();
+  gPad->SetGridx();
+  gPad->SetLogy();
   TSNvsQ_HE->SetMarkerStyle(20);
   TSNvsQ_HE->SetMarkerSize(0.6);
   TSNvsQ_HE->GetYaxis()->SetLabelSize(0.04);
@@ -233,9 +231,9 @@ int main(int argc, char *argv[]) {
 
   c1->cd(3);
   TH1F *TSNvsQ_HF = (TH1F *)dir->FindObjectAny("h1_TSnVsAyear20230_HF");
-    gPad->SetGridy();
-    gPad->SetGridx();
-       gPad->SetLogy();
+  gPad->SetGridy();
+  gPad->SetGridx();
+  gPad->SetLogy();
   TSNvsQ_HF->SetMarkerStyle(20);
   TSNvsQ_HF->SetMarkerSize(0.6);
   TSNvsQ_HF->GetYaxis()->SetLabelSize(0.04);
@@ -247,11 +245,11 @@ int main(int argc, char *argv[]) {
   //TSNvsQ_HF->GetXaxis()->SetRangeUser(0, MaxLumDanila + 5.);
   TSNvsQ_HF->Draw("E");
 
- c1->cd(4);
+  c1->cd(4);
   TH1F *TSNvsQ_HO = (TH1F *)dir->FindObjectAny("h1_TSnVsAyear20230_HO");
-    gPad->SetGridy();
-    gPad->SetGridx();
-         gPad->SetLogy();
+  gPad->SetGridy();
+  gPad->SetGridx();
+  gPad->SetLogy();
   TSNvsQ_HO->SetMarkerStyle(20);
   TSNvsQ_HO->SetMarkerSize(0.6);
   TSNvsQ_HO->GetYaxis()->SetLabelSize(0.04);
@@ -263,11 +261,9 @@ int main(int argc, char *argv[]) {
   //TSNvsQ_HO->GetXaxis()->SetRangeUser(0, MaxLumDanila + 5.);
   TSNvsQ_HO->Draw("E");
 
+  c1->Update();
 
-      
-      c1->Update();
-      
-   //========================================================================================== 3
+  //========================================================================================== 3
   //======================================================================
   //======================================================================
   //================
@@ -280,12 +276,12 @@ int main(int argc, char *argv[]) {
   TH1F *twod0_HB = (TH1F *)dir->FindObjectAny("h1_TSnVsAyear20230_HB");
   twod1_HB->Sumw2();
   twod0_HB->Sumw2();
-  TH1F* Ceff_HB= (TH1F*)twod1_HB->Clone("Ceff_HB");
+  TH1F *Ceff_HB = (TH1F *)twod1_HB->Clone("Ceff_HB");
   //  Ceff_HB->Sumw2();
   for (int x = 1; x <= twod1_HB->GetXaxis()->GetNbins(); x++) {
     twod1_HB->SetBinError(float(x), 0.001);
-  }    //end x
-  Ceff_HB->Divide(twod1_HB,twod0_HB, 1, 1, "B");
+  }  //end x
+  Ceff_HB->Divide(twod1_HB, twod0_HB, 1, 1, "B");
   gPad->SetGridy();
   gPad->SetGridx();
   Ceff_HB->SetMarkerStyle(20);
@@ -304,12 +300,12 @@ int main(int argc, char *argv[]) {
   TH1F *twod0_HE = (TH1F *)dir->FindObjectAny("h1_TSnVsAyear20230_HE");
   //  twod1_HE->Sumw2();
   //  twod0_HE->Sumw2();
-  TH1F* Ceff_HE= (TH1F*)twod1_HE->Clone("Ceff_HE");
+  TH1F *Ceff_HE = (TH1F *)twod1_HE->Clone("Ceff_HE");
   //  Ceff_HE->Sumw2();
   for (int x = 1; x <= twod1_HE->GetXaxis()->GetNbins(); x++) {
     twod1_HE->SetBinError(float(x), 0.001);
-  }    //end x
-  Ceff_HE->Divide(twod1_HE,twod0_HE, 1, 1, "B");
+  }  //end x
+  Ceff_HE->Divide(twod1_HE, twod0_HE, 1, 1, "B");
   gPad->SetGridy();
   gPad->SetGridx();
   Ceff_HE->SetMarkerStyle(20);
@@ -328,12 +324,12 @@ int main(int argc, char *argv[]) {
   TH1F *twod0_HF = (TH1F *)dir->FindObjectAny("h1_TSnVsAyear20230_HF");
   //  twod1_HF->Sumw2();
   //  twod0_HF->Sumw2();
-  TH1F* Ceff_HF= (TH1F*)twod1_HF->Clone("Ceff_HF");
+  TH1F *Ceff_HF = (TH1F *)twod1_HF->Clone("Ceff_HF");
   //  Ceff_HF->Sumw2();
   for (int x = 1; x <= twod1_HF->GetXaxis()->GetNbins(); x++) {
     twod1_HF->SetBinError(float(x), 0.001);
-  }    //end x
-  Ceff_HF->Divide(twod1_HF,twod0_HF, 1, 1, "B");
+  }  //end x
+  Ceff_HF->Divide(twod1_HF, twod0_HF, 1, 1, "B");
   gPad->SetGridy();
   gPad->SetGridx();
   Ceff_HF->SetMarkerStyle(20);
@@ -352,12 +348,12 @@ int main(int argc, char *argv[]) {
   TH1F *twod0_HO = (TH1F *)dir->FindObjectAny("h1_TSnVsAyear20230_HO");
   // twod1_HO->Sumw2();
   //  twod0_HO->Sumw2();
-  TH1F* Ceff_HO= (TH1F*)twod1_HO->Clone("Ceff_HO");
+  TH1F *Ceff_HO = (TH1F *)twod1_HO->Clone("Ceff_HO");
   //  Ceff_HO->Sumw2();
   for (int x = 1; x <= twod1_HO->GetXaxis()->GetNbins(); x++) {
     twod1_HO->SetBinError(float(x), 0.001);
-  }    //end x
-  Ceff_HO->Divide(twod1_HO,twod0_HO, 1, 1, "B");
+  }  //end x
+  Ceff_HO->Divide(twod1_HO, twod0_HO, 1, 1, "B");
   gPad->SetGridy();
   gPad->SetGridx();
   Ceff_HO->SetMarkerStyle(20);
@@ -371,10 +367,9 @@ int main(int argc, char *argv[]) {
   Ceff_HO->Draw("E");
   //Ceff_HO->Draw("COLZ");
 
-      
-      c1->Update();
-      
-   //========================================================================================== 4
+  c1->Update();
+
+  //========================================================================================== 4
   //======================================================================
   //======================================================================
   //================
@@ -387,8 +382,8 @@ int main(int argc, char *argv[]) {
   TH2F *dva0_HBDepth1 = (TH2F *)dir->FindObjectAny("h_mapDepth1_HB");
   //dva1_HBDepth1->Sumw2();
   //dva0_HBDepth1->Sumw2();
-  TH2F* Seff_HBDepth1= (TH2F*)dva1_HBDepth1->Clone("Seff_HBDepth1");
-  Seff_HBDepth1->Divide(dva1_HBDepth1,dva0_HBDepth1, 25., 1., "B");
+  TH2F *Seff_HBDepth1 = (TH2F *)dva1_HBDepth1->Clone("Seff_HBDepth1");
+  Seff_HBDepth1->Divide(dva1_HBDepth1, dva0_HBDepth1, 25., 1., "B");
   gPad->SetGridy();
   gPad->SetGridx();
   //gPad->SetLogz();
@@ -408,8 +403,8 @@ int main(int argc, char *argv[]) {
   TH2F *dva0_HBDepth2 = (TH2F *)dir->FindObjectAny("h_mapDepth2_HB");
   //dva1_HBDepth2->Sumw2();
   //dva0_HBDepth2->Sumw2();
-  TH2F* Seff_HBDepth2= (TH2F*)dva1_HBDepth2->Clone("Seff_HBDepth2");
-  Seff_HBDepth2->Divide(dva1_HBDepth2,dva0_HBDepth2, 25., 1., "B");
+  TH2F *Seff_HBDepth2 = (TH2F *)dva1_HBDepth2->Clone("Seff_HBDepth2");
+  Seff_HBDepth2->Divide(dva1_HBDepth2, dva0_HBDepth2, 25., 1., "B");
   gPad->SetGridy();
   gPad->SetGridx();
   //gPad->SetLogz();
@@ -429,8 +424,8 @@ int main(int argc, char *argv[]) {
   TH2F *dva0_HBDepth3 = (TH2F *)dir->FindObjectAny("h_mapDepth3_HB");
   //dva1_HBDepth3->Sumw2();
   //dva0_HBDepth3->Sumw2();
-  TH2F* Seff_HBDepth3= (TH2F*)dva1_HBDepth3->Clone("Seff_HBDepth3");
-  Seff_HBDepth3->Divide(dva1_HBDepth3,dva0_HBDepth3, 25., 1., "B");
+  TH2F *Seff_HBDepth3 = (TH2F *)dva1_HBDepth3->Clone("Seff_HBDepth3");
+  Seff_HBDepth3->Divide(dva1_HBDepth3, dva0_HBDepth3, 25., 1., "B");
   gPad->SetGridy();
   gPad->SetGridx();
   //gPad->SetLogz();
@@ -450,8 +445,8 @@ int main(int argc, char *argv[]) {
   TH2F *dva0_HBDepth4 = (TH2F *)dir->FindObjectAny("h_mapDepth4_HB");
   //dva1_HBDepth4->Sumw2();
   //dva0_HBDepth4->Sumw2();
-  TH2F* Seff_HBDepth4= (TH2F*)dva1_HBDepth4->Clone("Seff_HBDepth4");
-  Seff_HBDepth4->Divide(dva1_HBDepth4,dva0_HBDepth4, 25., 1., "B");
+  TH2F *Seff_HBDepth4 = (TH2F *)dva1_HBDepth4->Clone("Seff_HBDepth4");
+  Seff_HBDepth4->Divide(dva1_HBDepth4, dva0_HBDepth4, 25., 1., "B");
   gPad->SetGridy();
   gPad->SetGridx();
   //gPad->SetLogz();
@@ -466,10 +461,9 @@ int main(int argc, char *argv[]) {
   Seff_HBDepth4->SetMinimum(85.);
   Seff_HBDepth4->Draw("COLZ");
 
-    
-      c1->Update();
-      
-   //========================================================================================== 5
+  c1->Update();
+
+  //========================================================================================== 5
   //======================================================================
   //======================================================================
   //================
@@ -482,8 +476,8 @@ int main(int argc, char *argv[]) {
   TH2F *dva0_HEDepth1 = (TH2F *)dir->FindObjectAny("h_mapDepth1_HE");
   //dva1_HEDepth1->Sumw2();
   //dva0_HEDepth1->Sumw2();
-  TH2F* Seff_HEDepth1= (TH2F*)dva1_HEDepth1->Clone("Seff_HEDepth1");
-  Seff_HEDepth1->Divide(dva1_HEDepth1,dva0_HEDepth1, 25., 1., "B");
+  TH2F *Seff_HEDepth1 = (TH2F *)dva1_HEDepth1->Clone("Seff_HEDepth1");
+  Seff_HEDepth1->Divide(dva1_HEDepth1, dva0_HEDepth1, 25., 1., "B");
   gPad->SetGridy();
   gPad->SetGridx();
   //gPad->SetLogz();
@@ -503,8 +497,8 @@ int main(int argc, char *argv[]) {
   TH2F *dva0_HEDepth2 = (TH2F *)dir->FindObjectAny("h_mapDepth2_HE");
   //dva1_HEDepth2->Sumw2();
   //dva0_HEDepth2->Sumw2();
-  TH2F* Seff_HEDepth2= (TH2F*)dva1_HEDepth2->Clone("Seff_HEDepth2");
-  Seff_HEDepth2->Divide(dva1_HEDepth2,dva0_HEDepth2, 25., 1., "B");
+  TH2F *Seff_HEDepth2 = (TH2F *)dva1_HEDepth2->Clone("Seff_HEDepth2");
+  Seff_HEDepth2->Divide(dva1_HEDepth2, dva0_HEDepth2, 25., 1., "B");
   gPad->SetGridy();
   gPad->SetGridx();
   //gPad->SetLogz();
@@ -524,8 +518,8 @@ int main(int argc, char *argv[]) {
   TH2F *dva0_HEDepth3 = (TH2F *)dir->FindObjectAny("h_mapDepth3_HE");
   //dva1_HEDepth3->Sumw2();
   //dva0_HEDepth3->Sumw2();
-  TH2F* Seff_HEDepth3= (TH2F*)dva1_HEDepth3->Clone("Seff_HEDepth3");
-  Seff_HEDepth3->Divide(dva1_HEDepth3,dva0_HEDepth3, 25., 1., "B");
+  TH2F *Seff_HEDepth3 = (TH2F *)dva1_HEDepth3->Clone("Seff_HEDepth3");
+  Seff_HEDepth3->Divide(dva1_HEDepth3, dva0_HEDepth3, 25., 1., "B");
   gPad->SetGridy();
   gPad->SetGridx();
   //gPad->SetLogz();
@@ -545,8 +539,8 @@ int main(int argc, char *argv[]) {
   TH2F *dva0_HEDepth4 = (TH2F *)dir->FindObjectAny("h_mapDepth4_HE");
   //dva1_HEDepth4->Sumw2();
   //dva0_HEDepth4->Sumw2();
-  TH2F* Seff_HEDepth4= (TH2F*)dva1_HEDepth4->Clone("Seff_HEDepth4");
-  Seff_HEDepth4->Divide(dva1_HEDepth4,dva0_HEDepth4, 25., 1., "B");
+  TH2F *Seff_HEDepth4 = (TH2F *)dva1_HEDepth4->Clone("Seff_HEDepth4");
+  Seff_HEDepth4->Divide(dva1_HEDepth4, dva0_HEDepth4, 25., 1., "B");
   gPad->SetGridy();
   gPad->SetGridx();
   //gPad->SetLogz();
@@ -566,8 +560,8 @@ int main(int argc, char *argv[]) {
   TH2F *dva0_HEDepth5 = (TH2F *)dir->FindObjectAny("h_mapDepth5_HE");
   //dva1_HEDepth5->Sumw2();
   //dva0_HEDepth5->Sumw2();
-  TH2F* Seff_HEDepth5= (TH2F*)dva1_HEDepth5->Clone("Seff_HEDepth5");
-  Seff_HEDepth5->Divide(dva1_HEDepth5,dva0_HEDepth5, 25., 1., "B");
+  TH2F *Seff_HEDepth5 = (TH2F *)dva1_HEDepth5->Clone("Seff_HEDepth5");
+  Seff_HEDepth5->Divide(dva1_HEDepth5, dva0_HEDepth5, 25., 1., "B");
   gPad->SetGridy();
   gPad->SetGridx();
   //gPad->SetLogz();
@@ -587,8 +581,8 @@ int main(int argc, char *argv[]) {
   TH2F *dva0_HEDepth6 = (TH2F *)dir->FindObjectAny("h_mapDepth6_HE");
   //dva1_HEDepth6->Sumw2();
   //dva0_HEDepth6->Sumw2();
-  TH2F* Seff_HEDepth6= (TH2F*)dva1_HEDepth6->Clone("Seff_HEDepth6");
-  Seff_HEDepth6->Divide(dva1_HEDepth6,dva0_HEDepth6, 25., 1., "B");
+  TH2F *Seff_HEDepth6 = (TH2F *)dva1_HEDepth6->Clone("Seff_HEDepth6");
+  Seff_HEDepth6->Divide(dva1_HEDepth6, dva0_HEDepth6, 25., 1., "B");
   gPad->SetGridy();
   gPad->SetGridx();
   //gPad->SetLogz();
@@ -607,9 +601,9 @@ int main(int argc, char *argv[]) {
   TH2F *dva1_HEDepth7 = (TH2F *)dir->FindObjectAny("h_mapDepth7TSmeanA_HE");
   TH2F *dva0_HEDepth7 = (TH2F *)dir->FindObjectAny("h_mapDepth7_HE");
   //dva1_HEDepth7->Sumw2();
- //dva0_HEDepth7->Sumw2();
-  TH2F* Seff_HEDepth7= (TH2F*)dva1_HEDepth7->Clone("Seff_HEDepth7");
-  Seff_HEDepth7->Divide(dva1_HEDepth7,dva0_HEDepth7, 25., 1., "B");
+  //dva0_HEDepth7->Sumw2();
+  TH2F *Seff_HEDepth7 = (TH2F *)dva1_HEDepth7->Clone("Seff_HEDepth7");
+  Seff_HEDepth7->Divide(dva1_HEDepth7, dva0_HEDepth7, 25., 1., "B");
   gPad->SetGridy();
   gPad->SetGridx();
   //gPad->SetLogz();
@@ -624,10 +618,9 @@ int main(int argc, char *argv[]) {
   Seff_HEDepth7->SetMinimum(85.);
   Seff_HEDepth7->Draw("COLZ");
 
-    
-      c1->Update();
-      
-   //========================================================================================== 6
+  c1->Update();
+
+  //========================================================================================== 6
   //======================================================================
   //======================================================================
   //================
@@ -640,8 +633,8 @@ int main(int argc, char *argv[]) {
   TH2F *dva0_HFDepth1 = (TH2F *)dir->FindObjectAny("h_mapDepth1_HF");
   //dva1_HFDepth1->Sumw2();
   //dva0_HFDepth1->Sumw2();
-  TH2F* Seff_HFDepth1= (TH2F*)dva1_HFDepth1->Clone("Seff_HFDepth1");
-  Seff_HFDepth1->Divide(dva1_HFDepth1,dva0_HFDepth1, 25., 1., "B");
+  TH2F *Seff_HFDepth1 = (TH2F *)dva1_HFDepth1->Clone("Seff_HFDepth1");
+  Seff_HFDepth1->Divide(dva1_HFDepth1, dva0_HFDepth1, 25., 1., "B");
   gPad->SetGridy();
   gPad->SetGridx();
   //gPad->SetLogz();
@@ -661,8 +654,8 @@ int main(int argc, char *argv[]) {
   TH2F *dva0_HFDepth2 = (TH2F *)dir->FindObjectAny("h_mapDepth2_HF");
   //dva1_HFDepth2->Sumw2();
   //dva0_HFDepth2->Sumw2();
-  TH2F* Seff_HFDepth2= (TH2F*)dva1_HFDepth2->Clone("Seff_HFDepth2");
-  Seff_HFDepth2->Divide(dva1_HFDepth2,dva0_HFDepth2, 25., 1., "B");
+  TH2F *Seff_HFDepth2 = (TH2F *)dva1_HFDepth2->Clone("Seff_HFDepth2");
+  Seff_HFDepth2->Divide(dva1_HFDepth2, dva0_HFDepth2, 25., 1., "B");
   gPad->SetGridy();
   gPad->SetGridx();
   //gPad->SetLogz();
@@ -682,8 +675,8 @@ int main(int argc, char *argv[]) {
   TH2F *dva0_HFDepth3 = (TH2F *)dir->FindObjectAny("h_mapDepth3_HF");
   //dva1_HFDepth3->Sumw2();
   //dva0_HFDepth3->Sumw2();
-  TH2F* Seff_HFDepth3= (TH2F*)dva1_HFDepth3->Clone("Seff_HFDepth3");
-  Seff_HFDepth3->Divide(dva1_HFDepth3,dva0_HFDepth3, 25., 1., "B");
+  TH2F *Seff_HFDepth3 = (TH2F *)dva1_HFDepth3->Clone("Seff_HFDepth3");
+  Seff_HFDepth3->Divide(dva1_HFDepth3, dva0_HFDepth3, 25., 1., "B");
   gPad->SetGridy();
   gPad->SetGridx();
   //gPad->SetLogz();
@@ -703,8 +696,8 @@ int main(int argc, char *argv[]) {
   TH2F *dva0_HFDepth4 = (TH2F *)dir->FindObjectAny("h_mapDepth4_HF");
   //dva1_HFDepth4->Sumw2();
   //dva0_HFDepth4->Sumw2();
-  TH2F* Seff_HFDepth4= (TH2F*)dva1_HFDepth4->Clone("Seff_HFDepth4");
-  Seff_HFDepth4->Divide(dva1_HFDepth4,dva0_HFDepth4, 25., 1., "B");
+  TH2F *Seff_HFDepth4 = (TH2F *)dva1_HFDepth4->Clone("Seff_HFDepth4");
+  Seff_HFDepth4->Divide(dva1_HFDepth4, dva0_HFDepth4, 25., 1., "B");
   gPad->SetGridy();
   gPad->SetGridx();
   //gPad->SetLogz();
@@ -719,10 +712,9 @@ int main(int argc, char *argv[]) {
   Seff_HFDepth4->SetMinimum(23.);
   Seff_HFDepth4->Draw("COLZ");
 
-    
-      c1->Update();
-      
-   //========================================================================================== 7
+  c1->Update();
+
+  //========================================================================================== 7
   //======================================================================
   //======================================================================
   //================
@@ -732,27 +724,33 @@ int main(int argc, char *argv[]) {
 
   c1->cd(1);
   TH2F *dva1_HODepth4 = (TH2F *)dir->FindObjectAny("h_mapDepth4TSmeanA_HO");
-    for (int i=1;i<=dva1_HODepth4->GetXaxis()->GetNbins();i++) {
-      for (int j=1;j<=dva1_HODepth4->GetYaxis()->GetNbins();j++) {
-	  double ccc1 =  dva1_HODepth4->GetBinContent(i,j)   ;
-	  if(ccc1 >  0.) std::cout << "******    dva1_HODepth4   **************   i =  " << i  << " j =  " << j  << " ccc1 =  " << ccc1 << std::endl;
-      }
+  for (int i = 1; i <= dva1_HODepth4->GetXaxis()->GetNbins(); i++) {
+    for (int j = 1; j <= dva1_HODepth4->GetYaxis()->GetNbins(); j++) {
+      double ccc1 = dva1_HODepth4->GetBinContent(i, j);
+      if (ccc1 > 0.)
+        std::cout << "******    dva1_HODepth4   **************   i =  " << i << " j =  " << j << " ccc1 =  " << ccc1
+                  << std::endl;
     }
+  }
   TH2F *dva0_HODepth4 = (TH2F *)dir->FindObjectAny("h_mapDepth4_HO");
-    for (int i=1;i<=dva0_HODepth4->GetXaxis()->GetNbins();i++) {
-      for (int j=1;j<=dva0_HODepth4->GetYaxis()->GetNbins();j++) {
-	  double ccc1 =  dva0_HODepth4->GetBinContent(i,j)   ;
-	  if(ccc1 >  0.) std::cout << "******   dva0_HODepth4   **************   i =  " << i  << " j =  " << j  << " ccc1 =  " << ccc1 << std::endl;
-      }
+  for (int i = 1; i <= dva0_HODepth4->GetXaxis()->GetNbins(); i++) {
+    for (int j = 1; j <= dva0_HODepth4->GetYaxis()->GetNbins(); j++) {
+      double ccc1 = dva0_HODepth4->GetBinContent(i, j);
+      if (ccc1 > 0.)
+        std::cout << "******   dva0_HODepth4   **************   i =  " << i << " j =  " << j << " ccc1 =  " << ccc1
+                  << std::endl;
     }
-  TH2F* Seff_HODepth4= (TH2F*)dva1_HODepth4->Clone("Seff_HODepth4");
-  Seff_HODepth4->Divide(dva1_HODepth4,dva0_HODepth4, 25., 1., "B");
-    for (int i=1;i<=Seff_HODepth4->GetXaxis()->GetNbins();i++) {
-      for (int j=1;j<=Seff_HODepth4->GetYaxis()->GetNbins();j++) {
-	  double ccc1 =  Seff_HODepth4->GetBinContent(i,j);
-	  if(ccc1 >  0.) std::cout << "******    Seff_HODepth4   **************   i =  " << i  << " j =  " << j  << " ccc1 =  " << ccc1 << std::endl;
-      }
+  }
+  TH2F *Seff_HODepth4 = (TH2F *)dva1_HODepth4->Clone("Seff_HODepth4");
+  Seff_HODepth4->Divide(dva1_HODepth4, dva0_HODepth4, 25., 1., "B");
+  for (int i = 1; i <= Seff_HODepth4->GetXaxis()->GetNbins(); i++) {
+    for (int j = 1; j <= Seff_HODepth4->GetYaxis()->GetNbins(); j++) {
+      double ccc1 = Seff_HODepth4->GetBinContent(i, j);
+      if (ccc1 > 0.)
+        std::cout << "******    Seff_HODepth4   **************   i =  " << i << " j =  " << j << " ccc1 =  " << ccc1
+                  << std::endl;
     }
+  }
   gPad->SetGridy();
   gPad->SetGridx();
   Seff_HODepth4->SetMarkerStyle(20);
@@ -766,11 +764,11 @@ int main(int argc, char *argv[]) {
   Seff_HODepth4->SetMinimum(110.);
   Seff_HODepth4->Draw("COLZ");
 
-      c1->Update();
-    //======================================================================
-    //======================================================================================== end
-    //======================================================================
-    //======================================================================
+  c1->Update();
+  //======================================================================
+  //======================================================================================== end
+  //======================================================================
+  //======================================================================
   // close and delete all possible things:
 
   //   psfile->Close();
