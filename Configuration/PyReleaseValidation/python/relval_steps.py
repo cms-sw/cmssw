@@ -548,10 +548,12 @@ steps['RunEGamma2022D']={'INPUT':InputInfo(dataSet='/EGamma/Run2022D-v1/RAW',lab
 steps['RunTau2022D']={'INPUT':InputInfo(dataSet='/Tau/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D_LS100)}
 steps['RunMuonEG2022D']={'INPUT':InputInfo(dataSet='/MuonEG/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D_LS100)}
 
+Run2022FCosmics_LS24={360336: [[24, 24]]}
+steps['RunCosmics2022F']={'INPUT':InputInfo(dataSet='/Cosmics/Run2022F-v1/RAW',label='2022F',events=100000,location='STD', ls=Run2022FCosmics_LS24)}
+
 # Highstat HLTPhysics
 Run2015DHS=selectedLS([258712,258713,258714,258741,258742,258745,258749,258750,259626,259637,259683,259685,259686,259721,259809,259810,259818,259820,259821,259822,259862,259890,259891])
 steps['RunHLTPhy2015DHS']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2015D-v1/RAW',label='2015DHS',events=100000,location='STD', ls=Run2015DHS)}
-
 
 #### run2 2015 HighLumi High Stat workflows ##
 # Run2015HLHS, 25ns, run 260627, JetHT: 2.9M, SingleMuon: 5.7M, ZeroBias: 1.6M
@@ -2173,6 +2175,16 @@ steps['TIER0EXPRUN3']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@allForExp
                           '--era':'Run3',
                           '--conditions':'auto:run3_data_express'
                           },steps['TIER0']])
+steps['TIER0EXPCOSMICSRUN3']=merge([{'--scenario':'cosmics',
+                                     '-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@allForExpressCosmics,ENDJOB',
+                                     '-n':1000,
+                                     '--data':'',
+                                     '--process':'RECO',
+                                     '--era':'Run3',
+                                     '--conditions':'auto:run3_data_express',
+                                     '--datatier':'ALCARECO',
+                                     '--eventcontent':'ALCARECO',
+                                     '--customise_commands':'"process.source.eventsToProcess = cms.untracked.VEventRange(\'360336:24:422152-360336:24:422152\')"'},steps['TIER0EXP']])
 
 steps['TIER0PROMPTRUN3']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@allForPrompt+@allForExpress,DQM:@allForPrompt,ENDJOB',
                           '--process':'RECO',
@@ -3012,6 +3024,14 @@ steps['ALCAEXPRUN3']={'-s':'ALCAOUTPUT:@allForPrompt+@allForExpress,ALCA:PromptC
                   '--datatier':'ALCARECO',
                   '--eventcontent':'ALCARECO',
                   '--triggerResultsProcess': 'RECO'}
+steps['ALCAEXPCOSMICSRUN3']={'-s':'ALCAOUTPUT:@allForExpressCosmics,ALCA:PromptCalibProdSiStrip',
+                             '-n':1000,
+                             '--scenario':'cosmics',
+                             '--era':'Run3',
+                             '--datatier':'ALCARECO',
+                             '--eventcontent':'ALCARECO',
+                             '--conditions':'auto:run3_data_express',
+                             '--triggerResultsProcess': 'RECO'}
 
 steps['ALCAEXPHI']=merge([{'-s':'ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains+PromptCalibProdSiStripGainsAAG',
                   '--scenario':'HeavyIons'},steps['ALCAEXP']])
@@ -3108,6 +3128,8 @@ steps['ALCAHARVD2']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiStrip']),
                      '--filein':'file:PromptCalibProdSiStrip.root'}
 
 steps['ALCAHARVD2HI']=merge([{'--scenario':'HeavyIons'},steps['ALCAHARVD2']])
+steps['ALCAHARVD2COS']=merge([{'--scenario':'cosmics',
+                               '--conditions':'auto:run3_data_express'},steps['ALCAHARVD2']])
 
 steps['ALCAHARVD3']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiStripGains']),
                      '--conditions':'auto:run1_data',
