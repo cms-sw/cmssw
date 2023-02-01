@@ -15,7 +15,7 @@ class PFRecHitEcalBarrelNavigatorWithTime : public PFRecHitCaloNavigatorWithTime
 public:
   PFRecHitEcalBarrelNavigatorWithTime(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
       : PFRecHitCaloNavigatorWithTime(iConfig, cc),
-        geomToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {}
+        geomToken_(cc.esConsumes<edm::Transition::BeginRun>()) {}
 
   void init(const edm::EventSetup& iSetup) override {
     edm::ESHandle<CaloGeometry> geoHandle = iSetup.getHandle(geomToken_);
@@ -30,7 +30,7 @@ class PFRecHitEcalEndcapNavigatorWithTime : public PFRecHitCaloNavigatorWithTime
 public:
   PFRecHitEcalEndcapNavigatorWithTime(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
       : PFRecHitCaloNavigatorWithTime(iConfig, cc),
-        geomToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {}
+        geomToken_(cc.esConsumes<edm::Transition::BeginRun>()) {}
 
   void init(const edm::EventSetup& iSetup) override {
     edm::ESHandle<CaloGeometry> geoHandle = iSetup.getHandle(geomToken_);
@@ -44,7 +44,7 @@ private:
 class PFRecHitEcalBarrelNavigator final : public PFRecHitCaloNavigator<EBDetId, EcalBarrelTopology> {
 public:
   PFRecHitEcalBarrelNavigator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
-      : geomToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {}
+      : geomToken_(cc.esConsumes<edm::Transition::BeginRun>()) {}
 
   void init(const edm::EventSetup& iSetup) override {
     edm::ESHandle<CaloGeometry> geoHandle = iSetup.getHandle(geomToken_);
@@ -58,7 +58,7 @@ private:
 class PFRecHitEcalEndcapNavigator final : public PFRecHitCaloNavigator<EEDetId, EcalEndcapTopology> {
 public:
   PFRecHitEcalEndcapNavigator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
-      : geomToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {}
+      : geomToken_(cc.esConsumes<edm::Transition::BeginRun>()) {}
 
   void init(const edm::EventSetup& iSetup) override {
     edm::ESHandle<CaloGeometry> geoHandle = iSetup.getHandle(geomToken_);
@@ -85,7 +85,7 @@ public:
 class PFRecHitHCALNavigator : public PFRecHitCaloNavigator<HcalDetId, HcalTopology, false> {
 public:
   PFRecHitHCALNavigator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
-      : hcalToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {}
+      : hcalToken_(cc.esConsumes<edm::Transition::BeginRun>()) {}
 
   void init(const edm::EventSetup& iSetup) override {
     edm::ESHandle<HcalTopology> hcalTopology = iSetup.getHandle(hcalToken_);
@@ -101,7 +101,7 @@ class PFRecHitHCALNavigatorWithTime : public PFRecHitCaloNavigatorWithTime<HcalD
 public:
   PFRecHitHCALNavigatorWithTime(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
       : PFRecHitCaloNavigatorWithTime(iConfig, cc),
-        hcalToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {}
+        hcalToken_(cc.esConsumes<edm::Transition::BeginRun>()) {}
 
   void init(const edm::EventSetup& iSetup) override {
     edm::ESHandle<HcalTopology> hcalTopology = iSetup.getHandle(hcalToken_);
@@ -116,7 +116,7 @@ private:
 class PFRecHitCaloTowerNavigator : public PFRecHitCaloNavigator<CaloTowerDetId, CaloTowerTopology> {
 public:
   PFRecHitCaloTowerNavigator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
-      : caloToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {}
+      : caloToken_(cc.esConsumes<edm::Transition::BeginRun>()) {}
 
   void init(const edm::EventSetup& iSetup) override {
     edm::ESHandle<CaloTowerTopology> caloTowerTopology = iSetup.getHandle(caloToken_);
