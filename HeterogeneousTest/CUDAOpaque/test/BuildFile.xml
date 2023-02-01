@@ -1,0 +1,11 @@
+<iftool name="cuda-gcc-support">
+  <bin file="testDeviceAdditionOpaque.cc" name="testCudaDeviceAdditionOpaque">
+    <use name="catch2"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
+    <use name="HeterogeneousTest/CUDAOpaque"/>
+  </bin>
+
+  <test name="testCUDATestOpaqueAdditionModule" command="cmsRun ${LOCALTOP}/src/HeterogeneousTest/CUDAOpaque/test/testCUDATestOpaqueAdditionModule.py"/>
+
+  <test name="testCUDATestAdditionModules" command="cmsRun ${LOCALTOP}/src/HeterogeneousTest/CUDAOpaque/test/testCUDATestAdditionModules.py"/>
+</iftool>
