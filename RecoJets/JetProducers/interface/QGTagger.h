@@ -23,7 +23,10 @@ public:
 
 private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-  std::tuple<int, float, float> calcVariables(const reco::Jet*, edm::Handle<reco::VertexCollection>&, bool) const;
+  std::tuple<int, float, float> calcVariables(const reco::Jet*,
+                                              edm::Handle<reco::VertexCollection>&,
+                                              edm::ValueMap<float>&,
+                                              bool) const;
   template <typename T>
   void putInEvent(const std::string&,
                   const edm::Handle<edm::View<reco::Jet>>&,
@@ -35,9 +38,12 @@ private:
   edm::EDGetTokenT<reco::JetCorrector> jetCorrectorToken;
   edm::EDGetTokenT<reco::VertexCollection> vertexToken;
   edm::EDGetTokenT<double> rhoToken;
+  const bool computeLikelihood;
   edm::ESGetToken<QGLikelihoodObject, QGLikelihoodRcd> paramsToken;
   edm::ESGetToken<QGLikelihoodSystematicsObject, QGLikelihoodSystematicsRcd> systToken;
   const bool useQC, useJetCorr, produceSyst;
+  bool applyConstituentWeight;
+  edm::EDGetTokenT<edm::ValueMap<float>> constituentWeightsToken;
   QGLikelihoodCalculator qgLikelihood;
 };
 
