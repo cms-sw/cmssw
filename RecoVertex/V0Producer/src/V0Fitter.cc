@@ -186,10 +186,12 @@ void V0Fitter::fitAll(const edm::Event& iEvent,
 
       // the POCA should at least be in the sensitive volume
       GlobalPoint cxPt = cApp.crossingPoint();
-      if ((cxPt.x() * cxPt.x() + cxPt.y() * cxPt.y()) > 120. * 120. || std::abs(cxPt.z()) > 300.)
+      const double cxPtR2 = cxPt.x() * cxPt.x() + cxPt.y() * cxPt.y();
+      if (cxPtR2 > 120. * 120. || std::abs(cxPt.z()) > 300.)
         continue;
 
-      if (cxPt.x() * cxPt.x() + cxPt.y() * cxPt.y() < innerOuterTkDCAThreshold_) {
+      // allow for different DCA cuts depending on position of POCA
+      if (cxPtR2 < innerOuterTkDCAThreshold_ * innerOuterTkDCAThreshold_) {
         if (dca > innerTkDCACut_)
           continue;
       } else {
