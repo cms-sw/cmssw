@@ -113,7 +113,6 @@ void FWRecoGeometryESProducer::ADD_MTD_TOPOLOGY(unsigned int rawid,
 
     fwRecoGeometry.idToName[rawid].topology[2] = topo.xoffset();
     fwRecoGeometry.idToName[rawid].topology[3] = topo.yoffset();
-
   }
 }
 

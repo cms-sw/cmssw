@@ -632,18 +632,42 @@ void FWRPZViewGeometry::showMtdEndcap(bool show) {
   if (!m_mtdEndcapElements && show) {
     m_mtdEndcapElements = new TEveElementList("MtdEndcap");
 
-    std::vector<unsigned int> ids = m_geom->getMatchedIds(FWGeometry::MTD, FWGeometry::PixelBarrel);
-    for (std::vector<unsigned int>::const_iterator mtdId = ids.begin(); mtdId != ids.end(); ++mtdId) {
-      MTDDetId id(*mtdId);
-      if (id.mtdSubDetector() != MTDDetId::MTDType::ETL)
-        continue;
+    TEveElement* disk1ZposUp =
+        makeShape(m_context.mtdEtlR1(), m_context.mtdEtlR2(), m_context.mtdEtlZ1(1), m_context.mtdEtlZ2(1));
+    addToCompound(disk1ZposUp, kFWMtdEndcapColorIndex);
+    m_mtdEndcapElements->AddElement(disk1ZposUp);
+    TEveElement* disk1ZposDw =
+        makeShape(-m_context.mtdEtlR1(), -m_context.mtdEtlR2(), m_context.mtdEtlZ1(1), m_context.mtdEtlZ2(1));
+    addToCompound(disk1ZposDw, kFWMtdEndcapColorIndex);
+    m_mtdEndcapElements->AddElement(disk1ZposDw);
 
-      TEveGeoShape* shape = m_geom->getEveShape(id.rawId());
-      shape->SetTitle(Form("MTD endcap %d", id.rawId()));
+    TEveElement* disk2ZposUp =
+        makeShape(m_context.mtdEtlR1(), m_context.mtdEtlR2(), m_context.mtdEtlZ1(2), m_context.mtdEtlZ2(2));
+    addToCompound(disk2ZposUp, kFWMtdEndcapColorIndex);
+    m_mtdEndcapElements->AddElement(disk2ZposUp);
+    TEveElement* disk2ZposDw =
+        makeShape(-m_context.mtdEtlR1(), -m_context.mtdEtlR2(), m_context.mtdEtlZ1(2), m_context.mtdEtlZ2(2));
+    addToCompound(disk2ZposDw, kFWMtdEndcapColorIndex);
+    m_mtdEndcapElements->AddElement(disk2ZposDw);
 
-      addToCompound(shape, kFWMtdEndcapColorIndex);
-      m_mtdEndcapElements->AddElement(shape);
-    }
+    TEveElement* disk1ZnegUp =
+        makeShape(m_context.mtdEtlR1(), m_context.mtdEtlR2(), -m_context.mtdEtlZ1(1), -m_context.mtdEtlZ2(1));
+    addToCompound(disk1ZnegUp, kFWMtdEndcapColorIndex);
+    m_mtdEndcapElements->AddElement(disk1ZnegUp);
+    TEveElement* disk1ZnegDw =
+        makeShape(-m_context.mtdEtlR1(), -m_context.mtdEtlR2(), -m_context.mtdEtlZ1(1), -m_context.mtdEtlZ2(1));
+    addToCompound(disk1ZnegDw, kFWMtdEndcapColorIndex);
+    m_mtdEndcapElements->AddElement(disk1ZnegDw);
+
+    TEveElement* disk2ZnegUp =
+        makeShape(m_context.mtdEtlR1(), m_context.mtdEtlR2(), -m_context.mtdEtlZ1(2), -m_context.mtdEtlZ2(2));
+    addToCompound(disk2ZnegUp, kFWMtdEndcapColorIndex);
+    m_mtdEndcapElements->AddElement(disk2ZnegUp);
+    TEveElement* disk2ZnegDw =
+        makeShape(-m_context.mtdEtlR1(), -m_context.mtdEtlR2(), -m_context.mtdEtlZ1(2), -m_context.mtdEtlZ2(2));
+    addToCompound(disk2ZnegDw, kFWMtdEndcapColorIndex);
+    m_mtdEndcapElements->AddElement(disk2ZnegDw);
+
     AddElement(m_mtdEndcapElements);
     importNew(m_mtdEndcapElements);
   }
