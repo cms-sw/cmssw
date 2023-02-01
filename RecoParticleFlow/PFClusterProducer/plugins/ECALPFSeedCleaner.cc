@@ -20,7 +20,7 @@ private:
 DEFINE_EDM_PLUGIN(RecHitTopologicalCleanerFactory, ECALPFSeedCleaner, "ECALPFSeedCleaner");
 
 ECALPFSeedCleaner::ECALPFSeedCleaner(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
-    : RecHitTopologicalCleanerBase(conf, cc), thsToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {}
+    : RecHitTopologicalCleanerBase(conf, cc), thsToken_(cc.esConsumes<edm::Transition::BeginRun>()) {}
 
 void ECALPFSeedCleaner::update(const edm::EventSetup& iSetup) { ths_ = iSetup.getHandle(thsToken_); }
 
