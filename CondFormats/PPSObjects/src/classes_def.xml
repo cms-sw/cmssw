@@ -104,4 +104,9 @@
     <class name="std::pair<unsigned int, PPSAlignmentConfiguration::SelectionRange>"/>
     <class name="PPSAlignmentConfiguration" class_version="0"/>
 
+    <class name="TotemDAQMapping"  class_version="0"/>
+    <class name="TotemFramePosition"  class_version="0"/>
+    <class name="TotemSymbID"  class_version="0"/>
+    <class name="TotemDAQMapping::TotemTimingPlaneChannelPair"  class_version="0"/>
+    <class name="std::map<TotemFramePosition, TotemVFATInfo>"/>
   </lcgdict> 

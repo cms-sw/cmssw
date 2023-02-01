@@ -5,7 +5,7 @@ totemDAQMappingESSourceXML = cms.ESSource("TotemDAQMappingESSourceXML",
 
   # set it to: TrackingStrip, ...
   subSystem = cms.untracked.string(""),
-
+  sampicSubDetId = cms.uint32(0),
   configuration = cms.VPSet(
     # example configuration block:
     #cms.PSet(
