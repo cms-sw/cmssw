@@ -246,12 +246,12 @@ void V0Fitter::fitAll(const edm::Event& iEvent,
         totalCov = referenceVtx.covariance() + theVtx.covariance();
       SVector3 distVecXY(vtxPos.x() - referencePos.x(), vtxPos.y() - referencePos.y(), 0.);
       double distMagXY = ROOT::Math::Mag(distVecXY);
-      double sigmaDistMagXY = sqrt(ROOT::Math::Similarity(totalCov, distVecXY)) / distMagXY;
-      if (distMagXY / sigmaDistMagXY < vtxDecaySigXYCut_)
-        continue;
       if (distMagXY < vtxDecayXYCut_)
         continue;
       if (posTransTkPtr->charge() * negTransTkPtr->charge() > 0 && distMagXY < ssVtxDecayXYCut_)
+        continue;
+      double sigmaDistMagXY = sqrt(ROOT::Math::Similarity(totalCov, distVecXY)) / distMagXY;
+      if (distMagXY < vtxDecaySigXYCut_ * sigmaDistMagXY)
         continue;
 
       // 3D decay significance
