@@ -19,7 +19,7 @@ from PhysicsTools.PatAlgos.tools.jetTools import supportedJetAlgos
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 
 bTagCSVV2    = ['pfCombinedInclusiveSecondaryVertexV2BJetTags']
-bTagDeepCSV  = ['pfDeepCSVJetTags:probb','pfDeepCSVJetTags:probbb','pfDeepCSVJetTags:probc']
+bTagDeepCSV  = ['pfDeepCSVJetTags:probb','pfDeepCSVJetTags:probbb','pfDeepCSVJetTags:probc','pfDeepCSVJetTags:probudsg']
 bTagDeepJet  = [
   'pfDeepFlavourJetTags:probb','pfDeepFlavourJetTags:probbb','pfDeepFlavourJetTags:problepb',
   'pfDeepFlavourJetTags:probc','pfDeepFlavourJetTags:probuds','pfDeepFlavourJetTags:probg'
@@ -185,7 +185,7 @@ PARTICLENETAK4VARS = cms.PSet(
   particleNetAK4_CvsL = Var("?(pt>=15)?bDiscriminator('pfParticleNetAK4DiscriminatorsJetTags:CvsL'):-1",float,doc="ParticleNetAK4 tagger c vs udsg discriminator",precision=10),
   particleNetAK4_CvsB = Var("?(pt>=15)?bDiscriminator('pfParticleNetAK4DiscriminatorsJetTags:CvsB'):-1",float,doc="ParticleNetAK4 tagger c vs b discriminator",precision=10),
   particleNetAK4_QvsG = Var("?(pt>=15)?bDiscriminator('pfParticleNetAK4DiscriminatorsJetTags:QvsG'):-1",float,doc="ParticleNetAK4 tagger uds vs g discriminator",precision=10),
-  particleNetAK4_G = Var("?(pt>=15)?bDiscriminator('pfParticleNetAK4DiscriminatorsJetTags:probg'):-1",float,doc="ParticleNetAK4 tagger g raw score",precision=10),
+  particleNetAK4_G = Var("?(pt>=15)?bDiscriminator('pfParticleNetAK4JetTags:probg'):-1",float,doc="ParticleNetAK4 tagger g raw score",precision=10),
   particleNetAK4_puIdDisc = Var("?(pt>=15)?1-bDiscriminator('pfParticleNetAK4JetTags:probpu'):-1",float,doc="ParticleNetAK4 tagger pileup jet discriminator",precision=10),
 )
 
@@ -274,7 +274,7 @@ def AddPileUpJetIDVars(proc, jetName="", jetSrc="", jetTableName="", jetTaskName
       vertexes  = "offlineSlimmedPrimaryVertices",
       inputIsCorrected = True,
       applyJec  = False,
-      usePuppi = True if "Puppi" in jetName else False
+      usePuppi = True if "PUPPI" in jetName.upper() else False
     )
   )
   getattr(proc,jetTaskName).add(getattr(proc, puJetIdVarsCalculator))
@@ -332,14 +332,19 @@ def AddQGLTaggerVars(proc, jetName="", jetSrc="", jetTableName="", jetTaskName="
   Schedule the QGTagger module to calculate input variables to the QG likelihood
   """
 
+  isPUPPIJet = True if "PUPPI" in jetName.upper() else False
+
   QGLTagger="qgtagger{}".format(jetName)
   patJetWithUserData="{}WithUserData".format(jetSrc)
 
   if calculateQGLVars:
     setattr(proc, QGLTagger, qgtagger.clone(
-        srcJets = jetSrc
+        srcJets = jetSrc,
+        computeLikelihood = False,
       )
     )
+    if isPUPPIJet:
+      getattr(proc,QGLTagger).srcConstituentWeights = cms.InputTag("packedPFCandidatespuppi")
 
   #
   # Save variables as userFloats and userInts for each jet
