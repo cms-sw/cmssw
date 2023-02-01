@@ -55,12 +55,19 @@
 
 class BaseMVACache {
 public:
-  BaseMVACache(const std::string& model_path, const std::string& backend) {
+  BaseMVACache(const std::string& model_path, const std::string& backend, const bool disableONNXGraphOpt) {
     if (backend == "TF") {
       graph_.reset(tensorflow::loadGraphDef(model_path));
       tf_session_ = tensorflow::createSession(graph_.get());
     } else if (backend == "ONNX") {
-      ort_ = std::make_unique<cms::Ort::ONNXRuntime>(model_path);
+      if (disableONNXGraphOpt) {
+        Ort::SessionOptions sess_opts;
+        sess_opts = cms::Ort::ONNXRuntime::defaultSessionOptions();
+        sess_opts.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_DISABLE_ALL);
+        ort_ = std::make_unique<cms::Ort::ONNXRuntime>(model_path, &sess_opts);
+      } else {
+        ort_ = std::make_unique<cms::Ort::ONNXRuntime>(model_path);
+      }
     }
   }
   ~BaseMVACache() { tensorflow::closeSession(tf_session_); }
@@ -270,7 +277,8 @@ void BaseMVAValueMapProducer<T>::produce(edm::Event& iEvent, const edm::EventSet
 template <typename T>
 std::unique_ptr<BaseMVACache> BaseMVAValueMapProducer<T>::initializeGlobalCache(const edm::ParameterSet& cfg) {
   return std::make_unique<BaseMVACache>(cfg.getParameter<edm::FileInPath>("weightFile").fullPath(),
-                                        cfg.getParameter<std::string>("backend"));
+                                        cfg.getParameter<std::string>("backend"),
+                                        cfg.getParameter<bool>("disableONNXGraphOpt"));
 }
 
 template <typename T>
@@ -295,6 +303,7 @@ edm::ParameterSetDescription BaseMVAValueMapProducer<T>::getDescription() {
   desc.add<std::vector<std::string>>("outputFormulas", std::vector<std::string>())
       ->setComment("Formulas to be used to post process the output");
   desc.add<bool>("batch_eval", false)->setComment("Run inference in batch instead of per-object");
+  desc.add<bool>("disableONNXGraphOpt", false)->setComment("Disable ONNX runtime graph optimization");
 
   return desc;
 }

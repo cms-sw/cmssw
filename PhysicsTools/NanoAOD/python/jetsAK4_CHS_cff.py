@@ -354,6 +354,66 @@ nanoAOD_addDeepInfoAK4CHS_switch = cms.PSet(
 ## DeepInfoAK4CHS:End
 #################################################
 
+#
+# ML-based FastSim refinement
+#
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+def nanoAOD_refineFastSim_bTagDeepFlav(process):
+
+    fastSim.toModify( process.jetTable.variables,
+      btagDeepFlavBunrefined = process.jetTable.variables.btagDeepFlavB.clone(),
+      btagDeepFlavCvBunrefined = process.jetTable.variables.btagDeepFlavCvB.clone(),
+      btagDeepFlavCvLunrefined = process.jetTable.variables.btagDeepFlavCvL.clone(),
+      btagDeepFlavQGunrefined = process.jetTable.variables.btagDeepFlavQG.clone(),
+    )
+
+    fastSim.toModify( process.jetTable.variables,
+      btagDeepFlavB = None,
+      btagDeepFlavCvB = None,
+      btagDeepFlavCvL = None,
+      btagDeepFlavQG = None,
+    )
+
+    fastSim.toModify( process.jetTable.externalVariables,
+      btagDeepFlavB = ExtVar(cms.InputTag("btagDeepFlavRefineNN:btagDeepFlavBrefined"), float, doc="DeepJet b+bb+lepb tag discriminator", precision=10),
+      btagDeepFlavCvB = ExtVar(cms.InputTag("btagDeepFlavRefineNN:btagDeepFlavCvBrefined"), float, doc="DeepJet c vs b+bb+lepb discriminator", precision=10),
+      btagDeepFlavCvL = ExtVar(cms.InputTag("btagDeepFlavRefineNN:btagDeepFlavCvLrefined"), float, doc="DeepJet c vs uds+g discriminator", precision=10),
+      btagDeepFlavQG = ExtVar(cms.InputTag("btagDeepFlavRefineNN:btagDeepFlavQGrefined"), float, doc="DeepJet g vs uds discriminator", precision=10),
+    )
+
+    process.btagDeepFlavRefineNN= cms.EDProducer("JetBaseMVAValueMapProducer",
+        backend = cms.string("ONNX"),
+        batch_eval = cms.bool(True),
+        disableONNXGraphOpt = cms.bool(True),
+
+        src = cms.InputTag("linkedObjects","jets"),
+
+        weightFile=cms.FileInPath("PhysicsTools/NanoAOD/data/btagDeepFlavRefineNN_CHS.onnx"),
+        name = cms.string("btagDeepFlavRefineNN"),
+
+        isClassifier = cms.bool(False),
+        variablesOrder = cms.vstring(["GenJet_pt","GenJet_eta","Jet_hadronFlavour",
+                                      "Jet_btagDeepFlavB","Jet_btagDeepFlavCvB","Jet_btagDeepFlavCvL","Jet_btagDeepFlavQG"]),
+        variables = cms.PSet(
+        GenJet_pt = cms.string("?genJetFwdRef().backRef().isNonnull()?genJetFwdRef().backRef().pt():pt"),
+        GenJet_eta = cms.string("?genJetFwdRef().backRef().isNonnull()?genJetFwdRef().backRef().eta():eta"),
+        Jet_hadronFlavour = cms.string("hadronFlavour()"),
+        Jet_btagDeepFlavB = cms.string("bDiscriminator('pfDeepFlavourJetTags:probb')+bDiscriminator('pfDeepFlavourJetTags:probbb')+bDiscriminator('pfDeepFlavourJetTags:problepb')"),
+        Jet_btagDeepFlavCvB = cms.string("?(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probb')+bDiscriminator('pfDeepFlavourJetTags:probbb')+bDiscriminator('pfDeepFlavourJetTags:problepb'))>0?bDiscriminator('pfDeepFlavourJetTags:probc')/(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probb')+bDiscriminator('pfDeepFlavourJetTags:probbb')+bDiscriminator('pfDeepFlavourJetTags:problepb')):-1"),
+        Jet_btagDeepFlavCvL = cms.string("?(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probuds')+bDiscriminator('pfDeepFlavourJetTags:probg'))>0?bDiscriminator('pfDeepFlavourJetTags:probc')/(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probuds')+bDiscriminator('pfDeepFlavourJetTags:probg')):-1"),
+        Jet_btagDeepFlavQG = cms.string("?(bDiscriminator('pfDeepFlavourJetTags:probg')+bDiscriminator('pfDeepFlavourJetTags:probuds'))>0?bDiscriminator('pfDeepFlavourJetTags:probg')/(bDiscriminator('pfDeepFlavourJetTags:probg')+bDiscriminator('pfDeepFlavourJetTags:probuds')):-1"),
+        ),
+         inputTensorName = cms.string("input"),
+         outputTensorName = cms.string("output"),
+         outputNames = cms.vstring(["btagDeepFlavBrefined","btagDeepFlavCvBrefined","btagDeepFlavCvLrefined","btagDeepFlavQGrefined"]),
+         outputFormulas = cms.vstring(["at(0)","at(1)","at(2)","at(3)"]),
+    )
+
+    fastSim.toModify(process.jetTablesTask, process.jetTablesTask.add(process.btagDeepFlavRefineNN))
+
+    return process
+
+
 ################################################################################
 # JETS FOR MET type1
 ################################################################################
