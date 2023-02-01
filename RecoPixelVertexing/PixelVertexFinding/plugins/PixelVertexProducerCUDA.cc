@@ -154,9 +154,6 @@ void PixelVertexProducerCUDAT<TrackerTraits>::produce(edm::StreamID streamID,
   }
 }
 
-using PixelVertexProducerCUDA = PixelVertexProducerCUDAT<pixelTopology::Phase1>;
-DEFINE_FWK_MODULE(PixelVertexProducerCUDA);
-
 using PixelVertexProducerCUDAPhase1 = PixelVertexProducerCUDAT<pixelTopology::Phase1>;
 DEFINE_FWK_MODULE(PixelVertexProducerCUDAPhase1);
 
