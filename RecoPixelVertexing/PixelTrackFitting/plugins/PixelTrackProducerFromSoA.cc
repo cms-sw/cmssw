@@ -256,9 +256,6 @@ void PixelTrackProducerFromSoAT<TrackerTraits>::produce(edm::StreamID streamID,
   iEvent.put(std::move(indToEdmP));
 }
 
-using PixelTrackProducerFromSoA = PixelTrackProducerFromSoAT<pixelTopology::Phase1>;
-DEFINE_FWK_MODULE(PixelTrackProducerFromSoA);
-
 using PixelTrackProducerFromSoAPhase1 = PixelTrackProducerFromSoAT<pixelTopology::Phase1>;
 DEFINE_FWK_MODULE(PixelTrackProducerFromSoAPhase1);
 

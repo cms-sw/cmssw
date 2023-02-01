@@ -108,9 +108,6 @@ void CAHitNtupletCUDAT<TrackerTraits>::produce(edm::StreamID streamID,
   }
 }
 
-using CAHitNtupletCUDA = CAHitNtupletCUDAT<pixelTopology::Phase1>;
-DEFINE_FWK_MODULE(CAHitNtupletCUDA);
-
 using CAHitNtupletCUDAPhase1 = CAHitNtupletCUDAT<pixelTopology::Phase1>;
 DEFINE_FWK_MODULE(CAHitNtupletCUDAPhase1);
 

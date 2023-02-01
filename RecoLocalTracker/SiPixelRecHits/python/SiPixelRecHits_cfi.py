@@ -43,9 +43,9 @@ siPixelRecHitsPreSplittingTask = cms.Task(
 )
 
 # reconstruct the pixel rechits on the gpu
-from RecoLocalTracker.SiPixelRecHits.siPixelRecHitCUDA_cfi import siPixelRecHitCUDA as _siPixelRecHitCUDA
+from RecoLocalTracker.SiPixelRecHits.siPixelRecHitCUDAPhase1_cfi import siPixelRecHitCUDAPhase1 as _siPixelRecHitCUDAPhase1
 from RecoLocalTracker.SiPixelRecHits.siPixelRecHitCUDAPhase2_cfi import siPixelRecHitCUDAPhase2 as _siPixelRecHitCUDAPhase2
-siPixelRecHitsPreSplittingCUDA = _siPixelRecHitCUDA.clone(
+siPixelRecHitsPreSplittingCUDA = _siPixelRecHitCUDAPhase1.clone(
     beamSpot = "offlineBeamSpotToCUDA"
 )
 phase2_tracker.toReplaceWith(siPixelRecHitsPreSplittingCUDA,_siPixelRecHitCUDAPhase2.clone(
