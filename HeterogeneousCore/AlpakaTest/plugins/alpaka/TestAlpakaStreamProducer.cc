@@ -22,7 +22,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
    */
   class TestAlpakaStreamProducer : public stream::EDProducer<> {
   public:
-    TestAlpakaStreamProducer(edm::ParameterSet const& config) : size_{config.getParameter<int32_t>("size")} {
+    TestAlpakaStreamProducer(edm::ParameterSet const& config)
+        : size_{config.getParameter<edm::ParameterSet>("size").getParameter<int32_t>(
+              EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE))} {
       getToken_ = consumes(config.getParameter<edm::InputTag>("source"));
       esToken_ = esConsumes();
       devicePutToken_ = produces();
@@ -43,7 +45,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
       desc.add<edm::InputTag>("source");
-      desc.add<int32_t>("size");
+
+      edm::ParameterSetDescription psetSize;
+      psetSize.add<int32_t>("alpaka_serial_sync");
+      psetSize.add<int32_t>("alpaka_cuda_async");
+      desc.add("size", psetSize);
+
       descriptions.addWithDefaultLabel(desc);
     }
 

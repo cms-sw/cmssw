@@ -21,7 +21,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class TestAlpakaGlobalProducer : public global::EDProducer<> {
   public:
     TestAlpakaGlobalProducer(edm::ParameterSet const& config)
-        : esToken_(esConsumes()), deviceToken_{produces()}, size_{config.getParameter<int32_t>("size")} {}
+        : esToken_(esConsumes()),
+          deviceToken_{produces()},
+          size_{config.getParameter<edm::ParameterSet>("size").getParameter<int32_t>(
+              EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE))} {}
 
     void produce(edm::StreamID, device::Event& iEvent, device::EventSetup const& iSetup) const override {
       [[maybe_unused]] auto const& esData = iSetup.getData(esToken_);
@@ -36,7 +39,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
-      desc.add<int32_t>("size");
+
+      edm::ParameterSetDescription psetSize;
+      psetSize.add<int32_t>("alpaka_serial_sync");
+      psetSize.add<int32_t>("alpaka_cuda_async");
+      desc.add("size", psetSize);
+
       descriptions.addWithDefaultLabel(desc);
     }
 

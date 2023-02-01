@@ -4,18 +4,15 @@ import argparse
 
 parser = argparse.ArgumentParser(prog=sys.argv[0], description='Test various Alpaka module types')
 
-parser.add_argument("--cuda", help="Use CUDA backend", action="store_true")
+parser.add_argument("--accelerators", type=str, help="Set process.options.accelerators (comma-separated string, default is to use default)", default="")
+parser.add_argument("--moduleBackend", type=str, help="Set Alpaka backend for module instances", default="")
+parser.add_argument("--expectBackend", type=str, help="Expect this backend to run")
 parser.add_argument("--run", type=int, help="Run number (default: 1)", default=1)
 
 argv = sys.argv[:]
 if '--' in argv:
     argv.remove("--")
 args, unknown = parser.parse_known_args(argv)
-
-# TODO: just a temporary mechanism until we get something better that
-# works also for ES modules. Absolutely NOT for wider use.
-def setToCUDA(m):
-    m._TypedParameterizable__type = m._TypedParameterizable__type.replace("alpaka_serial_sync", "alpaka_cuda_async")
 
 process = cms.Process('TEST')
 
@@ -25,11 +22,12 @@ process.source = cms.Source('EmptySource',
 
 process.maxEvents.input = 10
 
+if len(args.accelerators) != 0:
+    process.options.accelerators = args.accelerators.split(",")
+
 process.load('Configuration.StandardSequences.Accelerators_cff')
-process.AlpakaServiceSerialSync = cms.Service('AlpakaServiceSerialSync')
-if args.cuda:
-    process.AlpakaServiceSerialSync.enabled = cms.untracked.bool(False)
-    process.AlpakaServiceCudaAsync = cms.Service('AlpakaServiceCudaAsync')
+process.load("HeterogeneousCore.CUDACore.ProcessAcceleratorCUDA_cfi")
+process.load("HeterogeneousCore.AlpakaCore.ProcessAcceleratorAlpaka_cfi")
 
 process.alpakaESRecordASource = cms.ESSource("EmptyESSource",
     recordName = cms.string('AlpakaESTestRecordA'),
@@ -51,42 +49,54 @@ process.esProducerA = cms.ESProducer("cms::alpakatest::TestESProducerA", value =
 process.esProducerB = cms.ESProducer("cms::alpakatest::TestESProducerB", value = cms.int32(314159))
 process.esProducerC = cms.ESProducer("cms::alpakatest::TestESProducerC", value = cms.int32(27))
 
-process.alpakaESProducerA = cms.ESProducer("alpaka_serial_sync::TestAlpakaESProducerA")
-process.alpakaESProducerB = cms.ESProducer("alpaka_serial_sync::TestAlpakaESProducerB")
-process.alpakaESProducerC = cms.ESProducer("alpaka_serial_sync::TestAlpakaESProducerC")
-process.alpakaESProducerD = cms.ESProducer("alpaka_serial_sync::TestAlpakaESProducerD")
-if args.cuda:
-    setToCUDA(process.alpakaESProducerA)
-    setToCUDA(process.alpakaESProducerB)
-    setToCUDA(process.alpakaESProducerC)
-    setToCUDA(process.alpakaESProducerD)
+from HeterogeneousCore.AlpakaTest.testAlpakaESProducerA_cfi import testAlpakaESProducerA 
+process.alpakaESProducerA = testAlpakaESProducerA.clone()
+process.alpakaESProducerB = cms.ESProducer("TestAlpakaESProducerB@alpaka")
+process.alpakaESProducerC = cms.ESProducer("TestAlpakaESProducerC@alpaka")
+process.alpakaESProducerD = cms.ESProducer("TestAlpakaESProducerD@alpaka")
 
 process.intProduct = cms.EDProducer("IntProducer", ivalue = cms.int32(42))
 
-process.alpakaGlobalProducer = cms.EDProducer("alpaka_serial_sync::TestAlpakaGlobalProducer",
-    size = cms.int32(10)
+from HeterogeneousCore.AlpakaTest.testAlpakaGlobalProducer_cfi import testAlpakaGlobalProducer
+process.alpakaGlobalProducer = testAlpakaGlobalProducer.clone(
+    size = dict(
+        alpaka_serial_sync = 10,
+        alpaka_cuda_async = 20
+    )
 )
-process.alpakaStreamProducer = cms.EDProducer("alpaka_serial_sync::TestAlpakaStreamProducer",
+process.alpakaStreamProducer = cms.EDProducer("TestAlpakaStreamProducer@alpaka",
     source = cms.InputTag("intProduct"),
-    size = cms.int32(5)
+    size = cms.PSet(
+        alpaka_serial_sync = cms.int32(5),
+        alpaka_cuda_async = cms.int32(25)
+    )
 )
-process.alpakaStreamSynchronizingProducer = cms.EDProducer("alpaka_serial_sync::TestAlpakaStreamSynchronizingProducer",
+process.alpakaStreamSynchronizingProducer = cms.EDProducer("TestAlpakaStreamSynchronizingProducer@alpaka",
     source = cms.InputTag("alpakaGlobalProducer")
 )
-if args.cuda:
-    setToCUDA(process.alpakaGlobalProducer)
-    setToCUDA(process.alpakaStreamProducer)
-    setToCUDA(process.alpakaStreamSynchronizingProducer)
 
 process.alpakaGlobalConsumer = cms.EDAnalyzer("TestAlpakaAnalyzer",
-    source = cms.InputTag("alpakaGlobalProducer")
+    source = cms.InputTag("alpakaGlobalProducer"),
+    expectSize = cms.int32(10)
 )
 process.alpakaStreamConsumer = cms.EDAnalyzer("TestAlpakaAnalyzer",
-    source = cms.InputTag("alpakaStreamProducer")
+    source = cms.InputTag("alpakaStreamProducer"),
+    expectSize = cms.int32(5)
 )
 process.alpakaStreamSynchronizingConsumer = cms.EDAnalyzer("TestAlpakaAnalyzer",
-    source = cms.InputTag("alpakaStreamSynchronizingProducer")
+    source = cms.InputTag("alpakaStreamSynchronizingProducer"),
+    expectSize = cms.int32(10)
 )
+
+if args.moduleBackend != "":
+    for name in ["ESProducerA", "ESProducerB", "ESProducerC", "ESProducerD",
+                 "GlobalProducer", "StreamProducer", "StreamSynchronizingProducer"]:
+        mod = getattr(process, "alpaka"+name)
+        mod.alpaka = cms.untracked.PSet(backend = cms.untracked.string(args.moduleBackend))
+if args.expectBackend == "cuda_async":
+    process.alpakaGlobalConsumer.expectSize = 20
+    process.alpakaStreamConsumer.expectSize = 25
+    process.alpakaStreamSynchronizingConsumer.expectSize = 20
 
 process.output = cms.OutputModule('PoolOutputModule',
     fileName = cms.untracked.string('testAlpaka.root'),

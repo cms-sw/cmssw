@@ -76,13 +76,20 @@ namespace {
 class TestAlpakaAnalyzer : public edm::stream::EDAnalyzer<> {
 public:
   TestAlpakaAnalyzer(edm::ParameterSet const& config)
-      : source_{config.getParameter<edm::InputTag>("source")}, token_{consumes(source_)} {}
+      : source_{config.getParameter<edm::InputTag>("source")},
+        token_{consumes(source_)},
+        expectSize_(config.getParameter<int>("expectSize")) {}
 
   void analyze(edm::Event const& event, edm::EventSetup const&) override {
     portabletest::TestHostCollection const& product = event.get(token_);
     auto const& view = product.const_view();
     auto& mview = product.view();
     auto const& cmview = product.view();
+
+    if (expectSize_ >= 0 and expectSize_ != view.metadata().size()) {
+      throw cms::Exception("Assert") << "Expected input collection size " << expectSize_ << ", got "
+                                     << view.metadata().size();
+    }
 
     {
       edm::LogInfo msg("TestAlpakaAnalyzer");
@@ -132,12 +139,15 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.add<edm::InputTag>("source");
+    desc.add<int>("expectSize", -1)
+        ->setComment("Expected size of the input collection. Values < 0 mean the check is not performed. Default: -1");
     descriptions.addWithDefaultLabel(desc);
   }
 
 private:
   const edm::InputTag source_;
   const edm::EDGetTokenT<portabletest::TestHostCollection> token_;
+  const int expectSize_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
