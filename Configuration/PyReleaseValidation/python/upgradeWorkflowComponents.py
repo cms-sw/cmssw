@@ -453,7 +453,7 @@ upgradeWFs['displacedRegional'] = UpgradeWorkflow_displacedRegional(
     ],
     PU = [],
     suffix = '_displacedRegional',
-    offset = 0.71,
+    offset = 0.701,
 )
 upgradeWFs['displacedRegional'].step3 = {
     '--procModifiers': 'displacedRegionalStep'
