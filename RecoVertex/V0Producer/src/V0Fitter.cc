@@ -226,7 +226,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent,
         if (vertexFitter_) {
           KalmanVertexFitter theKalmanFitter(useRefTracks_ == 0 ? false : true);
           theRecoVertex = theKalmanFitter.vertex(transTracks);
-        } else if (!vertexFitter_) {
+        } else {
           useRefTracks_ = false;
           AdaptiveVertexFitter theAdaptiveFitter;
           theRecoVertex = theAdaptiveFitter.vertex(transTracks);
