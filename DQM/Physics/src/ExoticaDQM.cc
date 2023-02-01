@@ -369,7 +369,6 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   // JetCorrector
   bool ValidJetCorrector = iEvent.getByToken(JetCorrectorToken_, JetCorrector_);
 
-
   for (int i = 0; i < 2; i++) {
     //Jets
     PFJetPx[i] = 0.;
