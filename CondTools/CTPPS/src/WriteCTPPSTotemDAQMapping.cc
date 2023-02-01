@@ -66,9 +66,7 @@ void WriteCTPPSTotemDAQMapping::analyze(const edm::Event &, edm::EventSetup cons
 
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable()) {
-    cond::Time_t firstSinceTime=poolDbService->beginOfTime();
-    // poolDbService->writeOneIOV(mapping, daqmappingiov_, record_);
-    poolDbService->writeOneIOV(mapping, firstSinceTime, record_);
+    poolDbService->writeOneIOV(mapping, daqmappingiov_, record_);
   }
 }
 
