@@ -227,7 +227,7 @@ SiPixelLorentzAnglePCLWorker::SiPixelLorentzAnglePCLWorker(const edm::ParameterS
       geomPerEventEsToken_(esConsumes()),
       magneticFieldToken_(esConsumes()) {
   t_trajTrack = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("src"));
-  
+
   // now do what ever initialization is needed
   int bufsize = 64000;
   //    create tree structure
@@ -668,10 +668,10 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
             continue;
 
           LocalVector Bfield = theGeomDet->surface().toLocal(magField->inTesla(theGeomDet->surface().position()));
-	  int theMagField = magField->nominalValue();
-	  if (theMagField < 37 || theMagField > 39)
-	    continue;
-	  
+          int theMagField = magField->nominalValue();
+          if (theMagField < 37 || theMagField > 39)
+            continue;
+
           double chi2_ndof = chi2_ / ndof_;
           if (chi2_ndof >= normChi2Max_)
             continue;
@@ -691,7 +691,7 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
 
           //--- residual cut
           double residual = sqrt(pow(trackhitCorrXF_ - rechitCorrF_.x, 2) + pow(trackhitCorrYF_ - rechitCorrF_.y, 2));
-	  
+
           if (residual > residualMax_)
             continue;
 

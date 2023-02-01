@@ -7,7 +7,7 @@ from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 ALCARECOCalCosmicsFilterForSiPixelLorentzAngleMCS = copy.deepcopy(hltHighLevel)
 ALCARECOCalCosmicsFilterForSiPixelLorentzAngleMCS.HLTPaths = ['pathALCARECOSiPixelCalCosmics']
 ALCARECOCalCosmicsFilterForSiPixelLorentzAngleMCS.throw = True ## dont throw on unknown path names
-ALCARECOCalCosmicsFilterForSiPixelLorentzAngleMCS.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
+ALCARECOCalCosmicsFilterForSiPixelLorentzAngleMCS.TriggerResultsTag = cms.InputTag("TriggerResults","","RECO")
 
 # ------------------------------------------------------------------------------
 # This is the sequence for track refitting of the track saved by SiPixelCalSingleMuonLoose
@@ -64,7 +64,7 @@ MEtoEDMConvertSiPixelLorentzAngleMCS = cms.EDProducer("MEtoEDMConverter",
 
 # The actual sequence
 seqALCARECOPromptCalibProdSiPixelLorentzAngleMCS = cms.Sequence(
-    #ALCARECOCalCosmicsFilterForSiPixelLorentzAngleMCS *
+    ALCARECOCalCosmicsFilterForSiPixelLorentzAngleMCS *
     ALCARECOPixelLATrackFilterRefitMCS *
     ALCARECOSiPixelLACalibMCS *
     MEtoEDMConvertSiPixelLorentzAngleMCS 
