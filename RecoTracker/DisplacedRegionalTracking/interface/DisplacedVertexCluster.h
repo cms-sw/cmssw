@@ -22,7 +22,7 @@ public:
 
   DisplacedVertexCluster(const reco::VertexCompositeCandidate *const, const double);
 
-  ~DisplacedVertexCluster() { constituents_.clear(); }
+  ~DisplacedVertexCluster() = default;
 
   bool valid() const { return valid_; }
   double rParam2() const { return rParam2_; }
