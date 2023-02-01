@@ -456,7 +456,7 @@ upgradeWFs['displacedRegional'] = UpgradeWorkflow_displacedRegional(
     offset = 0.701,
 )
 upgradeWFs['displacedRegional'].step3 = {
-    '--procModifiers': 'displacedRegionalStep'
+    '--procModifiers': 'displacedRegionalTracking'
 }
 
 # Vector Hits workflows
