@@ -2323,18 +2323,6 @@ steps['TIER0EXPPPSCALALIG']={'-s':'RAW2DIGI,L1Reco,ALCAPRODUCER:PPSCalTrackBased
                              '--eventcontent':'ALCARECO',
                              }
 
-steps['TIER0EXPSIPIXELCOSLAMCSRUN3']= {'--scenario':'cosmics',
-                                    '-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:SiPixelCalCosmics,ENDJOB',
-                                    '-n':1000,
-                                    '--data':'',
-                                    '--process':'ALCARECO',
-                                    '--era':'Run3',
-                                    '--conditions':'auto:run3_data_express',
-                                    '--datatier':'ALCARECO',
-                                    '--eventcontent':'ALCARECO',
-                                    '--customise_commands':'"process.source.eventsToProcess = cms.untracked.VEventRange(\'360336:24:422152-360336:24:422152\')"'
-}
-
 steps['ALCASPLITHPBS']={'-s':'ALCAOUTPUT:TkAlMinBias,ALCA:PromptCalibProdBeamSpotHP+PromptCalibProdBeamSpotHPLowPU',
                         '--scenario':'pp',
                         '--data':'',
@@ -2411,14 +2399,13 @@ steps['ALCASPLITPPSALIGRUN3']={'-s':'ALCAOUTPUT:PPSCalMaxTracks,ALCA:PromptCalib
                            }
 
 steps['ALCASPLITSIPIXELLAMCS']={'-s':'ALCA:PromptCalibProdSiPixelLAMCS',
-                           '-n':1000,
-                           '--scenario':'cosmics',
-                           '--era':'Run3',
-                           '--datatier':'ALCARECO',
-                           '--eventcontent':'ALCARECO',
-                           '--conditions':'auto:run3_data_express',
-                           '--triggerResultsProcess':'ALCARECO',
-                           }
+                                '-n':1000,
+                                '--scenario':'cosmics',
+                                '--era':'Run3',
+                                '--datatier':'ALCARECO',
+                                '--eventcontent':'ALCARECO',
+                                '--conditions':'auto:run3_data_express',
+                                '--customise_commands':'"process.ALCARECOCalCosmicsFilterForSiPixelLorentzAngleMCS.HLTPaths = [\'*\']; process.ALCARECOCalCosmicsFilterForSiPixelLorentzAngleMCS.TriggerResultsTag = cms.InputTag(\'TriggerResults\',\'\',\'HLT\')"'}
 
 steps['ALCAHARVDHPBS']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdBeamSpotHP']),
                         #'--conditions':'auto:run2_data_promptlike',
