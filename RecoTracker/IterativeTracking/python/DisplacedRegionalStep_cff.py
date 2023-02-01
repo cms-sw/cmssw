@@ -88,7 +88,7 @@ displacedRegionalStepTrackingRegionsTripl = _globalTrackingRegionWithVertices.cl
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import ClusterShapeHitFilterESProducer as _ClusterShapeHitFilterESProducer
 displacedRegionalStepClusterShapeHitFilter = _ClusterShapeHitFilterESProducer.clone(
     ComponentName = 'displacedRegionalStepClusterShapeHitFilter',
-    doStripShapeCut = cms.bool(False),
+    doStripShapeCut = False,
     clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTight')
 )
 
