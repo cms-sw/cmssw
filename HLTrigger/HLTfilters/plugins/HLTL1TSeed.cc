@@ -476,10 +476,9 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
   }
 
   // check size
-  if (uGtAlgoBlocks->size() == 0) {
+  if (uGtAlgoBlocks->isEmpty(0)) {
     edm::LogWarning("HLTL1TSeed") << " Warning: GlobalAlgBlkBxCollection with input tag " << m_l1GlobalTag
-                                  << " is empty." << std::endl;
-
+                                  << " is empty for BX=0.";
     return false;
   }
 
