@@ -1,6 +1,6 @@
 #include "RecoTracker/DisplacedRegionalTracking/interface/DisplacedVertexCluster.h"
 
-DisplacedVertexCluster::DisplacedVertexCluster(const reco::VertexCompositeCandidate * const trackClusterPtr,
+DisplacedVertexCluster::DisplacedVertexCluster(const reco::VertexCompositeCandidate *const trackClusterPtr,
                                                const double rParam)
     : valid_(true),
       rParam2_(rParam * rParam),
