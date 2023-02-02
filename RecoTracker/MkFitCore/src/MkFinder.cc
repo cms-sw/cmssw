@@ -216,9 +216,7 @@ namespace mkfit {
     if (!v.empty()) {
       // dq hit selection window
       float this_dq = v[dq_sf] * (v[dq_0] * max_invpt + v[dq_1] * theta + v[dq_2]);
-      // In case layer is missing (e.g., seeding layers, or too low stats for training), leave original limits
-      // XXX-MT Do we still need this check or is vector.empty() enough?
-      // We can assign straight into min_dq otherwise.
+      // In case value is below 0 (bad window derivation or other reasons), leave original limits
       if (this_dq > 0.f) {
         min_dq = this_dq;
         max_dq = 2.0f * min_dq;
@@ -226,8 +224,7 @@ namespace mkfit {
 
       // dphi hit selection window
       float this_dphi = v[dp_sf] * (v[dp_0] * max_invpt + v[dp_1] * theta + v[dp_2]);
-      // In case layer is missing (e.g., seeding layers, or too low stats for training), leave original limits
-      // XXX-MT Do we still need this check or is vector.empty() enough?
+      // In case value is too low (bad window derivation or other reasons), leave original limits
       if (this_dphi > min_dphi) {
         min_dphi = this_dphi;
         max_dphi = 2.0f * min_dphi;
@@ -252,9 +249,7 @@ namespace mkfit {
 
     if (!v.empty()) {
       float this_c2 = v[c2_sf] * (v[c2_0] * max_invpt + v[c2_1] * theta + v[c2_2]);
-      // In case layer is missing (e.g., seeding layers, or too low stats for training), leave original limits
-      // XXX-MT Do we still need this check or is vector.empty() enough?
-      // XXX-MT Note, this seems different than above.
+      // In case value is too low (bad window derivation or other reasons), leave original limits
       if (this_c2 > minChi2Cut)
         return this_c2;
     }
