@@ -204,7 +204,7 @@ SiPixelLorentzAnglePCLHarvesterMCS::SiPixelLorentzAnglePCLHarvesterMCS(const edm
     theFitRange_.first = fitRange_[0];
     theFitRange_.second = fitRange_[1];
   } else {
-    throw cms::Exception("SiPixelLorentzAnglePCLHarvesterMCS") << "Too many fit range parameters specified";
+    throw cms::Exception("SiPixelLorentzAnglePCLHarvesterMCS") << "Wrong number of fit range parameters specified";
   }
 
   if (fitParametersInitValues_.size() != 5) {
@@ -335,16 +335,19 @@ void SiPixelLorentzAnglePCLHarvesterMCS::dqmEndJob(DQMStore::IBooker& iBooker, D
                      nBins,
                      -0.5,
                      nBins - 0.5);
-  char binNameAlpha[256];
-  char binNameBeta[256];
+
+  std::string binNameAlpha;
+  std::string binNameBeta;
 
   const auto& prefix_ = fmt::sprintf("%s/FPix", dqmDir_);
   int histsCounter = 0;
+  int nHistoExpected = 0;
   for (int r = 0; r < hists_.nRings_; ++r) {
     for (int p = 0; p < hists_.nPanels_; ++p) {
       for (int s = 0; s < hists_.nSides_; ++s) {
         int idx = getIndex(false, r, p, s);
         int idxBeta = getIndex(true, r, p, s);
+        nHistoExpected++;
         hname = fmt::format("{}/R{}_P{}_z{}_alphaMean", dqmDir_, r + 1, p + 1, s + 1);
         if ((hists_.h_fpixMean_[idx] = iGetter.get(hname)) == nullptr) {
           edm::LogError("SiPixelLorentzAnglePCLHarvesterMCS::dqmEndJob")
@@ -352,6 +355,7 @@ void SiPixelLorentzAnglePCLHarvesterMCS::dqmEndJob(DQMStore::IBooker& iBooker, D
         } else
           histsCounter++;
 
+        nHistoExpected++;
         hname = fmt::format("{}/R{}_P{}_z{}_betaMean", dqmDir_, r + 1, p + 1, s + 1);
         if ((hists_.h_fpixMean_[idxBeta] = iGetter.get(hname)) == nullptr) {
           edm::LogError("SiPixelLorentzAnglePCLHarvesterMCS::dqmEndJob")
@@ -359,6 +363,7 @@ void SiPixelLorentzAnglePCLHarvesterMCS::dqmEndJob(DQMStore::IBooker& iBooker, D
         } else
           histsCounter++;
 
+        nHistoExpected++;
         hname = fmt::format("{}/R{}_P{}_z{}_alpha", prefix_, r + 1, p + 1, s + 1);
         if ((hists_.h_fpixAngleSize_[idx] = iGetter.get(hname)) == nullptr) {
           edm::LogError("SiPixelLorentzAnglePCLHarvesterMCS::dqmEndJob")
@@ -366,6 +371,7 @@ void SiPixelLorentzAnglePCLHarvesterMCS::dqmEndJob(DQMStore::IBooker& iBooker, D
         } else
           histsCounter++;
 
+        nHistoExpected++;
         hname = fmt::format("{}/R{}_P{}_z{}_beta", prefix_, r + 1, p + 1, s + 1);
         if ((hists_.h_fpixAngleSize_[idxBeta] = iGetter.get(hname)) == nullptr) {
           edm::LogError("SiPixelLorentzAnglePCLHarvesterMCS::dqmEndJob")
@@ -374,6 +380,7 @@ void SiPixelLorentzAnglePCLHarvesterMCS::dqmEndJob(DQMStore::IBooker& iBooker, D
           histsCounter++;
 
         for (int m = 0; m < 3; ++m) {
+          nHistoExpected++;
           hname = fmt::format("{}/R{}_P{}_z{}_B{}", prefix_, r + 1, p + 1, s + 1, m);
           if ((hists_.h_fpixMagField_[m][idx] = iGetter.get(hname)) == nullptr) {
             edm::LogError("SiPixelLorentzAnglePCLHarvesterMCS::dqmEndJob")
@@ -386,8 +393,8 @@ void SiPixelLorentzAnglePCLHarvesterMCS::dqmEndJob(DQMStore::IBooker& iBooker, D
         int binAlpha = idx + 1;
         int binBeta = idxBeta + 1;
         char sign = s == 0 ? '-' : '+';
-        sprintf(binNameAlpha, "#alpha: R%d_P%d_z%c", r + 1, p + 1, sign);
-        sprintf(binNameBeta, "#beta:R%d_P%d_z%c", r + 1, p + 1, sign);
+        binNameAlpha = fmt::sprintf("#alpha: R%d_P%d_z%c", r + 1, p + 1, sign);
+        binNameBeta = fmt::sprintf("#beta:R%d_P%d_z%c", r + 1, p + 1, sign);
         hists_.h_fpixMeanHistoFitStatus_->setBinLabel(binAlpha, binNameAlpha);
         hists_.h_fpixMeanHistoFitStatus_->setBinLabel(binBeta, binNameBeta);
         hists_.h_fpixMeanHistoFitStatus_->setBinContent(binAlpha, SiPixelLAHarvestMCS::kFitNotPerformed);
@@ -401,8 +408,7 @@ void SiPixelLorentzAnglePCLHarvesterMCS::dqmEndJob(DQMStore::IBooker& iBooker, D
     }
   }
 
-  // 56 -> 16 mean + 16 angleSize + 24 mag.filed histos
-  if (histsCounter != 56) {
+  if (histsCounter != nHistoExpected) {
     edm::LogError("SiPixelLorentzAnglePCLHarvesterMCS::dqmEndJob")
         << "Failed to retrieve all histograms, expected 56 got " << histsCounter;
     return;
@@ -422,11 +428,11 @@ void SiPixelLorentzAnglePCLHarvesterMCS::dqmEndJob(DQMStore::IBooker& iBooker, D
                                              nBinsMuH,
                                              -0.5,
                                              nBinsMuH - 0.5);
-  char binName[256];
+  std::string binName;
   for (int r = 0; r < hists_.nRings_; ++r) {
     for (int p = 0; p < hists_.nPanels_; ++p) {
       int idx = r * hists_.nPanels_ + p + 1;
-      sprintf(binName, "R%d_P%d", r + 1, p + 1);
+      binName = fmt::sprintf("R%d_P%d", r + 1, p + 1);
       hists_.h_fpixFitStatusMuH_->setBinLabel(idx, binName);
       hists_.h_fpixFitStatusMuH_->setBinContent(idx, SiPixelLAHarvestMCS::kFitNotPerformed);
       hists_.h_fpixMuH_->setBinLabel(idx, binName);
@@ -625,7 +631,7 @@ void SiPixelLorentzAnglePCLHarvesterMCS::fillDescriptions(edm::ConfigurationDesc
   desc.add<std::vector<double>>("fitParametersMuHFit", {0.08, 0.08, 0.08, 0.08})
       ->setComment("initial values for fit parameters (muH fit)");
   desc.add<int>("minHitsCut", 1000)->setComment("cut on minimum number of on-track hits to accept measurement");
-  desc.add<std::string>("record", "SiPixelLorentzAngleRcd")->setComment("target DB record");
+  desc.add<std::string>("record", "SiPixelLorentzAngleRcdMCS")->setComment("target DB record");
   descriptions.addWithDefaultLabel(desc);
 }
 
