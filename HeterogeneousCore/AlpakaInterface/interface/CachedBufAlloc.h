@@ -159,11 +159,7 @@ namespace cms::alpakatools {
     };
 
     //! The caching memory allocator implementation for the ROCm/HIP device
-    template <typename TElem,
-              typename TDim,
-              typename TIdx,
-              typename TQueue,
-              typename = std::enable_if_t<cms::alpakatools::is_queue_v<TQueue>>>
+    template <typename TElem, typename TDim, typename TIdx, typename TQueue>
     struct CachedBufAlloc<TElem, TDim, TIdx, alpaka::DevHipRt, TQueue, void> {
       template <typename TExtent>
       ALPAKA_FN_HOST static auto allocCachedBuf(alpaka::DevHipRt const& dev, TQueue queue, TExtent const& extent)
