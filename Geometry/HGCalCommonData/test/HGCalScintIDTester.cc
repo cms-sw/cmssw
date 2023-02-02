@@ -117,7 +117,7 @@ void HGCalScintIDTester::analyze(const edm::Event& iEvent, const edm::EventSetup
     double yy = posXY_[k].second;
     int layer = detIds_[k].layer();
     int zside = detIds_[k].zside();
-    double zz = zside * hgdc.waferZ(layer, false); 
+    double zz = zside * hgdc.waferZ(layer, false);
     std::array<int, 3> idx = hgdc.assignCellTrap(xx, yy, zz, layer, false);
     HGCScintillatorDetId id(idx[2], layer, (zside * idx[0]), idx[1], false, 0);
     std::pair<int, int> typm = hgdc.tileType(layer, idx[0], 0);
@@ -133,7 +133,8 @@ void HGCalScintIDTester::analyze(const edm::Event& iEvent, const edm::EventSetup
     double dx = xx0 - xx;
     double dy = yy0 - yy;
     double diff = std::sqrt(dx * dx + dy * dy);
-    st1 << " input position: (" << xx << ", " << yy << "); position from ID (" << xx0 << ", " << yy0 << ") distance " << diff;
+    st1 << " input position: (" << xx << ", " << yy << "); position from ID (" << xx0 << ", " << yy0 << ") distance "
+        << diff;
     constexpr double tol = 3.0;
     if (diff > tol)
       st1 << " ***** CheckID *****";
