@@ -956,7 +956,6 @@ void MuonShowerInformationFiller::fillHitsByStation(const reco::Muon& muon) {
     //for theta
     if (!muonCorrelatedHits.at(stat).empty()) {
       float dthetamax = 0;
-      auto muonCorrelatedHitsTmp{muonCorrelatedHits.at(stat)};  // findThetaCluster() sorts its argument
       for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator iseed = muonCorrelatedHits.at(stat).begin();
            iseed != muonCorrelatedHits.at(stat).end();
            ++iseed) {
@@ -964,7 +963,7 @@ void MuonShowerInformationFiller::fillHitsByStation(const reco::Muon& muon) {
           continue;
         GlobalPoint refpoint = (*iseed)->globalPosition();  //starting from the one with smallest value of phi
         muonRecHitsThetaTemp.clear();
-        muonRecHitsThetaTemp = findThetaCluster(muonCorrelatedHitsTmp, refpoint);
+        muonRecHitsThetaTemp = findThetaCluster(muonCorrelatedHits.at(stat), refpoint);
         if (muonRecHitsThetaTemp.size() > 1) {
           float dtheta = fabs((float)muonRecHitsThetaTemp.back()->globalPosition().theta() -
                               (float)muonRecHitsThetaTemp.front()->globalPosition().theta());
