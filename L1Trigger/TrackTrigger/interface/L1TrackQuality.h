@@ -45,7 +45,9 @@ public:
 
   // Passed by reference a track without MVA filled, method fills the track's MVA field
   void setL1TrackQuality(TTTrack<Ref_Phase2TrackerDigi_>& aTrack);
-
+  // Function to run the BDT in isolation allowing a feature vector in the ap_fixed datatype to be passed
+  // and a single output to be returned which is then used to fill the bits in the Track Word for situations
+  // where a TTTrack datatype is unavailable to be passed to the track quality
   float runEmulatedTQ(std::vector<ap_fixed<10, 5>> inputFeatures);
   // To set private member data
   void setCutParameters(std::string const& AlgorithmString,
