@@ -4,7 +4,7 @@
 //
 // Package:    HTXSFilter
 // Class:      HTXSFilter
-// 
+//
 /**\class HTXSFilter HTXSFilter.cc user/HTXSFilter/plugins/HTXSFilter.cc
 
  Description: [one line class summary]
@@ -17,7 +17,6 @@
 //         Created:  Fri, 10 May 2019 14:30:15 GMT
 //
 //
-
 
 // system include files
 #include <memory>
@@ -41,16 +40,16 @@ namespace edm {
 }
 
 class HTXSFilter : public edm::global::EDFilter<> {
-   public:
-      explicit HTXSFilter(const edm::ParameterSet&);
-      ~HTXSFilter() override;
+public:
+  explicit HTXSFilter(const edm::ParameterSet&);
+  ~HTXSFilter() override;
 
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
-      bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-   private:
-      // ----------member data ---------------------------
-      
-       const edm::EDGetTokenT<HTXS::HiggsClassification> token_;
-       const std::vector<int> htxs_flags;
+private:
+  // ----------member data ---------------------------
+
+  const edm::EDGetTokenT<HTXS::HiggsClassification> token_;
+  const std::vector<int> htxs_flags;
 };
 #endif

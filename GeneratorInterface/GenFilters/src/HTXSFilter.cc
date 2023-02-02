@@ -2,7 +2,7 @@
 //
 // Package:    HTXSFilter
 // Class:      HTXSFilter
-// 
+//
 /**\class HTXSFilter HTXSFilter.cc user/HTXSFilter/plugins/HTXSFilter.cc
 
  Description: [one line class summary]
@@ -15,7 +15,6 @@
 //         Created:  Fri, 10 May 2019 14:30:15 GMT
 //
 //
-
 
 // system include files
 #include <memory>
@@ -32,43 +31,34 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "SimDataFormats/HTXS/interface/HiggsTemplateCrossSections.h"
 
+HTXSFilter::HTXSFilter(const edm::ParameterSet& iConfig)
+    : token_(consumes<HTXS::HiggsClassification>(edm::InputTag("rivetProducerHTXS", "HiggsClassification"))),
+      htxs_flags(iConfig.getUntrackedParameter("htxs_flags", std::vector<int>())) {}
 
-HTXSFilter::HTXSFilter(const edm::ParameterSet& iConfig) :
-token_(consumes<HTXS::HiggsClassification>(edm::InputTag("rivetProducerHTXS", "HiggsClassification"))),
-htxs_flags(iConfig.getUntrackedParameter("htxs_flags",std::vector <int> ()))
-{
-
+HTXSFilter::~HTXSFilter() {
+  // do anything here that needs to be done at destruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
-
-HTXSFilter::~HTXSFilter()
-{
- 
-   // do anything here that needs to be done at destruction time
-   // (e.g. close files, deallocate resources etc.)
-
-}
-
 
 //
 // member functions
 //
 
 // ------------ method called on each new Event  ------------
-bool HTXSFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
-{
-   using namespace edm;
-   Handle<HTXS::HiggsClassification> cat;
-   iEvent.getByToken(token_, cat);
-   if(htxs_flags.empty()){
-      edm::LogInfo ("HTXSFilter") << "Selection of HTXS flags to filter is empty. Filtering will not be applied." << std::endl;
-      return true;
-   }
-   if(std::find(htxs_flags.begin(), htxs_flags.end(), cat->stage1_2_cat_pTjet30GeV) != htxs_flags.end()) {
-      return true;
-   } else {
-      return false;
-   }
+bool HTXSFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+  using namespace edm;
+  Handle<HTXS::HiggsClassification> cat;
+  iEvent.getByToken(token_, cat);
+  if (htxs_flags.empty()) {
+    edm::LogInfo("HTXSFilter") << "Selection of HTXS flags to filter is empty. Filtering will not be applied."
+                               << std::endl;
+    return true;
+  }
+  if (std::find(htxs_flags.begin(), htxs_flags.end(), cat->stage1_2_cat_pTjet30GeV) != htxs_flags.end()) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 //define this as a plug-in
