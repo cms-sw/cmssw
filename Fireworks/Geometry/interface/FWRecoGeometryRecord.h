@@ -9,6 +9,7 @@
 class FWRecoGeometryRecord
     : public edm::eventsetup::DependentRecordImplementation<
           FWRecoGeometryRecord,
-          edm::mpl::Vector<MuonGeometryRecord, GlobalTrackingGeometryRecord, MTDDigiGeometryRecord, CaloGeometryRecord> > {};
+          edm::mpl::Vector<MuonGeometryRecord, GlobalTrackingGeometryRecord, MTDDigiGeometryRecord, CaloGeometryRecord> > {
+};
 
 #endif  // GEOMETRY_FWRECO_GEOMETRY_RECORD_H
