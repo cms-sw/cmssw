@@ -189,9 +189,9 @@ ALCAHARVESTSiPixelLA_dbOutput = cms.PSet(record = cms.string('SiPixelLorentzAngl
 
 # --------------------------------------------------------------------------------------
 # SiPixel Lorentz Angle Minimal Cluster Size
-ALCAHARVESTSiPixelLAMCS_metadata = cms.PSet(record = cms.untracked.string('SiPixelLorentzAngleRcd'))
+ALCAHARVESTSiPixelLAMCS_metadata = cms.PSet(record = cms.untracked.string('SiPixelLorentzAngleRcdMCS'))
 
-ALCAHARVESTSiPixelLAMCS_dbOutput = cms.PSet(record = cms.string('SiPixelLorentzAngleRcd'),
+ALCAHARVESTSiPixelLAMCS_dbOutput = cms.PSet(record = cms.string('SiPixelLorentzAngleRcdMCS'),
                                             tag = cms.string('SiPixelLAMCS_pcl'),
                                             timetype   = cms.untracked.string('runnumber')
                                          )

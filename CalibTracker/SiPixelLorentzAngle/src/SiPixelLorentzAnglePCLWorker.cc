@@ -667,7 +667,6 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
           if (analysisType_ != eMinimumClusterSize)
             continue;
 
-          LocalVector Bfield = theGeomDet->surface().toLocal(magField->inTesla(theGeomDet->surface().position()));
           int theMagField = magField->nominalValue();
           if (theMagField < 37 || theMagField > 39)
             continue;
@@ -701,12 +700,14 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
           int idx = iHists.nSides_ * iHists.nPanels_ * ringIdx + iHists.nSides_ * panelIdx + sideIdx;
           int idxBeta = iHists.betaStartIdx_ + idx;
 
-          double cotanAlpha = TMath::Tan(TMath::Pi() / 2. - trackhitF_.alpha);
-          double cotanBeta = TMath::Tan(TMath::Pi() / 2. - trackhitF_.beta);
+          double cotanAlpha = std::tan(M_PI / 2. - trackhitF_.alpha);
+          double cotanBeta = std::tan(M_PI / 2. - trackhitF_.beta);
 
+          LocalVector Bfield = theGeomDet->surface().toLocal(magField->inTesla(theGeomDet->surface().position()));
           iHists.h_fpixMagField_[0][idx]->Fill(Bfield.x());
           iHists.h_fpixMagField_[1][idx]->Fill(Bfield.y());
           iHists.h_fpixMagField_[2][idx]->Fill(Bfield.z());
+
           if (clustF_.size_y >= 2) {
             iHists.h_fpixAngleSize_[idx]->Fill(cotanAlpha, clustF_.size_x);
           }
@@ -772,8 +773,8 @@ void SiPixelLorentzAnglePCLWorker::dqmBeginRun(edm::Run const& run, edm::EventSe
 void SiPixelLorentzAnglePCLWorker::bookHistograms(DQMStore::IBooker& iBooker,
                                                   edm::Run const& run,
                                                   edm::EventSetup const& iSetup) {
-  char name[128];
-  char title[256];
+  std::string name;
+  std::string title;
   if (analysisType_ == eGrazingAngle) {
     // book the by partition monitoring
     const auto maxSect = iHists.nlay * iHists.nModules_[iHists.nlay - 1] + (int)iHists.BPixnewDetIds_.size();
@@ -798,19 +799,16 @@ void SiPixelLorentzAnglePCLWorker::bookHistograms(DQMStore::IBooker& iBooker,
 
         iHists.h_bySectOccupancy_->setBinLabel(i_index, binName);
 
-        sprintf(name, "h_mean_layer%i_module%i", i_layer, i_module);
-        sprintf(title,
-                "average drift vs depth layer%i module%i; production depth [#mum]; #LTdrift#GT [#mum]",
-                i_layer,
-                i_module);
+        name = fmt::sprintf("h_mean_layer%i_module%i", i_layer, i_module);
+        title = fmt::sprintf(
+            "average drift vs depth layer%i module%i; production depth [#mum]; #LTdrift#GT [#mum]", i_layer, i_module);
         iHists.h_mean_[i_index] = iBooker.book1D(name, title, hist_depth_, min_depth_, max_depth_);
       }
     }
     for (int i = 0; i < (int)iHists.BPixnewDetIds_.size(); i++) {
-      sprintf(name, "h_BPixnew_mean_%s", iHists.BPixnewmodulename_[i].c_str());
-      sprintf(title,
-              "average drift vs depth %s; production depth [#mum]; #LTdrift#GT [#mum]",
-              iHists.BPixnewmodulename_[i].c_str());
+      name = fmt::sprintf("h_BPixnew_mean_%s", iHists.BPixnewmodulename_[i].c_str());
+      title = fmt::sprintf("average drift vs depth %s; production depth [#mum]; #LTdrift#GT [#mum]",
+                           iHists.BPixnewmodulename_[i].c_str());
       int new_index = iHists.nModules_[iHists.nlay - 1] + (iHists.nlay - 1) * iHists.nModules_[iHists.nlay - 1] + 1 + i;
       iHists.h_mean_[new_index] = iBooker.book1D(name, title, hist_depth_, min_depth_, max_depth_);
 
@@ -826,30 +824,27 @@ void SiPixelLorentzAnglePCLWorker::bookHistograms(DQMStore::IBooker& iBooker,
       for (int i_module = 1; i_module <= iHists.nModules_[i_layer - 1]; i_module++) {
         unsigned int i_index = i_module + (i_layer - 1) * iHists.nModules_[i_layer - 1];
 
-        sprintf(name, "h_drift_depth_adc_layer%i_module%i", i_layer, i_module);
-        sprintf(
-            title, "depth vs drift (ADC) layer%i module%i; drift [#mum]; production depth [#mum]", i_layer, i_module);
+        name = fmt::sprintf("h_drift_depth_adc_layer%i_module%i", i_layer, i_module);
+        title = fmt::sprintf(
+            "depth vs drift (ADC) layer%i module%i; drift [#mum]; production depth [#mum]", i_layer, i_module);
         iHists.h_drift_depth_adc_[i_index] =
             iBooker.book2D(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
 
-        sprintf(name, "h_drift_depth_adc2_layer%i_module%i", i_layer, i_module);
-        sprintf(title,
-                "depth vs drift (ADC^{2}) layer%i module%i; drift [#mum]; production depth [#mum]",
-                i_layer,
-                i_module);
+        name = fmt::sprintf("h_drift_depth_adc2_layer%i_module%i", i_layer, i_module);
+        title = fmt::sprintf(
+            "depth vs drift (ADC^{2}) layer%i module%i; drift [#mum]; production depth [#mum]", i_layer, i_module);
         iHists.h_drift_depth_adc2_[i_index] =
             iBooker.book2D(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
 
-        sprintf(name, "h_drift_depth_noadc_layer%i_module%i", i_layer, i_module);
-        sprintf(title,
-                "depth vs drift (no ADC) layer%i module%i; drift [#mum]; production depth [#mum]",
-                i_layer,
-                i_module);
+        name = fmt::sprintf("h_drift_depth_noadc_layer%i_module%i", i_layer, i_module);
+        title = fmt::sprintf(
+            "depth vs drift (no ADC) layer%i module%i; drift [#mum]; production depth [#mum]", i_layer, i_module);
         iHists.h_drift_depth_noadc_[i_index] =
             iBooker.book2D(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
 
-        sprintf(name, "h_drift_depth_layer%i_module%i", i_layer, i_module);
-        sprintf(title, "depth vs drift layer%i module%i; drift [#mum]; production depth [#mum]", i_layer, i_module);
+        name = fmt::sprintf("h_drift_depth_layer%i_module%i", i_layer, i_module);
+        title =
+            fmt::sprintf("depth vs drift layer%i module%i; drift [#mum]; production depth [#mum]", i_layer, i_module);
         iHists.h_drift_depth_[i_index] =
             iBooker.book2D(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
       }
@@ -860,55 +855,53 @@ void SiPixelLorentzAnglePCLWorker::bookHistograms(DQMStore::IBooker& iBooker,
     for (int i = 0; i < (int)iHists.BPixnewDetIds_.size(); i++) {
       int new_index = iHists.nModules_[iHists.nlay - 1] + (iHists.nlay - 1) * iHists.nModules_[iHists.nlay - 1] + 1 + i;
 
-      sprintf(name, "h_BPixnew_drift_depth_adc_%s", iHists.BPixnewmodulename_[i].c_str());
-      sprintf(title,
-              "depth vs drift (ADC) %s; drift [#mum]; production depth [#mum]",
-              iHists.BPixnewmodulename_[i].c_str());
+      name = fmt::sprintf("h_BPixnew_drift_depth_adc_%s", iHists.BPixnewmodulename_[i].c_str());
+      title = fmt::sprintf("depth vs drift (ADC) %s; drift [#mum]; production depth [#mum]",
+                           iHists.BPixnewmodulename_[i].c_str());
       iHists.h_drift_depth_adc_[new_index] =
           iBooker.book2D(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
 
-      sprintf(name, "h_BPixnew_drift_depth_adc2_%s", iHists.BPixnewmodulename_[i].c_str());
-      sprintf(title,
-              "depth vs drift (ADC^{2}) %s; drift [#mum]; production depth [#mum]",
-              iHists.BPixnewmodulename_[i].c_str());
+      name = fmt::sprintf("h_BPixnew_drift_depth_adc2_%s", iHists.BPixnewmodulename_[i].c_str());
+      title = fmt::sprintf("depth vs drift (ADC^{2}) %s; drift [#mum]; production depth [#mum]",
+                           iHists.BPixnewmodulename_[i].c_str());
       iHists.h_drift_depth_adc2_[new_index] =
           iBooker.book2D(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
 
-      sprintf(name, "h_BPixnew_drift_depth_noadc_%s", iHists.BPixnewmodulename_[i].c_str());
-      sprintf(title,
-              "depth vs drift (no ADC)%s; drift [#mum]; production depth [#mum]",
-              iHists.BPixnewmodulename_[i].c_str());
+      name = fmt::sprintf("h_BPixnew_drift_depth_noadc_%s", iHists.BPixnewmodulename_[i].c_str());
+      title = fmt::sprintf("depth vs drift (no ADC)%s; drift [#mum]; production depth [#mum]",
+                           iHists.BPixnewmodulename_[i].c_str());
       iHists.h_drift_depth_noadc_[new_index] =
           iBooker.book2D(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
 
-      sprintf(name, "h_BPixnew_drift_depth_%s", iHists.BPixnewmodulename_[i].c_str());
-      sprintf(title, "depth vs drift %s; drift [#mum]; production depth [#mum]", iHists.BPixnewmodulename_[i].c_str());
+      name = fmt::sprintf("h_BPixnew_drift_depth_%s", iHists.BPixnewmodulename_[i].c_str());
+      title = fmt::sprintf("depth vs drift %s; drift [#mum]; production depth [#mum]",
+                           iHists.BPixnewmodulename_[i].c_str());
       iHists.h_drift_depth_[new_index] =
           iBooker.book2D(name, title, hist_drift_, min_drift_, max_drift_, hist_depth_, min_depth_, max_depth_);
     }
   }  // end if GrazinAngleAnalysis
   else {
     iBooker.setCurrentFolder(folder_);
-    char baseName[64];
-    char baseTitle[128];
+    std::string baseName;
+    std::string baseTitle;
 
     for (int r = 0; r < iHists.nRings_; ++r) {
       for (int p = 0; p < iHists.nPanels_; ++p) {
         for (int s = 0; s < iHists.nSides_; ++s) {
-          sprintf(baseName, "R%d_P%d_z%d", r + 1, p + 1, s + 1);
+          baseName = fmt::sprintf("R%d_P%d_z%d", r + 1, p + 1, s + 1);
           if (s == 0)
-            sprintf(baseTitle, "Ring%d_Panel%d_z-", r + 1, p + 1);
+            baseTitle = fmt::sprintf("Ring%d_Panel%d_z-", r + 1, p + 1);
           else
-            sprintf(baseTitle, "Ring%d_Panel%d_z+", r + 1, p + 1);
+            baseTitle = fmt::sprintf("Ring%d_Panel%d_z+", r + 1, p + 1);
 
           int idx = iHists.nSides_ * iHists.nPanels_ * r + iHists.nSides_ * p + s;
           int idxBeta = iHists.betaStartIdx_ + idx;
 
-          sprintf(name, "%s_alphaMean", baseName);
-          sprintf(title, "%s_alphaMean;cot(#alpha); Average cluster size x (pixel)", baseTitle);
+          name = fmt::sprintf("%s_alphaMean", baseName);
+          title = fmt::sprintf("%s_alphaMean;cot(#alpha); Average cluster size x (pixel)", baseTitle);
           iHists.h_fpixMean_[idx] = iBooker.book1D(name, title, 60, -3., 3.);
-          sprintf(name, "%s_betaMean", baseName);
-          sprintf(title, "%s_betaMean;cot(#beta); Average cluster size y (pixel)", baseTitle);
+          name = fmt::sprintf("%s_betaMean", baseName);
+          title = fmt::sprintf("%s_betaMean;cot(#beta); Average cluster size y (pixel)", baseTitle);
           iHists.h_fpixMean_[idxBeta] = iBooker.book1D(name, title, 60, -3., 3.);
 
         }  // loop over sides
@@ -918,25 +911,25 @@ void SiPixelLorentzAnglePCLWorker::bookHistograms(DQMStore::IBooker& iBooker,
     for (int r = 0; r < iHists.nRings_; ++r) {
       for (int p = 0; p < iHists.nPanels_; ++p) {
         for (int s = 0; s < iHists.nSides_; ++s) {
-          sprintf(baseName, "R%d_P%d_z%d", r + 1, p + 1, s + 1);
+          baseName = fmt::sprintf("R%d_P%d_z%d", r + 1, p + 1, s + 1);
           if (s == 0)
-            sprintf(baseTitle, "Ring%d_Panel%d_z-", r + 1, p + 1);
+            baseTitle = fmt::sprintf("Ring%d_Panel%d_z-", r + 1, p + 1);
           else
-            sprintf(baseTitle, "Ring%d_Panel%d_z+", r + 1, p + 1);
+            baseTitle = fmt::sprintf("Ring%d_Panel%d_z+", r + 1, p + 1);
 
           int idx = iHists.nSides_ * iHists.nPanels_ * r + iHists.nSides_ * p + s;
           int idxBeta = iHists.betaStartIdx_ + idx;
 
-          sprintf(name, "%s_alpha", baseName);
-          sprintf(title, "%s_alpha;cot(#alpha); Cluster size x (pixel)", baseTitle);
+          name = fmt::sprintf("%s_alpha", baseName);
+          title = fmt::sprintf("%s_alpha;cot(#alpha); Cluster size x (pixel)", baseTitle);
           iHists.h_fpixAngleSize_[idx] = iBooker.book2D(name, title, 60, -3., 3., 10, 0.5, 10.5);
-          sprintf(name, "%s_beta", baseName);
-          sprintf(title, "%s_beta;cot(#beta); Cluster size y (pixel) ", baseTitle);
+          name = fmt::sprintf("%s_beta", baseName);
+          title = fmt::sprintf("%s_beta;cot(#beta); Cluster size y (pixel) ", baseTitle);
           iHists.h_fpixAngleSize_[idxBeta] = iBooker.book2D(name, title, 60, -3., 3., 10, 0.5, 10.5);
           for (int m = 0; m < 3; ++m) {
-            sprintf(name, "%s_B%d", baseName, m);
+            name = fmt::sprintf("%s_B%d", baseName, m);
             char bComp = m == 0 ? 'x' : (m == 1 ? 'y' : 'z');
-            sprintf(title, "%s_magField%d;B_{%c} [T];Entries", baseTitle, m, bComp);
+            title = fmt::sprintf("%s_magField%d;B_{%c} [T];Entries", baseTitle, m, bComp);
             iHists.h_fpixMagField_[m][idx] = iBooker.book1D(name, title, 10000, -5., 5.);
           }  // mag. field comps
         }    // loop over sides
