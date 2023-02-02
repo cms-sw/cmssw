@@ -291,7 +291,8 @@ bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
           break;
         }
         default: {
-          good = ((u - 2 * v) >= 0);
+          int uv = u - 2 * v;
+          good = (uv >= 0);
           break;
         }
       }
