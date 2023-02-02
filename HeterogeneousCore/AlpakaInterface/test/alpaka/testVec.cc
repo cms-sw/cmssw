@@ -4,7 +4,6 @@
 #include <catch.hpp>
 
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/vec.h"
 
 static constexpr auto s_tag = "[" ALPAKA_TYPE_ALIAS_NAME(alpakaTestVec) "]";
 

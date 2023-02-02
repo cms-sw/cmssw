@@ -103,7 +103,7 @@ using RangeCheckingHostDeviceView =
 
 // We expect to just run one thread.
 __global__ void rangeCheckKernel(RangeCheckingHostDeviceView soa) {
-  printf("About to fail range-check (operator[]) in ROCm thread: %d\n", (int) threadIdx.x);
+  printf("About to fail range-check (operator[]) in ROCm thread: %d\n", (int)threadIdx.x);
   [[maybe_unused]] auto si = soa[soa.metadata().size()];
   printf("Fail: range-check failure should have stopped the kernel.\n");
 }
@@ -120,7 +120,7 @@ int main(void) {
   // Allocate buffer and store on host
   size_t hostDeviceSize = SoAHostDeviceLayout::computeDataSize(numElements);
   std::byte* h_buf = nullptr;
-  hipCheck(hipMallocHost((void**) &h_buf, hostDeviceSize));
+  hipCheck(hipMallocHost((void**)&h_buf, hostDeviceSize));
   SoAHostDeviceLayout h_soahdLayout(h_buf, numElements);
   SoAHostDeviceView h_soahd(h_soahdLayout);
   SoAHostDeviceConstView h_soahd_c(h_soahdLayout);
@@ -128,7 +128,7 @@ int main(void) {
   // Alocate buffer, stores and views on the device (single, shared buffer).
   size_t deviceOnlySize = SoADeviceOnlyLayout::computeDataSize(numElements);
   std::byte* d_buf = nullptr;
-  hipCheck(hipMallocHost((void**) &d_buf, hostDeviceSize + deviceOnlySize));
+  hipCheck(hipMallocHost((void**)&d_buf, hostDeviceSize + deviceOnlySize));
   SoAHostDeviceLayout d_soahdLayout(d_buf, numElements);
   SoADeviceOnlyLayout d_soadoLayout(d_soahdLayout.metadata().nextByte(), numElements);
   SoAHostDeviceView d_soahdView(d_soahdLayout);

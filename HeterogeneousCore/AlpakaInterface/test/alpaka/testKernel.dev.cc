@@ -8,7 +8,6 @@
 
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/vec.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 
 // each test binary is built for a single Alpaka backend

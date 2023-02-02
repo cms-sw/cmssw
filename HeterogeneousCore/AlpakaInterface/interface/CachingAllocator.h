@@ -84,7 +84,7 @@ namespace cms::alpakatools {
 
   template <typename TDev,
             typename TQueue,
-            typename = std::enable_if_t<cms::alpakatools::is_device_v<TDev> and cms::alpakatools::is_queue_v<TQueue>>>
+            typename = std::enable_if_t<alpaka::isDevice<TDev> and alpaka::isQueue<TQueue>>>
   class CachingAllocator {
   public:
 #ifdef ALPAKA_ACC_GPU_CUDA_ENABLED

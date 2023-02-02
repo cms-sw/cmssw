@@ -18,7 +18,7 @@ namespace cms::alpakatools {
    * information from ExternalWork's acquire() to producer() via a
    * member/QueueCache variable.
    */
-  template <typename TQueue, typename = std::enable_if_t<cms::alpakatools::is_queue_v<TQueue>>>
+  template <typename TQueue, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
   class ContextState {
   public:
     using Queue = TQueue;
