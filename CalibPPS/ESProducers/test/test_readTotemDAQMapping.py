@@ -36,7 +36,8 @@ process.PoolDBESSource = cms.ESSource('PoolDBESSource',
     toGet = cms.VPSet(
         cms.PSet(
             record = cms.string('TotemReadoutRcd'),
-            tag = cms.string('DiamondDAQMapping')
+            tag = cms.string('DiamondDAQMapping'),
+            label = cms.untracked.string('TimingDiamond')
         )
     )
 )

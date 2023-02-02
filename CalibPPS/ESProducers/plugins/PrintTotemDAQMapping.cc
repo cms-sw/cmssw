@@ -3,6 +3,7 @@
  * This is a part of TOTEM offline software.
  * Authors: 
  *  Jan Kašpar (jan.kaspar@gmail.com) 
+ *  Leszek Grzanka (leszek.grzanka@cern.ch)
  *
  ****************************************************************************/
 
@@ -43,20 +44,28 @@ PrintTotemDAQMapping::PrintTotemDAQMapping(const edm::ParameterSet &ps)
 //----------------------------------------------------------------------------------------------------
 
 void PrintTotemDAQMapping::analyze(const edm::Event &, edm::EventSetup const &es) {
+
   // get mapping
-  auto const &mapping = es.getData(mappingToken_);
+  if (auto mappingHandle = es.getHandle(mappingToken_)) {
+    auto const &mapping = *mappingHandle;
+    // print mapping
+    for (const auto &p : mapping.VFATMapping)
+      edm::LogInfo("PrintTotemDAQMapping mapping") << "    " << p.first << " -> " << p.second;
+  } else {
+    edm::LogError("PrintTotemDAQMapping mapping") << "No mapping found";
+  }
 
   // get analysis mask to mask channels
-  auto const &analysisMask = es.getData(maskToken_);
+  if (auto analysisMaskHandle = es.getHandle(maskToken_)) {
+    auto const &analysisMask = *analysisMaskHandle;
+    // print mapping
+    for (const auto &p : analysisMask.analysisMask)
+      edm::LogInfo("PrintTotemDAQMapping mask") << "    " << p.first << ": fullMask=" << p.second.fullMask
+                                                << ", number of masked channels " << p.second.maskedChannels.size();
+  } else {
+    edm::LogError("PrintTotemDAQMapping mapping") << "No analysis mask found";
+  }
 
-  // print mapping
-  for (const auto &p : mapping.VFATMapping)
-    edm::LogInfo("PrintTotemDAQMapping mapping") << "    " << p.first << " -> " << p.second;
-
-  // print mapping
-  for (const auto &p : analysisMask.analysisMask)
-    edm::LogInfo("PrintTotemDAQMapping mask") << "    " << p.first << ": fullMask=" << p.second.fullMask
-                                              << ", number of masked channels " << p.second.maskedChannels.size();
 }
 
 //----------------------------------------------------------------------------------------------------
