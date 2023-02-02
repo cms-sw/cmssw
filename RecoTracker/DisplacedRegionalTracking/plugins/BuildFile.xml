@@ -1,11 +1,15 @@
 <use name="DataFormats/BeamSpot"/>
 <use name="DataFormats/Candidate"/>
 <use name="DataFormats/Common"/>
+<use name="DataFormats/GeometrySurface"/>
+<use name="DataFormats/GeometryVector"/>
 <use name="DataFormats/Math"/>
 <use name="DataFormats/VertexReco"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
 <use name="PhysicsTools/TensorFlow"/>
-<use name="RecoTracker/DisplacedRegionalTracking"/>
+<use name="TrackingTools/GeomPropagators"/>
+<use name="TrackingTools/TrajectoryState"/>
+<use name="TrackingTools/TransientTrack"/>
 <flags EDM_PLUGIN="1"/>

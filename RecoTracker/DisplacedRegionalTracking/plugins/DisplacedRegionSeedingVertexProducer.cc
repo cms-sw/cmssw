@@ -24,7 +24,7 @@
 
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 
-#include "RecoTracker/DisplacedRegionalTracking/interface/DisplacedVertexCluster.h"
+#include "RecoTracker/DisplacedRegionalTracking/plugins/DisplacedVertexCluster.h"
 
 using namespace std;
 typedef DisplacedVertexCluster::Distance Distance;

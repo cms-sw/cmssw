@@ -1,4 +1,4 @@
-#include "RecoTracker/DisplacedRegionalTracking/interface/DisplacedVertexCluster.h"
+#include "RecoTracker/DisplacedRegionalTracking/plugins/DisplacedVertexCluster.h"
 
 DisplacedVertexCluster::DisplacedVertexCluster(const reco::VertexCompositeCandidate *const trackClusterPtr,
                                                const double rParam)
