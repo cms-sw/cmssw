@@ -152,11 +152,8 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
   } else if (hgcons_.tileTrapezoid()) {
     std::array<int, 3> id = hgcons_.assignCellTrap(pos.x(), pos.y(), pos.z(), layer, false);
     if (id[2] >= 0) {
-      int ring(id[0]);
-      if (!(hgcons_.tileExist(iz, layer, ring, id[1])) && ((ring + 1) <= (hgcons_.tileRings(layer)).second))
-        ++ring;
-      std::pair<int, int> typm = hgcons_.tileType(layer, ring, 0);
-      HGCScintillatorDetId detId(id[2], layer, iz * ring, id[1], false, 0);
+      std::pair<int, int> typm = hgcons_.tileType(layer, id[0], 0);
+      HGCScintillatorDetId detId(id[2], layer, iz * id[0], id[1], false, 0);
       if (typm.first >= 0) {
         detId.setType(typm.first);
         detId.setSiPM(typm.second);
@@ -169,10 +166,10 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
           debug = true;
       }
       if (debug)
-        edm::LogVerbatim("HGCSim") << "Radius/Phi " << ring << "(" << id[0] << "):" << id[1] << " Type " << id[2] << ":"
-                                   << typm.first << " SiPM " << typm.second << ":" << hgcons_.tileSiPM(typm.second)
-                                   << " Layer " << layer << " z " << iz << " " << detId << " wt " << wt << " position "
-                                   << pos << " R " << pos.perp();
+        edm::LogVerbatim("HGCSim") << "Radius/Phi " << id[0] << ":" << id[1] << " Type " << id[2] << ":" << typm.first
+                                   << " SiPM " << typm.second << ":" << hgcons_.tileSiPM(typm.second) << " Layer "
+                                   << layer << " z " << iz << " " << detId << " wt " << wt << " position " << pos
+                                   << " R " << pos.perp();
 #ifdef EDM_ML_DEBUG
     } else {
       edm::LogVerbatim("HGCSim") << "Radius/Phi " << id[0] << ":" << id[1] << " Type " << id[2] << " Layer|iz " << layer
