@@ -11,8 +11,6 @@
 #include <filesystem>
 #include <cppunit/extensions/HelperMacros.h>
 #include <stdexcept>
-#include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
-#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 
 class testBase : public CppUnit::TestFixture {
 public:
@@ -22,9 +20,7 @@ public:
   void tearDown();
   std::string cmsswPath(std::string path);
 
-  virtual void test(tensorflow::Backend backend) = 0;
-  void checkCPU();
-  void checkGPU();
+  virtual void test() = 0;
 
   virtual std::string pyScript() const = 0;
 };
@@ -53,14 +49,6 @@ void testBase::setUp() {
 void testBase::tearDown() {
   if (std::filesystem::exists(dataPath_)) {
     std::filesystem::remove_all(dataPath_);
-  }
-}
-
-void testBase::checkCPU() { test(tensorflow::Backend::cpu); }
-
-void testBase::checkGPU() {
-  if (cms::cudatest::testDevices()) {
-    test(tensorflow::Backend::cuda);
   }
 }
 

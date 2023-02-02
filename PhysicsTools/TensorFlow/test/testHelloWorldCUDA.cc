@@ -14,8 +14,8 @@
 
 #include "testBase.h"
 
-class testHelloWorld : public testBase {
-  CPPUNIT_TEST_SUITE(testHelloWorld);
+class testHelloWorldCUDA : public testBase {
+  CPPUNIT_TEST_SUITE(testHelloWorldCUDA);
   CPPUNIT_TEST(test);
   CPPUNIT_TEST_SUITE_END();
 
@@ -24,15 +24,15 @@ public:
   void test() override;
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION(testHelloWorld);
+CPPUNIT_TEST_SUITE_REGISTRATION(testHelloWorldCUDA);
 
-std::string testHelloWorld::pyScript() const { return "creategraph.py"; }
+std::string testHelloWorldCUDA::pyScript() const { return "creategraph.py"; }
 
-void testHelloWorld::test() {
+void testHelloWorldCUDA::test() {
   std::string modelDir = dataPath_ + "/simplegraph";
   // Testing CPU
-  std::cout << "Testing CPU backend" << std::endl;
-  tensorflow::Backend backend = tensorflow::Backend::cpu;
+  std::cout << "Testing CUDA backend" << std::endl;
+  tensorflow::Backend backend = tensorflow::Backend::cuda;
 
   // object to load and run the graph / session
   tensorflow::Status status;

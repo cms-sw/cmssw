@@ -3,43 +3,93 @@
   <use name="boost_filesystem"/>
   <use name="cppunit"/>
   <use name="PhysicsTools/TensorFlow"/>
-  <use name="HeterogeneousCore/CUDAUtilities"/>
 </bin>
+
+<iftool name="cuda-gcc-support">
+  <bin name="testTFHelloWorldCUDA" file="testRunner.cpp,testHelloWorldCUDA.cc">
+    <use name="tensorflow-cc"/>
+    <use name="boost_filesystem"/>
+    <use name="cppunit"/>
+    <use name="PhysicsTools/TensorFlow"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
+  </bin>
+</iftool>
+
 
 <bin name="testTFMetaGraphLoading" file="testRunner.cpp,testMetaGraphLoading.cc">
   <use name="boost_filesystem"/>
   <use name="cppunit"/>
   <use name="PhysicsTools/TensorFlow"/>
+</bin>
+
+<iftool name="cuda-gcc-support">
+<bin name="testTFMetaGraphLoadingCUDA" file="testRunner.cpp,testMetaGraphLoadingCUDA.cc">
+  <use name="boost_filesystem"/>
+  <use name="cppunit"/>
+  <use name="PhysicsTools/TensorFlow"/>
   <use name="HeterogeneousCore/CUDAUtilities"/>
 </bin>
+</iftool>
 
 <bin name="testTFGraphLoading" file="testRunner.cpp,testGraphLoading.cc">
   <use name="boost_filesystem"/>
   <use name="cppunit"/>
   <use name="PhysicsTools/TensorFlow"/>
+</bin>
+
+<iftool name="cuda-gcc-support">
+<bin name="testTFGraphLoadingCUDA" file="testRunner.cpp,testGraphLoadingCUDA.cc">
+  <use name="boost_filesystem"/>
+  <use name="cppunit"/>
+  <use name="PhysicsTools/TensorFlow"/>
   <use name="HeterogeneousCore/CUDAUtilities"/>
 </bin>
+</iftool>
 
 <bin name="testTFConstSession" file="testRunner.cpp,testConstSession.cc">
   <use name="boost_filesystem"/>
   <use name="cppunit"/>
   <use name="PhysicsTools/TensorFlow"/>
+</bin>
+
+<iftool name="cuda-gcc-support">
+<bin name="testTFConstSessionCUDA" file="testRunner.cpp,testConstSessionCUDA.cc">
+  <use name="boost_filesystem"/>
+  <use name="cppunit"/>
+  <use name="PhysicsTools/TensorFlow"/>
   <use name="HeterogeneousCore/CUDAUtilities"/>
 </bin>
+</iftool>
 
 <bin name="testTFSessionCache" file="testRunner.cpp,testSessionCache.cc">
   <use name="boost_filesystem"/>
   <use name="cppunit"/>
   <use name="PhysicsTools/TensorFlow"/>
-  <use name="HeterogeneousCore/CUDAUtilities"/>
 </bin>
 
-<bin name="testTFThreadPools" file="testRunner.cpp,testThreadPools.cc">
+<iftool name="cuda-gcc-support">
+<bin name="testTFSessionCacheCUDA" file="testRunner.cpp,testSessionCacheCUDA.cc">
   <use name="boost_filesystem"/>
   <use name="cppunit"/>
   <use name="PhysicsTools/TensorFlow"/>
   <use name="HeterogeneousCore/CUDAUtilities"/>
 </bin>
+</iftool>
+
+<bin name="testTFThreadPools" file="testRunner.cpp,testThreadPools.cc">
+  <use name="boost_filesystem"/>
+  <use name="cppunit"/>
+  <use name="PhysicsTools/TensorFlow"/>
+</bin>
+
+<iftool name="cuda-gcc-support">
+<bin name="testTFThreadPoolsCUDA" file="testRunner.cpp,testThreadPoolsCUDA.cc">
+  <use name="boost_filesystem"/>
+  <use name="cppunit"/>
+  <use name="PhysicsTools/TensorFlow"/>
+  <use name="HeterogeneousCore/CUDAUtilities"/>
+</bin>
+</iftool>
 
 <!-- <ifarchitecture name="!_ppc64le_">
 <bin name="testTFAOT" file="testRunner.cpp,testAOT.cc">

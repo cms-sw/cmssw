@@ -25,10 +25,7 @@
 
 namespace tensorflow {
 
-  enum class Backend {
-    cpu,
-    cuda,
-  };
+  enum class Backend { cpu, cuda, rocm, intel, best };
 
   typedef std::pair<std::string, Tensor> NamedTensor;
   typedef std::vector<NamedTensor> NamedTensorList;

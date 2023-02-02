@@ -14,21 +14,23 @@
 
 class testGraphLoading : public testBase {
   CPPUNIT_TEST_SUITE(testGraphLoading);
-  CPPUNIT_TEST(checkCPU);
-  CPPUNIT_TEST(checkGPU);
+  CPPUNIT_TEST(test);
   CPPUNIT_TEST_SUITE_END();
 
 public:
   std::string pyScript() const override;
-  void test(tensorflow::Backend backend) override;
+  void test() override;
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testGraphLoading);
 
 std::string testGraphLoading::pyScript() const { return "createconstantgraph.py"; }
 
-void testGraphLoading::test(tensorflow::Backend backend) {
+void testGraphLoading::test() {
   std::string pbFile = dataPath_ + "/constantgraph.pb";
+
+  std::cout << "Testing CPU backend" << std::endl;
+  tensorflow::Backend backend = tensorflow::Backend::cpu;
 
   // load the graph
   tensorflow::setLogging();

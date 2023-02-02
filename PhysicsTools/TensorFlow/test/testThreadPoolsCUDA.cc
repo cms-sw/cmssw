@@ -12,8 +12,8 @@
 
 #include "testBase.h"
 
-class testGraphLoading : public testBase {
-  CPPUNIT_TEST_SUITE(testGraphLoading);
+class testGraphLoadingCUDA : public testBase {
+  CPPUNIT_TEST_SUITE(testGraphLoadingCUDA);
   CPPUNIT_TEST(test);
   CPPUNIT_TEST_SUITE_END();
 
@@ -22,15 +22,15 @@ public:
   void test() override;
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION(testGraphLoading);
+CPPUNIT_TEST_SUITE_REGISTRATION(testGraphLoadingCUDA);
 
-std::string testGraphLoading::pyScript() const { return "createconstantgraph.py"; }
+std::string testGraphLoadingCUDA::pyScript() const { return "createconstantgraph.py"; }
 
-void testGraphLoading::test() {
+void testGraphLoadingCUDA::test() {
   std::string pbFile = dataPath_ + "/constantgraph.pb";
 
-  std::cout << "Testing CPU backend" << std::endl;
-  tensorflow::Backend backend = tensorflow::Backend::cpu;
+  std::cout << "Testing CUDA backend" << std::endl;
+  tensorflow::Backend backend = tensorflow::Backend::cuda;
 
   // initialize the TBB threadpool
   int nThreads = 4;
