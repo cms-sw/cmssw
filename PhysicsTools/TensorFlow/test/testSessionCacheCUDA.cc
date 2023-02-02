@@ -11,8 +11,8 @@
 
 #include "testBase.h"
 
-class testSessionCache : public testBase {
-  CPPUNIT_TEST_SUITE(testSessionCache);
+class testSessionCacheCUDA : public testBase {
+  CPPUNIT_TEST_SUITE(testSessionCacheCUDA);
   CPPUNIT_TEST(test);
   CPPUNIT_TEST_SUITE_END();
 
@@ -21,15 +21,15 @@ public:
   void test() override;
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION(testSessionCache);
+CPPUNIT_TEST_SUITE_REGISTRATION(testSessionCacheCUDA);
 
-std::string testSessionCache::pyScript() const { return "createconstantgraph.py"; }
+std::string testSessionCacheCUDA::pyScript() const { return "createconstantgraph.py"; }
 
-void testSessionCache::test() {
+void testSessionCacheCUDA::test() {
   std::string pbFile = dataPath_ + "/constantgraph.pb";
 
-  std::cout << "Testing CPU backend" << std::endl;
-  tensorflow::Backend backend = tensorflow::Backend::cpu;
+  std::cout << "Testing CUDA backend" << std::endl;
+  tensorflow::Backend backend = tensorflow::Backend::cuda;
 
   tensorflow::setLogging();
 

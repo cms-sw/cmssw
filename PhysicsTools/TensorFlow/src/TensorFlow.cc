@@ -6,8 +6,9 @@
  */
 
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/ResourceInformation.h"
 
 namespace tensorflow {
 
@@ -26,19 +27,47 @@ namespace tensorflow {
   }
 
   void setBackend(SessionOptions& sessionOptions, Backend backend) {
+    edm::Service<edm::ResourceInformation> ri;
     if (backend == Backend::cpu) {
-      // hotfix: disable GPU usage whatsoever for now, add a convenient interface in a future PR
+      // disable GPU usage
       (*sessionOptions.config.mutable_device_count())["GPU"] = 0;
       sessionOptions.config.mutable_gpu_options()->set_visible_device_list("");
-    } else if (backend == Backend::cuda) {
-      // Options from https://github.com/tensorflow/tensorflow/blob/c53dab9fbc9de4ea8b1df59041a5ffd3987328c3/tensorflow/core/protobuf/config.proto#L20
-      edm::LogInfo("PhysicsTools/TensorFlow") << "Setting up TensorFlow to use 1 GPU";
-      edm::LogInfo("PhysicsTools/TensorFlow")
-          << "Visible GPU devices << " << sessionOptions.config.mutable_gpu_options()->visible_device_list();
-      // Take only the first GPU in the CUDA_VISIBLE_DEVICE list
-      (*sessionOptions.config.mutable_device_count())["GPU"] = 1;
-      // Do not allocate all the memory on the GPU at the beginning.
-      sessionOptions.config.mutable_gpu_options()->set_allow_growth(true);
+    }
+    // NVidia GPU
+    else if (backend == Backend::cuda) {
+      // Options from https://github.com/tensorflow/tensorflow/blob/c53dab9fbc9de4ea8b1df59041a5ffd3987328c3/tensorflow/core/protobuf/config.proto
+      if (not ri->nvidiaDriverVersion().empty()) {
+        // Take only the first GPU in the CUDA_VISIBLE_DEVICE list
+        (*sessionOptions.config.mutable_device_count())["GPU"] = 1;
+        // Do not allocate all the memory on the GPU at the beginning.
+        sessionOptions.config.mutable_gpu_options()->set_allow_growth(true);
+      } else {
+        edm::Exception ex(edm::errors::UnavailableAccelerator);
+        ex << "Cuda backend requested, but no NVIDIA GPU available in the job";
+        ex.addContext("Calling tensorflow::setBackend()");
+        throw ex;
+      }
+    }
+    // ROCm and Intel GPU are still not supported
+    else if ((backend == Backend::rocm) || (backend == Backend::intel)) {
+      edm::Exception ex(edm::errors::UnavailableAccelerator);
+      ex << "ROCm/Intel GPU backend requested, but TF is not compiled yet for this platform";
+      ex.addContext("Calling tensorflow::setBackend()");
+      throw ex;
+    }
+    // Get NVidia GPU if possible or fallback to CPU
+    else if ((backend == Backend::best)) {
+      // Check if a Nvidia GPU is availabl
+      if (not ri->nvidiaDriverVersion().empty()) {
+        // Take only the first GPU in the CUDA_VISIBLE_DEVICE list
+        (*sessionOptions.config.mutable_device_count())["GPU"] = 1;
+        // Do not allocate all the memory on the GPU at the beginning.
+        sessionOptions.config.mutable_gpu_options()->set_allow_growth(true);
+      } else {
+        // Just CPU support
+        (*sessionOptions.config.mutable_device_count())["GPU"] = 0;
+        sessionOptions.config.mutable_gpu_options()->set_visible_device_list("");
+      }
     }
   }
 

@@ -12,8 +12,8 @@
 
 #include "testBase.h"
 
-class testMetaGraphLoading : public testBase {
-  CPPUNIT_TEST_SUITE(testMetaGraphLoading);
+class testMetaGraphLoadingCUDA : public testBase {
+  CPPUNIT_TEST_SUITE(testMetaGraphLoadingCUDA);
   CPPUNIT_TEST(test);
   CPPUNIT_TEST_SUITE_END();
 
@@ -22,15 +22,15 @@ public:
   void test() override;
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION(testMetaGraphLoading);
+CPPUNIT_TEST_SUITE_REGISTRATION(testMetaGraphLoadingCUDA);
 
-std::string testMetaGraphLoading::pyScript() const { return "creategraph.py"; }
+std::string testMetaGraphLoadingCUDA::pyScript() const { return "creategraph.py"; }
 
-void testMetaGraphLoading::test() {
+void testMetaGraphLoadingCUDA::test() {
   std::string exportDir = dataPath_ + "/simplegraph";
 
-  std::cout << "Testing CPU backend" << std::endl;
-  tensorflow::Backend backend = tensorflow::Backend::cpu;
+  std::cout << "Testing CUDA backend" << std::endl;
+  tensorflow::Backend backend = tensorflow::Backend::cuda;
 
   // load the graph
   tensorflow::setLogging();
