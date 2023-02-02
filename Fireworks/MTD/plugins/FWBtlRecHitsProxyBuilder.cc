@@ -47,8 +47,6 @@ void FWBtlRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* p
 
   const FWGeometry* geom = iItem->getGeom();
 
-  TEvePointSet* pointSet = new TEvePointSet();
-
   for (const auto& hit : *recHits) {
     unsigned int id = hit.id().rawId();
 
@@ -56,6 +54,8 @@ void FWBtlRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* p
       fwLog(fwlog::kWarning) << "failed to get BTL geometry element with detid: " << id << std::endl;
       continue;
     }
+
+    TEvePointSet* pointSet = new TEvePointSet();
 
     TEveElement* itemHolder = createCompound();
     product->AddElement(itemHolder);
