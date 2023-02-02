@@ -1,14 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
 # ------------------------------------------------------------------------------
-# configure a filter to run only on the events selected by SiPixelCalSingleMuonLoose AlcaReco
-import copy
-from HLTrigger.HLTfilters.hltHighLevel_cfi import *
-ALCARECOCalCosmicsFilterForSiPixelLorentzAngleMCS = copy.deepcopy(hltHighLevel)
-ALCARECOCalCosmicsFilterForSiPixelLorentzAngleMCS.HLTPaths = ['pathALCARECOSiPixelCalCosmics']
-ALCARECOCalCosmicsFilterForSiPixelLorentzAngleMCS.throw = True ## dont throw on unknown path names
-ALCARECOCalCosmicsFilterForSiPixelLorentzAngleMCS.TriggerResultsTag = cms.InputTag("TriggerResults","","RECO")
-
+# configure a filter to run only on the events selected by SiPixelCalCosmics AlcaReco
+from  HLTrigger.HLTfilters.hltHighLevel_cfi import *
+ALCARECOCalCosmicsFilterForSiPixelLorentzAngleMCS = hltHighLevel.clone(
+    HLTPaths = ['pathALCARECOSiPixelCalCosmics'],
+    throw = True, ## dont throw on unknown path names
+    TriggerResultsTag = ("TriggerResults","","RECO")
+)
 # ------------------------------------------------------------------------------
 # This is the sequence for track refitting of the track saved by SiPixelCalSingleMuonLoose
 # to have access to transient objects produced during RECO step and not saved
@@ -23,7 +22,6 @@ ALCARECOPixelLACalibrationTracksMCS = AlignmentTrackSelector.clone(
 
 # FIXME: the beam-spot should be kept in the AlCaReco (if not already there) and dropped from here
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
-
 from RecoTracker.IterativeTracking.InitialStep_cff import *
 from RecoTracker.Configuration.RecoTrackerP5_cff import *
 from RecoTracker.TrackProducer.TrackRefitter_cfi import *
@@ -44,9 +42,9 @@ ALCARECOPixelLATrackFilterRefitMCS = cms.Sequence(ALCARECOPixelLACalibrationTrac
 # This is the module actually doing the calibration
 from CalibTracker.SiPixelLorentzAngle.SiPixelLorentzAnglePCLWorker_cfi import SiPixelLorentzAnglePCLWorker 
 ALCARECOSiPixelLACalibMCS = SiPixelLorentzAnglePCLWorker.clone(
-    folder = cms.string('AlCaReco/SiPixelLorentzAngle'),
-    src = cms.InputTag('ALCARECOPixelLACalibrationTracksRefitMCS'),
-    analysisType = cms.string('MinimalClusterSize')
+    folder = 'AlCaReco/SiPixelLorentzAngle',
+    src = 'ALCARECOPixelLACalibrationTracksRefitMCS',
+    analysisType = 'MinimalClusterSize'
 )
 # ----------------------------------------------------------------------------
 
