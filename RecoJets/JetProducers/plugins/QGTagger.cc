@@ -23,26 +23,25 @@
  * Authors: andrea.carlo.marini@cern.ch, tom.cornelis@cern.ch, cms-qg-workinggroup@cern.ch
  */
 QGTagger::QGTagger(const edm::ParameterSet& iConfig)
-  : jetsToken(consumes<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("srcJets"))),
-    jetCorrectorToken(consumes<reco::JetCorrector>(iConfig.getParameter<edm::InputTag>("jec"))),
-    vertexToken(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("srcVertexCollection"))),
-    rhoToken(consumes<double>(iConfig.getParameter<edm::InputTag>("srcRho"))),
-    computeLikelihood(iConfig.getParameter<bool>("computeLikelihood")),
-    paramsToken(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("jetsLabel")))),
-    useQC(iConfig.getParameter<bool>("useQualityCuts")),
-    useJetCorr(!iConfig.getParameter<edm::InputTag>("jec").label().empty()),
-    produceSyst(!iConfig.getParameter<std::string>("systematicsLabel").empty()),
-    applyConstituentWeight(false)
-{
+    : jetsToken(consumes<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("srcJets"))),
+      jetCorrectorToken(consumes<reco::JetCorrector>(iConfig.getParameter<edm::InputTag>("jec"))),
+      vertexToken(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("srcVertexCollection"))),
+      rhoToken(consumes<double>(iConfig.getParameter<edm::InputTag>("srcRho"))),
+      computeLikelihood(iConfig.getParameter<bool>("computeLikelihood")),
+      paramsToken(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("jetsLabel")))),
+      useQC(iConfig.getParameter<bool>("useQualityCuts")),
+      useJetCorr(!iConfig.getParameter<edm::InputTag>("jec").label().empty()),
+      produceSyst(!iConfig.getParameter<std::string>("systematicsLabel").empty()),
+      applyConstituentWeight(false) {
   produces<edm::ValueMap<float>>("axis2");
   produces<edm::ValueMap<int>>("mult");
   produces<edm::ValueMap<float>>("ptD");
-  if (computeLikelihood){
+  if (computeLikelihood) {
     produces<edm::ValueMap<float>>("qgLikelihood");
   }
 
   edm::InputTag srcConstituentWeights = iConfig.getParameter<edm::InputTag>("srcConstituentWeights");
-  if (!srcConstituentWeights.label().empty()){
+  if (!srcConstituentWeights.label().empty()) {
     constituentWeightsToken = consumes<edm::ValueMap<float>>(srcConstituentWeights);
     applyConstituentWeight = true;
   }
@@ -76,12 +75,12 @@ void QGTagger::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&
   iEvent.getByToken(rhoToken, rho);
 
   edm::ValueMap<float> constituentWeights;
-  if (applyConstituentWeight){
+  if (applyConstituentWeight) {
     constituentWeights = iEvent.get(constituentWeightsToken);
   }
 
   const QGLikelihoodObject* QGLParamsColl = nullptr;
-  if (computeLikelihood){
+  if (computeLikelihood) {
     QGLParamsColl = &iSetup.getData(paramsToken);
   }
 
@@ -106,7 +105,7 @@ void QGTagger::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&
     float qgValue;
     if (mult > 2 && computeLikelihood)
       qgValue =
-        qgLikelihood.computeQGLikelihood(*QGLParamsColl, pt, jet->eta(), *rho, {(float)mult, ptD, -std::log(axis2)});
+          qgLikelihood.computeQGLikelihood(*QGLParamsColl, pt, jet->eta(), *rho, {(float)mult, ptD, -std::log(axis2)});
     else
       qgValue = -1;
 
@@ -124,7 +123,7 @@ void QGTagger::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&
   putInEvent("axis2", jets, axis2Product, iEvent);
   putInEvent("mult", jets, multProduct, iEvent);
   putInEvent("ptD", jets, ptDProduct, iEvent);
-  if (computeLikelihood){
+  if (computeLikelihood) {
     putInEvent("qgLikelihood", jets, qgProduct, iEvent);
     if (produceSyst) {
       putInEvent("qgLikelihoodSmearedQuark", jets, smearedQuarkProduct, iEvent);
@@ -170,11 +169,11 @@ std::tuple<int, float, float> QGTagger::calcVariables(const reco::Jet* jet,
   float multWeighted = 0;
 
   //Loop over the jet constituents
-  for (auto daughter : jet->getJetConstituents()) {
+  for (const auto& daughter : jet->getJetConstituents()) {
     const reco::Candidate* cand = daughter.get();
 
     float constWeight = 1.0;
-    if (applyConstituentWeight){
+    if (applyConstituentWeight) {
       constWeight = constituentWeights[daughter];
     }
 
@@ -273,7 +272,7 @@ void QGTagger::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.add<bool>("useQualityCuts");
   desc.add<edm::InputTag>("jec", edm::InputTag())->setComment("Jet correction service: only applied when non-empty");
   desc.add<edm::InputTag>("srcVertexCollection")->setComment("Ignored for miniAOD, possible to keep empty");
-  desc.add<edm::InputTag>("srcConstituentWeights",edm::InputTag())->setComment("Constituent weights ValueMap");
+  desc.add<edm::InputTag>("srcConstituentWeights", edm::InputTag())->setComment("Constituent weights ValueMap");
   descriptions.add("QGTagger", desc);
 }
 
