@@ -458,7 +458,7 @@ void FW3DViewGeometry::showMtdBarrel(bool showMtdBarrel) {
   if (showMtdBarrel && !m_mtdBarrelElements) {
     m_mtdBarrelElements = new TEveElementList("MtdBarrel");
 
-    std::vector<unsigned int> ids = m_geom->getMatchedIds(FWGeometry::MTD, FWGeometry::PixelBarrel);
+    std::vector<unsigned int> ids = m_geom->getMatchedIds(FWGeometry::Forward, FWGeometry::PixelBarrel);
     for (std::vector<unsigned int>::const_iterator mtdId = ids.begin(); mtdId != ids.end(); ++mtdId) {
       MTDDetId id(*mtdId);
       if (id.mtdSubDetector() != MTDDetId::MTDType::BTL)
@@ -484,7 +484,7 @@ void FW3DViewGeometry::showMtdEndcap(bool showMtdEndcap) {
   if (showMtdEndcap && !m_mtdEndcapElements) {
     m_mtdEndcapElements = new TEveElementList("MtdEndcap");
 
-    std::vector<unsigned int> ids = m_geom->getMatchedIds(FWGeometry::MTD, FWGeometry::PixelBarrel);
+    std::vector<unsigned int> ids = m_geom->getMatchedIds(FWGeometry::Forward, FWGeometry::PixelBarrel);
     for (std::vector<unsigned int>::const_iterator mtdId = ids.begin(); mtdId != ids.end(); ++mtdId) {
       MTDDetId id(*mtdId);
       if (id.mtdSubDetector() != MTDDetId::MTDType::ETL)

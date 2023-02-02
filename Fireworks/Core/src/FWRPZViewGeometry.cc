@@ -605,7 +605,7 @@ void FWRPZViewGeometry::showMtdBarrel(bool show) {
   if (!m_mtdBarrelElements && show) {
     m_mtdBarrelElements = new TEveElementList("MtdBarrel");
 
-    std::vector<unsigned int> ids = m_geom->getMatchedIds(FWGeometry::MTD, FWGeometry::PixelBarrel);
+    std::vector<unsigned int> ids = m_geom->getMatchedIds(FWGeometry::Forward, FWGeometry::PixelBarrel);
     for (std::vector<unsigned int>::const_iterator mtdId = ids.begin(); mtdId != ids.end(); ++mtdId) {
       MTDDetId id(*mtdId);
       if (id.mtdSubDetector() != MTDDetId::MTDType::BTL)
