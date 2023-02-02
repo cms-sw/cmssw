@@ -41,28 +41,27 @@ void FWBtlClusterProxyBuilder::build(const FWEventItem* iItem, TEveElementList* 
   iItem->get(clusters);
 
   if (!clusters) {
-    fwLog(fwlog::kWarning) << "failed to get the FTLClusterCollection" << std::endl;
+    fwLog(fwlog::kWarning) << "failed to get the BTL Cluster Collection" << std::endl;
     return;
   }
 
   const FWGeometry* geom = iItem->getGeom();
 
   TEvePointSet* pointSet = new TEvePointSet();
+  TEveElement* itemHolder = createCompound();
+  product->AddElement(itemHolder);
 
   for (const auto& detSet : *clusters) {
     unsigned int id = detSet.detId();
 
+    if (!geom->contains(id)) {
+      fwLog(fwlog::kWarning) << "failed to get BTL geometry element with detid: " << id << std::endl;
+      continue;
+    }
+
     const float* pars = geom->getParameters(id);
 
     for (const auto& cluster : detSet) {
-      TEveElement* itemHolder = createCompound();
-      product->AddElement(itemHolder);
-
-      if (!geom->contains(id)) {
-        fwLog(fwlog::kWarning) << "failed to get geometry of FTLCluster with detid: " << id << std::endl;
-        continue;
-      }
-
       // --- Get the BTL cluster local position:
       float x_local =
           (cluster.getClusterErrorX() < 0. ? (cluster.x() + 0.5f) * pars[0] + pars[2] : cluster.getClusterPosX());
@@ -75,11 +74,11 @@ void FWBtlClusterProxyBuilder::build(const FWEventItem* iItem, TEveElementList* 
 
       pointSet->SetNextPoint(globalPoint[0], globalPoint[1], globalPoint[2]);
 
-      setupAddElement(pointSet, itemHolder);
-
     }  // cluster loop
 
   }  // detSet loop
+
+  setupAddElement(pointSet, itemHolder);
 }
 
 REGISTER_FWPROXYBUILDER(FWBtlClusterProxyBuilder,

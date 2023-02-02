@@ -41,7 +41,7 @@ void FWEtlRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* p
   iItem->get(recHits);
 
   if (!recHits) {
-    fwLog(fwlog::kWarning) << "failed to get the FTLRecHitCollection" << std::endl;
+    fwLog(fwlog::kWarning) << "failed to get the ETL RecHit Collection" << std::endl;
     return;
   }
 
@@ -52,15 +52,15 @@ void FWEtlRecHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* p
   for (const auto& hit : *recHits) {
     unsigned int id = hit.id().rawId();
 
-    const float* pars = geom->getParameters(id);
+    if (!geom->contains(id)) {
+      fwLog(fwlog::kWarning) << "failed to get ETL geometry element with detid: " << id << std::endl;
+      continue;
+    }
 
     TEveElement* itemHolder = createCompound();
     product->AddElement(itemHolder);
 
-    if (!geom->contains(id)) {
-      fwLog(fwlog::kWarning) << "failed to get geometry of FTLRecHit with detid: " << id << std::endl;
-      continue;
-    }
+    const float* pars = geom->getParameters(id);
 
     // --- Get the ETL RecHit local position:
     float x_local = (hit.row() + 0.5f) * pars[0] + pars[2];
