@@ -131,6 +131,8 @@ public:
   int tileCount(int layer, int ring) const;
   bool tileExist(int zside, int layer, int ring, int phi) const;
   HGCalParameters::tileInfo tileInfo(int zside, int layer, int ring) const;
+  bool tilePhiEdge(double phi, int layer, int iphi) const;
+  bool tileRingEdge(double rho, int layer, int ring) const;
   std::pair<int, int> tileRings(int layer) const;
   inline int tileSiPM(int sipm) const { return ((sipm > 0) ? HGCalTypes::SiPMSmall : HGCalTypes::SiPMLarge); }
   bool tileTrapezoid() const {
@@ -238,12 +240,13 @@ private:
   std::unique_ptr<HGCalCell> hgcell_;
   std::unique_ptr<HGCalCellUV> hgcellUV_;
   HGCalGeomTools geomTools_;
-  const double k_horizontalShift = 1.0;
-  const float dPhiMin = 0.02;
+  constexpr static double k_horizontalShift = 1.0;
+  constexpr static float dPhiMin = 0.02;
   typedef std::array<std::vector<int32_t>, 2> Simrecovecs;
   typedef std::array<int, 3> HGCWaferParam;
   const HGCalParameters* hgpar_;
   constexpr static double tan30deg_ = 0.5773502693;
+  constexpr static double tol_ = 0.001;
   const double sqrt3_;
   const HGCalGeometryMode::GeometryMode mode_;
   const bool fullAndPart_;
