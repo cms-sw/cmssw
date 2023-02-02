@@ -1,5 +1,6 @@
 #include "FWCore/TestProcessor/interface/TestProcessor.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #define CATCH_CONFIG_MAIN
@@ -14,6 +15,7 @@ process = TestProcess()
 process.trackAnalyzer = generalPurposeTrackAnalyzer
 process.moduleToTest(process.trackAnalyzer)
 process.add_(cms.Service('MessageLogger'))
+process.add_(cms.Service('JobReportService'))
 process.add_(cms.Service('TFileService',fileName=cms.string('tesTrackAnalyzer1.root')))
 )_"};
 
@@ -50,6 +52,7 @@ process = TestProcess()
 process.dmrAnalyzer = dmrChecker
 process.moduleToTest(process.dmrAnalyzer)
 process.add_(cms.Service('MessageLogger'))
+process.add_(cms.Service('JobReportService'))
 process.add_(cms.Service('TFileService',fileName=cms.string('tesTrackAnalyzer2.root')))
 )_"};
 
@@ -61,10 +64,10 @@ process.add_(cms.Service('TFileService',fileName=cms.string('tesTrackAnalyzer2.r
   //   REQUIRE_NOTHROW(tester.test());
   // }
 
-  // SECTION("beginJob and endJob only") {
-  //   edm::test::TestProcessor tester(config);
-  //   REQUIRE_NOTHROW(tester.testBeginAndEndJobOnly());
-  // }
+  SECTION("beginJob and endJob only") {
+    edm::test::TestProcessor tester(config);
+    REQUIRE_NOTHROW(tester.testBeginAndEndJobOnly());
+  }
 
   // SECTION("Run with no LuminosityBlocks") {
   //   edm::test::TestProcessor tester(config);
@@ -75,4 +78,30 @@ process.add_(cms.Service('TFileService',fileName=cms.string('tesTrackAnalyzer2.r
   //   edm::test::TestProcessor tester(config);
   //   REQUIRE_NOTHROW(tester.testLuminosityBlockWithNoEvents());
   // }
+}
+
+TEST_CASE("JetHTAnalyzer tests", "[JetHTAnalyzer]") {
+  //The python configuration
+  edm::test::TestProcessor::Config config{
+      R"_(import FWCore.ParameterSet.Config as cms
+from FWCore.TestProcessor.TestProcess import *
+from Alignment.OfflineValidation.jetHTAnalyzer_cfi import jetHTAnalyzer
+process = TestProcess()
+process.JetHTAnalyzer = jetHTAnalyzer
+process.moduleToTest(process.JetHTAnalyzer)
+process.add_(cms.Service('JobReportService'))
+process.add_(cms.Service('TFileService',fileName=cms.string('tesTrackAnalyzer3.root')))
+)_"};
+
+  SECTION("base configuration is OK") { REQUIRE_NOTHROW(edm::test::TestProcessor(config)); }
+
+  SECTION("beginJob and endJob only") {
+    edm::test::TestProcessor tester(config);
+    REQUIRE_NOTHROW(tester.testBeginAndEndJobOnly());
+  }
+
+  // SECTION("No event data") {
+  //  edm::test::TestProcessor tester(config);
+  //  REQUIRE_NOTHROW(tester.test());
+  //}
 }
