@@ -18,7 +18,7 @@ namespace cms::alpakatools {
               typename TDev,
               typename TQueue,
               typename = void,
-              typename = std::enable_if_t<cms::alpakatools::is_device_v<TDev> and cms::alpakatools::is_queue_v<TQueue>>>
+              typename = std::enable_if_t<alpaka::isDevice<TDev> and alpaka::isQueue<TQueue>>>
     struct CachedBufAlloc {
       static_assert(alpaka::meta::DependentFalseType<TDev>::value, "This device does not support a caching allocator");
     };
@@ -193,7 +193,7 @@ namespace cms::alpakatools {
             typename TExtent,
             typename TQueue,
             typename TDev,
-            typename = std::enable_if_t<cms::alpakatools::is_device_v<TDev> and cms::alpakatools::is_queue_v<TQueue>>>
+            typename = std::enable_if_t<alpaka::isDevice<TDev> and alpaka::isQueue<TQueue>>>
   ALPAKA_FN_HOST auto allocCachedBuf(TDev const& dev, TQueue queue, TExtent const& extent = TExtent()) {
     return traits::CachedBufAlloc<TElem, alpaka::Dim<TExtent>, TIdx, TDev, TQueue>::allocCachedBuf(dev, queue, extent);
   }

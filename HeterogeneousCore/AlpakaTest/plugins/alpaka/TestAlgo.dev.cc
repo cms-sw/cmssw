@@ -18,7 +18,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class TestAlgoKernel {
   public:
-    template <typename TAcc, typename = std::enable_if_t<is_accelerator_v<TAcc>>>
+    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
     ALPAKA_FN_ACC void operator()(TAcc const& acc,
                                   portabletest::TestDeviceCollection::View view,
                                   int32_t size,
