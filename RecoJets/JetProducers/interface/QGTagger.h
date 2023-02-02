@@ -3,6 +3,7 @@
 #include <tuple>
 
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
