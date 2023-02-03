@@ -64,7 +64,7 @@ HGCalWaferIDTester::HGCalWaferIDTester(const edm::ParameterSet& iC)
       shift_(iC.getParameter<int>("shift")),
       dddToken_(esConsumes<HGCalDDDConstants, IdealGeometryRecord>(edm::ESInputTag{"", nameSense_})) {
   edm::LogVerbatim("HGCalGeomW") << "Test HGCSilicon DetID for " << nameSense_ << " of positions from the file "
-				 << errorFile_ << " for the mode " << mode_;
+                                 << errorFile_ << " for the mode " << mode_;
 
   edm::FileInPath filetmp("Geometry/HGCalCommonData/data/" + errorFile_);
   std::string fileName = filetmp.fullPath();
@@ -78,42 +78,42 @@ HGCalWaferIDTester::HGCalWaferIDTester(const edm::ParameterSet& iC)
       std::vector<std::string> items = HGCalGeomUtils::splitString(std::string(buffer));
       ++kount;
       if (shift_ != 1) {
-	DetId::Detector det = (nameSense_ == "HGCalEESensitive") ? DetId::HGCalEE : DetId::HGCalHSi;
-	if (items.size() > 8) {
-	  int type = std::atoi(items[0].c_str());
-	  int zp = std::atoi(items[1].c_str());
-	  int layer = std::atoi(items[2].c_str());
-	  int waferU = std::atoi(items[3].c_str());
-	  int waferV = std::atoi(items[4].c_str());
-	  int cellU = std::atoi(items[5].c_str());
-	  int cellV = std::atoi(items[6].c_str());
-	  double xx = std::atof(items[7].c_str()) * CLHEP::cm;
-	  double yy = std::atof(items[8].c_str()) * CLHEP::cm;
-	  HGCSiliconDetId id(det, zp, type, layer, waferU, waferV, cellU, cellV);
-	  detIds_.emplace_back(id);
-	  posXY_.emplace_back(std::make_pair(xx, yy));
-	}
+        DetId::Detector det = (nameSense_ == "HGCalEESensitive") ? DetId::HGCalEE : DetId::HGCalHSi;
+        if (items.size() > 8) {
+          int type = std::atoi(items[0].c_str());
+          int zp = std::atoi(items[1].c_str());
+          int layer = std::atoi(items[2].c_str());
+          int waferU = std::atoi(items[3].c_str());
+          int waferV = std::atoi(items[4].c_str());
+          int cellU = std::atoi(items[5].c_str());
+          int cellV = std::atoi(items[6].c_str());
+          double xx = std::atof(items[7].c_str()) * CLHEP::cm;
+          double yy = std::atof(items[8].c_str()) * CLHEP::cm;
+          HGCSiliconDetId id(det, zp, type, layer, waferU, waferV, cellU, cellV);
+          detIds_.emplace_back(id);
+          posXY_.emplace_back(std::make_pair(xx, yy));
+        }
       } else {
-	if (items.size() > 9) {
-	  DetId::Detector det = static_cast<DetId::Detector>(std::atoi(items[0].c_str()));
-	  int type = std::atoi(items[1].c_str());
-	  int zp = std::atoi(items[2].c_str());
-	  int layer = std::atoi(items[3].c_str());
-	  int waferU = std::atoi(items[4].c_str());
-	  int waferV = std::atoi(items[5].c_str());
-	  int cellU = std::atoi(items[6].c_str());
-	  int cellV = std::atoi(items[7].c_str());
-	  double xx = std::atof(items[8].c_str()) * CLHEP::cm;
-	  double yy = std::atof(items[9].c_str()) * CLHEP::cm;
-	  HGCSiliconDetId id(det, zp, type, layer, waferU, waferV, cellU, cellV);
-	  detIds_.emplace_back(id);
-	  posXY_.emplace_back(std::make_pair(xx, yy));
-	}
+        if (items.size() > 9) {
+          DetId::Detector det = static_cast<DetId::Detector>(std::atoi(items[0].c_str()));
+          int type = std::atoi(items[1].c_str());
+          int zp = std::atoi(items[2].c_str());
+          int layer = std::atoi(items[3].c_str());
+          int waferU = std::atoi(items[4].c_str());
+          int waferV = std::atoi(items[5].c_str());
+          int cellU = std::atoi(items[6].c_str());
+          int cellV = std::atoi(items[7].c_str());
+          double xx = std::atof(items[8].c_str()) * CLHEP::cm;
+          double yy = std::atof(items[9].c_str()) * CLHEP::cm;
+          HGCSiliconDetId id(det, zp, type, layer, waferU, waferV, cellU, cellV);
+          detIds_.emplace_back(id);
+          posXY_.emplace_back(std::make_pair(xx, yy));
+        }
       }
     }
     fInput.close();
-    edm::LogVerbatim("HGCalGeomW") << "Reads a total of " << detIds_.size() << ":" << posXY_.size() << " entries out of "
-                                  << kount << "\n";
+    edm::LogVerbatim("HGCalGeomW") << "Reads a total of " << detIds_.size() << ":" << posXY_.size()
+                                   << " entries out of " << kount << "\n";
     for (unsigned int k = 0; k < detIds_.size(); ++k)
       edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << detIds_[k] << " (" << posXY_[k].first << ", "
                                     << posXY_[k].second << ")";
@@ -149,22 +149,24 @@ void HGCalWaferIDTester::analyze(const edm::Event& iEvent, const edm::EventSetup
       hgdc.waferFromPosition(xx, yy, zside, layer, waferU, waferV, cellU, cellV, waferType, wt, false, debug);
       HGCSiliconDetId id(detIds_[k].det(), detIds_[k].zside(), waferType, layer, waferU, waferV, cellU, cellV);
       if (id.rawId() != detIds_[k].rawId())
-	st1 << " non-matching DetId: new ID " << id;
+        st1 << " non-matching DetId: new ID " << id;
       auto xy = hgdc.locateCell(id, true);
       double xx0 = (id.zside() > 0) ? xy.first : -xy.first;
       double yy0 = xy.second;
       double dx = xx0 - (xx / CLHEP::cm);
       double dy = yy0 - (yy / CLHEP::cm);
       double diff = std::sqrt(dx * dx + dy * dy);
-      st1 << " input position: (" << xx / CLHEP::cm << ", " << yy / CLHEP::cm << "); position from ID (" << xx0 << ", " << yy0 << ") distance " << diff;
+      st1 << " input position: (" << xx / CLHEP::cm << ", " << yy / CLHEP::cm << "); position from ID (" << xx0 << ", "
+          << yy0 << ") distance " << diff;
       constexpr double tol = 1.0;
       if (diff > tol)
-	st1 << " ***** CheckID *****";
-      bool valid1 = hgdc.isValidHex8(detIds_[k].layer(), detIds_[k].waferU(), detIds_[k].waferV(), detIds_[k].cellU(), detIds_[k].cellV(), true);
+        st1 << " ***** CheckID *****";
+      bool valid1 = hgdc.isValidHex8(
+          detIds_[k].layer(), detIds_[k].waferU(), detIds_[k].waferV(), detIds_[k].cellU(), detIds_[k].cellV(), true);
       bool valid2 = hgdc.isValidHex8(id.layer(), id.waferU(), id.waferV(), id.cellU(), id.cellV(), true);
       st1 << " Validity flag: " << valid1 << ":" << valid2;
       if ((!valid1) || (!valid2))
-	st1 << " +++++ Validity Check +++++ ";
+        st1 << " +++++ Validity Check +++++ ";
       edm::LogVerbatim("HGCalGeomW") << st1.str();
     }
   }
