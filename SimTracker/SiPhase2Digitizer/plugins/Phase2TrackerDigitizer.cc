@@ -320,10 +320,10 @@ namespace cms {
   void Phase2TrackerDigitizer::fillPSetDescription(edm::ParameterSetDescription& descriptions) {
     descriptions.add<std::string>("hitsProducer", "g4SimHits");
     descriptions.add("ROUList",
-             std::vector<std::string>{"TrackerHitsPixelBarrelLowTof",
-                                      "TrackerHitsPixelBarrelHighTof",
-                                      "TrackerHitsPixelEndcapLowTof",
-                                      "TrackerHitsPixelEndcapHighTof"});
+                     std::vector<std::string>{"TrackerHitsPixelBarrelLowTof",
+                                              "TrackerHitsPixelBarrelHighTof",
+                                              "TrackerHitsPixelEndcapLowTof",
+                                              "TrackerHitsPixelEndcapHighTof"});
     descriptions.add<std::string>("GeometryType", "idealForDigi");
     descriptions.add("isOTreadoutAnalog", false);
     descriptions.add("premixStage1", false);
