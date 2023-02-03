@@ -73,6 +73,8 @@ public:
     return vNeighborsDetId;
   }
 
+  std::vector<DetId> neighbors(DetId id) const;
+
   ///Geometry mode
   HGCalGeometryMode::GeometryMode geomMode() const { return mode_; }
 
