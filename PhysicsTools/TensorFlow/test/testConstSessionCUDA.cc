@@ -10,9 +10,9 @@
 
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 
-#include "testBase.h"
+#include "testBaseCUDA.h"
 
-class testConstSessionCUDA : public testBase {
+class testConstSessionCUDA : public testBaseCUDA {
   CPPUNIT_TEST_SUITE(testConstSessionCUDA);
   CPPUNIT_TEST(test);
   CPPUNIT_TEST_SUITE_END();
@@ -27,6 +27,26 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testConstSessionCUDA);
 std::string testConstSessionCUDA::pyScript() const { return "createconstantgraph.py"; }
 
 void testConstSessionCUDA::test() {
+  std::vector<edm::ParameterSet> psets;
+  edm::ServiceToken serviceToken = edm::ServiceRegistry::createSet(psets);
+  edm::ServiceRegistry::Operate operate(serviceToken);
+
+  // Setup the CUDA Service
+  edmplugin::PluginManager::configure(edmplugin::standard::config());
+
+  std::string const config = R"_(import FWCore.ParameterSet.Config as cms
+process = cms.Process('Test')
+process.add_(cms.Service('ResourceInformationService'))
+process.add_(cms.Service('CUDAService'))
+)_";
+  std::unique_ptr<edm::ParameterSet> params;
+  edm::makeParameterSets(config, params);
+  edm::ServiceToken tempToken(edm::ServiceRegistry::createServicesFromConfig(std::move(params)));
+  edm::ServiceRegistry::Operate operate2(tempToken);
+
+  auto cs = makeCUDAService(edm::ParameterSet{});
+  std::cout << "CUDA service enabled: " << cs.enabled() << std::endl;
+
   std::string pbFile = dataPath_ + "/constantgraph.pb";
 
   std::cout << "Testing CUDA backend" << std::endl;
