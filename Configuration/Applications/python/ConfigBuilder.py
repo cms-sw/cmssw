@@ -72,6 +72,7 @@ defaultOptions.inputEventContent = ''
 defaultOptions.dropDescendant = False
 defaultOptions.relval = None
 defaultOptions.profile = None
+defaultOptions.heap_profile = None
 defaultOptions.isRepacked = False
 defaultOptions.restoreRNDSeeds = False
 defaultOptions.donotDropOnInput = ''
@@ -317,6 +318,50 @@ class ConfigBuilder(object):
 
         return (profilerStart,profilerInterval,profilerFormat,profilerJobFormat)
 
+    def heapProfileOptions(self):
+        """
+        addJeProfService
+        Function to add the jemalloc heap  profile service so that you can dump in the middle
+        of the run.
+        """
+        profileOpts = self._options.profile.split(':')
+        profilerStart = 1
+        profilerInterval = 100
+        profilerFormat = None
+        profilerJobFormat = None
+
+        if len(profileOpts):
+            #type, given as first argument is unused here
+            profileOpts.pop(0)
+        if len(profileOpts):
+            startEvent = profileOpts.pop(0)
+            if not startEvent.isdigit():
+                raise Exception("%s is not a number" % startEvent)
+            profilerStart = int(startEvent)
+        if len(profileOpts):
+            eventInterval = profileOpts.pop(0)
+            if not eventInterval.isdigit():
+                raise Exception("%s is not a number" % eventInterval)
+            profilerInterval = int(eventInterval)
+        if len(profileOpts):
+            profilerFormat = profileOpts.pop(0)
+
+
+        if not profilerFormat:
+            profilerFormat = "%s___%s___%%I.heap" % (
+                self._options.evt_type.replace("_cfi", ""),
+                hashlib.md5(
+                    (str(self._options.step) + str(self._options.pileup) + str(self._options.conditions) +
+                    str(self._options.datatier) + str(self._options.profileTypeLabel)).encode('utf-8')
+                ).hexdigest()
+            )
+        if not profilerJobFormat and profilerFormat.endswith(".heap"):
+            profilerJobFormat = profilerFormat.replace(".heap", "_EndOfJob.heap")
+        elif not profilerJobFormat:
+            profilerJobFormat = profilerFormat + "_EndOfJob.heap"
+
+        return (profilerStart,profilerInterval,profilerFormat,profilerJobFormat)
+
     def load(self,includeFile):
         includeFile = includeFile.replace('/','.')
         self.process.load(includeFile)
@@ -367,6 +412,15 @@ class ConfigBuilder(object):
                                                      reportToFileAtPostEvent     = cms.untracked.string("| gzip -c > %s"%(eventFormat)),
                                                      reportToFileAtPostEndJob    = cms.untracked.string("| gzip -c > %s"%(jobFormat)))
             self.addedObjects.append(("Setup IGProf Service for profiling","IgProfService"))
+
+        if self._options.heap_profile:
+            (start, interval, eventFormat, jobFormat)=self.heapProfileOptions()
+            self.process.JeProfService = cms.Service("JeProfService",
+                                                     reportFirstEvent            = cms.untracked.int32(start),
+                                                     reportEventInterval         = cms.untracked.int32(interval),
+                                                     reportToFileAtPostEvent     = cms.untracked.string("%s"%(eventFormat)),
+                                                     reportToFileAtPostEndJob    = cms.untracked.string("%s"%(jobFormat)))
+            self.addedObjects.append(("Setup JeProf Service for heap profiling","JeProfService"))
 
     def addMaxEvents(self):
         """Here we decide how many evts will be processed"""

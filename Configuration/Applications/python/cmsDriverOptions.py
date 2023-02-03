@@ -251,6 +251,12 @@ def OptionsFromItems(items):
 
         options.prefix = "igprof -t cmsRun -%s" % profilerType
         
+    if options.heap_profile:
+        if options.profile and options.prefix:
+            raise Exception("--heap_profile and --prefix are incompatible")
+        profilerType = 'pp'
+        options.prefix = "MALLOC_CONF=prof:true,prof_accum:true,prof_prefix:jeprof.out cmsRunJE "
+
     # If an "era" argument was supplied make sure it is one of the valid possibilities
     if options.era :
         from Configuration.StandardSequences.Eras import eras
