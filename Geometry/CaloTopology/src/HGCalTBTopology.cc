@@ -28,6 +28,17 @@ HGCalTBTopology::HGCalTBTopology(const HGCalTBDDDConstants* hdcons, int det) : h
 
 HGCalTBTopology::~HGCalTBTopology() {}
 
+std::vector<DetId> HGCalTBTopology::neighbors(DetId idin) const {
+  std::vector<DetId> ids = north(idin);
+  for (const auto& id : south(idin))
+    ids.emplace_back(id);
+  for (const auto& id : east(idin))
+    ids.emplace_back(id);
+  for (const auto& id : west(idin))
+    ids.emplace_back(id);
+  return ids;
+}
+
 unsigned int HGCalTBTopology::allGeomModules() const { return (static_cast<unsigned int>(2 * hdcons_->wafers())); }
 
 DetId HGCalTBTopology::denseId2detId(uint32_t hi) const {

@@ -2,9 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-process.load("Configuration.Geometry.GeometryExtended2026D88Reco_cff")
+process.load("Geometry.HGCalTBCommonData.testTB181V1XML_cfi")
+process.load("Geometry.HGCalTBCommonData.hgcalTBParametersInitialization_cfi")
+process.load("Geometry.HGCalTBCommonData.hgcalTBNumberingInitialization_cfi")
+process.load("Geometry.CaloEventSetup.HGCalTBTopology_cfi")
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.load("Geometry.CaloTopology.hgcalTopologyTester_cfi")
+process.load("Geometry.CaloTopology.hgcalTBTopologyTester_cfi")
 
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.HGCalGeom=dict()
@@ -34,6 +37,4 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.p1 = cms.Path(process.generator*
-                      process.hgcalTopologyTesterEE*
-                      process.hgcalTopologyTesterHEF*
-                      process.hgcalTopologyTesterHEB)
+                      process.hgcalTBTopologyTesterEE)
