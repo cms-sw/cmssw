@@ -56,7 +56,7 @@ namespace tensorflow {
       throw ex;
     }
     // Get NVidia GPU if possible or fallback to CPU
-    else if ((backend == Backend::best)) {
+    else if (backend == Backend::best) {
       // Check if a Nvidia GPU is availabl
       if (not ri->nvidiaDriverVersion().empty()) {
         // Take only the first GPU in the CUDA_VISIBLE_DEVICE list
