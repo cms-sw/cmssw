@@ -47,7 +47,8 @@ void RPixDetClusterizer::buildClusters(unsigned int detId,
       unsigned int rocNum = (det.first & rocMask) >> rocOffset;
       if (rocNum > 5)
         throw cms::Exception("InvalidRocNumber") << "roc number from mask: " << rocNum;
-      if(det.second.fullMask) fullyMaskedRoc[currentId.plane()][rocNum] = true;
+      if (det.second.fullMask)
+        fullyMaskedRoc[currentId.plane()][rocNum] = true;
       for (auto const &paio : det.second.maskedPixels) {
         std::pair<unsigned char, unsigned char> pa = paio;
         int modCol, modRow;
@@ -85,7 +86,7 @@ void RPixDetClusterizer::buildClusters(unsigned int detId,
 
     // check if pixel inside a fully masked roc
     int piano = currentId.plane();
-    int rocId = pI.getROCId(column,row);
+    int rocId = pI.getROCId(column, row);
 
     if (!is_in && !fullyMaskedRoc[piano][rocId]) {
       //calibrate digi and store the new ones

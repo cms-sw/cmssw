@@ -190,44 +190,44 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event &iEvent, const edm::EventS
       unsigned int rocNum = (det.first & rocMask) >> rocOffset;
       if (rocNum > 5 || detId.plane() > 5)
         throw cms::Exception("InvalidRocOrPlaneNumber") << "roc number from mask: " << rocNum;
- 
-      if (detId.arm() == 0 && detId.station() == 2 && detId.rp() == 3) {  // pot 45-220-far
-        if (det.second.maskedPixels.size() == rocSizeInPixels || det.second.fullMask == true) {          // roc fully masked
+
+      if (detId.arm() == 0 && detId.station() == 2 && detId.rp() == 3) {                         // pot 45-220-far
+        if (det.second.maskedPixels.size() == rocSizeInPixels || det.second.fullMask == true) {  // roc fully masked
           maskV[0][detId.plane()][rocNum] = true;
         }
       }
-      if (detId.arm() == 0 && detId.station() == 0 && detId.rp() == 3) {  // pot 45-210-far
-        if (det.second.maskedPixels.size() == rocSizeInPixels || det.second.fullMask == true) {          // roc fully masked
+      if (detId.arm() == 0 && detId.station() == 0 && detId.rp() == 3) {                         // pot 45-210-far
+        if (det.second.maskedPixels.size() == rocSizeInPixels || det.second.fullMask == true) {  // roc fully masked
           maskV[1][detId.plane()][rocNum] = true;
         }
       }
-      if (detId.arm() == 1 && detId.station() == 0 && detId.rp() == 3) {  // pot 56-210-far
-        if (det.second.maskedPixels.size() == rocSizeInPixels || det.second.fullMask == true) {          // roc fully masked
+      if (detId.arm() == 1 && detId.station() == 0 && detId.rp() == 3) {                         // pot 56-210-far
+        if (det.second.maskedPixels.size() == rocSizeInPixels || det.second.fullMask == true) {  // roc fully masked
           maskV[2][detId.plane()][rocNum] = true;
         }
       }
-      if (detId.arm() == 1 && detId.station() == 2 && detId.rp() == 3) {  // pot 56-220-far
-        if (det.second.maskedPixels.size() == rocSizeInPixels || det.second.fullMask == true) {          // roc fully masked
+      if (detId.arm() == 1 && detId.station() == 2 && detId.rp() == 3) {                         // pot 56-220-far
+        if (det.second.maskedPixels.size() == rocSizeInPixels || det.second.fullMask == true) {  // roc fully masked
           maskV[3][detId.plane()][rocNum] = true;
         }
       }
-
     }
 
     // search for specific pattern that requires special reconstruction (use of two plane tracks)
 
-    for(unsigned int i = 0; i<4; i++){
+    for (unsigned int i = 0; i < 4; i++) {
       unsigned int numberOfMaskedPlanes = 0;
-      for(unsigned int j = 0; j<6; j++){
-	if(maskV[i][j][0] && maskV[i][j][1] && maskV[i][j][4] && maskV[i][j][5]) numberOfMaskedPlanes++;
+      for (unsigned int j = 0; j < 6; j++) {
+        if (maskV[i][j][0] && maskV[i][j][1] && maskV[i][j][4] && maskV[i][j][5])
+          numberOfMaskedPlanes++;
       }
-      if(numberOfMaskedPlanes == 4)isBadPotV[i] = true;  // search for exactly 4 planes fully masked
-      edm::LogInfo("CTPPSPixelLocalTrackProducer") << " Masked planes in Pot #" 
-						   << i << " = " << numberOfMaskedPlanes;
-      if(isBadPotV[i]) edm::LogInfo("CTPPSPixelLocalTrackProducer") << " Enabling 2 plane track reconstruction for pot #" 
-								    << i << " (0=45-220, 1=45-210, 2=56-210, 3=56-220) ";
+      if (numberOfMaskedPlanes == 4)
+        isBadPotV[i] = true;  // search for exactly 4 planes fully masked
+      edm::LogInfo("CTPPSPixelLocalTrackProducer") << " Masked planes in Pot #" << i << " = " << numberOfMaskedPlanes;
+      if (isBadPotV[i])
+        edm::LogInfo("CTPPSPixelLocalTrackProducer")
+            << " Enabling 2 plane track reconstruction for pot #" << i << " (0=45-220, 1=45-210, 2=56-210, 3=56-220) ";
     }
-
   }
   std::vector<CTPPSPixelDetId> listOfPotWithHighOccupancyPlanes;
   std::map<CTPPSPixelDetId, uint32_t> mapHitPerPot;
