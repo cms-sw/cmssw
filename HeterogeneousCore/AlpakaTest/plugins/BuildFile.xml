@@ -1,6 +1,7 @@
 <!-- host-only plugins -->
 <library file="*.cc" name="HeterogeneousCoreAlpakaTestPlugins">
   <use name="alpaka"/>
+  <use name="fmt"/>
   <use name="DataFormats/PortableTestObjects"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
