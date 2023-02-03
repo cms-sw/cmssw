@@ -49,6 +49,10 @@ upgradeKeys[2026] = [
     '2026D96PU',
     '2026D97',
     '2026D97PU',
+    '2026D98',
+    '2026D98PU',
+    '2026D99',
+    '2026D99PU',
 ]
 
 # pre-generation of WF numbers
@@ -2378,6 +2382,20 @@ upgradeProperties[2026] = {
     },
     '2026D97' : {
         'Geom' : 'Extended2026D97',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T25',
+        'Era' : 'Phase2C17I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
+    },
+    '2026D98' : {
+        'Geom' : 'Extended2026D98',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T25',
+        'Era' : 'Phase2C17I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
+    },
+    '2026D99' : {
+        'Geom' : 'Extended2026D99',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T25',
         'Era' : 'Phase2C17I13M9',
