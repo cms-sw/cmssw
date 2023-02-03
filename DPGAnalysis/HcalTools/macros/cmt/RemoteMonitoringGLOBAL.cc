@@ -3500,16 +3500,29 @@ int main(int argc, char *argv[]) {
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// RBX study:
   //////////////////////////////////////////////////////////////////////////////////////////////////////// RBX study:
   //////////////////////////////////////////////////////////////////////////////////// RBX study:
+  int MaxLum000000 = 0;
+  MaxLum000000 = MaxLum;
 
   cout << " RBX analysis START for  **************************" << endl;
   cout << ">>>>>>>>>>>>>>>>>>>>>>>>                             " << endl;
   //  int njeta = 22; int njphi = 18; int lsmax=2600;
   int njeta = 22;
   int njphi = 18;
-  int lsmax = 1800;
-  cout << ">>>>>>>>>>>>>>>>>>>>>>>>     int njeta = 22; int njphi = 18; int lsmax=1800;                        "
-       << endl;
+  int lsmax0 = 1850;
+  cout << ">>>>>>>>>>>>>>>>>>>>>>>>     int njeta = 22; int njphi = 18; int lsmax0=1850;  MaxLum = " << MaxLum << endl;
+  cout << ">>>>>>>>>>>>>>>>>>>>>>>>                             " << endl;
 
+  if (MaxLum > lsmax0) {
+    MaxLum = lsmax0;
+    cout << ">>>>>>>>>>>>>>>>>>>>>>>>                             " << endl;
+    cout << "***********************************   EXCEEDED limit for MaxLum, it's bigger lsmax0. So we do limit "
+            "MaxLum = lsmax0 "
+         << endl;
+    cout << ">>>>>>>>>>>>>>>>>>>>>>>>                             " << endl;
+  }
+
+  int lsmax = MaxLum;
+  //if (lsmax > 1800) lsmax = 1800;
   double alexall[njeta][njphi][lsmax];
 
   // for phi tables(!):
@@ -3524,12 +3537,13 @@ int main(int argc, char *argv[]) {
   double blexho[njeta][lsmax];
   double blexhf[njeta][lsmax];
 
-  cout << ">>>>>>>>>>>>>>>>>>>>>>>>  alexall   [njeta][njphi][lsmax];                         " << endl;
+  cout << ">>>>>>>>>>>>>>>>>>>>>>>>  For massive:alexall AND for eta and phi tables::::   " << endl;
+  cout << ">>>>>>>>>>>>>>>>>>>>>>>>  alex...   [njeta][njphi][lsmax];   lsmax = MaxLum; " << endl;
+  cout << ">>>>>>>>>>>>>>>>>>>>>>>>  alex...   BUT,  Max of lsmax = 1800  " << endl;
+  cout << ">>>>>>>>>>>>>>>>>>>>>>>>                             " << endl;
   int maxbinsRBX = MaxLum;
   int nx = maxbinsRBX;  // # LS
   cout << ">>>>>>>>>>>>>>>>>>>>>>>>   maxbinsRBX = MaxLum;                          " << endl;
-  if (MaxLum > lsmax)
-    cout << "***********************************   ERROR ERROR ERROR ERROR:   MaxLum > 1800 " << endl;
   cout << ">>>>>>>>>>>>>>>>>>>>>>>>                             " << endl;
 
   for (int i = 0; i < nx; i++) {
@@ -7516,7 +7530,8 @@ HF: j = 0,1,2, 3            18,19,20,21
       htmlFile << "</tr>" << std::endl;
 
       ind = 0;
-      for (int i = 1; i <= MaxLum; i++) {
+      //    for (int i = 1; i <= MaxLum; i++) {
+      for (int i = 1; i <= MaxLum000000; i++) {
         if ((ind % 2) == 1)
           raw_class = "<td class=\"s2\" align=\"center\">";
         else
@@ -8613,7 +8628,7 @@ HF: j = 0,1,2, 3            18,19,20,21
   htmlFile << "<br>" << std::endl;
 
   //  htmlFile << "<h2> 1. General information </h2>"<< std::endl;
-  htmlFile << "<h2> 1. General information     (Full number of LS = " << MaxLum << " ). </h2>" << std::endl;
+  htmlFile << "<h2> 1. General information     (Full number of LS = " << MaxLum000000 << " ). </h2>" << std::endl;
   htmlFile << " <img src=\"LumiEvent.png\" />" << std::endl;
   htmlFile << "<br>" << std::endl;
 

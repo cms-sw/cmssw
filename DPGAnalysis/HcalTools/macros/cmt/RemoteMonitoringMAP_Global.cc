@@ -24,6 +24,20 @@
 #include "TLine.h"
 #include "TGraph.h"
 #include <TPaveText.h>
+//#####
+
+#include <TChain.h>
+#include <TH1D.h>
+#include <TH2D.h>
+#include <TProfile.h>
+#include <TFitResult.h>
+#include <TFitResultPtr.h>
+#include <TPaveStats.h>
+#include <vector>
+#include <string>
+#include <iomanip>
+//#####
+#include <TClass.h>
 
 //
 // https://cms-conddb.cern.ch/eosweb/hcal/HcalRemoteMonitoring/GlobalRMT
@@ -38,6 +52,40 @@ int main(int argc, char *argv[]) {
   gROOT->SetStyle("Plain");
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(1);
+
+  gStyle->SetStatX(0.91);
+  gStyle->SetStatY(0.75);
+  gStyle->SetStatW(0.20);
+  gStyle->SetStatH(0.10);
+  // gStyle->SetStatH(0.35);
+  //
+
+  //        Float_t LeftOffset = 0.12;
+  //Float_t TopOffset = 0.12;
+  Float_t LeftOffset = 0.12;
+  Float_t TopOffset = 0.22;
+
+  gStyle->SetLineWidth(1);
+  gStyle->SetErrorX(0);
+
+  //---=[ Titles,Labels ]=-----------
+  gStyle->SetOptTitle(0);  // title on/off
+  //      gStyle->SetTitleColor(0);           // title color
+  gStyle->SetTitleColor(1);  // title color
+  //      gStyle->SetTitleX(0.35);            // title x-position
+  gStyle->SetTitleX(0.15);  // title x-position
+  gStyle->SetTitleH(0.15);  // title height
+  //      gStyle->SetTitleW(0.53);            // title width
+  gStyle->SetTitleW(0.60);         // title width
+  gStyle->SetTitleFont(42);        // title font
+  gStyle->SetTitleFontSize(0.07);  // title font size
+
+  gStyle->SetPalette(1);
+  //---=[ Pad style ]=----------------
+  gStyle->SetPadTopMargin(TopOffset);
+  gStyle->SetPadBottomMargin(LeftOffset);
+  gStyle->SetPadRightMargin(TopOffset);
+  gStyle->SetPadLeftMargin(LeftOffset);
 
   if (argc < 2)
     return 1;
@@ -112,6 +160,7 @@ int main(int argc, char *argv[]) {
   TCanvas *cHE = new TCanvas("cHE", "cHE", 1500, 1500);
   //  TCanvas *cONE = new TCanvas("cONE","cONE",500,500);
   TCanvas *cONE = new TCanvas("cONE", "cONE", 1500, 500);
+  TCanvas *cHO = new TCanvas("cHO", "cHO", 500, 500);
   TCanvas *cPED = new TCanvas("cPED", "cPED", 1000, 500);
   //TCanvas *cHF = new TCanvas("cHF","cHF",1000,1000);
   TCanvas *cHF = new TCanvas("cHF", "cHF", 1000, 1000);
@@ -141,8 +190,8 @@ int main(int argc, char *argv[]) {
   //int k_max[5]={0,2,7,4,4}; // maximum depth for each subdet
   int k_max[5] = {0, 4, 7, 4, 4};  // maximum depth for each subdet
 
-  TH2F *Map_Ampl[33][5][ALLDEPTH];       // 2D histogramm for test,subdet,depth
-  TH2F *Map_SUBGOOD[5][ALLDEPTH];        // 2d histogramm for subdet, depth
+  TH2F *Map_Ampl[33][5][ALLDEPTH];  // 2D histogramm for test,subdet,depth
+  //AZ2023  TH2F *Map_SUBGOOD[5][ALLDEPTH];        // 2d histogramm for subdet, depth
   TH2F *Map_SUB[5][ALLDEPTH];            // 2d histogramm for subdet, depth
   TH1F *HistAmplDepth[22][5][ALLDEPTH];  // 1d histogramm for test,subdet, depth
   TH1F *HistAmpl[22][5];                 // 1d histogramm for test,subdet
@@ -176,7 +225,8 @@ int main(int argc, char *argv[]) {
   Map_SUB[4][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2_HF");
   Map_SUB[4][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3_HF");
   Map_SUB[4][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4_HF");
-
+  //AZ2023:
+  /*
   Map_SUBGOOD[1][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1_HB");
   Map_SUBGOOD[1][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2_HB");
   Map_SUBGOOD[1][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3_HB");
@@ -193,7 +243,7 @@ int main(int argc, char *argv[]) {
   Map_SUBGOOD[4][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2_HF");
   Map_SUBGOOD[4][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3_HF");
   Map_SUBGOOD[4][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4_HF");
-
+*/
   //+++++++++++++++++++++++++++++
   //Test 0 Entries
   //+++++++++++++++++++++++++++++
@@ -693,22 +743,34 @@ int main(int argc, char *argv[]) {
       if (test == 2 && sub == 2) {
         cONE->cd(2);
         TH1F *kjkjkhj2 = (TH1F *)dir->FindObjectAny("h_AmplitudeHEtest1");
+        gPad->SetGridy();
+        gPad->SetGridx();
+        gPad->SetLogy();
         kjkjkhj2->Draw("");
-        kjkjkhj2->SetTitle("HE, All Depth: shunt1");
+        kjkjkhj2->SetXTitle("HE, All Depth: shunt1");
         cONE->cd(3);
         TH1F *kjkjkhj3 = (TH1F *)dir->FindObjectAny("h_AmplitudeHEtest6");
+        gPad->SetGridy();
+        gPad->SetGridx();
+        gPad->SetLogy();
         kjkjkhj3->Draw("");
-        kjkjkhj3->SetTitle("HE, All Depth: shunt6");
+        kjkjkhj3->SetXTitle("HE, All Depth: shunt6");
       }
       if (test == 2 && sub == 1) {
         cONE->cd(2);
         TH1F *kjkjkhb2 = (TH1F *)dir->FindObjectAny("h_AmplitudeHBtest1");
+        gPad->SetGridy();
+        gPad->SetGridx();
+        gPad->SetLogy();
         kjkjkhb2->Draw("");
-        kjkjkhb2->SetTitle("HB, All Depth: shunt1");
+        kjkjkhb2->SetXTitle("HB, All Depth: shunt1");
         cONE->cd(3);
         TH1F *kjkjkhb3 = (TH1F *)dir->FindObjectAny("h_AmplitudeHBtest6");
+        gPad->SetGridy();
+        gPad->SetGridx();
+        gPad->SetLogy();
         kjkjkhb3->Draw("");
-        kjkjkhb3->SetTitle("HB, All Depth: shunt6");
+        kjkjkhb3->SetXTitle("HB, All Depth: shunt6");
       }
 
       cONE->cd(1);
@@ -1377,7 +1439,7 @@ int main(int argc, char *argv[]) {
 
   //======================================================================
 
-  std::cout << " We are here to print general 2D MAP " << std::endl;
+  //AZ2023:  std::cout << " We are here to print general 2D MAP " << std::endl;
 
   //======================================================================
 
@@ -1391,11 +1453,14 @@ int main(int argc, char *argv[]) {
   //k-Depth
 
   //  TH2F *Map_ALL = new TH2F("Map_All", "Map_all", 82, -41, 40, 72, 0, 71);
-  TH2F *Map_ALL = new TH2F("Map_All", "Map_all", 82, -41, 41, 72, 0, 72);
+  //AZ2023:
+  //AZ2023  TH2F *Map_ALL = new TH2F("Map_All", "Map_all", 82, -41, 41, 72, 0, 72);
 
+  /*
   int nx = Map_ALL->GetXaxis()->GetNbins();
   int ny = Map_ALL->GetYaxis()->GetNbins();
   cout << " nx= " << nx << " ny= " << ny << endl;
+*/
   //  int NBad = 0;
   //  int NWarn = 0;
   //  int NCalib = 0;
@@ -1411,6 +1476,8 @@ int main(int argc, char *argv[]) {
   //  int flag_W = 0;
   //  int flag_B = 0;
   //  int flag_P = 0;
+  //AZ2023:
+  /*
   int fffffflag = 0;
   std::cout << " Map_ALL   SUBGOOD update " << std::endl;
   for (int sub = 1; sub <= 4; sub++) {
@@ -1418,14 +1485,16 @@ int main(int argc, char *argv[]) {
       for (int i = 1; i <= nx; i++) {
         for (int j = 1; j <= ny; j++) {
           if (Map_SUB[sub][k]->GetBinContent(i, j) != 0) {
-            Map_SUBGOOD[sub][k]->SetBinContent(i, j, 0.5);
-            Map_ALL->SetBinContent(i, j, 0.5);
+       //AZ2023     Map_SUBGOOD[sub][k]->SetBinContent(i, j, 0.5);
+        //AZ2023    Map_ALL->SetBinContent(i, j, 0.5);
           }
         }
       }
     }
   }
-
+*/
+  //AZ2023:
+  /*
   std::cout << " Map_ALL   SUBGOOD filling............... " << std::endl;
   for (int sub = 1; sub <= 4; sub++) {
     for (int k = k_min[sub]; k <= k_max[sub]; k++) {
@@ -1442,47 +1511,18 @@ int main(int argc, char *argv[]) {
             //Bad
             //Rate 0.1 for displaying  on whole detector map and subdetector map
             if (Map_Ampl[test][sub][k]->GetBinContent(i, j) > 0.1) {
-              Map_ALL->SetBinContent(i, j, 1.);
-              Map_SUBGOOD[sub][k]->SetBinContent(i, j, 1.);
+       //AZ2023       Map_ALL->SetBinContent(i, j, 1.);
+           //AZ2023   Map_SUBGOOD[sub][k]->SetBinContent(i, j, 1.);
               fffffflag = 1;
-              /*
-              if (flag_B == 0) {
-                NBad += 1;
-                Eta[2][NBad] = i - 41;
-                Phi[2][NBad] = j - 1;
-                Sub[2][NBad] = sub;
-                Depth[2][NBad] = k;
-                Comment[2][NBad] = Text[test];
-              }
-	      else {
-                Comment[2][NBad] += ", " + Text[test];
-		flag_B = 1;
-	      }
-*/
             }
 
             if ((Map_Ampl[test][sub][k]->GetBinContent(i, j) != 0.) &&
                 (Map_Ampl[test][sub][k]->GetBinContent(i, j) < 0.001)) {
               if (Map_SUBGOOD[sub][k]->GetBinContent(i, j) != 1.)
-                Map_SUBGOOD[sub][k]->SetBinContent(i, j, 0.75);
-              if (Map_ALL->GetBinContent(i, j) != 1.)
-                Map_ALL->SetBinContent(i, j, 0.75);
+              //AZ2023  Map_SUBGOOD[sub][k]->SetBinContent(i, j, 0.75);
+          //AZ2023     if (Map_ALL->GetBinContent(i, j) != 1.)Map_ALL->SetBinContent(i, j, 0.75);
               fffffflag = 2;
-              /*
-	      if (flag_W == 0) {
-		NWarn +=1; 
-		Eta[1][NWarn]=i-41;
-		Phi[1][NWarn]=j-1;
-		Sub[1][NWarn]=sub;
-		Depth[1][NWarn]=k;
-		Comment[1][NWarn]=Text[test]; 
-	      } 
-	      else {Comment[1][NWarn]+=", "+Text[test];
-		flag_W = 1;		      		 
-	      }	
-*/
             }
-
             ////
 
             //	    if(fffffflag != 0)   cout<<"Map_Ampl["<<test<<"]["<<sub<<"]["<<k<<"]->GetBinContent("<<i<<","<<j<<")= "<<Map_Ampl[test][sub][k]->GetBinContent(i,j)  << "fffffflag = "<< fffffflag    <<endl;
@@ -1494,24 +1534,8 @@ int main(int argc, char *argv[]) {
           for (int test = 31; test <= 32; test++) {
             //	    cout<<"Pedestals test= "<<test<<" sbd= "<<sub<<" depth= "<<k<<" eta= "<<i<<" , phi= "<<j<<endl;
             if (Map_Ampl[test][sub][k]->GetBinContent(i, j) > 0.9) {
-              if (Map_SUBGOOD[sub][k]->GetBinContent(i, j) != 1.0)
-                Map_SUBGOOD[sub][k]->SetBinContent(i, j, 0.15);
-              if (Map_ALL->GetBinContent(i, j) != 1.)
-                Map_ALL->SetBinContent(i, j, 0.15);
-              /*	      
-	      if (flag_P == 0) {
-		NPed += 1;
-		Eta[3][NPed] = i - 41;
-		Phi[3][NPed] = j - 1;
-		Sub[3][NPed] = sub;
-		Depth[3][NPed] = k;
-		Comment[3][NPed] = Text[test];
-	      }
-	      else {
-		Comment[3][NPed] += ", " + Text[test];
-		flag_P = 1;
-	      }
-*/
+            //AZ2023   if (Map_SUBGOOD[sub][k]->GetBinContent(i, j) != 1.0)   Map_SUBGOOD[sub][k]->SetBinContent(i, j, 0.15);
+	//AZ2023	if (Map_ALL->GetBinContent(i, j) != 1.)	  Map_ALL->SetBinContent(i, j, 0.15);
             }
             //	    cout<<"Pedestals Map_Ampl["<<test<<"]["<<sub<<"]["<<k<<"]->GetBinContent("<<i<<","<<j<<")= "<<Map_Ampl[test][sub][k]->GetBinContent(i,j)<<endl;
           }  //end test
@@ -1519,7 +1543,9 @@ int main(int argc, char *argv[]) {
       }
     }
   }
-
+*/
+  //AZ2023:
+  /*
   std::cout << " RUN3: 2022 Plots with MAPS_SUB: start ..............................." << std::endl;
   // subdet maps
   for (int sub = 1; sub <= 4; sub++) {  //Subdetector: 1-HB, 2-HE, 3-HF, 4-HO
@@ -1602,10 +1628,10 @@ int main(int argc, char *argv[]) {
       cHF->Clear();
     }
   }  // end sub
-
+*/
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  TCanvas *cmain1 = new TCanvas("cmain1", "MAP", 200, 10, 1400, 1800);
+  TCanvas *cmain1 = new TCanvas("cmain1", "cmain1", 200, 10, 1400, 1800);
   cmain1->Divide(2, 2);
 
   cmain1->cd(1);
@@ -1621,7 +1647,7 @@ int main(int argc, char *argv[]) {
   JDBEYESJ0->SetLineColor(1);
   JDBEYESJ0->SetMinimum(0.8);
   JDBEYESJ0->Draw("HIST same P0");
-  JDBEYESJ0->Clear();
+  //JDBEYESJ0->Clear();
 
   cmain1->cd(2);
   TH1F *JDBEYESJ1 = (TH1F *)dir->FindObjectAny("h_totalAmplitudeHEperEvent");
@@ -1636,7 +1662,7 @@ int main(int argc, char *argv[]) {
   JDBEYESJ1->SetLineColor(1);
   JDBEYESJ1->SetMinimum(0.8);
   JDBEYESJ1->Draw("HIST same P0");
-  JDBEYESJ1->Clear();
+  //JDBEYESJ1->Clear();
 
   cmain1->cd(3);
   TH1F *JDBEYESJ2 = (TH1F *)dir->FindObjectAny("h_totalAmplitudeHFperEvent");
@@ -1651,7 +1677,7 @@ int main(int argc, char *argv[]) {
   JDBEYESJ2->SetLineColor(1);
   JDBEYESJ2->SetMinimum(0.8);
   JDBEYESJ2->Draw("HIST same P0");
-  JDBEYESJ2->Clear();
+  //JDBEYESJ2->Clear();
 
   cmain1->cd(4);
   TH1F *JDBEYESJ3 = (TH1F *)dir->FindObjectAny("h_totalAmplitudeHOperEvent");
@@ -1666,17 +1692,15 @@ int main(int argc, char *argv[]) {
   JDBEYESJ3->SetLineColor(1);
   JDBEYESJ3->SetMinimum(0.8);
   JDBEYESJ3->Draw("HIST same P0");
-  JDBEYESJ3->Clear();
-
+  //JDBEYESJ3->Clear();
   cmain1->Modified();
   cmain1->Update();
   cmain1->Print("EVENTDEPENDENCE.png");
   cmain1->Clear();
-
-  std::cout << " EVENTDEPENDENCE " << std::endl;
-
+  //  std::cout << " EVENTDEPENDENCE " << std::endl;
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+  //AZ2023:
+  /*
   // ALL SubDet
   gStyle->SetOptTitle(0);
   TCanvas *cmain = new TCanvas("cmain", "MAP", 1000, 1000);
@@ -1693,11 +1717,702 @@ int main(int argc, char *argv[]) {
   cmain->Update();
   cmain->Print("MAP.png");
   cmain->Clear();
-
   std::cout << " MAP_ALL " << std::endl;
+*/
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // 7. Correlation of Charge(=Amplitude) vs timing, fc (=TSN * 25 ns)
+  // three plots -----------------------------------------------------------------
+
+  TCanvas *corravstsn = new TCanvas("corravstsn", "corravstsn", 200, 10, 1400, 1800);
+  // three plots for HB:
+  corravstsn->Divide(2, 2);
+  corravstsn->cd(1);
+  TH2F *two11 = (TH2F *)dir->FindObjectAny("h2_TSnVsAyear2023_HB");
+  gPad->SetGridy();
+  gPad->SetGridx();
+  two11->SetMarkerStyle(20);
+  two11->SetMarkerSize(0.4);
+  two11->SetYTitle("timing HB \b");
+  two11->SetXTitle("Q,fc HB\b");
+  two11->SetMarkerColor(1);
+  two11->SetLineColor(1);
+  two11->Draw("BOX");
+  corravstsn->cd(2);
+  TH1F *TSNvsQ_HB = (TH1F *)dir->FindObjectAny("h1_TSnVsAyear20230_HB");
+  gPad->SetGridy();
+  gPad->SetGridx();
+  gPad->SetLogy();
+  TSNvsQ_HB->SetMarkerStyle(20);
+  TSNvsQ_HB->SetMarkerSize(0.6);
+  TSNvsQ_HB->GetYaxis()->SetLabelSize(0.04);
+  TSNvsQ_HB->SetXTitle("Q,fc HB \b");
+  TSNvsQ_HB->SetYTitle("iev*ieta*iphi*idepth \b");
+  TSNvsQ_HB->SetMarkerColor(4);
+  TSNvsQ_HB->SetLineColor(0);
+  TSNvsQ_HB->SetMinimum(0.8);
+  TSNvsQ_HB->Draw("E");
+  corravstsn->cd(3);
+  TH1F *twod1_HB = (TH1F *)dir->FindObjectAny("h1_TSnVsAyear2023_HB");
+  TH1F *twod0_HB = (TH1F *)dir->FindObjectAny("h1_TSnVsAyear20230_HB");
+  //  twod1_HB->Sumw2();
+  //  twod0_HB->Sumw2();
+  TH1F *Ceff_HB = (TH1F *)twod1_HB->Clone("Ceff_HB");
+  for (int x = 1; x <= twod1_HB->GetXaxis()->GetNbins(); x++) {
+    twod1_HB->SetBinError(float(x), 0.001);
+  }  //end x
+  Ceff_HB->Divide(twod1_HB, twod0_HB, 1, 1, "B");
+  gPad->SetGridy();
+  gPad->SetGridx();
+  Ceff_HB->SetMarkerStyle(20);
+  Ceff_HB->SetMarkerSize(0.4);
+  Ceff_HB->SetXTitle("Q,fc \b");
+  Ceff_HB->SetYTitle("<timing>HB \b");
+  Ceff_HB->SetMarkerColor(2);
+  Ceff_HB->SetLineColor(2);
+  Ceff_HB->SetMaximum(140.);
+  Ceff_HB->SetMinimum(30.);
+  Ceff_HB->Draw("E");
+  corravstsn->Modified();
+  corravstsn->Update();
+  corravstsn->Print("corravstsnPLOTSHB.png");
+  corravstsn->Clear();
+  //  std::cout << " corravstsnPLOTSHB.png created " << std::endl;
+  // three plots for HE:
+  corravstsn->Divide(2, 2);
+  corravstsn->cd(1);
+  TH2F *twoHE = (TH2F *)dir->FindObjectAny("h2_TSnVsAyear2023_HE");
+  gPad->SetGridy();
+  gPad->SetGridx();
+  twoHE->SetMarkerStyle(20);
+  twoHE->SetMarkerSize(0.4);
+  twoHE->SetYTitle("timing HE \b");
+  twoHE->SetXTitle("Q,fc HE\b");
+  twoHE->SetMarkerColor(1);
+  twoHE->SetLineColor(1);
+  twoHE->Draw("BOX");
+  corravstsn->cd(2);
+  TH1F *TSNvsQ_HE = (TH1F *)dir->FindObjectAny("h1_TSnVsAyear20230_HE");
+  gPad->SetGridy();
+  gPad->SetGridx();
+  gPad->SetLogy();
+  TSNvsQ_HE->SetMarkerStyle(20);
+  TSNvsQ_HE->SetMarkerSize(0.6);
+  TSNvsQ_HE->GetYaxis()->SetLabelSize(0.04);
+  TSNvsQ_HE->SetXTitle("Q,fc HE \b");
+  TSNvsQ_HE->SetYTitle("iev*ieta*iphi*idepth \b");
+  TSNvsQ_HE->SetMarkerColor(4);
+  TSNvsQ_HE->SetLineColor(0);
+  TSNvsQ_HE->SetMinimum(0.8);
+  TSNvsQ_HE->Draw("E");
+  corravstsn->cd(3);
+  TH1F *twod1_HE = (TH1F *)dir->FindObjectAny("h1_TSnVsAyear2023_HE");
+  TH1F *twod0_HE = (TH1F *)dir->FindObjectAny("h1_TSnVsAyear20230_HE");
+  //  twod1_HE->Sumw2();
+  //  twod0_HE->Sumw2();
+  TH1F *Ceff_HE = (TH1F *)twod1_HE->Clone("Ceff_HE");
+  for (int x = 1; x <= twod1_HE->GetXaxis()->GetNbins(); x++) {
+    twod1_HE->SetBinError(float(x), 0.001);
+  }  //end x
+  Ceff_HE->Divide(twod1_HE, twod0_HE, 1, 1, "B");
+  gPad->SetGridy();
+  gPad->SetGridx();
+  Ceff_HE->SetMarkerStyle(20);
+  Ceff_HE->SetMarkerSize(0.4);
+  Ceff_HE->SetXTitle("Q,fc \b");
+  Ceff_HE->SetYTitle("<timing>HE \b");
+  Ceff_HE->SetMarkerColor(2);
+  Ceff_HE->SetLineColor(2);
+  Ceff_HE->SetMaximum(150.);
+  Ceff_HE->SetMinimum(25.);
+  Ceff_HE->Draw("E");
+  corravstsn->Modified();
+  corravstsn->Update();
+  corravstsn->Print("corravstsnPLOTSHE.png");
+  corravstsn->Clear();
+  //  std::cout << " corravstsnPLOTSHE.png created " << std::endl;
+  // three plots for HF:
+  corravstsn->Divide(2, 2);
+  corravstsn->cd(1);
+  TH2F *twoHF = (TH2F *)dir->FindObjectAny("h2_TSnVsAyear2023_HF");
+  gPad->SetGridy();
+  gPad->SetGridx();
+  twoHF->SetMarkerStyle(20);
+  twoHF->SetMarkerSize(0.4);
+  twoHF->SetYTitle("timing HF \b");
+  twoHF->SetXTitle("Q,fc HF\b");
+  twoHF->SetMarkerColor(1);
+  twoHF->SetLineColor(1);
+  twoHF->Draw("BOX");
+  corravstsn->cd(2);
+  TH1F *TSNvsQ_HF = (TH1F *)dir->FindObjectAny("h1_TSnVsAyear20230_HF");
+  gPad->SetGridy();
+  gPad->SetGridx();
+  gPad->SetLogy();
+  TSNvsQ_HF->SetMarkerStyle(20);
+  TSNvsQ_HF->SetMarkerSize(0.6);
+  TSNvsQ_HF->GetYaxis()->SetLabelSize(0.04);
+  TSNvsQ_HF->SetXTitle("Q,fc HF \b");
+  TSNvsQ_HF->SetYTitle("iev*ieta*iphi*idepth \b");
+  TSNvsQ_HF->SetMarkerColor(4);
+  TSNvsQ_HF->SetLineColor(0);
+  TSNvsQ_HF->SetMinimum(0.8);
+  TSNvsQ_HF->Draw("E");
+  corravstsn->cd(3);
+  TH1F *twod1_HF = (TH1F *)dir->FindObjectAny("h1_TSnVsAyear2023_HF");
+  TH1F *twod0_HF = (TH1F *)dir->FindObjectAny("h1_TSnVsAyear20230_HF");
+  //  twod1_HF->Sumw2();
+  //  twod0_HF->Sumw2();
+  TH1F *Ceff_HF = (TH1F *)twod1_HF->Clone("Ceff_HF");
+  for (int x = 1; x <= twod1_HF->GetXaxis()->GetNbins(); x++) {
+    twod1_HF->SetBinError(float(x), 0.001);
+  }  //end x
+  Ceff_HF->Divide(twod1_HF, twod0_HF, 1, 1, "B");
+  gPad->SetGridy();
+  gPad->SetGridx();
+  Ceff_HF->SetMarkerStyle(20);
+  Ceff_HF->SetMarkerSize(0.4);
+  Ceff_HF->SetXTitle("Q,fc \b");
+  Ceff_HF->SetYTitle("<timing>HF \b");
+  Ceff_HF->SetMarkerColor(2);
+  Ceff_HF->SetLineColor(2);
+  Ceff_HF->SetMaximum(50.);
+  Ceff_HF->SetMinimum(0.);
+  Ceff_HF->Draw("E");
+  corravstsn->Modified();
+  corravstsn->Update();
+  corravstsn->Print("corravstsnPLOTSHF.png");
+  corravstsn->Clear();
+  //  std::cout << " corravstsnPLOTSHF.png created " << std::endl;
+  // three plots for HO:
+  corravstsn->Divide(2, 2);
+  corravstsn->cd(1);
+  TH2F *twoHO = (TH2F *)dir->FindObjectAny("h2_TSnVsAyear2023_HO");
+  gPad->SetGridy();
+  gPad->SetGridx();
+  twoHO->SetMarkerStyle(20);
+  twoHO->SetMarkerSize(0.4);
+  twoHO->SetYTitle("timing HO \b");
+  twoHO->SetXTitle("Q,fc HO\b");
+  twoHO->SetMarkerColor(1);
+  twoHO->SetLineColor(1);
+  twoHO->Draw("BOX");
+  corravstsn->cd(2);
+  TH1F *TSNvsQ_HO = (TH1F *)dir->FindObjectAny("h1_TSnVsAyear20230_HO");
+  gPad->SetGridy();
+  gPad->SetGridx();
+  gPad->SetLogy();
+  TSNvsQ_HO->SetMarkerStyle(20);
+  TSNvsQ_HO->SetMarkerSize(0.6);
+  TSNvsQ_HO->GetYaxis()->SetLabelSize(0.04);
+  TSNvsQ_HO->SetXTitle("Q,fc HO \b");
+  TSNvsQ_HO->SetYTitle("iev*ieta*iphi*idepth \b");
+  TSNvsQ_HO->SetMarkerColor(4);
+  TSNvsQ_HO->SetLineColor(0);
+  TSNvsQ_HO->SetMinimum(0.8);
+  TSNvsQ_HO->Draw("E");
+  corravstsn->cd(3);
+  TH1F *twod1_HO = (TH1F *)dir->FindObjectAny("h1_TSnVsAyear2023_HO");
+  TH1F *twod0_HO = (TH1F *)dir->FindObjectAny("h1_TSnVsAyear20230_HO");
+  //  twod1_HO->Sumw2();
+  //  twod0_HO->Sumw2();
+  TH1F *Ceff_HO = (TH1F *)twod1_HO->Clone("Ceff_HO");
+  for (int x = 1; x <= twod1_HO->GetXaxis()->GetNbins(); x++) {
+    twod1_HO->SetBinError(float(x), 0.001);
+  }  //end x
+  Ceff_HO->Divide(twod1_HO, twod0_HO, 1, 1, "B");
+  gPad->SetGridy();
+  gPad->SetGridx();
+  Ceff_HO->SetMarkerStyle(20);
+  Ceff_HO->SetMarkerSize(0.4);
+  Ceff_HO->SetXTitle("Q,fc \b");
+  Ceff_HO->SetYTitle("<timing>HO \b");
+  Ceff_HO->SetMarkerColor(2);
+  Ceff_HO->SetLineColor(2);
+  Ceff_HO->SetMaximum(150.);
+  Ceff_HO->SetMinimum(70.);
+  Ceff_HO->Draw("E");
+  corravstsn->Modified();
+  corravstsn->Update();
+  corravstsn->Print("corravstsnPLOTSHO.png");
+  corravstsn->Clear();
+  //  std::cout << " corravstsnPLOTSHO.png created " << std::endl;
+
+  // 2D plots (from 1 to 7) <TSn>    -----------------------------------------------------------------
+  TCanvas *cHBnew = new TCanvas("cHBnew", "cHBnew", 0, 10, 1400, 1800);
+  // 4 plots for HB:
+  cHBnew->Clear();
+  cHBnew->Divide(2, 2);
+  cHBnew->cd(1);
+  TH2F *dva1_HBDepth1 = (TH2F *)dir->FindObjectAny("h_mapDepth1TSmeanA_HB");
+  TH2F *dva0_HBDepth1 = (TH2F *)dir->FindObjectAny("h_mapDepth1_HB");
+  //  dva1_HBDepth1->Sumw2();
+  //  dva0_HBDepth1->Sumw2();
+  TH2F *Seff_HBDepth1 = (TH2F *)dva1_HBDepth1->Clone("Seff_HBDepth1");
+  Seff_HBDepth1->Divide(dva1_HBDepth1, dva0_HBDepth1, 25., 1., "B");
+  gPad->SetGridy();
+  gPad->SetGridx();
+  Seff_HBDepth1->SetMarkerStyle(20);
+  Seff_HBDepth1->SetMarkerSize(0.4);
+  Seff_HBDepth1->SetXTitle("#eta \b");
+  Seff_HBDepth1->SetYTitle("#phi \b");
+  Seff_HBDepth1->SetZTitle("<timing> HB Depth1 \b");
+  Seff_HBDepth1->SetMarkerColor(2);
+  Seff_HBDepth1->SetLineColor(2);
+  Seff_HBDepth1->SetMaximum(100.);
+  Seff_HBDepth1->SetMinimum(80.);
+  Seff_HBDepth1->Draw("COLZ");
+  cHBnew->cd(2);
+  TH2F *dva1_HBDepth2 = (TH2F *)dir->FindObjectAny("h_mapDepth2TSmeanA_HB");
+  TH2F *dva0_HBDepth2 = (TH2F *)dir->FindObjectAny("h_mapDepth2_HB");
+  TH2F *Seff_HBDepth2 = (TH2F *)dva1_HBDepth2->Clone("Seff_HBDepth2");
+  Seff_HBDepth2->Divide(dva1_HBDepth2, dva0_HBDepth2, 25., 1., "B");
+  gPad->SetGridy();
+  gPad->SetGridx();
+  Seff_HBDepth2->SetMarkerStyle(20);
+  Seff_HBDepth2->SetMarkerSize(0.4);
+  Seff_HBDepth2->SetXTitle("#eta \b");
+  Seff_HBDepth2->SetYTitle("#phi \b");
+  Seff_HBDepth2->SetZTitle("<timing> HB Depth2 \b");
+  Seff_HBDepth2->SetMarkerColor(2);
+  Seff_HBDepth2->SetLineColor(2);
+  Seff_HBDepth2->SetMaximum(100.);
+  Seff_HBDepth2->SetMinimum(80.);
+  Seff_HBDepth2->Draw("COLZ");
+  cHBnew->cd(3);
+  TH2F *dva1_HBDepth3 = (TH2F *)dir->FindObjectAny("h_mapDepth3TSmeanA_HB");
+  TH2F *dva0_HBDepth3 = (TH2F *)dir->FindObjectAny("h_mapDepth3_HB");
+  TH2F *Seff_HBDepth3 = (TH2F *)dva1_HBDepth3->Clone("Seff_HBDepth3");
+  Seff_HBDepth3->Divide(dva1_HBDepth3, dva0_HBDepth3, 25., 1., "B");
+  gPad->SetGridy();
+  gPad->SetGridx();
+  Seff_HBDepth3->SetMarkerStyle(20);
+  Seff_HBDepth3->SetMarkerSize(0.4);
+  Seff_HBDepth3->SetXTitle("#eta \b");
+  Seff_HBDepth3->SetYTitle("#phi \b");
+  Seff_HBDepth3->SetZTitle("<timing> HB Depth3 \b");
+  Seff_HBDepth3->SetMarkerColor(2);
+  Seff_HBDepth3->SetLineColor(2);
+  Seff_HBDepth3->SetMaximum(100.);
+  Seff_HBDepth3->SetMinimum(80.);
+  Seff_HBDepth3->Draw("COLZ");
+  cHBnew->cd(4);
+  TH2F *dva1_HBDepth4 = (TH2F *)dir->FindObjectAny("h_mapDepth4TSmeanA_HB");
+  TH2F *dva0_HBDepth4 = (TH2F *)dir->FindObjectAny("h_mapDepth4_HB");
+  TH2F *Seff_HBDepth4 = (TH2F *)dva1_HBDepth4->Clone("Seff_HBDepth4");
+  Seff_HBDepth4->Divide(dva1_HBDepth4, dva0_HBDepth4, 25., 1., "B");
+  gPad->SetGridy();
+  gPad->SetGridx();
+  Seff_HBDepth4->SetMarkerStyle(20);
+  Seff_HBDepth4->SetMarkerSize(0.4);
+  Seff_HBDepth4->SetXTitle("#eta \b");
+  Seff_HBDepth4->SetYTitle("#phi \b");
+  Seff_HBDepth4->SetZTitle("<timing> HB Depth4 \b");
+  Seff_HBDepth4->SetMarkerColor(2);
+  Seff_HBDepth4->SetLineColor(2);
+  Seff_HBDepth4->SetMaximum(100.);
+  Seff_HBDepth4->SetMinimum(80.);
+  Seff_HBDepth4->Draw("COLZ");
+  cHBnew->Modified();
+  cHBnew->Update();
+  cHBnew->Print("2DcorravstsnPLOTSHB.png");
+  cHBnew->Clear();
+  //  std::cout << " 2DcorravstsnPLOTSHB.png created " << std::endl;
+  // clean-up
+  if (dva1_HBDepth1)
+    delete dva1_HBDepth1;
+  if (dva0_HBDepth1)
+    delete dva0_HBDepth1;
+  if (Seff_HBDepth1)
+    delete Seff_HBDepth1;
+  if (dva1_HBDepth2)
+    delete dva1_HBDepth2;
+  if (dva0_HBDepth2)
+    delete dva0_HBDepth2;
+  if (Seff_HBDepth2)
+    delete Seff_HBDepth2;
+  if (dva1_HBDepth3)
+    delete dva1_HBDepth3;
+  if (dva0_HBDepth3)
+    delete dva0_HBDepth3;
+  if (Seff_HBDepth3)
+    delete Seff_HBDepth3;
+  if (dva1_HBDepth4)
+    delete dva1_HBDepth4;
+  if (dva0_HBDepth4)
+    delete dva0_HBDepth4;
+  if (Seff_HBDepth4)
+    delete Seff_HBDepth4;
+
+  // 7 plots for HE:
+  TCanvas *cHEnew = new TCanvas("cHEnew", "cHEnew", 5, 10, 1400, 1800);
+  cHEnew->Clear();
+  cHEnew->Divide(2, 4);
+  cHEnew->cd(1);
+  TH2F *dva1_HEDepth1 = (TH2F *)dir->FindObjectAny("h_mapDepth1TSmeanA_HE");
+  TH2F *dva0_HEDepth1 = (TH2F *)dir->FindObjectAny("h_mapDepth1_HE");
+  //  dva1_HEDepth1->Sumw2();
+  //  dva0_HEDepth1->Sumw2();
+  TH2F *Seff_HEDepth1 = (TH2F *)dva1_HEDepth1->Clone("Seff_HEDepth1");
+  Seff_HEDepth1->Divide(dva1_HEDepth1, dva0_HEDepth1, 25., 1., "B");
+  gPad->SetGridy();
+  gPad->SetGridx();
+  Seff_HEDepth1->SetMarkerStyle(20);
+  Seff_HEDepth1->SetMarkerSize(0.4);
+  Seff_HEDepth1->SetXTitle("#eta \b");
+  Seff_HEDepth1->SetYTitle("#phi \b");
+  Seff_HEDepth1->SetZTitle("<timing> HE Depth1 \b");
+  Seff_HEDepth1->SetMarkerColor(2);
+  Seff_HEDepth1->SetLineColor(2);
+  Seff_HEDepth1->SetMaximum(100.);
+  Seff_HEDepth1->SetMinimum(80.);
+  Seff_HEDepth1->Draw("COLZ");
+  cHEnew->cd(2);
+  TH2F *dva1_HEDepth2 = (TH2F *)dir->FindObjectAny("h_mapDepth2TSmeanA_HE");
+  TH2F *dva0_HEDepth2 = (TH2F *)dir->FindObjectAny("h_mapDepth2_HE");
+  TH2F *Seff_HEDepth2 = (TH2F *)dva1_HEDepth2->Clone("Seff_HEDepth2");
+  Seff_HEDepth2->Divide(dva1_HEDepth2, dva0_HEDepth2, 25., 1., "B");
+  gPad->SetGridy();
+  gPad->SetGridx();
+  Seff_HEDepth2->SetMarkerStyle(20);
+  Seff_HEDepth2->SetMarkerSize(0.4);
+  Seff_HEDepth2->SetXTitle("#eta \b");
+  Seff_HEDepth2->SetYTitle("#phi \b");
+  Seff_HEDepth2->SetZTitle("<timing> HE Depth2 \b");
+  Seff_HEDepth2->SetMarkerColor(2);
+  Seff_HEDepth2->SetLineColor(2);
+  Seff_HEDepth2->SetMaximum(100.);
+  Seff_HEDepth2->SetMinimum(80.);
+  Seff_HEDepth2->Draw("COLZ");
+  cHEnew->cd(3);
+  TH2F *dva1_HEDepth3 = (TH2F *)dir->FindObjectAny("h_mapDepth3TSmeanA_HE");
+  TH2F *dva0_HEDepth3 = (TH2F *)dir->FindObjectAny("h_mapDepth3_HE");
+  TH2F *Seff_HEDepth3 = (TH2F *)dva1_HEDepth3->Clone("Seff_HEDepth3");
+  Seff_HEDepth3->Divide(dva1_HEDepth3, dva0_HEDepth3, 25., 1., "B");
+  gPad->SetGridy();
+  gPad->SetGridx();
+  Seff_HEDepth3->SetMarkerStyle(20);
+  Seff_HEDepth3->SetMarkerSize(0.4);
+  Seff_HEDepth3->SetXTitle("#eta \b");
+  Seff_HEDepth3->SetYTitle("#phi \b");
+  Seff_HEDepth3->SetZTitle("<timing> HE Depth3 \b");
+  Seff_HEDepth3->SetMarkerColor(2);
+  Seff_HEDepth3->SetLineColor(2);
+  Seff_HEDepth3->SetMaximum(100.);
+  Seff_HEDepth3->SetMinimum(80.);
+  Seff_HEDepth3->Draw("COLZ");
+  cHEnew->cd(4);
+  TH2F *dva1_HEDepth4 = (TH2F *)dir->FindObjectAny("h_mapDepth4TSmeanA_HE");
+  TH2F *dva0_HEDepth4 = (TH2F *)dir->FindObjectAny("h_mapDepth4_HE");
+  TH2F *Seff_HEDepth4 = (TH2F *)dva1_HEDepth4->Clone("Seff_HEDepth4");
+  Seff_HEDepth4->Divide(dva1_HEDepth4, dva0_HEDepth4, 25., 1., "B");
+  gPad->SetGridy();
+  gPad->SetGridx();
+  Seff_HEDepth4->SetMarkerStyle(20);
+  Seff_HEDepth4->SetMarkerSize(0.4);
+  Seff_HEDepth4->SetXTitle("#eta \b");
+  Seff_HEDepth4->SetYTitle("#phi \b");
+  Seff_HEDepth4->SetZTitle("<timing> HE Depth4 \b");
+  Seff_HEDepth4->SetMarkerColor(2);
+  Seff_HEDepth4->SetLineColor(2);
+  Seff_HEDepth4->SetMaximum(100.);
+  Seff_HEDepth4->SetMinimum(80.);
+  Seff_HEDepth4->Draw("COLZ");
+  cHEnew->cd(5);
+  TH2F *dva1_HEDepth5 = (TH2F *)dir->FindObjectAny("h_mapDepth5TSmeanA_HE");
+  TH2F *dva0_HEDepth5 = (TH2F *)dir->FindObjectAny("h_mapDepth5_HE");
+  TH2F *Seff_HEDepth5 = (TH2F *)dva1_HEDepth5->Clone("Seff_HEDepth5");
+  Seff_HEDepth5->Divide(dva1_HEDepth5, dva0_HEDepth5, 25., 1., "B");
+  gPad->SetGridy();
+  gPad->SetGridx();
+  Seff_HEDepth5->SetMarkerStyle(20);
+  Seff_HEDepth5->SetMarkerSize(0.4);
+  Seff_HEDepth5->SetXTitle("#eta \b");
+  Seff_HEDepth5->SetYTitle("#phi \b");
+  Seff_HEDepth5->SetZTitle("<timing> HE Depth5 \b");
+  Seff_HEDepth5->SetMarkerColor(2);
+  Seff_HEDepth5->SetLineColor(2);
+  Seff_HEDepth5->SetMaximum(100.);
+  Seff_HEDepth5->SetMinimum(80.);
+  Seff_HEDepth5->Draw("COLZ");
+  cHEnew->cd(6);
+  TH2F *dva1_HEDepth6 = (TH2F *)dir->FindObjectAny("h_mapDepth6TSmeanA_HE");
+  TH2F *dva0_HEDepth6 = (TH2F *)dir->FindObjectAny("h_mapDepth6_HE");
+  TH2F *Seff_HEDepth6 = (TH2F *)dva1_HEDepth6->Clone("Seff_HEDepth6");
+  Seff_HEDepth6->Divide(dva1_HEDepth6, dva0_HEDepth6, 25., 1., "B");
+  gPad->SetGridy();
+  gPad->SetGridx();
+  Seff_HEDepth6->SetMarkerStyle(20);
+  Seff_HEDepth6->SetMarkerSize(0.4);
+  Seff_HEDepth6->SetXTitle("#eta \b");
+  Seff_HEDepth6->SetYTitle("#phi \b");
+  Seff_HEDepth6->SetZTitle("<timing> HE Depth6 \b");
+  Seff_HEDepth6->SetMarkerColor(2);
+  Seff_HEDepth6->SetLineColor(2);
+  Seff_HEDepth6->SetMaximum(100.);
+  Seff_HEDepth6->SetMinimum(80.);
+  Seff_HEDepth6->Draw("COLZ");
+  cHEnew->cd(7);
+  TH2F *dva1_HEDepth7 = (TH2F *)dir->FindObjectAny("h_mapDepth7TSmeanA_HE");
+  TH2F *dva0_HEDepth7 = (TH2F *)dir->FindObjectAny("h_mapDepth7_HE");
+  TH2F *Seff_HEDepth7 = (TH2F *)dva1_HEDepth7->Clone("Seff_HEDepth7");
+  Seff_HEDepth7->Divide(dva1_HEDepth7, dva0_HEDepth7, 25., 1., "B");
+  gPad->SetGridy();
+  gPad->SetGridx();
+  Seff_HEDepth7->SetMarkerStyle(20);
+  Seff_HEDepth7->SetMarkerSize(0.4);
+  Seff_HEDepth7->SetXTitle("#eta \b");
+  Seff_HEDepth7->SetYTitle("#phi \b");
+  Seff_HEDepth7->SetZTitle("<timing> HE Depth7 \b");
+  Seff_HEDepth7->SetMarkerColor(2);
+  Seff_HEDepth7->SetLineColor(2);
+  Seff_HEDepth7->SetMaximum(100.);
+  Seff_HEDepth7->SetMinimum(80.);
+  Seff_HEDepth7->Draw("COLZ");
+  cHEnew->Modified();
+  cHEnew->Update();
+  cHEnew->Print("2DcorravstsnPLOTSHE.png");
+  cHEnew->Clear();
+  //  std::cout << " 2DcorravstsnPLOTSHE.png created " << std::endl;
+  // clean-up
+  if (dva1_HEDepth1)
+    delete dva1_HEDepth1;
+  if (dva0_HEDepth1)
+    delete dva0_HEDepth1;
+  if (Seff_HEDepth1)
+    delete Seff_HEDepth1;
+  if (dva1_HEDepth2)
+    delete dva1_HEDepth2;
+  if (dva0_HEDepth2)
+    delete dva0_HEDepth2;
+  if (Seff_HEDepth2)
+    delete Seff_HEDepth2;
+  if (dva1_HEDepth3)
+    delete dva1_HEDepth3;
+  if (dva0_HEDepth3)
+    delete dva0_HEDepth3;
+  if (Seff_HEDepth3)
+    delete Seff_HEDepth3;
+  if (dva1_HEDepth4)
+    delete dva1_HEDepth4;
+  if (dva0_HEDepth4)
+    delete dva0_HEDepth4;
+  if (Seff_HEDepth4)
+    delete Seff_HEDepth4;
+  if (dva1_HEDepth5)
+    delete dva1_HEDepth5;
+  if (dva0_HEDepth5)
+    delete dva0_HEDepth5;
+  if (Seff_HEDepth5)
+    delete Seff_HEDepth5;
+  if (dva1_HEDepth6)
+    delete dva1_HEDepth6;
+  if (dva0_HEDepth6)
+    delete dva0_HEDepth6;
+  if (Seff_HEDepth6)
+    delete Seff_HEDepth6;
+  if (dva1_HEDepth7)
+    delete dva1_HEDepth7;
+  if (dva0_HEDepth7)
+    delete dva0_HEDepth7;
+  if (Seff_HEDepth7)
+    delete Seff_HEDepth7;
+  // 4 plots for HF:
+  TCanvas *cHFnew = new TCanvas("cHFnew", "cHFnew", 200, 10, 1400, 1800);
+  cHFnew->Clear();
+  cHFnew->Divide(2, 2);
+  cHFnew->cd(1);
+  TH2F *dva1_HFDepth1 = (TH2F *)dir->FindObjectAny("h_mapDepth1TSmeanA_HF");
+  TH2F *dva0_HFDepth1 = (TH2F *)dir->FindObjectAny("h_mapDepth1_HF");
+  //  dva1_HFDepth1->Sumw2();
+  //  dva0_HFDepth1->Sumw2();
+  TH2F *Seff_HFDepth1 = (TH2F *)dva1_HFDepth1->Clone("Seff_HFDepth1");
+  Seff_HFDepth1->Divide(dva1_HFDepth1, dva0_HFDepth1, 25., 1., "B");
+  /*
+    for (int i=1;i<=Seff_HFDepth1->GetXaxis()->GetNbins();i++) {
+      for (int j=1;j<=Seff_HFDepth1->GetYaxis()->GetNbins();j++) {
+	  double ccc1 =  Seff_HFDepth1->GetBinContent(i,j)   ;
+	  //	  if(ccc1 >  0.) std::cout << "********************   i =  " << i  << " j =  " << j  << " ccc1 =  " << ccc1 << std::endl;
+
+	  Seff_HFDepth1->SetBinContent(i,j,0.);
+	  if(ccc1 >  0.)  Seff_HFDepth1->SetBinContent(i,j,ccc1);
+      }
+    }
+*/
+  gPad->SetGridy();
+  gPad->SetGridx();
+  Seff_HFDepth1->SetMarkerStyle(20);
+  Seff_HFDepth1->SetMarkerSize(0.4);
+  Seff_HFDepth1->SetXTitle("#eta \b");
+  Seff_HFDepth1->SetYTitle("#phi \b");
+  Seff_HFDepth1->SetZTitle("<timing> HF Depth1 \b");
+  Seff_HFDepth1->SetMarkerColor(2);
+  Seff_HFDepth1->SetLineColor(2);
+  Seff_HFDepth1->SetMaximum(50.);
+  Seff_HFDepth1->SetMinimum(20.);
+  Seff_HFDepth1->Draw("COLZ");
+  cHFnew->cd(2);
+  TH2F *dva1_HFDepth2 = (TH2F *)dir->FindObjectAny("h_mapDepth2TSmeanA_HF");
+  TH2F *dva0_HFDepth2 = (TH2F *)dir->FindObjectAny("h_mapDepth2_HF");
+  TH2F *Seff_HFDepth2 = (TH2F *)dva1_HFDepth2->Clone("Seff_HFDepth2");
+  Seff_HFDepth2->Divide(dva1_HFDepth2, dva0_HFDepth2, 25., 1., "B");
+  /*
+    for (int i=1;i<=Seff_HFDepth2->GetXaxis()->GetNbins();i++) {
+      for (int j=1;j<=Seff_HFDepth2->GetYaxis()->GetNbins();j++) {
+	  double ccc1 =  Seff_HFDepth2->GetBinContent(i,j)   ;
+	  Seff_HFDepth2->SetBinContent(i,j,0.);
+	  if(ccc1 >  0. )  Seff_HFDepth2->SetBinContent(i,j,ccc1);
+      }
+    }
+  */
+  gPad->SetGridy();
+  gPad->SetGridx();
+  Seff_HFDepth2->SetMarkerStyle(20);
+  Seff_HFDepth2->SetMarkerSize(0.4);
+  Seff_HFDepth2->SetXTitle("#eta \b");
+  Seff_HFDepth2->SetYTitle("#phi \b");
+  Seff_HFDepth2->SetZTitle("<timing> HF Depth2 \b");
+  Seff_HFDepth2->SetMarkerColor(2);
+  Seff_HFDepth2->SetLineColor(2);
+  Seff_HFDepth2->SetMaximum(50.);
+  Seff_HFDepth2->SetMinimum(20.);
+  Seff_HFDepth2->Draw("COLZ");
+  cHFnew->cd(3);
+  TH2F *dva1_HFDepth3 = (TH2F *)dir->FindObjectAny("h_mapDepth3TSmeanA_HF");
+  TH2F *dva0_HFDepth3 = (TH2F *)dir->FindObjectAny("h_mapDepth3_HF");
+  TH2F *Seff_HFDepth3 = (TH2F *)dva1_HFDepth3->Clone("Seff_HFDepth3");
+  Seff_HFDepth3->Divide(dva1_HFDepth3, dva0_HFDepth3, 25., 1., "B");
+  gPad->SetGridy();
+  gPad->SetGridx();
+  Seff_HFDepth3->SetMarkerStyle(20);
+  Seff_HFDepth3->SetMarkerSize(0.4);
+  Seff_HFDepth3->SetXTitle("#eta \b");
+  Seff_HFDepth3->SetYTitle("#phi \b");
+  Seff_HFDepth3->SetZTitle("<timing> HF Depth3 \b");
+  Seff_HFDepth3->SetMarkerColor(2);
+  Seff_HFDepth3->SetLineColor(2);
+  Seff_HFDepth3->SetMaximum(50.);
+  Seff_HFDepth3->SetMinimum(20.);
+  Seff_HFDepth3->Draw("COLZ");
+  cHFnew->cd(4);
+  TH2F *dva1_HFDepth4 = (TH2F *)dir->FindObjectAny("h_mapDepth4TSmeanA_HF");
+  TH2F *dva0_HFDepth4 = (TH2F *)dir->FindObjectAny("h_mapDepth4_HF");
+  TH2F *Seff_HFDepth4 = (TH2F *)dva1_HFDepth4->Clone("Seff_HFDepth4");
+  Seff_HFDepth4->Divide(dva1_HFDepth4, dva0_HFDepth4, 25., 1., "B");
+  gPad->SetGridy();
+  gPad->SetGridx();
+  Seff_HFDepth4->SetMarkerStyle(20);
+  Seff_HFDepth4->SetMarkerSize(0.4);
+  Seff_HFDepth4->SetXTitle("#eta \b");
+  Seff_HFDepth4->SetYTitle("#phi \b");
+  Seff_HFDepth4->SetZTitle("<timing> HF Depth4 \b");
+  Seff_HFDepth4->SetMarkerColor(2);
+  Seff_HFDepth4->SetLineColor(2);
+  Seff_HFDepth4->SetMaximum(50.);
+  Seff_HFDepth4->SetMinimum(20.);
+  Seff_HFDepth4->Draw("COLZ");
+  cHFnew->Modified();
+  cHFnew->Update();
+  cHFnew->Print("2DcorravstsnPLOTSHF.png");
+  cHFnew->Clear();
+  //  std::cout << " 2DcorravstsnPLOTSHF.png created " << std::endl;
+  if (dva1_HFDepth1)
+    delete dva1_HFDepth1;
+  if (dva0_HFDepth1)
+    delete dva0_HFDepth1;
+  if (Seff_HFDepth1)
+    delete Seff_HFDepth1;
+  if (dva1_HFDepth2)
+    delete dva1_HFDepth2;
+  if (dva0_HFDepth2)
+    delete dva0_HFDepth2;
+  if (Seff_HFDepth2)
+    delete Seff_HFDepth2;
+  if (dva1_HFDepth3)
+    delete dva1_HFDepth3;
+  if (dva0_HFDepth3)
+    delete dva0_HFDepth3;
+  if (Seff_HFDepth3)
+    delete Seff_HFDepth3;
+  if (dva1_HFDepth4)
+    delete dva1_HFDepth4;
+  if (dva0_HFDepth4)
+    delete dva0_HFDepth4;
+  if (Seff_HFDepth4)
+    delete Seff_HFDepth4;
+  // 1 plot for HO:
+  TCanvas *cHOnew = new TCanvas("cHOnew", "cHOnew", 200, 10, 1400, 1800);
+  //  TCanvas *cHOnew = new TCanvas("cHOnew", "cHOnew", 1500, 500);
+  cHOnew->Clear();
+  cHOnew->Divide(1, 1);
+  cHOnew->cd(1);
+  TH2F *dva1_HODepth4 = (TH2F *)dir->FindObjectAny("h_mapDepth4TSmeanA_HO");
+  /*
+  for (int i=1;i<=dva1_HODepth4->GetXaxis()->GetNbins();i++) {
+    for (int j=1;j<=dva1_HODepth4->GetYaxis()->GetNbins();j++) {
+      double ccc1 =  dva1_HODepth4->GetBinContent(i,j)   ;
+      	  if(ccc1 >  0.) std::cout << "******    dva1_HODepth4   **************   i =  " << i  << " j =  " << j  << " ccc1 =  " << ccc1 << std::endl;
+    }
+  }
+*/
+  TH2F *dva0_HODepth4 = (TH2F *)dir->FindObjectAny("h_mapDepth4_HO");
+  /*
+  for (int i=1;i<=dva0_HODepth4->GetXaxis()->GetNbins();i++) {
+    for (int j=1;j<=dva0_HODepth4->GetYaxis()->GetNbins();j++) {
+      double ccc1 =  dva0_HODepth4->GetBinContent(i,j)   ;
+      	  if(ccc1 >  0.) std::cout << "******   dva0_HODepth4   **************   i =  " << i  << " j =  " << j  << " ccc1 =  " << ccc1 << std::endl;
+    }
+  }
+ */
+  TH2F *Seff_HODepth4 = (TH2F *)dva1_HODepth4->Clone("Seff_HODepth4");
+  /*
+  for (int x = 1; x <= Seff_HODepth4->GetXaxis()->GetNbins(); x++) {
+    for (int y = 1; y <= Seff_HODepth4->GetYaxis()->GetNbins(); y++) {
+      //      dva1_HODepth4->SetBinError(float(x), float(y), 0.001);
+      //      Seff_HODepth4->SetBinContent(float(x), float(y), 0.0);
+    }    //end x
+  }    //end y
+*/
+  Seff_HODepth4->Divide(dva1_HODepth4, dva0_HODepth4, 25., 1., "B");
+  /*
+  for (int i=1;i<=Seff_HODepth4->GetXaxis()->GetNbins();i++) {
+    for (int j=1;j<=Seff_HODepth4->GetYaxis()->GetNbins();j++) {
+      double ccc1 =  Seff_HODepth4->GetBinContent(i,j);
+      if(ccc1 >  0.) std::cout << "******    Seff_HODepth4   **************   i =  " << i  << " j =  " << j  << " ccc1 =  " << ccc1 << std::endl;
+    }
+  }
+*/
+  gPad->SetGridy();
+  gPad->SetGridx();
+  Seff_HODepth4->SetMarkerStyle(20);
+  Seff_HODepth4->SetMarkerSize(0.4);
+  Seff_HODepth4->SetXTitle("#eta \b");
+  Seff_HODepth4->SetYTitle("#phi \b");
+  Seff_HODepth4->SetZTitle("<timing> HO Depth4 \b");
+  Seff_HODepth4->SetMarkerColor(2);
+  Seff_HODepth4->SetLineColor(2);
+  Seff_HODepth4->SetMaximum(130.);
+  Seff_HODepth4->SetMinimum(70.);
+  Seff_HODepth4->Draw("COLZ");
+  cHOnew->Modified();
+  cHOnew->Update();
+  cHOnew->Print("2DcorravstsnPLOTSHO.png");
+  cHOnew->Clear();
+  //  std::cout << " 2DcorravstsnPLOTSHO.png created " << std::endl;
+  if (dva1_HODepth4)
+    delete dva1_HODepth4;
+  if (dva0_HODepth4)
+    delete dva0_HODepth4;
+  if (Seff_HODepth4)
+    delete Seff_HODepth4;
+
+  //  std::cout << " END OF 2023 " << std::endl;
+  //
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //======================================================================
 
   //====================================================================== html pages  CREATING:
+  std::cout << " html pages  CREATING: " << std::endl;
   //======================================================================
   // Creating each test kind for each subdet html pages:
   std::string raw_class, raw_class1, raw_class2, raw_class3;
@@ -1926,6 +2641,33 @@ int main(int argc, char *argv[]) {
       htmlFileT << " <img src=\"MapRateMaxPosHO.png\" />" << std::endl;
     if (sub == 4)
       htmlFileT << " <img src=\"MapRateMaxPosHF.png\" />" << std::endl;
+    htmlFileT << "<br>" << std::endl;
+
+    // Correlation of A vs TSn done in 2023 for Run3 and for GlobalRMT only
+    htmlFileT << "<h2> 7....... Correlation of A(=Q) vs timing(=25ns*MeanTSposition) </h3>" << std::endl;
+
+    htmlFileT << "<h3> 7.A..... 1)2D-correlation of timing vs Q,fc;.......... 2)Q,fc;................ 3)mean timing vs "
+                 "Q,fc .......  </h3>"
+              << std::endl;
+    if (sub == 1)
+      htmlFileT << " <img src=\"corravstsnPLOTSHB.png\" />" << std::endl;
+    if (sub == 2)
+      htmlFileT << " <img src=\"corravstsnPLOTSHE.png\" />" << std::endl;
+    if (sub == 3)
+      htmlFileT << " <img src=\"corravstsnPLOTSHO.png\" />" << std::endl;
+    if (sub == 4)
+      htmlFileT << " <img src=\"corravstsnPLOTSHF.png\" />" << std::endl;
+    htmlFileT << "<br>" << std::endl;
+
+    htmlFileT << "<h3> 7.B....... Mean timing in 2D space of eta-phi for different Depthes........ </h3>" << std::endl;
+    if (sub == 1)
+      htmlFileT << " <img src=\"2DcorravstsnPLOTSHB.png\" />" << std::endl;
+    if (sub == 2)
+      htmlFileT << " <img src=\"2DcorravstsnPLOTSHE.png\" />" << std::endl;
+    if (sub == 3)
+      htmlFileT << " <img src=\"2DcorravstsnPLOTSHO.png\" />" << std::endl;
+    if (sub == 4)
+      htmlFileT << " <img src=\"2DcorravstsnPLOTSHF.png\" />" << std::endl;
     htmlFileT << "<br>" << std::endl;
 
     htmlFileT << "</body> " << std::endl;
@@ -2221,6 +2963,8 @@ int main(int argc, char *argv[]) {
     htmlFile << "</table>" << std::endl;
     htmlFile << "<br>" << std::endl;
 
+    //AZ2023:
+    /*
     htmlFile << "<a name=\"Status\"></a>\n";
     if (sub == 1)
       htmlFile << "<h2> 2.Status HB over all criteria </h2>" << std::endl;
@@ -2246,7 +2990,7 @@ int main(int argc, char *argv[]) {
       htmlFile << " <img src=\"MAPHF.png\" />" << std::endl;
     htmlFile << "<br>" << std::endl;
     htmlFile << "<a href=\"#Top\">to top</a><br>\n";
-
+*/
     /////////////////////////////////////////////////////////////////   AZ 19.03.2018
     /*     
 //     htmlFile << "<h3> 2.B.List of Bad channels (rate > 0.1) and its rates for each RMT criteria (for GS - %) </h3>"<< std::endl;
@@ -2712,7 +3456,8 @@ int main(int argc, char *argv[]) {
   htmlFile << "</tr>" << std::endl;
   htmlFile << "</table>" << std::endl;
   htmlFile << "<br>" << std::endl;
-
+  //AZ2023:
+  /*
   htmlFile << "<h2> 2. HCAL status over all criteria and subdetectors </h2>" << std::endl;
   htmlFile << "<h3> 2.A. Channels in detector space </h3>" << std::endl;
   htmlFile << "<h4> Legend for channel status: green - good, others - may be a problems, white - not applicable or out "
@@ -2750,8 +3495,8 @@ int main(int argc, char *argv[]) {
   htmlFile << "<td class=\"s1\" align=\"center\">HTR_FPGA</td>" << std::endl;
   htmlFile << "<td class=\"s5\" align=\"center\">RMT-criteria</td>" << std::endl;
   htmlFile << "</tr>" << std::endl;
-
-  ind = 0;
+*/
+  //AZ2023  ind = 0;
   // AZ 19.03.2018
   /*     
      for (int i=1;i<=NBad;i++) {
@@ -2793,8 +3538,8 @@ int main(int argc, char *argv[]) {
 	}
      } /// end loop
 */
-  htmlFile << "</table>" << std::endl;
-  htmlFile << "<br>" << std::endl;
+  //AZ2023  htmlFile << "</table>" << std::endl;
+  //AZ2023  htmlFile << "<br>" << std::endl;
   /*     
      htmlFile << "<h3> 2.C.List of Gain unstable channels </h3>"<< std::endl;
      //htmlFile << "  <td><a href=\"HELP.html\"> Description of criteria for bad channel selection</a></td>"<< std::endl;
