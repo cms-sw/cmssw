@@ -191,14 +191,6 @@ def nanoAOD_customizeCommon(process):
 
     return process
 
-def nanoAOD_customizeData(process):
-    process = nanoAOD_customizeCommon(process)
-    return process
-
-def nanoAOD_customizeMC(process):
-    process = nanoAOD_customizeCommon(process)
-    return process
-
 ###increasing the precision of selected GenParticles.
 def nanoWmassGenCustomize(process):
     pdgSelection="?(abs(pdgId) == 11|| abs(pdgId)==13 || abs(pdgId)==15 ||abs(pdgId)== 12 || abs(pdgId)== 14 || abs(pdgId)== 16|| abs(pdgId)== 24|| pdgId== 23)"
