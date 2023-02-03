@@ -23,7 +23,7 @@ import RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi as _mod
 displacedRegionalStepSeedLayersTripl = _mod.seedingLayersEDProducer.clone(
     layerList = [
     #TOB
-    'TOB1+TOB2+MTOB3','TOB1+TOB2+MTOB4',
+    'TOB1+TOB2+MTOB3',
     #TOB+MTEC
     'TOB1+TOB2+MTEC1_pos','TOB1+TOB2+MTEC1_neg',
     ],
