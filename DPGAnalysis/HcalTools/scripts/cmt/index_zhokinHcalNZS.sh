@@ -87,7 +87,7 @@ cat index.html | head -n -1 > index_draft.html
 #let "k = k + 1"
 #done
 
-k=101
+k=643
 
 
 ########################################## type by hands number of new runs k=k-number:
@@ -129,9 +129,7 @@ if [ ${got} -eq 0 ] ; then
 #dasgoclient  --query="file dataset=/Cosmics/Commissioning2021-v1/RAW  run=${i} | grep file.size, file.nevents, file.modification_time "  > tmp
 #dasgoclient  --query="file dataset=/HcalNZS/Commissioning2021-v1/RAW  run=${i} | grep file.size, file.nevents, file.modification_time "  > tmp
 
-#dasgoclient  --query="file dataset=/ZeroBias0/Run2022A-v1/RAW  run=${i} | grep file.size, file.nevents, file.modification_time "  > tmp
-
-dasgoclient  --query="file dataset=/ZeroBias/Run2022B-v1/RAW  run=${i} | grep file.size, file.nevents, file.modification_time "  > tmp
+dasgoclient  --query="file dataset=/HcalNZS/Run2022G-v1/RAW  run=${i} | grep file.size, file.nevents, file.modification_time "  > tmp
 
 
 #echo "${runnumber}"
@@ -140,16 +138,15 @@ fi
 timetmp=`cat tmp | head -n 1  | awk '{print $3}'`
 ############################################################################################################ printout:
 #type='Cosmics'
-#type='HcalNZS'
+type='HcalNZS'
 #type='ZeroBias0'
-type='ZeroBias'
 timetmp2=`date -d @${timetmp} +%Y-%m-%d:%H-%M-%S`
 sizetmp=`cat tmp | head -n 1  | awk '{print $1}'`
 neventstmp=`cat tmp | head -n 1  | awk '{print $2}'`
 #commentariy='CRUZET2021'
 #commentariy='CRAFT2021'
 #commentariy='Commissioning2021'
-commentariy='Run3 2022B-v1'
+commentariy='Run3 2022G-v1'
 #cat runs_info
 echo 'RUN Type = '$type
 echo ${sizetmp} ${neventstmp} ${timetmp2}
