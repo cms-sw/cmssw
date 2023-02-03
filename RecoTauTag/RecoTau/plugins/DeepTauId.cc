@@ -881,6 +881,7 @@ public:
     desc.add<std::vector<std::string>>("graph_file",
                                        {"RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6.pb"});
     desc.add<bool>("mem_mapped", false);
+    desc.add<unsigned>("year", 2017);
     desc.add<unsigned>("version", 2);
     desc.add<unsigned>("sub_version", 1);
     desc.add<int>("debug_level", 0);
@@ -926,6 +927,7 @@ public:
         pfTauTransverseImpactParameters_token_(
             consumes<edm::AssociationVector<reco::PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef>>>(
                 cfg.getParameter<edm::InputTag>("pfTauTransverseImpactParameters"))),
+        year_(cfg.getParameter<unsigned>("year")),
         version_(cfg.getParameter<unsigned>("version")),
         sub_version_(cfg.getParameter<unsigned>("sub_version")),
         debug_level(cfg.getParameter<int>("debug_level")),
@@ -957,7 +959,11 @@ public:
             tensorflow::TensorShape{1,
                                     static_cast<int>(TauBlockInputs::NumberOfInputs) -
                                         static_cast<int>(TauBlockInputs::varsToDrop.size())});
-        scalingParamsMap_ = &sc::scalingParamsMap_v2p5;
+        if (year_ == 2026) {
+          scalingParamsMap_ = &sc::scalingParamsMap_PhaseIIv2p5;
+        } else {
+          scalingParamsMap_ = &sc::scalingParamsMap_v2p5;
+        }
       } else
         throw cms::Exception("DeepTauId") << "subversion " << sub_version_ << " is not supported.";
 
@@ -1236,6 +1242,8 @@ private:
     edm::Handle<double> rho;
     event.getByToken(rho_token_, rho);
 
+    auto const& eventnr = event.id().event();
+
     tensorflow::Tensor predictions(tensorflow::DT_FLOAT, {static_cast<int>(taus->size()), deep_tau::NumberOfOutputs});
 
     for (size_t tau_index = 0; tau_index < taus->size(); ++tau_index) {
@@ -1263,6 +1271,7 @@ private:
                                                              *pfCands,
                                                              vertices->at(0),
                                                              *rho,
+                                                             eventnr,
                                                              pred_vector,
                                                              tauIDs);
           } else
@@ -1274,6 +1283,7 @@ private:
                                                              *pfCands,
                                                              vertices->at(0),
                                                              *rho,
+                                                             eventnr,
                                                              pred_vector,
                                                              tauIDs);
         } else {
@@ -1310,13 +1320,15 @@ private:
                         const edm::View<reco::Candidate>& pfCands,
                         const reco::Vertex& pv,
                         double rho,
+                        const edm::EventNumber_t& eventnr,
                         std::vector<tensorflow::Tensor>& pred_vector,
                         TauFunc tau_funcs) {
     using namespace dnn_inputs_v2;
     if (debug_level >= 2) {
       std::cout << "<DeepTauId::getPredictionsV2 (moduleLabel = " << moduleDescription().moduleLabel()
                 << ")>:" << std::endl;
-      std::cout << " tau: pT = " << tau.pt() << ", eta = " << tau.eta() << ", phi = " << tau.phi() << std::endl;
+      std::cout << " tau: pT = " << tau.pt() << ", eta = " << tau.eta() << ", phi = " << tau.phi()
+                << ", eventnr = " << eventnr << std::endl;
     }
     CellGrid inner_grid(number_of_inner_cell, number_of_inner_cell, 0.02, 0.02, disable_CellIndex_workaround_);
     CellGrid outer_grid(number_of_outer_cell, number_of_outer_cell, 0.05, 0.05, disable_CellIndex_workaround_);
@@ -1357,7 +1369,7 @@ private:
     checkInputs(*hadronsTensor_[false], "input_outer_hadrons", HadronBlockInputs::NumberOfInputs, &outer_grid);
 
     if (save_inputs_) {
-      std::string json_file_name = "DeepTauId_" + std::to_string(file_counter_) + ".json";
+      std::string json_file_name = "DeepTauId_" + std::to_string(eventnr) + "_" + std::to_string(tau_index) + ".json";
       json_file_ = new std::ofstream(json_file_name.data());
       is_first_block_ = true;
       (*json_file_) << "{";
@@ -1942,16 +1954,22 @@ private:
           sp.scale(ele.deltaPhiSuperClusterTrackAtVtx(), dnn::ele_deltaPhiSuperClusterTrackAtVtx - e_index_offset);
       get(dnn::ele_deltaPhiSeedClusterTrackAtCalo + fill_index_offset_e) =
           sp.scale(ele.deltaPhiSeedClusterTrackAtCalo(), dnn::ele_deltaPhiSeedClusterTrackAtCalo - e_index_offset);
-      get(dnn::ele_mvaInput_earlyBrem + fill_index_offset_e) =
-          sp.scale(ele.mvaInput().earlyBrem, dnn::ele_mvaInput_earlyBrem - e_index_offset);
-      get(dnn::ele_mvaInput_lateBrem + fill_index_offset_e) =
-          sp.scale(ele.mvaInput().lateBrem, dnn::ele_mvaInput_lateBrem - e_index_offset);
-      get(dnn::ele_mvaInput_sigmaEtaEta + fill_index_offset_e) =
-          sp.scale(ele.mvaInput().sigmaEtaEta, dnn::ele_mvaInput_sigmaEtaEta - e_index_offset);
-      get(dnn::ele_mvaInput_hadEnergy + fill_index_offset_e) =
-          sp.scale(ele.mvaInput().hadEnergy, dnn::ele_mvaInput_hadEnergy - e_index_offset);
-      get(dnn::ele_mvaInput_deltaEta + fill_index_offset_e) =
-          sp.scale(ele.mvaInput().deltaEta, dnn::ele_mvaInput_deltaEta - e_index_offset);
+      const bool mva_valid =
+          (ele.mvaInput().earlyBrem > -2) ||
+          (year_ !=
+           2026);  // Known issue that input can be invalid in Phase2 samples (early/lateBrem==-2, hadEnergy==0, sigmaEtaEta/deltaEta==3.40282e+38). Unknown if also in Run2/3, so don't change there
+      if (mva_valid) {
+        get(dnn::ele_mvaInput_earlyBrem + fill_index_offset_e) =
+            sp.scale(ele.mvaInput().earlyBrem, dnn::ele_mvaInput_earlyBrem - e_index_offset);
+        get(dnn::ele_mvaInput_lateBrem + fill_index_offset_e) =
+            sp.scale(ele.mvaInput().lateBrem, dnn::ele_mvaInput_lateBrem - e_index_offset);
+        get(dnn::ele_mvaInput_sigmaEtaEta + fill_index_offset_e) =
+            sp.scale(ele.mvaInput().sigmaEtaEta, dnn::ele_mvaInput_sigmaEtaEta - e_index_offset);
+        get(dnn::ele_mvaInput_hadEnergy + fill_index_offset_e) =
+            sp.scale(ele.mvaInput().hadEnergy, dnn::ele_mvaInput_hadEnergy - e_index_offset);
+        get(dnn::ele_mvaInput_deltaEta + fill_index_offset_e) =
+            sp.scale(ele.mvaInput().deltaEta, dnn::ele_mvaInput_deltaEta - e_index_offset);
+      }
       const auto& gsfTrack = ele.gsfTrack();
       if (gsfTrack.isNonnull()) {
         get(dnn::ele_gsfTrack_normalizedChi2 + fill_index_offset_e) =
@@ -2419,6 +2437,7 @@ private:
   edm::EDGetTokenT<edm::AssociationVector<reco::PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef>>>
       pfTauTransverseImpactParameters_token_;
   std::string input_layer_, output_layer_;
+  const unsigned year_;
   const unsigned version_;
   const unsigned sub_version_;
   const int debug_level;
