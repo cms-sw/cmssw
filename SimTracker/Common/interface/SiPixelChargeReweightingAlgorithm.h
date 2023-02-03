@@ -853,7 +853,7 @@ bool SiPixelChargeReweightingAlgorithm::lateSignalReweight(const PixelGeomDetUni
   return true;
 }
 
-inline void SiPixelChargeReweightingAlgorithm::fillPSetDescription(edm::ParameterSetDescription& desc) {
+inline inline void SiPixelChargeReweightingAlgorithm::fillPSetDescription(edm::ParameterSetDescription& desc) {
   desc.setComment("Charge reweighting algo to simulate irradiation damage in SiPixel detectors");
   desc.add("TemplateIDnumerator", 0);
   desc.add("TemplateIDdenominator", 0);
