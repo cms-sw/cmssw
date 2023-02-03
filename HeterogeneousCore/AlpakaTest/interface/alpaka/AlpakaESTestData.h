@@ -9,25 +9,9 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   // Model 1
-  class AlpakaESTestDataA {
-  public:
-    using Buffer = cms::alpakatools::device_buffer<Device, int[]>;
-    using ConstBuffer = cms::alpakatools::const_device_buffer<Device, int[]>;
+  using AlpakaESTestDataAHost = cms::alpakatest::AlpakaESTestDataAHost;
+  using AlpakaESTestDataADevice = PortableCollection<cms::alpakatest::AlpakaESTestSoAA>;
 
-    explicit AlpakaESTestDataA(Buffer buffer) : buffer_(std::move(buffer)) {}
-
-    Buffer buffer() { return buffer_; }
-    ConstBuffer buffer() const { return buffer_; }
-    ConstBuffer const_buffer() const { return buffer_; }
-
-    int const* data() const { return buffer_.data(); }
-    auto size() const { return alpaka::getExtentProduct(buffer_); }
-
-  private:
-    Buffer buffer_;
-  };
-
-  // Model 3
   using AlpakaESTestDataCHost = cms::alpakatest::AlpakaESTestDataCHost;
   using AlpakaESTestDataCDevice = PortableCollection<cms::alpakatest::AlpakaESTestSoAC>;
 

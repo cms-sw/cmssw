@@ -8,7 +8,7 @@
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   AlpakaESTestDataDDevice testESAlgoAsync(Queue& queue,
-                                          AlpakaESTestDataA const& dataA,
+                                          AlpakaESTestDataADevice const& dataA,
                                           cms::alpakatest::AlpakaESTestDataB<Device> const& dataB);
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

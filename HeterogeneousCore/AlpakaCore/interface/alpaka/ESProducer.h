@@ -5,8 +5,10 @@
 #include "FWCore/Framework/interface/produce_helpers.h"
 #include "HeterogeneousCore/AlpakaCore/interface/module_backend_config.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESDeviceProduct.h"
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESDeviceProductType.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/Record.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/devices.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/CopyToDevice.h"
 
 #include <functional>
 
@@ -38,7 +40,21 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     template <typename T, typename TReturn, typename TRecord>
     auto setWhatProduced(T* iThis, TReturn (T ::*iMethod)(TRecord const&), edm::es::Label const& label = {}) {
-      return Base::setWhatProduced(iThis, iMethod, label);
+      auto cc = Base::setWhatProduced(iThis, iMethod, label);
+      using TProduct = typename edm::eventsetup::produce::smart_pointer_traits<TReturn>::type;
+      if constexpr (not detail::useESProductDirectly<TProduct>) {
+        // for device backends add the copy to device
+        auto tokenPtr = std::make_shared<edm::ESGetToken<TProduct, TRecord>>();
+        auto ccDev = setWhatProducedDevice<TRecord>(
+            [tokenPtr](device::Record<TRecord> const& iRecord) {
+              auto handle = iRecord.getTransientHandle(*tokenPtr);
+              using CopyT = cms::alpakatools::CopyToDevice<TProduct>;
+              return std::optional{CopyT::copyAsync(iRecord.queue(), *handle)};
+            },
+            label);
+        *tokenPtr = ccDev.consumes();
+      }
+      return cc;
     }
 
     template <typename T, typename TReturn, typename TRecord>
@@ -46,10 +62,32 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                          TReturn (T ::*iMethod)(device::Record<TRecord> const&),
                          edm::es::Label const& label = {}) {
       using TProduct = typename edm::eventsetup::produce::smart_pointer_traits<TReturn>::type;
+      if constexpr (detail::useESProductDirectly<TProduct>) {
+        return Base::setWhatProduced(
+            [iThis, iMethod](TRecord const& record) {
+              auto const& devices = cms::alpakatools::devices<Platform>();
+              assert(devices.size() == 1);
+              device::Record<TRecord> const deviceRecord(record, devices.front());
+              return std::invoke(iMethod, iThis, deviceRecord);
+            },
+            label);
+      } else {
+        return setWhatProducedDevice<TRecord>(
+            [iThis, iMethod](device::Record<TRecord> const& record) { return std::invoke(iMethod, iThis, record); },
+            label);
+      }
+    }
+
+  private:
+    template <typename TRecord, typename TFunc>
+    auto setWhatProducedDevice(TFunc&& func, const edm::es::Label& label) {
+      using Types = edm::eventsetup::impl::ReturnArgumentTypes<TFunc>;
+      using TReturn = typename Types::return_type;
+      using TProduct = typename edm::eventsetup::produce::smart_pointer_traits<TReturn>::type;
       using ProductType = ESDeviceProduct<TProduct>;
       using ReturnType = detail::ESDeviceProductWithStorage<TProduct, TReturn>;
       return Base::setWhatProduced(
-          [iThis, iMethod](TRecord const& record) -> std::unique_ptr<ProductType> {
+          [function = std::forward<TFunc>(func)](TRecord const& record) -> std::unique_ptr<ProductType> {
             // TODO: move the multiple device support into EventSetup system itself
             auto const& devices = cms::alpakatools::devices<Platform>();
             std::vector<std::shared_ptr<Queue>> queues;
@@ -59,7 +97,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             bool anynull = false;
             for (auto const& dev : devices) {
               device::Record<TRecord> const deviceRecord(record, dev);
-              auto prod = std::invoke(iMethod, iThis, deviceRecord);
+              auto prod = function(deviceRecord);
               if (prod) {
                 allnull = false;
                 ret->insert(dev, std::move(prod));
@@ -90,7 +128,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           label);
     }
 
-  private:
     static void throwSomeNullException();
   };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
