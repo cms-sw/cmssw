@@ -1,9 +1,39 @@
+###############################################################################
+# Way to use this:
+#   cmsRun testHGCalWaferID_cfg.py type=V17
+#
+#   Options for type V16, V17, V17Shift
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
+import os, sys, imp, re
+import FWCore.ParameterSet.VarParsing as VarParsing
+
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('type',
+                 "V17",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "type of operations: V16, V17, V17Shift")
+
+### get and parse the command line arguments
+options.parseArguments()
+print(options)
+
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 
-process = cms.Process('HGCalWafer',Phase2C17I13M9)
+process = cms.Process("HGCalWaferIDTest",Phase2C17I13M9)
 
-geomFile = "Configuration.Geometry.GeometryExtended2026D92_cff"
+####################################################################
+# Use the options
+if (options.type == "V17Shift"):
+    geomFile = "Geometry.HGCalCommonData.testHGCalV17ShiftReco_cff"
+elif (options.type == "V16"):
+    geomFile = "Configuration.Geometry.GeometryExtended2026D88_cff"
+else:
+    geomFile = "Configuration.Geometry.GeometryExtended2026D92_cff"
 
 print("Geometry file: ", geomFile)
 
@@ -12,7 +42,7 @@ process.load(geomFile)
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.HGCalGeom=dict()
+    process.MessageLogger.HGCalGeomW=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -40,5 +70,7 @@ process.maxEvents = cms.untracked.PSet(
 
 process.load("Geometry.HGCalCommonData.hgcalWaferIDTester_cff")
 
- 
-process.p1 = cms.Path(process.generator*process.hgcalWaferIDTesterHEF)
+if (options.type == "V17Shift"):
+    process.p1 = cms.Path(process.generator*process.hgcalWaferIDShiftTesterEE*process.hgcalWaferIDShiftTesterHEF)
+else: 
+    process.p1 = cms.Path(process.generator*process.hgcalWaferIDTesterEE*process.hgcalWaferIDTesterHEF)
