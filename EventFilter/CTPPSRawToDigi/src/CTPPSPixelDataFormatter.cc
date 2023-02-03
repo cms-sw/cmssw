@@ -124,55 +124,64 @@ void CTPPSPixelDataFormatter::interpretRawData(
     ew--;
     m_WordCounter--;
   }
+
   for (auto word = bw; word < ew; ++word) {
     LogTrace("") << "DATA: " << print(*word);
-
     auto ww = *word;
     if UNLIKELY (ww == 0) {
       m_WordCounter--;
       continue;
     }
+
     int nlink = (ww >> m_LINK_shift) & m_LINK_mask;
     int nroc = (ww >> m_ROC_shift) & m_ROC_mask;
     int FMC = 0;
     uint32_t iD = RPixErrorChecker::dummyDetId;  //0xFFFFFFFF; //dummyDetId
     int convroc = nroc - 1;
-    CTPPSPixelFramePosition fPos(fedId, FMC, nlink, convroc);
 
+    CTPPSPixelROC rocp;
+    CTPPSPixelFramePosition fPos(fedId, FMC, nlink, convroc);
     std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo>::const_iterator mit;
     mit = m_Mapping.find(fPos);
-
-    if (mit == m_Mapping.end()) {
-      if (nlink >= maxLinkIndex) {
-        m_ErrorCheck.conversionError(fedId, iD, InvalidLinkId, ww, errors);
-        edm::LogError("CTPPSPixelDataFormatter") << " Invalid linkId ";
-      } else if ((nroc - 1) >= maxRocIndex) {
-        // if RocId wrong try to recover at least plane id
-        CTPPSPixelFramePosition fPosDummyROC(fedId, FMC, nlink, 0);
-        mit = m_Mapping.find(fPosDummyROC);
-        if (mit != m_Mapping.end())
-          iD = (*mit).second.iD;
-        m_ErrorCheck.conversionError(fedId, iD, InvalidROCId, ww, errors);
-        edm::LogError("CTPPSPixelDataFormatter")
-            << " Invalid ROC Id " << convroc << " in nlink " << nlink << " of FED " << fedId << " in DetId " << iD;
-      } else {
-        m_ErrorCheck.conversionError(fedId, iD, Unknown, ww, errors);
-        edm::LogError("CTPPSPixelDataFormatter") << " Error unknown ";
-      }
-      continue;  //skip word
+    if (mit != m_Mapping.end()) {
+      CTPPSPixelROCInfo rocInfo = (*mit).second;
+      iD = rocInfo.iD;
+      rocp.setParameters(iD, rocInfo.roc, convroc);
     }
-
-    CTPPSPixelROCInfo rocInfo = (*mit).second;
-    iD = rocInfo.iD;
-    CTPPSPixelROC rocp(iD, rocInfo.roc, convroc);
 
     if ((nlink != link) | (nroc != roc)) {  // new roc
       link = nlink;
       roc = nroc;
 
-      skipROC = LIKELY((roc - 1) < maxRocIndex) ? false : !m_ErrorCheck.checkROC(errorsInEvent, fedId, iD, ww, errors);
+      if ((roc - 1) < maxRocIndex) {
+        skipROC = false;
+      } else {
+        // using dummy detId - recovering of FED channel foreseen in DQM
+        iD = RPixErrorChecker::dummyDetId;
+        skipROC = !m_ErrorCheck.checkROC(errorsInEvent, fedId, iD, ww, errors);
+      }
       if (skipROC)
         continue;
+
+      if (mit == m_Mapping.end()) {
+        if (nlink >= maxLinkIndex) {
+          m_ErrorCheck.conversionError(fedId, iD, InvalidLinkId, ww, errors);
+          edm::LogError("CTPPSPixelDataFormatter") << " Invalid linkId ";
+        } else if ((nroc - 1) >= maxRocIndex) {
+          m_ErrorCheck.conversionError(fedId, iD, InvalidROCId, ww, errors);
+          edm::LogError("CTPPSPixelDataFormatter")
+              << " Invalid ROC Id " << convroc << " in nlink " << nlink << " of FED " << fedId << " in DetId " << iD;
+        } else {
+          m_ErrorCheck.conversionError(fedId, iD, Unknown, ww, errors);
+          edm::LogError("CTPPSPixelDataFormatter") << " Error unknown ";
+        }
+        skipROC = true;  // skipping roc due to mapping errors
+        continue;
+      }
+      if (rocp.rawId() == 0) {
+        skipROC = true;
+        continue;
+      }
 
       auto rawId = rocp.rawId();
 
@@ -180,6 +189,9 @@ void CTPPSPixelDataFormatter::interpretRawData(
       if ((*detDigis).empty())
         (*detDigis).data.reserve(32);  // avoid the first relocations
     }
+
+    if (skipROC || rocp.rawId() == 0)
+      continue;
 
     int adc = (ww >> m_ADC_shift) & m_ADC_mask;
 
