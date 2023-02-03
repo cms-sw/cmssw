@@ -704,5 +704,9 @@ namespace edm {
       (*accItr)->finalizeEvent(event, setup);
     }
   }
-  void MixingModule::fillPSetDescription(edm::ParameterSetDescription& iDesc) { iDesc.setAllowAnything(); }
+  void MixingModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) { 
+edm::ParameterSetDescription desc;
+desc.setAllowAnything();
+descriptions.addDefault( desc);
+ }
 }  // namespace edm

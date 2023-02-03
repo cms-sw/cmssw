@@ -59,7 +59,8 @@ public:
                                   const edm::ParameterSet& conf_specific,
                                   edm::ConsumesCollector iC);
   virtual ~Phase2TrackerDigitizerAlgorithm();
-  virtual void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  static void fillPSetDescription(edm::ParameterSetDescription& descriptions);
 
   // initialization that cannot be done in the constructor
   virtual void init(const edm::EventSetup& es) = 0;

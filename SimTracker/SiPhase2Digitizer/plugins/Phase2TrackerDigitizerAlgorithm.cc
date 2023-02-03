@@ -1026,8 +1026,7 @@ float Phase2TrackerDigitizerAlgorithm::calcQ(float x) {
   return 0.5f * (1.f - std::copysign(std::sqrt(1.f - unsafe_expf<4>(-xx * (1.f + p2 / (1.f + p3 * xx)))), x));
 }
 
-void Phase2TrackerDigitizerAlgorithm::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc;
+void Phase2TrackerDigitizerAlgorithm::fillPSetDescription(edm::ParameterSetDescription& desc) {
   SiPixelChargeReweightingAlgorithm::fillPSetDescription(desc);
   desc.addUntracked<bool>("makeDigiSimLinks", true);
   desc.add<bool>("InefficiencyDB", false);
@@ -1070,5 +1069,4 @@ void Phase2TrackerDigitizerAlgorithm::fillDescriptions(edm::ConfigurationDescrip
   desc.add<std::vector<double> >("EfficiencyFactors_Barrel", {});
   desc.add<std::vector<double> >("EfficiencyFactors_Endcap", {});
   desc.add("UseReweighting", false);
-  descriptions.addWithDefaultLabel(desc);
 }

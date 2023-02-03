@@ -317,18 +317,16 @@ namespace cms {
     if (makeDigiSimLinks_)
       iEvent.put(std::move(outputlink), "Pixel");
   }
-  void Phase2TrackerDigitizer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-    edm::ParameterSetDescription desc;
-    desc.add<std::string>("hitsProducer", "g4SimHits");
-    desc.add("ROUList",
+  void Phase2TrackerDigitizer::fillPSetDescription(edm::ParameterSetDescription& descriptions) {
+    descriptions.add<std::string>("hitsProducer", "g4SimHits");
+    descriptions.add("ROUList",
              std::vector<std::string>{"TrackerHitsPixelBarrelLowTof",
                                       "TrackerHitsPixelBarrelHighTof",
                                       "TrackerHitsPixelEndcapLowTof",
                                       "TrackerHitsPixelEndcapHighTof"});
-    desc.add<std::string>("GeometryType", "idealForDigi");
-    desc.add("isOTreadoutAnalog", false);
-    desc.add("premixStage1", false);
-    descriptions.addWithDefaultLabel(desc);
+    descriptions.add<std::string>("GeometryType", "idealForDigi");
+    descriptions.add("isOTreadoutAnalog", false);
+    descriptions.add("premixStage1", false);
   }
 }  // namespace cms
 

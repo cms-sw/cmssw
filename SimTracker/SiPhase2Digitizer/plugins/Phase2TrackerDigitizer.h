@@ -60,8 +60,7 @@ namespace cms {
                                     edm::ConsumesCollector& iC);
     ~Phase2TrackerDigitizer() override;
 
-    void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
+    static void fillPSetDescription(edm::ParameterSetDescription& descriptions);
     void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
     void accumulate(edm::Event const& e, edm::EventSetup const& c) override;
     void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
