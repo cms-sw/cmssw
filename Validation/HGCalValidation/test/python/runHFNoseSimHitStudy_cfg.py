@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Phase2C18I13M9_cff import Phase2C18I13M9
-process = cms.Process('PROD',Phase2C18I13M9)
+from Configuration.Eras.Era_Phase2C20I13M9_cff import Phase2C20I13M9
+process = cms.Process('PROD',Phase2C20I13M9)
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")

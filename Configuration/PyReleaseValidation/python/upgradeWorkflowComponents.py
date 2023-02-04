@@ -2363,7 +2363,7 @@ upgradeProperties[2026] = {
         'Geom' : 'Extended2026D94',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T21',
-        'Era' : 'Phase2C18I13M9',
+        'Era' : 'Phase2C20I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal', 'ALCAPhase2'],
     },
     '2026D95' : {
