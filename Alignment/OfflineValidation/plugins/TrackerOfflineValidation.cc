@@ -79,6 +79,7 @@ public:
   typedef dqm::legacy::DQMStore DQMStore;
   explicit TrackerOfflineValidation(const edm::ParameterSet&);
   ~TrackerOfflineValidation() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   enum HistogramType {
     XResidual,
@@ -490,6 +491,51 @@ TrackerOfflineValidation::TrackerOfflineValidation(const edm::ParameterSet& iCon
       maxTracks_(parSet_.getParameter<unsigned long long>("maxTracks")),
       avalidator_(iConfig, consumesCollector()) {
   usesResource(TFileService::kSharedResource);
+}
+
+void TrackerOfflineValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.setComment("Validates alignment payloads by evaluating unbiased track-hit resisuals");
+  TrackerValidationVariables::fillPSetDescription(desc);
+  desc.addUntracked<int>("compressionSettings", -1);
+  desc.add<bool>("localCoorHistosOn", false);
+  desc.add<bool>("moduleLevelHistsTransient", false);
+  desc.add<bool>("moduleLevelProfiles", false);
+  desc.add<bool>("stripYResiduals", false);
+  desc.add<bool>("useFwhm", true);
+  desc.add<bool>("useFit", false);
+  desc.add<bool>("useOverflowForRMS", false);
+  desc.add<bool>("useInDqmMode", false);
+  desc.add<std::string>("moduleDirectoryInOutput", {});
+  desc.add<int>("chargeCut", 0);
+  desc.add<unsigned long long>("maxTracks", 0);
+
+  // fill in the residuals details
+  std::vector<std::string> listOfResidualsPSets = {"TH1XResPixelModules",
+                                                   "TH1XResStripModules",
+                                                   "TH1NormXResPixelModules",
+                                                   "TH1NormXResStripModules",
+                                                   "TH1XprimeResPixelModules",
+                                                   "TH1XprimeResStripModules",
+                                                   "TH1NormXprimeResPixelModules",
+                                                   "TH1NormXprimeResStripModules",
+                                                   "TH1YResPixelModules",
+                                                   "TH1YResStripModules",
+                                                   "TH1NormYResPixelModules",
+                                                   "TH1NormYResStripModules",
+                                                   "TProfileXResPixelModules",
+                                                   "TProfileXResStripModules",
+                                                   "TProfileYResPixelModules",
+                                                   "TProfileYResStripModules"};
+
+  for (const auto& myPSetName : listOfResidualsPSets) {
+    edm::ParameterSetDescription myPSet;
+    myPSet.add<int>("Nbinx", 100);
+    myPSet.add<double>("xmin", -5.f);
+    myPSet.add<double>("xmax", 5.f);
+    desc.add<edm::ParameterSetDescription>(myPSetName, myPSet);
+  }
+  descriptions.addWithDefaultLabel(desc);
 }
 
 TrackerOfflineValidation::~TrackerOfflineValidation() {
