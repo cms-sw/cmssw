@@ -76,7 +76,7 @@ namespace pixelgpudetails {
             <<<1, 32, 0, stream>>>(clusters_d->clusModuleStart(), cpeParams, hits_d.view().hitsLayerStart().data());
         cudaCheck(cudaGetLastError());
         constexpr auto nLayers = TrackerTraits::numberOfLayers;
-        cms::cuda::fillManyFromVector(hits_d.phiBinner(),
+        cms::cuda::fillManyFromVector(&(hits_d.view().phiBinner()),
                                       nLayers,
                                       hits_d.view().iphi(),
                                       hits_d.view().hitsLayerStart().data(),

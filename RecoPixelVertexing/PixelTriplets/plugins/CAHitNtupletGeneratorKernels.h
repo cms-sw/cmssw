@@ -236,7 +236,7 @@ public:
 
   void classifyTuples(const HitsConstView& hh, TkSoAView& track_view, cudaStream_t cudaStream);
 
-  void buildDoublets(const HitsConstView& hh, int32_t offsetBPIX2, cudaStream_t stream);
+  void buildDoublets(const HitsConstView& hh, cudaStream_t stream);
   void allocateOnGPU(int32_t nHits, cudaStream_t stream);
   void cleanup(cudaStream_t cudaStream);
 
