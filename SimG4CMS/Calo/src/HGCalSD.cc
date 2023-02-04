@@ -56,7 +56,7 @@ HGCalSD::HGCalSD(const std::string& name,
   angles_ = m_HGC.getUntrackedParameter<std::vector<double>>("WaferAngles");
   missingFile_ = m_HGC.getUntrackedParameter<std::string>("MissingWaferFile");
   checkID_ = m_HGC.getUntrackedParameter<bool>("CheckID");
-  verbose_ = m_HGC.getUntrackedParameter<bool>("Verbosity");
+  verbose_ = m_HGC.getUntrackedParameter<int>("Verbosity");
 
   if (storeAllG4Hits_) {
     setUseMap(false);

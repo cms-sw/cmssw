@@ -58,7 +58,7 @@ HGCScintSD::HGCScintSD(const std::string& name,
   storeAllG4Hits_ = m_HGC.getParameter<bool>("StoreAllG4Hits");
   checkID_ = m_HGC.getUntrackedParameter<bool>("CheckID");
   fileName_ = m_HGC.getUntrackedParameter<std::string>("TileFileName");
-  verbose_ = m_HGC.getUntrackedParameter<bool>("Verbosity");
+  verbose_ = m_HGC.getUntrackedParameter<int>("Verbosity");
 
   if (storeAllG4Hits_) {
     setUseMap(false);
