@@ -59,7 +59,9 @@ class TrackerOfflineValidationSummary : public edm::one::EDAnalyzer<edm::one::Wa
 public:
   typedef dqm::legacy::DQMStore DQMStore;
   explicit TrackerOfflineValidationSummary(const edm::ParameterSet&);
-  ~TrackerOfflineValidationSummary() override;
+  ~TrackerOfflineValidationSummary() override = default;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
@@ -161,7 +163,28 @@ TrackerOfflineValidationSummary::TrackerOfflineValidationSummary(const edm::Para
   dbe_ = edm::Service<DQMStore>().operator->();
 }
 
-TrackerOfflineValidationSummary::~TrackerOfflineValidationSummary() = default;
+void TrackerOfflineValidationSummary::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.setComment("Summary of alignment payloads validation by evaluating unbiased track-hit resisuals");
+  desc.add<std::string>("moduleDirectoryInOutput", "Alignment/Tracker");
+  desc.add<bool>("useFit", false);
+  desc.add<bool>("stripYDmrs", false);
+  desc.add<unsigned int>("minEntriesPerModuleForDmr", 100);
+
+  // fill in the residuals details
+  const std::vector<std::string> listOfDMRPSets = {
+      "TH1DmrXprimeStripModules", "TH1DmrYprimeStripModules", "TH1DmrXprimePixelModules", "TH1DmrYprimePixelModules"};
+
+  for (const auto& myPSetName : listOfDMRPSets) {
+    edm::ParameterSetDescription myPSet;
+    myPSet.add<int>("Nbinx", 100);
+    myPSet.add<double>("xmin", -5.f);
+    myPSet.add<double>("xmax", 5.f);
+    desc.add<edm::ParameterSetDescription>(myPSetName, myPSet);
+  }
+  descriptions.addWithDefaultLabel(desc);
+}
+
 //
 // member functions
 //
