@@ -161,7 +161,6 @@ void CAHitNtupletGeneratorKernelsGPU<TrackerTraits>::buildDoublets(const HitsCon
                                                                    int32_t offsetBPIX2,
                                                                    cudaStream_t stream) {
   int32_t nhits = hh.metadata().size();
-
   using namespace gpuPixelDoublets;
 
   using GPUCACell = GPUCACellT<TrackerTraits>;

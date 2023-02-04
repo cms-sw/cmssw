@@ -37,10 +37,7 @@ public:
                                  int32_t offsetBPIX2,
                                  ParamsOnGPU const* cpeParams,
                                  uint32_t const* hitsModuleStart)
-      : cms::cuda::PortableHostCollection<TrackingRecHitLayout<TrackerTraits>>(nHits),
-        nHits_(nHits),
-        cpeParams_(cpeParams),
-        offsetBPIX2_(offsetBPIX2) {
+      : cms::cuda::PortableHostCollection<TrackingRecHitLayout<TrackerTraits>>(nHits), offsetBPIX2_(offsetBPIX2) {
     view().nHits() = nHits;
     std::copy(hitsModuleStart, hitsModuleStart + TrackerTraits::numberOfModules + 1, view().hitsModuleStart().begin());
     memcpy(&(view().cpeParams()), cpeParams, sizeof(ParamsOnGPU));
@@ -53,8 +50,6 @@ public:
                                  uint32_t const* hitsModuleStart,
                                  cudaStream_t stream)
       : cms::cuda::PortableHostCollection<TrackingRecHitLayout<TrackerTraits>>(nHits, stream),
-        nHits_(nHits),
-        cpeParams_(cpeParams),
         offsetBPIX2_(offsetBPIX2) {
     view().nHits() = nHits;
     std::copy(hitsModuleStart, hitsModuleStart + TrackerTraits::numberOfModules + 1, view().hitsModuleStart().begin());
@@ -62,16 +57,12 @@ public:
     view().offsetBPIX2() = offsetBPIX2;
   }
 
-  uint32_t nHits() const { return nHits_; }
-  uint32_t offsetBPIX2() const { return offsetBPIX2_; }
-  auto phiBinnerStorage() { return phiBinnerStorage_; }
-
+  uint32_t nHits() const { return view().metadata().size(); }
+  uint32_t offsetBPIX2() const {
+    return offsetBPIX2_;
+  }  //offsetBPIX2 is used on host functions so is useful to have it also stored in the class and not only in the layout
 private:
-  uint32_t nHits_;  //Needed for the host SoA size
-  ParamsOnGPU const* cpeParams_;
-  uint32_t offsetBPIX2_;
-
-  PhiBinnerStorageType* phiBinnerStorage_;
+  uint32_t offsetBPIX2_ = 0;
 };
 
 using TrackingRecHitSoAHostPhase1 = TrackingRecHitSoAHost<pixelTopology::Phase1>;
