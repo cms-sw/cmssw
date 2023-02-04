@@ -84,6 +84,7 @@ process.TrackerGeometryCompare.inputROOTFile1 = str(config['input_ref']+'/Ntuple
 process.TrackerGeometryCompare.inputROOTFile2 = str(config['input_comp']+'/Ntuples.root')
 process.TrackerGeometryCompare.moduleList = 'emptyModuleList.txt'
 process.TrackerGeometryCompare.outputFile = str(config['output'])+'/GCPtree.root'
+process.TrackerGeometryCompare.levels = [ str(config['validation']['GCP']['levels']) ]
 
 surf_dir = str(config['output'])+'/SurfDeform'
 if not os.path.isdir(surf_dir):
@@ -92,8 +93,6 @@ process.TrackerGeometryCompare.surfDir = surf_dir
 
 process.load("CommonTools.UtilAlgos.TFileService_cfi")  
 process.TFileService.fileName = cms.string("TkSurfDeform.root") 
-
-process.TrackerGeometryCompare.levels = [ str(config['validation']['GCP']['levels']) ]
 
   ##FIXME!!!!!!!!!
   ##replace TrackerGeometryCompare.writeToDB = False

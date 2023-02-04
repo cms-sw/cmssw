@@ -76,6 +76,8 @@ public:
   explicit TrackerGeometryIntoNtuples(const edm::ParameterSet&);
   ~TrackerGeometryIntoNtuples() override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
@@ -169,6 +171,15 @@ TrackerGeometryIntoNtuples::TrackerGeometryIntoNtuples(const edm::ParameterSet& 
 }
 
 TrackerGeometryIntoNtuples::~TrackerGeometryIntoNtuples() { delete theCurrentTracker; }
+
+void TrackerGeometryIntoNtuples::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.setComment(
+      "Validates alignment payloads by comparing the relative position and orientations of tracker modules");
+  desc.addUntracked<std::string>("outputFile", {});
+  desc.addUntracked<std::string>("outputTreename", {});
+  descriptions.addWithDefaultLabel(desc);
+}
 
 //
 // member functions
