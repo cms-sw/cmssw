@@ -222,6 +222,9 @@ bool DisappearingMuonsSkimming::filter(edm::Event& iEvent, const edm::EventSetup
         continue;
 
       double trackIso = getTrackIsolation(iEvent, vertices, iTrack);
+      //Track iso returns -1 when it fails to find the vertex containing the track
+      if (trackIso < 0)
+        continue;
       double ecalIso = getECALIsolation(iEvent, iSetup, transientTrackBuilder->build(*iTrack));
       if (trackIso > maxTrackIso_ || ecalIso > maxEcalIso_)
         continue;
@@ -322,7 +325,8 @@ double DisappearingMuonsSkimming::getTrackIsolation(const edm::Event& iEvent,
       continue;
     }
     for (unsigned int j = 0; j < vtx->tracksSize(); j++) {
-      if (fabs(vtx->trackRefAt(j)->pt() == iTrack->pt())) {
+      if (vtx->trackRefAt(j)->pt() == iTrack->pt() && vtx->trackRefAt(j)->eta() == iTrack->eta() &&
+          vtx->trackRefAt(j)->phi() == iTrack->phi()) {
         vtxindex = i;
         trackindex = j;
         foundtrack = true;
