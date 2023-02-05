@@ -40,11 +40,17 @@ class GlobalTrackingGeometryRecord;
 class MagneticField;
 class IdealMagneticFieldRecord;
 
+namespace edm {
+  class ParameterSetDescription;
+}
+
 class TrackAssociatorParameters {
 public:
   TrackAssociatorParameters() {}
   TrackAssociatorParameters(const edm::ParameterSet&, edm::ConsumesCollector&&);
   void loadParameters(const edm::ParameterSet&, edm::ConsumesCollector&);
+
+  static void fillPSetDescription(edm::ParameterSetDescription& descriptions);
 
   double dREcal;
   double dRHcal;
