@@ -7,7 +7,6 @@
 
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/vec.h"
 
 namespace cms::alpakatools {
 
@@ -20,7 +19,7 @@ namespace cms::alpakatools {
   inline constexpr Idx divide_up_by(Idx value, Idx divisor) { return (value + divisor - 1) / divisor; }
 
   // Trait describing whether or not the accelerator expects the threads-per-block and elements-per-thread to be swapped
-  template <typename TAcc, typename = std::enable_if_t<cms::alpakatools::is_accelerator_v<TAcc>>>
+  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
   struct requires_single_thread_per_block : public std::true_type {};
 
 #ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
@@ -34,12 +33,11 @@ namespace cms::alpakatools {
 #endif  // ALPAKA_ACC_GPU_HIP_ENABLED
 
   // Whether or not the accelerator expects the threads-per-block and elements-per-thread to be swapped
-  template <typename TAcc, typename = std::enable_if_t<cms::alpakatools::is_accelerator_v<TAcc>>>
+  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
   inline constexpr bool requires_single_thread_per_block_v = requires_single_thread_per_block<TAcc>::value;
 
   // Create an accelerator-dependent work division for 1-dimensional kernels
-  template <typename TAcc,
-            typename = std::enable_if_t<cms::alpakatools::is_accelerator_v<TAcc> and alpaka::Dim<TAcc>::value == 1>>
+  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
   inline WorkDiv<Dim1D> make_workdiv(Idx blocks, Idx elements) {
     if constexpr (not requires_single_thread_per_block_v<TAcc>) {
       // On GPU backends, each thread is looking at a single element:
@@ -55,7 +53,7 @@ namespace cms::alpakatools {
   }
 
   // Create the accelerator-dependent workdiv for N-dimensional kernels
-  template <typename TAcc, typename = std::enable_if_t<cms::alpakatools::is_accelerator_v<TAcc>>>
+  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
   inline WorkDiv<alpaka::Dim<TAcc>> make_workdiv(const Vec<alpaka::Dim<TAcc>>& blocks,
                                                  const Vec<alpaka::Dim<TAcc>>& elements) {
     using Dim = alpaka::Dim<TAcc>;
@@ -72,8 +70,7 @@ namespace cms::alpakatools {
     }
   }
 
-  template <typename TAcc,
-            typename = std::enable_if_t<cms::alpakatools::is_accelerator_v<TAcc> and alpaka::Dim<TAcc>::value == 1>>
+  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and alpaka::Dim<TAcc>::value == 1>>
   class elements_with_stride {
   public:
     ALPAKA_FN_ACC inline elements_with_stride(TAcc const& acc)
@@ -160,8 +157,7 @@ namespace cms::alpakatools {
     const Idx extent_;
   };
 
-  template <typename TAcc,
-            typename = std::enable_if_t<cms::alpakatools::is_accelerator_v<TAcc> and (alpaka::Dim<TAcc>::value > 0)>>
+  template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc> and (alpaka::Dim<TAcc>::value > 0)>>
   class elements_with_stride_nd {
   public:
     using Dim = alpaka::Dim<TAcc>;

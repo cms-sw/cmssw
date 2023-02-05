@@ -19,6 +19,11 @@
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #endif  // ALPAKA_ACC_GPU_CUDA_ENABLED
 
+#ifdef ALPAKA_ACC_GPU_HIP_ENABLED
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "HeterogeneousCore/ROCmServices/interface/ROCmService.h"
+#endif  // ALPAKA_ACC_GPU_HIP_ENABLED
+
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   AlpakaService::AlpakaService(edm::ParameterSet const& config, edm::ActivityRegistry&)
@@ -28,6 +33,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // rely on the CUDAService to initialise the CUDA devices
     edm::Service<CUDAService> cudaService;
 #endif  // ALPAKA_ACC_GPU_CUDA_ENABLED
+#ifdef ALPAKA_ACC_GPU_HIP_ENABLED
+    // rely on the ROCmService to initialise the ROCm devices
+    edm::Service<ROCmService> rocmService;
+#endif  // ALPAKA_ACC_GPU_HIP_ENABLED
 
     // TODO from Andrea Bocci:
     //   - handle alpaka caching allocators ?
@@ -45,6 +54,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return;
     }
 #endif  // ALPAKA_ACC_GPU_CUDA_ENABLED
+#ifdef ALPAKA_ACC_GPU_HIP_ENABLED
+    if (not rocmService->enabled()) {
+      enabled_ = false;
+      edm::LogInfo("AlpakaService") << ALPAKA_TYPE_ALIAS_NAME(AlpakaService) << " disabled by ROCmService";
+      return;
+    }
+#endif  // ALPAKA_ACC_GPU_HIP_ENABLED
 
     // enumerate all devices on this platform
     auto const& devices = cms::alpakatools::devices<Platform>();

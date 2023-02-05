@@ -4,6 +4,8 @@
 #include <cassert>
 #include <memory>
 
+#include <alpaka/alpaka.hpp>
+
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/AllocatorConfig.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/CachingAllocator.h"
@@ -16,7 +18,7 @@ namespace cms::alpakatools {
 
     template <typename TDev,
               typename TQueue,
-              typename = std::enable_if_t<cms::alpakatools::is_device_v<TDev> and cms::alpakatools::is_queue_v<TQueue>>>
+              typename = std::enable_if_t<alpaka::isDevice<TDev> and alpaka::isQueue<TQueue>>>
     auto allocate_device_allocators() {
       using Allocator = CachingAllocator<TDev, TQueue>;
       auto const& devices = cms::alpakatools::devices<alpaka::Pltf<TDev>>();
@@ -72,7 +74,7 @@ namespace cms::alpakatools {
 
   template <typename TDev,
             typename TQueue,
-            typename = std::enable_if_t<cms::alpakatools::is_device_v<TDev> and cms::alpakatools::is_queue_v<TQueue>>>
+            typename = std::enable_if_t<alpaka::isDevice<TDev> and alpaka::isQueue<TQueue>>>
   inline CachingAllocator<TDev, TQueue>& getDeviceCachingAllocator(TDev const& device) {
     // initialise all allocators, one per device
     CMS_THREAD_SAFE static auto allocators = detail::allocate_device_allocators<TDev, TQueue>();
