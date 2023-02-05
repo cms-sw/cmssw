@@ -52,11 +52,10 @@ namespace reco {
 
   class EcalClustersGraph {
   public:
-    typedef std::shared_ptr<CalibratedPFCluster> CalibratedClusterPtr;
-    typedef std::vector<CalibratedClusterPtr> CalibratedClusterPtrVector;
-    typedef std::vector<std::pair<CalibratedClusterPtr, CalibratedClusterPtrVector>> EcalGraphOutput;
+    typedef std::vector<CalibratedPFCluster> CalibratedPFClusterVector;
+    typedef std::vector<std::pair<CalibratedPFCluster, CalibratedPFClusterVector>> EcalGraphOutput;
 
-    EcalClustersGraph(CalibratedClusterPtrVector clusters,
+    EcalClustersGraph(CalibratedPFClusterVector clusters,
                       int nSeeds,
                       const CaloTopology* topology,
                       const CaloSubdetectorGeometry* ebGeom,
@@ -95,7 +94,7 @@ namespace reco {
     std::pair<double, double> computeCovariances(const CaloCluster* cluster);
     std::vector<double> computeShowerShapes(const CaloCluster* cluster, bool full5x5);
 
-    CalibratedClusterPtrVector clusters_;
+    CalibratedPFClusterVector clusters_;
     uint nSeeds_;
     uint nCls_;
 
