@@ -51,7 +51,7 @@ filesDefaultMC_Realistic2022 = cms.untracked.vstring(
 
 filesDefaultMC_Realistic2022_string = '/store/relval/CMSSW_12_5_0_pre2/RelValMinBias_14TeV/GEN-SIM-RECO/124X_mcRun3_2022_realistic_v3-v1/2580000/c828c73c-32d1-45be-a8ae-b8af4b8f4952.root'
 
-filesDefaultData_Comissioning2022_Cosmics_string = '/store/data/Commissioning2022/Cosmics/ALCARECO/TkAlCosmics0T-PromptReco-v1/000/347/962/00000/a2458dc5-97c0-4635-8613-c83c8360ad42.root'
+filesDefaultData_Comissioning2022_Cosmics_string = '/store/data/Commissioning2022/Cosmics/ALCARECO/TkAlCosmics0T-PromptReco-v1/000/348/776/00000/96538f53-2088-422c-91a5-841d735a81a8.root'
 
 filesDefaultData_MinBias2018B = cms.untracked.vstring(
     '/store/express/Run2018B/StreamExpress/ALCARECO/TkAlMinBias-Express-v1/000/317/212/00000/00F0EFA7-8D64-E811-A594-FA163EFC96CC.root'
