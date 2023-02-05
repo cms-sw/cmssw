@@ -69,6 +69,8 @@ public:
   // Destructor
   virtual ~TrackerHitAssociator() {}
 
+  static void fillPSetDescription(edm::ParameterSetDescription& descriptions);
+
   typedef std::pair<unsigned int, unsigned int> simhitAddr, subDetTofBin;
   typedef unsigned int simHitCollectionID;
 
