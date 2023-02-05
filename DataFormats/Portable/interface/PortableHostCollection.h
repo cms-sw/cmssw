@@ -4,10 +4,11 @@
 #include <cassert>
 #include <optional>
 
+#include <alpaka/alpaka.hpp>
+
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/host.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
 
 // generic SoA-based product in host memory
 template <typename T>
@@ -30,7 +31,7 @@ public:
     assert(reinterpret_cast<uintptr_t>(buffer_->data()) % Layout::alignment == 0);
   }
 
-  template <typename TQueue, typename = std::enable_if_t<cms::alpakatools::is_queue_v<TQueue>>>
+  template <typename TQueue, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
   PortableHostCollection(int32_t elements, TQueue const& queue)
       // allocate pinned host memory associated to the given work queue, accessible by the queue's device
       : buffer_{cms::alpakatools::make_host_buffer<std::byte[]>(queue, Layout::computeDataSize(elements))},

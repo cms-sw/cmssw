@@ -16,7 +16,7 @@
 #include "FWCore/Utilities/interface/typedefs.h"
 
 // CUDA attributes
-#ifdef __CUDACC__
+#if defined(__CUDACC__) || defined(__HIPCC__)
 #define SOA_HOST_ONLY __host__
 #define SOA_DEVICE_ONLY __device__
 #define SOA_HOST_DEVICE __host__ __device__
@@ -34,6 +34,12 @@
   {                               \
     printf("%s\n", (A));          \
     __trap();                     \
+  }
+#elif defined(__HIPCC__) && defined(__HIP_DEVICE_COMPILE__)
+#define SOA_THROW_OUT_OF_RANGE(A) \
+  {                               \
+    printf("%s\n", (A));          \
+    abort();                      \
   }
 #else
 #define SOA_THROW_OUT_OF_RANGE(A) \
