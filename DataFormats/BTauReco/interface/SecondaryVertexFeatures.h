@@ -21,6 +21,13 @@ namespace btagbtvdeep {
 
     float costhetasvpv;
     float enratio;
+
+    float etarel;
+    float phirel;
+
+    float eta;
+    float phi;
+    float e;
   };
 
 }  // namespace btagbtvdeep

@@ -19,6 +19,14 @@ namespace btagbtvdeep {
 
     float hadFrac;
     float drminsv;
+
+    float etarel;
+    float phirel;
+
+    float pt;
+    float eta;
+    float phi;
+    float e;
   };
 
 }  // namespace btagbtvdeep
