@@ -66,6 +66,7 @@ private:
 
   bool use_puppi_value_map_;
   bool fallback_puppi_weight_;
+  bool is_weighted_jet_;
 };
 
 DeepDoubleXTagInfoProducer::DeepDoubleXTagInfoProducer(const edm::ParameterSet& iConfig)
@@ -80,7 +81,8 @@ DeepDoubleXTagInfoProducer::DeepDoubleXTagInfoProducer(const edm::ParameterSet& 
       track_builder_token_(
           esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"))), 
       use_puppi_value_map_(false),
-      fallback_puppi_weight_(iConfig.getParameter<bool>("fallback_puppi_weight"))
+      fallback_puppi_weight_(iConfig.getParameter<bool>("fallback_puppi_weight")),
+      is_weighted_jet_(iConfig.getParameter<bool>("is_weighted_jet"))
       {
   produces<DeepDoubleXTagInfoCollection>();
 
@@ -105,6 +107,7 @@ void DeepDoubleXTagInfoProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<edm::InputTag>("secondary_vertices", edm::InputTag("inclusiveCandidateSecondaryVertices"));
   desc.add<edm::InputTag>("jets", edm::InputTag("ak8PFJetsPuppi"));
   desc.add<bool>("fallback_puppi_weight", false);
+  desc.add<bool>("is_weighted_jet", true);
   descriptions.add("pfDeepDoubleXTagInfos", desc);
 }
 
@@ -324,7 +327,7 @@ void DeepDoubleXTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
             auto& c_pf_features = features.c_pf_features.at(entry);
             if (packed_cand) {
               btagbtvdeep::packedCandidateToFeatures(
-                  packed_cand, *pat_jet, trackinfo, drminpfcandsv, static_cast<float>(jet_radius_), puppiw, c_pf_features);
+                  packed_cand, *pat_jet, trackinfo, is_weighted_jet_, drminpfcandsv, static_cast<float>(jet_radius_), puppiw, c_pf_features);
             } else if (reco_cand) {
               // get vertex association quality
               int pv_ass_quality = 0;  // fallback value
@@ -344,6 +347,7 @@ void DeepDoubleXTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
               btagbtvdeep::recoCandidateToFeatures(reco_cand,
                                                    jet,
                                                    trackinfo,
+                                                   is_weighted_jet_,
                                                    drminpfcandsv,
                                                    static_cast<float>(jet_radius_),
                                                    puppiw,
@@ -359,10 +363,10 @@ void DeepDoubleXTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
             // // fill feature structure
             if (packed_cand) {
               btagbtvdeep::packedCandidateToFeatures(
-                  packed_cand, *pat_jet, drminpfcandsv, static_cast<float>(jet_radius_), puppiw, n_pf_features);
+                  packed_cand, *pat_jet, is_weighted_jet_, drminpfcandsv, static_cast<float>(jet_radius_), puppiw, n_pf_features);
             } else if (reco_cand) {
               btagbtvdeep::recoCandidateToFeatures(
-                  reco_cand, jet, drminpfcandsv, static_cast<float>(jet_radius_), puppiw, n_pf_features);
+                  reco_cand, jet, is_weighted_jet_, drminpfcandsv, static_cast<float>(jet_radius_), puppiw, n_pf_features);
             }
           }
         }
