@@ -53,7 +53,8 @@ namespace mkfit {
                const IterationParams &ip,
                const IterationLayerConfig &ilc,
                const SteeringParams &sp,
-               const std::vector<bool> *ihm);
+               const std::vector<bool> *ihm,
+               bool infwd);
     void setup_bkfit(const PropagationConfig &pc, const SteeringParams &sp);
     void release();
 
@@ -329,6 +330,7 @@ namespace mkfit {
     const IterationLayerConfig *m_iteration_layer_config = nullptr;
     const SteeringParams *m_steering_params = nullptr;
     const std::vector<bool> *m_iteration_hit_mask = nullptr;
+    bool m_in_fwd = true;
 
     // Backward fit
     int m_CurHit[NN];
