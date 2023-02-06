@@ -38,7 +38,7 @@ namespace btagbtvdeep {
 
     float drminsv;
     float distminsv;
-      
+
     float pt;
     float eta;
     float phi;
