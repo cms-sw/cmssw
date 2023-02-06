@@ -42,9 +42,7 @@ namespace mkfit {
                                    /* int */ m_region,
                                    /* int */ m_fwd_search_pickup,
                                    /* int */ m_bkw_fit_last,
-                                   /* int */ m_bkw_search_pickup
-
-  )
+                                   /* int */ m_bkw_search_pickup)
 
   ITCONF_DEFINE_TYPE_NON_INTRUSIVE(mkfit::IterationLayerConfig,
                                    /* int */ m_layer,
@@ -52,18 +50,8 @@ namespace mkfit {
                                    /* float */ m_select_max_dphi,
                                    /* float */ m_select_min_dq,
                                    /* float */ m_select_max_dq,
-                                   /* float */ c_dp_sf,
-                                   /* float */ c_dp_0,
-                                   /* float */ c_dp_1,
-                                   /* float */ c_dp_2,
-                                   /* float */ c_dq_sf,
-                                   /* float */ c_dq_0,
-                                   /* float */ c_dq_1,
-                                   /* float */ c_dq_2,
-                                   /* float */ c_c2_sf,
-                                   /* float */ c_c2_0,
-                                   /* float */ c_c2_1,
-                                   /* float */ c_c2_2)
+                                   /* std::vector<float> */ m_winpars_fwd,
+                                   /* std::vector<float> */ m_winpars_bkw)
 
   ITCONF_DEFINE_TYPE_NON_INTRUSIVE(mkfit::IterationParams,
                                    /* int */ nlayers_per_seed,

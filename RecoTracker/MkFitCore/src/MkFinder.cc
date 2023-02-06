@@ -37,12 +37,14 @@ namespace mkfit {
                        const IterationParams &ip,
                        const IterationLayerConfig &ilc,
                        const SteeringParams &sp,
-                       const std::vector<bool> *ihm) {
+                       const std::vector<bool> *ihm,
+                       bool infwd) {
     m_prop_config = &pc;
     m_iteration_params = &ip;
     m_iteration_layer_config = &ilc;
     m_steering_params = &sp;
     m_iteration_hit_mask = ihm;
+    m_in_fwd = infwd;
   }
 
   void MkFinder::setup_bkfit(const PropagationConfig &pc, const SteeringParams &sp) {
@@ -56,6 +58,7 @@ namespace mkfit {
     m_iteration_layer_config = nullptr;
     m_steering_params = nullptr;
     m_iteration_hit_mask = nullptr;
+    m_in_fwd = true;
   }
 
   //==============================================================================
@@ -205,34 +208,28 @@ namespace mkfit {
 
   void MkFinder::getHitSelDynamicWindows(
       const float invpt, const float theta, float &min_dq, float &max_dq, float &min_dphi, float &max_dphi) {
-    const IterationLayerConfig &ILC = *m_iteration_layer_config;
+    float max_invpt = std::min(invpt, 10.0f);  // => pT>0.1 GeV
 
-    float max_invpt = invpt;
-    if (invpt > 10.0)
-      max_invpt = 10.0;  // => pT>0.1 GeV
+    enum SelWinParameters_e { dp_sf = 0, dp_0, dp_1, dp_2, dq_sf, dq_0, dq_1, dq_2 };
+    auto &v = m_iteration_layer_config->get_window_params(m_in_fwd, true);
 
-    // dq hit selection window
-    float this_dq = (ILC.c_dq_0) * max_invpt + (ILC.c_dq_1) * theta + (ILC.c_dq_2);
-    // In case layer is missing (e.g., seeding layers, or too low stats for training), leave original limits
-    if ((ILC.c_dq_sf) * this_dq > 0.f) {
-      min_dq = (ILC.c_dq_sf) * this_dq;
-      max_dq = 2.0f * min_dq;
+    if (!v.empty()) {
+      // dq hit selection window
+      float this_dq = v[dq_sf] * (v[dq_0] * max_invpt + v[dq_1] * theta + v[dq_2]);
+      // In case value is below 0 (bad window derivation or other reasons), leave original limits
+      if (this_dq > 0.f) {
+        min_dq = this_dq;
+        max_dq = 2.0f * min_dq;
+      }
+
+      // dphi hit selection window
+      float this_dphi = v[dp_sf] * (v[dp_0] * max_invpt + v[dp_1] * theta + v[dp_2]);
+      // In case value is too low (bad window derivation or other reasons), leave original limits
+      if (this_dphi > min_dphi) {
+        min_dphi = this_dphi;
+        max_dphi = 2.0f * min_dphi;
+      }
     }
-
-    // dphi hit selection window
-    float this_dphi = (ILC.c_dp_0) * max_invpt + (ILC.c_dp_1) * theta + (ILC.c_dp_2);
-    // In case layer is missing (e.g., seeding layers, or too low stats for training), leave original limits
-    if ((ILC.c_dp_sf) * this_dphi > min_dphi) {
-      min_dphi = (ILC.c_dp_sf) * this_dphi;
-      max_dphi = 2.0f * min_dphi;
-    }
-
-    //// For future optimization: for layer & iteration dependend hit chi2 cut
-    //float this_c2 = (ILC.c_c2_0)*invpt+(ILC.c_c2_1)*theta+(ILC.c_c2_2);
-    //// In case layer is missing (e.g., seeding layers, or too low stats for training), leave original limits
-    //if(this_c2>0.f){
-    //  max_c2 = (ILC.c_c2_sf)*this_c2;
-    //}
   }
 
   //==============================================================================
@@ -241,22 +238,22 @@ namespace mkfit {
   // From HitSelectionWindows.h: track-related config on hit selection windows
 
   inline float MkFinder::getHitSelDynamicChi2Cut(const int itrk, const int ipar) {
-    const IterationLayerConfig &ILC = *m_iteration_layer_config;
-
     const float minChi2Cut = m_iteration_params->chi2Cut_min;
     const float invpt = m_Par[ipar].At(itrk, 3, 0);
     const float theta = std::abs(m_Par[ipar].At(itrk, 5, 0) - Const::PIOver2);
 
-    float max_invpt = invpt;
-    if (invpt > 10.0)
-      max_invpt = 10.0;
+    float max_invpt = std::min(invpt, 10.0f);  // => pT>0.1 GeV
 
-    float this_c2 = ILC.c_c2_0 * max_invpt + ILC.c_c2_1 * theta + ILC.c_c2_2;
-    // In case layer is missing (e.g., seeding layers, or too low stats for training), leave original limits
-    if ((ILC.c_c2_sf) * this_c2 > minChi2Cut)
-      return ILC.c_c2_sf * this_c2;
-    else
-      return minChi2Cut;
+    enum SelWinParameters_e { c2_sf = 8, c2_0, c2_1, c2_2 };
+    auto &v = m_iteration_layer_config->get_window_params(m_in_fwd, true);
+
+    if (!v.empty()) {
+      float this_c2 = v[c2_sf] * (v[c2_0] * max_invpt + v[c2_1] * theta + v[c2_2]);
+      // In case value is too low (bad window derivation or other reasons), leave original limits
+      if (this_c2 > minChi2Cut)
+        return this_c2;
+    }
+    return minChi2Cut;
   }
 
   //==============================================================================
