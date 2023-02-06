@@ -80,9 +80,6 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   edm::LogVerbatim("HGCalGeom") << "==>> Executing DDHGCalWaferPartialRotated...";
 #endif
   static constexpr double tol = 0.00001 * dd4hep::mm;
-  static const double sqrt3 = std::sqrt(3.0);
-  double r = 0.5 * waferSize;
-  double R = 2.0 * r / sqrt3;
 
   // Loop over all types
   for (unsigned int k = 0; k < tags.size(); ++k) {
@@ -90,7 +87,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       // First the mother
       std::string mother = parentName + placementIndexTags[m] + waferTag + tags[k];
       std::vector<std::pair<double, double>> wxy =
-          HGCalWaferMask::waferXY(partialTypes[k], placementIndex[m], r, R, 0.0, 0.0);
+          HGCalWaferMask::waferXY(partialTypes[k], placementIndex[m], waferSize, 0.0, 0.0, 0.0);
       std::vector<double> xM, yM;
       for (unsigned int i = 0; i < (wxy.size() - 1); ++i) {
         xM.emplace_back(wxy[i].first);
@@ -122,9 +119,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       double zi(-0.5 * thick), thickTot(0.0);
       for (unsigned int l = 0; l < layers.size(); l++) {
         unsigned int i = layers[l];
-        double r2 = 0.5 * (waferSize - layerSizeOff[i]);
-        double R2 = r2 / sqrt3;
-        wxy = HGCalWaferMask::waferXY(partialTypes[k], placementIndex[m], r2, R2, 0.0, 0.0);
+        wxy = HGCalWaferMask::waferXY(partialTypes[k], placementIndex[m], waferSize, layerSizeOff[i], 0.0, 0.0);
         std::vector<double> xL, yL;
         for (unsigned int i0 = 0; i0 < (wxy.size() - 1); ++i0) {
           xL.emplace_back(wxy[i0].first);
@@ -133,7 +128,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferPartialRotated:Layer " << l << ":" << i << " T " << layerThick[i]
                                       << " Size offset " << layerSizeOff[i] << " Copy " << copyNumber[i]
-                                      << " Partial type " << partialTypes_[k] << " r " << r2 << ":" << r;
+                                      << " Partial type " << partialTypes_[k];
 #endif
         if (copyNumber[i] == 1) {
           if (layerType[i] > 0) {
