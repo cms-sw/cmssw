@@ -7,8 +7,6 @@
 namespace {
   constexpr int maxCol = CTPPSPixelCluster::MAXCOL;
   constexpr int maxRow = CTPPSPixelCluster::MAXROW;
-  constexpr int maxColRoc = rpixValues::ROCSizeInX;
-  constexpr int maxRowRoc = rpixValues::ROCSizeInY;
   constexpr double highRangeCal = 1800.;
   constexpr double lowRangeCal = 260.;
   constexpr int rocMask = 0xE000;
