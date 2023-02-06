@@ -6,11 +6,12 @@ namespace btagbtvdeep {
                                  const pat::Jet& jet,
                                  const float drminpfcandsv,
                                  const float jetR,
+                                 const float puppiw,
                                  NeutralCandidateFeatures& n_pf_features) {
     commonCandidateToFeatures(n_pf, jet, drminpfcandsv, jetR, n_pf_features);
 
     n_pf_features.hadFrac = n_pf->hcalFraction();
-    n_pf_features.puppiw = n_pf->puppiWeight();
+    n_pf_features.puppiw = puppiw;
   }
 
   void recoCandidateToFeatures(const reco::PFCandidate* n_pf,
