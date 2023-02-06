@@ -53,8 +53,8 @@ private:
   TTree* LibTree;
   TBranch* emBranch;
   TBranch* hadBranch;
-  std::vector<float> *partsEm;
-  std::vector<float> *partsHad;
+  std::vector<float>* partsEm;
+  std::vector<float>* partsHad;
 
   std::string theDataFile;
   std::vector<FileHandle> theFileHandle;
