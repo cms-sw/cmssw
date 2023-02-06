@@ -99,6 +99,8 @@ private:
 
   bool run_deepVertex_;
 
+  bool is_weighted_jet_;
+
   //TrackProbability
   void checkEventSetup(const edm::EventSetup& iSetup);
   std::unique_ptr<HistogramProbabilityEstimator> probabilityEstimator_;
@@ -127,6 +129,7 @@ DeepFlavourTagInfoProducer::DeepFlavourTagInfoProducer(const edm::ParameterSet& 
       fallback_puppi_weight_(iConfig.getParameter<bool>("fallback_puppi_weight")),
       fallback_vertex_association_(iConfig.getParameter<bool>("fallback_vertex_association")),
       run_deepVertex_(iConfig.getParameter<bool>("run_deepVertex")),
+      is_weighted_jet_(iConfig.getParameter<bool>("is_weighted_jet")),
       compute_probabilities_(iConfig.getParameter<bool>("compute_probabilities")),
       min_jet_pt_(iConfig.getParameter<double>("min_jet_pt")),
       max_jet_eta_(iConfig.getParameter<double>("max_jet_eta")) {
@@ -168,6 +171,7 @@ void DeepFlavourTagInfoProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<bool>("fallback_puppi_weight", false);
   desc.add<bool>("fallback_vertex_association", false);
   desc.add<bool>("run_deepVertex", false);
+  desc.add<bool>("is_weighted_jet", false);
   desc.add<bool>("compute_probabilities", false);
   desc.add<double>("min_jet_pt", 15.0);
   desc.add<double>("max_jet_eta", 2.5);
@@ -406,7 +410,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
         // fill feature structure
         if (packed_cand) {
           btagbtvdeep::packedCandidateToFeatures(
-              packed_cand, jet, trackinfo, drminpfcandsv, static_cast<float>(jet_radius_), puppiw, c_pf_features, flip_);
+              packed_cand, jet, trackinfo, is_weighted_jet_, drminpfcandsv, static_cast<float>(jet_radius_), puppiw, c_pf_features, flip_);
         } else if (reco_cand) {
           // get vertex association quality
           int pv_ass_quality = 0;  // fallback value
@@ -438,6 +442,7 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
           btagbtvdeep::recoCandidateToFeatures(reco_cand,
                                                jet,
                                                trackinfo,
+                                               is_weighted_jet_,
                                                drminpfcandsv,
                                                static_cast<float>(jet_radius_),
                                                puppiw,
@@ -454,10 +459,10 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
         // fill feature structure
         if (packed_cand) {
           btagbtvdeep::packedCandidateToFeatures(
-              packed_cand, jet, drminpfcandsv, static_cast<float>(jet_radius_), puppiw, n_pf_features);
+              packed_cand, jet, is_weighted_jet_, drminpfcandsv, static_cast<float>(jet_radius_), puppiw, n_pf_features);
         } else if (reco_cand) {
           btagbtvdeep::recoCandidateToFeatures(
-              reco_cand, jet, drminpfcandsv, static_cast<float>(jet_radius_), puppiw, n_pf_features);
+              reco_cand, jet, is_weighted_jet_, drminpfcandsv, static_cast<float>(jet_radius_), puppiw, n_pf_features);
         }
       }
     }
