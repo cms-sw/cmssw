@@ -604,16 +604,20 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                     btag.pixelClusterTagInfos.clone(jets = jetSource, vertices=pvSource),
                                     process, task)
 
+
+            def setupPuppiForBTagging(process):
+                if not hasattr(process,"packedpuppi"):
+                    from CommonTools.PileupAlgos.Puppi_cff import puppi
+                    addToProcessAndTask('packedpuppi', puppi.clone(
+                        useExistingWeights = True,
+                        candName = 'packedPFCandidates',
+                        vertexName = 'offlineSlimmedPrimaryVertices') , process, task)
+
             if 'pfBoostedDouble' in btagInfo or 'SecondaryVertex' in btagInfo:
               _btagInfo = getattr(process, btagPrefix+btagInfo+labelName+postfix)
               if pfCandidates.value() == 'packedPFCandidates':
                 _btagInfo.weights = cms.InputTag("packedpuppi")
-                if not hasattr(process,"packedpuppi"):
-                  from CommonTools.PileupAlgos.Puppi_cff import puppi
-                  addToProcessAndTask('packedpuppi', puppi.clone(
-                        useExistingWeights = True,
-                        candName = 'packedPFCandidates',
-                        vertexName = 'offlineSlimmedPrimaryVertices') , process, task)
+                setupPuppiForBTagging(process)
               else:
                 _btagInfo.weights = cms.InputTag("puppi")
 
@@ -632,8 +636,14 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                   puppi_value_map = cms.InputTag("puppi")
                   vertex_associator = cms.InputTag("primaryVertexAssociation","original")
                 else:
-                  puppi_value_map = cms.InputTag("")
+                  puppi_value_map = cms.InputTag("packedpuppi")
+                  setupPuppiForBTagging(process)
                   vertex_associator = cms.InputTag("")
+                # If this jet is a puppi jet, then set is_weighted_jet to true.
+                #
+                is_weighted_jet = False
+                if ('puppi' in jetSource.value().lower()):
+                    is_weighted_jet = True
                 addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
                                     btag.pfDeepFlavourTagInfos.clone(
                                       jets = jetSource,
@@ -642,6 +652,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                       shallow_tag_infos = cms.InputTag(btagPrefix+deep_csv_tag_infos+labelName+postfix),
                                       puppi_value_map = puppi_value_map,
                                       vertex_associator = vertex_associator,
+                                      is_weighted_jet = is_weighted_jet,
                                       flip = flip),
                                     process, task)
                 
@@ -649,12 +660,19 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                 # can only run on PAT jets, so the updater needs to be used
                 if 'updated' not in jetSource.value().lower():
                     raise ValueError("Invalid jet collection: %s. pfDeepDoubleXTagInfos only supports running via updateJetCollection." % jetSource.value())
+                is_weighted_jet = False
+                if ('puppi' in jetSource.value().lower()):
+                    is_weighted_jet = True
+                puppi_value_map = cms.InputTag("packedpuppi")
+                setupPuppiForBTagging(process)
                 addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
                                     btag.pfDeepDoubleXTagInfos.clone(
                                       jets = jetSource,
                                       vertices=pvSource,
                                       secondary_vertices=svSource,
                                       shallow_tag_infos = cms.InputTag(btagPrefix+'pfBoostedDoubleSVAK8TagInfos'+labelName+postfix),
+                                      puppi_value_map = puppi_value_map,
+                                      is_weighted_jet = is_weighted_jet
                                       ),
                                     process, task)
 
