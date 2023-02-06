@@ -94,7 +94,7 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 mksel("filter('hltHtEcal800')","hltHtEcal800"),
                 mksel("filter('hltEG110EBTightIDTightIsoTrackIsoFilter')","hltEG110EBTightIDTightIsoTrackIsoFilter"),
                 mksel("filter('hltEG120EBTightIDTightIsoTrackIsoFilter')","hltEG120EBTightIDTightIsoTrackIsoFilter"),
-                mksel("filter('hltMu17Photon30IsoCaloIdPhotonlegTrackIsoFilter')","1mu-1photon"),
+                mksel("filter('hltMu17Photon30IsoCaloIdPhotonlegTrackIsoFilter')", "1mu-1photon"),
                 mksel("filter('hltEG30LR9Id85b90eHE12R9Id50b80eR9IdLastFilter')","hltEG30LR9Id85b90eHE12R9Id50b80eR9IdLastFilter"),
                 mksel("filter('hltEG30LIso60CaloId15b35eHE12R9Id50b80eEcalIsoLastFilter')","hltEG30LIso60CaloId15b35eHE12R9Id50b80eEcalIsoLastFilter"),
                 mksel("filter('hltEG22Iso60CaloId15b35eHE12R9Id50b80eTrackIsoUnseededLastFilter')","hltEG22Iso60CaloId15b35eHE12R9Id50b80eTrackIsoUnseededLastFilter"),
