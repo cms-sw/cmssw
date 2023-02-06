@@ -26,8 +26,10 @@ HcalForwardLibWriter::HcalForwardLibWriter(const edm::ParameterSet& iConfig) {
 
   //https://root.cern/root/html534/TTree.html
   // TBranch*Branch(const char* name, const char* classname, void** obj, Int_t bufsize = 32000, Int_t splitlevel = 99)
-  emBranch = LibTree->Branch("emParticles", "HFShowerPhotons-emParticles", &emColl, bsize, splitlevel);
-  hadBranch = LibTree->Branch("hadParticles", "HFShowerPhotons-hadParticles", &hadColl, bsize, splitlevel);
+       partsEm=new std::vector<float>();
+       partsHad=new std::vector<float>();
+       emBranch = LibTree->Branch("emParticles", &partsEm, bsize, splitlevel);
+       hadBranch = LibTree->Branch("hadParticles", &partsHad, bsize, splitlevel);
 }
 
 void HcalForwardLibWriter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -97,10 +99,15 @@ void HcalForwardLibWriter::analyze(const edm::Event& iEvent, const edm::EventSet
       ngood++;
       if (ngood > nshowers)
         continue;
+      unsigned int s=nphot; //++
       if (particle == "electron") {
         emColl.clear();
+        partsEm->clear();  //++ 
+        partsEm->resize(5*s); //++
       } else {
         hadColl.clear();
+        partsHad->clear(); //++
+        partsHad->resize(5*s); //++
       }
       float nphot_long = 0;
       float nphot_short = 0;
@@ -113,23 +120,29 @@ void HcalForwardLibWriter::analyze(const edm::Event& iEvent, const edm::EventSet
           z[iph] = -z[iph];
         }
 
-        HFShowerPhoton::Point pos(x[iph], y[iph], z[iph]);
-        HFShowerPhoton aPhoton(pos, t[iph], lambda[iph]);
         if (particle == "electron") {
-          emColl.push_back(aPhoton);
+      	   (*partsEm)[iph]=(x[iph]);
+      	   (*partsEm)[iph+1*s]=(y[iph]);
+      	   (*partsEm)[iph+2*s]=(z[iph]);
+      	   (*partsEm)[iph+3*s]=(t[iph]);
+      	   (*partsEm)[iph+4*s]=(lambda[iph]);
         } else {
-          hadColl.push_back(aPhoton);
+      	   (*partsHad)[iph]=(x[iph]);
+      	   (*partsHad)[iph+1*s]=(y[iph]);
+      	   (*partsHad)[iph+2*s]=(z[iph]);
+      	   (*partsHad)[iph+3*s]=(t[iph]);
+      	   (*partsHad)[iph+4*s]=(lambda[iph]);
         }
       }
       // end of cycle over photons in shower -------------------------------------------
 
       if (particle == "electron") {
-        LibTree->SetEntries(nem + 1);
+        LibTree->SetEntries(nem);
         emBranch->Fill();
         nem++;
         emColl.clear();
       } else {
-        LibTree->SetEntries(nhad + 1);
+        LibTree->SetEntries(nhad);
         nhad++;
         hadBranch->Fill();
         hadColl.clear();
