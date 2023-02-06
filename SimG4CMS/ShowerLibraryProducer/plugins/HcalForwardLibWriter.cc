@@ -102,11 +102,11 @@ void HcalForwardLibWriter::analyze(const edm::Event& iEvent, const edm::EventSet
       unsigned int nph = nphot;  //++
       if (particle == "electron") {
         emColl.clear();
-        partsEm->clear();        //++
+        partsEm->clear();          //++
         partsEm->resize(5 * nph);  //++
       } else {
         hadColl.clear();
-        partsHad->clear();        //++
+        partsHad->clear();          //++
         partsHad->resize(5 * nph);  //++
       }
       float nphot_long = 0;
