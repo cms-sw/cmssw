@@ -32,6 +32,8 @@
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "DataFormats/MuonDetId/interface/ME0DetId.h"
 
+#include "DataFormats/ForwardDetId/interface/MTDDetId.h"
+
 //
 // constants, enums and typedefs
 //
@@ -55,7 +57,9 @@ FW3DViewGeometry::FW3DViewGeometry(const fireworks::Context& context)
       m_trackerEndcapElements(nullptr),
       m_HGCalEEElements(nullptr),
       m_HGCalHSiElements(nullptr),
-      m_HGCalHScElements(nullptr) {
+      m_HGCalHScElements(nullptr),
+      m_mtdBarrelElements(nullptr),
+      m_mtdEndcapElements(nullptr) {
   SetElementName("3D Geometry");
 }
 
@@ -445,6 +449,58 @@ void FW3DViewGeometry::showHGCalHSc(bool showHGCalHSc) {
   }
   if (m_HGCalHScElements) {
     m_HGCalHScElements->SetRnrState(showHGCalHSc);
+    gEve->Redraw3D();
+  }
+}
+
+//______________________________________________________________________________
+void FW3DViewGeometry::showMtdBarrel(bool showMtdBarrel) {
+  if (showMtdBarrel && !m_mtdBarrelElements) {
+    m_mtdBarrelElements = new TEveElementList("MtdBarrel");
+
+    std::vector<unsigned int> ids = m_geom->getMatchedIds(FWGeometry::Forward, FWGeometry::PixelBarrel);
+    for (std::vector<unsigned int>::const_iterator mtdId = ids.begin(); mtdId != ids.end(); ++mtdId) {
+      MTDDetId id(*mtdId);
+      if (id.mtdSubDetector() != MTDDetId::MTDType::BTL)
+        continue;
+
+      TEveGeoShape* shape = m_geom->getEveShape(id.rawId());
+      shape->SetTitle(Form("MTD barrel %d", id.rawId()));
+
+      addToCompound(shape, kFWMtdBarrelColorIndex);
+      m_mtdBarrelElements->AddElement(shape);
+    }
+    AddElement(m_mtdBarrelElements);
+  }
+
+  if (m_mtdBarrelElements) {
+    m_mtdBarrelElements->SetRnrState(showMtdBarrel);
+    gEve->Redraw3D();
+  }
+}
+
+//______________________________________________________________________________
+void FW3DViewGeometry::showMtdEndcap(bool showMtdEndcap) {
+  if (showMtdEndcap && !m_mtdEndcapElements) {
+    m_mtdEndcapElements = new TEveElementList("MtdEndcap");
+
+    std::vector<unsigned int> ids = m_geom->getMatchedIds(FWGeometry::Forward, FWGeometry::PixelBarrel);
+    for (std::vector<unsigned int>::const_iterator mtdId = ids.begin(); mtdId != ids.end(); ++mtdId) {
+      MTDDetId id(*mtdId);
+      if (id.mtdSubDetector() != MTDDetId::MTDType::ETL)
+        continue;
+
+      TEveGeoShape* shape = m_geom->getEveShape(id.rawId());
+      shape->SetTitle(Form("MTD endcap %d", id.rawId()));
+
+      addToCompound(shape, kFWMtdEndcapColorIndex);
+      m_mtdEndcapElements->AddElement(shape);
+    }
+    AddElement(m_mtdEndcapElements);
+  }
+
+  if (m_mtdEndcapElements) {
+    m_mtdEndcapElements->SetRnrState(showMtdEndcap);
     gEve->Redraw3D();
   }
 }

@@ -39,6 +39,8 @@ enum FWGeomColorIndex {
   kFwHGCalEEColorIndex,
   kFwHGCalHSiColorIndex,
   kFwHGCalHScColorIndex,
+  kFWMtdBarrelColorIndex,
+  kFWMtdEndcapColorIndex,
   kFWGeomColorSize
 };
 
