@@ -12,6 +12,9 @@
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
+#include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
+#include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
+#include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
@@ -95,6 +98,24 @@ using Phase2TrackerTopology = PixelTopology;
     }                                                                                                          \
   }
 
+void FWRecoGeometryESProducer::ADD_MTD_TOPOLOGY(unsigned int rawid,
+                                                const GeomDet* detUnit,
+                                                FWRecoGeometry& fwRecoGeometry) {
+  const MTDGeomDet* det = dynamic_cast<const MTDGeomDet*>(detUnit);
+
+  if (det) {
+    const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(det->topology());
+    const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
+
+    std::pair<float, float> pitch = topo.pitch();
+    fwRecoGeometry.idToName[rawid].topology[0] = pitch.first;
+    fwRecoGeometry.idToName[rawid].topology[1] = pitch.second;
+
+    fwRecoGeometry.idToName[rawid].topology[2] = topo.xoffset();
+    fwRecoGeometry.idToName[rawid].topology[3] = topo.yoffset();
+  }
+}
+
 namespace {
   const std::array<std::string, 3> hgcal_geom_names = {
       {"HGCalEESensitive", "HGCalHESiliconSensitive", "HGCalHEScintillatorSensitive"}};
@@ -115,6 +136,9 @@ FWRecoGeometryESProducer::FWRecoGeometryESProducer(const edm::ParameterSet& pset
   }
   if (m_calo) {
     m_caloGeomToken = cc.consumes();
+  }
+  if (m_timing) {
+    m_mtdGeomToken = cc.consumes();
   }
 }
 
@@ -152,6 +176,10 @@ std::unique_ptr<FWRecoGeometry> FWRecoGeometryESProducer::produce(const FWRecoGe
   if (m_calo) {
     m_caloGeom = &record.get(m_caloGeomToken);
     addCaloGeometry(*fwRecoGeometry);
+  }
+  if (m_timing) {
+    m_mtdGeom = &record.get(m_mtdGeomToken);
+    addMTDGeometry(*fwRecoGeometry);
   }
 
   fwRecoGeometry->idToName.resize(m_current + 1);
@@ -626,9 +654,17 @@ void FWRecoGeometryESProducer::addCaloGeometry(FWRecoGeometry& fwRecoGeometry) {
   }
 }
 
-void FWRecoGeometryESProducer::addFTLGeometry(FWRecoGeometry& fwRecoGeometry) {
-  // do the barrel (do for BTL)
-  // do the endcap (do for ETL)
+void FWRecoGeometryESProducer::addMTDGeometry(FWRecoGeometry& fwRecoGeometry) {
+  for (auto const& det : m_mtdGeom->detUnits()) {
+    if (det) {
+      DetId detid = det->geographicalId();
+      unsigned int rawid = detid.rawId();
+      unsigned int current = insert_id(rawid, fwRecoGeometry);
+      fillShapeAndPlacement(current, det, fwRecoGeometry);
+
+      ADD_MTD_TOPOLOGY(current, m_mtdGeom->idToDetUnit(detid), fwRecoGeometry);
+    }
+  }
 }
 
 unsigned int FWRecoGeometryESProducer::insert_id(unsigned int rawid, FWRecoGeometry& fwRecoGeometry) {

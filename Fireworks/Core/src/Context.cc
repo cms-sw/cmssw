@@ -50,6 +50,13 @@ const float Context::s_caloR2 = s_caloZ2*tan(s_caloTransAngle);
 const float Context::s_caloOffR = 10;
 const float Context::s_caloOffZ = s_caloOffR / tan(s_caloTransAngle);
 
+// mtd data [cm]
+const float Context::s_mtdEtlR1 = 30.;
+const float Context::s_mtdEtlR2 = 119.;
+const float Context::s_mtdEtlZ1 = 298.9;
+const float Context::s_mtdEtlZ2 = 301.25;
+const float Context::s_mtdEtlOffZ = 2.5;
+
 //
 // constructors and destructor
 //
@@ -189,5 +196,14 @@ float Context::caloTransEta() { return s_caloTransEta; }
 float Context::caloTransAngle() { return s_caloTransAngle; }
 
 double Context::caloMaxEta() { return fw3dlego::xbins_hf[fw3dlego::xbins_hf_n - 1]; }
+
+float Context::mtdEtlR1() { return s_mtdEtlR1; }
+float Context::mtdEtlR2() { return s_mtdEtlR2; }
+float Context::mtdEtlZ1(const unsigned int& disk_number) {
+  return disk_number == 2 ? s_mtdEtlZ1 + s_mtdEtlOffZ : s_mtdEtlZ1;
+}
+float Context::mtdEtlZ2(const unsigned int& disk_number) {
+  return disk_number == 2 ? s_mtdEtlZ2 + s_mtdEtlOffZ : s_mtdEtlZ2;
+}
 
 Context* Context::getInstance() { return s_fwContext; }
