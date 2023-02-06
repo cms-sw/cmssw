@@ -56,6 +56,7 @@ HGCalSD::HGCalSD(const std::string& name,
   angles_ = m_HGC.getUntrackedParameter<std::vector<double>>("WaferAngles");
   missingFile_ = m_HGC.getUntrackedParameter<std::string>("MissingWaferFile");
   checkID_ = m_HGC.getUntrackedParameter<bool>("CheckID");
+  verbose_ = m_HGC.getUntrackedParameter<int>("Verbosity");
 
   if (storeAllG4Hits_) {
     setUseMap(false);
@@ -209,7 +210,8 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
     HGCSiliconDetId hid1(id);
     bool cshift = (hgcons_->cassetteShiftSilicon(hid1.layer(), hid1.waferU(), hid1.waferV()));
     std::string_view pid = (cshift ? "HGCSim" : "HGCalSim");
-    auto xy = hgcons_->locateCell(hid1, false);
+    bool debug = (verbose_ > 0) ? true : false;
+    auto xy = hgcons_->locateCell(hid1, debug);
     double xx = (hid1.zside() > 0) ? xy.first : -xy.first;
     double dx = xx - (hitPoint.x() / CLHEP::cm);
     double dy = xy.second - (hitPoint.y() / CLHEP::cm);
