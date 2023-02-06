@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun g4OverlapCheck_cfg.py type=V17 tol=0.01
 #
-#   Options for type V16, V17, Wafer, WaferFR
+#   Options for type V16, V17, Wafer, WaferFR, WaferPR
 #               tol 1.0, 0.1, 0.01, 0.0
 #
 ###############################################################################
@@ -17,7 +17,7 @@ options.register('type',
                  "V17",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: V16, V17, Wafer, WaferFR")
+                  "type of operations: V16, V17, Wafer, WaferFR, WaferPR")
 options.register('tol',
                  0.01,
                  VarParsing.VarParsing.multiplicity.singleton,

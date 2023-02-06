@@ -119,9 +119,6 @@ void DDHGCalWaferPartialRotated::execute(DDCompactView& cpv) {
 #endif
 
   static constexpr double tol = 0.00001;
-  static const double sqrt3 = std::sqrt(3.0);
-  double r = 0.5 * waferSize_;
-  double R = 2.0 * r / sqrt3;
   std::string parentName = parent().name().name();
 
   // Loop over all types
@@ -130,7 +127,7 @@ void DDHGCalWaferPartialRotated::execute(DDCompactView& cpv) {
       // First the mother
       std::string mother = parentName + placementIndexTags_[m] + waferTag_ + tags_[k];
       std::vector<std::pair<double, double> > wxy =
-          HGCalWaferMask::waferXY(partialTypes_[k], placementIndex_[m], r, R, 0.0, 0.0);
+          HGCalWaferMask::waferXY(partialTypes_[k], placementIndex_[m], waferSize_, 0.0, 0.0, 0.0);
       std::vector<double> xM, yM;
       for (unsigned int i = 0; i < (wxy.size() - 1); ++i) {
         xM.emplace_back(wxy[i].first);
@@ -158,9 +155,7 @@ void DDHGCalWaferPartialRotated::execute(DDCompactView& cpv) {
       double zi(-0.5 * thick_), thickTot(0.0);
       for (unsigned int l = 0; l < layers_.size(); l++) {
         unsigned int i = layers_[l];
-        double r2 = 0.5 * (waferSize_ - layerSizeOff_[i]);
-        double R2 = r2 / sqrt3;
-        wxy = HGCalWaferMask::waferXY(partialTypes_[k], placementIndex_[m], r2, R2, 0.0, 0.0);
+        wxy = HGCalWaferMask::waferXY(partialTypes_[k], placementIndex_[m], waferSize_, layerSizeOff_[i], 0.0, 0.0);
         std::vector<double> xL, yL;
         for (unsigned int i0 = 0; i0 < (wxy.size() - 1); ++i0) {
           xL.emplace_back(wxy[i0].first);
@@ -169,7 +164,7 @@ void DDHGCalWaferPartialRotated::execute(DDCompactView& cpv) {
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferPartialRotated:Layer " << l << ":" << i << " T " << layerThick_[i]
                                       << " Size offset " << layerSizeOff_[i] << " Copy " << copyNumber[i]
-                                      << " Partial type " << partialTypes_[k] << " r " << r2 << ":" << r;
+                                      << " Partial type " << partialTypes_[k];
 #endif
         DDRotation rot;
         if (copyNumber[i] == 1) {
