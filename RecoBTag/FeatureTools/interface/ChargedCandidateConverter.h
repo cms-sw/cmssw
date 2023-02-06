@@ -61,6 +61,7 @@ namespace btagbtvdeep {
                                  const TrackInfoBuilder& track_info,
                                  const float drminpfcandsv,
                                  const float jetR,
+                                 const float puppiw,
                                  ChargedCandidateFeatures& c_pf_features,
                                  const bool flip = false);
 

@@ -7,13 +7,14 @@ namespace btagbtvdeep {
                                  const TrackInfoBuilder& track_info,
                                  const float drminpfcandsv,
                                  const float jetR,
+                                 const float puppiw,
                                  ChargedCandidateFeatures& c_pf_features,
                                  const bool flip) {
     commonCandidateToFeatures(c_pf, jet, track_info, drminpfcandsv, jetR, c_pf_features, flip);
 
     c_pf_features.vtx_ass = c_pf->pvAssociationQuality();
 
-    c_pf_features.puppiw = c_pf->puppiWeight();
+    c_pf_features.puppiw = puppiw;
 
     // if PackedCandidate does not have TrackDetails this gives an Exception
     // because unpackCovariance might be called for pseudoTrack/bestTrack

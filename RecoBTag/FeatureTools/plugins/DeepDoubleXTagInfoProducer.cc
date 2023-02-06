@@ -61,7 +61,11 @@ private:
   edm::EDGetTokenT<VertexCollection> vtx_token_;
   edm::EDGetTokenT<SVCollection> sv_token_;
   edm::EDGetTokenT<BoostedDoubleSVTagInfoCollection> shallow_tag_info_token_;
+  edm::EDGetTokenT<edm::ValueMap<float>> puppi_value_map_token_;
   edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> track_builder_token_;
+
+  bool use_puppi_value_map_;
+  bool fallback_puppi_weight_;
 };
 
 DeepDoubleXTagInfoProducer::DeepDoubleXTagInfoProducer(const edm::ParameterSet& iConfig)
@@ -74,8 +78,17 @@ DeepDoubleXTagInfoProducer::DeepDoubleXTagInfoProducer(const edm::ParameterSet& 
       shallow_tag_info_token_(
           consumes<BoostedDoubleSVTagInfoCollection>(iConfig.getParameter<edm::InputTag>("shallow_tag_infos"))),
       track_builder_token_(
-          esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"))) {
+          esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"))), 
+      use_puppi_value_map_(false),
+      fallback_puppi_weight_(iConfig.getParameter<bool>("fallback_puppi_weight"))
+      {
   produces<DeepDoubleXTagInfoCollection>();
+
+  const auto& puppi_value_map_tag = iConfig.getParameter<edm::InputTag>("puppi_value_map");
+  if (!puppi_value_map_tag.label().empty()) {
+    puppi_value_map_token_ = consumes<edm::ValueMap<float>>(puppi_value_map_tag);
+    use_puppi_value_map_ = true;
+  }
 }
 
 DeepDoubleXTagInfoProducer::~DeepDoubleXTagInfoProducer() {}
@@ -88,8 +101,10 @@ void DeepDoubleXTagInfoProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<double>("min_jet_pt", 150);
   desc.add<double>("min_candidate_pt", 0.95);
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<edm::InputTag>("puppi_value_map", edm::InputTag("puppi"));
   desc.add<edm::InputTag>("secondary_vertices", edm::InputTag("inclusiveCandidateSecondaryVertices"));
   desc.add<edm::InputTag>("jets", edm::InputTag("ak8PFJetsPuppi"));
+  desc.add<bool>("fallback_puppi_weight", false);
   descriptions.add("pfDeepDoubleXTagInfos", desc);
 }
 
@@ -115,6 +130,11 @@ void DeepDoubleXTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
   edm::Handle<BoostedDoubleSVTagInfoCollection> shallow_tag_infos;
   iEvent.getByToken(shallow_tag_info_token_, shallow_tag_infos);
 
+  edm::Handle<edm::ValueMap<float>> puppi_value_map;
+  if (use_puppi_value_map_) {
+    iEvent.getByToken(puppi_value_map_token_, puppi_value_map);
+  }
+
   edm::ESHandle<TransientTrackBuilder> track_builder = iSetup.getHandle(track_builder_token_);
 
   for (std::size_t jet_n = 0; jet_n < jets->size(); jet_n++) {
@@ -123,6 +143,7 @@ void DeepDoubleXTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
 
     // reco jet reference (use as much as possible)
     const auto& jet = jets->at(jet_n);
+    const auto* pf_jet = dynamic_cast<const reco::PFJet*>(&jet);
     const auto* pat_jet = dynamic_cast<const pat::Jet*>(&jet);
     if (!pat_jet)
       throw edm::Exception(edm::errors::InvalidReference) << "Input is not a pat::Jet.";
@@ -262,7 +283,36 @@ void DeepDoubleXTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
           auto packed_cand = dynamic_cast<const pat::PackedCandidate*>(cand);
           auto reco_cand = dynamic_cast<const reco::PFCandidate*>(cand);
 
+          reco::PFCandidatePtr reco_ptr;
+          if (pf_jet) {
+            reco_ptr = pf_jet->getPFConstituent(i);
+          } 
+
+          reco::CandidatePtr cand_ptr;
+          if (pat_jet){
+            cand_ptr = pat_jet->sourceCandidatePtr(i);
+          }
+
           float puppiw = 1.0;  // fallback value
+          if (reco_cand) {
+            puppiw = 1.0;  // fallback value for reco_cand
+            if (use_puppi_value_map_)
+              puppiw = (*puppi_value_map)[reco_ptr];
+            else if (!fallback_puppi_weight_) {
+              throw edm::Exception(edm::errors::InvalidReference, "PUPPI value map missing")
+                << "use fallback_puppi_weight option to use " << puppiw << " for reco_cand as default";
+            }
+          } 
+          else if(packed_cand){
+            puppiw = packed_cand->puppiWeight();  // fallback value for packed_cand
+            if (use_puppi_value_map_)
+              puppiw = (*puppi_value_map)[cand_ptr];
+            else if (!fallback_puppi_weight_) {
+              throw edm::Exception(edm::errors::InvalidReference, "PUPPI value map missing")
+                << "use fallback_puppi_weight option to use puppiWeight() for packed_cand as default";
+            }
+          }
+
 
           float drminpfcandsv = btagbtvdeep::mindrsvpfcand(svs_unsorted, cand, jet_radius_);
           if (cand->charge() != 0) {
@@ -274,7 +324,7 @@ void DeepDoubleXTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
             auto& c_pf_features = features.c_pf_features.at(entry);
             if (packed_cand) {
               btagbtvdeep::packedCandidateToFeatures(
-                  packed_cand, *pat_jet, trackinfo, drminpfcandsv, static_cast<float>(jet_radius_), c_pf_features);
+                  packed_cand, *pat_jet, trackinfo, drminpfcandsv, static_cast<float>(jet_radius_), puppiw, c_pf_features);
             } else if (reco_cand) {
               // get vertex association quality
               int pv_ass_quality = 0;  // fallback value
@@ -309,7 +359,7 @@ void DeepDoubleXTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
             // // fill feature structure
             if (packed_cand) {
               btagbtvdeep::packedCandidateToFeatures(
-                  packed_cand, *pat_jet, drminpfcandsv, static_cast<float>(jet_radius_), n_pf_features);
+                  packed_cand, *pat_jet, drminpfcandsv, static_cast<float>(jet_radius_), puppiw, n_pf_features);
             } else if (reco_cand) {
               btagbtvdeep::recoCandidateToFeatures(
                   reco_cand, jet, drminpfcandsv, static_cast<float>(jet_radius_), puppiw, n_pf_features);
