@@ -1777,7 +1777,7 @@ class ConfigBuilder(object):
         ''' Enrich the schedule with NANO '''
         _,_nanoSeq,_nanoCff = self.loadDefaultOrSpecifiedCFF(stepSpec,self.NANODefaultCFF,self.NANODefaultSeq)
         self.scheduleSequence(_nanoSeq,'nanoAOD_step')
-        custom = "nanoAOD_customizeData" if self._options.isData else "nanoAOD_customizeMC"
+        custom = "nanoAOD_customizeCommon"
         self._options.customisation_file.insert(0,'.'.join([_nanoCff,custom]))
         if self._options.hltProcess:
             if len(self._options.customise_commands) > 1:
