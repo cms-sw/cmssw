@@ -133,6 +133,29 @@
 </bin>
 </iftool>
 
+<bin name="testTFVisibleDevices" file="testRunner.cpp,testVisibleDevices.cc">
+  <use name="boost_filesystem"/>
+  <use name="cppunit"/>
+  <use name="PhysicsTools/TensorFlow"/>
+</bin>
+
+
+<iftool name="cuda">
+<bin name="testTFVisibleDevicesCUDA" file="testRunner.cpp,testVisibleDevicesCUDA.cc">
+  <use name="boost_filesystem"/>
+  <use name="cppunit"/>
+  <use name="PhysicsTools/TensorFlow"/>
+  <use name="HeterogeneousCore/CUDAServices"/>
+  <use name="catch2"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/ParameterSetReader"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="FWCore/Utilities"/>
+  <use name="cuda"/>
+</bin>
+</iftool>
+
 <!-- <ifarchitecture name="!_ppc64le_">
 <bin name="testTFAOT" file="testRunner.cpp,testAOT.cc">
   <flags DNN_NAME="testAOT_add" />

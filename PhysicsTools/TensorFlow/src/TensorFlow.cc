@@ -27,6 +27,19 @@ namespace tensorflow {
   }
 
   void setBackend(SessionOptions& sessionOptions, Backend backend) {
+    /*
+     * The TensorFlow backend configures the available devices using options provided in the sessionOptions proto.
+     * // Options from https://github.com/tensorflow/tensorflow/blob/c53dab9fbc9de4ea8b1df59041a5ffd3987328c3/tensorflow/core/protobuf/config.proto
+     *
+     * If the device_count["GPU"] = 0 GPUs are not used. 
+     * The visible_device_list configuration is used to map the `visible` devices (from CUDA_VISIBLE_DEVICES) to `virtual` devices.
+     * If Backend::cpu is request, the GPU device is disallowed by device_count configuration.
+     * If Backend::cuda is request:
+     *  - if ResourceInformation shows an available Nvidia GPU device:
+     *     the device is used with memory_growth configuration (not allocating all cuda memory at once).
+     *  - if no device is present: an exception is raised.
+     */
+
     edm::Service<edm::ResourceInformation> ri;
     if (backend == Backend::cpu) {
       // disable GPU usage
@@ -35,10 +48,10 @@ namespace tensorflow {
     }
     // NVidia GPU
     else if (backend == Backend::cuda) {
-      // Options from https://github.com/tensorflow/tensorflow/blob/c53dab9fbc9de4ea8b1df59041a5ffd3987328c3/tensorflow/core/protobuf/config.proto
       if (not ri->nvidiaDriverVersion().empty()) {
         // Take only the first GPU in the CUDA_VISIBLE_DEVICE list
         (*sessionOptions.config.mutable_device_count())["GPU"] = 1;
+        sessionOptions.config.mutable_gpu_options()->set_visible_device_list("0");
         // Do not allocate all the memory on the GPU at the beginning.
         sessionOptions.config.mutable_gpu_options()->set_allow_growth(true);
       } else {
@@ -61,6 +74,7 @@ namespace tensorflow {
       if (not ri->nvidiaDriverVersion().empty()) {
         // Take only the first GPU in the CUDA_VISIBLE_DEVICE list
         (*sessionOptions.config.mutable_device_count())["GPU"] = 1;
+        sessionOptions.config.mutable_gpu_options()->set_visible_device_list("0");
         // Do not allocate all the memory on the GPU at the beginning.
         sessionOptions.config.mutable_gpu_options()->set_allow_growth(true);
       } else {
