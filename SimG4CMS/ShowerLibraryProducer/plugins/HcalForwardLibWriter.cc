@@ -99,15 +99,15 @@ void HcalForwardLibWriter::analyze(const edm::Event& iEvent, const edm::EventSet
       ngood++;
       if (ngood > nshowers)
         continue;
-      unsigned int s = nphot;  //++
+      unsigned int nph = nphot;  //++
       if (particle == "electron") {
         emColl.clear();
         partsEm->clear();        //++
-        partsEm->resize(5 * s);  //++
+        partsEm->resize(5 * nph);  //++
       } else {
         hadColl.clear();
         partsHad->clear();        //++
-        partsHad->resize(5 * s);  //++
+        partsHad->resize(5 * nph);  //++
       }
       float nphot_long = 0;
       float nphot_short = 0;
@@ -122,16 +122,16 @@ void HcalForwardLibWriter::analyze(const edm::Event& iEvent, const edm::EventSet
 
         if (particle == "electron") {
           (*partsEm)[iph] = (x[iph]);
-          (*partsEm)[iph + 1 * s] = (y[iph]);
-          (*partsEm)[iph + 2 * s] = (z[iph]);
-          (*partsEm)[iph + 3 * s] = (t[iph]);
-          (*partsEm)[iph + 4 * s] = (lambda[iph]);
+          (*partsEm)[iph + 1 * nph] = (y[iph]);
+          (*partsEm)[iph + 2 * nph] = (z[iph]);
+          (*partsEm)[iph + 3 * nph] = (t[iph]);
+          (*partsEm)[iph + 4 * nph] = (lambda[iph]);
         } else {
           (*partsHad)[iph] = (x[iph]);
-          (*partsHad)[iph + 1 * s] = (y[iph]);
-          (*partsHad)[iph + 2 * s] = (z[iph]);
-          (*partsHad)[iph + 3 * s] = (t[iph]);
-          (*partsHad)[iph + 4 * s] = (lambda[iph]);
+          (*partsHad)[iph + 1 * nph] = (y[iph]);
+          (*partsHad)[iph + 2 * nph] = (z[iph]);
+          (*partsHad)[iph + 3 * nph] = (t[iph]);
+          (*partsHad)[iph + 4 * nph] = (lambda[iph]);
         }
       }
       // end of cycle over photons in shower -------------------------------------------
