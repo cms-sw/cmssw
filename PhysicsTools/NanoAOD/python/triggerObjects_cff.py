@@ -93,7 +93,13 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 mksel("filter('hltHtEcal800')","hltHtEcal800"),
                 mksel("filter('hltEG110EBTightIDTightIsoTrackIsoFilter')","hltEG110EBTightIDTightIsoTrackIsoFilter"),
                 mksel("filter('hltEG120EBTightIDTightIsoTrackIsoFilter')","hltEG120EBTightIDTightIsoTrackIsoFilter"),
-                mksel("filter('hltMu17Photon30IsoCaloIdPhotonlegTrackIsoFilter')","1mu-1photon")
+                mksel("filter('hltMu17Photon30IsoCaloIdPhotonlegTrackIsoFilter')","1mu-1photon"),
+                mksel("filter('hltEG30LR9Id85b90eHE12R9Id50b80eR9IdLastFilter')","hltEG30LR9Id85b90eHE12R9Id50b80eR9IdLastFilter"),
+                mksel("filter('hltEG30LIso60CaloId15b35eHE12R9Id50b80eEcalIsoLastFilter')","hltEG30LIso60CaloId15b35eHE12R9Id50b80eEcalIsoLastFilter"),
+                mksel("filter('hltEG22Iso60CaloId15b35eHE12R9Id50b80eTrackIsoUnseededLastFilter')","hltEG22Iso60CaloId15b35eHE12R9Id50b80eTrackIsoUnseededLastFilter"),
+                mksel("filter('hltEG22R9Id85b90eHE12R9Id50b80eR9UnseededLastFilter')","hltEG22R9Id85b90eHE12R9Id50b80eR9UnseededLastFilter"),
+                mksel("filter('hltEG30Iso60CaloId15b35eR9Id50b90eHE12b10eR9Id50b80eEcalIsoFilter')","hltEG30Iso60CaloId15b35eR9Id50b90eHE12b10eR9Id50b80eEcalIsoFilter"),
+                mksel("filter('hltEG18TrackIso60Iso60CaloId15b35eR9Id50b90eHE12b10eR9Id50b80eTrackIsoUnseededFilter')","hltEG18TrackIso60Iso60CaloId15b35eR9Id50b90eHE12b10eR9Id50b80eTrackIsoUnseededFilter")
             )
         ),
         Muon = cms.PSet(
