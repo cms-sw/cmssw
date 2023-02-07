@@ -163,8 +163,10 @@ bool DisappearingMuonsSkimming::filter(edm::Event& iEvent, const edm::EventSetup
           continue;
         }
         for (unsigned int j = 0; j < vtx->tracksSize(); j++) {
-          if (vtx->trackRefAt(j)->pt() == iTrack->pt() && vtx->trackRefAt(j)->eta() == iTrack->eta() &&
-              vtx->trackRefAt(j)->phi() == iTrack->phi()) {
+          double dR = deltaR(vtx->trackRefAt(j)->eta(), vtx->trackRefAt(j)->phi(), iTrack->eta(), iTrack->phi());
+          double dPt = fabs(vtx->trackRefAt(j)->pt() - iTrack->pt()) / iTrack->pt();
+          //Find the vertex track that is the same as the probe
+          if (dR < 0.001 && dPt < 0.001) {
             foundtrack = true;
             GlobalPoint vert(vtx->x(), vtx->y(), vtx->z());
             tkVtx = vert;
@@ -177,9 +179,9 @@ bool DisappearingMuonsSkimming::filter(edm::Event& iEvent, const edm::EventSetup
       TrajectoryStateClosestToPoint traj = tk.trajectoryStateClosestToPoint(tkVtx);
       double transDCA = traj.perigeeParameters().transverseImpactParameter();
       double longDCA = traj.perigeeParameters().longitudinalImpactParameter();
-      if (longDCA > maxLongDCA_)
+      if (fabs(longDCA) > maxLongDCA_)
         continue;
-      if (transDCA > maxTransDCA_)
+      if (fabs(transDCA) > maxTransDCA_)
         continue;
       // make a pair of TransientTracks to feed the vertexer
       std::vector<reco::TransientTrack> tracksToVertex;
@@ -325,8 +327,10 @@ double DisappearingMuonsSkimming::getTrackIsolation(const edm::Event& iEvent,
       continue;
     }
     for (unsigned int j = 0; j < vtx->tracksSize(); j++) {
-      if (vtx->trackRefAt(j)->pt() == iTrack->pt() && vtx->trackRefAt(j)->eta() == iTrack->eta() &&
-          vtx->trackRefAt(j)->phi() == iTrack->phi()) {
+      double dR = deltaR(vtx->trackRefAt(j)->eta(), vtx->trackRefAt(j)->phi(), iTrack->eta(), iTrack->phi());
+      double dPt = fabs(vtx->trackRefAt(j)->pt() - iTrack->pt()) / iTrack->pt();
+      //Find the vertex track that is the same as the probe
+      if (dR < 0.001 && dPt < 0.001) {
         vtxindex = i;
         trackindex = j;
         foundtrack = true;
