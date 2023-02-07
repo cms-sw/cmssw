@@ -53,6 +53,8 @@ public:
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   //parameters
   std::vector<align::StructureType> m_theLevels;

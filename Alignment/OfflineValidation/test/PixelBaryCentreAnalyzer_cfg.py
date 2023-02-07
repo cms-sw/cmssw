@@ -108,8 +108,8 @@ for label in beamSpots.keys() :
 ####################################################################
 # Load and configure analyzer
 ####################################################################
-bcLabels_ = cms.untracked.vstring("")
-bsLabels_ = cms.untracked.vstring("")
+bcLabels_ = [] # cms.untracked.vstring("")
+bsLabels_ = [] # cms.untracked.vstring("")
 
 for label in tkAligns.keys() :
     bcLabels_.append(label)
@@ -117,19 +117,19 @@ for label in tkAligns.keys() :
 for label in beamSpots.keys() :
     bsLabels_.append(label)
 
-process.PixelBaryCentreAnalyzer = cms.EDAnalyzer("PixelBaryCentreAnalyzer",
-                    usePixelQuality = cms.untracked.bool(False),
-                    tkAlignLabels = bcLabels_,
-                    beamSpotLabels = bsLabels_
-                  )
+from Alignment.OfflineValidation.pixelBaryCentreAnalyzer_cfi import pixelBaryCentreAnalyzer as _pixelBaryCentreAnalyzer
 
-process.PixelBaryCentreAnalyzerWithPixelQuality = cms.EDAnalyzer("PixelBaryCentreAnalyzer",
-                    usePixelQuality = cms.untracked.bool(True),
-                    tkAlignLabels = bcLabels_,
-                    beamSpotLabels = bsLabels_
-                  )
+process.PixelBaryCentreAnalyzer = _pixelBaryCentreAnalyzer.clone(
+    usePixelQuality = False,
+    tkAlignLabels = bcLabels_,
+    beamSpotLabels = bsLabels_
+)
 
-
+process.PixelBaryCentreAnalyzerWithPixelQuality = _pixelBaryCentreAnalyzer.clone(
+    usePixelQuality = True,
+    tkAlignLabels = bcLabels_,
+    beamSpotLabels = bsLabels_
+)
 
 ####################################################################
 # Output file

@@ -99,7 +99,7 @@ else:
     print(the_files)
     readFiles.extend(the_files)
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(options.maxEvents))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32((10 if (options.unitTest) else options.maxEvents)))
 
 ###################################################################
 # momentum constraint for 0T

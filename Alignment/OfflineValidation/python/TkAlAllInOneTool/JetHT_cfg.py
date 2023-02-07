@@ -265,16 +265,16 @@ if not (triggerFilter == "nothing" or triggerFilter == ""):
 ###################################################################
 # The analysis module
 ###################################################################
-process.jetHTAnalyzer = cms.EDAnalyzer('JetHTAnalyzer',
-                                       vtxCollection       = cms.InputTag("offlinePrimaryVerticesFromRefittedTrks"),
-                                       trackCollection	   = cms.InputTag("TrackRefitter"),		
-                                       triggerResults      = cms.InputTag("TriggerResults","","HLT"),
-                                       printTriggerTable   = cms.untracked.int32(printTriggers),
-                                       minVertexNdf        = cms.untracked.double(10.),
-                                       minVertexMeanWeight = cms.untracked.double(0.5),
-                                       profilePtBorders = cms.untracked.vdouble(ptBorders),
-                                       iovList = cms.untracked.vint32(iovListList)
-                                       )
+from Alignment.OfflineValidation.jetHTAnalyzer_cfi.py import jetHTAnalyzer as _jetHTAnalyzer
+process.jetHTAnalyzer = _jetHTAnalyzer.clone(
+                                       vtxCollection       = "offlinePrimaryVerticesFromRefittedTrks",
+                                       trackCollection	   = "TrackRefitter",
+                                       triggerResults      = ("TriggerResults","","HLT"),
+                                       printTriggerTable   = printTriggers,
+                                       minVertexNdf        = 10.,
+                                       minVertexMeanWeight = 0.5,
+                                       profilePtBorders    = ptBorders,
+                                       iovList             = iovListList)
 
 jobNumberString = ""
 if options.jobNumber >= 0:

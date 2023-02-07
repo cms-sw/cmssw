@@ -185,8 +185,6 @@ process.HitFilteredTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cf
     TTRHBuilder = "WithAngleAndTemplate"
 )
 
-
-
 ###############################################################
 ## Load and Configure track selection for alignment
 ###############################################################

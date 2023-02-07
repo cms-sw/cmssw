@@ -17,6 +17,7 @@ namespace edm {
   class Event;
   class EventSetup;
   class ParameterSet;
+  class ParameterSetDescription;
 }  // namespace edm
 
 class TrackerValidationVariables {
@@ -117,6 +118,8 @@ public:
                            const edm::EventSetup& eventSetup,
                            std::function<bool(const reco::Track&)> trackFilter,
                            std::vector<AVTrackStruct>& v_avtrackout);
+
+  static void fillPSetDescription(edm::ParameterSetDescription& descriptions);
 
 private:
   edm::EDGetTokenT<std::vector<Trajectory>> trajCollectionToken_;
