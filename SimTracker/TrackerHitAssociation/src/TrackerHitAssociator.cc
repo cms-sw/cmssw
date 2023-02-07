@@ -30,15 +30,15 @@ TrackerHitAssociator::Config::Config(edm::ConsumesCollector&& iC)
     : doPixel_(true), doStrip_(true), useOTph2_(false), doTrackAssoc_(false), assocHitbySimTrack_(false) {
   if (doStrip_) {
     if (useOTph2_)
-      ph2OTrToken_ = iC.consumes<edm::DetSetVector<PixelDigiSimLink> >(edm::InputTag("simSiPixelDigis", "Tracker"));
+      ph2OTrToken_ = iC.consumes<edm::DetSetVector<PixelDigiSimLink>>(edm::InputTag("simSiPixelDigis", "Tracker"));
     else
-      stripToken_ = iC.consumes<edm::DetSetVector<StripDigiSimLink> >(edm::InputTag("simSiStripDigis"));
+      stripToken_ = iC.consumes<edm::DetSetVector<StripDigiSimLink>>(edm::InputTag("simSiStripDigis"));
   }
   if (doPixel_) {
     if (useOTph2_)
-      pixelToken_ = iC.consumes<edm::DetSetVector<PixelDigiSimLink> >(edm::InputTag("simSiPixelDigis", "Pixel"));
+      pixelToken_ = iC.consumes<edm::DetSetVector<PixelDigiSimLink>>(edm::InputTag("simSiPixelDigis", "Pixel"));
     else
-      pixelToken_ = iC.consumes<edm::DetSetVector<PixelDigiSimLink> >(edm::InputTag("simSiPixelDigis"));
+      pixelToken_ = iC.consumes<edm::DetSetVector<PixelDigiSimLink>>(edm::InputTag("simSiPixelDigis"));
   }
   if (!doTrackAssoc_) {
     std::vector<std::string> trackerContainers;
@@ -58,8 +58,8 @@ TrackerHitAssociator::Config::Config(edm::ConsumesCollector&& iC)
     cfTokens_.reserve(trackerContainers.size());
     simHitTokens_.reserve(trackerContainers.size());
     for (auto const& trackerContainer : trackerContainers) {
-      cfTokens_.push_back(iC.consumes<CrossingFrame<PSimHit> >(edm::InputTag("mix", trackerContainer)));
-      simHitTokens_.push_back(iC.consumes<std::vector<PSimHit> >(edm::InputTag("g4SimHits", trackerContainer)));
+      cfTokens_.push_back(iC.consumes<CrossingFrame<PSimHit>>(edm::InputTag("mix", trackerContainer)));
+      simHitTokens_.push_back(iC.consumes<std::vector<PSimHit>>(edm::InputTag("g4SimHits", trackerContainer)));
     }
   }
 }
@@ -77,24 +77,37 @@ TrackerHitAssociator::Config::Config(const edm::ParameterSet& conf, edm::Consume
           conf.existsAs<bool>("associateHitbySimTrack") ? conf.getParameter<bool>("associateHitbySimTrack") : false) {
   if (doStrip_) {
     if (useOTph2_)
-      ph2OTrToken_ = iC.consumes<edm::DetSetVector<PixelDigiSimLink> >(
-          conf.getParameter<edm::InputTag>("phase2TrackerSimLinkSrc"));
+      ph2OTrToken_ =
+          iC.consumes<edm::DetSetVector<PixelDigiSimLink>>(conf.getParameter<edm::InputTag>("phase2TrackerSimLinkSrc"));
     else
       stripToken_ =
-          iC.consumes<edm::DetSetVector<StripDigiSimLink> >(conf.getParameter<edm::InputTag>("stripSimLinkSrc"));
+          iC.consumes<edm::DetSetVector<StripDigiSimLink>>(conf.getParameter<edm::InputTag>("stripSimLinkSrc"));
   }
   if (doPixel_)
-    pixelToken_ =
-        iC.consumes<edm::DetSetVector<PixelDigiSimLink> >(conf.getParameter<edm::InputTag>("pixelSimLinkSrc"));
+    pixelToken_ = iC.consumes<edm::DetSetVector<PixelDigiSimLink>>(conf.getParameter<edm::InputTag>("pixelSimLinkSrc"));
   if (!doTrackAssoc_) {
-    std::vector<std::string> trackerContainers(conf.getParameter<std::vector<std::string> >("ROUList"));
+    std::vector<std::string> trackerContainers(conf.getParameter<std::vector<std::string>>("ROUList"));
     cfTokens_.reserve(trackerContainers.size());
     simHitTokens_.reserve(trackerContainers.size());
     for (auto const& trackerContainer : trackerContainers) {
-      cfTokens_.push_back(iC.consumes<CrossingFrame<PSimHit> >(edm::InputTag("mix", trackerContainer)));
-      simHitTokens_.push_back(iC.consumes<std::vector<PSimHit> >(edm::InputTag("g4SimHits", trackerContainer)));
+      cfTokens_.push_back(iC.consumes<CrossingFrame<PSimHit>>(edm::InputTag("mix", trackerContainer)));
+      simHitTokens_.push_back(iC.consumes<std::vector<PSimHit>>(edm::InputTag("g4SimHits", trackerContainer)));
     }
   }
+}
+
+void TrackerHitAssociator::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.setComment("auxilliary class to store information about recHit/simHit association");
+  desc.add<bool>("associatePixel", false);
+  desc.add<bool>("associateStrip", false);
+  desc.add<bool>("usePhase2Tracker", false);
+  desc.add<bool>("associateRecoTracks", false);
+  desc.add<bool>("associateHitbySimTrack", false);
+  desc.add<edm::InputTag>("phase2TrackerSimLinkSrc", edm::InputTag("simSiPixelDigis", "Tracker"));
+  desc.add<edm::InputTag>("stripSimLinkSrc", edm::InputTag("simSiStripDigis"));
+  desc.add<edm::InputTag>("pixelSimLinkSrc", edm::InputTag("simSiPixelDigis"));
+  desc.add<std::vector<std::string>>(
+      "ROUList", {"TrackerHitsTIBLowTof", "TrackerHitsTIBHighTof", "TrackerHitsTOBLowTof", "TrackerHitsTOBHighTof"});
 }
 
 //
@@ -128,10 +141,10 @@ void TrackerHitAssociator::makeMaps(const edm::Event& theEvent, const TrackerHit
   //  or just PSimHits (e.g., g4SimHits/TrackerHitsTIBLowTof)
   if (assocHitbySimTrack_) {
     for (auto const& cfToken : config.cfTokens_) {
-      edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
+      edm::Handle<CrossingFrame<PSimHit>> cf_simhit;
       int Nhits = 0;
       if (theEvent.getByToken(cfToken, cf_simhit)) {
-        std::unique_ptr<MixCollection<PSimHit> > thisContainerHits(new MixCollection<PSimHit>(cf_simhit.product()));
+        std::unique_ptr<MixCollection<PSimHit>> thisContainerHits(new MixCollection<PSimHit>(cf_simhit.product()));
         for (auto const& isim : *thisContainerHits) {
           DetId theDet(isim.detUnitId());
           SimHitMap[theDet].push_back(isim);
@@ -142,7 +155,7 @@ void TrackerHitAssociator::makeMaps(const edm::Event& theEvent, const TrackerHit
       }
     }
     for (auto const& simHitToken : config.simHitTokens_) {
-      edm::Handle<std::vector<PSimHit> > simHits;
+      edm::Handle<std::vector<PSimHit>> simHits;
       int Nhits = 0;
       if (theEvent.getByToken(simHitToken, simHits)) {
         for (auto const& isim : *simHits) {
@@ -162,10 +175,10 @@ void TrackerHitAssociator::makeMaps(const edm::Event& theEvent, const TrackerHit
     unsigned int collectionIndex = 0;
     for (auto const& cfToken : config.cfTokens_) {
       collectionIndex++;
-      edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
+      edm::Handle<CrossingFrame<PSimHit>> cf_simhit;
       int Nhits = 0;
       if (theEvent.getByToken(cfToken, cf_simhit)) {
-        std::unique_ptr<MixCollection<PSimHit> > thisContainerHits(new MixCollection<PSimHit>(cf_simhit.product()));
+        std::unique_ptr<MixCollection<PSimHit>> thisContainerHits(new MixCollection<PSimHit>(cf_simhit.product()));
         theEvent.labelsForToken(cfToken, labels);
         if (std::strstr(labels.productInstance, highTag) != nullptr) {
           tofBin = StripDigiSimLink::HighTof;
@@ -186,7 +199,7 @@ void TrackerHitAssociator::makeMaps(const edm::Event& theEvent, const TrackerHit
     collectionIndex = 0;
     for (auto const& simHitToken : config.simHitTokens_) {
       collectionIndex++;
-      edm::Handle<std::vector<PSimHit> > simHits;
+      edm::Handle<std::vector<PSimHit>> simHits;
       int Nhits = 0;
       if (theEvent.getByToken(simHitToken, simHits)) {
         theEvent.labelsForToken(simHitToken, labels);
