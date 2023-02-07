@@ -140,8 +140,18 @@ ctppsPixelDigis.inputLabel = cms.InputTag("rawDataCollector")
 from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
 from Configuration.Eras.Modifier_ctpps_2017_cff import ctpps_2017
 from Configuration.Eras.Modifier_ctpps_2018_cff import ctpps_2018
+from Configuration.Eras.Modifier_ctpps_2022_cff import ctpps_2022
 (ctpps_2016 | ctpps_2017 | ctpps_2018).toModify(ctppsPixelDigis, isRun3 = False )
 (ctpps_2016 | ctpps_2017 | ctpps_2018).toModify(totemDAQMappingESSourceXML_TotemTiming, sampicSubDetId = 6)
+
+# there are two sources of the TotemDAQMapping record for diamonds, one from the CondDB and one from XML
+# we specify that as default we use the one from the CondDB
+es_prefer_totemTimingMapping = cms.ESPrefer("PoolDBESSource","", TotemReadoutRcd=cms.vstring("TotemDAQMapping/TimingDiamond"))
+# for Run 2 and 2022 we use the XML mapping
+(ctpps_2016 | ctpps_2017 | ctpps_2018 | ctpps_2022).toReplaceWith(
+  es_prefer_totemTimingMapping, 
+  cms.ESPrefer("TotemDAQMappingESSourceXML","totemDAQMappingESSourceXML_TotemTiming",TotemReadoutRcd=cms.vstring("TotemDAQMapping/TimingDiamond"))
+  )
 
 # raw-to-digi task and sequence
 ctppsRawToDigiTask = cms.Task(

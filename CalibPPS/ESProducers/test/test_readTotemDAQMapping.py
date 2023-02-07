@@ -13,7 +13,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.source = cms.Source("EmptyIOVSource",
     timetype = cms.string('runnumber'),
     firstValue = cms.uint64(1),
-    lastValue = cms.uint64(3),
+    lastValue = cms.uint64(1),
     interval = cms.uint64(1)
 )
 
@@ -22,7 +22,7 @@ process.load("CalibPPS.ESProducers.totemDAQMappingESSourceXML_cfi")
 process.totemDAQMappingESSourceXML.subSystem = "TimingDiamond"
 process.totemDAQMappingESSourceXML.configuration = cms.VPSet(
   cms.PSet(
-    validityRange = cms.EventRange("1:min - 3:max"),
+    validityRange = cms.EventRange("1:min - 2:max"),
     mappingFileNames = cms.vstring("CondFormats/PPSObjects/xml/mapping_timing_diamond_2018.xml"),
     maskFileNames = cms.vstring()
   )
@@ -43,7 +43,10 @@ process.PoolDBESSource = cms.ESSource('PoolDBESSource',
 )
 
 # prefer to read mapping from DB than from XML
-process.es_prefer_timingMappingFromCondDB = cms.ESPrefer("PoolDBESSource","")
+# use this line to read from DB
+process.es_prefer_totemTimingMapping = cms.ESPrefer("PoolDBESSource","", TotemReadoutRcd=cms.vstring("TotemDAQMapping/TimingDiamond"))
+# use this line to read from XML
+#process.es_prefer_totemTimingMapping = cms.ESPrefer("TotemDAQMappingESSourceXML","totemDAQMappingESSourceXML",TotemReadoutRcd=cms.vstring("TotemDAQMapping/TimingDiamond"))
 
 # print the mapping
 process.printTotemDAQMapping = cms.EDAnalyzer("PrintTotemDAQMapping",
