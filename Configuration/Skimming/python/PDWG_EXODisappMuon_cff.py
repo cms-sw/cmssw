@@ -1,6 +1,17 @@
 import FWCore.ParameterSet.Config as cms
 
-DisappearingMuonsSkim = cms.EDFilter('DisappearingMuonsSkimming',
+import HLTrigger.HLTfilters.hltHighLevel_cfi as hlt
+
+from Configuration.EventContent.EventContent_cff import AODSIMEventContent
+EXODisappMuonSkimContent = AODSIMEventContent.clone()
+EXODisappMuonSkimContent.outputCommands.append('keep *_hbhereco_*_*')
+
+exoDisappMuonsHLT = hlt.hltHighLevel.clone()
+exoDisappMuonsHLT.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
+exoDisappMuonsHLT.HLTPaths = ['HLT_IsoMu24_v','HLT_IsoMu27_v']
+exoDisappMuonsHLT.throw = cms.bool( False )
+
+disappMuonsSelection = cms.EDFilter('DisappearingMuonsSkimming',
   recoMuons = cms.InputTag("muons"),
   tracks = cms.InputTag("generalTracks"),
   StandaloneTracks = cms.InputTag("standAloneMuons"),
@@ -11,7 +22,7 @@ DisappearingMuonsSkim = cms.EDFilter('DisappearingMuonsSkimming',
   muonPathsToPass = cms.vstring("HLT_IsoMu24_v","HLT_IsoMu27_v"),
   minMuPt = cms.double(26),
   maxMuEta = cms.double(2.4),
-  minTrackEta = cms.double(1.4),
+  minTrackEta = cms.double(0),
   maxTrackEta = cms.double(2.4),
   minTrackPt = cms.double(20),
   maxTransDCA = cms.double(0.005),
@@ -33,4 +44,8 @@ DisappearingMuonsSkim = cms.EDFilter('DisappearingMuonsSkimming',
   keepSameSign = cms.bool(True),
   keepTotalRegion = cms.bool(True),
   keepPartialRegion = cms.bool(True)
+)
+
+EXODisappMuonSkimSequence = cms.Sequence(
+    exoDisappMuonsHLT+disappMuonSelection
 )
