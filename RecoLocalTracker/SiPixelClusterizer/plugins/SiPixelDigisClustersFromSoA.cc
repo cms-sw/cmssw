@@ -53,7 +53,7 @@ SiPixelDigisClustersFromSoAT<TrackerTraits>::SiPixelDigisClustersFromSoAT(const 
       clusterThresholds_{iConfig.getParameter<int>("clusterThreshold_layer1"),
                          iConfig.getParameter<int>("clusterThreshold_otherLayers")},
       produceDigis_(iConfig.getParameter<bool>("produceDigis")),
-      storeDigis_(iConfig.getParameter<bool>("produceDigis") & iConfig.getParameter<bool>("storeDigis")) {
+      storeDigis_(iConfig.getParameter<bool>("produceDigis") && iConfig.getParameter<bool>("storeDigis")) {
   if (produceDigis_)
     digiPutToken_ = produces<edm::DetSetVector<PixelDigi>>();
 }

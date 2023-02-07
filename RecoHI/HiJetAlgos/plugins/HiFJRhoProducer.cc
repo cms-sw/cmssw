@@ -143,15 +143,10 @@ void HiFJRhoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double etaMax = mapEtaRangesOut->at(ieta + 1) - radius;
 
     int naccCur = 0;
-    double rhoCurSum = 0.;
-    double rhomCurSum = 0.;
     for (int i = 0; i < nacc; i++) {
       if (etaVec[i] >= etaMin && etaVec[i] < etaMax) {
         rhoVecCur.push_back(rhoVec[i]);
         rhomVecCur.push_back(rhomVec[i]);
-
-        rhoCurSum += rhoVec[i];
-        rhomCurSum += rhomVec[i];
         ++naccCur;
       }  //eta selection
     }    //accepted jet loop
