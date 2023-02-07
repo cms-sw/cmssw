@@ -188,8 +188,6 @@ namespace edm {
     std::unique_ptr<HepMC::GenEvent> finalEvent;
     std::unique_ptr<GenEventInfoProduct> finalGenEventInfo;
 
-    //sum of weights for events passing hadronization
-    double waccept = 0;
     //number of accepted events
     unsigned int naccept = 0;
 
@@ -253,7 +251,6 @@ namespace edm {
       if (filter_ && !filter_->filter(event.get(), genEventInfo->weight()))
         continue;
 
-      waccept += genEventInfo->weight();
       ++naccept;
 
       //keep the LAST accepted event (which is equivalent to choosing randomly from the accepted events)
