@@ -23,8 +23,6 @@ typedef std::vector<float> ParmVec;
 
 //#define EDM_ML_DEBUG
 
-const bool debugLocate = false;
-
 HGCalTBGeometry::HGCalTBGeometry(const HGCalTBTopology& topology_)
     : m_topology(topology_),
       m_validGeomIds(topology_.totalGeomModules()),
