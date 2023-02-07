@@ -440,9 +440,9 @@ bool L1TdeStage2CaloLayer2::compareJets(const edm::Handle<l1t::JetBxCollection>&
           if (dataIt->hwPt() == emulItCheckSort->hwPt() && dataIt->hwPhi() == emulItCheckSort->hwPhi() &&
               dataIt->hwEta() == emulItCheckSort->hwEta()) {
             posGood = true;
-	    emulIt = emulItCheckSort;
-	    qualGood = dataIt->hwQual() == emulItCheckSort->hwQual();
-	    break;
+            emulIt = emulItCheckSort;
+            qualGood = dataIt->hwQual() == emulItCheckSort->hwQual();
+            break;
           }
         }
       }
@@ -604,9 +604,9 @@ bool L1TdeStage2CaloLayer2::compareEGs(const edm::Handle<l1t::EGammaBxCollection
           if (dataIt->hwPt() == emulItCheckSort->hwPt() && dataIt->hwPhi() == emulItCheckSort->hwPhi() &&
               dataIt->hwEta() == emulItCheckSort->hwEta()) {
             posGood = true;
-	    emulIt = emulItCheckSort;
-	    isoGood = dataIt->hwIso() == emulItCheckSort->hwIso();
-	    break;
+            emulIt = emulItCheckSort;
+            isoGood = dataIt->hwIso() == emulItCheckSort->hwIso();
+            break;
           }
         }
       }
@@ -806,9 +806,9 @@ bool L1TdeStage2CaloLayer2::compareTaus(const edm::Handle<l1t::TauBxCollection>&
           if (dataIt->hwPt() == emulItCheckSort->hwPt() && dataIt->hwPhi() == emulItCheckSort->hwPhi() &&
               dataIt->hwEta() == emulItCheckSort->hwEta()) {
             posGood = true;
-	    emulIt = emulItCheckSort;
-	    isoGood = dataIt->hwIso() == emulItCheckSort->hwIso();
-	    break;
+            emulIt = emulItCheckSort;
+            isoGood = dataIt->hwIso() == emulItCheckSort->hwIso();
+            break;
           }
         }
       }
