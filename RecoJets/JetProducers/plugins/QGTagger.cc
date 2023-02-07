@@ -264,14 +264,15 @@ std::tuple<int, float, float> QGTagger::calcVariables(const reco::Jet* jet,
 /// Descriptions method
 void QGTagger::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("srcJets",edm::InputTag("ak4PFJetsCHS"));
-  desc.add<edm::InputTag>("srcRho",edm::InputTag("fixedGridRhoFastjetAll"));
-  desc.add<bool>("computeLikelihood",true);
-  desc.add<std::string>("jetsLabel","QGL_AK4PFchs");
+  desc.add<edm::InputTag>("srcJets", edm::InputTag("ak4PFJetsCHS"));
+  desc.add<edm::InputTag>("srcRho", edm::InputTag("fixedGridRhoFastjetAll"));
+  desc.add<bool>("computeLikelihood", true);
+  desc.add<std::string>("jetsLabel", "QGL_AK4PFchs");
   desc.add<std::string>("systematicsLabel", "");
-  desc.add<bool>("useQualityCuts",false);
+  desc.add<bool>("useQualityCuts", false);
   desc.add<edm::InputTag>("jec", edm::InputTag())->setComment("Jet correction service: only applied when non-empty");
-  desc.add<edm::InputTag>("srcVertexCollection",edm::InputTag("offlinePrimaryVerticesWithBS"))->setComment("Ignored for miniAOD, possible to keep empty");
+  desc.add<edm::InputTag>("srcVertexCollection", edm::InputTag("offlinePrimaryVerticesWithBS"))
+      ->setComment("Ignored for miniAOD, possible to keep empty");
   desc.add<edm::InputTag>("srcConstituentWeights", edm::InputTag())->setComment("Constituent weights ValueMap");
   descriptions.add("QGTagger", desc);
 }
