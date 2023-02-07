@@ -79,9 +79,9 @@ void HGCalTBGeometry::newCell(
   }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalTBGeometry::newCell-> [" << cellIndex << "]"
-				<< " front:" << f1.x() << '/' << f1.y() << '/' << f1.z() << " back:" << f2.x() << '/'
-				<< f2.y() << '/' << f2.z() << " eta|phi " << m_cellVec[cellIndex].etaPos() << ":"
-				<< m_cellVec[cellIndex].phiPos();
+                                << " front:" << f1.x() << '/' << f1.y() << '/' << f1.z() << " back:" << f2.x() << '/'
+                                << f2.y() << '/' << f2.z() << " eta|phi " << m_cellVec[cellIndex].etaPos() << ":"
+                                << m_cellVec[cellIndex].phiPos();
   unsigned int nNew = m_validIds.size();
   edm::LogVerbatim("HGCalGeom") << "ID: " << HGCalDetId(detId) << " with valid DetId from " << nOld << " to " << nNew;
 #endif
@@ -116,7 +116,7 @@ GlobalPoint HGCalTBGeometry::getPosition(const DetId& detid, bool debug) const {
     glob = m_cellVec[cellIndex].getPosition(lcoord);
     if (debug)
       edm::LogVerbatim("HGCalGeom") << "getPosition:: index " << cellIndex << " Local " << lcoord.x() << ":"
-				    << lcoord.y() << " ID " << id.iCell1 << ":" << id.iSec1 << " Global " << glob;
+                                    << lcoord.y() << " ID " << id.iCell1 << ":" << id.iSec1 << " Global " << glob;
   }
   return glob;
 }
@@ -254,9 +254,9 @@ DetId HGCalTBGeometry::neighborZ(const DetId& idin, const GlobalVector& momentum
 }
 
 DetId HGCalTBGeometry::neighborZ(const DetId& idin,
-                               const MagneticField* bField,
-                               int charge,
-                               const GlobalVector& momentum) const {
+                                 const MagneticField* bField,
+                                 int charge,
+                                 const GlobalVector& momentum) const {
   DetId idnew;
   HGCalTBTopology::DecodedDetId id = m_topology.decode(idin);
   int lay = ((momentum.z() * id.zSide > 0) ? (id.iLay + 1) : (id.iLay - 1));
@@ -443,9 +443,9 @@ void HGCalTBGeometry::sortDetIds(void) {
 }
 
 void HGCalTBGeometry::getSummary(CaloSubdetectorGeometry::TrVec& trVector,
-                               CaloSubdetectorGeometry::IVec& iVector,
-                               CaloSubdetectorGeometry::DimVec& dimVector,
-                               CaloSubdetectorGeometry::IVec& dinsVector) const {
+                                 CaloSubdetectorGeometry::IVec& iVector,
+                                 CaloSubdetectorGeometry::DimVec& dimVector,
+                                 CaloSubdetectorGeometry::IVec& dinsVector) const {
   unsigned int numberOfCells = m_topology.totalGeomModules();  // total Geom Modules both sides
   unsigned int numberOfShapes = k_NumberOfShapes;
   unsigned int numberOfParametersPerShape = ((m_det == DetId::HGCalHSc) ? (unsigned int)(k_NumberOfParametersPerTrd)
@@ -462,12 +462,12 @@ void HGCalTBGeometry::getSummary(CaloSubdetectorGeometry::TrVec& trVector,
 
     for (int wafer = 0; wafer < m_topology.dddConstants().sectors(); ++wafer) {
       if (m_topology.dddConstants().waferInLayer(wafer, layer, true)) {
-	HGCalTBParameters::hgtrap vol = m_topology.dddConstants().getModule(wafer, true, true);
-	ParmVec params(numberOfParametersPerShape, 0);
-	params[FlatHexagon::k_dZ] = vol.dz;
-	params[FlatHexagon::k_r] = vol.cellSize;
-	params[FlatHexagon::k_R] = twoBysqrt3_ * params[FlatHexagon::k_r];
-	dimVector.insert(dimVector.end(), params.begin(), params.end());
+        HGCalTBParameters::hgtrap vol = m_topology.dddConstants().getModule(wafer, true, true);
+        ParmVec params(numberOfParametersPerShape, 0);
+        params[FlatHexagon::k_dZ] = vol.dz;
+        params[FlatHexagon::k_r] = vol.cellSize;
+        params[FlatHexagon::k_R] = twoBysqrt3_ * params[FlatHexagon::k_r];
+        dimVector.insert(dimVector.end(), params.begin(), params.end());
       }
     }
   }

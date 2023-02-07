@@ -50,9 +50,9 @@ void HGCalTBGeometryDump::analyze(const edm::Event& /*iEvent*/, const edm::Event
       auto cell = geom->getGeometry(id);
       HGCalDetId hid(id);
       edm::LogVerbatim("HGCalGeomX") << "[" << nall << "] " << hid << " Reference " << std::setprecision(4)
-                                       << cell->getPosition() << " Back " << cell->getBackPoint() << " [r,eta,phi] ("
-                                       << cell->rhoPos() << ", " << cell->etaPos() << ":" << cell->etaSpan() << ", "
-                                       << cell->phiPos() << ":" << cell->phiSpan() << ")";
+                                     << cell->getPosition() << " Back " << cell->getBackPoint() << " [r,eta,phi] ("
+                                     << cell->rhoPos() << ", " << cell->etaPos() << ":" << cell->etaSpan() << ", "
+                                     << cell->phiPos() << ":" << cell->phiSpan() << ")";
     }
     edm::LogVerbatim("HGCalGeomX") << "\n\nDumps " << nall << " cells of the detector\n";
   }
