@@ -264,16 +264,7 @@ void testExpressionParser::checkAll() {
       std::cout << "Check for leaks in the " << (b ? "Lazy" : "standard") << " string parser" << std::endl;
       expr.reset();
       reco::parser::expressionParser<pat::Muon>("triggerObjectMatchesByPath('HLT_Something').size()", expr, b);
-      double res = 0;
-      for (size_t i = 0; i < 10 * 1000; ++i) {
-        for (size_t j = 0; j < 100; ++j) {
-          res += expr->value(o);
-          break;
-        }
-        break;
-        if (i % 1000 == 999)
-          std::cout << "iter " << i << std::endl;
-      }
+      expr->value(o);
     }
   }
   reco::CandidatePtrVector ptrOverlaps;
