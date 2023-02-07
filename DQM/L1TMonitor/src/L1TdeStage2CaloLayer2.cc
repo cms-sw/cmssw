@@ -426,29 +426,12 @@ bool L1TdeStage2CaloLayer2::compareJets(const edm::Handle<l1t::JetBxCollection>&
     while (true) {
       ++nJets;
 
-      bool posGood = true;
-      bool etGood = true;
-      bool qualGood = true;
-
       // object pt mismatch
-      if (dataIt->hwPt() != emulIt->hwPt()) {
-        etGood = false;
-      }
-
-      // object position mismatch (phi)
-      if (dataIt->hwPhi() != emulIt->hwPhi()) {
-        posGood = false;
-      }
-
-      // object position mismatch (eta)
-      if (dataIt->hwEta() != emulIt->hwEta()) {
-        posGood = false;
-      }
-
+      bool etGood = dataIt->hwPt() == emulIt->hwPt();
+      // object position mismatch
+      bool posGood = dataIt->hwPhi() == emulIt->hwPhi() && dataIt->hwEta() == emulIt->hwEta();
       // object quality mismatch
-      if (dataIt->hwQual() != emulIt->hwQual()) {
-        qualGood = false;
-      }
+      bool qualGood = dataIt->hwQual() == emulIt->hwQual();
 
       //bypass sorting bug
       if (etGood && !posGood) {
@@ -457,10 +440,9 @@ bool L1TdeStage2CaloLayer2::compareJets(const edm::Handle<l1t::JetBxCollection>&
           if (dataIt->hwPt() == emulItCheckSort->hwPt() && dataIt->hwPhi() == emulItCheckSort->hwPhi() &&
               dataIt->hwEta() == emulItCheckSort->hwEta()) {
             posGood = true;
-            if (dataIt->hwQual() == emulItCheckSort->hwQual())
-              qualGood = true;
-            else
-              qualGood = false;
+	    emulIt = emulItCheckSort;
+	    qualGood = dataIt->hwQual() == emulItCheckSort->hwQual();
+	    break;
           }
         }
       }
@@ -606,30 +588,14 @@ bool L1TdeStage2CaloLayer2::compareEGs(const edm::Handle<l1t::EGammaBxCollection
   // processing continues only of length of data collections is the same
   if (dataIt != dataCol->end(currBx) || emulIt != emulCol->end(currBx)) {
     while (true) {
-      bool posGood = true;
-      bool etGood = true;
-      bool isoGood = true;
       bool hwIso = dataIt->hwIso();
 
       // object pt mismatch
-      if (dataIt->hwPt() != emulIt->hwPt()) {
-        etGood = false;
-      }
-
-      // object position mismatch (phi)
-      if (dataIt->hwPhi() != emulIt->hwPhi()) {
-        posGood = false;
-      }
-
-      // object position mismatch (eta)
-      if (dataIt->hwEta() != emulIt->hwEta()) {
-        posGood = false;
-      }
-
-      // object isolation mismatch
-      if (dataIt->hwIso() != emulIt->hwIso()) {
-        isoGood = false;
-      }
+      bool etGood = dataIt->hwPt() == emulIt->hwPt();
+      // object position mismatch
+      bool posGood = dataIt->hwPhi() == emulIt->hwPhi() && dataIt->hwEta() == emulIt->hwEta();
+      // object quality mismatch
+      bool isoGood = dataIt->hwIso() == emulIt->hwIso();
 
       //bypass sorting bug
       if (etGood && !posGood) {
@@ -638,10 +604,9 @@ bool L1TdeStage2CaloLayer2::compareEGs(const edm::Handle<l1t::EGammaBxCollection
           if (dataIt->hwPt() == emulItCheckSort->hwPt() && dataIt->hwPhi() == emulItCheckSort->hwPhi() &&
               dataIt->hwEta() == emulItCheckSort->hwEta()) {
             posGood = true;
-            if (dataIt->hwIso() == emulItCheckSort->hwIso())
-              isoGood = true;
-            else
-              isoGood = false;
+	    emulIt = emulItCheckSort;
+	    isoGood = dataIt->hwIso() == emulItCheckSort->hwIso();
+	    break;
           }
         }
       }
@@ -825,30 +790,14 @@ bool L1TdeStage2CaloLayer2::compareTaus(const edm::Handle<l1t::TauBxCollection>&
   // processing continues only of length of data collections is the same
   if (dataIt != dataCol->end(currBx) || emulIt != emulCol->end(currBx)) {
     while (true) {
-      bool posGood = true;
-      bool etGood = true;
-      bool isoGood = true;
       bool hwIso = dataIt->hwIso();
 
-      // object Et mismatch
-      if (dataIt->hwPt() != emulIt->hwPt()) {
-        etGood = false;
-      }
-
-      // object position mismatch (phi)
-      if (dataIt->hwPhi() != emulIt->hwPhi()) {
-        posGood = false;
-      }
-
-      // object position mismatch (eta)
-      if (dataIt->hwEta() != emulIt->hwEta()) {
-        posGood = false;
-      }
-
-      // object isolation mismatch
-      if (dataIt->hwIso() != emulIt->hwIso()) {
-        isoGood = false;
-      }
+      // object pt mismatch
+      bool etGood = dataIt->hwPt() == emulIt->hwPt();
+      // object position mismatch
+      bool posGood = dataIt->hwPhi() == emulIt->hwPhi() && dataIt->hwEta() == emulIt->hwEta();
+      // object quality mismatch
+      bool isoGood = dataIt->hwIso() == emulIt->hwIso();
 
       //bypass sorting bug
       if (etGood && !posGood) {
@@ -857,10 +806,9 @@ bool L1TdeStage2CaloLayer2::compareTaus(const edm::Handle<l1t::TauBxCollection>&
           if (dataIt->hwPt() == emulItCheckSort->hwPt() && dataIt->hwPhi() == emulItCheckSort->hwPhi() &&
               dataIt->hwEta() == emulItCheckSort->hwEta()) {
             posGood = true;
-            if (dataIt->hwIso() == emulItCheckSort->hwIso())
-              isoGood = true;
-            else
-              isoGood = false;
+	    emulIt = emulItCheckSort;
+	    isoGood = dataIt->hwIso() == emulItCheckSort->hwIso();
+	    break;
           }
         }
       }
