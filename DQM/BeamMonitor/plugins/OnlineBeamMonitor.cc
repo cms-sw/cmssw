@@ -129,6 +129,49 @@ void OnlineBeamMonitor::bookHistograms(DQMStore::IBooker& ibooker,
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+// Handle exceptions for the schema evolution of the BeamSpotOnline CondFormat
+
+// Slightly better error handler
+static void print_error(const std::exception& e) { edm::LogError("BeamSpotOnlineParameters") << e.what() << '\n'; }
+
+// Method to catch exceptions
+template <typename T, class Except, class Func, class Response>
+T try_(Func f, Response r) {
+  try {
+    LogDebug("BeamSpotOnlineParameters") << "I have tried" << std::endl;
+    return f();
+  } catch (Except& e) {
+    LogDebug("BeamSpotOnlineParameters") << "I have caught!" << std::endl;
+    r(e);
+    return static_cast<T>("-999");
+  }
+}
+
+// Enum the BS string parameters
+enum BSparameters {
+  startTime = 0,  // 0 additional std::string parameters
+  endTime = 1,    // 1
+  lumiRange = 2,  // 2
+  END_OF_TYPES = 3,
+};
+
+// Functor
+std::function<std::string(BSparameters, BeamSpotOnlineObjects)> myStringFunctor = [](BSparameters my_param,
+                                                                                     BeamSpotOnlineObjects m_payload) {
+  std::string ret("");
+  switch (my_param) {
+    case startTime:
+      return m_payload.startTime();
+    case endTime:
+      return m_payload.endTime();
+    case lumiRange:
+      return m_payload.lumiRange();
+    default:
+      return ret;
+  }
+};
+
+//----------------------------------------------------------------------------------------------------------------------
 std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLuminosityBlock(
     const LuminosityBlock& iLumi, const EventSetup& iSetup) const {
   // Always create a beamspot group for each lumi weather we have results or not! Each Beamspot will be of unknown type!
@@ -154,9 +197,12 @@ std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLumino
     auto const& spotDB = *bsHLTHandle;
 
     //lastLumiHLT_ = spotDB.lastAnalyzedLumi();
-    startTimeStampHLT_ = spotDB.startTime();
-    stopTimeStampHLT_ = spotDB.endTime();
-    lumiRangeHLT_ = spotDB.lumiRange();
+    startTimeStampHLT_ =
+        try_<std::string, std::out_of_range>(std::bind(myStringFunctor, BSparameters::startTime, spotDB), print_error);
+    stopTimeStampHLT_ =
+        try_<std::string, std::out_of_range>(std::bind(myStringFunctor, BSparameters::endTime, spotDB), print_error);
+    lumiRangeHLT_ =
+        try_<std::string, std::out_of_range>(std::bind(myStringFunctor, BSparameters::lumiRange, spotDB), print_error);
 
     // translate from BeamSpotObjects to reco::BeamSpot
     BeamSpot::Point apoint(spotDB.x(), spotDB.y(), spotDB.z());
@@ -194,9 +240,12 @@ std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLumino
     BeamSpot::Point apoint(spotDB.x(), spotDB.y(), spotDB.z());
 
     //lastLumiLegacy_ = spotDB.lastAnalyzedLumi();
-    startTimeStampLegacy_ = spotDB.startTime();
-    stopTimeStampLegacy_ = spotDB.endTime();
-    lumiRangeLegacy_ = spotDB.lumiRange();
+    startTimeStampLegacy_ =
+        try_<std::string, std::out_of_range>(std::bind(myStringFunctor, BSparameters::startTime, spotDB), print_error);
+    stopTimeStampLegacy_ =
+        try_<std::string, std::out_of_range>(std::bind(myStringFunctor, BSparameters::endTime, spotDB), print_error);
+    lumiRangeLegacy_ =
+        try_<std::string, std::out_of_range>(std::bind(myStringFunctor, BSparameters::lumiRange, spotDB), print_error);
 
     BeamSpot::CovarianceMatrix matrix;
     for (int i = 0; i < 7; ++i) {
