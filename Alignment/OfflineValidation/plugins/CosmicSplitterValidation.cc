@@ -59,7 +59,9 @@
 class CosmicSplitterValidation : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit CosmicSplitterValidation(const edm::ParameterSet&);
-  ~CosmicSplitterValidation() override;
+  ~CosmicSplitterValidation() override = default;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void beginJob() override;
@@ -426,7 +428,18 @@ CosmicSplitterValidation::CosmicSplitterValidation(const edm::ParameterSet& iCon
     STAMuonsToken_ = iC.consumes<reco::MuonCollection>(edm::InputTag("STAMuons"));
 }
 
-CosmicSplitterValidation::~CosmicSplitterValidation() {}
+void CosmicSplitterValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.setComment("Validates alignment payloads by comparing split cosmic tracks parameters");
+  desc.addUntracked<int>("compressionSettings", -1);
+  desc.add<edm::InputTag>("splitTracks", edm::InputTag("FinalTrackRefitter", "", "splitter"));
+  desc.add<edm::InputTag>("splitGlobalMuons", edm::InputTag("muons", "", "splitter"));
+  desc.add<edm::InputTag>("originalTracks", edm::InputTag("FirstTrackRefitter", "", "splitter"));
+  desc.add<edm::InputTag>("originalGlobalMuons", edm::InputTag("muons", "", "Rec"));
+  desc.add<bool>("checkIfGolden", false);
+  desc.add<bool>("ifSplitMuons", false);
+  descriptions.addWithDefaultLabel(desc);
+}
 
 //
 // member functions
