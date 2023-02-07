@@ -11,3 +11,8 @@ hfnoseParametersInitialize = hgcalEEParametersInitialize.clone(
     nameX = "HGCalHFNoseSensitive"
 )
 
+from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
+
+dd4hep.toModify(hfnoseParametersInitialize,
+                fromDD4hep = True
+)
