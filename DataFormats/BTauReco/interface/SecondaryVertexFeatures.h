@@ -6,6 +6,9 @@ namespace btagbtvdeep {
   class SecondaryVertexFeatures {
   public:
     float pt;
+    float px;
+    float py;
+    float pz;
     float ptrel;
     float mass;
 

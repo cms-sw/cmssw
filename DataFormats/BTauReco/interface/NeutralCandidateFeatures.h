@@ -24,6 +24,9 @@ namespace btagbtvdeep {
     float phirel;
 
     float pt;
+    float px;
+    float py;
+    float pz;
     float eta;
     float phi;
     float e;

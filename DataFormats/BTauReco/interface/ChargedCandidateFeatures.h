@@ -40,6 +40,9 @@ namespace btagbtvdeep {
     float distminsv;
 
     float pt;
+    float px;
+    float py;
+    float pz;
     float eta;
     float phi;
     float e;
