@@ -11,12 +11,10 @@ namespace btagbtvdeep {
 
   class ParticleTransformerAK4Features {
   public:
-
     std::vector<SecondaryVertexFeatures> sv_features;
 
     std::vector<NeutralCandidateFeatures> n_pf_features;
     std::vector<ChargedCandidateFeatures> c_pf_features;
-
   };
 
 }  // namespace btagbtvdeep
