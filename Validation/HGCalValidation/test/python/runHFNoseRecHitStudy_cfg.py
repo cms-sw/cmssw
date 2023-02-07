@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 import FWCore.Utilities.FileUtils as FileUtils
 
-from Configuration.Eras.Era_Phase2C18I13M9_cff import Phase2C18I13M9
-process = cms.Process('PROD',Phase2C18I13M9)
+from Configuration.Eras.Era_Phase2C20I13M9_cff import Phase2C20I13M9
+process = cms.Process('PROD',Phase2C20I13M9)
 
 process.load('Configuration.Geometry.GeometryExtended2026D94Reco_cff')
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
