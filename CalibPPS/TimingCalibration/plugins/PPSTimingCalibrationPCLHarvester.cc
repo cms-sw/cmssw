@@ -73,8 +73,7 @@ void PPSTimingCalibrationPCLHarvester::beginRun(const edm::Run& iRun, const edm:
     if (!CTPPSDiamondDetId::check(it->first))
       continue;
     const CTPPSDiamondDetId detid(it->first);
-    if (detid.station() == 1)  // for the time being, only compute for this station (run 2 diamond)
-      detids_.emplace_back(detid);
+    detids_.emplace_back(detid);
   }
 }
 
