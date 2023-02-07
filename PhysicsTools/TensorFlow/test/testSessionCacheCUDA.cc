@@ -26,6 +26,9 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testSessionCacheCUDA);
 std::string testSessionCacheCUDA::pyScript() const { return "createconstantgraph.py"; }
 
 void testSessionCacheCUDA::test() {
+  if (!cms::cudatest::testDevices())
+    return;
+
   std::vector<edm::ParameterSet> psets;
   edm::ServiceToken serviceToken = edm::ServiceRegistry::createSet(psets);
   edm::ServiceRegistry::Operate operate(serviceToken);

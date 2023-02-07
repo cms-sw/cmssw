@@ -15,8 +15,8 @@
 
 #include "testBaseCUDA.h"
 
-class testVisibleDevices : public testBaseCUDA {
-  CPPUNIT_TEST_SUITE(testVisibleDevices);
+class testVisibleDevicesCUDA : public testBaseCUDA {
+  CPPUNIT_TEST_SUITE(testVisibleDevicesCUDA);
   CPPUNIT_TEST(test);
   CPPUNIT_TEST_SUITE_END();
 
@@ -25,11 +25,14 @@ public:
   void test() override;
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION(testVisibleDevices);
+CPPUNIT_TEST_SUITE_REGISTRATION(testVisibleDevicesCUDA);
 
-std::string testVisibleDevices::pyScript() const { return "createconstantgraph.py"; }
+std::string testVisibleDevicesCUDA::pyScript() const { return "createconstantgraph.py"; }
 
-void testVisibleDevices::test() {
+void testVisibleDevicesCUDA::test() {
+  if (!cms::cudatest::testDevices())
+    return;
+
   std::vector<edm::ParameterSet> psets;
   edm::ServiceToken serviceToken = edm::ServiceRegistry::createSet(psets);
   edm::ServiceRegistry::Operate operate(serviceToken);

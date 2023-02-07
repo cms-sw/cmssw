@@ -12,6 +12,7 @@
     <use name="cppunit"/>
     <use name="PhysicsTools/TensorFlow"/>
     <use name="HeterogeneousCore/CUDAServices"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
     <use name="catch2"/>
     <use name="FWCore/ParameterSet"/>
     <use name="FWCore/ParameterSetReader"/>
@@ -35,6 +36,7 @@
   <use name="cppunit"/>
   <use name="PhysicsTools/TensorFlow"/>
   <use name="HeterogeneousCore/CUDAServices"/>
+  <use name="HeterogeneousCore/CUDAUtilities"/>
   <use name="catch2"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/ParameterSetReader"/>
@@ -57,6 +59,7 @@
   <use name="cppunit"/>
   <use name="PhysicsTools/TensorFlow"/>
   <use name="HeterogeneousCore/CUDAServices"/>
+  <use name="HeterogeneousCore/CUDAUtilities"/>
   <use name="catch2"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/ParameterSetReader"/>
@@ -78,7 +81,8 @@
   <use name="boost_filesystem"/>
   <use name="cppunit"/>
   <use name="PhysicsTools/TensorFlow"/>
-<use name="HeterogeneousCore/CUDAServices"/>
+  <use name="HeterogeneousCore/CUDAServices"/>
+  <use name="HeterogeneousCore/CUDAUtilities"/>
   <use name="catch2"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/ParameterSetReader"/>
@@ -101,6 +105,7 @@
   <use name="cppunit"/>
   <use name="PhysicsTools/TensorFlow"/>
   <use name="HeterogeneousCore/CUDAServices"/>
+  <use name="HeterogeneousCore/CUDAUtilities"/>
   <use name="catch2"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/ParameterSetReader"/>
@@ -123,6 +128,7 @@
   <use name="cppunit"/>
   <use name="PhysicsTools/TensorFlow"/>
   <use name="HeterogeneousCore/CUDAServices"/>
+  <use name="HeterogeneousCore/CUDAUtilities"/>
   <use name="catch2"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/ParameterSetReader"/>

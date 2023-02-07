@@ -27,6 +27,9 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testMetaGraphLoadingCUDA);
 std::string testMetaGraphLoadingCUDA::pyScript() const { return "creategraph.py"; }
 
 void testMetaGraphLoadingCUDA::test() {
+  if (!cms::cudatest::testDevices())
+    return;
+
   std::vector<edm::ParameterSet> psets;
   edm::ServiceToken serviceToken = edm::ServiceRegistry::createSet(psets);
   edm::ServiceRegistry::Operate operate(serviceToken);

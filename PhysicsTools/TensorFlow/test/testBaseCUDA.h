@@ -24,6 +24,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ResourceInformation.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 
 namespace {
   CUDAService makeCUDAService(edm::ParameterSet ps) {
