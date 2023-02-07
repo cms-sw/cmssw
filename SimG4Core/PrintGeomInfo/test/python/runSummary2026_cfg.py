@@ -1,6 +1,6 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun grunPrintG4Solids_cfg.py geometry=D88 dd4hep=False
+#   cmsRun runSummary2026_cfg.py geometry=D92
 #
 #   Options for geometry D88, D92, D93, D94, D95, D96, D98, D99
 #
@@ -13,32 +13,23 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D88",
+                 "Run3",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "geometry of operations: D88, D92, D93, D94, D95, D96, D98, D99")
-options.register('dd4hep',
-                 False,
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.bool,
-                 "Geometry source DD4hep or DDD: False, True")
 
 ### get and parse the command line arguments
 options.parseArguments()
 
 print(options)
 
-####################################################################
+#####p###############################################################
 # Use the options
-from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 
-if (options.dd4hep):
-    process = cms.Process('PrintG4Solids',Phase2C17I13M9,dd4hep)
-    geomFile = "Configuration.Geometry.GeometryDD4hepExtended2026" + options.geometry + "Reco_cff"
-else:
-    process = cms.Process('PrintG4Solids',Phase2C17I13M9)
-    geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+process = cms.Process('PrintGeometry',Phase2C17I13M9)
+
+geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
 
 print("Geometry file Name: ", geomFile)
 
@@ -46,9 +37,9 @@ process.load(geomFile)
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.G4cerr=dict()
     process.MessageLogger.G4cout=dict()
+    process.MessageLogger.G4cerr=dict()
 
-from SimG4Core.PrintGeomInfo.g4PrintG4Solids_cfi import *
+from SimG4Core.PrintGeomInfo.g4PrintGeomSummary_cfi import *
 
-process = printGeomInfo(process)
+process = printGeomSummary(process)
