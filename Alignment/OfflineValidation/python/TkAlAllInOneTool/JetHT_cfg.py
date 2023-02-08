@@ -5,6 +5,7 @@ here doing refit of tracks and vertices using latest alignment
 
 # Define the process
 import FWCore.ParameterSet.Config as cms
+from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultData_JetHTRun2018D
 process = cms.Process("JetHTAnalyzer")
 
 # Choose whether to run with Monte Carlo or data settings based on command line argument
@@ -169,9 +170,7 @@ else:
     else:
         print(">>>>>>>>>> JetHT_cfg.py: msg%-i: Default file read from 2018D JetHT dataset.")
         process.source = cms.Source("PoolSource",
-                              fileNames = cms.untracked.vstring('root://xrootd-cms.infn.it//store/data/Run2018D/JetHT/ALCARECO/TkAlMinBias-12Nov2019_UL2018-v4/00000/009085FF-603B-044D-8879-0599B156831D.root') # A file from 2018 JetHT file in DESY
-
-                              )
+                                    fileNames = filesDefaultData_JetHTRun2018D)
 
 ####################################################################
 # Global tag
@@ -265,7 +264,7 @@ if not (triggerFilter == "nothing" or triggerFilter == ""):
 ###################################################################
 # The analysis module
 ###################################################################
-from Alignment.OfflineValidation.jetHTAnalyzer_cfi.py import jetHTAnalyzer as _jetHTAnalyzer
+from Alignment.OfflineValidation.jetHTAnalyzer_cfi import jetHTAnalyzer as _jetHTAnalyzer
 process.jetHTAnalyzer = _jetHTAnalyzer.clone(
                                        vtxCollection       = "offlinePrimaryVerticesFromRefittedTrks",
                                        trackCollection	   = "TrackRefitter",
