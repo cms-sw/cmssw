@@ -31,11 +31,7 @@ RPixRoadFinder::~RPixRoadFinder() {}
 
 void RPixRoadFinder::findPattern(bool* isBadPot) {
   Road temp_all_hits;
-  temp_all_hits.clear();
-
   Road temp_all_hits_badPot[4];
-  for (unsigned int i = 0; i < 4; i++)
-    temp_all_hits_badPot[i].clear();
 
   // convert local hit sto global and push them to a vector
   for (const auto& ds_rh2 : *hitVector_) {
