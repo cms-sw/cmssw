@@ -1,5 +1,5 @@
-#ifndef HeterogeneousCore_AlpakaCore_interface_MakerMacros_h
-#define HeterogeneousCore_AlpakaCore_interface_MakerMacros_h
+#ifndef HeterogeneousCore_AlpakaCore_interface_alpaka_MakerMacros_h
+#define HeterogeneousCore_AlpakaCore_interface_alpaka_MakerMacros_h
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
@@ -16,4 +16,4 @@
 #define DEFINE_FWK_ALPAKA_MODULE(name) DEFINE_FWK_ALPAKA_MODULE2(ALPAKA_ACCELERATOR_NAMESPACE::name)
 #endif
 
-#endif  // HeterogeneousCore_AlpakaCore_interface_MakerMacros_h
+#endif  // HeterogeneousCore_AlpakaCore_interface_alpaka_MakerMacros_h
