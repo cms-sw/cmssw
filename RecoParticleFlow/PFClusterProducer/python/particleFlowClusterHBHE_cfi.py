@@ -10,10 +10,7 @@ _seedingThresholdsHE = cms.vdouble(1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1)
 _seedingThresholdsHBphase1 = cms.vdouble(0.125, 0.25, 0.35, 0.35)
 _seedingThresholdsHEphase1 = cms.vdouble(0.1375, 0.275, 0.275, 0.275, 0.275, 0.275, 0.275)
 
-
-#### PF CLUSTER HCAL ####
-particleFlowClusterHBHE = cms.EDProducer(
-    "PFClusterProducer",
+_module_config = cms.PSet(
     recHitsSource = cms.InputTag("particleFlowRecHitHBHE"),
     recHitCleaners = cms.VPSet(),
     seedCleaners = cms.VPSet(),
@@ -114,13 +111,30 @@ particleFlowClusterHBHE = cms.EDProducer(
     positionReCalc = cms.PSet(),
     energyCorrector = cms.PSet()
 )
+_module_config_cuda = _module_config.clone()
+
+#### PF CLUSTER HCAL ####
+_particleFlowClusterHBHE_cpu = cms.EDProducer("PFClusterProducer", _module_config.clone())
+_particleFlowClusterHBHE_cuda = cms.EDProducer("PFClusterProducerCudaHCAL", _module_config.clone())
+_particleFlowClusterHBHE_cuda.PFRecHitsLabelIn = cms.InputTag("particleFlowRecHitHBHE","")
+_particleFlowClusterHBHE_cuda.produceLegacy = cms.bool(True)
+_particleFlowClusterHBHE_cuda.produceSoA = cms.bool(True)
 
 #####
 
 # offline 2018 -- uncollapsed
 from Configuration.Eras.Modifier_run2_HE_2018_cff import run2_HE_2018
 from Configuration.ProcessModifiers.run2_HECollapse_2018_cff import run2_HECollapse_2018
-(run2_HE_2018 & ~run2_HECollapse_2018).toModify(particleFlowClusterHBHE,
+(run2_HE_2018 & ~run2_HECollapse_2018).toModify(_particleFlowClusterHBHE_cpu,
+    seedFinder = dict(thresholdsByDetector = {1 : dict(seedingThreshold = _seedingThresholdsHEphase1) } ),
+    initialClusteringStep = dict(thresholdsByDetector = {1 : dict(gatheringThreshold = _thresholdsHEphase1) } ),
+    pfClusterBuilder = dict(
+        recHitEnergyNorms = {1 : dict(recHitEnergyNorm = _thresholdsHEphase1) },
+        positionCalc = dict(logWeightDenominatorByDetector = {1 : dict(logWeightDenominator = _thresholdsHEphase1) } ),
+        allCellsPositionCalc = dict(logWeightDenominatorByDetector = {1 : dict(logWeightDenominator = _thresholdsHEphase1) } ),
+    ),
+)
+(run2_HE_2018 & ~run2_HECollapse_2018).toModify(_particleFlowClusterHBHE_cuda,
     seedFinder = dict(thresholdsByDetector = {1 : dict(seedingThreshold = _seedingThresholdsHEphase1) } ),
     initialClusteringStep = dict(thresholdsByDetector = {1 : dict(gatheringThreshold = _thresholdsHEphase1) } ),
     pfClusterBuilder = dict(
@@ -132,7 +146,16 @@ from Configuration.ProcessModifiers.run2_HECollapse_2018_cff import run2_HEColla
 
 # offline 2019
 from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
-run3_HB.toModify(particleFlowClusterHBHE,
+run3_HB.toModify(_particleFlowClusterHBHE_cpu,
+    seedFinder = dict(thresholdsByDetector = {0 : dict(seedingThreshold = _seedingThresholdsHBphase1) } ),
+    initialClusteringStep = dict(thresholdsByDetector = {0 : dict(gatheringThreshold = _thresholdsHBphase1) } ),
+    pfClusterBuilder = dict(
+        recHitEnergyNorms = {0 : dict(recHitEnergyNorm = _thresholdsHBphase1) },
+        positionCalc = dict(logWeightDenominatorByDetector = {0 : dict(logWeightDenominator = _thresholdsHBphase1) } ),
+        allCellsPositionCalc = dict(logWeightDenominatorByDetector = {0 : dict(logWeightDenominator = _thresholdsHBphase1) } ),
+    ),
+)
+run3_HB.toModify(_particleFlowClusterHBHE_cuda,
     seedFinder = dict(thresholdsByDetector = {0 : dict(seedingThreshold = _seedingThresholdsHBphase1) } ),
     initialClusteringStep = dict(thresholdsByDetector = {0 : dict(gatheringThreshold = _thresholdsHBphase1) } ),
     pfClusterBuilder = dict(
@@ -143,6 +166,31 @@ run3_HB.toModify(particleFlowClusterHBHE,
 )
 
 # HCALonly WF
-particleFlowClusterHBHEOnly = particleFlowClusterHBHE.clone(
-    recHitsSource = "particleFlowRecHitHBHEOnly"
+# particleFlowClusterHBHEOnly = _particleFlowClusterHBHE_cpu.clone(
+#     recHitsSource = "particleFlowRecHitHBHEOnly"
+# )
+from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
+particleFlowClusterHBHEOnly = SwitchProducerCUDA(
+    cpu = _particleFlowClusterHBHE_cpu.clone(
+        recHitsSource = "particleFlowRecHitHBHEOnly@cpu"
+    )
 )
+
+from Configuration.ProcessModifiers.gpu_cff import gpu
+gpu.toModify(particleFlowClusterHBHEOnly,
+    cuda = _particleFlowClusterHBHE_cuda.clone(
+        recHitsSource = "particleFlowRecHitHBHEOnly@cuda",
+        PFRecHitsLabelIn = "particleFlowRecHitHBHEOnly@cuda"
+    )
+)
+
+#
+#from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
+particleFlowClusterHBHE = SwitchProducerCUDA(
+    cpu = _particleFlowClusterHBHE_cpu.clone()
+)
+
+from Configuration.ProcessModifiers.gpu_cff import gpu
+gpu.toModify(particleFlowClusterHBHE, 
+    cuda = _particleFlowClusterHBHE_cuda.clone()
+)         

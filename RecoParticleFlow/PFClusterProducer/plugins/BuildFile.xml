@@ -1,4 +1,4 @@
-<library name="RecoParticleFlowPFClusterProducerPlugins" file="*.cc">
+<library name="RecoParticleFlowPFClusterProducerPlugins" file="*.cc *.cu">
   <use name="CondFormats/HcalObjects"/>
   <use name="CondFormats/EcalObjects"/>
   <use name="CondFormats/DataRecord"/>

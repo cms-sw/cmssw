@@ -1084,6 +1084,25 @@ upgradeWFs['PatatrackHCALOnlyGPUProfiling'] = PatatrackWorkflow(
     offset = 0.524,
 )
 
+# HCAL-only workflow running on CPU or GPU, trimmed down for benchmarking
+#  - HLT on GPU (optional)
+#  - HCAL-only reconstruction [including PF] on GPU (optional)
+#  - HCAL-only reconstruction on GPU (optional)
+upgradeWFs['PatatrackHCALPFOnlyGPUProfiling'] = PatatrackWorkflow(
+    digi = {
+        # the HLT menu is already set up for using GPUs if available and if the "gpu" modifier is enabled
+        '--procModifiers': 'gpu'
+    },
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_hcalOnly,RECO:reconstruction_hcalOnly',
+        '--procModifiers': 'gpu',
+        '--customise' : 'RecoLocalCalo/Configuration/customizeHcalOnlyForProfiling.customizeHcalPFOnlyForProfilingGPUOnly'
+    },
+    harvest = None,
+    suffix = 'Patatrack_HCALPFOnlyGPU_Profiling',
+    offset = 0.525,
+)
+
 # Workflow running the Pixel quadruplets, ECAL and HCAL reconstruction on CPU
 #  - HLT on CPU
 #  - reconstruction on CPU, with DQM and validation

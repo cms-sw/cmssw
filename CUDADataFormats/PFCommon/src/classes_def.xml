@@ -1,0 +1,8 @@
+<lcgdict>
+    <enum name="pf::common::tags::Ptr"/>
+    <enum name="pf::common::tags::Vec"/>
+    <enum name="pf::common::tags::DevPtr"/>
+    <class name="pf::common::AddSize<pf::common::tags::Ptr>"/>
+    <class name="pf::common::AddSize<pf::common::tags::Vec>"/>
+    <class name="pf::common::AddSize<pf::common::tags::DevPtr>"/>
+</lcgdict>
