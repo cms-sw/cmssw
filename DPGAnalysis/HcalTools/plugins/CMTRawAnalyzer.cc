@@ -8040,7 +8040,6 @@ void CMTRawAnalyzer::fillDigiErrors(HBHEDigiCollection::const_iterator& digiItr)
   bool anydv = true;
   // for help:
   int firstcapid = 0;
-  int sumcapid = 0;
   int lastcapid = 0, capid = 0;
   int ERRORfiber = -10;
   int ERRORfiberChan = -10;
@@ -8071,7 +8070,6 @@ void CMTRawAnalyzer::fillDigiErrors(HBHEDigiCollection::const_iterator& digiItr)
 
     if (ii == 0)
       firstcapid = capid;
-    sumcapid += capid;
 
     if (er) {
       anyer = true;
@@ -8203,7 +8201,6 @@ void CMTRawAnalyzer::fillDigiErrorsQIE11(QIE11DataFrame qie11df) {
   //    bool anydv      =  true;
   // for help:
   int firstcapid = 0;
-  int sumcapid = 0;
   int lastcapid = 0, capid = 0;
   int repetedcapid = 0;
   // loop over the samples in the digi
@@ -8221,7 +8218,6 @@ void CMTRawAnalyzer::fillDigiErrorsQIE11(QIE11DataFrame qie11df) {
     lastcapid = capid;
     if (ii == 0)
       firstcapid = capid;
-    sumcapid += capid;
   }  // for
   ///////////////////////////////////////
   if (!anycapid)
@@ -8317,7 +8313,6 @@ void CMTRawAnalyzer::fillDigiErrorsHF(HFDigiCollection::const_iterator& digiItr)
   bool anydv = true;
   // for help:
   int firstcapid = 0;
-  int sumcapid = 0;
   int lastcapid = 0, capid = 0;
   int ERRORfiber = -10;
   int ERRORfiberChan = -10;
@@ -8347,7 +8342,6 @@ void CMTRawAnalyzer::fillDigiErrorsHF(HFDigiCollection::const_iterator& digiItr)
     lastcapid = capid;
     if (ii == 0)
       firstcapid = capid;
-    sumcapid += capid;
     if (er) {
       anyer = true;
       ERRORfiber = fiber;
@@ -8442,7 +8436,6 @@ void CMTRawAnalyzer::fillDigiErrorsHFQIE10(QIE10DataFrame qie10df) {
   //    bool anydv      =  true;
   // for help:
   int firstcapid = 0;
-  int sumcapid = 0;
   int lastcapid = 0, capid = 0;
   int repetedcapid = 0;
   // loop over the samples in the digi
@@ -8460,7 +8453,6 @@ void CMTRawAnalyzer::fillDigiErrorsHFQIE10(QIE10DataFrame qie10df) {
     lastcapid = capid;
     if (ii == 0)
       firstcapid = capid;
-    sumcapid += capid;
   }  // for
   ///////////////////////////////////////
   if (!anycapid)
@@ -8521,7 +8513,6 @@ void CMTRawAnalyzer::fillDigiErrorsHO(HODigiCollection::const_iterator& digiItr)
   bool anydv = true;
   // for help:
   int firstcapid = 0;
-  int sumcapid = 0;
   int lastcapid = 0, capid = 0;
   int ERRORfiber = -10;
   int ERRORfiberChan = -10;
@@ -8548,7 +8539,6 @@ void CMTRawAnalyzer::fillDigiErrorsHO(HODigiCollection::const_iterator& digiItr)
 
     if (ii == 0)
       firstcapid = capid;
-    sumcapid += capid;
 
     if (er) {
       anyer = true;
@@ -8671,10 +8661,6 @@ void CMTRawAnalyzer::fillDigiAmplitude(HBHEDigiCollection::const_iterator& digiI
   double difpedestal2 = 0.;
   double difpedestal3 = 0.;
 
-  double amplitudewithPedSubtr1 = 0.;
-  double amplitudewithPedSubtr2 = 0.;
-  double amplitudewithPedSubtr3 = 0.;
-  double amplitudewithPedSubtr4 = 0.;
   double amplitude = 0.;
   double absamplitude = 0.;
   double amplitude345 = 0.;
@@ -8787,18 +8773,9 @@ void CMTRawAnalyzer::fillDigiAmplitude(HBHEDigiCollection::const_iterator& digiI
     //     var.4                   -------
     //
     // TS = 2-9      for raddam only  var.1
-    if (ii > 0 && ii < 9)
-      amplitudewithPedSubtr1 += ampldefaultwithPedSubtr;  //
     // TS = 3-8      for raddam only  var.2
-    if (ii > 1 && ii < 8)
-      amplitudewithPedSubtr2 += ampldefaultwithPedSubtr;  //
     // TS = 4-7      for raddam only  var.3
-    if (ii > 2 && ii < 7)
-      amplitudewithPedSubtr3 += ampldefaultwithPedSubtr;  //
     // TS = 4-6      for raddam only  var.4
-    if (ii > 2 && ii < 6)
-      amplitudewithPedSubtr4 += ampldefaultwithPedSubtr;  //
-    //
     amplitude += ampldefault;          //
     absamplitude += abs(ampldefault);  //
 
