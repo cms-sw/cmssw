@@ -376,6 +376,7 @@ bool L1TdeStage2CaloLayer2::compareJets(const edm::Handle<l1t::JetBxCollection>&
 
   l1t::JetBxCollection::const_iterator dataIt = dataCol->begin(currBx);
   l1t::JetBxCollection::const_iterator emulIt = emulCol->begin(currBx);
+  l1t::JetBxCollection::const_iterator matchedEmulIt = emulIt;
 
   // process jets
   if (dataCol->size(currBx) != emulCol->size(currBx)) {
@@ -425,6 +426,7 @@ bool L1TdeStage2CaloLayer2::compareJets(const edm::Handle<l1t::JetBxCollection>&
   if (dataIt != dataCol->end(currBx) || emulIt != emulCol->end(currBx)) {
     while (true) {
       ++nJets;
+      matchedEmulIt = emulIt;
 
       // object pt mismatch
       bool etGood = dataIt->hwPt() == emulIt->hwPt();
@@ -440,7 +442,7 @@ bool L1TdeStage2CaloLayer2::compareJets(const edm::Handle<l1t::JetBxCollection>&
           if (dataIt->hwPt() == emulItCheckSort->hwPt() && dataIt->hwPhi() == emulItCheckSort->hwPhi() &&
               dataIt->hwEta() == emulItCheckSort->hwEta()) {
             posGood = true;
-            emulIt = emulItCheckSort;
+            matchedEmulIt = emulItCheckSort;
             qualGood = dataIt->hwQual() == emulItCheckSort->hwQual();
             break;
           }
@@ -460,23 +462,23 @@ bool L1TdeStage2CaloLayer2::compareJets(const edm::Handle<l1t::JetBxCollection>&
         if (enable2DComp)
           jet2DEtaPhiData->Fill(dataIt->eta(), dataIt->phi());
 
-        jetEtEmul->Fill(emulIt->hwPt());
-        jetEtaEmul->Fill(emulIt->hwEta());
-        jetPhiEmul->Fill(emulIt->hwPhi());
-        jetQualEmul->Fill(emulIt->hwQual());
+        jetEtEmul->Fill(matchedEmulIt->hwPt());
+        jetEtaEmul->Fill(matchedEmulIt->hwEta());
+        jetPhiEmul->Fill(matchedEmulIt->hwPhi());
+        jetQualEmul->Fill(matchedEmulIt->hwQual());
         if (enable2DComp)
-          jet2DEtaPhiEmul->Fill(emulIt->eta(), emulIt->phi());
+          jet2DEtaPhiEmul->Fill(matchedEmulIt->eta(), matchedEmulIt->phi());
 
         if (verbose) {
           edm::LogInfo("L1TdeStage2CaloLayer2") << "--- jet ---" << std::endl;
           edm::LogInfo("L1TdeStage2CaloLayer2") << "data jet Et = " << dataIt->hwPt() << std::endl;
-          edm::LogInfo("L1TdeStage2CaloLayer2") << "emul jet Et = " << emulIt->hwPt() << std::endl;
+          edm::LogInfo("L1TdeStage2CaloLayer2") << "emul jet Et = " << matchedEmulIt->hwPt() << std::endl;
           edm::LogInfo("L1TdeStage2CaloLayer2") << "data jet phi = " << dataIt->hwPhi() << std::endl;
-          edm::LogInfo("L1TdeStage2CaloLayer2") << "emul jet phi = " << emulIt->hwPhi() << std::endl;
+          edm::LogInfo("L1TdeStage2CaloLayer2") << "emul jet phi = " << matchedEmulIt->hwPhi() << std::endl;
           edm::LogInfo("L1TdeStage2CaloLayer2") << "data jet eta = " << dataIt->hwEta() << std::endl;
-          edm::LogInfo("L1TdeStage2CaloLayer2") << "emul jet eta = " << emulIt->hwEta() << std::endl;
+          edm::LogInfo("L1TdeStage2CaloLayer2") << "emul jet eta = " << matchedEmulIt->hwEta() << std::endl;
           edm::LogInfo("L1TdeStage2CaloLayer2") << "data jet qual = " << dataIt->hwQual() << std::endl;
-          edm::LogInfo("L1TdeStage2CaloLayer2") << "emul jet qual = " << emulIt->hwQual() << std::endl;
+          edm::LogInfo("L1TdeStage2CaloLayer2") << "emul jet qual = " << matchedEmulIt->hwQual() << std::endl;
           edm::LogInfo("L1TdeStage2CaloLayer2") << "---" << std::endl;
         }
       }
@@ -524,6 +526,7 @@ bool L1TdeStage2CaloLayer2::compareEGs(const edm::Handle<l1t::EGammaBxCollection
 
   l1t::EGammaBxCollection::const_iterator dataIt = dataCol->begin(currBx);
   l1t::EGammaBxCollection::const_iterator emulIt = emulCol->begin(currBx);
+  l1t::EGammaBxCollection::const_iterator matchedEmulIt = emulCol->begin(currBx);
 
   // check length of collections
   if (dataCol->size(currBx) != emulCol->size(currBx)) {
@@ -588,6 +591,8 @@ bool L1TdeStage2CaloLayer2::compareEGs(const edm::Handle<l1t::EGammaBxCollection
   // processing continues only of length of data collections is the same
   if (dataIt != dataCol->end(currBx) || emulIt != emulCol->end(currBx)) {
     while (true) {
+      matchedEmulIt = emulIt;
+
       bool hwIso = dataIt->hwIso();
 
       // object pt mismatch
@@ -604,7 +609,7 @@ bool L1TdeStage2CaloLayer2::compareEGs(const edm::Handle<l1t::EGammaBxCollection
           if (dataIt->hwPt() == emulItCheckSort->hwPt() && dataIt->hwPhi() == emulItCheckSort->hwPhi() &&
               dataIt->hwEta() == emulItCheckSort->hwEta()) {
             posGood = true;
-            emulIt = emulItCheckSort;
+            matchedEmulIt = emulItCheckSort;
             isoGood = dataIt->hwIso() == emulItCheckSort->hwIso();
             break;
           }
@@ -630,11 +635,11 @@ bool L1TdeStage2CaloLayer2::compareEGs(const edm::Handle<l1t::EGammaBxCollection
           if (enable2DComp)
             isoEg2DEtaPhiData->Fill(dataIt->eta(), dataIt->phi());
 
-          isoEgEtEmul->Fill(emulIt->hwPt());
-          isoEgEtaEmul->Fill(emulIt->hwEta());
-          isoEgPhiEmul->Fill(emulIt->hwPhi());
+          isoEgEtEmul->Fill(matchedEmulIt->hwPt());
+          isoEgEtaEmul->Fill(matchedEmulIt->hwEta());
+          isoEgPhiEmul->Fill(matchedEmulIt->hwPhi());
           if (enable2DComp)
-            isoEg2DEtaPhiEmul->Fill(emulIt->eta(), emulIt->phi());
+            isoEg2DEtaPhiEmul->Fill(matchedEmulIt->eta(), matchedEmulIt->phi());
         } else {
           egEtData->Fill(dataIt->hwPt());
           egEtaData->Fill(dataIt->hwEta());
@@ -642,25 +647,25 @@ bool L1TdeStage2CaloLayer2::compareEGs(const edm::Handle<l1t::EGammaBxCollection
           if (enable2DComp)
             eg2DEtaPhiData->Fill(dataIt->eta(), dataIt->phi());
 
-          egEtEmul->Fill(emulIt->hwPt());
-          egEtaEmul->Fill(emulIt->hwEta());
-          egPhiEmul->Fill(emulIt->hwPhi());
+          egEtEmul->Fill(matchedEmulIt->hwPt());
+          egEtaEmul->Fill(matchedEmulIt->hwEta());
+          egPhiEmul->Fill(matchedEmulIt->hwPhi());
           if (enable2DComp)
-            eg2DEtaPhiEmul->Fill(emulIt->eta(), emulIt->phi());
+            eg2DEtaPhiEmul->Fill(matchedEmulIt->eta(), matchedEmulIt->phi());
         }
         egIsoData->Fill(dataIt->hwIso());
-        egIsoEmul->Fill(emulIt->hwIso());
+        egIsoEmul->Fill(matchedEmulIt->hwIso());
 
         if (verbose) {
           edm::LogInfo("L1TdeStage2CaloLayer2") << "--- eg ---" << std::endl;
           edm::LogInfo("L1TdeStage2CaloLayer2") << "data eg Et = " << dataIt->hwPt() << std::endl;
-          edm::LogInfo("L1TdeStage2CaloLayer2") << "emul eg Et = " << emulIt->hwPt() << std::endl;
+          edm::LogInfo("L1TdeStage2CaloLayer2") << "emul eg Et = " << matchedEmulIt->hwPt() << std::endl;
           edm::LogInfo("L1TdeStage2CaloLayer2") << "data eg phi = " << dataIt->hwPhi() << std::endl;
-          edm::LogInfo("L1TdeStage2CaloLayer2") << "emul eg phi = " << emulIt->hwPhi() << std::endl;
+          edm::LogInfo("L1TdeStage2CaloLayer2") << "emul eg phi = " << matchedEmulIt->hwPhi() << std::endl;
           edm::LogInfo("L1TdeStage2CaloLayer2") << "data eg eta = " << dataIt->hwEta() << std::endl;
-          edm::LogInfo("L1TdeStage2CaloLayer2") << "emul eg eta = " << emulIt->hwEta() << std::endl;
+          edm::LogInfo("L1TdeStage2CaloLayer2") << "emul eg eta = " << matchedEmulIt->hwEta() << std::endl;
           edm::LogInfo("L1TdeStage2CaloLayer2") << "data eg iso = " << dataIt->hwIso() << std::endl;
-          edm::LogInfo("L1TdeStage2CaloLayer2") << "emul eg iso = " << emulIt->hwIso() << std::endl;
+          edm::LogInfo("L1TdeStage2CaloLayer2") << "emul eg iso = " << matchedEmulIt->hwIso() << std::endl;
           edm::LogInfo("L1TdeStage2CaloLayer2") << "---" << std::endl;
         }
       }
@@ -720,6 +725,7 @@ bool L1TdeStage2CaloLayer2::compareTaus(const edm::Handle<l1t::TauBxCollection>&
 
   l1t::TauBxCollection::const_iterator dataIt = dataCol->begin(currBx);
   l1t::TauBxCollection::const_iterator emulIt = emulCol->begin(currBx);
+  l1t::TauBxCollection::const_iterator matchedEmulIt = emulCol->begin(currBx);
 
   // check length of collections
   if (dataCol->size(currBx) != emulCol->size(currBx)) {
@@ -790,6 +796,8 @@ bool L1TdeStage2CaloLayer2::compareTaus(const edm::Handle<l1t::TauBxCollection>&
   // processing continues only of length of data collections is the same
   if (dataIt != dataCol->end(currBx) || emulIt != emulCol->end(currBx)) {
     while (true) {
+      matchedEmulIt = emulIt;
+
       bool hwIso = dataIt->hwIso();
 
       // object pt mismatch
@@ -806,7 +814,7 @@ bool L1TdeStage2CaloLayer2::compareTaus(const edm::Handle<l1t::TauBxCollection>&
           if (dataIt->hwPt() == emulItCheckSort->hwPt() && dataIt->hwPhi() == emulItCheckSort->hwPhi() &&
               dataIt->hwEta() == emulItCheckSort->hwEta()) {
             posGood = true;
-            emulIt = emulItCheckSort;
+            matchedEmulIt = emulItCheckSort;
             isoGood = dataIt->hwIso() == emulItCheckSort->hwIso();
             break;
           }
@@ -831,11 +839,11 @@ bool L1TdeStage2CaloLayer2::compareTaus(const edm::Handle<l1t::TauBxCollection>&
           if (enable2DComp)
             isoTau2DEtaPhiData->Fill(dataIt->eta(), dataIt->phi());
 
-          isoTauEtEmul->Fill(emulIt->hwPt());
-          isoTauEtaEmul->Fill(emulIt->hwEta());
-          isoTauPhiEmul->Fill(emulIt->hwPhi());
+          isoTauEtEmul->Fill(matchedEmulIt->hwPt());
+          isoTauEtaEmul->Fill(matchedEmulIt->hwEta());
+          isoTauPhiEmul->Fill(matchedEmulIt->hwPhi());
           if (enable2DComp)
-            isoTau2DEtaPhiEmul->Fill(emulIt->eta(), emulIt->phi());
+            isoTau2DEtaPhiEmul->Fill(matchedEmulIt->eta(), matchedEmulIt->phi());
 
         } else {
           tauEtData->Fill(dataIt->hwPt());
@@ -844,25 +852,25 @@ bool L1TdeStage2CaloLayer2::compareTaus(const edm::Handle<l1t::TauBxCollection>&
           if (enable2DComp)
             tau2DEtaPhiData->Fill(dataIt->eta(), dataIt->phi());
 
-          tauEtEmul->Fill(emulIt->hwPt());
-          tauEtaEmul->Fill(emulIt->hwEta());
-          tauPhiEmul->Fill(emulIt->hwPhi());
+          tauEtEmul->Fill(matchedEmulIt->hwPt());
+          tauEtaEmul->Fill(matchedEmulIt->hwEta());
+          tauPhiEmul->Fill(matchedEmulIt->hwPhi());
           if (enable2DComp)
-            tau2DEtaPhiEmul->Fill(emulIt->eta(), emulIt->phi());
+            tau2DEtaPhiEmul->Fill(matchedEmulIt->eta(), matchedEmulIt->phi());
         }
         tauIsoData->Fill(dataIt->hwIso());
-        tauIsoEmul->Fill(emulIt->hwIso());
+        tauIsoEmul->Fill(matchedEmulIt->hwIso());
 
         if (verbose) {
           edm::LogInfo("L1TdeStage2CaloLayer2") << "--- tau ---" << std::endl;
           edm::LogInfo("L1TdeStage2CaloLayer2") << "data tau Et = " << dataIt->hwPt() << std::endl;
-          edm::LogInfo("L1TdeStage2CaloLayer2") << "emul tau Et = " << emulIt->hwPt() << std::endl;
+          edm::LogInfo("L1TdeStage2CaloLayer2") << "emul tau Et = " << matchedEmulIt->hwPt() << std::endl;
           edm::LogInfo("L1TdeStage2CaloLayer2") << "data tau phi = " << dataIt->hwPhi() << std::endl;
-          edm::LogInfo("L1TdeStage2CaloLayer2") << "emul tau phi = " << emulIt->hwPhi() << std::endl;
+          edm::LogInfo("L1TdeStage2CaloLayer2") << "emul tau phi = " << matchedEmulIt->hwPhi() << std::endl;
           edm::LogInfo("L1TdeStage2CaloLayer2") << "data tau eta = " << dataIt->hwEta() << std::endl;
-          edm::LogInfo("L1TdeStage2CaloLayer2") << "emul tau eta = " << emulIt->hwEta() << std::endl;
+          edm::LogInfo("L1TdeStage2CaloLayer2") << "emul tau eta = " << matchedEmulIt->hwEta() << std::endl;
           edm::LogInfo("L1TdeStage2CaloLayer2") << "data tau iso = " << dataIt->hwIso() << std::endl;
-          edm::LogInfo("L1TdeStage2CaloLayer2") << "emul tau iso = " << emulIt->hwIso() << std::endl;
+          edm::LogInfo("L1TdeStage2CaloLayer2") << "emul tau iso = " << matchedEmulIt->hwIso() << std::endl;
           edm::LogInfo("L1TdeStage2CaloLayer2") << "---" << std::endl;
         }
       }
