@@ -18,6 +18,11 @@
     <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test testingScripts/test_unitSplitV.sh"/>
     <use name="FWCore/Utilities"/>
   </bin>
+  <bin file="testAlignmentOfflineValidation.cpp" name="JetHTall">
+    <flags PRE_TEST="validateAlignments"/>
+    <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test testingScripts/test_unitJetHT.sh"/>
+    <use name="FWCore/Utilities"/>
+  </bin>
   <bin file="testAlignmentOfflineValidation.cpp" name="GCPall">
     <flags PRE_TEST="validateAlignments"/>
     <flags TEST_RUNNER_ARGS=" /bin/bash Alignment/OfflineValidation/test testingScripts/test_unitGCP.sh"/>

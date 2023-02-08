@@ -1,3 +1,6 @@
+// framework includes
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+
 // C++ includes
 #include <iostream>  // Input/output stream. Needed for cout.
 #include <vector>
@@ -46,7 +49,7 @@ void drawSingleHistogram(TH1D *histogram[kMaxFiles],
                          bool logScale,
                          int color[kMaxFiles]) {
   // Create and setup the histogram drawer
-  const auto &drawer = std::make_unique<JDrawer>();
+  JDrawer *drawer = new JDrawer();
   drawer->SetLogY(logScale);
   drawer->SetTopMargin(0.08);
 
@@ -256,7 +259,7 @@ std::tuple<std::vector<int>, std::vector<double>, std::vector<TString>, std::vec
   double thisLumi;
 
   // Load the iovList
-  std::ifstream iovList(inputFile);
+  std::ifstream iovList(edm::FileInPath(inputFile).fullPath().c_str());
 
   // Go through the file line by line. Each line has an IOV boundary and luminosity for this IOV.
   while (std::getline(iovList, lineInFile)) {
@@ -812,7 +815,7 @@ void jetHtPlotter(std::string configurationFileName) {
   //                  Draw the plots
   // ===============================================
 
-  const auto &drawer = std::make_unique<JDrawer>();
+  JDrawer *drawer = new JDrawer();
   TLegend *legend[nMaxLegendColumns];
   int columnOrder[nMaxLegendColumns];
   bool noIovFound = true;
