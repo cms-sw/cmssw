@@ -2,10 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 class ModuleTypeResolverAlpaka:
     def __init__(self, accelerators, backend):
-        # first element is used as the default is nothing is set
+        # first element is used as the default if nothing is set
         self._valid_backends = []
         if "gpu-nvidia" in accelerators:
             self._valid_backends.append("cuda_async")
+        if "gpu-amd" in accelerators:
+            self._valid_backends.append("rocm_async")
         if "cpu" in accelerators:
             self._valid_backends.append("serial_sync")
         if len(self._valid_backends) == 0:
@@ -60,11 +62,15 @@ class ProcessAcceleratorAlpaka(cms.ProcessAccelerator):
         if not hasattr(process, "AlpakaServiceCudaAsync"):
             from HeterogeneousCore.AlpakaServices.AlpakaServiceCudaAsync_cfi import AlpakaServiceCudaAsync
             process.add_(AlpakaServiceCudaAsync)
+        if not hasattr(process, "AlpakaServiceROCmAsync"):
+            from HeterogeneousCore.AlpakaServices.AlpakaServiceROCmAsync_cfi import AlpakaServiceROCmAsync
+            process.add_(AlpakaServiceROCmAsync)
 
         if not hasattr(process.MessageLogger, "AlpakaService"):
             process.MessageLogger.AlpakaService = cms.untracked.PSet()
 
         process.AlpakaServiceSerialSync.enabled = "cpu" in accelerators
         process.AlpakaServiceCudaAsync.enabled = "gpu-nvidia" in accelerators
+        process.AlpakaServiceROCmAsync.enabled = "gpu-amd" in accelerators
 
 cms.specialImportRegistry.registerSpecialImportForType(ProcessAcceleratorAlpaka, "from HeterogeneousCore.AlpakaCore.ProcessAcceleratorAlpaka import ProcessAcceleratorAlpaka")
