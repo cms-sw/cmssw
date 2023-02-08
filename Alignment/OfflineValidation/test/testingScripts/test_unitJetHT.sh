@@ -16,3 +16,7 @@ cd $CMSSW_BASE/src/Alignment/OfflineValidation/test/test_yaml/JetHT/merge/testJo
 echo "TESTING JetHT plotting"
 cd $CMSSW_BASE/src/Alignment/OfflineValidation/test/test_yaml/JetHT/plot/testJob/
 ./run.sh || die "Failure running JetHT plotting" $?
+
+echo "TESTING JetHT multi-IOV plotting"
+cd $CMSSW_BASE/src/Alignment/OfflineValidation/test/examples
+jetHtPlotter jetHt_multiYearTrendPlot.json || die "Failure running multi-IOV JetHT plotting" $?
