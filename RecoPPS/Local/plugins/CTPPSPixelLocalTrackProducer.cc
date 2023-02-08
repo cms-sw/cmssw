@@ -189,26 +189,26 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event &iEvent, const edm::EventS
       if (rocNum > 5 || detId.plane() > 5)
         throw cms::Exception("InvalidRocOrPlaneNumber") << "roc number from mask: " << rocNum;
 
-      if (detId.arm() == 0 && detId.rp() == 3) { 
-	if(detId.station() == 2){                        // pot 45-220-far
-	  if (det.second.maskedPixels.size() == rocSizeInPixels || det.second.fullMask == true) {  // roc fully masked
-	    maskV[0][detId.plane()][rocNum] = true;
-	  }
-	}else if(detId.station() == 0){        // pot 45-210-far
-	  if (det.second.maskedPixels.size() == rocSizeInPixels || det.second.fullMask == true) {  // roc fully masked
-	    maskV[1][detId.plane()][rocNum] = true;
-	  }
-	}
-      }else if(detId.arm() == 1 && detId.rp() == 3) { 
-	if(detId.station() == 0){                        // pot 56-210-far
-	  if (det.second.maskedPixels.size() == rocSizeInPixels || det.second.fullMask == true) {  // roc fully masked
-	    maskV[2][detId.plane()][rocNum] = true;
-	  }
-	}else if(detId.station() == 2){        // pot 56-220-far
-	  if (det.second.maskedPixels.size() == rocSizeInPixels || det.second.fullMask == true) {  // roc fully masked
-	    maskV[3][detId.plane()][rocNum] = true;
-	  }
-	}
+      if (detId.arm() == 0 && detId.rp() == 3) {
+        if (detId.station() == 2) {                                                                // pot 45-220-far
+          if (det.second.maskedPixels.size() == rocSizeInPixels || det.second.fullMask == true) {  // roc fully masked
+            maskV[0][detId.plane()][rocNum] = true;
+          }
+        } else if (detId.station() == 0) {                                                         // pot 45-210-far
+          if (det.second.maskedPixels.size() == rocSizeInPixels || det.second.fullMask == true) {  // roc fully masked
+            maskV[1][detId.plane()][rocNum] = true;
+          }
+        }
+      } else if (detId.arm() == 1 && detId.rp() == 3) {
+        if (detId.station() == 0) {                                                                // pot 56-210-far
+          if (det.second.maskedPixels.size() == rocSizeInPixels || det.second.fullMask == true) {  // roc fully masked
+            maskV[2][detId.plane()][rocNum] = true;
+          }
+        } else if (detId.station() == 2) {                                                         // pot 56-220-far
+          if (det.second.maskedPixels.size() == rocSizeInPixels || det.second.fullMask == true) {  // roc fully masked
+            maskV[3][detId.plane()][rocNum] = true;
+          }
+        }
       }
     }
     // search for specific pattern that requires special reconstruction (use of two plane tracks)
