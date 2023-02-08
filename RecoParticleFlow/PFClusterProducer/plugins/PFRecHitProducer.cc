@@ -22,8 +22,7 @@ public:
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const&, const edm::EventSetup&) override;
-  void endLuminosityBlock(edm::LuminosityBlock const&, const edm::EventSetup&) override;
+  void beginRun(edm::Run const&, const edm::EventSetup&) override;
   std::vector<std::unique_ptr<PFRecHitCreatorBase> > creators_;
   std::unique_ptr<PFRecHitNavigatorBase> navigator_;
   bool init_;
@@ -61,14 +60,12 @@ PFRecHitProducer::~PFRecHitProducer() = default;
 // member functions
 //
 
-void PFRecHitProducer::beginLuminosityBlock(edm::LuminosityBlock const& iLumi, const edm::EventSetup& iSetup) {
+void PFRecHitProducer::beginRun(edm::Run const& iRun, const edm::EventSetup& iSetup) {
   for (const auto& creator : creators_) {
     creator->init(iSetup);
   }
   navigator_->init(iSetup);
 }
-
-void PFRecHitProducer::endLuminosityBlock(edm::LuminosityBlock const& iLumi, const edm::EventSetup&) {}
 
 // ------------ method called to produce the data  ------------
 void PFRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
