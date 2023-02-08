@@ -25,7 +25,7 @@ public:
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
   void beginRun(edm::Run const&, const edm::EventSetup&) override;
-  std::vector<std::unique_ptr<PFRecHitCreatorBase>> creators_;
+  std::vector<std::unique_ptr<PFRecHitCreatorBase> > creators_;
   std::unique_ptr<PFRecHitNavigatorBase> navigator_;
   bool init_;
 };
