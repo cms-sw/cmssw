@@ -1538,10 +1538,10 @@ class Process(object):
                    resolved.update(acc)
             # Sanity check
             if len(invalid) != 0:
-                raise ValueError("Invalid pattern{} of {} in process.options.accelerators, valid values are {} or a pattern matching to some of them.".format(
+                raise ValueError("Invalid pattern{} of '{}' in process.options.accelerators, valid values are '{}' or a pattern matching some of them.".format(
                     "s" if len(invalid) > 2 else "",
-                    ",".join(invalid),
-                    ",".join(sorted(list(allAccelerators)))))
+                    "', '".join(invalid),
+                    "', '".join(sorted(list(allAccelerators)))))
             selectedAccelerators = sorted(list(resolved))
         parameterSet.addVString(False, "@selected_accelerators", selectedAccelerators)
 
