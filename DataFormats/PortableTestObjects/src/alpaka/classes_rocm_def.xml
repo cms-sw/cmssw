@@ -1,0 +1,5 @@
+<lcgdict>
+  <class name="alpaka_rocm_async::portabletest::TestDeviceCollection" persistent="false"/>
+  <class name="edm::DeviceProduct<alpaka_rocm_async::portabletest::TestDeviceCollection>" persistent="false"/>
+  <class name="edm::Wrapper<edm::DeviceProduct<alpaka_rocm_async::portabletest::TestDeviceCollection>>" persistent="false"/>
+</lcgdict>
