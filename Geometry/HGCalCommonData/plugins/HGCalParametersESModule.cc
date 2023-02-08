@@ -39,8 +39,8 @@ HGCalParametersESModule::HGCalParametersESModule(const edm::ParameterSet& iC) {
   namex_ = iC.getParameter<std::string>("nameX");
   fromDD4hep_ = iC.getParameter<bool>("fromDD4hep");
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalParametersESModule for " << name_ << ":" << namew_ << ":" << namec_ << ":"
-                                << namet_ << " and fromDD4hep flag " << fromDD4hep_;
+  edm::LogVerbatim("HGCalGeom") << "HGCalParametersESModule for " << name_ << ":" << name2_ << ":" << namew_ << ":"
+                                << namec_ << ":" << namet_ << ":" << namex_ << " and fromDD4hep flag " << fromDD4hep_;
 #endif
   auto cc = setWhatProduced(this, namex_);
   if (fromDD4hep_)
