@@ -264,7 +264,7 @@ if not (triggerFilter == "nothing" or triggerFilter == ""):
 ###################################################################
 # The analysis module
 ###################################################################
-from Alignment.OfflineValidation.jetHTAnalyzer_cfi.py import jetHTAnalyzer as _jetHTAnalyzer
+from Alignment.OfflineValidation.jetHTAnalyzer_cfi import jetHTAnalyzer as _jetHTAnalyzer
 process.jetHTAnalyzer = _jetHTAnalyzer.clone(
                                        vtxCollection       = "offlinePrimaryVerticesFromRefittedTrks",
                                        trackCollection	   = "TrackRefitter",
