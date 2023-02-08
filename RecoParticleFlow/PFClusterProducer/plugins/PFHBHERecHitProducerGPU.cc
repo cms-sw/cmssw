@@ -54,7 +54,7 @@ private:
   const bool produceSoA_;            // PFRecHits in SoA format
   const bool produceLegacy_;         // PFRecHits in legacy format
   const bool produceCleanedLegacy_;  // Cleaned PFRecHits in legacy format
-  const bool fullLegacy_ = false; // Store full information to legacy format data
+  const bool fullLegacy_ = false;    // Store full information to legacy format data
 
   //Output Product Type
   using PFRecHitSoAProductType = cms::cuda::Product<PFRecHit::HCAL::OutputPFRecHitDataGPU>;
@@ -96,25 +96,24 @@ private:
   uint32_t nDenseIdsInRange = 0;
   std::vector<unsigned>* vDenseIdHcal;
   std::unordered_map<unsigned, std::shared_ptr<const CaloCellGeometry>>
-  detIdToCell;  // Mapping of detId to cell geometry.
+      detIdToCell;  // Mapping of detId to cell geometry.
 
   std::array<float, 5> GPU_timers;
 
-  bool debug=false;
-
+  bool debug = false;
 };
 
 PFHBHERecHitProducerGPU::PFHBHERecHitProducerGPU(edm::ParameterSet const& ps)
     : produceSoA_{ps.getParameter<bool>("produceSoA")},
       produceLegacy_{ps.getParameter<bool>("produceLegacy")},
       produceCleanedLegacy_{ps.getParameter<bool>("produceCleanedLegacy")},
-      InputRecHitSoA_Token_{consumes<IProductType>(
-          ps.getParameterSetVector("producers")[0].getParameter<edm::InputTag>("src"))},
+      InputRecHitSoA_Token_{
+          consumes<IProductType>(ps.getParameterSetVector("producers")[0].getParameter<edm::InputTag>("src"))},
       OutputPFRecHitSoA_Token_{produces<OProductType>(ps.getParameter<std::string>("PFRecHitsGPUOut"))},
       hcalToken_(esConsumes<edm::Transition::BeginRun>()),
       geomToken_(esConsumes<edm::Transition::BeginRun>()),
       recoParamsToken_{esConsumes()},
-      topologyToken_{esConsumes()}{
+      topologyToken_{esConsumes()} {
   edm::ConsumesCollector cc = consumesCollector();
 
   produces<reco::PFRecHitCollection>();
@@ -126,9 +125,7 @@ PFHBHERecHitProducerGPU::PFHBHERecHitProducerGPU(edm::ParameterSet const& ps)
   navigator_ = PFRecHitNavigationFactory::get()->create(navSet.getParameter<std::string>("name"), navSet, cc);
 }
 
-PFHBHERecHitProducerGPU::~PFHBHERecHitProducerGPU() {
-  topology_.release();
-}
+PFHBHERecHitProducerGPU::~PFHBHERecHitProducerGPU() { topology_.release(); }
 
 void PFHBHERecHitProducerGPU::fillDescriptions(edm::ConfigurationDescriptions& cdesc) {
   edm::ParameterSetDescription desc;
@@ -177,28 +174,26 @@ void PFHBHERecHitProducerGPU::beginRun(edm::Run const& r, edm::EventSetup const&
 
     std::shared_ptr<const CaloCellGeometry> thisCell = nullptr;
     switch (hid_c.subdet()) {
-    case HcalBarrel:
-      thisCell = hcalBarrelGeo->getGeometry(hid_c);
-      break;
+      case HcalBarrel:
+        thisCell = hcalBarrelGeo->getGeometry(hid_c);
+        break;
 
-    case HcalEndcap:
-      thisCell = hcalEndcapGeo->getGeometry(hid_c);
-      break;
-    default:
-      break;
+      case HcalEndcap:
+        thisCell = hcalEndcapGeo->getGeometry(hid_c);
+        break;
+      default:
+        break;
     }
 
     detIdToCell[hid_c.rawId()] = thisCell;
-
   }
-
 }
 
 void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
                                       edm::EventSetup const& setup,
                                       edm::WaitingTaskWithArenaHolder holder) {
-
-  if (debug) std::cout << "PFHBHERecHitProducerGPU::acquire" << std::endl;
+  if (debug)
+    std::cout << "PFHBHERecHitProducerGPU::acquire" << std::endl;
 
   auto const& HBHERecHitSoAProduct = event.get(InputRecHitSoA_Token_);
   cms::cuda::ScopedContextAcquire ctx{HBHERecHitSoAProduct, std::move(holder), cudaState_};
@@ -216,72 +211,68 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
   auto const& topoDataProduct = topoData.getProduct(ctx.stream());
 
   if (debug) {
-  std::cout << (topoData.getValuesDetId()).size() << std::endl;
+    std::cout << (topoData.getValuesDetId()).size() << std::endl;
 
-  std::cout << (recHitParametersHandle_->getValuesDepthHB())[0] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesDepthHB())[1] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesDepthHB())[2] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesDepthHB())[3] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesDepthHB()).size() << std::endl;
+    std::cout << (recHitParametersHandle_->getValuesDepthHB())[0] << std::endl;
+    std::cout << (recHitParametersHandle_->getValuesDepthHB())[1] << std::endl;
+    std::cout << (recHitParametersHandle_->getValuesDepthHB())[2] << std::endl;
+    std::cout << (recHitParametersHandle_->getValuesDepthHB())[3] << std::endl;
+    std::cout << (recHitParametersHandle_->getValuesDepthHB()).size() << std::endl;
 
-  std::cout << (recHitParams.getValuesDepthHB()).size() << std::endl;
+    std::cout << (recHitParams.getValuesDepthHB()).size() << std::endl;
 
-  std::cout << (recHitParametersHandle_->getValuesDepthHE())[0] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesDepthHE())[1] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesDepthHE())[2] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesDepthHE())[3] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesDepthHE())[4] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesDepthHE())[5] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesDepthHE())[6] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesDepthHE()).size() << std::endl;
+    std::cout << (recHitParametersHandle_->getValuesDepthHE())[0] << std::endl;
+    std::cout << (recHitParametersHandle_->getValuesDepthHE())[1] << std::endl;
+    std::cout << (recHitParametersHandle_->getValuesDepthHE())[2] << std::endl;
+    std::cout << (recHitParametersHandle_->getValuesDepthHE())[3] << std::endl;
+    std::cout << (recHitParametersHandle_->getValuesDepthHE())[4] << std::endl;
+    std::cout << (recHitParametersHandle_->getValuesDepthHE())[5] << std::endl;
+    std::cout << (recHitParametersHandle_->getValuesDepthHE())[6] << std::endl;
+    std::cout << (recHitParametersHandle_->getValuesDepthHE()).size() << std::endl;
 
-  std::cout << (recHitParametersHandle_->getValuesThresholdE_HB())[0] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesThresholdE_HB())[1] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesThresholdE_HB())[2] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesThresholdE_HB())[3] << std::endl;
+    std::cout << (recHitParametersHandle_->getValuesThresholdE_HB())[0] << std::endl;
+    std::cout << (recHitParametersHandle_->getValuesThresholdE_HB())[1] << std::endl;
+    std::cout << (recHitParametersHandle_->getValuesThresholdE_HB())[2] << std::endl;
+    std::cout << (recHitParametersHandle_->getValuesThresholdE_HB())[3] << std::endl;
 
-  std::cout << (recHitParametersHandle_->getValuesThresholdE_HE())[0] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesThresholdE_HE())[1] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesThresholdE_HE())[2] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesThresholdE_HE())[3] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesThresholdE_HE())[4] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesThresholdE_HE())[5] << std::endl;
-  std::cout << (recHitParametersHandle_->getValuesThresholdE_HE())[6] << std::endl;
-
+    std::cout << (recHitParametersHandle_->getValuesThresholdE_HE())[0] << std::endl;
+    std::cout << (recHitParametersHandle_->getValuesThresholdE_HE())[1] << std::endl;
+    std::cout << (recHitParametersHandle_->getValuesThresholdE_HE())[2] << std::endl;
+    std::cout << (recHitParametersHandle_->getValuesThresholdE_HE())[3] << std::endl;
+    std::cout << (recHitParametersHandle_->getValuesThresholdE_HE())[4] << std::endl;
+    std::cout << (recHitParametersHandle_->getValuesThresholdE_HE())[5] << std::endl;
+    std::cout << (recHitParametersHandle_->getValuesThresholdE_HE())[6] << std::endl;
   }
 
-  scratchDataGPU.allocate(topoData.getValuesDetId().size(), ctx.stream()); //Initialize scratchData array
+  scratchDataGPU.allocate(topoData.getValuesDetId().size(), ctx.stream());  //Initialize scratchData array
 
-  if (num_rechits == 0) return; // if no rechit, there is nothing to do.
-                                // KH: should ensure that the code doesn't crash when num_rechits=0
+  if (num_rechits == 0)
+    return;  // if no rechit, there is nothing to do.
+             // KH: should ensure that the code doesn't crash when num_rechits=0
 
   outputGPU.allocate(num_rechits, ctx.stream());
 
   // bundle up constants
-  PFRecHit::HCAL::ConstantProducts constantProducts{
-        recHitParamsProduct,
-	recHitParams.getValuesDepthHB(),
-	recHitParams.getValuesDepthHE(),
-	recHitParams.getValuesThresholdE_HB(),
-	recHitParams.getValuesThresholdE_HE(),
-	topoDataProduct,
-	topoData.getValuesDenseId(),
-	topoData.getValuesDetId(),
-	topoData.getValuesPosition(),
-	topoData.getValuesNeighbours()
-  };
+  PFRecHit::HCAL::ConstantProducts constantProducts{recHitParamsProduct,
+                                                    recHitParams.getValuesDepthHB(),
+                                                    recHitParams.getValuesDepthHE(),
+                                                    recHitParams.getValuesThresholdE_HB(),
+                                                    recHitParams.getValuesThresholdE_HE(),
+                                                    topoDataProduct,
+                                                    topoData.getValuesDenseId(),
+                                                    topoData.getValuesDetId(),
+                                                    topoData.getValuesPosition(),
+                                                    topoData.getValuesNeighbours()};
 
   // Entry point for GPU calls
   GPU_timers.fill(0.0);
-  PFRecHit::HCAL::entryPoint(HBHERecHitSoA,
-			    constantProducts,
-			    outputGPU,
-                            scratchDataGPU, ctx.stream(), GPU_timers);
+  PFRecHit::HCAL::entryPoint(HBHERecHitSoA, constantProducts, outputGPU, scratchDataGPU, ctx.stream(), GPU_timers);
 
   // if (cudaStreamQuery(ctx.stream()) != cudaSuccess)
   //   cudaCheck(cudaStreamSynchronize(ctx.stream()));
 
-  if (!produceLegacy_ && !produceCleanedLegacy_) return; // do device->host transfer only when we are producing Legacy data
+  if (!produceLegacy_ && !produceCleanedLegacy_)
+    return;  // do device->host transfer only when we are producing Legacy data
 
   // Copy back PFRecHit SoA data to CPU
   auto lambdaToTransferSize = [&ctx](auto& dest, auto* src, auto size) {
@@ -292,7 +283,7 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
     cudaCheck(cudaMemcpyAsync(dest.data(), src, size * sizeof(type), cudaMemcpyDeviceToHost, ctx.stream()));
   };
 
-  num_rechits = outputGPU.PFRecHits.size + outputGPU.PFRecHits.sizeCleaned; // transfer only what become PFRecHits
+  num_rechits = outputGPU.PFRecHits.size + outputGPU.PFRecHits.sizeCleaned;  // transfer only what become PFRecHits
   tmpPFRecHits.resize(num_rechits);
   lambdaToTransferSize(tmpPFRecHits.pfrh_detId, outputGPU.PFRecHits.pfrh_detId.get(), num_rechits);
   if (fullLegacy_)
@@ -301,17 +292,14 @@ void PFHBHERecHitProducerGPU::acquire(edm::Event const& event,
   lambdaToTransferSize(tmpPFRecHits.pfrh_energy, outputGPU.PFRecHits.pfrh_energy.get(), num_rechits);
   // if (cudaStreamQuery(ctx.stream()) != cudaSuccess)
   //   cudaCheck(cudaStreamSynchronize(ctx.stream()));
-
 }
 
 void PFHBHERecHitProducerGPU::produce(edm::Event& event, edm::EventSetup const& setup) {
-
   cms::cuda::ScopedContextProduce ctx{cudaState_};
   if (produceSoA_)
     ctx.emplace(event, OutputPFRecHitSoA_Token_, std::move(outputGPU.PFRecHits));
 
-  if (produceLegacy_ || produceCleanedLegacy_){
-
+  if (produceLegacy_ || produceCleanedLegacy_) {
     auto pfrhLegacy = std::make_unique<reco::PFRecHitCollection>();
     auto pfrhLegacyCleaned = std::make_unique<reco::PFRecHitCollection>();
 
@@ -329,16 +317,16 @@ void PFHBHERecHitProducerGPU::produce(edm::Event& event, edm::EventSetup const& 
       PFLayer::Layer layer = PFLayer::HCAL_BARREL1;
       switch (hid.subdet()) {
         case HcalBarrel:
-	   //thisCell = hcalBarrelGeo->getGeometry(hid);
-	  layer = PFLayer::HCAL_BARREL1;
-	  break;
+          //thisCell = hcalBarrelGeo->getGeometry(hid);
+          layer = PFLayer::HCAL_BARREL1;
+          break;
 
         case HcalEndcap:
-	  layer = PFLayer::HCAL_ENDCAP;
-	  //thisCell = hcalEndcapGeo->getGeometry(hid);
-	  break;
+          layer = PFLayer::HCAL_ENDCAP;
+          //thisCell = hcalEndcapGeo->getGeometry(hid);
+          break;
         default:
-	  break;
+          break;
       }
 
       reco::PFRecHit pfrh(detIdToCell.find(hid.rawId())->second, hid.rawId(), layer, tmpPFRecHits.pfrh_energy[i]);
@@ -347,29 +335,30 @@ void PFHBHERecHitProducerGPU::produce(edm::Event& event, edm::EventSetup const& 
 
       // store full PF rechits including neighbor info (neighbor info is not necessary in legacy format when PFCluster is produced on GPU)
       if (fullLegacy_) {
-      std::vector<int> etas = {0, 1, 0, -1, 1, 1, -1, -1};
-      std::vector<int> phis = {1, 1, -1, -1, 0, -1, 0, 1};
-      std::vector<int> gpuOrder = {0, 4, 1, 5, 2, 6, 3, 7};
-      for (int n = 0; n < 8; n++) {
-	int neighId = tmpPFRecHits.pfrh_neighbours[i * 8 + gpuOrder[n]];
-	if (i < tmpPFRecHits.size && neighId > -1 && neighId < (int)tmpPFRecHits.size)
-	  pfrh.addNeighbour(etas[n], phis[n], 0, neighId);
-      }
-      } // fullLegacy
+        std::vector<int> etas = {0, 1, 0, -1, 1, 1, -1, -1};
+        std::vector<int> phis = {1, 1, -1, -1, 0, -1, 0, 1};
+        std::vector<int> gpuOrder = {0, 4, 1, 5, 2, 6, 3, 7};
+        for (int n = 0; n < 8; n++) {
+          int neighId = tmpPFRecHits.pfrh_neighbours[i * 8 + gpuOrder[n]];
+          if (i < tmpPFRecHits.size && neighId > -1 && neighId < (int)tmpPFRecHits.size)
+            pfrh.addNeighbour(etas[n], phis[n], 0, neighId);
+        }
+      }  // fullLegacy
 
       if (i < tmpPFRecHits.size)
-	pfrhLegacy->push_back(pfrh);
-      else
-	if (produceCleanedLegacy_)
-	  pfrhLegacyCleaned->push_back(pfrh);
+        pfrhLegacy->push_back(pfrh);
+      else if (produceCleanedLegacy_)
+        pfrhLegacyCleaned->push_back(pfrh);
     }
 
-    if (produceLegacy_) event.put(std::move(pfrhLegacy), "");
-    if (produceCleanedLegacy_) event.put(std::move(pfrhLegacyCleaned), "Cleaned");
+    if (produceLegacy_)
+      event.put(std::move(pfrhLegacy), "");
+    if (produceCleanedLegacy_)
+      event.put(std::move(pfrhLegacyCleaned), "Cleaned");
 
     //tmpPFRecHits.resize(0); // clear the temporary collection for the next event
     //KenH: comment out for now
-  } // if (produceLegacy_ || produceCleanedLegacy_)
+  }  // if (produceLegacy_ || produceCleanedLegacy_)
 }
 
 DEFINE_FWK_MODULE(PFHBHERecHitProducerGPU);

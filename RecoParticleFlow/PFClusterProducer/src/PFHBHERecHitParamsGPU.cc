@@ -30,12 +30,12 @@ PFHBHERecHitParamsGPU::Product::~Product() {
 PFHBHERecHitParamsGPU::Product const& PFHBHERecHitParamsGPU::getProduct(cudaStream_t cudaStream) const {
   auto const& product = product_.dataForCurrentDeviceAsync(
       cudaStream, [this](PFHBHERecHitParamsGPU::Product& product, cudaStream_t cudaStream) {
-	//
-	product.depthHB = cms::cuda::make_device_unique<int[]>(depthHB_.size(), cudaStream);
-	product.depthHE = cms::cuda::make_device_unique<int[]>(depthHE_.size(), cudaStream);
-	product.thresholdE_HB = cms::cuda::make_device_unique<float[]>(thresholdE_HB_.size(), cudaStream);
-	product.thresholdE_HE = cms::cuda::make_device_unique<float[]>(thresholdE_HE_.size(), cudaStream);
-	//
+        //
+        product.depthHB = cms::cuda::make_device_unique<int[]>(depthHB_.size(), cudaStream);
+        product.depthHE = cms::cuda::make_device_unique<int[]>(depthHE_.size(), cudaStream);
+        product.thresholdE_HB = cms::cuda::make_device_unique<float[]>(thresholdE_HB_.size(), cudaStream);
+        product.thresholdE_HE = cms::cuda::make_device_unique<float[]>(thresholdE_HE_.size(), cudaStream);
+        //
         // malloc
         //cudaCheck(cudaMalloc((void**)&product.valuesdepthHB, this->valuesdepthHB_.size() * sizeof(int)));
         //cudaCheck(cudaMalloc((void**)&product.depthHE, this->depthHE_.size() * sizeof(int)));
@@ -43,12 +43,12 @@ PFHBHERecHitParamsGPU::Product const& PFHBHERecHitParamsGPU::getProduct(cudaStre
         //cudaCheck(cudaMalloc((void**)&product.thresholdE_HE, this->thresholdE_HE_.size() * sizeof(float)));
 
         // transfer
-	cms::cuda::copyAsync(product.depthHB, depthHB_, cudaStream);
-	cms::cuda::copyAsync(product.depthHE, depthHE_, cudaStream);
-	cms::cuda::copyAsync(product.thresholdE_HB, thresholdE_HB_, cudaStream);
-	cms::cuda::copyAsync(product.thresholdE_HE, thresholdE_HE_, cudaStream);
-	//
-	/*
+        cms::cuda::copyAsync(product.depthHB, depthHB_, cudaStream);
+        cms::cuda::copyAsync(product.depthHE, depthHE_, cudaStream);
+        cms::cuda::copyAsync(product.thresholdE_HB, thresholdE_HB_, cudaStream);
+        cms::cuda::copyAsync(product.thresholdE_HE, thresholdE_HE_, cudaStream);
+        //
+        /*
         cudaCheck(cudaMemcpyAsync(product.valuesdepthHB,
                                   this->valuesdepthHB_.data(),
                                   this->valuesdepthHB_.size() * sizeof(int),

@@ -1,4 +1,4 @@
-// RecoParticleFlow/PFClusterProducer/interface/HBHETopologyGPURcd.h 
+// RecoParticleFlow/PFClusterProducer/interface/HBHETopologyGPURcd.h
 #ifndef RecoParticleFlow_PFClusterProducer_PFHBHETopologyGPURcd_h
 #define RecoParticleFlow_PFClusterProducer_PFHBHETopologyGPURcd_h
 
@@ -10,8 +10,9 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 class PFHBHETopologyGPURcd
-//: public edm::eventsetup::EventSetupRecordImplementation<HBHETopologyGPURcd> {};
-: public edm::eventsetup::DependentRecordImplementation<PFHBHETopologyGPURcd,
-edm::mpl::Vector<HcalRecNumberingRecord, CaloGeometryRecord>> {};
+    //: public edm::eventsetup::EventSetupRecordImplementation<HBHETopologyGPURcd> {};
+    : public edm::eventsetup::DependentRecordImplementation<
+          PFHBHETopologyGPURcd,
+          edm::mpl::Vector<HcalRecNumberingRecord, CaloGeometryRecord>> {};
 
 #endif  // RecoParticleFlow_PFClusterProducer_PFHBHETopologyGPURcd_h

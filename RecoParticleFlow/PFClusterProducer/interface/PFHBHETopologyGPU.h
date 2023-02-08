@@ -24,12 +24,12 @@ public:
     uint32_t* denseId;
     uint32_t* detId;
     float3* position;
-    int* neighbours; // size of array is x8
+    int* neighbours;  // size of array is x8
   };
 
 #ifndef __CUDACC__
   // rearrange reco params
-  PFHBHETopologyGPU(edm::ParameterSet const&, const CaloGeometry &geom, const HcalTopology &topo);
+  PFHBHETopologyGPU(edm::ParameterSet const&, const CaloGeometry& geom, const HcalTopology& topo);
 
   // will trigger deallocation of Product thru ~Product
   ~PFHBHETopologyGPU() = default;

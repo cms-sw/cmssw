@@ -46,7 +46,6 @@ public:
   std::vector<float, cms::cuda::HostAllocator<float>> const& getValuesThresholdE_HE() const { return thresholdE_HE_; }
 
 private:
-
   std::vector<int, cms::cuda::HostAllocator<int>> depthHB_;
   std::vector<int, cms::cuda::HostAllocator<int>> depthHE_;
   std::vector<float, cms::cuda::HostAllocator<float>> thresholdE_HB_;

@@ -20,15 +20,11 @@
 #include <unordered_set>
 
 //----------
-class PFHCALDenseIdNavigatorCore{
+class PFHCALDenseIdNavigatorCore {
 public:
-  ~PFHCALDenseIdNavigatorCore() {
-  }
+  ~PFHCALDenseIdNavigatorCore() {}
 
-  PFHCALDenseIdNavigatorCore(const std::vector<int>& vhcalEnum,
-			  const CaloGeometry& geom,
-			  const HcalTopology& topo){
-
+  PFHCALDenseIdNavigatorCore(const std::vector<int>& vhcalEnum, const CaloGeometry& geom, const HcalTopology& topo) {
     //
     // Fill a vector of DetId of interest
     std::vector<DetId> vecHcal;
@@ -40,7 +36,7 @@ public:
 
     //
     // Filling HCAL DenseID vectors
-    denseId_.clear(); // vector of DenseIds
+    denseId_.clear();  // vector of DenseIds
     denseId_.reserve(vecHcal.size());
     for (auto hDetId : vecHcal) {
       denseId_.push_back(topo.detId2denseId(hDetId));
@@ -55,7 +51,7 @@ public:
 
     //
     // Filling a vector of cell neighbours
-    neighbours_.clear(); // vector of neighbors
+    neighbours_.clear();  // vector of neighbors
     neighbours_.resize(detIdArraySize);
 
     for (auto denseid : denseId_) {
@@ -81,78 +77,77 @@ public:
       neighbours.at(NONE) = detid_c;
 
       navigator.home();
-      E = navigator.east(); // smaller ieta values
+      E = navigator.east();  // smaller ieta values
       neighbours.at(EAST) = E;
 
       navigator.home();
-      W = navigator.west(); // larger ieta values
+      W = navigator.west();  // larger ieta values
       neighbours.at(WEST) = W;
 
       navigator.home();
-      N = navigator.north(); // larger iphi values (except phi boundary)
+      N = navigator.north();  // larger iphi values (except phi boundary)
       neighbours.at(NORTH) = N;
 
       navigator.home();
-      S = navigator.south(); // smaller iphi values (except phi boundary)
+      S = navigator.south();  // smaller iphi values (except phi boundary)
       neighbours.at(SOUTH) = S;
 
       // Corners
       navigator.home();
       navigator.east();
       if (hid_c.ieta() > 0.) {  // positive eta: east -> move to smaller |ieta| (finner phi granularity) first
-	if (E != DetId(0)) {
-	  // SE
-	  SE = navigator.south();
-	  neighbours.at(SOUTHEAST) = SE;
-	  // NE
-	  navigator.home();
-	  navigator.east();
-	  NE = navigator.north();
-	  neighbours.at(NORTHEAST) = NE;
-	}
+        if (E != DetId(0)) {
+          // SE
+          SE = navigator.south();
+          neighbours.at(SOUTHEAST) = SE;
+          // NE
+          navigator.home();
+          navigator.east();
+          NE = navigator.north();
+          neighbours.at(NORTHEAST) = NE;
+        }
       }  // ieta<0 is handled later.
 
       navigator.home();
       navigator.west();
       if (hid_c.ieta() < 0.) {  // negative eta: west -> move to smaller |ieta| (finner phi granularity) first
-	if (W != DetId(0)) {
-	  NW = navigator.north();
-	  neighbours.at(NORTHWEST) = NW;
-	  //
-	  navigator.home();
-	  navigator.west();
-	  SW = navigator.south();
-	  neighbours.at(SOUTHWEST) = SW;
-	}
+        if (W != DetId(0)) {
+          NW = navigator.north();
+          neighbours.at(NORTHWEST) = NW;
+          //
+          navigator.home();
+          navigator.west();
+          SW = navigator.south();
+          neighbours.at(SOUTHWEST) = SW;
+        }
       }  // ieta>0 is handled later.
 
       navigator.home();
       navigator.north();
       if (N != DetId(0)) {
-	if (hid_c.ieta() < 0.) {  // negative eta: move in phi first then move to east (coarser phi granularity)
-	  NE = navigator.east();
-	  neighbours.at(NORTHEAST) = NE;
-	} else {  // positive eta: move in phi first then move to west (coarser phi granularity)
-	  NW = navigator.west();
-	  neighbours.at(NORTHWEST) = NW;
-	}
+        if (hid_c.ieta() < 0.) {  // negative eta: move in phi first then move to east (coarser phi granularity)
+          NE = navigator.east();
+          neighbours.at(NORTHEAST) = NE;
+        } else {  // positive eta: move in phi first then move to west (coarser phi granularity)
+          NW = navigator.west();
+          neighbours.at(NORTHWEST) = NW;
+        }
       }
 
       navigator.home();
       navigator.south();
       if (S != DetId(0)) {
-	if (hid_c.ieta() > 0.) {  // positive eta: move in phi first then move to west (coarser phi granularity)
-	  SW = navigator.west();
-	  neighbours.at(SOUTHWEST) = SW;
-	} else {  // negative eta: move in phi first then move to east (coarser phi granularity)
-	  SE = navigator.east();
-	  neighbours.at(SOUTHEAST) = SE;
-	}
+        if (hid_c.ieta() > 0.) {  // positive eta: move in phi first then move to west (coarser phi granularity)
+          SW = navigator.west();
+          neighbours.at(SOUTHWEST) = SW;
+        } else {  // negative eta: move in phi first then move to east (coarser phi granularity)
+          SE = navigator.east();
+          neighbours.at(SOUTHEAST) = SE;
+        }
       }
 
       unsigned index = getIdx(denseid_c);
       neighbours_[index] = neighbours;
-
     }
 
     //
@@ -162,18 +157,18 @@ public:
       DetId detid = topo.denseId2detId(denseid);
       HcalDetId hid = HcalDetId(detid);
       if (detid == DetId(0)) {
-	std::cout << "WARNING SHOULD NOT HAPPEN1" << std::endl;
-	continue;
+        std::cout << "WARNING SHOULD NOT HAPPEN1" << std::endl;
+        continue;
       }
-      if (!validNeighbours(denseid)){
-	std::cout << "WARNING SHOULD NOT HAPPEN2" << std::endl;
-	continue;
+      if (!validNeighbours(denseid)) {
+        std::cout << "WARNING SHOULD NOT HAPPEN2" << std::endl;
+        continue;
       }
       std::vector<DetId> neighbours(9, DetId(0));
       unsigned index = getIdx(denseid);
-      if (index >= neighbours_.size()){
-	std::cout << "WARNING SHOULD NOT HAPPEN3" << std::endl;
-	continue;  // Skip if not found
+      if (index >= neighbours_.size()) {
+        std::cout << "WARNING SHOULD NOT HAPPEN3" << std::endl;
+        continue;  // Skip if not found
       }
       neighbours = neighbours_.at(index);
 
@@ -181,43 +176,42 @@ public:
       // Loop over neighbours
       int ineighbour = -1;
       for (auto neighbour : neighbours) {
-	ineighbour++;
-	if (neighbour == DetId(0))
-	  continue;
-	std::vector<DetId> neighboursOfNeighbour(9, DetId(0));
-	std::unordered_set<unsigned int> listOfNeighboursOfNeighbour;  // list of neighbours of neighbour
-	unsigned denseidNeighbour = topo.detId2denseId(neighbour);
-	if (!validNeighbours(denseidNeighbour))
-	  continue;
-	if (getIdx(denseidNeighbour) >= neighbours_.size())
-	  continue;
-	neighboursOfNeighbour = neighbours_.at(getIdx(denseidNeighbour));
+        ineighbour++;
+        if (neighbour == DetId(0))
+          continue;
+        std::vector<DetId> neighboursOfNeighbour(9, DetId(0));
+        std::unordered_set<unsigned int> listOfNeighboursOfNeighbour;  // list of neighbours of neighbour
+        unsigned denseidNeighbour = topo.detId2denseId(neighbour);
+        if (!validNeighbours(denseidNeighbour))
+          continue;
+        if (getIdx(denseidNeighbour) >= neighbours_.size())
+          continue;
+        neighboursOfNeighbour = neighbours_.at(getIdx(denseidNeighbour));
 
-	//
-	// Loop over neighbours of neighbours
-	for (auto neighbourOfNeighbour : neighboursOfNeighbour) {
-	  if (neighbourOfNeighbour == DetId(0))
-	    continue;
-	  unsigned denseidNeighbourOfNeighbour = (&topo)->detId2denseId(neighbourOfNeighbour);
-	  if (!validNeighbours(denseidNeighbourOfNeighbour))
-	    continue;
-	  listOfNeighboursOfNeighbour.insert(denseidNeighbourOfNeighbour);
-	}
+        //
+        // Loop over neighbours of neighbours
+        for (auto neighbourOfNeighbour : neighboursOfNeighbour) {
+          if (neighbourOfNeighbour == DetId(0))
+            continue;
+          unsigned denseidNeighbourOfNeighbour = (&topo)->detId2denseId(neighbourOfNeighbour);
+          if (!validNeighbours(denseidNeighbourOfNeighbour))
+            continue;
+          listOfNeighboursOfNeighbour.insert(denseidNeighbourOfNeighbour);
+        }
 
-	//
-	if (listOfNeighboursOfNeighbour.find(denseid) == listOfNeighboursOfNeighbour.end()) {
-	  // this neighbour is not backward compatible. ignore in the canse of HE phi segmentation change boundary
-	  if (hid.subdet() == HcalBarrel || hid.subdet() == HcalEndcap) {
-	    //         std::cout << "This neighbor does not have the original channel as its neighbor. Ignore: "
-	    //                << detid.det() << " " << hid.ieta() << " " << hid.iphi() << " " << hid.depth() << " "
-	    //                << neighbour.det() << " " << hidn.ieta() << " " << hidn.iphi() << " " << hidn.depth()
-	    //                << std::endl;
-	    neighbours_[index][ineighbour] = DetId(0);
-	  }
-	}
+        //
+        if (listOfNeighboursOfNeighbour.find(denseid) == listOfNeighboursOfNeighbour.end()) {
+          // this neighbour is not backward compatible. ignore in the canse of HE phi segmentation change boundary
+          if (hid.subdet() == HcalBarrel || hid.subdet() == HcalEndcap) {
+            //         std::cout << "This neighbor does not have the original channel as its neighbor. Ignore: "
+            //                << detid.det() << " " << hid.ieta() << " " << hid.iphi() << " " << hid.depth() << " "
+            //                << neighbour.det() << " " << hidn.ieta() << " " << hidn.iphi() << " " << hidn.depth()
+            //                << std::endl;
+            neighbours_[index][ineighbour] = DetId(0);
+          }
+        }
       }  // loop over neighbours
     }    // loop over denseId_
-
   }
 
   bool validNeighbours(const unsigned int denseid) const {
@@ -234,8 +228,9 @@ public:
   }
 
   std::vector<DetId> getNeighbours(const unsigned int denseid) {
-    if ( !std::binary_search(denseId_.begin(), denseId_.end(), denseid) )
-      std::cout << "PFHCALDenseIdNavigatorCore: Cannot find neighbour information of this denseId channel. denseId= " << denseid << std::endl;
+    if (!std::binary_search(denseId_.begin(), denseId_.end(), denseid))
+      std::cout << "PFHCALDenseIdNavigatorCore: Cannot find neighbour information of this denseId channel. denseId= "
+                << denseid << std::endl;
     return neighbours_[getIdx(denseid)];
   }
   std::vector<std::vector<DetId>> getNeighboursList() { return neighbours_; }
@@ -244,7 +239,7 @@ public:
 protected:
   std::vector<int> vhcalEnum_;
   std::vector<unsigned int> denseId_;
-  std::vector<std::vector<DetId>> neighbours_; // indexed based on denseId
+  std::vector<std::vector<DetId>> neighbours_;  // indexed based on denseId
   unsigned int denseIdMax_;
   unsigned int denseIdMin_;
 

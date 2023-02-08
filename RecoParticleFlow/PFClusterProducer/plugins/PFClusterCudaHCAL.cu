@@ -72,7 +72,8 @@ namespace PFClusterCudaHCAL {
 
   void initializeCudaConstants(const PFClustering::common::CudaHCALConstants& cudaConstants,
                                const cudaStream_t cudaStream) {
-    cudaCheck(cudaMemcpyToSymbolAsync(constantsHCAL_d, &cudaConstants, sizeof(cudaConstants), 0, cudaMemcpyHostToDevice, cudaStream));
+    cudaCheck(cudaMemcpyToSymbolAsync(
+        constantsHCAL_d, &cudaConstants, sizeof(cudaConstants), 0, cudaMemcpyHostToDevice, cudaStream));
   }
 
   __device__ __forceinline__ float timeResolution2Endcap(const float energy) {
@@ -82,7 +83,8 @@ namespace PFClusterCudaHCAL {
       return res2;
     else if (energy < constantsHCAL_d.endcapTimeResConsts.threshLowE) {
       if (constantsHCAL_d.endcapTimeResConsts.corrTermLowE > 0.) {  // different parametrisation
-        const float res = constantsHCAL_d.endcapTimeResConsts.noiseTermLowE / energy + constantsHCAL_d.endcapTimeResConsts.corrTermLowE / (energy * energy);
+        const float res = constantsHCAL_d.endcapTimeResConsts.noiseTermLowE / energy +
+                          constantsHCAL_d.endcapTimeResConsts.corrTermLowE / (energy * energy);
         res2 = res * res;
       } else {
         const float noiseDivE = constantsHCAL_d.endcapTimeResConsts.noiseTermLowE / energy;
@@ -106,7 +108,8 @@ namespace PFClusterCudaHCAL {
       return res2;
     else if (energy < constantsHCAL_d.barrelTimeResConsts.threshLowE) {
       if (constantsHCAL_d.barrelTimeResConsts.corrTermLowE > 0.) {  // different parametrisation
-        const float res = constantsHCAL_d.barrelTimeResConsts.noiseTermLowE / energy + constantsHCAL_d.barrelTimeResConsts.corrTermLowE / (energy * energy);
+        const float res = constantsHCAL_d.barrelTimeResConsts.noiseTermLowE / energy +
+                          constantsHCAL_d.barrelTimeResConsts.corrTermLowE / (energy * energy);
         res2 = res * res;
       } else {
         const float noiseDivE = constantsHCAL_d.barrelTimeResConsts.noiseTermLowE / energy;
@@ -204,8 +207,10 @@ namespace PFClusterCudaHCAL {
       float pt2 = energy * energy * (pos.x * pos.x + pos.y * pos.y) / (pos.x * pos.x + pos.y * pos.y + pos.z * pos.z);
 
       // Seeding threshold test
-      if ((layer == PFLayer::HCAL_BARREL1 && energy > constantsHCAL_d.seedEThresholdEB_vec[depthOffset] && pt2 > constantsHCAL_d.seedPt2ThresholdEB) ||
-          (layer == PFLayer::HCAL_ENDCAP && energy > constantsHCAL_d.seedEThresholdEE_vec[depthOffset] && pt2 > constantsHCAL_d.seedPt2ThresholdEE)) {
+      if ((layer == PFLayer::HCAL_BARREL1 && energy > constantsHCAL_d.seedEThresholdEB_vec[depthOffset] &&
+           pt2 > constantsHCAL_d.seedPt2ThresholdEB) ||
+          (layer == PFLayer::HCAL_ENDCAP && energy > constantsHCAL_d.seedEThresholdEE_vec[depthOffset] &&
+           pt2 > constantsHCAL_d.seedPt2ThresholdEE)) {
         pfrh_isSeed[i] = 1;
         for (int k = 0; k < 4; k++) {
           if (neigh4_Ind[8 * i + k] < 0)
@@ -252,9 +257,11 @@ namespace PFClusterCudaHCAL {
     int i = threadIdx.x + blockIdx.x * blockDim.x;
 
     if (i < size) {
-      if ((pfrh_layer[i] == PFLayer::HCAL_BARREL1 && pfrh_energy[i] > constantsHCAL_d.seedEThresholdEB_vec[pfrh_depth[i] - 1] &&
+      if ((pfrh_layer[i] == PFLayer::HCAL_BARREL1 &&
+           pfrh_energy[i] > constantsHCAL_d.seedEThresholdEB_vec[pfrh_depth[i] - 1] &&
            pfrh_pt2[i] > constantsHCAL_d.seedPt2ThresholdEB) ||
-          (pfrh_layer[i] == PFLayer::HCAL_ENDCAP && pfrh_energy[i] > constantsHCAL_d.seedEThresholdEE_vec[pfrh_depth[i] - 1] &&
+          (pfrh_layer[i] == PFLayer::HCAL_ENDCAP &&
+           pfrh_energy[i] > constantsHCAL_d.seedEThresholdEE_vec[pfrh_depth[i] - 1] &&
            pfrh_pt2[i] > constantsHCAL_d.seedPt2ThresholdEE)) {
         pfrh_isSeed[i] = 1;
         for (int k = 0; k < constantsHCAL_d.nNeigh; k++) {
@@ -284,9 +291,11 @@ namespace PFClusterCudaHCAL {
     //int i = threadIdx.x+blockIdx.x*blockDim.x;
     for (int i = 0; i < size; i++) {
       if (i < size) {
-        if ((pfrh_layer[i] == PFLayer::HCAL_BARREL1 && pfrh_energy[i] > constantsHCAL_d.seedEThresholdEB_vec[pfrh_depth[i] - 1] &&
+        if ((pfrh_layer[i] == PFLayer::HCAL_BARREL1 &&
+             pfrh_energy[i] > constantsHCAL_d.seedEThresholdEB_vec[pfrh_depth[i] - 1] &&
              pfrh_pt2[i] > constantsHCAL_d.seedPt2ThresholdEB) ||
-            (pfrh_layer[i] == PFLayer::HCAL_ENDCAP && pfrh_energy[i] > constantsHCAL_d.seedEThresholdEE_vec[pfrh_depth[i] - 1] &&
+            (pfrh_layer[i] == PFLayer::HCAL_ENDCAP &&
+             pfrh_energy[i] > constantsHCAL_d.seedEThresholdEE_vec[pfrh_depth[i] - 1] &&
              pfrh_pt2[i] > constantsHCAL_d.seedPt2ThresholdEE)) {
           pfrh_isSeed[i] = 1;
           for (int k = 0; k < constantsHCAL_d.nNeigh; k++) {
@@ -342,11 +351,15 @@ namespace PFClusterCudaHCAL {
     if (l < size) {
       while (neigh8_Ind[nNT * l + k] > -1 && pfrh_topoId[l] != pfrh_topoId[neigh8_Ind[nNT * l + k]] &&
              ((pfrh_layer[neigh8_Ind[nNT * l + k]] == PFLayer::HCAL_ENDCAP &&
-               pfrh_energy[neigh8_Ind[nNT * l + k]] > constantsHCAL_d.topoEThresholdEE_vec[pfrh_depth[neigh8_Ind[nNT * l + k]] - 1]) ||
+               pfrh_energy[neigh8_Ind[nNT * l + k]] >
+                   constantsHCAL_d.topoEThresholdEE_vec[pfrh_depth[neigh8_Ind[nNT * l + k]] - 1]) ||
               (pfrh_layer[neigh8_Ind[nNT * l + k]] == PFLayer::HCAL_BARREL1 &&
-               pfrh_energy[neigh8_Ind[nNT * l + k]] > constantsHCAL_d.topoEThresholdEB_vec[pfrh_depth[neigh8_Ind[nNT * l + k]] - 1])) &&
-             ((pfrh_layer[l] == PFLayer::HCAL_ENDCAP && pfrh_energy[l] > constantsHCAL_d.topoEThresholdEE_vec[pfrh_depth[l] - 1]) ||
-              (pfrh_layer[l] == PFLayer::HCAL_BARREL1 && pfrh_energy[l] > constantsHCAL_d.topoEThresholdEB_vec[pfrh_depth[l] - 1]))) {
+               pfrh_energy[neigh8_Ind[nNT * l + k]] >
+                   constantsHCAL_d.topoEThresholdEB_vec[pfrh_depth[neigh8_Ind[nNT * l + k]] - 1])) &&
+             ((pfrh_layer[l] == PFLayer::HCAL_ENDCAP &&
+               pfrh_energy[l] > constantsHCAL_d.topoEThresholdEE_vec[pfrh_depth[l] - 1]) ||
+              (pfrh_layer[l] == PFLayer::HCAL_BARREL1 &&
+               pfrh_energy[l] > constantsHCAL_d.topoEThresholdEB_vec[pfrh_depth[l] - 1]))) {
         if (pfrh_topoId[l] > pfrh_topoId[neigh8_Ind[nNT * l + k]]) {
           atomicMax(&pfrh_topoId[neigh8_Ind[nNT * l + k]], pfrh_topoId[l]);
         }
@@ -369,14 +382,17 @@ namespace PFClusterCudaHCAL {
     for (int l = 0; l < size; l++) {
       //for (int k = 0; k < size; k++) {
       for (int k = 0; k < 8; k++) {
-        while (
-            neigh8_Ind[nNT * l + k] > -1 && pfrh_topoId[l] != pfrh_topoId[neigh8_Ind[nNT * l + k]] &&
-            ((pfrh_layer[neigh8_Ind[nNT * l + k]] == PFLayer::HCAL_ENDCAP &&
-              pfrh_energy[neigh8_Ind[nNT * l + k]] > constantsHCAL_d.topoEThresholdEE_vec[pfrh_depth[neigh8_Ind[nNT * l + k]] - 1]) ||
-             (pfrh_layer[neigh8_Ind[nNT * l + k]] == PFLayer::HCAL_BARREL1 &&
-              pfrh_energy[neigh8_Ind[nNT * l + k]] > constantsHCAL_d.topoEThresholdEB_vec[pfrh_depth[neigh8_Ind[nNT * l + k]] - 1])) &&
-            ((pfrh_layer[l] == PFLayer::HCAL_ENDCAP && pfrh_energy[l] > constantsHCAL_d.topoEThresholdEE_vec[pfrh_depth[l] - 1]) ||
-             (pfrh_layer[l] == PFLayer::HCAL_BARREL1 && pfrh_energy[l] > constantsHCAL_d.topoEThresholdEB_vec[pfrh_depth[l] - 1]))) {
+        while (neigh8_Ind[nNT * l + k] > -1 && pfrh_topoId[l] != pfrh_topoId[neigh8_Ind[nNT * l + k]] &&
+               ((pfrh_layer[neigh8_Ind[nNT * l + k]] == PFLayer::HCAL_ENDCAP &&
+                 pfrh_energy[neigh8_Ind[nNT * l + k]] >
+                     constantsHCAL_d.topoEThresholdEE_vec[pfrh_depth[neigh8_Ind[nNT * l + k]] - 1]) ||
+                (pfrh_layer[neigh8_Ind[nNT * l + k]] == PFLayer::HCAL_BARREL1 &&
+                 pfrh_energy[neigh8_Ind[nNT * l + k]] >
+                     constantsHCAL_d.topoEThresholdEB_vec[pfrh_depth[neigh8_Ind[nNT * l + k]] - 1])) &&
+               ((pfrh_layer[l] == PFLayer::HCAL_ENDCAP &&
+                 pfrh_energy[l] > constantsHCAL_d.topoEThresholdEE_vec[pfrh_depth[l] - 1]) ||
+                (pfrh_layer[l] == PFLayer::HCAL_BARREL1 &&
+                 pfrh_energy[l] > constantsHCAL_d.topoEThresholdEB_vec[pfrh_depth[l] - 1]))) {
           if (pfrh_topoId[l] > pfrh_topoId[neigh8_Ind[nNT * l + k]]) {
             atomicMax(&pfrh_topoId[neigh8_Ind[nNT * l + k]], pfrh_topoId[l]);
           }
@@ -565,7 +581,8 @@ namespace PFClusterCudaHCAL {
     if (threadIdx.x == 0) {
       nRHNotSeed = nRHTopo - nSeeds + 1;  // 1 + (# rechits per topoId that are NOT seeds)
       topoSeedBegin = topoSeedOffsets[topoId];
-      tol = constantsHCAL_d.stoppingTolerance * powf(fmaxf(1.0, nSeeds - 1.0), 2.0);  // stopping tolerance * tolerance scaling
+      tol = constantsHCAL_d.stoppingTolerance *
+            powf(fmaxf(1.0, nSeeds - 1.0), 2.0);  // stopping tolerance * tolerance scaling
       //gridStride = blockDim.x * gridDim.x;
       gridStride = blockDim.x;
       iter = 0;
@@ -859,7 +876,8 @@ namespace PFClusterCudaHCAL {
     if (threadIdx.x == 0) {
       nRHNotSeed = nRHTopo - nSeeds + 1;  // 1 + (# rechits per topoId that are NOT seeds)
       topoSeedBegin = topoSeedOffsets[topoId];
-      tol = constantsHCAL_d.stoppingTolerance * powf(fmaxf(1.0, nSeeds - 1.0), 2.0);  // stopping tolerance * tolerance scaling
+      tol = constantsHCAL_d.stoppingTolerance *
+            powf(fmaxf(1.0, nSeeds - 1.0), 2.0);  // stopping tolerance * tolerance scaling
       gridStride = blockDim.x;
       iter = 0;
       notDone = true;
@@ -1301,7 +1319,8 @@ namespace PFClusterCudaHCAL {
         nRHTopo = topoRHCount[topoId];
         nRHNotSeed = nRHTopo - nSeeds + 1;  // 1 + (# rechits per topoId that are NOT seeds)
         topoSeedBegin = topoSeedOffsets[topoId];
-        tol = constantsHCAL_d.stoppingTolerance * powf(fmaxf(1.0, nSeeds - 1.0), 2.0);  // stopping tolerance * tolerance scaling
+        tol = constantsHCAL_d.stoppingTolerance *
+              powf(fmaxf(1.0, nSeeds - 1.0), 2.0);  // stopping tolerance * tolerance scaling
         //gridStride = blockDim.x * gridDim.x;
         gridStride = blockDim.x;
         iter = 0;
@@ -1638,7 +1657,8 @@ namespace PFClusterCudaHCAL {
         nRHTopo = topoRHCount[topoId];
         nRHNotSeed = nRHTopo - nSeeds + 1;  // 1 + (# rechits per topoId that are NOT seeds)
         topoSeedBegin = topoSeedOffsets[topoId];
-        tol = constantsHCAL_d.stoppingTolerance * powf(fmaxf(1.0, nSeeds - 1.0), 2.0);  // stopping tolerance * tolerance scaling
+        tol = constantsHCAL_d.stoppingTolerance *
+              powf(fmaxf(1.0, nSeeds - 1.0), 2.0);  // stopping tolerance * tolerance scaling
         //gridStride = blockDim.x * gridDim.x;
         gridStride = blockDim.x;
         iter = 0;
@@ -2018,7 +2038,8 @@ namespace PFClusterCudaHCAL {
         nRHTopo = topoRHCount[topoId];
         nRHNotSeed = nRHTopo - nSeeds + 1;  // 1 + (# rechits per topoId that are NOT seeds)
         topoSeedBegin = topoSeedOffsets[topoId];
-        tol = constantsHCAL_d.stoppingTolerance * powf(fmaxf(1.0, nSeeds - 1.0), 2.0);  // stopping tolerance * tolerance scaling
+        tol = constantsHCAL_d.stoppingTolerance *
+              powf(fmaxf(1.0, nSeeds - 1.0), 2.0);  // stopping tolerance * tolerance scaling
         //gridStride = blockDim.x * gridDim.x;
         gridStride = blockDim.x;
         iter = 0;
@@ -2075,7 +2096,8 @@ namespace PFClusterCudaHCAL {
         float4 rechitPos = make_float4(pfrh_x[rhInd], pfrh_y[rhInd], pfrh_z[rhInd], 1.0);
         float threshold = 0.0;
         if (pfrh_layer[rhInd] == PFLayer::HCAL_BARREL1) {
-          threshold = constantsHCAL_d.recHitEnergyNormInvEB_vec[pfrh_depth[rhInd] - 1];  // This number needs to be inverted
+          threshold =
+              constantsHCAL_d.recHitEnergyNormInvEB_vec[pfrh_depth[rhInd] - 1];  // This number needs to be inverted
         } else if (pfrh_layer[rhInd] == PFLayer::HCAL_ENDCAP) {
           threshold = constantsHCAL_d.recHitEnergyNormInvEE_vec[pfrh_depth[rhInd] - 1];
         }
@@ -2151,9 +2173,11 @@ namespace PFClusterCudaHCAL {
             float fraction = -1.;
 
             if (pfrh_layer[j] == PFLayer::HCAL_BARREL1) {
-              fraction = clusterEnergy[i] * constantsHCAL_d.recHitEnergyNormInvEB_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
+              fraction =
+                  clusterEnergy[i] * constantsHCAL_d.recHitEnergyNormInvEB_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
             } else if (pfrh_layer[j] == PFLayer::HCAL_ENDCAP) {
-              fraction = clusterEnergy[i] * constantsHCAL_d.recHitEnergyNormInvEE_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
+              fraction =
+                  clusterEnergy[i] * constantsHCAL_d.recHitEnergyNormInvEE_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
             }
             if (fraction == -1.)
               printf("FRACTION is NEGATIVE!!!");
@@ -2179,9 +2203,11 @@ namespace PFClusterCudaHCAL {
               float fraction = -1.;
 
               if (pfrh_layer[j] == PFLayer::HCAL_BARREL1) {
-                fraction = clusterEnergy[i] * constantsHCAL_d.recHitEnergyNormInvEB_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
+                fraction =
+                    clusterEnergy[i] * constantsHCAL_d.recHitEnergyNormInvEB_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
               } else if (pfrh_layer[j] == PFLayer::HCAL_ENDCAP) {
-                fraction = clusterEnergy[i] * constantsHCAL_d.recHitEnergyNormInvEE_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
+                fraction =
+                    clusterEnergy[i] * constantsHCAL_d.recHitEnergyNormInvEE_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
               }
               if (fraction == -1.)
                 printf("FRACTION is NEGATIVE!!!");
@@ -2526,7 +2552,8 @@ namespace PFClusterCudaHCAL {
         float4 rechitPos = make_float4(pfrh_x[rhInd], pfrh_y[rhInd], pfrh_z[rhInd], 1.0);
         float threshold = 0.0;
         if (pfrh_layer[rhInd] == PFLayer::HCAL_BARREL1) {
-          threshold = constantsHCAL_d.recHitEnergyNormInvEB_vec[pfrh_depth[rhInd] - 1];  // This number needs to be inverted
+          threshold =
+              constantsHCAL_d.recHitEnergyNormInvEB_vec[pfrh_depth[rhInd] - 1];  // This number needs to be inverted
         } else if (pfrh_layer[rhInd] == PFLayer::HCAL_ENDCAP) {
           threshold = constantsHCAL_d.recHitEnergyNormInvEE_vec[pfrh_depth[rhInd] - 1];
         }
@@ -2598,9 +2625,11 @@ namespace PFClusterCudaHCAL {
             float fraction = -1.;
 
             if (pfrh_layer[j] == PFLayer::HCAL_BARREL1) {
-              fraction = clusterEnergy[i] * constantsHCAL_d.recHitEnergyNormInvEB_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
+              fraction =
+                  clusterEnergy[i] * constantsHCAL_d.recHitEnergyNormInvEB_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
             } else if (pfrh_layer[j] == PFLayer::HCAL_ENDCAP) {
-              fraction = clusterEnergy[i] * constantsHCAL_d.recHitEnergyNormInvEE_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
+              fraction =
+                  clusterEnergy[i] * constantsHCAL_d.recHitEnergyNormInvEE_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
             }
             if (fraction == -1.)
               printf("FRACTION is NEGATIVE!!!");
@@ -2625,9 +2654,11 @@ namespace PFClusterCudaHCAL {
               float fraction = -1.;
 
               if (pfrh_layer[j] == PFLayer::HCAL_BARREL1) {
-                fraction = clusterEnergy[i] * constantsHCAL_d.recHitEnergyNormInvEB_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
+                fraction =
+                    clusterEnergy[i] * constantsHCAL_d.recHitEnergyNormInvEB_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
               } else if (pfrh_layer[j] == PFLayer::HCAL_ENDCAP) {
-                fraction = clusterEnergy[i] * constantsHCAL_d.recHitEnergyNormInvEE_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
+                fraction =
+                    clusterEnergy[i] * constantsHCAL_d.recHitEnergyNormInvEE_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
               }
               if (fraction == -1.)
                 printf("FRACTION is NEGATIVE!!!");
@@ -2755,13 +2786,15 @@ namespace PFClusterCudaHCAL {
       }
       if (iter > 1) {
         if (iter >= constantsHCAL_d.maxIterations)
-          printf("topoId %d (nSeeds = %d  nRHTopo = %d) hit constantsHCAL_d.maxIterations (%d) with diff (%f) > tol (%f)\n",
-                 topoId,
-                 nSeeds,
-                 nRHTopo,
-                 iter,
-                 diff,
-                 constantsHCAL_d.stoppingTolerance * tolScaling);
+          printf(
+              "topoId %d (nSeeds = %d  nRHTopo = %d) hit constantsHCAL_d.maxIterations (%d) with diff (%f) > tol "
+              "(%f)\n",
+              topoId,
+              nSeeds,
+              nRHTopo,
+              iter,
+              diff,
+              constantsHCAL_d.stoppingTolerance * tolScaling);
         else
           printf("topoId %d converged in %d iterations\n", topoId, iter);
       }
@@ -2970,9 +3003,11 @@ namespace PFClusterCudaHCAL {
             float fraction = -1.;
 
             if (pfrh_layer[j] == 1) {
-              fraction = pfrh_energy[i] * constantsHCAL_d.recHitEnergyNormInvEB_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
+              fraction =
+                  pfrh_energy[i] * constantsHCAL_d.recHitEnergyNormInvEB_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
             } else if (pfrh_layer[j] == 3) {
-              fraction = pfrh_energy[i] * constantsHCAL_d.recHitEnergyNormInvEE_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
+              fraction =
+                  pfrh_energy[i] * constantsHCAL_d.recHitEnergyNormInvEE_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
             }
 
             if (fraction == -1.)
@@ -3020,9 +3055,11 @@ namespace PFClusterCudaHCAL {
               float fraction = -1.;
 
               if (pfrh_layer[j] == 1) {
-                fraction = pfrh_energy[i] * constantsHCAL_d.recHitEnergyNormInvEB_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
+                fraction =
+                    pfrh_energy[i] * constantsHCAL_d.recHitEnergyNormInvEB_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
               } else if (pfrh_layer[j] == 3) {
-                fraction = pfrh_energy[i] * constantsHCAL_d.recHitEnergyNormInvEE_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
+                fraction =
+                    pfrh_energy[i] * constantsHCAL_d.recHitEnergyNormInvEE_vec[pfrh_depth[j] - 1] * expf(-0.5 * d2);
               }
 
               if (fraction == -1.)
@@ -3168,10 +3205,9 @@ namespace PFClusterCudaHCAL {
 
     if (threadIdx.x == 0) {
       *pcrhFracSize = totalSeedFracOffset;
-      if (*pcrhFracSize>200000) // DeclsForKernels.h maxPFCFracs
-	printf("At the end of topoClusterContraction, found large *pcrhFracSize = %d\n", *pcrhFracSize);
+      if (*pcrhFracSize > 200000)  // DeclsForKernels.h maxPFCFracs
+        printf("At the end of topoClusterContraction, found large *pcrhFracSize = %d\n", *pcrhFracSize);
     }
-
   }
 
   // Prefill the rechit index for all PFCluster fractions
@@ -3269,10 +3305,10 @@ namespace PFClusterCudaHCAL {
       int edgeId = pfrh_edgeId[idx];
       int tempId = pfrh_edgeId[temp];
       if (edgeId != tempId) {
-	// Different topo Id here!
-	return true;
+        // Different topo Id here!
+        return true;
       }
-    } else if (temp < 0) { // idx==0
+    } else if (temp < 0) {  // idx==0
       return true;
     }
 
@@ -3317,7 +3353,7 @@ namespace PFClusterCudaHCAL {
                                      int* pfrh_edgeMask,
                                      const int* pfrh_passTopoThresh,
                                      int* topoIter) {
-    __shared__ int notDone; // This is better be bool, but somehow it leads to out of bound
+    __shared__ int notDone;  // This is better be bool, but somehow it leads to out of bound
     __shared__ int iter, gridStride, nEdges;
 
     int start = blockIdx.x * blockDim.x + threadIdx.x;
@@ -3338,10 +3374,10 @@ namespace PFClusterCudaHCAL {
       else
         pfrh_edgeMask[idx] = 0;
     }
-    __syncthreads();//!!
+    __syncthreads();  //!!
 
     do {
-      __syncthreads();//!!
+      __syncthreads();  //!!
 
       if (threadIdx.x == 0) {
         notDone = 0;
@@ -3375,17 +3411,17 @@ namespace PFClusterCudaHCAL {
         }
       }
 
-      __syncthreads();//!!
+      __syncthreads();  //!!
 
       if (threadIdx.x == 0)
         iter++;
 
       __syncthreads();
 
-      if (notDone==0)
+      if (notDone == 0)
         break;
 
-      __syncthreads();//!!
+      __syncthreads();  //!!
 
       if (threadIdx.x == 0) {
         notDone = 0;
@@ -3420,16 +3456,16 @@ namespace PFClusterCudaHCAL {
         }
       }
 
-      __syncthreads();//!!
+      __syncthreads();  //!!
 
       if (threadIdx.x == 0)
         iter++;
 
       __syncthreads();
 
-    } while (notDone==1);
+    } while (notDone == 1);
 
-    __syncthreads();//!!
+    __syncthreads();  //!!
 
     if (threadIdx.x == 0)
       *topoIter = iter;
@@ -3475,11 +3511,11 @@ namespace PFClusterCudaHCAL {
     // First attempt of topo clustering
     // First edge [set parents to those smaller numbers]
     for (int idx = start; idx < nEdges; idx += gridStride) {
-      int i = pfrh_edgeId[idx];  // Get edge topo id
-      if (pfrh_edgeMask[idx] > 0 && isLeftEdgeKH(idx, nEdges, pfrh_edgeId, pfrh_edgeMask)) { // isLeftEdgeKH
-	pfrh_parent[i] = (int)min(i, pfrh_edgeList[idx]);
+      int i = pfrh_edgeId[idx];                                                               // Get edge topo id
+      if (pfrh_edgeMask[idx] > 0 && isLeftEdgeKH(idx, nEdges, pfrh_edgeId, pfrh_edgeMask)) {  // isLeftEdgeKH
+        pfrh_parent[i] = (int)min(i, pfrh_edgeList[idx]);
       } else {
-	pfrh_parent[i] = i;
+        pfrh_parent[i] = i;
       }
     }
 
@@ -3487,29 +3523,28 @@ namespace PFClusterCudaHCAL {
 
     //
     // loop until topo clustering iteration converges
-    for (int ii=0; ii<100; ii++) {
-
+    for (int ii = 0; ii < 100; ii++) {
       // for notDone
       if (threadIdx.x == 0) {
-    	notDone2 = 0;
+        notDone2 = 0;
       }
 
       // Follow parents of parents .... to contract parent structure
       do {
-    	volatile bool threadNotDone = false;
-    	for (int i = threadIdx.x; i < nRH; i += blockDim.x) {
-    	  int parent = pfrh_parent[i];
-    	  if (parent >= 0 && parent != pfrh_parent[parent]) {
-    	    threadNotDone = true;
-    	    pfrh_parent[i] = pfrh_parent[parent];
-    	  }
-    	}
-    	if (threadIdx.x == 0)
-    	  notDone = 0;
-    	__syncthreads();
+        volatile bool threadNotDone = false;
+        for (int i = threadIdx.x; i < nRH; i += blockDim.x) {
+          int parent = pfrh_parent[i];
+          if (parent >= 0 && parent != pfrh_parent[parent]) {
+            threadNotDone = true;
+            pfrh_parent[i] = pfrh_parent[parent];
+          }
+        }
+        if (threadIdx.x == 0)
+          notDone = 0;
+        __syncthreads();
 
-    	atomicAdd(&notDone, (int)threadNotDone);
-    	__syncthreads();
+        atomicAdd(&notDone, (int)threadNotDone);
+        __syncthreads();
 
       } while (notDone);
 
@@ -3517,28 +3552,28 @@ namespace PFClusterCudaHCAL {
 
       // All rechit pairs in edge id-list have the same topo cluster label?
       for (int idx = start; idx < nEdges; idx += gridStride) {
-      	//for (int idx = 0; idx < nEdges; idx++) {
-      	int i = pfrh_edgeId[idx];    // Get edge topo id
-      	int j = pfrh_edgeList[idx];  // Get edge neighbor list
-      	int parent_target = pfrh_parent[i];
-      	int parent_neighbor = pfrh_parent[j];
-      	if (parent_target!=parent_neighbor){
-      	  notDone2 = 1;
-      	  //printf("hmm. they should have the same parent, but they don't. why... %d %d %d\n",i,j,ii);
-      	  int min_parent = (int)min(parent_target,parent_neighbor);
-      	  int max_parent = (int)max(parent_target,parent_neighbor);
-      	  int idx_max = i;
-      	  if (parent_neighbor == max_parent) idx_max = j;
-      	  pfrh_parent[idx_max] = min_parent;
-      	}
+        //for (int idx = 0; idx < nEdges; idx++) {
+        int i = pfrh_edgeId[idx];    // Get edge topo id
+        int j = pfrh_edgeList[idx];  // Get edge neighbor list
+        int parent_target = pfrh_parent[i];
+        int parent_neighbor = pfrh_parent[j];
+        if (parent_target != parent_neighbor) {
+          notDone2 = 1;
+          //printf("hmm. they should have the same parent, but they don't. why... %d %d %d\n",i,j,ii);
+          int min_parent = (int)min(parent_target, parent_neighbor);
+          int max_parent = (int)max(parent_target, parent_neighbor);
+          int idx_max = i;
+          if (parent_neighbor == max_parent)
+            idx_max = j;
+          pfrh_parent[idx_max] = min_parent;
+        }
       }
 
       __syncthreads();
-      if (notDone2==0) // if topocluster finding is converged, terminate the for-ii loop
-    	break;
+      if (notDone2 == 0)  // if topocluster finding is converged, terminate the for-ii loop
+        break;
 
-    } // for-loop ii
-
+    }  // for-loop ii
   }
 
   __device__ __forceinline__ void sortSwap(int* toSort, int a, int b) {
@@ -4095,29 +4130,29 @@ namespace PFClusterCudaHCAL {
       ::PFClustering::HCAL::OutputDataGPU& outputGPU,
       ::PFClustering::HCAL::ScratchDataGPU& scratchGPU,
       float (&timer)[8]) {
-
     const int threadsPerBlock = 256;
     const int nRH = inputPFRecHits.size;
 
     // Combined seeding & topo clustering thresholds, array initialization
-    seedingTopoThreshKernel_HCAL<<<(nRH + threadsPerBlock -1) / threadsPerBlock, threadsPerBlock, 0, cudaStream>>>(nRH,
-                                                                         inputPFRecHits.pfrh_energy.get(),
-                                                                         inputPFRecHits.pfrh_x.get(),
-                                                                         inputPFRecHits.pfrh_y.get(),
-                                                                         inputPFRecHits.pfrh_z.get(),
-                                                                         outputGPU.pfrh_isSeed.get(),
-                                                                         outputGPU.pfrh_topoId.get(),
-                                                                         outputGPU.pfrh_passTopoThresh.get(),
-                                                                         inputPFRecHits.pfrh_layer.get(),
-                                                                         inputPFRecHits.pfrh_depth.get(),
-                                                                         inputPFRecHits.pfrh_neighbours.get(),
-                                                                         scratchGPU.rhcount.get(),
-                                                                         outputGPU.topoSeedCount.get(),
-                                                                         outputGPU.topoRHCount.get(),
-                                                                         outputGPU.seedFracOffsets.get(),
-                                                                         outputGPU.topoSeedOffsets.get(),
-                                                                         outputGPU.topoSeedList.get(),
-                                                                         outputGPU.pfc_iter.get());
+    seedingTopoThreshKernel_HCAL<<<(nRH + threadsPerBlock - 1) / threadsPerBlock, threadsPerBlock, 0, cudaStream>>>(
+        nRH,
+        inputPFRecHits.pfrh_energy.get(),
+        inputPFRecHits.pfrh_x.get(),
+        inputPFRecHits.pfrh_y.get(),
+        inputPFRecHits.pfrh_z.get(),
+        outputGPU.pfrh_isSeed.get(),
+        outputGPU.pfrh_topoId.get(),
+        outputGPU.pfrh_passTopoThresh.get(),
+        inputPFRecHits.pfrh_layer.get(),
+        inputPFRecHits.pfrh_depth.get(),
+        inputPFRecHits.pfrh_neighbours.get(),
+        scratchGPU.rhcount.get(),
+        outputGPU.topoSeedCount.get(),
+        outputGPU.topoRHCount.get(),
+        outputGPU.seedFracOffsets.get(),
+        outputGPU.topoSeedOffsets.get(),
+        outputGPU.topoSeedList.get(),
+        outputGPU.pfc_iter.get());
 
     // Topo clustering
     // Fill edgeId, edgeList arrays with rechit neighbors
@@ -4133,13 +4168,13 @@ namespace PFClusterCudaHCAL {
     // Topo clustering
     //topoClusterLinking<<<1, 512, 0, cudaStream>>>(nRH,
     topoClusterLinkingKH<<<1, 512, 0, cudaStream>>>(nRH,
-						    outputGPU.nEdges.get(),
-						    outputGPU.pfrh_topoId.get(),
-						    scratchGPU.pfrh_edgeId.get(),
-						    scratchGPU.pfrh_edgeList.get(),
-						    scratchGPU.pfrh_edgeMask.get(),
-						    outputGPU.pfrh_passTopoThresh.get(),
-						    outputGPU.topoIter.get());
+                                                    outputGPU.nEdges.get(),
+                                                    outputGPU.pfrh_topoId.get(),
+                                                    scratchGPU.pfrh_edgeId.get(),
+                                                    scratchGPU.pfrh_edgeList.get(),
+                                                    scratchGPU.pfrh_edgeMask.get(),
+                                                    outputGPU.pfrh_passTopoThresh.get(),
+                                                    outputGPU.topoIter.get());
 
     topoClusterContraction<<<1, 512, 0, cudaStream>>>(nRH,
                                                       outputGPU.pfrh_topoId.get(),

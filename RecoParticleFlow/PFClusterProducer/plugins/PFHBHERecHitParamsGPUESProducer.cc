@@ -27,8 +27,8 @@ public:
 
 protected:
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-		      const edm::IOVSyncValue&,
-		      edm::ValidityInterval&) override;
+                      const edm::IOVSyncValue&,
+                      edm::ValidityInterval&) override;
 
 private:
   edm::ParameterSet const& pset_;
@@ -40,17 +40,17 @@ PFHBHERecHitParamsGPUESProducer::PFHBHERecHitParamsGPUESProducer(edm::ParameterS
 }
 
 void PFHBHERecHitParamsGPUESProducer::setIntervalFor(const edm::eventsetup::EventSetupRecordKey& iKey,
-                                                       const edm::IOVSyncValue& iTime,
-                                                       edm::ValidityInterval& oInterval) {
+                                                     const edm::IOVSyncValue& iTime,
+                                                     edm::ValidityInterval& oInterval) {
   oInterval = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
 }
 
 void PFHBHERecHitParamsGPUESProducer::fillDescriptions(edm::ConfigurationDescriptions& desc) {
   edm::ParameterSetDescription d;
-  d.add<std::vector<int>>("depthHB", { 1, 2, 3, 4});
-  d.add<std::vector<int>>("depthHE", { 1, 2, 3, 4, 5, 6, 7});
-  d.add<std::vector<double>>("thresholdE_HB", { 0.1, 0.2, 0.3, 0.3});
-  d.add<std::vector<double>>("thresholdE_HE", { 0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2});
+  d.add<std::vector<int>>("depthHB", {1, 2, 3, 4});
+  d.add<std::vector<int>>("depthHE", {1, 2, 3, 4, 5, 6, 7});
+  d.add<std::vector<double>>("thresholdE_HB", {0.1, 0.2, 0.3, 0.3});
+  d.add<std::vector<double>>("thresholdE_HE", {0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2});
   desc.addWithDefaultLabel(d);
 }
 

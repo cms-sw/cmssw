@@ -11,7 +11,7 @@
 namespace PFRecHit {
   namespace HCAL {
     void entryPoint(::hcal::RecHitCollection<::calo::common::DevStoragePolicy> const&,
-		    const PFRecHit::HCAL::ConstantProducts&,
+                    const PFRecHit::HCAL::ConstantProducts&,
                     OutputPFRecHitDataGPU&,
                     ScratchDataGPU&,
                     cudaStream_t,

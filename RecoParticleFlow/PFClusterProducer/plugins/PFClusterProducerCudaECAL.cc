@@ -413,7 +413,7 @@ private:
 #define LOGDRESSED(x) LogDebug(x)
 #endif
 
-PFClusterProducerCudaECAL::PFClusterProducerCudaECAL(const edm::ParameterSet& conf)
+PFClusterProducerCudaECAL::PFClusterProducerCudaECAL(const edm::ParameterSet &conf)
     : _prodInitClusters(conf.getUntrackedParameter<bool>("prodInitialClusters", false)) {
   _rechitsLabel = consumes<reco::PFRecHitCollection>(conf.getParameter<edm::InputTag>("recHitsSource"));
   edm::ConsumesCollector cc = consumesCollector();
@@ -482,32 +482,32 @@ PFClusterProducerCudaECAL::PFClusterProducerCudaECAL(const edm::ParameterSet& co
 #endif
 
   //setup rechit cleaners
-  const edm::VParameterSet& cleanerConfs = conf.getParameterSetVector("recHitCleaners");
+  const edm::VParameterSet &cleanerConfs = conf.getParameterSetVector("recHitCleaners");
 
-  for (const auto& conf : cleanerConfs) {
-    const std::string& cleanerName = conf.getParameter<std::string>("algoName");
+  for (const auto &conf : cleanerConfs) {
+    const std::string &cleanerName = conf.getParameter<std::string>("algoName");
     _cleaners.emplace_back(RecHitTopologicalCleanerFactory::get()->create(cleanerName, conf, cc));
   }
 
   // setup seed finding
-  const edm::ParameterSet& sfConf = conf.getParameterSet("seedFinder");
-  const std::string& sfName = sfConf.getParameter<std::string>("algoName");
+  const edm::ParameterSet &sfConf = conf.getParameterSet("seedFinder");
+  const std::string &sfName = sfConf.getParameter<std::string>("algoName");
   _seedFinder = SeedFinderFactory::get()->create(sfName, sfConf);
 
   //setup topo cluster builder
-  const edm::ParameterSet& initConf = conf.getParameterSet("initialClusteringStep");
-  const std::string& initName = initConf.getParameter<std::string>("algoName");
+  const edm::ParameterSet &initConf = conf.getParameterSet("initialClusteringStep");
+  const std::string &initName = initConf.getParameter<std::string>("algoName");
   _initialClustering = InitialClusteringStepFactory::get()->create(initName, initConf, cc);
   //setup pf cluster builder if requested
-  const edm::ParameterSet& pfcConf = conf.getParameterSet("pfClusterBuilder");
+  const edm::ParameterSet &pfcConf = conf.getParameterSet("pfClusterBuilder");
   if (!pfcConf.empty()) {
-    const std::string& pfcName = pfcConf.getParameter<std::string>("algoName");
+    const std::string &pfcName = pfcConf.getParameter<std::string>("algoName");
     _pfClusterBuilder = PFClusterBuilderFactory::get()->create(pfcName, pfcConf, cc);
   }
 
   if (pfcConf.exists("allCellsPositionCalc")) {
-    const edm::ParameterSet& acConf = pfcConf.getParameterSet("allCellsPositionCalc");
-    const std::string& algoac = acConf.getParameter<std::string>("algoName");
+    const edm::ParameterSet &acConf = pfcConf.getParameterSet("allCellsPositionCalc");
+    const std::string &algoac = acConf.getParameter<std::string>("algoName");
     _allCellsPosCalc = PFCPositionCalculatorFactory::get()->create(algoac, acConf, cc);
     cudaConstants.posCalcConfig.minAllowedNormalization = (float)acConf.getParameter<double>("minAllowedNormalization");
     cudaConstants.posCalcConfig.logWeightDenominatorInv =
@@ -516,9 +516,9 @@ PFClusterProducerCudaECAL::PFClusterProducerCudaECAL(const edm::ParameterSet& co
   }
 
   if (pfcConf.exists("positionCalcForConvergence")) {
-    const edm::ParameterSet& convConf = pfcConf.getParameterSet("positionCalcForConvergence");
+    const edm::ParameterSet &convConf = pfcConf.getParameterSet("positionCalcForConvergence");
     if (!convConf.empty()) {
-      const std::string& pName = convConf.getParameter<std::string>("algoName");
+      const std::string &pName = convConf.getParameter<std::string>("algoName");
       _convergencePosCalc = PFCPositionCalculatorFactory::get()->create(pName, convConf, cc);
       cudaConstants.convergencePosCalcConfig.minAllowedNormalization =
           (float)convConf.getParameter<double>("minAllowedNormalization");
@@ -533,24 +533,24 @@ PFClusterProducerCudaECAL::PFClusterProducerCudaECAL(const edm::ParameterSet& co
   }
 
   //setup (possible) recalcuation of positions
-  const edm::ParameterSet& pConf = conf.getParameterSet("positionReCalc");
+  const edm::ParameterSet &pConf = conf.getParameterSet("positionReCalc");
   if (!pConf.empty()) {
-    const std::string& pName = pConf.getParameter<std::string>("algoName");
+    const std::string &pName = pConf.getParameter<std::string>("algoName");
     _positionReCalc = PFCPositionCalculatorFactory::get()->create(pName, pConf, cc);
   }
   // see if new need to apply corrections, setup if there.
-  const edm::ParameterSet& cConf = conf.getParameterSet("energyCorrector");
+  const edm::ParameterSet &cConf = conf.getParameterSet("energyCorrector");
   if (!cConf.empty()) {
-    const std::string& cName = cConf.getParameter<std::string>("algoName");
+    const std::string &cName = cConf.getParameter<std::string>("algoName");
     _energyCorrector = PFClusterEnergyCorrectorFactory::get()->create(cName, cConf);
   }
 
   // Initialize Cuda device constant values
   // Read values from parameter set
   cudaConstants.showerSigma2 = (float)std::pow(pfcConf.getParameter<double>("showerSigma"), 2.);
-  const auto& recHitEnergyNormConf = pfcConf.getParameterSetVector("recHitEnergyNorms");
-  for (const auto& pset : recHitEnergyNormConf) {
-    const std::string& det = pset.getParameter<std::string>("detector");
+  const auto &recHitEnergyNormConf = pfcConf.getParameterSetVector("recHitEnergyNorms");
+  for (const auto &pset : recHitEnergyNormConf) {
+    const std::string &det = pset.getParameter<std::string>("detector");
     if (det == std::string("ECAL_BARREL"))
       cudaConstants.recHitEnergyNormInvEB = (float)(1. / pset.getParameter<double>("recHitEnergyNorm"));
     else if (det == std::string("ECAL_ENDCAP"))
@@ -565,9 +565,9 @@ PFClusterProducerCudaECAL::PFClusterProducerCudaECAL(const edm::ParameterSet& co
   cudaConstants.excludeOtherSeeds = pfcConf.getParameter<bool>("excludeOtherSeeds");
   cudaConstants.stoppingTolerance = (float)pfcConf.getParameter<double>("stoppingTolerance");
 
-  const auto& seedThresholdConf = sfConf.getParameterSetVector("thresholdsByDetector");
-  for (const auto& pset : seedThresholdConf) {
-    const std::string& det = pset.getParameter<std::string>("detector");
+  const auto &seedThresholdConf = sfConf.getParameterSetVector("thresholdsByDetector");
+  for (const auto &pset : seedThresholdConf) {
+    const std::string &det = pset.getParameter<std::string>("detector");
     if (det == std::string("ECAL_BARREL")) {
       cudaConstants.seedEThresholdEB = (float)pset.getParameter<double>("seedingThreshold");
       cudaConstants.seedPt2ThresholdEB = (float)std::pow(pset.getParameter<double>("seedingThresholdPt"), 2.);
@@ -578,9 +578,9 @@ PFClusterProducerCudaECAL::PFClusterProducerCudaECAL(const edm::ParameterSet& co
       std::cout << "Unknown detector when parsing seedFinder: " << det << std::endl;
   }
 
-  const auto& topoThresholdConf = initConf.getParameterSetVector("thresholdsByDetector");
-  for (const auto& pset : topoThresholdConf) {
-    const std::string& det = pset.getParameter<std::string>("detector");
+  const auto &topoThresholdConf = initConf.getParameterSetVector("thresholdsByDetector");
+  for (const auto &pset : topoThresholdConf) {
+    const std::string &det = pset.getParameter<std::string>("detector");
     if (det == std::string("ECAL_BARREL")) {
       cudaConstants.topoEThresholdEB = (float)pset.getParameter<double>("gatheringThreshold");
     } else if (det == std::string("ECAL_ENDCAP")) {
@@ -659,7 +659,7 @@ PFClusterProducerCudaECAL::~PFClusterProducerCudaECAL() {
   delete MyFile;
 }
 
-void PFClusterProducerCudaECAL::beginRun(const edm::Run& run, const edm::EventSetup& es) {
+void PFClusterProducerCudaECAL::beginRun(const edm::Run &run, const edm::EventSetup &es) {
   _initialClustering->update(es);
   if (_pfClusterBuilder)
     _pfClusterBuilder->update(es);
@@ -667,8 +667,8 @@ void PFClusterProducerCudaECAL::beginRun(const edm::Run& run, const edm::EventSe
     _positionReCalc->update(es);
 }
 
-void PFClusterProducerCudaECAL::acquire(edm::Event const& event,
-                                        edm::EventSetup const& setup,
+void PFClusterProducerCudaECAL::acquire(edm::Event const &event,
+                                        edm::EventSetup const &setup,
                                         edm::WaitingTaskWithArenaHolder holder) {
   // Creates a new Cuda stream
   // TODO: Reuse stream from GPU PFRecHitProducer by passing input product as first arg
@@ -720,7 +720,7 @@ void PFClusterProducerCudaECAL::acquire(edm::Event const& event,
   _initialClustering->updateEvent(event);
 
   std::vector<bool> mask(rechits->size(), true);
-  for (const auto& cleaner : _cleaners) {
+  for (const auto &cleaner : _cleaners) {
     cleaner->clean(rechits, mask);
   }
 
@@ -733,7 +733,7 @@ void PFClusterProducerCudaECAL::acquire(edm::Event const& event,
   int p = 0;
   int totalNeighbours = 0;  // Running count of 8 neighbour edges for edgeId, edgeList
   int nRH = (int)rechits->size();
-  for (const auto& rh : *rechits) {
+  for (const auto &rh : *rechits) {
     //std::cout<<"*** Now on rechit \t"<<p<<"\tdetId = "<<rh.detId()<<"\tneighbourInfos().size() = "<<rh.neighbourInfos().size()<<"\tneighbours8().size() = "<<rh.neighbours8().size()<<std::endl;
 
     // https://cmssdt.cern.ch/lxr/source/Geometry/CaloGeometry/src/TruncatedPyramid.cc#0057
@@ -1016,7 +1016,7 @@ void PFClusterProducerCudaECAL::acquire(edm::Event const& event,
       for (int k = offset; k < (offset + outputCPU.topoRHCount[topoId] - nSeeds + 1); k++) {
         //std::cout<<"\tNow on k = "<<k<<"\tindex = "<<outputCPU.pcrh_fracInd[k]<<"\tfrac = "<<outputCPU.pcrh_frac[k]<<std::endl;
         if (outputCPU.pcrh_fracInd[k] > -1 && outputCPU.pcrh_frac[k] > 0.0) {
-          const reco::PFRecHitRef& refhit = reco::PFRecHitRef(rechits, outputCPU.pcrh_fracInd[k]);
+          const reco::PFRecHitRef &refhit = reco::PFRecHitRef(rechits, outputCPU.pcrh_fracInd[k]);
           temp.addRecHitFraction(reco::PFRecHitFraction(refhit, outputCPU.pcrh_frac[k]));
         }
       }
@@ -1041,7 +1041,7 @@ void PFClusterProducerCudaECAL::acquire(edm::Event const& event,
 #endif
     int topoRhCount = 0;
     int clusterCount = 0;
-    for (const auto& pfc : *initialClusters) {
+    for (const auto &pfc : *initialClusters) {
       nTopo_CPU->Fill(pfc.recHitFractions().size());
       /*
         std::cout<<"Cluster "<<clusterCount<<" has "<<pfc.recHitFractions().size()<<" rechits"<<std::endl;
@@ -1056,7 +1056,7 @@ void PFClusterProducerCudaECAL::acquire(edm::Event const& event,
 
       topoRhCount = topoRhCount + pfc.recHitFractions().size();
       int nSeeds = 0;
-      for (const auto& rhf : pfc.recHitFractions()) {
+      for (const auto &rhf : pfc.recHitFractions()) {
         if (seedable[rhf.recHitRef().key()])
           nSeeds++;
       }
@@ -1099,7 +1099,7 @@ void PFClusterProducerCudaECAL::acquire(edm::Event const& event,
   */
 
     int intTopoCount = 0;
-    for (const auto& x : nTopoRechits) {
+    for (const auto &x : nTopoRechits) {
       int topoId = x.first;
       if (nTopoSeeds.count(topoId) > 0) {
         // This topo cluster has at least one seed
@@ -1141,13 +1141,13 @@ void PFClusterProducerCudaECAL::acquire(edm::Event const& event,
 #if defined DEBUG_ECAL_TREES && defined DEBUG_SAVE_CLUSTERS
     __pfClusters = *pfClusters;  // For TTree
 #endif
-    for (const auto& pfc : *pfClusters) {
+    for (const auto &pfc : *pfClusters) {
       nRH_perPFCluster_CPU->Fill(pfc.recHitFractions().size());
       totalRHPF_CPU += (int)pfc.recHitFractions().size();
       enPFCluster_CPU->Fill(pfc.energy());
       pfcEta_CPU->Fill(pfc.eta());
       pfcPhi_CPU->Fill(pfc.phi());
-      for (const auto& pfcx : *pfClustersFromCuda) {
+      for (const auto &pfcx : *pfClustersFromCuda) {
         if (pfc.seed() == pfcx.seed()) {
           totalRHPF_GPU += (int)pfcx.recHitFractions().size();
 
@@ -1183,7 +1183,7 @@ void PFClusterProducerCudaECAL::acquire(edm::Event const& event,
 
           if (abs((pfcx.energy() - pfc.energy()) / pfc.energy()) > 0.05) {
             coordinate->Fill(pfcx.eta(), pfcx.phi());
-            for (const auto& rhf : pfc.recHitFractions()) {
+            for (const auto &rhf : pfc.recHitFractions()) {
               if (rhf.fraction() == 1)
                 layer->Fill(rhf.recHitRef()->depth());
             }
@@ -1201,7 +1201,7 @@ void PFClusterProducerCudaECAL::acquire(edm::Event const& event,
 #if defined DEBUG_ECAL_TREES && defined DEBUG_SAVE_CLUSTERS
     __pfClustersFromCuda = *pfClustersFromCuda;  // For TTree
 #endif
-    for (const auto& pfc : *pfClustersFromCuda) {
+    for (const auto &pfc : *pfClustersFromCuda) {
       nRH_perPFCluster_GPU->Fill(pfc.recHitFractions().size());
       enPFCluster_GPU->Fill(pfc.energy());
       pfcEta_GPU->Fill(pfc.eta());
@@ -1222,7 +1222,7 @@ void PFClusterProducerCudaECAL::acquire(edm::Event const& event,
   numEvents++;
 }
 
-void PFClusterProducerCudaECAL::produce(edm::Event& event, const edm::EventSetup& setup) {
+void PFClusterProducerCudaECAL::produce(edm::Event &event, const edm::EventSetup &setup) {
   //std::cout<<"\n===== Now on event "<<numEvents<<" with "<<rechits->size()<<" ECAL rechits ====="<<std::endl;
   if (_prodInitClusters)
     event.put(std::move(pfClustersFromCuda), "initialClusters");
@@ -1231,4 +1231,3 @@ void PFClusterProducerCudaECAL::produce(edm::Event& event, const edm::EventSetup
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PFClusterProducerCudaECAL);
-

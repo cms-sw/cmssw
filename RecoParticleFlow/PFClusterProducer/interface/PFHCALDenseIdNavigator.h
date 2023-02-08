@@ -49,10 +49,9 @@ public:
     const CaloGeometry& caloGeom = *hGeom;
 
     // Utilize PFHCALDenseIdNavigatorCore
-    navicore_ = std::make_unique<PFHCALDenseIdNavigatorCore>(vhcalEnum_,caloGeom,*topology_.get());
+    navicore_ = std::make_unique<PFHCALDenseIdNavigatorCore>(vhcalEnum_, caloGeom, *topology_.get());
     vDenseIdHcal_.clear();
     vDenseIdHcal_ = navicore_.get()->getValidDenseIds();
-
   }
 
   void associateNeighbours(reco::PFRecHit& hit,
@@ -80,7 +79,7 @@ protected:
   std::unique_ptr<PFHCALDenseIdNavigatorCore> navicore_;
   std::vector<int> vhcalEnum_;
   std::vector<unsigned int> vDenseIdHcal_;
-  PFHCALDenseIdNavigatorCore *pfHcalDenseIdNavigatorCore_;
+  PFHCALDenseIdNavigatorCore* pfHcalDenseIdNavigatorCore_;
 
 private:
   edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> hcalToken_;

@@ -6,18 +6,15 @@
 
 #include <unordered_set>
 
-PFHBHETopologyGPU::PFHBHETopologyGPU(edm::ParameterSet const& ps,
-				 const CaloGeometry& geom,
-				 const HcalTopology& topo)
-  : vhcalEnum_(ps.getParameter<std::vector<int>>("hcalEnums"))
-{
-
+PFHBHETopologyGPU::PFHBHETopologyGPU(edm::ParameterSet const& ps, const CaloGeometry& geom, const HcalTopology& topo)
+    : vhcalEnum_(ps.getParameter<std::vector<int>>("hcalEnums")) {
   // Checking geom
   const CaloSubdetectorGeometry* hcalBarrelGeo = geom.getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
   const CaloSubdetectorGeometry* hcalEndcapGeo = geom.getSubdetectorGeometry(DetId::Hcal, HcalEndcap);
 
   // Utilize PFHCALDenseIdNavigatorCore
-  std::unique_ptr<PFHCALDenseIdNavigatorCore> navicore = std::make_unique<PFHCALDenseIdNavigatorCore>(vhcalEnum_,geom,topo);
+  std::unique_ptr<PFHCALDenseIdNavigatorCore> navicore =
+      std::make_unique<PFHCALDenseIdNavigatorCore>(vhcalEnum_, geom, topo);
 
   //
   // Filling HCAL DenseID vectors
@@ -39,20 +36,22 @@ PFHBHETopologyGPU::PFHBHETopologyGPU(edm::ParameterSet const& ps,
   position.resize(detIdArraySize);
   std::vector<int> neighbours;
   neighbours.clear();
-  neighbours.resize(detIdArraySize*8);
+  neighbours.resize(detIdArraySize * 8);
 
   for (auto denseid : denseId) {
-
     DetId detid = topo.denseId2detId(denseid);
     HcalDetId hid = HcalDetId(detid);
     GlobalPoint pos;
-    if (hid.subdet() == HcalBarrel) pos = hcalBarrelGeo->getGeometry(detid)->getPosition();
-    else if (hid.subdet() == HcalEndcap) pos = hcalEndcapGeo->getGeometry(detid)->getPosition();
-    else std::cout << "Unexpected subdetector found for detId " << hid.rawId() << ": " << hid.subdet() << std::endl;
+    if (hid.subdet() == HcalBarrel)
+      pos = hcalBarrelGeo->getGeometry(detid)->getPosition();
+    else if (hid.subdet() == HcalEndcap)
+      pos = hcalEndcapGeo->getGeometry(detid)->getPosition();
+    else
+      std::cout << "Unexpected subdetector found for detId " << hid.rawId() << ": " << hid.subdet() << std::endl;
 
     unsigned index = getIdx(denseid);
     detId[index] = (uint32_t)detid;
-    position[index] = make_float3(pos.x(),pos.y(),pos.z());
+    position[index] = make_float3(pos.x(), pos.y(), pos.z());
 
     auto neigh = navicore.get()->getNeighbours(denseid);
 
@@ -63,14 +62,12 @@ PFHBHETopologyGPU::PFHBHETopologyGPU(edm::ParameterSet const& ps,
       // If no neighbour exists in a direction, the value will be 0
       // Some neighbors from HF included! Need to test if these are included in the map!
       auto neighDetId = neigh[n + 1].rawId();
-      if (neighDetId > 0
-	  && (&topo)->detId2denseId(neighDetId)>=denseIdMin_
-	  && (&topo)->detId2denseId(neighDetId)<=denseIdMax_) {
-	neighbours[index * 8 + n] = getIdx(topo.detId2denseId(neighDetId));
+      if (neighDetId > 0 && (&topo)->detId2denseId(neighDetId) >= denseIdMin_ &&
+          (&topo)->detId2denseId(neighDetId) <= denseIdMax_) {
+        neighbours[index * 8 + n] = getIdx(topo.detId2denseId(neighDetId));
       } else
-	neighbours[index * 8 + n] = -1;
+        neighbours[index * 8 + n] = -1;
     }
-
   }
 
   //
@@ -86,7 +83,6 @@ PFHBHETopologyGPU::PFHBHETopologyGPU(edm::ParameterSet const& ps,
   std::copy(position.begin(), position.end(), position_.begin());
 
   navicore.release();
-
 }
 
 PFHBHETopologyGPU::Product::~Product() {
@@ -107,7 +103,6 @@ PFHBHETopologyGPU::Product const& PFHBHETopologyGPU::getProduct(cudaStream_t cud
         cudaCheck(cudaMalloc((void**)&product.position, this->position_.size() * sizeof(float3)));
         cudaCheck(cudaMalloc((void**)&product.neighbours, this->neighbours_.size() * sizeof(int)));
 
-
         // transfer
         // cudaCheck(cudaMemcpyAsync(product.values,
         //                           this->values_.data(),
@@ -119,11 +114,8 @@ PFHBHETopologyGPU::Product const& PFHBHETopologyGPU::getProduct(cudaStream_t cud
                                   this->denseId_.size() * sizeof(int),
                                   cudaMemcpyHostToDevice,
                                   cudaStream));
-        cudaCheck(cudaMemcpyAsync(product.detId,
-                                  this->detId_.data(),
-                                  this->detId_.size() * sizeof(int),
-                                  cudaMemcpyHostToDevice,
-                                  cudaStream));
+        cudaCheck(cudaMemcpyAsync(
+            product.detId, this->detId_.data(), this->detId_.size() * sizeof(int), cudaMemcpyHostToDevice, cudaStream));
         cudaCheck(cudaMemcpyAsync(product.position,
                                   this->position_.data(),
                                   this->position_.size() * sizeof(float3),
@@ -134,7 +126,6 @@ PFHBHETopologyGPU::Product const& PFHBHETopologyGPU::getProduct(cudaStream_t cud
                                   this->neighbours_.size() * sizeof(int),
                                   cudaMemcpyHostToDevice,
                                   cudaStream));
-
       });
 
   return product;

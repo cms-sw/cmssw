@@ -205,7 +205,7 @@ namespace PFClustering {
       cms::cuda::device::unique_ptr<int[]> nEdges;        // Sum total number of rechit neighbours
 
       cms::cuda::device::unique_ptr<float4[]> pfc_pos4;
-       cms::cuda::device::unique_ptr<float[]> pfc_energy;
+      cms::cuda::device::unique_ptr<float[]> pfc_energy;
 
       void allocate(ConfigurationParameters const& config, cudaStream_t cudaStream = cudaStreamDefault) {
         pfrh_topoId = cms::cuda::make_device_unique<int[]>(sizeof(int) * config.maxRH, cudaStream);
@@ -251,7 +251,6 @@ namespace PFClustering {
 
         pcrh_fracSum = cms::cuda::make_device_unique<float[]>(sizeof(float) * config.maxRH, cudaStream);
         pfc_prevPos4 = cms::cuda::make_device_unique<float4[]>(sizeof(float4) * config.maxRH, cudaStream);
-
       }
     };
   }  // namespace HCAL

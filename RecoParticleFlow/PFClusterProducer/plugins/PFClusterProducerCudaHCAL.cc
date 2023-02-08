@@ -36,9 +36,9 @@
 
 class PFClusterProducerCudaHCAL : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
-  PFClusterProducerCudaHCAL(const edm::ParameterSet &);
+  PFClusterProducerCudaHCAL(const edm::ParameterSet&);
   ~PFClusterProducerCudaHCAL() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions &);
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   // the actual algorithm
   std::vector<std::unique_ptr<RecHitTopologicalCleanerBase>> _cleaners;
@@ -52,17 +52,17 @@ public:
   std::unique_ptr<PFClusterEnergyCorrectorBase> _energyCorrector;
 
 private:
-  void beginRun(const edm::Run &, const edm::EventSetup &) override;
-  void acquire(edm::Event const &, edm::EventSetup const &, edm::WaitingTaskWithArenaHolder) override;
-  void produce(edm::Event &, const edm::EventSetup &) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void acquire(edm::Event const&, edm::EventSetup const&, edm::WaitingTaskWithArenaHolder) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
   edm::EDGetTokenT<cms::cuda::Product<hcal::PFRecHitCollection<pf::common::DevStoragePolicy>>> InputPFRecHitSoA_Token_;
 
   bool initCuda_ = true;
   int nRH_ = 0;
 
-  const bool _produceSoA;            // PFClusters in SoA format
-  const bool _produceLegacy;         // PFClusters in legacy format
+  const bool _produceSoA;     // PFClusters in SoA format
+  const bool _produceLegacy;  // PFClusters in legacy format
 
   // // options
   // const bool _prodInitClusters;
@@ -81,10 +81,10 @@ private:
 };
 
 PFClusterProducerCudaHCAL::PFClusterProducerCudaHCAL(const edm::ParameterSet& conf)
-  : InputPFRecHitSoA_Token_{consumes(conf.getParameter<edm::InputTag>("PFRecHitsLabelIn"))},
-    _produceSoA{conf.getParameter<bool>("produceSoA")},
-    _produceLegacy{conf.getParameter<bool>("produceLegacy")},
-    _rechitsLabel{consumes(conf.getParameter<edm::InputTag>("recHitsSource"))} {
+    : InputPFRecHitSoA_Token_{consumes(conf.getParameter<edm::InputTag>("PFRecHitsLabelIn"))},
+      _produceSoA{conf.getParameter<bool>("produceSoA")},
+      _produceLegacy{conf.getParameter<bool>("produceLegacy")},
+      _rechitsLabel{consumes(conf.getParameter<edm::InputTag>("recHitsSource"))} {
   edm::ConsumesCollector cc = consumesCollector();
 
   //setup rechit cleaners
@@ -248,8 +248,7 @@ PFClusterProducerCudaHCAL::PFClusterProducerCudaHCAL(const edm::ParameterSet& co
   produces<reco::PFClusterCollection>();
 }
 
-PFClusterProducerCudaHCAL::~PFClusterProducerCudaHCAL() {
-}
+PFClusterProducerCudaHCAL::~PFClusterProducerCudaHCAL() {}
 
 void PFClusterProducerCudaHCAL::fillDescriptions(edm::ConfigurationDescriptions& cdesc) {
   edm::ParameterSetDescription desc;
@@ -294,8 +293,10 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
   }
 
   nRH_ = PFRecHits.size;
-  if (nRH_ == 0) return;
-  if (nRH_>4000) std::cout << "nRH(PFRecHitSize)>4000: " << nRH_ << std::endl;
+  if (nRH_ == 0)
+    return;
+  if (nRH_ > 4000)
+    std::cout << "nRH(PFRecHitSize)>4000: " << nRH_ << std::endl;
 
   const int numbytes_int = nRH_ * sizeof(int);
   int totalNeighbours = 0;  // Running count of 8 neighbour edges for edgeId, edgeList
@@ -306,9 +307,11 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
   //   cudaCheck(cudaStreamSynchronize(cudaStream));
 
   // Calling cuda kernels
-  PFClusterCudaHCAL::PFRechitToPFCluster_HCAL_entryPoint(cudaStream, totalNeighbours, PFRecHits, outputGPU, scratchGPU, kernelTimers);
+  PFClusterCudaHCAL::PFRechitToPFCluster_HCAL_entryPoint(
+      cudaStream, totalNeighbours, PFRecHits, outputGPU, scratchGPU, kernelTimers);
 
-  if (!_produceLegacy) return; // do device->host transfer only when we are producing Legacy data
+  if (!_produceLegacy)
+    return;  // do device->host transfer only when we are producing Legacy data
 
   // Data transfer from GPU
   if (cudaStreamQuery(cudaStream) != cudaSuccess)
@@ -358,7 +361,6 @@ void PFClusterProducerCudaHCAL::produce(edm::Event& event, const edm::EventSetup
   //   ctx.emplace(event, OutputPFClusterSoA_Token_, std::move(outputGPU.PFClusters)); // SoA "PFClusters" still need to be defined.
 
   if (_produceLegacy) {
-
     auto pfClustersFromCuda = std::make_unique<reco::PFClusterCollection>();
     pfClustersFromCuda->reserve(nRH_);
 
@@ -381,13 +383,15 @@ void PFClusterProducerCudaHCAL::produce(edm::Event& event, const edm::EventSetup
 
     // Looping over PFRecHits for creating PFClusters
     for (int n = 0; n < nRH_; n++) {
-      if (outputCPU.pfrh_isSeed[n] == 1) { // If this PFRecHit is a seed, this should form a PFCluster. Compute necessary information.
+      if (outputCPU.pfrh_isSeed[n] ==
+          1) {  // If this PFRecHit is a seed, this should form a PFCluster. Compute necessary information.
         reco::PFCluster temp;
-        temp.setSeed((*rechitsHandle)[n].detId()); // Pulling the detId of this PFRecHit from the legacy format input
+        temp.setSeed((*rechitsHandle)[n].detId());  // Pulling the detId of this PFRecHit from the legacy format input
         int offset = outputCPU.seedFracOffsets[n];
         int topoId = outputCPU.pfrh_topoId[n];
         int nSeeds = outputCPU.topoSeedCount[topoId];
-        for (int k = offset; k < (offset + outputCPU.topoRHCount[topoId] - nSeeds + 1); k++) { // Looping over PFRecHits in the same topo cluster
+        for (int k = offset; k < (offset + outputCPU.topoRHCount[topoId] - nSeeds + 1);
+             k++) {  // Looping over PFRecHits in the same topo cluster
           if (outputCPU.pcrh_fracInd[k] > -1 && outputCPU.pcrh_frac[k] > 0.0) {
             const reco::PFRecHitRef& refhit = reco::PFRecHitRef(rechitsHandle, outputCPU.pcrh_fracInd[k]);
             temp.addRecHitFraction(reco::PFRecHitFraction(refhit, outputCPU.pcrh_frac[k]));
@@ -395,7 +399,8 @@ void PFClusterProducerCudaHCAL::produce(edm::Event& event, const edm::EventSetup
         }
         // Now PFRecHitFraction of this PFCluster is set. Now compute calculateAndSetPosition (energy, position etc)
         // Check if this topoId has one only one seed
-        if (nTopoSeeds.count(outputCPU.pfrh_topoId[n]) && nTopoSeeds[outputCPU.pfrh_topoId[n]] == 1 && _allCellsPositionCalc) {
+        if (nTopoSeeds.count(outputCPU.pfrh_topoId[n]) && nTopoSeeds[outputCPU.pfrh_topoId[n]] == 1 &&
+            _allCellsPositionCalc) {
           _allCellsPositionCalc->calculateAndSetPosition(temp);
         } else {
           _positionCalc->calculateAndSetPosition(temp);
@@ -406,7 +411,6 @@ void PFClusterProducerCudaHCAL::produce(edm::Event& event, const edm::EventSetup
 
     event.put(std::move(pfClustersFromCuda));
   }
-
 }
 
 DEFINE_FWK_MODULE(PFClusterProducerCudaHCAL);
