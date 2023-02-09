@@ -75,7 +75,7 @@ void RPixRoadFinder::findPattern(bool* isBadPot) {
       } else if (isBadPot[2] == true && myid.arm() == 1 && myid.station() == 0) {  // 56-210
         temp_all_hits_badPot[2].emplace_back(PointInPlane{globalV, globalError, it_rh, myid});
       } else if (isBadPot[3] == true && myid.arm() == 1 && myid.station() == 2) {  // 56-220
-        temp_all_hits_badPot[2].emplace_back(PointInPlane{globalV, globalError, it_rh, myid});
+        temp_all_hits_badPot[3].emplace_back(PointInPlane{globalV, globalError, it_rh, myid});
       } else {
         temp_all_hits.emplace_back(PointInPlane{globalV, globalError, it_rh, myid});
       }
