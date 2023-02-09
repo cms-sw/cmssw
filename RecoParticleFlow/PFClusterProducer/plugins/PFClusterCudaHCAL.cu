@@ -18,8 +18,8 @@ using PFClustering::common::PFLayer;
 // Uncomment for debugging
 //#define DEBUG_GPU_HCAL
 
-constexpr int sizeof_float = sizeof(float);
-constexpr int sizeof_int = sizeof(int);
+//constexpr int sizeof_float = sizeof(float);
+//constexpr int sizeof_int = sizeof(int);
 constexpr const float PI_F = 3.141592654f;
 
 namespace PFClusterCudaHCAL {
