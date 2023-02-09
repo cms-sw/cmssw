@@ -148,13 +148,9 @@ L1TCaloSummary::L1TCaloSummary(const edm::ParameterSet& iConfig)
     }
   }
   produces<L1JetParticleCollection>("Boosted");
-  summaryCard = new UCTSummaryCard(&pumLUT, jetSeed, tauSeed, tauIsolationFactor, eGammaSeed, eGammaIsolationFactor);
 }
 
-L1TCaloSummary::~L1TCaloSummary() {
-  if (summaryCard != nullptr)
-    delete summaryCard;
-}
+L1TCaloSummary::~L1TCaloSummary() {}
 
 //
 // member functions
@@ -172,7 +168,7 @@ void L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   // independently creating regions from TPGs for processing by the summary card. This results
   // in a single region vector of size 252 whereas from independent creation we had 3*6 vectors
   // of size 7*2. Indices are mapped in UCTSummaryCard accordingly.
-  summaryCard->clearRegions();
+  summaryCard = new UCTSummaryCard(&pumLUT, jetSeed, tauSeed, tauIsolationFactor, eGammaSeed, eGammaIsolationFactor);
   std::vector<UCTRegion*> inputRegions;
   inputRegions.clear();
   edm::Handle<std::vector<L1CaloRegion>> regionCollection;
@@ -257,6 +253,7 @@ void L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   }
 
   iEvent.put(std::move(bJetCands), "Boosted");
+  delete summaryCard;
 }
 
 void L1TCaloSummary::print() {}
