@@ -65,7 +65,6 @@
 
 #define NUMADCS 256
 double const adc2fC_QIE10[NUMADCS] = {
-    // - - - - - - - - - - range 0 - - - - - - - - - - -
     //subrange0
     1.58,
     4.73,
@@ -8818,9 +8817,9 @@ void CMTRawAnalyzer::fillDigiAmplitude(HBHEDigiCollection::const_iterator& digiI
   pedestalaver4 /= c4;
   pedestalwaver9 = sqrt(pedestalwaver9 / TSsize);
   pedestalwaver4 = sqrt(pedestalwaver4 / c4);
-  if (ts_with_max_signal > 0 && ts_with_max_signal < TSsize)
+  if (ts_with_max_signal > -1 && ts_with_max_signal < TSsize)
     ampl = tool[ts_with_max_signal];
-  if (ts_with_max_signal + 2 > 0 && ts_with_max_signal + 2 < TSsize)
+  if (ts_with_max_signal + 2 > -1 && ts_with_max_signal + 2 < TSsize)
     ampl += tool[ts_with_max_signal + 2];
   if (ts_with_max_signal + 1 > -1 && ts_with_max_signal + 1 < TSsize)
     ampl += tool[ts_with_max_signal + 1];
@@ -9819,7 +9818,6 @@ void CMTRawAnalyzer::fillDigiAmplitudeQIE11(QIE11DataFrame qie11df) {
         double corrforxb = a2 * xb * xb + b1 * xb + c0;
         double corrforxc = a2 * xc * xc + b1 * xc + c0;
         double corrforxd = a2 * xd * xd + b1 * xd + c0;
-        //        double corrforxe = a2 * xe * xe + b1 * xe + c0;
         double corrfortxa = a2 * txa * txa + b1 * txa + c0;
         h_corrforxaADDI_HE->Fill(amplitude, corrforxa);
         h_corrforxaADDI0_HE->Fill(amplitude, 1.);
@@ -9827,7 +9825,6 @@ void CMTRawAnalyzer::fillDigiAmplitudeQIE11(QIE11DataFrame qie11df) {
         ampl *= corrforxb;
         amplitude345 *= corrforxc;
         ampl3ts *= corrforxd;
-        //        amplmaxts *= corrforxe;
         tocampl *= corrfortxa;
       }
       // MAIN case:
@@ -9839,7 +9836,6 @@ void CMTRawAnalyzer::fillDigiAmplitudeQIE11(QIE11DataFrame qie11df) {
         double corrforxb = a2 * xb * xb + b1 * xb + c0;
         double corrforxc = a2 * xc * xc + b1 * xc + c0;
         double corrforxd = a2 * xd * xd + b1 * xd + c0;
-        //        double corrforxe = a2 * xe * xe + b1 * xe + c0;
         double corrfortxa = a2 * txa * txa + b1 * txa + c0;
         h_corrforxaMAIN_HE->Fill(amplitude, corrforxa);
         h_corrforxaMAIN0_HE->Fill(amplitude, 1.);
@@ -9847,7 +9843,6 @@ void CMTRawAnalyzer::fillDigiAmplitudeQIE11(QIE11DataFrame qie11df) {
         ampl *= corrforxb;
         amplitude345 *= corrforxc;
         ampl3ts *= corrforxd;
-        //        amplmaxts *= corrforxe;
         tocampl *= corrfortxa;
       }
     }  // sub == 2   HE charge correction end
