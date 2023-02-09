@@ -1,8 +1,8 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun g4OverlapCheckNoseDDD_cfg.py geometry=D82 tol=0.1
+#   cmsRun g4OverlapCheckNoseDDD_cfg.py geometry=D94 tol=0.1
 #
-#   Options for geometry D60, D82, D94
+#   Options for geometry D94
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('geometry',
                  "D94",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D60, D82, D94")
+                  "geometry of operations: D94")
 options.register('tol',
                  0.1,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -32,23 +32,16 @@ print(options)
 ####################################################################
 # Use the options
 
-if (options.geometry == "D60"):
-    from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
-    process = cms.Process('PROD',Phase2C11)
-    process.load('Configuration.Geometry.GeometryExtended2026D60Reco_cff')
-    baseName = 'cms2026D60DDD'
-elif (options.geometry == "D82"):
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('PROD',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D82Reco_cff')
-    baseName = 'cms2026D82DDD'
-else:
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('PROD',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D94Reco_cff')
-    baseName = 'cms2026D94DDD'
+from Configuration.Eras.Era_Phase2C20I13M9_cff import Phase2C20I13M9
+process = cms.Process('OverlapCheck',Phase2C20I13M9)
 
-print("Base file Name: ", baseName)
+
+baseName = "cms2026" + options.geometry + "DDD"
+geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+
+
+print("Geometry file Name: ", geomFile)
+print("Base file Name:     ", baseName)
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
