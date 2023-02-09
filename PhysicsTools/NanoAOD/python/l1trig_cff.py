@@ -2,8 +2,17 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
 
+l1PtVars = cms.PSet(
+    pt  = Var("pt",  float, precision=5),
+    phi = Var("phi", float, precision=5),
+)
+l1P3Vars = cms.PSet(
+    l1PtVars,
+    eta = Var("eta", float, precision=5),
+)
+
 l1ObjVars = cms.PSet(
-    P3Vars, 
+    l1P3Vars,
     hwPt = Var("hwPt()",int,doc="hardware pt"),
     hwEta = Var("hwEta()",int,doc="hardware eta"),
     hwPhi = Var("hwPhi()",int,doc="hardware phi"),
@@ -89,7 +98,7 @@ l1EtSumTable = cms.EDProducer("SimpleTriggerL1EtSumFlatTableProducer",
     name= cms.string("L1EtSum"),
     doc = cms.string(""),
     extension = cms.bool(False), # this is the main table for L1 EGs
-    variables = cms.PSet(PTVars,
+    variables = cms.PSet(l1PtVars,
                          hwPt = Var("hwPt()",int,doc="hardware pt"),
                          hwPhi = Var("hwPhi()",int,doc="hardware phi"),
                          etSumType = Var("getType()",int,doc=""),
@@ -117,3 +126,35 @@ l1EGTable = cms.EDProducer("SimpleTriggerL1EGFlatTableProducer",
 )
 
 l1TablesTask = cms.Task(l1EGTable,l1EtSumTable,l1TauTable,l1JetTable,l1MuTable)
+
+def setL1NanoToReduced(process):
+    """
+    sets the L1 objects only have reduced information which is necessary 
+    for central nano
+    """
+    #reduce the variables to the core variables
+    #note et sum variables are already reduced
+    process.l1EGTable.variables = cms.PSet(l1ObjVars)
+    process.l1MuTable.variables = cms.PSet(l1ObjVars)
+    process.l1JetTable.variables = cms.PSet(l1ObjVars)
+    process.l1TauTable.variables = cms.PSet(l1ObjVars)
+   
+    #restrict bx
+    process.l1EGTable.minBX = 0
+    process.l1EGTable.maxBX = 0
+    process.l1MuTable.minBX = 0
+    process.l1MuTable.maxBX = 0
+    process.l1JetTable.minBX = 0 
+    process.l1JetTable.maxBX = 0
+    process.l1TauTable.minBX = 0 
+    process.l1TauTable.maxBX = 0
+    process.l1EtSumTable.minBX = 0 
+    process.l1EtSumTable.maxBX = 0
+    
+    #apply cuts
+    process.l1EGTable.cut="hwPt>=10"
+    process.l1TauTable.cut="hwPt>=50"
+    process.l1JetTable.cut="hwPt>=100"
+    
+    
+    return process
