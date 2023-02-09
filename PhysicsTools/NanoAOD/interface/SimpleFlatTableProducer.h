@@ -369,12 +369,27 @@ public:
                                "internally and thus you should not specify it yourself");
     }
   }
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+    edm::ParameterSetDescription desc = SimpleFlatTableProducerBase<T, BXVector<T>>::baseDescriptions();
+    desc.add<std::string>("cut", "")->setComment("selection on the main input collection (but selection can not be bx based)");
+    desc.addOptional<unsigned int>("maxLen")->setComment(
+							 "define the maximum length of the input collection to put in the branch");
+    desc.add<int>("minBX",-2)->setComment("min bx (inclusive) to include");
+    desc.add<int>("maxBX",2)->setComment("max bx (inclusive) to include");
+    descriptions.addWithDefaultLabel(desc);
+  }
+
   std::unique_ptr<nanoaod::FlatTable> fillTable(const edm::Event &iEvent,
                                                 const edm::Handle<BXVector<T>> &prod) const override {
+
     std::vector<const T *> selObjs;
     std::vector<int> selObjBXs;
+
     if (prod.isValid() || !(this->skipNonExistingSrc_)) {
-      for (int bx = minBX_; bx <= maxBX_; bx++) {
+      const int minBX = std::max(minBX_,prod->getFirstBX());
+      const int maxBX = std::min(maxBX_,prod->getLastBX());
+      for (int bx = minBX; bx <= maxBX; bx++) {
         for (size_t objNr = 0, nrObjs = prod->size(bx); objNr < nrObjs; ++objNr) {
           const auto &obj = prod->at(bx, objNr);
           if (cut_(obj)) {

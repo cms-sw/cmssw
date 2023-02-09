@@ -214,4 +214,9 @@ def nanoWmassGenCustomize(process):
 
 def nanoL1TrigObjCustomize(process):
     process.nanoTableTaskCommon.add(process.l1TablesTask)
+    process = setL1NanoToReduced(process)
+    return process
+
+def nanoL1TrigObjCustomizeFull(process):
+    process.nanoTableTaskCommon.add(process.l1TablesTask)
     return process
