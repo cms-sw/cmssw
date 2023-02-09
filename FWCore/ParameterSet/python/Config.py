@@ -2054,6 +2054,11 @@ class ProcessForProcessAccelerator(object):
             if not isinstance(value, Service):
                 raise TypeError("ProcessAccelerator.apply() can only set Services. Tried to set {} with label {}".format(str(type(value)), label))
             setattr(self.__process, label, value)
+    def __delattr__(self, label):
+        value = getattr(self.__process, label)
+        if not isinstance(value, Service):
+            raise TypeError("ProcessAccelerator.apply() can delete only Services. Tried to del {} with label {}".format(str(type(value)), label))
+        delattr(self.__process, label)
     def add_(self, value):
         if not isinstance(value, Service):
             raise TypeError("ProcessAccelerator.apply() can only add Services. Tried to set {} with label {}".format(str(type(value)), label))
@@ -2229,6 +2234,8 @@ if __name__=="__main__":
             return self._moduleTypeResolverMaker(accelerators)
         def apply(self, process, accelerators):
             process.AcceleratorTestService = Service("AcceleratorTestService")
+            if hasattr(process, "AcceleratorTestServiceRemove"):
+                del process.AcceleratorTestServiceRemove
     specialImportRegistry.registerSpecialImportForType(ProcessAcceleratorTest, "from test import ProcessAcceleratorTest")
 
     class ProcessAcceleratorTest2(ProcessAccelerator):
@@ -4671,6 +4678,15 @@ process.ProcessAcceleratorTest = ProcessAcceleratorTest(
             self.assertTrue(["anothertest3", "cpu", "test1", "test2"], p.values["@available_accelerators"][1])
             self.assertFalse(p.values["@module_type_resolver"][0])
             self.assertEqual("", p.values["@module_type_resolver"][1])
+
+            proc = Process("TEST")
+            proc.ProcessAcceleratorTest = ProcessAcceleratorTest()
+            proc.add_(Service("AcceleratorTestServiceRemove"))
+            p = TestMakePSet()
+            proc.fillProcessDesc(p)
+            services = [x.values["@service_type"][1] for x in p.values["services"][1]]
+            self.assertTrue("AcceleratorTestService" in services)
+            self.assertFalse("AcceleratorTestServiceRemove" in services)
 
             proc = Process("TEST")
             proc.ProcessAcceleratorTest = ProcessAcceleratorTest(enabled=["test1"])
