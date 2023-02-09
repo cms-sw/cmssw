@@ -273,6 +273,8 @@ namespace mkfit {
 
     int num_inside_minus_one_hits(const int mslot) const { return m_NInsideMinusOneHits(mslot, 0, 0); }
 
+    void print_par_err(int corp, int mslot) const;
+
     //----------------------------------------------------------------------------
 
     MPlexQF m_Chi2;
