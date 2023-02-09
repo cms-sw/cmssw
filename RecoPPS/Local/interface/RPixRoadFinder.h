@@ -42,7 +42,7 @@ private:
   double roadRadius_;
   unsigned int minRoadSize_;
   unsigned int maxRoadSize_;
-  double roadRadius2PlanePot_;
+  double roadRadiusBadPot_;
   void run(const edm::DetSetVector<CTPPSPixelRecHit> &input, const CTPPSGeometry &geometry, std::vector<Road> &roads);
 };
 

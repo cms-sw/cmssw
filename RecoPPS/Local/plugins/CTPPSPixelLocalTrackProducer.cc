@@ -150,7 +150,7 @@ void CTPPSPixelLocalTrackProducer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<int>("minRoadSize", 3)->setComment("minimum number of points in a pattern");
   desc.add<int>("maxRoadSize", 20)->setComment("maximum number of points in a pattern");
   //parameter for 2-plane-pot reconstruction patch in run 3
-  desc.add<double>("roadRadius2PlanePot", 0.5)->setComment("radius of pattern search window for 2 plane pot");
+  desc.add<double>("roadRadiusBadPot", 0.5)->setComment("radius of pattern search window for 2 plane pot");
 
   descriptions.add("ctppsPixelLocalTracks", desc);
 }
