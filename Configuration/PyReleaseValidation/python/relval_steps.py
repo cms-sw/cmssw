@@ -549,7 +549,9 @@ steps['RunTau2022D']={'INPUT':InputInfo(dataSet='/Tau/Run2022D-v1/RAW',label='20
 steps['RunMuonEG2022D']={'INPUT':InputInfo(dataSet='/MuonEG/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D_LS100)}
 
 Run2022FCosmics_LS24={360336: [[24, 24]]}
+Run2022FCosmics={360333: [[1,105]]}
 steps['RunCosmics2022F']={'INPUT':InputInfo(dataSet='/Cosmics/Run2022F-v1/RAW',label='2022F',events=100000,location='STD', ls=Run2022FCosmics_LS24)}
+steps['RunSiPixelCalCosmics2022F']={'INPUT':InputInfo(dataSet='/Cosmics/Run2022F-SiPixelCalCosmics-PromptReco-v1/ALCARECO',label='2022F',events=100000,location='STD', ls=Run2022FCosmics)}
 
 # Highstat HLTPhysics
 Run2015DHS=selectedLS([258712,258713,258714,258741,258742,258745,258749,258750,259626,259637,259683,259685,259686,259721,259809,259810,259818,259820,259821,259822,259862,259890,259891])
@@ -2396,6 +2398,15 @@ steps['ALCASPLITPPSALIGRUN3']={'-s':'ALCAOUTPUT:PPSCalMaxTracks,ALCA:PromptCalib
                            '--triggerResultsProcess':'ALCARECO',
                            }
 
+steps['ALCASPLITSIPIXELLAMCS']={'-s':'ALCA:PromptCalibProdSiPixelLAMCS',
+                                '-n':1000,
+                                '--scenario':'cosmics',
+                                '--era':'Run3',
+                                '--datatier':'ALCARECO',
+                                '--eventcontent':'ALCARECO',
+                                '--conditions':'auto:run3_data_express',
+                                '--customise_commands':'"process.ALCARECOCalCosmicsFilterForSiPixelLorentzAngleMCS.HLTPaths = [\'*\']; process.ALCARECOCalCosmicsFilterForSiPixelLorentzAngleMCS.TriggerResultsTag = cms.InputTag(\'TriggerResults\',\'\',\'HLT\')"'}
+
 steps['ALCAHARVDHPBS']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdBeamSpotHP']),
                         #'--conditions':'auto:run2_data_promptlike',
                         '--conditions':'auto:run3_data_express', # to replaced with line above once run2_data_promptlike will contain DropBoxMetadata
@@ -2476,6 +2487,13 @@ steps['ALCAHARVDPPSALIGRUN3']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdPP
                            '--data':'',
                            '--era':'Run3',
                            '--filein':'file:PromptCalibProdPPSAlignment.root'}
+
+steps['ALCAHARVDSIPIXELLAMCS']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiPixelLAMCS']),
+                           '--conditions':'auto:run3_data_express',
+                           '--scenario':'cosmics',
+                           '--data':'',
+                           '--era':'Run3',
+                           '--filein':'file:PromptCalibProdSiPixelLAMCS.root'}
 
 steps['RECOCOSD']=merge([{'--scenario':'cosmics',
                           '-s':'RAW2DIGI,L1Reco,RECO,DQM',
@@ -3024,7 +3042,7 @@ steps['ALCAEXPRUN3']={'-s':'ALCAOUTPUT:@allForPrompt+@allForExpress,ALCA:PromptC
                   '--datatier':'ALCARECO',
                   '--eventcontent':'ALCARECO',
                   '--triggerResultsProcess': 'RECO'}
-steps['ALCAEXPCOSMICSRUN3']={'-s':'ALCAOUTPUT:@allForExpressCosmics,ALCA:PromptCalibProdSiStrip',
+steps['ALCAEXPCOSMICSRUN3']={'-s':'ALCAOUTPUT:@allForExpressCosmics,ALCA:PromptCalibProdSiStrip+PromptCalibProdSiPixelLAMCS',
                              '-n':1000,
                              '--scenario':'cosmics',
                              '--era':'Run3',

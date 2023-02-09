@@ -91,6 +91,12 @@ SiPixelLorentzAngleRcd_multirun_prod_str =  encodeJsonInString("SiPixelLorentzAn
 SiPixelLorentzAngleRcd_prep_str = encodeJsonInString("SiPixelLorentzAngleRcd_prep.json")
 SiPixelLorentzAngleRcd_multirun_prep_str = encodeJsonInString("SiPixelLorentzAngleRcd_multirun_prep.json")
 
+#SiPixelLorenzAngle, FPix 
+SiPixelLorentzAngleRcd_MCS_prod_str =  encodeJsonInString("SiPixelLorentzAngleRcd_MCS_prod.json")
+SiPixelLorentzAngleRcd_MCS_multirun_prod_str =  encodeJsonInString("SiPixelLorentzAngleRcd_MCS_multirun_prod.json")
+SiPixelLorentzAngleRcd_MCS_prep_str = encodeJsonInString("SiPixelLorentzAngleRcd_MCS_prep.json")
+SiPixelLorentzAngleRcd_MCS_multirun_prep_str = encodeJsonInString("SiPixelLorentzAngleRcd_MCS_multirun_prep.json")
+
 #CT-PPS alignment and timing
 CTPPSRPAlignmentCorrectionsDataRcd_prod_str =  encodeJsonInString("CTPPSRPAlignmentCorrectionsDataRcd_prod.json")
 CTPPSRPAlignmentCorrectionsDataRcd_prep_str = encodeJsonInString("CTPPSRPAlignmentCorrectionsDataRcd_prep.json")
@@ -208,7 +214,15 @@ process.mywriter = cms.EDAnalyzer("ProduceDropBoxMetadata",
                                                                prodMetaDataMultiRun = cms.untracked.string(SiPixelLorentzAngleRcd_multirun_prod_str),
                                                                prepMetaData        = cms.untracked.string(SiPixelLorentzAngleRcd_prep_str),
                                                                prepMetaDataMultiRun = cms.untracked.string(SiPixelLorentzAngleRcd_multirun_prep_str),
-                                                               ),
+                                                           ),
+                                                      cms.PSet(record              = cms.untracked.string('SiPixelLorentzAngleRcdMCS'),
+                                                               Source              = cms.untracked.string("AlcaHarvesting"),
+                                                               FileClass           = cms.untracked.string("ALCA"),
+                                                               prodMetaData        = cms.untracked.string(SiPixelLorentzAngleRcd_MCS_prod_str),
+                                                               prodMetaDataMultiRun = cms.untracked.string(SiPixelLorentzAngleRcd_MCS_multirun_prod_str),
+                                                               prepMetaData        = cms.untracked.string(SiPixelLorentzAngleRcd_MCS_prep_str),
+                                                               prepMetaDataMultiRun = cms.untracked.string(SiPixelLorentzAngleRcd_MCS_multirun_prep_str),
+                                                           ),
                                                       cms.PSet(record              = cms.untracked.string('CTPPSRPAlignmentCorrectionsDataRcd'),
                                                                Source              = cms.untracked.string("AlcaHarvesting"),
                                                                FileClass           = cms.untracked.string("ALCA"),
