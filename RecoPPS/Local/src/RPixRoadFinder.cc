@@ -20,7 +20,7 @@ RPixRoadFinder::RPixRoadFinder(edm::ParameterSet const& parameterSet) : RPixDetP
   roadRadius_ = parameterSet.getParameter<double>("roadRadius");
   minRoadSize_ = parameterSet.getParameter<int>("minRoadSize");
   maxRoadSize_ = parameterSet.getParameter<int>("maxRoadSize");
-  roadRadius2PlanePot_ = parameterSet.getParameter<double>("roadRadius2PlanePot");
+  roadRadiusBadPot_ = parameterSet.getParameter<double>("roadRadiusBadPot");
 }
 
 //------------------------------------------------------------------------------------------------//
@@ -134,7 +134,7 @@ void RPixRoadFinder::findPattern(bool* is2PlanePot) {
         while (it_gh2_bP != temp_all_hits_2PlanePot[i].end()) {
           const auto subtraction = currPoint - it_gh2_bP->globalPoint;
 
-          if (subtraction.Rho() < roadRadius2PlanePot_) {
+          if (subtraction.Rho() < roadRadiusBadPot_) {
             temp_road.push_back(*it_gh2_bP);
             temp_all_hits_2PlanePot[i].erase(it_gh2_bP);
           } else {
