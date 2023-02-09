@@ -149,8 +149,8 @@ void CTPPSPixelLocalTrackProducer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<double>("roadRadius", 1.0)->setComment("radius of pattern search window");
   desc.add<int>("minRoadSize", 3)->setComment("minimum number of points in a pattern");
   desc.add<int>("maxRoadSize", 20)->setComment("maximum number of points in a pattern");
-  //parameter for bad pot reconstruction patch 45-220-fr 2022
-  desc.add<double>("roadRadiusBadPot", 0.5)->setComment("radius of pattern search window for bad Pot");
+  //parameter for 2-plane-pot reconstruction patch in run 3
+  desc.add<double>("roadRadius2PlanePot", 0.5)->setComment("radius of pattern search window for 2 plane pot");
 
   descriptions.add("ctppsPixelLocalTracks", desc);
 }
@@ -171,13 +171,13 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event &iEvent, const edm::EventS
 
   // get mask
 
-  // bad pot flag vector 0=45-220, 1=45-210, 2=56-210, 3=56-220
-  bool isBadPotV[4] = {false};
+  // 2 planes pot flag vector 0=45-220, 1=45-210, 2=56-210, 3=56-220
+  bool is2PlanePotV[4] = {false};
 
   if (!recHits->empty()) {
     const auto &mask = iSetup.getData(tokenCTPPSPixelAnalysisMask_);
 
-    // Read Mask checking if 45-220-far is masked as bad and needs special treatment
+    // Read Mask checking if 4 planes are masked and pot needs special treatment
     std::map<uint32_t, CTPPSPixelROCAnalysisMask> const &maschera = mask.analysisMask;
 
     // vector of masked rocs
@@ -220,9 +220,9 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event &iEvent, const edm::EventS
           numberOfMaskedPlanes++;
       }
       if (numberOfMaskedPlanes == 4)
-        isBadPotV[i] = true;  // search for exactly 4 planes fully masked
+        is2PlanePotV[i] = true;  // search for exactly 4 planes fully masked
       edm::LogInfo("CTPPSPixelLocalTrackProducer") << " Masked planes in Pot #" << i << " = " << numberOfMaskedPlanes;
-      if (isBadPotV[i])
+      if (is2PlanePotV[i])
         edm::LogInfo("CTPPSPixelLocalTrackProducer")
             << " Enabling 2 plane track reconstruction for pot #" << i << " (0=45-220, 1=45-210, 2=56-210, 3=56-220) ";
     }
@@ -272,7 +272,7 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event &iEvent, const edm::EventS
   patternFinder_->clear();
   patternFinder_->setHits(&recHitVector);
   patternFinder_->setGeometry(&geometry);
-  patternFinder_->findPattern(isBadPotV);
+  patternFinder_->findPattern(is2PlanePotV);
   std::vector<RPixDetPatternFinder::Road> patternVector = patternFinder_->getPatterns();
 
   //loop on all the patterns

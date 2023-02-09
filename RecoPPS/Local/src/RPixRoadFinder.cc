@@ -20,7 +20,7 @@ RPixRoadFinder::RPixRoadFinder(edm::ParameterSet const& parameterSet) : RPixDetP
   roadRadius_ = parameterSet.getParameter<double>("roadRadius");
   minRoadSize_ = parameterSet.getParameter<int>("minRoadSize");
   maxRoadSize_ = parameterSet.getParameter<int>("maxRoadSize");
-  roadRadiusBadPot_ = parameterSet.getParameter<double>("roadRadiusBadPot");
+  roadRadius2PlanePot_ = parameterSet.getParameter<double>("roadRadius2PlanePot");
 }
 
 //------------------------------------------------------------------------------------------------//
@@ -29,9 +29,9 @@ RPixRoadFinder::~RPixRoadFinder() {}
 
 //------------------------------------------------------------------------------------------------//
 
-void RPixRoadFinder::findPattern(bool* isBadPot) {
+void RPixRoadFinder::findPattern(bool* is2PlanePot) {
   Road temp_all_hits;
-  Road temp_all_hits_badPot[4];
+  Road temp_all_hits_2PlanePot[4];
 
   // convert local hit sto global and push them to a vector
   for (const auto& ds_rh2 : *hitVector_) {
@@ -66,16 +66,16 @@ void RPixRoadFinder::findPattern(bool* isBadPot) {
 
       math::Error<3>::type globalError = ROOT::Math::SimilarityT(theRotationTMatrix, localError);
 
-      // create new collections for bad and good pots
+      // create new collections for bad (2 planes) and good pots
 
-      if (isBadPot[0] == true && myid.arm() == 0 && myid.station() == 2) {  // 45-220
-        temp_all_hits_badPot[0].emplace_back(PointInPlane{globalV, globalError, it_rh, myid});
-      } else if (isBadPot[1] == true && myid.arm() == 0 && myid.station() == 0) {  // 45-210
-        temp_all_hits_badPot[1].emplace_back(PointInPlane{globalV, globalError, it_rh, myid});
-      } else if (isBadPot[2] == true && myid.arm() == 1 && myid.station() == 0) {  // 56-210
-        temp_all_hits_badPot[2].emplace_back(PointInPlane{globalV, globalError, it_rh, myid});
-      } else if (isBadPot[3] == true && myid.arm() == 1 && myid.station() == 2) {  // 56-220
-        temp_all_hits_badPot[3].emplace_back(PointInPlane{globalV, globalError, it_rh, myid});
+      if (is2PlanePot[0] == true && myid.arm() == 0 && myid.station() == 2) {  // 45-220
+        temp_all_hits_2PlanePot[0].emplace_back(PointInPlane{globalV, globalError, it_rh, myid});
+      } else if (is2PlanePot[1] == true && myid.arm() == 0 && myid.station() == 0) {  // 45-210
+        temp_all_hits_2PlanePot[1].emplace_back(PointInPlane{globalV, globalError, it_rh, myid});
+      } else if (is2PlanePot[2] == true && myid.arm() == 1 && myid.station() == 0) {  // 56-210
+        temp_all_hits_2PlanePot[2].emplace_back(PointInPlane{globalV, globalError, it_rh, myid});
+      } else if (is2PlanePot[3] == true && myid.arm() == 1 && myid.station() == 2) {  // 56-220
+        temp_all_hits_2PlanePot[3].emplace_back(PointInPlane{globalV, globalError, it_rh, myid});
       } else {
         temp_all_hits.emplace_back(PointInPlane{globalV, globalError, it_rh, myid});
       }
@@ -117,26 +117,26 @@ void RPixRoadFinder::findPattern(bool* isBadPot) {
   }
   // end of algorithm
 
-  // badPot algorithm
+  // 2PlanePot algorithm
 
   for (unsigned int i = 0; i < 4; i++) {
-    if (isBadPot[i]) {
-      Road::iterator it_gh1_bP = temp_all_hits_badPot[i].begin();
+    if (is2PlanePot[i]) {
+      Road::iterator it_gh1_bP = temp_all_hits_2PlanePot[i].begin();
       Road::iterator it_gh2_bP;
 
-      while (it_gh1_bP != temp_all_hits_badPot[i].end() && temp_all_hits_badPot[i].size() >= 2) {
+      while (it_gh1_bP != temp_all_hits_2PlanePot[i].end() && temp_all_hits_2PlanePot[i].size() >= 2) {
         Road temp_road;
 
         it_gh2_bP = it_gh1_bP;
 
         const auto currPoint = it_gh1_bP->globalPoint;
 
-        while (it_gh2_bP != temp_all_hits_badPot[i].end()) {
+        while (it_gh2_bP != temp_all_hits_2PlanePot[i].end()) {
           const auto subtraction = currPoint - it_gh2_bP->globalPoint;
 
-          if (subtraction.Rho() < roadRadiusBadPot_) {
+          if (subtraction.Rho() < roadRadius2PlanePot_) {
             temp_road.push_back(*it_gh2_bP);
-            temp_all_hits_badPot[i].erase(it_gh2_bP);
+            temp_all_hits_2PlanePot[i].erase(it_gh2_bP);
           } else {
             ++it_gh2_bP;
           }
