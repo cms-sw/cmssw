@@ -73,7 +73,7 @@ private:
   bool use_puppi_value_map_;
   bool use_pvasq_value_map_;
   bool is_packed_pf_candidate_collection_;
-  bool fallback_puppi_weight;
+  bool fallback_puppi_weight_;
 
   edm::EDGetTokenT<edm::ValueMap<float>> puppi_value_map_token_;
   edm::EDGetTokenT<edm::ValueMap<int>> pvasq_value_map_token_;
