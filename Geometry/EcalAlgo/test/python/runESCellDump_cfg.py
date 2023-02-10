@@ -12,6 +12,10 @@ process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
 process.load("Geometry.EcalMapping.EcalMapping_cfi")
 process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
 process.load("Geometry.EcalAlgo.ecalPreshowerCellParameterDump_cfi")
+process.load('FWCore.MessageService.MessageLogger_cfi')
+
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.EcalGeom=dict()
 
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
