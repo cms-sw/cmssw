@@ -841,7 +841,7 @@ public:
             }
           } else if (std::regex_search(lines[iLine], groups, weightgroupRwgt)) {
             std::string groupname = groups.str(1);
-            if (groupname == "mg_reweighting") {
+            if (groupname.find("mg_reweighting") != std::string::npos) {
               if (lheDebug)
                 std::cout << ">>> Looks like a LHE weights for reweighting" << std::endl;
               for (++iLine; iLine < nLines; ++iLine) {
