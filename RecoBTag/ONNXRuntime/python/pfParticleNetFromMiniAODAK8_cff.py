@@ -8,17 +8,16 @@ from RecoBTag.FeatureTools.ParticleNetFeatureEvaluator_cfi import ParticleNetFea
 pfParticleNetFromMiniAODAK8TagInfos = ParticleNetFeatureEvaluator.clone(
     jets = "slimmedJetsAK8",
     jet_radius = 0.8,
-    min_jet_pt = 200,
+    min_jet_pt = 180,
     min_jet_eta = 0.,
     max_jet_eta = 2.5,
-    min_pt_for_track_properties = 0.95,
 )
 
 
 pfParticleNetFromMiniAODAK8JetTags = boostedJetONNXJetTagsProducer.clone(
     src = 'pfParticleNetFromMiniAODAK8TagInfos',
     preprocess_json = 'RecoBTag/Combined/data/ParticleNetFromMiniAODAK8/preprocess.json',
-    model_path = 'RecoBTag/Combined/data/ParticleNetFromMiniAODAK8/modelfile/model.onnx',
+    model_path = 'RecoBTag/Combined/data/ParticleNetFromMiniAODAK8/particle-net.onnx',
     flav_names = ['probHtt','probHtm','probHte','probHbb', 'probHcc', 'probHqq', 'probHgg','probQCD2hf','probQCD1hf','probQCD0hf','masscorr'],
 )
 
