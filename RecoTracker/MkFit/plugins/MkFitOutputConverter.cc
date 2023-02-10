@@ -345,6 +345,8 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
     edm::OwnVector<TrackingRecHit> recHits;
     // nTotalHits() gives sum of valid hits (nFoundHits()) and invalid/missing hits.
     const int nhits = cand.nTotalHits();
+    std::vector<int> mkFitLayers;
+    mkFitLayers.reserve(nhits);
     bool lastHitInvalid = false;
     bool lastHitPruned = false;
     for (int i = 0; i < nhits; ++i) {
@@ -383,6 +385,7 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
               *thit.det(),
               thit.firstClusterRef()));
         }
+        mkFitLayers.push_back(hitOnTrack.layer);
         LogTrace("MkFitOutputConverter") << "  pos " << recHits.back().globalPosition().x() << " "
                                          << recHits.back().globalPosition().y() << " "
                                          << recHits.back().globalPosition().z() << " mag2 "
@@ -419,10 +422,17 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
                 << " hit " << thit.globalPosition() << " state " << fts << " hitRZ " << hitRZ << " stateRZ " << stateRZ;
             if (std::abs(hitRZ - stateRZ) > 0.01f) {
               recHits.pop_back();
+              mkFitLayers.pop_back();
               lastHitPruned = true;
             }
             if (nValidToNext > 1)
               edm::LogWarning("MkFitOutputConverter") << "hit layers are not in order from first " << hitOnTrack.layer;
+          }
+        } else if (matchFirstLayerHitToCandStateRZ_ && recHits.size() == 2 && mkFitOutput.propagatedToFirstLayer()) {
+          if (mkFitLayers[0] == mkFitLayers[1]) {
+            recHits.pop_back();
+            mkFitLayers.pop_back();
+            lastHitPruned = true;
           }
         }
 
