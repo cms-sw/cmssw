@@ -65,9 +65,8 @@ DisplacedRegionSeedingVertexProducer::DisplacedRegionSeedingVertexProducer(const
       trackClustersToken_(
           consumes<edm::View<reco::VertexCompositeCandidate> >(cfg.getParameter<edm::InputTag>("trackClusters"))) {
   unsigned nThreads = cfg.getParameter<unsigned>("nThreads");
-  string singleThreadPool = cfg.getParameter<string>("singleThreadPool");
   tensorflow::SessionOptions sessionOptions;
-  tensorflow::setThreading(sessionOptions, nThreads, singleThreadPool);
+  tensorflow::setThreading(sessionOptions, nThreads);
   string pbFile = cfg.getParameter<edm::FileInPath>("graph_path").fullPath();
   auto graphDef = tensorflow::loadGraphDef(pbFile);
   session_ = tensorflow::createSession(graphDef, sessionOptions);
@@ -168,7 +167,6 @@ void DisplacedRegionSeedingVertexProducer::fillDescriptions(edm::ConfigurationDe
   desc.add<vector<string> >("input_names", {"phi_0", "phi_1"});
   desc.add<vector<string> >("output_names", {"model_5/activation_10/Softmax"});
   desc.add<unsigned>("nThreads", 1);
-  desc.add<string>("singleThreadPool", "no_threads");
   desc.add<edm::FileInPath>(
       "graph_path",
       edm::FileInPath(
