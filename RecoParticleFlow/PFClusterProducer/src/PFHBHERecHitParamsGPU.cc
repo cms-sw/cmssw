@@ -17,10 +17,14 @@ PFHBHERecHitParamsGPU::PFHBHERecHitParamsGPU(edm::ParameterSet const& ps) {
   std::copy(valuesDepthHE.begin(), valuesDepthHE.end(), depthHE_.begin());
   std::copy(valuesThresholdE_HB.begin(), valuesThresholdE_HB.end(), thresholdE_HB_.begin());
   std::copy(valuesThresholdE_HE.begin(), valuesThresholdE_HE.end(), thresholdE_HE_.begin());
+  nDepthHB_ = (int)valuesDepthHB.size();
+  nDepthHE_ = (int)valuesDepthHE.size();
 }
 
 PFHBHERecHitParamsGPU::Product::~Product() {
   // deallocation
+  cudaCheck(cudaFree(nDepthHB));
+  cudaCheck(cudaFree(nDepthHE));
   cudaCheck(cudaFree(depthHB));
   cudaCheck(cudaFree(depthHE));
   cudaCheck(cudaFree(thresholdE_HB));
@@ -31,6 +35,8 @@ PFHBHERecHitParamsGPU::Product const& PFHBHERecHitParamsGPU::getProduct(cudaStre
   auto const& product = product_.dataForCurrentDeviceAsync(
       cudaStream, [this](PFHBHERecHitParamsGPU::Product& product, cudaStream_t cudaStream) {
         //
+        product.nDepthHB = cms::cuda::make_device_unique<int>(cudaStream);
+        product.nDepthHE = cms::cuda::make_device_unique<int>(cudaStream);
         product.depthHB = cms::cuda::make_device_unique<int[]>(depthHB_.size(), cudaStream);
         product.depthHE = cms::cuda::make_device_unique<int[]>(depthHE_.size(), cudaStream);
         product.thresholdE_HB = cms::cuda::make_device_unique<float[]>(thresholdE_HB_.size(), cudaStream);
@@ -43,6 +49,15 @@ PFHBHERecHitParamsGPU::Product const& PFHBHERecHitParamsGPU::getProduct(cudaStre
         //cudaCheck(cudaMalloc((void**)&product.thresholdE_HE, this->thresholdE_HE_.size() * sizeof(float)));
 
         // transfer
+        //add this copy syntax to https://cmssdt.cern.ch/lxr/source/HeterogeneousCore/CUDAUtilities/interface/copyAsync.h
+        //so that we can use copyAsync for all transfers?
+        cms::cuda::host::unique_ptr<int> nDepthHB_h = cms::cuda::make_host_unique<int>(cudaStream);
+        cms::cuda::host::unique_ptr<int> nDepthHE_h = cms::cuda::make_host_unique<int>(cudaStream);
+        *nDepthHB_h = nDepthHB_;
+        *nDepthHE_h = nDepthHE_;
+        cudaCheck(cudaMemcpyAsync(product.nDepthHB, nDepthHB_h.get(), sizeof(int), cudaMemcpyHostToDevice, cudaStream));
+        cudaCheck(cudaMemcpyAsync(product.nDepthHE, nDepthHE_h.get(), sizeof(int), cudaMemcpyHostToDevice, cudaStream));
+        //
         cms::cuda::copyAsync(product.depthHB, depthHB_, cudaStream);
         cms::cuda::copyAsync(product.depthHE, depthHE_, cudaStream);
         cms::cuda::copyAsync(product.thresholdE_HB, thresholdE_HB_, cudaStream);

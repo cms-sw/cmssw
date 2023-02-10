@@ -148,7 +148,9 @@ namespace PFRecHit {
 
     // Phase I threshold test corresponding to PFRecHitQTestHCALThresholdVsDepth
     __global__ void applyDepthThresholdQTests(const uint32_t nRHIn,  // Number of input rechits
-                                              int const* depthHB,    // The following from recHitParamsProduct
+                                              int const* nDepthHB,
+                                              int const* nDepthHE,
+                                              int const* depthHB,  // The following from recHitParamsProduct
                                               int const* depthHE,
                                               float const* thresholdE_HB,
                                               float const* thresholdE_HE,
@@ -163,7 +165,7 @@ namespace PFRecHit {
         float threshold = 9999.;
         if (subdet == HcalBarrel) {
           bool found = false;
-          for (uint32_t j = 0; j < 4; j++) {
+          for (uint32_t j = 0; j < *nDepthHB; j++) {
             if (depth == depthHB[j]) {
               threshold = thresholdE_HB[j];
               found = true;  // found depth and threshold
@@ -173,7 +175,7 @@ namespace PFRecHit {
             printf("i = %u\tInvalid depth %u for barrel rechit %u!\n", i, depth, detid);
         } else if (subdet == HcalEndcap) {
           bool found = false;
-          for (uint32_t j = 0; j < 7; j++) {
+          for (uint32_t j = 0; j < *nDepthHE; j++) {
             if (depth == depthHE[j]) {
               threshold = thresholdE_HE[j];
               found = true;  // found depth and threshold
@@ -475,6 +477,8 @@ namespace PFRecHit {
       // Apply PFRecHit threshold & quality tests
       applyDepthThresholdQTests<<<(nRHIn + threadsPerBlock - 1) / threadsPerBlock, threadsPerBlock, 0, cudaStream>>>(
           nRHIn,
+          constantProducts.recHitParametersProduct.nDepthHB,
+          constantProducts.recHitParametersProduct.nDepthHE,
           constantProducts.recHitParametersProduct.depthHB,
           constantProducts.recHitParametersProduct.depthHE,
           constantProducts.recHitParametersProduct.thresholdE_HB,
