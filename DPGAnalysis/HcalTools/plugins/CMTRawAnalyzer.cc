@@ -9658,7 +9658,6 @@ void CMTRawAnalyzer::fillDigiAmplitudeQIE11(QIE11DataFrame qie11df) {
   double amplitude345 = 0.;
   double ampl = 0.;
   double ampl3ts = 0.;
-  //  double amplmaxts = 0.;
   double timew = 0.;
   double timeww = 0.;
   double max_signal = -100.;
@@ -9785,7 +9784,6 @@ void CMTRawAnalyzer::fillDigiAmplitudeQIE11(QIE11DataFrame qie11df) {
   if (ts_with_max_signal > -1 && ts_with_max_signal < TSsize) {
     ampl = tool[ts_with_max_signal];
     ampl3ts = tool[ts_with_max_signal];
-    //    amplmaxts = tool[ts_with_max_signal];
   }
   if (ts_with_max_signal - 1 > -1 && ts_with_max_signal - 1 < TSsize) {
     ampl += tool[ts_with_max_signal - 1];
@@ -9805,7 +9803,6 @@ void CMTRawAnalyzer::fillDigiAmplitudeQIE11(QIE11DataFrame qie11df) {
       double xb = ampl / 40.;
       double xc = amplitude345 / 40.;
       double xd = ampl3ts / 40.;
-      //      double xe = amplmaxts / 40.;
       double txa = tocampl / 40.;
       // ADDI case:
       if (((ieta == -16 || ieta == 15) && mdepth == 4) ||
