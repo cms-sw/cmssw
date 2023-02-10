@@ -91,6 +91,25 @@ public:
   // ouput LA maps
   std::vector<dqm::reco::MonitorElement*> h2_byLayerLA_;
   std::vector<dqm::reco::MonitorElement*> h2_byLayerDiff_;
+
+  // FPix Minimal Cluster Size
+  static constexpr int nRings_ = 2;
+  static constexpr int nPanels_ = 2;
+  static constexpr int nSides_ = 2;
+  static constexpr int betaStartIdx_ = nRings_ * nPanels_ * nSides_;
+  static constexpr int nAngles_ = 2;
+
+  MonitorMap h_fpixAngleSize_;
+  MonitorMap h_fpixMean_;
+  MonitorMap h_fpixMagField_[3];
+
+  dqm::reco::MonitorElement* h_fpixMeanHistoFitStatus_;
+  dqm::reco::MonitorElement* h_fpixMinClusterSizeCotAngle_;
+  dqm::reco::MonitorElement* h_fpixNhitsClusterSizeCotAngle_;
+  dqm::reco::MonitorElement* h_fpixFitStatusMuH_;
+  dqm::reco::MonitorElement* h_fpixMuH_;
+  dqm::reco::MonitorElement* h_fpixDeltaMuH_;
+  dqm::reco::MonitorElement* h_fpixRelDeltaMuH_;
 };
 
 #endif
