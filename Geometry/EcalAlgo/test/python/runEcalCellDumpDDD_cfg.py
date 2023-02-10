@@ -4,6 +4,10 @@ from Configuration.Eras.Era_Run3_cff import Run3
 process = cms.Process("EcalGeometryTest",Run3)
 
 process.load("Configuration.Geometry.GeometryExtended2021Reco_cff")
+process.load('FWCore.MessageService.MessageLogger_cfi')
+
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.EcalGeom=dict()
 
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
