@@ -200,7 +200,7 @@ void MkFitOutputConverter::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<double>("qualityMaxPosErr", 100)->setComment("max position error for converted tracks");
   desc.add<bool>("qualitySignPt", true)->setComment("check sign of 1/pt for converted tracks");
 
-  desc.add<bool>("matchFirstLayerHitToCandStateRZ", true)->setComment("match first hit to the candidate state in R/Z");
+  desc.add<bool>("matchFirstLayerHitToCandStateRZ", false)->setComment("match first hit to the candidate state in R/Z");
   desc.add<bool>("doErrorRescale", true)->setComment("rescale candidate error before final fit");
 
   desc.add<std::string>("tfDnnLabel", "trackSelectionTf");
