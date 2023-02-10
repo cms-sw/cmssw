@@ -130,6 +130,7 @@ private:
   const float qualityMaxPosErrSq_;
   const bool qualitySignPt_;
 
+  const bool matchFirstLayerHitToCandStateRZ_;
   const bool doErrorRescale_;
 
   const int algo_;
@@ -165,6 +166,7 @@ MkFitOutputConverter::MkFitOutputConverter(edm::ParameterSet const& iConfig)
       qualityMaxZ_{float(iConfig.getParameter<double>("qualityMaxZ"))},
       qualityMaxPosErrSq_{float(pow(iConfig.getParameter<double>("qualityMaxPosErr"), 2))},
       qualitySignPt_{iConfig.getParameter<bool>("qualitySignPt")},
+      matchFirstLayerHitToCandStateRZ_{iConfig.getParameter<bool>("matchFirstLayerHitToCandStateRZ")},
       doErrorRescale_{iConfig.getParameter<bool>("doErrorRescale")},
       algo_{reco::TrackBase::algoByName(
           TString(iConfig.getParameter<edm::InputTag>("seeds").label()).ReplaceAll("Seeds", "").Data())},
@@ -198,6 +200,7 @@ void MkFitOutputConverter::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<double>("qualityMaxPosErr", 100)->setComment("max position error for converted tracks");
   desc.add<bool>("qualitySignPt", true)->setComment("check sign of 1/pt for converted tracks");
 
+  desc.add<bool>("matchFirstLayerHitToCandStateRZ", true)->setComment("match first hit to the candidate state in R/Z");
   desc.add<bool>("doErrorRescale", true)->setComment("rescale candidate error before final fit");
 
   desc.add<std::string>("tfDnnLabel", "trackSelectionTf");
@@ -343,6 +346,7 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
     // nTotalHits() gives sum of valid hits (nFoundHits()) and invalid/missing hits.
     const int nhits = cand.nTotalHits();
     bool lastHitInvalid = false;
+    bool lastHitPruned = false;
     for (int i = 0; i < nhits; ++i) {
       const auto& hitOnTrack = cand.getHitOnTrack(i);
       LogTrace("MkFitOutputConverter") << " hit on layer " << hitOnTrack.layer << " index " << hitOnTrack.index;
@@ -384,7 +388,46 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
                                          << recHits.back().globalPosition().z() << " mag2 "
                                          << recHits.back().globalPosition().mag2() << " detid "
                                          << recHits.back().geographicalId().rawId() << " cluster " << hitOnTrack.index;
-        lastHitInvalid = false;
+
+        if (lastHitPruned) {
+          auto const isBarrel = eventOfHits[hitOnTrack.layer].is_barrel();
+          float hitRZ = isBarrel ? thit.globalPosition().perp() : thit.globalPosition().z();
+          LogDebug("MkFitOutputConverter") << "last hit was pruned, new hit at " << i << " layer " << hitOnTrack.layer
+                                           << " pos " << thit.globalPosition() << " hitRZ " << hitRZ;
+          lastHitPruned = false;
+        }
+        if (matchFirstLayerHitToCandStateRZ_ && recHits.size() == 1 && mkFitOutput.propagatedToFirstLayer() &&
+            i + 1 != nhits) {
+          int nextValidSameLayer = -1;
+          int nValidToNext = 0;
+          for (int j = i + 1; j < nhits; ++j) {
+            const auto& nextHit = cand.getHitOnTrack(j);
+            if (nextHit.index < 0)
+              continue;
+            nValidToNext++;
+            if (nextHit.layer == hitOnTrack.layer) {
+              nextValidSameLayer = j;
+              break;
+            }
+          }
+          if (nextValidSameLayer > 0) {
+            auto const isBarrel = eventOfHits[hitOnTrack.layer].is_barrel();
+            float hitRZ = isBarrel ? thit.globalPosition().perp() : thit.globalPosition().z();
+            float stateRZ = isBarrel ? hypot(param[0], param[1]) : param[2];
+            LogDebug("MkFitOutputConverter")
+                << "more than one on same layer " << hitOnTrack.layer << " " << i << " " << nextValidSameLayer
+                << " hit " << thit.globalPosition() << " state " << fts << " hitRZ " << hitRZ << " stateRZ " << stateRZ;
+            if (std::abs(hitRZ - stateRZ) > 0.01f) {
+              recHits.pop_back();
+              lastHitPruned = true;
+            }
+            if (nValidToNext > 1)
+              edm::LogWarning("MkFitOutputConverter") << "hit layers are not in order from first " << hitOnTrack.layer;
+          }
+        }
+
+        if (!recHits.empty())
+          lastHitInvalid = false;
       }
     }
 
