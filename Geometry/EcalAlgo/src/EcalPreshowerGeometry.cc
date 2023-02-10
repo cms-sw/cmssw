@@ -165,7 +165,8 @@ DetId EcalPreshowerGeometry::getClosestCellInPlane(const GlobalPoint& point, int
   const int jz(0 > ze ? -1 : 1);
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("EcalGeom")<<"** p="<<point<<", ("<<xe<<", "<<ye<<", "<<ze<<"), row="<<row<<", col="<<col;
+  edm::LogVerbatim("EcalGeom") << "** p=" << point << ", (" << xe << ", " << ye << ", " << ze << "), row=" << row
+                               << ", col=" << col;
 #endif
   for (int ix(-1); ix != 2; ++ix)  // search within +-1 in row and col
   {

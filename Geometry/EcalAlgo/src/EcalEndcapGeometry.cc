@@ -162,12 +162,14 @@ void EcalEndcapGeometry::initializeParms() {
   m_del += m_wref;
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("EcalGeom")<<"zeP="<<zeP<<", zeN="<<zeN<<", nP="<<nP<<", nN="<<nN;
+  edm::LogVerbatim("EcalGeom") << "zeP=" << zeP << ", zeN=" << zeN << ", nP=" << nP << ", nN=" << nN;
 
-  edm::LogVerbatim("EcalGeom")<<"xlo[0]="<<m_xlo[0]<<", xlo[1]="<<m_xlo[1]<<", xhi[0]="<<m_xhi[0]<<", xhi[1]="<<m_xhi[1]
-			      <<"\nylo[0]="<<m_ylo[0]<<", ylo[1]="<<m_ylo[1]<<", yhi[0]="<<m_yhi[0]<<", yhi[1]="<<m_yhi[1];
+  edm::LogVerbatim("EcalGeom") << "xlo[0]=" << m_xlo[0] << ", xlo[1]=" << m_xlo[1] << ", xhi[0]=" << m_xhi[0]
+                               << ", xhi[1]=" << m_xhi[1] << "\nylo[0]=" << m_ylo[0] << ", ylo[1]=" << m_ylo[1]
+                               << ", yhi[0]=" << m_yhi[0] << ", yhi[1]=" << m_yhi[1];
 
-  edm::LogVerbatim("EcalGeom")<<"xoff[0]="<<m_xoff[0]<<", xoff[1]"<<m_xoff[1]<<", yoff[0]="<<m_yoff[0]<<", yoff[1]"<<m_yoff[1];
+  edm::LogVerbatim("EcalGeom") << "xoff[0]=" << m_xoff[0] << ", xoff[1]" << m_xoff[1] << ", yoff[0]=" << m_yoff[0]
+                               << ", yoff[1]" << m_yoff[1];
 
   edm::LogVerbatim("EcalGeom") << "nref=" << m_nref << ", m_wref=" << m_wref;
 #endif
