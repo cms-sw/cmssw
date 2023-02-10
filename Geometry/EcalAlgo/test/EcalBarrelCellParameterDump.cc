@@ -37,7 +37,7 @@ void EcalBarrelCellParameterDump::analyze(const edm::Event& /*iEvent*/, const ed
       static_cast<const CaloSubdetectorGeometry*>(geo->getSubdetectorGeometry(DetId::Ecal, EcalBarrel));
 
   edm::LogVerbatim("EcalGeom") << "\n\nStudy Detector = Ecal SubDetector = EB"
-            << "\n======================================\n";
+                               << "\n======================================\n";
   const std::vector<DetId>& ids = ecalGeom->getValidDetIds(DetId::Ecal, EcalBarrel);
   int nall(0);
   for (auto id : ids) {
@@ -46,10 +46,10 @@ void EcalBarrelCellParameterDump::analyze(const edm::Event& /*iEvent*/, const ed
     EBDetId ebid(id.rawId());
 
     std::ostringstream st1;
-    st1 << "IEta = " << ebid.ieta() << ";  IPhi = " << ebid.iphi() << " geom->getPosition "
-              << std::setprecision(4) << geom->getPosition() << " BackPoint " << geom->getBackPoint()
-              << " [rho,eta:etaSpan,phi:phiSpan] (" << geom->rhoPos() << ", " << geom->etaPos() << ":"
-              << geom->etaSpan() << ", " << geom->phiPos() << ":" << geom->phiSpan() << ")";
+    st1 << "IEta = " << ebid.ieta() << ";  IPhi = " << ebid.iphi() << " geom->getPosition " << std::setprecision(4)
+        << geom->getPosition() << " BackPoint " << geom->getBackPoint() << " [rho,eta:etaSpan,phi:phiSpan] ("
+        << geom->rhoPos() << ", " << geom->etaPos() << ":" << geom->etaSpan() << ", " << geom->phiPos() << ":"
+        << geom->phiSpan() << ")";
 
     const CaloCellGeometry::CornersVec& corners(geom->getCorners());
 

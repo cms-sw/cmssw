@@ -36,7 +36,7 @@ void EcalEndcapCellParameterDump::analyze(const edm::Event& /*iEvent*/, const ed
       static_cast<const CaloSubdetectorGeometry*>(geo->getSubdetectorGeometry(DetId::Ecal, EcalEndcap));
 
   edm::LogVerbatim("EcalGeom") << "\n\nStudy Detector = Ecal SubDetector = EE"
-            << "\n======================================\n";
+                               << "\n======================================\n";
   const std::vector<DetId>& ids = ecalGeom->getValidDetIds(DetId::Ecal, EcalEndcap);
   int nall(0);
   for (auto id : ids) {
@@ -46,9 +46,9 @@ void EcalEndcapCellParameterDump::analyze(const edm::Event& /*iEvent*/, const ed
 
     std::ostringstream st1;
     st1 << "IX = " << ebid.ix() << ";  IY = " << ebid.iy() << " geom->getPosition " << std::setprecision(4)
-              << geom->getPosition() << " BackPoint " << geom->getBackPoint() << " [rho,eta:etaSpan,phi:phiSpan] ("
-              << geom->rhoPos() << ", " << geom->etaPos() << ":" << geom->etaSpan() << ", " << geom->phiPos() << ":"
-              << geom->phiSpan() << ")";
+        << geom->getPosition() << " BackPoint " << geom->getBackPoint() << " [rho,eta:etaSpan,phi:phiSpan] ("
+        << geom->rhoPos() << ", " << geom->etaPos() << ":" << geom->etaSpan() << ", " << geom->phiPos() << ":"
+        << geom->phiSpan() << ")";
 
     const CaloCellGeometry::CornersVec& corners(geom->getCorners());
 
