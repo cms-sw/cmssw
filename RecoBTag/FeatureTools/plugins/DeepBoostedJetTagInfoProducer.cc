@@ -73,7 +73,6 @@ private:
   bool use_puppi_value_map_;
   bool use_pvasq_value_map_;
   bool is_packed_pf_candidate_collection_;
-  bool fallback_puppi_weight_;
 
   edm::EDGetTokenT<edm::ValueMap<float>> puppi_value_map_token_;
   edm::EDGetTokenT<edm::ValueMap<int>> pvasq_value_map_token_;
@@ -195,7 +194,6 @@ DeepBoostedJetTagInfoProducer::DeepBoostedJetTagInfoProducer(const edm::Paramete
       pfcand_token_(consumes<CandidateView>(iConfig.getParameter<edm::InputTag>("pf_candidates"))),
       use_puppi_value_map_(false),
       use_pvasq_value_map_(false),
-      fallback_puppi_weight_(iConfig.getParameter<bool>("fallback_puppi_weight")),
       track_builder_token_(
           esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"))) {
   const auto &puppi_value_map_tag = iConfig.getParameter<edm::InputTag>("puppi_value_map");
@@ -231,7 +229,6 @@ void DeepBoostedJetTagInfoProducer::fillDescriptions(edm::ConfigurationDescripti
   desc.add<bool>("flip_ip_sign", false);
   desc.add<double>("sip3dSigMax", -1);
   desc.add<bool>("use_hlt_features", false);
-  desc.add<bool>("fallback_puppi_weight", false);
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
   desc.add<edm::InputTag>("secondary_vertices", edm::InputTag("inclusiveCandidateSecondaryVertices"));
   desc.add<edm::InputTag>("pf_candidates", edm::InputTag("particleFlow"));
@@ -332,18 +329,10 @@ float DeepBoostedJetTagInfoProducer::puppiWgt(const reco::CandidatePtr &cand) {
     wgt = pack_cand->puppiWeight();
     if (use_puppi_value_map_)
       wgt = (*puppi_value_map_)[cand];
-    else if (!fallback_puppi_weight_) {
-      throw edm::Exception(edm::errors::InvalidReference, "PUPPI value map missing")
-        << "use fallback_puppi_weight option to use puppiWeight() for pack_cand as default";
-    }
   }
   else if (reco_cand) {
     if (use_puppi_value_map_)
       wgt = (*puppi_value_map_)[cand];
-   else if (!fallback_puppi_weight_) {
-      throw edm::Exception(edm::errors::InvalidReference, "PUPPI value map missing")
-        << "use fallback_puppi_weight option to use " << wgt << " for reco_cand as default";
-    }
   } else
     throw edm::Exception(edm::errors::InvalidReference)
         << "Cannot convert to either pat::PackedCandidate or reco::PFCandidate";
