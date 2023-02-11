@@ -40,7 +40,8 @@ L1TStage2CaloLayer1::L1TStage2CaloLayer1(const edm::ParameterSet& ps)
       ecalTPSourceSentLabel_(ps.getParameter<edm::InputTag>("ecalTPSourceSent").label()),
       hcalTPSourceSent_(consumes<HcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("hcalTPSourceSent"))),
       hcalTPSourceSentLabel_(ps.getParameter<edm::InputTag>("hcalTPSourceSent").label()),
-      CaloTowerCollectionData_(consumes<l1t::CaloTowerBxCollection>(ps.getParameter<edm::InputTag>("CaloTowerCollectionData"))),
+      CaloTowerCollectionData_(
+          consumes<l1t::CaloTowerBxCollection>(ps.getParameter<edm::InputTag>("CaloTowerCollectionData"))),
       CaloTowerCollectionDataLabel_(ps.getParameter<edm::InputTag>("CaloTowerCollectionData").label()),
       fedRawData_(consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("fedRawDataLabel"))),
       histFolder_(ps.getParameter<std::string>("histFolder")),
@@ -386,22 +387,22 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
       if (sentTp.SOI_fineGrain(5)) {
         eventMonitors.hcalOccSentFg5_->Fill(ieta, iphi);
       }
-      if (not (recdTp.SOI_fineGrain(0) == sentTp.SOI_fineGrain(0))) {
+      if (not(recdTp.SOI_fineGrain(0) == sentTp.SOI_fineGrain(0))) {
         eventMonitors.hcalOccFg0Discrepancy_->Fill(ieta, iphi);
       }
-      if (not (recdTp.SOI_fineGrain(1) == sentTp.SOI_fineGrain(1))) {
+      if (not(recdTp.SOI_fineGrain(1) == sentTp.SOI_fineGrain(1))) {
         eventMonitors.hcalOccFg1Discrepancy_->Fill(ieta, iphi);
       }
-      if (not (recdTp.SOI_fineGrain(2) == sentTp.SOI_fineGrain(2))) {
+      if (not(recdTp.SOI_fineGrain(2) == sentTp.SOI_fineGrain(2))) {
         eventMonitors.hcalOccFg2Discrepancy_->Fill(ieta, iphi);
       }
-      if (not (recdTp.SOI_fineGrain(3) == sentTp.SOI_fineGrain(3))) {
+      if (not(recdTp.SOI_fineGrain(3) == sentTp.SOI_fineGrain(3))) {
         eventMonitors.hcalOccFg3Discrepancy_->Fill(ieta, iphi);
       }
-      if (not (recdTp.SOI_fineGrain(4) == sentTp.SOI_fineGrain(4))) {
+      if (not(recdTp.SOI_fineGrain(4) == sentTp.SOI_fineGrain(4))) {
         eventMonitors.hcalOccFg4Discrepancy_->Fill(ieta, iphi);
       }
-      if (not (recdTp.SOI_fineGrain(5) == sentTp.SOI_fineGrain(5))) {
+      if (not(recdTp.SOI_fineGrain(5) == sentTp.SOI_fineGrain(5))) {
         eventMonitors.hcalOccFg5Discrepancy_->Fill(ieta, iphi);
       }
       // Construct a 6-bit integer from the 6 fine grain bits at uHTR (will change to at Layer1 readout later)
@@ -416,7 +417,7 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
       // Actual feature bit output in data
       uint32_t tower_hwqual = 0;
       for (auto tower = caloTowerDataCol->begin(0); tower != caloTowerDataCol->end(0); ++tower) {
-        if (not (tower->hwEta() == ieta && tower->hwPhi() == iphi)) {
+        if (not(tower->hwEta() == ieta && tower->hwPhi() == iphi)) {
           continue;
         }
         tower_hwqual = tower->hwQual();
@@ -430,11 +431,10 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
       if (fb_Data) {
         eventMonitors.hcalOccLLPFbData_->Fill(ieta, iphi);
       }
-      if (not (fb_Expd == fb_Data)) {
+      if (not(fb_Expd == fb_Data)) {
         eventMonitors.hcalOccLLPFbDiscrepancy_->Fill(ieta, iphi);
       }
     }
-
 
     if (recdTp.SOI_compressedEt() > tpFillThreshold_) {
       eventMonitors.hcalTPRawEtRecd_->Fill(recdTp.SOI_compressedEt());
