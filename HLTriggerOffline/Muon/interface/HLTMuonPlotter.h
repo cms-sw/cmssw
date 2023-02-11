@@ -1,5 +1,5 @@
-#ifndef HLTriggerOffline_Muon_HLTMuonPlotter_H
-#define HLTriggerOffline_Muon_HLTMuonPlotter_H
+#ifndef HLTriggerOffline_Muon_HLTMuonPlotter_h
+#define HLTriggerOffline_Muon_HLTMuonPlotter_h
 
 /** \class HLTMuonPlotter
  *  Generate histograms for muon trigger efficiencies
@@ -34,13 +34,10 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include <algorithm>
-#include <cctype>
-#include <iostream>
-#include <map>
-#include <set>
-#include <tuple>
+#include <sstream>
+#include <string>
 #include <vector>
+#include <unordered_map>
 
 #include "TPRegexp.h"
 
@@ -51,7 +48,7 @@ public:
   typedef L1MuonMatcherAlgoT<edm::Transition::BeginRun> L1MuonMatcherAlgoForDQM;
 
   HLTMuonPlotter(const edm::ParameterSet &,
-                 std::string,
+                 const std::string &,
                  const std::vector<std::string> &,
                  const std::vector<std::string> &,
                  const edm::EDGetTokenT<trigger::TriggerEventWithRefs> &,
@@ -59,12 +56,8 @@ public:
                  const edm::EDGetTokenT<reco::MuonCollection> &,
                  const L1MuonMatcherAlgoForDQM &);
 
-  ~HLTMuonPlotter() {
-    delete genMuonSelector_;
-    delete recMuonSelector_;
-  }
+  ~HLTMuonPlotter() = default;
 
-  void beginJob();
   void beginRun(DQMStore::IBooker &, const edm::Run &, const edm::EventSetup &);
   void analyze(const edm::Event &, const edm::EventSetup &);
 
@@ -88,43 +81,53 @@ private:
     bool operator()(MatchStruct a, MatchStruct b) { return a.candBase->pt() > b.candBase->pt(); }
   };
 
-  void analyzePath(const edm::Event &,
-                   const std::string &,
-                   const std::string &,
-                   const std::vector<MatchStruct> &,
-                   edm::Handle<trigger::TriggerEventWithRefs>);
   void findMatches(std::vector<MatchStruct> &,
                    const l1t::MuonVectorRef &candsL1,
                    const std::vector<std::vector<const reco::RecoChargedCandidate *>> &);
-  void bookHist(DQMStore::IBooker &, std::string, std::string, std::string, std::string);
 
-  std::string hltPath_;
-  std::string hltProcessName_;
+  void bookHist(DQMStore::IBooker &, const std::string &, const std::string &, const std::string &, const std::string &);
 
-  std::vector<std::string> moduleLabels_;
-  std::vector<std::string> stepLabels_;
+  template <typename T>
+  std::string vector_to_string(std::vector<T> const &vec, std::string const &delimiter = " ") const;
 
-  edm::EDGetTokenT<trigger::TriggerEventWithRefs> hltTriggerSummaryRAW_;
-  edm::EDGetTokenT<reco::GenParticleCollection> genParticleLabel_;
-  edm::EDGetTokenT<reco::MuonCollection> recMuonLabel_;
+  std::string const hltPath_;
+  std::string const hltProcessName_;
 
-  std::vector<double> parametersEta_;
-  std::vector<double> parametersPhi_;
-  std::vector<double> parametersTurnOn_;
+  std::vector<std::string> const moduleLabels_;
+  std::vector<std::string> const stepLabels_;
 
-  double cutMinPt_;
-  double cutMaxEta_;
-  unsigned int cutMotherId_;
-  std::vector<double> cutsDr_;
-  std::string genMuonCut_;
-  std::string recMuonCut_;
+  edm::EDGetTokenT<trigger::TriggerEventWithRefs> const triggerEventWithRefsToken_;
+  edm::EDGetTokenT<reco::GenParticleCollection> const genParticleToken_;
+  edm::EDGetTokenT<reco::MuonCollection> const recMuonToken_;
 
-  StringCutObjectSelector<reco::GenParticle> *genMuonSelector_;
-  StringCutObjectSelector<reco::Muon> *recMuonSelector_;
+  StringCutObjectSelector<reco::GenParticle> const genMuonSelector_;
+  StringCutObjectSelector<reco::Muon> const recMuonSelector_;
+  std::vector<double> const cutsDr_;
+
+  std::vector<double> const parametersEta_;
+  std::vector<double> const parametersPhi_;
+  std::vector<double> const parametersTurnOn_;
 
   L1MuonMatcherAlgoForDQM l1Matcher_;
 
-  std::map<std::string, MonitorElement *> elements_;
+  bool isInvalid_;
+
+  double cutMinPt_;
+  double cutMaxEta_;
+
+  std::unordered_map<std::string, MonitorElement *> elements_;
 };
 
-#endif
+template <typename T>
+std::string HLTMuonPlotter::vector_to_string(std::vector<T> const &vec, std::string const &delimiter) const {
+  if (vec.empty())
+    return "";
+  std::stringstream sstr;
+  for (auto const &foo : vec)
+    sstr << delimiter << foo;
+  auto ret = sstr.str();
+  ret.erase(0, delimiter.size());
+  return ret;
+}
+
+#endif  // HLTriggerOffline_Muon_HLTMuonPlotter_h
