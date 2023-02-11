@@ -1983,6 +1983,11 @@ class ProcessAccelerator(_ConfigureComponent,_Unlabelable):
     it would be good to have specific unit test for each deriving
     class to ensure that all combinations of the enabled accelerators
     give the same configuration hash.
+
+    The deriving class must do its checks for hardware availability
+    only in enabledLabels(), and possibly in apply() if any further
+    fine-tuning is needed, because those two are the only functions
+    that are guaranteed to be called at the worker node.
     """
     def __init__(self):
         pass
