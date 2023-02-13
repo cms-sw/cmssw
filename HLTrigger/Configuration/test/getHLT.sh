@@ -51,7 +51,7 @@ function getContentForCVS() {
 
   log "  dumping EventContet"
   $GETCONTENT $CONFIG
-  rm -f hltOutput*_cff.py*
+  rm -f hltOutput*_cff.py* hltScouting_cff.py*
 }
 
 function getDatasetsForCVS() {

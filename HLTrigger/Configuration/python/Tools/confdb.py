@@ -234,6 +234,18 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
     %(process)s.HLTriggerFirstPath.replace(%(process)s.hltGetConditions,%(process)s.hltDummyConditions)
 """
 
+      # fix the Scouting EndPaths
+      for path in self.all_paths:
+        match = re.match(r'(Scouting\w+)Output$', path)
+        if match:
+          self.data = self.data.replace(path+' = cms.EndPath', path+' = cms.Path')
+
+          moduleOutput = 'hltOutput' + match.group(1)
+          self.data = self.data.replace(' + process.'+moduleOutput, '')
+
+          moduleSmartPrescaler = 'hltPre'+match.group(1)+'OutputSmart'
+          self.data = self.data.replace(' + process.'+moduleSmartPrescaler, '')
+
     else:
 
       # override the process name and adapt the relevant filters
@@ -705,19 +717,24 @@ if 'GlobalTag' in %%(dict)s:
         # paths are removed by default
         pass
       else:
-        # drop all output endpaths
+        # drop all output EndPaths (but the Scouting ones if fragment), and drop the RatesMonitoring and DQMHistograms
         paths.append( "-*Output" )
         paths.append( "-RatesMonitoring")
         paths.append( "-DQMHistograms")
+        if self.config.fragment:
+          paths.append( "Scouting*Output" )
     elif self.config.output == 'minimal':
       # drop all output endpaths but HLTDQMResultsOutput
       if self.config.paths:
         paths.append( "HLTDQMResultsOutput" )
       else:
+        # drop all output EndPaths (but the Scouting ones if fragment), and drop the RatesMonitoring and DQMHistograms keeping HLTDQMResultsOutput
         paths.append( "-*Output" )
         paths.append( "-RatesMonitoring")
         paths.append( "-DQMHistograms")
         paths.append( "HLTDQMResultsOutput" )
+        if self.config.fragment:
+          paths.append( "Scouting*Output" )
     else:
       # keep / add back all output endpaths
       if self.config.paths:
@@ -830,6 +847,13 @@ if 'GlobalTag' in %%(dict)s:
 
       self.options['psets'].append( "-maxEvents" )
       self.options['psets'].append( "-options" )
+
+      # remove Scouting OutputModules and SmartPrescales
+      # when Scouting EndPaths are converted to Paths in cff fragments
+      self.options['modules'].append( "-hltOutputScoutingCalo" )
+      self.options['modules'].append( "-hltOutputScoutingPF" )
+      self.options['modules'].append( "-hltPreScoutingCaloOutputSmart" )
+      self.options['modules'].append( "-hltPreScoutingPFOutputSmart" )
 
     if self.config.fragment or (self.config.prescale and (self.config.prescale.lower() == 'none')):
       self.options['services'].append( "-PrescaleService" )
