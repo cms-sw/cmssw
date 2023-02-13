@@ -15,6 +15,6 @@ from Configuration.Eras.Modifier_run2_egamma_2018_cff import run2_egamma_2018
 from Configuration.Eras.Modifier_run3_RPC_cff import run3_RPC
 from Configuration.Eras.Modifier_run3_egamma_2023_cff import run3_egamma_2023
 
-Run3 = cms.ModifierChain(Run2_2018.copyAndExclude([run2_GEM_2017, ctpps_2018, run2_egamma_2018]),
+Run3_2023 = cms.ModifierChain(Run2_2018.copyAndExclude([run2_GEM_2017, ctpps_2018, run2_egamma_2018]),
                          run3_common, run3_egamma, run3_egamma_2023, run3_GEM, run3_HB, run3_HFSL, stage2L1Trigger_2021, ctpps_2022, dd4hep, run3_RPC)
 
