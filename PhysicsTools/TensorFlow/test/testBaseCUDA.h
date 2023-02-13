@@ -4,15 +4,38 @@
  * Author: Marcel Rieger
  */
 
-#ifndef PHYSICSTOOLS_TENSORFLOW_TEST_TESTBASE_H
-#define PHYSICSTOOLS_TENSORFLOW_TEST_TESTBASE_H
+#ifndef PHYSICSTOOLS_TENSORFLOW_TEST_TESTBASECUDA_H
+#define PHYSICSTOOLS_TENSORFLOW_TEST_TESTBASECUDA_H
 
 #include <boost/filesystem.hpp>
 #include <filesystem>
 #include <cppunit/extensions/HelperMacros.h>
 #include <stdexcept>
+#include "catch.hpp"
 
-class testBase : public CppUnit::TestFixture {
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ServiceToken.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/ResourceInformation.h"
+#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
+
+namespace {
+  CUDAService makeCUDAService(edm::ParameterSet ps) {
+    auto desc = edm::ConfigurationDescriptions("Service", "CUDAService");
+    CUDAService::fillDescriptions(desc);
+    desc.validate(ps, "CUDAService");
+    return CUDAService(ps);
+  }
+}  // namespace
+
+class testBaseCUDA : public CppUnit::TestFixture {
 public:
   std::string dataPath_;
 
@@ -25,7 +48,7 @@ public:
   virtual std::string pyScript() const = 0;
 };
 
-void testBase::setUp() {
+void testBaseCUDA::setUp() {
   dataPath_ =
       cmsswPath("/test/" + std::string(std::getenv("SCRAM_ARCH")) + "/" + boost::filesystem::unique_path().string());
 
@@ -46,13 +69,13 @@ void testBase::setUp() {
   std::cout << std::endl << result << std::endl;
 }
 
-void testBase::tearDown() {
+void testBaseCUDA::tearDown() {
   if (std::filesystem::exists(dataPath_)) {
     std::filesystem::remove_all(dataPath_);
   }
 }
 
-std::string testBase::cmsswPath(std::string path) {
+std::string testBaseCUDA::cmsswPath(std::string path) {
   if (path.size() > 0 && path.substr(0, 1) != "/") {
     path = "/" + path;
   }
@@ -63,4 +86,4 @@ std::string testBase::cmsswPath(std::string path) {
   return (std::filesystem::exists(base.c_str()) ? base : releaseBase) + path;
 }
 
-#endif  // PHYSICSTOOLS_TENSORFLOW_TEST_TESTBASE_H
+#endif  // PHYSICSTOOLS_TENSORFLOW_TEST_TESTBASECUDA_H
