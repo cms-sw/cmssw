@@ -5,6 +5,10 @@ process = cms.Process("EcalGeometryTest",Run3_dd4hep)
 
 process.load('Configuration.Geometry.GeometryDD4hepExtended2021_cff')
 process.load('Configuration.Geometry.GeometryDD4hepExtended2021Reco_cff')
+process.load('FWCore.MessageService.MessageLogger_cfi')
+
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.EcalGeom=dict()
 
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
