@@ -10,10 +10,10 @@
 
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 
-#include "testBase.h"
+#include "testBaseCUDA.h"
 
-class testGraphLoading : public testBase {
-  CPPUNIT_TEST_SUITE(testGraphLoading);
+class testGraphLoadingCUDA : public testBaseCUDA {
+  CPPUNIT_TEST_SUITE(testGraphLoadingCUDA);
   CPPUNIT_TEST(test);
   CPPUNIT_TEST_SUITE_END();
 
@@ -22,15 +22,38 @@ public:
   void test() override;
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION(testGraphLoading);
+CPPUNIT_TEST_SUITE_REGISTRATION(testGraphLoadingCUDA);
 
-std::string testGraphLoading::pyScript() const { return "createconstantgraph.py"; }
+std::string testGraphLoadingCUDA::pyScript() const { return "createconstantgraph.py"; }
 
-void testGraphLoading::test() {
+void testGraphLoadingCUDA::test() {
+  if (!cms::cudatest::testDevices())
+    return;
+
+  std::vector<edm::ParameterSet> psets;
+  edm::ServiceToken serviceToken = edm::ServiceRegistry::createSet(psets);
+  edm::ServiceRegistry::Operate operate(serviceToken);
+
+  // Setup the CUDA Service
+  edmplugin::PluginManager::configure(edmplugin::standard::config());
+
+  std::string const config = R"_(import FWCore.ParameterSet.Config as cms
+process = cms.Process('Test')
+process.add_(cms.Service('ResourceInformationService'))
+process.add_(cms.Service('CUDAService'))
+)_";
+  std::unique_ptr<edm::ParameterSet> params;
+  edm::makeParameterSets(config, params);
+  edm::ServiceToken tempToken(edm::ServiceRegistry::createServicesFromConfig(std::move(params)));
+  edm::ServiceRegistry::Operate operate2(tempToken);
+
+  auto cs = makeCUDAService(edm::ParameterSet{});
+  std::cout << "CUDA service enabled: " << cs.enabled() << std::endl;
+
   std::string pbFile = dataPath_ + "/constantgraph.pb";
 
-  std::cout << "Testing CPU backend" << std::endl;
-  tensorflow::Backend backend = tensorflow::Backend::cpu;
+  std::cout << "Testing CUDA backend" << std::endl;
+  tensorflow::Backend backend = tensorflow::Backend::cuda;
 
   // load the graph
   tensorflow::setLogging();
