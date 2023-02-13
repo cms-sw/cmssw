@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun runSummary2026_cfg.py geometry=D92
 #
-#   Options for geometry D88, D91, D92, D93, D94, D95, D96, D98, D99
+#   Options for geometry D86, D88, D91, D92, D93, D94, D95, D96, D98, D99
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -13,10 +13,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "Run3",
+                 "D88",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D88, D91, D92, D93, D94, D95, D96, D98, D99")
+                  "geometry of operations: D86, D88, D91, D92, D93, D94, D95, D96, D98, D99")
 
 ### get and parse the command line arguments
 options.parseArguments()
