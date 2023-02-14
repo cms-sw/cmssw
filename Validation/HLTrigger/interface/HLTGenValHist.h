@@ -46,7 +46,7 @@ public:
       : var_(std::move(func)), varName_(std::move(varName)), rangeCuts_(std::move(rangeCuts)), hist_(hist) {}
 
   void fill(const HLTGenValObject& obj) override {
-    if (rangeCuts_(obj))
+    if (rangeCuts_(obj,varName_))
       hist_->Fill(var_(obj));
   }
 
