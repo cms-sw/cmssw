@@ -104,7 +104,7 @@ void SiStripFedZeroSuppression::suppress(const std::vector<SiStripDigi>& in,
     auto highThresh = static_cast<int16_t>(thresholds.getHth() * noise.getNoiseFast(strip, detNoiseRange) + 0.5f);
     auto lowThresh = static_cast<int16_t>(thresholds.getLth() * noise.getNoiseFast(strip, detNoiseRange) + 0.5f);
 
-    assert(lowThresh > 0);
+    assert(lowThresh >= 0);
     assert(lowThresh <= highThresh);
 
     stat[i] = zeroTh;
