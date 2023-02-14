@@ -241,7 +241,7 @@ def miniAOD_customizeCommon(process):
 
     ## Quark Gluon Likelihood
     process.load('RecoJets.JetProducers.QGTagger_cfi')
-    task.add(process.QGTaggerTask)
+    task.add(process.QGTagger)
 
     process.patJets.userData.userFloats.src += [ 'QGTagger:qgLikelihood', ]
 
