@@ -43,6 +43,8 @@ private:
 
   // selection parameters
   const double minRadius_;
+  const double nearThreshold_;
+  const double farThreshold_;
   const double discriminatorCut_;
   const vector<string> input_names_;
   const vector<string> output_names_;
@@ -58,6 +60,8 @@ private:
 DisplacedRegionSeedingVertexProducer::DisplacedRegionSeedingVertexProducer(const edm::ParameterSet &cfg)
     : rParam_(cfg.getParameter<double>("rParam")),
       minRadius_(cfg.getParameter<double>("minRadius")),
+      nearThreshold_(cfg.getParameter<double>("nearThreshold")),
+      farThreshold_(cfg.getParameter<double>("farThreshold")),
       discriminatorCut_(cfg.getParameter<double>("discriminatorCut")),
       input_names_(cfg.getParameter<vector<string> >("input_names")),
       output_names_(cfg.getParameter<vector<string> >("output_names")),
@@ -71,7 +75,8 @@ DisplacedRegionSeedingVertexProducer::DisplacedRegionSeedingVertexProducer(const
   auto graphDef = tensorflow::loadGraphDef(pbFile);
   session_ = tensorflow::createSession(graphDef, sessionOptions);
 
-  produces<vector<reco::Vertex> >();
+  produces<vector<reco::Vertex> >("nearRegionsOfInterest");
+  produces<vector<reco::Vertex> >("farRegionsOfInterest");
 }
 
 DisplacedRegionSeedingVertexProducer::~DisplacedRegionSeedingVertexProducer() {
@@ -137,7 +142,7 @@ void DisplacedRegionSeedingVertexProducer::produce(edm::StreamID streamID,
   const auto roiPred = [&](const DisplacedVertexCluster &roi) {
     if (!roi.valid())
       return true;
-    const math::XYZVector &x(roi.centerOfMass());
+    const auto &x(roi.centerOfMass());
     if ((x - bs).rho() < minRadius_)
       return true;
     const double discriminatorValue = ((discriminatorCut_ > 0.0) ? getDiscriminatorValue(roi, beamSpot) : 1.0);
@@ -147,15 +152,22 @@ void DisplacedRegionSeedingVertexProducer::produce(edm::StreamID streamID,
   };
   pseudoROIs.remove_if(roiPred);
 
-  auto regionsOfInterest = make_unique<vector<reco::Vertex> >();
+  auto nearRegionsOfInterest = make_unique<vector<reco::Vertex> >();
+  auto farRegionsOfInterest = make_unique<vector<reco::Vertex> >();
 
   constexpr std::array<double, 6> errorA{{1.0, 0.0, 1.0, 0.0, 0.0, 1.0}};
   static const reco::Vertex::Error errorRegion(errorA.begin(), errorA.end(), true, true);
 
-  for (const auto &roi : pseudoROIs)
-    regionsOfInterest->emplace_back(reco::Vertex::Point(roi.centerOfMass()), errorRegion);
+  for (const auto &roi : pseudoROIs) {
+    const auto &x(roi.centerOfMass());
+    if ((x - bs).rho() < nearThreshold_)
+      nearRegionsOfInterest->emplace_back(reco::Vertex::Point(roi.centerOfMass()), errorRegion);
+    if ((x - bs).rho() > farThreshold_)
+      farRegionsOfInterest->emplace_back(reco::Vertex::Point(roi.centerOfMass()), errorRegion);
+  }
 
-  event.put(move(regionsOfInterest));
+  event.put(move(nearRegionsOfInterest), "nearRegionsOfInterest");
+  event.put(move(farRegionsOfInterest), "farRegionsOfInterest");
 }
 
 void DisplacedRegionSeedingVertexProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
@@ -163,6 +175,8 @@ void DisplacedRegionSeedingVertexProducer::fillDescriptions(edm::ConfigurationDe
 
   desc.add<double>("rParam", 1.0);
   desc.add<double>("minRadius", -1.0);
+  desc.add<double>("nearThreshold", 9999.0);
+  desc.add<double>("farThreshold", -1.0);
   desc.add<double>("discriminatorCut", -1.0);
   desc.add<vector<string> >("input_names", {"phi_0", "phi_1"});
   desc.add<vector<string> >("output_names", {"model_5/activation_10/Softmax"});
