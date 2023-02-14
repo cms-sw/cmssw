@@ -8,12 +8,15 @@
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "FWCore/Utilities/interface/transform.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 class PATTauHybridProducer : public edm::stream::EDProducer<> {
 public:
   explicit PATTauHybridProducer(const edm::ParameterSet&);
   ~PATTauHybridProducer() override{};
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
@@ -235,6 +238,24 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   }  //non-matched taus
 
   evt.put(std::move(outputTaus));
+}
+void PATTauHybridProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // patTauHybridProducer
+  edm::ParameterSetDescription desc;
+
+  desc.add<edm::InputTag>("src", edm::InputTag("slimmedTaus"));
+  desc.add<edm::InputTag>("jetSource", edm::InputTag("slimmedJetsUpadted"));
+  desc.add<double>("dRMax", 0.4);
+  desc.add<double>("jetPtMin", 20.0);
+  desc.add<double>("jetEtaMax", 2.5);
+  desc.add<std::string>("pnetLabel", "pfParticleNetAK4JetTags");
+  desc.add<std::vector<std::string>>(
+      "pnetScoreNames",
+      {"probmu",       "probele",      "probtaup1h0p", "probtaup1h1p", "probtaup1h2p", "probtaup3h0p", "probtaup3h1p",
+       "probtaum1h0p", "probtaum1h1p", "probtaum1h2p", "probtaum3h0p", "probtaum3h1p", "probb",        "probc",
+       "probuds",      "probg",        "ptcorr",       "ptreshigh",    "ptreslow",     "ptnu"});
+
+  descriptions.addWithDefaultLabel(desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
