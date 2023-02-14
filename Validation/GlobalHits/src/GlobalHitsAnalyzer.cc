@@ -14,6 +14,10 @@
 #include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+#include "FWCore/Framework/interface/GetterOfProducts.h"
+#include "FWCore/Framework/interface/ProcessMatch.h"
+
+edm::GetterOfProducts<edm::HepMCProduct> getterOfProducts_;
 
 GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet &iPSet)
     : fName(""),
@@ -33,7 +37,9 @@ GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet &iPSet)
       caloGeomToken_(esConsumes()),
       hcaldddRecToken_(esConsumes()),
       count(0) {
-  consumesMany<edm::HepMCProduct>();
+  getterOfProducts_ = edm::GetterOfProducts<edm::HepMCProduct>(edm::ProcessMatch("*"), this);
+  callWhenNewProductsRegistered(getterOfProducts_);
+
   std::string MsgLoggerCat = "GlobalHitsAnalyzer_GlobalHitsAnalyzer";
 
   // get information from parameter set
@@ -753,8 +759,7 @@ void GlobalHitsAnalyzer::fillG4MC(const edm::Event &iEvent) {
   /////////////////////
   edm::Handle<edm::HepMCProduct> HepMCEvt;
   std::vector<edm::Handle<edm::HepMCProduct>> AllHepMCEvt;
-  iEvent.getManyByType(AllHepMCEvt);
-
+  getterOfProducts_.fillHandles(iEvent, AllHepMCEvt);
   // loop through products and extract VtxSmearing if available. Any of them
   // should have the information needed
   for (unsigned int i = 0; i < AllHepMCEvt.size(); ++i) {
