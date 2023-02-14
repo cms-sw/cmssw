@@ -18,7 +18,7 @@
 
 // system include files
 #include <memory>
-#include "GeneratorInterface/GenFilters/interface/HTXSFilter.h"
+#include "GeneratorInterface/GenFilters/plugins/HTXSFilter.h"
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
