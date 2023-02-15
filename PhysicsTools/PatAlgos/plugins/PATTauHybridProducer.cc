@@ -8,6 +8,7 @@
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "FWCore/Utilities/interface/transform.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
@@ -23,6 +24,8 @@ private:
   //--- configuration parameters
   edm::EDGetTokenT<pat::TauCollection> tausToken_;
   edm::EDGetTokenT<pat::JetCollection> jetsToken_;
+  bool addGenJetMatch_;
+  edm::EDGetTokenT<edm::Association<reco::GenJetCollection>> genJetMatchToken_;
   const float dRMax_, jetPtMin_, jetEtaMax_;
   const std::string pnetLabel_;
   std::vector<std::string> pnetTauScoreNames_;
@@ -40,6 +43,7 @@ private:
 PATTauHybridProducer::PATTauHybridProducer(const edm::ParameterSet& cfg)
     : tausToken_(consumes<pat::TauCollection>(cfg.getParameter<edm::InputTag>("src"))),
       jetsToken_(consumes<pat::JetCollection>(cfg.getParameter<edm::InputTag>("jetSource"))),
+      addGenJetMatch_(cfg.getParameter<bool>("addGenJetMatch")),
       dRMax_(cfg.getParameter<double>("dRMax")),
       jetPtMin_(cfg.getParameter<double>("jetPtMin")),
       jetEtaMax_(cfg.getParameter<double>("jetEtaMax")),
@@ -64,6 +68,11 @@ PATTauHybridProducer::PATTauHybridProducer(const edm::ParameterSet& cfg)
       pnetJetScoreNames_.push_back(name);
     if (pnetPtCorrName_.find(':') != std::string::npos)
       pnetPtCorrName_ = pnetPtCorrName_.substr(pnetPtCorrName_.find(':') + 1);
+    // GenJet matching
+    if (addGenJetMatch_) {
+      genJetMatchToken_ =
+          consumes<edm::Association<reco::GenJetCollection>>(cfg.getParameter<edm::InputTag>("genJetMatch"));
+    }
   }
 
   produces<std::vector<pat::Tau>>();
@@ -81,6 +90,14 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   // Get the vector of jets
   edm::Handle<pat::JetCollection> jets;
   evt.getByToken(jetsToken_, jets);
+
+  // Switch off gen-matching for real data
+  if (evt.isRealData()) {
+    addGenJetMatch_ = false;
+  }
+  edm::Handle<edm::Association<reco::GenJetCollection>> genJetMatch;
+  if (addGenJetMatch_)
+    evt.getByToken(genJetMatchToken_, genJetMatch);
 
   //FIXME: How do the following using a global cache once per execution?
   //minimal HPS-like tauID list
@@ -221,12 +238,21 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
     // PATTau
     pat::Tau outputTauFromJet(pfTauFromJet);
+    //Add tauIDs
     std::vector<pat::Tau::IdPair> newtauIds(tauIds_minimal.size() + tauIds_pnet.size());
     for (size_t i = 0; i < tauIds_minimal.size(); ++i)
       newtauIds[i] = tauIds_minimal[i];
     for (size_t i = 0; i < tauIds_pnet.size(); ++i)
       newtauIds[tauIds_minimal.size() + i] = tauIds_pnet[i];
     outputTauFromJet.setTauIDs(newtauIds);
+    // Add genTauJet match
+    if (addGenJetMatch_) {
+      edm::Ref<pat::JetCollection> jetRef(jets, jet_idx-1);  //FIXME: can be moved upper if needed
+      reco::GenJetRef genJetTau = (*genJetMatch)[jetRef];
+      if (genJetTau.isNonnull() && genJetTau.isAvailable()) {
+        outputTauFromJet.setGenJet(genJetTau);
+      }
+    }
     outputTaus->push_back(outputTauFromJet);
 
   }  // end of jet loop
@@ -275,6 +301,8 @@ void PATTauHybridProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
       ->setComment("If true, recovery tau is built only if one of tau scores is the highest");
   desc.add<double>("chargeAssignmentProbMin", 0.2)
       ->setComment("Minimal value of charge assignment probability to built recovery tau (0,0.5)");
+  desc.add<bool>("addGenJetMatch", true)->setComment("add MC genTauJet matching");
+  desc.add<edm::InputTag>("genJetMatch", edm::InputTag("tauGenJetMatch"));
 
   descriptions.addWithDefaultLabel(desc);
 }
