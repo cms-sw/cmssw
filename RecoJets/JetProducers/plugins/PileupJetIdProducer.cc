@@ -70,7 +70,7 @@ PileupJetIdProducer::PileupJetIdProducer(const edm::ParameterSet& iConfig, GBRFo
 
 
   edm::InputTag srcConstituentWeights = iConfig.getParameter<edm::InputTag>("srcConstituentWeights");
-  if (!srcConstituentWeights.label().empty()){
+  if (!srcConstituentWeights.label().empty()) {
     input_constituent_weights_token_ = consumes<edm::ValueMap<float>>(srcConstituentWeights);
   }
 }
