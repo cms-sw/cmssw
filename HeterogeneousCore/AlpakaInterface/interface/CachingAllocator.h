@@ -91,7 +91,7 @@ namespace cms::alpakatools {
     friend class alpaka_cuda_async::AlpakaService;
 #endif
 #ifdef ALPAKA_ACC_GPU_HIP_ENABLED
-    friend class alpaka_hip_async::AlpakaService;
+    friend class alpaka_rocm_async::AlpakaService;
 #endif
 #ifdef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
     friend class alpaka_serial_sync::AlpakaService;
