@@ -1492,6 +1492,10 @@ void MuonIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   descTrkAsoPar.add<edm::InputTag>("ME0SegmentCollectionLabel", edm::InputTag("me0Segments"));
   descTrkAsoPar.add<bool>("useGEM", false);
   descTrkAsoPar.add<bool>("useME0", false);
+  descTrkAsoPar.add<bool>("preselectMuonTracks", false);
+  descTrkAsoPar.add<edm::InputTag>("RPCHitCollectionLabel", edm::InputTag("rpcRecHits"));
+  descTrkAsoPar.add<edm::InputTag>("GEMHitCollectionLabel", edm::InputTag("gemRecHits"));
+  descTrkAsoPar.add<edm::InputTag>("ME0HitCollectionLabel", edm::InputTag("me0RecHits"));
   descTrkAsoPar.setAllowAnything();
   desc.add<edm::ParameterSetDescription>("TrackAssociatorParameters", descTrkAsoPar);
 

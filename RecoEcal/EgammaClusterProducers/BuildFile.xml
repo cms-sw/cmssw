@@ -4,6 +4,8 @@
 <use name="DataFormats/EcalDigi"/>
 <use name="DataFormats/EcalRecHit"/>
 <use name="DataFormats/EgammaReco"/>
+<use name="DataFormats/RPCRecHit"/>
+<use name="DataFormats/GEMRecHit"/>
 <use name="CondFormats/EcalObjects"/>
 <use name="CondFormats/GBRForest"/>
 <use name="CondFormats/DataRecord"/>

@@ -3,6 +3,8 @@
 <use name="DataFormats/CaloTowers"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/CSCRecHit"/>
+<use name="DataFormats/RPCRecHit"/>
+<use name="DataFormats/GEMRecHit"/>
 <use name="FWCore/ParameterSet"/>
 <use name="rootphysics"/>
 <use name="MagneticField/Records"/>

@@ -4,6 +4,7 @@
 <use name="DataFormats/DTRecHit"/>
 <use name="DataFormats/CSCRecHit"/>
 <use name="DataFormats/GEMRecHit"/>
+<use name="DataFormats/RPCRecHit"/>
 <use name="DataFormats/EcalDetId"/>
 <use name="DataFormats/GeometrySurface"/>
 <use name="DataFormats/GeometryVector"/>

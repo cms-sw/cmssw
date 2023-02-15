@@ -30,6 +30,9 @@
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "DataFormats/GEMRecHit/interface/GEMSegmentCollection.h"
 #include "DataFormats/GEMRecHit/interface/ME0SegmentCollection.h"
+#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
+#include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
+#include "DataFormats/GEMRecHit/interface/ME0RecHitCollection.h"
 
 class DetIdAssociator;
 class DetIdAssociatorRecord;
@@ -40,11 +43,17 @@ class GlobalTrackingGeometryRecord;
 class MagneticField;
 class IdealMagneticFieldRecord;
 
+namespace edm {
+  class ParameterSetDescription;
+}
+
 class TrackAssociatorParameters {
 public:
   TrackAssociatorParameters() {}
   TrackAssociatorParameters(const edm::ParameterSet&, edm::ConsumesCollector&&);
   void loadParameters(const edm::ParameterSet&, edm::ConsumesCollector&);
+
+  static void fillPSetDescription(edm::ParameterSetDescription& descriptions);
 
   double dREcal;
   double dRHcal;
@@ -84,6 +93,7 @@ public:
   bool truthMatch;
   bool useGEM;
   bool useME0;
+  bool preselectMuonTracks;
 
   /// Labels of the detector EDProducts
   edm::InputTag theEBRecHitCollectionLabel;
@@ -95,6 +105,9 @@ public:
   edm::InputTag theCSCSegmentCollectionLabel;
   edm::InputTag theGEMSegmentCollectionLabel;
   edm::InputTag theME0SegmentCollectionLabel;
+  edm::InputTag theRPCHitCollectionLabel;
+  edm::InputTag theGEMHitCollectionLabel;
+  edm::InputTag theME0HitCollectionLabel;
 
   // Specify if we want to widen the search pass of the crossed
   // calorimeter elements taking into account uncertainty
@@ -113,6 +126,9 @@ public:
   edm::EDGetTokenT<CSCSegmentCollection> cscSegmentsToken;
   edm::EDGetTokenT<GEMSegmentCollection> gemSegmentsToken;
   edm::EDGetTokenT<ME0SegmentCollection> me0SegmentsToken;
+  edm::EDGetTokenT<RPCRecHitCollection> rpcHitsToken;
+  edm::EDGetTokenT<GEMRecHitCollection> gemHitsToken;
+  edm::EDGetTokenT<ME0RecHitCollection> me0HitsToken;
   edm::EDGetTokenT<edm::SimTrackContainer> simTracksToken;
   edm::EDGetTokenT<edm::SimVertexContainer> simVerticesToken;
   edm::EDGetTokenT<edm::PCaloHitContainer> simEcalHitsEBToken;
