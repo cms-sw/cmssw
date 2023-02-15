@@ -17,8 +17,6 @@
 #include "FWCore/Framework/interface/GetterOfProducts.h"
 #include "FWCore/Framework/interface/ProcessMatch.h"
 
-edm::GetterOfProducts<edm::HepMCProduct> getterOfProducts_;
-
 GlobalHitsAnalyzer::GlobalHitsAnalyzer(const edm::ParameterSet &iPSet)
     : fName(""),
       verbosity(0),
