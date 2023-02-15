@@ -139,6 +139,9 @@ DeepFlavourTagInfoProducer::DeepFlavourTagInfoProducer(const edm::ParameterSet& 
   if (!puppi_value_map_tag.label().empty()) {
     puppi_value_map_token_ = consumes<edm::ValueMap<float>>(puppi_value_map_tag);
     use_puppi_value_map_ = true;
+  } else if (is_weighted_jet_) {
+    throw edm::Exception(edm::errors::Configuration,
+                         "puppi_value_map is not set but jet is weighted. Must set puppi_value_map.");
   }
 
   const auto& pvas_tag = iConfig.getParameter<edm::InputTag>("vertex_associator");
@@ -368,31 +371,33 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
         reco_ptr = pat_jet->getPFConstituent(i);
       }
 
-     reco::CandidatePtr cand_ptr;
-      if (pat_jet){
+      reco::CandidatePtr cand_ptr;
+      if (pat_jet) {
         cand_ptr = pat_jet->sourceCandidatePtr(i);
       }
 
-      // get PUPPI weight from value map
-      float puppiw = 1.0;  // fallback value
+      //
+      // Access puppi weight from ValueMap.
+      //
+      float puppiw = 1.0;  // Set to fallback value
 
       if (reco_cand) {
-        puppiw = 1.0;  // fallback value for reco_cand
         if (use_puppi_value_map_)
           puppiw = (*puppi_value_map)[reco_ptr];
         else if (!fallback_puppi_weight_) {
           throw edm::Exception(edm::errors::InvalidReference, "PUPPI value map missing")
-            << "use fallback_puppi_weight option to use " << puppiw << " for reco_cand as default";
+              << "use fallback_puppi_weight option to use " << puppiw << " for reco_cand as default";
         }
-      } 
-      else if(packed_cand){
-        puppiw = packed_cand->puppiWeight();  // fallback value for packed_cand
+      } else if (packed_cand) {
         if (use_puppi_value_map_)
           puppiw = (*puppi_value_map)[cand_ptr];
         else if (!fallback_puppi_weight_) {
           throw edm::Exception(edm::errors::InvalidReference, "PUPPI value map missing")
-            << "use fallback_puppi_weight option to use puppiWeight() for packed_cand as default";
+              << "use fallback_puppi_weight option to use " << puppiw << " for packed_cand as default";
         }
+      } else {
+        throw edm::Exception(edm::errors::InvalidReference)
+            << "Cannot convert to either reco::PFCandidate or pat::PackedCandidate";
       }
 
       float drminpfcandsv = btagbtvdeep::mindrsvpfcand(svs_unsorted, cand);
@@ -409,8 +414,15 @@ void DeepFlavourTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
         auto& c_pf_features = features.c_pf_features.at(entry);
         // fill feature structure
         if (packed_cand) {
-          btagbtvdeep::packedCandidateToFeatures(
-              packed_cand, jet, trackinfo, is_weighted_jet_, drminpfcandsv, static_cast<float>(jet_radius_), puppiw, c_pf_features, flip_);
+          btagbtvdeep::packedCandidateToFeatures(packed_cand,
+                                                 jet,
+                                                 trackinfo,
+                                                 is_weighted_jet_,
+                                                 drminpfcandsv,
+                                                 static_cast<float>(jet_radius_),
+                                                 puppiw,
+                                                 c_pf_features,
+                                                 flip_);
         } else if (reco_cand) {
           // get vertex association quality
           int pv_ass_quality = 0;  // fallback value

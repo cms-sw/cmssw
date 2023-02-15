@@ -4,7 +4,7 @@ namespace btagbtvdeep {
 
   void packedCandidateToFeatures(const pat::PackedCandidate* n_pf,
                                  const pat::Jet& jet,
-                                 const bool  isWeightedJet,
+                                 const bool isWeightedJet,
                                  const float drminpfcandsv,
                                  const float jetR,
                                  const float puppiw,
@@ -17,7 +17,7 @@ namespace btagbtvdeep {
 
   void recoCandidateToFeatures(const reco::PFCandidate* n_pf,
                                const reco::Jet& jet,
-                               const bool  isWeightedJet,
+                               const bool isWeightedJet,
                                const float drminpfcandsv,
                                const float jetR,
                                const float puppiw,

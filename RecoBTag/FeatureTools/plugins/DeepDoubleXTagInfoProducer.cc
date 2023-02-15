@@ -79,17 +79,19 @@ DeepDoubleXTagInfoProducer::DeepDoubleXTagInfoProducer(const edm::ParameterSet& 
       shallow_tag_info_token_(
           consumes<BoostedDoubleSVTagInfoCollection>(iConfig.getParameter<edm::InputTag>("shallow_tag_infos"))),
       track_builder_token_(
-          esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"))), 
+          esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"))),
       use_puppi_value_map_(false),
       fallback_puppi_weight_(iConfig.getParameter<bool>("fallback_puppi_weight")),
-      is_weighted_jet_(iConfig.getParameter<bool>("is_weighted_jet"))
-      {
+      is_weighted_jet_(iConfig.getParameter<bool>("is_weighted_jet")) {
   produces<DeepDoubleXTagInfoCollection>();
 
   const auto& puppi_value_map_tag = iConfig.getParameter<edm::InputTag>("puppi_value_map");
   if (!puppi_value_map_tag.label().empty()) {
     puppi_value_map_token_ = consumes<edm::ValueMap<float>>(puppi_value_map_tag);
     use_puppi_value_map_ = true;
+  } else if (is_weighted_jet_) {
+    throw edm::Exception(edm::errors::Configuration,
+                         "puppi_value_map is not set but jet is weighted. Must set puppi_value_map.");
   }
 }
 
@@ -289,33 +291,36 @@ void DeepDoubleXTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
           reco::PFCandidatePtr reco_ptr;
           if (pf_jet) {
             reco_ptr = pf_jet->getPFConstituent(i);
-          } 
+          }
 
           reco::CandidatePtr cand_ptr;
-          if (pat_jet){
+          if (pat_jet) {
             cand_ptr = pat_jet->sourceCandidatePtr(i);
           }
 
-          float puppiw = 1.0;  // fallback value
+          //
+          // Access puppi weight from ValueMap.
+          //
+          float puppiw = 1.0;  // Set to fallback value
+
           if (reco_cand) {
-            puppiw = 1.0;  // fallback value for reco_cand
             if (use_puppi_value_map_)
               puppiw = (*puppi_value_map)[reco_ptr];
             else if (!fallback_puppi_weight_) {
               throw edm::Exception(edm::errors::InvalidReference, "PUPPI value map missing")
-                << "use fallback_puppi_weight option to use " << puppiw << " for reco_cand as default";
+                  << "use fallback_puppi_weight option to use " << puppiw << " for reco_cand as default";
             }
-          } 
-          else if(packed_cand){
-            puppiw = packed_cand->puppiWeight();  // fallback value for packed_cand
+          } else if (packed_cand) {
             if (use_puppi_value_map_)
               puppiw = (*puppi_value_map)[cand_ptr];
             else if (!fallback_puppi_weight_) {
               throw edm::Exception(edm::errors::InvalidReference, "PUPPI value map missing")
-                << "use fallback_puppi_weight option to use puppiWeight() for packed_cand as default";
+                  << "use fallback_puppi_weight option to use " << puppiw << " for packed_cand as default";
             }
+          } else {
+            throw edm::Exception(edm::errors::InvalidReference)
+                << "Cannot convert to either reco::PFCandidate or pat::PackedCandidate";
           }
-
 
           float drminpfcandsv = btagbtvdeep::mindrsvpfcand(svs_unsorted, cand, jet_radius_);
           if (cand->charge() != 0) {
@@ -326,8 +331,14 @@ void DeepDoubleXTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
             // get_ref to vector element
             auto& c_pf_features = features.c_pf_features.at(entry);
             if (packed_cand) {
-              btagbtvdeep::packedCandidateToFeatures(
-                  packed_cand, *pat_jet, trackinfo, is_weighted_jet_, drminpfcandsv, static_cast<float>(jet_radius_), puppiw, c_pf_features);
+              btagbtvdeep::packedCandidateToFeatures(packed_cand,
+                                                     *pat_jet,
+                                                     trackinfo,
+                                                     is_weighted_jet_,
+                                                     drminpfcandsv,
+                                                     static_cast<float>(jet_radius_),
+                                                     puppiw,
+                                                     c_pf_features);
             } else if (reco_cand) {
               // get vertex association quality
               int pv_ass_quality = 0;  // fallback value
@@ -362,11 +373,21 @@ void DeepDoubleXTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSet
             auto& n_pf_features = features.n_pf_features.at(entry);
             // // fill feature structure
             if (packed_cand) {
-              btagbtvdeep::packedCandidateToFeatures(
-                  packed_cand, *pat_jet, is_weighted_jet_, drminpfcandsv, static_cast<float>(jet_radius_), puppiw, n_pf_features);
+              btagbtvdeep::packedCandidateToFeatures(packed_cand,
+                                                     *pat_jet,
+                                                     is_weighted_jet_,
+                                                     drminpfcandsv,
+                                                     static_cast<float>(jet_radius_),
+                                                     puppiw,
+                                                     n_pf_features);
             } else if (reco_cand) {
-              btagbtvdeep::recoCandidateToFeatures(
-                  reco_cand, jet, is_weighted_jet_, drminpfcandsv, static_cast<float>(jet_radius_), puppiw, n_pf_features);
+              btagbtvdeep::recoCandidateToFeatures(reco_cand,
+                                                   jet,
+                                                   is_weighted_jet_,
+                                                   drminpfcandsv,
+                                                   static_cast<float>(jet_radius_),
+                                                   puppiw,
+                                                   n_pf_features);
             }
           }
         }
