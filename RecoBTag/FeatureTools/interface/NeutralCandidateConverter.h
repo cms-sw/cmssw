@@ -40,7 +40,8 @@ namespace btagbtvdeep {
     n_pf_features.drsubjet2 = drSubjetFeatures.second;
 
     float constituentWeight = 1.;
-    if (isWeightedJet) constituentWeight = puppiw;
+    if (isWeightedJet)
+      constituentWeight = puppiw;
 
     // Jet relative vars
     n_pf_features.ptrel = catch_infs_and_bound((n_pf->pt() * constituentWeight) / jet.pt(), 0, -1, 0, -1);
@@ -49,7 +50,7 @@ namespace btagbtvdeep {
 
     n_pf_features.deltaR = catch_infs_and_bound(reco::deltaR(*n_pf, jet), 0, -0.6, 0, -0.6);
     n_pf_features.deltaR_noclip = reco::deltaR(*n_pf, jet);
-    
+
     n_pf_features.isGamma = 0;
     if (std::abs(n_pf->pdgId()) == 22)
       n_pf_features.isGamma = 1;

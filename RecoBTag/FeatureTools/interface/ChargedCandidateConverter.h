@@ -35,10 +35,11 @@ namespace btagbtvdeep {
     c_pf_features.deltaR = reco::deltaR(*c_pf, jet);
 
     float constituentWeight = 1.;
-    if (isWeightedJet) constituentWeight = puppiw;
+    if (isWeightedJet)
+      constituentWeight = puppiw;
 
     c_pf_features.ptrel = catch_infs_and_bound((c_pf->pt() * constituentWeight) / jet.pt(), 0, -1, 0, -1);
-    c_pf_features.ptrel_noclip = (c_pf->pt() * constituentWeight)  / jet.pt();
+    c_pf_features.ptrel_noclip = (c_pf->pt() * constituentWeight) / jet.pt();
     c_pf_features.erel = (c_pf->energy() * constituentWeight) / jet.energy();
 
     const float etasign = jet.eta() > 0 ? 1 : -1;
