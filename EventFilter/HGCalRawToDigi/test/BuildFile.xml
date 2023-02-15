@@ -1,0 +1,5 @@
+<bin file="HGCalUnpackerTest.cc" name="HGCalUnpacker">
+  <use name="DataFormats/HGCalDigi"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="EventFilter/HGCalRawToDigi"/>
+</bin>
