@@ -40,13 +40,9 @@ GBRForestsAndConstants::GBRForestsAndConstants(edm::ParameterSet const& iConfig)
   if (!runMvas_) {
     assert(algos.size() == 1);
   }
-//  edm::InputTag src_ = iConfig.getParameter<edm::InputTag>("src");
-//  edm::InputTag srcWeights = iConfig.getParameter<edm::InputTag>("srcWeights");
-//  if (iConfig.getParameter<edm::InputTag>("src").label() == iConfig.getParameter<edm::InputTag>("srcConstituentWeights").label())
-//    edm::LogWarning("PileupJetIdAlgo")
-//        << "Particle and weights collection have the same label. You may be applying the same weights twice. \n";
+
   edm::InputTag srcConstituentWeights = iConfig.getParameter<edm::InputTag>("srcConstituentWeights");
-  if (!srcConstituentWeights.label().empty()){
+  if (!srcConstituentWeights.label().empty()) {
     applyConstituentWeight_ = true;
   }
 }
@@ -78,7 +74,7 @@ PileupJetIdProducer::PileupJetIdProducer(const edm::ParameterSet& iConfig, GBRFo
 
 >>>>>>> f3a673dcd37b27e654b0593c64e5893308437fe0
   edm::InputTag srcConstituentWeights = iConfig.getParameter<edm::InputTag>("srcConstituentWeights");
-  if (!srcConstituentWeights.label().empty()){
+  if (!srcConstituentWeights.label().empty()) {
     input_constituent_weights_token_ = consumes<edm::ValueMap<float>>(srcConstituentWeights);
   }
 }
