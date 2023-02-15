@@ -187,14 +187,14 @@ void HybridFit::Fit(Tracklet* tracklet, std::vector<const Stub*>& trackstublist)
   tmtt::L1fittedTrack fittedTrk = fitterKF.fit(l1track3d);
 
   if (fittedTrk.accepted()) {
-    if (fittedTrk.consistentSector()) {  
+    if (fittedTrk.consistentSector()) {
       tmtt::KFTrackletTrack trk = fittedTrk.returnKFTrackletTrack();
 
       if (settings_.printDebugKF())
         edm::LogVerbatim("L1track") << "Done with Kalman fit. Pars: pt = " << trk.pt()
-          << ", 1/2R = " << settings_.bfield() * 3 * trk.qOverPt() / 2000
-          << ", phi0 = " << trk.phi0() << ", eta = " << trk.eta() << ", z0 = " << trk.z0()
-          << ", chi2 = " << trk.chi2() << ", accepted = " << trk.accepted();
+                                    << ", 1/2R = " << settings_.bfield() * 3 * trk.qOverPt() / 2000
+                                    << ", phi0 = " << trk.phi0() << ", eta = " << trk.eta() << ", z0 = " << trk.z0()
+                                    << ", chi2 = " << trk.chi2() << ", accepted = " << trk.accepted();
 
       double d0, chi2rphi, phi0, qoverpt = -999;
       if (trk.done_bcon()) {
@@ -230,28 +230,28 @@ void HybridFit::Fit(Tracklet* tracklet, std::vector<const Stub*>& trackstublist)
       }
 
       tracklet->setFitPars(rinvfit,
-          phi0fit,
-          d0,
-          trk.tanLambda(),
-          trk.z0(),
-          chi2rphi,
-          trk.chi2rz(),
-          rinvfit,
-          phi0fit,
-          d0,
-          trk.tanLambda(),
-          trk.z0(),
-          chi2rphi,
-          trk.chi2rz(),
-          irinvfit,
-          iphi0fit,
-          id0fit,
-          itanlfit,
-          iz0fit,
-          ichi2rphifit,
-          ichi2rzfit,
-          trk.hitPattern(),
-          l1stubsFromFit);
+                           phi0fit,
+                           d0,
+                           trk.tanLambda(),
+                           trk.z0(),
+                           chi2rphi,
+                           trk.chi2rz(),
+                           rinvfit,
+                           phi0fit,
+                           d0,
+                           trk.tanLambda(),
+                           trk.z0(),
+                           chi2rphi,
+                           trk.chi2rz(),
+                           irinvfit,
+                           iphi0fit,
+                           id0fit,
+                           itanlfit,
+                           iz0fit,
+                           ichi2rphifit,
+                           ichi2rzfit,
+                           trk.hitPattern(),
+                           l1stubsFromFit);
     } else {
       if (settings_.printDebugKF()) {
         edm::LogVerbatim("L1track") << "FitTrack:KF rejected track";

@@ -298,7 +298,7 @@ namespace trklet {
     unsigned int numTracksComparedPerBin() const { return numTracksComparedPerBin_; }
     //Returns the rinv bin edges you need for duplicate removal bins
     const std::vector<double> varRInvBins() const { return varRInvBins_; }
-    //Returns the phi bin edges you need for duplicate removal bins 
+    //Returns the phi bin edges you need for duplicate removal bins
     const std::vector<double> phiBins() const { return phiBins_; }
 
     std::string skimfile() const { return skimfile_; }
@@ -1048,11 +1048,11 @@ namespace trklet {
     //Variable bin edges for 6 bins.
     std::vector<double> varRInvBins_{-rinvcut(), -0.004968, -0.003828, 0, 0.003828, 0.004968, rinvcut()};
     //Phi bin edges for 2 bins.
-    std::vector<double> phiBins_{0, dphisectorHG()/2, dphisectorHG()};
+    std::vector<double> phiBins_{0, dphisectorHG() / 2, dphisectorHG()};
     //Overlap size for the overlap rinv bins in DR
     double overlapSize_{0.0004};
     //Overlap size for the overlap phi bins in DR
-    double phiOverlapSize_{M_PI/360};
+    double phiOverlapSize_{M_PI / 360};
     //The maximum number of tracks that are compared to all the other tracks per rinv bin
     int numTracksComparedPerBin_{32};
 
