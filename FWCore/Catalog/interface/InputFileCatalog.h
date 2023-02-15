@@ -37,8 +37,8 @@ namespace edm {
                      std::string const& override,
                      bool useLFNasPFNifLFNnotFound = false,
                      //switching between two catalog types
-                     edm::CatalogType catType = edm::CatalogType::TrivialCatalog);
-    //edm::CatalogType catType = edm::CatalogType::RucioCatalog);
+                     //edm::CatalogType catType = edm::CatalogType::TrivialCatalog);
+                     edm::CatalogType catType = edm::CatalogType::RucioCatalog);
 
     ~InputFileCatalog();
     std::vector<FileCatalogItem> const& fileCatalogItems() const { return fileCatalogItems_; }
