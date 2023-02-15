@@ -65,7 +65,7 @@ namespace alpaka_cuda_async {
 #endif  // ALPAKA_ACC_GPU_CUDA_ENABLED
 
 #ifdef ALPAKA_ACC_GPU_HIP_ENABLED
-namespace alpaka_hip_async {
+namespace alpaka_rocm_async {
   using namespace alpaka_common;
 
   using Platform = alpaka::PltfHipRt;
@@ -79,13 +79,13 @@ namespace alpaka_hip_async {
   using Acc2D = Acc<Dim2D>;
   using Acc3D = Acc<Dim3D>;
 
-}  // namespace alpaka_hip_async
+}  // namespace alpaka_rocm_async
 
 #ifdef ALPAKA_ACCELERATOR_NAMESPACE
 #define ALPAKA_DUPLICATE_NAMESPACE
 #else
-#define ALPAKA_ACCELERATOR_NAMESPACE alpaka_hip_async
-#define ALPAKA_TYPE_SUFFIX HipAsync
+#define ALPAKA_ACCELERATOR_NAMESPACE alpaka_rocm_async
+#define ALPAKA_TYPE_SUFFIX ROCmAsync
 #endif
 
 #endif  // ALPAKA_ACC_GPU_HIP_ENABLED
