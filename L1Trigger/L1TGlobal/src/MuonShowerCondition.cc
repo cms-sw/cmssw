@@ -66,8 +66,7 @@ void l1t::MuonShowerCondition::copy(const l1t::MuonShowerCondition& cp) {
   m_verbosity = cp.m_verbosity;
 }
 
-l1t::MuonShowerCondition::MuonShowerCondition(const l1t::MuonShowerCondition& cp) 
-  : ConditionEvaluation() { copy(cp); }
+l1t::MuonShowerCondition::MuonShowerCondition(const l1t::MuonShowerCondition& cp) : ConditionEvaluation() { copy(cp); }
 
 // destructor
 l1t::MuonShowerCondition::~MuonShowerCondition() {
@@ -88,16 +87,16 @@ void l1t::MuonShowerCondition::setGtMuonShowerTemplate(const MuonShowerTemplate*
 /// Set the pointer to GTL
 void l1t::MuonShowerCondition::setGtGTL(const GlobalBoard* ptrGTL) { m_gtGTL = ptrGTL; }
 
-// Try all object permutations 
+// Try all object permutations
 const bool l1t::MuonShowerCondition::evaluateCondition(const int bxEval) const {
   bool condResult = false;
-  
+
   /* Number of trigger objects in the condition:
   // it is always 1 because at the uGT there is only one shower object per BX (that can be of several types).
   // See DN2020_033_v4 (sections 7.5 and 7.6) for reference
   */
   int nObjInCond = m_gtMuonShowerTemplate->nrObjects();
-  
+
   const BXVector<const l1t::MuonShower*>* candVec = m_gtGTL->getCandL1MuShower();
 
   // Look at objects in BX = BX + relativeBX
@@ -122,7 +121,7 @@ const bool l1t::MuonShowerCondition::evaluateCondition(const int bxEval) const {
   // If there is a muon shower trigger, the size of the candidates vector is always 4:
   // in fact, we have four muon shower objects created in the Global Board.
   */
-  int numberObjects = candVec->size(useBx); 
+  int numberObjects = candVec->size(useBx);
   if (numberObjects < 1) {
     return false;
   }
@@ -140,14 +139,13 @@ const bool l1t::MuonShowerCondition::evaluateCondition(const int bxEval) const {
   for (int i = 0; i < numberObjects; i++) {
     passCondition = checkObjectParameter(0, *(candVec->at(useBx, index[i])), index[i]);  //BLW Change for BXVector
     condResult |= passCondition;
-    if (passCondition){
-      LogDebug("MuonShowerCondition") << "===> MuShowerCondition::evaluateCondition, PASS! This muon shower passed the condition."
-				      << std::endl;
+    if (passCondition) {
+      LogDebug("MuonShowerCondition")
+          << "===> MuShowerCondition::evaluateCondition, PASS! This muon shower passed the condition." << std::endl;
       objectsInComb.push_back(indexObj);
-    }
-    else
-      LogDebug("MuonShowerCondition") << "===> MuShowerCondition::evaluateCondition, FAIL! This muon shower failed the condition."
-				      << std::endl;
+    } else
+      LogDebug("MuonShowerCondition")
+          << "===> MuShowerCondition::evaluateCondition, FAIL! This muon shower failed the condition." << std::endl;
   }
 
   // if we get here all checks were successfull for this combination
@@ -156,7 +154,6 @@ const bool l1t::MuonShowerCondition::evaluateCondition(const int bxEval) const {
 
   return condResult;
 }
-
 
 /**
  * checkObjectParameter - Check if the bit associated to the type of shower is set to 1
@@ -168,7 +165,7 @@ const bool l1t::MuonShowerCondition::evaluateCondition(const int bxEval) const {
 
 const bool l1t::MuonShowerCondition::checkObjectParameter(const int iCondition,
                                                           const l1t::MuonShower& cand,
-                                                          const unsigned int index) const{
+                                                          const unsigned int index) const {
   // number of objects in condition
   int nObjInCond = m_gtMuonShowerTemplate->nrObjects();
 
@@ -179,18 +176,15 @@ const bool l1t::MuonShowerCondition::checkObjectParameter(const int iCondition,
   const MuonShowerTemplate::ObjectParameter objPar = (*(m_gtMuonShowerTemplate->objectParameter()))[iCondition];
 
   LogDebug("L1TGlobal") << "\n MuonShowerTemplate::ObjectParameter (utm objects, checking which condition is parsed): "
-	    << std::hex << "\n\t MuonShower0 = 0x " << objPar.MuonShower0 
-	                << "\n\t MuonShower1 = 0x " << objPar.MuonShower1
-                        << "\n\t MuonShowerOutOfTime0 = 0x " << objPar.MuonShowerOutOfTime0
-                        << "\n\t MuonShowerOutOfTime1 = 0x " << objPar.MuonShowerOutOfTime1 
-	    << std::endl;
+                        << std::hex << "\n\t MuonShower0 = 0x " << objPar.MuonShower0 << "\n\t MuonShower1 = 0x "
+                        << objPar.MuonShower1 << "\n\t MuonShowerOutOfTime0 = 0x " << objPar.MuonShowerOutOfTime0
+                        << "\n\t MuonShowerOutOfTime1 = 0x " << objPar.MuonShowerOutOfTime1 << std::endl;
 
   LogDebug("L1TGlobal") << "\n l1t::MuonShower (uGT emulator bits): "
-	    << "\n\t MuonShower0: isOneNominalInTime() = " << cand.isOneNominalInTime() 
-	    << "\n\t MuonShower1: isOneTightInTime() = " << cand.isOneTightInTime()
-	    << "\n\t MuonShowerOutOfTime0: musOutOfTime0() = " << cand.musOutOfTime0()
-	    << "\n\t MuonShowerOutOfTime1: musOutOfTime1() = " << cand.musOutOfTime1() 
-	    << std::endl;
+                        << "\n\t MuonShower0: isOneNominalInTime() = " << cand.isOneNominalInTime()
+                        << "\n\t MuonShower1: isOneTightInTime() = " << cand.isOneTightInTime()
+                        << "\n\t MuonShowerOutOfTime0: musOutOfTime0() = " << cand.musOutOfTime0()
+                        << "\n\t MuonShowerOutOfTime1: musOutOfTime1() = " << cand.musOutOfTime1() << std::endl;
 
   // Check oneNominalInTime
   if (cand.isOneNominalInTime() != objPar.MuonShower0) {
@@ -209,8 +203,8 @@ const bool l1t::MuonShowerCondition::checkObjectParameter(const int iCondition,
   if (cand.musOutOfTime1() != objPar.MuonShowerOutOfTime1) {
     LogDebug("L1TGlobal") << "\t\t MuonShower failed MuonShowerOutOfTime1 requirement" << std::endl;
     return false;
-  } 
-  
+  }
+
   return true;
 }
 
