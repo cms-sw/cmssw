@@ -193,7 +193,7 @@ void L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   //This is done as a flat vector input, but future versions may involve 2D input
   //This will have to be handled later
   //Would also be good to be able to configure the precision of the ap_fixed type
-  ap_ufixed<10,10> modelInput[252];
+  ap_ufixed<10, 10> modelInput[252];
   for (const L1CaloRegion& i : *regionCollection) {
     UCTRegionIndex r = g.getUCTRegionIndexFromL1CaloRegion(i.gctEta(), i.gctPhi());
     UCTTowerIndex t = g.getUCTTowerIndexFromL1CaloRegion(r, i.raw());
