@@ -68,7 +68,6 @@ PileupJetIdProducer::PileupJetIdProducer(const edm::ParameterSet& iConfig, GBRFo
   input_rho_token_ = consumes<double>(iConfig.getParameter<edm::InputTag>("rho"));
   parameters_token_ = esConsumes(edm::ESInputTag("", globalCache->jec()));
 
-
   edm::InputTag srcConstituentWeights = iConfig.getParameter<edm::InputTag>("srcConstituentWeights");
   if (!srcConstituentWeights.label().empty()) {
     input_constituent_weights_token_ = consumes<edm::ValueMap<float>>(srcConstituentWeights);
