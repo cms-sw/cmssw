@@ -333,11 +333,27 @@ namespace tmtt {
 
     // Is the fitted track trajectory within the same (eta,phi) sector of the HT used to find it?
     bool consistentSector() const {
+      if (settings_->hybrid()) { 
+        float phiCentre = 2. * M_PI * iPhiSec() / settings_->numPhiSectors();
+        float sectorHalfWidth = M_PI / settings_->numPhiSectors();
+        bool insidePhi =
+            (reco::reduceRange(std::abs(reco::deltaPhi(this->phiAtChosenR(done_bcon_), phiCentre))) < sectorHalfWidth);
+        return insidePhi;
+      } else {
+        bool insidePhi = 
+            (std::abs(reco::deltaPhi(this->phiAtChosenR(done_bcon_), secTmp_->phiCentre())) < secTmp_->sectorHalfWidth());
+        bool insideEta = 
+            (this->zAtChosenR() > secTmp_->zAtChosenR_Min() && this->zAtChosenR() < secTmp_->zAtChosenR_Max());
+        return (insidePhi && insideEta);
+      }
+    } 
+
+
+    bool hybridConsistentSector() const {
+      std::cout << "The sector of this track is " << iPhiSec() << std::endl;
       bool insidePhi =
-          (std::abs(reco::deltaPhi(this->phiAtChosenR(done_bcon_), secTmp_->phiCentre())) < secTmp_->sectorHalfWidth());
-      bool insideEta =
-          (this->zAtChosenR() > secTmp_->zAtChosenR_Min() && this->zAtChosenR() < secTmp_->zAtChosenR_Max());
-      return (insidePhi && insideEta);
+          (std::abs(reco::deltaPhi(this->phiAtChosenR(done_bcon_), 2. * M_PI * iPhiSec() / float(settings_->numPhiSectors()))) < M_PI / settings_->numPhiSectors());
+      return (insidePhi);
     }
 
     // Digitize track and degrade helix parameter resolution according to effect of digitisation.
