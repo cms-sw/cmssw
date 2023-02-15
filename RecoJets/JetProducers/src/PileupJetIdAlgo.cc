@@ -281,7 +281,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
 
   const reco::Candidate *lLead = nullptr, *lSecond = nullptr, *lLeadNeut = nullptr, *lLeadEm = nullptr,
                         *lLeadCh = nullptr, *lTrail = nullptr;
-  
+
   std::vector<float> frac, fracCh, fracEm, fracNeut;
   float cones[] = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7};
   size_t ncones = sizeof(cones) / sizeof(float);
@@ -335,7 +335,6 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
   float LeadChcandWeight = 1.0;
   float TrailcandWeight = 1.0;
 
-
   for (unsigned i = 0; i < jet->numberOfSourceCandidatePtrs(); ++i) {
     reco::CandidatePtr pfJetConstituent = jet->sourceCandidatePtr(i);
     const reco::Candidate* icand = pfJetConstituent.get();
@@ -347,7 +346,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
     }
 
     float candWeight = 1.0;
-    if (applyConstituentWeight){                   // PUPPI Jet weight should be pulled up from valuemap, not packed candidate
+    if (applyConstituentWeight) {  // PUPPI Jet weight should be pulled up from valuemap, not packed candidate
       candWeight = constituentWeights[jet->sourceCandidatePtr(i)];
     }
     float candPt = (icand->pt()) * candWeight;
@@ -362,14 +361,15 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
       dRmin = candDr;
 
     // // all particles; PUPPI weights multiplied to leading and subleading constituent if it is for PUPPI
-    if (lLead == nullptr || candPt > (lLead->pt())*LeadcandWeight) {
+    if (lLead == nullptr || candPt > (lLead->pt()) * LeadcandWeight) {
       lSecond = lLead;
       SecondcandWeight = LeadcandWeight;
       lLead = icand;
       if (applyConstituentWeight) {
         LeadcandWeight = constituentWeights[jet->sourceCandidatePtr(i)];
       }
-    } else if ((lSecond == nullptr || candPt > (lSecond->pt())*SecondcandWeight) && (candPt < (lLead->pt())*LeadcandWeight)) {
+    } else if ((lSecond == nullptr || candPt > (lSecond->pt()) * SecondcandWeight) &&
+               (candPt < (lLead->pt()) * LeadcandWeight)) {
       lSecond = icand;
       if (applyConstituentWeight) {
         SecondcandWeight = constituentWeights[jet->sourceCandidatePtr(i)];
@@ -395,13 +395,13 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
 
     // neutrals Neutral hadrons
     if (abs(icand->pdgId()) == 130) {
-      if (lLeadNeut == nullptr || candPt > (lLeadNeut->pt())*LeadNeutcandWeight) {
+      if (lLeadNeut == nullptr || candPt > (lLeadNeut->pt()) * LeadNeutcandWeight) {
         lLeadNeut = icand;
         if (applyConstituentWeight) {
           LeadNeutcandWeight = constituentWeights[jet->sourceCandidatePtr(i)];
         }
       }
-        
+
       internalId_.dRMeanNeut_ += candPtDr;
       fracNeut.push_back(candPtFrac);
       if (icone < ncones) {
@@ -411,10 +411,10 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
       sumPtNe += candPt;
       multNeut += candWeight;
     }
-    
+
     // EM candidated photon
     if (icand->pdgId() == 22) {
-      if (lLeadEm == nullptr || candPt > (lLeadEm->pt())*LeadEmcandWeight) {
+      if (lLeadEm == nullptr || candPt > (lLeadEm->pt()) * LeadEmcandWeight) {
         lLeadEm = icand;
         if (applyConstituentWeight) {
           LeadEmcandWeight = constituentWeights[jet->sourceCandidatePtr(i)];
@@ -429,13 +429,13 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
       sumPtNe += candPt;
       multNeut += candWeight;
     }
-    // hadrons and EM in HF  
+    // hadrons and EM in HF
     if ((abs(icand->pdgId()) == 1) || (abs(icand->pdgId()) == 2))
       multNeut += candWeight;
 
     // Charged  particles
     if (icand->charge() != 0) {
-      if (lLeadCh == nullptr || candPt > (lLeadCh->pt())*LeadChcandWeight) {
+      if (lLeadCh == nullptr || candPt > (lLeadCh->pt()) * LeadChcandWeight) {
         lLeadCh = icand;
         if (applyConstituentWeight) {
           LeadChcandWeight = constituentWeights[jet->sourceCandidatePtr(i)];
@@ -556,7 +556,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
     }
 
     // trailing candidate
-    if (lTrail == nullptr || candPt < (lTrail->pt())*TrailcandWeight) {
+    if (lTrail == nullptr || candPt < (lTrail->pt()) * TrailcandWeight) {
       lTrail = icand;
       if (applyConstituentWeight) {
         TrailcandWeight = constituentWeights[jet->sourceCandidatePtr(i)];
@@ -580,24 +580,23 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
   // // Finalize all variables
   // Most of Below values are not used for puID variable generation at the moment, except lLeadCh Pt for JetRchg, so I assign that zero if there is no charged constituent.
 
-
   assert(!(lLead == nullptr));
-  internalId_.leadPt_ = lLead->pt()*LeadcandWeight;
+  internalId_.leadPt_ = lLead->pt() * LeadcandWeight;
   internalId_.leadEta_ = lLead->eta();
   internalId_.leadPhi_ = lLead->phi();
 
-  if (lSecond != nullptr){
-    internalId_.secondPt_ = lSecond->pt()*SecondcandWeight;
+  if (lSecond != nullptr) {
+    internalId_.secondPt_ = lSecond->pt() * SecondcandWeight;
     internalId_.secondEta_ = lSecond->eta();
     internalId_.secondPhi_ = lSecond->phi();
-  } else { 
+  } else {
     internalId_.secondPt_ = 0.0;
     internalId_.secondEta_ = large_val;
     internalId_.secondPhi_ = large_val;
   }
 
-  if (lLeadNeut != nullptr){
-    internalId_.leadNeutPt_ = lLeadNeut->pt()*LeadNeutcandWeight;
+  if (lLeadNeut != nullptr) {
+    internalId_.leadNeutPt_ = lLeadNeut->pt() * LeadNeutcandWeight;
     internalId_.leadNeutEta_ = lLeadNeut->eta();
     internalId_.leadNeutPhi_ = lLeadNeut->phi();
   } else {
@@ -606,8 +605,8 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
     internalId_.leadNeutPhi_ = large_val;
   }
 
-  if (lLeadEm != nullptr){
-    internalId_.leadEmPt_ = lLeadEm->pt()*LeadEmcandWeight;
+  if (lLeadEm != nullptr) {
+    internalId_.leadEmPt_ = lLeadEm->pt() * LeadEmcandWeight;
     internalId_.leadEmEta_ = lLeadEm->eta();
     internalId_.leadEmPhi_ = lLeadEm->phi();
   } else {
@@ -616,8 +615,8 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
     internalId_.leadEmPhi_ = large_val;
   }
 
-  if (lLeadCh != nullptr){
-    internalId_.leadChPt_ = lLeadCh->pt()*LeadChcandWeight;
+  if (lLeadCh != nullptr) {
+    internalId_.leadChPt_ = lLeadCh->pt() * LeadChcandWeight;
     internalId_.leadChEta_ = lLeadCh->eta();
     internalId_.leadChPhi_ = lLeadCh->phi();
   } else {
@@ -625,9 +624,6 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
     internalId_.leadChEta_ = large_val;
     internalId_.leadChPhi_ = large_val;
   }
-
-
-
 
   if (patjet != nullptr) {  // to enable running on MiniAOD slimmedJets
     internalId_.nCharged_ = patjet->chargedMultiplicity();
@@ -654,10 +650,10 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
   float ddetaR_sum(0.0), ddphiR_sum(0.0), pull_tmp(0.0);
   for (unsigned k = 0; k < jet->numberOfSourceCandidatePtrs(); k++) {
     reco::CandidatePtr temp_pfJetConstituent = jet->sourceCandidatePtr(k);
-//    reco::CandidatePtr temp_weightpfJetConstituent = jet->sourceCandidatePtr(k);
+    //    reco::CandidatePtr temp_weightpfJetConstituent = jet->sourceCandidatePtr(k);
     const reco::Candidate* part = temp_pfJetConstituent.get();
- 
-   float candWeight = 1.0;
+
+    float candWeight = 1.0;
 
     if (applyConstituentWeight)
       candWeight = constituentWeights[jet->sourceCandidatePtr(k)];
@@ -679,7 +675,6 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
   }
   internalId_.pull_ = pull_tmp;
   ///////////////////////////////////////////////////////////////////////
-
 
   std::sort(frac.begin(), frac.end(), std::greater<float>());
   std::sort(fracCh.begin(), fracCh.end(), std::greater<float>());
@@ -746,11 +741,11 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
   internalId_.sumChPt_ = sumPtCh;
   internalId_.sumNePt_ = sumPtNe;
 
-  internalId_.jetR_ = (lLead->pt())*LeadcandWeight / sumPt;
-  if (lLeadCh != nullptr){
-    internalId_.jetRchg_ = (lLeadCh->pt())*LeadChcandWeight / sumPt;
-  } else { 
-    internalId_.jetRchg_ = 0; 
+  internalId_.jetR_ = (lLead->pt()) * LeadcandWeight / sumPt;
+  if (lLeadCh != nullptr) {
+    internalId_.jetRchg_ = (lLeadCh->pt()) * LeadChcandWeight / sumPt;
+  } else {
+    internalId_.jetRchg_ = 0;
   }
 
   internalId_.dRMatch_ = dRmin;

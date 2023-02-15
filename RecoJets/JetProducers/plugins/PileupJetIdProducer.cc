@@ -27,7 +27,7 @@ GBRForestsAndConstants::GBRForestsAndConstants(edm::ParameterSet const& iConfig)
       applyJec_(iConfig.getParameter<bool>("applyJec")),
       jec_(iConfig.getParameter<std::string>("jec")),
       residualsFromTxt_(iConfig.getParameter<bool>("residualsFromTxt")),
-      applyConstituentWeight_(false){
+      applyConstituentWeight_(false) {
   if (residualsFromTxt_) {
     residualsTxt_ = iConfig.getParameter<edm::FileInPath>("residualsTxt");
   }
@@ -42,10 +42,9 @@ GBRForestsAndConstants::GBRForestsAndConstants(edm::ParameterSet const& iConfig)
   }
 
   edm::InputTag srcConstituentWeights = iConfig.getParameter<edm::InputTag>("srcConstituentWeights");
-  if (!srcConstituentWeights.label().empty()){
+  if (!srcConstituentWeights.label().empty()) {
     applyConstituentWeight_ = true;
   }
-
 }
 
 // ------------------------------------------------------------------------------------------
@@ -70,11 +69,6 @@ PileupJetIdProducer::PileupJetIdProducer(const edm::ParameterSet& iConfig, GBRFo
   parameters_token_ = esConsumes(edm::ESInputTag("", globalCache->jec()));
 
 
-//  edm::InputTag src_ = iConfig.getParameter<edm::InputTag>("src");
-//  edm::InputTag srcWeights = iConfig.getParameter<edm::InputTag>("srcWeights");
-//  if (iConfig.getParameter<edm::InputTag>("src").label() == iConfig.getParameter<edm::InputTag>("srcConstituentWeights").label())
-//    edm::LogWarning("PileupJetIdAlgo")
-//        << "Particle and weights collection have the same label. You may be applying the same weights twice. \n";
   edm::InputTag srcConstituentWeights = iConfig.getParameter<edm::InputTag>("srcConstituentWeights");
   if (!srcConstituentWeights.label().empty()){
     input_constituent_weights_token_ = consumes<edm::ValueMap<float>>(srcConstituentWeights);
@@ -97,12 +91,12 @@ void PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   iEvent.getByToken(input_jet_token_, jetHandle);
   const View<Jet>& jets = *jetHandle;
 
-  // Constituent weight (e.g PUPPI) Value Map 
+  // Constituent weight (e.g PUPPI) Value Map
   edm::ValueMap<float> constituentWeights;
   if (!input_constituent_weights_token_.isUninitialized()) {
     constituentWeights = iEvent.get(input_constituent_weights_token_);
   }
-  
+
   // input variables
   Handle<ValueMap<StoredPileupJetIdentifier>> vmap;
   if (!gc->produceJetIds()) {
@@ -191,7 +185,8 @@ void PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     if (gc->produceJetIds()) {
       // Compute the input variables
       ////////////////////////////// added PUPPI weight Value Map
-      puIdentifier = ialgo->computeIdVariables(theJet, jec, &(*vtx), *vertexes, rho, constituentWeights, gc->applyConstituentWeight());
+      puIdentifier = ialgo->computeIdVariables(
+          theJet, jec, &(*vtx), *vertexes, rho, constituentWeights, gc->applyConstituentWeight());
       ids.push_back(puIdentifier);
     } else {
       // Or read it from the value map
