@@ -6,7 +6,7 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPM.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMShape.h"
 
-#include <unordered_map>
+#include <map>
 #include <set>
 #include <vector>
 
