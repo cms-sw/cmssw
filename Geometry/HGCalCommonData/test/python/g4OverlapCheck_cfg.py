@@ -43,9 +43,9 @@ print("Output file:   ", outFile)
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load(geomFile)
 
-if hasattr(process,'MessageLogger'):
-    process.MessageLogger.SimG4CoreGeometry=dict()
-    process.MessageLogger.HGCalGeom=dict()
+#if hasattr(process,'MessageLogger'):
+#    process.MessageLogger.SimG4CoreGeometry=dict()
+#    process.MessageLogger.HGCalGeom=dict()
 
 from SimG4Core.PrintGeomInfo.g4TestGeometry_cfi import *
 process = checkOverlap(process)
