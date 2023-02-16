@@ -58,11 +58,11 @@ namespace trklet {
 
     bool stubtruthmatch(const L1TStub* stub);
 
-    const Stub* innerFPGAStub() { return innerFPGAStub_; }
+    const Stub* innerFPGAStub() const { return innerFPGAStub_; }
 
-    const Stub* middleFPGAStub() { return middleFPGAStub_; }
+    const Stub* middleFPGAStub() const { return middleFPGAStub_; }
 
-    const Stub* outerFPGAStub() { return outerFPGAStub_; }
+    const Stub* outerFPGAStub() const { return outerFPGAStub_; }
 
     std::string addressstr();
 

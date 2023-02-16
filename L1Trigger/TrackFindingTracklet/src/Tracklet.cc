@@ -720,6 +720,8 @@ std::string Tracklet::trackfitstr() const {
 
     oss += "1|";  // valid bit
     oss += tmp.str() + "|";
+    oss += innerFPGAStub()->stubindex().str() + "|";
+    oss += outerFPGAStub()->stubindex().str() + "|";
     oss += fpgapars_.rinv().str() + "|";
     oss += fpgapars_.phi0().str() + "|";
     oss += fpgapars_.z0().str() + "|";
