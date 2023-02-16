@@ -1434,6 +1434,51 @@ muonDict = {
         ],
         "era" : "run3_GEM",
     },
+    "M2" : {
+        1 : [
+            'Geometry/MuonCommonData/data/mbCommon/2021/v2/mbCommon.xml',
+            'Geometry/MuonCommonData/data/mb1/2021/v1/mb1.xml',
+            'Geometry/MuonCommonData/data/mb2/2021/v1/mb2.xml',
+            'Geometry/MuonCommonData/data/mb3/2021/v1/mb3.xml',
+            'Geometry/MuonCommonData/data/mb4/2015/v2/mb4.xml',
+            'Geometry/MuonCommonData/data/mb4Shield/2021/v1/mb4Shield.xml',
+            'Geometry/MuonCommonData/data/muonYoke/2021/v5/muonYoke.xml',
+            'Geometry/MuonCommonData/data/mf/2021/v3/mf.xml',
+            'Geometry/MuonCommonData/data/rpcf/2021/v1/rpcf.xml',
+            'Geometry/MuonCommonData/data/gemf/TDR_BaseLine/gemf.xml',
+            'Geometry/MuonCommonData/data/gem11/TDR_BaseLine/gem11.xml',
+            'Geometry/MuonCommonData/data/gem21/2023/v1/gem21.xml',
+            'Geometry/MuonCommonData/data/csc/2021/v3/csc.xml',
+            'Geometry/MuonCommonData/data/mfshield/2017/v2/mfshield.xml',
+        ],
+        2 : [
+            'Geometry/MuonCommonData/data/muonNumbering/2021/v5/muonNumbering.xml',
+        ],
+        3 : [
+            'Geometry/MuonSimData/data/muonSens/2021/v4/muonSens.xml',
+            'Geometry/DTGeometryBuilder/data/dtSpecsFilter/2021/v1/dtSpecsFilter.xml',
+            'Geometry/CSCGeometryBuilder/data/cscSpecsFilter.xml',
+            'Geometry/CSCGeometryBuilder/data/cscSpecs.xml',
+            'Geometry/RPCGeometryBuilder/data/2021/v1/RPCSpecs.xml',
+            'Geometry/GEMGeometryBuilder/data/GEMSpecsFilter/2021/v2/GEMSpecsFilter.xml',
+            'Geometry/GEMGeometryBuilder/data/GEMSpecs/2021/v2/GEMSpecs.xml',
+        ],
+        4 : [
+            'Geometry/MuonSimData/data/muonProdCuts/2021/v3/muonProdCuts.xml',
+        ],
+        "sim" : [
+            'from Geometry.MuonNumbering.muonGeometryConstants_cff import *',
+            'from Geometry.MuonNumbering.muonOffsetESProducer_cff import *',
+        ],
+        "reco" : [
+            'from Geometry.MuonNumbering.muonNumberingInitialization_cfi import *',
+            'from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *',
+            'from Geometry.GEMGeometryBuilder.gemGeometry_cff import *',
+            'from Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff import *',
+            'from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *',
+        ],
+        "era" : "run3_GEM",
+    },
 }
 
 forwardDict = {
@@ -1588,6 +1633,7 @@ detectorVersionDict = {
     ("O5","T6","C1","M1","F1","P7") : "2021FlatMinus10Percent",
     ("O5","T7","C1","M1","F1","P7") : "2021FlatPlus05Percent",
     ("O5","T8","C1","M1","F1","P7") : "2021FlatPlus10Percent",
+    ("O6","T3","C1","M2","F1","P7") : "2023",
  }
 
 deprecatedSubdets = set([ "T1", "T2", "O1", "O2", "O3", "P1", "P2", "P3", 
