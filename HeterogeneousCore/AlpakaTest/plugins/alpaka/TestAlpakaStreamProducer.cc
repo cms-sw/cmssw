@@ -34,7 +34,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       [[maybe_unused]] auto inpData = iEvent.getHandle(getToken_);
       [[maybe_unused]] auto const& esData = iSetup.getData(esToken_);
 
-      auto deviceProduct = std::make_unique<portabletest::TestDeviceCollection>(size_, alpaka::getDev(iEvent.queue()));
+      auto deviceProduct = std::make_unique<portabletest::TestDeviceCollection>(size_, iEvent.queue());
 
       // run the algorithm, potentially asynchronously
       algo_.fill(iEvent.queue(), *deviceProduct);
