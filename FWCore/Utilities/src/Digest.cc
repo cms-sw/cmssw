@@ -93,25 +93,25 @@ namespace cms {
       "f0f1f2f3f4f5f6f7f8f9fafbfcfdfeff";
 
   std::string MD5Result::toString() const {
-    char buf[16 * 2];
-    char* pBuf = buf;
-    for (unsigned int i = 0; i < sizeof(bytes); ++i) {
-      const char* p = s_hexValues + 2 * bytes[i];
+    std::array<char, 16 * 2> buf;
+    char* pBuf = buf.begin();
+    for (auto b : bytes) {
+      const char* p = s_hexValues + 2 * b;
       *pBuf = *p;
       ++pBuf;
       ++p;
       *pBuf = *p;
       ++pBuf;
     }
-    return std::string(buf, sizeof(buf));
+    return std::string(buf.begin(), buf.end());
   }
 
   std::string MD5Result::compactForm() const {
     // This is somewhat dangerous, because the conversion of 'unsigned
     // char' to 'char' may be undefined if 'char' is a signed type
     // (4.7p3 in the Standard).
-    const char* p = reinterpret_cast<const char*>(&bytes[0]);
-    return std::string(p, p + sizeof(bytes));
+    const char* p = reinterpret_cast<const char*>(bytes.data());
+    return std::string(p, p + bytes.size());
   }
 
   void MD5Result::fromHexifiedString(std::string const& hexy) {
@@ -139,11 +139,11 @@ namespace cms {
   bool MD5Result::isValid() const { return (*this != invalidResult()); }
 
   bool operator==(MD5Result const& a, MD5Result const& b) {
-    return std::equal(a.bytes, a.bytes + sizeof(a.bytes), b.bytes);
+    return std::equal(a.bytes.begin(), a.bytes.end(), b.bytes.begin());
   }
 
   bool operator<(MD5Result const& a, MD5Result const& b) {
-    return std::lexicographical_compare(a.bytes, a.bytes + sizeof(a.bytes), b.bytes, b.bytes + sizeof(b.bytes));
+    return std::lexicographical_compare(a.bytes.begin(), a.bytes.end(), b.bytes.begin(), b.bytes.end());
   }
 
   //--------------------------------------------------------------------
@@ -170,7 +170,7 @@ namespace cms {
 
   MD5Result Digest::digest() {
     MD5Result aDigest;
-    md5_finish(&state_, aDigest.bytes);
+    md5_finish(&state_, aDigest.bytes.data());
     return aDigest;
   }
 }  // namespace cms
