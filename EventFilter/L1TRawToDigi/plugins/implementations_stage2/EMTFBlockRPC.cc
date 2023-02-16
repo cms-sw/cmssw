@@ -275,9 +275,9 @@ namespace l1t {
                                         << ", phi " << Hit_.Phi_fp() / 4 << std::endl;
 
           (res->at(iOut)).push_RPC(RPC_);
-          if (!exact_duplicate)
+          if (!exact_duplicate and Hit_.Valid())
             res_hit->push_back(Hit_);
-          if (!exact_duplicate)
+          if (!exact_duplicate and Hit_.Valid())
             res_CPPF->push_back(Hit_.CreateCPPFDigi());
         }
 
