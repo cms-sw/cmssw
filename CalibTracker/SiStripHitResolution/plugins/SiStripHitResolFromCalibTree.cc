@@ -97,20 +97,19 @@ private:
                         SiStripQuality::BadComponent& BC,
                         std::stringstream ssV[4][19],
                         int NBadComponent[4][19][4]);
-  void makeTKMap(bool autoTagging);
-  void makeHotColdMaps();
+  void makeTKMap(const edm::Service<TFileService>& fs, bool autoTagging);
+  void makeHotColdMaps(const edm::Service<TFileService>& fs);
   void makeSQLite();
   void totalStatistics();
-  void makeSummary();
-  void makeSummaryVsBx();
-  void ComputeEff(vector<TH1F*>& vhfound, vector<TH1F*>& vhtotal, string name);
-  void makeSummaryVsLumi();
-  void makeSummaryVsCM();
+  void makeSummary(const edm::Service<TFileService>& fs);
+  void makeSummaryVsBx(const edm::Service<TFileService>& fs);
+  void ComputeEff(const edm::Service<TFileService>& fs, vector<TH1F*>& vhfound, vector<TH1F*>& vhtotal, string name);
+  void makeSummaryVsLumi(const edm::Service<TFileService>& fs);
+  void makeSummaryVsCM(const edm::Service<TFileService>& fs);
   TString GetLayerName(Long_t k);
   TString GetLayerSideName(Long_t k);
   float calcPhi(float x, float y);
 
-  edm::Service<TFileService> fs;
   SiStripDetInfo _detInfo;
   edm::FileInPath FileInPath_;
   SiStripQuality* quality_;
@@ -178,6 +177,7 @@ private:
 
 SiStripHitResolFromCalibTree::SiStripHitResolFromCalibTree(const edm::ParameterSet& conf)
     : ConditionDBWriter<SiStripBadStrip>(conf), FileInPath_("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat") {
+  usesResource(TFileService::kSharedResource);
   CalibTreeFilenames = conf.getUntrackedParameter<vector<std::string> >("CalibTreeFilenames");
   threshold = conf.getParameter<double>("Threshold");
   nModsMin = conf.getParameter<int>("nModsMin");
@@ -222,6 +222,8 @@ void SiStripHitResolFromCalibTree::algoEndJob() {
 }
 
 void SiStripHitResolFromCalibTree::algoAnalyze(const edm::Event& e, const edm::EventSetup& c) {
+  edm::Service<TFileService> fs;
+
   const auto& tkgeom = c.getData(_tkGeomToken);
   const auto& tTopo = c.getData(_tTopoToken);
 
@@ -718,15 +720,15 @@ void SiStripHitResolFromCalibTree::algoAnalyze(const edm::Event& e, const edm::E
     }
   }  // go to next CalibTreeFile
 
-  makeHotColdMaps();
-  makeTKMap(_autoIneffModTagging);
+  makeHotColdMaps(fs);
+  makeTKMap(fs, _autoIneffModTagging);
   makeSQLite();
   totalStatistics();
-  makeSummary();
-  makeSummaryVsBx();
-  makeSummaryVsLumi();
+  makeSummary(fs);
+  makeSummaryVsBx(fs);
+  makeSummaryVsLumi(fs);
   if (_useCM)
-    makeSummaryVsCM();
+    makeSummaryVsCM(fs);
 
   ////////////////////////////////////////////////////////////////////////
   //try to write out what's in the quality record
@@ -964,7 +966,7 @@ void SiStripHitResolFromCalibTree::algoAnalyze(const edm::Event& e, const edm::E
   badModules.close();
 }
 
-void SiStripHitResolFromCalibTree::makeHotColdMaps() {
+void SiStripHitResolFromCalibTree::makeHotColdMaps(const edm::Service<TFileService>& fs) {
   cout << "Entering hot cold map generation!\n";
   TStyle* gStyle = new TStyle("gStyle", "myStyle");
   gStyle->cd();
@@ -1092,7 +1094,7 @@ void SiStripHitResolFromCalibTree::makeHotColdMaps() {
   cout << "Finished HotCold Map Generation\n";
 }
 
-void SiStripHitResolFromCalibTree::makeTKMap(bool autoTagging = false) {
+void SiStripHitResolFromCalibTree::makeTKMap(const edm::Service<TFileService>& fs, bool autoTagging = false) {
   cout << "Entering TKMap generation!\n";
   tkmap = new TrackerMap("  Detector Inefficiency  ");
   tkmapbad = new TrackerMap("  Inefficient Modules  ");
@@ -1268,7 +1270,7 @@ void SiStripHitResolFromCalibTree::totalStatistics() {
        << endl;
 }
 
-void SiStripHitResolFromCalibTree::makeSummary() {
+void SiStripHitResolFromCalibTree::makeSummary(const edm::Service<TFileService>& fs) {
   //setTDRStyle();
 
   int nLayers = 34;
@@ -1453,7 +1455,7 @@ void SiStripHitResolFromCalibTree::makeSummary() {
   c7->SaveAs("Summary.png");
 }
 
-void SiStripHitResolFromCalibTree::makeSummaryVsBx() {
+void SiStripHitResolFromCalibTree::makeSummaryVsBx(const edm::Service<TFileService>& fs) {
   cout << "Computing efficiency vs bx" << endl;
 
   unsigned int nLayers = 22;
@@ -1551,7 +1553,10 @@ TString SiStripHitResolFromCalibTree::GetLayerName(Long_t k) {
   return layername;
 }
 
-void SiStripHitResolFromCalibTree::ComputeEff(vector<TH1F*>& vhfound, vector<TH1F*>& vhtotal, string name) {
+void SiStripHitResolFromCalibTree::ComputeEff(const edm::Service<TFileService>& fs,
+                                              vector<TH1F*>& vhfound,
+                                              vector<TH1F*>& vhtotal,
+                                              string name) {
   unsigned int nLayers = 22;
   if (_showRings)
     nLayers = 20;
@@ -1587,7 +1592,7 @@ void SiStripHitResolFromCalibTree::ComputeEff(vector<TH1F*>& vhfound, vector<TH1
   }
 }
 
-void SiStripHitResolFromCalibTree::makeSummaryVsLumi() {
+void SiStripHitResolFromCalibTree::makeSummaryVsLumi(const edm::Service<TFileService>& fs) {
   cout << "Computing efficiency vs lumi" << endl;
 
   if (instLumiHisto->GetEntries())  // from infos per event
@@ -1621,13 +1626,13 @@ void SiStripHitResolFromCalibTree::makeSummaryVsLumi() {
     cout << "Avg conditions:   lumi :" << avgLumi << "  pu: " << avgPU << endl;
   }
 
-  ComputeEff(layerfound_vsLumi, layertotal_vsLumi, "effVsLumi");
-  ComputeEff(layerfound_vsPU, layertotal_vsPU, "effVsPU");
+  ComputeEff(fs, layerfound_vsLumi, layertotal_vsLumi, "effVsLumi");
+  ComputeEff(fs, layerfound_vsPU, layertotal_vsPU, "effVsPU");
 }
 
-void SiStripHitResolFromCalibTree::makeSummaryVsCM() {
+void SiStripHitResolFromCalibTree::makeSummaryVsCM(const edm::Service<TFileService>& fs) {
   cout << "Computing efficiency vs CM" << endl;
-  ComputeEff(layerfound_vsCM, layertotal_vsCM, "effVsCM");
+  ComputeEff(fs, layerfound_vsCM, layertotal_vsCM, "effVsCM");
 }
 
 TString SiStripHitResolFromCalibTree::GetLayerSideName(Long_t k) {
