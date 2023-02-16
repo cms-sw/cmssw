@@ -98,7 +98,7 @@ pair<bool, TrajectoryStateOnSurface> ForwardDetLayer::compatible(const Trajector
 
   // check r
   auto r2 = myState.localPosition().perp2();
-  if ((r2 > rmin() * rmin()) & (r2 < rmax() * rmax()))
+  if ((r2 > rmin() * rmin()) && (r2 < rmax() * rmax()))
     return make_pair(true, myState);
 
   // take into account the thickness of the layer
@@ -117,5 +117,5 @@ pair<bool, TrajectoryStateOnSurface> ForwardDetLayer::compatible(const Trajector
   ri2 *= ri2;
   auto ro2 = rmax() + deltaR;
   ro2 *= ro2;
-  return make_pair((r2 > ri2) & (r2 < ro2), myState);
+  return make_pair((r2 > ri2) && (r2 < ro2), myState);
 }
