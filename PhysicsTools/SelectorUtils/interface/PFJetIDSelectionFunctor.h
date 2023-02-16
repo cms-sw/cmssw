@@ -37,6 +37,10 @@ public:  // interface
     SUMMER18PUPPI,
     RUN2UL16CHS,
     RUN2UL16PUPPI,
+    RUN3WINTER22CHSrunsBCDEprompt,
+    RUN3WINTER22PUPPIrunsBCDEprompt,
+    RUN3WINTER22CHS,
+    RUN3WINTER22PUPPI,
     RUN2ULCHS,
     RUN2ULPUPPI,
     N_VERSIONS
@@ -76,8 +80,16 @@ public:  // interface
       version_ = RUN2ULCHS;
     else if (versionStr == "RUN2ULPUPPI")
       version_ = RUN2ULPUPPI;
+    else if (versionStr == "RUN3WINTER22CHSrunsBCDEprompt")
+      version_ = RUN3WINTER22CHSrunsBCDEprompt;
+    else if (versionStr == "RUN3WINTER22PUPPIrunsBCDEprompt")
+      version_ = RUN3WINTER22PUPPIrunsBCDEprompt;
+    else if (versionStr == "RUN3WINTER22CHS")
+      version_ = RUN3WINTER22CHS;
+    else if (versionStr == "RUN3WINTER22PUPPI")
+      version_ = RUN3WINTER22PUPPI;
     else
-      version_ = RUN2ULCHS;  //set RUN2ULCHS as default //this is extremely unsafe
+      version_ = RUN3WINTER22PUPPI;  //set RUN3WINTER22PUPPI as default //this is extremely unsafe
 
     if (qualityStr == "LOOSE")
       quality_ = LOOSE;
@@ -119,7 +131,7 @@ public:  // interface
   static edm::ParameterSetDescription getDescription() {
     edm::ParameterSetDescription desc;
 
-    desc.ifValue(edm::ParameterDescription<std::string>("version", "RUN2ULCHS", true, edm::Comment("")),
+    desc.ifValue(edm::ParameterDescription<std::string>("version", "RUN3WINTER22PUPPI", true, edm::Comment("")),
                  edm::allowedValues<std::string>("FIRSTDATA",
                                                  "RUNIISTARTUP",
                                                  "WINTER16",
@@ -130,7 +142,11 @@ public:  // interface
                                                  "RUN2UL16CHS",
                                                  "RUN2UL16PUPPI",
                                                  "RUN2ULCHS",
-                                                 "RUN2ULPUPPI"));
+                                                 "RUN2ULPUPPI",
+                                                 "RUN3WINTER22CHSrunsBCDEprompt",
+                                                 "RUN3WINTER22PUPPIrunsBCDEprompt",
+                                                 "RUN3WINTER22CHS",
+                                                 "RUN3WINTER22PUPPI"));
     desc.ifValue(edm::ParameterDescription<std::string>("quality", "TIGHT", true, edm::Comment("")),
                  edm::allowedValues<std::string>("LOOSE", "TIGHT", "TIGHTLEPVETO"));
     desc.addOptional<std::vector<std::string>>("cutsToIgnore")->setComment("");
@@ -195,7 +211,9 @@ public:  // interface
   bool operator()(const pat::Jet &jet, pat::strbitset &ret) override {
     if (version_ == FIRSTDATA || version_ == RUNIISTARTUP || version_ == WINTER16 || version_ == WINTER17 ||
         version_ == WINTER17PUPPI || version_ == SUMMER18 || version_ == SUMMER18PUPPI || version_ == RUN2UL16CHS ||
-        version_ == RUN2UL16PUPPI || version_ == RUN2ULCHS || version_ == RUN2ULPUPPI) {
+        version_ == RUN2UL16PUPPI || version_ == RUN3WINTER22CHSrunsBCDEprompt ||
+        version_ == RUN3WINTER22PUPPIrunsBCDEprompt || version_ == RUN3WINTER22CHS || version_ == RUN3WINTER22PUPPI ||
+        version_ == RUN2ULCHS || version_ == RUN2ULPUPPI) {
       if (jet.currentJECLevel() == "Uncorrected" || !jet.jecSetsAvailable())
         return firstDataCuts(jet, ret, version_);
       else
@@ -213,7 +231,9 @@ public:  // interface
   bool operator()(const reco::PFJet &jet, pat::strbitset &ret) {
     if (version_ == FIRSTDATA || version_ == RUNIISTARTUP || version_ == WINTER16 || version_ == WINTER17 ||
         version_ == WINTER17PUPPI || version_ == SUMMER18 || version_ == SUMMER18PUPPI || version_ == RUN2UL16CHS ||
-        version_ == RUN2UL16PUPPI || version_ == RUN2ULCHS || version_ == RUN2ULPUPPI) {
+        version_ == RUN2UL16PUPPI || version_ == RUN3WINTER22CHSrunsBCDEprompt ||
+        version_ == RUN3WINTER22PUPPIrunsBCDEprompt || version_ == RUN3WINTER22CHS || version_ == RUN3WINTER22PUPPI ||
+        version_ == RUN2ULCHS || version_ == RUN2ULPUPPI) {
       return firstDataCuts(jet, ret, version_);
     } else {
       return false;
@@ -359,10 +379,14 @@ public:  // interface
 
     float etaB = 2.4;
     // Cuts for |eta| < 2.6 for Summer18
-    if (version_ == SUMMER18 || version_ == SUMMER18PUPPI || version_ == RUN2ULCHS || version_ == RUN2ULPUPPI)
+    if (version_ == SUMMER18 || version_ == SUMMER18PUPPI || version_ == RUN2ULCHS || version_ == RUN2ULPUPPI ||
+        version_ == RUN3WINTER22CHSrunsBCDEprompt || version_ == RUN3WINTER22PUPPIrunsBCDEprompt ||
+        version_ == RUN3WINTER22CHS || version_ == RUN3WINTER22PUPPI)
       etaB = 2.6;
     if ((version_ != WINTER17 && version_ != WINTER17PUPPI && version_ != SUMMER18 && version_ != SUMMER18PUPPI &&
-         version_ != RUN2UL16CHS && version_ != RUN2UL16PUPPI && version_ != RUN2ULCHS && version_ != RUN2ULPUPPI) ||
+         version_ != RUN2UL16CHS && version_ != RUN2UL16PUPPI && version_ != RUN3WINTER22CHSrunsBCDEprompt &&
+         version_ != RUN3WINTER22PUPPIrunsBCDEprompt && version_ != RUN3WINTER22CHS && version_ != RUN3WINTER22PUPPI &&
+         version_ != RUN2ULCHS && version_ != RUN2ULPUPPI) ||
         quality_ != TIGHT) {
       if (ignoreCut(indexCEF_) || (cef < cut(indexCEF_, double()) || std::abs(jet.eta()) > etaB))
         passCut(ret, indexCEF_);
@@ -569,7 +593,8 @@ public:  // interface
           (nneutrals < cut(indexNNeutrals_FW_U_, int()) || std::abs(jet.eta()) <= 3.0))
         passCut(ret, indexNNeutrals_FW_U_);
 
-    } else if ((version_ == SUMMER18) || (version_ == RUN2ULCHS)) {
+    } else if ((version_ == SUMMER18) || (version_ == RUN2ULCHS) || (version_ == RUN3WINTER22CHSrunsBCDEprompt) ||
+               (version_ == RUN3WINTER22CHS)) {
       // Cuts for |eta| <= 2.6 for SUMMER18 scenario
       if (ignoreCut(indexNConstituents_) ||
           (nconstituents > cut(indexNConstituents_, int()) || std::abs(jet.eta()) > 2.6))
@@ -622,7 +647,8 @@ public:  // interface
         passCut(ret, indexNNeutrals_FW_);
     }
 
-    else if ((version_ == SUMMER18PUPPI) || (version_ == RUN2ULPUPPI)) {
+    else if ((version_ == SUMMER18PUPPI) || (version_ == RUN2ULPUPPI) ||
+             (version_ == RUN3WINTER22PUPPIrunsBCDEprompt) || (version_ == RUN3WINTER22PUPPI)) {
       // Cuts for |eta| <= 2.6 for SUMMER18PUPPI scenario
       if (ignoreCut(indexNConstituents_) ||
           (nconstituents > cut(indexNConstituents_, int()) || std::abs(jet.eta()) > 2.6))
@@ -682,7 +708,9 @@ private:  // member variables
     push_back("CHF");
     push_back("NHF");
     if ((version_ != WINTER17 && version_ != WINTER17PUPPI && version_ != SUMMER18 && version_ != SUMMER18PUPPI &&
-         version_ != RUN2UL16CHS && version_ != RUN2UL16PUPPI && version_ != RUN2ULCHS && version_ != RUN2ULPUPPI) ||
+         version_ != RUN2UL16CHS && version_ != RUN2UL16PUPPI && version_ != RUN2ULCHS && version_ != RUN2ULPUPPI &&
+         version_ != RUN3WINTER22CHSrunsBCDEprompt && version_ != RUN3WINTER22PUPPIrunsBCDEprompt &&
+         version_ != RUN3WINTER22CHS && version_ != RUN3WINTER22PUPPI) ||
         quality_ != TIGHT)
       push_back("CEF");
     push_back("NEF");
@@ -747,7 +775,8 @@ private:  // member variables
         push_back("MUF");
       }
     }
-    if ((version_ == SUMMER18) || (version_ == RUN2ULCHS)) {
+    if ((version_ == SUMMER18) || (version_ == RUN2ULCHS) || (version_ == RUN3WINTER22CHSrunsBCDEprompt) ||
+        (version_ == RUN3WINTER22CHS)) {
       push_back("NHF_TR");
       push_back("NEF_TR");
       push_back("NCH_TR");
@@ -764,7 +793,8 @@ private:  // member variables
         push_back("CEF_TR");
       }
     }
-    if ((version_ == SUMMER18PUPPI) || (version_ == RUN2ULPUPPI)) {
+    if ((version_ == SUMMER18PUPPI) || (version_ == RUN2ULPUPPI) || (version_ == RUN3WINTER22PUPPIrunsBCDEprompt) ||
+        (version_ == RUN3WINTER22PUPPI)) {
       push_back("NHF_TR");
       push_back("NEF_TR");
       push_back("NHF_EC");
@@ -781,7 +811,9 @@ private:  // member variables
     }
 
     if ((version_ == WINTER17 || version_ == WINTER17PUPPI || version_ == SUMMER18 || version_ == SUMMER18PUPPI ||
-         version_ == RUN2UL16CHS || version_ == RUN2UL16PUPPI || version_ == RUN2ULCHS || version_ == RUN2ULPUPPI) &&
+         version_ == RUN2UL16CHS || version_ == RUN2UL16PUPPI || version_ == RUN2ULCHS || version_ == RUN2ULPUPPI ||
+         version_ == RUN3WINTER22CHSrunsBCDEprompt || version_ == RUN3WINTER22PUPPIrunsBCDEprompt ||
+         version_ == RUN3WINTER22CHS || version_ == RUN3WINTER22PUPPI) &&
         quality_ == LOOSE) {
       edm::LogWarning("BadJetIDVersion")
           << "The LOOSE operating point is only supported for the WINTER16 JetID version -- defaulting to TIGHT";
@@ -810,8 +842,15 @@ private:  // member variables
       set("CHF", 0.0);
       set("NHF", 0.9);
       if (version_ != WINTER17 && version_ != WINTER17PUPPI && version_ != SUMMER18 && version_ != SUMMER18PUPPI &&
-          version_ != RUN2UL16CHS && version_ != RUN2UL16PUPPI && version_ != RUN2ULCHS && version_ != RUN2ULPUPPI)
+          version_ != RUN2UL16CHS && version_ != RUN2UL16PUPPI && version_ != RUN2ULCHS && version_ != RUN2ULPUPPI &&
+          version_ != RUN3WINTER22CHSrunsBCDEprompt && version_ != RUN3WINTER22PUPPIrunsBCDEprompt &&
+          version_ != RUN3WINTER22CHS && version_ != RUN3WINTER22PUPPI)
         set("CEF", 0.99);
+      if (version_ == RUN3WINTER22CHSrunsBCDEprompt || version_ == RUN3WINTER22PUPPIrunsBCDEprompt ||
+          version_ == RUN3WINTER22CHS || version_ == RUN3WINTER22PUPPI)
+        set("CHF", 0.01);
+      if (version_ == RUN3WINTER22CHS || version_ == RUN3WINTER22PUPPI)
+        set("NHF", 0.99);
       set("NEF", 0.9);
       set("NCH", 0);
       set("nConstituents", 1);
@@ -872,7 +911,7 @@ private:  // member variables
         set("NEF_FW", 0.90);
         set("nNeutrals_FW_L", 2);
         set("nNeutrals_FW_U", 999999);
-      } else if (version_ == RUN2ULCHS) {
+      } else if (version_ == RUN2ULCHS || version_ == RUN3WINTER22CHSrunsBCDEprompt || version_ == RUN3WINTER22CHS) {
         set("NHF_TR", 0.9);
         set("NEF_TR", 0.99);
         set("NCH_TR", 0);
@@ -882,7 +921,7 @@ private:  // member variables
         set("NHF_FW", 0.2);
         set("NEF_FW", 0.90);
         set("nNeutrals_FW", 10);
-      } else if (version_ == RUN2ULPUPPI) {
+      } else if (version_ == RUN2ULPUPPI || version_ == RUN3WINTER22PUPPIrunsBCDEprompt) {
         set("NHF_TR", 0.9);
         set("NEF_TR", 0.99);
         set("NHF_EC", 0.9999);
@@ -890,30 +929,42 @@ private:  // member variables
         set("NEF_FW", 0.90);
         set("nNeutrals_FW_L", 2);
         set("nNeutrals_FW_U", 999999);
+      } else if (version_ == RUN3WINTER22PUPPI) {
+        set("NHF_TR", 0.9);
+        set("NEF_TR", 0.99);
+        set("NHF_EC", 0.9999);
+        set("NHF_FW", -1.0);
+        set("NEF_FW", 0.90);
+        set("nNeutrals_FW_L", 1);
+        set("nNeutrals_FW_U", 999999);
       }
     } else if (quality_ == TIGHTLEPVETO) {
       set("CHF", 0.0);
       set("NHF", 0.9);
+      set("CEF", 0.8);
       set("NEF", 0.9);
       set("NCH", 0);
       set("nConstituents", 1);
+      set("MUF", 0.8);
       if (version_ == WINTER17) {
-        set("CEF", 0.8);
         set("NEF_EC_L", 0.02);
         set("NEF_EC_U", 0.99);
         set("nNeutrals_EC", 2);
         set("NHF_FW", 0.02);
         set("NEF_FW", 0.90);
         set("nNeutrals_FW", 10);
-        set("MUF", 0.8);
+      }
+      if (version_ == RUN3WINTER22CHSrunsBCDEprompt || version_ == RUN3WINTER22PUPPIrunsBCDEprompt ||
+          version_ == RUN3WINTER22CHS || version_ == RUN3WINTER22PUPPI) {
+        set("CHF", 0.01);
+      } else if (version_ == RUN3WINTER22CHS || version_ == RUN3WINTER22PUPPI) {
+        set("NHF", 0.99);
       } else if (version_ == WINTER17PUPPI) {
-        set("CEF", 0.8);
         set("NHF_EC", 0.99);
         set("NHF_FW", 0.02);
         set("NEF_FW", 0.90);
         set("nNeutrals_FW_L", 2);
         set("nNeutrals_FW_U", 15);
-        set("MUF", 0.8);
       } else if (version_ == WINTER16) {
         set("CEF", 0.9);
         set("NEF_EC", 0.01);
@@ -921,15 +972,12 @@ private:  // member variables
         set("nNeutrals_EC", 2);
         set("nNeutrals_FW", 10);
         set("NEF_FW", 0.90);
-        set("MUF", 0.8);
       } else if (version_ == WINTER17PUPPI) {
-        set("CEF", 0.8);
         set("NHF_EC", 0.99);
         set("NHF_FW", 0.02);
         set("NEF_FW", 0.90);
         set("nNeutrals_FW_L", 2);
         set("nNeutrals_FW_U", 15);
-        set("MUF", 0.8);
       } else if (version_ == WINTER16) {
         set("CEF", 0.9);
         set("NEF_EC", 0.01);
@@ -937,10 +985,7 @@ private:  // member variables
         set("nNeutrals_EC", 2);
         set("nNeutrals_FW", 10);
         set("NEF_FW", 0.90);
-        set("MUF", 0.8);
       } else if (version_ == SUMMER18) {
-        set("CEF", 0.8);
-        set("MUF", 0.8);
         set("NHF_TR", 0.9);
         set("NEF_TR", 0.99);
         set("MUF_TR", 0.8);
@@ -953,8 +998,6 @@ private:  // member variables
         set("NEF_FW", 0.90);
         set("nNeutrals_FW", 10);
       } else if (version_ == SUMMER18PUPPI) {
-        set("CEF", 0.8);
-        set("MUF", 0.8);
         set("NHF_TR", 0.9);
         set("NEF_TR", 0.99);
         set("MUF_TR", 0.8);
@@ -965,8 +1008,6 @@ private:  // member variables
         set("nNeutrals_FW_L", 2);
         set("nNeutrals_FW_U", 15);
       } else if (version_ == RUN2UL16CHS) {
-        set("MUF", 0.8);
-        set("CEF", 0.8);
         set("NHF_TR", 0.9);
         set("NEF_TR", 0.99);
         set("NHF_EC", 0.9);
@@ -977,17 +1018,13 @@ private:  // member variables
         set("NEF_FW", 0.90);
         set("nNeutrals_FW", 10);
       } else if (version_ == RUN2UL16PUPPI) {
-        set("MUF", 0.8);
-        set("CEF", 0.8);
         set("NHF_TR", 0.98);
         set("NEF_TR", 0.99);
         set("nNeutrals_EC", 1);
         set("NEF_FW", 0.90);
         set("nNeutrals_FW_L", 2);
         set("nNeutrals_FW_U", 999999);
-      } else if (version_ == RUN2ULCHS) {
-        set("CEF", 0.8);
-        set("MUF", 0.8);
+      } else if (version_ == RUN2ULCHS || version_ == RUN3WINTER22CHSrunsBCDEprompt || version_ == RUN3WINTER22CHS) {
         set("NHF_TR", 0.9);
         set("NEF_TR", 0.99);
         set("MUF_TR", 0.8);
@@ -999,9 +1036,7 @@ private:  // member variables
         set("NHF_FW", 0.2);
         set("NEF_FW", 0.90);
         set("nNeutrals_FW", 10);
-      } else if (version_ == RUN2ULPUPPI) {
-        set("CEF", 0.8);
-        set("MUF", 0.8);
+      } else if (version_ == RUN2ULPUPPI || version_ == RUN3WINTER22PUPPIrunsBCDEprompt) {
         set("NHF_TR", 0.9);
         set("NEF_TR", 0.99);
         set("MUF_TR", 0.8);
@@ -1010,6 +1045,16 @@ private:  // member variables
         set("NHF_FW", -1.0);
         set("NEF_FW", 0.90);
         set("nNeutrals_FW_L", 2);
+        set("nNeutrals_FW_U", 999999);
+      } else if (version_ == RUN3WINTER22PUPPI) {
+        set("NHF_TR", 0.9);
+        set("NEF_TR", 0.99);
+        set("MUF_TR", 0.8);
+        set("CEF_TR", 0.8);
+        set("NHF_EC", 0.9999);
+        set("NHF_FW", -1.0);
+        set("NEF_FW", 0.90);
+        set("nNeutrals_FW_L", 1);
         set("nNeutrals_FW_U", 999999);
       }
     }
@@ -1020,7 +1065,9 @@ private:  // member variables
     indexNEF_ = index_type(&bits_, "NEF");
     indexNHF_ = index_type(&bits_, "NHF");
     if ((version_ != WINTER17 && version_ != WINTER17PUPPI && version_ != SUMMER18 && version_ != SUMMER18PUPPI &&
-         version_ != RUN2UL16CHS && version_ != RUN2UL16PUPPI && version_ != RUN2ULCHS && version_ != RUN2ULPUPPI) ||
+         version_ != RUN2UL16CHS && version_ != RUN2UL16PUPPI && version_ != RUN2ULCHS && version_ != RUN2ULPUPPI &&
+         version_ != RUN3WINTER22CHSrunsBCDEprompt && version_ != RUN3WINTER22PUPPIrunsBCDEprompt &&
+         version_ != RUN3WINTER22CHS && version_ != RUN3WINTER22PUPPI) ||
         quality_ != TIGHT)
       indexCEF_ = index_type(&bits_, "CEF");
 
@@ -1061,7 +1108,8 @@ private:  // member variables
         indexMUF_ = index_type(&bits_, "MUF");
       }
     }
-    if ((version_ == SUMMER18) || (version_ == RUN2ULCHS)) {
+    if ((version_ == SUMMER18) || (version_ == RUN2ULCHS) || (version_ == RUN3WINTER22CHSrunsBCDEprompt) ||
+        (version_ == RUN3WINTER22CHS)) {
       indexNHF_TR_ = index_type(&bits_, "NHF_TR");
       indexNEF_TR_ = index_type(&bits_, "NEF_TR");
       indexNCH_TR_ = index_type(&bits_, "NCH_TR");
@@ -1077,7 +1125,8 @@ private:  // member variables
         indexCEF_TR_ = index_type(&bits_, "CEF_TR");
       }
     }
-    if ((version_ == SUMMER18PUPPI) || (version_ == RUN2ULPUPPI)) {
+    if ((version_ == SUMMER18PUPPI) || (version_ == RUN2ULPUPPI) || (version_ == RUN3WINTER22PUPPIrunsBCDEprompt) ||
+        (version_ == RUN3WINTER22PUPPI)) {
       indexNHF_TR_ = index_type(&bits_, "NHF_TR");
       indexNEF_TR_ = index_type(&bits_, "NEF_TR");
       indexNHF_EC_ = index_type(&bits_, "NHF_EC");
