@@ -128,7 +128,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferPartialRotated:Layer " << l << ":" << i << " T " << layerThick[i]
                                       << " Size offset " << layerSizeOff[i] << " Copy " << copyNumber[i]
-                                      << " Partial type " << partialTypes_[k];
+                                      << " Partial type " << partialTypes[k];
 #endif
         if (copyNumber[i] == 1) {
           if (layerType[i] > 0) {
