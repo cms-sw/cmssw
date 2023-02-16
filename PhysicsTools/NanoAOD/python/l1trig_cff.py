@@ -3,12 +3,12 @@ from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
 
 l1PtVars = cms.PSet(
-    pt  = Var("pt",  float, precision=5),
-    phi = Var("phi", float, precision=5),
+    pt  = Var("pt",  float, precision=10),
+    phi = Var("phi", float, precision=10),
 )
 l1P3Vars = cms.PSet(
     l1PtVars,
-    eta = Var("eta", float, precision=5),
+    eta = Var("eta", float, precision=10),
 )
 
 l1ObjVars = cms.PSet(
@@ -182,7 +182,6 @@ def setL1NanoToReduced(process):
     process.l1TauTable.cut="pt>=24"
     process.l1JetTable.cut="pt>=30"
     process.l1MuTable.cut="pt>=3 && hwQual>=8"
-    process.l1EtSumTable.cut="(getType==8 || getType==1)"
-    
+    process.l1EtSumTable.cut="(getType==8 || getType==1 || getType==2 || getType==3)"
     
     return process
