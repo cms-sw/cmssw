@@ -4,13 +4,15 @@
 
 // user include files
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
-#include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
