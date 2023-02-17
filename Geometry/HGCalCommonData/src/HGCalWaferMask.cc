@@ -1277,10 +1277,11 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
 
 	Depending on the wafer type and placement index, the corners
 	are chosen in the variable *np*
+        The points 24-35 are the same as points 12-23 with different offset
   */
-  double Sin_60 = std::sqrt(3.0) / 2.0;
-  double Cos_60 = 0.5;
-  double Tan_60 = Sin_60 / Cos_60;
+  static constexpr double Sin_60 = std::sqrt(3.0) / 2.0;
+  static constexpr double Cos_60 = 0.5;
+  static constexpr double Tan_60 = Sin_60 / Cos_60;
   double delX = 0.5 * waferSize;
   double delY = delX / Sin_60;
   double dx[36] = {HGCalTypes::c00 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c00 * delX,
