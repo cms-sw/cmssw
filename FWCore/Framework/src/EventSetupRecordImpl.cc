@@ -11,8 +11,11 @@
 //
 
 // system include files
+#include <algorithm>
 #include <cassert>
+#include <iterator>
 #include <sstream>
+#include <utility>
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordImpl.h"
@@ -20,7 +23,6 @@
 #include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 
-#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -179,60 +181,6 @@ namespace edm {
       }
     }
 
-    const void* EventSetupRecordImpl::getFromProxy(DataKey const& iKey,
-                                                   const ComponentDescription*& iDesc,
-                                                   bool iTransientAccessOnly,
-                                                   ESParentContext const& iParent,
-                                                   EventSetupImpl const* iEventSetupImpl) const {
-      const DataProxy* proxy = this->find(iKey);
-
-      const void* hold = nullptr;
-
-      if (nullptr != proxy) {
-        try {
-          convertException::wrap([&]() {
-            hold = proxy->get(*this, iKey, iTransientAccessOnly, activityRegistry_, iEventSetupImpl, iParent);
-            iDesc = proxy->providerDescription();
-          });
-        } catch (cms::Exception& e) {
-          addTraceInfoToCmsException(e, iKey.name().value(), proxy->providerDescription(), iKey);
-          //NOTE: the above function can't do the 'throw' since it causes the C++ class type
-          // of the throw to be changed, a 'rethrow' does not have that problem
-          throw;
-        }
-      }
-      return hold;
-    }
-
-    const void* EventSetupRecordImpl::getFromProxy(ESProxyIndex iProxyIndex,
-                                                   bool iTransientAccessOnly,
-                                                   const ComponentDescription*& iDesc,
-                                                   DataKey const*& oGottenKey,
-                                                   ESParentContext const& iParent,
-                                                   EventSetupImpl const* iEventSetupImpl) const {
-      if (iProxyIndex.value() >= static_cast<ESProxyIndex::Value_t>(proxies_.size())) {
-        return nullptr;
-      }
-
-      const DataProxy* proxy = proxies_[iProxyIndex.value()];
-      assert(nullptr != proxy);
-      iDesc = proxy->providerDescription();
-
-      const void* hold = nullptr;
-
-      auto const& key = keysForProxies_[iProxyIndex.value()];
-      oGottenKey = &key;
-      try {
-        convertException::wrap([&]() {
-          hold = proxy->get(*this, key, iTransientAccessOnly, activityRegistry_, iEventSetupImpl, iParent);
-        });
-      } catch (cms::Exception& e) {
-        addTraceInfoToCmsException(e, key.name().value(), proxy->providerDescription(), key);
-        throw;
-      }
-      return hold;
-    }
-
     void const* EventSetupRecordImpl::getFromProxyAfterPrefetch(ESProxyIndex iProxyIndex,
                                                                 bool iTransientAccessOnly,
                                                                 ComponentDescription const*& iDesc,
@@ -296,27 +244,6 @@ namespace edm {
 
     void EventSetupRecordImpl::fillRegisteredDataKeys(std::vector<DataKey>& oToFill) const {
       oToFill = keysForProxies_;
-    }
-
-    void EventSetupRecordImpl::validate(const ComponentDescription* iDesc, const ESInputTag& iTag) const {
-      if (iDesc && !iTag.module().empty()) {
-        bool matched = false;
-        if (iDesc->label_.empty()) {
-          matched = iDesc->type_ == iTag.module();
-        } else {
-          matched = iDesc->label_ == iTag.module();
-        }
-        if (!matched) {
-          throw cms::Exception("EventSetupWrongModule")
-              << "EventSetup data was retrieved using an ESInputTag with the values\n"
-              << "  moduleLabel = '" << iTag.module() << "'\n"
-              << "  dataLabel = '" << iTag.data() << "'\n"
-              << "but the data matching the C++ class type and dataLabel comes from module type=" << iDesc->type_
-              << " label='" << iDesc->label_ << "'.\n Please either change the ESInputTag's 'module' label to be "
-              << (iDesc->label_.empty() ? iDesc->type_ : iDesc->label_) << "\n or add the EventSetup module "
-              << iTag.module() << " to the configuration.";
-        }
-      }
     }
 
     void EventSetupRecordImpl::addTraceInfoToCmsException(cms::Exception& iException,

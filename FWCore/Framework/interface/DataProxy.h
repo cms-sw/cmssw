@@ -21,7 +21,6 @@
 
 // system include files
 #include <atomic>
-#include <memory>
 
 // user include files
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
@@ -29,7 +28,6 @@
 
 // forward declarations
 namespace edm {
-  class ActivityRegistry;
   class EventSetupImpl;
   class ServiceToken;
   class ESParentContext;
@@ -56,12 +54,6 @@ namespace edm {
                          ServiceToken const&,
                          ESParentContext const&) const;
 
-      void const* get(EventSetupRecordImpl const&,
-                      DataKey const&,
-                      bool iTransiently,
-                      ActivityRegistry const*,
-                      EventSetupImpl const*,
-                      ESParentContext const&) const;
       void const* getAfterPrefetch(const EventSetupRecordImpl& iRecord, const DataKey& iKey, bool iTransiently) const;
 
       ///returns the description of the DataProxyProvider which owns this Proxy
