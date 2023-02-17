@@ -142,7 +142,7 @@ private:
   void checkShm() {}
   unsigned fullLoc(unsigned loc) const;
   void reset();
-  void setResult(Result* result, unsigned entry=0) { entries_[entry].result_.reset(result); }
+  void setResult(std::shared_ptr<Result> result, unsigned entry=0) { entries_[entry].result_ = result; }
   IO* data(unsigned entry=0) { return entries_[entry].data_.get(); }
   void updateMem(size_t size);
   void computeSizes();
