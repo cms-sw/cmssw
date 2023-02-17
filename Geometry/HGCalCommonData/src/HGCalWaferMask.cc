@@ -1279,9 +1279,9 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
 	are chosen in the variable *np*
         The points 24-35 are the same as points 12-23 with different offset
   */
-  static constexpr double Sin_60 = std::sqrt(3.0) / 2.0;
-  static constexpr double Cos_60 = 0.5;
-  static constexpr double Tan_60 = Sin_60 / Cos_60;
+  const double Sin_60 = std::sqrt(3.0) / 2.0;
+  const double Cos_60 = 0.5;
+  const double Tan_60 = Sin_60 / Cos_60;
   double delX = 0.5 * waferSize;
   double delY = delX / Sin_60;
   double dx[36] = {HGCalTypes::c00 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c00 * delX,
