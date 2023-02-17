@@ -840,7 +840,7 @@ Realistic25ns13p6TeVEOY2022CollisionVtxSmearingParameters = cms.PSet(
     TimeOffset = cms.double(0.0),
     X0 = cms.double(0.1027975),
     Y0 = cms.double(-0.016762),
-    Z0 = cms.double(0.607956)
+    Z0 = cms.double(0.101756)
 )
 
 # Test HF offset
