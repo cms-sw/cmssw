@@ -28,6 +28,7 @@
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/EventSetupRecordDetails.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
+#include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 
 // forward declarations
 
