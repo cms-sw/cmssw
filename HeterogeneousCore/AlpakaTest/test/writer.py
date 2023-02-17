@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
 
 process = cms.Process('Writer')
 
