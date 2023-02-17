@@ -51,9 +51,14 @@ process.esProducerC = cms.ESProducer("cms::alpakatest::TestESProducerC", value =
 
 from HeterogeneousCore.AlpakaTest.testAlpakaESProducerA_cfi import testAlpakaESProducerA 
 process.alpakaESProducerA = testAlpakaESProducerA.clone()
+process.alpakaESProducerAdataLabel = process.alpakaESProducerA.clone(appendToDataLabel = cms.string("appendedLabel"))
 process.alpakaESProducerB = cms.ESProducer("TestAlpakaESProducerB@alpaka")
+process.alpakaESProducerBexplicitLabel = process.alpakaESProducerB.clone(explicitLabel = cms.string("explicitLabel"))
 process.alpakaESProducerC = cms.ESProducer("TestAlpakaESProducerC@alpaka")
-process.alpakaESProducerD = cms.ESProducer("TestAlpakaESProducerD@alpaka")
+process.alpakaESProducerD = cms.ESProducer("TestAlpakaESProducerD@alpaka",
+    srcA = cms.ESInputTag("", "appendedLabel"),
+    srcB = cms.ESInputTag("", "explicitLabel"),
+)
 
 process.intProduct = cms.EDProducer("IntProducer", ivalue = cms.int32(42))
 
