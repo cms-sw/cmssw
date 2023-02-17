@@ -16,7 +16,7 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
-#include "CalibTracker/SiStripHitEfficiency/interface/TrajectoryAtInvalidHit.h"
+#include "CalibTracker/SiStripHitEfficiency/interface/SiStripHitEfficiencyHelpers.h"
 #include "CalibTracker/SiStripHitResolution/interface/HitResol.h"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -336,7 +336,7 @@ void HitResol::analyze(const edm::Event& e, const edm::EventSetup& es) {
           //must be from the same detector and layer
           iidd1 = hit1->geographicalId().rawId();
           iidd2 = hit2->geographicalId().rawId();
-          if (id1.subdetId() != id2.subdetId() || checkLayer(iidd1, tTopo) != checkLayer(iidd2, tTopo))
+          if (id1.subdetId() != id2.subdetId() || ::checkLayer(iidd1, tTopo) != ::checkLayer(iidd2, tTopo))
             break;
           //must both be stereo if one is
           if (tTopo->isStereo(id1) != tTopo->isStereo(id2))
@@ -467,38 +467,6 @@ double HitResol::checkConsistency(const StripClusterParameterEstimator::LocalVal
   double separation = abs(parameters.first.x() - xx);
   double consistency = separation / error;
   return consistency;
-}
-
-bool HitResol::isDoubleSided(unsigned int iidd, const TrackerTopology* tTopo) const {
-  StripSubdetector strip = StripSubdetector(iidd);
-  unsigned int subid = strip.subdetId();
-  unsigned int layer = 0;
-  if (subid == StripSubdetector::TIB) {
-    layer = tTopo->tibLayer(iidd);
-    if (layer == 1 || layer == 2)
-      return true;
-    else
-      return false;
-  } else if (subid == StripSubdetector::TOB) {
-    layer = tTopo->tobLayer(iidd) + 4;
-    if (layer == 5 || layer == 6)
-      return true;
-    else
-      return false;
-  } else if (subid == StripSubdetector::TID) {
-    layer = tTopo->tidRing(iidd) + 10;
-    if (layer == 11 || layer == 12)
-      return true;
-    else
-      return false;
-  } else if (subid == StripSubdetector::TEC) {
-    layer = tTopo->tecRing(iidd) + 13;
-    if (layer == 14 || layer == 15 || layer == 18)
-      return true;
-    else
-      return false;
-  } else
-    return false;
 }
 
 void HitResol::getSimHitRes(const GeomDetUnit* det,
@@ -661,42 +629,6 @@ bool HitResol::getPairParameters(const MagneticField* magField_,
   (hitDX) = recHitX_1 + relativeXSign_ * recHitX_2;
 
   return true;
-}
-
-bool HitResol::check2DPartner(unsigned int iidd, const std::vector<TrajectoryMeasurement>& traj) {
-  unsigned int partner_iidd = 0;
-  bool found2DPartner = false;
-  // first get the id of the other detector
-  if ((iidd & 0x3) == 1)
-    partner_iidd = iidd + 1;
-  if ((iidd & 0x3) == 2)
-    partner_iidd = iidd - 1;
-  // next look in the trajectory measurements for a measurement from that detector
-  // loop through trajectory measurements to find the partner_iidd
-  for (const auto& tm : traj) {
-    if (tm.recHit()->geographicalId().rawId() == partner_iidd) {
-      found2DPartner = true;
-    }
-  }
-  return found2DPartner;
-}
-
-unsigned int HitResol::checkLayer(unsigned int iidd, const TrackerTopology* tTopo) {
-  StripSubdetector strip = StripSubdetector(iidd);
-  unsigned int subid = strip.subdetId();
-  if (subid == StripSubdetector::TIB) {
-    return tTopo->tibLayer(iidd);
-  }
-  if (subid == StripSubdetector::TOB) {
-    return tTopo->tobLayer(iidd) + 4;
-  }
-  if (subid == StripSubdetector::TID) {
-    return tTopo->tidWheel(iidd) + 10;
-  }
-  if (subid == StripSubdetector::TEC) {
-    return tTopo->tecWheel(iidd) + 13;
-  }
-  return 0;
 }
 
 void HitResol::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
