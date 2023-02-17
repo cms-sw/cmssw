@@ -80,7 +80,7 @@ struct ClusterBranch {
 class SiStripCPEAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit SiStripCPEAnalyzer(const edm::ParameterSet&);
-  ~SiStripCPEAnalyzer() override;
+  ~SiStripCPEAnalyzer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -142,9 +142,6 @@ SiStripCPEAnalyzer::SiStripCPEAnalyzer(const edm::ParameterSet& iConfig)
   tree_->Branch("Geom1", &geom1Branches_, "subdet/I:moduleGeometry/I:stereo/I:layer/I:side/I:ring/I:pitch/F:detid/I");
   tree_->Branch("Geom2", &geom2Branches_, "subdet/I:moduleGeometry/I:stereo/I:layer/I:side/I:ring/I:pitch/F:detid/I");
 }
-
-// destructor
-SiStripCPEAnalyzer::~SiStripCPEAnalyzer() {}
 
 //
 // member functions
