@@ -54,6 +54,12 @@ public:
   // (Good for V17 geometry)
   static std::vector<std::pair<double, double> > waferXY(
       int part, int placement, double delX, double delY, double xpos, double ypos);
+
+private:
+  static constexpr double sqrt3_ = 1.732050807568877;  // std::sqrt(3.0) in double precision
+  static constexpr double sin_60_ = 0.5 * sqrt3_;
+  static constexpr double cos_60_ = 0.5;
+  static constexpr double tan_60_ = sqrt3_;
 };
 
 #endif
