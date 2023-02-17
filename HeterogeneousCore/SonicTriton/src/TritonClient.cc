@@ -272,9 +272,9 @@ bool TritonClient::handle_exception(F&& call) {
 }
 
 void TritonClient::getResults(std::vector<tc::InferResult*>& results) {
-  for (auto& [oname, output] : output_) {
-    for (unsigned i = 0; i < results.size(); ++i) {
-      auto result = results[i];
+  for (unsigned i = 0; i < results.size(); ++i) {
+    std::shared_ptr<tc::InferResult> result(results[i]);
+    for (auto& [oname, output] : output_) {
       //set shape here before output becomes const
       if (output.variableDims()) {
         std::vector<int64_t> tmp_shape;
@@ -285,9 +285,9 @@ void TritonClient::getResults(std::vector<tc::InferResult*>& results) {
       }
       //extend lifetime
       output.setResult(result,i);
+      //compute size after getting all result entries
+      if(i==results.size()-1) output.computeSizes();
     }
-    //compute size after getting all result entries
-    output.computeSizes();
   }
 }
 
