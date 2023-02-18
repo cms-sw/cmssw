@@ -90,7 +90,7 @@ const HcalSiPM::cdfpair& HcalSiPM::BorelCDF(unsigned int k) {
     unsigned int i;
     double sumb = 0.;
     double iFact = 1.;
-    for (i = 0; , < 170; i++) {
+    for (i = 0; i < 170; i++) {
       if (i > 0)
         iFact *= double(i);
       sumb += Borel(i, theCrossTalk, k, iFact);
