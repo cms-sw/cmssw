@@ -1,4 +1,3 @@
-<use   name="PhysicsTools/TensorFlow"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
@@ -14,6 +13,7 @@
 <use   name="RecoVertex/VertexPrimitives"/>
 <use   name="DataFormats/L1TGlobal"/>
 <use   name="IOPool/Provenance"/>
+<use   name="PhysicsTools/PatAlgos"/>
 <use   name="DQMServices/Core"/>
 <use   name="CondFormats/BTauObjects"/>
 <use   name="CondTools/BTau"/>
