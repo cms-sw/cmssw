@@ -55,8 +55,8 @@ public:
   TritonData(const std::string& name, const TensorMetadata& model_info, TritonClient* client, const std::string& pid);
 
   //some members can be modified
-  void setShape(const ShapeType& newShape, unsigned entry=0);
-  void setShape(unsigned loc, int64_t val, unsigned entry=0);
+  void setShape(const ShapeType& newShape, unsigned entry = 0);
+  void setShape(unsigned loc, int64_t val, unsigned entry = 0);
 
   //io accessors
   template <typename DT>
@@ -68,7 +68,7 @@ public:
   TritonOutput<DT> fromServer() const;
 
   //const accessors
-  const ShapeView& shape(unsigned entry=0) const { return entries_.at(entry).shape_; }
+  const ShapeView& shape(unsigned entry = 0) const { return entries_.at(entry).shape_; }
   int64_t byteSize() const { return byteSize_; }
   const std::string& dname() const { return dname_; }
 
@@ -76,7 +76,9 @@ public:
   bool variableDims() const { return variableDims_; }
   int64_t sizeDims() const { return productDims_; }
   //default to dims if shape isn't filled
-  int64_t sizeShape(unsigned entry=0) const { return variableDims_ ? dimProduct(entries_.at(entry).shape_) : sizeDims(); }
+  int64_t sizeShape(unsigned entry = 0) const {
+    return variableDims_ ? dimProduct(entries_.at(entry).shape_) : sizeDims();
+  }
 
 private:
   friend class TritonClient;
@@ -90,60 +92,60 @@ private:
   //group together all relevant information for a single request
   //helpful for organizing multi-request ragged batching case
   class TritonDataEntry {
-    public:
-      //constructors
-      TritonDataEntry(const ShapeType& dims, bool noOuterDim, const std::string& name, const std::string& dname)
-          : fullShape_(dims),
-            shape_(fullShape_.begin() + (noOuterDim ? 0 : 1), fullShape_.end()),
-            sizeShape_(0),
-            byteSizePerBatch_(0),
-            totalByteSize_(0),
-            offset_(0),
-            output_(nullptr) {
-        //create input or output object
-        IO* iotmp;
-        createObject(&iotmp, name, dname);
-        data_.reset(iotmp);
-      }
-      //default needed to be able to use std::vector resize()
-      TritonDataEntry()
-          : shape_(fullShape_.begin(), fullShape_.end()),
-            sizeShape_(0),
-            byteSizePerBatch_(0),
-            totalByteSize_(0),
-            offset_(0),
-            output_(nullptr) { }
+  public:
+    //constructors
+    TritonDataEntry(const ShapeType& dims, bool noOuterDim, const std::string& name, const std::string& dname)
+        : fullShape_(dims),
+          shape_(fullShape_.begin() + (noOuterDim ? 0 : 1), fullShape_.end()),
+          sizeShape_(0),
+          byteSizePerBatch_(0),
+          totalByteSize_(0),
+          offset_(0),
+          output_(nullptr) {
+      //create input or output object
+      IO* iotmp;
+      createObject(&iotmp, name, dname);
+      data_.reset(iotmp);
+    }
+    //default needed to be able to use std::vector resize()
+    TritonDataEntry()
+        : shape_(fullShape_.begin(), fullShape_.end()),
+          sizeShape_(0),
+          byteSizePerBatch_(0),
+          totalByteSize_(0),
+          offset_(0),
+          output_(nullptr) {}
 
-    private:
-      friend class TritonData<IO>;
-      friend class TritonClient;
-      friend class TritonMemResource<IO>;
-      friend class TritonHeapResource<IO>;
-      friend class TritonCpuShmResource<IO>;
+  private:
+    friend class TritonData<IO>;
+    friend class TritonClient;
+    friend class TritonMemResource<IO>;
+    friend class TritonHeapResource<IO>;
+    friend class TritonCpuShmResource<IO>;
 #ifdef TRITON_ENABLE_GPU
-      friend class TritonGpuShmResource<IO>;
+    friend class TritonGpuShmResource<IO>;
 #endif
 
-      //accessors
-      void createObject(IO** ioptr, const std::string& name, const std::string& dname);
-      void computeSizes(int64_t shapeSize, int64_t byteSize, int64_t batchSize);
+    //accessors
+    void createObject(IO** ioptr, const std::string& name, const std::string& dname);
+    void computeSizes(int64_t shapeSize, int64_t byteSize, int64_t batchSize);
 
-      //members
-      ShapeType fullShape_;
-      ShapeView shape_;
-      size_t sizeShape_, byteSizePerBatch_, totalByteSize_;
-      std::shared_ptr<IO> data_;
-      std::shared_ptr<Result> result_;
-      unsigned offset_;
-      const uint8_t* output_;
+    //members
+    ShapeType fullShape_;
+    ShapeView shape_;
+    size_t sizeShape_, byteSizePerBatch_, totalByteSize_;
+    std::shared_ptr<IO> data_;
+    std::shared_ptr<Result> result_;
+    unsigned offset_;
+    const uint8_t* output_;
   };
 
   //private accessors only used internally or by client
   void checkShm() {}
   unsigned fullLoc(unsigned loc) const;
   void reset();
-  void setResult(std::shared_ptr<Result> result, unsigned entry=0) { entries_[entry].result_ = result; }
-  IO* data(unsigned entry=0) { return entries_[entry].data_.get(); }
+  void setResult(std::shared_ptr<Result> result, unsigned entry = 0) { entries_[entry].result_ = result; }
+  IO* data(unsigned entry = 0) { return entries_[entry].data_.get(); }
   void updateMem(size_t size);
   void computeSizes();
   triton::client::InferenceServerGrpcClient* client();
@@ -160,7 +162,8 @@ private:
   }
   int64_t dimProduct(const ShapeView& vec) const {
     //lambda treats negative dimensions as 0 to avoid overflows
-    return std::accumulate(vec.begin(), vec.end(), 1, [](int64_t dim1, int64_t dim2){ return dim1*std::max(0l,dim2); });
+    return std::accumulate(
+        vec.begin(), vec.end(), 1, [](int64_t dim1, int64_t dim2) { return dim1 * std::max(0l, dim2); });
   }
   //generates a unique id number for each instance of the class
   unsigned uid() const {
@@ -200,9 +203,13 @@ using TritonOutputMap = std::unordered_map<std::string, TritonOutputData>;
 
 //avoid "explicit specialization after instantiation" error
 template <>
-void TritonInputData::TritonDataEntry::createObject(triton::client::InferInput** ioptr, const std::string& name, const std::string& dname);
+void TritonInputData::TritonDataEntry::createObject(triton::client::InferInput** ioptr,
+                                                    const std::string& name,
+                                                    const std::string& dname);
 template <>
-void TritonOutputData::TritonDataEntry::createObject(triton::client::InferRequestedOutput** ioptr, const std::string& name, const std::string& dname);
+void TritonOutputData::TritonDataEntry::createObject(triton::client::InferRequestedOutput** ioptr,
+                                                     const std::string& name,
+                                                     const std::string& dname);
 template <>
 void TritonOutputData::checkShm();
 template <>

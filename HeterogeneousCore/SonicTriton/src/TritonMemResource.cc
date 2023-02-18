@@ -17,7 +17,7 @@ TritonMemResource<IO>::TritonMemResource(TritonData<IO>* data, const std::string
 
 template <typename IO>
 void TritonMemResource<IO>::set() {
-  for (auto& entry : data_->entries_){
+  for (auto& entry : data_->entries_) {
     TRITON_THROW_IF_ERROR(entry.data_->SetSharedMemory(name_, entry.totalByteSize_, entry.offset_),
                           "unable to set shared memory (" + name_ + ")");
   }
@@ -29,9 +29,13 @@ TritonHeapResource<IO>::TritonHeapResource(TritonData<IO>* data, const std::stri
 
 template <>
 void TritonInputHeapResource::copyInput(const void* values, size_t offset, unsigned entry) {
-  TRITON_THROW_IF_ERROR(data_->entries_[entry].data_->AppendRaw(reinterpret_cast<const uint8_t*>(values), data_->entries_[entry].byteSizePerBatch_),
+  TRITON_THROW_IF_ERROR(data_->entries_[entry].data_->AppendRaw(reinterpret_cast<const uint8_t*>(values),
+                                                                data_->entries_[entry].byteSizePerBatch_),
                         data_->name_ + " toServer(): unable to set data for batch entry " +
-                            (data_->entries_.size() > 1 ? std::to_string(entry) : data_->entries_[entry].byteSizePerBatch_ ? std::to_string(offset / data_->entries_[entry].byteSizePerBatch_) : ""));
+                            (data_->entries_.size() > 1 ? std::to_string(entry)
+                             : data_->entries_[entry].byteSizePerBatch_
+                                 ? std::to_string(offset / data_->entries_[entry].byteSizePerBatch_)
+                                 : ""));
 }
 
 template <>
@@ -39,7 +43,7 @@ void TritonOutputHeapResource::copyOutput() {
   size_t contentByteSize = 0;
   for (auto& entry : data_->entries_) {
     size_t contentByteSizeEntry(0);
-    if (entry.totalByteSize_>0)
+    if (entry.totalByteSize_ > 0)
       TRITON_THROW_IF_ERROR(entry.result_->RawData(data_->name_, &entry.output_, &contentByteSizeEntry),
                             data_->name_ + " fromServer(): unable to get raw");
     contentByteSize += contentByteSizeEntry;
@@ -159,9 +163,9 @@ void TritonGpuShmResource<IO>::close() {
 
 template <>
 void TritonInputGpuShmResource::copyInput(const void* values, size_t offset, unsigned entry) {
-  cudaCheck(
-      cudaMemcpy(addr_ + offset, values, data_->entries_[entry].byteSizePerBatch_, cudaMemcpyHostToDevice),
-      data_->name_ + " toServer(): unable to memcpy " + std::to_string(data_->entries_[entry].byteSizePerBatch_) + " bytes to GPU");
+  cudaCheck(cudaMemcpy(addr_ + offset, values, data_->entries_[entry].byteSizePerBatch_, cudaMemcpyHostToDevice),
+            data_->name_ + " toServer(): unable to memcpy " + std::to_string(data_->entries_[entry].byteSizePerBatch_) +
+                " bytes to GPU");
 }
 
 template <>
