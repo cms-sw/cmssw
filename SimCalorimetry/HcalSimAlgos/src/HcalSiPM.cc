@@ -101,8 +101,8 @@ const HcalSiPM::cdfpair& HcalSiPM::BorelCDF(unsigned int k) {
     cdf.push_back(sumb);
     unsigned int borelstartn = i;
 
-    // calculate cdf[i]
-    for (++i;; ++i) {
+    // calculate cdf[i]  limit to 170 to avoid iFact to become infinite
+    for (++i; i<170; ++i) {
       iFact *= double(i);
       sumb += Borel(i, theCrossTalk, k, iFact);
       cdf.push_back(sumb);
