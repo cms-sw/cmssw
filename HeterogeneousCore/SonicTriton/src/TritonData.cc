@@ -52,20 +52,24 @@ void TritonData<IO>::addEntry(unsigned entry) {
 template <typename IO>
 void TritonData<IO>::addEntryImpl(unsigned entry) {
   if (entry >= entries_.size()) {
-    entries_.reserve(entry+1);
-    for (unsigned i = entries_.size(); i < entry+1; ++i) {
+    entries_.reserve(entry + 1);
+    for (unsigned i = entries_.size(); i < entry + 1; ++i) {
       entries_.emplace_back(dims_, client_->noOuterDim(), name_, dname_);
     }
   }
 }
 
 template <>
-void TritonInputData::TritonDataEntry::createObject(tc::InferInput** ioptr, const std::string& name, const std::string& dname) {
+void TritonInputData::TritonDataEntry::createObject(tc::InferInput** ioptr,
+                                                    const std::string& name,
+                                                    const std::string& dname) {
   tc::InferInput::Create(ioptr, name, fullShape_, dname);
 }
 
 template <>
-void TritonOutputData::TritonDataEntry::createObject(tc::InferRequestedOutput** ioptr, const std::string& name, const std::string& dname) {
+void TritonOutputData::TritonDataEntry::createObject(tc::InferRequestedOutput** ioptr,
+                                                     const std::string& name,
+                                                     const std::string& dname) {
   tc::InferRequestedOutput::Create(ioptr, name);
 }
 
@@ -101,8 +105,8 @@ void TritonData<IO>::setShape(unsigned loc, int64_t val, unsigned entry) {
 
   //check boundary
   if (locFull >= entries_[entry].fullShape_.size())
-    throw cms::Exception("TritonDataError")
-        << name_ << " setShape(): dimension " << locFull << " out of bounds (" << entries_[entry].fullShape_.size() << ")";
+    throw cms::Exception("TritonDataError") << name_ << " setShape(): dimension " << locFull << " out of bounds ("
+                                            << entries_[entry].fullShape_.size() << ")";
 
   if (val != entries_[entry].fullShape_[locFull]) {
     if (dims_[locFull] == -1)
@@ -168,8 +172,9 @@ TritonInputContainer<DT> TritonInputData::allocate(bool reserve) {
   auto ptr = std::make_shared<TritonInput<DT>>(client_->batchSize());
   if (reserve) {
     computeSizes();
-    for (auto& entry : entries_){
-      if (anyNeg(entry.shape_)) continue;
+    for (auto& entry : entries_) {
+      if (anyNeg(entry.shape_))
+        continue;
       for (auto& vec : *ptr) {
         vec.reserve(entry.sizeShape_);
       }
@@ -213,7 +218,7 @@ void TritonInputData::toServer(TritonInputContainer<DT> ptr) {
 
     for (unsigned i0 = 0; i0 < outerDim; ++i0) {
       //avoid copying empty input
-      if (entry.byteSizePerBatch_>0)
+      if (entry.byteSizePerBatch_ > 0)
         memResource_->copyInput(data_in[counter].data(), offset, i);
       offset += entry.byteSizePerBatch_;
       ++counter;
@@ -253,7 +258,7 @@ TritonOutput<DT> TritonOutputData::fromServer() const {
     const auto& entry = entries_[i];
     const DT* r1 = reinterpret_cast<const DT*>(entry.output_);
 
-    if (entry.totalByteSize_>0 and !entry.result_) {
+    if (entry.totalByteSize_ > 0 and !entry.result_) {
       throw cms::Exception("TritonDataError") << name_ << " fromServer(): missing result";
     }
 
@@ -281,7 +286,6 @@ template <typename IO>
 unsigned TritonData<IO>::fullLoc(unsigned loc) const {
   return loc + (client_->noOuterDim() ? 0 : 1);
 }
-
 
 //explicit template instantiation declarations
 template class TritonData<tc::InferInput>;

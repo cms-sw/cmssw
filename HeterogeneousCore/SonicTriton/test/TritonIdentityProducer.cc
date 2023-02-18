@@ -14,20 +14,13 @@
 class TritonIdentityProducer : public TritonEDProducer<> {
 public:
   explicit TritonIdentityProducer(edm::ParameterSet const& cfg)
-      : TritonEDProducer<>(cfg),
-        batchSizes_{1,2,0},
-        batchCounter_(0) {}
+      : TritonEDProducer<>(cfg), batchSizes_{1, 2, 0}, batchCounter_(0) {}
   void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) override {
     //follow Triton QA tests for ragged input
-    std::vector<std::vector<float>> value_lists{
-      {2,2},
-      {4,4,4,4},
-      {1},
-      {3,3,3}
-    };
+    std::vector<std::vector<float>> value_lists{{2, 2}, {4, 4, 4, 4}, {1}, {3, 3, 3}};
 
     client_->setBatchSize(batchSizes_[batchCounter_]);
-    batchCounter_ = (batchCounter_+1) % batchSizes_.size();
+    batchCounter_ = (batchCounter_ + 1) % batchSizes_.size();
     auto& input1 = iInput.at("INPUT0");
     auto data1 = input1.allocate<float>();
     for (unsigned i = 0; i < client_->batchSize(); ++i) {
@@ -44,12 +37,12 @@ public:
     // convert from server format
     const auto& tmp = output1.fromServer<float>();
     edm::LogInfo msg(debugName_);
-    for (unsigned i = 0; i < client_->batchSize(); ++i){
-        msg << "output " << i << " (" << triton_utils::printColl(output1.shape(i)) << "): ";
-        for(int j = 0; j < output1.shape(i)[0]; ++j){
-            msg << tmp[i][j] << " ";
-        }
-        msg << "\n";
+    for (unsigned i = 0; i < client_->batchSize(); ++i) {
+      msg << "output " << i << " (" << triton_utils::printColl(output1.shape(i)) << "): ";
+      for (int j = 0; j < output1.shape(i)[0]; ++j) {
+        msg << tmp[i][j] << " ";
+      }
+      msg << "\n";
     }
   }
   ~TritonIdentityProducer() override = default;

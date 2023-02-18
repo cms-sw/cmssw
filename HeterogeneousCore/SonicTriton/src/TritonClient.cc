@@ -186,16 +186,12 @@ void TritonClient::resetBatchMode() {
   manualBatchMode_ = false;
 }
 
-unsigned TritonClient::nEntries() const {
-  return !input_.empty() ? input_.begin()->second.entries_.size() : 0;
-}
+unsigned TritonClient::nEntries() const { return !input_.empty() ? input_.begin()->second.entries_.size() : 0; }
 
-unsigned TritonClient::batchSize() const {
-  return batchMode_==TritonBatchMode::Rectangular ? outerDim_ : nEntries();
-}
+unsigned TritonClient::batchSize() const { return batchMode_ == TritonBatchMode::Rectangular ? outerDim_ : nEntries(); }
 
 bool TritonClient::setBatchSize(unsigned bsize) {
-  if (batchMode_==TritonBatchMode::Rectangular) {
+  if (batchMode_ == TritonBatchMode::Rectangular) {
     if (bsize > maxOuterDim_) {
       edm::LogWarning(fullDebugName_) << "Requested batch size " << bsize << " exceeds server-specified max batch size "
                                       << maxOuterDim_ << ". Batch size will remain as " << outerDim_;
@@ -203,7 +199,7 @@ bool TritonClient::setBatchSize(unsigned bsize) {
     } else {
       outerDim_ = bsize;
       //take min to allow resizing to 0
-      resizeEntries(std::min(outerDim_,1u));
+      resizeEntries(std::min(outerDim_, 1u));
       return true;
     }
   } else {
@@ -216,7 +212,7 @@ bool TritonClient::setBatchSize(unsigned bsize) {
 void TritonClient::resizeEntries(unsigned entry) {
   if (entry > nEntries())
     //addEntry(entry) extends the vector to size entry+1
-    addEntry(entry-1);
+    addEntry(entry - 1);
   else if (entry < nEntries()) {
     for (auto& element : input_) {
       element.second.entries_.resize(entry);
@@ -234,7 +230,7 @@ void TritonClient::addEntry(unsigned entry) {
   for (auto& element : output_) {
     element.second.addEntryImpl(entry);
   }
-  if (entry>0) {
+  if (entry > 0) {
     batchMode_ = TritonBatchMode::Ragged;
     outerDim_ = 1;
   }
@@ -278,15 +274,17 @@ void TritonClient::getResults(std::vector<tc::InferResult*>& results) {
       //set shape here before output becomes const
       if (output.variableDims()) {
         std::vector<int64_t> tmp_shape;
-        TRITON_THROW_IF_ERROR(result->Shape(oname, &tmp_shape), "getResults(): unable to get output shape for " + oname);
+        TRITON_THROW_IF_ERROR(result->Shape(oname, &tmp_shape),
+                              "getResults(): unable to get output shape for " + oname);
         if (!noOuterDim_)
           tmp_shape.erase(tmp_shape.begin());
-        output.setShape(tmp_shape,i);
+        output.setShape(tmp_shape, i);
       }
       //extend lifetime
-      output.setResult(result,i);
+      output.setResult(result, i);
       //compute size after getting all result entries
-      if(i==results.size()-1) output.computeSizes();
+      if (i == results.size() - 1)
+        output.computeSizes();
     }
   }
 }
@@ -310,7 +308,7 @@ void TritonClient::evaluate() {
     inputTriton.reserve(input_.size());
   }
   for (auto& [iname, input] : input_) {
-    for (unsigned i = 0; i < nEntriesVal; ++i){
+    for (unsigned i = 0; i < nEntriesVal; ++i) {
       inputsTriton[i].push_back(input.data(i));
     }
   }
@@ -321,7 +319,7 @@ void TritonClient::evaluate() {
     outputTriton.reserve(output_.size());
   }
   for (auto& [oname, output] : output_) {
-    for (unsigned i = 0; i < nEntriesVal; ++i){
+    for (unsigned i = 0; i < nEntriesVal; ++i) {
       outputsTriton[i].push_back(output.data(i));
     }
   }
@@ -351,7 +349,7 @@ void TritonClient::evaluate() {
           client_->AsyncInferMulti(
               [start_status, this](std::vector<tc::InferResult*> results) {
                 //check results
-                for (auto ptr : results){
+                for (auto ptr : results) {
                   auto success = handle_exception(
                       [&]() { TRITON_THROW_IF_ERROR(ptr->RequestStatus(), "evaluate(): unable to get result(s)"); });
                   if (!success)
