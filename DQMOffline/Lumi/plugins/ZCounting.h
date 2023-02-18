@@ -95,14 +95,14 @@ private:
 
   // constants
   const double DRMAX_HLT = 0.1;  // max dR matching between muon and hlt object
-  const double DRMAX_IO = 0.3;  // max dR matching between inner and outer muon track
+  const double DRMAX_IO = 0.3;   // max dR matching between inner and outer muon track
 
-  const double MIN_PT_TRK = 15;  // minimum pT of inner track considered for matching outer to inner track
+  const double MIN_PT_TRK = 15;    // minimum pT of inner track considered for matching outer to inner track
   const double MAX_ETA_TRK = 2.5;  // maximum |eta| of inner track considered for matching outer to inner track
-  const double MIN_PT_STA = 15;  // minimum pT of outer track considered for matching inner to outer track
+  const double MIN_PT_STA = 15;    // minimum pT of outer track considered for matching inner to outer track
   const double MAX_ETA_STA = 2.4;  // maximum |eta| of outer track considered for matching inner to outer track
 
-  const int N_STA_HITS = 1; // minimum number of valid standalone hits
+  const int N_STA_HITS = 1;  // minimum number of valid standalone hits
 
   const double MUON_MASS = 0.105658369;
   const double MUON_BOUND = 0.9;
