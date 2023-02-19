@@ -75,7 +75,8 @@ initial version number of a class which has never been stored before.
   <class name="std::vector<reco::MuonChamberMatch>"/>
   <class name="std::vector<reco::MuonSegmentMatch>"/>
   <class name="std::vector<reco::MuonRPCHitMatch>"/>
-  <class name="reco::MuonGEMHitMatch" ClassVersion="3">
+  <class name="reco::MuonGEMHitMatch" ClassVersion="4">
+   <version ClassVersion="4" checksum="4095429454"/>
    <version ClassVersion="3" checksum="2026566570"/>
   </class>
   <class name="std::vector<reco::MuonGEMHitMatch>"/>

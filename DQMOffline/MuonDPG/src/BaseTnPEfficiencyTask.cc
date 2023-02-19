@@ -207,4 +207,5 @@ bool BaseTnPEfficiencyTask::hasTrigger(std::vector<int>& trigIndices,
   }
 
   return dR2match < 0.01;
+  //return true;
 }
