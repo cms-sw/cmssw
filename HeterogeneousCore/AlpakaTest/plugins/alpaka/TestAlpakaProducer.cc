@@ -9,19 +9,19 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/Event.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EventSetup.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/EDProducer.h"
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/global/EDProducer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 #include "TestAlgo.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
-  class TestAlpakaProducer : public stream::EDProducer<> {
+  class TestAlpakaProducer : public global::EDProducer<> {
   public:
     TestAlpakaProducer(edm::ParameterSet const& config)
         : deviceToken_{produces()}, size_{config.getParameter<int32_t>("size")} {}
 
-    void produce(device::Event& event, device::EventSetup const&) override {
+    void produce(edm::StreamID sid, device::Event& event, device::EventSetup const&) const override {
       // run the algorithm, potentially asynchronously
       portabletest::TestDeviceCollection deviceProduct{size_, event.queue()};
       algo_.fill(event.queue(), deviceProduct);
