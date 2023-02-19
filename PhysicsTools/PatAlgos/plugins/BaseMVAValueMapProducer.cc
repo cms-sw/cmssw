@@ -2,7 +2,7 @@
 //
 // Package:    PhysicsTools/PatAlgos
 // Class:      BaseMVAValueMapProducer
-//
+// 
 /**\class BaseMVAValueMapProducer BaseMVAValueMapProducer.cc PhysicsTools/PatAlgos/plugins/BaseMVAValueMapProducer.cc
 
  Description: [one line class summary]
@@ -26,3 +26,4 @@ typedef BaseMVAValueMapProducer<pat::Electron> EleBaseMVAValueMapProducer;
 DEFINE_FWK_MODULE(JetBaseMVAValueMapProducer);
 DEFINE_FWK_MODULE(MuonBaseMVAValueMapProducer);
 DEFINE_FWK_MODULE(EleBaseMVAValueMapProducer);
+

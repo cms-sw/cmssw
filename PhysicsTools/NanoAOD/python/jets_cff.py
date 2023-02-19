@@ -537,6 +537,7 @@ run2_jme_2017.toModify( cjetNN,outputFormulas = cms.vstring(["at(0)*0.2471852451
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 def nanoAOD_refineFastSim_bTagDeepFlav(process):
 
+
     fastSim.toModify( process.jetTable.variables,
       btagDeepFlavBunrefined = process.jetTable.variables.btagDeepFlavB.clone(),
       btagDeepFlavCvBunrefined = process.jetTable.variables.btagDeepFlavCvB.clone(),
@@ -565,7 +566,7 @@ def nanoAOD_refineFastSim_bTagDeepFlav(process):
 
         src = cms.InputTag("linkedObjects","jets"),
 
-        weightFile=cms.FileInPath("PhysicsTools/NanoAOD/data/btagDeepFlavRefineNN_CHS.onnx"),
+        weightFile=cms.FileInPath("PhysicsTools/NanoAOD/data/btagDeepFlavRefineNN_CHS.onnx"),#local hack for backporting: cp /cvmfs/cms.cern.ch/slc7_amd64_gcc11/cms/data-PhysicsTools-NanoAOD/V01-03-00/PhysicsTools/NanoAOD/data/btagDeepFlavRefineNN_CHS.onnx PhysicsTools/NanoAOD/data/btagDeepFlavRefineNN_CHS.onnx # cp /nfs/dust/cms/user/wolfmor/Refinement/TrainingOutput/regression_model_20221127_opset11.onnx PhysicsTools/NanoAOD/data/btagDeepFlavRefineNN_CHS.onnx 
         name = cms.string("btagDeepFlavRefineNN"),
 
         isClassifier = cms.bool(False),
@@ -586,7 +587,7 @@ def nanoAOD_refineFastSim_bTagDeepFlav(process):
          outputFormulas = cms.vstring(["at(0)","at(1)","at(2)","at(3)"]),
     )
 
-    fastSim.toModify(process.jetTablesTask, process.jetTablesTask.add(process.btagDeepFlavRefineNN))
+    fastSim.toModify(process.jetTables, process.jetTables.insert(0,process.btagDeepFlavRefineNN))
 
     return process
     

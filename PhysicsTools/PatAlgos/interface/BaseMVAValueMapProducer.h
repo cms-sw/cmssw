@@ -278,6 +278,7 @@ void BaseMVAValueMapProducer<T>::produce(edm::Event& iEvent, const edm::EventSet
   }
 }
 
+
 template <typename T>
 edm::ParameterSetDescription BaseMVAValueMapProducer<T>::getDescription() {
   edm::ParameterSetDescription desc;
@@ -299,6 +300,7 @@ edm::ParameterSetDescription BaseMVAValueMapProducer<T>::getDescription() {
   desc.add<unsigned int>("nThreads", 1)->setComment("number of threads");
   desc.add<std::string>("singleThreadPool", "no_threads");
   desc.add<bool>("batch_eval", false)->setComment("Run inference in batch instead of per-object");
+  desc.add<bool>("disableONNXGraphOpt", false)->setComment("Disable ONNX runtime graph optimization");
 
   return desc;
 }
