@@ -264,7 +264,7 @@ void l1t::MuonRawDigiTranslator::generate64bitDataWord(
 }
 
 bool l1t::MuonRawDigiTranslator::showerFired(uint32_t shower_word, int fedId, unsigned int fwId) {
-  if ((fedId == 1402 && fwId >= 0x7000000) || (fedId == 1404 && fwId >= 0x00010f01)) {
+  if ((fedId == 1402 && fwId >= 0x7000000) || (fedId == 1404 && fwId >= 0x113b)) {
     return ((shower_word >> showerShift_) & 1) == 1;
   }
   return false;
