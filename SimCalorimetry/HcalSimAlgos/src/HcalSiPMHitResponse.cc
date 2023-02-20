@@ -209,7 +209,7 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
 
   LogDebug("HcalSiPMHitResponse") << "makeSiPMSignal for " << HcalDetId(id);
 
-  int nptb = photonTimeBins.size();
+  const int nptb = photonTimeBins.size();
   double sum[nptb];
   for (auto i = 0; i < nptb; ++i)
     sum[i] = 0;
