@@ -1,59 +1,55 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
-TkAlCaRecoMonitor = DQMEDAnalyzer('TkAlCaRecoMonitor',
-                                   TrackProducer= cms.InputTag( "generalTracks" ),
-                                   ReferenceTrackProducer= cms.InputTag( "generalTracks" ),
-                                   CaloJetCollection= cms.InputTag( "ak4CaloJets" ),
-                                   AlgoName = cms.string("testTkAlCaReco"),
-                                   MeasurementState = cms.string("default"),#All/OuterSurface/InnerSurface/ImpactPoint/default(track)
-                                   runsOnReco = cms.bool(False),
-                                   fillInvariantMass = cms.bool(False),
-                                   fillRawIdMap = cms.bool(True),
-                                   useSignedR = cms.bool(False),
-                                   #
-                                   TrackEfficiencyBin =cms.uint32(102),
-                                   TrackEfficiencyMin = cms.double(-0.01),
-                                   TrackEfficiencyMax = cms.double(1.01),
-                                   #
-                                   maxJetPt = cms.double(10), #GeV
-                                   #
-                                   SumChargeBin = cms.uint32(11),
-                                   SumChargeMin = cms.double(-5.5),
-                                   SumChargeMax = cms.double(5.5),
-                                   #
-                                   MassBin = cms.uint32(100),
-                                   MassMin = cms.double(0.0),
-                                   MassMax = cms.double(100.0),
-                                   #
-                                   TrackPtBin= cms.uint32(110),
-                                   TrackPtMin = cms.double(0.0),
-                                   TrackPtMax = cms.double(110.0),
-                                   #
-                                   TrackCurvatureBin= cms.uint32(2000),
-                                   TrackCurvatureMin = cms.double(-0.01),
-                                   TrackCurvatureMax = cms.double(0.01),
-                                   #
-                                   JetPtBin= cms.uint32(100),
-                                   JetPtMin = cms.double(0.0),
-                                   JetPtMax = cms.double(50.0),
-                                   #
-                                   MinJetDeltaRBin=cms.uint32(100),
-                                   MinJetDeltaRMin = cms.double(0),
-                                   MinJetDeltaRMax = cms.double(10),
-                                   #
-                                   MinTrackDeltaRBin=cms.uint32(100),
-                                   MinTrackDeltaRMin = cms.double(0),
-                                   MinTrackDeltaRMax = cms.double(3.2),
-                                   #
-                                   HitMapsZBin = cms.uint32(300),
-                                   HitMapZMax = cms.double(300.), #cm
-                                   HitMapsRBin = cms.uint32(120),
-                                   HitMapRMax = cms.double(120.), #cm
-                                   #
-                                   daughterMass = cms.double(0.10565836),#Gev
-                                   FolderName = cms.string("TkAlCaRecoMonitor"),
-                                   OutputMEsInRootFile = cms.bool(False),
-                                   OutputFileName = cms.string("TkAlCaRecoDQM.root")
-                                   )
+from DQMOffline.Alignment.tkAlCaRecoMonitor_cfi import tkAlCaRecoMonitor as _tkAlCaRecoMonitor
+TkAlCaRecoMonitor = _tkAlCaRecoMonitor.clone(
+    TrackProducer = "generalTracks",
+    ReferenceTrackProducer = "generalTracks",
+    CaloJetCollection = "ak4CaloJets",
+    AlgoName = "testTkAlCaReco",
+    runsOnReco = False,
+    fillInvariantMass = False,
+    fillRawIdMap = True,
+    useSignedR = False,
+    #
+    TrackEfficiencyBin = 102,
+    TrackEfficiencyMin = -0.01,
+    TrackEfficiencyMax = 1.01,
+    #
+    maxJetPt = 10., #GeV
+    #
+    SumChargeBin = 11,
+    SumChargeMin = -5.5,
+    SumChargeMax = 5.5,
+    #
+    MassBin = 100,
+    MassMin = 0.0,
+    MassMax = 100.0,
+    #
+    TrackPtBin = 110,
+    TrackPtMin = 0.0,
+    TrackPtMax = 110.0,
+    #
+    TrackCurvatureBin = 2000,
+    TrackCurvatureMin = -0.01,
+    TrackCurvatureMax = 0.01,
+    #
+    JetPtBin = 100,
+    JetPtMin = 0.0,
+    JetPtMax = 50.0,
+    #
+    MinJetDeltaRBin = 100,
+    MinJetDeltaRMin = 0,
+    MinJetDeltaRMax = 10,
+    #
+    MinTrackDeltaRBin = 100,
+    MinTrackDeltaRMin = 0,
+    MinTrackDeltaRMax = 3.2,
+    #
+    HitMapsZBin = 300,
+    HitMapZMax = 300., #cm
+    HitMapsRBin = 120,
+    HitMapRMax = 120., #cm
+    #
+    daughterMass = 0.10565836,#Gev
+    FolderName = "TkAlCaRecoMonitor")
 
