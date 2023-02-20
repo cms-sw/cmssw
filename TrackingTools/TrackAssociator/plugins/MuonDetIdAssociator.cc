@@ -98,8 +98,10 @@ void MuonDetIdAssociator::getValidDetIds(unsigned int subDectorIndex, std::vecto
         if (gem->id().station() == 0)
           validIds.push_back(gem->id());
         else
-          for (auto ch : gem->chambers())
-            validIds.push_back(ch->id());
+          for (auto ch : gem->chambers()){
+            for (auto eta : ch->etaPartitions())
+              validIds.push_back(eta->id());
+          }
       }
     }
   }

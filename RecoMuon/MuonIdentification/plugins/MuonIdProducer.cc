@@ -637,9 +637,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
       for (auto& muon : *outputMuons) {
         if (!muon.standAloneMuon().isNull()) {
           // global muon
-          if (muon.standAloneMuon().get() == &outerTrack ||
-              (muon.standAloneMuon()->extra().isNonnull() &&
-               muon.standAloneMuon()->extra().get() == outerTrack.extra().get())) {
+          if (muon.standAloneMuon().get() == &outerTrack) {
             newMuon = false;
             break;
           }
@@ -1078,21 +1076,18 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent,
 
       matchedChamber.edgeX = chamber.localDistanceX;
       matchedChamber.edgeY = chamber.localDistanceY;
+      
+      if ((matchedChamber.edgeX > 0.) or (matchedChamber.edgeY > 0.))
+        continue;
 
       theShowerDigiFiller_->fillDefault(matchedChamber);
 
       matchedChamber.id = chamber.id;
-
+      
       for (const auto& gemRecHit : *gemHitHandle_) {
         reco::MuonGEMHitMatch gemHitMatch;
-
-        if (GEMDetId(gemRecHit.gemId().region(),
-                     gemRecHit.gemId().ring(),
-                     gemRecHit.gemId().station(),
-                     gemRecHit.gemId().layer(),
-                     gemRecHit.gemId().chamber(),
-                     0)
-                .rawId() != chamber.id.rawId())
+        
+        if (gemRecHit.gemId().rawId() != chamber.id.rawId()) // .rawId() != (chamber.id.rawId() & ietabits))
           continue;
 
         gemHitMatch.x = gemRecHit.localPosition().x();
