@@ -18,7 +18,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
    * This class demonstrates a stream EDProducer that
    * - consumes a host EDProduct
    * - consumes a device ESProduct
-   * - produces a device EDProduct (that can get transferred to host automatically)
+   * - produces a device EDProduct (that gets transferred to host automatically if needed)
+   * - optionally uses a product instance label
    */
   class TestAlpakaStreamProducer : public stream::EDProducer<> {
   public:
@@ -27,7 +28,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE))} {
       getToken_ = consumes(config.getParameter<edm::InputTag>("source"));
       esToken_ = esConsumes();
-      devicePutToken_ = produces();
+      devicePutToken_ = produces(config.getParameter<std::string>("productInstanceName"));
     }
 
     void produce(device::Event& iEvent, device::EventSetup const& iSetup) override {
@@ -45,6 +46,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
       desc.add<edm::InputTag>("source");
+      desc.add<std::string>("productInstanceName", "");
 
       edm::ParameterSetDescription psetSize;
       psetSize.add<int32_t>("alpaka_serial_sync");
