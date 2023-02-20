@@ -55,8 +55,10 @@ public:
 
   template <typename I>
   void compute(bool et, Sum& sum, reco::Candidate const& cand, I first, I last) const {
-    reco::SuperCluster const& sc = *cand.get<reco::SuperClusterRef>().get();
-    return compute(et, sum, sc, first, last);
+    reco::SuperCluster const* sc = cand.get<reco::SuperClusterRef>().get();
+    if (sc) {
+      compute(et, sum, *sc, first, last);
+    }
   }
   template <typename I>
   void compute(bool et, Sum& sum, reco::SuperCluster const& sc, I first, I last) const;
