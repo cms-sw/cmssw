@@ -472,8 +472,8 @@ void Generator::particleAssignDaughters(G4PrimaryParticle *g4p, HepMC::GenPartic
 
     int status = (*vpdec)->status();
     if (verbose > 1)
-      LogDebug("SimG4CoreGenerator::::particleAssignDaughters") 
-	  << "Assigning a " << (*vpdec)->pdg_id() << " as daughter of a " << vp->pdg_id() << " status=" << status;
+      LogDebug("SimG4CoreGenerator::::particleAssignDaughters")
+          << "Assigning a " << (*vpdec)->pdg_id() << " as daughter of a " << vp->pdg_id() << " status=" << status;
 
     if ((status == 2 || (status >= 23 && status < 100)) && (*vpdec)->end_vertex() != nullptr) {
       double x2 = (*vpdec)->end_vertex()->position().x();
