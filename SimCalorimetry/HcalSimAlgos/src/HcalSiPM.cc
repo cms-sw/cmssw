@@ -81,6 +81,7 @@ const HcalSiPM::cdfpair& HcalSiPM::BorelCDF(unsigned int k) {
   // EPSILON determines the min and max # of xtalk cells that can be
   // simulated.
   constexpr double EPSILON = 1e-6;
+  constexpr uint32_t maxCDFsize = 170;  // safe max to avoid factorial to be infinite
   auto it = borelcdfs.find(k);
   if (it == borelcdfs.end()) {
     vector<double> cdf;
@@ -90,7 +91,7 @@ const HcalSiPM::cdfpair& HcalSiPM::BorelCDF(unsigned int k) {
     unsigned int i;
     double sumb = 0.;
     double iFact = 1.;
-    for (i = 0; i < 170; i++) {
+    for (i = 0; i < maxCDFsize; i++) {
       if (i > 0)
         iFact *= double(i);
       sumb += Borel(i, theCrossTalk, k, iFact);
@@ -102,7 +103,7 @@ const HcalSiPM::cdfpair& HcalSiPM::BorelCDF(unsigned int k) {
     unsigned int borelstartn = i;
 
     // calculate cdf[i]  limit to 170 to avoid iFact to become infinite
-    for (++i; i < 170; ++i) {
+    for (++i; i < maxCDFsize; ++i) {
       iFact *= double(i);
       sumb += Borel(i, theCrossTalk, k, iFact);
       cdf.push_back(sumb);
