@@ -160,6 +160,7 @@ public:
         Time_(0),
         setSinceTime_(false),
         firstRun_(true) {
+    usesResource(cond::service::PoolDBOutputService::kSharedResource);
     edm::LogInfo("ConditionDBWriter::ConditionDBWriter()") << std::endl;
     SinceAppendMode_ = iConfig.getParameter<bool>("SinceAppendMode");
     std::string IOVMode = iConfig.getParameter<std::string>("IOVMode");
