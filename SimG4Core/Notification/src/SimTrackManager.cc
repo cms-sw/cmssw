@@ -339,7 +339,7 @@ void SimTrackManager::cleanTracksWithHistory() {
 #ifdef DebugLog
   LogDebug("SimTrackManager") << " AFTER CLEANING, I GET " << (*m_trksForThisEvent).size()
                               << " tracks to be saved persistently";
-  for (unsigned int it < (*m_trksForThisEvent).size(); ++it) {
+  for (unsigned int it = 0; it < (*m_trksForThisEvent).size(); ++it) {
     LogDebug("SimTrackManager") << " Track in position " << it << " G4 track number "
                                 << (*m_trksForThisEvent)[it]->trackID() << " mother "
                                 << (*m_trksForThisEvent)[it]->parentID() << " Status "
