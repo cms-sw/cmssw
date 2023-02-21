@@ -5,6 +5,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 
@@ -84,6 +86,8 @@ namespace reco {
                                  const Trajectory *itt,
                                  std::vector<TrackingRecHit *> &hits);
       void produceFromTrack(const edm::EventSetup &iSetup, const Track *itt, std::vector<TrackingRecHit *> &hits);
+
+      static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
     private:
       class Rule {
@@ -300,7 +304,7 @@ namespace reco {
           stripFrontInvalidHits_(iConfig.getParameter<bool>("stripFrontInvalidHits")),
           stripBackInvalidHits_(iConfig.getParameter<bool>("stripBackInvalidHits")),
           stripAllInvalidHits_(iConfig.getParameter<bool>("stripAllInvalidHits")),
-          isPhase2_(iConfig.getUntrackedParameter<bool>("isPhase2", false)),
+          isPhase2_(iConfig.getParameter<bool>("isPhase2")),
           rejectBadStoNHits_(iConfig.getParameter<bool>("rejectBadStoNHits")),
           CMNSubtractionMode_(iConfig.getParameter<std::string>("CMNSubtractionMode")),
           detsToIgnore_(iConfig.getParameter<std::vector<uint32_t> >("detsToIgnore")),
@@ -988,6 +992,39 @@ namespace reco {
 
     int TrackerTrackHitFilter::sideFromId(const DetId &id, const TrackerTopology *tTopo) const {
       return tTopo->side(id);
+    }
+
+    // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
+    void TrackerTrackHitFilter::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.setComment("");
+      desc.add<edm::InputTag>("src", edm::InputTag("generalTracks"));
+      desc.add<uint32_t>("minimumHits", 3)->setComment("number of hits for refit");
+      desc.add<bool>("replaceWithInactiveHits", false)
+          ->setComment(
+              " instead of removing hits replace them with inactive hits, so you still consider the multiple "
+              "scattering");
+      desc.add<bool>("stripFrontInvalidHits", false)
+          ->setComment("strip invalid & inactive hits from any end of the track");
+      desc.add<bool>("stripBackInvalidHits", false)
+          ->setComment("strip invalid & inactive hits from any end of the track");
+      desc.add<bool>("stripAllInvalidHits", false)->setComment("dangerous to turn on, you might forget about MS");
+      desc.add<bool>("isPhase2", false);
+      desc.add<bool>("rejectBadStoNHits", false);
+      desc.add<std::string>("CMNSubtractionMode", std::string("Median"))->setComment("TT6");
+      desc.add<std::vector<uint32_t> >("detsToIgnore", {});
+      desc.add<bool>("useTrajectories", false);
+      desc.add<bool>("rejectLowAngleHits", false);
+      desc.add<double>("TrackAngleCut", 0.25)->setComment("rad");
+      desc.add<bool>("usePixelQualityFlag", false);
+      desc.add<double>("PxlTemplateProbXYCut", 0.000125);
+      desc.add<double>("PxlTemplateProbXYChargeCut", -99.);
+      desc.add<std::vector<int32_t> >("PxlTemplateqBinCut", {0, 3});
+      desc.add<double>("PxlCorrClusterChargeCut", -999.0);
+      desc.add<bool>("tagOverlaps", false);
+      desc.add<std::vector<std::string> >("commands", {})->setComment("layers to remove");
+      desc.add<std::vector<std::string> >("StoNcommands", {})->setComment("S/N cut per layer");
+      descriptions.addWithDefaultLabel(desc);
     }
 
   }  // namespace modules
