@@ -357,26 +357,3 @@ void ROCmService::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 
   descriptions.add("ROCmService", desc);
 }
-
-int ROCmService::deviceWithMostFreeMemory() const {
-  // save the current device
-  int currentDevice;
-  hipCheck(hipGetDevice(&currentDevice));
-
-  size_t maxFreeMemory = 0;
-  int device = -1;
-  for (int i = 0; i < numberOfDevices_; ++i) {
-    size_t freeMemory, totalMemory;
-    hipCheck(hipSetDevice(i));
-    hipCheck(hipMemGetInfo(&freeMemory, &totalMemory));
-    edm::LogPrint("ROCmService") << "ROCm device " << i << ": " << freeMemory / (1 << 20) << " MB free / "
-                                 << totalMemory / (1 << 20) << " MB total memory";
-    if (freeMemory > maxFreeMemory) {
-      maxFreeMemory = freeMemory;
-      device = i;
-    }
-  }
-  // restore the current device
-  hipCheck(hipSetDevice(currentDevice));
-  return device;
-}

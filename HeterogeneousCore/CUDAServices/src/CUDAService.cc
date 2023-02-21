@@ -439,26 +439,3 @@ void CUDAService::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 
   descriptions.add("CUDAService", desc);
 }
-
-int CUDAService::deviceWithMostFreeMemory() const {
-  // save the current device
-  int currentDevice;
-  cudaCheck(cudaGetDevice(&currentDevice));
-
-  size_t maxFreeMemory = 0;
-  int device = -1;
-  for (int i = 0; i < numberOfDevices_; ++i) {
-    size_t freeMemory, totalMemory;
-    cudaSetDevice(i);
-    cudaMemGetInfo(&freeMemory, &totalMemory);
-    edm::LogPrint("CUDAService") << "CUDA device " << i << ": " << freeMemory / (1 << 20) << " MB free / "
-                                 << totalMemory / (1 << 20) << " MB total memory";
-    if (freeMemory > maxFreeMemory) {
-      maxFreeMemory = freeMemory;
-      device = i;
-    }
-  }
-  // restore the current device
-  cudaCheck(cudaSetDevice(currentDevice));
-  return device;
-}
