@@ -104,23 +104,6 @@ TEST_CASE("Tests of ROCmService", "[ROCmService]") {
       }
     }
 
-    SECTION("ROCmService device free memory") {
-      size_t mem = 0;
-      int dev = -1;
-      for (int i = 0; i < deviceCount; ++i) {
-        size_t free, tot;
-        REQUIRE_NOTHROW(hipCheck(hipSetDevice(i)));
-        REQUIRE_NOTHROW(hipCheck(hipMemGetInfo(&free, &tot)));
-        WARN("Device " << i << " memory total " << tot << " free " << free);
-        if (free > mem) {
-          mem = free;
-          dev = i;
-        }
-      }
-      WARN("Device with most free memory " << dev << "\n"
-                                           << "     as given by ROCmService " << cs.deviceWithMostFreeMemory());
-    }
-
     SECTION("With ResourceInformationService available") {
       edmplugin::PluginManager::configure(edmplugin::standard::config());
 
