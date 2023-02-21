@@ -20,7 +20,7 @@ public:
       // barrel plane:
       // instantiate HelixBarrelPlaneCrossing,
       new (get()) HelixBarrelPlaneCrossingByCircle(args...);
-    } else if ((std::abs(u.x()) < small) & (std::abs(u.y()) < small)) {
+    } else if ((std::abs(u.x()) < small) && (std::abs(u.y()) < small)) {
       // forward plane:
       // instantiate HelixForwardPlaneCrossing
       new (get()) HelixForwardPlaneCrossing(args...);
