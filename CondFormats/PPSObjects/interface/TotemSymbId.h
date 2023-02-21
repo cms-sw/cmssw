@@ -25,7 +25,7 @@ public:
   bool operator==(const TotemSymbID &sid) const { return (symbolicID == sid.symbolicID); }
 
   friend std::ostream &operator<<(std::ostream &s, const TotemSymbID &sid);
-  
+
   COND_SERIALIZABLE;
 };
 

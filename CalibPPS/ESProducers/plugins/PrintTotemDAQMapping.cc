@@ -44,7 +44,6 @@ PrintTotemDAQMapping::PrintTotemDAQMapping(const edm::ParameterSet &ps)
 //----------------------------------------------------------------------------------------------------
 
 void PrintTotemDAQMapping::analyze(const edm::Event &, edm::EventSetup const &es) {
-
   // get mapping
   if (auto mappingHandle = es.getHandle(mappingToken_)) {
     auto const &mapping = *mappingHandle;
@@ -65,7 +64,6 @@ void PrintTotemDAQMapping::analyze(const edm::Event &, edm::EventSetup const &es
   } else {
     edm::LogError("PrintTotemDAQMapping mapping") << "No analysis mask found";
   }
-
 }
 
 //----------------------------------------------------------------------------------------------------
