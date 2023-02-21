@@ -59,7 +59,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
     threshold = cms.untracked.string("INFO"),
     default   = cms.untracked.PSet(limit = cms.untracked.int32(0)),                       
     FwkReport = cms.untracked.PSet(limit = cms.untracked.int32(-1),
-                                   reportEvery = cms.untracked.int32(1000)
+                                   reportEvery = cms.untracked.int32(1)
                                    ),                                                      
     PrimaryVertexValidation = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
     SplitVertexResolution   = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
@@ -295,7 +295,10 @@ process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
                                       TkClusParameters = switchClusterizerParameters(isDA)
                                       )
 
-process.TrackerTrackHitFilter.isPhase2 = cms.untracked.bool(True)
+####################################################################
+# Needed to avoid dependency from Phase-0 strip conditions
+####################################################################
+#process.TrackerTrackHitFilter.isPhase2 = cms.bool(True)
 
 ####################################################################
 # Path
