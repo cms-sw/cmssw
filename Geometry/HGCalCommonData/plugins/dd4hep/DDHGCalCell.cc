@@ -55,7 +55,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: Wafer r " << cms::convert2mm(waferSize) << " T "
                                 << cms::convert2mm(waferT) << " Cell T " << cms::convert2mm(cellT) << " Cells/Wafer "
                                 << nCells << " Material " << material << "Sensitive Position " << posSens
-                                << " NameSpace " << ns.name() << " Full Cell: " << fullCN << ":" << fullSensN;
+                                << " NameSpace " << ns.name() << " Full Cell: " << fullCN << ":" << fullSensN
+                                << " Separation " << waferSeparation << ":" << addWaferSeparation;
   for (unsigned int k = 0; k < truncCN.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "DDHGCalCell: Truncated Cell[" << k << "] " << truncCN[k] << ":" << truncSensN[k];
   for (unsigned int k = 0; k < extenCN.size(); ++k)
@@ -74,7 +75,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   static const double waf2cell = 3.0;
   static const double cornerfac = 2.5;
   double R =
-      (addWaferSeparation == 0) ? waferSize / (waf2cell * nCells) : (waferSize + waferSeparation) / (waf2cell * nCells);
+      (addWaferSeparation <= 1) ? waferSize / (waf2cell * nCells) : (waferSize + waferSeparation) / (waf2cell * nCells);
   double r = 0.5 * R * sqrt3;
   double dx1 = R;
   double dx2 = 0.5 * dx1;
