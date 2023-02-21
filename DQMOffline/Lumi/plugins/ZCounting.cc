@@ -436,8 +436,8 @@ void ZCounting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     // the same eta sign as the original, otherwise take the original
     for (auto const& standAloneUpdatedAtVtx : *tracksStandAloneUpdatedAtVtx) {
       if (standAloneUpdatedAtVtx.extra().key() == extraIdx) {
-        const int etaFlip1 = (standAloneUpdatedAtVtx.eta() * standAlone.eta()) < 0 ? -1 : 1;
-        if (etaFlip1 == 1) {
+        const bool etaFlip1 = (standAloneUpdatedAtVtx.eta() * standAlone.eta()) >= 0;
+        if (etaFlip1) {
           track = &standAloneUpdatedAtVtx;
         }
         break;
@@ -639,7 +639,7 @@ void ZCounting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       // check if track is matched to standalone muon
       bool isStandalone = false;
       for (const reco::Track* itSta : hStandaloneProduct) {
-        if (reco::deltaR(itSta->eta(), itSta->phi(), eta2, phi2) < DRMAX_IO) {
+        if (reco::deltaR2(itSta->eta(), itSta->phi(), eta2, phi2) < DRMAX_IO) {
           isStandalone = true;
           break;
         }
@@ -710,7 +710,7 @@ bool ZCounting::passGlobalMuon(const reco::Muon& muon) {
   return muon.isGlobalMuon() && muon.outerTrack()->numberOfValidHits() >= N_STA_HITS &&
          muon.innerTrack()->pt() > MIN_PT_TRK && std::abs(muon.innerTrack()->eta()) < MAX_ETA_TRK &&
          muon.outerTrack()->pt() > MIN_PT_STA && std::abs(muon.outerTrack()->eta()) < MAX_ETA_STA &&
-         reco::deltaR(
+         reco::deltaR2(
              muon.outerTrack()->eta(), muon.outerTrack()->phi(), muon.innerTrack()->eta(), muon.innerTrack()->phi()) <
              DRMAX_IO;
 }

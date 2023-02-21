@@ -94,8 +94,8 @@ private:
   TriggerTools* triggers;
 
   // constants
-  const double DRMAX_HLT = 0.1;  // max dR matching between muon and hlt object
-  const double DRMAX_IO = 0.3;   // max dR matching between inner and outer muon track
+  const double DRMAX_HLT = 0.01;  // max dR matching between muon and hlt object
+  const double DRMAX_IO = 0.09;   // max dR matching between inner and outer muon track
 
   const double MIN_PT_TRK = 15;    // minimum pT of inner track considered for matching outer to inner track
   const double MAX_ETA_TRK = 2.5;  // maximum |eta| of inner track considered for matching outer to inner track
