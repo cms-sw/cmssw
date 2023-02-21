@@ -30,10 +30,7 @@ _isMC = True
 _allFromGT = True
 _applyBows = True
 _applyExtraConditions = True
-if(options.isPhase2):
-     _theRefitter = RefitType.STANDARD # FIXME: once the sequence is cleared out    
-else: 
-     _theRefitter = RefitType.COMMON  
+_theRefitter = RefitType.COMMON # RefitType.STANDARD (other option not involving filtering)
 _theTrackCollection = 'generalTracks' # FIXME: 'ALCARECOTkAlMinBias' once a sample is available
 
 ###################################################################
