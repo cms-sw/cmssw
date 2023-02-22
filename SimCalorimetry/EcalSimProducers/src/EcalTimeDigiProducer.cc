@@ -22,10 +22,13 @@ EcalTimeDigiProducer::EcalTimeDigiProducer(const edm::ParameterSet &params,
       m_hitsProducerTokenEB(sumes.consumes<std::vector<PCaloHit>>(m_hitsProducerTagEB)),
       m_geometryToken(sumes.esConsumes()),
       m_timeLayerEB(params.getParameter<int>("timeLayerBarrel")),
-      m_Geometry(nullptr) {
+      m_Geometry(nullptr),
+      m_componentWaveform(params.getParameter<bool>("componentWaveform")) {
   producesCollector.produces<EcalTimeDigiCollection>(m_EBdigiCollection);
 
-  m_BarrelDigitizer = new EcalTimeMapDigitizer(EcalBarrel);
+  if (m_componentWaveform)
+    m_ComponentShapes = new ComponentShapeCollection(sumes);
+  m_BarrelDigitizer = new EcalTimeMapDigitizer(EcalBarrel, m_ComponentShapes);
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("TimeDigiInfo") << "[EcalTimeDigiProducer]::Create EB " << m_EBdigiCollection
@@ -42,6 +45,14 @@ void EcalTimeDigiProducer::initializeEvent(edm::Event const &event, edm::EventSe
   //    checkCalibrations( event, eventSetup );
   // here the methods to clean the maps
   m_BarrelDigitizer->initializeMap();
+  if (m_componentWaveform) {
+    m_ComponentShapes->setEventSetup(eventSetup);
+    m_BarrelDigitizer->setEventSetup(eventSetup);
+  }
+#ifdef EDM_ML_DEBUG
+  if (m_componentWaveform)
+    m_ComponentShapes->test();
+#endif
 }
 
 void EcalTimeDigiProducer::accumulateCaloHits(HitsHandle const &ebHandle, int bunchCrossing) {
@@ -60,6 +71,9 @@ void EcalTimeDigiProducer::accumulate(edm::Event const &e, edm::EventSetup const
   edm::LogVerbatim("TimeDigiInfo") << "[EcalTimeDigiProducer]::Accumulate Hits HS  event";
 #endif
 
+  if (m_componentWaveform) {
+    m_BarrelDigitizer->setEventSetup(eventSetup);
+  }
   accumulateCaloHits(ebHandle, 0);
 }
 
@@ -72,6 +86,9 @@ void EcalTimeDigiProducer::accumulate(PileUpEventPrincipal const &e,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("TimeDigiInfo") << "[EcalTimeDigiProducer]::Accumulate Hits for BC " << e.bunchCrossing();
 #endif
+  if (m_componentWaveform) {
+    m_BarrelDigitizer->setEventSetup(eventSetup);
+  }
   accumulateCaloHits(ebHandle, e.bunchCrossing());
 }
 

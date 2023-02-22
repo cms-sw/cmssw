@@ -9,6 +9,7 @@
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/EcalDigi/interface/EcalConstants.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/ComponentShapeCollection.h"
 
 #include <unordered_map>
 #include <vector>

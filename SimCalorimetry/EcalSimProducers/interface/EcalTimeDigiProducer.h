@@ -55,7 +55,8 @@ private:
 private:
   int m_timeLayerEB;
   const CaloGeometry *m_Geometry;
-
+  const bool m_componentWaveform;
+  ComponentShapeCollection *m_ComponentShapes = nullptr;
   EcalTimeMapDigitizer *m_BarrelDigitizer;
 };
 
