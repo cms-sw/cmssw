@@ -46,7 +46,7 @@ process.gemRecHits.ge21Off = cms.bool(False)
 process.GEMDigiSource.runType = "online"
 process.GEMRecHitSource.runType = "online"
 process.GEMDAQStatusSource.runType = "online"
-
+process.GEMPadDigiClusterSource.runType = "online"
 # from csc_dqm_sourceclient-live_cfg.py
 process.CSCGeometryESModule.useGangedStripsInME1a = False
 process.idealForDigiCSCGeometry.useGangedStripsInME1a = False
