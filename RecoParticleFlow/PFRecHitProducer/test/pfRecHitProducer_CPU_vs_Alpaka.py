@@ -186,8 +186,10 @@ process.hltParticleFlowRecHitHBHE = cms.EDProducer("PFRecHitProducer",
 
 # Alpaka producer
 process.hltParticleFlowRecHitToSoA = cms.EDProducer("alpaka_serial_sync::CaloRecHitSoAProducer",
-#process.hltParticleFlowRecHitToSoA = cms.EDProducer("CaloRecHitSoAProducer@alpaka",
     src = cms.InputTag("hltHbhereco")
+)
+process.hltParticleFlowPFRecHitAlpaka = cms.EDProducer("alpaka_serial_sync::PFRecHitProducerAlpaka",
+    src = cms.InputTag("hltParticleFlowRecHitToSoA")
 )
 #process.hltParticleFlowRecHitHBHEAlpaka = cms.EDProducer("alpaka_serial_sync::PFHBHERecHitProducerAlpaka",
 #    navigator = process.hltParticleFlowRecHitHBHE.navigator,
@@ -199,8 +201,10 @@ process.hltParticleFlowRecHitToSoA = cms.EDProducer("alpaka_serial_sync::CaloRec
 process.FEVTDEBUGHLToutput.outputCommands = cms.untracked.vstring('drop  *_*_*_*')
 process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*ParticleFlow*HBHE*_*_*')
 process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*HbherecoLegacy*_*_*')
-process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*HbherecoFromGPU*_*_*')
+#process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*HbherecoFromGPU*_*_*')
 process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*Hbhereco*_*_*')
+process.FEVTDEBUGHLToutput.outputCommands.append('keep *_hltParticleFlowRecHitToSoA_*_*')
+process.FEVTDEBUGHLToutput.outputCommands.append('keep *_hltParticleFlowPFRecHitAlpaka_*_*')
 
 #
 # Run only localreco, PFRecHit and PFCluster producers for HBHE only
@@ -208,14 +212,15 @@ process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*Hbhereco*_*_*')
 
 # Path/sequence definitions
 process.HBHEPFCPUGPUTask = cms.Path(
-  process.hltHcalDigis
-  #+process.hltHcalDigisGPU
-  +process.hltHbherecoLegacy
-  #+process.hltHbherecoGPU
-  #+process.hltHbherecoFromGPU
-  +process.hltParticleFlowRecHitHBHE    # Construct PFRecHits on CPU
-  #+process.hltParticleFlowRecHitHBHEAlpaka
-  +process.hltParticleFlowRecHitToSoA   # Convert legacy CaloRecHits to SoA and copy to device
+    process.hltHcalDigis
+    #+process.hltHcalDigisGPU
+    +process.hltHbherecoLegacy
+    #+process.hltHbherecoGPU
+    #+process.hltHbherecoFromGPU
+    +process.hltParticleFlowRecHitHBHE      # Construct PFRecHits on CPU
+    #+process.hltParticleFlowRecHitHBHEAlpaka
+    +process.hltParticleFlowRecHitToSoA     # Convert legacy CaloRecHits to SoA and copy to device
+    +process.hltParticleFlowPFRecHitAlpaka  # Constrcut PFRecHits on device
 )
 process.schedule = cms.Schedule(process.HBHEPFCPUGPUTask)
 process.schedule.extend([process.endjob_step,process.FEVTDEBUGHLToutput_step])
