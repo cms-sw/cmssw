@@ -60,6 +60,8 @@
 
   <class name="CaloRecHitSoA"/>
   <class name="CaloRecHitSoA::View"/>
+  <class name="PFRecHitSoA"/>
+  <class name="PFRecHitSoA::View"/>
 
   <class name="reco::PFCluster" ClassVersion="17">
    <version ClassVersion="17" checksum="3021111509"/>

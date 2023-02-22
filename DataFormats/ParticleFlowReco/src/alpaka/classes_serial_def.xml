@@ -12,4 +12,18 @@
   ]]>
   </read>
   <class name="edm::Wrapper<CaloRecHitHostCollection>" splitLevel="0"/>
+
+  <class name="PFRecHitHostCollection"/>
+  <read
+    sourceClass="PFRecHitHostCollection"
+    targetClass="PFRecHitHostCollection"
+    version="[1-]"
+    source="PFRecHitSoA layout_;"
+    target="buffer_,layout_,view_"
+    embed="false">
+  <![CDATA[
+    PFRecHitHostCollection::ROOTReadStreamer(newObj, onfile.layout_);
+  ]]>
+  </read>
+  <class name="edm::Wrapper<PFRecHitHostCollection>" splitLevel="0"/>
 </lcgdict>

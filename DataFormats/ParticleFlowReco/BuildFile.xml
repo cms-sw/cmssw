@@ -17,6 +17,7 @@
 <use name="FWCore/MessageLogger"/>
 <use name="rootcore"/>
 <use name="rootmath"/>
+<use name="eigen"/>
 <use name="DataFormats/Portable"/>
 <use name="DataFormats/SoATemplate"/>
 <use name="HeterogeneousCore/AlpakaInterface"/>
