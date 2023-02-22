@@ -1,3 +1,6 @@
 <use name="alpaka"/>
 <use name="boost_header"/>
-<use name="FWCore/Utilities" source_only="1"/>
+<use name="FWCore/Utilities"/>
+<export>
+  <lib name="1"/>
+</export>
