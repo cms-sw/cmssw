@@ -11,6 +11,8 @@
 #include "DataFormats/ParticleFlowReco/interface/CaloRecHitHostCollection.h"
 #include "DataFormats/ParticleFlowReco/interface/alpaka/CaloRecHitDeviceCollection.h"
 
+#define DEBUG false
+
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class CaloRecHitSoAProducer : public global::EDProducer<> {
   public:
@@ -22,7 +24,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void produce(edm::StreamID sid, device::Event& event, device::EventSetup const&) const override {
       const edm::SortedCollection<HBHERecHit>& recHits = event.get(recHitsToken);
       const int32_t num_recHits = recHits.size();
-      printf("Found %d recHits\n", num_recHits);
+      if(DEBUG)
+        printf("Found %d recHits\n", num_recHits);
 
       CaloRecHitHostCollection hostProduct{num_recHits, event.queue()};
       auto& view = hostProduct.view();
@@ -30,7 +33,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       for(int i = 0; i < num_recHits; i++)
       {
         const HBHERecHit& rh = recHits[i];
-        if(i < 10)
+        if (DEBUG && i < 10)
           printf("recHit %4d %u %f %f\n", i, rh.id().rawId(), rh.energy(), rh.time());
         view[i].detId() = rh.id().rawId();
         view[i].energy() = rh.energy();
