@@ -1,0 +1,31 @@
+<library name="RecoParticleFlowPFRecHitProducersPlugins" file="*.cc">
+<use name="alpaka"/>
+<use name="fmt"/>
+<use name="CommonTools/CandAlgos"/>
+<use name="CommonTools/ParticleFlow"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/Math"/>
+<use name="DataFormats/ParticleFlowReco"/>
+<use name="CommonTools/BaseParticlePropagator"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="DataFormats/TestObjects"/>
+<use name="HeterogeneousCore/AlpakaTest"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library name="RecoParticleFlowPFRecHitProducersPluginsPortable" file="alpaka/*.cc">
+<use name="alpaka"/>
+<use name="DataFormats/ParticleFlowReco"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="HeterogeneousCore/AlpakaCore"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
+<use name="HeterogeneousCore/AlpakaTest"/>
+
+  <flags ALPAKA_BACKENDS="1"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
