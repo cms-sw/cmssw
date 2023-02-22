@@ -1,4 +1,18 @@
 <lcgdict>
   <class name="portabletest::TestSoA"/>
   <class name="portabletest::TestSoA::View"/>
+
+  <class name="portabletest::TestHostCollection"/>
+  <read
+    sourceClass="portabletest::TestHostCollection"
+    targetClass="portabletest::TestHostCollection"
+    version="[1-]"
+    source="portabletest::TestSoA layout_;"
+    target="buffer_,layout_,view_"
+    embed="false">
+  <![CDATA[
+    portabletest::TestHostCollection::ROOTReadStreamer(newObj, onfile.layout_);
+  ]]>
+  </read>
+  <class name="edm::Wrapper<portabletest::TestHostCollection>" splitLevel="0"/>
 </lcgdict>
