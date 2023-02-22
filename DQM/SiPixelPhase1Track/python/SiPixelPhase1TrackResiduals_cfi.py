@@ -134,8 +134,8 @@ SiPixelPhase1TrackResidualsConf = cms.VPSet(
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 SiPixelPhase1TrackResidualsAnalyzer = DQMEDAnalyzer('SiPixelPhase1TrackResiduals',
-        trajectoryInput = cms.string("generalTracks"),
-        Tracks        = cms.InputTag("generalTracks"),
+        trajectoryInput = cms.string("refittedForPixelDQM"),
+        Tracks        = cms.InputTag("refittedForPixelDQM"),
         vertices = cms.InputTag("offlinePrimaryVertices"),
         histograms = SiPixelPhase1TrackResidualsConf,
         geometry = SiPixelPhase1Geometry,
