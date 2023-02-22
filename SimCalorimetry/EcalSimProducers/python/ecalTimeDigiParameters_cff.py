@@ -6,5 +6,6 @@ ecal_time_digi_parameters = cms.PSet(
     EBtimeDigiCollection = cms.string('EBTimeDigi'),
     EEtimeDigiCollection = cms.string('EETimeDigi'),
     timeLayerBarrel = cms.int32(7),
-    timeLayerEndcap = cms.int32(3)
+    timeLayerEndcap = cms.int32(3),
+    componentWaveform = cms.bool(False)
     )

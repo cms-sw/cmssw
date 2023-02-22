@@ -80,6 +80,7 @@ class Eras (object):
                            'run2_miniAOD_80XLegacy','run2_miniAOD_94XFall17',
                            'run2_nanoAOD_106Xv2',
                            'run3_nanoAOD_122', 'run3_nanoAOD_124',
+                           'run3_ecal_devel',
                            'hcalHardcodeConditions', 'hcalSkipPacker',
                            'run2_HLTconditions_2016','run2_HLTconditions_2017','run2_HLTconditions_2018',
                            'bParking']

@@ -96,6 +96,7 @@ PAYLOAD_2XML_MODULE(pluginUtilities_payload2xml) {
   PAYLOAD_2XML_CLASS(EcalSRSettings);
   PAYLOAD_2XML_CLASS(EcalSampleMask);
   PAYLOAD_2XML_CLASS(EcalSamplesCorrelation);
+  PAYLOAD_2XML_CLASS(EcalSimComponentShape);
   PAYLOAD_2XML_CLASS(EcalSimPulseShape);
   PAYLOAD_2XML_CLASS(EcalTBWeights);
   PAYLOAD_2XML_CLASS(EcalTPGFineGrainEBGroup);

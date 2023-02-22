@@ -170,6 +170,9 @@
 #include "CondFormats/EcalObjects/interface/EcalSimPulseShape.h"
 #include "CondFormats/DataRecord/interface/EcalSimPulseShapeRcd.h"
 
+#include "CondFormats/EcalObjects/interface/EcalSimComponentShape.h"
+#include "CondFormats/DataRecord/interface/EcalSimComponentShapeRcd.h"
+
 #include "CondFormats/EcalObjects/interface/EcalMustacheSCParameters.h"
 #include "CondFormats/DataRecord/interface/EcalMustacheSCParametersRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalSCDynamicDPhiParameters.h"
@@ -201,6 +204,7 @@ REGISTER_PLUGIN(EcalClusterEnergyCorrectionParametersRcd, EcalFunParams);
 REGISTER_PLUGIN(EcalClusterEnergyCorrectionObjectSpecificParametersRcd, EcalFunParams);
 
 REGISTER_PLUGIN(EcalSimPulseShapeRcd, EcalSimPulseShape);
+REGISTER_PLUGIN(EcalSimComponentShapeRcd, EcalSimComponentShape);
 
 REGISTER_PLUGIN(EcalMappingElectronicsRcd, EcalCondObjectContainer<EcalMappingElement>);
 

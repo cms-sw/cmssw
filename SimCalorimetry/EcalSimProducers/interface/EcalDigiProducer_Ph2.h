@@ -2,6 +2,7 @@
 #define SimCalorimetry_EcalSimProducers_EcalDigiProducer_Ph2_h
 
 #include "SimCalorimetry/EcalSimAlgos/interface/APDShape.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/ComponentShapeCollection.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"
 #include "DataFormats/Math/interface/Error.h"
 #include "FWCore/Framework/interface/ProducesCollector.h"
@@ -26,6 +27,7 @@
 #include <vector>
 
 class APDSimParameters;
+class ComponentSimParameterMap;
 class CaloHitResponse;
 class EcalSimParameterMap;
 class EcalLiteDTUCoder;
@@ -88,6 +90,7 @@ private:
   void checkCalibrations(const edm::Event& event, const edm::EventSetup& eventSetup);
 
   APDShape m_APDShape;
+  ComponentShapeCollection m_ComponentShapes;
   EBShape m_EBShape;
 
   const std::string m_EBdigiCollection;
@@ -96,6 +99,7 @@ private:
   bool m_useLCcorrection;
 
   const bool m_apdSeparateDigi;
+  const bool m_componentSeparateDigi;
 
   const double m_EBs25notCont;
 
@@ -108,7 +112,12 @@ private:
   const std::string m_apdDigiTag;
   std::unique_ptr<const APDSimParameters> m_apdParameters;
 
+  const std::string m_componentDigiTag;
+  std::unique_ptr<const ComponentSimParameterMap> m_componentParameters;
+
   std::unique_ptr<EBHitResponse_Ph2> m_APDResponse;
+
+  std::unique_ptr<EBHitResponse_Ph2> m_ComponentResponse;
 
 protected:
   std::unique_ptr<EBHitResponse_Ph2> m_EBResponse;
@@ -120,6 +129,7 @@ private:
   const edm::EDGetTokenT<std::vector<PCaloHit>> m_HitsEBToken;
 
   std::unique_ptr<EBDigitizer_Ph2> m_APDDigitizer;
+  std::unique_ptr<EBDigitizer_Ph2> m_ComponentDigitizer;
   std::unique_ptr<EBDigitizer_Ph2> m_BarrelDigitizer;
 
   std::unique_ptr<EcalElectronicsSim_Ph2> m_ElectronicsSim;
@@ -128,6 +138,8 @@ private:
   typedef CaloTSamples<float, ecalPh2::sampleSize> EcalSamples_Ph2;
   std::unique_ptr<EcalElectronicsSim<EcalLiteDTUCoder, EcalSamples_Ph2, EcalDataFrame_Ph2>> m_APDElectronicsSim;
   std::unique_ptr<EcalLiteDTUCoder> m_APDCoder;
+  std::unique_ptr<EcalElectronicsSim<EcalLiteDTUCoder, EcalSamples_Ph2, EcalDataFrame_Ph2>> m_ComponentElectronicsSim;
+  std::unique_ptr<EcalLiteDTUCoder> m_ComponentCoder;
 
   const CaloGeometry* m_Geometry;
 

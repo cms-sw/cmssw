@@ -107,6 +107,9 @@
 #include "CondFormats/EcalObjects/interface/EcalSamplesCorrelation.h"
 #include "CondFormats/DataRecord/interface/EcalSamplesCorrelationRcd.h"
 
+#include "CondFormats/EcalObjects/interface/EcalSimComponentShape.h"
+#include "CondFormats/DataRecord/interface/EcalSimComponentShapeRcd.h"
+
 #include "CondFormats/EcalObjects/interface/EcalSimPulseShape.h"
 #include "CondFormats/DataRecord/interface/EcalSimPulseShapeRcd.h"
 
@@ -144,6 +147,8 @@ public:
       const EcalIntercalibConstantsRcd&);
   virtual std::unique_ptr<EcalIntercalibConstantsMC> getIntercalibConstantsMCFromConfiguration(
       const EcalIntercalibConstantsMCRcd&);
+  virtual std::unique_ptr<EcalSimComponentShape> getEcalSimComponentShapeFromConfiguration(
+      const EcalSimComponentShapeRcd&);
   virtual std::unique_ptr<EcalSimPulseShape> getEcalSimPulseShapeFromConfiguration(const EcalSimPulseShapeRcd&);
   virtual std::unique_ptr<EcalIntercalibErrors> getIntercalibErrorsFromConfiguration(const EcalIntercalibErrorsRcd&);
   virtual std::unique_ptr<EcalTimeCalibConstants> getTimeCalibConstantsFromConfiguration(
@@ -349,6 +354,7 @@ private:
   std::string EBSimPulseShapeFile_;
   std::string EESimPulseShapeFile_;
   std::string APDSimPulseShapeFile_;
+  std::vector<std::string> EBSimComponentShapeFiles_;
 
   int nTDCbins_;
 
@@ -381,12 +387,14 @@ private:
   bool producedEcalAlignmentEB_;
   bool producedEcalAlignmentEE_;
   bool producedEcalAlignmentES_;
+  bool producedEcalSimComponentShape_;
   bool producedEcalSimPulseShape_;
   bool producedEcalPFRecHitThresholds_;
   bool getEBAlignmentFromFile_;
   bool getEEAlignmentFromFile_;
   bool getESAlignmentFromFile_;
 
+  bool getSimComponentShapeFromFile_;
   bool getSimPulseShapeFromFile_;
 
   bool getLaserAlphaFromFileEB_;

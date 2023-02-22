@@ -11,6 +11,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalDigitizerTraits.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/ComponentShapeCollection.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 
@@ -55,7 +56,8 @@ private:
 private:
   int m_timeLayerEB;
   const CaloGeometry *m_Geometry;
-
+  const bool m_componentWaveform;
+  ComponentShapeCollection *m_ComponentShapes = nullptr;
   EcalTimeMapDigitizer *m_BarrelDigitizer;
 };
 

@@ -51,6 +51,8 @@
 #include "CondFormats/EcalObjects/interface/EcalSamplesCorrelation.h"
 #include "CondFormats/DataRecord/interface/EcalSamplesCorrelationRcd.h"
 
+#include "CondFormats/EcalObjects/interface/EcalSimComponentShape.h"
+#include "CondFormats/DataRecord/interface/EcalSimComponentShapeRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalSimPulseShape.h"
 #include "CondFormats/DataRecord/interface/EcalSimPulseShapeRcd.h"
 
@@ -91,6 +93,7 @@ EcalDBCopy::EcalDBCopy(const edm::ParameterSet& iConfig)
       esAlignmentToken_(esConsumes()),
       ecalTimeOffsetConstantToken_(esConsumes()),
       ecalSampleMaskToken_(esConsumes()),
+      ecalSimComponentShapeToken_(esConsumes()),
       ecalSimPulseShapeToken_(esConsumes()),
       ecalTimeBiasCorrectionsToken_(esConsumes()),
       ecalSamplesCorrelationToken_(esConsumes()) {
@@ -182,6 +185,8 @@ bool EcalDBCopy::shouldCopy(const edm::EventSetup& evtSetup, const std::string& 
     cacheID = evtSetup.get<EcalSampleMaskRcd>().cacheIdentifier();
   } else if (container == "EcalTimeBiasCorrections") {
     cacheID = evtSetup.get<EcalTimeBiasCorrectionsRcd>().cacheIdentifier();
+  } else if (container == "EcalSimComponentShape") {
+    cacheID = evtSetup.get<EcalSimComponentShapeRcd>().cacheIdentifier();
   } else if (container == "EcalSimPulseShape") {
     cacheID = evtSetup.get<EcalSimPulseShapeRcd>().cacheIdentifier();
   } else if (container == "EcalSamplesCorrelation") {
@@ -363,6 +368,10 @@ void EcalDBCopy::copyToDB(const edm::EventSetup& evtSetup, const std::string& co
     const auto& obj = evtSetup.getData(ecalSampleMaskToken_);
     edm::LogInfo("EcalDBCopy") << "sample mask pointer is: " << &obj << std::endl;
     dbOutput->createOneIOV<const EcalSampleMask>(obj, dbOutput->beginOfTime(), recordName);
+
+  } else if (container == "EcalSimComponentShape") {
+    const auto& obj = evtSetup.getData(ecalSimComponentShapeToken_);
+    dbOutput->createOneIOV<const EcalSimComponentShape>(obj, dbOutput->beginOfTime(), recordName);
 
   } else if (container == "EcalSimPulseShape") {
     const auto& obj = evtSetup.getData(ecalSimPulseShapeToken_);
