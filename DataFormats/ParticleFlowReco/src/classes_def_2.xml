@@ -1,5 +1,7 @@
 <lcgdict>
 <selection>
+  <class name="portableRecHitSoA::RecHitSoA"/>
+  <class name="portableRecHitSoA::RecHitSoA::View"/>
 
   <class name="reco::PFCluster" ClassVersion="17">
    <version ClassVersion="17" checksum="3021111509"/>

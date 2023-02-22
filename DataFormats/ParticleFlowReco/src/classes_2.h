@@ -4,6 +4,7 @@
 #include <DataFormats/Common/interface/ClonePolicy.h>
 #include "DataFormats/Common/interface/ValueMap.h"
 
+#include "DataFormats/ParticleFlowReco/interface/RecHitSoA.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "Math/Cartesian3D.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"

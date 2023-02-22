@@ -1,0 +1,15 @@
+<lcgdict>
+  <class name="portableRecHitSoA::RecHitHostCollection"/>
+  <read
+    sourceClass="portableRecHitSoA::RecHitHostCollection"
+    targetClass="portableRecHitSoA::RecHitHostCollection"
+    version="[1-]"
+    source="portableRecHitSoA::RecHitSoA layout_;"
+    target="buffer_,layout_,view_"
+    embed="false">
+  <![CDATA[
+    portableRecHitSoA::RecHitHostCollection::ROOTReadStreamer(newObj, onfile.layout_);
+  ]]>
+  </read>
+  <class name="edm::Wrapper<portableRecHitSoA::RecHitHostCollection>" splitLevel="0"/>
+</lcgdict>
