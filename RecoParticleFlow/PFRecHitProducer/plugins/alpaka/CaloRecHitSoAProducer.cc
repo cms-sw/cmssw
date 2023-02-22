@@ -1,3 +1,4 @@
+#include "HeterogeneousCore/AlpakaServices/interface/alpaka/AlpakaService.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/global/EDProducer.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -7,13 +8,13 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/SortedCollection.h"
 #include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
-#include "DataFormats/ParticleFlowReco/interface/RecHitHostCollection.h"
-#include "DataFormats/ParticleFlowReco/interface/alpaka/RecHitDeviceCollection.h"
+#include "DataFormats/ParticleFlowReco/interface/CaloRecHitHostCollection.h"
+#include "DataFormats/ParticleFlowReco/interface/alpaka/CaloRecHitDeviceCollection.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
-  class RecHitSoAProducer : public global::EDProducer<> {
+  class CaloRecHitSoAProducer : public global::EDProducer<> {
   public:
-    RecHitSoAProducer(edm::ParameterSet const& config) :
+    CaloRecHitSoAProducer(edm::ParameterSet const& config) :
       recHitsToken(consumes(config.getParameter<edm::InputTag>("src"))),
       deviceToken(produces())
     {}
@@ -23,7 +24,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const int32_t num_recHits = recHits.size();
       printf("Found %d recHits\n", num_recHits);
 
-      portableRecHitSoA::RecHitHostCollection hostProduct{num_recHits, event.queue()};
+      CaloRecHitHostCollection hostProduct{num_recHits, event.queue()};
       auto& view = hostProduct.view();
 
       for(int i = 0; i < num_recHits; i++)
@@ -36,7 +37,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         view[i].time() = rh.time();
       }
 
-      portableRecHitSoA::RecHitDeviceCollection deviceProduct{num_recHits, event.queue()};
+      CaloRecHitDeviceCollection deviceProduct{num_recHits, event.queue()};
       alpaka::memcpy(event.queue(), deviceProduct.buffer(), hostProduct.buffer());
       event.emplace(deviceToken, std::move(deviceProduct));
     }
@@ -49,10 +50,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   private:
     const edm::EDGetTokenT<edm::SortedCollection<HBHERecHit>> recHitsToken;
-    const device::EDPutToken<portableRecHitSoA::RecHitDeviceCollection> deviceToken;
+    const device::EDPutToken<CaloRecHitDeviceCollection> deviceToken;
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
 #include "HeterogeneousCore/AlpakaCore/interface/MakerMacros.h"
-DEFINE_FWK_ALPAKA_MODULE(RecHitSoAProducer);
+DEFINE_FWK_ALPAKA_MODULE(CaloRecHitSoAProducer);

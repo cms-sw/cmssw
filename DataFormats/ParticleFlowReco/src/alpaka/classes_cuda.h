@@ -1,5 +1,5 @@
 #include "DataFormats/Common/interface/DeviceProduct.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Portable/interface/Product.h"
-#include "DataFormats/ParticleFlowReco/interface/RecHitSoA.h"
-#include "DataFormats/ParticleFlowReco/interface/alpaka/RecHitDeviceCollection.h"
+#include "DataFormats/ParticleFlowReco/interface/CaloRecHitSoA.h"
+#include "DataFormats/ParticleFlowReco/interface/alpaka/CaloRecHitDeviceCollection.h"

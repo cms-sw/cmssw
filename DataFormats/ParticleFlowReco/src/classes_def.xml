@@ -58,8 +58,8 @@
   <class name="edm::reftobase::RefHolder<edm::Ref<std::vector<reco::ConvBremSeed>,reco::ConvBremSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ConvBremSeed>,reco::ConvBremSeed> > >"/>
   <class name="edm::reftobase::Holder<reco::ConvBremSeed,edm::Ref<std::vector<reco::ConvBremSeed>,reco::ConvBremSeed,edm::refhelper::FindUsingAdvance<std::vector<reco::ConvBremSeed>,reco::ConvBremSeed> > >"/>
 
-  <class name="portableRecHitSoA::RecHitSoA"/>
-  <class name="portableRecHitSoA::RecHitSoA::View"/>
+  <class name="CaloRecHitSoA"/>
+  <class name="CaloRecHitSoA::View"/>
 
   <class name="reco::PFCluster" ClassVersion="17">
    <version ClassVersion="17" checksum="3021111509"/>
