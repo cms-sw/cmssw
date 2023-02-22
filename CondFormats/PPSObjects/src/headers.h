@@ -20,3 +20,4 @@
 #include "CondFormats/PPSObjects/interface/PPSAssociationCuts.h"
 
 #include "CondFormats/PPSObjects/interface/TotemDAQMapping.h"
+#include "CondFormats/PPSObjects/interface/TotemAnalysisMask.h"

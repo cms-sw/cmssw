@@ -35,6 +35,8 @@
 #include "DataFormats/CTPPSDigi/interface/TotemTimingDigi.h"
 #include "DataFormats/TotemReco/interface/TotemT2Digi.h"
 
+#include "CondFormats/DataRecord/interface/TotemAnalysisMaskRcd.h"
+
 #include <string>
 
 class TotemVFATRawToDigi : public edm::stream::EDProducer<> {
@@ -55,6 +57,7 @@ private:
   edm::EDGetTokenT<FEDRawDataCollection> fedDataToken;
   edm::ESGetToken<TotemDAQMapping, TotemReadoutRcd> totemMappingToken;
   edm::ESGetToken<TotemAnalysisMask, TotemReadoutRcd> analysisMaskToken;
+  edm::ESGetToken<TotemAnalysisMask, TotemAnalysisMaskRcd> analysisMaskTokenFromDb;
 
   pps::RawDataUnpacker rawDataUnpacker;
   RawToDigiConverter rawToDigiConverter;
@@ -136,6 +139,7 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf)
 
   totemMappingToken = esConsumes<TotemDAQMapping, TotemReadoutRcd>(ESInputTag("", subSystemName));
   analysisMaskToken = esConsumes<TotemAnalysisMask, TotemReadoutRcd>(ESInputTag("", subSystemName));
+  analysisMaskTokenFromDb = esConsumes<TotemAnalysisMask, TotemAnalysisMaskRcd>(ESInputTag("", subSystemName));
 }
 
 TotemVFATRawToDigi::~TotemVFATRawToDigi() {}
@@ -180,7 +184,17 @@ void TotemVFATRawToDigi::run(edm::Event &event, const edm::EventSetup &es) {
   }
 
   // raw-to-digi conversion
-  rawToDigiConverter.run(vfatCollection, *mapping, *analysisMask, digi, conversionStatus);
+  if (analysisMask) {
+    rawToDigiConverter.run(vfatCollection, *mapping, *analysisMask, digi, conversionStatus);
+  } else {
+    ESHandle<TotemAnalysisMask> analysisMaskDB = es.getHandle(analysisMaskTokenFromDb);
+    if (analysisMaskDB){
+      rawToDigiConverter.run(vfatCollection, *mapping, *analysisMaskDB, digi, conversionStatus);
+    } else{
+      auto analysisMask1 = std::make_unique<TotemAnalysisMask>();
+      rawToDigiConverter.run(vfatCollection, *mapping, *analysisMask1, digi, conversionStatus);
+    }
+  }
 
   // commit products to event
   event.put(make_unique<vector<TotemFEDInfo>>(fedInfo), subSystemName);

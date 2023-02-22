@@ -146,26 +146,27 @@ from Configuration.Eras.Modifier_ctpps_2022_cff import ctpps_2022
 
 # there are two sources of the TotemDAQMapping record for diamonds, one from the CondDB and one from XML
 # we specify that as default we use the one from the CondDB
-es_prefer_totemTimingMapping = cms.ESPrefer("PoolDBESSource",
-  targetLabel=cms.string(""), 
-  TotemReadoutRcd=cms.vstring("TotemDAQMapping/TimingDiamond")
-)
-# for Run 2 and 2022 we use the XML mapping
-(ctpps_2016 | ctpps_2017 | ctpps_2018 | ctpps_2022).toReplaceWith(
-  es_prefer_totemTimingMapping, 
-  cms.ESPrefer("TotemDAQMappingESSourceXML",
-    targetLabel=cms.string("totemDAQMappingESSourceXML_TimingDiamond"),
-    TotemReadoutRcd=cms.vstring("TotemDAQMapping/TimingDiamond")
-  )
-)
-# toModify is used to change targetLabel, because toReplaceWith does not change it
-# also toModify needs targetLabel to be of type like cms.string to change the value
-(ctpps_2016 | ctpps_2017 | ctpps_2018 | ctpps_2022).toModify(
-  es_prefer_totemTimingMapping, 
-  _targetLabel="totemDAQMappingESSourceXML_TimingDiamond"
-)
-# changing targetLabel back to original python string
-es_prefer_totemTimingMapping._targetLabel = es_prefer_totemTimingMapping._targetLabel.value()
+
+# es_prefer_totemTimingMapping = cms.ESPrefer("PoolDBESSource",
+#   targetLabel=cms.string(""), 
+#   TotemReadoutRcd=cms.vstring("TotemDAQMapping/TimingDiamond")
+# )
+# # for Run 2 and 2022 we use the XML mapping
+# (ctpps_2016 | ctpps_2017 | ctpps_2018).toReplaceWith(
+#   es_prefer_totemTimingMapping, 
+#   cms.ESPrefer("TotemDAQMappingESSourceXML",
+#     targetLabel=cms.string("totemDAQMappingESSourceXML_TimingDiamond"),
+#     TotemReadoutRcd=cms.vstring("TotemDAQMapping/TimingDiamond")
+#   )
+# )
+# # toModify is used to change targetLabel, because toReplaceWith does not change it
+# # also toModify needs targetLabel to be of type like cms.string to change the value
+# (ctpps_2016 | ctpps_2017 | ctpps_2018).toModify(
+#   es_prefer_totemTimingMapping, 
+#   _targetLabel="totemDAQMappingESSourceXML_TimingDiamond"
+# )
+# # changing targetLabel back to original python string
+# es_prefer_totemTimingMapping._targetLabel = es_prefer_totemTimingMapping._targetLabel.value()
 
 # raw-to-digi task and sequence
 ctppsRawToDigiTask = cms.Task(

@@ -14,7 +14,7 @@ process.load("CalibPPS.ESProducers.totemDAQMappingESSourceXML_cfi")
 process.totemDAQMappingESSourceXML.subSystem = "TimingDiamond"
 process.totemDAQMappingESSourceXML.configuration = cms.VPSet(
   cms.PSet(
-    validityRange = cms.EventRange("1:min - 10:max"),
+    validityRange = cms.EventRange("1:min - 999999:max"),
     mappingFileNames = cms.vstring("CondFormats/PPSObjects/xml/mapping_timing_diamond_2022.xml"),
     maskFileNames = cms.vstring()
   )
@@ -31,6 +31,11 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         record = cms.string('TotemReadoutRcd'),
         tag = cms.string('DiamondDAQMapping'),
         label = cms.string('TimingDiamond')
+    ),
+    cms.PSet(
+        record = cms.string('TotemAnalysisMaskRcd'),
+        tag = cms.string('DiamondDAQMapping1'),
+        label = cms.string('TimingDiamond')
     )
   )
 )
@@ -39,7 +44,8 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 process.writeCTPPSTotemDAQMapping = cms.EDAnalyzer("WriteCTPPSTotemDAQMapping",
     cms.PSet(
         daqmappingiov = cms.uint64(1),
-        record = cms.string("TotemReadoutRcd"),
+        record_map = cms.string('TotemReadoutRcd'),
+        record_mask = cms.string('TotemAnalysisMaskRcd'),
         label = cms.string("TimingDiamond")
     )
 )
