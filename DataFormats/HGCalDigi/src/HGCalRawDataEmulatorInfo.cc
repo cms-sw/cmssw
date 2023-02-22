@@ -13,20 +13,22 @@ HGCalECONDEmulatorInfo::HGCalECONDEmulatorInfo(
   header_bits_[StatusBits::H] = hbit;
   header_bits_[StatusBits::S] = sbit;
   for (const auto& ch_en : enabled_channels)
-    pois_.emplace_back(ch_en);
+    erx_pois_.emplace_back(ch_en);
 }
 
 void HGCalECONDEmulatorInfo::clear() {
   header_bits_.reset();
-  pois_.clear();
+  erx_pois_.clear();
 }
 
-void HGCalECONDEmulatorInfo::addChannelsEnable(uint64_t poi) { pois_.emplace_back(poi); }
+void HGCalECONDEmulatorInfo::addERxChannelsEnable(uint64_t erx_channels_poi) {
+  erx_pois_.emplace_back(erx_channels_poi);
+}
 
 std::vector<bool> HGCalECONDEmulatorInfo::channelsEnabled(size_t ch_id) const {
   std::vector<bool> ch_en;
-  for (const auto& poi : pois_)
-    ch_en.emplace_back(poi.test(ch_id));
+  for (const auto& erx_channels_poi : erx_pois_)
+    ch_en.emplace_back(erx_channels_poi.test(ch_id));
   return ch_en;
 }
 
@@ -40,6 +42,6 @@ HGCalECONDEmulatorInfo::HGCROCEventRecoStatus HGCalECONDEmulatorInfo::eventRecoS
 
 void HGCalSlinkEmulatorInfo::clear() { econd_info_.clear(); }
 
-void HGCalSlinkEmulatorInfo::addECONDEmulatedInfo(const HGCalECONDEmulatorInfo& econd_info) {
-  econd_info_.emplace_back(econd_info);
+void HGCalSlinkEmulatorInfo::addECONDEmulatedInfo(unsigned int econd_id, const HGCalECONDEmulatorInfo& econd_info) {
+  econd_info_[econd_id] = econd_info;
 }

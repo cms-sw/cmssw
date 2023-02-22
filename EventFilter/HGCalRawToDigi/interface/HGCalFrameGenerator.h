@@ -2,6 +2,7 @@
 #define EventFilter_HGCalRawToDigi_HGCalFrameGenerator_h
 
 #include "DataFormats/HGCalDigi/interface/HGCalRawDataEmulatorInfo.h"
+#include "EventFilter/HGCalRawToDigi/interface/HGCalECONDEmulatorParameters.h"
 #include "EventFilter/HGCalRawToDigi/interface/SlinkTypes.h"
 
 #include <cstdint>
@@ -24,34 +25,29 @@ namespace hgcal {
 
     void setRandomEngine(CLHEP::HepRandomEngine& rng);
 
-    std::vector<uint32_t> produceECONEvent(const econd::ECONDEvent&) const;
+    std::vector<uint32_t> produceECONEvent(uint32_t, const econd::ECONDEvent&) const;
     const HGCalECONDEmulatorInfo& lastECONDEmulatedInfo() const { return last_econd_emul_info_; }
 
-    std::vector<uint64_t> produceSlinkEvent(const econd::ECONDEvent&) const;
+    /// Produce a S-link event from an input emulated event
+    std::vector<uint64_t> produceSlinkEvent(uint32_t fed_id, const econd::ECONDEvent&) const;
     const HGCalSlinkEmulatorInfo& lastSlinkEmulatedInfo() const { return last_slink_emul_info_; }
 
-    struct ECONDParameters {
-      double chan_surv_prob{1.};
-      std::vector<unsigned int> enabled_channels{};
-      unsigned int header_marker{0};
-      unsigned int num_channels{0};
-      double bitO_error_prob{0.}, bitB_error_prob{0.}, bitE_error_prob{0.}, bitT_error_prob{0.}, bitH_error_prob{0.},
-          bitS_error_prob{0.};
-    };
-    const ECONDParameters& econdParams() const { return econd_; }
+    const econd::EmulatorParameters& econdParams() const { return econd_; }
 
     struct SlinkParameters {
-      unsigned int num_econds{0};
+      std::vector<unsigned int> active_econds{};
+      unsigned int boe_marker{0}, eoe_marker{0}, format_version{0};
     };
     const SlinkParameters& slinkParams() const { return slink_; }
 
   private:
-    std::vector<bool> generateEnabledChannels(uint64_t&) const;
-    std::vector<uint32_t> generateERxData(const econd::ERxEvent&, std::vector<uint64_t>&) const;
+    std::vector<bool> generateEnabledChannels() const;
+    std::vector<uint32_t> generateERxData(const econd::ERxEvent&) const;
 
     static constexpr size_t max_num_econds_ = 12;
-    const bool pass_through_;
+    const bool passthrough_mode_;
     const bool expected_mode_;
+    const bool characterisation_mode_;
     const bool matching_ebo_numbers_;
     const bool bo_truncated_;
 
@@ -62,17 +58,7 @@ namespace hgcal {
     /// 8bit CRC for event header
     uint8_t computeCRC(const std::vector<uint32_t>&) const;
 
-    enum ECONDPacketStatus {
-      Normal = 0,
-      PayloadCRCError = 1,
-      EventIDMismatch = 2,
-      EBTimeout = 4,
-      BCIDOrbitIDMismatch = 5,
-      MainBufferOverflow = 6,
-      InactiveECOND = 7
-    };
-
-    ECONDParameters econd_;
+    econd::EmulatorParameters econd_;
     SlinkParameters slink_;
     CLHEP::HepRandomEngine* rng_{nullptr};  // NOT owning
 

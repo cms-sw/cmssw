@@ -2,10 +2,10 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 namespace hgcal::econd {
-  TBTreeReader::TBTreeReader(const std::string& tree_name,
-                             const std::vector<std::string>& filenames,
-                             unsigned int num_channels)
-      : chain_(tree_name.c_str()), num_channels_(num_channels) {
+  TBTreeReader::TBTreeReader(const EmulatorParameters& params,
+                             const std::string& tree_name,
+                             const std::vector<std::string>& filenames)
+      : Emulator(params), chain_(tree_name.c_str()) {
     for (const auto& filename : filenames)
       chain_.Add(filename.c_str());
     TreeEvent event;
@@ -33,9 +33,9 @@ namespace hgcal::econd {
       if (data_[key].count(erxKey) == 0)
         data_[key][erxKey] = ERxData();
       // add channel data
-      if (event.channel == (int)num_channels_)
+      if (event.channel == (int)params_.num_channels_per_erx)
         data_[key][erxKey].cm0 = event.adc;
-      else if (event.channel == (int)num_channels_ + 1)
+      else if (event.channel == (int)params_.num_channels_per_erx + 1)
         data_[key][erxKey].cm1 = event.adc;
       else {
         data_[key][erxKey].tctp.push_back(event.totflag ? 3 : 0);

@@ -1,4 +1,7 @@
 <lcgdict>
+   <class name="HGCalElectronicsId" ClassVersion="3">
+   <version ClassVersion="3" checksum="2587023721"/>
+   </class>
 
    <class name="HGCROCChannelDataFrame<HGCalDetId>" ClassVersion="3">
    <version ClassVersion="3" checksum="2026905296"/>
@@ -26,17 +29,14 @@
 
   <class name="std::bitset<37>"/>
   <class name="std::vector<std::bitset<37>>"/>
-
   <class name="HGCalECONDEmulatorInfo" ClassVersion="3">
-  <version ClassVersion="3" checksum="2324148861"/>
+    <version ClassVersion="3" checksum="1221339517"/>
   </class>
-
   <class name="edm::Wrapper<HGCalECONDEmulatorInfo>"/>
-  <class name="std::vector<HGCalECONDEmulatorInfo>"/>
+  <class name="std::map<unsigned int, HGCalECONDEmulatorInfo>"/>
 
   <class name="HGCalSlinkEmulatorInfo" ClassVersion="3">
-  <version ClassVersion="3" checksum="328479258"/>
+    <version ClassVersion="3" checksum="3264030487"/>
   </class>
-
   <class name="edm::Wrapper<HGCalSlinkEmulatorInfo>"/>
 </lcgdict>

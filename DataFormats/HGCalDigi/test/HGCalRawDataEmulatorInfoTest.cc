@@ -14,8 +14,7 @@ int main(int argc, char** argv) {
 
   // do the trials: time/performance test and exploit randomisation to check
   HGCalSlinkEmulatorInfo slink_info;
-  unsigned long int u = 0;
-  for (; u < 128; u++) {
+  for (unsigned long u = 0; u < 128; u++) {
     uint64_t enabledCh = myrand() % 37;
     bool obit = myrand() % 2;
     bool bbit = myrand() % 2;
@@ -24,14 +23,14 @@ int main(int argc, char** argv) {
     bool hbit = myrand() % 2;
     bool sbit = myrand() % 2;
     HGCalECONDEmulatorInfo econd_info(obit, bbit, ebit, tbit, hbit, sbit);
-    econd_info.addChannelsEnable(enabledCh);
+    econd_info.addERxChannelsEnable(enabledCh);
     assert(econd_info.bitO() == obit);
     assert(econd_info.bitB() == bbit);
     assert(econd_info.bitE() == ebit);
     assert(econd_info.bitT() == tbit);
     assert(econd_info.bitH() == hbit);
     assert(econd_info.bitS() == sbit);
-    slink_info.addECONDEmulatedInfo(econd_info);
+    slink_info.addECONDEmulatedInfo(u, econd_info);
   }
 
   slink_info.clear();

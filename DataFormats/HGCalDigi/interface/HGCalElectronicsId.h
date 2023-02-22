@@ -47,6 +47,7 @@ public:
      @short getters
   */
   uint32_t operator()() const { return value_; }
+  bool operator<(const HGCalElectronicsId& oth) const { return value_ < oth.value_; }
   uint32_t raw() const { return value_; }
   uint16_t fedId() const;
   uint8_t captureBlock() const;

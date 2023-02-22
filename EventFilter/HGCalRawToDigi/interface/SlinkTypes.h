@@ -13,7 +13,7 @@ namespace hgcal::econd {
   struct ERxData {
     std::vector<uint16_t> adc, adcm, toa, tot;
     std::vector<uint8_t> tctp;
-    uint32_t cm0, cm1;
+    uint32_t cm0{0}, cm1{0};
   };
   typedef std::map<ERx_t, ERxData> ERxEvent;
   typedef std::map<EventId, ERxEvent> ECONDInputs;

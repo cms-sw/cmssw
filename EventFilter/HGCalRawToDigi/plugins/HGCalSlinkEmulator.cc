@@ -1,9 +1,19 @@
+/****************************************************************************
+ *
+ * This is a part of HGCAL offline software.
+ * Authors:
+ *   Pedro Silva
+ *   Laurent Forthomme
+ *
+ ****************************************************************************/
+
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/CRC16.h"
@@ -32,23 +42,35 @@ private:
   const bool store_emul_info_;
   const bool store_fed_header_trailer_;
 
-  std::unique_ptr<hgcal::econd::TBTreeReader> reader_;
-  hgcal::econd::ECONDEvent reader_evt_;
+  std::unique_ptr<hgcal::econd::Emulator> emulator_;
 
   edm::Service<edm::RandomNumberGenerator> rng_;
   edm::EDPutTokenT<FEDRawDataCollection> fedRawToken_;
   edm::EDPutTokenT<HGCalSlinkEmulatorInfo> fedEmulInfoToken_;
-  hgcal::HGCalFrameGenerator emul_;
+  hgcal::HGCalFrameGenerator frame_gen_;
 };
 
 HGCalSlinkEmulator::HGCalSlinkEmulator(const edm::ParameterSet& iConfig)
     : fed_id_(iConfig.getParameter<unsigned int>("fedId")),
       store_emul_info_(iConfig.getParameter<bool>("storeEmulatorInfo")),
       store_fed_header_trailer_(iConfig.getParameter<bool>("fedHeaderTrailer")),
-      emul_(iConfig) {
-  reader_ = std::make_unique<hgcal::econd::TBTreeReader>(iConfig.getParameter<std::string>("treeName"),
-                                                         iConfig.getParameter<std::vector<std::string>>("inputs"),
-                                                         emul_.econdParams().num_channels);
+      fedRawToken_(produces<FEDRawDataCollection>()),
+      frame_gen_(iConfig) {
+  // figure out which emulator is to be used
+  const auto& emul_type = iConfig.getParameter<std::string>("emulatorType");
+  if (emul_type == "empty")
+    emulator_ = std::make_unique<hgcal::econd::EmptyEmulator>(frame_gen_.econdParams());
+  else if (emul_type == "trivial")
+    emulator_ = std::make_unique<hgcal::econd::TrivialEmulator>(frame_gen_.econdParams());
+  else if (emul_type == "tbTree")
+    emulator_ =
+        std::make_unique<hgcal::econd::TBTreeReader>(frame_gen_.econdParams(),
+                                                     iConfig.getUntrackedParameter<std::string>("treeName"),
+                                                     iConfig.getUntrackedParameter<std::vector<std::string>>("inputs"));
+  else
+    throw cms::Exception("HGCalSlinkEmulator") << "Invalid emulator type chosen: '" << emul_type << "'.";
+
+  // ensure the random number generator service is present in configuration
   if (!rng_.isAvailable())
     throw cms::Exception("HGCalSlinkEmulator") << "The HGCalSlinkEmulator module requires the "
                                                   "RandomNumberGeneratorService,\n"
@@ -56,33 +78,33 @@ HGCalSlinkEmulator::HGCalSlinkEmulator(const edm::ParameterSet& iConfig)
                                                   "configuration\n"
                                                   "or remove the modules that require it.";
 
-  fedRawToken_ = produces<FEDRawDataCollection>();
   if (store_emul_info_)
     fedEmulInfoToken_ = produces<HGCalSlinkEmulatorInfo>();
 }
 
 void HGCalSlinkEmulator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  reader_evt_ = reader_->next();
+  const auto reader_evt = emulator_->next();
+  const auto event_id = std::get<0>(reader_evt.first), bx_id = std::get<1>(reader_evt.first);
 
-  emul_.setRandomEngine(rng_->getEngine(iEvent.streamID()));
-  auto slink_event = emul_.produceSlinkEvent(reader_evt_);
-  size_t event_size = slink_event.size() * sizeof(slink_event.at(0)) * sizeof(unsigned char),
-         total_event_size = event_size;
+  frame_gen_.setRandomEngine(rng_->getEngine(iEvent.streamID()));
+
+  // build the S-link payload
+  auto slink_event = frame_gen_.produceSlinkEvent(fed_id_, reader_evt);
+  const auto slink_event_size = slink_event.size() * sizeof(slink_event.at(0));
+
+  // compute the total S-link payload size
+  size_t total_event_size = slink_event_size;
+  if (store_fed_header_trailer_)
+    total_event_size += FEDHeader::length + FEDTrailer::length;
 
   // fill the output FED raw data collection
   FEDRawDataCollection raw_data;
   auto& fed_data = raw_data.FEDData(fed_id_);
-
-  if (store_fed_header_trailer_)
-    total_event_size += FEDHeader::length + FEDTrailer::length;
-
   fed_data.resize(total_event_size);
   auto* ptr = fed_data.data();
 
-  int trg_type = 0;  //FIXME
-  const auto event_id = std::get<0>(reader_evt_.first), bx_id = std::get<1>(reader_evt_.first);
-
   if (store_fed_header_trailer_) {
+    int trg_type = 0;
     // compose 2*32-bit FED header word
     FEDHeader::set(ptr, trg_type, event_id, bx_id, fed_id_);
     LogDebug("HGCalSlinkEmulator").log([&](auto& log) {
@@ -94,15 +116,18 @@ void HGCalSlinkEmulator::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   }
 
   // insert ECON-D payload
-  LogDebug("HGCalSlinkEmulator") << "Will write " << slink_event.size() << " 64-bit words = " << event_size
+  std::memcpy(ptr, slink_event.data(), slink_event_size);
+  ptr += slink_event_size;
+  LogDebug("HGCalSlinkEmulator") << "Wrote " << slink_event.size() << " 64-bit words = " << slink_event_size
                                  << " 8-bit words.";
-  std::memcpy(ptr, slink_event.data(), event_size);
-  ptr += event_size;
 
   if (store_fed_header_trailer_) {
     // compose 2*32-bit FED trailer word
-    FEDTrailer::set(
-        ptr, slink_event.size() + 2, evf::compute_crc(reinterpret_cast<uint8_t*>(slink_event.data()), event_size), 0, 0);
+    FEDTrailer::set(ptr,
+                    slink_event.size() + 2,
+                    evf::compute_crc(reinterpret_cast<uint8_t*>(slink_event.data()), slink_event_size),
+                    0,
+                    0);
     LogDebug("HGCalSlinkEmulator").log([&](auto& log) {
       const FEDTrailer trl(ptr);
       log << "FED trailer: fragment length: " << trl.fragmentLength() << ", CRC=0x" << std::hex << trl.crc() << std::dec
@@ -114,20 +139,24 @@ void HGCalSlinkEmulator::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   iEvent.emplace(fedRawToken_, std::move(raw_data));
 
   // store the emulation information if requested
-  if (store_emul_info_) {
-    auto emul_info = emul_.lastSlinkEmulatedInfo();
-    iEvent.emplace(fedEmulInfoToken_, std::move(emul_info));
-  }
+  if (store_emul_info_)
+    iEvent.emplace(fedEmulInfoToken_, std::move(frame_gen_.lastSlinkEmulatedInfo()));
 }
 
 void HGCalSlinkEmulator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   auto desc = hgcal::HGCalFrameGenerator::description();
-  desc.add<std::string>("treeName", "unpacker_data/hgcroc");
-  desc.add<std::vector<std::string>>("inputs", {})
-      ->setComment("list of input files containing HGCROC emulated/test beam frames");
+  desc.ifValue(edm::ParameterDescription<std::string>("emulatorType", "empty", true),
+               // empty payload emulator
+               "empty" >> edm::EmptyGroupDescription() or
+                   // trivial emulator
+                   "trivial" >> edm::EmptyGroupDescription() or
+                   // test beam tree content
+                   "tbTree" >> (edm::ParameterDescription<std::string>("treeName", "unpacker_data/hgcroc", false) and
+                                edm::ParameterDescription<std::vector<std::string>>("inputs", {}, false)))
+      ->setComment("emulator mode (empty, trivial, or tbTree)");
   desc.add<unsigned int>("fedId", 0)->setComment("FED number delivering the emulated frames");
-  desc.add<bool>("fedHeaderTrailer", true)->setComment("also add FED header/trailer info");
-  desc.add<bool>("storeEmulatorInfo", true)
+  desc.add<bool>("fedHeaderTrailer", false)->setComment("also add FED header/trailer info");
+  desc.add<bool>("storeEmulatorInfo", false)
       ->setComment("also append a 'truth' auxiliary info to the output event content");
   descriptions.add("hgcalEmulatedSlinkRawData", desc);
 }
