@@ -2,13 +2,8 @@
 #include "TMath.h"
 #include "L1Trigger/L1TMuon/interface/MuonRawDigiTranslator.h"
 
-void l1t::MuonRawDigiTranslator::fillMuon(Muon& mu,
-                                          uint32_t raw_data_spare,
-                                          uint32_t raw_data_00_31,
-                                          uint32_t raw_data_32_63,
-                                          int fed,
-                                          unsigned int fw,
-                                          int muInBx) {
+void l1t::MuonRawDigiTranslator::fillMuon(
+    Muon& mu, uint32_t raw_data_spare, uint32_t raw_data_00_31, uint32_t raw_data_32_63, int fed, int fw, int muInBx) {
   // Need the hw charge to properly compute dPhi
   mu.setHwCharge((raw_data_32_63 >> chargeShift_) & 0x1);
 
@@ -18,11 +13,12 @@ void l1t::MuonRawDigiTranslator::fillMuon(Muon& mu,
   // In Run-3 we have displacement information.
   // To make room for these data the raw eta value was moved to the second "spare" word which we will have to treat separately
   // The uGMT (FED 1402) or uGT (FED 1404) FW versions are used to determine the era.
-  if ((fed == 1402 && fw < 0x4010000) || (fed == 1404 && fw < 0x10A6)) {
+  if ((fed == kUgmtFedId && fw < kUgmtFwVersionUntil2016) || (fed == kUgtFedId && fw < kUgtFwVersionUntil2016)) {
     fillMuonCoordinates2016(mu, raw_data_00_31, raw_data_32_63);
-  } else if ((fed == 1402 && fw < 0x6000000) || (fed == 1404 && fw < 0x1120)) {
+  } else if ((fed == kUgmtFedId && fw < kUgmtFwVersionUntil2017) || (fed == kUgtFedId && fw < kUgtFwVersionUntil2017)) {
     fillMuonCoordinatesFrom2017(mu, raw_data_00_31, raw_data_32_63);
-  } else if ((fed == 1402 && fw == 0x6000001) || (fed == 1404 && fw < 0x1130)) {
+  } else if ((fed == kUgmtFedId && fw == kUgmtFwVersionRun3Start) ||
+             (fed == kUgtFedId && fw < kUgtFwVersionUntilRun3Start)) {
     // We're unpacking data from the November MWGR where the raw eta values were shifted by one bit.
     fillMuonQuantitiesRun3(mu, raw_data_spare, raw_data_00_31, raw_data_32_63, muInBx, true);
   } else {
@@ -36,13 +32,13 @@ void l1t::MuonRawDigiTranslator::fillMuon(Muon& mu,
 void l1t::MuonRawDigiTranslator::fillIntermediateMuon(Muon& mu,
                                                       uint32_t raw_data_00_31,
                                                       uint32_t raw_data_32_63,
-                                                      unsigned int fw) {
+                                                      int fw) {
   // Need the hw charge to properly compute dPhi
   mu.setHwCharge((raw_data_32_63 >> chargeShift_) & 0x1);
 
-  if (fw < 0x4010000) {
+  if (fw < kUgmtFwVersionUntil2016) {
     fillMuonCoordinates2016(mu, raw_data_00_31, raw_data_32_63);
-  } else if (fw < 0x6000000) {
+  } else if (fw < kUgmtFwVersionUntil2017) {
     fillMuonCoordinatesFrom2017(mu, raw_data_00_31, raw_data_32_63);
   } else {
     fillIntermediateMuonQuantitiesRun3(mu, raw_data_00_31, raw_data_32_63);
@@ -81,7 +77,7 @@ void l1t::MuonRawDigiTranslator::fillMuonStableQuantities(Muon& mu, uint32_t raw
 }
 
 void l1t::MuonRawDigiTranslator::fillMuon(
-    Muon& mu, uint32_t raw_data_spare, uint64_t dataword, int fed, unsigned int fw, int muInBx) {
+    Muon& mu, uint32_t raw_data_spare, uint64_t dataword, int fed, int fw, int muInBx) {
   fillMuon(
       mu, raw_data_spare, (uint32_t)(dataword & 0xFFFFFFFF), (uint32_t)((dataword >> 32) & 0xFFFFFFFF), fed, fw, muInBx);
 }
@@ -192,7 +188,8 @@ void l1t::MuonRawDigiTranslator::generatePackedMuonDataWords(const Muon& mu,
   if (abs_eta_at_vtx < 0) {
     abs_eta_at_vtx += (1 << (etaAtVtxSignShift_ - absEtaAtVtxShift_));
   }
-  if ((fedID == 1402 && fwID < 0x4010000) || (fedID == 1404 && fwID < 0x10A6)) {
+  if ((fedID == kUgmtFedId && fwID < kUgmtFwVersionUntil2016) ||
+      (fedID == kUgtFedId && fwID < kUgtFwVersionUntil2016)) {
     // For 2016 the non-extrapolated coordiantes were in the place that are now occupied by the extrapolated quantities.
     raw_data_spare = 0;
     raw_data_00_31 = (mu.hwPt() & ptMask_) << ptShift_ | (mu.hwQual() & qualMask_) << qualShift_ |
@@ -200,7 +197,8 @@ void l1t::MuonRawDigiTranslator::generatePackedMuonDataWords(const Muon& mu,
                      (mu.hwPhi() & phiMask_) << phiAtVtxShift_;
     raw_data_32_63 = mu.hwCharge() << chargeShift_ | mu.hwChargeValid() << chargeValidShift_ |
                      (mu.tfMuonIndex() & tfMuonIndexMask_) << tfMuonIndexShift_ | (mu.hwIso() & isoMask_) << isoShift_;
-  } else if ((fedID == 1402 && fwID < 0x6000000) || (fedID == 1404 && fwID < 0x1120)) {
+  } else if ((fedID == kUgmtFedId && fwID < kUgmtFwVersionUntil2017) ||
+             (fedID == kUgtFedId && fwID < kUgtFwVersionUntil2017)) {
     raw_data_spare = 0;
     raw_data_00_31 = (mu.hwPt() & ptMask_) << ptShift_ | (mu.hwQual() & qualMask_) << qualShift_ |
                      (abs_eta_at_vtx & absEtaMask_) << absEtaAtVtxShift_ | (mu.hwEtaAtVtx() < 0) << etaAtVtxSignShift_ |
@@ -210,8 +208,9 @@ void l1t::MuonRawDigiTranslator::generatePackedMuonDataWords(const Muon& mu,
                      (mu.tfMuonIndex() & tfMuonIndexMask_) << tfMuonIndexShift_ | (mu.hwIso() & isoMask_) << isoShift_ |
                      (abs_eta & absEtaMask_) << absEtaShift_ | (mu.hwEta() < 0) << etaSignShift_ |
                      (mu.hwPhi() & phiMask_) << phiShift_;
-  } else if ((fedID == 1402 && fwID == 0x6000001) ||
-             (fedID == 1404 && fwID < 0x1130)) {  // This allows us to unpack data taken in the November 2020 MWGR.
+  } else if ((fedID == kUgmtFedId && fwID == kUgmtFwVersionRun3Start) ||
+             (fedID == kUgtFedId &&
+              fwID < kUgtFwVersionUntilRun3Start)) {  // This allows us to unpack data taken in the November 2020 MWGR.
     generatePackedMuonDataWordsRun3(
         mu, abs_eta, abs_eta_at_vtx, raw_data_spare, raw_data_00_31, raw_data_32_63, muInBx, true);
   } else {
@@ -263,8 +262,9 @@ void l1t::MuonRawDigiTranslator::generate64bitDataWord(
   dataword = (((uint64_t)msw) << 32) + lsw;
 }
 
-bool l1t::MuonRawDigiTranslator::showerFired(uint32_t shower_word, int fedId, unsigned int fwId) {
-  if ((fedId == 1402 && fwId >= 0x7000000) || (fedId == 1404 && fwId >= 0x113b)) {
+bool l1t::MuonRawDigiTranslator::showerFired(uint32_t shower_word, int fedId, int fwId) {
+  if ((fedId == kUgmtFedId && fwId >= kUgmtFwVersionFirstWithShowers) ||
+      (fedId == kUgtFedId && fwId >= kUgtFwVersionFirstWithShowers)) {
     return ((shower_word >> showerShift_) & 1) == 1;
   }
   return false;
@@ -272,9 +272,10 @@ bool l1t::MuonRawDigiTranslator::showerFired(uint32_t shower_word, int fedId, un
 
 std::array<uint32_t, 4> l1t::MuonRawDigiTranslator::getPackedShowerDataWords(const MuonShower& shower,
                                                                              const int fedId,
-                                                                             const unsigned int fwId) {
+                                                                             const int fwId) {
   std::array<uint32_t, 4> res{};
-  if ((fedId == 1402 && fwId >= 0x7000000) || (fedId == 1404 && fwId >= 0x00010f01)) {
+  if ((fedId == kUgmtFedId && fwId >= kUgmtFwVersionFirstWithShowers) ||
+      (fedId == kUgtFedId && fwId >= kUgtFwVersionFirstWithShowers)) {
     res.at(0) = shower.isOneNominalInTime() ? (1 << showerShift_) : 0;
     res.at(1) = shower.isOneTightInTime() ? (1 << showerShift_) : 0;
   }
