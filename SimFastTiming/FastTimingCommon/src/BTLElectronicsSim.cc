@@ -152,7 +152,9 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
                                                               sigmaRelTOFHIRenergy_[3],
                                                               sigmaRelTOFHIRenergy_[4]);
       float smearing_tofhir = CLHEP::RandGaussQ::shoot(hre, 0., tofhir_ampnoise_relsigma);
-      chargeColl[iside] = Npe * Npe_to_pC_ * (1. + smearing_tofhir);  // the p.e. number is here converted to pC
+      // the amplitude resolution already includes the photostatistics fluctuation, use the original average deposit
+      chargeColl[iside] = (it->second).hit_info[2 * iside][iBX] * Npe_to_pC_ *
+                          (1. + smearing_tofhir);  // the p.e. number is here converted to pC
 
       toa1[iside] = finalToA1;
       toa2[iside] = finalToA2;
