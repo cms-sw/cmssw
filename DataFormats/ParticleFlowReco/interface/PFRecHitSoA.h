@@ -14,7 +14,8 @@ GENERATE_SOA_LAYOUT(PFRecHitSoALayout,
   SOA_COLUMN(float, energy),
   SOA_COLUMN(float, time),
   SOA_COLUMN(int, depth),
-  SOA_EIGEN_COLUMN(Vec8, neighbours)
+  SOA_EIGEN_COLUMN(Vec8, neighbours),
+  SOA_SCALAR(uint32_t, size)
 )
 
 using PFRecHitSoA = PFRecHitSoALayout<>;

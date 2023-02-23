@@ -220,7 +220,7 @@ process.HBHEPFCPUGPUTask = cms.Path(
     +process.hltParticleFlowRecHitHBHE      # Construct PFRecHits on CPU
     #+process.hltParticleFlowRecHitHBHEAlpaka
     +process.hltParticleFlowRecHitToSoA     # Convert legacy CaloRecHits to SoA and copy to device
-    +process.hltParticleFlowPFRecHitAlpaka  # Constrcut PFRecHits on device
+    +process.hltParticleFlowPFRecHitAlpaka  # Construct PFRecHits on device
 )
 process.schedule = cms.Schedule(process.HBHEPFCPUGPUTask)
 process.schedule.extend([process.endjob_step,process.FEVTDEBUGHLToutput_step])

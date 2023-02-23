@@ -7,6 +7,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/ParticleFlowReco/interface/alpaka/PFRecHitDeviceCollection.h"
 #include "DataFormats/ParticleFlowReco/interface/alpaka/CaloRecHitDeviceCollection.h"
+#include "RecoParticleFlow/PFRecHitProducer/interface/alpaka/PFRecHitProducerKernel.h"
 
 #define DEBUG false
 
@@ -18,12 +19,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     void produce(edm::StreamID sid, device::Event& event, device::EventSetup const&) const override {
       const CaloRecHitDeviceCollection& recHits = event.get(recHitsToken);
-      PFRecHitDeviceCollection deviceProduct{42, event.queue()};
+      const int num_recHits = recHits->metadata().size();
+      PFRecHitDeviceCollection pfRecHits{num_recHits, event.queue()};
 
-      // TODO to something with recHits
-      (void)recHits;
+      PFRecHitProducerKernel kernel{};
+      kernel.execute(event.queue(), recHits, pfRecHits);
 
-      event.emplace(pfRecHitsToken, std::move(deviceProduct));
+      event.emplace(pfRecHitsToken, std::move(pfRecHits));
     }
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

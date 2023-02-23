@@ -32,11 +32,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       for(int i = 0; i < num_recHits; i++)
       {
         const HBHERecHit& rh = recHits[i];
-        if (DEBUG && i < 10)
-          printf("recHit %4d %u %f %f\n", i, rh.id().rawId(), rh.energy(), rh.time());
         view[i].detId() = rh.id().rawId();
         view[i].energy() = rh.energy();
         view[i].time() = rh.time();
+
+        if (DEBUG && i < 10)
+          printf("recHit %4d %u %f %f\n", i, rh.id().rawId(), rh.energy(), rh.time());
       }
 
       CaloRecHitDeviceCollection deviceProduct{num_recHits, event.queue()};
