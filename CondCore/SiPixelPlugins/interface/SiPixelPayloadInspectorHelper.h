@@ -741,16 +741,16 @@ namespace SiPixelPI {
     if (m_subdetid == 1) {
       switch (m_layer) {
         case 1:
-          m_isInternal > 0 ? ret = SiPixelPI::BPixL1o : ret = SiPixelPI::BPixL1i;
+          m_isInternal ? ret = SiPixelPI::BPixL1i : ret = SiPixelPI::BPixL1o;
           break;
         case 2:
-          m_isInternal > 0 ? ret = SiPixelPI::BPixL2o : ret = SiPixelPI::BPixL2i;
+          m_isInternal ? ret = SiPixelPI::BPixL2i : ret = SiPixelPI::BPixL2o;
           break;
         case 3:
-          m_isInternal > 0 ? ret = SiPixelPI::BPixL3o : ret = SiPixelPI::BPixL3i;
+          m_isInternal ? ret = SiPixelPI::BPixL3i : ret = SiPixelPI::BPixL3o;
           break;
         case 4:
-          m_isInternal > 0 ? ret = SiPixelPI::BPixL4o : ret = SiPixelPI::BPixL4i;
+          m_isInternal ? ret = SiPixelPI::BPixL4i : ret = SiPixelPI::BPixL4o;
           break;
         default:
           edm::LogWarning("LogicError") << "Unknow BPix layer: " << m_layer;
