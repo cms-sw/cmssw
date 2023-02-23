@@ -46,15 +46,14 @@ process.add_(cms.Service('CUDAService'))
   edm::makeParameterSets(config, params);
   edm::ServiceToken tempToken(edm::ServiceRegistry::createServicesFromConfig(std::move(params)));
   edm::ServiceRegistry::Operate operate2(tempToken);
-
-  auto cs = makeCUDAService(edm::ParameterSet{});
-  std::cout << "CUDA service enabled: " << cs.enabled() << std::endl;
-  std::string exportDir = dataPath_ + "/simplegraph";
+  edm::Service<CUDAInterface> cuda;
+  std::cout << "CUDA service enabled: " << cuda->enabled() << std::endl;
 
   std::cout << "Testing CUDA backend" << std::endl;
   tensorflow::Backend backend = tensorflow::Backend::cuda;
 
   // load the graph
+  std::string exportDir = dataPath_ + "/simplegraph";
   tensorflow::setLogging();
   tensorflow::MetaGraphDef* metaGraphDef = tensorflow::loadMetaGraphDef(exportDir);
   CPPUNIT_ASSERT(metaGraphDef != nullptr);
