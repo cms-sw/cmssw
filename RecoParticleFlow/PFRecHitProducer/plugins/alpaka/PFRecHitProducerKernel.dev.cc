@@ -9,6 +9,7 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 namespace {
   // Get subdetector encoded in detId to narrow the range of reference table values to search
@@ -60,19 +61,43 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
       alpaka::syncBlockThreads(acc);
 
+      // TODO get these from config via ESProducer
+      const float thresholdE_HB[4] = {0.1, 0.2, 0.3, 0.3};
+      const float thresholdE_HE[7] = {0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2};
+
       // make a strided loop over the kernel grid, covering up to "size" elements
       for (int32_t i : elements_with_stride(acc, num_recHits)) {
+        const uint32_t detId = recHits[i].detId();
+        const uint32_t subdet = getSubdet(detId);
+        const uint32_t depth = getDepth(detId);
+        const float energy = recHits[i].energy();
 
-        // TODO real filtering
-        if(i % 2 == 1)
-          continue;
+        float threshold = 9999.;
+        if (subdet == HcalBarrel) {
+          threshold = thresholdE_HB[depth - 1];
+        } else if (subdet == HcalEndcap) {
+          threshold = thresholdE_HE[depth - 1];
+        } else {
+          printf("Rechit with detId %u has invalid subdetector %u!\n", detId, subdet);
+        }
 
-        const int32_t j = alpaka::atomicAdd(acc, &num_pfRecHits, 1, alpaka::hierarchy::Blocks{});
-        pfRecHits[j].detId() = recHits[i].detId();
-        pfRecHits[j].energy() = recHits[i].energy();
-        pfRecHits[j].time() = recHits[i].time();
-        pfRecHits[j].depth() = getDepth(recHits[i].detId());
-        //pfRecHits[i].neighbours() = {0, 0, 0, 0, 0, 0, 0, 0};
+        if (energy >= threshold) {
+          const int32_t j = alpaka::atomicAdd(acc, &num_pfRecHits, 1, alpaka::hierarchy::Blocks{});
+          pfRecHits[j].detId() = detId;
+          pfRecHits[j].energy() = recHits[i].energy();
+          pfRecHits[j].time() = recHits[i].time();
+
+          pfRecHits[j].depth() = depth;
+
+          if (subdet == HcalBarrel)
+            pfRecHits[j].layer() = PFLayer::HCAL_BARREL1;
+          else if (subdet == HcalEndcap)
+            pfRecHits[j].layer() = PFLayer::HCAL_ENDCAP;
+          else
+            pfRecHits[j].layer() = PFLayer::NONE;
+          
+          //pfRecHits[i].neighbours() = {0, 0, 0, 0, 0, 0, 0, 0};
+        }
       }
 
       alpaka::syncBlockThreads(acc);

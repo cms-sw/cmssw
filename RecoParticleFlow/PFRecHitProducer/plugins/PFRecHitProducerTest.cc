@@ -59,13 +59,13 @@ void PFRecHitProducerTest::analyze(edm::Event const& event, edm::EventSetup cons
   // PF Rec Hits
   // paste <(grep "^CPU" validation.log | sort -nk3) <(grep "^GPU" validation.log | sort -nk3) | awk '$3!=$13 || $4!=$14 || $5!=$15 || $6!=$16 || $9!=$19 {print}' | head
   edm::Handle<reco::PFRecHitCollection> pfRecHitsCPU;
-  edm::Handle<PFRecHitHostCollection> pfRecHitsAlpaka;
+  edm::Handle<PFRecHitHostCollection> pfRecHitsAlpakaSoA;
   event.getByToken(pfRecHitsTokenCPU, pfRecHitsCPU);
-  event.getByToken(pfRecHitsTokenAlpaka, pfRecHitsAlpaka);
-  auto& view = pfRecHitsAlpaka->view();
+  event.getByToken(pfRecHitsTokenAlpaka, pfRecHitsAlpakaSoA);
+  auto& pfRecHitsAlpaka = pfRecHitsAlpakaSoA->view();
 
-  fprintf(stdout, "Found %zd/%d pfRecHits with CPU/Alpaka\n", pfRecHitsCPU->size(), view.size());
-  fprintf(stderr, "Found %zd/%d pfRecHits with CPU/Alpaka\n", pfRecHitsCPU->size(), view.size());
+  fprintf(stdout, "Found %zd/%d pfRecHits with CPU/Alpaka\n", pfRecHitsCPU->size(), pfRecHitsAlpaka.size());
+  fprintf(stderr, "Found %zd/%d pfRecHits with CPU/Alpaka\n", pfRecHitsCPU->size(), pfRecHitsAlpaka.size());
   for (size_t i = 0; i < pfRecHitsCPU->size(); i++)
     printf("CPU %4lu %u %d %d %u : %f %f (%f,%f,%f)\n",
            i,
@@ -79,15 +79,15 @@ void PFRecHitProducerTest::analyze(edm::Event const& event, edm::EventSetup cons
            0.,  //pfRecHitsCPU->at(i).position().y(),
            0.   //pfRecHitsCPU->at(i).position().z()
     );
-  for (size_t i = 0; i < view.size(); i++)
+  for (size_t i = 0; i < pfRecHitsAlpaka.size(); i++)
     printf("Alpaka %4lu %u %d %d %u : %f %f (%f,%f,%f)\n",
            i,
-           view[i].detId(),
-           view[i].depth(),
-           0,//view[i].layer(),
-           0,//view[i].neighbours().size(),
-           view[i].time(),
-           view[i].energy(),
+           pfRecHitsAlpaka[i].detId(),
+           pfRecHitsAlpaka[i].depth(),
+           pfRecHitsAlpaka[i].layer(),
+           -1,//pfRecHitsAlpaka[i].neighbours().size(),
+           pfRecHitsAlpaka[i].time(),
+           pfRecHitsAlpaka[i].energy(),
            0.,  //pfRecHitsGPU->at(i).position().x(),
            0.,  //pfRecHitsGPU->at(i).position().y(),
            0.   //pfRecHitsGPU->at(i).position().z()
