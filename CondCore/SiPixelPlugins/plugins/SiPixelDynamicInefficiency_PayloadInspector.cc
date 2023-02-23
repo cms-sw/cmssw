@@ -792,13 +792,14 @@ namespace {
         std::vector<TF1*> parametrizations;
         std::vector<std::string> formulas;
         parametrizations.reserve(depth);
+        formulas.reserve(depth);
+
+        static constexpr double xmin = 0.;   // x10e34 (min inst. lumi)
+        static constexpr double xmax = 25.;  // x10e34 (max inst. lumi)
 
         int index{0};
         for (auto& params : listOfParametrizations) {
-          //for(auto& [detid,params] : theMap) {
           index++;
-          double xmin = 0.;
-          double xmax = 25.;
           int n = params.size();
           int npar = n + 2;
           TF1* f1 = new TF1((fmt::sprintf("region: %i", index)).c_str(), func, xmin, xmax, npar);
@@ -808,15 +809,15 @@ namespace {
           f1->SetParameters(arr);
           parametrizations.push_back(f1);
 
-          // debug
+          // build the formula to be displayed
           std::string formula;
-          std::cout << "index: " << index;
+          edm::LogVerbatim(label_) << "index: " << index;
           for (unsigned int i = 1; i < params.size(); i++) {
-            std::cout << " " << params[i];
+            edm::LogVerbatim(label_) << " " << params[i];
             formula +=
                 fmt::sprintf("%s%fx^{%i}", (i == 1 ? "" : (std::signbit(params[i]) ? "" : "+")), params[i], i - 1);
           }
-          std::cout << std::endl;
+          edm::LogVerbatim(label_) << std::endl;
           formulas.push_back(formula);
         }
 
@@ -838,7 +839,7 @@ namespace {
           ax->SetTitle("Inst. luminosity [10^{33} cm^{-2}s^{-1}]");
 
           TAxis* ay = h->GetYaxis();
-          ay->SetTitle("Double Column efficiency parametrization");
+          ay->SetTitle("Double Column Efficiency parametrization");
 
           // beautify
           SiPixelPI::makeNicePlotStyle(h);
@@ -859,7 +860,7 @@ namespace {
           ltxForm.SetTextAlign(11);
           ltxForm.DrawLatexNDC(gPad->GetLeftMargin() + 0.05, 0.85, formulas[i].c_str());
 
-          std::cout << formulas[i] << std::endl;
+          edm::LogPrint(label_) << formulas[i] << std::endl;
         }
 
         std::string fileName(this->m_imageFileName);
