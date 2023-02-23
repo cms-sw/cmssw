@@ -970,15 +970,16 @@ namespace mkfit {
     const int n_seeds = end_seed - start_seed;
 
     std::vector<std::pair<int, int>> seed_cand_idx;
-    std::vector<UpdateIndices> seed_cand_update_idx;
+    std::vector<UpdateIndices> seed_cand_update_idx, seed_cand_overlap_idx;
     seed_cand_idx.reserve(n_seeds * params.maxCandsPerSeed);
     seed_cand_update_idx.reserve(n_seeds * params.maxCandsPerSeed);
+    seed_cand_overlap_idx.reserve(n_seeds * params.maxCandsPerSeed);
 
     std::vector<std::vector<TrackCand>> extra_cands(n_seeds);
     for (int ii = 0; ii < n_seeds; ++ii)
       extra_cands[ii].reserve(params.maxCandsPerSeed);
 
-    cloner.begin_eta_bin(&eoccs, &seed_cand_update_idx, &extra_cands, start_seed, n_seeds);
+    cloner.begin_eta_bin(&eoccs, &seed_cand_update_idx, &seed_cand_overlap_idx, &extra_cands, start_seed, n_seeds);
 
     // Loop over layers, starting from after the seed.
 
@@ -1101,6 +1102,8 @@ namespace mkfit {
 
       // Update loop of best candidates. CandCloner prepares the list of those
       // that need update (excluding all those with negative last hit index).
+      // This is split into two sections - candidates without overlaps and with overlaps.
+      // On CMS PU-50 the ratio of those is ~ 65 : 35 over all iterations.
 
       const int theEndUpdater = seed_cand_update_idx.size();
 
@@ -1113,6 +1116,55 @@ namespace mkfit {
 
         // copy_out the updated track params, errors only (hit-idcs and chi2 already set)
         mkfndr->copyOutParErr(eoccs.refCandidates_nc(), end - itrack, false);
+      }
+
+      const int theEndOverlapper = seed_cand_overlap_idx.size();
+
+      for (int itrack = 0; itrack < theEndOverlapper; itrack += NN) {
+        const int end = std::min(itrack + NN, theEndOverlapper);
+
+        mkfndr->inputTracksAndHits(eoccs.refCandidates(), layer_of_hits, seed_cand_overlap_idx, itrack, end, true);
+
+        mkfndr->updateWithLoadedHit(end - itrack, fnd_foos);
+
+        mkfndr->copyOutParErr(eoccs.refCandidates_nc(), end - itrack, false);
+
+        mkfndr->inputOverlapHits(layer_of_hits, seed_cand_overlap_idx, itrack, end);
+
+        // XXXX Could also be calcChi2AndUpdate(), then copy-out would have to be done
+        // below, choosing appropriate slot (with or without the overlap hit).
+        // Probably in a dedicated MkFinder copyOutXyzz function.
+        mkfndr->chi2OfLoadedHit(end - itrack, fnd_foos);
+
+        for (int ii = itrack; ii < end; ++ii) {
+          const int fi = ii - itrack;
+          TrackCand &tc = eoccs[seed_cand_overlap_idx[ii].seed_idx][seed_cand_overlap_idx[ii].cand_idx];
+
+          // XXXX For now we DO NOT use chi2 as this was how things were done before the post-update
+          // chi2 check. To use it we should retune scoring function (might be even simpler).
+          if (mkfndr->m_FailFlag[fi] == 0 && mkfndr->m_Chi2[fi] >= 0.0f && mkfndr->m_Chi2[fi] <= 60.0f) {
+            tc.addHitIdx(seed_cand_overlap_idx[ii].ovlp_idx, curr_layer, 0.0f);
+            tc.incOverlapCount();
+          }
+        }
+
+        /*
+          perl -ne 'if (/^RT_OVLP/) { s/^RT_OVLP //og; print; }' | grep -v nan > ovlp.rtt
+          TTree t;
+          t.ReadFile("ovlp.rtt", "algo/I:region:layer:fail:chi2_est/F:chi2_real:pt:theta:phi:phi_pos");
+          // momEta() sometimes makes nans ... hmmh.
+        */
+        /*
+        for (int ii = itrack; ii < end; ++ii) {
+          const int fi = ii - itrack;
+          const TrackCand &trk = eoccs[seed_cand_overlap_idx[ii].seed_idx][seed_cand_overlap_idx[ii].cand_idx];
+          printf("RT_OVLP %d %d %d %d %f %f %f %f %f %f\n",
+                 m_job->m_iter_config.m_track_algorithm, region, curr_layer,
+                 mkfndr->m_FailFlag[fi],
+                 seed_cand_overlap_idx[ii].chi2_overlap, mkfndr->m_Chi2[fi], trk.pT(), trk.theta(), trk.momPhi(),
+                 trk.posPhi());
+        }
+        */
       }
 
       // Check if cands are sorted, as expected.

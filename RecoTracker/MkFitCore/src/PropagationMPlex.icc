@@ -240,7 +240,7 @@ static inline void helixAtRFromIterativeCCS_impl(const Tf& __restrict__ inPar,
                     << "   r=" << std::setprecision(9) << r[n - nmin] << " r0=" << std::setprecision(9) << r0[n - nmin]
                     << " id=" << std::setprecision(9) << id[n - nmin] << " dr=" << std::setprecision(9)
                     << r[n - nmin] - r0[n - nmin] << " cosa=" << cosa[n - nmin] << " sina=" << sina[n - nmin]
-                    << " dir_cos(rad,pT)=" << 1.0f / oodotp[n]);
+                    << " 1/dir_cos(rad,pT)=" << oodotp[n - nmin]);
     }
 
     //update derivatives on total distance

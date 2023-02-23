@@ -25,6 +25,7 @@ namespace mkfit {
 
     void begin_eta_bin(EventOfCombCandidates *e_o_ccs,
                        std::vector<UpdateIndices> *update_list,
+                       std::vector<UpdateIndices> *overlap_list,
                        std::vector<std::vector<TrackCand>> *extra_cands,
                        int start_seed,
                        int n_seeds);
@@ -56,7 +57,7 @@ namespace mkfit {
 
     const IterationParams *mp_iteration_params = nullptr;
     EventOfCombCandidates *mp_event_of_comb_candidates;
-    std::vector<UpdateIndices> *mp_kalman_update_list;
+    std::vector<UpdateIndices> *mp_kalman_update_list, *mp_kalman_overlap_list;
     std::vector<std::vector<TrackCand>> *mp_extra_cands;
 
 #if defined(CC_TIME_ETA) or defined(CC_TIME_LAYER)
