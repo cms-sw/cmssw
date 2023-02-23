@@ -155,7 +155,7 @@ process.load('L1Trigger.L1TGlobal.simGtStage2Digis_cfi')
 process.simGtStage2Digis.PrescaleSet = cms.uint32(1)
 process.simGtStage2Digis.ExtInputTag = cms.InputTag("simGtExtFakeProd")
 process.simGtStage2Digis.MuonInputTag = cms.InputTag("gtStage2Digis", "Muon")
-process.simGtStage2Digis.MuonShowerInputTag = cms.InputTag("gmtStage2Digis", "MuonShower")
+process.simGtStage2Digis.MuonShowerInputTag = cms.InputTag("gtStage2Digis", "MuonShower")
 process.simGtStage2Digis.EGammaInputTag = cms.InputTag("gtStage2Digis", "EGamma")
 process.simGtStage2Digis.TauInputTag = cms.InputTag("gtStage2Digis", "Tau")
 process.simGtStage2Digis.JetInputTag = cms.InputTag("gtStage2Digis", "Jet")
@@ -192,8 +192,7 @@ process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
 
 process.load("L1Trigger.GlobalTriggerAnalyzer.l1GtTrigReport_cfi")
 process.l1GtTrigReport.L1GtRecordInputTag = "simGtStage2Digis"
-process.l1GtTrigReport.PrintVerbosity = 0 #EF DEBUG
-#process.l1GtTrigReport.PrintVerbosity = 2 #EF DEBUG
+process.l1GtTrigReport.PrintVerbosity = 0 
 process.report = cms.Path(process.l1GtTrigReport)
 
 process.MessageLogger.categories.append("MuConditon")
@@ -260,7 +259,7 @@ process.l1tGlobalAnalyzer = cms.EDAnalyzer('L1TGlobalAnalyzer',
                                            dmxJetToken = cms.InputTag("None"),
                                            dmxEtSumToken = cms.InputTag("None"),
                                            muToken = cms.InputTag("gtStage2Digis", "Muon"),
-                                           muShowerToken = cms.InputTag("gmtStage2Digis", "MuonShower"),
+                                           muShowerToken = cms.InputTag("gtStage2Digis", "MuonShower"),
                                            egToken = cms.InputTag("gtStage2Digis", "EGamma"),
                                            tauToken = cms.InputTag("gtStage2Digis", "Tau"),
                                            jetToken = cms.InputTag("gtStage2Digis", "Jet"),
