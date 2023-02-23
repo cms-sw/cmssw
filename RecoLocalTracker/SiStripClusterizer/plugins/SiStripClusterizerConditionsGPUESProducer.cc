@@ -31,17 +31,17 @@ public:
   ReturnType produce(const SiStripClusterizerConditionsRcd&);
 
 private:
-  edm::ESGetToken<SiStripGain, SiStripGainRcd> m_gainToken;
-  edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> m_noisesToken;
-  edm::ESGetToken<SiStripQuality, SiStripQualityRcd> m_qualityToken;
+  edm::ESGetToken<SiStripGain, SiStripGainRcd> gainToken_;
+  edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> noisesToken_;
+  edm::ESGetToken<SiStripQuality, SiStripQualityRcd> qualityToken_;
 };
 
 SiStripClusterizerConditionsGPUESProducer::SiStripClusterizerConditionsGPUESProducer(const edm::ParameterSet& iConfig) {
   auto cc = setWhatProduced(this, iConfig.getParameter<std::string>("Label"));
 
-  m_gainToken = cc.consumesFrom<SiStripGain, SiStripGainRcd>();
-  m_noisesToken = cc.consumesFrom<SiStripNoises, SiStripNoisesRcd>();
-  m_qualityToken = cc.consumesFrom<SiStripQuality, SiStripQualityRcd>(
+  gainToken_ = cc.consumesFrom<SiStripGain, SiStripGainRcd>();
+  noisesToken_ = cc.consumesFrom<SiStripNoises, SiStripNoisesRcd>();
+  qualityToken_ = cc.consumesFrom<SiStripQuality, SiStripQualityRcd>(
       edm::ESInputTag{"", iConfig.getParameter<std::string>("QualityLabel")});
 }
 
@@ -54,9 +54,9 @@ void SiStripClusterizerConditionsGPUESProducer::fillDescriptions(edm::Configurat
 
 SiStripClusterizerConditionsGPUESProducer::ReturnType SiStripClusterizerConditionsGPUESProducer::produce(
     const SiStripClusterizerConditionsRcd& iRecord) {
-  auto gainsH = iRecord.getTransientHandle(m_gainToken);
-  const auto& noises = iRecord.get(m_noisesToken);
-  const auto& quality = iRecord.get(m_qualityToken);
+  auto gainsH = iRecord.getTransientHandle(gainToken_);
+  const auto& noises = iRecord.get(noisesToken_);
+  const auto& quality = iRecord.get(qualityToken_);
 
   return std::make_unique<SiStripClusterizerConditionsGPU>(quality, gainsH.product(), noises);
 }

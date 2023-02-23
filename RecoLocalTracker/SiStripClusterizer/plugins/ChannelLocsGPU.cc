@@ -18,7 +18,7 @@ ChannelLocs::ChannelLocs(size_t size, cudaStream_t stream) : ChannelLocsBase(siz
   }
 }
 
-void ChannelLocsView::Fill(const ChannelLocsGPU& c) {
+void ChannelLocsView::fill(const ChannelLocsGPU& c) {
   input_ = c.input();
   inoff_ = c.inoff();
   offset_ = c.offset();
@@ -39,17 +39,18 @@ ChannelLocsGPU::ChannelLocsGPU(size_t size, cudaStream_t stream) : ChannelLocsBa
     fedCh_ = cms::cuda::make_device_unique<stripgpu::fedCh_t[]>(size, stream);
     detID_ = cms::cuda::make_device_unique<stripgpu::detId_t[]>(size, stream);
 
-    ChannelLocsView channelLocsView;
-    channelLocsView.Fill(*this);
-    channelLocsView_ = cms::cuda::make_device_unique<ChannelLocsView>(stream);
-    cudaCheck(
-        cudaMemcpyAsync(channelLocsView_.get(), &channelLocsView, sizeof(ChannelLocsView), cudaMemcpyDefault, stream));
+    auto channelLocsView = cms::cuda::make_host_unique<ChannelLocsView>(stream);
+    channelLocsView->fill(*this);
+    channelLocsViewGPU_ = cms::cuda::make_device_unique<ChannelLocsView>(stream);
+    cms::cuda::copyAsync(channelLocsViewGPU_, channelLocsView, stream);
   }
 }
 
-void ChannelLocsGPU::setVals(const ChannelLocs* c, const std::vector<uint8_t*>& inputGPU, cudaStream_t stream) {
+void ChannelLocsGPU::setVals(const ChannelLocs* c,
+                             cms::cuda::host::unique_ptr<const uint8_t*[]> inputGPU,
+                             cudaStream_t stream) {
   assert(c->size() == size_);
-  cudaCheck(cudaMemcpyAsync(input_.get(), inputGPU.data(), sizeof(uint8_t*) * size_, cudaMemcpyDefault, stream));
+  cms::cuda::copyAsync(input_, inputGPU, size_, stream);
   cms::cuda::copyAsync(inoff_, c->inoff_, size_, stream);
   cms::cuda::copyAsync(offset_, c->offset_, size_, stream);
   cms::cuda::copyAsync(length_, c->length_, size_, stream);

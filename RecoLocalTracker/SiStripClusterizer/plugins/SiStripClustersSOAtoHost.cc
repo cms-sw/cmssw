@@ -33,11 +33,10 @@ private:
 
 class SiStripClustersSOAtoHost final : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
-  explicit SiStripClustersSOAtoHost(const edm::ParameterSet& conf) {
-    inputToken_ =
-        consumes<cms::cuda::Product<SiStripClustersCUDADevice>>(conf.getParameter<edm::InputTag>("ProductLabel"));
-    outputToken_ = produces<SiStripClustersCUDAHost>();
-  }
+  explicit SiStripClustersSOAtoHost(const edm::ParameterSet& conf)
+      : inputToken_(
+            consumes<cms::cuda::Product<SiStripClustersCUDADevice>>(conf.getParameter<edm::InputTag>("ProductLabel"))),
+        outputToken_(produces<SiStripClustersCUDAHost>()) {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;

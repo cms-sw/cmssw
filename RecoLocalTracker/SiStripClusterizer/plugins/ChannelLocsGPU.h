@@ -55,7 +55,7 @@ public:
   stripgpu::fedCh_t fedCh(uint32_t index) const { return fedCh_[index]; }
   stripgpu::detId_t detID(uint32_t index) const { return detID_[index]; }
 
-  const uint8_t** input() const { return input_.get(); }
+  const uint8_t* const* input() const { return input_.get(); }
   size_t* inoff() const { return inoff_.get(); }
   size_t* offset() const { return offset_.get(); }
   uint16_t* length() const { return length_.get(); }
@@ -89,8 +89,9 @@ public:
   ~ChannelLocs() override = default;
 };
 
-struct ChannelLocsView {
-  void Fill(const ChannelLocsGPU& c);
+class ChannelLocsView {
+public:
+  void fill(const ChannelLocsGPU& c);
 
   __device__ size_t size() const { return size_; }
 
@@ -102,10 +103,11 @@ struct ChannelLocsView {
   __device__ stripgpu::fedCh_t fedCh(uint32_t index) const { return fedCh_[index]; }
   __device__ stripgpu::detId_t detID(uint32_t index) const { return detID_[index]; }
 
-  const uint8_t** input_;  // input raw data for channel
-  size_t* inoff_;          // offset in input raw data
-  size_t* offset_;         // global offset in alldata
-  uint16_t* length_;       // length of channel data
+private:
+  const uint8_t* const* input_;  // input raw data for channel
+  size_t* inoff_;                // offset in input raw data
+  size_t* offset_;               // global offset in alldata
+  uint16_t* length_;             // length of channel data
   stripgpu::fedId_t* fedID_;
   stripgpu::fedCh_t* fedCh_;
   stripgpu::detId_t* detID_;
@@ -117,7 +119,7 @@ public:
   //using Base = ChannelLocsBase<cms::cuda::device::unique_ptr>;
   ChannelLocsGPU(size_t size, cudaStream_t stream);
   ChannelLocsGPU(ChannelLocsGPU&& arg)
-      : ChannelLocsBase(std::move(arg)), channelLocsView_(std::move(arg.channelLocsView_)) {}
+      : ChannelLocsBase(std::move(arg)), channelLocsViewGPU_(std::move(arg.channelLocsViewGPU_)) {}
 
   ChannelLocsGPU(ChannelLocsGPU&) = delete;
   ChannelLocsGPU(const ChannelLocsGPU&) = delete;
@@ -126,11 +128,11 @@ public:
 
   ~ChannelLocsGPU() override = default;
 
-  void setVals(const ChannelLocs* c, const std::vector<uint8_t*>& inputGPU, cudaStream_t stream);
-  const ChannelLocsView* channelLocsView() const { return channelLocsView_.get(); }
+  void setVals(const ChannelLocs* c, cms::cuda::host::unique_ptr<const uint8_t*[]> inputGPU, cudaStream_t stream);
+  const ChannelLocsView* channelLocsView() const { return channelLocsViewGPU_.get(); }
 
 private:
-  cms::cuda::device::unique_ptr<ChannelLocsView> channelLocsView_;
+  cms::cuda::device::unique_ptr<ChannelLocsView> channelLocsViewGPU_;
 };
 
 #endif

@@ -2,19 +2,20 @@
 #define RecoLocalTracker_SiStripClusterizer_plugins_StripDataView_h
 
 #include "CUDADataFormats/SiStripCluster/interface/SiStripClustersCUDA.h"
+#include "FWCore/Utilities/interface/HostDeviceConstant.h"
 
 #include <cstdint>
 
 struct ChannelLocsView;
 
 namespace stripgpu {
-  static constexpr auto kMaxSeedStrips = 200000;
+  HOST_DEVICE_CONSTANT auto kMaxSeedStrips = 200000;
 
   struct StripDataView {
     const ChannelLocsView *chanlocs;
     uint8_t *adc;
     uint16_t *channel;
-    stripgpu::stripId_t *stripId;
+    stripId_t *stripId;
     int *seedStripsNCIndex, *seedStripsMask, *seedStripsNCMask, *prefixSeedStripsNCMask;
     int nSeedStripsNC;
     int nStrips;

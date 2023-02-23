@@ -4,7 +4,7 @@
 SiStripClustersCUDADevice::SiStripClustersCUDADevice(uint32_t maxClusters,
                                                      uint32_t maxStripsPerCluster,
                                                      cudaStream_t stream) {
-  maxClusterSizeHost_ = maxStripsPerCluster;
+  maxClusterSize_ = maxStripsPerCluster;
 
   clusterIndex_ = cms::cuda::make_device_unique<uint32_t[]>(maxClusters, stream);
   clusterSize_ = cms::cuda::make_device_unique<uint32_t[]>(maxClusters, stream);
@@ -28,11 +28,14 @@ SiStripClustersCUDADevice::SiStripClustersCUDADevice(uint32_t maxClusters,
 
   view_d = cms::cuda::make_device_unique<DeviceView>(stream);
   cms::cuda::copyAsync(view_d, view, stream);
+#ifdef GPU_CHECK
+  cudaCheck(cudaStreamSynchronize(stream));
+#endif
 }
 
 SiStripClustersCUDAHost::SiStripClustersCUDAHost(const SiStripClustersCUDADevice& clusters_d, cudaStream_t stream) {
-  nClusters_ = clusters_d.nClustersHost();
-  maxClusterSize_ = clusters_d.maxClusterSizeHost();
+  nClusters_ = clusters_d.nClusters();
+  maxClusterSize_ = clusters_d.maxClusterSize();
   clusterIndex_ = cms::cuda::make_host_unique<uint32_t[]>(nClusters_, stream);
   clusterSize_ = cms::cuda::make_host_unique<uint32_t[]>(nClusters_, stream);
   clusterADCs_ = cms::cuda::make_host_unique<uint8_t[]>(nClusters_ * maxClusterSize_, stream);
@@ -50,4 +53,7 @@ SiStripClustersCUDAHost::SiStripClustersCUDAHost(const SiStripClustersCUDADevice
   cms::cuda::copyAsync(trueCluster_, clusters_d.trueCluster(), nClusters_, stream);
   cms::cuda::copyAsync(barycenter_, clusters_d.barycenter(), nClusters_, stream);
   cms::cuda::copyAsync(charge_, clusters_d.charge(), nClusters_, stream);
+#ifdef GPU_CHECK
+  cudaCheck(cudaStreamSynchronize(stream));
+#endif
 }

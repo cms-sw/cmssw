@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+# replace the standard SiStripClusterizer with the switch producer
+# meant primarily for testing
 def customizeStripClustersFromRaw(process):
     if hasattr(process, 'striptrackerlocalrecoTask'):
         process.striptrackerlocalrecoTask.remove(process.siStripClusters)

@@ -19,10 +19,9 @@
 
 class SiStripClustersFromSOA final : public edm::stream::EDProducer<> {
 public:
-  explicit SiStripClustersFromSOA(const edm::ParameterSet& conf) {
-    inputToken_ = consumes<SiStripClustersCUDAHost>(conf.getParameter<edm::InputTag>("ProductLabel"));
-    outputToken_ = produces<edmNew::DetSetVector<SiStripCluster>>();
-  }
+  explicit SiStripClustersFromSOA(const edm::ParameterSet& conf)
+      : inputToken_(consumes<SiStripClustersCUDAHost>(conf.getParameter<edm::InputTag>("ProductLabel"))),
+        outputToken_(produces<edmNew::DetSetVector<SiStripCluster>>()) {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -33,19 +32,19 @@ public:
 
 private:
   void produce(edm::Event& ev, const edm::EventSetup& es) override {
-    using out_t = edmNew::DetSetVector<SiStripCluster>;
-    std::unique_ptr<out_t> output(new edmNew::DetSetVector<SiStripCluster>());
-
     const auto& clust_data = ev.get(inputToken_);
 
     const int nSeedStripsNC = clust_data.nClusters();
     const auto clusterSize = clust_data.clusterSize().get();
-    const auto ADCs = clust_data.clusterADCs().get();
+    const auto clusterADCs = clust_data.clusterADCs().get();
     const auto detIDs = clust_data.clusterDetId().get();
     const auto stripIDs = clust_data.firstStrip().get();
     const auto trueCluster = clust_data.trueCluster().get();
 
     const unsigned int initSeedStripsSize = 15000;
+
+    using out_t = edmNew::DetSetVector<SiStripCluster>;
+    auto output{std::make_unique<out_t>(edmNew::DetSetVector<SiStripCluster>())};
     output->reserve(initSeedStripsSize, nSeedStripsNC);
 
     std::vector<uint8_t> adcs;
@@ -63,7 +62,7 @@ private:
           adcs.reserve(size);
 
           for (uint32_t j = 0; j < size; ++j) {
-            adcs.push_back(ADCs[i + j * nSeedStripsNC]);
+            adcs.push_back(clusterADCs[i + j * nSeedStripsNC]);
           }
           record.push_back(SiStripCluster(firstStrip, std::move(adcs)));
         }

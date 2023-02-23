@@ -61,10 +61,7 @@ namespace stripgpu {
     std::vector<stripgpu::fedId_t> fedIndex_;
     std::vector<size_t> fedRawDataOffsets_;
 
-    cms::cuda::host::unique_ptr<uint8_t[]> fedRawDataHost_;
     std::unique_ptr<StripDataGPU> stripdata_;
-
-    std::unique_ptr<ChannelLocs> chanlocs_;
     std::unique_ptr<ChannelLocsGPU> chanlocsGPU_;
 
     cms::cuda::host::unique_ptr<StripDataView> sst_data_d_;

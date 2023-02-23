@@ -19,8 +19,6 @@ namespace stripgpu {
         detID_(sistrip::NUMBER_OF_FEDS * sistrip::FEDCH_PER_FED),
         iPair_(sistrip::NUMBER_OF_FEDS * sistrip::FEDCH_PER_FED),
         gain_(sistrip::NUMBER_OF_FEDS * sistrip::APVS_PER_FEDCH * sistrip::FEDCH_PER_FED) {
-    detToFeds_.clear();
-
     // connected: map<DetID, std::vector<int>>
     // map of KEY=detid DATA=vector of apvs, maximum 6 APVs per detector module :
     const auto& connected = quality.cabling()->connected();
@@ -77,7 +75,7 @@ namespace stripgpu {
       data.noise_ = cms::cuda::make_device_unique<std::uint16_t[]>(noise_.size(), stream);
       data.invthick_ = cms::cuda::make_device_unique<float[]>(invthick_.size(), stream);
       data.detID_ = cms::cuda::make_device_unique<detId_t[]>(detID_.size(), stream);
-      data.iPair_ = cms::cuda::make_device_unique<APVPair_t[]>(iPair_.size(), stream);
+      data.iPair_ = cms::cuda::make_device_unique<apvPair_t[]>(iPair_.size(), stream);
       data.gain_ = cms::cuda::make_device_unique<float[]>(gain_.size(), stream);
 
       cms::cuda::copyAsync(data.noise_, noise_, stream);

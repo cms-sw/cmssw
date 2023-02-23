@@ -6,11 +6,6 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h"
 
-namespace cms {
-  template <typename T>
-  using observer_ptr = T *;
-}
-
 #include <cuda_runtime.h>
 
 class SiStripClustersCUDADevice : public SiStripClustersSOABase<cms::cuda::device::unique_ptr> {
@@ -38,15 +33,15 @@ public:
   };
 
   DeviceView *view() const { return view_d.get(); }
-  uint32_t nClustersHost() const { return nClustersHost_; }
-  uint32_t *nClustersHostPtr() { return &nClustersHost_; }
-  uint32_t maxClusterSizeHost() const { return maxClusterSizeHost_; }
-  uint32_t *maxClusterSizeHostPtr() { return &maxClusterSizeHost_; }
+  uint32_t nClusters() const { return nClusters_; }
+  uint32_t *nClustersPtr() { return &nClusters_; }
+  uint32_t maxClusterSize() const { return maxClusterSize_; }
+  uint32_t *maxClusterSizePtr() { return &maxClusterSize_; }
 
 private:
   cms::cuda::device::unique_ptr<DeviceView> view_d;  // "me" pointer
-  uint32_t nClustersHost_;
-  uint32_t maxClusterSizeHost_;
+  uint32_t nClusters_;
+  uint32_t maxClusterSize_;
 };
 
 class SiStripClustersCUDAHost : public SiStripClustersSOABase<cms::cuda::host::unique_ptr> {

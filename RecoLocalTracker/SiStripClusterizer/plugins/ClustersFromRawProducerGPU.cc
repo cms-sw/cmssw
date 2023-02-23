@@ -65,8 +65,8 @@ namespace {
 class SiStripClusterizerFromRawGPU final : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
   explicit SiStripClusterizerFromRawGPU(const edm::ParameterSet& conf)
-      : buffers(1024),
-        raw(1024),
+      : buffers_(sistrip::FED_ID_MAX),
+        raw_(sistrip::FED_ID_MAX),
         gpuAlgo_(conf.getParameter<edm::ParameterSet>("Clusterizer")),
         inputToken_(consumes(conf.getParameter<edm::InputTag>("ProductLabel"))),
         outputToken_(produces<cms::cuda::Product<SiStripClustersCUDADevice>>()),
@@ -91,7 +91,7 @@ private:
 
     // Queues asynchronous data transfers and kernels to the CUDA stream
     // returned by cms::cuda::ScopedContextAcquire::stream()
-    gpuAlgo_.makeAsync(raw, buffers, conditions, ctx.stream());
+    gpuAlgo_.makeAsync(raw_, buffers_, conditions, ctx.stream());
 
     // Destructor of ctx queues a callback to the CUDA stream notifying
     // waitingTaskHolder when the queued asynchronous work has finished
@@ -107,7 +107,7 @@ private:
     // in the consumer side.
     ctx.emplace(ev, outputToken_, gpuAlgo_.getResults(ctx.stream()));
 
-    for (auto& buf : buffers)
+    for (auto& buf : buffers_)
       buf.reset(nullptr);
   }
 
@@ -116,8 +116,8 @@ private:
   void fill(uint32_t idet, const FEDRawDataCollection& rawColl, const SiStripClusterizerConditions& conditions);
 
 private:
-  std::vector<std::unique_ptr<sistrip::FEDBuffer>> buffers;
-  std::vector<const FEDRawData*> raw;
+  std::vector<std::unique_ptr<sistrip::FEDBuffer>> buffers_;
+  std::vector<const FEDRawData*> raw_;
   cms::cuda::ContextState ctxState_;
 
   stripgpu::SiStripRawToClusterGPUKernel gpuAlgo_;
@@ -169,17 +169,12 @@ void SiStripClusterizerFromRawGPU::fill(uint32_t idet,
     }
 
     // If Fed hasnt already been initialised, extract data and initialise
-    sistrip::FEDBuffer* buffer = buffers[fedId].get();
+    sistrip::FEDBuffer* buffer = buffers_[fedId].get();
     if (!buffer) {
       const FEDRawData& rawData = rawColl.FEDData(fedId);
-      raw[fedId] = &rawData;
-      buffer = fillBuffer(fedId, rawData).release();
-      if (!buffer) {
-        continue;
-      }
-      buffers[fedId].reset(buffer);
+      raw_[fedId] = &rawData;
+      buffers_[fedId] = fillBuffer(fedId, rawData);
     }
-    assert(buffer);
   }  // end loop over conn
 }
 

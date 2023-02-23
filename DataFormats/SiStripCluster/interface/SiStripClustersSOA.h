@@ -6,11 +6,13 @@
 #include <memory>
 
 namespace detail {
-  template <typename T>
-  using unique_ptr = typename std::unique_ptr<T>;
-}
+  namespace impl {
+    template <typename T>
+    using unique_ptr_default_deleter = typename std::unique_ptr<T>;
+  }
+}  // namespace detail
 
-class SiStripClustersSOA : public SiStripClustersSOABase<detail::unique_ptr> {
+class SiStripClustersSOA : public SiStripClustersSOABase<detail::impl::unique_ptr_default_deleter> {
 public:
   SiStripClustersSOA() = default;
   explicit SiStripClustersSOA(uint32_t maxClusters, uint32_t maxStripsPerCluster);

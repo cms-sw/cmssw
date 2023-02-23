@@ -8,7 +8,7 @@ namespace stripgpu {
   using detId_t = std::uint32_t;
   using fedId_t = std::uint16_t;
   using fedCh_t = std::uint8_t;
-  using APVPair_t = std::uint16_t;
+  using apvPair_t = std::uint16_t;
   using stripId_t = std::uint16_t;
 
   static constexpr detId_t invalidDet = std::numeric_limits<detId_t>::max();

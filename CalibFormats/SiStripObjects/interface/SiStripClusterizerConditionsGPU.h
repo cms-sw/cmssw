@@ -32,16 +32,16 @@ namespace stripgpu {
   public:
     class DetToFed {
     public:
-      DetToFed(detId_t detid, APVPair_t ipair, fedId_t fedid, fedCh_t fedch)
+      DetToFed(detId_t detid, apvPair_t ipair, fedId_t fedid, fedCh_t fedch)
           : detid_(detid), ipair_(ipair), fedid_(fedid), fedch_(fedch) {}
       detId_t detID() const { return detid_; }
-      APVPair_t pair() const { return ipair_; }
+      apvPair_t pair() const { return ipair_; }
       fedId_t fedID() const { return fedid_; }
       fedCh_t fedCh() const { return fedch_; }
 
     private:
       detId_t detid_;
-      APVPair_t ipair_;
+      apvPair_t ipair_;
       fedId_t fedid_;
       fedCh_t fedch_;
     };
@@ -56,7 +56,7 @@ namespace stripgpu {
           return detID_[channelIndex(fed, channel)];
         }
 
-        __device__ inline APVPair_t iPair(fedId_t fed, fedCh_t channel) const {
+        __device__ inline apvPair_t iPair(fedId_t fed, fedCh_t channel) const {
           return iPair_[channelIndex(fed, channel)];
         }
 
@@ -65,6 +65,7 @@ namespace stripgpu {
         }
 
         __device__ inline float noise(fedId_t fed, fedCh_t channel, stripId_t strip) const {
+          // noise is stored as 9 bits with a fixed point scale factor of 0.1
           return 0.1f * (noise_[stripIndex(fed, channel, strip)] & ~badBit);
         }
 
@@ -78,7 +79,7 @@ namespace stripgpu {
         const std::uint16_t* noise_;  //[sistrip::NUMBER_OF_FEDS*sistrip::FEDCH_PER_FED * sistrip::STRIPS_PER_FEDCH];
         const float* invthick_;       //[sistrip::NUMBER_OF_FEDS*sistrip::FEDCH_PER_FED];
         const detId_t* detID_;        //[sistrip::NUMBER_OF_FEDS*sistrip::FEDCH_PER_FED];
-        const APVPair_t* iPair_;      //[sistrip::NUMBER_OF_FEDS*sistrip::FEDCH_PER_FED];
+        const apvPair_t* iPair_;      //[sistrip::NUMBER_OF_FEDS*sistrip::FEDCH_PER_FED];
         const float* gain_;           //[sistrip::NUMBER_OF_FEDS*sistrip::APVS_PER_FEDCH * sistrip::FEDCH_PER_FED];
       };
 
@@ -91,7 +92,7 @@ namespace stripgpu {
           noise_;  //[sistrip::NUMBER_OF_FEDS*sistrip::FEDCH_PER_FED * sistrip::STRIPS_PER_FEDCH];
       cms::cuda::device::unique_ptr<float[]> invthick_;   //[sistrip::NUMBER_OF_FEDS*sistrip::FEDCH_PER_FED];
       cms::cuda::device::unique_ptr<detId_t[]> detID_;    //[sistrip::NUMBER_OF_FEDS*sistrip::FEDCH_PER_FED];
-      cms::cuda::device::unique_ptr<APVPair_t[]> iPair_;  //[sistrip::NUMBER_OF_FEDS*sistrip::FEDCH_PER_FED];
+      cms::cuda::device::unique_ptr<apvPair_t[]> iPair_;  //[sistrip::NUMBER_OF_FEDS*sistrip::FEDCH_PER_FED];
       cms::cuda::device::unique_ptr<float[]>
           gain_;  //[sistrip::NUMBER_OF_FEDS*sistrip::APVS_PER_FEDCH * sistrip::FEDCH_PER_FED];
     };
@@ -123,7 +124,7 @@ namespace stripgpu {
     std::vector<std::uint16_t, cms::cuda::HostAllocator<std::uint16_t>> noise_;
     std::vector<float, cms::cuda::HostAllocator<float>> invthick_;
     std::vector<detId_t, cms::cuda::HostAllocator<detId_t>> detID_;
-    std::vector<APVPair_t, cms::cuda::HostAllocator<APVPair_t>> iPair_;
+    std::vector<apvPair_t, cms::cuda::HostAllocator<apvPair_t>> iPair_;
     std::vector<float, cms::cuda::HostAllocator<float>> gain_;
 
     // Helper that takes care of complexity of transferring the data to
