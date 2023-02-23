@@ -14,7 +14,7 @@
  *  
  * \author: S. Dildick (2021) - Rice University                                                    
  *         
- * \fixes by: E. Fontanesi, E. Yigitbasi (2023)                                                                                                
+ * \fixes by: E. Fontanesi, E. Yigitbasi, A. Loeliger (2023)                                                                                                
  *         
  */
 
@@ -97,7 +97,7 @@ const bool l1t::MuonShowerCondition::evaluateCondition(const int bxEval) const {
   */
   int nObjInCond = m_gtMuonShowerTemplate->nrObjects();
 
-  const BXVector<const l1t::MuonShower*>* candVec = m_gtGTL->getCandL1MuShower();
+  const BXVector<std::shared_ptr<l1t::MuonShower>>* candVec = m_gtGTL->getCandL1MuShower();
 
   // Look at objects in BX = BX + relativeBX
   int useBx = bxEval + m_gtMuonShowerTemplate->condRelativeBx();
