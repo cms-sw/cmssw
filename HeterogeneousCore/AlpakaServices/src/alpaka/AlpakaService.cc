@@ -16,12 +16,12 @@
 
 #ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
+#include "HeterogeneousCore/CUDAServices/interface/CUDAInterface.h"
 #endif  // ALPAKA_ACC_GPU_CUDA_ENABLED
 
 #ifdef ALPAKA_ACC_GPU_HIP_ENABLED
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "HeterogeneousCore/ROCmServices/interface/ROCmService.h"
+#include "HeterogeneousCore/ROCmServices/interface/ROCmInterface.h"
 #endif  // ALPAKA_ACC_GPU_HIP_ENABLED
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
@@ -31,11 +31,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         verbose_(config.getUntrackedParameter<bool>("verbose")) {
 #ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
     // rely on the CUDAService to initialise the CUDA devices
-    edm::Service<CUDAService> cudaService;
+    edm::Service<CUDAInterface> cuda;
 #endif  // ALPAKA_ACC_GPU_CUDA_ENABLED
 #ifdef ALPAKA_ACC_GPU_HIP_ENABLED
     // rely on the ROCmService to initialise the ROCm devices
-    edm::Service<ROCmService> rocmService;
+    edm::Service<ROCmInterface> rocm;
 #endif  // ALPAKA_ACC_GPU_HIP_ENABLED
 
     // TODO from Andrea Bocci:
@@ -48,14 +48,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
 #ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
-    if (not cudaService->enabled()) {
+    if (not cuda or not cuda->enabled()) {
       enabled_ = false;
       edm::LogInfo("AlpakaService") << ALPAKA_TYPE_ALIAS_NAME(AlpakaService) << " disabled by CUDAService";
       return;
     }
 #endif  // ALPAKA_ACC_GPU_CUDA_ENABLED
 #ifdef ALPAKA_ACC_GPU_HIP_ENABLED
-    if (not rocmService->enabled()) {
+    if (not rocm or not rocm->enabled()) {
       enabled_ = false;
       edm::LogInfo("AlpakaService") << ALPAKA_TYPE_ALIAS_NAME(AlpakaService) << " disabled by ROCmService";
       return;
