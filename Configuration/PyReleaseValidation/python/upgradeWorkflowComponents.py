@@ -754,9 +754,9 @@ class PatatrackWorkflow(UpgradeWorkflow):
         # select only a subset of the workflows
         selected = [
             ('2018' in key and fragment == "TTbar_13"),
-            (('2021' or '2023' in key) and fragment == "TTbar_14TeV" and 'FS' not in key),
+            (('2021' in key or '2023' in key) and fragment == "TTbar_14TeV" and 'FS' not in key),
             ('2018' in key and fragment == "ZMM_13"),
-            (('2021' or '2023' in key) and fragment == "ZMM_14" and 'FS' not in key),
+            (('2021' in key or '2023' in key) and fragment == "ZMM_14" and 'FS' not in key),
             ('2026D88' in key and fragment == "TTbar_14TeV" and "PixelOnly" in self.suffix)
         ]
         result = any(selected) and hasHarvest
