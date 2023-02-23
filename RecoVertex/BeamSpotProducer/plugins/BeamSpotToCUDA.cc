@@ -12,7 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
+#include "HeterogeneousCore/CUDAServices/interface/CUDAInterface.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_noncached_unique_ptr.h"
 
@@ -48,8 +48,8 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   std::unique_ptr<BeamSpotHost> beginStream(edm::StreamID) const override {
-    edm::Service<CUDAService> cs;
-    if (cs->enabled()) {
+    edm::Service<CUDAInterface> cuda;
+    if (cuda and cuda->enabled()) {
       return std::make_unique<BeamSpotHost>();
     } else {
       return nullptr;

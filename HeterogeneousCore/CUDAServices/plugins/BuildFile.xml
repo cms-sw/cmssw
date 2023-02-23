@@ -9,7 +9,8 @@
   <use name="FWCore/Utilities"/>
   <use name="HLTrigger/Timer"/>
   <use name="HeterogeneousCore/CUDAServices"/>
-  <library file="*.cc" name="HeterogeneousCoreCUDAServicesPlugins">
+  <use name="HeterogeneousCore/CUDAUtilities"/>
+  <library file="CUDAMonitoringService.cc CUDAService.cc NVProfilerService.cc" name="HeterogeneousCoreCUDAServicesPlugins">
     <flags EDM_PLUGIN="1"/>
   </library>
 </iftool>
