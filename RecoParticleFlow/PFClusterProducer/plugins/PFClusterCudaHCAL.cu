@@ -19,7 +19,6 @@ using PFClustering::common::PFLayer;
 constexpr const float PI_F = 3.141592654f;
 
 // Number of neighbors considered for topo clustering
-//constexpr const int nNT = 8;
 
 namespace PFClusterCudaHCAL {
   //
@@ -1240,8 +1239,6 @@ namespace PFClusterCudaHCAL {
                                             int* pfcIter) {
     __shared__ int topoId, nRHTopo, nSeeds;
 
-    //const int from = threadIdx.x + blockIdx
-
     if (threadIdx.x == 0) {
       topoId = blockIdx.x;
       nRHTopo = topoRHCount[topoId];
@@ -1335,7 +1332,6 @@ namespace PFClusterCudaHCAL {
     if (threadIdx.x == 0) {
       *nTopoId = 0;
       nTopo = 0;
-      //notDone = 0;
       totalSeedOffset = 0;
       totalSeedFracOffset = 0;
       *pcrhFracSize = 0;
@@ -1412,20 +1408,8 @@ namespace PFClusterCudaHCAL {
     }
     __syncthreads();
 
-    //// Make number of valid topoId where clustering is actually needed
-    //for (int rhIdx = threadIdx.x; rhIdx < size; rhIdx += blockDim.x) {
-    //    int topoId = pfrh_parent[rhIdx];
-    //    if (topoId > -1 && topoRHCount[topoId] > topoSeedCount[topoId]) {
-    //        atomicAdd(&*nTopoId, 1);
-    //    }
-    //}
-
     if (threadIdx.x == 0) {
-        nTopo = *nTopoId;
-        printf("%d then nTopo: %d\n", *nTopoId, nTopo);
-    }
-    //__syncthreads();
-    if (threadIdx.x == 0) {
+      nTopo = *nTopoId;
       *pcrhFracSize = totalSeedFracOffset;
       if (*pcrhFracSize > 200000)  // DeclsForKernels.h maxPFCFracs
         printf("At the end of topoClusterContraction, found large *pcrhFracSize = %d\n", *pcrhFracSize);
