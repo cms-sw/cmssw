@@ -27,7 +27,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         : size_{config.getParameter<edm::ParameterSet>("size").getParameter<int32_t>(
               EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE))} {
       getToken_ = consumes(config.getParameter<edm::InputTag>("source"));
-      esToken_ = esConsumes();
+      esToken_ = esConsumes(config.getParameter<edm::ESInputTag>("eventSetupSource"));
       devicePutToken_ = produces(config.getParameter<std::string>("productInstanceName"));
     }
 
@@ -46,6 +46,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
       desc.add<edm::InputTag>("source");
+      desc.add("eventSetupSource", edm::ESInputTag{});
       desc.add<std::string>("productInstanceName", "");
 
       edm::ParameterSetDescription psetSize;
