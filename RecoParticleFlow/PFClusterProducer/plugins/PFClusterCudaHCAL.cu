@@ -1747,9 +1747,6 @@ namespace PFClusterCudaHCAL {
 
     cudaCheck(cudaMemcpyFromSymbolAsync(&h_nTopo, nTopo, sizeof(int), 0, cudaMemcpyDeviceToHost, cudaStream));
 
-    printf("gridSize: %d\n", h_nTopo);
-    
-
     fillRhfIndex<<<grid, block, 0, cudaStream>>>(nRH,
                                                  outputGPU.pfrh_topoId.get(),
                                                  outputGPU.pfrh_isSeed.get(),
