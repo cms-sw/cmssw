@@ -17,7 +17,6 @@ from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *
 
 #Tracker
 from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
-from Geometry.TrackerGeometryBuilder.TrackerAdditionalParametersPerDet_cfi import *
 from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *
 
 #Muon
