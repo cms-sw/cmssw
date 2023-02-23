@@ -13,5 +13,4 @@
     <use name="hls4mlEmulatorExtras"/>
     <use name="CICADA"/>
     <use name="cppunit"/>
-    <use name="Utilities/Testing"/>
 </bin>
