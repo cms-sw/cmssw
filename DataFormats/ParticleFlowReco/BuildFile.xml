@@ -17,8 +17,13 @@
 <use name="FWCore/MessageLogger"/>
 <use name="rootcore"/>
 <use name="rootmath"/>
-<flags LCG_DICT_HEADER="classes_1.h classes_2.h"/>
-<flags LCG_DICT_XML="classes_def_1.xml classes_def_2.xml"/>
+<use name="eigen"/>
+<use name="DataFormats/Portable"/>
+<use name="DataFormats/SoATemplate"/>
+<use name="HeterogeneousCore/AlpakaInterface"/>
+<flags ALPAKA_BACKENDS="1"/>
 <export>
   <lib name="1"/>
 </export>
+
+
