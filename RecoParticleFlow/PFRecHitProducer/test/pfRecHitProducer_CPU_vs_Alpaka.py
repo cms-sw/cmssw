@@ -191,6 +191,12 @@ process.hltParticleFlowRecHitToSoA = cms.EDProducer("alpaka_serial_sync::CaloRec
 process.hltParticleFlowPFRecHitAlpaka = cms.EDProducer("alpaka_serial_sync::PFRecHitProducerAlpaka",
     src = cms.InputTag("hltParticleFlowRecHitToSoA")
 )
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+process.hltParticleFlowPFRecHitComparison = DQMEDAnalyzer("PFRecHitProducerTest",
+    recHitsSourceCPU = cms.untracked.InputTag("hltHbhereco"),
+    pfRecHitsSourceCPU = cms.untracked.InputTag("hltParticleFlowRecHitHBHE"),
+    pfRecHitsSourceAlpaka = cms.untracked.InputTag("hltParticleFlowPFRecHitAlpaka")
+)
 #process.hltParticleFlowRecHitHBHEAlpaka = cms.EDProducer("alpaka_serial_sync::PFHBHERecHitProducerAlpaka",
 #    navigator = process.hltParticleFlowRecHitHBHE.navigator,
 #    src = cms.InputTag("hltHbherecoFromGPU")
@@ -221,6 +227,7 @@ process.HBHEPFCPUGPUTask = cms.Path(
     #+process.hltParticleFlowRecHitHBHEAlpaka
     +process.hltParticleFlowRecHitToSoA     # Convert legacy CaloRecHits to SoA and copy to device
     +process.hltParticleFlowPFRecHitAlpaka  # Construct PFRecHits on device
+    +process.hltParticleFlowPFRecHitComparison  # Validate Alpaka vs CPU
 )
 process.schedule = cms.Schedule(process.HBHEPFCPUGPUTask)
 process.schedule.extend([process.endjob_step,process.FEVTDEBUGHLToutput_step])

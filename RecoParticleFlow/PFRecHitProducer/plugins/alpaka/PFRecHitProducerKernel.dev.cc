@@ -7,6 +7,39 @@
 
 #include "RecoParticleFlow/PFRecHitProducer/interface/alpaka/PFRecHitProducerKernel.h"
 
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+
+namespace {
+  // Get subdetector encoded in detId to narrow the range of reference table values to search
+  // https://cmssdt.cern.ch/lxr/source/DataFormats/DetId/interface/DetId.h#0048
+  constexpr uint32_t getSubdet(uint32_t detId) {
+    return ((detId >> DetId::kSubdetOffset) & DetId::kSubdetMask);
+  }
+
+  //https://cmssdt.cern.ch/lxr/source/DataFormats/HcalDetId/interface/HcalDetId.h#0163
+  constexpr uint32_t getDepth(uint32_t detId) {
+    return ((detId >> HcalDetId::kHcalDepthOffset2) & HcalDetId::kHcalDepthMask2);
+  }
+
+  //https://cmssdt.cern.ch/lxr/source/DataFormats/HcalDetId/interface/HcalDetId.h#0148
+  constexpr uint32_t getIetaAbs(uint32_t detId) {
+    return ((detId >> HcalDetId::kHcalEtaOffset2) & HcalDetId::kHcalEtaMask2);
+  }
+
+  //https://cmssdt.cern.ch/lxr/source/DataFormats/HcalDetId/interface/HcalDetId.h#0157
+  constexpr uint32_t getIphi(uint32_t detId) {
+    return (detId & HcalDetId::kHcalPhiMask2);
+  }
+
+  //https://cmssdt.cern.ch/lxr/source/DataFormats/HcalDetId/interface/HcalDetId.h#0141
+  constexpr int getZside(uint32_t detId) {
+    return ((detId & HcalDetId::kHcalZsideMask2) ? (1) : (-1));
+  }
+}
+
+
+
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   using namespace cms::alpakatools;
@@ -38,7 +71,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         pfRecHits[j].detId() = recHits[i].detId();
         pfRecHits[j].energy() = recHits[i].energy();
         pfRecHits[j].time() = recHits[i].time();
-        pfRecHits[j].depth() = 0;
+        pfRecHits[j].depth() = getDepth(recHits[i].detId());
         //pfRecHits[i].neighbours() = {0, 0, 0, 0, 0, 0, 0, 0};
       }
 

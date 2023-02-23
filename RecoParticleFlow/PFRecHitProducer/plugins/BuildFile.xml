@@ -1,18 +1,13 @@
 <library name="RecoParticleFlowPFRecHitProducersPlugins" file="*.cc">
-<use name="alpaka"/>
-<use name="fmt"/>
-<use name="CommonTools/CandAlgos"/>
-<use name="CommonTools/ParticleFlow"/>
-<use name="DataFormats/Common"/>
-<use name="DataFormats/Math"/>
-<use name="DataFormats/ParticleFlowReco"/>
-<use name="CommonTools/BaseParticlePropagator"/>
 <use name="FWCore/Framework"/>
-<use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
-<use name="DataFormats/TestObjects"/>
+<use name="alpaka"/>
 <use name="HeterogeneousCore/AlpakaTest"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/ParticleFlowReco"/>
+<use name="CommonTools/ParticleFlow"/>
+<use name="DQMServices/Core"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
