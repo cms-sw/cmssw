@@ -1,93 +1,49 @@
+
+
 template <typename T>
-l1ct::tdr_regionizer::PipeObject<T>::PipeObject(const T& obj,
-                                                unsigned int phiindex,
-                                                unsigned int etaindex,
-                                                bool phioverlap,
-                                                bool etaoverlap,
-                                                int glbphi,
-                                                int glbeta,
-                                                unsigned int clk)
-    : obj_(obj),
-      phiindex_(phiindex),
-      etaindex_(etaindex),
-      phioverlap_(phioverlap),
-      etaoverlap_(etaoverlap),
-      glbphi_(glbphi),
-      glbeta_(glbeta),
-      linkobjclk_(clk) {
+l1ct::tdr_regionizer::PipeObject<T>::PipeObject(
+    const T& obj, std::vector<size_t> srIndices, int glbphi, int glbeta, unsigned int clk)
+    : obj_(obj), srIndices_(srIndices), glbeta_(glbeta), glbphi_(glbphi), linkobjclk_(clk) {
   objcount_ = 0;
 }
 
 template <typename T>
-void l1ct::tdr_regionizer::Pipe<T>::addObj(
-    T obj, unsigned int phiindex, unsigned int etaindex, bool phioverlap, bool etaoverlap, int glbphi, int glbeta) {
-  data_.emplace_back(PipeObject<T>(obj, phiindex, etaindex, phioverlap, etaoverlap, glbphi, glbeta, clkindex_++));
+void l1ct::tdr_regionizer::Pipe<T>::addObj(T obj, std::vector<size_t> srIndices, int glbeta, int glbphi) {
+  data_.emplace_back(obj, srIndices, glbeta, glbphi, clkindex_++);
 }
 //explicit for tracker to handle clocking
 template <>
 inline void l1ct::tdr_regionizer::Pipe<l1ct::TkObjEmu>::addObj(l1ct::TkObjEmu obj,
-                                                               unsigned int phiindex,
-                                                               unsigned int etaindex,
-                                                               bool phioverlap,
-                                                               bool etaoverlap,
-                                                               int glbphi,
-                                                               int glbeta) {
-  data_.emplace_back(
-      PipeObject<l1ct::TkObjEmu>(obj, phiindex, etaindex, phioverlap, etaoverlap, glbphi, glbeta, clkindex_++));
+                                                               std::vector<size_t> srIndices,
+                                                               int glbeta,
+                                                               int glbphi) {
+  data_.emplace_back(obj, srIndices, glbeta, glbphi, clkindex_++);
   if (clkindex_ % 3 == 2)
     clkindex_++;  //this is for tracker, could I get this generically maybe?
 }
 
 template <typename T>
-int l1ct::tdr_regionizer::Pipe<T>::getClosedIndexForObject(unsigned int index) {
-  switch (getCount(index)) {
-    case 0:
-      return getPhi(index) * 2 + getEta(index);
-    case 1:
-      if (getPhiOverlap(index) && !getEtaOverlap(index))
-        return ((getPhi(index) + 1) % nphi_) * 2 + getEta(index);
-      else  //eta overlap, or 4-small-region overlap
-        return getPhi(index) * 2 + getEta(index) + 1;
-    case 2:
-      return ((getPhi(index) + 1) % nphi_) * 2 + getEta(index);
-    case 3:
-      return ((getPhi(index) + 1) % nphi_) * 2 + getEta(index) + 1;
-    default:
-      dbgCout() << "Impossible object count!" << std::endl;
-      exit(0);
-  }
+size_t l1ct::tdr_regionizer::Pipe<T>::getPipeIndexForObject(unsigned int index) {
+  return getObj(index).getNextSRIndex();
 }
 
 template <typename T>
-int l1ct::tdr_regionizer::Pipe<T>::getPipeIndexForObject(unsigned int index) {
-  switch (getCount(index)) {
-    case 0:
-      return getPhi(index);
-    case 1:
-      if (getPhiOverlap(index) && !getEtaOverlap(index))
-        return (getPhi(index) + 1) % nphi_;
-      else
-        return getPhi(index);
-    case 2:
-    case 3:
-      return (getPhi(index) + 1) % nphi_;
-    default:
-      dbgCout() << "Impossible object count!" << std::endl;
-      exit(0);
-  }
-}
-
-template <typename T>
-l1ct::tdr_regionizer::Regionizer<T>::Regionizer(
-    unsigned int neta, unsigned int nregions, unsigned int maxobjects, int etaoffset, int etawidth, int nclocks)
+l1ct::tdr_regionizer::Regionizer<T>::Regionizer(unsigned int neta,
+                                                unsigned int nphi,
+                                                unsigned int nregions,
+                                                unsigned int maxobjects,
+                                                int bigRegionMin,
+                                                int bigRegionMax,
+                                                int nclocks)
     : neta_(neta),
+      nphi_(nphi),
       nregions_(nregions),
       maxobjects_(maxobjects),
       nsectors_(0),
-      etaoffset_(etaoffset),
-      etawidth_(etawidth),
+      bigRegionMin_(bigRegionMin),
+      bigRegionMax_(bigRegionMax),
       nclocks_(nclocks) {
-  smallRegionObjects_.resize(nregions);
+  smallRegionObjects_.resize(neta_ * nphi_);
 }
 
 template <typename T>
@@ -109,91 +65,116 @@ void l1ct::tdr_regionizer::Regionizer<T>::initSectors(const DetectorSector<T>& s
   pipes_.resize(nsectors_);
 }
 
+// this function is for sorting small regions first
+// in eta first, then in phi
+template <typename T>
+bool l1ct::tdr_regionizer::Regionizer<T>::sortRegionsRegular(size_t a, size_t b) const {
+  // first do eta
+  auto etaa = regions_[a].intEtaCenter();
+  auto etab = regions_[b].intEtaCenter();
+  if (etaa < etab) {
+    return true;
+  } else if (etaa > etab) {
+    return false;
+  }
+
+  // if here, then etaa == etab, move to phi
+  auto phia = regions_[a].intPhiCenter();
+  auto phib = regions_[b].intPhiCenter();
+  if (bigRegionMax_ < bigRegionMin_) {
+    // the wraparound case
+    if (phia > bigRegionMin_ && phib < bigRegionMax_) {
+      return true;
+    } else if (phib > bigRegionMin_ && phia < bigRegionMax_) {
+      return false;
+    }
+  }
+  // regular phi
+  if (phia < phib) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 template <typename T>
 void l1ct::tdr_regionizer::Regionizer<T>::initRegions(const std::vector<PFInputRegion>& regions) {
   regions_.resize(regions.size());
-  regionmap_.clear();
   for (unsigned int i = 0; i < regions.size(); ++i) {
     regions_[i] = regions[i].region;
-    if (etaoffset_ - etawidth_ <= regions_[i].intEtaCenter() && regions_[i].intEtaCenter() < etaoffset_ + etawidth_) {
-      regionmap_.emplace_back(i, regions_[i].intPhiCenter(), regions_[i].intEtaCenter());
+    // dbgCout() << "region eta/phi: " << regions_[i].intEtaCenter() << " " << regions_[i].intPhiCenter()
+    //                 << ", eta half width = " << regions_[i].hwEtaHalfWidth.to_int()
+    //                 << ", phi half width = " << regions_[i].hwPhiHalfWidth.to_int()
+    //                 << ", eta extra = " << regions_[i].hwEtaExtra.to_int()
+    //                 << ", phi extra = " << regions_[i].hwPhiExtra.to_int() << std::endl;
+    if (isInBigRegion(regions_[i])) {
+      regionmap_.push_back(i);
     }
   }
-  assert(regionmap_.size() == nregions_);
-  std::sort(regionmap_.begin(), regionmap_.end(), sortRegionInfo);
+  assert(regionmap_.size() == neta_ * nphi_);
+  std::sort(
+      regionmap_.begin(), regionmap_.end(), [this](size_t a, size_t b) { return this->sortRegionsRegular(a, b); });
 }
 
 template <typename T>
-bool l1ct::tdr_regionizer::Regionizer<T>::setIndicesOverlaps(const T& obj,
-                                                             unsigned int& phiindex,
-                                                             unsigned int& etaindex,
-                                                             bool& phioverlap,
-                                                             bool& etaoverlap,
-                                                             int& glbphi,
-                                                             int& glbeta,
-                                                             unsigned int index) {
-  glbphi = sectors_[index].hwGlbPhiOf(obj).to_int();
-  glbeta = sectors_[index].hwGlbEtaOf(obj).to_int();
-  phiindex = nregions_;
-  etaindex = nregions_;
-  phioverlap = false;
-  etaoverlap = false;
-  bool isset = false;
-  for (unsigned int i = 0; i < nregions_; i++) {
-    int regphi = dphi_wrap(glbphi - regionmap_[i].phi);
-    int regeta = glbeta - regionmap_[i].eta;
+bool l1ct::tdr_regionizer::Regionizer<T>::isInBigRegion(const PFRegionEmu& reg) const {
+  auto phi = reg.intPhiCenter();
+  if (bigRegionMax_ < bigRegionMin_) {
+    // the wraparound case
+    return phi > bigRegionMin_ || phi < bigRegionMax_;
+  } else {
+    // the normal case
+    return phi > bigRegionMin_ && phi < bigRegionMax_;
+  }
+}
 
-    if (regions_[regionmap_[i].index].isInside(regeta, regphi)) {
-      if (isset) {
-        if (i / neta_ != phiindex)
-          phioverlap = true;
-        if (i % neta_ != etaindex)
-          etaoverlap = true;
-      }
-      if (i / neta_ < phiindex || (i > (nregions_ - neta_) && phiindex == 0)) {
-        phiindex = i / neta_;
-      }
-      if (i % neta_ < etaindex) {
-        etaindex = i % neta_;
-        isset = true;  //only need to check eta to set since there is full coverage in each board in phi
-      }
+template <typename T>
+std::vector<size_t> l1ct::tdr_regionizer::Regionizer<T>::getSmallRegions(int glbeta, int glbphi) const {
+  std::vector<size_t> srIndices;  // the signal regions this object should go into
+
+  // only iterate over regions covered by board
+  for (size_t i = 0; i < regionmap_.size(); i++) {
+    auto regionidx = regionmap_[i];
+    int regphi = dphi_wrap(glbphi - regions_[regionidx].intPhiCenter());
+    int regeta = glbeta - regions_[regionidx].intEtaCenter();
+
+    if (regions_[regionidx].isInside(regeta, regphi)) {
+      srIndices.push_back(i);
     }
   }
-  if (isset && etaindex == 1 && etaoverlap) {
-    etaoverlap = false;
-  }
-  return isset;
+  return srIndices;
 }
 
 template <typename T>
-void l1ct::tdr_regionizer::Regionizer<T>::addToPipe(const T& obj, unsigned int index) {
-  assert(index < getSize());
-  unsigned int phiindex, etaindex;
-  bool phioverlap, etaoverlap;
-  int glbphi, glbeta;
-  bool isset = setIndicesOverlaps(obj, phiindex, etaindex, phioverlap, etaoverlap, glbphi, glbeta, index);
-  if (isset) {
-    pipes_[index].addObj(obj, phiindex, etaindex, phioverlap, etaoverlap, glbphi, glbeta);
+void l1ct::tdr_regionizer::Regionizer<T>::addToPipe(const T& obj, unsigned int sector) {
+  assert(sector < getSize());
+  auto glbphi = sectors_[sector].hwGlbPhiOf(obj).to_int();
+  auto glbeta = sectors_[sector].hwGlbEtaOf(obj).to_int();
+  // get the SR indices that this object should go into
+  std::vector<size_t> srIndices = getSmallRegions(glbeta, glbphi);
+  if (!srIndices.empty()) {
+    pipes_[sector].addObj(obj, srIndices, glbeta, glbphi);
   }
 }
 
 template <typename T>
-void l1ct::tdr_regionizer::Regionizer<T>::setPipe(const std::vector<T>& objvec, unsigned int index) {
-  assert(index < getSize());
-  pipes_[index].reset();
+void l1ct::tdr_regionizer::Regionizer<T>::setPipe(const std::vector<T>& objvec, unsigned int sector) {
+  assert(sector < getSize());
+  pipes_[sector].reset();
   for (unsigned int i = 0; i < objvec.size(); i++) {
-    addToPipe(objvec[i], index);
+    addToPipe(objvec[i], sector);
   }
 }
 
 template <typename T>
 void l1ct::tdr_regionizer::Regionizer<T>::setPipes(const std::vector<std::vector<T>>& objvecvec) {
   assert(getSize() == objvecvec.size());
-  for (unsigned int i = 0; i < getSize(); i++) {
-    setPipe(objvecvec[i], i);
+  for (unsigned int sector = 0; sector < getSize(); sector++) {
+    setPipe(objvecvec[sector], sector);
   }
 }
 
+// NEED TO CHECK CONSTANTS HERE
 template <typename T>
 int l1ct::tdr_regionizer::Regionizer<T>::getPipeTime(int linkIndex,
                                                      int linkTimeOfObject,
@@ -208,35 +189,28 @@ int l1ct::tdr_regionizer::Regionizer<T>::getPipeTime(int linkIndex,
 
 template <typename T>
 int l1ct::tdr_regionizer::Regionizer<T>::popLinkObject(int linkIndex, int currentTimeOfObject) {
-  pipes_[linkIndex].incCount();
-
-  //determine which object is next and at what time
-  unsigned int countToBeDone = 1;
-  if (pipes_[linkIndex].getPhiOverlap() && pipes_[linkIndex].getEtaOverlap())
-    countToBeDone = 4;
-  else if (pipes_[linkIndex].getPhiOverlap() || pipes_[linkIndex].getEtaOverlap())
-    countToBeDone = 2;
-
-  if (countToBeDone == pipes_[linkIndex].getCount()) {
-    //pop off leading object, done with it
-    pipes_[linkIndex].erase();
-
-    //get time of next object
-    if (pipes_[linkIndex].getSize())
-      return getPipeTime(linkIndex, pipes_[linkIndex].getClock(), currentTimeOfObject);
-    else  //no more objects on link
-      return -1;
-  } else {
-    //increment time for next overlapped object on this link
+  auto& obj = pipes_[linkIndex].getObj();
+  obj.incCount();
+  if (obj.getCount() < obj.getSRIndices().size()) {
+    // Continue working on the same object, since it goes in multiple SRs due to overlaps
     return currentTimeOfObject + 1;
+  } else {
+    // move on to next item in pipe
+    pipes_[linkIndex].erase();
+    //get time of next object
+    if (getPipeSize(linkIndex)) {
+      return getPipeTime(linkIndex, pipes_[linkIndex].getClock(), currentTimeOfObject);
+    } else {  //no more objects on link
+      return -1;
+    }
   }
 }
 
 template <typename T>
 void l1ct::tdr_regionizer::Regionizer<T>::initTimes() {
-  for (unsigned int l = 0; l < getSize(); ++l) {
-    if (getPipeSize(l)) {
-      timeOfNextObject_.push_back(timeNextFromIndex(l, -1));
+  for (unsigned int sector = 0; sector < getSize(); ++sector) {
+    if (getPipeSize(sector)) {
+      timeOfNextObject_.push_back(timeNextFromIndex(sector, -1));
     } else {
       timeOfNextObject_.push_back(-1);
     }
@@ -245,11 +219,8 @@ void l1ct::tdr_regionizer::Regionizer<T>::initTimes() {
 
 template <typename T>
 void l1ct::tdr_regionizer::Regionizer<T>::addToSmallRegion(unsigned int linkNum, unsigned int index) {
-  T theobj = pipes_[linkNum].getRawObj(index);
-  unsigned int regind = getClosedIndexForObject(linkNum);
-  theobj.hwPhi = dphi_wrap(pipes_[linkNum].getGlbPhi(index) - regionmap_[regind].phi);
-  theobj.hwEta = pipes_[linkNum].getGlbEta(index) - regionmap_[regind].eta;
-  smallRegionObjects_[regind].push_back(theobj);
+  auto pipeObj = pipes_[linkNum].getObj(index);
+  smallRegionObjects_[pipeObj.getNextSRIndex()].push_back(pipeObj.getRawObj());
 }
 
 template <typename T>
@@ -260,43 +231,50 @@ void l1ct::tdr_regionizer::Regionizer<T>::run(bool debug) {
   while (loopCount < 972) {  //this is the max allowable if nothing ever blocks
     //init min time, pipe, and link index
     //      to find the target pipe currently with action
-    int minp = -1;
-    int minl = -1;
+    int minPipeIndex = -1;
+    int minLinkIndex = -1;
     int minTime = 0;
 
     //do pipe-full handling
-    for (unsigned int l = 0; l < getSize(); ++l) {
-      if (timeOfNextObject_[l] >= 0 && smallRegionObjects_[getClosedIndexForObject(l)].size() == maxobjects_) {
+    for (unsigned int sector = 0; sector < getSize(); ++sector) {
+      if (timeOfNextObject_[sector] >= 0 && smallRegionObjects_[getPipeIndexForObject(sector)].size() == maxobjects_) {
         //pipe is full so proceed to next object
         //'remove' the selected object from its link
-        timeOfNextObject_[l] = popLinkObject(l, timeOfNextObject_[l]);
+        timeOfNextObject_[sector] = popLinkObject(sector, timeOfNextObject_[sector]);
       }  //end pipe-full handling loop
     }
 
     //do find object handling
-    for (unsigned int l = 0; l < getSize(); ++l) {
-      if (timeOfNextObject_[l] >= 0 && (minl == -1 || timeOfNextObject_[l] < minTime)) {
+    for (unsigned int sector = 0; sector < getSize(); ++sector) {
+      // dbgCout() << "secotor = " << sector << ", timeOfNextObject_[sector] = " << timeOfNextObject_[sector]
+      //   << ", minLinkIndex = " << minLinkIndex << ", minTime = " << minTime << ", minPipeIndex = " << minPipeIndex << std::endl;
+      if (timeOfNextObject_[sector] >= 0 && (minLinkIndex == -1 || timeOfNextObject_[sector] < minTime)) {
         //found new 'selected' link object and pipe
-        minp = getPipeIndexForObject(l);
-        minTime = timeOfNextObject_[l];
-        minl = l;
-      } else if (getPipeSize(l) && minl >= 0 && minp == getPipeIndexForObject(l) && timeOfNextObject_[l] == minTime) {
+        minPipeIndex = getHardwarePipeIndexForObject(sector);
+        minTime = timeOfNextObject_[sector];
+        minLinkIndex = sector;
+      } else if (getPipeSize(sector) && minLinkIndex >= 0 &&
+                 minPipeIndex == static_cast<int>(getHardwarePipeIndexForObject(sector)) &&
+                 timeOfNextObject_[sector] == minTime) {
         //have pipe conflict, so need to wait a clock
-        ++timeOfNextObject_[l];
+        ++timeOfNextObject_[sector];
       }
     }
 
-    if (minl < 0)
+    // dbgCout() << " After, minLinkIndex = " << minLinkIndex << ", minTime = " << minTime << ", minPipeIndex = " << minPipeIndex << std::endl;
+
+    if (minLinkIndex < 0)
       break;  //exit case
 
     //'put' object in small region
-    addToSmallRegion(minl);
+    addToSmallRegion(minLinkIndex);
 
     //'remove' the selected object from its link
-    int nextTime = popLinkObject(minl, timeOfNextObject_[minl]);
-    if (nextTime > nclocks_)
+    int nextTime = popLinkObject(minLinkIndex, timeOfNextObject_[minLinkIndex]);
+    if (nextTime > nclocks_) {
       break;
-    timeOfNextObject_[minl] = nextTime;
+    }
+    timeOfNextObject_[minLinkIndex] = nextTime;
     ++loopCount;
   }  //end main loop
 
@@ -306,20 +284,51 @@ void l1ct::tdr_regionizer::Regionizer<T>::run(bool debug) {
 
 template <typename T>
 void l1ct::tdr_regionizer::Regionizer<T>::reset() {
-  for (unsigned int i = 0; i < getSize(); i++) {
-    pipes_[i].reset();
+  for (auto& pipe : pipes_) {
+    pipe.reset();
   }
   timeOfNextObject_.clear();
-  for (unsigned int i = 0; i < nregions_; i++) {
-    smallRegionObjects_[i].clear();
+  for (auto& smallRegionObject : smallRegionObjects_) {
+    smallRegionObject.clear();
   }
 }
 
 template <typename T>
-std::vector<T> l1ct::tdr_regionizer::Regionizer<T>::getSmallRegion(unsigned int index) {
-  for (unsigned int i = 0; i < nregions_; i++) {
-    if (regionmap_[i].index == index)
-      return smallRegionObjects_[i];
+std::map<size_t, std::vector<T>> l1ct::tdr_regionizer::Regionizer<T>::fillRegions(bool doSort) {
+  std::map<size_t, std::vector<T>> srMap;
+  for (size_t sr = 0; sr < smallRegionObjects_.size(); sr++) {
+    srMap[regionmap_[sr]] = smallRegionObjects_[sr];
+    if (doSort) {
+      std::sort(srMap[regionmap_[sr]].begin(), srMap[regionmap_[sr]].end(), std::greater<>());
+    }
   }
-  return {};
+  return srMap;
+}
+
+template <typename T>
+void l1ct::tdr_regionizer::Regionizer<T>::printDebug(int count) const {
+  dbgCout() << "PIPES, (for " << getSize() << " sectors)" << std::endl;
+  dbgCout() << count << "\tsector\titem\tpt\teta\tphi" << std::endl;
+  for (unsigned int sector = 0; sector < getSize(); sector++) {
+    for (unsigned int j = 0; j < getPipeSize(sector); j++) {
+      dbgCout() << "\t" << sector << "\t" << j << "\t" << pipes_[sector].getPt(j) << "\t" << pipes_[sector].getGlbEta(j)
+                << "\t" << pipes_[sector].getGlbPhi(j) << std::endl;
+    }
+    dbgCout() << "-------------------------------" << std::endl;
+  }
+  dbgCout() << "SMALL REGIONS" << std::endl;
+  for (unsigned int region = 0; region < neta_ * nphi_; region++) {
+    dbgCout() << count << "\tregion\titem\tpt\tloceta\tlocphi" << std::endl;
+    for (unsigned int j = 0; j < smallRegionObjects_[region].size(); j++) {
+      dbgCout() << "\t" << region << " " << j << "\t" << smallRegionObjects_[region][j].hwPt.to_int() << "\t"
+                << smallRegionObjects_[region][j].hwEta.to_int() << "\t"
+                << smallRegionObjects_[region][j].hwPhi.to_int() << std::endl;
+    }
+    dbgCout() << "-------------------------------" << std::endl;
+  }
+  dbgCout() << "TIMES" << std::endl;
+  for (unsigned int i = 0; i < timeOfNextObject_.size(); i++) {
+    dbgCout() << "  " << timeOfNextObject_[i];
+  }
+  dbgCout() << "\n-------------------------------" << std::endl;
 }
