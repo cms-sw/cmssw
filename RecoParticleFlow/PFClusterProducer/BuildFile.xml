@@ -15,6 +15,11 @@
 <use name="CalibCalorimetry/EcalTPGTools"/>
 <use name="DataFormats/HGCRecHit"/>
 <use name="RecoLocalCalo/HGCalRecAlgos"/>
+<use name="FWCore/Utilities"/>
+<use name="HeterogeneousCore/CUDACore"/>
+<use name="HeterogeneousCore/CUDAUtilities"/>
+<use name="CUDADataFormats/Common"/>
+<use name="DataFormats/SoATemplate"/>
 <use name="vdt_headers"/>
 <use name="rootmath"/>
 <use name="root"/>

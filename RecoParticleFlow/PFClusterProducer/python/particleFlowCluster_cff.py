@@ -85,3 +85,22 @@ phase2_timing.toReplaceWith(particleFlowClusterECALTask,
                                   _phase2_timing_particleFlowClusterECALTask)
 phase2_timing.toModify(particleFlowClusterECAL,
                             inputECAL = 'particleFlowTimeAssignerECAL')
+
+#--- for Run 3 on GPU
+from Configuration.ProcessModifiers.gpu_cff import gpu
+
+from RecoParticleFlow.PFClusterProducer.pfhbheRecHitParamsGPUESProducer_cfi import pfhbheRecHitParamsGPUESProducer
+from RecoParticleFlow.PFClusterProducer.pfhbheTopologyGPUESProducer_cfi import pfhbheTopologyGPUESProducer
+from RecoParticleFlow.PFClusterProducer.pfClusteringParamsGPUESSource_cfi import pfClusteringParamsGPUESSource
+
+_gpu_pfClusteringHBHEHFTask = pfClusteringHBHEHFTask.copy()
+_gpu_pfClusteringHBHEHFTask.add(pfhbheRecHitParamsGPUESProducer)
+_gpu_pfClusteringHBHEHFTask.add(pfhbheTopologyGPUESProducer)
+_gpu_pfClusteringHBHEHFTask.add(pfClusteringParamsGPUESSource)
+gpu.toReplaceWith(pfClusteringHBHEHFTask, _gpu_pfClusteringHBHEHFTask)
+
+_gpu_pfClusteringHBHEHFOnlyTask = pfClusteringHBHEHFOnlyTask.copy()
+_gpu_pfClusteringHBHEHFOnlyTask.add(pfhbheRecHitParamsGPUESProducer)
+_gpu_pfClusteringHBHEHFOnlyTask.add(pfhbheTopologyGPUESProducer)
+_gpu_pfClusteringHBHEHFOnlyTask.add(pfClusteringParamsGPUESSource)
+gpu.toReplaceWith(pfClusteringHBHEHFOnlyTask, _gpu_pfClusteringHBHEHFOnlyTask)
