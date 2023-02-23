@@ -240,6 +240,7 @@ namespace PFClustering {
       cms::cuda::device::unique_ptr<int> posL;
       cms::cuda::device::unique_ptr<int> topH;
       cms::cuda::device::unique_ptr<int> posH;
+      cms::cuda::device::unique_ptr<int> nTopoId;
 
       cms::cuda::device::unique_ptr<float[]> pcrh_fracSum;
       cms::cuda::device::unique_ptr<float4[]> pfc_prevPos4;
@@ -257,6 +258,8 @@ namespace PFClustering {
         topH = cms::cuda::make_device_unique<int>(cudaStream);
 
         posH = cms::cuda::make_device_unique<int>(cudaStream);
+
+        nTopoId = cms::cuda::make_device_unique<int>(cudaStream);
 
         pcrh_fracSum = cms::cuda::make_device_unique<float[]>(sizeof(float) * config.maxRH, cudaStream);
         pfc_prevPos4 = cms::cuda::make_device_unique<float4[]>(sizeof(float4) * config.maxRH, cudaStream);
