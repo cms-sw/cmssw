@@ -25,7 +25,7 @@ public:
   ~PFRecHitProducerTest() override;
   void analyze(edm::Event const& e, edm::EventSetup const& c) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override {};
-  //static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void DumpEvent(const reco::PFRecHitCollection& pfRecHitsCPU, const PFRecHitHostCollection::ConstView& pfRecHitsAlpaka);
@@ -77,6 +77,7 @@ void PFRecHitProducerTest::analyze(edm::Event const& event, edm::EventSetup cons
       const uint32_t detId = pfRecHitsCPU[i].detId();
       bool detId_found = false;
       for (size_t j = 0; j < pfRecHitsAlpaka.size(); j++)
+      {
         if(detId == pfRecHitsAlpaka[j].detId())
         {
           if(detId_found)
@@ -90,6 +91,7 @@ void PFRecHitProducerTest::analyze(edm::Event const& event, edm::EventSetup cons
         }
         if(!detId_found)
           error = true;
+      }
     }
   }
 
@@ -132,15 +134,13 @@ void PFRecHitProducerTest::DumpEvent(const reco::PFRecHitCollection& pfRecHitsCP
     );
 }
 
-
-// void PFRecHitProducerTest::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-//   edm::ParameterSetDescription desc;
-//   //desc.setUnknown();
-//   desc.add<edm::InputTag>("pfClusterToken_ref", edm::InputTag("particleFlowClusterHBHE"));
-//   desc.add<edm::InputTag>("pfClusterToken_target", edm::InputTag("particleFlowClusterHBHEonGPU"));
-//   desc.addUntracked<std::string>("pfCaloGPUCompDir", "pfClusterHBHEGPUv");
-//   descriptions.addDefault(desc);
-// }
+void PFRecHitProducerTest::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.addUntracked<edm::InputTag>("recHitsSourceCPU");
+  desc.addUntracked<edm::InputTag>("pfRecHitsSourceCPU");
+  desc.addUntracked<edm::InputTag>("pfRecHitsSourceAlpaka");
+  descriptions.addDefault(desc);
+}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PFRecHitProducerTest);

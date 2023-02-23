@@ -185,10 +185,13 @@ process.hltParticleFlowRecHitHBHE = cms.EDProducer("PFRecHitProducer",
 )
 
 # Alpaka producer
-process.hltParticleFlowRecHitToSoA = cms.EDProducer("alpaka_serial_sync::CaloRecHitSoAProducer",
+alpaka_backend_str = "alpaka_serial_sync::%s"
+#alpaka_backend_str = "alpaka_cuda_async::%s"
+#alpaka_backend_str = "%s@alpaka"
+process.hltParticleFlowRecHitToSoA = cms.EDProducer(alpaka_backend_str % "CaloRecHitSoAProducer",
     src = cms.InputTag("hltHbhereco")
 )
-process.hltParticleFlowPFRecHitAlpaka = cms.EDProducer("alpaka_serial_sync::PFRecHitProducerAlpaka",
+process.hltParticleFlowPFRecHitAlpaka = cms.EDProducer(alpaka_backend_str % "PFRecHitProducerAlpaka",
     src = cms.InputTag("hltParticleFlowRecHitToSoA")
 )
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
