@@ -13,8 +13,7 @@
 
 using namespace pat;
 
-CalculatePtRatioRel::CalculatePtRatioRel(float dRmax) : dRmax_(dRmax) {
-}
+CalculatePtRatioRel::CalculatePtRatioRel(float dRmax) : dRmax_(dRmax) {}
 
 CalculatePtRatioRel::~CalculatePtRatioRel() {}
 
@@ -34,17 +33,16 @@ namespace {
 }  // namespace
 
 std::vector<float> CalculatePtRatioRel::computePtRatioRel(const pat::Muon& muon,
-                                   const reco::JetTagCollection& bTags,
-                                   const reco::JetCorrector* correctorL1,
-                                   const reco::JetCorrector* correctorL1L2L3Res) const {
-
+                                                          const reco::JetTagCollection& bTags,
+                                                          const reco::JetCorrector* correctorL1,
+                                                          const reco::JetCorrector* correctorL1L2L3Res) const {
   //Initialise loop variables
   double minDr = 9999;
   double jecL1L2L3Res = 1.;
   double jecL1 = 1.;
   float JetPtRatio = 0.0;
   float JetPtRel = 0.0;
-  
+
   // Compute corrected isolation variables
   double chIso = muon.pfIsolationR04().sumChargedHadronPt;
   double nIso = muon.pfIsolationR04().sumNeutralHadronEt;

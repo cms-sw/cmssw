@@ -6,7 +6,6 @@
 #include <memory>
 #include <string>
 
-
 namespace pat {
   class Muon;
 }
@@ -14,7 +13,6 @@ namespace pat {
 namespace reco {
   class JetCorrector;
 }  // namespace reco
-
 
 namespace pat {
   class CalculatePtRatioRel {
@@ -24,9 +22,9 @@ namespace pat {
     ~CalculatePtRatioRel();
 
     std::vector<float> computePtRatioRel(const pat::Muon& imuon,
-                     const reco::JetTagCollection& bTags,
-                     const reco::JetCorrector* correctorL1 = nullptr,
-                     const reco::JetCorrector* correctorL1L2L3Res = nullptr) const;
+                                         const reco::JetTagCollection& bTags,
+                                         const reco::JetCorrector* correctorL1 = nullptr,
+                                         const reco::JetCorrector* correctorL1L2L3Res = nullptr) const;
 
   private:
     float dRmax_;
