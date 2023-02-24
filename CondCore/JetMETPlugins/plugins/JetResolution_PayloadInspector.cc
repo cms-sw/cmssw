@@ -36,77 +36,129 @@ namespace JME{
 
   // inherit from one of the predefined plot class: Histogram1D
 
-  class JetResolutionEta : public cond::payloadInspector::Histogram1D<JetResolutionObject, SINGLE_IOV> {
+  class JetResolutionVsEta : public cond::payloadInspector::Histogram1D<JetResolutionObject, SINGLE_IOV> {
     public:
-      static const int MIN_ETA = -5.5;
-      static const int MAX_ETA =  5.5;
+      static const int MIN_ETA = -5.0;
+      static const int MAX_ETA =  5.0;
+      static const int NBIN = 50;
 
-    JetResolutionEta() : cond::payloadInspector::Histogram1D<JetResolutionObject, SINGLE_IOV>( "Jet Energy Resolution", "#eta", 50, MIN_ETA, MAX_ETA, "Resolution"){
+    JetResolutionVsEta() : cond::payloadInspector::Histogram1D<JetResolutionObject, SINGLE_IOV>( "Jet Energy Resolution", "#eta", NBIN, MIN_ETA, MAX_ETA, "Resolution"){
       Base::setSingleIov( true );
     }
 
     bool fill()override{
       auto tag = PlotBase::getTag<0>();
-        for (auto const& iov : tag.iovs) {
+      for (auto const& iov : tag.iovs) {
           std::shared_ptr<JetResolutionObject> payload = Base::fetchPayload(std::get<1>(iov));
-          if (payload.get()) {
-//            const std::vector<Binning>& bins = payload->getDefinition().getBins();
-//            edm::LogWarning("JetResObj_PI") << "Bins size: " << payload->getDefinition().getBins().size() << "\n";
-//            edm::LogWarning("JetResObj_PI") << "No. of binning variables: " << payload->getDefinition().nBins() << "\n";
-//            for (const auto& bin: payload->getDefinition().getBinsName()) {
-//              edm::LogWarning("JetResObj_PI") << bin << ", ";
-//            }
-//
-//            edm::LogWarning("JetResObj_PI") << "No. of variables: " << payload->getDefinition().nVariables() << "\n";
-//            for (const auto& bin: payload->getDefinition().getVariablesName()) {
-//              edm::LogWarning("JetResObj_PI") << bin << ", ";
-//            }
+        if (payload.get()) {
 
-            edm::LogWarning("JetResObj_PI") << "Formula: " << payload->getDefinition().getFormulaString() << std::endl;
+          edm::LogWarning("JetResObj_PI") << "Formula: " << payload->getDefinition().getFormulaString() << std::endl;
 
-            edm::LogWarning("JetResObj_PI") << "Records: " << payload->getRecords().size() << "\n";
+          edm::LogWarning("JetResObj_PI") << "Records: " << payload->getRecords().size() << "\n";
 
-            for(const auto& record : payload->getRecords()){ 
-              // Check Eta
-              if(record.getVariablesRange().size()>0 && 
-                 payload->getDefinition().getVariableName(0) == "JetPt" &&
-                 record.getVariablesRange()[0].is_inside(100.)){
-                if(record.getBinsRange().size()>1 &&
-                    payload->getDefinition().getBinName(1) == "Rho" &&
-                    record.getBinsRange()[1].is_inside(20.)){
-                   if(record.getBinsRange().size()>0 &&
-                      payload->getDefinition().getBinName(0) == "JetEta"){
-                     reco::FormulaEvaluator f(payload->getDefinition().getFormulaString());
+          for(const auto& record : payload->getRecords()){ 
+            // Check Eta
+            if(record.getVariablesRange().size()>0 && 
+               payload->getDefinition().getVariableName(0) == "JetPt" &&
+               record.getVariablesRange()[0].is_inside(100.)){
+              if(record.getBinsRange().size()>1 &&
+                 payload->getDefinition().getBinName(1) == "Rho" &&
+                 record.getBinsRange()[1].is_inside(20.)){
+                if(record.getBinsRange().size()>0 &&
+                   payload->getDefinition().getBinName(0) == "JetEta"){
+                  reco::FormulaEvaluator f(payload->getDefinition().getFormulaString());
 
-                     for(size_t idx = 0; idx < 50; idx++){
-                       double x_axis = (idx+0.5)*(MAX_ETA-MIN_ETA)/50.+MIN_ETA;
-                       if(record.getBinsRange()[0].is_inside(x_axis)){
-                         std::vector<double> var={100.};
-                         std::vector<double> param;// = record.getParametersValues();
-                         for(size_t i = 0; i < record.getParametersValues().size(); i++){
-                           double par = record.getParametersValues()[i];
-                           param.push_back(par);
-                         }
-                         float res = f.evaluate(var, param);
-                         fillWithBinAndValue(idx, res);
-                       }
-                     }
-                   }
-                 }
+                  for(size_t idx = 0; idx < NBIN; idx++){
+                    double x_axis = (idx+0.5)*(MAX_ETA-MIN_ETA)/NBIN+MIN_ETA;
+                    if(record.getBinsRange()[0].is_inside(x_axis)){
+                      std::vector<double> var={100.};
+                      std::vector<double> param;// = record.getParametersValues();
+                      for(size_t i = 0; i < record.getParametersValues().size(); i++){
+                        double par = record.getParametersValues()[i];
+                        param.push_back(par);
+                      }
+                      float res = f.evaluate(var, param);
+                      fillWithBinAndValue(idx, res);
+                    }
+                  } // for BINS
+                }  // if 3
+              }  // if 2
+            } // if
+          }  // records
+            return true;    
+        } //else {    // if payload
+            //return false; }
+      }      // iovs
+      return false;
+    }  // fill
+      
+  };  // class
+
+  class JetResolutionVsPt : public cond::payloadInspector::Histogram1D<JetResolutionObject, SINGLE_IOV> {
+    public:
+      static const int MIN_PT = -500.0;
+      static const int MAX_PT =  3500.0;
+      static const int NBIN = 400;
+
+    JetResolutionVsPt() : cond::payloadInspector::Histogram1D<JetResolutionObject, SINGLE_IOV>( "Jet Energy Resolution", "PT", NBIN, MIN_PT, MAX_PT, "Resolution"){
+      Base::setSingleIov( true );
+    }
+
+    bool fill()override{
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
+        std::shared_ptr<JetResolutionObject> payload = Base::fetchPayload(std::get<1>(iov));
+        if (payload.get()) {
+          edm::LogWarning("JetResObj_PI") << "Formula: " << payload->getDefinition().getFormulaString() << std::endl;
+
+          edm::LogWarning("JetResObj_PI") << "Records: " << payload->getRecords().size() << "\n";
+
+          for(const auto& record : payload->getRecords()){ 
+            if(record.getBinsRange().size()>0 && 
+               payload->getDefinition().getBinName(0) == "JetEta" &&
+               record.getBinsRange()[0].is_inside(2.30)){
+              if(record.getBinsRange().size()>1 &&
+                 payload->getDefinition().getBinName(1) == "Rho" &&
+                 record.getBinsRange()[1].is_inside(15.)){
+                if(record.getVariablesRange().size()>0 && 
+                   payload->getDefinition().getVariableName(0) == "JetPt"){
+                   reco::FormulaEvaluator f(payload->getDefinition().getFormulaString());
+
+                  for(size_t idx = 0; idx < NBIN; idx++){
+                      double x_axis = (idx+0.5)*(MAX_PT-MIN_PT)/NBIN+MIN_PT;
+                    if(record.getVariablesRange()[0].is_inside(x_axis)){
+                       std::vector<double> var={x_axis};
+                       std::vector<double> param;
+                      for(size_t i = 0; i < record.getParametersValues().size(); i++){
+                        double par = record.getParametersValues()[i];
+                        param.push_back(par);
+                      }
+                      float res = f.evaluate(var, param);
+                      //JetParameters j_param;
+                      //j_param.set(Binning::JetPt, x_axis);
+                      //j_param.set(Binning::JetEta, 2.3);
+                      //j_param.set(Binning::Rho, 15.);
+                      //res = payload->evaluateFormula(record, j_param);
+                      fillWithBinAndValue(idx, res);
+                    }
+                  }
+                }
               }
             }
-              
-          }    // payload
-        }      // iovs
-        return true;
-//        return false;
+          }
+          return true;    
+        } //else {   // if payload
+         //   return false; }
+      }      // iovs
+      return false;
     }  // fill
       
 };  // class
 
 // Register the classes as boost python plugin
 PAYLOAD_INSPECTOR_MODULE( JetResolutionObject ){
-  PAYLOAD_INSPECTOR_CLASS( JetResolutionEta );
+  PAYLOAD_INSPECTOR_CLASS( JetResolutionVsEta );
+  PAYLOAD_INSPECTOR_CLASS( JetResolutionVsPt );
 }
 
 }  // namespace
