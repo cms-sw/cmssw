@@ -102,7 +102,6 @@ private:
   edm::EDGetTokenT<L1CaloRegionCollection> regionToken;
 
   UCTLayer1* layer1;
-  UCTSummaryCard* summaryCard;
 };
 
 //
@@ -148,13 +147,9 @@ L1TCaloSummary::L1TCaloSummary(const edm::ParameterSet& iConfig)
     }
   }
   produces<L1JetParticleCollection>("Boosted");
-  summaryCard = new UCTSummaryCard(&pumLUT, jetSeed, tauSeed, tauIsolationFactor, eGammaSeed, eGammaIsolationFactor);
 }
 
-L1TCaloSummary::~L1TCaloSummary() {
-  if (summaryCard != nullptr)
-    delete summaryCard;
-}
+L1TCaloSummary::~L1TCaloSummary() {}
 
 //
 // member functions
@@ -172,7 +167,8 @@ void L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   // independently creating regions from TPGs for processing by the summary card. This results
   // in a single region vector of size 252 whereas from independent creation we had 3*6 vectors
   // of size 7*2. Indices are mapped in UCTSummaryCard accordingly.
-  summaryCard->clearRegions();
+  UCTSummaryCard summaryCard =
+      UCTSummaryCard(&pumLUT, jetSeed, tauSeed, tauIsolationFactor, eGammaSeed, eGammaIsolationFactor);
   std::vector<UCTRegion*> inputRegions;
   inputRegions.clear();
   edm::Handle<std::vector<L1CaloRegion>> regionCollection;
@@ -194,9 +190,9 @@ void L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     test->setRegionSummary(i.raw());
     inputRegions.push_back(test);
   }
-  summaryCard->setRegionData(inputRegions);
+  summaryCard.setRegionData(inputRegions);
 
-  if (!summaryCard->process()) {
+  if (!summaryCard.process()) {
     edm::LogError("L1TCaloSummary") << "UCT: Failed to process summary card" << std::endl;
     exit(1);
   }
@@ -206,7 +202,7 @@ void L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   double phi = -999.;
   double mass = 0;
 
-  std::list<UCTObject*> boostedJetObjs = summaryCard->getBoostedJetObjs();
+  std::list<UCTObject*> boostedJetObjs = summaryCard.getBoostedJetObjs();
   for (std::list<UCTObject*>::const_iterator i = boostedJetObjs.begin(); i != boostedJetObjs.end(); i++) {
     const UCTObject* object = *i;
     pt = ((double)object->et()) * caloScaleFactor * boostedJetPtFactor;
