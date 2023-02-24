@@ -150,7 +150,7 @@ namespace l1t {
     inline const BXVector<const l1t::Muon*>* getCandL1Mu() const { return m_candL1Mu; }
 
     /// return global muon trigger candidate
-    inline const BXVector<const l1t::MuonShower*>* getCandL1MuShower() const { return m_candL1MuShower; }
+    inline const BXVector<std::shared_ptr<l1t::MuonShower>>* getCandL1MuShower() const { return m_candL1MuShower; }
 
     /// pointer to EG data list
     inline const BXVector<const l1t::L1Candidate*>* getCandL1EG() const { return m_candL1EG; }
@@ -221,7 +221,7 @@ namespace l1t {
 
   private:
     BXVector<const l1t::Muon*>* m_candL1Mu;
-    BXVector<const l1t::MuonShower*>* m_candL1MuShower;
+    BXVector<std::shared_ptr<l1t::MuonShower>>* m_candL1MuShower;
     BXVector<const l1t::L1Candidate*>* m_candL1EG;
     BXVector<const l1t::L1Candidate*>* m_candL1Tau;
     BXVector<const l1t::L1Candidate*>* m_candL1Jet;
