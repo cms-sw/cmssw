@@ -146,3 +146,29 @@ void VFATFrame::Print(bool binary) const {
     printf("\n");
   }
 }
+
+void VFATFrame::PrintT2(bool binary) const {
+  if (binary) {
+    for (int i = 0; i < 12; i++) {
+      const word &w = data[i];
+      word mask = (1 << 15);
+      for (int j = 0; j < 16; j++) {
+        if (w & mask)
+          printf("1");
+        else
+          printf("0");
+        mask = (mask >> 1);
+        if ((j + 1) % 4 == 0)
+          printf("|");
+      }
+      printf("\n");
+    }
+  } else {
+    printf("Frame = %04x|%04x|%04x|", data[0], data[1], data[2]);
+    for (int i = 3; i < 11; i++)
+      printf("%04x", data[i]);
+    printf("|%04x", data[11]);
+
+    printf("\n");
+  }
+}
