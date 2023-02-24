@@ -11,6 +11,6 @@ hltrefittedForPixelDQM = refittedForPixelDQM.clone(src ='hltMergedTracks')
 sipixelMonitorHLTsequence = cms.Sequence(
     hltSiPixelClusterShapeCache
     + hltSiPixelPhase1ClustersAnalyzer
-    + refittedForPixelDQM
+    + hltrefittedForPixelDQM
     + hltSiPixelPhase1TrackClustersAnalyzer
 )    
