@@ -57,7 +57,7 @@ namespace pat {
   class PATMuonHeavyObjectCache {
   public:
     PATMuonHeavyObjectCache(const edm::ParameterSet&);
-    
+
     pat::CalculatePtRatioRel const& calculatePtRatioRel() const { return *calculatePtRatioRel_; }
     pat::MuonMvaIDEstimator const& muonMvaIDEstimator() const { return *muonMvaIDEstimator_; }
     pat::SoftMuonMvaEstimator const& softMuonMvaEstimator() const { return *softMuonMvaEstimator_; }
@@ -973,13 +973,10 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::vector<float> jetPtRatioRel = {0.0, 0.0};
     if (primaryVertexIsValid && computeMiniIso_) {
       if (mvaUseJec_) {
-        jetPtRatioRel = globalCache()->calculatePtRatioRel().computePtRatioRel(muon,
-                                                           *(mvaBTagCollectionTag.product()),
-                                                           mvaL1Corrector.product(),
-                                                           mvaL1L2L3ResCorrector.product());
-      } else {
         jetPtRatioRel = globalCache()->calculatePtRatioRel().computePtRatioRel(
-            muon, *mvaBTagCollectionTag);
+            muon, *(mvaBTagCollectionTag.product()), mvaL1Corrector.product(), mvaL1L2L3ResCorrector.product());
+      } else {
+        jetPtRatioRel = globalCache()->calculatePtRatioRel().computePtRatioRel(muon, *mvaBTagCollectionTag);
       }
 
       muon.setJetPtRatio(jetPtRatioRel[0]);
