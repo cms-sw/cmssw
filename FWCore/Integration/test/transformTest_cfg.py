@@ -14,7 +14,6 @@ parser.add_argument("--noPut", help="do not put data used by transform", action=
 parser.add_argument("--addTracer", help="add Tracer service", action="store_true")
 parser.add_argument("--async_", help="use asynchronous module", action="store_true")
 parser.add_argument("--exception", help="Make module consumed by transformer to throw an exception", action="store_true")
-parser.add_argument("--outputFile", help="File to save job output", default=None, type=str)
 
 argv = sys.argv[:]
 if '--' in argv:
@@ -23,10 +22,6 @@ args, unknown = parser.parse_known_args(argv)
 
 
 process = cms.Process("TEST")
-if args.outputFile is not None:
-    process.MessageLogger.cerr.enable = False
-    process.MessageLogger.files.outputFile = dict(filename=args.outputFile,
-                                                  noTimeStamps= True)
 
 process.source = cms.Source("EmptySource")
 
