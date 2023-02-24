@@ -24,12 +24,7 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/InitialClusteringStepBase.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorBase.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/PFClusterBuilderBase.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/PFClusterEnergyCorrectorBase.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/RecHitTopologicalCleanerBase.h"
-#include "RecoParticleFlow/PFClusterProducer/interface/SeedFinderBase.h"
 
 #include "CudaPFCommon.h"
 #include "DeclsForKernels.h"
@@ -45,15 +40,8 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   // the actual algorithm
-  std::vector<std::unique_ptr<RecHitTopologicalCleanerBase>> _cleaners;
-  std::unique_ptr<SeedFinderBase> _seedFinder;
-  std::unique_ptr<InitialClusteringStepBase> _initialClustering;
-  std::unique_ptr<PFClusterBuilderBase> _pfClusterBuilder;
-  std::unique_ptr<PFCPositionCalculatorBase> _positionReCalc;
-  std::unique_ptr<PFCPositionCalculatorBase> _allCellsPosCalc;
   std::unique_ptr<PFCPositionCalculatorBase> _positionCalc;
   std::unique_ptr<PFCPositionCalculatorBase> _allCellsPositionCalc;
-  std::unique_ptr<PFClusterEnergyCorrectorBase> _energyCorrector;
 
 private:
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
@@ -69,18 +57,13 @@ private:
   const bool _produceSoA;     // PFClusters in SoA format
   const bool _produceLegacy;  // PFClusters in legacy format
 
-  // // options
-  // const bool _prodInitClusters;
-
   edm::EDGetTokenT<reco::PFRecHitCollection> _rechitsLabel;
 
   //cms::cuda::ContextState cudaState_;
 
   PFClustering::HCAL::ConfigurationParameters cudaConfig_;
-
   PFClustering::HCAL::OutputDataCPU outputCPU;
   PFClustering::HCAL::OutputDataGPU outputGPU;
-
   PFClustering::HCAL::ScratchDataGPU scratchGPU;
 };
 
@@ -92,37 +75,9 @@ PFClusterProducerCudaHCAL::PFClusterProducerCudaHCAL(const edm::ParameterSet& co
       _rechitsLabel{consumes(conf.getParameter<edm::InputTag>("recHitsSource"))} {
   edm::ConsumesCollector cc = consumesCollector();
 
-  //setup rechit cleaners
-  const edm::VParameterSet& cleanerConfs = conf.getParameterSetVector("recHitCleaners");
-
-  for (const auto& conf : cleanerConfs) {
-    const std::string& cleanerName = conf.getParameter<std::string>("algoName");
-    _cleaners.emplace_back(RecHitTopologicalCleanerFactory::get()->create(cleanerName, conf, cc));
-  }
-
-  // setup seed finding
-  const edm::ParameterSet& sfConf = conf.getParameterSet("seedFinder");
-  const std::string& sfName = sfConf.getParameter<std::string>("algoName");
-  _seedFinder = SeedFinderFactory::get()->create(sfName, sfConf);
-
-  const edm::VParameterSet& seedFinderConfs = sfConf.getParameterSetVector("thresholdsByDetector");
-
-  //setup topo cluster builder
-  const edm::ParameterSet& initConf = conf.getParameterSet("initialClusteringStep");
-  const std::string& initName = initConf.getParameter<std::string>("algoName");
-  _initialClustering = InitialClusteringStepFactory::get()->create(initName, initConf, cc);
   //setup pf cluster builder if requested
   const edm::ParameterSet& pfcConf = conf.getParameterSet("pfClusterBuilder");
   if (!pfcConf.empty()) {
-    const std::string& pfcName = pfcConf.getParameter<std::string>("algoName");
-    _pfClusterBuilder = PFClusterBuilderFactory::get()->create(pfcName, pfcConf, cc);
-    /*
-    if (pfcConf.exists("allCellsPositionCalc")) {
-    const edm::ParameterSet& acConf = pfcConf.getParameterSet("allCellsPositionCalc");
-    const std::string& algoac = acConf.getParameter<std::string>("algoName");
-    _allCellsPosCalcCuda = PFCPositionCalculatorFactory::get()->create(algoac, acConf);
-    */
-
     if (pfcConf.exists("positionCalc")) {
       const edm::ParameterSet& acConf = pfcConf.getParameterSet("positionCalc");
       const std::string& algoac = acConf.getParameter<std::string>("algoName");
@@ -134,18 +89,6 @@ PFClusterProducerCudaHCAL::PFClusterProducerCudaHCAL(const edm::ParameterSet& co
       const std::string& algoac = acConf.getParameter<std::string>("algoName");
       _allCellsPositionCalc = PFCPositionCalculatorFactory::get()->create(algoac, acConf, cc);
     }
-  }
-  //setup (possible) recalcuation of positions
-  const edm::ParameterSet& pConf = conf.getParameterSet("positionReCalc");
-  if (!pConf.empty()) {
-    const std::string& pName = pConf.getParameter<std::string>("algoName");
-    _positionReCalc = PFCPositionCalculatorFactory::get()->create(pName, pConf, cc);
-  }
-  // see if new need to apply corrections, setup if there.
-  const edm::ParameterSet& cConf = conf.getParameterSet("energyCorrector");
-  if (!cConf.empty()) {
-    const std::string& cName = cConf.getParameter<std::string>("algoName");
-    _energyCorrector = PFClusterEnergyCorrectorFactory::get()->create(cName, cConf);
   }
 
   produces<reco::PFClusterCollection>();
@@ -171,8 +114,7 @@ void PFClusterProducerCudaHCAL::fillDescriptions(edm::ConfigurationDescriptions&
 }
 
 void PFClusterProducerCudaHCAL::beginRun(const edm::Run& run, const edm::EventSetup& es) {
-  //initCuda_ = true;  // (Re)initialize cuda arrays
-  //KenH: for now comment this out, as we know we don't change the channel status on lumisection basis
+  // KenH: Nothing for now. But we expect to use it soon for geometry/topology related info
 }
 
 void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
