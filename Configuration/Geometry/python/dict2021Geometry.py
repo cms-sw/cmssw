@@ -1634,6 +1634,11 @@ detectorVersionDict = {
     ("O5","T7","C1","M1","F1","P7") : "2021FlatPlus05Percent",
     ("O5","T8","C1","M1","F1","P7") : "2021FlatPlus10Percent",
     ("O6","T3","C1","M2","F1","P7") : "2023",
+    ("O4","T4","C1","M2","F1","P7") : "2023ZeroMaterial",
+    ("O5","T5","C1","M2","F1","P7") : "2023FlatMinus05Percent",
+    ("O5","T6","C1","M2","F1","P7") : "2023FlatMinus10Percent",
+    ("O5","T7","C1","M2","F1","P7") : "2023FlatPlus05Percent",
+    ("O5","T8","C1","M2","F1","P7") : "2023FlatPlus10Percent",
  }
 
 deprecatedSubdets = set([ "T1", "T2", "O1", "O2", "O3", "P1", "P2", "P3", 
