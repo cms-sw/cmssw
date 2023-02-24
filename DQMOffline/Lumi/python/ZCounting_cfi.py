@@ -9,6 +9,8 @@ ZCounting = DQMEDAnalyzer('ZCounting',
                           edmPVName=cms.untracked.string(
                               'offlinePrimaryVertices'),
                           edmName=cms.untracked.string('muons'),
+                          StandaloneReg=cms.untracked.string('standAloneMuons'), # regular standalone track collection
+                          StandaloneUpd=cms.untracked.string('standAloneMuons:UpdatedAtVtx'), # updated standalone track collection 
                           edmTrackName=cms.untracked.string('generalTracks'),
 
                           MuonTriggerNames=cms.vstring("HLT_IsoMu24_v*"),
