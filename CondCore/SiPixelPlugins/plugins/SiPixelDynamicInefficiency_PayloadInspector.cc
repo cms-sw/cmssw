@@ -734,12 +734,12 @@ namespace {
   };
 
   /************************************************
-   Per sector plot of the PU parameterization (for PU factors)
+   Per sector plot of the inefficiency parameterization vs inst lumi (for PU factors)
   *************************************************/
   class SiPixelDynamicInefficiencyPUParametrization : public PlotImage<SiPixelDynamicInefficiency, SINGLE_IOV> {
   public:
     SiPixelDynamicInefficiencyPUParametrization()
-        : PlotImage<SiPixelDynamicInefficiency, SINGLE_IOV>("SiPixelDynamicInefficiency Map") {
+        : PlotImage<SiPixelDynamicInefficiency, SINGLE_IOV>("SiPixelDynamicInefficiency PU parametrization") {
       label_ = "SiPixelDynamicInefficiencyPUParameterization";
       payloadString =
           fmt::sprintf("%s Dynamic Inefficiency parametrization", SiPixDynIneff::factorString[SiPixDynIneff::pu]);
@@ -771,15 +771,33 @@ namespace {
             SiPixelDetInfoFileReader(edm::FileInPath(SiPixelDetInfoFileReader::kPh1DefaultFile).fullPath());
         const auto& p1detIds = reader.getAllDetIds();
 
+        std::map<unsigned int, std::vector<uint32_t> > modules_per_region;
+
         // fill the maps
         for (const auto& det : p1detIds) {
           const auto& values = SiPixDynIneff::getMatchingPUFactors(det, theMap, detIdmasks_db);
-          if (!std::count(listOfParametrizations.begin(), listOfParametrizations.end(), values)) {
+          // find the index in the vector
+          auto pIndex = std::find(listOfParametrizations.begin(), listOfParametrizations.end(), values);
+          // if it's not there push it back in the list of parametrizations and then insert in the map
+          if (pIndex == listOfParametrizations.end()) {
             listOfParametrizations.push_back(values);
+            std::vector<unsigned int> toInsert = {det};
+            modules_per_region.insert(std::make_pair(listOfParametrizations.size() - 1, toInsert));
+          } else {
+            modules_per_region.at(pIndex - listOfParametrizations.begin()).push_back(det);
           }
         }
 
         unsigned int depth = listOfParametrizations.size();
+
+        std::vector<std::string> namesOfParts;
+        namesOfParts.reserve(depth);
+        // fill in the (ordered) information about regions
+        for (const auto& [index, modules] : modules_per_region) {
+          auto PhInfo = SiPixelPI::PhaseInfo(SiPixelPI::phase1size);
+          const auto& regName = this->attachLocationLabel(modules, PhInfo);
+          namesOfParts.push_back(regName);
+        }
 
         // functional for polynomial of n-th degree
         auto func = [](double* x, double* p) {
@@ -794,15 +812,13 @@ namespace {
         parametrizations.reserve(depth);
         formulas.reserve(depth);
 
-        static constexpr double xmin = 0.;   // x10e34 (min inst. lumi)
-        static constexpr double xmax = 25.;  // x10e34 (max inst. lumi)
-
         int index{0};
         for (auto& params : listOfParametrizations) {
           index++;
           int n = params.size();
           int npar = n + 2;
-          TF1* f1 = new TF1((fmt::sprintf("region: %i", index)).c_str(), func, xmin, xmax, npar);
+          TF1* f1 =
+              new TF1((fmt::sprintf("region: #bf{%s}", namesOfParts[index - 1])).c_str(), func, xmin_, xmax_, npar);
           params.insert(params.begin(), n);
           double* arr = params.data();
           f1->SetLineWidth(2);
@@ -860,7 +876,7 @@ namespace {
           ltxForm.SetTextAlign(11);
           ltxForm.DrawLatexNDC(gPad->GetLeftMargin() + 0.05, 0.85, formulas[i].c_str());
 
-          edm::LogPrint(label_) << formulas[i] << std::endl;
+          edm::LogPrint(label_) << namesOfParts[i] << " => " << formulas[i] << std::endl;
         }
 
         std::string fileName(this->m_imageFileName);
@@ -873,6 +889,9 @@ namespace {
   protected:
     std::string payloadString;
     std::string label_;
+
+    static constexpr double xmin_ = 0.;   // x10e34 (min inst. lumi)
+    static constexpr double xmax_ = 25.;  // x10e34 (max inst. lumi)
 
   private:
     unsigned int maxDepthOfPUArray(const std::map<unsigned int, std::vector<double> >& map_pufactor) {
@@ -894,6 +913,78 @@ namespace {
         testNum--;
       }
       return std::make_pair(testNum, input / testNum);
+    }
+
+    /** This function determines from the list of attached DetId which
+     *  SiPixelPI::region represents them
+     */
+    std::string attachLocationLabel(const std::vector<uint32_t>& listOfDetIds, SiPixelPI::PhaseInfo& phInfo) {
+      // collect all the regions in which it can be split
+      std::vector<std::string> regions;
+      for (const auto& rawId : listOfDetIds) {
+        SiPixelPI::topolInfo t_info_fromXML;
+        t_info_fromXML.init();
+        DetId detid(rawId);
+
+        const char* path_toTopologyXML = phInfo.pathToTopoXML();
+        auto tTopo =
+            StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
+        t_info_fromXML.fillGeometryInfo(detid, tTopo, phInfo.phase());
+        const auto& reg = SiPixelPI::getStringFromRegionEnum(t_info_fromXML.filterThePartition());
+        if (!std::count(regions.begin(), regions.end(), reg)) {
+          regions.push_back(reg);
+        }
+      }
+
+      std::string retVal = "";
+      // if perfect match (only one category)
+      if (regions.size() == 1) {
+        retVal = regions.front();
+      } else {
+        retVal = this->findStem(regions);
+      }
+
+      // if the last char is "/" strip it from the string
+      if (retVal.back() == '/')
+        retVal.pop_back();
+
+      return retVal;
+    }
+
+    /** Given an input list of std::string this
+     *  finds the longest common substring
+     */
+    std::string findStem(const std::vector<std::string>& arr) {
+      // Determine size of the array
+      int n = arr.size();
+
+      // Take first word from array as reference
+      std::string s = arr[0];
+      int len = s.length();
+
+      std::string res = "";
+
+      for (int i = 0; i < len; i++) {
+        for (int j = i + 1; j <= len; j++) {
+          // generating all possible substrings
+          // of our reference string arr[0] i.e s
+          std::string stem = s.substr(i, j);
+          int k = 1;
+          for (k = 1; k < n; k++) {
+            // Check if the generated stem is
+            // common to all words
+            if (arr[k].find(stem) == std::string::npos)
+              break;
+          }
+
+          // If current substring is present in
+          // all strings and its length is greater
+          // than current result
+          if (k == n && res.length() < stem.length())
+            res = stem;
+        }
+      }
+      return res;
     }
   };
 }  // namespace
