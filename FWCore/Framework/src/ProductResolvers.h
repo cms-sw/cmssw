@@ -257,11 +257,12 @@ namespace edm {
   class TransformingProductResolver : public ProducedProductResolver {
   public:
     explicit TransformingProductResolver(std::shared_ptr<BranchDescription const> bd)
-        : ProducedProductResolver(bd, ProductStatus::ResolveFailed), mcc_(nullptr) {}
+        : ProducedProductResolver(bd, ProductStatus::ResolveNotRun), mcc_(nullptr) {}
 
     void setupUnscheduled(UnscheduledConfigurator const&) final;
 
   private:
+    void putProduct(std::unique_ptr<WrapperBase> edp) const override;
     Resolution resolveProduct_(Principal const& principal,
                                bool skipCurrentProcess,
                                SharedResourcesAcquirer* sra,

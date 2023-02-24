@@ -516,6 +516,17 @@ namespace edm {
     return Resolution(nullptr);
   }
 
+  void TransformingProductResolver::putProduct(std::unique_ptr<WrapperBase> edp) const {
+    // Override putProduct() to not set the resolver status to
+    // ResolveFailed when the Event::commit_() checks which produced
+    // products were actually produced and which not, because the
+    // transforming products are never produced by time of commit_()
+    // by construction.
+    if (edp) {
+      ProducedProductResolver::putProduct(std::move(edp));
+    }
+  }
+
   void TransformingProductResolver::prefetchAsync_(WaitingTaskHolder waitTask,
                                                    Principal const& principal,
                                                    bool skipCurrentProcess,
