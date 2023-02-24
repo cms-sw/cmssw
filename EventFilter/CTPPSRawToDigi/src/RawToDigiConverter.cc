@@ -4,6 +4,7 @@
 * Authors:
 *   Jan Kašpar (jan.kaspar@gmail.com)
 *   Seyed Mohsen Etesami (setesami@cern.ch)
+*   Laurent Forthomme
 ****************************************************************************/
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -401,13 +402,16 @@ void RawToDigiConverter::run(const VFATFrameCollection &coll,
       // update Event Counter in status
       record.status.setEC(record.frame->getEC() & 0xFF);
 
-      // create the digi
-      edmNew::DetSetVector<TotemT2Digi>::FastFiller(digi, detId)
-          .emplace_back(totem::nt2::vfat::geoId(*record.frame),
-                        totem::nt2::vfat::channelId(*record.frame),
-                        totem::nt2::vfat::channelMarker(*record.frame),
-                        totem::nt2::vfat::leadingEdgeTime(*record.frame),
-                        totem::nt2::vfat::trailingEdgeTime(*record.frame));
+      for (size_t frame_id = 0; frame_id < totem::nt2::vfat::num_channels_per_payload; ++frame_id)
+        if (const auto hw_id = totem::nt2::vfat::channelId(*record.frame, frame_id);
+            hw_id == record.info->hwID)  // only unpack the payload associated to this hardware ID
+          // create the digi
+          edmNew::DetSetVector<TotemT2Digi>::FastFiller(digi, detId)
+              .emplace_back(totem::nt2::vfat::geoId(*record.frame, frame_id),
+                            hw_id,
+                            totem::nt2::vfat::channelMarker(*record.frame, frame_id),
+                            totem::nt2::vfat::leadingEdgeTime(*record.frame, frame_id),
+                            totem::nt2::vfat::trailingEdgeTime(*record.frame, frame_id));
     }
 
     // save status

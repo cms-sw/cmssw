@@ -71,10 +71,11 @@ int RawDataUnpacker::processOptoRxFrame(const word *buf,
 
   LogDebug("Totem") << "RawDataUnpacker::processOptoRxFrame: "
                     << "OptoRxId = " << optoRxId << ", BX = " << bx << ", LV1 = " << lv1
-                    << ", frameSize = " << frameSize;
+                    << ", frameSize = " << frameSize << ", fov = " << fov;
 
-  if (optoRxId >= FEDNumbering::MINTotemRPTimingVerticalFEDID &&
-      optoRxId <= FEDNumbering::MAXTotemRPTimingVerticalFEDID) {
+  if ((optoRxId >= FEDNumbering::MINTotemRPTimingVerticalFEDID &&
+       optoRxId <= FEDNumbering::MAXTotemRPTimingVerticalFEDID) |
+      (optoRxId >= FEDNumbering::MINTotemT2FEDID && optoRxId <= FEDNumbering::MAXTotemT2FEDID)) {
     processOptoRxFrameSampic(buf, frameSize, fedInfo, fc);
     return 0;
   }

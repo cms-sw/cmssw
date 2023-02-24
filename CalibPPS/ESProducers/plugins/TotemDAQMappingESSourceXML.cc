@@ -890,6 +890,7 @@ void TotemDAQMappingESSourceXML::ParseTreeTotemT2(ParseType pType,
       // store mapping data
       const TotemFramePosition &framepos = ChipFramePosition(child);
       TotemVFATInfo vfatInfo;
+      vfatInfo.hwID = hw_id;
       unsigned int arm = parentID / 10, plane = parentID % 10;
       vfatInfo.symbolicID.symbolicID = TotemT2DetId(arm, plane, id);
 
