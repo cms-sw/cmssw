@@ -47,6 +47,7 @@ GeometryConf={
     'DD4hepExtended2021FlatPlus10Percent' : 'DD4hepExtended2021FlatPlus10Percent,DD4hepExtended2021FlatPlus10PercentReco',
     'Extended2023'   : 'Extended2023,Extended2023Reco',
     'DD4hepExtended2023'   : 'DD4hepExtended2023,DD4hepExtended2023Reco',
+    'Extended2023ZeroMaterial'   : 'Extended2023ZeroMaterial,Extended2023ZeroMaterialReco',
     'DD4hepExtended2023ZeroMaterial'   : 'DD4hepExtended2023ZeroMaterial,DD4hepExtended2023ZeroMaterialReco',
     'Extended2023FlatMinus05Percent' : 'Extended2023FlatMinus05Percent,Extended2023FlatMinus05PercentReco',
     'DD4hepExtended2023FlatMinus05Percent' : 'DD4hepExtended2023FlatMinus05Percent,DD4hepExtended2023FlatMinus05PercentReco',
