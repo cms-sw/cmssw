@@ -6,8 +6,8 @@ from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import 
 from DQM.SiPixelMonitorTrack.RefitterForPixelDQM import *
 
 hltSiPixelClusterShapeCache = siPixelClusterShapeCache.clone(src = 'hltSiPixelClusters')
-hltrefittedForPixelDQM = refittedForPixelDQM.clone(src ='hltMergedTracks')
-
+hltrefittedForPixelDQM = refittedForPixelDQM.clone(src ='hltMergedTracks',
+                                                   TTRHBuilder = cms.string('WithTrackAngle')) # no templates at HLT
 sipixelMonitorHLTsequence = cms.Sequence(
     hltSiPixelClusterShapeCache
     + hltSiPixelPhase1ClustersAnalyzer
