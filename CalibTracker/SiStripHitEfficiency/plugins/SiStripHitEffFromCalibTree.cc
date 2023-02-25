@@ -99,8 +99,6 @@ public:
 
 private:
   // overridden from ConditionDBWriter
-  void algoBeginJob(const edm::EventSetup&) override;
-  void algoEndJob() override;
   void algoAnalyze(const edm::Event& e, const edm::EventSetup& c) override;
   std::unique_ptr<SiStripBadStrip> getNewObject() override;
 
@@ -225,10 +223,6 @@ SiStripHitEffFromCalibTree::SiStripHitEffFromCalibTree(const edm::ParameterSet& 
 
   quality_ = new SiStripQuality(detInfo_);
 }
-
-void SiStripHitEffFromCalibTree::algoBeginJob(const edm::EventSetup&) {}
-
-void SiStripHitEffFromCalibTree::algoEndJob() {}
 
 void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::EventSetup& c) {
   const auto& tkgeom = c.getData(tkGeomToken_);
