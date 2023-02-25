@@ -251,8 +251,9 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
   if (!badModules_list.empty())
     LOGPRINT << "Remove additionnal bad modules from the analysis: ";
   set<uint32_t>::iterator itBadMod;
-  for (itBadMod = badModules_list.begin(); itBadMod != badModules_list.end(); ++itBadMod)
-    LOGPRINT << " " << *itBadMod;
+  for (const auto& badMod : badModules_list) {
+    LOGPRINT << " " << badMod;
+  }
 
   // initialze counters and histos
 
@@ -308,9 +309,9 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
   double instLumi, PU;
 
   //Open the ROOT Calib Tree
-  for (unsigned int ifile = 0; ifile < calibTreeFileNames_.size(); ifile++) {
-    LOGPRINT << "Loading file: " << calibTreeFileNames_[ifile];
-    TFile* CalibTreeFile = TFile::Open(calibTreeFileNames_[ifile].c_str(), "READ");
+  for (const auto& calibTreeFileName : calibTreeFileNames_) {
+    LOGPRINT << "Loading file: " << calibTreeFileName;
+    TFile* CalibTreeFile = TFile::Open(calibTreeFileName.c_str(), "READ");
 
     // Get event infos
     bool foundEventInfos = false;
@@ -1020,12 +1021,11 @@ void SiStripHitEffFromCalibTree::makeTKMap(bool autoTagging = false) {
     TH1F* hEffInLayer =
         fs->make<TH1F>(Form("eff_layer%i", int(i)), Form("Module efficiency in layer %i", int(i)), 201, 0, 1.005);
 
-    map<unsigned int, pair<unsigned int, unsigned int> >::const_iterator ih;
-    for (ih = modCounter[i].begin(); ih != modCounter[i].end(); ih++) {
+    for (const auto& ih : modCounter[i]) {
       //We should be in the layer in question, and looping over all of the modules in said layer
       //Generate the list for the TKmap, and the bad module list
-      mynum = (double)(((*ih).second).second);
-      myden = (double)(((*ih).second).first);
+      mynum = (double)((ih.second).second);
+      myden = (double)((ih.second).first);
       if (myden > 0)
         myeff = mynum / myden;
       else
@@ -1035,28 +1035,28 @@ void SiStripHitEffFromCalibTree::makeTKMap(bool autoTagging = false) {
       if (!autoTagging) {
         if ((myden >= nModsMin_) && (myeff < threshold_)) {
           //We have a bad module, put it in the list!
-          BadModules[(*ih).first] = myeff;
-          tkmapbad->fillc((*ih).first, 255, 0, 0);
-          LOGPRINT << "Layer " << i << " (" << ::layerName(i, showRings_, nTEClayers) << ")  module " << (*ih).first
+          BadModules[ih.first] = myeff;
+          tkmapbad->fillc(ih.first, 255, 0, 0);
+          LOGPRINT << "Layer " << i << " (" << ::layerName(i, showRings_, nTEClayers) << ")  module " << ih.first
                    << " efficiency: " << myeff << " , " << mynum << "/" << myden;
         } else {
           //Fill the bad list with empty results for every module
-          tkmapbad->fillc((*ih).first, 255, 255, 255);
+          tkmapbad->fillc(ih.first, 255, 255, 255);
         }
         if (myeff < threshold_)
-          LOGPRINT << "Layer " << i << " (" << ::layerName(i, showRings_, nTEClayers) << ")  module " << (*ih).first
+          LOGPRINT << "Layer " << i << " (" << ::layerName(i, showRings_, nTEClayers) << ")  module " << ih.first
                    << " efficiency: " << myeff << " , " << mynum << "/" << myden;
         if (myden < nModsMin_) {
-          LOGPRINT << "Layer " << i << " (" << ::layerName(i, showRings_, nTEClayers) << ")  module " << (*ih).first
+          LOGPRINT << "Layer " << i << " (" << ::layerName(i, showRings_, nTEClayers) << ")  module " << ih.first
                    << " is under occupancy at " << myden;
         }
       }
 
       //Put any module into the TKMap
-      tkmap->fill((*ih).first, 1. - myeff);
-      tkmapeff->fill((*ih).first, myeff);
-      tkmapnum->fill((*ih).first, mynum);
-      tkmapden->fill((*ih).first, myden);
+      tkmap->fill(ih.first, 1. - myeff);
+      tkmapeff->fill(ih.first, myeff);
+      tkmapnum->fill(ih.first, mynum);
+      tkmapden->fill(ih.first, myden);
 
       //Add the number of hits in the layer
       layertotal[i] += long(myden);
@@ -1075,10 +1075,10 @@ void SiStripHitEffFromCalibTree::makeTKMap(bool autoTagging = false) {
 
       hEffInLayer->GetXaxis()->SetRange(1, hEffInLayer->GetNbinsX() + 1);
 
-      for (ih = modCounter[i].begin(); ih != modCounter[i].end(); ih++) {
+      for (const auto& ih : modCounter[i]) {
         // Second loop over modules to tag inefficient ones
-        mynum = (double)(((*ih).second).second);
-        myden = (double)(((*ih).second).first);
+        mynum = (double)((ih.second).second);
+        myden = (double)((ih.second).first);
         if (myden > 0)
           myeff = mynum / myden;
         else
@@ -1087,17 +1087,17 @@ void SiStripHitEffFromCalibTree::makeTKMap(bool autoTagging = false) {
         myeff_up = TEfficiency::Bayesian(myden, mynum, .99, 1, 1, true);
         if ((myden >= nModsMin_) && (myeff_up < layer_min_eff)) {
           //We have a bad module, put it in the list!
-          BadModules[(*ih).first] = myeff;
-          tkmapbad->fillc((*ih).first, 255, 0, 0);
+          BadModules[ih.first] = myeff;
+          tkmapbad->fillc(ih.first, 255, 0, 0);
         } else {
           //Fill the bad list with empty results for every module
-          tkmapbad->fillc((*ih).first, 255, 255, 255);
+          tkmapbad->fillc(ih.first, 255, 255, 255);
         }
         if (myeff_up < layer_min_eff + 0.08)  // printing message also for modules slighly above (8%) the limit
-          LOGPRINT << "Layer " << i << " (" << ::layerName(i, showRings_, nTEClayers) << ")  module " << (*ih).first
+          LOGPRINT << "Layer " << i << " (" << ::layerName(i, showRings_, nTEClayers) << ")  module " << ih.first
                    << " efficiency: " << myeff << " , " << mynum << "/" << myden << " , upper limit: " << myeff_up;
         if (myden < nModsMin_) {
-          LOGPRINT << "Layer " << i << " (" << ::layerName(i, showRings_, nTEClayers) << ")  module " << (*ih).first
+          LOGPRINT << "Layer " << i << " (" << ::layerName(i, showRings_, nTEClayers) << ")  module " << ih.first
                    << " layer " << i << " is under occupancy at " << myden;
         }
       }
@@ -1121,15 +1121,14 @@ void SiStripHitEffFromCalibTree::makeSQLite() {
   //This is the list of the bad strips, use to mask out entire APVs
   //Now simply go through the bad hit list and mask out things that
   //are bad!
-  map<unsigned int, double>::const_iterator it;
-  for (it = BadModules.begin(); it != BadModules.end(); it++) {
+  for (const auto& it : BadModules) {
     //We need to figure out how many strips are in this particular module
     //To Mask correctly!
-    NStrips = detInfo_.getNumberOfApvsAndStripLength((*it).first).first * 128;
-    LOGPRINT << "Number of strips module " << (*it).first << " is " << NStrips;
+    NStrips = detInfo_.getNumberOfApvsAndStripLength(it.first).first * 128;
+    LOGPRINT << "Number of strips module " << it.first << " is " << NStrips;
     BadStripList.push_back(pQuality->encode(0, NStrips, 0));
     //Now compact into a single bad module
-    id1 = (unsigned int)(*it).first;
+    id1 = (unsigned int)it.first;
     LOGPRINT << "ID1 shoudl match list of modules above " << id1;
     quality_->compact(id1, BadStripList);
     SiStripQuality::Range range(BadStripList.begin(), BadStripList.end());
@@ -1380,22 +1379,24 @@ void SiStripHitEffFromCalibTree::makeSummaryVsBx() {
     nLayers = 20;
 
   for (unsigned int ilayer = 1; ilayer < nLayers; ilayer++) {
-    for (unsigned int ibx = 0; ibx < 3566; ibx++) {
+    for (unsigned int ibx = 0; ibx <= nBxInAnOrbit_; ibx++) {
       layerfound_vsBX[ilayer]->SetBinContent(ibx, 1e-6);
       layertotal_vsBX[ilayer]->SetBinContent(ibx, 1);
     }
 
-    map<unsigned int, vector<int> >::iterator iterMapvsBx;
-    for (iterMapvsBx = layerfound_perBx.begin(); iterMapvsBx != layerfound_perBx.end(); ++iterMapvsBx)
-      layerfound_vsBX[ilayer]->SetBinContent(iterMapvsBx->first, iterMapvsBx->second[ilayer]);
-    for (iterMapvsBx = layertotal_perBx.begin(); iterMapvsBx != layertotal_perBx.end(); ++iterMapvsBx)
-      if (iterMapvsBx->second[ilayer] > 0)
-        layertotal_vsBX[ilayer]->SetBinContent(iterMapvsBx->first, iterMapvsBx->second[ilayer]);
+    for (const auto& iterMapvsBx : layerfound_perBx) {
+      layerfound_vsBX[ilayer]->SetBinContent(iterMapvsBx.first, iterMapvsBx.second[ilayer]);
+    }
+    for (const auto& iterMapvsBx : layertotal_perBx) {
+      if (iterMapvsBx.second[ilayer] > 0) {
+        layertotal_vsBX[ilayer]->SetBinContent(iterMapvsBx.first, iterMapvsBx.second[ilayer]);
+      }
+    }
 
     layerfound_vsBX[ilayer]->Sumw2();
     layertotal_vsBX[ilayer]->Sumw2();
 
-    TGraphAsymmErrors* geff = fs->make<TGraphAsymmErrors>(3564);
+    TGraphAsymmErrors* geff = fs->make<TGraphAsymmErrors>(nBxInAnOrbit_ - 1);
     geff->SetName(Form("effVsBx_layer%i", ilayer));
 
     geff->SetTitle(fmt::format("Hit Efficiency vs bx - {}", ::layerName(ilayer, showRings_, nTEClayers)).c_str());
@@ -1416,8 +1417,8 @@ void SiStripHitEffFromCalibTree::makeSummaryVsBx() {
     int ipt = 0;
     float low, up, eff;
     int firstbx = 0;
-    for (iterMapvsBx = layertotal_perBx.begin(); iterMapvsBx != layertotal_perBx.end(); ++iterMapvsBx) {
-      ibx = iterMapvsBx->first;
+    for (const auto& iterMapvsBx : layertotal_perBx) {
+      ibx = iterMapvsBx.first;
       delta_bx = ibx - previous_bx;
       // consider a new train
       if (delta_bx > (int)spaceBetweenTrains_ && nbx > 0 && total > 0) {
