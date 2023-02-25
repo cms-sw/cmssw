@@ -61,6 +61,13 @@ void SiPixelClusterShapeCacheProducer::produce(edm::StreamID, edm::Event& iEvent
   edm::Handle<InputCollection> input;
   iEvent.getByToken(token_, input);
 
+  if (!input.isValid()) {
+    edm::LogError("siPixelClusterShapeCache") << "input pixel cluster collection is not valid!";
+    auto output = std::make_unique<SiPixelClusterShapeCache>();
+    iEvent.put(std::move(output));
+    return;
+  }
+
   const auto& geom = &iSetup.getData(geomToken_);
 
   auto output = std::make_unique<SiPixelClusterShapeCache>(input);
