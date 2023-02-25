@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "CUDADataFormats/PFRecHitSoA/interface/PFRecHitCollection.h"
+#include "CUDADataFormats/PFClusterSoA/interface/PFClusterCollection.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -49,8 +50,13 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   edm::EDGetTokenT<cms::cuda::Product<hcal::PFRecHitCollection<pf::common::DevStoragePolicy>>> InputPFRecHitSoA_Token_;
+  edm::EDPutTokenT<cms::cuda::Product<hcal::PFClusterCollection<pf::common::DevStoragePolicy>>>
+      OutputPFClusterSoA_Token_;
 
   edm::ESGetToken<PFClusteringParamsGPU, JobConfigurationGPURecord> const pfClusParamsToken_;
+
+  // PFClusters for GPU
+  hcal::PFClusterCollection<pf::common::VecStoragePolicy<pf::common::CUDAHostAllocatorAlias>> tmpPFClusters;
 
   int nRH_ = 0;
 
@@ -64,6 +70,7 @@ private:
   PFClustering::HCAL::ConfigurationParameters cudaConfig_;
   PFClustering::HCAL::OutputDataCPU outputCPU;
   PFClustering::HCAL::OutputDataGPU outputGPU;
+  PFClustering::HCAL::OutputPFClusterDataGPU outputGPU2;
   PFClustering::HCAL::ScratchDataGPU scratchGPU;
 };
 
@@ -141,7 +148,6 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
     std::cout << "nRH(PFRecHitSize)>4000: " << nRH_ << std::endl;
 
   const int numbytes_int = nRH_ * sizeof(int);
-  int totalNeighbours = 0;  // Running count of 8 neighbour edges for edgeId, edgeList
 
   float kernelTimers[8] = {0.0};
 
@@ -152,10 +158,14 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
 
   // Calling cuda kernels
   PFClusterCudaHCAL::PFRechitToPFCluster_HCAL_entryPoint(
-      cudaStream, pfClusParamsProduct, totalNeighbours, PFRecHits, outputGPU, scratchGPU, kernelTimers);
+      cudaStream, pfClusParamsProduct, PFRecHits, outputGPU2, outputGPU, scratchGPU, kernelTimers);
 
   if (!_produceLegacy)
     return;  // do device->host transfer only when we are producing Legacy data
+
+  //
+  // --- Data transfers for array
+  //
 
   // Data transfer from GPU
   if (cudaStreamQuery(cudaStream) != cudaSuccess)
@@ -164,11 +174,22 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
   cudaCheck(cudaMemcpyAsync(
       outputCPU.pcrhFracSize.get(), outputGPU.pcrhFracSize.get(), sizeof(int), cudaMemcpyDeviceToHost, cudaStream));
 
+  int nTopos_h;
+  int nSeeds_h;
+  int nRHFracs_h;
+  cudaCheck(cudaMemcpyAsync(&nTopos_h, scratchGPU.nTopos.get(), sizeof(int), cudaMemcpyDeviceToHost, cudaStream));
+  cudaCheck(cudaMemcpyAsync(&nSeeds_h, scratchGPU.nSeeds.get(), sizeof(int), cudaMemcpyDeviceToHost, cudaStream));
+  cudaCheck(cudaMemcpyAsync(&nRHFracs_h, scratchGPU.nRHFracs.get(), sizeof(int), cudaMemcpyDeviceToHost, cudaStream));
+
   if (cudaStreamQuery(cudaStream) != cudaSuccess)
     cudaCheck(cudaStreamSynchronize(cudaStream));
 
   // Total size of allocated rechit fraction arrays (includes some extra padding for rechits that don't end up passing cuts)
   const Int_t nFracs = outputCPU.pcrhFracSize[0];
+
+  //
+  // --- Traditional ones from Mark
+  //
 
   cudaCheck(cudaMemcpyAsync(
       outputCPU.topoSeedCount.get(), outputGPU.topoSeedCount.get(), numbytes_int, cudaMemcpyDeviceToHost, cudaStream));
@@ -197,6 +218,26 @@ void PFClusterProducerCudaHCAL::acquire(edm::Event const& event,
 
   // if (cudaStreamQuery(cudaStream) != cudaSuccess)
   //   cudaCheck(cudaStreamSynchronize(cudaStream));
+
+  //
+  // --- Newer SoA
+  //
+
+  // --- SoA transfers -----
+  // Copy back PFCluster SoA data to CPU
+  /*
+  auto lambdaToTransferSize = [&ctx](auto& dest, auto* src, auto size) {
+    using vector_type = typename std::remove_reference<decltype(dest)>::type;
+    using src_data_type = typename std::remove_pointer<decltype(src)>::type;
+    using type = typename vector_type::value_type;
+    static_assert(std::is_same<src_data_type, type>::value && "Dest and Src data types do not match");
+    cudaCheck(cudaMemcpyAsync(dest.data(), src, size * sizeof(type), cudaMemcpyDeviceToHost, ctx.stream()));
+  };
+  */
+
+  // tmpPFClusters.resize(10);
+  // tmpPFClusters.resizeRecHitFrac(nFracs);
+  //lambdaToTransferSize(tmpPFClusters.pfc_rhfrac, outputGPU.pcrh_fracInd.get(), nFracs);
 }
 
 void PFClusterProducerCudaHCAL::produce(edm::Event& event, const edm::EventSetup& setup) {

@@ -1,0 +1,9 @@
+<export>
+ <lib name="1"/>
+</export>
+<use name="DataFormats/Common"/>
+<use name="CUDADataFormats/Common"/>
+<use name="HeterogeneousCore/CUDAUtilities"/>
+
+
+
