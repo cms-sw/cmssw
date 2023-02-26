@@ -12,6 +12,7 @@
 #include <string>
 #include <iostream>
 
+// user includes
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
@@ -19,15 +20,12 @@
 #include "CalibTracker/SiStripHitEfficiency/interface/SiStripHitEfficiencyHelpers.h"
 #include "CalibTracker/SiStripHitResolution/interface/HitResol.h"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -45,6 +43,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
@@ -58,15 +57,12 @@
 #include "TrackingTools/AnalyticalJacobians/interface/AnalyticalCurvilinearJacobian.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianCurvilinearToLocal.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCurvilinear.h"
-#include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 
+// ROOT includes
 #include "TMath.h"
 #include "TH1F.h"
-
-#include "vdt/vdtMath.h"
 
 //
 // constructors and destructor

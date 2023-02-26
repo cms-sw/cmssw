@@ -1,40 +1,31 @@
 //Original Author:  Christopher Edelmaier
 //        Created:  Feb. 11, 2010
-#include <memory>
-#include <string>
-#include <iostream>
-#include <fstream>
-#include <sstream>
 
+// system include files
+#include <fstream>
+#include <iostream>
+#include <memory>
+#include <sstream>
+#include <string>
+
+// user includes
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
-//#include "CalibTracker/SiStripHitEfficiency/interface/TrajectoryAtInvalidHit.h"
 #include "CalibTracker/SiStripHitEfficiency/interface/SiStripHitEfficiencyHelpers.h"
 #include "CalibTracker/SiStripHitResolution/interface/HitResol.h"
 #include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/TrackReco/interface/DeDxData.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -48,30 +39,25 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
-#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
-#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
-#include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
-#include "TFile.h"
+// ROOT includes
 #include "TCanvas.h"
-#include "TObjString.h"
-#include "TString.h"
-#include "TH1F.h"
-#include "TH2F.h"
-#include "TProfile.h"
+#include "TEfficiency.h"
 #include "TF1.h"
-#include "TROOT.h"
-#include "TTree.h"
-#include "TStyle.h"
-#include "TLeaf.h"
+#include "TFile.h"
 #include "TGaxis.h"
 #include "TGraphAsymmErrors.h"
+#include "TH1F.h"
+#include "TH2F.h"
 #include "TLatex.h"
+#include "TLeaf.h"
 #include "TLegend.h"
-#include "TEfficiency.h"
+#include "TObjString.h"
+#include "TProfile.h"
+#include "TROOT.h"
+#include "TString.h"
+#include "TStyle.h"
+#include "TTree.h"
 
 using namespace edm;
 using namespace reco;
