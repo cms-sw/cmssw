@@ -23,6 +23,20 @@ namespace {
     k_END_OF_LAYS_AND_RINGS = 35
   };
 
+  /*
+   * for the trend plots of efficiency vs some variable
+   */
+  enum projections { k_vs_LUMI = 0, k_vs_PU = 1, k_vs_BX = 2, k_SIZE = 3 };
+
+  const std::array<std::string, projections::k_SIZE> projFolder = {{"VsLumi", "VsPu", "VsBx"}};
+  const std::array<std::string, projections::k_SIZE> projFoundHisto = {
+      {"layerfound_vsLumi_layer_", "layerfound_vsPU_layer_", "foundVsBx_layer"}};
+  const std::array<std::string, projections::k_SIZE> projTotalHisto = {
+      {"layertotal_vsLumi_layer_", "layertotal_vsPU_layer_", "totalVsBx_layer"}};
+  const std::array<std::string, projections::k_SIZE> projTitle = {{"Inst Lumi", "Pile-Up", "Bunch Crossing"}};
+  const std::array<std::string, projections::k_SIZE> projXtitle = {
+      {"instantaneous luminosity [Hz/cm^{2}]", "Pile-Up events", "Bunch Crossing number"}};
+
   inline void replaceInString(std::string& str, const std::string& from, const std::string& to) {
     if (from.empty())
       return;
