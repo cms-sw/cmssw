@@ -7,3 +7,10 @@
 
 <bin name="testUCTLayer1HF" file="testUCTLayer1HF.cpp">
 </bin>
+
+<bin name="testCICADAEmulation" file="testCICADAEmulation.cppunit.cc">
+    <use name="hls"/>
+    <use name="hls4mlEmulatorExtras"/>
+    <use name="CICADA"/>
+    <use name="cppunit"/>
+</bin>
