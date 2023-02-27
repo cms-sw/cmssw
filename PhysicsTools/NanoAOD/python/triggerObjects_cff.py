@@ -76,8 +76,8 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 )
         ),
         Photon = cms.PSet(
-            id = cms.int32(22),
-            sel = cms.string("type(92) && pt > 20 && coll('hltEgammaCandidates')"),
+            id = cms.int32(18),
+            sel = cms.string("type(92) && pt > 15 && coll('hltEgammaCandidates')"),
             l1seed = cms.string("type(-98)"),  l1deltaR = cms.double(0.3),
             #l2seed = cms.string("type(92) && coll('')"),  l2deltaR = cms.double(0.5),
             skipObjectsNotPassingQualityBits = cms.bool(True),
