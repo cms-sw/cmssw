@@ -12,21 +12,14 @@
 
 namespace tensorflow {
 
-  void setLogging(const std::string& level) { setenv("TF_CPP_MIN_LOG_LEVEL", level.c_str(), 0); }
-
-  void setThreading(SessionOptions& sessionOptions, int nThreads) {
+  void Options::setThreading(int nThreads) {
+    _nThreads = nThreads;
     // set number of threads used for intra and inter operation communication
-    sessionOptions.config.set_intra_op_parallelism_threads(nThreads);
-    sessionOptions.config.set_inter_op_parallelism_threads(nThreads);
+    _options.config.set_intra_op_parallelism_threads(nThreads);
+    _options.config.set_inter_op_parallelism_threads(nThreads);
   }
 
-  void setThreading(SessionOptions& sessionOptions, int nThreads, const std::string& singleThreadPool) {
-    edm::LogInfo("PhysicsTools/TensorFlow") << "setting the thread pool via tensorflow::setThreading() is deprecated";
-
-    setThreading(sessionOptions, nThreads);
-  }
-
-  void setBackend(SessionOptions& sessionOptions, Backend backend) {
+  void Options::setBackend(Backend backend) {
     /*
      * The TensorFlow backend configures the available devices using options provided in the sessionOptions proto.
      * // Options from https://github.com/tensorflow/tensorflow/blob/c53dab9fbc9de4ea8b1df59041a5ffd3987328c3/tensorflow/core/protobuf/config.proto
@@ -43,17 +36,17 @@ namespace tensorflow {
     edm::Service<edm::ResourceInformation> ri;
     if (backend == Backend::cpu) {
       // disable GPU usage
-      (*sessionOptions.config.mutable_device_count())["GPU"] = 0;
-      sessionOptions.config.mutable_gpu_options()->set_visible_device_list("");
+      (*_options.config.mutable_device_count())["GPU"] = 0;
+      _options.config.mutable_gpu_options()->set_visible_device_list("");
     }
     // NVidia GPU
     else if (backend == Backend::cuda) {
       if (not ri->nvidiaDriverVersion().empty()) {
         // Take only the first GPU in the CUDA_VISIBLE_DEVICE list
-        (*sessionOptions.config.mutable_device_count())["GPU"] = 1;
-        sessionOptions.config.mutable_gpu_options()->set_visible_device_list("0");
+        (*_options.config.mutable_device_count())["GPU"] = 1;
+        _options.config.mutable_gpu_options()->set_visible_device_list("0");
         // Do not allocate all the memory on the GPU at the beginning.
-        sessionOptions.config.mutable_gpu_options()->set_allow_growth(true);
+        _options.config.mutable_gpu_options()->set_allow_growth(true);
       } else {
         edm::Exception ex(edm::errors::UnavailableAccelerator);
         ex << "Cuda backend requested, but no NVIDIA GPU available in the job";
@@ -73,26 +66,41 @@ namespace tensorflow {
       // Check if a Nvidia GPU is availabl
       if (not ri->nvidiaDriverVersion().empty()) {
         // Take only the first GPU in the CUDA_VISIBLE_DEVICE list
-        (*sessionOptions.config.mutable_device_count())["GPU"] = 1;
-        sessionOptions.config.mutable_gpu_options()->set_visible_device_list("0");
+        (*_options.config.mutable_device_count())["GPU"] = 1;
+        _options.config.mutable_gpu_options()->set_visible_device_list("0");
         // Do not allocate all the memory on the GPU at the beginning.
-        sessionOptions.config.mutable_gpu_options()->set_allow_growth(true);
+        _options.config.mutable_gpu_options()->set_allow_growth(true);
       } else {
         // Just CPU support
-        (*sessionOptions.config.mutable_device_count())["GPU"] = 0;
-        sessionOptions.config.mutable_gpu_options()->set_visible_device_list("");
+        (*_options.config.mutable_device_count())["GPU"] = 0;
+        _options.config.mutable_gpu_options()->set_visible_device_list("");
       }
     }
   }
 
-  MetaGraphDef* loadMetaGraphDef(const std::string& exportDir, const std::string& tag, SessionOptions& sessionOptions) {
+  void setLogging(const std::string& level) {
+    /*
+     * 0 = all messages are logged (default behavior)
+     * 1 = INFO messages are not printed
+     * 2 = INFO and WARNING messages are not printed
+     * 3 = INFO, WARNING, and ERROR messages are not printed
+     */
+    setenv("TF_CPP_MIN_LOG_LEVEL", level.c_str(), 0);
+  }
+
+  MetaGraphDef* loadMetaGraphDef(const std::string& exportDir, const std::string& tag) {
+    Options default_options{};
+    return loadMetaGraphDef(exportDir, tag, default_options);
+  }
+
+  MetaGraphDef* loadMetaGraphDef(const std::string& exportDir, const std::string& tag, Options& options) {
     // objects to load the graph
     Status status;
     RunOptions runOptions;
     SavedModelBundle bundle;
 
     // load the model
-    status = LoadSavedModel(sessionOptions, runOptions, exportDir, {tag}, &bundle);
+    status = LoadSavedModel(options.getSessionOptions(), runOptions, exportDir, {tag}, &bundle);
     if (!status.ok()) {
       throw cms::Exception("InvalidMetaGraphDef")
           << "error while loading metaGraphDef from '" << exportDir << "': " << status.ToString();
@@ -102,27 +110,11 @@ namespace tensorflow {
     return new MetaGraphDef(bundle.meta_graph_def);
   }
 
-  MetaGraphDef* loadMetaGraph(const std::string& exportDir, const std::string& tag, SessionOptions& sessionOptions) {
+  MetaGraphDef* loadMetaGraph(const std::string& exportDir, const std::string& tag, Options& options) {
     edm::LogInfo("PhysicsTools/TensorFlow")
         << "tensorflow::loadMetaGraph() is deprecated, use tensorflow::loadMetaGraphDef() instead";
 
-    return loadMetaGraphDef(exportDir, tag, sessionOptions);
-  }
-
-  MetaGraphDef* loadMetaGraphDef(const std::string& exportDir, const std::string& tag, Backend backend, int nThreads) {
-    // create session options and set thread options
-    SessionOptions sessionOptions;
-    setThreading(sessionOptions, nThreads);
-    setBackend(sessionOptions, backend);
-
-    return loadMetaGraphDef(exportDir, tag, sessionOptions);
-  }
-
-  MetaGraphDef* loadMetaGraph(const std::string& exportDir, const std::string& tag, Backend backend, int nThreads) {
-    edm::LogInfo("PhysicsTools/TensorFlow")
-        << "tensorflow::loadMetaGraph() is deprecated, use tensorflow::loadMetaGraphDef() instead";
-
-    return loadMetaGraphDef(exportDir, tag, backend, nThreads);
+    return loadMetaGraphDef(exportDir, tag, options);
   }
 
   GraphDef* loadGraphDef(const std::string& pbFile) {
@@ -142,13 +134,18 @@ namespace tensorflow {
     return graphDef;
   }
 
-  Session* createSession(SessionOptions& sessionOptions) {
+  Session* createSession() {
+    Options default_options{};
+    return createSession(default_options);
+  }
+
+  Session* createSession(Options& options) {
     // objects to create the session
     Status status;
 
     // create a new, empty session
     Session* session = nullptr;
-    status = NewSession(sessionOptions, &session);
+    status = NewSession(options.getSessionOptions(), &session);
     if (!status.ok()) {
       throw cms::Exception("InvalidSession") << "error while creating session: " << status.ToString();
     }
@@ -156,18 +153,7 @@ namespace tensorflow {
     return session;
   }
 
-  Session* createSession(Backend backend, int nThreads) {
-    // create session options and set thread options
-    SessionOptions sessionOptions;
-    setThreading(sessionOptions, nThreads);
-    setBackend(sessionOptions, backend);
-
-    return createSession(sessionOptions);
-  }
-
-  Session* createSession(const MetaGraphDef* metaGraphDef,
-                         const std::string& exportDir,
-                         SessionOptions& sessionOptions) {
+  Session* createSession(const MetaGraphDef* metaGraphDef, const std::string& exportDir, Options& options) {
     // check for valid pointer
     if (metaGraphDef == nullptr) {
       throw cms::Exception("InvalidMetaGraphDef") << "error while creating session: metaGraphDef is nullptr";
@@ -178,7 +164,7 @@ namespace tensorflow {
       throw cms::Exception("InvalidMetaGraphDef") << "error while creating session: graphDef has no nodes";
     }
 
-    Session* session = createSession(sessionOptions);
+    Session* session = createSession(options);
 
     // add the graph def from the meta graph
     Status status;
@@ -214,16 +200,12 @@ namespace tensorflow {
     return session;
   }
 
-  Session* createSession(const MetaGraphDef* metaGraphDef, const std::string& exportDir, Backend backend, int nThreads) {
-    // create session options and set thread options
-    SessionOptions sessionOptions;
-    setThreading(sessionOptions, nThreads);
-    setBackend(sessionOptions, backend);
-
-    return createSession(metaGraphDef, exportDir, sessionOptions);
+  Session* createSession(const GraphDef* graphDef) {
+    Options default_options{};
+    return createSession(graphDef, default_options);
   }
 
-  Session* createSession(const GraphDef* graphDef, SessionOptions& sessionOptions) {
+  Session* createSession(const GraphDef* graphDef, Options& options) {
     // check for valid pointer
     if (graphDef == nullptr) {
       throw cms::Exception("InvalidGraphDef") << "error while creating session: graphDef is nullptr";
@@ -235,7 +217,7 @@ namespace tensorflow {
     }
 
     // create a new, empty session
-    Session* session = createSession(sessionOptions);
+    Session* session = createSession(options);
 
     // add the graph def
     Status status;
@@ -247,15 +229,6 @@ namespace tensorflow {
     }
 
     return session;
-  }
-
-  Session* createSession(const GraphDef* graphDef, Backend backend, int nThreads) {
-    // create session options and set thread options
-    SessionOptions sessionOptions;
-    setThreading(sessionOptions, nThreads);
-    setBackend(sessionOptions, backend);
-
-    return createSession(graphDef, sessionOptions);
   }
 
   bool closeSession(Session*& session) {

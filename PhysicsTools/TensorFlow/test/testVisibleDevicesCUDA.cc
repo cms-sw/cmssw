@@ -54,6 +54,8 @@ process.add_(cms.Service('CUDAService'))
 
   std::cout << "Testing CUDA backend" << std::endl;
   tensorflow::Backend backend = tensorflow::Backend::cuda;
+  tensorflow::Options options{backend};
+  tensorflow::setLogging("0");
 
   // load the graph
   std::string pbFile = dataPath_ + "/constantgraph.pb";
@@ -62,11 +64,11 @@ process.add_(cms.Service('CUDAService'))
   CPPUNIT_ASSERT(graphDef != nullptr);
 
   // create a new session and add the graphDef
-  tensorflow::Session* session = tensorflow::createSession(graphDef, backend);
+  tensorflow::Session* session = tensorflow::createSession(graphDef, options);
   CPPUNIT_ASSERT(session != nullptr);
 
   // check for exception
-  CPPUNIT_ASSERT_THROW(tensorflow::createSession(nullptr, backend), cms::Exception);
+  CPPUNIT_ASSERT_THROW(tensorflow::createSession(nullptr, options), cms::Exception);
 
   std::vector<tensorflow::DeviceAttributes> response;
   tensorflow::Status status = session->ListDevices(&response);
@@ -74,11 +76,11 @@ process.add_(cms.Service('CUDAService'))
 
   // If a single device is found, we assume that it's the CPU.
   // You can check that name if you want to make sure that this is the case
-  std::cout << "Available devices: " << response.size() << std::endl;
-  CPPUNIT_ASSERT(response.size() == 2);
   for (unsigned int i = 0; i < response.size(); ++i) {
     std::cout << i << " " << response[i].name() << " type: " << response[i].device_type() << std::endl;
   }
+  std::cout << "Available devices: " << response.size() << std::endl;
+  CPPUNIT_ASSERT(response.size() == 2);
 
   // cleanup
   CPPUNIT_ASSERT(tensorflow::closeSession(session));

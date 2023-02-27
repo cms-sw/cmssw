@@ -56,14 +56,14 @@ process.add_(cms.Service('CUDAService'))
 
   // object to load and run the graph / session
   tensorflow::Status status;
-  tensorflow::SessionOptions sessionOptions;
-  tensorflow::setBackend(sessionOptions, backend);
+  tensorflow::Options options{backend};
+  tensorflow::setLogging("0");
   tensorflow::RunOptions runOptions;
   tensorflow::SavedModelBundle bundle;
 
   // load everything
   std::string modelDir = dataPath_ + "/simplegraph";
-  status = tensorflow::LoadSavedModel(sessionOptions, runOptions, modelDir, {"serve"}, &bundle);
+  status = tensorflow::LoadSavedModel(options.getSessionOptions(), runOptions, modelDir, {"serve"}, &bundle);
   if (!status.ok()) {
     std::cout << status.ToString() << std::endl;
     return;

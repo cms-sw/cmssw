@@ -55,15 +55,16 @@ process.add_(cms.Service('CUDAService'))
   // load the graph
   std::string pbFile = dataPath_ + "/constantgraph.pb";
   tensorflow::setLogging();
+  tensorflow::Options options{backend};
   tensorflow::GraphDef* graphDef = tensorflow::loadGraphDef(pbFile);
   CPPUNIT_ASSERT(graphDef != nullptr);
 
   // create a new session and add the graphDef
-  tensorflow::Session* session = tensorflow::createSession(graphDef, backend);
+  tensorflow::Session* session = tensorflow::createSession(graphDef, options);
   CPPUNIT_ASSERT(session != nullptr);
 
   // check for exception
-  CPPUNIT_ASSERT_THROW(tensorflow::createSession(nullptr, backend), cms::Exception);
+  CPPUNIT_ASSERT_THROW(tensorflow::createSession(nullptr, options), cms::Exception);
 
   // example evaluation
   tensorflow::Tensor input(tensorflow::DT_FLOAT, {1, 10});
