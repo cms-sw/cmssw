@@ -42,7 +42,7 @@ public:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
 private:
-  static constexpr const double kMuonMass_ = 0.10565836;
+  static constexpr const double kMuonMass_ = 0.1056583755;  //GeV from PDG
 
   void fillHitmaps(const reco::Track &track, const TrackerGeometry &geometry);
   void fillRawIdMap(const TrackerGeometry &geometry);
