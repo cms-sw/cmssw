@@ -37,7 +37,7 @@ The model information from the server can be printed by enabling `verbose` outpu
 ### Batching
 
 SonicTriton supports two types of batching, rectangular and ragged, depicted below:
-![batching diagrams](./batching_diagrams.png)  
+![batching diagrams](./doc/batching_diagrams.png)  
 In the rectangular case, the inputs for each object in an event have the same shape, so they can be combined into a single entry.
 (In this case, the batch size is specified as the "outer dimension" of the shape.)
 In the ragged case, the inputs for each object in an event do not have the same shape, so they cannot be combined;
