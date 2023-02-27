@@ -50,8 +50,9 @@ public:
     size_t rowSize = sizeof(float) * nHits();
 
     size_t srcPitch = ptrdiff_t(view().yLocal()) - ptrdiff_t(view().xLocal());
-    cudaCheck(cudaMemcpy2DAsync(ret.get(), rowSize, view().xLocal(), srcPitch, rowSize, 4, cudaMemcpyDeviceToHost, stream));
-  
+    cudaCheck(
+        cudaMemcpy2DAsync(ret.get(), rowSize, view().xLocal(), srcPitch, rowSize, 4, cudaMemcpyDeviceToHost, stream));
+
     return ret;
   }  //move to utilities
 
