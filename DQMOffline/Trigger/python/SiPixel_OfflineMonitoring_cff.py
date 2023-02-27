@@ -7,7 +7,7 @@ from DQM.SiPixelMonitorTrack.RefitterForPixelDQM import *
 
 hltSiPixelClusterShapeCache = siPixelClusterShapeCache.clone(src = 'hltSiPixelClusters')
 hltrefittedForPixelDQM = refittedForPixelDQM.clone(src ='hltMergedTracks',
-                                                   TTRHBuilder = cms.string('WithTrackAngle')) # no templates at HLT
+                                                   TTRHBuilder = 'WithTrackAngle') # no templates at HLT
 sipixelMonitorHLTsequence = cms.Sequence(
     hltSiPixelClusterShapeCache
     + hltSiPixelPhase1ClustersAnalyzer
