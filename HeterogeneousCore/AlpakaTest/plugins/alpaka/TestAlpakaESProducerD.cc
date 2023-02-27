@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/Utilities/interface/ESInputTag.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESGetToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESProducer.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ModuleFactory.h"
@@ -23,12 +24,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     TestAlpakaESProducerD(edm::ParameterSet const& iConfig) {
       auto cc = setWhatProduced(this);
-      tokenA_ = cc.consumes();
-      tokenB_ = cc.consumes();
+      tokenA_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("srcA"));
+      tokenB_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("srcB"));
     }
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
+      desc.add("srcA", edm::ESInputTag{});
+      desc.add("srcB", edm::ESInputTag{});
       descriptions.addWithDefaultLabel(desc);
     }
 

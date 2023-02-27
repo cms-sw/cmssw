@@ -88,6 +88,10 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
       stagger[i_layer] = 1;
   }
 
+  for (int i = 0; i < CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER; ++i) {
+    ispretrig_[i] = false;
+  }
+
   // which patterns should we use?
   if (runCCLUT_) {
     clct_pattern_ = CSCPatternBank::clct_pattern_run3_;

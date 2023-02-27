@@ -202,6 +202,28 @@ TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg)
   }
 }
 
+void TrackerGeometryCompare::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.setComment("Validates alignment payloads by comparing positions of tracker modules positiona and orientations");
+  desc.addUntracked<std::vector<std::string> >("levels", {});
+  desc.addUntracked<bool>("fromDD4hep", false);
+  desc.addUntracked<bool>("writeToDB", false);
+  desc.addUntracked<std::string>("moduleList", "moduleList.txt");
+  desc.addUntracked<std::string>("inputROOTFile1", "IDEAL");
+  desc.addUntracked<std::string>("inputROOTFile2", "idealtracker2.root");
+  desc.addUntracked<std::string>("treeNameAlign", "alignTree");
+  desc.addUntracked<std::string>("treeNameDeform", "alignTreeDeformations");
+  desc.addUntracked<std::string>("outputFile", "output.root");
+  desc.addUntracked<std::string>("surfDir", ".");
+  desc.addUntracked<std::string>("weightBy", "DetUnit");
+  desc.addUntracked<std::string>("setCommonTrackerSystem", "NONE");
+  desc.addUntracked<bool>("detIdFlag", false);
+  desc.addUntracked<std::string>("detIdFlagFile", "blah.txt");
+  desc.addUntracked<bool>("weightById", false);
+  desc.addUntracked<std::string>("weightByIdFile", "blah2.txt");
+  descriptions.addWithDefaultLabel(desc);
+}
+
 void TrackerGeometryCompare::beginJob() { firstEvent_ = true; }
 
 void TrackerGeometryCompare::endJob() {

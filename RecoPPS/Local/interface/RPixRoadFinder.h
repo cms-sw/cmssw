@@ -35,7 +35,7 @@ class RPixRoadFinder : public RPixDetPatternFinder {
 public:
   explicit RPixRoadFinder(const edm::ParameterSet &param);
   ~RPixRoadFinder() override;
-  void findPattern(bool isbadpot) override;
+  void findPattern(bool *is2planepot) override;
 
 private:
   int verbosity_;

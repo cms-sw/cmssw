@@ -25,7 +25,7 @@ public:
       : PFRecHitNavigatorBase(iConfig, cc),
         neighbourmapcalculated_(false),
         crossBarrelEndcapBorder_(iConfig.getParameter<bool>("crossBarrelEndcapBorder")),
-        geomToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {}
+        geomToken_(cc.esConsumes<edm::Transition::BeginRun>()) {}
 
   void init(const edm::EventSetup& iSetup) override {
     edm::ESHandle<CaloGeometry> geoHandle = iSetup.getHandle(geomToken_);

@@ -18,22 +18,18 @@
 //
 //***********************************************************************************
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
-
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
-
 #include "DQMOffline/Trigger/interface/HLTDQMHist.h"
 #include "DQMOffline/Trigger/interface/VarRangeCutColl.h"
 #include "DQMOffline/Trigger/interface/FunctionDefs.h"
 #include "DQMOffline/Trigger/interface/UtilFuncs.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 template <typename ObjType>
 class HLTDQMFilterEffHists {
 public:
-  typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;
 
   explicit HLTDQMFilterEffHists(const edm::ParameterSet& config, std::string baseHistName, std::string hltProcess);
@@ -52,8 +48,8 @@ private:
   void book2D(DQMStore::IBooker& iBooker, const edm::ParameterSet& histConfig);
 
 private:
-  std::vector<std::unique_ptr<HLTDQMHist<ObjType> > > histsPass_;
-  std::vector<std::unique_ptr<HLTDQMHist<ObjType> > > histsTot_;
+  std::vector<std::unique_ptr<HLTDQMHist<ObjType>>> histsPass_;
+  std::vector<std::unique_ptr<HLTDQMHist<ObjType>>> histsTot_;
   VarRangeCutColl<ObjType> rangeCuts_;
   std::string filterName_;
   std::string histTitle_;
@@ -66,7 +62,7 @@ template <typename ObjType>
 HLTDQMFilterEffHists<ObjType>::HLTDQMFilterEffHists(const edm::ParameterSet& config,
                                                     std::string baseHistName,
                                                     std::string hltProcess)
-    : rangeCuts_(config.getParameter<std::vector<edm::ParameterSet> >("rangeCuts")),
+    : rangeCuts_(config.getParameter<std::vector<edm::ParameterSet>>("rangeCuts")),
       filterName_(config.getParameter<std::string>("filterName")),
       histTitle_(config.getParameter<std::string>("histTitle")),
       folderName_(config.getParameter<std::string>("folderName")),
@@ -89,11 +85,11 @@ edm::ParameterSetDescription HLTDQMFilterEffHists<ObjType>::makePSetDescriptionH
 
   //what this is doing is trival and is left as an exercise to the reader
   auto histDescCases =
-      "1D" >> (edm::ParameterDescription<std::vector<double> >("binLowEdges", std::vector<double>(), true) and
+      "1D" >> (edm::ParameterDescription<std::vector<double>>("binLowEdges", std::vector<double>(), true) and
                edm::ParameterDescription<std::string>("nameSuffex", "", true) and
                edm::ParameterDescription<std::string>("vsVar", "", true)) or
-      "2D" >> (edm::ParameterDescription<std::vector<double> >("xBinLowEdges", std::vector<double>(), true) and
-               edm::ParameterDescription<std::vector<double> >("yBinLowEdges", std::vector<double>(), true) and
+      "2D" >> (edm::ParameterDescription<std::vector<double>>("xBinLowEdges", std::vector<double>(), true) and
+               edm::ParameterDescription<std::vector<double>>("yBinLowEdges", std::vector<double>(), true) and
                edm::ParameterDescription<std::string>("nameSuffex", "", true) and
                edm::ParameterDescription<std::string>("xVar", "", true) and
                edm::ParameterDescription<std::string>("yVar", "", true));
@@ -121,7 +117,7 @@ void HLTDQMFilterEffHists<ObjType>::bookHists(DQMStore::IBooker& iBooker,
 
 template <typename ObjType>
 void HLTDQMFilterEffHists<ObjType>::book1D(DQMStore::IBooker& iBooker, const edm::ParameterSet& histConfig) {
-  auto binLowEdgesDouble = histConfig.getParameter<std::vector<double> >("binLowEdges");
+  auto binLowEdgesDouble = histConfig.getParameter<std::vector<double>>("binLowEdges");
   std::vector<float> binLowEdges;
   binLowEdges.reserve(binLowEdgesDouble.size());
   for (double lowEdge : binLowEdgesDouble)
@@ -131,28 +127,28 @@ void HLTDQMFilterEffHists<ObjType>::book1D(DQMStore::IBooker& iBooker, const edm
                                (histTitle_ + nameSuffex + " Pass").c_str(),
                                binLowEdges.size() - 1,
                                &binLowEdges[0]);
-  std::unique_ptr<HLTDQMHist<ObjType> > hist;
+  std::unique_ptr<HLTDQMHist<ObjType>> hist;
   auto vsVar = histConfig.getParameter<std::string>("vsVar");
   auto vsVarFunc = hltdqm::getUnaryFuncFloat<ObjType>(vsVar);
   if (!vsVarFunc) {
     throw cms::Exception("ConfigError") << " vsVar " << vsVar << " is giving null ptr (likely empty) in " << __FILE__
                                         << "," << __LINE__ << std::endl;
   }
-  VarRangeCutColl<ObjType> rangeCuts(histConfig.getParameter<std::vector<edm::ParameterSet> >("rangeCuts"));
-  hist = std::make_unique<HLTDQMHist1D<ObjType, float> >(mePass->getTH1(), vsVar, vsVarFunc, rangeCuts);
+  VarRangeCutColl<ObjType> rangeCuts(histConfig.getParameter<std::vector<edm::ParameterSet>>("rangeCuts"));
+  hist = std::make_unique<HLTDQMHist1D<ObjType, float>>(mePass, vsVar, vsVarFunc, rangeCuts);
   histsPass_.emplace_back(std::move(hist));
   auto meTot = iBooker.book1D((baseHistName_ + filterName_ + nameSuffex + "_tot").c_str(),
                               (histTitle_ + nameSuffex + " Total").c_str(),
                               binLowEdges.size() - 1,
                               &binLowEdges[0]);
-  hist = std::make_unique<HLTDQMHist1D<ObjType, float> >(meTot->getTH1(), vsVar, vsVarFunc, rangeCuts);
+  hist = std::make_unique<HLTDQMHist1D<ObjType, float>>(meTot, vsVar, vsVarFunc, rangeCuts);
   histsTot_.emplace_back(std::move(hist));
 }
 
 template <typename ObjType>
 void HLTDQMFilterEffHists<ObjType>::book2D(DQMStore::IBooker& iBooker, const edm::ParameterSet& histConfig) {
-  auto xBinLowEdgesDouble = histConfig.getParameter<std::vector<double> >("xBinLowEdges");
-  auto yBinLowEdgesDouble = histConfig.getParameter<std::vector<double> >("yBinLowEdges");
+  auto xBinLowEdgesDouble = histConfig.getParameter<std::vector<double>>("xBinLowEdges");
+  auto yBinLowEdgesDouble = histConfig.getParameter<std::vector<double>>("yBinLowEdges");
   std::vector<float> xBinLowEdges;
   std::vector<float> yBinLowEdges;
   xBinLowEdges.reserve(xBinLowEdgesDouble.size());
@@ -168,7 +164,7 @@ void HLTDQMFilterEffHists<ObjType>::book2D(DQMStore::IBooker& iBooker, const edm
                                &xBinLowEdges[0],
                                yBinLowEdges.size() - 1,
                                &yBinLowEdges[0]);
-  std::unique_ptr<HLTDQMHist<ObjType> > hist;
+  std::unique_ptr<HLTDQMHist<ObjType>> hist;
   auto xVar = histConfig.getParameter<std::string>("xVar");
   auto yVar = histConfig.getParameter<std::string>("yVar");
   auto xVarFunc = hltdqm::getUnaryFuncFloat<ObjType>(xVar);
@@ -177,11 +173,9 @@ void HLTDQMFilterEffHists<ObjType>::book2D(DQMStore::IBooker& iBooker, const edm
     throw cms::Exception("ConfigError") << " xVar " << xVar << " or yVar " << yVar
                                         << " is giving null ptr (likely empty str passed)" << std::endl;
   }
-  VarRangeCutColl<ObjType> rangeCuts(histConfig.getParameter<std::vector<edm::ParameterSet> >("rangeCuts"));
+  VarRangeCutColl<ObjType> rangeCuts(histConfig.getParameter<std::vector<edm::ParameterSet>>("rangeCuts"));
 
-  //really? really no MonitorElement::getTH2...sigh
-  hist = std::make_unique<HLTDQMHist2D<ObjType, float> >(
-      static_cast<TH2*>(mePass->getTH1()), xVar, yVar, xVarFunc, yVarFunc, rangeCuts);
+  hist = std::make_unique<HLTDQMHist2D<ObjType, float>>(mePass, xVar, yVar, xVarFunc, yVarFunc, rangeCuts);
   histsPass_.emplace_back(std::move(hist));
 
   auto meTot = iBooker.book2D((baseHistName_ + filterName_ + nameSuffex + "_tot").c_str(),
@@ -191,8 +185,7 @@ void HLTDQMFilterEffHists<ObjType>::book2D(DQMStore::IBooker& iBooker, const edm
                               yBinLowEdges.size() - 1,
                               &yBinLowEdges[0]);
 
-  hist = std::make_unique<HLTDQMHist2D<ObjType, float> >(
-      static_cast<TH2*>(meTot->getTH1()), xVar, yVar, xVarFunc, yVarFunc, rangeCuts);
+  hist = std::make_unique<HLTDQMHist2D<ObjType, float>>(meTot, xVar, yVar, xVarFunc, yVarFunc, rangeCuts);
   histsTot_.emplace_back(std::move(hist));
 }
 

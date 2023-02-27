@@ -18,6 +18,60 @@ void SiStripFedZeroSuppression::init(const edm::EventSetup& es) {
   }
 }
 
+namespace {
+
+  constexpr uint8_t zeroTh = 0;
+  constexpr uint8_t lowTh = 1;
+  constexpr uint8_t highTh = 2;
+
+  struct Payload {
+    uint8_t stat;
+    uint8_t statPrev;
+    uint8_t statNext;
+    uint8_t statMaxNeigh;
+    uint8_t statPrev2;
+    uint8_t statNext2;
+  };
+
+  constexpr bool isDigiValid(Payload const& data, uint16_t FEDalgorithm) {
+    // Decide if this strip should be accepted.
+    bool accept = false;
+    switch (FEDalgorithm) {
+      case 1:
+        accept = (data.stat >= lowTh);
+        break;
+      case 2:
+        accept = (data.stat >= highTh || (data.stat >= lowTh && data.statMaxNeigh >= lowTh));
+        break;
+      case 3:
+        accept = (data.stat >= highTh || (data.stat >= lowTh && data.statMaxNeigh >= highTh));
+        break;
+      case 4:
+        accept = ((data.stat >= highTh)     //Test for adc>highThresh (same as algorithm 2)
+                  || ((data.stat >= lowTh)  //Test for adc>lowThresh, with neighbour adc>lowThresh (same as algorithm 2)
+                      && (data.statMaxNeigh >= lowTh)) ||
+                  ((data.stat < lowTh)             //Test for adc<lowThresh
+                   && (((data.statPrev >= highTh)  //with both neighbours>highThresh
+                        && (data.statNext >= highTh)) ||
+                       ((data.statPrev >= highTh)    //OR with previous neighbour>highThresh and
+                        && (data.statNext >= lowTh)  //both the next neighbours>lowThresh
+                        && (data.statNext2 >= lowTh)) ||
+                       ((data.statNext >= highTh)    //OR with next neighbour>highThresh and
+                        && (data.statPrev >= lowTh)  //both the previous neighbours>lowThresh
+                        && (data.statPrev2 >= lowTh)) ||
+                       ((data.statNext >= lowTh)      //OR with both next neighbours>lowThresh and
+                        && (data.statNext2 >= lowTh)  //both the previous neighbours>lowThresh
+                        && (data.statPrev >= lowTh) && (data.statPrev2 >= lowTh)))));
+        break;
+      case 5:
+        accept = true;  // zero removed in conversion
+        break;
+    }
+    return accept;
+  }
+
+}  // namespace
+
 void SiStripFedZeroSuppression::suppress(const std::vector<SiStripDigi>& in,
                                          std::vector<SiStripDigi>& selectedSignal,
                                          uint32_t detID) {
@@ -29,7 +83,6 @@ void SiStripFedZeroSuppression::suppress(const std::vector<SiStripDigi>& in,
                                          uint32_t detID,
                                          const SiStripNoises& noise,
                                          const SiStripThreshold& threshold) {
-  int i;
   int inSize = in.size();
   SiStripNoises::Range detNoiseRange = noise.getRange(detID);
   SiStripThreshold::Range detThRange = threshold.getRange(detID);
@@ -37,91 +90,66 @@ void SiStripFedZeroSuppression::suppress(const std::vector<SiStripDigi>& in,
   // reserving more than needed, but quicker than one at a time
   selectedSignal.clear();
   selectedSignal.reserve(inSize);
-  for (i = 0; i < inSize; i++) {
-    //Find adc values for neighbouring strips
-    const uint32_t strip = (uint32_t)in[i].strip();
 
-    adc = in[i].adc();
+  // load status
+  uint8_t stat[inSize];
+  for (int i = 0; i < inSize; i++) {
+    auto strip = (uint32_t)in[i].strip();
 
-    SiStripThreshold::Data thresholds = threshold.getData(strip, detThRange);
-    theFEDlowThresh = static_cast<int16_t>(thresholds.getLth() * noise.getNoiseFast(strip, detNoiseRange) + 0.5);
-    theFEDhighThresh = static_cast<int16_t>(thresholds.getHth() * noise.getNoiseFast(strip, detNoiseRange) + 0.5);
+    auto ladc = in[i].adc();
+    assert(ladc > 0);
 
-    adcPrev = -9999;
-    adcNext = -9999;
-    adcPrev2 = -9999;
-    adcNext2 = -9999;
+    auto thresholds = threshold.getData(strip, detThRange);
 
-    /*
-      Since we are not running on 
-      Raw data we need to initialize
-      all the FED threshold
-    */
+    auto highThresh = static_cast<int16_t>(thresholds.getHth() * noise.getNoiseFast(strip, detNoiseRange) + 0.5f);
+    auto lowThresh = static_cast<int16_t>(thresholds.getLth() * noise.getNoiseFast(strip, detNoiseRange) + 0.5f);
 
-    theNextFEDlowThresh = theFEDlowThresh;
-    theNext2FEDlowThresh = theFEDlowThresh;
-    thePrevFEDlowThresh = theFEDlowThresh;
-    thePrev2FEDlowThresh = theFEDlowThresh;
-    theNeighFEDlowThresh = theFEDlowThresh;
+    assert(lowThresh >= 0);
+    assert(lowThresh <= highThresh);
 
-    theNextFEDhighThresh = theFEDhighThresh;
-    thePrevFEDhighThresh = theFEDhighThresh;
-    theNeighFEDhighThresh = theFEDhighThresh;
+    stat[i] = zeroTh;
+    if (ladc >= lowThresh)
+      stat[i] = lowTh;
+    if (ladc >= highThresh)
+      stat[i] = highTh;
+  }
+
+  for (int i = 0; i < inSize; i++) {
+    auto strip = (uint32_t)in[i].strip();
+    Payload ldata;
+
+    ldata.stat = stat[i];
+    ldata.statPrev = zeroTh;
+    ldata.statNext = zeroTh;
+    ldata.statPrev2 = zeroTh;
+    ldata.statNext2 = zeroTh;
 
     if (((strip) % 128) == 127) {
-      adcNext = 0;
-      theNextFEDlowThresh = 9999;
-      theNextFEDhighThresh = 9999;
+      ldata.statNext = zeroTh;
     } else if (i + 1 < inSize && in[i + 1].strip() == strip + 1) {
-      adcNext = in[i + 1].adc();
-      SiStripThreshold::Data thresholds_1 = threshold.getData(strip + 1, detThRange);
-      theNextFEDlowThresh =
-          static_cast<int16_t>(thresholds_1.getLth() * noise.getNoiseFast(strip + 1, detNoiseRange) + 0.5);
-      theNextFEDhighThresh =
-          static_cast<int16_t>(thresholds_1.getHth() * noise.getNoiseFast(strip + 1, detNoiseRange) + 0.5);
+      ldata.statNext = stat[i + 1];
       if (((strip) % 128) == 126) {
-        adcNext2 = 0;
-        theNext2FEDlowThresh = 9999;
+        ldata.statNext2 = zeroTh;
       } else if (i + 2 < inSize && in[i + 2].strip() == strip + 2) {
-        adcNext2 = in[i + 2].adc();
-        theNext2FEDlowThresh = static_cast<int16_t>(
-            threshold.getData(strip + 2, detThRange).getLth() * noise.getNoiseFast(strip + 2, detNoiseRange) + 0.5);
+        ldata.statNext2 = stat[i + 2];
       }
     }
 
     if (((strip) % 128) == 0) {
-      adcPrev = 0;
-      thePrevFEDlowThresh = 9999;
-      thePrevFEDhighThresh = 9999;
+      ldata.statPrev = zeroTh;
     } else if (i - 1 >= 0 && in[i - 1].strip() == strip - 1) {
-      adcPrev = in[i - 1].adc();
-      SiStripThreshold::Data thresholds_1 = threshold.getData(strip - 1, detThRange);
-      thePrevFEDlowThresh =
-          static_cast<int16_t>(thresholds_1.getLth() * noise.getNoiseFast(strip - 1, detNoiseRange) + 0.5);
-      thePrevFEDhighThresh =
-          static_cast<int16_t>(thresholds_1.getHth() * noise.getNoiseFast(strip - 1, detNoiseRange) + 0.5);
+      ldata.statPrev = stat[i - 1];
       if (((strip) % 128) == 1) {
-        adcPrev2 = 0;
-        thePrev2FEDlowThresh = 9999;
+        ldata.statPrev2 = zeroTh;
       } else if (i - 2 >= 0 && in[i - 2].strip() == strip - 2) {
-        adcPrev2 = in[i - 2].adc();
-        thePrev2FEDlowThresh = static_cast<int16_t>(
-            threshold.getData(strip - 2, detThRange).getLth() * noise.getNoiseFast(strip - 2, detNoiseRange) + 0.5);
+        ldata.statPrev2 = stat[i - 2];
       }
     }
 
-    if (adcNext <= adcPrev) {
-      adcMaxNeigh = adcPrev;
-      theNeighFEDlowThresh = thePrevFEDlowThresh;
-      theNeighFEDhighThresh = thePrevFEDhighThresh;
-    } else {
-      adcMaxNeigh = adcNext;
-      theNeighFEDlowThresh = theNextFEDlowThresh;
-      theNeighFEDhighThresh = theNextFEDhighThresh;
-    }
+    ldata.statMaxNeigh = std::max(ldata.statPrev, ldata.statNext);
 
-    if (isAValidDigi()) {
-      selectedSignal.push_back(SiStripDigi(strip, adc));
+    if (isDigiValid(ldata, theFEDalgorithm)) {
+      selectedSignal.push_back(SiStripDigi(strip, in[i].adc()));
     }
   }
 }

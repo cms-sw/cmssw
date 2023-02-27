@@ -1,6 +1,6 @@
-## DMR validation
-
-#General info
+# Track-Hit Residuals Validation (DMR, DRnR, etc.)
+ 
+## General info
 ```
 validations:
     DMR:
@@ -20,7 +20,7 @@ Trends/Averaged job will start if all corresponding merge jobs are done.
 Trends and averaged jobs will run in parallel.
 Averaged job consists of 3 types of sub-jobs (submission is automatized internally). 
 
-#Single DMR jobs:
+## Single DMR jobs
 Single jobs can be specified per run (IoV as well). In case of MC, IoV is specified to arbitrary 1.  
 
 Variable | Default value | Explanation/Options
@@ -38,7 +38,7 @@ usePixelQualityFlag | True | Use pixel quality flag?
 cosmicsZeroTesla | False | Is this validation for cosmics with zero magnetic field?
 vertexcollection | "offlinePrimaryVertices" | Specify vertex collection to be used.
 
-#Merge DMR job
+## Merge DMR job
 Its name do not need to match single job name but option `singles` must list all single jobs to be merged.
 Needs to be specified in order to run averaged/trends jobs.
 DMR merged plot style can be adjusted from global plotting style (see `Alignment/OfflineValidation/test/example_DMR_full.yaml`)
@@ -56,7 +56,7 @@ minimum | 15 | Minimum number of hits requested.
 bigtext | false | Legend text size should be enlarged.
 moduleid | None | Plot residuals for selected list of module IDs. (debugging)
 
-#Trends DMR job
+## Trends DMR job
 Its name do not need to match merge neither single job name but option `merges` must list all merge jobs to be put in trend plot.
 Trend plot style is defined globally for all trend plots (see `Alignment/OfflineValidation/test/example_DMR_full.yaml`)
 
@@ -69,7 +69,7 @@ lastRun | 325175 | Specify the last run to be considered.
 labels | None | List of string tags to be added in output rootfile.
 year | Run2 | Enforce year tag to be included in lumiInputFile option specified in trend style (This is extra measure)
 
-#Averaged DMR job
+## Averaged DMR job
 Its name do not need to match merge neither single job name but option `merges` must list all merge jobs to be put in averaged distribution.
 Each merge job to be passed to averager must consist of data OR MC single jobs exclusively (no mix of Data and MC). 
 Some style options are accessible from global style config (see `Alignment/OfflineValidation/test/example_DMR_full.yaml`).

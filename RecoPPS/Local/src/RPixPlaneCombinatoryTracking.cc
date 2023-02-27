@@ -163,7 +163,7 @@ void RPixPlaneCombinatoryTracking::findTracks(int run) {
   //The loop stops when the number of planes with recorded hits is less than the minimum number of planes required
   //or if the track with minimum chiSquare found has a chiSquare higher than the maximum required
 
-  // bad Pot patch 45-220-fr 2022 -- beginning
+  // bad Pot patch -- beginning
   // check number of hits in road
   unsigned int hitNum = 0;
   for (const auto &plane : *hitMap_) {
@@ -213,7 +213,7 @@ void RPixPlaneCombinatoryTracking::findTracks(int run) {
     // save track in collection
     localTrackVector_.push_back(track);
   }
-  // bad Pot patch 45-220-fr 2022 -- end
+  // bad Pot patch -- end
 
   while (hitMap_->size() >= trackMinNumberOfPoints_) {
     if (verbosity_ >= 1)

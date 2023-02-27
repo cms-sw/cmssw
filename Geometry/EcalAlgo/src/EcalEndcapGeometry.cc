@@ -2,6 +2,7 @@
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <CLHEP/Geometry/Point3D.h>
 #include <CLHEP/Geometry/Plane3D.h>
@@ -10,6 +11,8 @@ typedef CaloCellGeometry::CCGFloat CCGFloat;
 typedef CaloCellGeometry::Pt3D Pt3D;
 typedef CaloCellGeometry::Pt3DVec Pt3DVec;
 typedef HepGeom::Plane3D<CCGFloat> Pl3D;
+
+//#define EDM_ML_DEBUG
 
 EcalEndcapGeometry::EcalEndcapGeometry(void)
     : _nnmods(316),
@@ -157,16 +160,19 @@ void EcalEndcapGeometry::initializeParms() {
   m_yhi[1] += m_wref / 2;
 
   m_del += m_wref;
-  /*
-  std::cout<<"zeP="<<zeP<<", zeN="<<zeN<<", nP="<<nP<<", nN="<<nN<<std::endl ;
 
-  std::cout<<"xlo[0]="<<m_xlo[0]<<", xlo[1]="<<m_xlo[1]<<", xhi[0]="<<m_xhi[0]<<", xhi[1]="<<m_xhi[1]
-	   <<"\nylo[0]="<<m_ylo[0]<<", ylo[1]="<<m_ylo[1]<<", yhi[0]="<<m_yhi[0]<<", yhi[1]="<<m_yhi[1]<<std::endl ;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("EcalGeom") << "zeP=" << zeP << ", zeN=" << zeN << ", nP=" << nP << ", nN=" << nN;
 
-  std::cout<<"xoff[0]="<<m_xoff[0]<<", xoff[1]"<<m_xoff[1]<<", yoff[0]="<<m_yoff[0]<<", yoff[1]"<<m_yoff[1]<<std::endl ;
+  edm::LogVerbatim("EcalGeom") << "xlo[0]=" << m_xlo[0] << ", xlo[1]=" << m_xlo[1] << ", xhi[0]=" << m_xhi[0]
+                               << ", xhi[1]=" << m_xhi[1] << "\nylo[0]=" << m_ylo[0] << ", ylo[1]=" << m_ylo[1]
+                               << ", yhi[0]=" << m_yhi[0] << ", yhi[1]=" << m_yhi[1];
 
-  std::cout<<"nref="<<m_nref<<", m_wref="<<m_wref<<std::endl ;
-*/
+  edm::LogVerbatim("EcalGeom") << "xoff[0]=" << m_xoff[0] << ", xoff[1]" << m_xoff[1] << ", yoff[0]=" << m_yoff[0]
+                               << ", yoff[1]" << m_yoff[1];
+
+  edm::LogVerbatim("EcalGeom") << "nref=" << m_nref << ", m_wref=" << m_wref;
+#endif
 }
 
 unsigned int EcalEndcapGeometry::xindex(CCGFloat x, CCGFloat z) const {

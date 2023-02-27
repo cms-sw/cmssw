@@ -16,16 +16,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
    * Alpaka buffer that is then moved into an object of a class that
    * is templated over the device type, and implicitly transfers the
    * data product to device
+   *
+   * This class also tests the explicit label for ESProducts works
    */
   class TestAlpakaESProducerB : public ESProducer {
   public:
     TestAlpakaESProducerB(edm::ParameterSet const& iConfig) {
-      auto cc = setWhatProduced(this);
+      auto cc = setWhatProduced(this, iConfig.getParameter<std::string>("explicitLabel"));
       token_ = cc.consumes();
     }
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
+      desc.add("explicitLabel", std::string{});
       descriptions.addWithDefaultLabel(desc);
     }
 

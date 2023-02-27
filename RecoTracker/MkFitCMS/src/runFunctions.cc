@@ -61,9 +61,19 @@ namespace mkfit {
 
     builder.findTracksCloneEngine();
 
-    if (itconf.m_pre_bkfit_filter) {
-      builder.filter_comb_cands(itconf.m_pre_bkfit_filter);
-    }
+    // Pre backward-fit filtering.
+    filter_candidates_func pre_filter;
+    if (do_backward_fit && itconf.m_pre_bkfit_filter)
+      pre_filter = [&](const TrackCand &tc, const MkJob &jb) -> bool {
+        return itconf.m_pre_bkfit_filter(tc, jb) && StdSeq::qfilter_nan_n_silly<TrackCand>(tc, jb);
+      };
+    else if (itconf.m_pre_bkfit_filter)
+      pre_filter = itconf.m_pre_bkfit_filter;
+    else if (do_backward_fit)
+      pre_filter = StdSeq::qfilter_nan_n_silly<TrackCand>;
+    // pre_filter can be null if we are not doing backward fit as nan_n_silly will be run below.
+    if (pre_filter)
+      builder.filter_comb_cands(pre_filter, true);
 
     job.switch_to_backward();
 
@@ -77,15 +87,22 @@ namespace mkfit {
       if (itconf.m_backward_search) {
         builder.beginBkwSearch();
         builder.findTracksCloneEngine(SteeringParams::IT_BkwSearch);
-        builder.endBkwSearch();
-      }
-
-      if (itconf.m_post_bkfit_filter) {
-        builder.filter_comb_cands(itconf.m_post_bkfit_filter);
       }
     }
 
-    builder.filter_comb_cands(StdSeq::qfilter_nan_n_silly<TrackCand>);
+    // Post backward-fit filtering.
+    filter_candidates_func post_filter;
+    if (do_backward_fit && itconf.m_post_bkfit_filter)
+      post_filter = [&](const TrackCand &tc, const MkJob &jb) -> bool {
+        return itconf.m_post_bkfit_filter(tc, jb) && StdSeq::qfilter_nan_n_silly<TrackCand>(tc, jb);
+      };
+    else
+      post_filter = StdSeq::qfilter_nan_n_silly<TrackCand>;
+    // post_filter is always at least doing nan_n_silly filter.
+    builder.filter_comb_cands(post_filter, true);
+
+    if (do_backward_fit && itconf.m_backward_search)
+      builder.endBkwSearch();
 
     builder.export_best_comb_cands(out_tracks, true);
 

@@ -76,7 +76,7 @@ namespace edm {
       value_type temp1(hash);
       fixup_(temp1);
       cms::MD5Result temp;
-      copy_all(temp1, temp.bytes);
+      copy_all(temp1, temp.bytes.begin());
       result += temp.toString();
     }
 
@@ -85,7 +85,7 @@ namespace edm {
       value_type temp1(hash);
       fixup_(temp1);
       cms::MD5Result temp;
-      copy_all(temp1, temp.bytes);
+      copy_all(temp1, temp.bytes.begin());
       digest.append(temp.toString());
     }
 
@@ -93,7 +93,7 @@ namespace edm {
       value_type temp1(hash);
       fixup_(temp1);
       cms::MD5Result temp;
-      copy_all(temp1, temp.bytes);
+      copy_all(temp1, temp.bytes.begin());
       os << temp.toString();
       return os;
     }

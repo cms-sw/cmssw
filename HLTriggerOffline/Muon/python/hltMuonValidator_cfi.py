@@ -6,10 +6,10 @@ hltMuonValidator = DQMEDAnalyzer('HLTMuonValidator',
 
     hltProcessName = cms.string("HLT"),
     hltPathsToCheck = cms.vstring(
-        "HLT_(L[12])?(Iso)?(Tk)?Mu[0-9]*(Open)?(_NoVertex)?(_eta2p1)?(_v[0-9]*)?$",
+        "HLT_(HighPt)?(L[12])?(Iso)?(Tk)?Mu[0-9]*(Open)?(_NoVertex)?(_eta2p1)?(_v[0-9]*)?$",
         "HLT_Mu17_NoFilters?(_v[0-9]*)?$",
-        "HLT_Dimuon0_Jpsi_v10",
-        "HLT_Dimuon13_Jpsi_Barrel_v5",
+        "HLT_Dimuon0_Jpsi(_v[0-9]*)?$",
+        "HLT_Dimuon13_Jpsi_Barrel(_v[0-9]*)?$",
         ),
 
     genParticleLabel = cms.string("genParticles"       ),

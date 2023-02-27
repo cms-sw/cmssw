@@ -216,6 +216,8 @@ namespace deep_tau {
     for (const auto& graph_entry : graph_names) {
       tensorflow::SessionOptions options;
       tensorflow::setThreading(options, 1);
+      // To be parametrized from the python config
+      tensorflow::setBackend(options, tensorflow::Backend::cpu);
 
       const std::string& entry_name = graph_entry.first;
       const std::string& graph_file = graph_entry.second;

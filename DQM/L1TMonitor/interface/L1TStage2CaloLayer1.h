@@ -27,6 +27,8 @@
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
+#include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
+
 namespace ComparisonHelper {
   // Designed for edm::SortedCollection<T>
   // Iterators should have a value type that derives from DetID, or
@@ -108,15 +110,30 @@ namespace CaloL1Information {
     dqm::reco::MonitorElement *ecalOccNoMatch_;
 
     dqm::reco::MonitorElement *hcalOccEtDiscrepancy_;
-    dqm::reco::MonitorElement *hcalOccFbDiscrepancy_;
-    dqm::reco::MonitorElement *hcalOccFb2Discrepancy_;
+    dqm::reco::MonitorElement *hcalOccLLPFbDiscrepancy_;
+    dqm::reco::MonitorElement *hcalOccLLPFbExpd_;
+    dqm::reco::MonitorElement *hcalOccLLPFbData_;
     dqm::reco::MonitorElement *hcalOccLinkMasked_;
     dqm::reco::MonitorElement *hcalOccRecdEtWgt_;
-    dqm::reco::MonitorElement *hcalOccRecdFb_;
-    dqm::reco::MonitorElement *hcalOccRecdFb2_;
+    dqm::reco::MonitorElement *hcalOccFg0Discrepancy_;
+    dqm::reco::MonitorElement *hcalOccFg1Discrepancy_;
+    dqm::reco::MonitorElement *hcalOccFg2Discrepancy_;
+    dqm::reco::MonitorElement *hcalOccFg3Discrepancy_;
+    dqm::reco::MonitorElement *hcalOccFg4Discrepancy_;
+    dqm::reco::MonitorElement *hcalOccFg5Discrepancy_;
+    dqm::reco::MonitorElement *hcalOccRecdFg0_;
+    dqm::reco::MonitorElement *hcalOccRecdFg1_;
+    dqm::reco::MonitorElement *hcalOccRecdFg2_;
+    dqm::reco::MonitorElement *hcalOccRecdFg3_;
+    dqm::reco::MonitorElement *hcalOccRecdFg4_;
+    dqm::reco::MonitorElement *hcalOccRecdFg5_;
     dqm::reco::MonitorElement *hcalOccSentAndRecd_;
-    dqm::reco::MonitorElement *hcalOccSentFb_;
-    dqm::reco::MonitorElement *hcalOccSentFb2_;
+    dqm::reco::MonitorElement *hcalOccSentFg0_;
+    dqm::reco::MonitorElement *hcalOccSentFg1_;
+    dqm::reco::MonitorElement *hcalOccSentFg2_;
+    dqm::reco::MonitorElement *hcalOccSentFg3_;
+    dqm::reco::MonitorElement *hcalOccSentFg4_;
+    dqm::reco::MonitorElement *hcalOccSentFg5_;
     dqm::reco::MonitorElement *hcalOccSent_;
     dqm::reco::MonitorElement *hcalOccTowerMasked_;
     dqm::reco::MonitorElement *hcalTPRawEtCorrelationHBHE_;
@@ -290,6 +307,8 @@ private:
   std::string ecalTPSourceSentLabel_;
   edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalTPSourceSent_;
   std::string hcalTPSourceSentLabel_;
+  edm::EDGetTokenT<l1t::CaloTowerBxCollection> CaloTowerCollectionData_;
+  std::string CaloTowerCollectionDataLabel_;
   edm::EDGetTokenT<FEDRawDataCollection> fedRawData_;
   std::string histFolder_;
   int tpFillThreshold_;

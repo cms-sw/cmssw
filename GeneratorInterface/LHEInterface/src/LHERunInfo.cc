@@ -161,10 +161,7 @@ namespace lhef {
   }
 
   LHERunInfo::XSec LHERunInfo::xsec() const {
-    double sigSelSum = 0.0;
-    double sigSum = 0.0;
     double sigBrSum = 0.0;
-    double err2Sum = 0.0;
     double errBr2Sum = 0.0;
     int idwtup = heprup.IDWTUP;
     for (std::vector<Process>::const_iterator proc = processes.begin(); proc != processes.end(); ++proc) {
@@ -234,13 +231,9 @@ namespace lhef {
       double delta2Sum = delta2Veto + sigma2Err / sigma2Sum;
       relErr = (delta2Sum > 0.0 ? std::sqrt(delta2Sum) : 0.0);
 
-      double deltaFin = sigmaFin * relErr;
       double deltaFinBr = sigmaFinBr * relErr;
 
-      sigSelSum += sigmaAvg;
-      sigSum += sigmaFin;
       sigBrSum += sigmaFinBr;
-      err2Sum += deltaFin * deltaFin;
       errBr2Sum += deltaFinBr * deltaFinBr;
     }
 
@@ -254,7 +247,6 @@ namespace lhef {
     double sigSum = 0.0;
     double sigBrSum = 0.0;
     double errSel2Sum = 0.0;
-    double err2Sum = 0.0;
     double errBr2Sum = 0.0;
     double errMatch2Sum = 0.0;
     unsigned long nAccepted = 0;
@@ -340,7 +332,6 @@ namespace lhef {
         relErr = (delta2Sum > 0.0 ? std::sqrt(delta2Sum) : 0.0);
         relAccErr = (delta2Veto > 0.0 ? std::sqrt(delta2Veto) : 0.0);
       }
-      double deltaFin = sigmaFin * relErr;
       double deltaFinBr = sigmaFinBr * relErr;
 
       double ntotal_proc = proc->nTotalPos() + proc->nTotalNeg();
@@ -366,7 +357,6 @@ namespace lhef {
       sigSum += sigmaFin;
       sigBrSum += sigmaFinBr;
       errSel2Sum += sigma2Err;
-      err2Sum += deltaFin * deltaFin;
       errBr2Sum += deltaFinBr * deltaFinBr;
       errMatch2Sum += sigmaFin * relAccErr * sigmaFin * relAccErr;
     }

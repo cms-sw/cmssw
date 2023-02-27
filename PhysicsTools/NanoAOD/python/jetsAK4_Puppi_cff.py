@@ -27,14 +27,14 @@ updatedJetsPuppi = updatedPatJets.clone(
 
 tightJetPuppiId = cms.EDProducer("PatJetIDValueMapProducer",
     filterParams=cms.PSet(
-        version = cms.string('RUN2ULPUPPI'),
+        version = cms.string('RUN3WINTER22PUPPI'),
         quality = cms.string('TIGHT'),
     ),
     src = cms.InputTag("updatedJetsPuppi")
 )
 tightJetPuppiIdLepVeto = cms.EDProducer("PatJetIDValueMapProducer",
     filterParams=cms.PSet(
-        version = cms.string('RUN2ULPUPPI'),
+        version = cms.string('RUN3WINTER22PUPPI'),
         quality = cms.string('TIGHTLEPVETO'),
     ),
     src = cms.InputTag("updatedJetsPuppi")

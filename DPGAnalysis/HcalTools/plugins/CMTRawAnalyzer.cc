@@ -1,6 +1,5 @@
 // -*- C++ -*-
 //
-//
 // Package:    CMTRawAnalyzer
 //
 #include <fstream>
@@ -9,7 +8,6 @@
 #include <iosfwd>
 #include <bitset>
 #include <memory>
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
@@ -18,7 +16,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
@@ -67,8 +64,7 @@
 #include "TF1.h"
 
 #define NUMADCS 256
-double adc2fC_QIE10[NUMADCS] = {
-    // - - - - - - - range 0 - - - - - - - -
+double const adc2fC_QIE10[NUMADCS] = {
     //subrange0
     1.58,
     4.73,
@@ -8040,7 +8036,6 @@ void CMTRawAnalyzer::fillDigiErrors(HBHEDigiCollection::const_iterator& digiItr)
   bool anydv = true;
   // for help:
   int firstcapid = 0;
-  int sumcapid = 0;
   int lastcapid = 0, capid = 0;
   int ERRORfiber = -10;
   int ERRORfiberChan = -10;
@@ -8071,7 +8066,6 @@ void CMTRawAnalyzer::fillDigiErrors(HBHEDigiCollection::const_iterator& digiItr)
 
     if (ii == 0)
       firstcapid = capid;
-    sumcapid += capid;
 
     if (er) {
       anyer = true;
@@ -8203,7 +8197,6 @@ void CMTRawAnalyzer::fillDigiErrorsQIE11(QIE11DataFrame qie11df) {
   //    bool anydv      =  true;
   // for help:
   int firstcapid = 0;
-  int sumcapid = 0;
   int lastcapid = 0, capid = 0;
   int repetedcapid = 0;
   // loop over the samples in the digi
@@ -8221,7 +8214,6 @@ void CMTRawAnalyzer::fillDigiErrorsQIE11(QIE11DataFrame qie11df) {
     lastcapid = capid;
     if (ii == 0)
       firstcapid = capid;
-    sumcapid += capid;
   }  // for
   ///////////////////////////////////////
   if (!anycapid)
@@ -8317,7 +8309,6 @@ void CMTRawAnalyzer::fillDigiErrorsHF(HFDigiCollection::const_iterator& digiItr)
   bool anydv = true;
   // for help:
   int firstcapid = 0;
-  int sumcapid = 0;
   int lastcapid = 0, capid = 0;
   int ERRORfiber = -10;
   int ERRORfiberChan = -10;
@@ -8347,7 +8338,6 @@ void CMTRawAnalyzer::fillDigiErrorsHF(HFDigiCollection::const_iterator& digiItr)
     lastcapid = capid;
     if (ii == 0)
       firstcapid = capid;
-    sumcapid += capid;
     if (er) {
       anyer = true;
       ERRORfiber = fiber;
@@ -8442,7 +8432,6 @@ void CMTRawAnalyzer::fillDigiErrorsHFQIE10(QIE10DataFrame qie10df) {
   //    bool anydv      =  true;
   // for help:
   int firstcapid = 0;
-  int sumcapid = 0;
   int lastcapid = 0, capid = 0;
   int repetedcapid = 0;
   // loop over the samples in the digi
@@ -8460,7 +8449,6 @@ void CMTRawAnalyzer::fillDigiErrorsHFQIE10(QIE10DataFrame qie10df) {
     lastcapid = capid;
     if (ii == 0)
       firstcapid = capid;
-    sumcapid += capid;
   }  // for
   ///////////////////////////////////////
   if (!anycapid)
@@ -8521,7 +8509,6 @@ void CMTRawAnalyzer::fillDigiErrorsHO(HODigiCollection::const_iterator& digiItr)
   bool anydv = true;
   // for help:
   int firstcapid = 0;
-  int sumcapid = 0;
   int lastcapid = 0, capid = 0;
   int ERRORfiber = -10;
   int ERRORfiberChan = -10;
@@ -8548,7 +8535,6 @@ void CMTRawAnalyzer::fillDigiErrorsHO(HODigiCollection::const_iterator& digiItr)
 
     if (ii == 0)
       firstcapid = capid;
-    sumcapid += capid;
 
     if (er) {
       anyer = true;
@@ -8671,10 +8657,6 @@ void CMTRawAnalyzer::fillDigiAmplitude(HBHEDigiCollection::const_iterator& digiI
   double difpedestal2 = 0.;
   double difpedestal3 = 0.;
 
-  double amplitudewithPedSubtr1 = 0.;
-  double amplitudewithPedSubtr2 = 0.;
-  double amplitudewithPedSubtr3 = 0.;
-  double amplitudewithPedSubtr4 = 0.;
   double amplitude = 0.;
   double absamplitude = 0.;
   double amplitude345 = 0.;
@@ -8787,18 +8769,9 @@ void CMTRawAnalyzer::fillDigiAmplitude(HBHEDigiCollection::const_iterator& digiI
     //     var.4                   -------
     //
     // TS = 2-9      for raddam only  var.1
-    if (ii > 0 && ii < 9)
-      amplitudewithPedSubtr1 += ampldefaultwithPedSubtr;  //
     // TS = 3-8      for raddam only  var.2
-    if (ii > 1 && ii < 8)
-      amplitudewithPedSubtr2 += ampldefaultwithPedSubtr;  //
     // TS = 4-7      for raddam only  var.3
-    if (ii > 2 && ii < 7)
-      amplitudewithPedSubtr3 += ampldefaultwithPedSubtr;  //
     // TS = 4-6      for raddam only  var.4
-    if (ii > 2 && ii < 6)
-      amplitudewithPedSubtr4 += ampldefaultwithPedSubtr;  //
-    //
     amplitude += ampldefault;          //
     absamplitude += abs(ampldefault);  //
 
@@ -8821,23 +8794,23 @@ void CMTRawAnalyzer::fillDigiAmplitude(HBHEDigiCollection::const_iterator& digiI
   pedestalaver4 /= c4;
   pedestalwaver9 = sqrt(pedestalwaver9 / TSsize);
   pedestalwaver4 = sqrt(pedestalwaver4 / c4);
-  if (ts_with_max_signal > -1 && ts_with_max_signal < 10)
+  if (ts_with_max_signal > -1 && ts_with_max_signal < TSsize)
     ampl = tool[ts_with_max_signal];
-  if (ts_with_max_signal + 2 > -1 && ts_with_max_signal + 2 < 10)
+  if (ts_with_max_signal + 2 > -1 && ts_with_max_signal + 2 < TSsize)
     ampl += tool[ts_with_max_signal + 2];
-  if (ts_with_max_signal + 1 > -1 && ts_with_max_signal + 1 < 10)
+  if (ts_with_max_signal + 1 > -1 && ts_with_max_signal + 1 < TSsize)
     ampl += tool[ts_with_max_signal + 1];
-  if (ts_with_max_signal - 1 > -1 && ts_with_max_signal - 1 < 10)
+  if (ts_with_max_signal - 1 > -1 && ts_with_max_signal - 1 < TSsize)
     ampl += tool[ts_with_max_signal - 1];
 
   ///----------------------------------------------------------------------------------------------------  for raddam:
-  if (ts_with_max_signal > -1 && ts_with_max_signal < 10)
+  if (ts_with_max_signal > -1 && ts_with_max_signal < TSsize)
     linamplitudewithoutPedSubtr = lintoolwithoutPedSubtr[ts_with_max_signal];
-  if (ts_with_max_signal + 2 > -1 && ts_with_max_signal + 2 < 10)
+  if (ts_with_max_signal + 2 > -1 && ts_with_max_signal + 2 < TSsize)
     linamplitudewithoutPedSubtr += lintoolwithoutPedSubtr[ts_with_max_signal + 2];
-  if (ts_with_max_signal + 1 > -1 && ts_with_max_signal + 1 < 10)
+  if (ts_with_max_signal + 1 > -1 && ts_with_max_signal + 1 < TSsize)
     linamplitudewithoutPedSubtr += lintoolwithoutPedSubtr[ts_with_max_signal + 1];
-  if (ts_with_max_signal - 1 > -1 && ts_with_max_signal - 1 < 10)
+  if (ts_with_max_signal - 1 > -1 && ts_with_max_signal - 1 < TSsize)
     linamplitudewithoutPedSubtr += lintoolwithoutPedSubtr[ts_with_max_signal - 1];
 
   double ratio = 0.;
@@ -9521,13 +9494,13 @@ void CMTRawAnalyzer::fillDigiAmplitude(HBHEDigiCollection::const_iterator& digiI
       double amplitudewithPedSubtr = 0.;
 
       //for cut on A_channel:
-      if (ts_with_max_signal > -1 && ts_with_max_signal < 10)
+      if (ts_with_max_signal > -1 && ts_with_max_signal < TSsize)
         amplitudewithPedSubtr = toolwithPedSubtr[ts_with_max_signal];
-      if (ts_with_max_signal + 2 > -1 && ts_with_max_signal + 2 < 10)
+      if (ts_with_max_signal + 2 > -1 && ts_with_max_signal + 2 < TSsize)
         amplitudewithPedSubtr += toolwithPedSubtr[ts_with_max_signal + 2];
-      if (ts_with_max_signal + 1 > -1 && ts_with_max_signal + 1 < 10)
+      if (ts_with_max_signal + 1 > -1 && ts_with_max_signal + 1 < TSsize)
         amplitudewithPedSubtr += toolwithPedSubtr[ts_with_max_signal + 1];
-      if (ts_with_max_signal - 1 > -1 && ts_with_max_signal - 1 < 10)
+      if (ts_with_max_signal - 1 > -1 && ts_with_max_signal - 1 < TSsize)
         amplitudewithPedSubtr += toolwithPedSubtr[ts_with_max_signal - 1];
 
       h_AamplitudewithPedSubtr_RADDAM_HE->Fill(amplitudewithPedSubtr);
@@ -9662,7 +9635,6 @@ void CMTRawAnalyzer::fillDigiAmplitudeQIE11(QIE11DataFrame qie11df) {
   double amplitude345 = 0.;
   double ampl = 0.;
   double ampl3ts = 0.;
-  double amplmaxts = 0.;
   double timew = 0.;
   double timeww = 0.;
   double max_signal = -100.;
@@ -9786,20 +9758,19 @@ void CMTRawAnalyzer::fillDigiAmplitudeQIE11(QIE11DataFrame qie11df) {
   pedestalwaver4 = sqrt(pedestalwaver4 / c4);
 
   // ------------ to get signal in TS: -2 max +1  ------------
-  if (ts_with_max_signal > -1 && ts_with_max_signal < 10) {
+  if (ts_with_max_signal > -1 && ts_with_max_signal < TSsize) {
     ampl = tool[ts_with_max_signal];
     ampl3ts = tool[ts_with_max_signal];
-    amplmaxts = tool[ts_with_max_signal];
   }
-  if (ts_with_max_signal - 1 > -1 && ts_with_max_signal - 1 < 10) {
+  if (ts_with_max_signal - 1 > -1 && ts_with_max_signal - 1 < TSsize) {
     ampl += tool[ts_with_max_signal - 1];
     ampl3ts += tool[ts_with_max_signal - 1];
   }
-  if (ts_with_max_signal + 1 > -1 && ts_with_max_signal + 1 < 10) {
+  if (ts_with_max_signal + 1 > -1 && ts_with_max_signal + 1 < TSsize) {
     ampl += tool[ts_with_max_signal + 1];
     ampl3ts += tool[ts_with_max_signal + 1];
   }
-  if (ts_with_max_signal + 2 > -1 && ts_with_max_signal + 2 < 10) {
+  if (ts_with_max_signal + 2 > -1 && ts_with_max_signal + 2 < TSsize) {
     ampl += tool[ts_with_max_signal + 2];
   }
   // HE charge correction for SiPMs:
@@ -9809,7 +9780,6 @@ void CMTRawAnalyzer::fillDigiAmplitudeQIE11(QIE11DataFrame qie11df) {
       double xb = ampl / 40.;
       double xc = amplitude345 / 40.;
       double xd = ampl3ts / 40.;
-      double xe = amplmaxts / 40.;
       double txa = tocampl / 40.;
       // ADDI case:
       if (((ieta == -16 || ieta == 15) && mdepth == 4) ||
@@ -9822,7 +9792,6 @@ void CMTRawAnalyzer::fillDigiAmplitudeQIE11(QIE11DataFrame qie11df) {
         double corrforxb = a2 * xb * xb + b1 * xb + c0;
         double corrforxc = a2 * xc * xc + b1 * xc + c0;
         double corrforxd = a2 * xd * xd + b1 * xd + c0;
-        double corrforxe = a2 * xe * xe + b1 * xe + c0;
         double corrfortxa = a2 * txa * txa + b1 * txa + c0;
         h_corrforxaADDI_HE->Fill(amplitude, corrforxa);
         h_corrforxaADDI0_HE->Fill(amplitude, 1.);
@@ -9830,7 +9799,6 @@ void CMTRawAnalyzer::fillDigiAmplitudeQIE11(QIE11DataFrame qie11df) {
         ampl *= corrforxb;
         amplitude345 *= corrforxc;
         ampl3ts *= corrforxd;
-        amplmaxts *= corrforxe;
         tocampl *= corrfortxa;
       }
       // MAIN case:
@@ -9842,7 +9810,6 @@ void CMTRawAnalyzer::fillDigiAmplitudeQIE11(QIE11DataFrame qie11df) {
         double corrforxb = a2 * xb * xb + b1 * xb + c0;
         double corrforxc = a2 * xc * xc + b1 * xc + c0;
         double corrforxd = a2 * xd * xd + b1 * xd + c0;
-        double corrforxe = a2 * xe * xe + b1 * xe + c0;
         double corrfortxa = a2 * txa * txa + b1 * txa + c0;
         h_corrforxaMAIN_HE->Fill(amplitude, corrforxa);
         h_corrforxaMAIN0_HE->Fill(amplitude, 1.);
@@ -9850,7 +9817,6 @@ void CMTRawAnalyzer::fillDigiAmplitudeQIE11(QIE11DataFrame qie11df) {
         ampl *= corrforxb;
         amplitude345 *= corrforxc;
         ampl3ts *= corrforxd;
-        amplmaxts *= corrforxe;
         tocampl *= corrfortxa;
       }
     }  // sub == 2   HE charge correction end
@@ -11933,13 +11899,13 @@ void CMTRawAnalyzer::fillDigiAmplitudeHO(HODigiCollection::const_iterator& digiI
   pedestalaver4 /= c4;
   pedestalwaver9 = sqrt(pedestalwaver9 / TSsize);
   pedestalwaver4 = sqrt(pedestalwaver4 / c4);
-  if (ts_with_max_signal > -1 && ts_with_max_signal < 10)
+  if (ts_with_max_signal > -1 && ts_with_max_signal < TSsize)
     ampl = tool[ts_with_max_signal];
-  if (ts_with_max_signal + 2 > -1 && ts_with_max_signal + 2 < 10)
+  if (ts_with_max_signal + 2 > -1 && ts_with_max_signal + 2 < TSsize)
     ampl += tool[ts_with_max_signal + 2];
-  if (ts_with_max_signal + 1 > -1 && ts_with_max_signal + 1 < 10)
+  if (ts_with_max_signal + 1 > -1 && ts_with_max_signal + 1 < TSsize)
     ampl += tool[ts_with_max_signal + 1];
-  if (ts_with_max_signal - 1 > -1 && ts_with_max_signal - 1 < 10)
+  if (ts_with_max_signal - 1 > -1 && ts_with_max_signal - 1 < TSsize)
     ampl += tool[ts_with_max_signal - 1];
   double ratio = 0.;
   if (amplitude != 0.)

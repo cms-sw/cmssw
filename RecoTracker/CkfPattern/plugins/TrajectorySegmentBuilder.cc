@@ -382,7 +382,7 @@ void TrajectorySegmentBuilder::updateWithInvalidHit(TempTrajectory& traj,
       auto const& measurements = gr.measurements();
       for (auto im = measurements.rbegin(); im != measurements.rend(); ++im) {
         auto const& hit = im->recHitR();
-        if ((hit.getType() == TrackingRecHit::valid) | (hit.getType() == TrackingRecHit::missing))
+        if ((hit.getType() == TrackingRecHit::valid) || (hit.getType() == TrackingRecHit::missing))
           continue;
         //
         // check, if the extrapolation traverses the Det or

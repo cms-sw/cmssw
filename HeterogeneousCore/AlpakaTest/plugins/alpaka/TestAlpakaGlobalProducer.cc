@@ -29,7 +29,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void produce(edm::StreamID, device::Event& iEvent, device::EventSetup const& iSetup) const override {
       [[maybe_unused]] auto const& esData = iSetup.getData(esToken_);
 
-      portabletest::TestDeviceCollection deviceProduct{size_, alpaka::getDev(iEvent.queue())};
+      portabletest::TestDeviceCollection deviceProduct{size_, iEvent.queue()};
 
       // run the algorithm, potentially asynchronously
       algo_.fill(iEvent.queue(), deviceProduct);
@@ -59,5 +59,5 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
-#include "HeterogeneousCore/AlpakaCore/interface/MakerMacros.h"
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"
 DEFINE_FWK_ALPAKA_MODULE(TestAlpakaGlobalProducer);
