@@ -14,7 +14,7 @@ _particleFlowSuperClusterECALDeepSC = _particleFlowSuperClusterECALMustache.clon
         configFileWindowFeatures = cms.string("RecoEcal/EgammaClusterProducers/data/DeepSCModels/EOY_2018/config_window_inputs.txt"),
         configFileHitsFeatures = cms.string("RecoEcal/EgammaClusterProducers/data/DeepSCModels/EOY_2018/config_hits_inputs.txt"),
         collectionStrategy = cms.string("Cascade"),
-        maxNClusters = cms.vuint32(15,30),
+        maxNClusters = cms.vuint32(15,60),
         maxNRechits = cms.vuint32(20,60)
     )
 )

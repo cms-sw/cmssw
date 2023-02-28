@@ -8,6 +8,8 @@ using namespace reco;
 
 const std::vector<std::string> DeepSCGraphEvaluation::availableClusterInputs = {"cl_energy",
                                                                                 "cl_et",
+                                                                                "cl_energy_log",
+                                                                                "cl_et_log",
                                                                                 "cl_eta",
                                                                                 "cl_phi",
                                                                                 "cl_ieta",
@@ -226,26 +228,20 @@ std::vector<std::vector<float>> DeepSCGraphEvaluation::evaluate(const DeepSCInpu
     }
   }
 
-  auto nsamples0 = static_cast<long int>(windowModelMapping[0].size());
-  std::map<uint, std::map<std::string, tensorflow::Tensor>> tfInputs = {
-      {0,
-       {{"clsX", {tensorflow::DT_FLOAT, {nsamples0, cfg_.maxNClusters[0], cfg_.nClusterFeatures}}},
-        {"windX", {tensorflow::DT_FLOAT, {nsamples0, cfg_.nWindowFeatures}}},
-        {"hitsX", {tensorflow::DT_FLOAT, {nsamples0, cfg_.maxNClusters[0], cfg_.maxNRechits[0], cfg_.nHitsFeatures}}},
-        {"isSeedX", {tensorflow::DT_FLOAT, {nsamples0, cfg_.maxNClusters[0]}}},
-        {"maskCls", {tensorflow::DT_FLOAT, {nsamples0, cfg_.maxNClusters[0]}}},
-        {"maskRechits", {tensorflow::DT_FLOAT, {nsamples0, cfg_.maxNClusters[0], cfg_.maxNRechits[0]}}}}}};
+  std::map<uint, std::map<std::string, tensorflow::Tensor>> tfInputs;
 
-  auto nsamples1 = static_cast<long int>(windowModelMapping[1].size());
-  if (nsamples1 > 0) {
-    tfInputs[1] = {
-        {"clsX", {tensorflow::DT_FLOAT, {nsamples1, cfg_.maxNClusters[1], cfg_.nClusterFeatures}}},
-        {"windX", {tensorflow::DT_FLOAT, {nsamples1, cfg_.nWindowFeatures}}},
-        {"hitsX", {tensorflow::DT_FLOAT, {nsamples1, cfg_.maxNClusters[1], cfg_.maxNRechits[1], cfg_.nHitsFeatures}}},
-        {"isSeedX", {tensorflow::DT_FLOAT, {nsamples1, cfg_.maxNClusters[1]}}},
-        {"maskCls", {tensorflow::DT_FLOAT, {nsamples1, cfg_.maxNClusters[1]}}},
-        {"maskRechits", {tensorflow::DT_FLOAT, {nsamples1, cfg_.maxNClusters[1], cfg_.maxNRechits[1]}}}};
+  for (uint imodel = 0; imodel < 2; imodel++) {
+    auto nsamples = static_cast<long int>(windowModelMapping[imodel].size());
+    tfInputs[imodel] = {
+        {"clsX", {tensorflow::DT_FLOAT, {nsamples, cfg_.maxNClusters[imodel], cfg_.nClusterFeatures}}},
+        {"windX", {tensorflow::DT_FLOAT, {nsamples, cfg_.nWindowFeatures}}},
+        {"hitsX",
+         {tensorflow::DT_FLOAT, {nsamples, cfg_.maxNClusters[imodel], cfg_.maxNRechits[imodel], cfg_.nHitsFeatures}}},
+        {"isSeedX", {tensorflow::DT_FLOAT, {nsamples, cfg_.maxNClusters[imodel]}}},
+        {"maskCls", {tensorflow::DT_FLOAT, {nsamples, cfg_.maxNClusters[imodel]}}},
+        {"maskRechits", {tensorflow::DT_FLOAT, {nsamples, cfg_.maxNClusters[imodel], cfg_.maxNRechits[imodel]}}}};
   }
+
   // The input tensors are now ready to be filled
   // Now we can loop on all the elements and fill the correct tensor
   for (const auto& [modelIdx, windIdx] : windowModelMapping) {

@@ -143,10 +143,6 @@ void EcalClustersGraph::initWindows() {
 
     // The graph associated to each seed includes only other seeds if they have a smaller energy.
     // This is imposed to be consistent with the current trained model, which has been training on "non-overalapping windows".
-    // The effect of connecting all the seeds, and not only the smaller energy ones has been already tested: the reconstruction
-    // differences are negligible (tested with Cascade collection algo).
-    // In the next version of the training this requirement will be relaxed to have a model that fully matches the reconstruction
-    // mechanism in terms of overlapping seeds.
     for (uint icl = is + 1; icl < nCls_; icl++) {
       if (is == icl)
         continue;
@@ -211,7 +207,9 @@ DeepSCInputs::FeaturesMap EcalClustersGraph::computeVariables(const CaloCluster*
   double seed_eta = seed->eta();
   double seed_phi = seed->phi();
   clFeatures["cl_energy"] = cl_energy;                                                                //cl_energy
+  clFeatures["cl_energy_log"] = std::log(cl_energy);                                                  //cl_energy_log
   clFeatures["cl_et"] = cl_energy / std::cosh(cl_eta);                                                //cl_et
+  clFeatures["cl_et_log"] = std::log(clFeatures["cl_et"]);                                            //cl_et_log
   clFeatures["cl_eta"] = cl_eta;                                                                      //cl_eta
   clFeatures["cl_phi"] = cl_phi;                                                                      //cl_phi
   clFeatures["cl_ieta"] = clusterLocal[0];                                                            //cl_ieta/ix
