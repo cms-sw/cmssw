@@ -7,22 +7,22 @@
 
 <iftool name="cuda">
   <bin name="testTFHelloWorldCUDA" file="testRunner.cpp,testHelloWorldCUDA.cc">
-    <use name="tensorflow-cc"/>
     <use name="boost_filesystem"/>
-    <use name="cppunit"/>
-    <use name="PhysicsTools/TensorFlow"/>
-    <use name="HeterogeneousCore/CUDAServices"/>
-    <use name="HeterogeneousCore/CUDAUtilities"/>
     <use name="catch2"/>
+    <use name="cppunit"/>
+    <use name="cuda"/>
+    <use name="tensorflow-cc"/>
     <use name="FWCore/ParameterSet"/>
     <use name="FWCore/ParameterSetReader"/>
     <use name="FWCore/PluginManager"/>
     <use name="FWCore/ServiceRegistry"/>
     <use name="FWCore/Utilities"/>
-    <use name="cuda"/>
+    <use name="HeterogeneousCore/CUDAServices"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
+    <use name="PhysicsTools/TensorFlow"/>
   </bin>
 </iftool>
-
 
 <bin name="testTFMetaGraphLoading" file="testRunner.cpp,testMetaGraphLoading.cc">
   <use name="boost_filesystem"/>
@@ -31,20 +31,21 @@
 </bin>
 
 <iftool name="cuda">
-<bin name="testTFMetaGraphLoadingCUDA" file="testRunner.cpp,testMetaGraphLoadingCUDA.cc">
-  <use name="boost_filesystem"/>
-  <use name="cppunit"/>
-  <use name="PhysicsTools/TensorFlow"/>
-  <use name="HeterogeneousCore/CUDAServices"/>
-  <use name="HeterogeneousCore/CUDAUtilities"/>
-  <use name="catch2"/>
-  <use name="FWCore/ParameterSet"/>
-  <use name="FWCore/ParameterSetReader"/>
-  <use name="FWCore/PluginManager"/>
-  <use name="FWCore/ServiceRegistry"/>
-  <use name="FWCore/Utilities"/>
-  <use name="cuda"/>
-</bin>
+  <bin name="testTFMetaGraphLoadingCUDA" file="testRunner.cpp,testMetaGraphLoadingCUDA.cc">
+    <use name="boost_filesystem"/>
+    <use name="catch2"/>
+    <use name="cppunit"/>
+    <use name="cuda"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/ParameterSetReader"/>
+    <use name="FWCore/PluginManager"/>
+    <use name="FWCore/ServiceRegistry"/>
+    <use name="FWCore/Utilities"/>
+    <use name="HeterogeneousCore/CUDAServices"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
+    <use name="PhysicsTools/TensorFlow"/>
+  </bin>
 </iftool>
 
 <bin name="testTFGraphLoading" file="testRunner.cpp,testGraphLoading.cc">
@@ -54,20 +55,21 @@
 </bin>
 
 <iftool name="cuda">
-<bin name="testTFGraphLoadingCUDA" file="testRunner.cpp,testGraphLoadingCUDA.cc">
-  <use name="boost_filesystem"/>
-  <use name="cppunit"/>
-  <use name="PhysicsTools/TensorFlow"/>
-  <use name="HeterogeneousCore/CUDAServices"/>
-  <use name="HeterogeneousCore/CUDAUtilities"/>
-  <use name="catch2"/>
-  <use name="FWCore/ParameterSet"/>
-  <use name="FWCore/ParameterSetReader"/>
-  <use name="FWCore/PluginManager"/>
-  <use name="FWCore/ServiceRegistry"/>
-  <use name="FWCore/Utilities"/>
-  <use name="cuda"/>
-</bin>
+  <bin name="testTFGraphLoadingCUDA" file="testRunner.cpp,testGraphLoadingCUDA.cc">
+    <use name="boost_filesystem"/>
+    <use name="catch2"/>
+    <use name="cppunit"/>
+    <use name="cuda"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/ParameterSetReader"/>
+    <use name="FWCore/PluginManager"/>
+    <use name="FWCore/ServiceRegistry"/>
+    <use name="FWCore/Utilities"/>
+    <use name="HeterogeneousCore/CUDAServices"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
+    <use name="PhysicsTools/TensorFlow"/>
+  </bin>
 </iftool>
 
 <bin name="testTFConstSession" file="testRunner.cpp,testConstSession.cc">
@@ -77,20 +79,21 @@
 </bin>
 
 <iftool name="cuda">
-<bin name="testTFConstSessionCUDA" file="testRunner.cpp,testConstSessionCUDA.cc">
-  <use name="boost_filesystem"/>
-  <use name="cppunit"/>
-  <use name="PhysicsTools/TensorFlow"/>
-  <use name="HeterogeneousCore/CUDAServices"/>
-  <use name="HeterogeneousCore/CUDAUtilities"/>
-  <use name="catch2"/>
-  <use name="FWCore/ParameterSet"/>
-  <use name="FWCore/ParameterSetReader"/>
-  <use name="FWCore/PluginManager"/>
-  <use name="FWCore/ServiceRegistry"/>
-  <use name="FWCore/Utilities"/>
-  <use name="cuda"/>
-</bin>
+  <bin name="testTFConstSessionCUDA" file="testRunner.cpp,testConstSessionCUDA.cc">
+    <use name="boost_filesystem"/>
+    <use name="catch2"/>
+    <use name="cppunit"/>
+    <use name="cuda"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/ParameterSetReader"/>
+    <use name="FWCore/PluginManager"/>
+    <use name="FWCore/ServiceRegistry"/>
+    <use name="FWCore/Utilities"/>
+    <use name="HeterogeneousCore/CUDAServices"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
+    <use name="PhysicsTools/TensorFlow"/>
+  </bin>
 </iftool>
 
 <bin name="testTFSessionCache" file="testRunner.cpp,testSessionCache.cc">
@@ -100,20 +103,21 @@
 </bin>
 
 <iftool name="cuda">
-<bin name="testTFSessionCacheCUDA" file="testRunner.cpp,testSessionCacheCUDA.cc">
-  <use name="boost_filesystem"/>
-  <use name="cppunit"/>
-  <use name="PhysicsTools/TensorFlow"/>
-  <use name="HeterogeneousCore/CUDAServices"/>
-  <use name="HeterogeneousCore/CUDAUtilities"/>
-  <use name="catch2"/>
-  <use name="FWCore/ParameterSet"/>
-  <use name="FWCore/ParameterSetReader"/>
-  <use name="FWCore/PluginManager"/>
-  <use name="FWCore/ServiceRegistry"/>
-  <use name="FWCore/Utilities"/>
-  <use name="cuda"/>
-</bin>
+  <bin name="testTFSessionCacheCUDA" file="testRunner.cpp,testSessionCacheCUDA.cc">
+    <use name="boost_filesystem"/>
+    <use name="catch2"/>
+    <use name="cppunit"/>
+    <use name="cuda"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/ParameterSetReader"/>
+    <use name="FWCore/PluginManager"/>
+    <use name="FWCore/ServiceRegistry"/>
+    <use name="FWCore/Utilities"/>
+    <use name="HeterogeneousCore/CUDAServices"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
+    <use name="PhysicsTools/TensorFlow"/>
+  </bin>
 </iftool>
 
 <bin name="testTFThreadPools" file="testRunner.cpp,testThreadPools.cc">
@@ -123,20 +127,21 @@
 </bin>
 
 <iftool name="cuda">
-<bin name="testTFThreadPoolsCUDA" file="testRunner.cpp,testThreadPoolsCUDA.cc">
-  <use name="boost_filesystem"/>
-  <use name="cppunit"/>
-  <use name="PhysicsTools/TensorFlow"/>
-  <use name="HeterogeneousCore/CUDAServices"/>
-  <use name="HeterogeneousCore/CUDAUtilities"/>
-  <use name="catch2"/>
-  <use name="FWCore/ParameterSet"/>
-  <use name="FWCore/ParameterSetReader"/>
-  <use name="FWCore/PluginManager"/>
-  <use name="FWCore/ServiceRegistry"/>
-  <use name="FWCore/Utilities"/>
-  <use name="cuda"/>
-</bin>
+  <bin name="testTFThreadPoolsCUDA" file="testRunner.cpp,testThreadPoolsCUDA.cc">
+    <use name="boost_filesystem"/>
+    <use name="catch2"/>
+    <use name="cppunit"/>
+    <use name="cuda"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/ParameterSetReader"/>
+    <use name="FWCore/PluginManager"/>
+    <use name="FWCore/ServiceRegistry"/>
+    <use name="FWCore/Utilities"/>
+    <use name="HeterogeneousCore/CUDAServices"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
+    <use name="PhysicsTools/TensorFlow"/>
+  </bin>
 </iftool>
 
 <bin name="testTFVisibleDevices" file="testRunner.cpp,testVisibleDevices.cc">
@@ -147,19 +152,20 @@
 
 
 <iftool name="cuda">
-<bin name="testTFVisibleDevicesCUDA" file="testRunner.cpp,testVisibleDevicesCUDA.cc">
-  <use name="boost_filesystem"/>
-  <use name="cppunit"/>
-  <use name="PhysicsTools/TensorFlow"/>
-  <use name="HeterogeneousCore/CUDAServices"/>
-  <use name="catch2"/>
-  <use name="FWCore/ParameterSet"/>
-  <use name="FWCore/ParameterSetReader"/>
-  <use name="FWCore/PluginManager"/>
-  <use name="FWCore/ServiceRegistry"/>
-  <use name="FWCore/Utilities"/>
-  <use name="cuda"/>
-</bin>
+  <bin name="testTFVisibleDevicesCUDA" file="testRunner.cpp,testVisibleDevicesCUDA.cc">
+    <use name="boost_filesystem"/>
+    <use name="catch2"/>
+    <use name="cppunit"/>
+    <use name="cuda"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/ParameterSetReader"/>
+    <use name="FWCore/PluginManager"/>
+    <use name="FWCore/ServiceRegistry"/>
+    <use name="FWCore/Utilities"/>
+    <use name="HeterogeneousCore/CUDAServices"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
+    <use name="PhysicsTools/TensorFlow"/>
+  </bin>
 </iftool>
 
 <!-- <ifarchitecture name="!_ppc64le_">
