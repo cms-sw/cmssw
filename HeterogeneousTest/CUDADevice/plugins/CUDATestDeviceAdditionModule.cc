@@ -13,7 +13,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
+#include "HeterogeneousCore/CUDAServices/interface/CUDAInterface.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 #include "CUDATestDeviceAdditionAlgo.h"
@@ -42,9 +42,9 @@ void CUDATestDeviceAdditionModule::fillDescriptions(edm::ConfigurationDescriptio
 
 void CUDATestDeviceAdditionModule::analyze(edm::StreamID, edm::Event const& event, edm::EventSetup const& setup) const {
   // require CUDA for running
-  edm::Service<CUDAService> cs;
-  if (not cs->enabled()) {
-    std::cout << "The CUDAService is disabled, the test will be skipped.\n";
+  edm::Service<CUDAInterface> cuda;
+  if (not cuda or not cuda->enabled()) {
+    std::cout << "The CUDAService is not available or disabled, the test will be skipped.\n";
     return;
   }
 

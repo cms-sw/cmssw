@@ -16,11 +16,39 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/ResourceInformation.h"
-#include "HeterogeneousCore/ROCmServices/interface/ROCmService.h"
+#include "HeterogeneousCore/ROCmServices/interface/ROCmInterface.h"
 #include "HeterogeneousCore/ROCmUtilities/interface/hipCheck.h"
 /*
 #include "HeterogeneousCore/ROCmUtilities/interface/nvmlCheck.h"
 */
+
+class ROCmService : public ROCmInterface {
+public:
+  ROCmService(edm::ParameterSet const& config);
+  ~ROCmService() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  bool enabled() const final { return enabled_; }
+
+  int numberOfDevices() const final { return numberOfDevices_; }
+
+  // Return the (major, minor) compute capability of the given device.
+  std::pair<int, int> computeCapability(int device) const final {
+    int size = computeCapabilities_.size();
+    if (device < 0 or device >= size) {
+      throw std::out_of_range("Invalid device index" + std::to_string(device) + ": the valid range is from 0 to " +
+                              std::to_string(size - 1));
+    }
+    return computeCapabilities_[device];
+  }
+
+private:
+  int numberOfDevices_ = 0;
+  std::vector<std::pair<int, int>> computeCapabilities_;
+  bool enabled_ = false;
+  bool verbose_ = false;
+};
 
 void setHipLimit(hipLimit_t limit, const char* name, size_t request) {
   // read the current device
@@ -50,8 +78,7 @@ std::string decodeVersion(int version) {
 
 /// Constructor
 ROCmService::ROCmService(edm::ParameterSet const& config) : verbose_(config.getUntrackedParameter<bool>("verbose")) {
-  bool configEnabled = config.getUntrackedParameter<bool>("enabled");
-  if (not configEnabled) {
+  if (not config.getUntrackedParameter<bool>("enabled")) {
     edm::LogInfo("ROCmService") << "ROCmService disabled by configuration";
     return;
   }
@@ -358,25 +385,12 @@ void ROCmService::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   descriptions.add("ROCmService", desc);
 }
 
-int ROCmService::deviceWithMostFreeMemory() const {
-  // save the current device
-  int currentDevice;
-  hipCheck(hipGetDevice(&currentDevice));
+namespace edm {
+  namespace service {
+    inline bool isProcessWideService(ROCmService const*) { return true; }
+  }  // namespace service
+}  // namespace edm
 
-  size_t maxFreeMemory = 0;
-  int device = -1;
-  for (int i = 0; i < numberOfDevices_; ++i) {
-    size_t freeMemory, totalMemory;
-    hipCheck(hipSetDevice(i));
-    hipCheck(hipMemGetInfo(&freeMemory, &totalMemory));
-    edm::LogPrint("ROCmService") << "ROCm device " << i << ": " << freeMemory / (1 << 20) << " MB free / "
-                                 << totalMemory / (1 << 20) << " MB total memory";
-    if (freeMemory > maxFreeMemory) {
-      maxFreeMemory = freeMemory;
-      device = i;
-    }
-  }
-  // restore the current device
-  hipCheck(hipSetDevice(currentDevice));
-  return device;
-}
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+using ROCmServiceMaker = edm::serviceregistry::ParameterSetMaker<ROCmInterface, ROCmService>;
+DEFINE_FWK_SERVICE_MAKER(ROCmService, ROCmServiceMaker);

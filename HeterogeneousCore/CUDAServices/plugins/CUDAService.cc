@@ -2,7 +2,9 @@
 #include <iostream>
 #include <limits>
 #include <set>
+#include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <cuda.h>
@@ -16,7 +18,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/ResourceInformation.h"
 #include "FWCore/Utilities/interface/ReusableObjectHolder.h"
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
+#include "HeterogeneousCore/CUDAServices/interface/CUDAInterface.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/EventCache.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/StreamCache.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cachingAllocators.h"
@@ -25,6 +27,34 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/nvmlCheck.h"
+
+class CUDAService : public CUDAInterface {
+public:
+  CUDAService(edm::ParameterSet const& config);
+  ~CUDAService() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  bool enabled() const final { return enabled_; }
+
+  int numberOfDevices() const final { return numberOfDevices_; }
+
+  // Return the (major, minor) CUDA compute capability of the given device.
+  std::pair<int, int> computeCapability(int device) const final {
+    int size = computeCapabilities_.size();
+    if (device < 0 or device >= size) {
+      throw std::out_of_range("Invalid device index" + std::to_string(device) + ": the valid range is from 0 to " +
+                              std::to_string(size - 1));
+    }
+    return computeCapabilities_[device];
+  }
+
+private:
+  int numberOfDevices_ = 0;
+  std::vector<std::pair<int, int>> computeCapabilities_;
+  bool enabled_ = false;
+  bool verbose_ = false;
+};
 
 void setCudaLimit(cudaLimit limit, const char* name, size_t request) {
   // read the current device
@@ -91,6 +121,14 @@ constexpr unsigned int getCudaCoresPerSM(unsigned int major, unsigned int minor)
     case 86:  // SM 8.6: GA10x class
       return 128;
 
+    // Ada Lovelace architectures
+    case 89:  // SM 8.9: AD10x class
+      return 128;
+
+    // Hopper architecture
+    case 90:  // SM 9.0: GH100 class
+      return 128;
+
     // unknown architecture, return a default value
     default:
       return 64;
@@ -109,7 +147,7 @@ namespace {
 
     auto streamPtr = cms::cuda::getStreamCache().get();
 
-    std::vector<UniquePtr<char[]> > buffers;
+    std::vector<UniquePtr<char[]>> buffers;
     buffers.reserve(bufferSizes.size());
     for (auto size : bufferSizes) {
       buffers.push_back(allocate(size, streamPtr.get()));
@@ -137,8 +175,7 @@ namespace {
 
 /// Constructor
 CUDAService::CUDAService(edm::ParameterSet const& config) : verbose_(config.getUntrackedParameter<bool>("verbose")) {
-  bool configEnabled = config.getUntrackedParameter<bool>("enabled");
-  if (not configEnabled) {
+  if (not config.getUntrackedParameter<bool>("enabled")) {
     edm::LogInfo("CUDAService") << "CUDAService disabled by configuration";
     return;
   }
@@ -386,8 +423,8 @@ CUDAService::CUDAService(edm::ParameterSet const& config) : verbose_(config.getU
 
   // Preallocate buffers if asked to
   auto const& allocator = config.getUntrackedParameter<edm::ParameterSet>("allocator");
-  devicePreallocate(numberOfDevices_, allocator.getUntrackedParameter<std::vector<unsigned int> >("devicePreallocate"));
-  hostPreallocate(allocator.getUntrackedParameter<std::vector<unsigned int> >("hostPreallocate"));
+  devicePreallocate(numberOfDevices_, allocator.getUntrackedParameter<std::vector<unsigned int>>("devicePreallocate"));
+  hostPreallocate(allocator.getUntrackedParameter<std::vector<unsigned int>>("hostPreallocate"));
 }
 
 CUDAService::~CUDAService() {
@@ -431,34 +468,21 @@ void CUDAService::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
           "the default value.");
 
   edm::ParameterSetDescription allocator;
-  allocator.addUntracked<std::vector<unsigned int> >("devicePreallocate", std::vector<unsigned int>{})
+  allocator.addUntracked<std::vector<unsigned int>>("devicePreallocate", std::vector<unsigned int>{})
       ->setComment("Preallocates buffers of given bytes on all devices");
-  allocator.addUntracked<std::vector<unsigned int> >("hostPreallocate", std::vector<unsigned int>{})
+  allocator.addUntracked<std::vector<unsigned int>>("hostPreallocate", std::vector<unsigned int>{})
       ->setComment("Preallocates buffers of given bytes on the host");
   desc.addUntracked<edm::ParameterSetDescription>("allocator", allocator);
 
   descriptions.add("CUDAService", desc);
 }
 
-int CUDAService::deviceWithMostFreeMemory() const {
-  // save the current device
-  int currentDevice;
-  cudaCheck(cudaGetDevice(&currentDevice));
+namespace edm {
+  namespace service {
+    inline bool isProcessWideService(CUDAService const*) { return true; }
+  }  // namespace service
+}  // namespace edm
 
-  size_t maxFreeMemory = 0;
-  int device = -1;
-  for (int i = 0; i < numberOfDevices_; ++i) {
-    size_t freeMemory, totalMemory;
-    cudaSetDevice(i);
-    cudaMemGetInfo(&freeMemory, &totalMemory);
-    edm::LogPrint("CUDAService") << "CUDA device " << i << ": " << freeMemory / (1 << 20) << " MB free / "
-                                 << totalMemory / (1 << 20) << " MB total memory";
-    if (freeMemory > maxFreeMemory) {
-      maxFreeMemory = freeMemory;
-      device = i;
-    }
-  }
-  // restore the current device
-  cudaCheck(cudaSetDevice(currentDevice));
-  return device;
-}
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+using CUDAServiceMaker = edm::serviceregistry::ParameterSetMaker<CUDAInterface, CUDAService>;
+DEFINE_FWK_SERVICE_MAKER(CUDAService, CUDAServiceMaker);

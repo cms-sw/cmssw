@@ -22,7 +22,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/isFinite.h"
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
+#include "HeterogeneousCore/CUDAServices/interface/CUDAInterface.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 
 #include "CAHitNtupletGeneratorOnGPU.h"
@@ -246,8 +246,8 @@ template <typename TrackerTraits>
 void CAHitNtupletGeneratorOnGPU<TrackerTraits>::beginJob() {
   if (m_params.onGPU_) {
     // allocate pinned host memory only if CUDA is available
-    edm::Service<CUDAService> cs;
-    if (cs and cs->enabled()) {
+    edm::Service<CUDAInterface> cuda;
+    if (cuda and cuda->enabled()) {
       cudaCheck(cudaMalloc(&m_counters, sizeof(Counters)));
       cudaCheck(cudaMemset(m_counters, 0, sizeof(Counters)));
     }
@@ -261,8 +261,8 @@ template <typename TrackerTraits>
 void CAHitNtupletGeneratorOnGPU<TrackerTraits>::endJob() {
   if (m_params.onGPU_) {
     // print the gpu statistics and free pinned host memory only if CUDA is available
-    edm::Service<CUDAService> cs;
-    if (cs and cs->enabled()) {
+    edm::Service<CUDAInterface> cuda;
+    if (cuda and cuda->enabled()) {
       if (m_params.doStats_) {
         // crash on multi-gpu processes
         CAHitNtupletGeneratorKernelsGPU<TrackerTraits>::printCounters(m_counters);

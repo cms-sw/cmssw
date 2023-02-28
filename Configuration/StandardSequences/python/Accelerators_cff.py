@@ -4,3 +4,4 @@ import FWCore.ParameterSet.Config as cms
 # used in production
 
 from HeterogeneousCore.CUDACore.ProcessAcceleratorCUDA_cfi import ProcessAcceleratorCUDA
+from HeterogeneousCore.ROCmCore.ProcessAcceleratorROCm_cfi import ProcessAcceleratorROCm

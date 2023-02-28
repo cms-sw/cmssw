@@ -1,8 +1,3 @@
-// -*- C++ -*-
-//
-// Package:     HeterogeneousCore/CUDAServices
-// Class  :     NVProfilerService
-
 #include <algorithm>
 #include <iostream>
 #include <sstream>
@@ -40,7 +35,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
+#include "HeterogeneousCore/CUDAServices/interface/CUDAInterface.h"
 #include "HLTrigger/Timer/interface/ProcessCallGraph.h"
 
 using namespace std::string_literals;
@@ -310,8 +305,10 @@ NVProfilerService::NVProfilerService(edm::ParameterSet const& config, edm::Activ
     : highlightModules_(config.getUntrackedParameter<std::vector<std::string>>("highlightModules")),
       showModulePrefetching_(config.getUntrackedParameter<bool>("showModulePrefetching")),
       skipFirstEvent_(config.getUntrackedParameter<bool>("skipFirstEvent")) {
-  // make sure that CUDA is initialised, and that the CUDAService destructor is called after this service's destructor
-  edm::Service<CUDAService> cudaService;
+  // make sure that CUDA is initialised, and that the CUDAInterface destructor is called after this service's destructor
+  edm::Service<CUDAInterface> cuda;
+  if (not cuda or not cuda->enabled())
+    return;
 
   std::sort(highlightModules_.begin(), highlightModules_.end());
 
