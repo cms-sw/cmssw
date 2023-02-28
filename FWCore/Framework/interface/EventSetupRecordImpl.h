@@ -42,16 +42,13 @@ through the 'validityInterval' method.
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
-#include "FWCore/ServiceRegistry/interface/ESParentContext.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
-#include "FWCore/Utilities/interface/ESInputTag.h"
 #include "FWCore/Utilities/interface/ESIndices.h"
 
 // system include files
 #include <exception>
-#include <map>
+#include <limits>
 #include <memory>
-#include <utility>
 #include <vector>
 #include <atomic>
 #include <cassert>
@@ -65,7 +62,6 @@ namespace edm {
 
   class ActivityRegistry;
   class ESHandleExceptionFactory;
-  class ESInputTag;
   class EventSetupImpl;
   class ServiceToken;
   class ESParentContext;
@@ -147,8 +143,6 @@ namespace edm {
 
       DataProxy const* find(DataKey const& aKey) const;
 
-      void validate(ComponentDescription const*, ESInputTag const&) const;
-
       ActivityRegistry const* activityRegistry() const noexcept { return activityRegistry_; }
 
       void addTraceInfoToCmsException(cms::Exception& iException,
@@ -160,19 +154,6 @@ namespace edm {
       void resetIfTransientInProxies();
 
     private:
-      void const* getFromProxy(DataKey const& iKey,
-                               ComponentDescription const*& iDesc,
-                               bool iTransientAccessOnly,
-                               ESParentContext const&,
-                               EventSetupImpl const* = nullptr) const;
-
-      void const* getFromProxy(ESProxyIndex iProxyIndex,
-                               bool iTransientAccessOnly,
-                               ComponentDescription const*& iDesc,
-                               DataKey const*& oGottenKey,
-                               ESParentContext const&,
-                               EventSetupImpl const* = nullptr) const;
-
       void const* getFromProxyAfterPrefetch(ESProxyIndex iProxyIndex,
                                             bool iTransientAccessOnly,
                                             ComponentDescription const*& iDesc,
@@ -180,31 +161,10 @@ namespace edm {
 
       template <typename DataT>
       void getImplementation(DataT const*& iData,
-                             char const* iName,
-                             ComponentDescription const*& iDesc,
-                             bool iTransientAccessOnly,
-                             std::shared_ptr<ESHandleExceptionFactory>& whyFailedFactory,
-                             ESParentContext const& iParent,
-                             EventSetupImpl const* iEventSetupImpl) const {
-        DataKey dataKey(DataKey::makeTypeTag<DataT>(), iName, DataKey::kDoNotCopyMemory);
-
-        void const* pValue = this->getFromProxy(dataKey, iDesc, iTransientAccessOnly, iParent, iEventSetupImpl);
-        if (nullptr == pValue) {
-          whyFailedFactory = makeESHandleExceptionFactory([=] {
-            NoProxyException<DataT> ex(this->key(), dataKey);
-            return std::make_exception_ptr(ex);
-          });
-        }
-        iData = reinterpret_cast<DataT const*>(pValue);
-      }
-
-      template <typename DataT>
-      void getImplementation(DataT const*& iData,
                              ESProxyIndex iProxyIndex,
                              bool iTransientAccessOnly,
                              ComponentDescription const*& oDesc,
-                             std::shared_ptr<ESHandleExceptionFactory>& whyFailedFactory,
-                             EventSetupImpl const* iEventSetupImpl) const {
+                             std::shared_ptr<ESHandleExceptionFactory>& whyFailedFactory) const {
         DataKey const* dataKey = nullptr;
         if (iProxyIndex.value() == std::numeric_limits<int>::max()) {
           whyFailedFactory = makeESHandleExceptionFactory([=] {

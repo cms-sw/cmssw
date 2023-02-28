@@ -1,6 +1,7 @@
 #ifndef RecoLuminosity_LumiProducer_LumiCorrectionParam_h
 #define RecoLuminosity_LumiProducer_LumiCorrectionParam_h
 #include <iosfwd>
+#include <map>
 #include <string>
 #include "RecoLuminosity/LumiProducer/interface/LumiCorrectionParamRcd.h"
 #include "FWCore/Framework/interface/data_default_record_trait.h"
