@@ -2,3 +2,7 @@
   <use name="FWCore/TestProcessor"/>
   <use name="catch2"/>
 </bin>
+<bin file="runTest.cpp" name="testOnlineBeamMonitor">
+  <use name="FWCore/Utilities"/>
+  <flags TEST_RUNNER_ARGS="/bin/bash DQM/BeamMonitor/test testOnlineBeamMonitor.sh"/>
+</bin>

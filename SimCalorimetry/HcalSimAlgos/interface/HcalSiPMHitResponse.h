@@ -19,7 +19,7 @@ public:
   bool operator()(const PCaloHit* a, const PCaloHit* b) const { return a->time() < b->time(); }
 };
 
-class HcalSiPMHitResponse : public CaloHitResponse {
+class HcalSiPMHitResponse final : public CaloHitResponse {
 public:
   HcalSiPMHitResponse(const CaloVSimParameterMap* parameterMap,
                       const CaloShapes* shapes,

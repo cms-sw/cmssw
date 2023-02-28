@@ -278,10 +278,10 @@ namespace l1t {
           //                               << ", roll " << Hit_.Roll() << ", pad " << Hit_.Pad() << std::endl;
 
           (res->at(iOut)).push_GEM(GEM_);
-          if (!exact_duplicate)
+          if (!exact_duplicate and Hit_.Valid())
             res_hit->push_back(Hit_);
 
-          if (!exact_duplicate)
+          if (!exact_duplicate and Hit_.Valid())
             res_GEM->insertDigi(Hit_.GEM_DetId(), Hit_.CreateGEMPadDigiCluster());
 
           // Finished with unpacking one GEM Data Record

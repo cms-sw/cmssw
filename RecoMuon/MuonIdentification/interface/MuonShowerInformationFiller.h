@@ -108,13 +108,22 @@ private:
   GlobalPoint crossingPoint(const GlobalPoint&, const GlobalPoint&, const Disk&) const;
   std::vector<const GeomDet*> dtPositionToDets(const GlobalPoint&) const;
   std::vector<const GeomDet*> cscPositionToDets(const GlobalPoint&) const;
-  MuonRecHitContainer findPerpCluster(MuonRecHitContainer& muonRecHits) const;
-  TransientTrackingRecHit::ConstRecHitContainer findThetaCluster(TransientTrackingRecHit::ConstRecHitContainer&,
+  MuonRecHitContainer findPerpCluster(const MuonRecHitContainer& muonRecHits) const;
+  TransientTrackingRecHit::ConstRecHitContainer findThetaCluster(const TransientTrackingRecHit::ConstRecHitContainer&,
                                                                  const GlobalPoint&) const;
   TransientTrackingRecHit::ConstRecHitContainer hitsFromSegments(const GeomDet*,
                                                                  edm::Handle<DTRecSegment4DCollection>,
                                                                  edm::Handle<CSCSegmentCollection>) const;
   std::vector<const GeomDet*> getCompatibleDets(const reco::Track&) const;
+
+  struct MagTransform {
+    MagTransform(const GlobalPoint& point) : thePoint(point) {}
+    double operator()(const GlobalPoint& p) const { return (p - thePoint).mag(); }
+    double operator()(const MuonTransientTrackingRecHit::MuonRecHitPointer& hit) const {
+      return (hit->globalPosition() - thePoint).mag();
+    }
+    GlobalPoint thePoint;
+  };
 
   struct LessMag {
     LessMag(const GlobalPoint& point) : thePoint(point) {}
@@ -128,22 +137,10 @@ private:
     GlobalPoint thePoint;
   };
 
-  struct LessDPhi {
-    LessDPhi(const GlobalPoint& point) : thePoint(point) {}
-    bool operator()(const MuonTransientTrackingRecHit::MuonRecHitPointer& lhs,
-                    const MuonTransientTrackingRecHit::MuonRecHitPointer& rhs) const {
-      return deltaPhi(lhs->globalPosition().barePhi(), thePoint.barePhi()) <
-             deltaPhi(rhs->globalPosition().barePhi(), thePoint.barePhi());
-    }
-    GlobalPoint thePoint;
-  };
-
-  struct AbsLessDPhi {
-    AbsLessDPhi(const GlobalPoint& point) : thePoint(point) {}
-    bool operator()(const MuonTransientTrackingRecHit::MuonRecHitPointer& lhs,
-                    const MuonTransientTrackingRecHit::MuonRecHitPointer& rhs) const {
-      return (fabs(deltaPhi(lhs->globalPosition().barePhi(), thePoint.barePhi())) <
-              fabs(deltaPhi(rhs->globalPosition().barePhi(), thePoint.barePhi())));
+  struct AbsDThetaTransform {
+    AbsDThetaTransform(const GlobalPoint& point) : thePoint(point) {}
+    double operator()(const TransientTrackingRecHit::ConstRecHitPointer& hit) const {
+      return std::fabs(hit->globalPosition().bareTheta() - thePoint.bareTheta());
     }
     GlobalPoint thePoint;
   };
@@ -158,6 +155,12 @@ private:
     GlobalPoint thePoint;
   };
 
+  struct PhiTransform {
+    double operator()(const MuonTransientTrackingRecHit::MuonRecHitPointer& hit) const {
+      return hit->globalPosition().barePhi();
+    }
+  };
+
   struct LessPhi {
     LessPhi() : thePoint(0, 0, 0) {}
     bool operator()(const MuonTransientTrackingRecHit::MuonRecHitPointer& lhs,
@@ -167,22 +170,30 @@ private:
     GlobalPoint thePoint;
   };
 
+  struct PerpTransform {
+    double operator()(const MuonTransientTrackingRecHit::MuonRecHitPointer& hit) const {
+      return hit->globalPosition().perp();
+    }
+  };
+
   struct LessPerp {
-    LessPerp() : thePoint(0, 0, 0) {}
     bool operator()(const MuonTransientTrackingRecHit::MuonRecHitPointer& lhs,
                     const MuonTransientTrackingRecHit::MuonRecHitPointer& rhs) const {
       return (lhs->globalPosition().perp() < rhs->globalPosition().perp());
     }
-    GlobalPoint thePoint;
+  };
+
+  struct AbsMagTransform {
+    double operator()(const MuonTransientTrackingRecHit::MuonRecHitPointer& hit) const {
+      return hit->globalPosition().mag();
+    }
   };
 
   struct LessAbsMag {
-    LessAbsMag() : thePoint(0, 0, 0) {}
     bool operator()(const MuonTransientTrackingRecHit::MuonRecHitPointer& lhs,
                     const MuonTransientTrackingRecHit::MuonRecHitPointer& rhs) const {
       return (lhs->globalPosition().mag() < rhs->globalPosition().mag());
     }
-    GlobalPoint thePoint;
   };
 
   std::string category_;

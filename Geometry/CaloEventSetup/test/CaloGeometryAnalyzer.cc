@@ -25,12 +25,14 @@
 
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include <fstream>
 #include <iomanip>
 #include <iterator>
+#include <sstream>
 #include "TH1.h"
 #include "TH1D.h"
 #include "TProfile.h"
@@ -184,15 +186,11 @@ void CaloGeometryAnalyzer::cmpset(const CaloSubdetectorGeometry* geom, const Glo
   DetSet base = geom->CaloSubdetectorGeometry::getCells(gp, dR);
   DetSet over = geom->getCells(gp, dR);
   if (over == base) {
-    /*
-      std::cout << "getCells Test dR="
-		<< dR
-		<< ", gp=" << gp 
-		<< ", gp.eta=" << gp.eta() 
-		<< ", gp.phi=" << gp.phi() 
-		<< ": base and over are equal!\n ***************************\n " 
-		<< std::endl ;
-*/
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("CaloGeom") << "getCells Test dR=" << dR << ", gp=" << gp << ", gp.eta=" << gp.eta()
+                                 << ", gp.phi=" << gp.phi()
+                                 << ": base and over are equal!\n ***************************\n ";
+#endif
   } else {
     if (2 < std::abs((int)(base.size()) - (int)(over.size()))) {
       DetSet inBaseNotOver;
@@ -201,22 +199,23 @@ void CaloGeometryAnalyzer::cmpset(const CaloSubdetectorGeometry* geom, const Glo
           base.begin(), base.end(), over.begin(), over.end(), std::inserter(inBaseNotOver, inBaseNotOver.begin()));
 
       if (inBaseNotOver.empty()) {
-        std::cout << "getCells Test dR=" << dR << ", gp=" << gp << ", gp.eta=" << gp.eta() << ", gp.phi=" << gp.phi()
-                  << ": No elements in base but not overload " << std::endl;
+        edm::LogVerbatim("CaloGeom") << "getCells Test dR=" << dR << ", gp=" << gp << ", gp.eta=" << gp.eta()
+                                     << ", gp.phi=" << gp.phi() << ": No elements in base but not overload ";
       } else {
-        std::cout << "Length of Base is " << base.size() << std::endl;
-        std::cout << "Length of Over is " << over.size() << std::endl;
-        std::cout << "There are " << inBaseNotOver.size() << " items in Base but not in Overload" << std::endl;
+        edm::LogVerbatim("CaloGeom") << "Length of Base is " << base.size();
+        edm::LogVerbatim("CaloGeom") << "Length of Over is " << over.size();
+        edm::LogVerbatim("CaloGeom") << "There are " << inBaseNotOver.size() << " items in Base but not in Overload";
 
         for (const auto& iS : inBaseNotOver) {
-          std::cout << "getCells Test dR=" << dR << ", gp=" << gp << ": cell in base but not overload = ";
+          std::ostringstream st1;
+          st1 << "getCells Test dR=" << dR << ", gp=" << gp << ": cell in base but not overload = ";
           if (iS.det() == DetId::Ecal && iS.subdetId() == EcalBarrel)
-            std::cout << EBDetId(iS);
+            st1 << EBDetId(iS);
           if (iS.det() == DetId::Ecal && iS.subdetId() == EcalEndcap)
-            std::cout << EEDetId(iS);
+            st1 << EEDetId(iS);
           if (iS.det() == DetId::Hcal)
-            std::cout << HcalDetId(iS);
-          std::cout << std::endl;
+            st1 << HcalDetId(iS);
+          edm::LogVerbatim("CaloGeom") << st1.str();
         }
       }
 
@@ -224,25 +223,26 @@ void CaloGeometryAnalyzer::cmpset(const CaloSubdetectorGeometry* geom, const Glo
           over.begin(), over.end(), base.begin(), base.end(), std::inserter(inOverNotBase, inOverNotBase.begin()));
 
       if (inOverNotBase.empty()) {
-        std::cout << "getCells Test dR=" << dR << ", gp=" << gp << ", gp.eta=" << gp.eta() << ", gp.phi=" << gp.phi()
-                  << ": No elements in overload but not base " << std::endl;
+        edm::LogVerbatim("CaloGeom") << "getCells Test dR=" << dR << ", gp=" << gp << ", gp.eta=" << gp.eta()
+                                     << ", gp.phi=" << gp.phi() << ": No elements in overload but not base ";
       } else {
-        std::cout << "Length of Base is " << base.size() << std::endl;
-        std::cout << "Length of Over is " << over.size() << std::endl;
-        std::cout << "There are " << inOverNotBase.size() << " items in Overload but not in Base" << std::endl;
+        edm::LogVerbatim("CaloGeom") << "Length of Base is " << base.size();
+        edm::LogVerbatim("CaloGeom") << "Length of Over is " << over.size();
+        edm::LogVerbatim("CaloGeom") << "There are " << inOverNotBase.size() << " items in Overload but not in Base";
 
         for (const auto& iS : inOverNotBase) {
-          std::cout << "getCells Test dR=" << dR << ", gp=" << gp << ": cell in overload but not base = ";
+          std::ostringstream st1;
+          st1 << "getCells Test dR=" << dR << ", gp=" << gp << ": cell in overload but not base = ";
           if (iS.det() == DetId::Ecal && iS.subdetId() == EcalBarrel)
-            std::cout << EBDetId(iS);
+            st1 << EBDetId(iS);
           if (iS.det() == DetId::Ecal && iS.subdetId() == EcalEndcap)
-            std::cout << EEDetId(iS);
+            st1 << EEDetId(iS);
           if (iS.det() == DetId::Hcal)
-            std::cout << HcalDetId(iS);
-          std::cout << std::endl;
+            st1 << HcalDetId(iS);
+          edm::LogVerbatim("CaloGeom") << st1.str();
         }
       }
-      std::cout << "------------- done with mismatch printout ---------------" << std::endl;
+      edm::LogVerbatim("CaloGeom") << "------------- done with mismatch printout ---------------";
     }
   }
 }
@@ -327,9 +327,9 @@ void CaloGeometryAnalyzer::ovrTst(const CaloGeometry* cg,
 
 void CaloGeometryAnalyzer::checkDiff(int i1, int i2, int i3, CenterOrCorner iCtrCor, XorYorZ iXYZ, double diff) {
   if (3.5 < fabs(diff)) {
-    std::cout << "For a volume " << (kCenter == iCtrCor ? "CENTER" : "CORNER") << ", & "
-              << "i1=" << i1 << " & i2=" << i2 << " & i3=" << i3 << ", ***BIG DISAGREEMENT FOUND. D"
-              << (kX == iXYZ ? "X" : (kY == iXYZ ? "Y" : "Z")) << "=" << diff << " microns" << std::endl;
+    edm::LogVerbatim("CaloGeom") << "For a volume " << (kCenter == iCtrCor ? "CENTER" : "CORNER") << ", & "
+                                 << "i1=" << i1 << " & i2=" << i2 << " & i3=" << i3 << ", ***BIG DISAGREEMENT FOUND. D"
+                                 << (kX == iXYZ ? "X" : (kY == iXYZ ? "Y" : "Z")) << "=" << diff << " microns";
     m_allOK = false;
   }
 }
@@ -466,7 +466,7 @@ void CaloGeometryAnalyzer::buildHcal(const CaloGeometry* cg,
                                      int subdetn,
                                      const char* name,
                                      unsigned int histi) {
-  std::cout << "Now checking detector " << name << std::endl;
+  edm::LogVerbatim("CaloGeom") << "Now checking detector " << name;
   const std::string oldnameCtr("old" + std::string(name) + ".ctr");
   const std::string oldnameCor("old" + std::string(name) + ".cor");
   const std::string fnameCtr(std::string(name) + ".ctr");
@@ -495,8 +495,8 @@ void CaloGeometryAnalyzer::buildHcal(const CaloGeometry* cg,
   const std::vector<DetId>& ids2(cg->getValidDetIds(det, subdetn));
 
   if (ids != ids2) {
-    std::cout << "Methods differ! One gives size " << ids.size() << " and the other gives size " << ids2.size()
-              << std::endl;
+    edm::LogVerbatim("CaloGeom") << "Methods differ! One gives size " << ids.size() << " and the other gives size "
+                                 << ids2.size();
   }
   assert(ids == ids2);
 
@@ -523,7 +523,7 @@ void CaloGeometryAnalyzer::buildHcal(const CaloGeometry* cg,
         pos.x() - 0.1 * pos.x() / posmag, pos.y() - 0.1 * pos.y() / posmag, pos.z() - 0.1 * pos.z() / posmag);
 
     if (cell->inside(pointFr))
-      std::cout << "Bad outside: " << pointIn << ", " << pointFr << std::endl;
+      edm::LogVerbatim("CaloGeom") << "Bad outside: " << pointIn << ", " << pointFr;
     assert(cell->inside(pointIn));
     assert(!cell->inside(pointFr));
 
@@ -562,7 +562,7 @@ void CaloGeometryAnalyzer::buildHcal(const CaloGeometry* cg,
                                    geom->getGeometry(closestCell)->getPosition().eta(),
                                    geom->getGeometry(closestCell)->getPosition().phi()));
       if (rr > 1.e-5)
-        std::cout << "For " << HcalDetId(i) << " closest is " << closestCell << " HCAL dR=" << rr << std::endl;
+        edm::LogVerbatim("CaloGeom") << "For " << HcalDetId(i) << " closest is " << closestCell << " HCAL dR=" << rr;
     }
     // test getCells against base class version every so often
     if (0 == ht.detId2denseId(closestCell) % 30) {
@@ -597,7 +597,7 @@ void CaloGeometryAnalyzer::build(const CaloGeometry* cg,
                                  int subdetn,
                                  const char* name,
                                  unsigned int histi) {
-  std::cout << "Now checking detector " << name << std::endl;
+  edm::LogVerbatim("CaloGeom") << "Now checking detector " << name;
 
   const std::string oldnameCtr("old" + std::string(name) + ".ctr");
   const std::string oldnameCor("old" + std::string(name) + ".cor");
@@ -627,8 +627,8 @@ void CaloGeometryAnalyzer::build(const CaloGeometry* cg,
   const std::vector<DetId>& ids2(cg->getValidDetIds(det, subdetn));
 
   if (ids != ids2) {
-    std::cout << "Methods differ! One gives size " << ids.size() << " and the other gives size " << ids2.size()
-              << std::endl;
+    edm::LogVerbatim("CaloGeom") << "Methods differ! One gives size " << ids.size() << " and the other gives size "
+                                 << ids2.size();
   }
 
   assert(ids == ids2);
@@ -662,7 +662,7 @@ void CaloGeometryAnalyzer::build(const CaloGeometry* cg,
         pos.x() - 0.1 * pos.x() / posmag, pos.y() - 0.1 * pos.y() / posmag, pos.z() - 0.1 * pos.z() / posmag);
 
     if (cell->inside(pointFr))
-      std::cout << "Bad outside: " << pointIn << ", " << pointFr << std::endl;
+      edm::LogVerbatim("CaloGeom") << "Bad outside: " << pointIn << ", " << pointFr;
     assert(cell->inside(pointIn));
     assert(!cell->inside(pointFr));
 
@@ -839,7 +839,7 @@ void CaloGeometryAnalyzer::build(const CaloGeometry* cg,
         assert((o_zside < 0 && cell->getPosition().z() < 0.) || (o_zside > 0 && cell->getPosition().z() > 0.));
 
         if (closestCell != esid)
-          std::cout << "** esid=" << esid << ", closest=" << closestCell << std::endl;
+          edm::LogVerbatim("CaloGeom") << "** esid=" << esid << ", closest=" << closestCell;
 
         const unsigned int i1(EcalPreshowerGeometry::alignmentTransformIndexLocal(esid));
 
@@ -875,7 +875,7 @@ void CaloGeometryAnalyzer::build(const CaloGeometry* cg,
                                      geom->getGeometry(closestCell)->getPosition().eta(),
                                      geom->getGeometry(closestCell)->getPosition().phi()));
         if (rr > 1.e-5)
-          std::cout << "For " << HcalDetId(i) << " closest is " << closestCell << " HCAL dR=" << rr << std::endl;
+          edm::LogVerbatim("CaloGeom") << "For " << HcalDetId(i) << " closest is " << closestCell << " HCAL dR=" << rr;
       }
       // test getCells against base class version every so often
       if (0 == ht.detId2denseId(closestCell) % 30) {
@@ -902,8 +902,8 @@ void CaloGeometryAnalyzer::build(const CaloGeometry* cg,
                                        geom->getGeometry(closestCell)->getPosition().eta(),
                                        geom->getGeometry(closestCell)->getPosition().phi()));
           if (rr > 1.e-5)
-            std::cout << "For " << HcalCastorDetId(i) << " closest is " << HcalCastorDetId(closestCell) << " dR=" << rr
-                      << std::endl;
+            edm::LogVerbatim("CaloGeom") << "For " << HcalCastorDetId(i) << " closest is "
+                                         << HcalCastorDetId(closestCell) << " dR=" << rr;
         }
       }
       // test getCells against base class version every so often
@@ -932,8 +932,8 @@ void CaloGeometryAnalyzer::build(const CaloGeometry* cg,
                                        geom->getGeometry(closestCell)->getPosition().eta(),
                                        geom->getGeometry(closestCell)->getPosition().phi()));
           if (rr > 1.e-5)
-            std::cout << "For " << HcalZDCDetId(i) << " closest is " << HcalZDCDetId(closestCell) << " dR=" << rr
-                      << std::endl;
+            edm::LogVerbatim("CaloGeom") << "For " << HcalZDCDetId(i) << " closest is " << HcalZDCDetId(closestCell)
+                                         << " dR=" << rr;
         }
       }
       // test getCells against base class version every so often
@@ -988,7 +988,7 @@ void CaloGeometryAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::Even
                          dct.size() + dca.size() + dzd.size());
 
   if (sum != allDetId.size()) {
-    std::cout << "Sums differ! One is " << allDetId.size() << " and the other is " << sum << std::endl;
+    edm::LogVerbatim("CaloGeom") << "Sums differ! One is " << allDetId.size() << " and the other is " << sum;
   }
 
   assert(sum == allDetId.size());
@@ -998,15 +998,15 @@ void CaloGeometryAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::Even
   // get the ecal & hcal geometry
   //
   if (pass_ == 0) {
-    std::cout << "**Ecal Barrel avg Radius = "
-              << dynamic_cast<const EcalBarrelGeometry*>(pG.getSubdetectorGeometry(DetId::Ecal, EcalBarrel))
-                     ->avgRadiusXYFrontFaceCenter()
-              << std::endl;
+    edm::LogVerbatim("CaloGeom") << "**Ecal Barrel avg Radius = "
+                                 << dynamic_cast<const EcalBarrelGeometry*>(
+                                        pG.getSubdetectorGeometry(DetId::Ecal, EcalBarrel))
+                                        ->avgRadiusXYFrontFaceCenter();
 
-    std::cout << "**Ecal Endcap avg Zabs = "
-              << dynamic_cast<const EcalEndcapGeometry*>(pG.getSubdetectorGeometry(DetId::Ecal, EcalEndcap))
-                     ->avgAbsZFrontFaceCenter()
-              << std::endl;
+    edm::LogVerbatim("CaloGeom") << "**Ecal Endcap avg Zabs = "
+                                 << dynamic_cast<const EcalEndcapGeometry*>(
+                                        pG.getSubdetectorGeometry(DetId::Ecal, EcalEndcap))
+                                        ->avgAbsZFrontFaceCenter();
 
     m_allOK = true;
 
@@ -1022,9 +1022,8 @@ void CaloGeometryAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::Even
     // Castor has been removed from CMS
     build(cG, pT, DetId::Calo, HcalZDCDetId::SubdetectorId, "zd", 9);
 
-    std::cout << "\n\n*********** Validation of cell centers and corners " << (m_allOK ? "SUCCEEDS!! " : "FAILS!! ")
-              << "**********************\n\n\n"
-              << std::endl;
+    edm::LogVerbatim("CaloGeom") << "\n\n*********** Validation of cell centers and corners "
+                                 << (m_allOK ? "SUCCEEDS!! " : "FAILS!! ") << "**********************\n\n\n";
   }
 
   pass_++;

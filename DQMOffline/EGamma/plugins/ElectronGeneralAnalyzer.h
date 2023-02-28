@@ -1,4 +1,3 @@
-
 #ifndef DQMOffline_EGamma_ElectronGeneralAnalyzer_h
 #define DQMOffline_EGamma_ElectronGeneralAnalyzer_h
 
@@ -40,17 +39,6 @@ private:
   edm::EDGetTokenT<reco::VertexCollection> vertexCollection_;
   edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
 
-  // for trigger
-  edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
-  //std::vector<std::string > HLTPathsByName_;
-  //
-  //    //=========================================
-  //    // general attributes and utility methods
-  //    //=========================================
-  //
-  //    bool trigger( const edm::Event & e ) ;
-  //    std::vector<unsigned int> HLTPathsByIndex_;
-
   //=========================================
   // histograms
   //=========================================
@@ -61,7 +49,6 @@ private:
   MonitorElement *py_ele_nGsfTracksVsLs;
   MonitorElement *py_ele_nTracksVsLs;
   MonitorElement *py_ele_nVerticesVsLs;
-  MonitorElement *h1_ele_triggers;
 };
 
 #endif
