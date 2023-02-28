@@ -34,7 +34,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
+#include "HeterogeneousCore/CUDAServices/interface/CUDAInterface.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
 // local includes

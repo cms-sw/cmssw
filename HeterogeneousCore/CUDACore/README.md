@@ -83,7 +83,14 @@ This page documents the CUDA integration within CMSSW
        stream must synchronize with the work queued on other CUDA
        streams (with CUDA events and `cudaStreamWaitEvent()`)
 4. Outside of `acquire()`/`produce()`, CUDA API functions may be
-   called only if `CUDAService::enabled()` returns `true`.
+   called only if the `CUDAService` implementation of the `CUDAInterface`
+   is available and `CUDAService::enabled()` returns `true`:
+     ```c++
+     edm::Service<CUDAInterface> cuda;
+     if (cuda and cuda->enabled()) {
+       // CUDA calls ca be made here
+     }
+     ```
    * With point 3 it follows that in these cases multiple devices have
      to be dealt with explicitly, as well as CUDA streams
 

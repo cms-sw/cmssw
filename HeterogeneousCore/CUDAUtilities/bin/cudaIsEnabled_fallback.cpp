@@ -1,5 +1,10 @@
 // C/C++ headers
 #include <cstdlib>
 
-// always returns EXIT_FAILURE
-int main() { return EXIT_FAILURE; }
+// CMSSW headers
+#include "HeterogeneousCore/Common/interface/PlatformStatus.h"
+
+int main() {
+  // CUDA is not available on this architecture, OS and compiler combination
+  return PlatformStatus::PlatformNotAvailable;
+}

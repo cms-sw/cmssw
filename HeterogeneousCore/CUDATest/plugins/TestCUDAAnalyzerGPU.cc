@@ -8,7 +8,7 @@
 
 #include "CUDADataFormats/Common/interface/Product.h"
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
+#include "HeterogeneousCore/CUDAServices/interface/CUDAInterface.h"
 #include "HeterogeneousCore/CUDATest/interface/Thing.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/StreamCache.h"
 
@@ -38,8 +38,8 @@ TestCUDAAnalyzerGPU::TestCUDAAnalyzerGPU(edm::ParameterSet const& iConfig)
       srcToken_(consumes<cms::cuda::Product<cms::cudatest::Thing>>(iConfig.getParameter<edm::InputTag>("src"))),
       minValue_(iConfig.getParameter<double>("minValue")),
       maxValue_(iConfig.getParameter<double>("maxValue")) {
-  edm::Service<CUDAService> cs;
-  if (cs->enabled()) {
+  edm::Service<CUDAInterface> cuda;
+  if (cuda and cuda->enabled()) {
     auto streamPtr = cms::cuda::getStreamCache().get();
     gpuAlgo_ = std::make_unique<TestCUDAAnalyzerGPUKernel>(streamPtr.get());
   }

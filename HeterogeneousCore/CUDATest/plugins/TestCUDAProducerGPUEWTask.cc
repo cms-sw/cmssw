@@ -13,7 +13,7 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "HeterogeneousCore/CUDACore/interface/ContextState.h"
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
+#include "HeterogeneousCore/CUDAServices/interface/CUDAInterface.h"
 #include "HeterogeneousCore/CUDATest/interface/Thing.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_noncached_unique_ptr.h"
 
@@ -49,8 +49,8 @@ TestCUDAProducerGPUEWTask::TestCUDAProducerGPUEWTask(edm::ParameterSet const& iC
     : label_{iConfig.getParameter<std::string>("@module_label")},
       srcToken_{consumes<cms::cuda::Product<cms::cudatest::Thing>>(iConfig.getParameter<edm::InputTag>("src"))},
       dstToken_{produces<cms::cuda::Product<cms::cudatest::Thing>>()} {
-  edm::Service<CUDAService> cs;
-  if (cs->enabled()) {
+  edm::Service<CUDAInterface> cuda;
+  if (cuda and cuda->enabled()) {
     hostData_ = cms::cuda::make_host_noncached_unique<float>();
   }
 }

@@ -17,7 +17,7 @@ namespace cms::alpakatools {
     descAlpaka.addUntracked<std::string>("backend", "")
         ->setComment(
             "Alpaka backend for this module. Can be empty string (for the global default), 'serial_sync', or "
-            "'cuda_async'");
+            " - depending on the architecture and available hardware - 'cuda_async', 'rocm_async'");
 
     if (iDesc.defaultDescription()) {
       if (iDesc.defaultDescription()->isLabelUnused(kPSetName)) {

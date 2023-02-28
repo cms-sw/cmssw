@@ -1,11 +1,17 @@
 import FWCore.ParameterSet.Config as cms
 
+import os
+
+from HeterogeneousCore.Common.PlatformStatus import PlatformStatus
+
 class ModuleTypeResolverAlpaka:
     def __init__(self, accelerators, backend):
-        # first element is used as the default is nothing is set
+        # first element is used as the default if nothing is set
         self._valid_backends = []
         if "gpu-nvidia" in accelerators:
             self._valid_backends.append("cuda_async")
+        if "gpu-amd" in accelerators:
+            self._valid_backends.append("rocm_async")
         if "cpu" in accelerators:
             self._valid_backends.append("serial_sync")
         if len(self._valid_backends) == 0:
@@ -45,26 +51,64 @@ class ProcessAcceleratorAlpaka(cms.ProcessAccelerator):
     ProcessAcceleratorCUDA) define.
     """
     def __init__(self):
-        super(ProcessAcceleratorAlpaka,self).__init__()
+        super(ProcessAcceleratorAlpaka, self).__init__()
         self._backend = None
+
     # User-facing interface
     def setBackend(self, backend):
         self._backend = backend
+
     # Framework-facing interface
     def moduleTypeResolver(self, accelerators):
         return ModuleTypeResolverAlpaka(accelerators, self._backend)
-    def apply(self, process, accelerators):
-        if not hasattr(process, "AlpakaServiceSerialSync"):
-            from HeterogeneousCore.AlpakaServices.AlpakaServiceSerialSync_cfi import AlpakaServiceSerialSync
-            process.add_(AlpakaServiceSerialSync)
-        if not hasattr(process, "AlpakaServiceCudaAsync"):
-            from HeterogeneousCore.AlpakaServices.AlpakaServiceCudaAsync_cfi import AlpakaServiceCudaAsync
-            process.add_(AlpakaServiceCudaAsync)
 
+    def apply(self, process, accelerators):
+        # Propagate the AlpakaService messages through the MessageLogger
         if not hasattr(process.MessageLogger, "AlpakaService"):
             process.MessageLogger.AlpakaService = cms.untracked.PSet()
 
-        process.AlpakaServiceSerialSync.enabled = "cpu" in accelerators
-        process.AlpakaServiceCudaAsync.enabled = "gpu-nvidia" in accelerators
+        # Check if the CPU backend is available
+        try:
+            if not "cpu" in accelerators:
+                raise False
+            from HeterogeneousCore.AlpakaServices.AlpakaServiceSerialSync_cfi import AlpakaServiceSerialSync
+        except:
+            # the CPU backend is not available, do not load the AlpakaServiceSerialSync
+            if hasattr(process, "AlpakaServiceSerialSync"):
+                del process.AlpakaServiceSerialSync
+        else:
+            # the CPU backend is available, ensure the AlpakaServiceSerialSync is loaded
+            if not hasattr(process, "AlpakaServiceSerialSync"):
+                process.add_(AlpakaServiceSerialSync)
 
+        # Check if CUDA is available, and if the system has at least one usable NVIDIA GPU
+        try:
+            if not "gpu-nvidia" in accelerators:
+                raise False
+            from HeterogeneousCore.AlpakaServices.AlpakaServiceCudaAsync_cfi import AlpakaServiceCudaAsync
+        except:
+            # CUDA is not available, do not load the AlpakaServiceCudaAsync
+            if hasattr(process, "AlpakaServiceCudaAsync"):
+                del process.AlpakaServiceCudaAsync
+        else:
+            # CUDA is available, ensure the AlpakaServiceCudaAsync is loaded
+            if not hasattr(process, "AlpakaServiceCudaAsync"):
+                process.add_(AlpakaServiceCudaAsync)
+
+        # Check if ROCm is available, and if the system has at least one usable AMD GPU
+        try:
+            if not "gpu-amd" in accelerators:
+                raise False
+            from HeterogeneousCore.AlpakaServices.AlpakaServiceROCmAsync_cfi import AlpakaServiceROCmAsync
+        except:
+            # ROCm is not available, do not load the AlpakaServiceROCmAsync
+            if hasattr(process, "AlpakaServiceROCmAsync"):
+                del process.AlpakaServiceROCmAsync
+        else:
+            # ROCm is available, ensure the AlpakaServiceROCmAsync is loaded
+            if not hasattr(process, "AlpakaServiceROCmAsync"):
+                process.add_(AlpakaServiceROCmAsync)
+
+
+# Ensure this module is kept in the configuration when dumping it
 cms.specialImportRegistry.registerSpecialImportForType(ProcessAcceleratorAlpaka, "from HeterogeneousCore.AlpakaCore.ProcessAcceleratorAlpaka import ProcessAcceleratorAlpaka")
