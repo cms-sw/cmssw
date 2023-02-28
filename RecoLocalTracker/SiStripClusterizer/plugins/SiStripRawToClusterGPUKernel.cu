@@ -20,7 +20,7 @@
 //#define GPU_DEBUG
 #if defined(EDM_ML_DEBUG) || defined(GPU_DEBUG)
 #define GPU_CHECK
-#include <stdio.h>
+#include <cstdio>
 #endif
 
 using namespace stripgpu;

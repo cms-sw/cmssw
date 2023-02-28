@@ -6,7 +6,7 @@
 
 #include <cstdint>
 
-struct ChannelLocsView;
+class ChannelLocsView;
 
 namespace stripgpu {
   HOST_DEVICE_CONSTANT auto kMaxSeedStrips = 200000;
