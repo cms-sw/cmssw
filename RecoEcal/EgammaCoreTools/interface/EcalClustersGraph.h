@@ -87,12 +87,12 @@ namespace reco {
     // the Mustache dimension
     std::array<double, 3> dynamicWindow(double seedEta) const;
 
-    DeepSCInputs::FeaturesMap computeVariables(const CaloCluster* seed, const CaloCluster* cluster) const;
+    DeepSCInputs::FeaturesMap computeVariables(const CaloCluster* seed, const CaloCluster* cluster);
     std::vector<std::vector<float>> fillHits(const CaloCluster* cluster) const;
     DeepSCInputs::FeaturesMap computeWindowVariables(const std::vector<DeepSCInputs::FeaturesMap>& clusters) const;
 
     std::pair<double, double> computeCovariances(const CaloCluster* cluster);
-    std::vector<double> computeShowerShapes(const CaloCluster* cluster, bool full5x5);
+    void computeShowerShapes(const CaloCluster* cluster, DeepSCInputs::FeaturesMap&, bool full5x5);
 
     CalibratedPFClusterVector clusters_;
     uint nSeeds_;

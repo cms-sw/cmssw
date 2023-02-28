@@ -8,11 +8,14 @@ from Configuration.ProcessModifiers.ecal_deepsc_cff import ecal_deepsc
 _particleFlowSuperClusterECALDeepSC = _particleFlowSuperClusterECALMustache.clone(
     ClusteringType = "DeepSC",
     deepSuperClusterConfig = cms.PSet(
-        modelFile = cms.string("RecoEcal/EgammaClusterProducers/data/DeepSCModels/EOY_2018/model.pb"),
+        modelFiles = cms.vstring("RecoEcal/EgammaClusterProducers/data/DeepSCModels/EOY_2018/model.pb",
+                                 "RecoEcal/EgammaClusterProducers/data/DeepSCModels/EOY_2018/model.pb"),
         configFileClusterFeatures = cms.string("RecoEcal/EgammaClusterProducers/data/DeepSCModels/EOY_2018/config_clusters_inputs.txt"),
         configFileWindowFeatures = cms.string("RecoEcal/EgammaClusterProducers/data/DeepSCModels/EOY_2018/config_window_inputs.txt"),
         configFileHitsFeatures = cms.string("RecoEcal/EgammaClusterProducers/data/DeepSCModels/EOY_2018/config_hits_inputs.txt"),
-        collectionStrategy = cms.string("Cascade")
+        collectionStrategy = cms.string("Cascade"),
+        maxNClusters = cms.vuint32(15,30),
+        maxNRechits = cms.vuint32(20,60)
     )
 )
 ecal_deepsc.toReplaceWith(particleFlowSuperClusterECAL, _particleFlowSuperClusterECALDeepSC)
