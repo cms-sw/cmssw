@@ -225,26 +225,26 @@ void TkAlCaRecoMonitor::analyze(const edm::Event &iEvent, const edm::EventSetup 
 
   double sumOfCharges = 0;
   for (const auto &track : *trackCollection) {
-    double dR = 0;
+    double dR2 = 0;
     if (runsOnReco_) {
-      double minJetDeltaR = 10;  // some number > 2pi
+      double minJetDeltaR2 = 10 * 10;  // some number > 2pi
       for (const auto &itJet : *jets) {
         jetPt_->Fill(itJet.pt());
-        dR = deltaR(track, itJet);
-        if (itJet.pt() > maxJetPt_ && dR < minJetDeltaR)
-          minJetDeltaR = dR;
+        dR2 = deltaR2(track, itJet);
+        if (itJet.pt() > maxJetPt_ && dR2 < minJetDeltaR2)
+          minJetDeltaR2 = dR2;
 
         // edm::LogInfo("Alignment") <<">  isolated: "<< isolated << " jetPt "<<
         // (*itJet).pt() <<" deltaR: "<< deltaR(*(*it),(*itJet)) ;
       }
-      minJetDeltaR_->Fill(minJetDeltaR);
+      minJetDeltaR_->Fill(std::sqrt(minJetDeltaR2));
     }
 
-    double minTrackDeltaR = 10;  // some number > 2pi
+    double minTrackDeltaR2 = 10 * 10;  // some number > 2pi
     for (const auto &track2 : *trackCollection) {
-      dR = deltaR(track, track2);
-      if (dR < minTrackDeltaR && dR > 1e-6)
-        minTrackDeltaR = dR;
+      dR2 = deltaR2(track, track2);
+      if (dR2 < minTrackDeltaR2 && dR2 > 1e-12)
+        minTrackDeltaR2 = dR2;
     }
 
     for (int i = 0; i < reco::TrackBase::qualitySize; ++i) {
@@ -260,7 +260,7 @@ void TkAlCaRecoMonitor::analyze(const edm::Event &iEvent, const edm::EventSetup 
 
     track.charge() > 0 ? TrackPtPositive_->Fill(track.pt()) : TrackPtNegative_->Fill(track.pt());
 
-    minTrackDeltaR_->Fill(minTrackDeltaR);
+    minTrackDeltaR_->Fill(std::sqrt(minTrackDeltaR2));
     fillHitmaps(track, *geometry);
     sumOfCharges += track.charge();
   }
