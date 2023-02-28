@@ -48,7 +48,10 @@ public:
   cms::cuda::host::unique_ptr<float[]> localCoordToHostAsync(cudaStream_t stream) const {
     auto ret = cms::cuda::make_host_unique<float[]>(4 * nHits(), stream);
     size_t rowSize = sizeof(float) * nHits();
-    cudaCheck(cudaMemcpyAsync(ret.get(), view().xLocal(), rowSize * 4, cudaMemcpyDefault, stream));
+
+    size_t srcPitch = ptrdiff_t(view().yLocal()) - ptrdiff_t(view().xLocal());
+    cudaCheck(
+        cudaMemcpy2DAsync(ret.get(), rowSize, view().xLocal(), srcPitch, rowSize, 4, cudaMemcpyDeviceToHost, stream));
 
     return ret;
   }  //move to utilities
