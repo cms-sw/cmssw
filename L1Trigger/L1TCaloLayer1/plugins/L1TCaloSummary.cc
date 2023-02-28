@@ -57,6 +57,10 @@
 #include "L1Trigger/L1TCaloLayer1/src/UCTLogging.hh"
 #include <bitset>
 
+//Anomaly detection includes
+#include "ap_fixed.h"
+#include "hls4ml/emulator.h"
+
 using namespace l1tcalo;
 using namespace l1extra;
 using namespace std;
@@ -102,7 +106,9 @@ private:
   edm::EDGetTokenT<L1CaloRegionCollection> regionToken;
 
   UCTLayer1* layer1;
-  UCTSummaryCard* summaryCard;
+
+  hls4mlEmulator::ModelLoader loader;
+  std::shared_ptr<hls4mlEmulator::Model> model;
 };
 
 //
@@ -128,7 +134,8 @@ L1TCaloSummary::L1TCaloSummary(const edm::ParameterSet& iConfig)
       boostedJetPtFactor(iConfig.getParameter<double>("boostedJetPtFactor")),
       verbose(iConfig.getParameter<bool>("verbose")),
       fwVersion(iConfig.getParameter<int>("firmwareVersion")),
-      regionToken(consumes<L1CaloRegionCollection>(edm::InputTag("simCaloStage2Layer1Digis"))) {
+      regionToken(consumes<L1CaloRegionCollection>(edm::InputTag("simCaloStage2Layer1Digis"))),
+      loader(hls4mlEmulator::ModelLoader(iConfig.getParameter<string>("CICADAModelVersion"))) {
   std::vector<double> pumLUTData;
   char pumLUTString[10];
   for (uint32_t pumBin = 0; pumBin < nPumBins; pumBin++) {
@@ -148,13 +155,13 @@ L1TCaloSummary::L1TCaloSummary(const edm::ParameterSet& iConfig)
     }
   }
   produces<L1JetParticleCollection>("Boosted");
-  summaryCard = new UCTSummaryCard(&pumLUT, jetSeed, tauSeed, tauIsolationFactor, eGammaSeed, eGammaIsolationFactor);
+
+  //anomaly trigger loading
+  model = loader.load_model();
+  produces<float>("anomalyScore");
 }
 
-L1TCaloSummary::~L1TCaloSummary() {
-  if (summaryCard != nullptr)
-    delete summaryCard;
-}
+L1TCaloSummary::~L1TCaloSummary() {}
 
 //
 // member functions
@@ -166,19 +173,27 @@ void L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   std::unique_ptr<L1JetParticleCollection> bJetCands(new L1JetParticleCollection);
 
+  std::unique_ptr<float> anomalyScore = std::make_unique<float>();
+
   UCTGeometry g;
 
   // Here we read region data from the region collection created by L1TCaloLayer1 instead of
   // independently creating regions from TPGs for processing by the summary card. This results
   // in a single region vector of size 252 whereas from independent creation we had 3*6 vectors
   // of size 7*2. Indices are mapped in UCTSummaryCard accordingly.
-  summaryCard->clearRegions();
+  UCTSummaryCard summaryCard =
+      UCTSummaryCard(&pumLUT, jetSeed, tauSeed, tauIsolationFactor, eGammaSeed, eGammaIsolationFactor);
   std::vector<UCTRegion*> inputRegions;
   inputRegions.clear();
   edm::Handle<std::vector<L1CaloRegion>> regionCollection;
   if (!iEvent.getByToken(regionToken, regionCollection))
     edm::LogError("L1TCaloSummary") << "UCT: Failed to get regions from region collection!";
   iEvent.getByToken(regionToken, regionCollection);
+  //Model input
+  //This is done as a flat vector input, but future versions may involve 2D input
+  //This will have to be handled later
+  //Would also be good to be able to configure the precision of the ap_fixed type
+  ap_ufixed<10, 10> modelInput[252];
   for (const L1CaloRegion& i : *regionCollection) {
     UCTRegionIndex r = g.getUCTRegionIndexFromL1CaloRegion(i.gctEta(), i.gctPhi());
     UCTTowerIndex t = g.getUCTTowerIndexFromL1CaloRegion(r, i.raw());
@@ -193,10 +208,25 @@ void L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     UCTRegion* test = new UCTRegion(crate, card, negativeEta, region, fwVersion);
     test->setRegionSummary(i.raw());
     inputRegions.push_back(test);
+    //This *should* fill the tensor in the proper order to be fed to the anomaly model
+    //We take 4 off of the GCT eta/iEta.
+    //iEta taken from this ranges from 4-17, (I assume reserving lower and higher for forward regions)
+    //So our first index, index 0, is technically iEta=4, and so-on.
+    //CICADA v1 reads this as a flat vector
+    modelInput[14 * i.gctPhi() + (i.gctEta() - 4)] = i.et();
   }
-  summaryCard->setRegionData(inputRegions);
+  //Extract model output
+  //Would be good to be able to configure the precision of the result
+  ap_fixed<11, 5> modelResult[1];
+  model->prepare_input(modelInput);
+  model->predict();
+  model->read_result(modelResult);
 
-  if (!summaryCard->process()) {
+  *anomalyScore = modelResult[0].to_float();
+
+  summaryCard.setRegionData(inputRegions);
+
+  if (!summaryCard.process()) {
     edm::LogError("L1TCaloSummary") << "UCT: Failed to process summary card" << std::endl;
     exit(1);
   }
@@ -206,7 +236,7 @@ void L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   double phi = -999.;
   double mass = 0;
 
-  std::list<UCTObject*> boostedJetObjs = summaryCard->getBoostedJetObjs();
+  std::list<UCTObject*> boostedJetObjs = summaryCard.getBoostedJetObjs();
   for (std::list<UCTObject*>::const_iterator i = boostedJetObjs.begin(); i != boostedJetObjs.end(); i++) {
     const UCTObject* object = *i;
     pt = ((double)object->et()) * caloScaleFactor * boostedJetPtFactor;
@@ -257,6 +287,8 @@ void L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   }
 
   iEvent.put(std::move(bJetCands), "Boosted");
+  //Write out anomaly score
+  iEvent.put(std::move(anomalyScore), "anomalyScore");
 }
 
 void L1TCaloSummary::print() {}

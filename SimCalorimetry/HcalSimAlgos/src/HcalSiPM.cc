@@ -12,10 +12,14 @@
 using std::vector;
 //345678911234567892123456789312345678941234567895123456789612345678971234567898
 HcalSiPM::HcalSiPM(int nCells, double tau)
-    : theCellCount(nCells), theSiPM(nCells, 1.), theCrossTalk(0.), theTempDep(0.), theLastHitTime(-1.), nonlin(nullptr) {
+    : theCellCount(nCells),
+      theSiPM(nCells, -999.f),
+      theCrossTalk(0.),
+      theTempDep(0.),
+      theLastHitTime(-1.),
+      nonlin(nullptr) {
   setTau(tau);
   assert(theCellCount > 0);
-  resetSiPM();
 }
 
 HcalSiPM::~HcalSiPM() {
@@ -23,42 +27,74 @@ HcalSiPM::~HcalSiPM() {
     delete nonlin;
 }
 
-//================================================================================
-//implementation of Borel-Tanner distribution
-double HcalSiPM::Borel(unsigned int n, double lambda, unsigned int k) {
-  if (n < k)
-    return 0;
-  double dn = double(n);
-  double dk = double(k);
-  double dnk = dn - dk;
-  double ldn = lambda * dn;
-  double logb = -ldn + dnk * log(ldn) - TMath::LnGamma(dnk + 1);
-  double b = 0;
-  if (logb >= -20) {  // protect against underflow
-    b = (dk / dn);
-    if ((n - k) < 100)
-      b *= (exp(-ldn) * pow(ldn, dnk)) / TMath::Factorial(n - k);
-    else
-      b *= exp(logb);
+namespace {
+
+  /*
+  //================================================================================
+  //original implementation of Borel-Tanner distribution
+  // here for reference
+  constexpr double originalBorel(unsigned int n, double lambda, unsigned int k) {
+    if (n < k)
+      return 0;
+    double dn = double(n);
+    double dk = double(k);
+    double dnk = dn - dk;
+    double ldn = lambda * dn;
+    double logb = -ldn + dnk * log(ldn) - TMath::LnGamma(dnk + 1);
+    double b = 0;
+    if (logb >= -20) {  // protect against underflow
+      b = (dk / dn);
+      if ((n - k) < 100)
+        b *= (exp(-ldn) * pow(ldn, dnk)) / TMath::Factorial(n - k);
+      else
+        b *= exp(logb);
+    }
+    return b;
   }
-  return b;
-}
+  */
+
+  using FLOAT = double;
+  //================================================================================
+  //modified implementation of Borel-Tanner distribution
+  constexpr double Borel(unsigned int i, FLOAT lambda, unsigned int k, double iFact) {
+    auto n = k + i;
+    FLOAT dn = FLOAT(n);
+    FLOAT dk = FLOAT(k);
+    FLOAT dnk = FLOAT(i);
+
+    FLOAT ldn = lambda * dn;
+    FLOAT b0 = (dk / dn);
+    FLOAT b = 0;
+    if (i < 100) {
+      b = b0 * (std::exp(-ldn) * std::pow(ldn, dnk)) / iFact;
+    } else {
+      FLOAT logb = -ldn + dnk * std::log(ldn) - std::log(iFact);
+      // protect against underflow
+      b = (logb >= -20.) ? b0 * std::exp(logb) : 0;
+    }
+    return b;
+  }
+
+}  // namespace
 
 const HcalSiPM::cdfpair& HcalSiPM::BorelCDF(unsigned int k) {
   // EPSILON determines the min and max # of xtalk cells that can be
   // simulated.
-  static const double EPSILON = 1e-6;
-  typename cdfmap::const_iterator it;
-  it = borelcdfs.find(k);
+  constexpr double EPSILON = 1e-6;
+  constexpr uint32_t maxCDFsize = 170;  // safe max to avoid factorial to be infinite
+  auto it = borelcdfs.find(k);
   if (it == borelcdfs.end()) {
     vector<double> cdf;
+    cdf.reserve(64);
 
     // Find the first n=k+i value for which cdf[i] > EPSILON
     unsigned int i;
-    double b = 0., sumb = 0.;
-    for (i = 0;; i++) {
-      b = Borel(k + i, theCrossTalk, k);
-      sumb += b;
+    double sumb = 0.;
+    double iFact = 1.;
+    for (i = 0; i < maxCDFsize; i++) {
+      if (i > 0)
+        iFact *= double(i);
+      sumb += Borel(i, theCrossTalk, k, iFact);
       if (sumb >= EPSILON)
         break;
     }
@@ -66,15 +102,14 @@ const HcalSiPM::cdfpair& HcalSiPM::BorelCDF(unsigned int k) {
     cdf.push_back(sumb);
     unsigned int borelstartn = i;
 
-    // calculate cdf[i]
-    for (++i;; ++i) {
-      b = Borel(k + i, theCrossTalk, k);
-      sumb += b;
+    // calculate cdf[i]  limit to 170 to avoid iFact to become infinite
+    for (++i; i < maxCDFsize; ++i) {
+      iFact *= double(i);
+      sumb += Borel(i, theCrossTalk, k, iFact);
       cdf.push_back(sumb);
-      if (1 - sumb < EPSILON)
+      if (1. - sumb < EPSILON)
         break;
     }
-
     it = (borelcdfs.emplace(k, make_pair(borelstartn, cdf))).first;
   }
 
@@ -141,7 +176,6 @@ double HcalSiPM::totalCharge(double time) const {
 }
 
 void HcalSiPM::setNCells(int nCells) {
-  assert(nCells > 0);
   theCellCount = nCells;
   theSiPM.resize(nCells);
   resetSiPM();

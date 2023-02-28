@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -113,12 +114,10 @@ void DumpEcalTrigTowerMapping::build(const CaloGeometry& cg,
     h->GetYaxis()->CenterTitle(true);
     const std::vector<DetId>& eeDetIds = cg.getValidDetIds(det, subdetn);
 
-    std::cout << "*** testing endcap trig tower mapping **" << std::endl;
+    edm::LogVerbatim("CaloGeom") << "*** testing endcap trig tower mapping **";
     for (const auto& eeDetId : eeDetIds) {
       EEDetId myId(eeDetId);
       EcalTrigTowerDetId myTower = etmap.towerOf(eeDetId);
-
-      //	  std::cout<<"eedetid="<<EEDetId(eeDetIds[i])<<", myTower="<<myTower<<std::endl;
 
       assert(myTower == EcalTrigTowerDetId::detIdFromDenseIndex(myTower.denseIndex()));
 
@@ -170,7 +169,7 @@ void DumpEcalTrigTowerMapping::build(const CaloGeometry& cg,
     h->GetYaxis()->CenterTitle(true);
     const std::vector<DetId>& ebDetIds = cg.getValidDetIds(det, subdetn);
 
-    std::cout << "*** testing barrel trig tower mapping **" << std::endl;
+    edm::LogVerbatim("CaloGeom") << "*** testing barrel trig tower mapping **";
     for (const auto& ebDetId : ebDetIds) {
       EBDetId myId(ebDetId);
       EcalTrigTowerDetId myTower = etmap.towerOf(ebDetId);
@@ -188,7 +187,7 @@ void DumpEcalTrigTowerMapping::build(const CaloGeometry& cg,
 }
 
 void DumpEcalTrigTowerMapping::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup) {
-  std::cout << "Here I am " << std::endl;
+  edm::LogVerbatim("CaloGeom") << "Here I am ";
 
   const auto& eTTmap = iSetup.getData(eTTmapToken_);
   const auto& pG = iSetup.getData(geometryToken_);

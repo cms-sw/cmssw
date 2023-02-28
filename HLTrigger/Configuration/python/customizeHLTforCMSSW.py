@@ -211,10 +211,13 @@ def customiseForOffline(process):
     return process
 
 
-def customizeHLTfor40443(process):
-     for producer in [producers for producers in esproducers_by_type(process, "TrackerAdditionalParametersPerDetESModule")]:
-        delattr(process, producer.label())
-     return process
+# Remove the explicit CUDAService from the HLT configuration, and
+# rely on ProcessAcceleratorCUDA to load it if necessary
+def customizeHLTfor40852(process):
+    if hasattr(process, 'CUDAService'):
+        del process.CUDAService
+
+    return process
 
 
 # CMSSW version specific customizations
@@ -225,6 +228,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
 
-    process = customizeHLTfor40443(process)
+    process = customizeHLTfor40852(process)
 
     return process

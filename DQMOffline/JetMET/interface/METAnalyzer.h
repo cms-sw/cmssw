@@ -214,11 +214,6 @@ private:
   edm::InputTag triggerResultsLabel_;
   edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
 
-  // list of Jet or MB HLT triggers
-  //  std::vector<std::string > HLTPathsJetMBByName_;
-  std::vector<std::string> allTriggerNames_;
-  std::vector<int> allTriggerDecisions_;
-
   std::string HBHENoiseStringMiniAOD;
   std::string HBHEIsoNoiseStringMiniAOD;
 
@@ -305,12 +300,8 @@ private:
   // lines commented out have been removed to improve the bin usage of JetMET DQM
 
   //for all MET types
-  bool hTriggerLabelsIsSet_;
-  //only in for PF
-  //  MonitorElement* meTriggerName_PhysDec;
 
   MonitorElement* lumisecME;
-  MonitorElement* hTrigger;
   //MonitorElement* hNevents;
   MonitorElement* hMEx;
   MonitorElement* hMEy;

@@ -40,6 +40,8 @@ private:
   bool passMuonID(const reco::Muon& muon, const reco::Vertex* vtx);
   bool passMuonIso(const reco::Muon& muon);
   bool isCustomTightMuon(const reco::Muon& muon);
+  bool passGlobalMuon(const reco::Muon& muon);
+  bool passTrack(const reco::Track& track);
 
   // EDM object collection names
   const edm::InputTag triggerResultsInputTag_;
@@ -49,6 +51,9 @@ private:
   edm::EDGetTokenT<reco::MuonCollection> fMuonName_token;
   std::vector<std::string> fMuonHLTNames;
   std::vector<std::string> fMuonHLTObjectNames;
+
+  edm::EDGetTokenT<reco::TrackCollection> fStandaloneRegName_token;
+  edm::EDGetTokenT<reco::TrackCollection> fStandaloneUpdName_token;
 
   // Tracks
   edm::EDGetTokenT<reco::TrackCollection> fTrackName_token;
@@ -89,7 +94,15 @@ private:
   TriggerTools* triggers;
 
   // constants
-  const double DRMAX = 0.1;  // max dR matching between muon and hlt object
+  const double DRMAX_HLT = 0.01;  // max deltaR^2 matching between muon and hlt object
+  const double DRMAX_IO = 0.09;   // max deltaR^2 matching between inner and outer muon track
+
+  const double MIN_PT_TRK = 15;    // minimum pT of inner track considered for matching outer to inner track
+  const double MAX_ETA_TRK = 2.5;  // maximum |eta| of inner track considered for matching outer to inner track
+  const double MIN_PT_STA = 15;    // minimum pT of outer track considered for matching inner to outer track
+  const double MAX_ETA_STA = 2.4;  // maximum |eta| of outer track considered for matching inner to outer track
+
+  const int N_STA_HITS = 1;  // minimum number of valid standalone hits
 
   const double MUON_MASS = 0.105658369;
   const double MUON_BOUND = 0.9;
@@ -106,13 +119,23 @@ private:
   MonitorElement* h_mass_1HLT_BE;
   MonitorElement* h_mass_1HLT_EE;
 
-  MonitorElement* h_mass_SIT_fail_BB;
-  MonitorElement* h_mass_SIT_fail_BE;
-  MonitorElement* h_mass_SIT_fail_EE;
+  MonitorElement* h_mass_ID_fail_BB;
+  MonitorElement* h_mass_ID_fail_BE;
+  MonitorElement* h_mass_ID_fail_EE;
 
+  MonitorElement* h_mass_Glo_pass_BB;
+  MonitorElement* h_mass_Glo_pass_BE;
+  MonitorElement* h_mass_Glo_pass_EE;
   MonitorElement* h_mass_Glo_fail_BB;
   MonitorElement* h_mass_Glo_fail_BE;
   MonitorElement* h_mass_Glo_fail_EE;
+
+  MonitorElement* h_mass_Sta_pass_BB;
+  MonitorElement* h_mass_Sta_pass_BE;
+  MonitorElement* h_mass_Sta_pass_EE;
+  MonitorElement* h_mass_Sta_fail_BB;
+  MonitorElement* h_mass_Sta_fail_BE;
+  MonitorElement* h_mass_Sta_fail_EE;
 };
 
 #endif

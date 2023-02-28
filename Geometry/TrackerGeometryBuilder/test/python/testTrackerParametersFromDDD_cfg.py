@@ -56,9 +56,6 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.test = cms.EDAnalyzer("TrackerParametersAnalyzer")
 
-process.Timing = cms.Service("Timing")
-process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck")
-
 process.p1 = cms.Path(process.test)
 
 

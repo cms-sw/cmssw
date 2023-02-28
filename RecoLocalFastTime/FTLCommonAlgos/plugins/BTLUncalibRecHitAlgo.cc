@@ -1,6 +1,7 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "RecoLocalFastTime/FTLCommonAlgos/interface/MTDUncalibratedRecHitAlgoBase.h"
 #include "RecoLocalFastTime/FTLClusterizer/interface/BTLRecHitsErrorEstimatorIM.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CommonTools/Utils/interface/FormulaEvaluator.h"
 
@@ -58,6 +59,9 @@ FTLUncalibratedRecHit BTLUncalibRecHitAlgo::makeRecHit(const BTLDataFrame& dataF
 
   double nHits = 0.;
 
+  LogDebug("BTLUncalibRecHit") << "Original input time t1,t2 " << float(sampleRight.toa()) * toaLSBToNS_ << ", "
+                               << float(sampleLeft.toa()) * toaLSBToNS_ << std::endl;
+
   if (sampleRight.data() > 0) {
     amplitude.first = float(sampleRight.data()) * adcLSB_;
     time.first = float(sampleRight.toa()) * toaLSBToNS_;
@@ -90,14 +94,17 @@ FTLUncalibratedRecHit BTLUncalibRecHitAlgo::makeRecHit(const BTLDataFrame& dataF
 
   // Calculate the position
   // Distance from center of bar to hit
+
   float position = 0.5f * (c_LYSO_ * (time.second - time.first));
   float positionError = BTLRecHitsErrorEstimatorIM::positionError();
 
+  LogDebug("BTLUncalibRecHit") << "DetId: " << dataFrame.id().rawId() << " x position = " << position << " +/- "
+                               << positionError;
   LogDebug("BTLUncalibRecHit") << "ADC+: set the charge to: (" << amplitude.first << ", " << amplitude.second << ")  ("
-                               << sampleRight.data() << ", " << sampleLeft.data() << "  " << adcLSB_ << ' '
+                               << sampleRight.data() << ", " << sampleLeft.data() << ") " << adcLSB_ << ' '
                                << std::endl;
   LogDebug("BTLUncalibRecHit") << "TDC+: set the time to: (" << time.first << ", " << time.second << ")  ("
-                               << sampleRight.toa() << ", " << sampleLeft.toa() << "  " << toaLSBToNS_ << ' '
+                               << sampleRight.toa() << ", " << sampleLeft.toa() << ") " << toaLSBToNS_ << ' '
                                << std::endl;
 
   return FTLUncalibratedRecHit(

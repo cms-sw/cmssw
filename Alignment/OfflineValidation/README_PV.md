@@ -1,6 +1,6 @@
-## PV validation
+# Primary Vertex (PV) Validation
 
-#General info
+## General info
 ```
 validations:
     PV:
@@ -18,7 +18,7 @@ Merge job and trend jobs will only start if all corresponding single jobs are do
 Trend and merge jobs can run in parallel.
 Averaged jobs are not yet implemented. 
 
-#Single PV jobs:
+## Single PV jobs
 Single jobs can be specified per run (IoV as well). In case of MC, IoV is specified to arbitrary 1.  
 
 Variable | Default value | Explanation/Options
@@ -47,7 +47,7 @@ doFPix | True | Do not run validation for FPix if needed
 forceBeamSpot | False | Force beam spot
 numberOfBins | 48 | Define histogram granularity
 
-#Merge PV job
+## Merge PV job
 Its name do not need to match single job name but option `singles` must list all single jobs to be merged.
 PV merged plot style can be adjusted from global plotting style (see `Alignment/OfflineValidation/test/example_PV_full.yaml`)
 
@@ -75,7 +75,7 @@ w_dxyEtaNormMax | 1.8 | If not take this...
 w_dzEtaNormMax | 1.8 | If not take this...
 customrighttitle | "" | Top right title. Reserved word "IOV" will be replaced for given IOV/run in the list.
 
-#Trends PV job
+## Trends PV job
 Its name do not need to match single job name but option `singles` must list all single jobs to be put in trend plot.
 Trend plot style is defined globally for all trend plots (see `Alignment/OfflineValidation/test/example_PV_full.yaml`)
 
@@ -88,4 +88,3 @@ firstRun | 272930 | Specify starting run to be plotted.
 lastRun | 325175 | Specify the last run to be considered.
 nWorkers | 20 | Number of threads.
 doUnitTest | false | Disable certain settings for unit test.
-

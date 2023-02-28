@@ -3,6 +3,7 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/Utilities"/>
+<use name="FWCore/ServiceRegistry"/>
 <export>
   <lib name="1"/>
 </export>

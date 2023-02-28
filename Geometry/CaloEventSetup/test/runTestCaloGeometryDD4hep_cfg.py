@@ -8,6 +8,8 @@ process = cms.Process("GeometryTest", Run3_dd4hep)
 process.load('Configuration.Geometry.GeometryDD4hepExtended2021Reco_cff')
 
 process.load('FWCore.MessageLogger.MessageLogger_cfi')
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.CaloGeom=dict()
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(4) )
 

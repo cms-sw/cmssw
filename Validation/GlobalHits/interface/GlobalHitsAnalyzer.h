@@ -20,6 +20,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/GetterOfProducts.h"
+#include "FWCore/Framework/interface/ProcessMatch.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 // DQM services
@@ -150,6 +152,7 @@ private:
   edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeomToken_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
   edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> hcaldddRecToken_;
+  edm::GetterOfProducts<edm::HepMCProduct> getterOfProducts_;
 
   // Electromagnetic info
   // ECal info
