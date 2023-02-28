@@ -33,7 +33,7 @@
 class CTPPSRandomDQMSource : public DQMEDAnalyzer {
 public:
   CTPPSRandomDQMSource(const edm::ParameterSet &ps);
-  ~CTPPSRandomDQMSource() {};
+  ~CTPPSRandomDQMSource() override;
 
 protected:
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
@@ -71,7 +71,6 @@ private:
     int rc = (arm * NStationMAX + station) * NRPotsMAX + rp;
     return (rc);
   }
-
 };
 
 //----------------------------------------------------------------------------------
@@ -82,14 +81,13 @@ using namespace edm;
 //-------------------------------------------------------------------------------
 
 CTPPSRandomDQMSource::CTPPSRandomDQMSource(const edm::ParameterSet &ps)
-  : rpStatusWord(ps.getUntrackedParameter<unsigned int>("RPStatusWord", 0x8008)){
+    : rpStatusWord(ps.getUntrackedParameter<unsigned int>("RPStatusWord", 0x8008)) {
   tokenDigi = consumes<DetSetVector<CTPPSPixelDigi>>(ps.getUntrackedParameter<edm::InputTag>("tagRPixDigi"));
 }
 
 //--------------------------------------------------------------------------
 
 void CTPPSRandomDQMSource::dqmBeginRun(edm::Run const &run, edm::EventSetup const &) {
-
   for (int stn = 0; stn < StationIDMAX; stn++) {
     StationStatus[stn] = 0;
     for (int rp = 0; rp < RPotsIDMAX; rp++)
@@ -110,18 +108,16 @@ void CTPPSRandomDQMSource::dqmBeginRun(edm::Run const &run, edm::EventSetup cons
 
   for (int index = 0; index < 2 * 3 * NRPotsMAX; index++)
     RPindexValid[index] = 0;
-
 }
 
 //-------------------------------------------------------------------------------------
 
 void CTPPSRandomDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm::EventSetup const &) {
-
   ibooker.cd();
   ibooker.setCurrentFolder("CTPPS/TrackingPixel");
 
   hBX = ibooker.book1D("events per BX", "ctpps_pixel;Event.BX", 4002, -1.5, 4000. + 0.5);
-  
+
   for (int arm = 0; arm < NArms; arm++) {
     CTPPSDetId ID(CTPPSDetId::sdTrackingPixel, arm, 0);
     string sd;
@@ -145,12 +141,18 @@ void CTPPSRandomDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run c
         CTPPSDetId(ID.rpId()).rpName(rpd, CTPPSDetId::nPath);
 
         ibooker.setCurrentFolder(rpd);
-    
+
         int indexP = getRPindex(arm, stn, rp);
         RPindexValid[indexP] = 1;
 
-        h2HitsVsBXRandoms[indexP] = ibooker.book2D(
-            "Digi per plane per BX - random triggers", rpTitle + ";Event.BX;Plane", 4002, -1.5, 4000. + 0.5, NplaneMAX, 0, NplaneMAX);
+        h2HitsVsBXRandoms[indexP] = ibooker.book2D("Digi per plane per BX - random triggers",
+                                                   rpTitle + ";Event.BX;Plane",
+                                                   4002,
+                                                   -1.5,
+                                                   4000. + 0.5,
+                                                   NplaneMAX,
+                                                   0,
+                                                   NplaneMAX);
 
       }  // end for(int rp=0; rp<NRPotsMAX;...
     }    // end of for(int stn=0; stn<
@@ -162,7 +164,6 @@ void CTPPSRandomDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run c
 //-------------------------------------------------------------------------------
 
 void CTPPSRandomDQMSource::analyze(edm::Event const &event, edm::EventSetup const &eventSetup) {
-
   Handle<DetSetVector<CTPPSPixelDigi>> pixDigi;
   event.getByToken(tokenDigi, pixDigi);
 
@@ -170,7 +171,7 @@ void CTPPSRandomDQMSource::analyze(edm::Event const &event, edm::EventSetup cons
   if (!pixDigi.isValid())
     return;
   cout << "After checking digi" << endl;
-  
+
   hBX->Fill(event.bunchCrossing());
 
   for (int arm = 0; arm < 2; arm++) {
@@ -179,22 +180,21 @@ void CTPPSRandomDQMSource::analyze(edm::Event const &event, edm::EventSetup cons
         continue;
       for (int rp = 0; rp < NRPotsMAX; rp++) {
         if (!RPstatus[stn][rp])
-          continue;        
+          continue;
         int index = getRPindex(arm, stn, rp);
         if (RPindexValid[index] == 0)
           continue;
 
         for (int p = 0; p < NplaneMAX; p++) {
-          CTPPSPixelDetId planeId(arm,stn,rp,p);
-          if((*pixDigi).find(planeId.rawId()) != (*pixDigi).end()){
-            int n_digis = (*pixDigi)[planeId.rawId()].size();           
+          CTPPSPixelDetId planeId(arm, stn, rp, p);
+          if ((*pixDigi).find(planeId.rawId()) != (*pixDigi).end()) {
+            int n_digis = (*pixDigi)[planeId.rawId()].size();
             h2HitsVsBXRandoms[index]->Fill(event.bunchCrossing(), p, n_digis);
           }
         }
       }  // end for (int rp=0; rp<NRPotsMAX; rp++) {
     }    // end for (int stn = 0; stn < NStationMAX; stn++) {
   }      // end for (int arm=0; arm<2; arm++) {
-
 }
 
 //---------------------------------------------------------------------------
