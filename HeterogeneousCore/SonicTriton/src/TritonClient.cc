@@ -31,6 +31,15 @@ namespace {
       throw cms::Exception("GrpcCompression")
           << "Unknown compression algorithm requested: " << name << " (choices: none, deflate, gzip)";
   }
+
+  std::vector<std::shared_ptr<tc::InferResult>> convertToShared(const std::vector<tc::InferResult*>& tmp) {
+    std::vector<std::shared_ptr<tc::InferResult>> results;
+    results.reserve(tmp.size());
+    std::transform(tmp.begin(), tmp.end(), std::back_inserter(results), [](tc::InferResult* ptr) {
+      return std::shared_ptr<tc::InferResult>(ptr);
+    });
+    return results;
+  }
 }  // namespace
 
 //based on https://github.com/triton-inference-server/server/blob/v2.3.0/src/clients/c++/examples/simple_grpc_async_infer_client.cc
@@ -267,9 +276,9 @@ bool TritonClient::handle_exception(F&& call) {
   }
 }
 
-void TritonClient::getResults(std::vector<tc::InferResult*>& results) {
+void TritonClient::getResults(const std::vector<std::shared_ptr<tc::InferResult>>& results) {
   for (unsigned i = 0; i < results.size(); ++i) {
-    std::shared_ptr<tc::InferResult> result(results[i]);
+    const auto& result = results[i];
     for (auto& [oname, output] : output_) {
       //set shape here before output becomes const
       if (output.variableDims()) {
@@ -294,8 +303,8 @@ void TritonClient::evaluate() {
   //in case there is nothing to process
   if (batchSize() == 0) {
     //call getResults on an empty vector
-    std::vector<tc::InferResult*> empty_results;
-    getResults(empty_results);
+    std::vector<std::shared_ptr<tc::InferResult>> empty_results;
+    getResults(std::move(empty_results));
     finish(true);
     return;
   }
@@ -347,7 +356,9 @@ void TritonClient::evaluate() {
     success = handle_exception([&]() {
       TRITON_THROW_IF_ERROR(
           client_->AsyncInferMulti(
-              [start_status, this](std::vector<tc::InferResult*> results) {
+              [start_status, this](std::vector<tc::InferResult*> resultsTmp) {
+                //immediately convert to shared_ptr
+                const auto& results = convertToShared(resultsTmp);
                 //check results
                 for (auto ptr : results) {
                   auto success = handle_exception(
@@ -367,7 +378,7 @@ void TritonClient::evaluate() {
                 }
 
                 //check result
-                auto success = handle_exception([&]() { getResults(results); });
+                auto success = handle_exception([&]() { getResults(std::move(results)); });
                 if (!success)
                   return;
 
@@ -385,12 +396,14 @@ void TritonClient::evaluate() {
       return;
   } else {
     //blocking call
-    std::vector<tc::InferResult*> results;
+    std::vector<tc::InferResult*> resultsTmp;
     success = handle_exception([&]() {
       TRITON_THROW_IF_ERROR(
-          client_->InferMulti(&results, options_, inputsTriton, outputsTriton, headers_, compressionAlgo_),
+          client_->InferMulti(&resultsTmp, options_, inputsTriton, outputsTriton, headers_, compressionAlgo_),
           "evaluate(): unable to run and/or get result");
     });
+    //immediately convert to shared_ptr
+    const auto& results = convertToShared(resultsTmp);
     if (!success)
       return;
 
@@ -404,7 +417,7 @@ void TritonClient::evaluate() {
       reportServerSideStats(stats);
     }
 
-    success = handle_exception([&]() { getResults(results); });
+    success = handle_exception([&]() { getResults(std::move(results)); });
     if (!success)
       return;
 
