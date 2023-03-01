@@ -77,10 +77,10 @@ void PixelTripletLargeTipGenerator::fillDescriptions(edm::ParameterSetDescriptio
 // https://github.com/cms-sw/cmssw/issues/39105
 
 #if defined(__clang__) && defined(__has_warning)
-#  if __has_warning("-Wbitwise-instead-of-logical")
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wbitwise-instead-of-logical"
-#  endif
+#if __has_warning("-Wbitwise-instead-of-logical")
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wbitwise-instead-of-logical"
+#endif
 #endif
 
 namespace {
@@ -96,9 +96,9 @@ namespace {
 }  // namespace
 
 #if defined(__clang__) && defined(__has_warning)
-#  if __has_warning("-Wbitwise-instead-of-logical")
-#    pragma clang diagnostic pop
-#  endif
+#if __has_warning("-Wbitwise-instead-of-logical")
+#pragma clang diagnostic pop
+#endif
 #endif
 
 void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
