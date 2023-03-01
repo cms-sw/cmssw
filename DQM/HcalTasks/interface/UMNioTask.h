@@ -22,21 +22,23 @@
 
 class UMNioTask : public hcaldqm::DQTask {
 public:
-  UMNioTask(edm::ParameterSet const&);
+  UMNioTask(edm::ParameterSet const &);
   ~UMNioTask() override {}
 
-  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  void dqmEndRun(edm::Run const& r, edm::EventSetup const&) override {
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void dqmEndRun(edm::Run const &r, edm::EventSetup const &) override {
     if (_ptype == hcaldqm::fLocal) {
       if (r.runAuxiliary().run() == 1)
         return;
     }
   }
-  void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  std::shared_ptr<hcaldqm::Cache> globalBeginLuminosityBlock(edm::LuminosityBlock const &,
+                                                             edm::EventSetup const &) const override;
+  void globalEndLuminosityBlock(edm::LuminosityBlock const &, edm::EventSetup const &) override;
 
 protected:
   //	funcs
-  void _process(edm::Event const&, edm::EventSetup const&) override;
+  void _process(edm::Event const &, edm::EventSetup const &) override;
 
   // Get index of a particular OrbitGapType in the vector, which is used as the value for filling the histogram
   int getOrbitGapIndex(uint8_t eventType, uint32_t laserType);
@@ -44,18 +46,18 @@ protected:
   std::vector<uint32_t> _eventtypes;
 
   //	tags and tokens
-  edm::InputTag _taguMN;
-  edm::InputTag _tagHBHE;
-  edm::InputTag _tagHO;
-  edm::InputTag _tagHF;
-  edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE;
-  edm::EDGetTokenT<HODigiCollection> _tokHO;
-  edm::EDGetTokenT<HFDigiCollection> _tokHF;
-  edm::EDGetTokenT<HcalUMNioDigi> _tokuMN;
+  edm::InputTag taguMN_;
+  edm::InputTag tagHBHE_;
+  edm::InputTag tagHO_;
+  edm::InputTag tagHF_;
+  edm::EDGetTokenT<QIE11DigiCollection> tokHBHE_;
+  edm::EDGetTokenT<HODigiCollection> tokHO_;
+  edm::EDGetTokenT<QIE10DigiCollection> tokHF_;
+  edm::EDGetTokenT<HcalUMNioDigi> tokuMN_;
   edm::ESGetToken<HcalDbService, HcalDbRecord> hcalDbServiceToken_;
 
   //	cuts
-  double _lowHBHE, _lowHO, _lowHF;
+  double lowHBHE_, lowHO_, lowHF_;
 
   //	emap
   hcaldqm::electronicsmap::ElectronicsMap _ehashmap;
