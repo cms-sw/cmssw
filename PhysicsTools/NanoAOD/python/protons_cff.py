@@ -68,3 +68,15 @@ if singleRPProtons: protonTables.insert(protonTables.index(multiRPTable),singleR
 (run2_nanoAOD_92X | run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016 | run2_nanoAOD_94X2016 | \
     run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | \
     run2_nanoAOD_102Xv1 | ( run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel) ).toReplaceWith(protonTables, cms.Sequence())
+genProtonTable = cms.EDProducer('GenProtonTableProducer',
+  srcPruned = cms.InputTag('prunedGenParticles'),
+  srcPUProtons = cms.InputTag('genPUProtons'),
+  srcAltPUProtons = cms.InputTag('genPUProtons','genPUProtons'),
+  cut = cms.string('(pdgId == 2212) && (abs(pz) > 5200) && (abs(pz) < 6467.5)'),
+  name = cms.string('GenProton'),
+  doc = cms.string('generator level information on (signal+PU) protons'),
+  tolerance = cms.double(0.001),
+)
+
+genProtonTables = cms.Sequence(genProtonTable)
+
