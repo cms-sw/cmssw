@@ -46,6 +46,8 @@ process.ClusterShapeHitFilterESProducer = cms.ESProducer( "ClusterShapeHitFilter
 )
 #SiStrip Local Reco
 process.load("CalibTracker.SiStripCommon.TkDetMapESProducer_cfi")
+#Track refitters
+process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 
 #---- for P5 (online) DB access
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
