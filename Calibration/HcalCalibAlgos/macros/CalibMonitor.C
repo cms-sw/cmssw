@@ -39,8 +39,8 @@
 //   rcorFileName (char*)      = name of the text file having the correction
 //                               factors as a function of run numbers or depth
 //                               or entry number to be used for raddam/depth/
-//                               pileup dependent correction  (default="",
-//                               no corr.)
+//                               pileup/phisym dependent correction
+//                               (default="", no correction)
 //   puCorr (int)              = PU correction to be applied or not: 0 no
 //                               correction; < 0 use eDelta; > 0 rho dependent
 //                               correction (-8)
@@ -48,7 +48,8 @@
 //                               information (x=3/2/1/0 for having 1000/500/50/
 //                               100 bins for response distribution in (0:5);
 //                               m=1/0 for (not) making plots for each RBX;
-//                               l=3/2/1/0 for type of rcorFileName (3 for
+//                               l=4/3/2/1/0 for type of rcorFileName (4 for
+//                               using results from phi-symmetry; 3 for
 //                               pileup correction using machine learning
 //                               method; 2 for overall response corrections;
 //                               1 for depth dependence corrections;
@@ -396,8 +397,10 @@ CalibMonitor::CalibMonitor(const char *fname,
     Init(chain, dupFileName, comFileName, outFName);
     if (std::string(rcorFileName) != "") {
       cFactor_ = new CalibCorr(rcorFileName, ifDepth_, false);
+      if (cFactor_->absent())
+        ifDepth_ = -1;
     } else {
-      ifDepth_ = 0;
+      ifDepth_ = -1;
     }
     if (rbx != 0)
       cSelect_ = new CalibSelectRBX(rbx, false);
@@ -1118,7 +1121,7 @@ void CalibMonitor::Loop(Long64_t nmax) {
           unsigned int id = truncateId((*t_DetIds)[k], truncateFlag_, false);
           cfac = corrFactor_->getCorr(id);
         }
-        if ((cFactor_ != nullptr) && (ifDepth_ != 3))
+        if ((cFactor_ != nullptr) && (ifDepth_ != 3) && (ifDepth_ > 0))
           cfac *= cFactor_->getCorr(t_Run, (*t_DetIds)[k]);
         eHcal += (cfac * ((*t_HitEnergies)[k]));
         if (debug) {
@@ -1698,7 +1701,7 @@ void CalibMonitor::correctEnergy(double &eHcal, const Long64_t &entry) {
       for (unsigned int idet = 0; idet < (*t_DetIds1).size(); idet++) {
         unsigned int id = truncateId((*t_DetIds1)[idet], truncateFlag_, false);
         double cfac = corrFactor_->getCorr(id);
-        if (cFactor_ != 0)
+        if ((cFactor_ != 0) && (ifDepth_ != 3) && (ifDepth_ > 0))
           cfac *= cFactor_->getCorr(t_Run, (*t_DetIds1)[idet]);
         double hitEn = cfac * (*t_HitEnergies1)[idet];
         Etot1 += hitEn;
@@ -1706,7 +1709,7 @@ void CalibMonitor::correctEnergy(double &eHcal, const Long64_t &entry) {
       for (unsigned int idet = 0; idet < (*t_DetIds3).size(); idet++) {
         unsigned int id = truncateId((*t_DetIds3)[idet], truncateFlag_, false);
         double cfac = corrFactor_->getCorr(id);
-        if (cFactor_ != 0)
+        if ((cFactor_ != 0) && (ifDepth_ != 3) && (ifDepth_ > 0))
           cfac *= cFactor_->getCorr(t_Run, (*t_DetIds3)[idet]);
         double hitEn = cfac * (*t_HitEnergies3)[idet];
         Etot3 += hitEn;
