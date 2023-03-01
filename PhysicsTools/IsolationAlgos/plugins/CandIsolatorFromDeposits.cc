@@ -60,12 +60,6 @@ using namespace edm;
 using namespace reco;
 using namespace reco::isodeposit;
 
-bool isNumber(const std::string &str) {
-  static const std::regex re("^[+-]?(\\d+\\.?|\\d*\\.\\d*)$");
-  return regex_match(str.c_str(), re);
-}
-double toNumber(const std::string &str) { return atof(str.c_str()); }
-
 CandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet &iConfig, edm::ConsumesCollector &&iC)
     : srcToken_(iC.consumes<reco::IsoDepositMap>(iConfig.getParameter<edm::InputTag>("src"))),
       deltaR_(iConfig.getParameter<double>("deltaR")),
@@ -108,15 +102,12 @@ CandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet &
       evdepVetos_.push_back(evdep);
   }
   std::string weight = iConfig.getParameter<std::string>("weight");
-  if (isNumber(weight)) {
-    //std::cout << "Weight is a simple number, " << toNumber(weight) << std::endl;
-    weight_ = toNumber(weight);
+  try {
+    weight_ = std::stof(weight);
     usesFunction_ = false;
-  } else {
+  } catch (...) {
     usesFunction_ = true;
-    //std::cout << "Weight is a function, this might slow you down... " << std::endl;
   }
-  //std::cout << "CandIsolatorFromDeposits::SingleDeposit::SingleDeposit: Total of " << vetos_.size() << " vetos" << std::endl;
 }
 void CandIsolatorFromDeposits::SingleDeposit::cleanup() {
   for (AbsVetos::iterator it = vetos_.begin(), ed = vetos_.end(); it != ed; ++it) {
