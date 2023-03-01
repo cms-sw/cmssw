@@ -26,7 +26,7 @@ def main():
   args = parser.parse_args()
 
   if args.print_sys_path:
-    print repr(sys.path)
+    print(repr(sys.path))
     return
 
   folder = os.path.join(basedir, args.subfolder, args.foldername)
@@ -100,6 +100,11 @@ def main():
         shutil.copy(os.path.join(HIPAlignmentAlgorithm, "test", "hippysubmittertemplate.sh"), "submit_template.sh")
         os.chmod("submit_template.sh", os.stat("submit_template.sh").st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
         subprocess.check_call(["git", "add", "submit_template.sh"])
+        
+      if not os.path.exists("submit_script.sh"):
+        shutil.copy(os.path.join(HIPAlignmentAlgorithm, "test", "hippysubmitterscript.sh"), "submit_script.sh")
+        os.chmod("submit_script.sh", os.stat("submit_script.sh").st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+        subprocess.check_call(["git", "add", "submit_script.sh"])
 
       try:
         subprocess.check_output(["git", "diff", "--staged", "--quiet"])
@@ -128,7 +133,7 @@ def cd(newdir):
 
 def cmsenv():
   output = subprocess.check_output(["scram", "ru", "-sh"])
-  for line in output.split(";\n"):
+  for line in output.decode('utf8').split(";\n"):
     if not line.strip(): continue
     match1 = re.match(r'^export (\w*)="([^"]*)"$', line)
     match2 = re.match(r'^unset *((\w* *)*)$', line)
