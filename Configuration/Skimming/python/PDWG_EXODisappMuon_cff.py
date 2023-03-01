@@ -6,10 +6,13 @@ from Configuration.EventContent.EventContent_cff import AODSIMEventContent
 EXODisappMuonSkimContent = AODSIMEventContent.clone()
 EXODisappMuonSkimContent.outputCommands.append('keep *_hbhereco_*_*')
 
-exoDisappMuonsHLT = hlt.hltHighLevel.clone()
-exoDisappMuonsHLT.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
-exoDisappMuonsHLT.HLTPaths = ['HLT_IsoMu24_v','HLT_IsoMu27_v']
-exoDisappMuonsHLT.throw = cms.bool( False )
+exoDisappMuonsHLT = hlt.hltHighLevel.clone(
+   throw = False,
+   andOr = True,
+   HLTPaths = [
+	"HLT_IsoMu*_v*"
+   ]
+)
 
 disappMuonsSelection = cms.EDFilter('DisappearingMuonsSkimming',
   recoMuons = cms.InputTag("muons"),
@@ -47,5 +50,5 @@ disappMuonsSelection = cms.EDFilter('DisappearingMuonsSkimming',
 )
 
 EXODisappMuonSkimSequence = cms.Sequence(
-    exoDisappMuonsHLT+disappMuonSelection
+    exoDisappMuonsHLT+disappMuonsSelection
 )

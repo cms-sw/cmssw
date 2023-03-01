@@ -334,8 +334,8 @@ SKIMStreamEXODisappMuon = cms.FilteredStream(
     name = 'EXODisappMuon',
     paths = (EXODisappMuonPath),
     content = EXODisappMuonSkimContent.outputCommands,
-    selectEvent = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('AOD')
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('USER')
     )
 
 #####################
