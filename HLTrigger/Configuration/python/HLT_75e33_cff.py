@@ -314,8 +314,8 @@ fragment.schedule = cms.Schedule(*[
 
 del fragment.offlineBeamSpot
 
-del fragment.me0RecHits
-del fragment.me0Segments
+#del fragment.me0RecHits
+#del fragment.me0Segments
 
 del fragment.l1tEGammaClusterEmuProducer
 #del fragment.L1TkElectronsEllipticMatchCrystal
