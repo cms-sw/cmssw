@@ -7,6 +7,9 @@
  */
 #include "HLTPMMassFilter.h"
 
+#include <cstdlib>
+#include <cmath>
+
 //
 // constructors and destructor
 //
@@ -79,7 +82,6 @@ bool HLTPMMassFilter::hltFilter(edm::Event& iEvent,
   std::vector<TLorentzVector> pEleCh1;
   std::vector<TLorentzVector> pEleCh2;
   std::vector<double> charge;
-  std::vector<double> etaOrig;
 
   if (isElectron1_ && isElectron2_) {
     Ref<ElectronCollection> refele;
@@ -95,25 +97,18 @@ bool HLTPMMassFilter::hltFilter(edm::Event& iEvent,
       charge.push_back(refele->charge());
     }
 
+    std::vector<bool> save_cand(electrons.size(), true);
     for (unsigned int jj = 0; jj < electrons.size(); jj++) {
-      TLorentzVector p1Ele = pEleCh1.at(jj);
       for (unsigned int ii = jj + 1; ii < electrons.size(); ii++) {
-        TLorentzVector p2Ele = pEleCh1.at(ii);
-
-        if (fabs(p1Ele.E() - p2Ele.E()) < 0.00001)
-          continue;
         if (reqOppCharge_ && charge[jj] * charge[ii] > 0)
           continue;
-
-        TLorentzVector pTot = p1Ele + p2Ele;
-        double mass = pTot.M();
-
-        if (mass >= lowerMassCut_ && mass <= upperMassCut_) {
+        if (isGoodPair(pEleCh1[jj], pEleCh1[ii])) {
           n++;
-          refele = electrons[ii];
-          filterproduct.addObject(TriggerElectron, refele);
-          refele = electrons[jj];
-          filterproduct.addObject(TriggerElectron, refele);
+          for (auto const idx : {jj, ii}) {
+            if (save_cand[idx])
+              filterproduct.addObject(TriggerElectron, electrons[idx]);
+            save_cand[idx] = false;
+          }
         }
       }
     }
@@ -134,26 +129,18 @@ bool HLTPMMassFilter::hltFilter(edm::Event& iEvent,
 
       TLorentzVector pscEle = approxMomAtVtx(theMagField, vertexPos, sc, -1);
       pEleCh2.push_back(pscEle);
-      etaOrig.push_back(sc->eta());
     }
 
+    std::vector<bool> save_cand(scs.size(), true);
     for (unsigned int jj = 0; jj < scs.size(); jj++) {
-      TLorentzVector p1Ele = pEleCh1.at(jj);
-      for (unsigned int ii = 0; ii < scs.size(); ii++) {
-        TLorentzVector p2Ele = pEleCh2.at(ii);
-
-        if (fabs(p1Ele.E() - p2Ele.E()) < 0.00001)
-          continue;
-
-        TLorentzVector pTot = p1Ele + p2Ele;
-        double mass = pTot.M();
-
-        if (mass >= lowerMassCut_ && mass <= upperMassCut_) {
+      for (unsigned int ii = jj + 1; ii < scs.size(); ii++) {
+        if (isGoodPair(pEleCh1[jj], pEleCh2[ii]) or isGoodPair(pEleCh2[jj], pEleCh1[ii])) {
           n++;
-          refsc = scs[ii];
-          filterproduct.addObject(TriggerCluster, refsc);
-          refsc = scs[jj];
-          filterproduct.addObject(TriggerCluster, refsc);
+          for (auto const idx : {jj, ii}) {
+            if (save_cand[idx])
+              filterproduct.addObject(TriggerCluster, scs[idx]);
+            save_cand[idx] = false;
+          }
         }
       }
     }
@@ -161,9 +148,16 @@ bool HLTPMMassFilter::hltFilter(edm::Event& iEvent,
 
   // filter decision
   bool accept(n >= nZcandcut_);
-  // if (accept) std::cout << "n size = " << n << std::endl;
 
   return accept;
+}
+
+bool HLTPMMassFilter::isGoodPair(TLorentzVector const& v1, TLorentzVector const& v2) const {
+  if (std::abs(v1.E() - v2.E()) < 0.00001)
+    return false;
+
+  auto const mass = (v1 + v2).M();
+  return (mass >= lowerMassCut_ and mass <= upperMassCut_);
 }
 
 TLorentzVector HLTPMMassFilter::approxMomAtVtx(const MagneticField& magField,
