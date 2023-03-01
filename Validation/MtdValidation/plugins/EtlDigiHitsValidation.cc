@@ -56,6 +56,7 @@ private:
   // --- histograms declaration
 
   MonitorElement* meNhits_[4];
+  MonitorElement* meNhitsPerLGAD_[4];
 
   MonitorElement* meHitCharge_[4];
   MonitorElement* meHitTime_[4];
@@ -77,6 +78,8 @@ private:
   MonitorElement* meHitQvsEta_[4];
   MonitorElement* meHitTvsPhi_[4];
   MonitorElement* meHitTvsEta_[4];
+
+  std::array<std::unordered_map<uint32_t, uint32_t>, 4> ndigiPerLGAD_;
 };
 
 // ------------ constructor and destructor --------------
@@ -113,6 +116,9 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
   // --- Loop over the ETL DIGI hits
 
   unsigned int n_digi_etl[4] = {0, 0, 0, 0};
+  for (size_t i = 0; i < 4; i++) {
+    ndigiPerLGAD_[i].clear();
+  }
 
   for (const auto& dataFrame : *etlDigiHitsHandle) {
     // --- Get the on-time sample
@@ -192,17 +198,29 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
     meHitTvsEta_[idet]->Fill(global_point.eta(), sample.toa());
 
     n_digi_etl[idet]++;
+    size_t ncount(0);
+    ndigiPerLGAD_[idet].emplace(detId.rawId(), ncount);
+    ndigiPerLGAD_[idet].at(detId.rawId())++;
 
   }  // dataFrame loop
 
   if (topo1Dis) {
-    meNhits_[0]->Fill(n_digi_etl[0]);
-    meNhits_[2]->Fill(n_digi_etl[2]);
+    meNhits_[0]->Fill(log10(n_digi_etl[0]));
+    meNhits_[2]->Fill(log10(n_digi_etl[2]));
+    for (const auto& thisNdigi : ndigiPerLGAD_[0]) {
+      meNhitsPerLGAD_[0]->Fill(thisNdigi.second);
+    }
+    for (const auto& thisNdigi : ndigiPerLGAD_[2]) {
+      meNhitsPerLGAD_[2]->Fill(thisNdigi.second);
+    }
   }
 
   if (topo2Dis) {
     for (int i = 0; i < 4; i++) {
-      meNhits_[i]->Fill(n_digi_etl[i]);
+      meNhits_[i]->Fill(log10(n_digi_etl[i]));
+      for (const auto& thisNdigi : ndigiPerLGAD_[i]) {
+        meNhitsPerLGAD_[i]->Fill(thisNdigi.second);
+      }
     }
   }
 }
@@ -219,16 +237,31 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
                              "Number of ETL DIGI hits (-Z, Single(topo1D)/First(topo2D) disk);log_{10}(N_{DIGI})",
                              100,
                              0.,
-                             5000.);
+                             5.25);
   meNhits_[1] =
-      ibook.book1D("EtlNhitsZnegD2", "Number of ETL DIGI hits (-Z, Second disk);log_{10}(N_{DIGI})", 100, 0., 5000.);
+      ibook.book1D("EtlNhitsZnegD2", "Number of ETL DIGI hits (-Z, Second disk);log_{10}(N_{DIGI})", 100, 0., 5.25);
   meNhits_[2] = ibook.book1D("EtlNhitsZposD1",
                              "Number of ETL DIGI hits (+Z, Single(topo1D)/First(topo2D) disk);log_{10}(N_{DIGI})",
                              100,
                              0.,
-                             5000.);
+                             5.25);
   meNhits_[3] =
-      ibook.book1D("EtlNhitsZposD2", "Number of ETL DIGI hits (+Z, Second disk);log_{10}(N_{DIGI})", 100, 0., 5000.);
+      ibook.book1D("EtlNhitsZposD2", "Number of ETL DIGI hits (+Z, Second disk);log_{10}(N_{DIGI})", 100, 0., 5.25);
+
+  meNhitsPerLGAD_[0] = ibook.book1D("EtlNhitsPerLGADZnegD1",
+                                    "Number of ETL DIGI hits (-Z, Single(topo1D)/First(topo2D) disk) per LGAD;N_{DIGI}",
+                                    50,
+                                    0.,
+                                    50.);
+  meNhitsPerLGAD_[1] =
+      ibook.book1D("EtlNhitsPerLGADZnegD2", "Number of ETL DIGI hits (-Z, Second disk) per LGAD;N_{DIGI}", 50, 0., 50.);
+  meNhitsPerLGAD_[2] = ibook.book1D("EtlNhitsPerLGADZposD1",
+                                    "Number of ETL DIGI hits (+Z, Single(topo1D)/First(topo2D) disk) per LGAD;N_{DIGI}",
+                                    50,
+                                    0.,
+                                    50.);
+  meNhitsPerLGAD_[3] =
+      ibook.book1D("EtlNhitsPerLGADZposD2", "Number of ETL DIGI hits (+Z, Second disk) per LGAD;N_{DIGI}", 50, 0., 50.);
 
   meHitCharge_[0] = ibook.book1D("EtlHitChargeZnegD1",
                                  "ETL DIGI hits charge (-Z, Single(topo1D)/First(topo2D) disk);Q_{DIGI} [ADC counts]",
