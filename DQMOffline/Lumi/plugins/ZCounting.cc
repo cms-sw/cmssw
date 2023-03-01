@@ -7,6 +7,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 #include <TLorentzVector.h>
 
@@ -22,6 +23,10 @@ ZCounting::ZCounting(const edm::ParameterSet& iConfig)
       fPVName_token(consumes<reco::VertexCollection>(
           iConfig.getUntrackedParameter<std::string>("edmPVName", "offlinePrimaryVertices"))),
       fMuonName_token(consumes<reco::MuonCollection>(iConfig.getUntrackedParameter<std::string>("edmName", "muons"))),
+      fStandaloneRegName_token(consumes<reco::TrackCollection>(
+          iConfig.getUntrackedParameter<std::string>("StandaloneReg", "standAloneMuons"))),
+      fStandaloneUpdName_token(consumes<reco::TrackCollection>(
+          iConfig.getUntrackedParameter<std::string>("StandaloneUpd", "standAloneMuons:UpdatedAtVtx"))),
       fTrackName_token(
           consumes<reco::TrackCollection>(iConfig.getUntrackedParameter<std::string>("edmTrackName", "generalTracks"))),
 
@@ -56,7 +61,7 @@ ZCounting::ZCounting(const edm::ParameterSet& iConfig)
   triggers = new TriggerTools();
   triggers->setTriggerResultsToken(consumes<edm::TriggerResults>(triggerResultsInputTag_));
   triggers->setTriggerEventToken(consumes<trigger::TriggerEvent>(iConfig.getParameter<edm::InputTag>("TriggerEvent")));
-  triggers->setDRMAX(DRMAX);
+  triggers->setDRMAX(DRMAX_HLT);
 
   edm::LogVerbatim("ZCounting") << "ZCounting::ZCounting set trigger names";
   const std::vector<std::string> patterns_ = iConfig.getParameter<std::vector<std::string>>("MuonTriggerNames");
@@ -172,16 +177,24 @@ void ZCounting::bookHistograms(DQMStore::IBooker& ibooker_, edm::Run const&, edm
                                    MassMin_,
                                    MassMax_);
 
-  h_mass_SIT_fail_BB = ibooker_.book2D("h_mass_SIT_fail_BB",
-                                       "Muon SIT failing barrel-barrel",
+  h_mass_ID_fail_BB = ibooker_.book2D(
+      "h_mass_ID_fail_BB", "Muon ID failing barrel-barrel", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
+  h_mass_ID_fail_BE = ibooker_.book2D(
+      "h_mass_ID_fail_BE", "Muon ID failing barrel-endcap", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
+
+  h_mass_ID_fail_EE = ibooker_.book2D(
+      "h_mass_ID_fail_EE", "Muon ID failing endcap-endcap", LumiBin_, LumiMin_, LumiMax_, MassBin_, MassMin_, MassMax_);
+
+  h_mass_Glo_pass_BB = ibooker_.book2D("h_mass_Glo_pass_BB",
+                                       "Muon Glo passing barrel-barrel",
                                        LumiBin_,
                                        LumiMin_,
                                        LumiMax_,
                                        MassBin_,
                                        MassMin_,
                                        MassMax_);
-  h_mass_SIT_fail_BE = ibooker_.book2D("h_mass_SIT_fail_BE",
-                                       "Muon SIT failing barrel-endcap",
+  h_mass_Glo_pass_BE = ibooker_.book2D("h_mass_Glo_pass_BE",
+                                       "Muon Glo passing barrel-endcap",
                                        LumiBin_,
                                        LumiMin_,
                                        LumiMax_,
@@ -189,8 +202,8 @@ void ZCounting::bookHistograms(DQMStore::IBooker& ibooker_, edm::Run const&, edm
                                        MassMin_,
                                        MassMax_);
 
-  h_mass_SIT_fail_EE = ibooker_.book2D("h_mass_SIT_fail_EE",
-                                       "Muon SIT failing endcap-endcap",
+  h_mass_Glo_pass_EE = ibooker_.book2D("h_mass_Glo_pass_EE",
+                                       "Muon Glo passing endcap-endcap",
                                        LumiBin_,
                                        LumiMin_,
                                        LumiMax_,
@@ -224,6 +237,58 @@ void ZCounting::bookHistograms(DQMStore::IBooker& ibooker_, edm::Run const&, edm
                                        MassMin_,
                                        MassMax_);
 
+  h_mass_Sta_pass_BB = ibooker_.book2D("h_mass_Sta_pass_BB",
+                                       "Muon Sta passing barrel-barrel",
+                                       LumiBin_,
+                                       LumiMin_,
+                                       LumiMax_,
+                                       MassBin_,
+                                       MassMin_,
+                                       MassMax_);
+  h_mass_Sta_pass_BE = ibooker_.book2D("h_mass_Sta_pass_BE",
+                                       "Muon Sta passing barrel-endcap",
+                                       LumiBin_,
+                                       LumiMin_,
+                                       LumiMax_,
+                                       MassBin_,
+                                       MassMin_,
+                                       MassMax_);
+
+  h_mass_Sta_pass_EE = ibooker_.book2D("h_mass_Sta_pass_EE",
+                                       "Muon Sta passing endcap-endcap",
+                                       LumiBin_,
+                                       LumiMin_,
+                                       LumiMax_,
+                                       MassBin_,
+                                       MassMin_,
+                                       MassMax_);
+
+  h_mass_Sta_fail_BB = ibooker_.book2D("h_mass_Sta_fail_BB",
+                                       "Muon Sta failing barrel-barrel",
+                                       LumiBin_,
+                                       LumiMin_,
+                                       LumiMax_,
+                                       MassBin_,
+                                       MassMin_,
+                                       MassMax_);
+  h_mass_Sta_fail_BE = ibooker_.book2D("h_mass_Sta_fail_BE",
+                                       "Muon Sta failing barrel-endcap",
+                                       LumiBin_,
+                                       LumiMin_,
+                                       LumiMax_,
+                                       MassBin_,
+                                       MassMin_,
+                                       MassMax_);
+
+  h_mass_Sta_fail_EE = ibooker_.book2D("h_mass_Sta_fail_EE",
+                                       "Muon Sta failing endcap-endcap",
+                                       LumiBin_,
+                                       LumiMin_,
+                                       LumiMax_,
+                                       MassBin_,
+                                       MassMin_,
+                                       MassMax_);
+
   h_npv = ibooker_.book2D(
       "h_npv", "Events with valid primary vertex", LumiBin_, LumiMin_, LumiMax_, PVBin_, PVMin_, PVMax_);
 
@@ -234,24 +299,42 @@ void ZCounting::bookHistograms(DQMStore::IBooker& ibooker_, edm::Run const&, edm
   h_mass_1HLT_BB->setAxisTitle("luminosity section", 1);
   h_mass_1HLT_BE->setAxisTitle("luminosity section", 1);
   h_mass_1HLT_EE->setAxisTitle("luminosity section", 1);
-  h_mass_SIT_fail_BB->setAxisTitle("luminosity section", 1);
-  h_mass_SIT_fail_BE->setAxisTitle("luminosity section", 1);
-  h_mass_SIT_fail_EE->setAxisTitle("luminosity section", 1);
+  h_mass_ID_fail_BB->setAxisTitle("luminosity section", 1);
+  h_mass_ID_fail_BE->setAxisTitle("luminosity section", 1);
+  h_mass_ID_fail_EE->setAxisTitle("luminosity section", 1);
+  h_mass_Glo_pass_BB->setAxisTitle("luminosity section", 1);
+  h_mass_Glo_pass_BE->setAxisTitle("luminosity section", 1);
+  h_mass_Glo_pass_EE->setAxisTitle("luminosity section", 1);
   h_mass_Glo_fail_BB->setAxisTitle("luminosity section", 1);
   h_mass_Glo_fail_BE->setAxisTitle("luminosity section", 1);
   h_mass_Glo_fail_EE->setAxisTitle("luminosity section", 1);
+  h_mass_Sta_pass_BB->setAxisTitle("luminosity section", 1);
+  h_mass_Sta_pass_BE->setAxisTitle("luminosity section", 1);
+  h_mass_Sta_pass_EE->setAxisTitle("luminosity section", 1);
+  h_mass_Sta_fail_BB->setAxisTitle("luminosity section", 1);
+  h_mass_Sta_fail_BE->setAxisTitle("luminosity section", 1);
+  h_mass_Sta_fail_EE->setAxisTitle("luminosity section", 1);
   h_mass_2HLT_BB->setAxisTitle("tag and probe mass", 2);
   h_mass_2HLT_BE->setAxisTitle("tag and probe mass", 2);
   h_mass_2HLT_EE->setAxisTitle("tag and probe mass", 2);
   h_mass_1HLT_BB->setAxisTitle("tag and probe mass", 2);
   h_mass_1HLT_BE->setAxisTitle("tag and probe mass", 2);
   h_mass_1HLT_EE->setAxisTitle("tag and probe mass", 2);
-  h_mass_SIT_fail_BB->setAxisTitle("tag and probe mass", 2);
-  h_mass_SIT_fail_BE->setAxisTitle("tag and probe mass", 2);
-  h_mass_SIT_fail_EE->setAxisTitle("tag and probe mass", 2);
+  h_mass_ID_fail_BB->setAxisTitle("tag and probe mass", 2);
+  h_mass_ID_fail_BE->setAxisTitle("tag and probe mass", 2);
+  h_mass_ID_fail_EE->setAxisTitle("tag and probe mass", 2);
+  h_mass_Glo_pass_BB->setAxisTitle("tag and probe mass", 2);
+  h_mass_Glo_pass_BE->setAxisTitle("tag and probe mass", 2);
+  h_mass_Glo_pass_EE->setAxisTitle("tag and probe mass", 2);
   h_mass_Glo_fail_BB->setAxisTitle("tag and probe mass", 2);
   h_mass_Glo_fail_BE->setAxisTitle("tag and probe mass", 2);
   h_mass_Glo_fail_EE->setAxisTitle("tag and probe mass", 2);
+  h_mass_Sta_pass_BB->setAxisTitle("tag and probe mass", 2);
+  h_mass_Sta_pass_BE->setAxisTitle("tag and probe mass", 2);
+  h_mass_Sta_pass_EE->setAxisTitle("tag and probe mass", 2);
+  h_mass_Sta_fail_BB->setAxisTitle("tag and probe mass", 2);
+  h_mass_Sta_fail_BE->setAxisTitle("tag and probe mass", 2);
+  h_mass_Sta_fail_EE->setAxisTitle("tag and probe mass", 2);
   h_npv->setAxisTitle("luminosity section", 1);
   h_npv->setAxisTitle("number of primary vertices", 2);
 }
@@ -306,17 +389,93 @@ void ZCounting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     return;
 
   //-------------------------------
-  //--- Muons and Tracks
+  //--- Muon and Track collections
   //-------------------------------
   edm::Handle<reco::MuonCollection> hMuonProduct;
   iEvent.getByToken(fMuonName_token, hMuonProduct);
-  if (!hMuonProduct.isValid())
+  if (!hMuonProduct.isValid()) {
+    edm::LogWarning("ZCounting") << "ZCounting::analyze - no valid hMuonProduct found" << std::endl;
     return;
+  }
 
   edm::Handle<reco::TrackCollection> hTrackProduct;
   iEvent.getByToken(fTrackName_token, hTrackProduct);
-  if (!hTrackProduct.isValid())
+  if (!hTrackProduct.isValid()) {
+    edm::LogWarning("ZCounting") << "ZCounting::analyze - no valid hTrackProduct found" << std::endl;
     return;
+  }
+
+  //-------------------------------
+  //--- Merged standalone muon collections
+  //--- The muon collection contains duplicates (from standAloneMuons and standAloneMuons:UpdatedAtVtx collections) and missing standAloneMuons
+  //--- We need to produce a merged standalone muon collection to reproduce the decision in the global muon producer
+  //-------------------------------
+  edm::Handle<reco::TrackCollection> tracksStandAlone;
+  iEvent.getByToken(fStandaloneRegName_token, tracksStandAlone);
+  if (!tracksStandAlone.isValid()) {
+    edm::LogWarning("ZCounting") << "ZCounting::analyze - no valid tracksStandAlone found" << std::endl;
+    return;
+  }
+
+  edm::Handle<reco::TrackCollection> tracksStandAloneUpdatedAtVtx;
+  iEvent.getByToken(fStandaloneUpdName_token, tracksStandAloneUpdatedAtVtx);
+  if (!tracksStandAloneUpdatedAtVtx.isValid()) {
+    edm::LogWarning("ZCounting") << "ZCounting::analyze - no valid tracksStandAloneUpdatedAtVtx found" << std::endl;
+    return;
+  }
+
+  std::vector<const reco::Track*> hStandaloneProduct;
+  std::vector<bool> passGlobalMuonMap;
+
+  for (auto const& standAlone : *tracksStandAlone) {
+    auto const extraIdx = standAlone.extra().key();
+
+    const reco::Track* track = &standAlone;
+
+    // replicate logic in GlobalMuonProducer, take the updatedAtVtx track if it exists and has
+    // the same eta sign as the original, otherwise take the original
+    for (auto const& standAloneUpdatedAtVtx : *tracksStandAloneUpdatedAtVtx) {
+      if (standAloneUpdatedAtVtx.extra().key() == extraIdx) {
+        const bool etaFlip1 = (standAloneUpdatedAtVtx.eta() * standAlone.eta()) >= 0;
+        if (etaFlip1) {
+          track = &standAloneUpdatedAtVtx;
+        }
+        break;
+      }
+    }
+
+    // kinematic cuts
+    if (track->pt() < MIN_PT_STA)
+      continue;
+    if (fabs(track->eta()) > MAX_ETA_STA)
+      continue;
+    // require minimum number of valid hits (mainly to reduce background)
+    if (track->numberOfValidHits() < N_STA_HITS)
+      continue;
+
+    // look for corresponding muon object to check if the standalone muon is global
+    bool isGlobalMuon = false;
+    for (auto const& itMu2 : *hMuonProduct) {
+      if (itMu2.standAloneMuon().isNull())
+        continue;
+
+      auto const& muonStandAlone = *itMu2.standAloneMuon();
+
+      if (track->extra().key() == muonStandAlone.extra().key()) {
+        // we found a corresponding muon object
+        if (muonStandAlone.pt() == track->pt() && muonStandAlone.eta() == track->eta() &&
+            muonStandAlone.phi() == track->phi()) {
+          // the corresponding muon object uses the same standalone muon track
+          // check if is a global muon
+          isGlobalMuon = passGlobalMuon(itMu2);
+        }
+        break;
+      }
+    }
+
+    passGlobalMuonMap.push_back(isGlobalMuon);
+    hStandaloneProduct.push_back(track);
+  }
 
   TLorentzVector vTag(0., 0., 0., 0.);
   TLorentzVector vProbe(0., 0., 0., 0.);
@@ -334,7 +493,7 @@ void ZCounting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       continue;
     if (fabs(eta1) > EtaCutL1_)
       continue;
-    if (!(passMuonID(itMu1, pv) && passMuonIso(itMu1)))
+    if (!(passGlobalMuon(itMu1) && passMuonID(itMu1, pv) && passMuonIso(itMu1)))
       continue;
     if (!triggers->passObj(eta1, phi1))
       continue;
@@ -371,12 +530,10 @@ void ZCounting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if ((dilepMass < MassMin_) || (dilepMass > MassMax_))
         continue;
 
-      bool isProbeCentral = false;
-      if (fabs(eta2) < MUON_BOUND)
-        isProbeCentral = true;
+      bool isProbeCentral = fabs(eta2) < MUON_BOUND;
 
       // Determine event category for efficiency calculation
-      if (passMuonID(itMu2, pv) && passMuonIso(itMu2)) {
+      if (passGlobalMuon(itMu2) && passMuonID(itMu2, pv) && passMuonIso(itMu2)) {
         if (triggers->passObj(eta2, phi2)) {
           // category 2HLT: both muons passing trigger requirements
           if (&itMu1 > &itMu2)
@@ -399,50 +556,64 @@ void ZCounting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             h_mass_1HLT_BE->Fill(iEvent.luminosityBlock(), dilepMass);
           }
         }
-      } else if (itMu2.isGlobalMuon()) {
+      } else if (passGlobalMuon(itMu2)) {
         // category Glo: probe is a Global muon but failing selection
         if (isTagCentral && isProbeCentral) {
-          h_mass_SIT_fail_BB->Fill(iEvent.luminosityBlock(), dilepMass);
+          h_mass_ID_fail_BB->Fill(iEvent.luminosityBlock(), dilepMass);
         } else if (!isTagCentral && !isProbeCentral) {
-          h_mass_SIT_fail_EE->Fill(iEvent.luminosityBlock(), dilepMass);
+          h_mass_ID_fail_EE->Fill(iEvent.luminosityBlock(), dilepMass);
         } else {
-          h_mass_SIT_fail_BE->Fill(iEvent.luminosityBlock(), dilepMass);
-        }
-      } else if (itMu2.isStandAloneMuon()) {
-        // category Sta: probe is a Standalone muon
-        if (isTagCentral && isProbeCentral) {
-          h_mass_Glo_fail_BB->Fill(iEvent.luminosityBlock(), dilepMass);
-        } else if (!isTagCentral && !isProbeCentral) {
-          h_mass_Glo_fail_EE->Fill(iEvent.luminosityBlock(), dilepMass);
-        } else {
-          h_mass_Glo_fail_BE->Fill(iEvent.luminosityBlock(), dilepMass);
-        }
-      } else if (itMu2.innerTrack()->hitPattern().trackerLayersWithMeasurement() >= 6 &&
-                 itMu2.innerTrack()->hitPattern().numberOfValidPixelHits() >= 1) {
-        // cateogry Trk: probe is a tracker track
-        if (isTagCentral && isProbeCentral) {
-          h_mass_Glo_fail_BB->Fill(iEvent.luminosityBlock(), dilepMass);
-        } else if (!isTagCentral && !isProbeCentral) {
-          h_mass_Glo_fail_EE->Fill(iEvent.luminosityBlock(), dilepMass);
-        } else {
-          h_mass_Glo_fail_BE->Fill(iEvent.luminosityBlock(), dilepMass);
+          h_mass_ID_fail_BE->Fill(iEvent.luminosityBlock(), dilepMass);
         }
       }
     }  // End of probe loop over muons
 
-    // Probe loop over tracks, only for standalone efficiency calculation
-    for (auto const& itTrk : *hTrackProduct) {
-      // Check track is not a muon
-      bool isMuon = false;
-      for (auto const& itMu : *hMuonProduct) {
-        if (itMu.innerTrack().isNonnull() && itMu.innerTrack().get() == &itTrk) {
-          isMuon = true;
-          break;
-        }
-      }
-      if (isMuon)
+    // Probe loop over standalone muons, for global muon efficiency calculation
+    for (std::vector<reco::Track>::size_type idx = 0; idx < hStandaloneProduct.size(); idx++) {
+      const reco::Track* itSta = hStandaloneProduct[idx];
+
+      // standalone muon kinematics
+      const float pt2 = itSta->pt();
+      const float eta2 = itSta->eta();
+      const float phi2 = itSta->phi();
+
+      // kinematic cuts
+      if (pt2 < PtCutL2_)
+        continue;
+      if (fabs(eta2) > EtaCutL2_)
         continue;
 
+      vProbe.SetPtEtaPhiM(pt2, eta2, phi2, MUON_MASS);
+
+      // Mass window
+      TLorentzVector vDilep = vTag + vProbe;
+      float dilepMass = vDilep.M();
+      if ((dilepMass < MassMin_) || (dilepMass > MassMax_))
+        continue;
+
+      const bool isProbeCentral = fabs(eta2) < MUON_BOUND;
+
+      if (passGlobalMuonMap[idx]) {
+        if (isTagCentral && isProbeCentral) {
+          h_mass_Glo_pass_BB->Fill(iEvent.luminosityBlock(), dilepMass);
+        } else if (!isTagCentral && !isProbeCentral) {
+          h_mass_Glo_pass_EE->Fill(iEvent.luminosityBlock(), dilepMass);
+        } else {
+          h_mass_Glo_pass_BE->Fill(iEvent.luminosityBlock(), dilepMass);
+        }
+      } else {
+        if (isTagCentral && isProbeCentral) {
+          h_mass_Glo_fail_BB->Fill(iEvent.luminosityBlock(), dilepMass);
+        } else if (!isTagCentral && !isProbeCentral) {
+          h_mass_Glo_fail_EE->Fill(iEvent.luminosityBlock(), dilepMass);
+        } else {
+          h_mass_Glo_fail_BE->Fill(iEvent.luminosityBlock(), dilepMass);
+        }
+      }
+    }
+
+    // Probe loop over tracks, only for standalone efficiency calculation
+    for (auto const& itTrk : *hTrackProduct) {
       const float pt2 = itTrk.pt();
       const float eta2 = itTrk.eta();
       const float phi2 = itTrk.phi();
@@ -455,6 +626,8 @@ void ZCounting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         continue;
       if (q1 == q2)
         continue;
+      if (!passTrack(itTrk))
+        continue;
 
       vTrack.SetPtEtaPhiM(pt2, eta2, phi2, MUON_MASS);
 
@@ -463,17 +636,32 @@ void ZCounting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if ((dilepMass < MassMin_) || (dilepMass > MassMax_))
         continue;
 
-      bool isTrackCentral = false;
-      if (fabs(eta2) < MUON_BOUND)
-        isTrackCentral = true;
+      // check if track is matched to standalone muon
+      bool isStandalone = false;
+      for (const reco::Track* itSta : hStandaloneProduct) {
+        if (reco::deltaR2(itSta->eta(), itSta->phi(), eta2, phi2) < DRMAX_IO) {
+          isStandalone = true;
+          break;
+        }
+      }
 
-      if (itTrk.hitPattern().trackerLayersWithMeasurement() >= 6 && itTrk.hitPattern().numberOfValidPixelHits() >= 1) {
+      const bool isTrackCentral = fabs(eta2) < MUON_BOUND;
+
+      if (isStandalone) {
         if (isTagCentral && isTrackCentral) {
-          h_mass_Glo_fail_BB->Fill(iEvent.luminosityBlock(), dilepMass);
+          h_mass_Sta_pass_BB->Fill(iEvent.luminosityBlock(), dilepMass);
         } else if (!isTagCentral && !isTrackCentral) {
-          h_mass_Glo_fail_EE->Fill(iEvent.luminosityBlock(), dilepMass);
+          h_mass_Sta_pass_EE->Fill(iEvent.luminosityBlock(), dilepMass);
         } else {
-          h_mass_Glo_fail_BE->Fill(iEvent.luminosityBlock(), dilepMass);
+          h_mass_Sta_pass_BE->Fill(iEvent.luminosityBlock(), dilepMass);
+        }
+      } else {
+        if (isTagCentral && isTrackCentral) {
+          h_mass_Sta_fail_BB->Fill(iEvent.luminosityBlock(), dilepMass);
+        } else if (!isTagCentral && !isTrackCentral) {
+          h_mass_Sta_fail_EE->Fill(iEvent.luminosityBlock(), dilepMass);
+        } else {
+          h_mass_Sta_fail_BE->Fill(iEvent.luminosityBlock(), dilepMass);
         }
       }
     }  //End of probe loop over tracks
@@ -487,15 +675,11 @@ void ZCounting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //--------------------------------------------------------------------------------------------------
 // Definition of the CustomTightID function
 bool ZCounting::isCustomTightMuon(const reco::Muon& muon) {
-  if (!muon.isPFMuon() || !muon.isGlobalMuon())
-    return false;
-
-  bool muID = isGoodMuon(muon, muon::GlobalMuonPromptTight) && (muon.numberOfMatchedStations() > 1);
-
-  bool muIdAndHits = muID && muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
-                     muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0;
-
-  return muIdAndHits;
+  // tight POG cut based ID w/o impact parameter cuts
+  return muon.isGlobalMuon() && muon.isPFMuon() && muon.globalTrack()->normalizedChi2() < 10. &&
+         muon.globalTrack()->hitPattern().numberOfValidMuonHits() > 0 && muon.numberOfMatchedStations() > 1 &&
+         muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
+         muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -514,6 +698,28 @@ bool ZCounting::passMuonID(const reco::Muon& muon, const reco::Vertex* vtx) {
       return true;
   }
   return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+bool ZCounting::passGlobalMuon(const reco::Muon& muon) {
+  // Global muon selection:
+  // - standard global muon criterium,
+  // - requirements on inner and outer track pT>15 and |eta|
+  // - requirements on deltaR(inner track, outer track)
+
+  return muon.isGlobalMuon() && muon.outerTrack()->numberOfValidHits() >= N_STA_HITS &&
+         muon.innerTrack()->pt() > MIN_PT_TRK && std::abs(muon.innerTrack()->eta()) < MAX_ETA_TRK &&
+         muon.outerTrack()->pt() > MIN_PT_STA && std::abs(muon.outerTrack()->eta()) < MAX_ETA_STA &&
+         reco::deltaR2(
+             muon.outerTrack()->eta(), muon.outerTrack()->phi(), muon.innerTrack()->eta(), muon.innerTrack()->phi()) <
+             DRMAX_IO;
+}
+
+//--------------------------------------------------------------------------------------------------
+bool ZCounting::passTrack(const reco::Track& track) {
+  return track.hitPattern().trackerLayersWithMeasurement() >= 6 && track.hitPattern().numberOfValidPixelHits() >= 1 &&
+         track.originalAlgo() != 13      // reject muon seeded tracks - InOut
+         && track.originalAlgo() != 14;  // reject muon seeded tracks - OutIn
 }
 
 //--------------------------------------------------------------------------------------------------
