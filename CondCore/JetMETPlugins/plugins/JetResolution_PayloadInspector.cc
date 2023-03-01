@@ -30,7 +30,7 @@ namespace JME{
 
   /*******************************************************
  *    
- *         1d histogram of JetResolution in Eta of 1 IOV 
+ *         1d histogram of JetResolution of 1 IOV 
  *
    *******************************************************/
 
@@ -51,13 +51,11 @@ namespace JME{
       for (auto const& iov : tag.iovs) {
           std::shared_ptr<JetResolutionObject> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
-
-          edm::LogWarning("JetResObj_PI") << "Formula: " << payload->getDefinition().getFormulaString() << std::endl;
-
-          edm::LogWarning("JetResObj_PI") << "Records: " << payload->getRecords().size() << "\n";
+          if(payload->getRecords().size() > 0 &&  // No formula for SF
+             payload->getDefinition().getFormulaString() == "") return false; 
 
           for(const auto& record : payload->getRecords()){ 
-            // Check Eta
+            // Check Pt & Rho
             if(record.getVariablesRange().size()>0 && 
                payload->getDefinition().getVariableName(0) == "JetPt" &&
                record.getVariablesRange()[0].is_inside(100.)){
@@ -72,7 +70,7 @@ namespace JME{
                     double x_axis = (idx+0.5)*(MAX_ETA-MIN_ETA)/NBIN+MIN_ETA;
                     if(record.getBinsRange()[0].is_inside(x_axis)){
                       std::vector<double> var={100.};
-                      std::vector<double> param;// = record.getParametersValues();
+                      std::vector<double> param;
                       for(size_t i = 0; i < record.getParametersValues().size(); i++){
                         double par = record.getParametersValues()[i];
                         param.push_back(par);
@@ -80,25 +78,23 @@ namespace JME{
                       float res = f.evaluate(var, param);
                       fillWithBinAndValue(idx, res);
                     }
-                  } // for BINS
-                }  // if 3
-              }  // if 2
-            } // if
+                  }
+                }
+              }
+            }
           }  // records
             return true;    
-        } //else {    // if payload
-            //return false; }
-      }      // iovs
+        }
+      }
       return false;
-    }  // fill
-      
+    }
   };  // class
 
   class JetResolutionVsPt : public cond::payloadInspector::Histogram1D<JetResolutionObject, SINGLE_IOV> {
     public:
-      static const int MIN_PT = -500.0;
-      static const int MAX_PT =  3500.0;
-      static const int NBIN = 400;
+      static const int MIN_PT = -0.0;
+      static const int MAX_PT =  3000.0;
+      static const int NBIN = 300;
 
     JetResolutionVsPt() : cond::payloadInspector::Histogram1D<JetResolutionObject, SINGLE_IOV>( "Jet Energy Resolution", "PT", NBIN, MIN_PT, MAX_PT, "Resolution"){
       Base::setSingleIov( true );
@@ -109,11 +105,11 @@ namespace JME{
       for (auto const& iov : tag.iovs) {
         std::shared_ptr<JetResolutionObject> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
-          edm::LogWarning("JetResObj_PI") << "Formula: " << payload->getDefinition().getFormulaString() << std::endl;
-
-          edm::LogWarning("JetResObj_PI") << "Records: " << payload->getRecords().size() << "\n";
+          if(payload->getRecords().size() > 0 &&  // No formula for SF
+             payload->getDefinition().getFormulaString() == "") return false; 
 
           for(const auto& record : payload->getRecords()){ 
+            // Check Eta & Rho
             if(record.getBinsRange().size()>0 && 
                payload->getDefinition().getBinName(0) == "JetEta" &&
                record.getBinsRange()[0].is_inside(2.30)){
@@ -134,11 +130,6 @@ namespace JME{
                         param.push_back(par);
                       }
                       float res = f.evaluate(var, param);
-                      //JetParameters j_param;
-                      //j_param.set(Binning::JetPt, x_axis);
-                      //j_param.set(Binning::JetEta, 2.3);
-                      //j_param.set(Binning::Rho, 15.);
-                      //res = payload->evaluateFormula(record, j_param);
                       fillWithBinAndValue(idx, res);
                     }
                   }
@@ -147,13 +138,11 @@ namespace JME{
             }
           }
           return true;    
-        } //else {   // if payload
-         //   return false; }
-      }      // iovs
+        }
+      }
       return false;
-    }  // fill
-      
-};  // class
+    }
+};
 
 // Register the classes as boost python plugin
 PAYLOAD_INSPECTOR_MODULE( JetResolutionObject ){
