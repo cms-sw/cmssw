@@ -24,8 +24,8 @@
 //                              numbers of duplicate entry ("events_DXS2.txt")
 //  rcorFileName (const char*)= name of the text file having the correction
 //                              factors as a function of run numbers or depth
-//                              to be used for raddam/depth dependent
-//                              correction  (default="", no corr.)
+//                              to be used for raddam/depth/pileup/phisym
+//                              dependent correction  (default="", no corr.)
 //  useIter         (bool)    = Flag to use iterative process or minimization
 //                              (true)
 //  useweight       (bool)    = Flag to use event weight (true)
@@ -61,7 +61,8 @@
 //  rcorForm        (int)     = type of rcorFileName: (0) for Raddam correction,
 //                              (1) for depth dependent corrections; (2) for
 //                              RespCorr corrections; (3) use machine learning
-//                              method for pileup correction. (Default 0)
+//                              method for pileup correction; (4) use results
+//                              from phi-symmetry. (Default 0)
 //  useGen          (bool)    = use generator level momentum information (false)
 //  runlo           (int)     = lower value of run number to be included (+ve)
 //                              or excluded (-ve) (default 0)
@@ -136,7 +137,7 @@ void Run(const char *inFileName = "Silver.root",
          double l1Cut = 0.5,
          int truncateFlag = 0,
          int maxIter = 30,
-         int rcorForm = 0,
+         int rcorForm = -1,
          bool useGen = false,
          int runlo = 0,
          int runhi = 99999999,
@@ -562,8 +563,10 @@ CalibTree::CalibTree(const char *dupFileName,
   Init(tree, dupFileName);
   if (std::string(rcorFileName) != "") {
     cFactor_ = new CalibCorr(rcorFileName, rcorForm_, false);
+    if (cFactor_->absent())
+      rcorForm_ = -1;
   } else {
-    rcorForm_ = 0;
+    rcorForm_ = -1;
   }
   if (rbx != 0)
     cSelect_ = new CalibSelectRBX(rbx);
@@ -804,7 +807,7 @@ Double_t CalibTree::Loop(int loop,
                 hitEn = Cprev[detid].first * (*t_HitEnergies)[idet];
               else
                 hitEn = (*t_HitEnergies)[idet];
-              if (cFactor_)
+              if ((rcorForm_ != 3) && (rcorForm_ >= 0) && (cFactor_))
                 hitEn *= cFactor_->getCorr(t_Run, id);
               double Wi = evWt * hitEn / en.Etot;
               double Fac = (inverse) ? (en.ehcal / (pmom - t_eMipDR)) : ((pmom - t_eMipDR) / en.ehcal);
@@ -1397,7 +1400,7 @@ CalibTree::energyCalor CalibTree::energyHcal(double pmom, const Long64_t &entry,
           hitEn = Cprev[detid].first * (*t_HitEnergies)[idet];
         else
           hitEn = (*t_HitEnergies)[idet];
-        if (cFactor_)
+        if ((rcorForm_ != 3) && (rcorForm_ >= 0) && (cFactor_))
           hitEn *= cFactor_->getCorr(t_Run, id);
         etot += hitEn;
         etot2 += ((*t_HitEnergies)[idet]);
@@ -1415,7 +1418,7 @@ CalibTree::energyCalor CalibTree::energyHcal(double pmom, const Long64_t &entry,
             hitEn = Cprev[detid].first * (*t_HitEnergies1)[idet];
           else
             hitEn = (*t_HitEnergies1)[idet];
-          if (cFactor_)
+          if ((rcorForm_ != 3) && (rcorForm_ >= 0) && (cFactor_))
             hitEn *= cFactor_->getCorr(t_Run, id);
           etot1 += hitEn;
         }
@@ -1429,7 +1432,7 @@ CalibTree::energyCalor CalibTree::energyHcal(double pmom, const Long64_t &entry,
             hitEn = Cprev[detid].first * (*t_HitEnergies3)[idet];
           else
             hitEn = (*t_HitEnergies3)[idet];
-          if (cFactor_)
+          if ((rcorForm_ != 3) && (rcorForm_ >= 0) && (cFactor_))
             hitEn *= cFactor_->getCorr(t_Run, id);
           etot3 += hitEn;
         }
