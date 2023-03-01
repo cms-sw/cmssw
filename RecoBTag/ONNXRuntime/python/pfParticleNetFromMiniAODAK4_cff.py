@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoBTag.FeatureTools.pfDeepBoostedJetTagInfos_cfi import pfDeepBoostedJetTagInfos
 from RecoBTag.ONNXRuntime.boostedJetONNXJetTagsProducer_cfi import boostedJetONNXJetTagsProducer
 from RecoBTag.FeatureTools.ParticleNetFeatureEvaluator_cfi import ParticleNetFeatureEvaluator
+from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4DiscriminatorsJetTags_cfi import *
 
 pfParticleNetFromMiniAODAK4CHSCentralTagInfos = ParticleNetFeatureEvaluator.clone(
     jets = "slimmedJets",
@@ -79,3 +80,16 @@ _pfParticleNetFromMiniAODAK4PuppiCentralJetTagsProbs = ['pfParticleNetFromMiniAO
 _pfParticleNetFromMiniAODAK4PuppiForwardJetTagsProbs = ['pfParticleNetFromMiniAODAK4PuppiForwardJetTags:' + flav_name
                                  for flav_name in pfParticleNetFromMiniAODAK4PuppiForwardJetTags.flav_names]
 
+_pfParticleNetFromMiniAODAK4CHSCentralJetTagsMetaDiscr = ['pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags:' + disc.name.value()
+                                 for disc in pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags.discriminators]
+_pfParticleNetFromMiniAODAK4CHSForwardJetTagsMetaDiscr = ['pfParticleNetFromMiniAODAK4CHSForwardDiscriminatorsJetTags:' + disc.name.value()
+                                 for disc in pfParticleNetFromMiniAODAK4CHSForwardDiscriminatorsJetTags.discriminators]
+_pfParticleNetFromMiniAODAK4PuppiCentralJetTagsMetaDiscr = ['pfParticleNetFromMiniAODAK4PuppiCentralDiscriminatorsJetTags:' + disc.name.value()
+                                 for disc in pfParticleNetFromMiniAODAK4PuppiCentralDiscriminatorsJetTags.discriminators]
+_pfParticleNetFromMiniAODAK4PuppiForwardJetTagsMetaDiscr = ['pfParticleNetFromMiniAODAK4PuppiForwardDiscriminatorsJetTags:' + disc.name.value()
+                                 for disc in pfParticleNetFromMiniAODAK4PuppiForwardDiscriminatorsJetTags.discriminators]
+
+_pfParticleNetFromMiniAODAK4CHSCentralJetTagsAll = _pfParticleNetFromMiniAODAK4CHSCentralJetTagsProbs + _pfParticleNetFromMiniAODAK4CHSCentralJetTagsMetaDiscr
+_pfParticleNetFromMiniAODAK4CHSForwardJetTagsAll = _pfParticleNetFromMiniAODAK4CHSForwardJetTagsProbs + _pfParticleNetFromMiniAODAK4CHSForwardJetTagsMetaDiscr
+_pfParticleNetFromMiniAODAK4PuppiCentralJetTagsAll = _pfParticleNetFromMiniAODAK4PuppiCentralJetTagsProbs + _pfParticleNetFromMiniAODAK4PuppiCentralJetTagsMetaDiscr
+_pfParticleNetFromMiniAODAK4PuppiForwardJetTagsAll = _pfParticleNetFromMiniAODAK4PuppiForwardJetTagsProbs + _pfParticleNetFromMiniAODAK4PuppiForwardJetTagsMetaDiscr
