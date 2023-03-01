@@ -1,15 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
 TrackAssociatorParameters = cms.PSet(
-    CSCSegmentCollectionLabel = cms.InputTag("cscSegments"),
+    CSCSegmentCollectionLabel = cms.InputTag("hltCscSegments"),
     CaloTowerCollectionLabel = cms.InputTag("towerMaker"),
     DTRecSegment4DCollectionLabel = cms.InputTag("dt4DSegments"),
     EBRecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     EERecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
-    GEMSegmentCollectionLabel = cms.InputTag("gemSegments"),
-    HBHERecHitCollectionLabel = cms.InputTag("hbhereco"),
+    GEMSegmentCollectionLabel = cms.InputTag("hltGemSegments"),
+    HBHERecHitCollectionLabel = cms.InputTag("hltHbhereco"),
     HORecHitCollectionLabel = cms.InputTag("horeco"),
-    ME0SegmentCollectionLabel = cms.InputTag("me0Segments"),
+    ME0SegmentCollectionLabel = cms.InputTag("hltMe0Segments"),
     accountForTrajectoryChangeCalo = cms.bool(False),
     dREcal = cms.double(9999.0),
     dREcalPreselection = cms.double(0.05),

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from ..modules.ecalDigis_cfi import *
+from ..modules.hltEcalDigis_cfi import *
 
-ecalDigisTask = cms.Task(
-    ecalDigis
+hltEcalDigisTask = cms.Task(
+    hltEcalDigis
 )
