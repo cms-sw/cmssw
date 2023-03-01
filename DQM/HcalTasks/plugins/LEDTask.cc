@@ -481,6 +481,7 @@ LEDTask::LEDTask(edm::ParameterSet const& ps)
           }
         }
       }
+      continue;
     }
     HcalElectronicsId eid = digi.elecId();
     //double sumQ = hcaldqm::utilities::sumQ<HODataFrame>(digi, 8.5, 0, digi.size()-1);
