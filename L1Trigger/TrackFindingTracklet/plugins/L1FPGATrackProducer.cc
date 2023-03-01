@@ -87,6 +87,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/Tracklet.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Residual.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Stub.h"
+#include "L1Trigger/TrackFindingTracklet/interface/StubKiller.h"
 #include "L1Trigger/TrackFindingTracklet/interface/StubStreamData.h"
 #include "L1Trigger/TrackFindingTracklet/interface/HitPatternHelper.h"
 
@@ -169,6 +170,10 @@ private:
 
   // event processor for the tracklet track finding
   trklet::TrackletEventProcessor eventProcessor;
+
+  // used to "kill" stubs from a selected area of the detector
+  StubKiller* stubKiller_;
+  int failScenario_;
 
   unsigned int nHelixPar_;
   bool extended_;
@@ -254,6 +259,8 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
   processingModulesFile = iConfig.getParameter<edm::FileInPath>("processingModulesFile");
   memoryModulesFile = iConfig.getParameter<edm::FileInPath>("memoryModulesFile");
   wiresFile = iConfig.getParameter<edm::FileInPath>("wiresFile");
+
+  failScenario_ = iConfig.getUntrackedParameter<int>("FailScenario", 0);
 
   extended_ = iConfig.getParameter<bool>("Extended");
   reduced_ = iConfig.getParameter<bool>("Reduced");
@@ -397,6 +404,17 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   // tracker topology
   const TrackerTopology* const tTopo = &iSetup.getData(esGetTokenTTopo_);
   const TrackerGeometry* const theTrackerGeom = &iSetup.getData(esGetTokenTGeom_);
+
+  // check killing stubs for detector degradation studies
+  // if failType = 0, StubKiller does not kill any modules
+  int failType = 0;
+  if (failScenario_ < 0 || failScenario_ > 9) {
+    edm::LogVerbatim("Tracklet") << "Invalid fail scenario! Ignoring input";
+  } else
+    failType = failScenario_;
+
+  stubKiller_ = new StubKiller();
+  stubKiller_->initialise(failType, tTopo, theTrackerGeom);
 
   ////////////////////////
   // GET THE PRIMITIVES //
@@ -602,28 +620,33 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
         const unsigned int intDetId = innerDetId.rawId();
 
-        ev.addStub(dtcname,
-                   region,
-                   layerdisk,
-                   stubwordhex,
-                   setup_->psModule(dtcId),
-                   isFlipped,
-                   tiltedBarrel,
-                   tiltedRingId,
-                   endcapRingId,
-                   intDetId,
-                   ttPos.x(),
-                   ttPos.y(),
-                   ttPos.z(),
-                   stubbend,
-                   stubRef->innerClusterPosition(),
-                   assocTPs,
-                   theStubIndex);
+        // check killing stubs for detector degredation studies
+        const TTStub<Ref_Phase2TrackerDigi_>* theStub = &(*stubRef);
+        bool killThisStub = stubKiller_->killStub(theStub);
+        if (!killThisStub) {
+          ev.addStub(dtcname,
+                     region,
+                     layerdisk,
+                     stubwordhex,
+                     setup_->psModule(dtcId),
+                     isFlipped,
+                     tiltedBarrel,
+                     tiltedRingId,
+                     endcapRingId,
+                     intDetId,
+                     ttPos.x(),
+                     ttPos.y(),
+                     ttPos.z(),
+                     stubbend,
+                     stubRef->innerClusterPosition(),
+                     assocTPs,
+                     theStubIndex);
 
-        const trklet::L1TStub& lastStub = ev.lastStub();
-        stubMap[lastStub] = stubRef;
-        stubIndexMap[lastStub.uniqueIndex()] = stub.first;
-        theStubIndex++;
+          const trklet::L1TStub& lastStub = ev.lastStub();
+          stubMap[lastStub] = stubRef;
+          stubIndexMap[lastStub.uniqueIndex()] = stub.first;
+          theStubIndex++;
+        }
       }
     }
   }
