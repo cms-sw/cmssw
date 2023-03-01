@@ -304,7 +304,7 @@ void TritonClient::evaluate() {
   if (batchSize() == 0) {
     //call getResults on an empty vector
     std::vector<std::shared_ptr<tc::InferResult>> empty_results;
-    getResults(std::move(empty_results));
+    getResults(empty_results);
     finish(true);
     return;
   }
@@ -378,7 +378,7 @@ void TritonClient::evaluate() {
                 }
 
                 //check result
-                auto success = handle_exception([&]() { getResults(std::move(results)); });
+                auto success = handle_exception([&]() { getResults(results); });
                 if (!success)
                   return;
 
@@ -417,7 +417,7 @@ void TritonClient::evaluate() {
       reportServerSideStats(stats);
     }
 
-    success = handle_exception([&]() { getResults(std::move(results)); });
+    success = handle_exception([&]() { getResults(results); });
     if (!success)
       return;
 
