@@ -24,18 +24,16 @@ namespace cms::Ort {
 
   enum class Backend {
     cpu,
-    cuda,
-  };
-
+    };
+    
   class ONNXRuntime {
   public:
     ONNXRuntime(const std::string& model_path, const ::Ort::SessionOptions* session_options = nullptr);
     ONNXRuntime(const ONNXRuntime&) = delete;
     ONNXRuntime& operator=(const ONNXRuntime&) = delete;
     ~ONNXRuntime();
-
+    
     static ::Ort::SessionOptions defaultSessionOptions(Backend backend = Backend::cpu);
-
     // Run inference and get outputs
     // input_names: list of the names of the input nodes.
     // input_values: list of input arrays for each input node. The order of `input_values` must match `input_names`.
