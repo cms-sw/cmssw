@@ -99,8 +99,8 @@ pair<bool, TrajectoryStateOnSurface> ForwardDetLayer::compatible(const Trajector
   // check r
   auto r2 = myState.localPosition().perp2();
 
-# Disable bitwise-instead-of-logical warning, see discussion in
-# https://github.com/cms-sw/cmssw/issues/39105
+// Disable bitwise-instead-of-logical warning, see discussion in
+// https://github.com/cms-sw/cmssw/issues/39105
 
 #if defined(__clang__) && defined(__has_warning)
 #  if __has_warning("-Wbitwise-instead-of-logical")
