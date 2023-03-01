@@ -22,7 +22,7 @@
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 
-#include "L1Trigger/Phase2L1ParticleFlow/src/corrector.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/corrector.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/ParametricResolution.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/CaloClusterer.h"
 

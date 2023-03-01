@@ -206,6 +206,10 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
   } else if (regalgo == "Multififo") {
     regionizer_ = std::make_unique<l1ct::MultififoRegionizerEmulator>(
         iConfig.getParameter<edm::ParameterSet>("regionizerAlgoParameters"));
+  } else if (regalgo == "MultififoBarrel") {
+    const auto &pset = iConfig.getParameter<edm::ParameterSet>("regionizerAlgoParameters");
+    regionizer_ =
+        std::make_unique<l1ct::MultififoRegionizerEmulator>(pset.getParameter<std::string>("barrelSetup"), pset);
   } else if (regalgo == "TDR") {
     regionizer_ = std::make_unique<l1ct::TDRRegionizerEmulator>(
         iConfig.getParameter<edm::ParameterSet>("regionizerAlgoParameters"));
