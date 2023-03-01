@@ -236,9 +236,6 @@ bool DisappearingMuonsSkimming::filter(edm::Event& iEvent, const edm::EventSetup
       if (iMuon->charge() == iTrack->charge()) {
         sameSign = true;
       }
-      if (MuonTrackMass < minSigInvMass_ || MuonTrackMass > maxSigInvMass_) {
-        offPeak = true;
-      }
 
       //If neither off-peak or same sign CR, need to check standalone muons for signal regions
       double staMinDr = 10;
@@ -265,7 +262,11 @@ bool DisappearingMuonsSkimming::filter(edm::Event& iEvent, const edm::EventSetup
         totalRegion = true;
       } else {
         if (staMinDEoverE < maxStandaloneDE_) {
-          partialRegion = true;
+          if (MuonTrackMass < minSigInvMass_ || MuonTrackMass > maxSigInvMass_) {
+            offPeak = true;
+          } else {
+            partialRegion = true;
+          }
         }
       }
       nMuonTrackCand++;
