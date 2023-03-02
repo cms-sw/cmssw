@@ -23,7 +23,7 @@ parser.add_argument('-n', '--maxEvents', type = int, help = 'Number of input eve
                     default = 100)
 
 parser.add_argument('-o', '--outputFile', type = str, help = 'Path to output file in DQMIO format',
-                    default = 'DQMIO.root')
+                    default = 'testHLTFiltersDQMonitor_DQMIO.root')
 
 parser.add_argument('--wantSummary', action = 'store_true', help = 'Value of process.options.wantSummary',
                     default = False)
