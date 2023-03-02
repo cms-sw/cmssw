@@ -16,6 +16,8 @@
 #include "grpc_client.h"
 #include "grpc_service.pb.h"
 
+enum class TritonBatchMode { Rectangular = 1, Ragged = 2 };
+
 class TritonClient : public SonicClient<TritonInputMap, TritonOutputMap> {
 public:
   struct ServerSideStats {
@@ -36,13 +38,15 @@ public:
   ~TritonClient() override;
 
   //accessors
-  unsigned batchSize() const { return batchSize_; }
+  unsigned batchSize() const;
+  TritonBatchMode batchMode() const { return batchMode_; }
   bool verbose() const { return verbose_; }
   bool useSharedMemory() const { return useSharedMemory_; }
   void setUseSharedMemory(bool useShm) { useSharedMemory_ = useShm; }
   bool setBatchSize(unsigned bsize);
+  void setBatchMode(TritonBatchMode batchMode);
+  void resetBatchMode();
   void reset() override;
-  bool noBatch() const { return noBatch_; }
   TritonServerType serverType() const { return serverType_; }
 
   //for fillDescriptions
@@ -50,7 +54,10 @@ public:
 
 protected:
   //helpers
-  void getResults(std::shared_ptr<triton::client::InferResult> results);
+  bool noOuterDim() const { return noOuterDim_; }
+  unsigned outerDim() const { return outerDim_; }
+  unsigned nEntries() const;
+  void getResults(const std::vector<std::shared_ptr<triton::client::InferResult>>& results);
   void evaluate() override;
   template <typename F>
   bool handle_exception(F&& call);
@@ -62,22 +69,21 @@ protected:
   inference::ModelStatistics getServerSideStatus() const;
 
   //members
-  unsigned maxBatchSize_;
-  unsigned batchSize_;
-  bool noBatch_;
+  unsigned maxOuterDim_;
+  unsigned outerDim_;
+  bool noOuterDim_;
+  unsigned nEntries_;
+  TritonBatchMode batchMode_;
+  bool manualBatchMode_;
   bool verbose_;
   bool useSharedMemory_;
   TritonServerType serverType_;
   grpc_compression_algorithm compressionAlgo_;
   triton::client::Headers headers_;
 
-  //IO pointers for triton
-  std::vector<triton::client::InferInput*> inputsTriton_;
-  std::vector<const triton::client::InferRequestedOutput*> outputsTriton_;
-
   std::unique_ptr<triton::client::InferenceServerGrpcClient> client_;
   //stores timeout, model name and version
-  triton::client::InferOptions options_;
+  std::vector<triton::client::InferOptions> options_;
 
 private:
   friend TritonInputData;
@@ -85,6 +91,8 @@ private:
 
   //private accessors only used by data
   auto client() { return client_.get(); }
+  void addEntry(unsigned entry);
+  void resizeEntries(unsigned entry);
 };
 
 #endif
