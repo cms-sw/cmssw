@@ -9,6 +9,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -56,8 +57,11 @@ namespace edm {
           throw ex;
         }
 
-        edm::CatalogAttributes inputOverride_struct(
-            tmps[0], tmps[1], tmps[2], tmps[3], tmps[4]);  //site, subSite,storageSite,volume,protocol
+        edm::CatalogAttributes inputOverride_struct(tmps[0],   //current-site
+                                                    tmps[1],   //current-subSite
+                                                    tmps[2],   //desired-data-access-site
+                                                    tmps[3],   //desired-data-access-volume
+                                                    tmps[4]);  //desired-data-access-protocol
 
         overrideFileLocator_ =
             std::make_unique<FileLocator>(inputOverride_struct);  // propagate_const<T> has no reset() function
@@ -76,29 +80,41 @@ namespace edm {
       std::vector<std::string> const& tmp_dataCatalogs = localconfservice->trivialDataCatalogs();
       if (!fileLocators_trivalCatalog_.empty())
         fileLocators_trivalCatalog_.clear();
-
-      //require the first file locator to success so obvious mistakes in data catalogs, typos for example, can be catched early. Note that tmp_dataCatalogs is not empty at this point. The protection is done inside the trivialDataCatalogs() of SiteLocalConfigService
-      fileLocators_trivalCatalog_.push_back(std::make_unique<FileLocator>(tmp_dataCatalogs.front()));
-
-      for (auto it = tmp_dataCatalogs.begin() + 1; it != tmp_dataCatalogs.end(); ++it) {
+      //Construct all file locators from data catalogs. If a data catalog is invalid (wrong protocol for example), it is skipped and no file locator is constructed (an exception is thrown out from FileLocator::init).
+      for (const auto& catalog : tmp_dataCatalogs) {
         try {
-          fileLocators_trivalCatalog_.push_back(std::make_unique<FileLocator>(*it));
+          fileLocators_trivalCatalog_.push_back(std::make_unique<FileLocator>(catalog));
         } catch (cms::Exception const& e) {
-          continue;
+          edm::LogWarning("InputFileCatalog")
+              << "Caught an exception while constructing a file locator in InputFileCatalog::init: " << e.what()
+              << "Skip this catalog";
         }
+      }
+      if (fileLocators_trivalCatalog_.empty()) {
+        cms::Exception ex("FileCatalog");
+        ex << "Unable to construct any file locator in InputFileCatalog::init";
+        ex.addContext("Calling edm::InputFileCatalog::init()");
+        throw ex;
       }
     } else if (catType == edm::CatalogType::RucioCatalog) {
       std::vector<edm::CatalogAttributes> const& tmp_dataCatalogs = localconfservice->dataCatalogs();
       if (!fileLocators_.empty())
         fileLocators_.clear();
-      //require the first file locator to success so obvious mistakes in data catalogs, typos for example, can be catched early. Note that tmp_dataCatalogs is not empty at this point. The protection is done inside the dataCatalogs() of SiteLocalConfigService
-      fileLocators_.push_back(std::make_unique<FileLocator>(tmp_dataCatalogs.front()));
-      for (auto it = tmp_dataCatalogs.begin() + 1; it != tmp_dataCatalogs.end(); ++it) {
+      //Construct all file locators from data catalogs. If a data catalog is invalid (wrong protocol for example), it is skipped and no file locator is constructed (an exception is thrown out from FileLocator::init).
+      for (const auto& catalog : tmp_dataCatalogs) {
         try {
-          fileLocators_.push_back(std::make_unique<FileLocator>(*it));
+          fileLocators_.push_back(std::make_unique<FileLocator>(catalog));
         } catch (cms::Exception const& e) {
-          continue;
+          edm::LogWarning("InputFileCatalog")
+              << "Caught an exception while constructing a file locator in InputFileCatalog::init: " << e.what()
+              << "Skip this catalog";
         }
+      }
+      if (fileLocators_.empty()) {
+        cms::Exception ex("FileCatalog");
+        ex << "Unable to construct any file locator in InputFileCatalog::init";
+        ex.addContext("Calling edm::InputFileCatalog::init()");
+        throw ex;
       }
     } else {
       cms::Exception ex("FileCatalog");
