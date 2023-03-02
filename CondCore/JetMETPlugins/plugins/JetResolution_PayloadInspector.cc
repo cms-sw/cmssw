@@ -28,6 +28,8 @@ namespace JME{
 
   using namespace cond::payloadInspector;
 
+  enum index{NORM=0, DOWN=1, UP=2};
+
   /*******************************************************
  *    
  *         1d histogram of JetResolution of 1 IOV 
@@ -42,7 +44,7 @@ namespace JME{
       static const int MAX_ETA =  5.0;
       static const int NBIN = 50;
 
-    JetResolutionVsEta() : cond::payloadInspector::Histogram1D<JetResolutionObject, SINGLE_IOV>( "Jet Energy Resolution", "#eta", NBIN, MIN_ETA, MAX_ETA, "Resolution"){
+    JetResolutionVsEta() : cond::payloadInspector::Histogram1D<JetResolutionObject, SINGLE_IOV>( "Jet Resolution", "#eta", NBIN, MIN_ETA, MAX_ETA, "Resolution"){
       Base::setSingleIov( true );
     }
 
@@ -52,7 +54,7 @@ namespace JME{
           std::shared_ptr<JetResolutionObject> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           if(payload->getRecords().size() > 0 &&  // No formula for SF
-             payload->getDefinition().getFormulaString() == "") return false; 
+             payload->getDefinition().getFormulaString().compare("")==0) return false; 
 
           for(const auto& record : payload->getRecords()){ 
             // Check Pt & Rho
@@ -106,7 +108,7 @@ namespace JME{
         std::shared_ptr<JetResolutionObject> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
           if(payload->getRecords().size() > 0 &&  // No formula for SF
-             payload->getDefinition().getFormulaString() == "") return false; 
+             payload->getDefinition().getFormulaString().compare("")==0) return false; 
 
           for(const auto& record : payload->getRecords()){ 
             // Check Eta & Rho
@@ -142,12 +144,59 @@ namespace JME{
       }
       return false;
     }
-};
+  };
+
+  template <index ii> class JetScaleFactorVsEta : public cond::payloadInspector::Histogram1D<JetResolutionObject, SINGLE_IOV> {
+    public:
+      static const int MIN_ETA = -5.0;
+      static const int MAX_ETA =  5.0;
+      static const int NBIN = 50;
+
+    JetScaleFactorVsEta() : cond::payloadInspector::Histogram1D<JetResolutionObject, SINGLE_IOV>( "Jet Energy Scale Factor", "#eta", NBIN, MIN_ETA, MAX_ETA, "Scale Factor"){
+      Base::setSingleIov( true );
+    }
+
+    bool fill()override{
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
+          std::shared_ptr<JetResolutionObject> payload = Base::fetchPayload(std::get<1>(iov));
+        if (payload.get()) {
+          if(payload->getRecords().size() > 0 &&  // No formula for SF
+             payload->getDefinition().getFormulaString().compare("")!=0) return false; 
+
+          for(const auto& record : payload->getRecords()){ 
+            if(record.getBinsRange().size()>0 &&
+              payload->getDefinition().getBinName(0) == "JetEta" &&
+              record.getParametersValues().size() == 3){ // norm, down, up
+
+              for(size_t it = 0; it < NBIN; it++){
+                  double x_axis = (it+0.5)*(MAX_ETA-MIN_ETA)/NBIN+MIN_ETA;
+                if(record.getBinsRange()[0].is_inside(x_axis)){
+                  double sf = 0.;
+                  sf = record.getParametersValues()[ii];
+                  fillWithBinAndValue(it, sf);
+                }
+              }
+            }
+          }  // records
+          return true;    
+        }
+      }
+      return false;
+    }
+  };  // class
+
+  typedef JetScaleFactorVsEta<NORM> JetScaleFactorVsEtaNORM;
+  typedef JetScaleFactorVsEta<DOWN> JetScaleFactorVsEtaDOWN;
+  typedef JetScaleFactorVsEta<UP> JetScaleFactorVsEtaUP;
 
 // Register the classes as boost python plugin
 PAYLOAD_INSPECTOR_MODULE( JetResolutionObject ){
   PAYLOAD_INSPECTOR_CLASS( JetResolutionVsEta );
   PAYLOAD_INSPECTOR_CLASS( JetResolutionVsPt );
+  PAYLOAD_INSPECTOR_CLASS( JetScaleFactorVsEtaNORM );
+  PAYLOAD_INSPECTOR_CLASS( JetScaleFactorVsEtaDOWN );
+  PAYLOAD_INSPECTOR_CLASS( JetScaleFactorVsEtaUP );
 }
 
 }  // namespace

@@ -1,22 +1,8 @@
 <library file="JetResolution_PayloadInspector.cc" name="JetResolutionObject_PayloadInspector">
   <use   name="DataFormats/Common"/>
-  <use   name="DataFormats/Math"/>
   <use   name="CondCore/Utilities"/>
   <use   name="CondCore/CondDB"/>
   <use   name="CondFormats/Common"/>
   <use   name="CondFormats/JetMETObjects"/>
-  <use   name="FWCore/MessageLogger"/>
-  <use   name="FWCore/Utilities"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="FWCore/Reflection"/>
-  <use   name="FWCore/SOA" source_only="1"/>
   <use   name="CommonTools/Utils"/>
-  <use   name="boost_python"/>
-  <use   name="root"/>
-  <use   name="roothistmatrix"/>
-  <use   name="rootmath"/>
-  <use   name="tbb"/>
-  <use   name="clhep"/>
-  <use   name="boost"/>
-  <use   name="boost_regex"/>
 </library>
