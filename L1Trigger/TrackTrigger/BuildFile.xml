@@ -38,6 +38,7 @@
 <use name="DataFormats/Phase2TrackerDigi"/>
 <use name="PhysicsTools/ONNXRuntime"/>
 <use name="SimDataFormats/TrackingAnalysis"/>
+<use name="hls"/>
 <export>
   <flags SEALPLUGIN="1"/>
   <lib name="1"/>
