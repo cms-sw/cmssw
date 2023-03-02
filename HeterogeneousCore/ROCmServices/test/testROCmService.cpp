@@ -6,28 +6,49 @@
 
 #include <hip/hip_runtime.h>
 
-#define CATCH_CONFIG_MAIN
-#include "catch.hpp"
+#include <fmt/core.h>
+
+#include <catch.hpp>
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
-#include "FWCore/PluginManager/interface/PluginManager.h"
-#include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ResourceInformation.h"
-#include "HeterogeneousCore/ROCmServices/interface/ROCmService.h"
-#include "HeterogeneousCore/ROCmUtilities/interface/hipCheck.h"
+#include "HeterogeneousCore/ROCmServices/interface/ROCmInterface.h"
 
 namespace {
-  ROCmService makeROCmService(edm::ParameterSet ps) {
-    auto desc = edm::ConfigurationDescriptions("Service", "ROCmService");
-    ROCmService::fillDescriptions(desc);
-    desc.validate(ps, "ROCmService");
-    return ROCmService(ps);
+  std::string makeProcess(std::string const& name) {
+    return fmt::format(R"_(
+import FWCore.ParameterSet.Config as cms
+process = cms.Process('{}')
+)_",
+                       name);
+  }
+
+  void addResourceInformationService(std::string& config) {
+    config += R"_(
+process.add_(cms.Service('ResourceInformationService'))
+  )_";
+  }
+
+  void addROCmService(std::string& config, bool enabled = true) {
+    config += fmt::format(R"_(
+process.add_(cms.Service('ROCmService',
+  enabled = cms.untracked.bool({}),
+  verbose = cms.untracked.bool(True)
+))
+  )_",
+                          enabled ? "True" : "False");
+  }
+
+  edm::ServiceToken getServiceToken(std::string const& config) {
+    std::unique_ptr<edm::ParameterSet> params;
+    edm::makeParameterSets(config, params);
+    return edm::ServiceToken(edm::ServiceRegistry::createServicesFromConfig(std::move(params)));
   }
 }  // namespace
 
@@ -42,31 +63,27 @@ TEST_CASE("Tests of ROCmService", "[ROCmService]") {
          << ret << ") " << hipGetErrorString(ret) << ". Running only tests not requiring devices.");
   }
 
-  // Make Service system available as ROCmService depends on ResourceInformationService
-  std::vector<edm::ParameterSet> psets;
-  edm::ServiceToken serviceToken = edm::ServiceRegistry::createSet(psets);
+  std::string config = makeProcess("Test");
+  addROCmService(config);
+  auto serviceToken = getServiceToken(config);
   edm::ServiceRegistry::Operate operate(serviceToken);
 
-  SECTION("ROCmService enabled") {
-    edm::ParameterSet ps;
-    ps.addUntrackedParameter("enabled", true);
-    SECTION("Enabled only if there are ROCm capable GPUs") {
-      auto cs = makeROCmService(ps);
-      if (deviceCount <= 0) {
-        REQUIRE(cs.enabled() == false);
-        WARN("ROCmService is disabled as there are no ROCm GPU devices");
-      } else {
-        REQUIRE(cs.enabled() == true);
-        INFO("ROCmService is enabled");
-      }
-    }
-
+  SECTION("Enable the ROCmService only if there are ROCm capable GPUs") {
+    edm::Service<ROCmInterface> service;
     if (deviceCount <= 0) {
+      REQUIRE((not service or not service->enabled()));
+      WARN("ROCmService is not present, or disabled because there are no ROCm GPU devices");
       return;
+    } else {
+      REQUIRE(service);
+      REQUIRE(service->enabled());
+      INFO("ROCmService is enabled");
     }
+  }
 
-    auto cs = makeROCmService(ps);
+  SECTION("ROCmService enabled") {
     int driverVersion = 0, runtimeVersion = 0;
+    edm::Service<ROCmInterface> service;
     ret = hipDriverGetVersion(&driverVersion);
     if (ret != hipSuccess) {
       FAIL("Unable to query the ROCm driver version from the ROCm runtime API: (" << ret << ") "
@@ -84,8 +101,8 @@ TEST_CASE("Tests of ROCmService", "[ROCmService]") {
 
       // Test that the number of devices found by the service
       // is the same as detected by the ROCm runtime API
-      REQUIRE(cs.numberOfDevices() == deviceCount);
-      WARN("Detected " << cs.numberOfDevices() << " ROCm Capable device(s)");
+      REQUIRE(service->numberOfDevices() == deviceCount);
+      WARN("Detected " << service->numberOfDevices() << " ROCm Capable device(s)");
 
       // Test that the compute capabilities of each device
       // are the same as detected by the ROCm runtime API
@@ -97,59 +114,41 @@ TEST_CASE("Tests of ROCmService", "[ROCmService]") {
                                                                  << hipGetErrorString(ret));
         }
 
-        REQUIRE(deviceProp.major == cs.computeCapability(i).first);
-        REQUIRE(deviceProp.minor == cs.computeCapability(i).second);
+        REQUIRE(deviceProp.major == service->computeCapability(i).first);
+        REQUIRE(deviceProp.minor == service->computeCapability(i).second);
         INFO("Device " << i << ": " << deviceProp.name << "\n ROCm Capability Major/Minor version number: "
                        << deviceProp.major << "." << deviceProp.minor);
       }
     }
 
-    SECTION("ROCmService device free memory") {
-      size_t mem = 0;
-      int dev = -1;
-      for (int i = 0; i < deviceCount; ++i) {
-        size_t free, tot;
-        REQUIRE_NOTHROW(hipCheck(hipSetDevice(i)));
-        REQUIRE_NOTHROW(hipCheck(hipMemGetInfo(&free, &tot)));
-        WARN("Device " << i << " memory total " << tot << " free " << free);
-        if (free > mem) {
-          mem = free;
-          dev = i;
-        }
-      }
-      WARN("Device with most free memory " << dev << "\n"
-                                           << "     as given by ROCmService " << cs.deviceWithMostFreeMemory());
-    }
-
     SECTION("With ResourceInformationService available") {
-      edmplugin::PluginManager::configure(edmplugin::standard::config());
+      std::string config = makeProcess("Test");
+      addResourceInformationService(config);
+      addROCmService(config);
+      auto serviceToken = getServiceToken(config);
+      edm::ServiceRegistry::Operate operate(serviceToken);
 
-      std::string const config = R"_(import FWCore.ParameterSet.Config as cms
-process = cms.Process('Test')
-process.add_(cms.Service('ResourceInformationService'))
-)_";
-      std::unique_ptr<edm::ParameterSet> params;
-      edm::makeParameterSets(config, params);
-      edm::ServiceToken tempToken(edm::ServiceRegistry::createServicesFromConfig(std::move(params)));
-      edm::ServiceRegistry::Operate operate2(tempToken);
-
-      auto cs = makeROCmService(edm::ParameterSet{});
-      REQUIRE(cs.enabled());
+      edm::Service<ROCmInterface> service;
+      REQUIRE(service);
+      REQUIRE(service->enabled());
       edm::Service<edm::ResourceInformation> ri;
       REQUIRE(ri->gpuModels().size() > 0);
       /*
-      REQUIRE(ri->nvidiaDriverVersion().size() > 0);
-      REQUIRE(ri->cudaDriverVersion() == driverVersion);
-      REQUIRE(ri->cudaRuntimeVersion() == runtimeVersion);
+      REQUIRE(ri->amdDriverVersion().size() > 0);
+      REQUIRE(ri->rocmDriverVersion() == driverVersion);
+      REQUIRE(ri->rocmRuntimeVersion() == runtimeVersion);
       */
     }
   }
 
   SECTION("Force to be disabled") {
-    edm::ParameterSet ps;
-    ps.addUntrackedParameter("enabled", false);
-    auto cs = makeROCmService(ps);
-    REQUIRE(cs.enabled() == false);
-    REQUIRE(cs.numberOfDevices() == 0);
+    std::string config = makeProcess("Test");
+    addROCmService(config, false);
+    auto serviceToken = getServiceToken(config);
+    edm::ServiceRegistry::Operate operate(serviceToken);
+
+    edm::Service<ROCmInterface> service;
+    REQUIRE(service->enabled() == false);
+    REQUIRE(service->numberOfDevices() == 0);
   }
 }
