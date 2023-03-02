@@ -9,6 +9,9 @@ import sys
 import os
 import re
 
+import addLHEnumbers
+
+
 class BaseLHEMerger(object):
     """Base class of the LHE merge schemes"""
 
@@ -62,7 +65,7 @@ class DefaultLHEMerger(BaseLHEMerger):
             % ', '.join([str(len(lines)) for lines in self._header_lines]))
         assert all([
             len(self._header_lines[0]) == len(lines) for lines in self._header_lines]
-            ), inconsistent_error_info % "line number not matches"
+            ), inconsistent_error_info % "line number does not match"
         inconsistent_lines_set = [set() for _ in self._header_lines]
         for line_zip in zip(*self._header_lines):
             if any([k in line_zip[0] for k in allow_diff_keys]):
@@ -366,6 +369,8 @@ def main(argv = None):
                         help=("Bypass the compatibility check for the headers. If true, the header and init block "
                              "will be just a duplicate from the first input file, and events are concatenated without "
                              "modification."))
+    parser.add_argument("-n", "--number-events", action='store_true',
+                        help=("Add a tag to number each lhe event. Needed for Herwig to find correct lhe events"))
     parser.add_argument("--debug", action='store_true',
                         help="Use the debug mode.")
     args = parser.parse_args(argv)
@@ -392,6 +397,11 @@ def main(argv = None):
     if not os.path.exists(os.path.dirname(os.path.realpath(args.output_file))):
         os.makedirs(os.path.dirname(os.path.realpath(args.output_file)))
 
+    if args.number_events:
+        offset = 0
+        for input_file in input_files:
+            offset += addLHEnumbers.number_events(input_file, offset=offset)
+
     # Check arguments
     assert len(input_files) > 0, 'Input LHE files should be more than 0.'
     if len(input_files) == 1:
@@ -408,7 +418,8 @@ def main(argv = None):
     elif args.force_cpp_merger:
         lhe_merger = ExternalCppLHEMerger(input_files, args.output_file)
     else:
-        lhe_merger = DefaultLHEMerger(input_files, args.output_file, bypass_check=args.bypass_check)
+        lhe_merger = DefaultLHEMerger(
+            input_files, args.output_file, bypass_check=args.bypass_check)
 
     # Do merging
     lhe_merger.merge()
