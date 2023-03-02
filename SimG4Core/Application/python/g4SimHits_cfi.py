@@ -675,8 +675,8 @@ dd4hep.toModify( g4SimHits, g4GeometryDD4hepSource = True )
 ##
 ## Fix Run3 2022 generator/Geant4 interface
 ##
-from Configuration.ProcessModifiers.run3_primaries_for_geant4_2022_cff import run3_g4primaries_2022
-run3_g4primaries_2022.toModify( g4SimHits, Generator = dict( FixG4Primary = True ) )
+from Configuration.ProcessModifiers.run3_primaries_for_geant4_cff import run3_g4primaries
+run3_g4primaries.toModify( g4SimHits, Generator = dict( FixG4Primary = True ) )
 
 ##
 ## Selection of SD's for Phase2, exclude PPS
