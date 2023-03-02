@@ -14,6 +14,7 @@ herwig7LHECommonSettingsBlock = cms.PSet(
 
         # set the weight option (e.g. for MC@NLO)
         'set LesHouchesHandler:WeightOption VarNegWeight',
+        'set LesHouchesHandler:EventNumbering LHE',
 
         'set /Herwig/Generators/EventGenerator:EventHandler /Herwig/EventHandlers/LesHouchesHandler',
         'create ThePEG::Cuts /Herwig/Cuts/NoCuts',
