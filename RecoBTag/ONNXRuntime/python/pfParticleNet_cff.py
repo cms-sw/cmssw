@@ -136,3 +136,5 @@ _pfParticleNetMassRegressionOutputs = ['pfParticleNetMassRegressionJetTags:' + f
 
 _pfParticleNetJetTagsAll = _pfParticleNetJetTagsProbs + _pfParticleNetJetTagsMetaDiscrs + \
     _pfMassDecorrelatedParticleNetJetTagsProbs + _pfMassDecorrelatedParticleNetJetTagsMetaDiscrs
+
+_pfParticleNetMassCorrelatedJetTagsAll = _pfParticleNetJetTagsProbs + _pfParticleNetJetTagsMetaDiscrs

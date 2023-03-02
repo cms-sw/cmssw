@@ -87,7 +87,7 @@ def applyDeepBtagging(process, postfix=""):
 
     from RecoBTag.ONNXRuntime.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsAll as pfDeepBoostedJetTagsAll
     from RecoBTag.ONNXRuntime.pfHiggsInteractionNet_cff import _pfHiggsInteractionNetTagsProbs as pfHiggsInteractionNetTagsProbs
-    from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetJetTagsAll as pfParticleNetJetTagsAll
+    from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetMassCorrelatedJetTagsAll as pfParticleNetMassCorrelatedJetTagsAll
     from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetMassRegressionOutputs
     from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK8_cff import _pfParticleNetFromMiniAODAK8JetTagsAll as pfParticleNetFromMiniAODAK8JetTagsAll
 
@@ -101,22 +101,20 @@ def applyDeepBtagging(process, postfix=""):
         'pfMassIndependentDeepDoubleCvLV2JetTags:probHcc',
         'pfMassIndependentDeepDoubleCvBV2JetTags:probHbb',
         'pfMassIndependentDeepDoubleCvBV2JetTags:probHcc',
-        'pfParticleNetDiscriminatorsJetTags:TvsQCD',
-        'pfParticleNetDiscriminatorsJetTags:WvsQCD',
-        'pfParticleNetDiscriminatorsJetTags:H4qvsQCD',
-        'pfParticleNetJetTags:probTbcq',       
-        'pfParticleNetJetTags:probTbqq',       
-        'pfParticleNetJetTags:probTbc',       
-        'pfParticleNetJetTags:probTbq',       
-        'pfParticleNetJetTags:probTbel',       
-        'pfParticleNetJetTags:probTbmu',       
-        'pfParticleNetJetTags:probTbta',       
-        'pfParticleNetJetTags:probWcq',       
-        'pfParticleNetJetTags:probWqq',       
-        'pfParticleNetJetTags:probHqqqq',       
-    ) + pfDeepBoostedJetTagsAll + pfHiggsInteractionNetTagsProbs + pfParticleNetFromMiniAODAK8JetTagsAll)
-    #) + pfDeepBoostedJetTagsAll + pfParticleNetJetTagsAll + pfHiggsInteractionNetTagsProbs + _pfParticleNetMassRegressionOutputs
-    #  + pfParticleNetFromMiniAODAK8JetTagsAll)
+        #'pfParticleNetDiscriminatorsJetTags:TvsQCD',
+        #'pfParticleNetDiscriminatorsJetTags:WvsQCD',
+        #'pfParticleNetDiscriminatorsJetTags:H4qvsQCD',
+        #'pfParticleNetJetTags:probTbcq',       
+        #'pfParticleNetJetTags:probTbqq',       
+        #'pfParticleNetJetTags:probTbc',       
+        #'pfParticleNetJetTags:probTbq',       
+        #'pfParticleNetJetTags:probTbel',       
+        #'pfParticleNetJetTags:probTbmu',       
+        #'pfParticleNetJetTags:probTbta',       
+        #'pfParticleNetJetTags:probWcq',       
+        #'pfParticleNetJetTags:probWqq',       
+        #'pfParticleNetJetTags:probHqqqq',       
+    )   +  pfParticleNetMassCorrelatedJetTagsAll + pfHiggsInteractionNetTagsProbs + pfParticleNetFromMiniAODAK8JetTagsAll)
     updateJetCollection(
         process,
         jetSource = cms.InputTag('slimmedJetsAK8NoDeepTags'),

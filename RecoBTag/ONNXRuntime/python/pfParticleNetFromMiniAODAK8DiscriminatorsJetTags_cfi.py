@@ -31,12 +31,32 @@ pfParticleNetFromMiniAODAK8DiscriminatorsJetTags = cms.EDProducer(
          name = cms.string('HttvsQCD'),
          numerator = cms.VInputTag(
             cms.InputTag('pfParticleNetFromMiniAODAK8JetTags', 'probHtt'),
-            cms.InputTag('pfParticleNetFromMiniAODAK8JetTags', 'probHtm'),
-            cms.InputTag('pfParticleNetFromMiniAODAK8JetTags', 'probHte'),
             ),
          denominator = cms.VInputTag(
             cms.InputTag('pfParticleNetFromMiniAODAK8JetTags', 'probHtt'),
+            cms.InputTag('pfParticleNetFromMiniAODAK8JetTags', 'probQCD2hf'),
+            cms.InputTag('pfParticleNetFromMiniAODAK8JetTags', 'probQCD1hf'),
+            cms.InputTag('pfParticleNetFromMiniAODAK8JetTags', 'probQCD0hf'),
+            ),
+         ),
+      cms.PSet(
+         name = cms.string('HtmvsQCD'),
+         numerator = cms.VInputTag(
             cms.InputTag('pfParticleNetFromMiniAODAK8JetTags', 'probHtm'),
+            ),
+         denominator = cms.VInputTag(
+            cms.InputTag('pfParticleNetFromMiniAODAK8JetTags', 'probHtm'),
+            cms.InputTag('pfParticleNetFromMiniAODAK8JetTags', 'probQCD2hf'),
+            cms.InputTag('pfParticleNetFromMiniAODAK8JetTags', 'probQCD1hf'),
+            cms.InputTag('pfParticleNetFromMiniAODAK8JetTags', 'probQCD0hf'),
+            ),
+         ),
+      cms.PSet(
+         name = cms.string('HtevsQCD'),
+         numerator = cms.VInputTag(
+            cms.InputTag('pfParticleNetFromMiniAODAK8JetTags', 'probHte'),
+            ),
+         denominator = cms.VInputTag(
             cms.InputTag('pfParticleNetFromMiniAODAK8JetTags', 'probHte'),
             cms.InputTag('pfParticleNetFromMiniAODAK8JetTags', 'probQCD2hf'),
             cms.InputTag('pfParticleNetFromMiniAODAK8JetTags', 'probQCD1hf'),
