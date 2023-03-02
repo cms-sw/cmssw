@@ -8,7 +8,6 @@ models = {
     "TritonGraphProducer": ["gat_test"],
     "TritonGraphFilter": ["gat_test"],
     "TritonGraphAnalyzer": ["gat_test"],
-    "TritonIdentityProducer": ["ragged_io"],
 }
 
 # other choices

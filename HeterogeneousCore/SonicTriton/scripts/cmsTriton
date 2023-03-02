@@ -18,7 +18,7 @@ PARENTPID=""
 BASEPORT=8000
 AUTOPORT=""
 NPORTS=3
-IMAGE=fastml/triton-torchgeo:22.07-py3-geometric
+IMAGE=fastml/triton-torchgeo:21.06-py3-geometric
 SANDBOX=""
 COMPAT_USR=""
 
@@ -423,10 +423,7 @@ driver_docker(){
 }
 
 driver_apptainer(){
-	D2S=${SANDBOX}/.singularity.d/env/10-docker2singularity.sh
-	if [ -f "$D2S" ]; then
-		source $D2S && echo $CUDA_DRIVER_VERSION
-	fi
+	source ${SANDBOX}/.singularity.d/env/10-docker2singularity.sh && echo $CUDA_DRIVER_VERSION
 }
 
 compat_docker(){
@@ -478,12 +475,8 @@ check_drivers(){
 		if [ "$PWD" == "$TMPDIR" ]; then
 			$DRYRUN $COMPAT_FN
 			COMPAT_SCRIPT_BASE=$(basename $COMPAT_SCRIPT)
-			# newer containers already include this fix, no need to do it twice
-			if ! grep -Fq 'LD_PRELOAD=""' $COMPAT_SCRIPT_BASE; then
-				$DRYRUN sed -i 's/LD_LIBRARY_PATH="${_CUDA_COMPAT_REALLIB}"/&; LD_PRELOAD=""/' $COMPAT_SCRIPT_BASE
-				COMPAT_SCRIPT_PATH=$(readlink -f $TMPDIR/$COMPAT_SCRIPT_BASE)
-				COMPAT_SCRIPT_MOUNT="$COMPAT_SCRIPT_PATH:$COMPAT_SCRIPT"
-			fi
+			$DRYRUN sed -i 's/LD_LIBRARY_PATH="${_CUDA_COMPAT_REALLIB}"/&; LD_PRELOAD=""/' $COMPAT_SCRIPT_BASE
+			COMPAT_SCRIPT_MOUNT="$COMPAT_SCRIPT_BASE:$COMPAT_SCRIPT"
 		fi
 		return 0
 	else
