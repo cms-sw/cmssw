@@ -418,6 +418,9 @@ void EcalClustersGraph::evaluateScores() {
       // Fill the scores from seed --> node (i --> j)
       // Not symmetrically, in order to save multiple values for seeds in other
       // seeds windows.
+      // Put the seed self-link score to 1 to make sure that the window is always including the seed
+      // itself.
+      if (i == k) graphMap_.setAdjMatrix(i,j, 1.);
       graphMap_.setAdjMatrix(i, j, scores[i][k]);
       LogTrace("EcalClustersGraph") << "\t" << i << "-->" << j << ": " << scores[i][k];
       k++;
