@@ -256,6 +256,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         MaxPhiCut = cms.double(3.14159265359),  ## according to CMS conventions
         ApplyLumiMonitorCuts = cms.bool(False), ## primary for lumi monitors
         Verbosity = cms.untracked.int32(0),
+        FixG4Primary = cms.bool(False),
         PDGselection = cms.PSet(
             PDGfilterSel = cms.bool(False),        ## filter out unwanted particles
             PDGfilter = cms.vint32(21,1,2,3,4,5,6) ## list of unwanted particles (gluons and quarks)
@@ -670,6 +671,12 @@ h2tb.toModify(g4SimHits,
 ##
 from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 dd4hep.toModify( g4SimHits, g4GeometryDD4hepSource = True )
+
+##
+## Fix Run3 2022 generator/Geant4 interface
+##
+from Configuration.ProcessModifiers.run3_primaries_for_geant4_2022_cff import run3_g4primaries_2022
+run3_g4primaries_2022.toModify( g4SimHits, Generator = dict( FixG4Primary = True ) )
 
 ##
 ## Selection of SD's for Phase2, exclude PPS

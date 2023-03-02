@@ -25,6 +25,7 @@ Generator::Generator(const ParameterSet &p)
       fPtransCut(p.getParameter<bool>("ApplyPtransCut")),
       fEtaCuts(p.getParameter<bool>("ApplyEtaCuts")),
       fPhiCuts(p.getParameter<bool>("ApplyPhiCuts")),
+      fFixG4Primary(p.getParameter<bool>("FixG4Primary")),
       theMinPhiCut(p.getParameter<double>("MinPhiCut")),  // in radians (CMS standard)
       theMaxPhiCut(p.getParameter<double>("MaxPhiCut")),
       theMinEtaCut(p.getParameter<double>("MinEtaCut")),
@@ -475,7 +476,9 @@ void Generator::particleAssignDaughters(G4PrimaryParticle *g4p, HepMC::GenPartic
       LogDebug("SimG4CoreGenerator::::particleAssignDaughters")
           << "Assigning a " << (*vpdec)->pdg_id() << " as daughter of a " << vp->pdg_id() << " status=" << status;
 
-    if ((status == 2 || (status == 23 && std::abs(vp->pdg_id()) == 1000015) || (status > 50 && status < 100)) &&
+    bool checkStatus = fFixG4Primary ? (status > 50 && status < 100) : status > 3;
+
+    if ( (status == 2 || checkStatus || (status == 23 && std::abs(vp->pdg_id()) == 1000015) ) &&
         (*vpdec)->end_vertex() != nullptr) {
       double x2 = (*vpdec)->end_vertex()->position().x();
       double y2 = (*vpdec)->end_vertex()->position().y();
