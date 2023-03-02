@@ -30,14 +30,17 @@ GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet)
       cscGeomToken_(esConsumes()),
       rpcGeomToken_(esConsumes()),
       count(0) {
-  HBHERecHitgetter_ = edm::GetterOfProducts<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>>(edm::ProcessMatch("*"), this);
-  HFRecHitgetter_   = edm::GetterOfProducts<edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>>(edm::ProcessMatch("*"), this);
-  HORecHitgetter_   = edm::GetterOfProducts<edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit>>>(edm::ProcessMatch("*"), this);
+  HBHERecHitgetter_ = edm::GetterOfProducts<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>>(
+      edm::ProcessMatch("*"), this);
+  HFRecHitgetter_ = edm::GetterOfProducts<edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>>(
+      edm::ProcessMatch("*"), this);
+  HORecHitgetter_ = edm::GetterOfProducts<edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit>>>(
+      edm::ProcessMatch("*"), this);
   callWhenNewProductsRegistered([this](edm::BranchDescription const& bd) {
     this->HBHERecHitgetter_(bd);
     this->HFRecHitgetter_(bd);
     this->HORecHitgetter_(bd);
-});
+  });
   std::string MsgLoggerCat = "GlobalRecHitsAnalyzer_GlobalRecHitsAnalyzer";
 
   // get information from parameter set
