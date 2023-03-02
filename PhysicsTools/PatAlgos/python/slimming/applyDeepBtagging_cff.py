@@ -61,8 +61,7 @@ def applyDeepBtagging(process, postfix=""):
             'pfDeepFlavourJetTags:problepb',
             'pfDeepFlavourJetTags:probc',
             'pfDeepFlavourJetTags:probuds',
-            'pfDeepFlavourJetTags:probg',
-            'pfParticleNetAK4JetTags:probpu') + pfParticleNetAK4JetTagsAll
+            'pfDeepFlavourJetTags:probg')
             + pfParticleNetFromMiniAODAK4PuppiCentralJetTagsAll
             + pfParticleNetFromMiniAODAK4PuppiForwardJetTagsAll
     )
