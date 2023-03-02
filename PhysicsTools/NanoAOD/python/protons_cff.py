@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
+from PhysicsTools.NanoAOD.genProtonTable_cfi import genProtonTable as _genproton
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from RecoCTPPS.ProtonReconstruction.ppsFilteredProtonProducer_cfi import *
 
@@ -53,11 +54,11 @@ singleRPTable = cms.EDProducer("SimpleProtonTrackFlatTableProducer",
         thetaY = Var("thetaY",float,doc="th y",precision=10),
     ),
     externalVariables = cms.PSet(
-        decRPId = ExtVar("protonTable:protonRPId",int,doc="Detector ID",precision=8), 
+        decRPId = ExtVar("protonTable:protonRPId",int,doc="Detector ID",precision=8),
     ),
 )
 
-protonTables = cms.Sequence(    
+protonTables = cms.Sequence(
     filteredProtons
     +protonTable
     +multiRPTable
@@ -68,15 +69,8 @@ if singleRPProtons: protonTables.insert(protonTables.index(multiRPTable),singleR
 (run2_nanoAOD_92X | run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016 | run2_nanoAOD_94X2016 | \
     run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | \
     run2_nanoAOD_102Xv1 | ( run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel) ).toReplaceWith(protonTables, cms.Sequence())
-genProtonTable = cms.EDProducer('GenProtonTableProducer',
-  srcPruned = cms.InputTag('prunedGenParticles'),
-  srcPUProtons = cms.InputTag('genPUProtons'),
-  srcAltPUProtons = cms.InputTag('genPUProtons','genPUProtons'),
+
+genProtonTable = _genproton.clone(
   cut = cms.string('(pdgId == 2212) && (abs(pz) > 5200) && (abs(pz) < 6467.5)'),
-  name = cms.string('GenProton'),
-  doc = cms.string('generator level information on (signal+PU) protons'),
-  tolerance = cms.double(0.001),
 )
-
 genProtonTables = cms.Sequence(genProtonTable)
-
