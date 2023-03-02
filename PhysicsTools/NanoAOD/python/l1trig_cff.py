@@ -25,7 +25,8 @@ l1JetReducedVars = cms.PSet(
 )
 
 l1EtSumReducedVars = cms.PSet(
-    l1PtVars
+    l1PtVars,
+    etSumType = Var("getType()",int,doc="et sum type"),
 )
 l1EGReducedVars = cms.PSet(
     l1P3Vars,
@@ -38,6 +39,7 @@ l1TauReducedVars = cms.PSet(
 )
 
 l1MuonReducedVars = cms.PSet(
+    l1P3Vars,
     hwQual = Var("hwQual()",int,doc="hardware qual"),
     hwCharge = Var("hwCharge()",int,doc=""), 
     etaAtVtx = Var("etaAtVtx()",float,doc=""),
