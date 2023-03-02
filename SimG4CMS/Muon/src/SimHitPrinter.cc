@@ -80,8 +80,8 @@ void SimHitPrinter::printEloss(float eloss) const {
 }
 
 void SimHitPrinter::printLocal(LocalPoint localen, LocalPoint localex) const {
-  G4cout << " Local(en/ex): " << localen.x() << " " << localen.y() << " " << localen.z() << " / " << localex.x()
-            << " " << localex.y() << " " << localex.z() << G4endl;
+  G4cout << " Local(en/ex): " << localen.x() << " " << localen.y() << " " << localen.z() << " / " << localex.x() << " "
+         << localex.y() << " " << localex.z() << G4endl;
   std::lock_guard<std::mutex> guard{fileMutex};
   (*theFile).width(10);
   (*theFile).setf(std::ios::right, std::ios::adjustfield);
