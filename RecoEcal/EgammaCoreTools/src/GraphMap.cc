@@ -42,7 +42,7 @@ const std::vector<uint> &GraphMap::getOutEdges(const uint i) const { return edge
 
 const std::vector<uint> &GraphMap::getInEdges(const uint i) const { return edgesIn_.at(i); };
 
-uint GraphMap::getAdjMatrix(const uint i, const uint j) const { return adjMatrix_.at({i, j}); };
+float GraphMap::getAdjMatrix(const uint i, const uint j) const { return adjMatrix_.at({i, j}); };
 
 std::vector<float> GraphMap::getAdjMatrixRow(const uint i) const {
   std::vector<float> out;

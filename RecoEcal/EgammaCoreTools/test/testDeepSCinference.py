@@ -111,7 +111,124 @@ process.RECOSIMoutput = cms.OutputModule("PoolOutputModule",
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, '125X_mcRun3_2022_realistic_v4', '')
 
-# Setup the PFRechitThreshold configuration
+'''
+process.mySCReg = cms.ESSource("PoolDBESSource",
+     toGet = cms.VPSet(
+       cms.PSet(record = cms.string("GBRDWrapperRcd"),
+         label = cms.untracked.string("pfscecal_EBCorrection_offline_v2"),
+         tag = cms.string("pfscecal_EBCorrection_offline_v2_2022GammasDeepSCAlgoA"),
+         connect = cms.string("sqlite_file:scReg_2022GammasDeepSCAlgoA.db")),
+       cms.PSet(record = cms.string("GBRDWrapperRcd"),
+         label = cms.untracked.string("pfscecal_EECorrection_offline_v2"),
+         tag = cms.string("pfscecal_EECorrection_offline_v2_2022GammasDeepSCAlgoA"),
+         connect = cms.string("sqlite_file:scReg_2022GammasDeepSCAlgoA.db")),
+      cms.PSet(record = cms.string("GBRDWrapperRcd"),
+         label = cms.untracked.string("pfscecal_EBUncertainty_offline_v2"),
+         tag = cms.string("pfscecal_EBUncertainty_offline_v2_2022GammasDeepSCAlgoA"),
+         connect = cms.string("sqlite_file:scReg_2022GammasDeepSCAlgoA.db")),
+      cms.PSet(record = cms.string("GBRDWrapperRcd"),
+         label = cms.untracked.string("pfscecal_EEUncertainty_offline_v2"),
+         tag = cms.string("pfscecal_EEUncertainty_offline_v2_2022GammasDeepSCAlgoA"),
+         connect = cms.string("sqlite_file:scReg_2022GammasDeepSCAlgoA.db")),
+     )
+)
+process.es_prefer_scReg = cms.ESPrefer("PoolDBESSource","mySCReg")
+'''
+
+# process.mySCReg = cms.ESSource("PoolDBESSource",
+#      toGet = cms.VPSet(
+#        cms.PSet(record = cms.string("GBRDWrapperRcd"),
+#          label = cms.untracked.string("pfscecal_EBCorrection_offline_v2"),
+#          tag = cms.string("pfscecal_EBCorrection_offline_v2_2022ElectronsDeepSCAlgoA"),
+#          connect = cms.string("sqlite_file:scReg_2022ElectronsDeepSCAlgoA.db")),
+#        cms.PSet(record = cms.string("GBRDWrapperRcd"),
+#          label = cms.untracked.string("pfscecal_EECorrection_offline_v2"),
+#          tag = cms.string("pfscecal_EECorrection_offline_v2_2022ElectronsDeepSCAlgoA"),
+#          connect = cms.string("sqlite_file:scReg_2022ElectronsDeepSCAlgoA.db")),
+#       cms.PSet(record = cms.string("GBRDWrapperRcd"),
+#          label = cms.untracked.string("pfscecal_EBUncertainty_offline_v2"),
+#          tag = cms.string("pfscecal_EBUncertainty_offline_v2_2022ElectronsDeepSCAlgoA"),
+#          connect = cms.string("sqlite_file:scReg_2022ElectronsDeepSCAlgoA.db")),
+#       cms.PSet(record = cms.string("GBRDWrapperRcd"),
+#          label = cms.untracked.string("pfscecal_EEUncertainty_offline_v2"),
+#          tag = cms.string("pfscecal_EEUncertainty_offline_v2_2022ElectronsDeepSCAlgoA"),
+#          connect = cms.string("sqlite_file:scReg_2022ElectronsDeepSCAlgoA.db")),
+#      )
+# )
+# process.es_prefer_scReg = cms.ESPrefer("PoolDBESSource","mySCReg")
+
+# process.myPhoReg = cms.ESSource("PoolDBESSource",
+#      toGet = cms.VPSet(
+#       cms.PSet(record = cms.string("GBRDWrapperRcd"),
+#          label = cms.untracked.string("photon_eb_ecalOnly_5To300_0p2To2_mean"),
+#          tag = cms.string("photon_eb_ecalOnly_5To300_0p2To2_mean_2022PhotonsDeepSCAlgoA"),
+#          connect = cms.string("sqlite_file:phoReg_2022PhotonsDeepSCAlgoA.db")),
+#       cms.PSet(record = cms.string("GBRDWrapperRcd"),
+#          label = cms.untracked.string("photon_ee_ecalOnly_5To300_0p2To2_mean"),
+#          tag = cms.string("photon_ee_ecalOnly_5To300_0p2To2_mean_2022PhotonsDeepSCAlgoA"),
+#          connect = cms.string("sqlite_file:phoReg_2022PhotonsDeepSCAlgoA.db")),
+#       cms.PSet(record = cms.string("GBRDWrapperRcd"),
+#          label = cms.untracked.string("photon_eb_ecalOnly_5To300_0p0002To0p5_sigma"),
+#          tag = cms.string("photon_eb_ecalOnly_5To300_0p0002To0p5_sigma_2022PhotonsDeepSCAlgoA"),
+#          connect = cms.string("sqlite_file:phoReg_2022PhotonsDeepSCAlgoA.db")),
+#       cms.PSet(record = cms.string("GBRDWrapperRcd"),
+#          label = cms.untracked.string("photon_ee_ecalOnly_5To300_0p0002To0p5_sigma"),
+#          tag = cms.string("photon_ee_ecalOnly_5To300_0p0002To0p5_sigma_2022PhotonsDeepSCAlgoA"),
+#          connect = cms.string("sqlite_file:phoReg_2022PhotonsDeepSCAlgoA.db")),
+#      ) 
+# )
+# process.es_prefer_phoReg = cms.ESPrefer("PoolDBESSource","myPhoReg")
+
+# process.myEleReg = cms.ESSource("PoolDBESSource",
+#      toGet = cms.VPSet(
+#       cms.PSet(record = cms.string("GBRDWrapperRcd"),
+#          label = cms.untracked.string("electron_eb_ecalOnly_1To300_0p2To2_mean"),
+#          tag = cms.string("electron_eb_ecalOnly_1To300_0p2To2_mean_2022ElectronsDeepSCAlgoA"),
+#          connect = cms.string("sqlite_file:EleReg_2022ElectronsDeepSCAlgoA.db")),
+#       cms.PSet(record = cms.string("GBRDWrapperRcd"),
+#          label = cms.untracked.string("electron_ee_ecalOnly_1To300_0p2To2_mean"),
+#          tag = cms.string("electron_ee_ecalOnly_1To300_0p2To2_mean_2022ElectronsDeepSCAlgoA"),
+#          connect = cms.string("sqlite_file:EleReg_2022ElectronsDeepSCAlgoA.db")),
+#       cms.PSet(record = cms.string("GBRDWrapperRcd"),
+#          label = cms.untracked.string("electron_eb_ecalOnly_1To300_0p0002To0p5_sigma"),
+#          tag = cms.string("electron_eb_ecalOnly_1To300_0p0002To0p5_sigma_2022ElectronsDeepSCAlgoA"),
+#          connect = cms.string("sqlite_file:EleReg_2022ElectronsDeepSCAlgoA.db")),
+#       cms.PSet(record = cms.string("GBRDWrapperRcd"),
+#          label = cms.untracked.string("electron_ee_ecalOnly_1To300_0p0002To0p5_sigma"),
+#          tag = cms.string("electron_ee_ecalOnly_1To300_0p0002To0p5_sigma_2022ElectronsDeepSCAlgoA"),
+#          connect = cms.string("sqlite_file:EleReg_2022ElectronsDeepSCAlgoA.db")),
+#       cms.PSet(record = cms.string("GBRDWrapperRcd"),
+#          label = cms.untracked.string("electron_eb_ecalTrk_1To300_0p2To2_mean"),
+#          tag = cms.string("electron_eb_ecalTrk_1To300_0p2To2_mean_2022ElectronsDeepSCAlgoA"),
+#          connect = cms.string("sqlite_file:EleReg_2022ElectronsDeepSCAlgoA.db")),
+#       cms.PSet(record = cms.string("GBRDWrapperRcd"),
+#          label = cms.untracked.string("electron_ee_ecalTrk_1To300_0p2To2_mean"),
+#          tag = cms.string("electron_ee_ecalTrk_1To300_0p2To2_mean_2022ElectronsDeepSCAlgoA"),
+#          connect = cms.string("sqlite_file:EleReg_2022ElectronsDeepSCAlgoA.db")),
+#       cms.PSet(record = cms.string("GBRDWrapperRcd"),
+#          label = cms.untracked.string("electron_eb_ecalTrk_1To300_0p0002To0p5_sigma"),
+#          tag = cms.string("electron_eb_ecalTrk_1To300_0p0002To0p5_sigma_2022ElectronsDeepSCAlgoA"),
+#          connect = cms.string("sqlite_file:EleReg_2022ElectronsDeepSCAlgoA.db")),
+#       cms.PSet(record = cms.string("GBRDWrapperRcd"),
+#          label = cms.untracked.string("electron_ee_ecalTrk_1To300_0p0002To0p5_sigma"),
+#          tag = cms.string("electron_ee_ecalTrk_1To300_0p0002To0p5_sigma_2022ElectronsDeepSCAlgoA"),
+#          connect = cms.string("sqlite_file:EleReg_2022ElectronsDeepSCAlgoA.db"))
+#      ) 
+# )
+# process.es_prefer_eleReg = cms.ESPrefer("PoolDBESSource","myEleReg")
+
+
+#process.myICs = cms.ESSource("PoolDBESSource",
+#     connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"),
+#     toGet = cms.VPSet(
+#         cms.PSet(
+#             record = cms.string('EcalIntercalibConstantsRcd'),
+#             tag = cms.string('EcalIntercalibConstants_MC_Digi_2018')
+#         )
+#     )
+#)
+#process.es_prefer_icReco = cms.ESPrefer("PoolDBESSource","myICs")
+
 process.myPFRechitThres = cms.ESSource("PoolDBESSource",
      connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"),
      toGet = cms.VPSet(
@@ -141,41 +258,44 @@ process.TFileService = cms.Service("TFileService",
 
 
 # DEBUG logging
-# process.load("FWCore.MessageService.MessageLogger_cfi")
-# process.MessageLogger.cerr.threshold = "DEBUG"
-# process.MessageLogger.debugModules = ["particleFlowSuperClusterECAL"]
+process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.cerr.threshold = "DEBUG"
+process.MessageLogger.debugModules = ["particleFlowSuperClusterECAL"]
 
 
 
-#### DeepSC customization
-process.particleFlowSuperClusterECAL.deepSuperClusterConfig.modelFiles = \
-    cms.vstring("RecoEcal/EgammaClusterProducers/data/DeepSCModels/ACAT2022/simpler_rechits/model_smallpadding.pb",
-                "RecoEcal/EgammaClusterProducers/data/DeepSCModels/ACAT2022/simpler_rechits/model_largepadding.pb")
+# #### DeepSC customization
+# process.particleFlowSuperClusterECAL.deepSuperClusterConfig.modelFiles = \
+#     cms.vstring("RecoEcal/EgammaClusterProducers/data/DeepSCModels/models_pfthres/model_noise235fb_thres235fb/model_smallpadding.pb",
+#                 "RecoEcal/EgammaClusterProducers/data/DeepSCModels/models_pfthres/model_noise235fb_thres235fb/model_largepadding.pb")
 
-process.particleFlowSuperClusterECAL.deepSuperClusterConfig.configFileClusterFeatures = cms.string("RecoEcal/EgammaClusterProducers/data/DeepSCModels/ACAT2022/config_clusters_inputs.txt")
-process.particleFlowSuperClusterECAL.deepSuperClusterConfig.configFileWindowFeatures = cms.string("RecoEcal/EgammaClusterProducers/data/DeepSCModels/ACAT2022/config_window_inputs.txt")
-process.particleFlowSuperClusterECAL.deepSuperClusterConfig.configFileHitsFeatures = cms.string("RecoEcal/EgammaClusterProducers/data/DeepSCModels/ACAT2022/config_hits_inputs.txt")
+# process.particleFlowSuperClusterECAL.deepSuperClusterConfig.configFileClusterFeatures = cms.string("RecoEcal/EgammaClusterProducers/data/DeepSCModels/models_pfthres/model_noise235fb_thres235fb/scaler_config_cls_norm.txt")
+# process.particleFlowSuperClusterECAL.deepSuperClusterConfig.configFileWindowFeatures = cms.string("RecoEcal/EgammaClusterProducers/data/DeepSCModels/models_pfthres/model_noise235fb_thres235fb/scaler_config_wind_norm.txt")
+# process.particleFlowSuperClusterECAL.deepSuperClusterConfig.configFileHitsFeatures = cms.string("RecoEcal/EgammaClusterProducers/data/DeepSCModels/models_pfthres/model_noise235fb_thres235fb/config_hits_inputs.txt")
 
-process.particleFlowSuperClusterECAL.deepSuperClusterConfig.nClusterFeatures = cms.uint32(15)
-process.particleFlowSuperClusterECAL.deepSuperClusterConfig.nWindowFeatures = cms.uint32(6)
-process.particleFlowSuperClusterECAL.deepSuperClusterConfig.maxNClusters = cms.vuint32(15,30)
-process.particleFlowSuperClusterECAL.deepSuperClusterConfig.maxNRechits = cms.vuint32(20,60)
+# process.particleFlowSuperClusterECAL.deepSuperClusterConfig.nClusterFeatures = cms.uint32(17)
+# process.particleFlowSuperClusterECAL.deepSuperClusterConfig.nWindowFeatures = cms.uint32(6)
+# process.particleFlowSuperClusterECAL.deepSuperClusterConfig.maxNClusters = cms.vuint32(15,60)
+# process.particleFlowSuperClusterECAL.deepSuperClusterConfig.maxNRechits = cms.vuint32(20,60)
 
 
-# Same customization for OOTEcal producer
-process.particleFlowSuperClusterOOTECAL.deepSuperClusterConfig.modelFiles = \
-    cms.vstring("RecoEcal/EgammaClusterProducers/data/DeepSCModels/ACAT2022/simpler_rechits/model_smallpadding.pb",
-                "RecoEcal/EgammaClusterProducers/data/DeepSCModels/ACAT2022/simpler_rechits/model_largepadding.pb")
+# # # Same customization for OOTEcal producer
+# process.particleFlowSuperClusterOOTECAL.deepSuperClusterConfig.modelFiles = \
+#     cms.vstring("RecoEcal/EgammaClusterProducers/data/DeepSCModels/models_pfthres/model_noise235fb_thres235fb/model_smallpadding.pb",
+#                 "RecoEcal/EgammaClusterProducers/data/DeepSCModels/models_pfthres/model_noise235fb_thres235fb/model_largepadding.pb")
 
-process.particleFlowSuperClusterOOTECAL.deepSuperClusterConfig.configFileClusterFeatures = cms.string("RecoEcal/EgammaClusterProducers/data/DeepSCModels/ACAT2022/config_clusters_inputs.txt")
-process.particleFlowSuperClusterOOTECAL.deepSuperClusterConfig.configFileWindowFeatures = cms.string("RecoEcal/EgammaClusterProducers/data/DeepSCModels/ACAT2022/config_window_inputs.txt")
-process.particleFlowSuperClusterOOTECAL.deepSuperClusterConfig.configFileHitsFeatures = cms.string("RecoEcal/EgammaClusterProducers/data/DeepSCModels/ACAT2022/config_hits_inputs.txt")
+# process.particleFlowSuperClusterOOTECAL.deepSuperClusterConfig.configFileClusterFeatures = cms.string("RecoEcal/EgammaClusterProducers/data/DeepSCModels/models_pfthres/model_noise235fb_thres235fb/scaler_config_cls_norm.txt")
+# process.particleFlowSuperClusterOOTECAL.deepSuperClusterConfig.configFileWindowFeatures = cms.string("RecoEcal/EgammaClusterProducers/data/DeepSCModels/models_pfthres/model_noise235fb_thres235fb/scaler_config_wind_norm.txt")
+# process.particleFlowSuperClusterOOTECAL.deepSuperClusterConfig.configFileHitsFeatures = cms.string("RecoEcal/EgammaClusterProducers/data/DeepSCModels/models_pfthres/model_noise235fb_thres235fb/config_hits_inputs.txt")
 
-process.particleFlowSuperClusterOOTECAL.deepSuperClusterConfig.nClusterFeatures = cms.uint32(15)
-process.particleFlowSuperClusterOOTECAL.deepSuperClusterConfig.nWindowFeatures = cms.uint32(6)
-process.particleFlowSuperClusterOOTECAL.deepSuperClusterConfig.maxNClusters = cms.vuint32(15,30)
-process.particleFlowSuperClusterOOTECAL.deepSuperClusterConfig.maxNRechits = cms.vuint32(20,60)
+# process.particleFlowSuperClusterOOTECAL.deepSuperClusterConfig.nClusterFeatures = cms.uint32(17)
+# process.particleFlowSuperClusterOOTECAL.deepSuperClusterConfig.nWindowFeatures = cms.uint32(6)
+# process.particleFlowSuperClusterOOTECAL.deepSuperClusterConfig.maxNClusters = cms.vuint32(15,60)
+# process.particleFlowSuperClusterOOTECAL.deepSuperClusterConfig.maxNRechits = cms.vuint32(20,60)
 
+
+# process.load('RecoSimStudies.Dumpers.RecoSimDumper_cfi')
+# process.dumper_step = cms.Path(process.recosimdumper)
 
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
@@ -245,7 +365,7 @@ process.RECOSIMoutput_step = cms.EndPath(process.RECOSIMoutput)
 # process.particleFlowTmp.PFEGammaFiltersParameters.usePhotonPFidDnn = False
 
 # Schedule definition
-process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.recosim_step,process.Flag_HBHENoiseFilter,process.Flag_HBHENoiseIsoFilter,process.Flag_CSCTightHaloFilter,process.Flag_CSCTightHaloTrkMuUnvetoFilter,process.Flag_CSCTightHalo2015Filter,process.Flag_globalTightHalo2016Filter,process.Flag_globalSuperTightHalo2016Filter,process.Flag_HcalStripHaloFilter,process.Flag_hcalLaserEventFilter,process.Flag_EcalDeadCellTriggerPrimitiveFilter,process.Flag_EcalDeadCellBoundaryEnergyFilter,process.Flag_ecalBadCalibFilter,process.Flag_goodVertices,process.Flag_eeBadScFilter,process.Flag_ecalLaserCorrFilter,process.Flag_trkPOGFilters,process.Flag_chargedHadronTrackResolutionFilter,process.Flag_muonBadTrackFilter,process.Flag_BadChargedCandidateFilter,process.Flag_BadPFMuonFilter,process.Flag_BadPFMuonDzFilter,process.Flag_hfNoisyHitsFilter,process.Flag_BadChargedCandidateSummer16Filter,process.Flag_BadPFMuonSummer16Filter,process.Flag_trkPOG_manystripclus53X,process.Flag_trkPOG_toomanystripclus53X,process.Flag_trkPOG_logErrorTooManyClusters,process.Flag_METFilter, process.endjob_step)
+process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.recosim_step,process.Flag_HBHENoiseFilter,process.Flag_HBHENoiseIsoFilter,process.Flag_CSCTightHaloFilter,process.Flag_CSCTightHaloTrkMuUnvetoFilter,process.Flag_CSCTightHalo2015Filter,process.Flag_globalTightHalo2016Filter,process.Flag_globalSuperTightHalo2016Filter,process.Flag_HcalStripHaloFilter,process.Flag_hcalLaserEventFilter,process.Flag_EcalDeadCellTriggerPrimitiveFilter,process.Flag_EcalDeadCellBoundaryEnergyFilter,process.Flag_ecalBadCalibFilter,process.Flag_goodVertices,process.Flag_eeBadScFilter,process.Flag_ecalLaserCorrFilter,process.Flag_trkPOGFilters,process.Flag_chargedHadronTrackResolutionFilter,process.Flag_muonBadTrackFilter,process.Flag_BadChargedCandidateFilter,process.Flag_BadPFMuonFilter,process.Flag_BadPFMuonDzFilter,process.Flag_hfNoisyHitsFilter,process.Flag_BadChargedCandidateSummer16Filter,process.Flag_BadPFMuonSummer16Filter,process.Flag_trkPOG_manystripclus53X,process.Flag_trkPOG_toomanystripclus53X,process.Flag_trkPOG_logErrorTooManyClusters,process.Flag_METFilters, process.endjob_step)
 process.schedule.associate(process.patTask)
 from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask
 associatePatAlgosToolsTask(process)
