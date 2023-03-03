@@ -819,10 +819,25 @@ namespace {
           int npar = n + 2;
           TF1* f1 =
               new TF1((fmt::sprintf("region: #bf{%s}", namesOfParts[index - 1])).c_str(), func, xmin_, xmax_, npar);
+
+          // push polynomial degree as first entry in the vector
           params.insert(params.begin(), n);
+
+          // TF1::SetParameters needs a C-style array
           double* arr = params.data();
           f1->SetLineWidth(2);
-          f1->SetParameters(arr);
+
+          if (n == 1) {
+            /* special case for constant
+	       using setParameters technically works, but leads to
+	       heap-buffer-overflow
+	     */
+            f1->SetParameter(0, arr[0]);
+            f1->SetParameter(1, arr[1]);
+          } else {
+            f1->SetParameters(arr);
+          }
+
           parametrizations.push_back(f1);
 
           // build the formula to be displayed
