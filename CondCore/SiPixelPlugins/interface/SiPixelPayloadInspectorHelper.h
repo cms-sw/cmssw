@@ -36,7 +36,7 @@
 
 namespace SiPixelPI {
 
-  enum phase { zero = 0, one = 1, two = 2 };
+  enum phase { zero = 0, one = 1, two = 2, undefined = 999 };
 
   // size of the phase-0 pixel detID list
   static const unsigned int phase0size = 1440;
@@ -664,7 +664,7 @@ namespace SiPixelPI {
     int m_side;
     int m_ring;
     bool m_isInternal;
-    SiPixelPI::phase* m_Phase;
+    SiPixelPI::phase m_Phase;
 
   public:
     void init();
@@ -687,6 +687,7 @@ namespace SiPixelPI {
   inline void topolInfo::init()
   /*--------------------------------------------------------------------*/
   {
+    m_Phase = SiPixelPI::undefined;
     m_rawid = 0;
     m_subdetid = -1;
     m_layer = -1;
@@ -710,7 +711,7 @@ namespace SiPixelPI {
   /*--------------------------------------------------------------------*/
   {
     // set the phase
-    m_Phase = const_cast<SiPixelPI::phase*>(&ph);
+    m_Phase = ph;
     unsigned int subdetId = static_cast<unsigned int>(detId.subdetId());
 
     m_rawid = detId.rawId();
@@ -733,7 +734,7 @@ namespace SiPixelPI {
   {
     SiPixelPI::regions ret = SiPixelPI::NUM_OF_REGIONS;
 
-    if (m_Phase == nullptr) {
+    if (m_Phase == SiPixelPI::undefined) {
       throw cms::Exception("LogicError") << "Cannot call filterThePartition BEFORE filling the geometry info!";
     }
 
@@ -769,7 +770,7 @@ namespace SiPixelPI {
           m_side > 1 ? ret = SiPixelPI::FPixpL3 : ret = SiPixelPI::FPixmL3;
           break;
         default:
-          if (*m_Phase < SiPixelPI::phase::two) {
+          if (m_Phase < SiPixelPI::phase::two) {
             // warning message only if the phase2 is < 2
             edm::LogWarning("LogicError") << "Unknow FPix disk: " << m_layer;
           }
