@@ -5,7 +5,7 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing('analysis')
 options.register('nThreads', 4, options.multiplicity.singleton, options.varType.int, 'number of threads')
 options.register('nStreams', 0, options.multiplicity.singleton, options.varType.int, 'number of streams')
-options.setDefault('inputFiles', ['file:DQMIO.root'])
+options.setDefault('inputFiles', ['file:testTriggerMonitors_DQMIO.root'])
 options.parseArguments()
 
 # Process
