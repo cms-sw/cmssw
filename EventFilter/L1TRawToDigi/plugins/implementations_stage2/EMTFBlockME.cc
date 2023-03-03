@@ -188,6 +188,9 @@ namespace l1t {
         // Computed as (Year - 2000)*2^9 + Month*2^5 + Day (see Block.cc and EMTFBlockTrailers.cc)
         bool run3_DAQ_format =
             (getAlgoVersion() >= 11460);  // Firmware from 04.06.22 which enabled new Run 3 DAQ format - EY 04.07.22
+        bool reducedDAQWindow =
+            (getAlgoVersion() >=
+             11656);  // Firmware from 08.12.22 which is used as a flag for new reduced readout window - EY 01.03.23
 
         // Set fields assuming Run 2 format. Modify for Run 3 later
         ME_.set_clct_pattern(GetHexBits(MEa, 0, 3));
@@ -205,7 +208,10 @@ namespace l1t {
         ME_.set_cik(GetHexBits(MEc, 13, 13));
         ME_.set_afff(GetHexBits(MEc, 14, 14));
 
-        ME_.set_tbin(GetHexBits(MEd, 0, 2));
+        if (reducedDAQWindow)  // reduced DAQ window is used only after run3 DAQ format
+          ME_.set_tbin(GetHexBits(MEd, 0, 2) + 1);
+        else
+          ME_.set_tbin(GetHexBits(MEd, 0, 2));
         ME_.set_vp(GetHexBits(MEd, 3, 3));
         ME_.set_station(GetHexBits(MEd, 4, 6));
         ME_.set_af(GetHexBits(MEd, 7, 7));
