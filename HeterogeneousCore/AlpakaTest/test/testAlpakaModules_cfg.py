@@ -85,7 +85,9 @@ process.alpakaStreamInstanceProducer = cms.EDProducer("TestAlpakaStreamProducer@
     )
 )
 process.alpakaStreamSynchronizingProducer = cms.EDProducer("TestAlpakaStreamSynchronizingProducer@alpaka",
-    source = cms.InputTag("alpakaGlobalProducer")
+    source = cms.InputTag("alpakaGlobalProducer"),
+    intSource = cms.InputTag("intProduct"),
+    expectedInt = cms.int32(84) # sum of intProduct and esProducerA
 )
 
 process.alpakaGlobalConsumer = cms.EDAnalyzer("TestAlpakaAnalyzer",

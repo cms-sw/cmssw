@@ -19,6 +19,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     TestHelperClass(edm::ParameterSet const& iConfig, edm::ConsumesCollector iC);
 
+    static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
+
     void makeAsync(device::Event const& iEvent, device::EventSetup const& iSetup);
 
     portabletest::TestHostCollection moveFrom() { return std::move(hostProduct_); }
