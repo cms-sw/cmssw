@@ -294,10 +294,6 @@ private:
       l1t::VertexWord::vtxz0_t fixedTkZ0 = t.undigitizeSignedValue(
           t.getZ0Bits(), TTTrack_TrackWord::TrackBitWidths::kZ0Size, TTTrack_TrackWord::stepZ0, 0.0);
 
-      ap_uint<TrackBitWidths::kPtSize> ptEmulationBits = t.getTrackWord()(
-          TTTrack_TrackWord::TrackBitLocations::kRinvMSB - 1, TTTrack_TrackWord::TrackBitLocations::kRinvLSB);
-      ap_ufixed<TrackBitWidths::kPtSize, TrackBitWidths::kPtMagSize> ptEmulation;
-      ptEmulation.V = ptEmulationBits.range();
       return std::abs(v.z0() - fixedTkZ0.to_double()) <= deltaZMax_[etaIndex];
     }
 
