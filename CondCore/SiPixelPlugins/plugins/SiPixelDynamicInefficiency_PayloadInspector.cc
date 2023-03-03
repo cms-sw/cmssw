@@ -197,6 +197,8 @@ namespace {
         case SiPixelPI::phase::two:
           inputFile = "Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml";
           break;
+        default:
+          throw cms::Exception("SiPixelDynamicInefficiency_PayloadInspector") << "checkPhase: unrecongnized phase!";
       }
 
       // create the standalone tracker topology
