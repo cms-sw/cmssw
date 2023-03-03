@@ -1,5 +1,6 @@
 #include "SimG4CMS/Muon/interface/SimHitPrinter.h"
 
+#include <G4ios.hh>
 #include <iomanip>
 #include <iostream>
 #include <memory>
@@ -29,11 +30,11 @@ SimHitPrinter::~SimHitPrinter() {
 }
 
 void SimHitPrinter::startNewSimHit(std::string s) {
-  std::cout.width(10);
-  std::cout.setf(std::ios::right, std::ios::adjustfield);
-  std::cout.setf(std::ios::scientific, std::ios::floatfield);
-  std::cout.precision(6);
-  std::cout << "SimHit in " << s << std::endl;
+  G4cout.width(10);
+  G4cout.setf(std::ios::right, std::ios::adjustfield);
+  G4cout.setf(std::ios::scientific, std::ios::floatfield);
+  G4cout.precision(6);
+  G4cout << "SimHit in " << s << G4endl;
 
   std::lock_guard<std::mutex> guard{fileMutex};
   (*theFile).width(10);
@@ -49,7 +50,7 @@ void SimHitPrinter::startNewEvent(int num) {
 }
 
 void SimHitPrinter::printId(int id) const {
-  std::cout << " Id: " << id << std::endl;
+  G4cout << " Id: " << id << G4endl;
   std::lock_guard<std::mutex> guard{fileMutex};
   (*theFile) << " id ";
   (*theFile).width(10);
@@ -58,7 +59,7 @@ void SimHitPrinter::printId(int id) const {
 }
 
 void SimHitPrinter::printTrack(int id) const {
-  std::cout << " Track: " << id << std::endl;
+  G4cout << " Track: " << id << G4endl;
   std::lock_guard<std::mutex> guard{fileMutex};
   (*theFile) << " trk ";
   (*theFile).width(10);
@@ -67,20 +68,20 @@ void SimHitPrinter::printTrack(int id) const {
 }
 
 void SimHitPrinter::printPabs(float pabs) const {
-  std::cout << " Pabs: " << pabs << std::endl;
+  G4cout << " Pabs: " << pabs << G4endl;
   std::lock_guard<std::mutex> guard{fileMutex};
   (*theFile) << " p " << pabs;
 }
 
 void SimHitPrinter::printEloss(float eloss) const {
-  std::cout << " Eloss: " << eloss << std::endl;
+  G4cout << " Eloss: " << eloss << G4endl;
   std::lock_guard<std::mutex> guard{fileMutex};
   (*theFile) << " e " << eloss;
 }
 
 void SimHitPrinter::printLocal(LocalPoint localen, LocalPoint localex) const {
-  std::cout << " Local(en/ex): " << localen.x() << " " << localen.y() << " " << localen.z() << " / " << localex.x()
-            << " " << localex.y() << " " << localex.z() << std::endl;
+  G4cout << " Local(en/ex): " << localen.x() << " " << localen.y() << " " << localen.z() << " / " << localex.x() << " "
+         << localex.y() << " " << localex.z() << G4endl;
   std::lock_guard<std::mutex> guard{fileMutex};
   (*theFile).width(10);
   (*theFile).setf(std::ios::right, std::ios::adjustfield);
@@ -91,7 +92,7 @@ void SimHitPrinter::printLocal(LocalPoint localen, LocalPoint localex) const {
 }
 
 void SimHitPrinter::printGlobal(GlobalPoint global) const {
-  std::cout << " Global(en): " << global.x() << " " << global.y() << " " << global.z() << std::endl;
+  G4cout << " Global(en): " << global.x() << " " << global.y() << " " << global.z() << G4endl;
   std::lock_guard<std::mutex> guard{fileMutex};
   (*theFile).width(10);
   (*theFile).setf(std::ios::right, std::ios::adjustfield);
