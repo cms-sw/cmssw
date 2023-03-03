@@ -17,8 +17,8 @@
 #include "PhysicsTools/IsolationAlgos/interface/EventDependentAbsVeto.h"
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositVetoFactory.h"
 
+#include <charconv>
 #include <string>
-#include <regex>
 
 class CandIsolatorFromDeposits : public edm::stream::EDProducer<> {
 public:
@@ -60,11 +60,20 @@ using namespace edm;
 using namespace reco;
 using namespace reco::isodeposit;
 
-bool isNumber(const std::string &str) {
-  static const std::regex re("^[+-]?(\\d+\\.?|\\d*\\.\\d*)$");
-  return regex_match(str.c_str(), re);
-}
-double toNumber(const std::string &str) { return atof(str.c_str()); }
+namespace {
+  bool toNumber(const std::string &str, double &result) {
+    if (str.empty()) {
+      return false;
+    }
+    const char *first = str.c_str();
+    const char *last = first + str.size();
+    if (*first == '+') {
+      ++first;
+    }
+    const auto [ptr, ec] = std::from_chars(first, last, result);
+    return ec == std::errc();
+  }
+}  // namespace
 
 CandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet &iConfig, edm::ConsumesCollector &&iC)
     : srcToken_(iC.consumes<reco::IsoDepositMap>(iConfig.getParameter<edm::InputTag>("src"))),
@@ -108,9 +117,8 @@ CandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet &
       evdepVetos_.push_back(evdep);
   }
   std::string weight = iConfig.getParameter<std::string>("weight");
-  if (isNumber(weight)) {
+  if (toNumber(weight, weight_)) {
     //std::cout << "Weight is a simple number, " << toNumber(weight) << std::endl;
-    weight_ = toNumber(weight);
     usesFunction_ = false;
   } else {
     usesFunction_ = true;
