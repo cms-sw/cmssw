@@ -78,7 +78,7 @@ private:
 //-------------------------------------------------------------------------------
 
 CTPPSRandomDQMSource::CTPPSRandomDQMSource(const edm::ParameterSet &ps)
-    : tokenDigi_(consumes<edm::DetSetVector<CTPPSPixelDigi>>(ps.getUntrackedParameter<edm::InputTag>("tagRPixDigi"))),
+    : tokenDigi_(consumes<edm::DetSetVector<CTPPSPixelDigi>>(ps.getParameter<edm::InputTag>("tagRPixDigi"))),
       folderName_(ps.getUntrackedParameter<std::string>("folderName", "CTPPS/RandomPixel")),
       rpStatusWord_(ps.getUntrackedParameter<unsigned int>("RPStatusWord", 0x8008)) {
   for (int stn = 0; stn < kStationIDMAX_; stn++) {
@@ -195,7 +195,7 @@ void CTPPSRandomDQMSource::analyze(edm::Event const &event, edm::EventSetup cons
 
 void CTPPSRandomDQMSource::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
-  desc.addUntracked<edm::InputTag>("tagRPixDigi", edm::InputTag("ctppsPixelDigisAlCaRecoProducer"));
+  desc.add<edm::InputTag>("tagRPixDigi", edm::InputTag("ctppsPixelDigisAlCaRecoProducer"));
   desc.addUntracked<std::string>("folderName", "CTPPS/RandomPixel");
   desc.addUntracked<unsigned int>("RPStatusWord", 0x8008);
   descriptions.add("ctppsRandomDQMSource", desc);
