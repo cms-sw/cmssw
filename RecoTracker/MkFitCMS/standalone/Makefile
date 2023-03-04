@@ -23,12 +23,12 @@ SRCS := $(wildcard ${CMS_DIR}/src/*.cc) $(wildcard ${SACMS}/*.cc)
 ifdef WITH_ROOT
 SRCS += ${SACMS}/tkNtuple/WriteMemoryFile.cc
 WriteMemFileDict.cc ${WMF_DICT_PCM}: ${SACMS}/tkNtuple/DictsLinkDef.h
-	rootcling -f WriteMemFileDict.cc $<
+	rootcling -I=${SRCDIR} -f WriteMemFileDict.cc $<
 	mv WriteMemFileDict_rdict.pcm ${WMF_DICT_PCM}
 
 SRCS += ShellDict.cc
 ShellDict.cc ${SHELL_DICT_PCM}: ${SACMS}/Shell.h ${SACMS}/ShellLinkDef.h
-	rootcling -f ShellDict.cc ${SACMS}/Shell.h ${SACMS}/ShellLinkDef.h
+	rootcling -I=${SRCDIR} -f ShellDict.cc ${SACMS}/Shell.h ${SACMS}/ShellLinkDef.h
 	mv ShellDict_rdict.pcm ${SHELL_DICT_PCM}
 endif
 SRCB := $(notdir ${SRCS})
@@ -61,7 +61,7 @@ ${LIB_CMS}: ${CMS_OBJS}
 ${MAIN}: ${LIB_CMS} mkFit.o
 	${CXX} ${CXXFLAGS} ${VEC_HOST} ${LDFLAGS} mkFit.o -o $@ ${LDFLAGS_HOST} -ltbb -L.. -lMicCore -lMicCMS -Wl,-rpath=.
 
-${WRMEMF}: WriteMemoryFile.o DictsDict.o
+${WRMEMF}: WriteMemoryFile.o WriteMemFileDict.o
 	${CXX} ${CXXFLAGS} ${LDFLAGS} $^ -o $@ ${LDFLAGS_HOST} -ltbb -L.. -lMicCore -Wl,-rpath=.
 
 ${OBJS}: %.o: %.cc %.d
