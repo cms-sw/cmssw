@@ -4,7 +4,6 @@
   <use name="CondFormats/JetMETObjects"/>
   <use name="DataFormats/JetReco"/>
   <use name="FWCore/Framework"/>
-  <use name="FWCore/PluginManager"/>
   <use name="FWCore/ServiceRegistry"/>
   <use name="FWCore/Utilities"/>
   <use name="JetMETCorrections/Algorithms"/>
