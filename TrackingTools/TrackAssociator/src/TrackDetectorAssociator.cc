@@ -650,7 +650,7 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
         continue;
       }
 
-      float wideWidth = wireTopology->wideWidthOfPlane();
+      float wideWidth = wireTopology->wideWidthOfPlane(); // from-CMSSW_13_0_0_pre1
       float narrowWidth = wireTopology->narrowWidthOfPlane();
       float length = wireTopology->lengthOfPlane();
       // If slanted, there is no y offset between local origin and symmetry center of wire plane
@@ -672,12 +672,15 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
 
       float wideWidth = bounds->width();
       float narrowWidth = 2.f * bounds->widthAtHalfLength() - wideWidth;
-      float length = bounds->length();
+      //float length = bounds->length();
+      const GEMEtaPartitionSpecs* gemetapartitionspecs = gemetapartition->specs();
+      std::vector<float> _p = gemetapartitionspecs->parameters();
+      float length = 2.f * _p[2];
       float tangent = (wideWidth - narrowWidth) / (2.f * length);
       float halfWidthAtY = tangent * localPoint.y() + 0.5f * narrowWidth;
       
       distanceX = std::abs(localPoint.x()) - halfWidthAtY;
-      distanceY = std::abs(localPoint.y());
+      distanceY = std::abs(localPoint.y()) - 0.5f * length;
     } else if (const GEMSuperChamber* gemsuperchamber = dynamic_cast<const GEMSuperChamber*>(geomDet)) {
       
       const TrapezoidalPlaneBounds* bounds = dynamic_cast<const TrapezoidalPlaneBounds*>(&geomDet->surface().bounds());

@@ -1076,9 +1076,6 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent,
 
       matchedChamber.edgeX = chamber.localDistanceX;
       matchedChamber.edgeY = chamber.localDistanceY;
-      
-      if ((matchedChamber.edgeX > 0.) or (matchedChamber.edgeY > 0.))
-        continue;
 
       theShowerDigiFiller_->fillDefault(matchedChamber);
 
@@ -1096,6 +1093,20 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent,
 
         const double absDx = std::abs(gemRecHit.localPosition().x() - chamber.tState.localPosition().x());
         if (absDx <= 5 or absDx * absDx <= 16 * localError.xx())
+          std::cout << "edgeX : " << matchedChamber.edgeX << std::endl;
+          std::cout << "edgeY : " << matchedChamber.edgeY << std::endl;
+          std::cout << " xPosition : " << matchedChamber.x << std::endl;
+          std::cout << " yPosition : " << matchedChamber.y << std::endl;
+          std::cout << " xErr : " << matchedChamber.xErr << std::endl;
+          std::cout << " yErr : " << matchedChamber.yErr << std::endl;
+          std::cout << " Rechitx : " << gemRecHit.localPosition().x() << std::endl;
+          std::cout << " Rechity : " << gemRecHit.localPosition().y() << std::endl;
+          
+          //GEMRechit GEMRechit = 
+          GEMDetId gemdetid = GEMDetId(matchedChamber.id.rawId());
+          std::cout << " ieta : " << gemdetid.ieta() << std::endl;
+          
+
           matchedChamber.gemHitMatches.push_back(gemHitMatch);
       }
 
