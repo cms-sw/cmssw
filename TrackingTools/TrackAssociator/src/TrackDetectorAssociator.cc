@@ -650,7 +650,7 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
         continue;
       }
 
-      float wideWidth = wireTopology->wideWidthOfPlane(); // from-CMSSW_13_0_0_pre1
+      float wideWidth = wireTopology->wideWidthOfPlane(); //from'sdfsdf
       float narrowWidth = wireTopology->narrowWidthOfPlane();
       float length = wireTopology->lengthOfPlane();
       // If slanted, there is no y offset between local origin and symmetry center of wire plane
