@@ -267,13 +267,12 @@ public:
   uint32_t getLinkStatus(CaloType cType, bool negativeEta, uint32_t cEta, uint32_t iPhi) {
     size_t index = getFeatureIndex(cType, negativeEta, cEta, iPhi);
     const uint32_t data = myDataPtr[index];
-    const uint32_t data2 = myDataPtr[index+1];
+    const uint32_t data2 = myDataPtr[index + 1];
     uint32_t LS = 0;
     if (cType == HBHE) {
       LS = (data >> 24) & 0xFF;
       LS |= ((data2 >> 24) & 0xFF) << 8;
-    }
-    else {
+    } else {
       LS = (data >> 16);
     }
     return LS;
