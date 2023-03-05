@@ -190,12 +190,12 @@ namespace cms {
       }
 
       template <typename TAcc>
-      static ALPAKA_FN_ACC ALPAKA_FN_INLINE uint32_t atomicIncrement(const TAcc &acc, Counter &x) {
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE static uint32_t atomicIncrement(const TAcc &acc, Counter &x) {
         return alpaka::atomicAdd(acc, &x, 1u, alpaka::hierarchy::Blocks{});
       }
 
       template <typename TAcc>
-      static ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE uint32_t atomicDecrement(const TAcc &acc, Counter &x) {
+      ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE static uint32_t atomicDecrement(const TAcc &acc, Counter &x) {
         return alpaka::atomicSub(acc, &x, 1u, alpaka::hierarchy::Blocks{});
       }
 
