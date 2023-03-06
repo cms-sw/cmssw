@@ -118,6 +118,41 @@ run2_nanoAOD_ANY.toModify(
 #jets are not as precise as muons
 jetPuppiTable.variables.pt.precision=10
 
+##############################################################
+## DeepInfoAK4:Start
+## - To be used in nanoAOD_customizeCommon() in nano_cff.py
+###############################################################
+from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+def nanoAOD_addDeepInfoAK4(process,addParticleNet):
+    _btagDiscriminators=[]
+    if addParticleNet:
+        print("Updating process run ParticleNetAK4")
+        from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4CHSCentralJetTagsAll as pfParticleNetFromMiniAODAK4CHSCentralJetTagsAll
+        from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4CHSForwardJetTagsAll as pfParticleNetFromMiniAODAK4CHSForwardJetTagsAll
+        _btagDiscriminators += pfParticleNetFromMiniAODAK4CHSCentralJetTagsAll
+        _btagDiscriminators += pfParticleNetFromMiniAODAK4CHSForwardJetTagsAll
+    if len(_btagDiscriminators)==0: return process
+    print("Will recalculate the following discriminators: "+", ".join(_btagDiscriminators))
+    updateJetCollection(
+        process,
+        jetSource = cms.InputTag('slimmedJets'),
+        jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual']), 'None'),
+        btagDiscriminators = _btagDiscriminators,
+        postfix = 'WithDeepInfo',
+    )
+    process.load("Configuration.StandardSequences.MagneticField_cff")
+    process.jetCorrFactorsNano.src="selectedUpdatedPatJetsWithDeepInfo"
+    process.updatedJets.jetSource="selectedUpdatedPatJetsWithDeepInfo"
+    return process
+
+nanoAOD_addDeepInfoAK4_switch = cms.PSet(
+    nanoAOD_addParticleNet_switch = cms.untracked.bool(False),
+)
+
+################################################
+## DeepInfoAK4CHS:End
+#################################################
+
 ################################################################################
 # JETS FOR MET type1 
 ################################################################################

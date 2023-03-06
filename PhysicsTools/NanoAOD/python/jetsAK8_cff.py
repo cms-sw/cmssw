@@ -148,7 +148,7 @@ run2_nanoAOD_ANY.toModify(
 ## - To be used in nanoAOD_customizeCommon() in nano_cff.py
 ###############################################################
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
-def nanoAOD_addDeepInfoAK8(process, addDeepBTag, addDeepBoostedJet, addDeepDoubleX, addDeepDoubleXV2, addParticleNet, addParticleNetMass, jecPayload):
+def nanoAOD_addDeepInfoAK8(process, addDeepBTag, addDeepBoostedJet, addDeepDoubleX, addDeepDoubleXV2, addParticleNet, jecPayload):
     _btagDiscriminators=[]
     if addDeepBTag:
         print("Updating process to run DeepCSV btag to AK8 jets")
@@ -158,12 +158,8 @@ def nanoAOD_addDeepInfoAK8(process, addDeepBTag, addDeepBoostedJet, addDeepDoubl
         from RecoBTag.ONNXRuntime.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsAll as pfDeepBoostedJetTagsAll
         _btagDiscriminators += pfDeepBoostedJetTagsAll
     if addParticleNet:
-        print("Updating process to run ParticleNet before it's included in MiniAOD")
-        from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetJetTagsAll as pfParticleNetJetTagsAll
-        _btagDiscriminators += pfParticleNetJetTagsAll
-    if addParticleNetMass:
-        from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetMassRegressionOutputs
-        _btagDiscriminators += _pfParticleNetMassRegressionOutputs
+        from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK8_cff import _pfParticleNetFromMiniAODAK8JetTagsAll as pfParticleNetFromMiniAODAK8JetTagsAll
+        _btagDiscriminators += pfParticleNetFromMiniAODAK8JetTagsAll
     if addDeepDoubleX:
         print("Updating process to run DeepDoubleX on datasets before 104X")
         _btagDiscriminators += ['pfDeepDoubleBvLJetTags:probHbb', \
@@ -200,15 +196,9 @@ nanoAOD_addDeepInfoAK8_switch = cms.PSet(
     nanoAOD_addDeepDoubleX_switch = cms.untracked.bool(False),
     nanoAOD_addDeepDoubleXV2_switch = cms.untracked.bool(False),
     nanoAOD_addParticleNet_switch = cms.untracked.bool(False),
-    nanoAOD_addParticleNetMass_switch = cms.untracked.bool(False),
     jecPayload = cms.untracked.string('AK8PFPuppi')
 )
 
-# for 106Xv2: only needs to run ParticleNet Mass regression; The rest are already in MiniAOD
-run2_nanoAOD_106Xv2.toModify(
-    nanoAOD_addDeepInfoAK8_switch,
-    nanoAOD_addParticleNetMass_switch = True,
-)
 ################################################
 ## DeepInfoAK8:End
 #################################################

@@ -154,11 +154,17 @@ def nanoAOD_activateVID(process):
 def nanoAOD_customizeCommon(process):
 
     process = nanoAOD_activateVID(process)
+    
+    # This function is defined in jetsAK4_Puppi_cff.py
+    process = nanoAOD_addDeepInfoAK4(process,
+        addParticleNet=nanoAOD_addDeepInfoAK4_switch.nanoAOD_addParticleNet_switch
+    )
 
     # This function is defined in jetsAK4_CHS_cff.py
     process = nanoAOD_addDeepInfoAK4CHS(process,
         addDeepBTag=nanoAOD_addDeepInfoAK4CHS_switch.nanoAOD_addDeepBTag_switch,
-        addDeepFlavour=nanoAOD_addDeepInfoAK4CHS_switch.nanoAOD_addDeepFlavourTag_switch
+        addDeepFlavour=nanoAOD_addDeepInfoAK4CHS_switch.nanoAOD_addDeepFlavourTag_switch,
+        addParticleNet=nanoAOD_addDeepInfoAK4CHS_switch.nanoAOD_addParticleNet_switch
     )
 
     # This function is defined in jetsAK8_cff.py
@@ -168,7 +174,6 @@ def nanoAOD_customizeCommon(process):
         addDeepDoubleX=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepDoubleX_switch,
         addDeepDoubleXV2=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepDoubleXV2_switch,
         addParticleNet=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addParticleNet_switch,
-        addParticleNetMass=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addParticleNetMass_switch,
         jecPayload=nanoAOD_addDeepInfoAK8_switch.jecPayload
     )
 
