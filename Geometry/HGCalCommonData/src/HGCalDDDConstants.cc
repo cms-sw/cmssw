@@ -865,8 +865,8 @@ std::pair<float, float> HGCalDDDConstants::locateCell(
         edm::LogVerbatim("HGCalGeom") << "Cassette " << (ktr->second).cassette << " Shift " << -(zside * cshift.first)
                                       << ":" << cshift.second;
       if (!reco) {
-        x -= ((HGCalParameters::k_ScaleToDDD) * zside * cshift.first);
-        y += ((HGCalParameters::k_ScaleToDDD) * cshift.second);
+        x -= ((HGCalParameters::k_ScaleToDDD)*zside * cshift.first);
+        y += ((HGCalParameters::k_ScaleToDDD)*cshift.second);
       } else {
         x -= (zside * cshift.first);
         y += cshift.second;
