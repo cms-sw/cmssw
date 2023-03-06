@@ -265,7 +265,7 @@ void EHcalVsRho::Init(TChain *tree, const char *dupFile) {
   fChain->SetBranchAddress("t_HitEnergies3", &t_HitEnergies3, &b_t_HitEnergies3);
   Notify();
 
-  if (std::string(dupFileName) != "") {
+  if (std::string(dupFile) != "") {
     ifstream infile(dupFile);
     if (!infile.is_open()) {
       std::cout << "Cannot open " << dupFile << std::endl;

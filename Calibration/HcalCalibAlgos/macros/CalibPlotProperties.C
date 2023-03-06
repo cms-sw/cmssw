@@ -35,17 +35,20 @@
 //                               factors to be used (default="", no corr.)
 //   rcorFileName (const char*)= name of the text file having the correction
 //                               factors as a function of run numbers or depth
-//                               to be used for raddam/depth dependent
-//                               correction  (default="", no corr.)
+//                               to be used for raddam/depth/pileup/phisym
+//                               dependent correction  (default="", no corr.)
 //   puCorr (int)              = PU correction to be applied or not: 0 no
 //                               correction; < 0 use eDelta; > 0 rho dependent
 //                               correction (-8)
 //   flag (int)                = 6 digit integer (mlthdo) with control
 //                               information (m=0/1 for controlling creation
 //                               of depth depedendent histograms;
-//                               l=2/1/0 for type of rcorFileName (2 for overall
-//                               response corrections; 1 for depth dependence
-//                               corrections; 0 for raddam corrections);
+//                               l=4/3/2/1/0 for type of rcorFileName (4 for
+//                               using results from phi-symmetry; 3 for
+//                               pileup correction using machine learning
+//                               method; 2 for overall response corrections;
+//                               1 for depth dependence corrections; 0 for
+//                               raddam corrections);
 //                               t = bit information (lower bit set will
 //                               apply a cut on L1 closeness; and higher bit
 //                               set read correction file with Marina format);
@@ -295,7 +298,7 @@ private:
   const int phimin_, phimax_, zside_, nvxlo_, nvxhi_, rbx_;
   bool exclude_, corrE_, cutL1T_;
   bool includeRun_, getHist_;
-  int flexibleSelect_;
+  int flexibleSelect_, ifDepth_;
   bool plotBasic_, plotEnergy_, plotHists_;
   double log2by18_;
   std::ofstream fileout_;
@@ -372,7 +375,7 @@ CalibPlotProperties::CalibPlotProperties(const char *fname,
   int oneplace = ((flag_ / 1000) % 10);
   cutL1T_ = (oneplace % 2);
   bool marina = ((oneplace / 2) % 2);
-  bool ifDepth = (((flag_ / 10000) % 10) > 0);
+  ifDepth_ = ((flag_ / 10000) % 10);
   plotHists_ = (((flag_ / 100000) % 10) > 0);
   log2by18_ = std::log(2.5) / 18.0;
   if (runlo_ < 0 || runhi_ < 0) {
@@ -394,8 +397,13 @@ CalibPlotProperties::CalibPlotProperties(const char *fname,
   } else {
     std::cout << "Proceed with a tree chain with " << chain->GetEntries() << " entries" << std::endl;
     Init(chain, dupFileName);
-    if (std::string(rcorFileName) != "")
-      cFactor_ = new CalibCorr(rcorFileName, ifDepth, false);
+    if (std::string(rcorFileName) != "") {
+      cFactor_ = new CalibCorr(rcorFileName, ifDepth_, false);
+      if (cFactor_->absent())
+        ifDepth_ = -1;
+    } else {
+      ifDepth_ = -1;
+    }
     if (rbx != 0)
       cSelect_ = new CalibSelectRBX(rbx, false);
   }
@@ -884,7 +892,7 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
         // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
         unsigned int id = truncateId((*t_DetIds)[k], truncateFlag_, false);
         double cfac = corrFactor_->getCorr(id);
-        if (cFactor_ != 0)
+        if ((cFactor_ != 0) && (ifDepth_ != 3) && (ifDepth_ > 0))
           cfac *= cFactor_->getCorr(t_Run, (*t_DetIds)[k]);
         eHcal += (cfac * ((*t_HitEnergies)[k]));
         if (debug) {
@@ -973,7 +981,7 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
             for (unsigned int k = 0; k < t_HitEnergies->size(); ++k) {
               unsigned int id = truncateId((*t_DetIds)[k], truncateFlag_, false);
               double cfac = corrFactor_->getCorr(id);
-              if (cFactor_ != 0)
+              if ((cFactor_ != 0) && (ifDepth_ != 3) && (ifDepth_ > 0))
                 cfac *= cFactor_->getCorr(t_Run, (*t_DetIds)[k]);
               double ener = cfac * (*t_HitEnergies)[k];
               if (corrPU_)
@@ -1192,7 +1200,7 @@ void CalibPlotProperties::correctEnergy(double &eHcal) {
       for (unsigned int idet = 0; idet < (*t_DetIds1).size(); idet++) {
         unsigned int id = truncateId((*t_DetIds1)[idet], truncateFlag_, false);
         double cfac = corrFactor_->getCorr(id);
-        if (cFactor_ != 0)
+        if ((cFactor_ != 0) && (ifDepth_ != 3) && (ifDepth_ > 0))
           cfac *= cFactor_->getCorr(t_Run, (*t_DetIds1)[idet]);
         double hitEn = cfac * (*t_HitEnergies1)[idet];
         Etot1 += hitEn;
@@ -1200,7 +1208,7 @@ void CalibPlotProperties::correctEnergy(double &eHcal) {
       for (unsigned int idet = 0; idet < (*t_DetIds3).size(); idet++) {
         unsigned int id = truncateId((*t_DetIds3)[idet], truncateFlag_, false);
         double cfac = corrFactor_->getCorr(id);
-        if (cFactor_ != 0)
+        if ((cFactor_ != 0) && (ifDepth_ != 3) && (ifDepth_ > 0))
           cfac *= cFactor_->getCorr(t_Run, (*t_DetIds3)[idet]);
         double hitEn = cfac * (*t_HitEnergies3)[idet];
         Etot3 += hitEn;
