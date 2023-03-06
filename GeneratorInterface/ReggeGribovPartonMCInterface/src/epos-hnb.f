@@ -6492,9 +6492,11 @@ c-----------------------------------------------------------------------
       parameter(mxclu=10000)
       real am(mxclu)
       character cen*6,cvol*6
+c     the code needs am to be kept between calls
+      save am
+      data am /mxclu*0/
 
       if(iii.eq.0)then
-
       am(nrclu)=amt
 
       return
