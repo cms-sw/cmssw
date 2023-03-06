@@ -4,6 +4,24 @@ process = cms.Process("HitEff")
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
+
+###################################################################
+# Messages
+###################################################################
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.MessageLogger.cerr.enable = False
+process.MessageLogger.SiStripHitResolFromCalibTree=dict()
+process.MessageLogger.cout = cms.untracked.PSet(
+    enable = cms.untracked.bool(True),
+    threshold = cms.untracked.string("INFO"),
+    default   = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+    FwkReport = cms.untracked.PSet(limit = cms.untracked.int32(-1),
+                                   reportEvery = cms.untracked.int32(1000)
+                                   ),
+    #SiStripHitResolFromCalibTree = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
+    enableStatistics = cms.untracked.bool(True)
+    )
+
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')  
 
@@ -24,7 +42,7 @@ InputFilePathEnd = '.root'
 
 FileName1 = InputFilePath + str(RunNumberBegin) + InputFilePathEnd
 
-process.SiStripHitEff = cms.EDAnalyzer("SiStripHitResolFromCalibTree",
+process.SiStripHitResolFromCalibTree = cms.EDAnalyzer("SiStripHitResolFromCalibTree",
     CalibTreeFilenames = cms.untracked.vstring(FileName1),
     Threshold         = cms.double(0.2),
     nModsMin          = cms.int32(25),
@@ -81,4 +99,4 @@ process.TFileService = cms.Service("TFileService",
         fileName = cms.string(RootFileName)  
 )
 
-process.allPath = cms.Path(process.SiStripHitEff)
+process.allPath = cms.Path(process.SiStripHitResolFromCalibTree)
