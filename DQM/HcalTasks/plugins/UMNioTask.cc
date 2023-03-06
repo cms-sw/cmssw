@@ -5,19 +5,19 @@ using namespace hcaldqm;
 using namespace hcaldqm::constants;
 UMNioTask::UMNioTask(edm::ParameterSet const& ps)
     : DQTask(ps), hcalDbServiceToken_(esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>()) {
-  _tagHBHE = ps.getUntrackedParameter<edm::InputTag>("tagHBHE", edm::InputTag("hcalDigis"));
-  _tagHO = ps.getUntrackedParameter<edm::InputTag>("tagHO", edm::InputTag("hcalDigis"));
-  _tagHF = ps.getUntrackedParameter<edm::InputTag>("tagHF", edm::InputTag("hcalDigis"));
-  _taguMN = ps.getUntrackedParameter<edm::InputTag>("taguMN", edm::InputTag("hcalDigis"));
+  tagHBHE_ = ps.getUntrackedParameter<edm::InputTag>("tagHBHE", edm::InputTag("hcalDigis"));
+  tagHO_ = ps.getUntrackedParameter<edm::InputTag>("tagHO", edm::InputTag("hcalDigis"));
+  tagHF_ = ps.getUntrackedParameter<edm::InputTag>("tagHF", edm::InputTag("hcalDigis"));
+  taguMN_ = ps.getUntrackedParameter<edm::InputTag>("taguMN", edm::InputTag("hcalDigis"));
 
-  _tokHBHE = consumes<HBHEDigiCollection>(_tagHBHE);
-  _tokHO = consumes<HODigiCollection>(_tagHO);
-  _tokHF = consumes<HFDigiCollection>(_tagHF);
-  _tokuMN = consumes<HcalUMNioDigi>(_taguMN);
+  tokHBHE_ = consumes<QIE11DigiCollection>(tagHBHE_);
+  tokHO_ = consumes<HODigiCollection>(tagHO_);
+  tokHF_ = consumes<QIE10DigiCollection>(tagHF_);
+  tokuMN_ = consumes<HcalUMNioDigi>(taguMN_);
 
-  _lowHBHE = ps.getUntrackedParameter<double>("lowHBHE", 20);
-  _lowHO = ps.getUntrackedParameter<double>("lowHO", 20);
-  _lowHF = ps.getUntrackedParameter<double>("lowHF", 20);
+  lowHBHE_ = ps.getUntrackedParameter<double>("lowHBHE", 20);
+  lowHO_ = ps.getUntrackedParameter<double>("lowHO", 20);
+  lowHF_ = ps.getUntrackedParameter<double>("lowHF", 20);
 
   //	push all the event types to monitor - whole range basically
   //	This corresponds to all enum values in hcaldqm::constants::OrbitGapType
@@ -61,10 +61,14 @@ UMNioTask::UMNioTask(edm::ParameterSet const& ps)
 
 int UMNioTask::getOrbitGapIndex(uint8_t eventType, uint32_t laserType) {
   constants::OrbitGapType orbitGapType;
-  if (eventType == constants::EVENTTYPE_PEDESTAL) {
+  if (eventType == constants::EVENTTYPE_PHYSICS) {
+    orbitGapType = tPhysics;
+  } else if (eventType == constants::EVENTTYPE_PEDESTAL) {
     orbitGapType = tPedestal;
   } else if (eventType == constants::EVENTTYPE_LED) {
     orbitGapType = tLED;
+  } else if (eventType == constants::EVENTTYPE_HFRADDAM) {
+    orbitGapType = tHFRaddam;
   } else if (eventType == constants::EVENTTYPE_LASER) {
     switch (laserType) {
       //case tNull : return "Null";
@@ -86,7 +90,12 @@ int UMNioTask::getOrbitGapIndex(uint8_t eventType, uint32_t laserType) {
         return tHBMMega;
       //case tCRF : return "CRF";
       //case tCalib : return "Calib";
-      //case tSafe : return "Safe";
+      case 14:
+        return tSafe;
+      case 23:
+        return tSiPMPMT;
+      case 24:
+        return tMegatile;
       default:
         return tUnknown;
     }
@@ -95,42 +104,83 @@ int UMNioTask::getOrbitGapIndex(uint8_t eventType, uint32_t laserType) {
 }
 
 /* virtual */ void UMNioTask::_process(edm::Event const& e, edm::EventSetup const& es) {
-  edm::Handle<HcalUMNioDigi> cumn;
-  if (!e.getByToken(_tokuMN, cumn))
+  auto lumiCache = luminosityBlockCache(e.getLuminosityBlock().index());
+  _currentLS = lumiCache->currentLS;
+  _xQuality.reset();
+  _xQuality = lumiCache->xQuality;
+
+  auto const cumn = e.getHandle(tokuMN_);
+  if (not(cumn.isValid())) {
+    edm::LogWarning("UMNioTask") << "HcalUMNioDigi isn't available, calling return";
     return;
+  }
 
   uint8_t eventType = cumn->eventType();
   uint32_t laserType = cumn->valueUserWord(0);
   _cEventType.fill(_currentLS, getOrbitGapIndex(eventType, laserType));
 
   //	Compute the Total Charge in the Detector...
-  edm::Handle<HBHEDigiCollection> chbhe;
-  edm::Handle<HODigiCollection> cho;
-  edm::Handle<HFDigiCollection> chf;
-
-  if (!e.getByToken(_tokHBHE, chbhe))
-    _logger.dqmthrow("Collection HBHEDigiCollection isn't available " + _tagHBHE.label() + " " + _tagHBHE.instance());
-  if (!e.getByToken(_tokHO, cho))
-    _logger.dqmthrow("Collection HODigiCollection isn't available " + _tagHO.label() + " " + _tagHO.instance());
-  if (!e.getByToken(_tokHF, chf))
-    _logger.dqmthrow("Collection HFDigiCollection isn't available " + _tagHF.label() + " " + _tagHF.instance());
-
-  for (HBHEDigiCollection::const_iterator it = chbhe->begin(); it != chbhe->end(); ++it) {
-    double sumQ = hcaldqm::utilities::sumQ<HBHEDataFrame>(*it, 2.5, 0, it->size() - 1);
-    _cTotalCharge.fill(it->id(), _currentLS, sumQ);
-    _cTotalChargeProfile.fill(it->id(), _currentLS, sumQ);
+  auto const chbhe = e.getHandle(tokHBHE_);
+  if (chbhe.isValid()) {
+    for (QIE11DigiCollection::const_iterator it = chbhe->begin(); it != chbhe->end(); ++it) {
+      const QIE11DataFrame digi = static_cast<const QIE11DataFrame>(*it);
+      HcalDetId const& did = digi.detid();
+      if ((did.subdet() != HcalBarrel) && (did.subdet() != HcalEndcap))
+        continue;
+      if (_xQuality.exists(did)) {
+        HcalChannelStatus cs(did.rawId(), _xQuality.get(did));
+        if (cs.isBitSet(HcalChannelStatus::HcalCellMask) || cs.isBitSet(HcalChannelStatus::HcalCellDead))
+          continue;
+      }
+      CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE11DataFrame>(_dbService, did, digi);
+      double sumQ = hcaldqm::utilities::sumQDB<QIE11DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples() - 1);
+      _cTotalCharge.fill(did, _currentLS, sumQ);
+      _cTotalChargeProfile.fill(did, _currentLS, sumQ);
+    }
   }
-  for (HODigiCollection::const_iterator it = cho->begin(); it != cho->end(); ++it) {
-    double sumQ = hcaldqm::utilities::sumQ<HODataFrame>(*it, 8.5, 0, it->size() - 1);
-    _cTotalCharge.fill(it->id(), _currentLS, sumQ);
-    _cTotalChargeProfile.fill(it->id(), _currentLS, sumQ);
+  auto const cho = e.getHandle(tokHO_);
+  if (cho.isValid()) {
+    for (HODigiCollection::const_iterator it = cho->begin(); it != cho->end(); ++it) {
+      const HODataFrame digi = (const HODataFrame)(*it);
+      HcalDetId did = digi.id();
+      if (did.subdet() != HcalOuter)
+        continue;
+      if (_xQuality.exists(did)) {
+        HcalChannelStatus cs(did.rawId(), _xQuality.get(did));
+        if (cs.isBitSet(HcalChannelStatus::HcalCellMask) || cs.isBitSet(HcalChannelStatus::HcalCellDead))
+          continue;
+      }
+      CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<HODataFrame>(_dbService, did, digi);
+      double sumQ = hcaldqm::utilities::sumQDB<HODataFrame>(_dbService, digi_fC, did, digi, 0, digi.size() - 1);
+      _cTotalCharge.fill(did, _currentLS, sumQ);
+      _cTotalChargeProfile.fill(did, _currentLS, sumQ);
+    }
   }
-  for (HFDigiCollection::const_iterator it = chf->begin(); it != chf->end(); ++it) {
-    double sumQ = hcaldqm::utilities::sumQ<HFDataFrame>(*it, 2.5, 0, it->size() - 1);
-    _cTotalCharge.fill(it->id(), _currentLS, sumQ);
-    _cTotalChargeProfile.fill(it->id(), _currentLS, sumQ);
+  auto const chf = e.getHandle(tokHF_);
+  if (chf.isValid()) {
+    for (QIE10DigiCollection::const_iterator it = chf->begin(); it != chf->end(); ++it) {
+      const QIE10DataFrame digi = static_cast<const QIE10DataFrame>(*it);
+      HcalDetId did = digi.detid();
+      if (did.subdet() != HcalForward)
+        continue;
+      if (_xQuality.exists(did)) {
+        HcalChannelStatus cs(did.rawId(), _xQuality.get(did));
+        if (cs.isBitSet(HcalChannelStatus::HcalCellMask) || cs.isBitSet(HcalChannelStatus::HcalCellDead))
+          continue;
+      }
+      CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE10DataFrame>(_dbService, did, digi);
+      double sumQ = hcaldqm::utilities::sumQDB<QIE10DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples() - 1);
+      _cTotalCharge.fill(did, _currentLS, sumQ);
+      _cTotalChargeProfile.fill(did, _currentLS, sumQ);
+    }
   }
 }
+
+std::shared_ptr<hcaldqm::Cache> UMNioTask::globalBeginLuminosityBlock(edm::LuminosityBlock const& lb,
+                                                                      edm::EventSetup const& es) const {
+  return DQTask::globalBeginLuminosityBlock(lb, es);
+}
+
 /* virtual */ void UMNioTask::globalEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
   DQTask::globalEndLuminosityBlock(lb, es);
 }
