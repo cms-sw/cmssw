@@ -1202,13 +1202,22 @@ void FedRawDataInputSource::readSupervisor() {
           break;
         }
         //in single-buffer mode put single chunk in the file and let the main thread read the file
-        InputChunk* newChunk;
+        InputChunk* newChunk = nullptr;
         //should be available immediately
         while (!freeChunks_.try_pop(newChunk)) {
           usleep(100000);
-          if (quit_threads_.load(std::memory_order_relaxed))
+          if (quit_threads_.load(std::memory_order_relaxed)) {
+            stop = true;
             break;
+          }
         }
+
+        if (newChunk == nullptr) {
+          stop = true;
+        }
+
+        if (stop)
+          break;
 
         std::unique_lock<std::mutex> lkw(mWakeup_);
 
