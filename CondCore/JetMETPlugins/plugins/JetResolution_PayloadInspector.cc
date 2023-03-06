@@ -40,9 +40,9 @@ namespace JME{
 
   class JetResolutionVsEta : public cond::payloadInspector::Histogram1D<JetResolutionObject, SINGLE_IOV> {
     public:
-      static const int MIN_ETA = -5.0;
-      static const int MAX_ETA =  5.0;
-      static const int NBIN = 50;
+      static const int MIN_ETA = -5.05;
+      static const int MAX_ETA =  5.05;
+      static const int NBIN = 51;
 
     JetResolutionVsEta() : cond::payloadInspector::Histogram1D<JetResolutionObject, SINGLE_IOV>( "Jet Resolution", "#eta", NBIN, MIN_ETA, MAX_ETA, "Resolution"){
       Base::setSingleIov( true );
@@ -78,7 +78,7 @@ namespace JME{
                         param.push_back(par);
                       }
                       float res = f.evaluate(var, param);
-                      fillWithBinAndValue(idx, res);
+                      fillWithBinAndValue(idx+1, res);
                     }
                   }
                 }
@@ -98,7 +98,7 @@ namespace JME{
       static const int MAX_PT =  3000.0;
       static const int NBIN = 300;
 
-    JetResolutionVsPt() : cond::payloadInspector::Histogram1D<JetResolutionObject, SINGLE_IOV>( "Jet Energy Resolution", "PT", NBIN, MIN_PT, MAX_PT, "Resolution"){
+    JetResolutionVsPt() : cond::payloadInspector::Histogram1D<JetResolutionObject, SINGLE_IOV>( "Jet Energy Resolution", "p_T", NBIN, MIN_PT, MAX_PT, "Resolution"){
       Base::setSingleIov( true );
     }
 
@@ -122,7 +122,7 @@ namespace JME{
                    payload->getDefinition().getVariableName(0) == "JetPt"){
                    reco::FormulaEvaluator f(payload->getDefinition().getFormulaString());
 
-                  for(size_t idx = 0; idx < NBIN; idx++){
+                  for(size_t idx = 0; idx <= NBIN; idx++){
                       double x_axis = (idx+0.5)*(MAX_PT-MIN_PT)/NBIN+MIN_PT;
                     if(record.getVariablesRange()[0].is_inside(x_axis)){
                        std::vector<double> var={x_axis};
@@ -132,7 +132,7 @@ namespace JME{
                         param.push_back(par);
                       }
                       float res = f.evaluate(var, param);
-                      fillWithBinAndValue(idx, res);
+                      fillWithBinAndValue(idx+1, res);
                     }
                   }
                 }
@@ -145,6 +145,117 @@ namespace JME{
       return false;
     }
   };
+
+  class JetResolutionSummary : public cond::payloadInspector::PlotImage<JetResolutionObject> {
+    public:
+      static const int MIN_ETA = -5.05;
+      static const int MAX_ETA =  5.05;
+      static const int NBIN_ETA = 51;
+      static const int MIN_PT = -5.0;
+      static const int MAX_PT =  3005.0;
+      static const int NBIN_PT = 302;
+
+    JetResolutionSummary() : cond::payloadInspector::PlotImage<JetResolutionObject>( "Jet Resolution Summary"){
+      Base::setSingleIov( true );
+    }
+
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs)override{
+      TH1D *resol_eta = new TH1D("Jet Resolution vs #eta", "", NBIN_ETA, MIN_ETA, MAX_ETA);
+      TH1D *resol_pt = new TH1D("Jet Resolution vs p_T", "", NBIN_PT, MIN_PT, MAX_PT);
+      unsigned int run = 0;
+      std::string tagname;
+
+      auto iov = iovs.front();
+      std::shared_ptr<JetResolutionObject> payload = fetchPayload(std::get<1>(iov));
+      run = std::get<0>(iov);
+      tagname = cond::payloadInspector::PlotBase::getTag<0>().name;
+
+      if (payload.get()) {
+        if(payload->getRecords().size() > 0 &&  // No formula for SF
+           payload->getDefinition().getFormulaString().compare("")==0) return false; 
+
+          for(const auto& record : payload->getRecords()){ 
+            // Check Pt & Rho
+            if(record.getVariablesRange().size()>0 && 
+               payload->getDefinition().getVariableName(0) == "JetPt" &&
+               record.getVariablesRange()[0].is_inside(100.)){
+              if(record.getBinsRange().size()>1 &&
+                 payload->getDefinition().getBinName(1) == "Rho" &&
+                 record.getBinsRange()[1].is_inside(20.)){
+                if(record.getBinsRange().size()>0 &&
+                   payload->getDefinition().getBinName(0) == "JetEta"){
+                  reco::FormulaEvaluator f(payload->getDefinition().getFormulaString());
+
+                  for(size_t idx = 0; idx < NBIN_ETA; idx++){
+                    double x_axis = (idx+0.5)*(MAX_ETA-MIN_ETA)/NBIN_ETA+MIN_ETA;
+                    if(record.getBinsRange()[0].is_inside(x_axis)){
+                      std::vector<double> var={100.};
+                      std::vector<double> param;
+                      for(size_t i = 0; i < record.getParametersValues().size(); i++){
+                        double par = record.getParametersValues()[i];
+                        param.push_back(par);
+                      }
+                      float res = f.evaluate(var, param);
+                      resol_eta->SetBinContent(idx+1, res);
+                    }
+                  }
+                }
+              }
+            }
+
+            if(record.getBinsRange().size()>0 && 
+               payload->getDefinition().getBinName(0) == "JetEta" &&
+               record.getBinsRange()[0].is_inside(2.30)){
+              if(record.getBinsRange().size()>1 &&
+                 payload->getDefinition().getBinName(1) == "Rho" &&
+                 record.getBinsRange()[1].is_inside(15.)){
+                if(record.getVariablesRange().size()>0 && 
+                   payload->getDefinition().getVariableName(0) == "JetPt"){
+                   reco::FormulaEvaluator f(payload->getDefinition().getFormulaString());
+
+                  for(size_t idx = 0; idx <= NBIN_PT+2; idx++){
+                      double x_axis = (idx+0.5)*(MAX_PT-MIN_PT)/NBIN_PT+MIN_PT;
+                    if(record.getVariablesRange()[0].is_inside(x_axis)){
+                       std::vector<double> var={x_axis};
+                       std::vector<double> param;
+                      for(size_t i = 0; i < record.getParametersValues().size(); i++){
+                        double par = record.getParametersValues()[i];
+                        param.push_back(par);
+                      }
+                      float res = f.evaluate(var, param);
+                      resol_pt->SetBinContent(idx+1, res);
+                    }
+                  }
+                }
+              }
+            }
+          }  // records
+          gStyle->SetOptStat(0);
+
+          std::string title = Form("Summary Run %i", run);
+          TCanvas canvas("Jet Resolution Summary", title.c_str(), 800, 1200);
+          canvas.Divide(1, 2);
+
+          canvas.cd(1);
+          resol_eta->SetTitle(tagname.c_str());
+          resol_eta->SetXTitle("#eta");
+          resol_eta->SetYTitle("Resolution");
+          resol_eta->Draw();
+
+          canvas.cd(2);
+          resol_pt->SetTitle(tagname.c_str());
+          resol_pt->SetXTitle("p_{T} [GeV]");
+          resol_pt->SetYTitle("Resolution");
+          resol_pt->Draw();
+
+          canvas.SaveAs(m_imageFileName.c_str());
+
+          return true;    
+      }//else // no payload.get()
+        return false;
+    }  // fill
+
+  };  // class
 
   template <index ii> class JetScaleFactorVsEta : public cond::payloadInspector::Histogram1D<JetResolutionObject, SINGLE_IOV> {
     public:
@@ -197,6 +308,7 @@ PAYLOAD_INSPECTOR_MODULE( JetResolutionObject ){
   PAYLOAD_INSPECTOR_CLASS( JetScaleFactorVsEtaNORM );
   PAYLOAD_INSPECTOR_CLASS( JetScaleFactorVsEtaDOWN );
   PAYLOAD_INSPECTOR_CLASS( JetScaleFactorVsEtaUP );
+  PAYLOAD_INSPECTOR_CLASS( JetResolutionSummary );
 }
 
 }  // namespace
