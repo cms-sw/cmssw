@@ -9,6 +9,10 @@
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Framework/interface/GetterOfProducts.h"
+#include "FWCore/Framework/interface/ProcessMatch.h"
+
+#include "DataFormats/Histograms/interface/DQMToken.h"
 
 #include <sys/time.h>
 #include <string>
@@ -71,10 +75,12 @@ namespace dqm {
     FileParameters initial_fp_;
     int runNumber_;
 
+    edm::GetterOfProducts<DQMToken> lumigetter_;
+    edm::GetterOfProducts<DQMToken> rungetter_;
+
   public:
     static void fillDescription(edm::ParameterSetDescription &d);
   };
-
 }  // namespace dqm
 
 #endif  // DQMSERVICES_COMPONENTS_DQMFILESAVERBASE_H
