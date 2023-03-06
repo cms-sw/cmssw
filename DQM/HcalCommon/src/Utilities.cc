@@ -198,6 +198,8 @@ namespace hcaldqm {
       switch (type) {
         case tNull:
           return "Null";
+        case tPhysics:
+          return "Physics";
         case tPedestal:
           return "Pedestal";
         case tLED:
@@ -226,8 +228,14 @@ namespace hcaldqm {
           return "Calib";
         case tSafe:
           return "Safe";
-        default:
+        case tSiPMPMT:
+          return "SiPM-PMT";
+        case tMegatile:
+          return "Megatile";
+        case tUnknown:
           return "Unknown";
+        default:
+          return "Null";
       }
     }
 

@@ -68,7 +68,7 @@ HFRaddamTask::HFRaddamTask(edm::ParameterSet const& ps) : DQTask(ps) {
   //	tags
   _tagHF = ps.getUntrackedParameter<edm::InputTag>("tagHF", edm::InputTag("hcalDigis"));
   _taguMN = ps.getUntrackedParameter<edm::InputTag>("taguMN", edm::InputTag("hcalDigis"));
-  _tokHF = consumes<HFDigiCollection>(_tagHF);
+  _tokHF = consumes<QIE10DigiCollection>(_tagHF);
   _tokuMN = consumes<HcalUMNioDigi>(_taguMN);
 }
 
@@ -90,16 +90,26 @@ HFRaddamTask::HFRaddamTask(edm::ParameterSet const& ps) : DQTask(ps) {
 }
 
 /* virtual */ void HFRaddamTask::_process(edm::Event const& e, edm::EventSetup const& es) {
-  edm::Handle<HFDigiCollection> chf;
-  if (!e.getByToken(_tokHF, chf))
-    _logger.dqmthrow("Collection HFDigiCollection isn't avalaible" + _tagHF.label() + " " + _tagHF.instance());
+  auto const chf = e.getHandle(_tokHF);
+  if (not(chf.isValid())) {
+    edm::LogWarning("HFRaddamTask") << "QIE10 collection not valid for HF";
+    return;
+  }
 
-  for (HFDigiCollection::const_iterator it = chf->begin(); it != chf->end(); ++it) {
-    const HFDataFrame digi = (const HFDataFrame)(*it);
+  for (QIE10DigiCollection::const_iterator it = chf->begin(); it != chf->end(); ++it) {
+    const QIE10DataFrame digi = static_cast<const QIE10DataFrame>(*it);
+    HcalDetId const& did = digi.detid();
+    if (did.subdet() != HcalForward)
+      continue;
+
+    CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE10DataFrame>(_dbService, did, digi);
+
     for (unsigned int i = 0; i < _vDetIds.size(); i++)
-      if (digi.id() == _vDetIds[i]) {
-        for (int j = 0; j < digi.size(); j++)
-          _vcShape[i].fill(j, digi.sample(j).nominal_fC() - 2.5);
+      if (did == _vDetIds[i]) {
+        for (int j = 0; j < digi.samples(); j++) {
+          double q = hcaldqm::utilities::adc2fCDBMinusPedestal<QIE10DataFrame>(_dbService, digi_fC, did, digi, j);
+          _vcShape[i].fill(j, q);
+        }
       }
   }
 }
@@ -110,16 +120,11 @@ HFRaddamTask::HFRaddamTask(edm::ParameterSet const& ps) : DQTask(ps) {
     if (!e.getByToken(_tokuMN, cumn))
       return false;
 
-    //  event type check first
+    //  event type check
     uint8_t eventType = cumn->eventType();
-    if (eventType != constants::EVENTTYPE_LASER)
-      return false;
-
-    //  check if this analysis task is of the right laser type
-    uint32_t laserType = cumn->valueUserWord(0);
-    if (laserType == constants::tHFRaddam)
+    if (eventType == constants::EVENTTYPE_HFRADDAM)
       return true;
-  } else {
+  } else if (_ptype == fLocal) {
     //	local, just return true as all the settings will be done in cfg
     return true;
   }
