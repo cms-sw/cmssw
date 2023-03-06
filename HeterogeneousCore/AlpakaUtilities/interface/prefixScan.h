@@ -225,28 +225,4 @@ namespace cms {
   }  // namespace alpakatools
 }  // namespace cms
 
-namespace alpaka {
-  namespace trait {
-
-    //#############################################################################
-    //! The trait for getting the size of the block shared dynamic memory for a kernel.
-    template <typename T, typename TAcc>
-    struct BlockSharedMemDynSizeBytes<cms::alpakatools::multiBlockPrefixScanSecondStep<T>, TAcc> {
-      //-----------------------------------------------------------------------------
-      //! \return The size of the shared memory allocated for a block.
-      template <typename TVec>
-      ALPAKA_FN_HOST_ACC static auto getBlockSharedMemDynSizeBytes(
-          cms::alpakatools::multiBlockPrefixScanSecondStep<T> const& /* myKernel */,
-          TVec const& /* blockThreadExtent */,
-          TVec const& /* threadElemExtent */,
-          T const* /* ci */,
-          T* /* co */,
-          int32_t /* size */,
-          int32_t numBlocks) -> T {
-        return static_cast<size_t>(numBlocks) * sizeof(T);
-      }
-    };
-  }  // namespace trait
-}  // namespace alpaka
-
 #endif  // AlpakaCore_prefixScan_h
