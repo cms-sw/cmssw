@@ -211,15 +211,6 @@ def customiseForOffline(process):
     return process
 
 
-# Remove the explicit CUDAService from the HLT configuration, and
-# rely on ProcessAcceleratorCUDA to load it if necessary
-def customizeHLTfor40852(process):
-    if hasattr(process, 'CUDAService'):
-        del process.CUDAService
-
-    return process
-
-
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -227,7 +218,5 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-
-    process = customizeHLTfor40852(process)
 
     return process
