@@ -7,12 +7,11 @@
 #include <cstdint>
 #include <type_traits>
 
-#include "AtomicPairCounter.h"
-#include "alpakastdAlgorithm.h"
-#include "prefixScan.h"
+#include "HeterogeneousCore/AlpakaUtilities/interface/AtomicPairCounter.h"
+#include "HeterogeneousCore/AlpakaUtilities/interface/alpakastdAlgorithm.h"
+#include "HeterogeneousCore/AlpakaUtilities/interface/prefixScan.h"
 
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 namespace cms {
   namespace alpakatools {
@@ -56,15 +55,13 @@ namespace cms {
     };
 
     template <typename TAcc, typename Histo, typename TQueue>
-    ALPAKA_FN_HOST ALPAKA_FN_INLINE __attribute__((always_inline)) void launchZero(Histo *__restrict__ h,
-                                                                                   TQueue &queue) {
+    inline __attribute__((always_inline)) void launchZero(Histo *__restrict__ h, TQueue &queue) {
       auto histoOffView = make_device_view(alpaka::getDev(queue), h->off, Histo::totbins());
       alpaka::memset(queue, histoOffView, 0);
     }
 
     template <typename TAcc, typename Histo, typename TQueue>
-    ALPAKA_FN_HOST ALPAKA_FN_INLINE __attribute__((always_inline)) void launchFinalize(Histo *__restrict__ h,
-                                                                                       TQueue &queue) {
+    inline __attribute__((always_inline)) void launchFinalize(Histo *__restrict__ h, TQueue &queue) {
       uint32_t *poff = h->off;
 
       const int num_items = Histo::totbins();
@@ -72,35 +69,31 @@ namespace cms {
       const auto threadsPerBlockOrElementsPerThread = 1024u;
       const auto blocksPerGrid = divide_up_by(num_items, threadsPerBlockOrElementsPerThread);
       const auto workDiv = make_workdiv<TAcc>(blocksPerGrid, threadsPerBlockOrElementsPerThread);
-      alpaka::enqueue(
-          queue,
-          alpaka::createTaskKernel<TAcc>(workDiv, multiBlockPrefixScanFirstStep<uint32_t>(), poff, poff, num_items));
+      alpaka::exec<TAcc>(queue, workDiv, multiBlockPrefixScanFirstStep<uint32_t>(), poff, poff, num_items);
 
       const auto workDivWith1Block = make_workdiv<TAcc>(1, threadsPerBlockOrElementsPerThread);
-      alpaka::enqueue(
-          queue,
-          alpaka::createTaskKernel<TAcc>(
-              workDivWith1Block, multiBlockPrefixScanSecondStep<uint32_t>(), poff, poff, num_items, blocksPerGrid));
+      alpaka::exec<TAcc>(
+          queue, workDivWith1Block, multiBlockPrefixScanSecondStep<uint32_t>(), poff, poff, num_items, blocksPerGrid);
     }
 
     template <typename TAcc, typename Histo, typename T, typename TQueue>
-    ALPAKA_FN_HOST ALPAKA_FN_INLINE __attribute__((always_inline)) void fillManyFromVector(Histo *__restrict__ h,
-                                                                                           uint32_t nh,
-                                                                                           T const *v,
-                                                                                           uint32_t const *offsets,
-                                                                                           uint32_t totSize,
-                                                                                           uint32_t nthreads,
-                                                                                           TQueue &queue) {
+    inline __attribute__((always_inline)) void fillManyFromVector(Histo *__restrict__ h,
+                                                                  uint32_t nh,
+                                                                  T const *v,
+                                                                  uint32_t const *offsets,
+                                                                  uint32_t totSize,
+                                                                  uint32_t nthreads,
+                                                                  TQueue &queue) {
       launchZero<TAcc>(h, queue);
 
       const auto threadsPerBlockOrElementsPerThread = nthreads;
       const auto blocksPerGrid = divide_up_by(totSize, nthreads);
       const auto workDiv = make_workdiv<TAcc>(blocksPerGrid, threadsPerBlockOrElementsPerThread);
 
-      alpaka::enqueue(queue, alpaka::createTaskKernel<TAcc>(workDiv, countFromVector(), h, nh, v, offsets));
+      alpaka::exec<TAcc>(queue, workDiv, countFromVector(), h, nh, v, offsets);
       launchFinalize<TAcc>(h, queue);
 
-      alpaka::enqueue(queue, alpaka::createTaskKernel<TAcc>(workDiv, fillFromVector(), h, nh, v, offsets));
+      alpaka::exec<TAcc>(queue, workDiv, fillFromVector(), h, nh, v, offsets);
     }
 
     struct finalizeBulk {
@@ -112,7 +105,7 @@ namespace cms {
 
     // iteratate over N bins left and right of the one containing "v"
     template <typename Hist, typename V, typename Func>
-    ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE void forEachInBins(Hist const &hist, V value, int n, Func func) {
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE void forEachInBins(Hist const &hist, V value, int n, Func func) {
       int bs = Hist::bin(value);
       int be = std::min(int(Hist::nbins() - 1), bs + n);
       bs = std::max(0, bs - n);
@@ -124,7 +117,7 @@ namespace cms {
 
     // iteratate over bins containing all values in window wmin, wmax
     template <typename Hist, typename V, typename Func>
-    ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE void forEachInWindow(Hist const &hist, V wmin, V wmax, Func const &func) {
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE void forEachInWindow(Hist const &hist, V wmin, V wmax, Func const &func) {
       auto bs = Hist::bin(wmin);
       auto be = Hist::bin(wmax);
       ALPAKA_ASSERT_OFFLOAD(be >= bs);
@@ -177,7 +170,7 @@ namespace cms {
         return (t >> shift) & mask;
       }
 
-      ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE void zero() {
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE void zero() {
         for (auto &i : off)
           i = 0;
       }
@@ -195,7 +188,7 @@ namespace cms {
       }
 
       template <typename TAcc>
-      ALPAKA_FN_HOST_ACC ALPAKA_FN_INLINE static uint32_t atomicDecrement(const TAcc &acc, Counter &x) {
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE static uint32_t atomicDecrement(const TAcc &acc, Counter &x) {
         return alpaka::atomicSub(acc, &x, 1u, alpaka::hierarchy::Blocks{});
       }
 

@@ -367,36 +367,6 @@ namespace cms::alpakatools {
   }
 
   /*
-     * Computes the range of the elements indexes in grid.
-     * Truncated by the max number of elements of interest.
-     */
-  template <typename TAcc>
-  ALPAKA_FN_ACC std::pair<Idx, Idx> element_index_range_in_grid_truncated(const TAcc& acc,
-                                                                          const Idx maxNumberOfElements,
-                                                                          Idx elementIdxShift,
-                                                                          const unsigned int dimIndex = 0u) {
-    auto [firstElementIdxGlobal, endElementIdxGlobal] = element_index_range_in_grid(acc, elementIdxShift, dimIndex);
-
-    // Truncate
-    endElementIdxGlobal = std::min(endElementIdxGlobal, maxNumberOfElements);
-
-    // Return element indexes, shifted by elementIdxShift, and truncated by maxNumberOfElements.
-    return {firstElementIdxGlobal, endElementIdxGlobal};
-  }
-
-  /*
-     * Computes the range of the element(s) index(es) in grid.
-     * Truncated by the max number of elements of interest.
-     */
-  template <typename TAcc>
-  ALPAKA_FN_ACC std::pair<Idx, Idx> element_index_range_in_grid_truncated(const TAcc& acc,
-                                                                          const Idx maxNumberOfElements,
-                                                                          const unsigned int dimIndex = 0u) {
-    Idx elementIdxShift = 0u;
-    return element_index_range_in_grid_truncated(acc, maxNumberOfElements, elementIdxShift, dimIndex);
-  }
-
-  /*
    * Loop on all (CPU) elements.
    * Elements loop makes sense in CPU case only. In GPU case, elementIdx = firstElementIdx = threadIdx + shift.
    * Indexes are local to the BLOCK.

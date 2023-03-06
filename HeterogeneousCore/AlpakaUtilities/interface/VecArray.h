@@ -7,7 +7,7 @@
 
 #include <utility>
 
-#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include <alpaka/alpaka.hpp>
 
 namespace cms::alpakatools {
 

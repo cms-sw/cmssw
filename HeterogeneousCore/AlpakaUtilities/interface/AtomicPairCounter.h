@@ -31,7 +31,7 @@ namespace cms::alpakatools {
 
     static constexpr c_type incr = 1UL << 32;
 
-    ALPAKA_FN_HOST_ACC Counters get() const { return counter.counters; }
+    ALPAKA_FN_ACC Counters get() const { return counter.counters; }
 
     // increment n by 1 and m by i.  return previous value
     template <typename TAcc>
