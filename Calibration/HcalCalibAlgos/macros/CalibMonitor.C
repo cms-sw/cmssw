@@ -26,7 +26,8 @@
 //   dirname (const char*)     = name of the directory where Tree resides
 //                               (use "HcalIsoTrkAnalyzer")
 //   dupFileName (char*)       = name of the file containing list of entries
-//                               of duplicate events
+//                               of duplicate events or depth dependent weights
+//                               (driven by flag)
 //   comFileName (char*)       = name of the file with list of run and event
 //                               number to be selected
 //   outFileName (char*)       = name of a text file to be created (under
@@ -44,9 +45,11 @@
 //   puCorr (int)              = PU correction to be applied or not: 0 no
 //                               correction; < 0 use eDelta; > 0 rho dependent
 //                               correction (-8)
-//   flag (int)                = 7 digit integer (xmlthdo) with control
+//   flag (int)                = 8 digit integer (xymlthdo) with control
 //                               information (x=3/2/1/0 for having 1000/500/50/
 //                               100 bins for response distribution in (0:5);
+//                               y=1/0 containing list of duplicate entries
+//                               (1) or depth dependent wts (0) in dupFileName;
 //                               m=1/0 for (not) making plots for each RBX;
 //                               l=4/3/2/1/0 for type of rcorFileName (4 for
 //                               using results from phi-symmetry; 3 for
@@ -268,7 +271,7 @@ public:
   virtual Int_t Cut(Long64_t entry);
   virtual Int_t GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
-  virtual void Init(TChain *, const char *, const char *, const char *);
+  virtual void Init(TChain *, const char *, const char *);
   virtual void Loop(Long64_t nmax = -1);
   virtual Bool_t Notify();
   virtual void Show(Long64_t entry = -1);
@@ -285,6 +288,7 @@ private:
   CalibCorrFactor *corrFactor_;
   CalibCorr *cFactor_;
   CalibSelectRBX *cSelect_;
+  CalibDuplicate *cDuplicate_;
   const std::string fname_, dirnm_, prefix_, outFileName_;
   const int corrPU_, flag_, numb_;
   const bool dataMC_, useGen_;
@@ -295,10 +299,9 @@ private:
   bool exclude_, corrE_, cutL1T_, selRBX_;
   bool includeRun_;
   int coarseBin_, etamp_, etamn_, plotType_;
-  int flexibleSelect_, ifDepth_;
+  int flexibleSelect_, ifDepth_, duplicate_;
   double log2by18_;
   std::ofstream fileout_;
-  std::vector<Long64_t> entries_;
   std::vector<std::pair<int, int> > events_;
   std::vector<double> etas_, ps_, dl1_;
   std::vector<int> nvx_, ietasL_, ietasH_;
@@ -339,6 +342,7 @@ CalibMonitor::CalibMonitor(const char *fname,
     : corrFactor_(nullptr),
       cFactor_(nullptr),
       cSelect_(nullptr),
+      cDuplicate_(nullptr),
       fname_(std::string(fname)),
       dirnm_(std::string(dirnm)),
       prefix_(prefix),
@@ -373,7 +377,8 @@ CalibMonitor::CalibMonitor(const char *fname,
   bool marina = ((oneplace / 2) % 2);
   ifDepth_ = ((flag_ / 10000) % 10);
   selRBX_ = (((flag_ / 100000) % 10) > 0);
-  coarseBin_ = ((flag_ / 1000000) % 10);
+  duplicate_ = ((flag_ / 1000000) % 10);
+  coarseBin_ = ((flag_ / 10000000) % 10);
   log2by18_ = std::log(2.5) / 18.0;
   if (runlo_ < 0 || runhi_ < 0) {
     runlo_ = std::abs(runlo_);
@@ -394,7 +399,9 @@ CalibMonitor::CalibMonitor(const char *fname,
   } else {
     std::cout << "Proceed with a tree chain with " << chain->GetEntries() << " entries" << std::endl;
     corrFactor_ = new CalibCorrFactor(corrFileName, useScale, scale, etam, marina, false);
-    Init(chain, dupFileName, comFileName, outFName);
+    Init(chain, comFileName, outFName);
+    if (std::string(dupFileName) != "")
+      cDuplicate_ = new CalibDuplicate(dupFileName, duplicate_, false);
     if (std::string(rcorFileName) != "") {
       cFactor_ = new CalibCorr(rcorFileName, ifDepth_, false);
       if (cFactor_->absent())
@@ -411,6 +418,7 @@ CalibMonitor::~CalibMonitor() {
   delete corrFactor_;
   delete cFactor_;
   delete cSelect_;
+  delete cDuplicate_;
   if (!fChain)
     return;
   delete fChain->GetCurrentFile();
@@ -440,7 +448,7 @@ Long64_t CalibMonitor::LoadTree(Long64_t entry) {
   return centry;
 }
 
-void CalibMonitor::Init(TChain *tree, const char *dupFileName, const char *comFileName, const char *outFileName) {
+void CalibMonitor::Init(TChain *tree, const char *comFileName, const char *outFileName) {
   // The Init() function is called when the selector needs to initialize
   // a new tree or chain. Typically here the branch addresses and branch
   // pointers of the tree will be set.
@@ -503,25 +511,6 @@ void CalibMonitor::Init(TChain *tree, const char *dupFileName, const char *comFi
   fChain->SetBranchAddress("t_HitEnergies1", &t_HitEnergies1, &b_t_HitEnergies1);
   fChain->SetBranchAddress("t_HitEnergies3", &t_HitEnergies3, &b_t_HitEnergies3);
   Notify();
-
-  if (strcmp(dupFileName, "") != 0) {
-    std::ifstream infil1(dupFileName);
-    if (!infil1.is_open()) {
-      std::cout << "Cannot open duplicate file " << dupFileName << std::endl;
-    } else {
-      while (1) {
-        Long64_t jentry;
-        infil1 >> jentry;
-        if (!infil1.good())
-          break;
-        entries_.push_back(jentry);
-      }
-      infil1.close();
-      std::cout << "Reads a list of " << entries_.size() << " events from " << dupFileName << std::endl;
-    }
-  } else {
-    std::cout << "No duplicate events in the input file" << std::endl;
-  }
 
   if (strcmp(comFileName, "") != 0) {
     std::ifstream infil2(comFileName);
@@ -932,7 +921,7 @@ void CalibMonitor::Loop(Long64_t nmax) {
     } else if (kp == 5) {
       ++kount5[0];
     }
-    bool select = (std::find(entries_.begin(), entries_.end(), jentry) == entries_.end());
+    bool select = ((cDuplicate_ != nullptr) && (duplicate_ == 1)) ? (cDuplicate_->isDuplicate(jentry)) : true;
     if (!select) {
       ++duplicate;
       if (debug)
@@ -1112,7 +1101,7 @@ void CalibMonitor::Loop(Long64_t nmax) {
 
     // Selection of good track and energy measured in Hcal
     double rat(1.0), eHcal(t_eHcal);
-    if (corrFactor_->doCorr() || (cFactor_ != nullptr)) {
+    if ((corrFactor_->doCorr()) || (cFactor_ != nullptr) || ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))) {
       eHcal = 0;
       for (unsigned int k = 0; k < t_HitEnergies->size(); ++k) {
         // The masks are defined in DataFormats/HcalDetId/interface/HcalDetId.h
@@ -1123,6 +1112,8 @@ void CalibMonitor::Loop(Long64_t nmax) {
         }
         if ((cFactor_ != nullptr) && (ifDepth_ != 3) && (ifDepth_ > 0))
           cfac *= cFactor_->getCorr(t_Run, (*t_DetIds)[k]);
+        if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+          cfac *= cDuplicate_->getWeight((*t_DetIds)[k]);
         eHcal += (cfac * ((*t_HitEnergies)[k]));
         if (debug) {
           int subdet, zside, ieta, iphi, depth;
@@ -1703,6 +1694,8 @@ void CalibMonitor::correctEnergy(double &eHcal, const Long64_t &entry) {
         double cfac = corrFactor_->getCorr(id);
         if ((cFactor_ != 0) && (ifDepth_ != 3) && (ifDepth_ > 0))
           cfac *= cFactor_->getCorr(t_Run, (*t_DetIds1)[idet]);
+        if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+          cfac *= cDuplicate_->getWeight((*t_DetIds1)[idet]);
         double hitEn = cfac * (*t_HitEnergies1)[idet];
         Etot1 += hitEn;
       }
@@ -1711,6 +1704,8 @@ void CalibMonitor::correctEnergy(double &eHcal, const Long64_t &entry) {
         double cfac = corrFactor_->getCorr(id);
         if ((cFactor_ != 0) && (ifDepth_ != 3) && (ifDepth_ > 0))
           cfac *= cFactor_->getCorr(t_Run, (*t_DetIds3)[idet]);
+        if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+          cfac *= cDuplicate_->getWeight((*t_DetIds3)[idet]);
         double hitEn = cfac * (*t_HitEnergies3)[idet];
         Etot3 += hitEn;
       }

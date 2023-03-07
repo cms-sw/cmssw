@@ -38,6 +38,12 @@
 //      A class for selecting a given Read Out Box and provides
 //        bool isItRBX(detId): if it/they is in the chosen RBX
 //        bool isItRBX(ieta, iphi): if it is in the chosen RBX
+// CalibDuplicate(infile, flag, debug)
+//      A class for either rejecting duplicate entries or giving depth
+//        dependent weight. flag is 0 for keeping a list of duplicate
+//        emtries; 1 is to keep depth dependent weight for each ieta
+//        bool isDuplicate(entry): if it is a duplicate entry
+//        double getWeight(ieta, depth): get the dependent weight
 // void CalibCorrTest(infile, flag)
 //      Tests a file which contains correction factors used by CalibCorr
 //////////////////////////////////////////////////////////////////////////////
@@ -515,6 +521,22 @@ private:
   bool debug_;
   int subdet_, zside_;
   std::vector<int> phis_;
+};
+
+class CalibDuplicate {
+public:
+  CalibDuplicate(const char* infile, int flag, bool debug);
+  ~CalibDuplicate() {}
+
+  bool isDuplicate(long entry);
+  double getWeight(const unsigned int);
+  bool doCorr() { return ((flag_ != 1) && ok_); }
+
+private:
+  int flag_;
+  double debug_, ok_;
+  std::vector<Long64_t> entries_;
+  std::map<int, std::vector<double> > weights_;
 };
 
 CalibCorrFactor::CalibCorrFactor(const char* infile, int useScale, double scale, bool etamax, bool marina, bool debug)
@@ -1025,6 +1047,97 @@ bool CalibSelectRBX::isItRBX(const int ieta, const int iphi) {
     std::cout << "isItRBX: ieta " << ieta << " iphi " << iphi << " OK " << ok << std::endl;
   }
   return ok;
+}
+
+CalibDuplicate::CalibDuplicate(const char* fname, int flag, bool debug) : flag_(flag), debug_(debug), ok_(false) {
+  if (flag_ == 1) {
+    if (strcmp(fname, "") != 0) {
+      std::ifstream infile(fname);
+      if (!infile.is_open()) {
+        std::cout << "Cannot open duplicate file " << fname << std::endl;
+      } else {
+        while (1) {
+          Long64_t jentry;
+          infile >> jentry;
+          if (!infile.good())
+            break;
+          entries_.push_back(jentry);
+        }
+        infile.close();
+        std::cout << "Reads a list of " << entries_.size() << " events from " << fname << std::endl;
+        if (entries_.size() > 0)
+          ok_ = true;
+      }
+    } else {
+      std::cout << "No duplicate events in the input file" << std::endl;
+    }
+  } else {
+    if (strcmp(fname, "") != 0) {
+      std::ifstream infile(fname);
+      if (!infile.is_open()) {
+        std::cout << "Cannot open duplicate file " << fname << std::endl;
+      } else {
+        unsigned int all(0), good(0);
+        char buffer[1024];
+        while (infile.getline(buffer, 1024)) {
+          ++all;
+          std::string bufferString(buffer);
+          if (bufferString.substr(0, 1) == "#") {
+            continue;  //ignore other comments
+          } else {
+            std::vector<std::string> items = splitString(bufferString);
+            if (items.size() < 3) {
+              std::cout << "Ignore  line: " << buffer << " Size " << items.size();
+              for (unsigned int k = 0; k < items.size(); ++k)
+                std::cout << " [" << k << "] : " << items[k];
+              std::cout << std::endl;
+            } else {
+              ++good;
+              int ieta = std::atoi(items[0].c_str());
+              std::vector<double> weights;
+              for (unsigned int k = 1; k < items.size(); ++k) {
+                double corrf = std::atof(items[k].c_str());
+                weights.push_back(corrf);
+              }
+              weights_[ieta] = weights;
+              if (debug_) {
+                std::cout << "Eta " << ieta << " with " << weights.size() << " depths having weights:";
+                for (unsigned int k = 0; k < weights.size(); ++k)
+                  std::cout << " " << weights[k];
+                std::cout << std::endl;
+              }
+            }
+          }
+        }
+        infile.close();
+        std::cout << "Reads total of " << all << " and " << good << " good records of depth dependent factors from "
+                  << fname << std::endl;
+        if (good > 0)
+          ok_ = true;
+      }
+    }
+  }
+}
+
+bool CalibDuplicate::isDuplicate(long entry) {
+  if (ok_)
+    return (std::find(entries_.begin(), entries_.end(), entry) != entries_.end());
+  else
+    return false;
+}
+
+double CalibDuplicate::getWeight(unsigned int detId) {
+  double wt(1.0);
+  if (ok_) {
+    int subdet, ieta, zside, depth, iphi;
+    unpackDetId(detId, subdet, zside, ieta, iphi, depth);
+    std::map<int, std::vector<double> >::const_iterator itr = weights_.find(ieta);
+    if (itr != weights_.end()) {
+      if (depth < static_cast<int>(itr->second.size()))
+        wt = itr->second[depth];
+    }
+  }
+  return wt;
 }
 
 void CalibCorrTest(const char* infile, int flag) {
