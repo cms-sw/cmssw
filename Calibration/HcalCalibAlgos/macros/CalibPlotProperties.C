@@ -40,9 +40,11 @@
 //   puCorr (int)              = PU correction to be applied or not: 0 no
 //                               correction; < 0 use eDelta; > 0 rho dependent
 //                               correction (-8)
-//   flag (int)                = 6 digit integer (mlthdo) with control
-//                               information (m=0/1 for controlling creation
-//                               of depth depedendent histograms;
+//   flag (int)                = 7 digit integer (ymlthdo) with control
+//                               information (y=1/0 containing list of
+//                               duplicate entries (1) or depth dependent wts
+//                               (0) in dupFileName; m=0/1 for controlling
+//                               creation of depth depedendent histograms;
 //                               l=4/3/2/1/0 for type of rcorFileName (4 for
 //                               using results from phi-symmetry; 3 for
 //                               pileup correction using machine learning
@@ -275,7 +277,7 @@ public:
   virtual Int_t Cut(Long64_t entry);
   virtual Int_t GetEntry(Long64_t entry);
   virtual Long64_t LoadTree(Long64_t entry);
-  virtual void Init(TChain *, const char *);
+  virtual void Init(TChain *);
   virtual void Loop(Long64_t nentries = -1);
   virtual Bool_t Notify();
   virtual void Show(Long64_t entry = -1);
@@ -289,6 +291,7 @@ private:
   CalibCorrFactor *corrFactor_;
   CalibCorr *cFactor_;
   CalibSelectRBX *cSelect_;
+  CalibDuplicate *cDuplicate_;
   const std::string fname_, dirnm_, prefix_, outFileName_;
   const int corrPU_, flag_;
   const bool dataMC_, useGen_;
@@ -298,11 +301,10 @@ private:
   const int phimin_, phimax_, zside_, nvxlo_, nvxhi_, rbx_;
   bool exclude_, corrE_, cutL1T_;
   bool includeRun_, getHist_;
-  int flexibleSelect_, ifDepth_;
+  int flexibleSelect_, ifDepth_, duplicate_;
   bool plotBasic_, plotEnergy_, plotHists_;
   double log2by18_;
   std::ofstream fileout_;
-  std::vector<Long64_t> entries_;
   std::vector<std::pair<int, int> > events_;
   TH1D *h_p[CalibPlots::ntitles];
   TH1D *h_eta[CalibPlots::ntitles], *h_nvtx, *h_nvtxEv, *h_nvtxTk;
@@ -346,6 +348,7 @@ CalibPlotProperties::CalibPlotProperties(const char *fname,
     : corrFactor_(nullptr),
       cFactor_(nullptr),
       cSelect_(nullptr),
+      cDuplicate_(nullptr),
       fname_(fname),
       dirnm_(dirnm),
       prefix_(prefix),
@@ -377,6 +380,7 @@ CalibPlotProperties::CalibPlotProperties(const char *fname,
   bool marina = ((oneplace / 2) % 2);
   ifDepth_ = ((flag_ / 10000) % 10);
   plotHists_ = (((flag_ / 100000) % 10) > 0);
+  duplicate_ = ((flag_ / 1000000) % 10);
   log2by18_ = std::log(2.5) / 18.0;
   if (runlo_ < 0 || runhi_ < 0) {
     runlo_ = std::abs(runlo_);
@@ -396,7 +400,7 @@ CalibPlotProperties::CalibPlotProperties(const char *fname,
     std::cout << "*****No valid tree chain can be obtained*****" << std::endl;
   } else {
     std::cout << "Proceed with a tree chain with " << chain->GetEntries() << " entries" << std::endl;
-    Init(chain, dupFileName);
+    Init(chain);
     if (std::string(rcorFileName) != "") {
       cFactor_ = new CalibCorr(rcorFileName, ifDepth_, false);
       if (cFactor_->absent())
@@ -404,6 +408,8 @@ CalibPlotProperties::CalibPlotProperties(const char *fname,
     } else {
       ifDepth_ = -1;
     }
+    if (std::string(dupFileName) != "")
+      cDuplicate_ = new CalibDuplicate(dupFileName, duplicate_, false);
     if (rbx != 0)
       cSelect_ = new CalibSelectRBX(rbx, false);
   }
@@ -442,7 +448,7 @@ Long64_t CalibPlotProperties::LoadTree(Long64_t entry) {
   return centry;
 }
 
-void CalibPlotProperties::Init(TChain *tree, const char *dupFileName) {
+void CalibPlotProperties::Init(TChain *tree) {
   // The Init() function is called when the selector needs to initialize
   // a new tree or chain. Typically here the branch addresses and branch
   // pointers of the tree will be set.
@@ -505,23 +511,6 @@ void CalibPlotProperties::Init(TChain *tree, const char *dupFileName) {
   fChain->SetBranchAddress("t_HitEnergies1", &t_HitEnergies1, &b_t_HitEnergies1);
   fChain->SetBranchAddress("t_HitEnergies3", &t_HitEnergies3, &b_t_HitEnergies3);
   Notify();
-
-  if (std::string(dupFileName) != "") {
-    std::ifstream infil1(dupFileName);
-    if (!infil1.is_open()) {
-      std::cout << "Cannot open duplicate file " << dupFileName << std::endl;
-    } else {
-      while (1) {
-        Long64_t jentry;
-        infil1 >> jentry;
-        if (!infil1.good())
-          break;
-        entries_.push_back(jentry);
-      }
-      infil1.close();
-      std::cout << "Reads a list of " << entries_.size() << " events from " << dupFileName << std::endl;
-    }
-  }
 
   char name[20], title[200];
   unsigned int kk(0);
@@ -810,7 +799,7 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
     nbytes += nb;
     if (jentry % 1000000 == 0)
       std::cout << "Entry " << jentry << " Run " << t_Run << " Event " << t_Event << std::endl;
-    bool select = (std::find(entries_.begin(), entries_.end(), jentry) == entries_.end());
+    bool select = ((cDuplicate_ != nullptr) && (duplicate_ == 1)) ? (cDuplicate_->isDuplicate(jentry)) : true;
     if (!select) {
       ++duplicate;
       if (debug)
@@ -894,6 +883,8 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
         double cfac = corrFactor_->getCorr(id);
         if ((cFactor_ != 0) && (ifDepth_ != 3) && (ifDepth_ > 0))
           cfac *= cFactor_->getCorr(t_Run, (*t_DetIds)[k]);
+        if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+          cfac *= cDuplicate_->getWeight((*t_DetIds)[k]);
         eHcal += (cfac * ((*t_HitEnergies)[k]));
         if (debug) {
           int subdet, zside, ieta, iphi, depth;
@@ -983,6 +974,8 @@ void CalibPlotProperties::Loop(Long64_t nentries) {
               double cfac = corrFactor_->getCorr(id);
               if ((cFactor_ != 0) && (ifDepth_ != 3) && (ifDepth_ > 0))
                 cfac *= cFactor_->getCorr(t_Run, (*t_DetIds)[k]);
+              if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+                cfac *= cDuplicate_->getWeight((*t_DetIds)[k]);
               double ener = cfac * (*t_HitEnergies)[k];
               if (corrPU_)
                 correctEnergy(ener);
@@ -1202,6 +1195,8 @@ void CalibPlotProperties::correctEnergy(double &eHcal) {
         double cfac = corrFactor_->getCorr(id);
         if ((cFactor_ != 0) && (ifDepth_ != 3) && (ifDepth_ > 0))
           cfac *= cFactor_->getCorr(t_Run, (*t_DetIds1)[idet]);
+        if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+          cfac *= cDuplicate_->getWeight((*t_DetIds1)[idet]);
         double hitEn = cfac * (*t_HitEnergies1)[idet];
         Etot1 += hitEn;
       }
@@ -1210,6 +1205,8 @@ void CalibPlotProperties::correctEnergy(double &eHcal) {
         double cfac = corrFactor_->getCorr(id);
         if ((cFactor_ != 0) && (ifDepth_ != 3) && (ifDepth_ > 0))
           cfac *= cFactor_->getCorr(t_Run, (*t_DetIds3)[idet]);
+        if ((cDuplicate_ != nullptr) && (cDuplicate_->doCorr()))
+          cfac *= cDuplicate_->getWeight((*t_DetIds)[idet]);
         double hitEn = cfac * (*t_HitEnergies3)[idet];
         Etot3 += hitEn;
       }
