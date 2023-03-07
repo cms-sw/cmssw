@@ -301,6 +301,83 @@ namespace JME{
   typedef JetScaleFactorVsEta<DOWN> JetScaleFactorVsEtaDOWN;
   typedef JetScaleFactorVsEta<UP> JetScaleFactorVsEtaUP;
 
+  class JetScaleFactorSummary : public cond::payloadInspector::PlotImage<JetResolutionObject> {
+    public:
+      static const int MIN_ETA = -5.05;
+      static const int MAX_ETA =  5.05;
+      static const int NBIN_ETA = 51;
+
+    JetScaleFactorSummary() : cond::payloadInspector::PlotImage<JetResolutionObject>( "Jet ScaleFactor Summary"){
+      Base::setSingleIov( true );
+    }
+
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs)override{
+      TH1D *sf_eta_norm = new TH1D("Jet SF vs #eta NORM", "", NBIN_ETA, MIN_ETA, MAX_ETA);
+      TH1D *sf_eta_down = new TH1D("Jet SF vs #eta DOWN", "", NBIN_ETA, MIN_ETA, MAX_ETA);
+      TH1D *sf_eta_up = new TH1D("Jet SF vs #eta UP", "", NBIN_ETA, MIN_ETA, MAX_ETA);
+      unsigned int run = 0;
+      std::string tagname;
+
+      auto iov = iovs.front();
+      std::shared_ptr<JetResolutionObject> payload = fetchPayload(std::get<1>(iov));
+      run = std::get<0>(iov);
+      tagname = cond::payloadInspector::PlotBase::getTag<0>().name;
+
+      if (payload.get()) {
+        if(payload->getRecords().size() > 0 &&  // No formula for SF
+           payload->getDefinition().getFormulaString().compare("")!=0) return false; 
+
+        for(const auto& record : payload->getRecords()){ 
+          if(record.getBinsRange().size()>0 &&
+            payload->getDefinition().getBinName(0) == "JetEta" &&
+            record.getParametersValues().size() == 3){ // norm, down, up
+
+            for(size_t it = 0; it <= NBIN_ETA; it++){
+                double x_axis = (it+0.5)*(MAX_ETA-MIN_ETA)/NBIN_ETA+MIN_ETA;
+              if(record.getBinsRange()[0].is_inside(x_axis)){
+                sf_eta_norm->SetBinContent(it+1, record.getParametersValues()[0]);
+                sf_eta_down->SetBinContent(it+1, record.getParametersValues()[1]);
+                sf_eta_up->SetBinContent(it+1, record.getParametersValues()[2]);
+              }
+            }
+          }
+        }  // records
+        gStyle->SetOptStat(0);
+        //gStyle->SetPadLeftMargin(0.16);
+        //gStyle->SetPadRightMargin(0.02);
+
+        std::string title = Form("Summary Run %i", run);
+        TCanvas canvas("Jet ScaleFactor Summary", title.c_str(), 800, 600);
+
+        canvas.cd();
+        sf_eta_up->SetTitle(tagname.c_str());
+        sf_eta_up->SetXTitle("#eta");
+        sf_eta_up->SetYTitle("Scale Factor");
+        sf_eta_up->SetLineStyle(7);
+        sf_eta_up->SetLineWidth(3);
+        sf_eta_up->SetFillColorAlpha(kGray, 0.5);
+        sf_eta_up->SetMinimum(0.);
+        sf_eta_up->Draw("][");
+
+        sf_eta_down->SetLineStyle(7);
+        sf_eta_down->SetLineWidth(3);
+        sf_eta_down->SetFillColorAlpha(kWhite, 1);
+        sf_eta_down->Draw("][ same");
+
+        sf_eta_norm->SetLineStyle(1);
+        sf_eta_norm->SetLineWidth(5);
+        sf_eta_norm->SetFillColor(0);
+        sf_eta_norm->Draw("][ same");
+        sf_eta_norm->Draw("axis same");
+
+        canvas.SaveAs(m_imageFileName.c_str());
+
+        return true;
+      }//else // no payload.get()
+      return false;
+    }  // fill
+
+  };  // class
 // Register the classes as boost python plugin
 PAYLOAD_INSPECTOR_MODULE( JetResolutionObject ){
   PAYLOAD_INSPECTOR_CLASS( JetResolutionVsEta );
@@ -309,6 +386,7 @@ PAYLOAD_INSPECTOR_MODULE( JetResolutionObject ){
   PAYLOAD_INSPECTOR_CLASS( JetScaleFactorVsEtaDOWN );
   PAYLOAD_INSPECTOR_CLASS( JetScaleFactorVsEtaUP );
   PAYLOAD_INSPECTOR_CLASS( JetResolutionSummary );
+  PAYLOAD_INSPECTOR_CLASS( JetScaleFactorSummary );
 }
 
 }  // namespace
