@@ -65,6 +65,11 @@ private:
   HFDigiSortedTable* hfDigiTable_;
   HODigiSortedTable* hoDigiTable_;
 
+  const unsigned int nTS_HB_;
+  const unsigned int nTS_HE_;
+  const unsigned int nTS_HF_;
+  const unsigned int nTS_HO_;
+
 public:
   explicit HcalDigiSortedTableProducer(const edm::ParameterSet& iConfig)
       : tokenHBDetIdList_(consumes<edm::InRun>(iConfig.getUntrackedParameter<edm::InputTag>(
@@ -78,7 +83,11 @@ public:
         tagQIE11_(iConfig.getUntrackedParameter<edm::InputTag>("tagQIE11", edm::InputTag("hcalDigis"))),
         tagQIE10_(iConfig.getUntrackedParameter<edm::InputTag>("tagQIE10", edm::InputTag("hcalDigis"))),
         tagHO_(iConfig.getUntrackedParameter<edm::InputTag>("tagHO", edm::InputTag("hcalDigis"))),
-        tokenHcalDbService_(esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>()) {
+        tokenHcalDbService_(esConsumes<HcalDbService, HcalDbRecord, edm::Transition::BeginRun>()),
+        nTS_HB_(iConfig.getUntrackedParameter<unsigned int>("nTS_HB", 8)),
+        nTS_HE_(iConfig.getUntrackedParameter<unsigned int>("nTS_HE", 8)),
+        nTS_HF_(iConfig.getUntrackedParameter<unsigned int>("nTS_HF", 3)),
+        nTS_HO_(iConfig.getUntrackedParameter<unsigned int>("nTS_HO", 10)) {
     tokenQIE11_ = consumes<QIE11DigiCollection>(tagQIE11_);
     tokenHO_ = consumes<HODigiCollection>(tagHO_);
     tokenQIE10_ = consumes<QIE10DigiCollection>(tagQIE10_);
@@ -87,6 +96,11 @@ public:
     produces<nanoaod::FlatTable>("HEDigiSortedTable");
     produces<nanoaod::FlatTable>("HFDigiSortedTable");
     produces<nanoaod::FlatTable>("HODigiSortedTable");
+
+    hbDigiTable_ = nullptr;
+    heDigiTable_ = nullptr;
+    hfDigiTable_ = nullptr;
+    hoDigiTable_ = nullptr;
   }
 
   ~HcalDigiSortedTableProducer() override {
@@ -124,10 +138,10 @@ void HcalDigiSortedTableProducer::beginRun(edm::Run const& iRun, edm::EventSetup
   iRun.getByToken(tokenHODetIdList_, dids_[HcalOuter]);
 
   // Create persistent, sorted digi storage
-  hbDigiTable_ = new HBDigiSortedTable(*(dids_[HcalBarrel]), 8);
-  heDigiTable_ = new HEDigiSortedTable(*(dids_[HcalEndcap]), 8);
-  hfDigiTable_ = new HFDigiSortedTable(*(dids_[HcalForward]), 3);
-  hoDigiTable_ = new HODigiSortedTable(*(dids_[HcalOuter]), 10);
+  hbDigiTable_ = new HBDigiSortedTable(*(dids_[HcalBarrel]), nTS_HB_);
+  heDigiTable_ = new HEDigiSortedTable(*(dids_[HcalEndcap]), nTS_HE_);
+  hfDigiTable_ = new HFDigiSortedTable(*(dids_[HcalForward]), nTS_HF_);
+  hoDigiTable_ = new HODigiSortedTable(*(dids_[HcalOuter]), nTS_HO_);
 }
 
 void HcalDigiSortedTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -200,6 +214,7 @@ void HcalDigiSortedTableProducer::produce(edm::Event& iEvent, const edm::EventSe
   hbNanoTable->addColumn<int>("flags", hbDigiTable_->flags_, "flags");
   hbNanoTable->addColumn<int>("soi", hbDigiTable_->sois_, "soi");
   hbNanoTable->addColumn<bool>("valid", hbDigiTable_->valids_, "valid");
+  hbNanoTable->addColumn<uint8_t>("sipmTypes", hbDigiTable_->sipmTypes_, "sipmTypes");
 
   for (unsigned int iTS = 0; iTS < 8; ++iTS) {
     hbNanoTable->addColumn<int>(
@@ -229,6 +244,7 @@ void HcalDigiSortedTableProducer::produce(edm::Event& iEvent, const edm::EventSe
   heNanoTable->addColumn<int>("flags", heDigiTable_->flags_, "flags");
   heNanoTable->addColumn<int>("soi", heDigiTable_->sois_, "soi");
   heNanoTable->addColumn<bool>("valid", heDigiTable_->valids_, "valid");
+  heNanoTable->addColumn<uint8_t>("sipmTypes", heDigiTable_->sipmTypes_, "sipmTypes");
 
   for (unsigned int iTS = 0; iTS < 8; ++iTS) {
     heNanoTable->addColumn<int>(
@@ -257,6 +273,7 @@ void HcalDigiSortedTableProducer::produce(edm::Event& iEvent, const edm::EventSe
   hfNanoTable->addColumn<int>("flags", hfDigiTable_->flags_, "flags");
   hfNanoTable->addColumn<int>("soi", hfDigiTable_->sois_, "soi");
   hfNanoTable->addColumn<bool>("valid", hfDigiTable_->valids_, "valid");
+  //hfNanoTable->addColumn<uint8_t>("sipmTypes", hfDigiTable_->sipmTypes_, "sipmTypes");
 
   for (unsigned int iTS = 0; iTS < 3; ++iTS) {
     hfNanoTable->addColumn<int>(

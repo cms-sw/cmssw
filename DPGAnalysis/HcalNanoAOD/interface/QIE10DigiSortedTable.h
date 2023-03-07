@@ -29,6 +29,7 @@ public:
   std::vector<int> flags_;
   std::vector<int> sois_;
   std::vector<bool> valids_;
+  //std::vector<uint8_t> sipmTypes_;
 
   unsigned int nTS_;
   std::vector<std::vector<int>> adcs_;

@@ -16,6 +16,7 @@ QIE10DigiSortedTable::QIE10DigiSortedTable(const std::vector<HcalDetId>& dids, c
   flags_.resize(dids_.size());
   sois_.resize(dids_.size());
   valids_.resize(dids_.size());
+  //sipmTypes_.resize(dids_.size());
 
   adcs_.resize(nTS_, std::vector<int>(dids_.size()));
   fcs_.resize(nTS_, std::vector<float>(dids_.size()));
@@ -39,6 +40,7 @@ void QIE10DigiSortedTable::add(const QIE10DataFrame* digi, const edm::ESHandle<H
   rawIds_[index] = did.rawId();
   linkErrors_[index] = digi->linkError();
   flags_[index] = digi->flags();
+  //sipmTypes_[index] = (uint8_t)dbService->getHcalSiPMParameter(did)->getType();
 
   for (unsigned int iTS = 0; iTS < (unsigned int)digi->samples(); ++iTS) {
     if ((*digi)[iTS].soi()) {
@@ -65,6 +67,7 @@ void QIE10DigiSortedTable::reset() {
   std::fill(flags_.begin(), flags_.end(), 0);
   std::fill(sois_.begin(), sois_.end(), -1);
   std::fill(valids_.begin(), valids_.end(), false);
+  //std::fill(sipmTypes_.begin(), sipmTypes_.end(), 0);
 
   for (unsigned int i = 0; i < nTS_; ++i) {
     for (unsigned int j = 0; j < dids_.size(); ++j) {
