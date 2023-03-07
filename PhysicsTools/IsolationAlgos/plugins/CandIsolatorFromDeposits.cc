@@ -60,11 +60,13 @@ using namespace edm;
 using namespace reco;
 using namespace reco::isodeposit;
 
-bool isNumber(const std::string &str) {
-  static const std::regex re("^[+-]?(\\d+\\.?|\\d*\\.\\d*)$");
-  return regex_match(str.c_str(), re);
-}
-double toNumber(const std::string &str) { return atof(str.c_str()); }
+namespace {
+  bool isNumber(const std::string &str) {
+    static const std::regex re("^[+-]?(\\d+\\.?|\\d*\\.\\d*)$");
+    return regex_match(str.c_str(), re);
+  }
+  double toNumber(const std::string &str) { return atof(str.c_str()); }
+}  // namespace
 
 CandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet &iConfig, edm::ConsumesCollector &&iC)
     : srcToken_(iC.consumes<reco::IsoDepositMap>(iConfig.getParameter<edm::InputTag>("src"))),
