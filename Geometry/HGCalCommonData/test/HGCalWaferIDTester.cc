@@ -142,10 +142,10 @@ void HGCalWaferIDTester::analyze(const edm::Event& iEvent, const edm::EventSetup
       st1 << "Hit[" << k << "] " << detIds_[k];
       int cellU(0), cellV(0), waferType(-1), waferU(0), waferV(0);
       double wt(0);
-      double xx = posXY_[k].first;
-      double yy = posXY_[k].second;
       int layer = detIds_[k].layer();
       int zside = detIds_[k].zside();
+      double xx = (zside < 0) ? -posXY_[k].first : posXY_[k].first;
+      double yy = posXY_[k].second;
       hgdc.waferFromPosition(xx, yy, zside, layer, waferU, waferV, cellU, cellV, waferType, wt, false, debug);
       HGCSiliconDetId id(detIds_[k].det(), detIds_[k].zside(), waferType, layer, waferU, waferV, cellU, cellV);
       if (id.rawId() != detIds_[k].rawId())
@@ -153,7 +153,7 @@ void HGCalWaferIDTester::analyze(const edm::Event& iEvent, const edm::EventSetup
       auto xy = hgdc.locateCell(id, true);
       double xx0 = (id.zside() > 0) ? xy.first : -xy.first;
       double yy0 = xy.second;
-      double dx = xx0 - (xx / CLHEP::cm);
+      double dx = xx0 - (posXY_[k].first / CLHEP::cm);
       double dy = yy0 - (yy / CLHEP::cm);
       double diff = std::sqrt(dx * dx + dy * dy);
       st1 << " input position: (" << xx / CLHEP::cm << ", " << yy / CLHEP::cm << "); position from ID (" << xx0 << ", "
