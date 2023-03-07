@@ -75,8 +75,7 @@ SeedGeneratorFromProtoTracksEDProducer::SeedGeneratorFromProtoTracksEDProducer(c
       seedCreator_(cfg.getParameter<edm::ParameterSet>("SeedCreatorPSet"), consumesCollector()),
       config_(consumesCollector()) {
   produces<TrajectorySeedCollection>();
-  if (produceComplement_)
-  {
+  if (produceComplement_) {
     produces<reco::TrackCollection>();
   }
 }
@@ -124,7 +123,7 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
         }
       }
     }
-    if(produceComplement_ and !keepTrack)
+    if (produceComplement_ and !keepTrack)
       (*leftTracks).push_back(proto);
     if (!keepTrack)
       continue;
@@ -157,6 +156,6 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
   }
 
   ev.put(std::move(result));
-  if(produceComplement_)
+  if (produceComplement_)
     ev.put(std::move(leftTracks));
 }
