@@ -2,7 +2,7 @@
 # Pass in name and status
 function die { echo $1: status $2 ;  exit $2; }
 
-LOCAL_TEST_DIR=src/IOPool/Common/test
+LOCAL_TEST_DIR=${CMSSW_BASE}/src/IOPool/Common/test
 
 cmsRun ${LOCAL_TEST_DIR}/make_overlap_lumi_cfg.py || die "cmsRun make_overlap_lumi_cfg.py failed" $?
 

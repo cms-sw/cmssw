@@ -2,6 +2,8 @@
 # Pass in name and status
 function die { echo $1: status $2 ;  exit $2; }
 
+LOCAL_TEST_DIR=$CMSSW_BASE/src/IOPool/Common/test
+LOCAL_TMP_DIR=$CMSSW_BASE/tmp
 pushd ${LOCAL_TMP_DIR}
 
 #---------------------------
