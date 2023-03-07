@@ -799,6 +799,12 @@ namespace {
           auto PhInfo = SiPixelPI::PhaseInfo(SiPixelPI::phase1size);
           const auto& regName = this->attachLocationLabel(modules, PhInfo);
           namesOfParts.push_back(regName);
+
+          edm::LogVerbatim(label_) << "region name: " << regName << " has the following modules attached: ";
+          for (const auto& module : modules) {
+            edm::LogVerbatim(label_) << module << ", ";
+          }
+          edm::LogVerbatim(label_) << "\n\n";
         }
 
         // functional for polynomial of n-th degree
@@ -824,20 +830,13 @@ namespace {
 
           // push polynomial degree as first entry in the vector
           params.insert(params.begin(), n);
-
           // TF1::SetParameters needs a C-style array
           double* arr = params.data();
           f1->SetLineWidth(2);
 
-          if (n == 1) {
-            /* special case for constant
-	       using setParameters technically works, but leads to
-	       heap-buffer-overflow
-	     */
-            f1->SetParameter(0, arr[0]);
-            f1->SetParameter(1, arr[1]);
-          } else {
-            f1->SetParameters(arr);
+          // fill in the parameter
+          for (unsigned int j = 0; j < params.size(); j++) {
+            f1->SetParameter(j, arr[j]);
           }
 
           parametrizations.push_back(f1);
