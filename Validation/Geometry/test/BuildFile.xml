@@ -1,3 +1,4 @@
 <!--CMSBot IB tests-->
+<flags USE_UNITTEST_DIR="1"/>
 <test name="materialBudgetTrackerPlots" command="genTrackerPlots.sh"/>
 <test name="materialBudgetHGCalPlots" command="genHGCalPlots.sh"/>
