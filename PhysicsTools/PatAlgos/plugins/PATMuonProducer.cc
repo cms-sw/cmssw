@@ -235,7 +235,7 @@ namespace pat {
     bool computeMuonIDMVA_;
     bool computeSoftMuonMVA_;
     bool recomputeBasicSelectors_;
-    bool mvaUseJec_;
+    bool useJec_;
     edm::EDGetTokenT<reco::JetTagCollection> mvaBTagCollectionTag_;
     edm::EDGetTokenT<reco::JetCorrector> mvaL1Corrector_;
     edm::EDGetTokenT<reco::JetCorrector> mvaL1L2L3ResCorrector_;
@@ -344,7 +344,7 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet& iConfig, PATMuonHeavyO
       computeMuonIDMVA_(false),
       computeSoftMuonMVA_(false),
       recomputeBasicSelectors_(false),
-      mvaUseJec_(false),
+      useJec_(false),
       isolator_(iConfig.getParameter<edm::ParameterSet>("userIsolation"), consumesCollector(), false),
       geometryToken_{esConsumes()},
       transientTrackBuilderToken_{esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))},
@@ -461,7 +461,7 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet& iConfig, PATMuonHeavyO
     mvaL1Corrector_ = consumes<reco::JetCorrector>(iConfig.getParameter<edm::InputTag>("mvaL1Corrector"));
     mvaL1L2L3ResCorrector_ = consumes<reco::JetCorrector>(iConfig.getParameter<edm::InputTag>("mvaL1L2L3ResCorrector"));
     rho_ = consumes<double>(iConfig.getParameter<edm::InputTag>("rho"));
-    mvaUseJec_ = iConfig.getParameter<bool>("mvaUseJec");
+    useJec_ = iConfig.getParameter<bool>("useJec");
   }
 
   computeSoftMuonMVA_ = iConfig.getParameter<bool>("computeSoftMuonMVA");
@@ -972,7 +972,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     std::vector<float> jetPtRatioRel = {0.0, 0.0};
     if (primaryVertexIsValid && computeMiniIso_) {
-      if (mvaUseJec_) {
+      if (useJec_) {
         jetPtRatioRel = globalCache()->calculatePtRatioRel().computePtRatioRel(
             muon, *(mvaBTagCollectionTag.product()), mvaL1Corrector.product(), mvaL1L2L3ResCorrector.product());
       } else {
