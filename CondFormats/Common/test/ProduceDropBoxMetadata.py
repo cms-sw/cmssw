@@ -17,11 +17,11 @@ process.source = cms.Source("EmptySource",
                             )
 
 # process.PoolDBOutputService.DBParameters.messageLevel = 3
-import json
+import json, os
 
 def encodeJsonInString(filename):
     """This function open the json file and encodes it in a string replacing probelamtic characters"""
-    thefile = open("../data/"+filename)
+    thefile = open(os.path.join(os.path.dirname(__file__), "..", "data", filename))
     thejson = json.load(thefile)
     thefile.close()
     return json.JSONEncoder().encode(thejson).replace('"',"&quot;")

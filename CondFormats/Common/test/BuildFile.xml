@@ -15,9 +15,4 @@
 <bin file="testSerializationCommon.cpp">
 </bin>
 
-<environment>
-  <bin file="testDropboxMetadataDB.cpp">
-    <flags TEST_RUNNER_ARGS=" /bin/bash CondFormats/Common/test createTestDBObjects.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-</environment>
+<test name="testDropboxMetadataDB" command="createTestDBObjects.sh"/>
