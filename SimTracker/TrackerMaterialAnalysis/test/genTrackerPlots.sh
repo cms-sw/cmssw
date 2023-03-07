@@ -1,10 +1,7 @@
 #!/bin/bash -ex
 
 VGEO_DIR=$CMSSW_BASE/src/SimTracker/TrackerMaterialAnalysis/
-TEST_DIR=${VGEO_DIR}/test/trackerMaterialAnalysisPlots
-
-if [ -d $TEST_DIR ] ; then rm -rf $TEST_DIR ; fi
-mkdir $TEST_DIR && cd $TEST_DIR
+TEST_DIR=.
 
 cmsRun ${VGEO_DIR}/test/trackingMaterialProducer10GeVNeutrino_ForPhaseII.py nEvents=1000 >$TEST_DIR/producer.log 2>&1
 cmsRun ${VGEO_DIR}/test/trackingMaterialAnalyser_ForPhaseII.py >$TEST_DIR/plotter.log 2>&1
