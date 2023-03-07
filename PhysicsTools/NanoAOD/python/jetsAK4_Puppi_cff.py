@@ -136,8 +136,8 @@ def nanoAOD_addDeepInfoAK4(process,addParticleNet):
     print("Will recalculate the following discriminators: "+", ".join(_btagDiscriminators))
     updateJetCollection(
         process,
-        jetSource = cms.InputTag('slimmedJets'),
-        jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute','L2L3Residual']), 'None'),
+        jetSource = cms.InputTag('slimmedJetsPuppi'),
+        jetCorrections = ('AK4PFPuppi', cms.vstring(['L2Relative', 'L3Absolute']), 'None'),
         btagDiscriminators = _btagDiscriminators,
         postfix = 'WithDeepInfo',
     )
