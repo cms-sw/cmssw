@@ -2,6 +2,8 @@
 
 function die { echo Failure $1: status $2 ; exit $2 ; }
 
+LOCAL_TEST_DIR=$CMSSW_BASE/src/IOPool/Common/test
+LOCAL_TMP_DIR=$CMSSW_BASE/tmp
 pushd ${LOCAL_TMP_DIR}
 
   cmsRun ${LOCAL_TEST_DIR}/testEdmConfigDump_cfg.py > testEdmConfigDump.log || die "cmsRun testEdmConfigDump_cfg.py" $?
