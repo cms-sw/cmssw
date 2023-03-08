@@ -124,8 +124,9 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
                                       << HGCalGeometryMode::ExtrudedPolygon << " # of cells|size for fine/coarse "
                                       << php.nCellsFine_ << ":" << php.cellSize_[0] << ":" << php.nCellsCoarse_ << ":"
                                       << php.cellSize_[1] << " wafer Params " << php.waferSize_ << ":" << php.waferR_
-                                      << ":" << php.waferThick_ << ":" << php.sensorSeparation_ << ":" << php.sensorSizeOffset_
-                                      << ":" << php.guardRingOffset_<< ":" << php.mouseBite_ << ":" << php.waferR_;
+                                      << ":" << php.waferThick_ << ":" << php.sensorSeparation_ << ":"
+                                      << php.sensorSizeOffset_ << ":" << php.guardRingOffset_ << ":" << php.mouseBite_
+                                      << ":" << php.waferR_;
 #endif
         for (int k = 0; k < 2; ++k)
           getCellPosition(php, k);
@@ -350,8 +351,9 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
                                     << HGCalGeometryMode::ExtrudedPolygon << " # of cells|size for fine/coarse "
                                     << php.nCellsFine_ << ":" << php.cellSize_[0] << ":" << php.nCellsCoarse_ << ":"
                                     << php.cellSize_[1] << " wafer Params " << php.waferSize_ << ":" << php.waferR_
-                                    << ":" << php.waferThick_ << ":" << php.sensorSeparation_ << ":" << php.sensorSizeOffset_
-                                    << ":" << php.guardRingOffset_<< ":" << php.mouseBite_ << ":" << php.waferR_;
+                                    << ":" << php.waferThick_ << ":" << php.sensorSeparation_ << ":"
+                                    << php.sensorSizeOffset_ << ":" << php.guardRingOffset_ << ":" << php.mouseBite_
+                                    << ":" << php.waferR_;
 #endif
       for (int k = 0; k < 2; ++k)
         getCellPosition(php, k);
