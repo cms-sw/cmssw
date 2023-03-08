@@ -230,7 +230,11 @@ namespace JME{
               }
             }
           }  // records
+
           gStyle->SetOptStat(0);
+          gStyle->SetLabelFont(42, "XYZ");
+          gStyle->SetLabelSize(0.05, "XYZ");
+          gStyle->SetFrameLineWidth(3);
 
           std::string title = Form("Summary Run %i", run);
           TCanvas canvas("Jet Resolution Summary", title.c_str(), 800, 1200);
@@ -240,18 +244,20 @@ namespace JME{
           resol_eta->SetTitle(tagname.c_str());
           resol_eta->SetXTitle("#eta");
           resol_eta->SetYTitle("Resolution");
-          resol_eta->Draw();
+          resol_eta->SetLineWidth(3);
+          resol_eta->Draw("");
 
           canvas.cd(2);
-          resol_pt->SetTitle(tagname.c_str());
+          //resol_pt->SetTitle(tagname.c_str());
           resol_pt->SetXTitle("p_{T} [GeV]");
           resol_pt->SetYTitle("Resolution");
-          resol_pt->Draw();
+          resol_pt->SetLineWidth(3);
+          resol_pt->Draw("][");
 
           canvas.SaveAs(m_imageFileName.c_str());
 
           return true;    
-      }//else // no payload.get()
+      }else // no payload.get()
         return false;
     }  // fill
 
@@ -342,9 +348,11 @@ namespace JME{
             }
           }
         }  // records
+
         gStyle->SetOptStat(0);
-        //gStyle->SetPadLeftMargin(0.16);
-        //gStyle->SetPadRightMargin(0.02);
+        gStyle->SetLabelFont(42, "XYZ");
+        gStyle->SetLabelSize(0.05, "XYZ");
+        gStyle->SetFrameLineWidth(3);
 
         std::string title = Form("Summary Run %i", run);
         TCanvas canvas("Jet ScaleFactor Summary", title.c_str(), 800, 600);
