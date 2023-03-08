@@ -636,6 +636,11 @@ namespace SiPixelPI {
   inline bool isBPixOuterLadder(const DetId& detid, const TrackerTopology& tTopo, bool isPhase0)
   /*--------------------------------------------------------------------*/
   {
+    // Using TrackerTopology
+    // Ladders have a staggered structure
+    // Non-flipped ladders are on the outer radius
+    // Phase 0: Outer ladders are odd for layer 1,3 and even for layer 2
+    // Phase 1: Outer ladders are odd for layer 1,2,3 and even for layer 4
     bool isOuter = false;
     int layer = tTopo.pxbLayer(detid.rawId());
     bool odd_ladder = tTopo.pxbLadder(detid.rawId()) % 2;
@@ -646,9 +651,9 @@ namespace SiPixelPI {
         isOuter = odd_ladder;
     } else {
       if (layer == 4)
-        isOuter = odd_ladder;
-      else
         isOuter = !odd_ladder;
+      else
+        isOuter = odd_ladder;
     }
     return isOuter;
   }
