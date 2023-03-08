@@ -153,6 +153,8 @@ public:
   double waferSize_;
   double waferThick_;
   double sensorSeparation_;
+  double sensorSizeOffset_;
+  double guardRingOffset_;
   double mouseBite_;
   int waferUVMax_;
   std::vector<int> waferUVMaxLayer_;
