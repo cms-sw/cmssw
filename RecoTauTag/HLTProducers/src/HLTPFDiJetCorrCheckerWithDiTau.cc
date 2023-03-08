@@ -92,8 +92,7 @@ void HLTPFDiJetCorrCheckerWithDiTau::produce(edm::StreamID iSId, edm::Event& iEv
 
           correctComb = true;
           break;
-        }
-        else {
+        } else {
           for (unsigned int iTau2 = iTau1 + 1; iTau2 < taus.size(); iTau2++) {
             if (taus[iTau1]->pt() < extraTauPtCut_ && taus[iTau2]->pt() < extraTauPtCut_)
               continue;
