@@ -1131,6 +1131,7 @@ streamPhysicsEGamma0_datasetEGamma0_selector.l1tResults = cms.InputTag('')
 streamPhysicsEGamma0_datasetEGamma0_selector.throw      = cms.bool(False)
 streamPhysicsEGamma0_datasetEGamma0_selector.triggerConditions = cms.vstring(
     'HLT_DiEle27_WPTightCaloOnly_L1DoubleEG_v6',
+    'HLT_DiPhoton10Time1ns_v2',
     'HLT_DiPhoton10Time1p2ns_v2',
     'HLT_DiPhoton10Time1p4ns_v2',
     'HLT_DiPhoton10Time1p6ns_v2',
@@ -1144,6 +1145,8 @@ streamPhysicsEGamma0_datasetEGamma0_selector.triggerConditions = cms.vstring(
     'HLT_Diphoton20_14_eta1p5_R9IdL_AND_HE_AND_IsoTCaloIdT_v2',
     'HLT_Diphoton22_14_eta1p5_R9IdL_AND_HET_AND_IsoTCaloIdT_v2',
     'HLT_Diphoton22_14_eta1p5_R9IdL_AND_HE_AND_IsoTCaloIdT_v2',
+    'HLT_Diphoton24_14_eta1p5_R9IdL_AND_HET_AND_IsoTCaloIdT_v2',
+    'HLT_Diphoton24_16_eta1p5_R9IdL_AND_HET_AND_IsoTCaloIdT_v2',
     'HLT_Diphoton30_18_R9IdL_AND_HE_AND_IsoCaloId_Mass55_v3',
     'HLT_Diphoton30_18_R9IdL_AND_HE_AND_IsoCaloId_v3',
     'HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v15',
@@ -1220,6 +1223,7 @@ streamPhysicsEGamma1_datasetEGamma1_selector.l1tResults = cms.InputTag('')
 streamPhysicsEGamma1_datasetEGamma1_selector.throw      = cms.bool(False)
 streamPhysicsEGamma1_datasetEGamma1_selector.triggerConditions = cms.vstring(
     'HLT_DiEle27_WPTightCaloOnly_L1DoubleEG_v6',
+    'HLT_DiPhoton10Time1ns_v2',
     'HLT_DiPhoton10Time1p2ns_v2',
     'HLT_DiPhoton10Time1p4ns_v2',
     'HLT_DiPhoton10Time1p6ns_v2',
@@ -1233,6 +1237,8 @@ streamPhysicsEGamma1_datasetEGamma1_selector.triggerConditions = cms.vstring(
     'HLT_Diphoton20_14_eta1p5_R9IdL_AND_HE_AND_IsoTCaloIdT_v2',
     'HLT_Diphoton22_14_eta1p5_R9IdL_AND_HET_AND_IsoTCaloIdT_v2',
     'HLT_Diphoton22_14_eta1p5_R9IdL_AND_HE_AND_IsoTCaloIdT_v2',
+    'HLT_Diphoton24_14_eta1p5_R9IdL_AND_HET_AND_IsoTCaloIdT_v2',
+    'HLT_Diphoton24_16_eta1p5_R9IdL_AND_HET_AND_IsoTCaloIdT_v2',
     'HLT_Diphoton30_18_R9IdL_AND_HE_AND_IsoCaloId_Mass55_v3',
     'HLT_Diphoton30_18_R9IdL_AND_HE_AND_IsoCaloId_v3',
     'HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v15',

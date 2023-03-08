@@ -544,6 +544,7 @@ HLT_HT200_L1SingleLLPJet_DisplacedDijet60_DisplacedTrack_v*           # CMSHLT-2
 HLT_HT270_L1SingleLLPJet_DisplacedDijet40_DisplacedTrack_v*           # CMSHLT-2280
 HLT_HT320_L1SingleLLPJet_DisplacedDijet60_Inclusive_v*                # CMSHLT-2280
 HLT_HT420_L1SingleLLPJet_DisplacedDijet60_Inclusive_v*                # CMSHLT-2280
+HLT_DiPhoton10Time1ns_v*     # CMSHLT-2280, CMSHLT-2410, CMSHLT-2643
 HLT_DiPhoton10Time1p2ns_v*   # CMSHLT-2280, CMSHLT-2410
 HLT_DiPhoton10Time1p4ns_v*   # CMSHLT-2280
 HLT_DiPhoton10Time1p6ns_v*   # CMSHLT-2280
@@ -597,13 +598,16 @@ HLT_Diphoton20_14_eta1p5_R9IdL_AND_HE_AND_IsoTCaloIdT_v*  # CMSHLT-2282
 HLT_Diphoton20_14_eta1p5_R9IdL_AND_HET_AND_IsoTCaloIdT_v* # CMSHLT-2282
 HLT_Diphoton22_14_eta1p5_R9IdL_AND_HE_AND_IsoTCaloIdT_v*  # CMSHLT-2282
 HLT_Diphoton22_14_eta1p5_R9IdL_AND_HET_AND_IsoTCaloIdT_v* # CMSHLT-2282
+HLT_Diphoton24_14_eta1p5_R9IdL_AND_HET_AND_IsoTCaloIdT_v* # CMSHLT-2631
+HLT_Diphoton24_16_eta1p5_R9IdL_AND_HET_AND_IsoTCaloIdT_v* # CMSHLT-2631
 HLT_Mu50_L1SingleMuShower_v* # CMSHLT-2373
 HLT_MediumChargedIsoPFTau180HighPtRelaxedIso_Trk50_eta2p1_v*             # CMSHLT-2472
 
 HLT_L1SingleMuCosmics_v*							#	CMSHLT-2097
 
-HLT_PPSMaxTracksPerArm1_v*							#	CMSHLT-2179
-HLT_PPSMaxTracksPerRP4_v*							#	CMSHLT-2179
+HLT_PPSMaxTracksPerArm1_v* # CMSHLT-2179
+HLT_PPSMaxTracksPerRP4_v*  # CMSHLT-2179
+HLT_PPSRandom_v*           # CMSHLT-2606
 
 HLT_ExpressMuons_v*       # CMSHLT-2245
 HLT_OnlineMonitorGroup_v* # CMSHLT-2245
@@ -643,6 +647,7 @@ ALCALumiPixelsCountsExpressOutput # CMSHLT-2114, CMSHLT-2324
 ALCALumiPixelsCountsPromptOutput  # CMSHLT-2114, CMSHLT-2324
 ExpressOutput
 ExpressAlignmentOutput
+ExpressPPSRandomOutput # CMSHLT-2606
 NanoDSTOutput
 
 PhysicsHLTPhysicsOutput # CMSHLT-1534, CMSHLT-2303, CMSHLT-2403
