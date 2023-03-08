@@ -62,8 +62,6 @@ private:
   const double max_dr_for_losttrack_;
   const double min_pt_for_taus_;
   const double max_eta_for_taus_;
-  const bool use_puppiP4_;
-  const double min_puppi_wgt_;
   const bool include_neutrals_;
 
   edm::EDGetTokenT<pat::MuonCollection> muon_token_;
@@ -262,8 +260,6 @@ ParticleNetFeatureEvaluator::ParticleNetFeatureEvaluator(const edm::ParameterSet
       max_dr_for_losttrack_(iConfig.getParameter<double>("max_dr_for_losttrack")),
       min_pt_for_taus_(iConfig.getParameter<double>("min_pt_for_taus")),
       max_eta_for_taus_(iConfig.getParameter<double>("max_eta_for_taus")),
-      use_puppiP4_(iConfig.getParameter<bool>("use_puppiP4")),
-      min_puppi_wgt_(iConfig.getParameter<double>("min_puppi_wgt")),
       include_neutrals_(iConfig.getParameter<bool>("include_neutrals")),
       muon_token_(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
       electron_token_(consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
@@ -295,9 +291,7 @@ void ParticleNetFeatureEvaluator::fillDescriptions(edm::ConfigurationDescription
   desc.add<double>("max_dr_for_losttrack", 0.4);
   desc.add<double>("min_pt_for_taus", 20.);
   desc.add<double>("max_eta_for_taus", 2.5);
-  desc.add<bool>("use_puppiP4", false);
   desc.add<bool>("include_neutrals", true);
-  desc.add<double>("min_puppi_wgt", -1.);
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlineSlimmedPrimaryVertices"));
   desc.add<edm::InputTag>("secondary_vertices", edm::InputTag("slimmedSecondaryVertices"));
   desc.add<edm::InputTag>("pf_candidates", edm::InputTag("packedPFCandidates"));
@@ -371,7 +365,7 @@ void ParticleNetFeatureEvaluator::produce(edm::Event &iEvent, const edm::EventSe
     bool fill_vars = true;
     if ((jet.pt() < min_jet_pt_ and
          dynamic_cast<const pat::Jet *>(&jet)->correctedJet("Uncorrected").pt() < min_jet_pt_) or
-        std::abs(jet.eta()) > max_jet_eta_ or std::abs(jet.eta()) < min_jet_eta_)
+        std::abs(jet.eta()) >= max_jet_eta_ or std::abs(jet.eta()) < min_jet_eta_)
       fill_vars = false;
     if (jet.numberOfDaughters() == 0)
       fill_vars = false;
@@ -420,8 +414,6 @@ void ParticleNetFeatureEvaluator::fillParticleFeatures(DeepBoostedJetFeatures &f
     const pat::PackedCandidate *cand = dynamic_cast<const pat::PackedCandidate *>(&(*dau));
     if (not cand)
       throw edm::Exception(edm::errors::InvalidReference) << "Cannot convert to either pat::PackedCandidate";
-    if (cand->puppiWeight() < min_puppi_wgt_)
-      continue;
     // base requirements on PF candidates
     if (cand->pt() < min_pt_for_pfcandidates_)
       continue;
@@ -432,14 +424,8 @@ void ParticleNetFeatureEvaluator::fillParticleFeatures(DeepBoostedJetFeatures &f
     daughters.push_back(cand);
   }
 
-  // sort by Puppi-weighted pt
-  if (use_puppiP4_)
-    std::sort(daughters.begin(), daughters.end(), [&](const pat::PackedCandidate *a, const pat::PackedCandidate *b) {
-      return a->puppiWeight() * a->pt() > b->puppiWeight() * b->pt();
-    });
   // sort by original pt (not Puppi-weighted)
-  else
-    std::sort(daughters.begin(), daughters.end(), [](const auto &a, const auto &b) { return a->pt() > b->pt(); });
+  std::sort(daughters.begin(), daughters.end(), [](const auto &a, const auto &b) { return a->pt() > b->pt(); });
 
   // reserve space
   for (const auto &name : particle_features_)
@@ -451,8 +437,8 @@ void ParticleNetFeatureEvaluator::fillParticleFeatures(DeepBoostedJetFeatures &f
       continue;
 
     // input particle is a packed PF candidate
-    auto candP4 = use_puppiP4_ ? cand->puppiWeight() * cand->p4() : cand->p4();
-    auto candP3 = use_puppiP4_ ? cand->puppiWeight() * cand->momentum() : cand->momentum();
+    auto candP4 =  cand->p4();
+    auto candP3 =  cand->momentum();
 
     // candidate track
     const reco::Track *track = nullptr;

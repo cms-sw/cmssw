@@ -142,7 +142,7 @@ def nanoAOD_addDeepInfoAK4(process,addParticleNet):
         postfix = 'WithDeepInfo',
     )
     process.load("Configuration.StandardSequences.MagneticField_cff")
-    process.jetCorrFactorsNano.src="selectedUpdatedPatJetsWithDeepInfo"
+    process.jetPuppiCorrFactorsNano.src="selectedUpdatedPatJetsWithDeepInfo"
     process.updatedJets.jetSource="selectedUpdatedPatJetsWithDeepInfo"
     return process
 
