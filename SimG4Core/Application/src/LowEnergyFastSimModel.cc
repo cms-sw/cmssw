@@ -16,7 +16,7 @@
 #include "G4PhysicalConstants.hh"
 
 constexpr G4double twomass = 2 * CLHEP::electron_mass_c2;
-constexpr G4double scaleFactor = 1.05;
+constexpr G4double scaleFactor = 1.025;
 
 LowEnergyFastSimModel::LowEnergyFastSimModel(const G4String& name, G4Region* region, const edm::ParameterSet& parSet)
     : G4VFastSimulationModel(name, region),
@@ -62,13 +62,10 @@ G4bool LowEnergyFastSimModel::ModelTrigger(const G4FastTrack& fastTrack) {
     if (nullptr == fTrackingAction) {
       fTrackingAction = static_cast<const TrackingAction*>(G4EventManager::GetEventManager()->GetUserTrackingAction());
     }
-    const G4Track* mother = fTrackingAction->geant4Track();
-    const TrackInformation* ptr = static_cast<TrackInformation*>(mother->GetUserInformation());
-    if (ptr->isPrimary()) {
-      int pdgMother = mother->GetDefinition()->GetPDGEncoding();
-      if (std::abs(pdgMother) == 11 || pdgMother == 22)
-        return false;
-    }
+    const TrackInformation* ptrti = static_cast<TrackInformation*>(track->GetUserInformation());
+    int pdg = ptrti->genParticlePID();
+    if (std::abs(pdg) == 11 || pdg == 22)
+      return false;
   }
   return true;
 }
