@@ -248,7 +248,6 @@ namespace JME{
           resol_eta->Draw("");
 
           canvas.cd(2);
-          //resol_pt->SetTitle(tagname.c_str());
           resol_pt->SetXTitle("p_{T} [GeV]");
           resol_pt->SetYTitle("Resolution");
           resol_pt->SetLineWidth(3);
@@ -297,10 +296,11 @@ namespace JME{
             }
           }  // records
           return true;    
-        }
-      }
+        }else
+          return false;
+      }  // for
       return false;
-    }
+    }  // fill
   };  // class
 
   typedef JetScaleFactorVsEta<NORM> JetScaleFactorVsEtaNORM;
@@ -381,8 +381,8 @@ namespace JME{
         canvas.SaveAs(m_imageFileName.c_str());
 
         return true;
-      }//else // no payload.get()
-      return false;
+      }else // no payload.get()
+        return false;
     }  // fill
 
   };  // class
