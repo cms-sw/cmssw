@@ -249,13 +249,12 @@ namespace cms {
       case TrackerGeometry::ModuleType::Ph2PXF:
         algotype = AlgorithmType::InnerPixel;
         break;
-      case TrackerGeometry::ModuleType::Ph2PXB3D:
-        algotype = (usePseudoPixel3DAlgo_) ? AlgorithmType::InnerPixel
-	                                  : AlgorithmType::InnerPixel3D;
-        break;
-      case TrackerGeometry::ModuleType::Ph2PXF3D:
-        algotype = AlgorithmType::InnerPixel3D;
-        break;
+      case TrackerGeometry::ModuleType::Ph2PXB3D: {
+        algotype = (usePseudoPixel3DAlgo_) ? AlgorithmType::InnerPixel : AlgorithmType::InnerPixel3D;
+      } break;
+      case TrackerGeometry::ModuleType::Ph2PXF3D: {
+        algotype = (usePseudoPixel3DAlgo_) ? AlgorithmType::InnerPixel : AlgorithmType::InnerPixel3D;
+      } break;
       case TrackerGeometry::ModuleType::Ph2PSP:
         algotype = AlgorithmType::PixelinPS;
         break;
