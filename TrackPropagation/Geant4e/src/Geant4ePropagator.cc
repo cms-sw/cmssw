@@ -78,7 +78,7 @@ void Geant4ePropagator::ensureGeant4eIsInitilized(bool) const {
   LogDebug("Geant4ePropagator") << "G4 propagator starts isInitialized, theField: " << theField;
 
   auto man = G4RunManagerKernel::GetRunManagerKernel();
-  if(G4StateManager::GetStateManager()->GetCurrentState() == G4State_PreInit) {
+  if (G4StateManager::GetStateManager()->GetCurrentState() == G4State_PreInit) {
     man->SetVerboseLevel(0);
     theG4eManager->InitGeant4e();
 
