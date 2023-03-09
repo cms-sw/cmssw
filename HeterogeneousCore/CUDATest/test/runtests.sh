@@ -2,7 +2,7 @@
 
 function die { echo Failure $1: status $2 ; exit $2 ; }
 
-TEST_DIR=src/HeterogeneousCore/CUDATest/test
+TEST_DIR=$CMSSW_BASE/src/HeterogeneousCore/CUDATest/test
 
 if [ "x$#" != "x1" ]; then
     die "Need exactly 1 argument ('cpu', 'gpu'), got $#" 1
