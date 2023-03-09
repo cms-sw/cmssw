@@ -45,6 +45,7 @@ void SeedGeneratorFromProtoTracksEDProducer::fillDescriptions(edm::Configuration
   desc.add<std::string>("TTRHBuilder", "TTRHBuilderWithoutAngle4PixelTriplets");
   desc.add<bool>("usePV", false);
   desc.add<bool>("includeFourthHit", false);
+  desc.add<bool>("produceComplement", false);
 
   edm::ParameterSetDescription psd0;
   psd0.add<std::string>("ComponentName", std::string("SeedFromConsecutiveHitsCreator"));
@@ -67,16 +68,21 @@ SeedGeneratorFromProtoTracksEDProducer::SeedGeneratorFromProtoTracksEDProducer(c
       useEventsWithNoVertex(cfg.getParameter<bool>("useEventsWithNoVertex")),
       usePV_(cfg.getParameter<bool>("usePV")),
       includeFourthHit_(cfg.getParameter<bool>("includeFourthHit")),
+      produceComplement_(cfg.getParameter<bool>("produceComplement")),
       theInputCollectionTag(consumes<reco::TrackCollection>(cfg.getParameter<InputTag>("InputCollection"))),
       theInputVertexCollectionTag(
           consumes<reco::VertexCollection>(cfg.getParameter<InputTag>("InputVertexCollection"))),
       seedCreator_(cfg.getParameter<edm::ParameterSet>("SeedCreatorPSet"), consumesCollector()),
       config_(consumesCollector()) {
   produces<TrajectorySeedCollection>();
+  if (produceComplement_) {
+    produces<reco::TrackCollection>();
+  }
 }
 
 void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::EventSetup& es) {
   auto result = std::make_unique<TrajectorySeedCollection>();
+  auto leftTracks = std::make_unique<reco::TrackCollection>();
   Handle<reco::TrackCollection> trks;
   ev.getByToken(theInputCollectionTag, trks);
 
@@ -117,6 +123,8 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
         }
       }
     }
+    if (produceComplement_ and !keepTrack)
+      (*leftTracks).push_back(proto);
     if (!keepTrack)
       continue;
 
@@ -148,4 +156,6 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
   }
 
   ev.put(std::move(result));
+  if (produceComplement_)
+    ev.put(std::move(leftTracks));
 }
