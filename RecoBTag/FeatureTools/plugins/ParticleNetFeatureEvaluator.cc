@@ -437,8 +437,8 @@ void ParticleNetFeatureEvaluator::fillParticleFeatures(DeepBoostedJetFeatures &f
       continue;
 
     // input particle is a packed PF candidate
-    auto candP4 =  cand->p4();
-    auto candP3 =  cand->momentum();
+    auto candP4 = cand->p4();
+    auto candP3 = cand->momentum();
 
     // candidate track
     const reco::Track *track = nullptr;

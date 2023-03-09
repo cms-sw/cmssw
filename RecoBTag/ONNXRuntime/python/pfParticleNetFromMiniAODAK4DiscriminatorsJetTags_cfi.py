@@ -21,7 +21,6 @@ pfParticleNetFromMiniAODAK4PuppiCentralDiscriminatorsJetTags = cms.EDProducer(
             cms.InputTag('pfParticleNetFromMiniAODAK4PuppiCentralJetTags', 'probc'),
             ),
          denominator = cms.VInputTag(
-            cms.InputTag('pfParticleNetFromMiniAODAK4PuppiCentralJetTags', 'probb'),
             cms.InputTag('pfParticleNetFromMiniAODAK4PuppiCentralJetTags', 'probc'),
             cms.InputTag('pfParticleNetFromMiniAODAK4PuppiCentralJetTags', 'probuds'),
             cms.InputTag('pfParticleNetFromMiniAODAK4PuppiCentralJetTags', 'probg'),
@@ -177,7 +176,6 @@ pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags = cms.EDProducer(
             cms.InputTag('pfParticleNetFromMiniAODAK4CHSCentralJetTags', 'probc'),
             ),
          denominator = cms.VInputTag(
-            cms.InputTag('pfParticleNetFromMiniAODAK4CHSCentralJetTags', 'probb'),
             cms.InputTag('pfParticleNetFromMiniAODAK4CHSCentralJetTags', 'probc'),
             cms.InputTag('pfParticleNetFromMiniAODAK4CHSCentralJetTags', 'probuds'),
             cms.InputTag('pfParticleNetFromMiniAODAK4CHSCentralJetTags', 'probg'),
