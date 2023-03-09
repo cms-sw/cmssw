@@ -91,7 +91,6 @@ void HLTPFDiJetCorrCheckerWithDiTau::produce(edm::StreamID iSId, edm::Event& iEv
             continue;
 
           correctComb = true;
-          break;
         } else {
           for (unsigned int iTau2 = iTau1 + 1; iTau2 < taus.size(); iTau2++) {
             if (taus[iTau1]->pt() < extraTauPtCut_ && taus[iTau2]->pt() < extraTauPtCut_)
@@ -143,5 +142,5 @@ void HLTPFDiJetCorrCheckerWithDiTau::fillDescriptions(edm::ConfigurationDescript
 //
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(HLTPFDiJetCorrCheckerWithDiTau);
-using HLTDiPFJetPlusTausFilter = HLTPFDiJetCorrCheckerWithDiTau;
-DEFINE_FWK_MODULE(HLTDiPFJetPlusTausFilter);
+using HLTDiPFJetPlusTausCandidatePFJetProducer = HLTPFDiJetCorrCheckerWithDiTau;
+DEFINE_FWK_MODULE(HLTDiPFJetPlusTausCandidatePFJetProducer);
