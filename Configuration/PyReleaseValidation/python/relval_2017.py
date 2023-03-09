@@ -46,6 +46,7 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #        (QCD 1.8TeV DeepCore)
 #        (TTbar DigiNoHLT)
 #   2023 (TTbar, TTbar PU, TTbar PU premix)
+#        (TTbar FastSim)
 #   2024 (TTbar, TTbar PU, TTbar PU premix)
 numWFIB = [10001.0,10002.0,10003.0,10004.0,10005.0,10006.0,10007.0,10008.0,10009.0,10059.0,10071.0,
            10042.0,10024.0,10025.0,10026.0,10023.0,10224.0,10225.0,10424.0,
@@ -81,6 +82,7 @@ numWFIB = [10001.0,10002.0,10003.0,10004.0,10005.0,10006.0,10007.0,10008.0,10009
            11723.17,
            11634.601,
            12434.0,12634.0,12634.99,
+           14034.0,
            12834.0,13034.0,13034.99,]
 for numWF in numWFIB:
     if not numWF in _upgrade_workflows: continue
