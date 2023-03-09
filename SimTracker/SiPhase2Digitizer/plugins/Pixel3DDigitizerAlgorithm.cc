@@ -44,7 +44,6 @@ Pixel3DDigitizerAlgorithm::Pixel3DDigitizerAlgorithm(const edm::ParameterSet& co
 
 Pixel3DDigitizerAlgorithm::~Pixel3DDigitizerAlgorithm() {}
 
-
 const bool Pixel3DDigitizerAlgorithm::is_inside_n_column_(const LocalPoint& p, const float& sensor_thickness) const {
   // The insensitive volume of the column: sensor thickness - column gap distance
   return (p.perp() <= np_column_radius_ && p.z() <= (sensor_thickness - np_column_gap_));
