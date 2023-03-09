@@ -106,6 +106,7 @@ namespace cms {
     const TrackerTopology* tTopo_ = nullptr;
     edm::ESWatcher<TrackerDigiGeometryRecord> theTkDigiGeomWatcher_;
     const bool isOuterTrackerReadoutAnalog_;
+    const bool usePseudoPixel3DAlgo_;
     const bool premixStage1_;
     const bool makeDigiSimLinks_;
     // cache for detector types
