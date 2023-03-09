@@ -5,6 +5,8 @@
   <Constant name="WaferSize"             value="166.4408*mm"/>
   <Constant name="WaferThickness"        value="0.31*mm"/>
   <Constant name="SensorSeparation"      value="1.00*mm"/>
+  <Constant name="SensorSizeOffset"      value="0.87*mm"/>
+  <Constant name="GuardRingOffset"       value="0.90*mm"/>
   <Constant name="ModuleThicknessEE"     value="9.10*mm"/>
   <Constant name="ModuleThicknessHE"     value="8.60*mm"/>
   <Constant name="CellThicknessFine"     value="0.12*mm"/>

@@ -61,6 +61,8 @@
     <Parameter name="WaferSize"           value="[hfnose:WaferSize]"/>
     <Parameter name="WaferThickness"      value="[hfnose:WaferThickness]"/>
     <Parameter name="SensorSeparation"    value="[hfnose:SensorSeparation]"/>
+    <Parameter name="SensorSizeOffset"    value="[hfnose:SensorSizeOffset]"/>
+    <Parameter name="GuardRingOffset"     value="[hfnose:GuardRingOffset]"/>
     <Parameter name="MouseBite"           value="[hfnose:MouseBite]"/>
     <Parameter name="NumberOfCellsFine"   value="[hfnose:NumberOfCellsFine]"/>
     <Parameter name="NumberOfCellsCoarse" value="[hfnose:NumberOfCellsCoarse]"/>
