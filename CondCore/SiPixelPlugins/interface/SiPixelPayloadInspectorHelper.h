@@ -676,16 +676,22 @@ namespace SiPixelPI {
     void fillGeometryInfo(const DetId& detId, const TrackerTopology& tTopo, const SiPixelPI::phase& ph);
     SiPixelPI::regions filterThePartition();
     bool sanityCheck();
-    void printAll();
+    int subDetId() { return m_subdetid; }
+    int layer() { return m_layer; }
+    int side() { return m_side; }
+    int ring() { return m_ring; }
+    bool isInternal() { return m_isInternal; }
+
+    void printAll(std::stringstream& ss) const;
     virtual ~topolInfo() {}
   };
 
   /*--------------------------------------------------------------------*/
-  inline void topolInfo::printAll()
+  inline void topolInfo::printAll(std::stringstream& ss) const
   /*--------------------------------------------------------------------*/
   {
-    std::cout << " detId:" << m_rawid << " subdetid: " << m_subdetid << " layer: " << m_layer << " side: " << m_side
-              << " ring: " << m_ring << " isInternal:" << m_isInternal << std::endl;
+    ss << " detId: " << m_rawid << " subdetid: " << m_subdetid << " layer: " << m_layer << " side: " << m_side
+       << " ring: " << m_ring << " isInternal: " << m_isInternal;
   }
 
   /*--------------------------------------------------------------------*/
