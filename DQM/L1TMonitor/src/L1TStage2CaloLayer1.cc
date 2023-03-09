@@ -66,6 +66,8 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
   edm::Handle<FEDRawDataCollection> fedRawDataCollection;
   event.getByToken(fedRawData_, fedRawDataCollection);
   bool caloLayer1OutOfRun{true};
+  bool FATevent{false};
+  bool additionalFB{false};
   if (fedRawDataCollection.isValid()) {
     caloLayer1OutOfRun = false;
     for (int iFed = 1354; iFed < 1360; iFed += 2) {
@@ -78,6 +80,9 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
       UCTDAQRawData daqData(fedRawDataArray);
       for (uint32_t i = 0; i < daqData.nAMCs(); i++) {
         UCTAMCRawData amcData(daqData.amcPayload(i));
+        const uint32_t* amcPtr = amcData.dataPtr();
+        FATevent = ((amcPtr[5] >> 16) & 0xf) == 5;
+        additionalFB = (amcPtr[5] >> 15) & 0x1;
         int lPhi = amcData.layer1Phi();
         if (daqData.BXID() != amcData.BXID()) {
           eventMonitors.bxidErrors_->Fill(lPhi);
@@ -335,6 +340,33 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
       eventMonitors.hcalOccSent_->Fill(ieta, iphi);
     }
 
+    // 6 HCAL fine grain bits from uHTR readout
+    bool uHTRfg0 = sentTp.SOI_fineGrain(0);
+    bool uHTRfg1 = sentTp.SOI_fineGrain(1);
+    bool uHTRfg2 = sentTp.SOI_fineGrain(2);
+    bool uHTRfg3 = sentTp.SOI_fineGrain(3);
+    bool uHTRfg4 = sentTp.SOI_fineGrain(4);
+    bool uHTRfg5 = sentTp.SOI_fineGrain(5);
+
+    if (uHTRfg0) {
+      eventMonitors.hcalOccSentFg0_->Fill(ieta, iphi);
+    }
+    if (uHTRfg1) {
+      eventMonitors.hcalOccSentFg1_->Fill(ieta, iphi);
+    }
+    if (uHTRfg2) {
+      eventMonitors.hcalOccSentFg2_->Fill(ieta, iphi);
+    }
+    if (uHTRfg3) {
+      eventMonitors.hcalOccSentFg3_->Fill(ieta, iphi);
+    }
+    if (uHTRfg4) {
+      eventMonitors.hcalOccSentFg4_->Fill(ieta, iphi);
+    }
+    if (uHTRfg5) {
+      eventMonitors.hcalOccSentFg5_->Fill(ieta, iphi);
+    }
+
     if (towerMasked || caloLayer1OutOfRun) {
       // Do not compare if we have a mask applied
       continue;
@@ -348,25 +380,32 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
       continue;
     }
 
-    // HCAL LLP trigger feature bits monitoring (valid for HBHE only)
-    // 6 HCAL fine grain bits from uHTR readout
-    const bool uHTRfg0 = sentTp.SOI_fineGrain(0);
-    const bool uHTRfg1 = sentTp.SOI_fineGrain(1);
-    const bool uHTRfg2 = sentTp.SOI_fineGrain(2);
-    const bool uHTRfg3 = sentTp.SOI_fineGrain(3);
-    const bool uHTRfg4 = sentTp.SOI_fineGrain(4);
-    const bool uHTRfg5 = sentTp.SOI_fineGrain(5);
     // 6 HCAL fine grain bits from Layer1 readout
     // Fg 0 is always there in ctp7 payload, set as bit 8 after Et bits in unpacked towerDatum
-    // Fg 1-5 are set as bits 16-20 after link status bits in unpacked towerDatum
-    // which are set only for HBHE and when the corresponding impl flag in payload header is set
-    // otherwise these are reserved 0x0 by default
-    const bool layer1fg0 = recdTp.SOI_fineGrain(0);
-    const bool layer1fg1 = recdTp.sample(0).raw() & (1 << 16);
-    const bool layer1fg2 = recdTp.sample(0).raw() & (1 << 17);
-    const bool layer1fg3 = recdTp.sample(0).raw() & (1 << 18);
-    const bool layer1fg4 = recdTp.sample(0).raw() & (1 << 19);
-    const bool layer1fg5 = recdTp.sample(0).raw() & (1 << 20);
+    // When additionalFB flag is set:
+    // Fg 1-5 are unpacked and set as bits 0-5 in another unpacked towerDatum2 and packed in HCALTP sample(1)
+    // since standard sample size is 16bit and there is no room in sample(0) which contains already Et and link status
+    // Otherwise:
+    // Fg 1-5 are all zero
+    bool layer1fg0 = recdTp.SOI_fineGrain(0);
+    bool layer1fg1 = false;
+    bool layer1fg2 = false;
+    bool layer1fg3 = false;
+    bool layer1fg4 = false;
+    bool layer1fg5 = false;
+    if (additionalFB && (abs(ieta) < 29)) {
+      for (const auto& tp : (*hcalTPsRecd)) {
+        if (not(tp.id().ieta() == ieta && tp.id().iphi() == iphi)) {
+          continue;
+        }
+        layer1fg1 = tp.sample(1).raw() & (1 << 0);
+        layer1fg2 = tp.sample(1).raw() & (1 << 1);
+        layer1fg3 = tp.sample(1).raw() & (1 << 2);
+        layer1fg4 = tp.sample(1).raw() & (1 << 3);
+        layer1fg5 = tp.sample(1).raw() & (1 << 4);
+      }
+    }
+
     // Check mismatches only for HBHE
     const bool Hfg0Agreement = (abs(ieta) < 29) ? (layer1fg0 == uHTRfg0) : true;
     const bool Hfg1Agreement = (abs(ieta) < 29) ? (layer1fg1 == uHTRfg1) : true;
@@ -374,10 +413,10 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
     const bool Hfg3Agreement = (abs(ieta) < 29) ? (layer1fg3 == uHTRfg3) : true;
     const bool Hfg4Agreement = (abs(ieta) < 29) ? (layer1fg4 == uHTRfg4) : true;
     const bool Hfg5Agreement = (abs(ieta) < 29) ? (layer1fg5 == uHTRfg5) : true;
-    // Mute fg4 and fg5 for now (HCAL is sending junks through these fibre, so wait until they fix)
+    // Mute fg4 and fg5 for now (reserved bits not used anyway)
     const bool HfgAgreement = (Hfg0Agreement && Hfg1Agreement && Hfg2Agreement && Hfg3Agreement);
 
-    // Construct an 6-bit integer from the layer1 fine grain readout (input to 6:1 logic)
+    // Construct an 6-bit integer from the layer1 fine grain readout (input to 6:1 logic emulation)
     uint64_t fg_bits = 0;
     if (layer1fg0) {
       fg_bits |= 0x1;
@@ -399,9 +438,9 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
     }
 
     // Current 6:1 LUT in fw
-    const uint64_t HCalFbLUT = 0xAAAAAAAAAAAAAAAA;
-    // Expected LLP bit output
-    const bool LLPfb_Expd = (HCalFbLUT >> fg_bits) & 1;
+    const uint64_t HCalFbLUT = 0xBBBABBBABBBABBBA;
+    // Expected LLP bit output (mute emulation for normal events, since layer2 only reads out FAT events)
+    const bool LLPfb_Expd = (FATevent == 1) ? ((HCalFbLUT >> fg_bits) & 1) : false;
     // Actual LLP bit output in layer2 data collection
     uint32_t tower_hwqual = 0;
     for (auto tower = caloTowerDataCol->begin(0); tower != caloTowerDataCol->end(0); ++tower) {
@@ -435,42 +474,21 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
       if (layer1fg5) {
         eventMonitors.hcalOccRecdFg5_->Fill(ieta, iphi);
       }
-      if (uHTRfg0) {
-        eventMonitors.hcalOccSentFg0_->Fill(ieta, iphi);
-      }
-      if (uHTRfg1) {
-        eventMonitors.hcalOccSentFg1_->Fill(ieta, iphi);
-      }
-      if (uHTRfg2) {
-        eventMonitors.hcalOccSentFg2_->Fill(ieta, iphi);
-      }
-      if (uHTRfg3) {
-        eventMonitors.hcalOccSentFg3_->Fill(ieta, iphi);
-      }
-      if (uHTRfg4) {
-        eventMonitors.hcalOccSentFg4_->Fill(ieta, iphi);
-      }
-      if (uHTRfg5) {
-        eventMonitors.hcalOccSentFg5_->Fill(ieta, iphi);
-      }
-      // fg4 and fg5 mismatches here for now
+      // fg4-5 are reserved bits and not used
+      // so compare here and not stream to mismatch list for now
       if (not Hfg4Agreement) {
         eventMonitors.hcalOccFg4Discrepancy_->Fill(ieta, iphi);
       }
       if (not Hfg5Agreement) {
         eventMonitors.hcalOccFg5Discrepancy_->Fill(ieta, iphi);
       }
-
-      // Fill Fb Occ and compare between expected and data
+      // Fill Fb Occ and compare between layer1 emulated and layer2 data readout
+      // FAT events only!!
       if (LLPfb_Expd) {
         eventMonitors.hcalOccLLPFbExpd_->Fill(ieta, iphi);
       }
       if (LLPfb_Data) {
         eventMonitors.hcalOccLLPFbData_->Fill(ieta, iphi);
-      }
-      // LLP output bit mismatch here for now
-      if (not LLPfbAgreement) {
-        eventMonitors.hcalOccLLPFbDiscrepancy_->Fill(ieta, iphi);
       }
     }
 
@@ -487,8 +505,7 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
     }
 
     const bool HetAgreement = sentTp.SOI_compressedEt() == recdTp.SOI_compressedEt();
-    // Mute fg4-5 and LLP output bit mismatch for now
-    if (HetAgreement && HfgAgreement) {
+    if (HetAgreement && HfgAgreement && LLPfbAgreement) {
       // Full match
       if (sentTp.SOI_compressedEt() > tpFillThreshold_) {
         eventMonitors.hcalOccSentAndRecd_->Fill(ieta, iphi);
@@ -518,7 +535,7 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
         else
           eventMonitors.hcalOccNoMatch_->Fill(ieta, iphi);
       }
-      if (not HfgAgreement) {
+      if (not(HfgAgreement && LLPfbAgreement)) {
         if (not Hfg0Agreement) {
           eventMonitors.hcalOccFg0Discrepancy_->Fill(ieta, iphi);
         }
@@ -530,6 +547,9 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
         }
         if (not Hfg3Agreement) {
           eventMonitors.hcalOccFg3Discrepancy_->Fill(ieta, iphi);
+        }
+        if (not LLPfbAgreement) {
+          eventMonitors.hcalOccLLPFbDiscrepancy_->Fill(ieta, iphi);
         }
         updateMismatch(event, 3, streamCache(event.streamID())->streamMismatchList);
       }

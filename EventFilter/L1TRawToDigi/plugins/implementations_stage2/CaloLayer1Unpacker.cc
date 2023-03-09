@@ -332,7 +332,7 @@ namespace l1t {
             uint32_t towerDatum = ctp7Data_HCALFB.getET(cType, negativeEta, iEta, iPhi);
             uint32_t fb = ctp7Data_HCALFB.getFB(cType, negativeEta, iEta, iPhi);
             towerDatum |= ((fb & 0x1) << 8);
-            towerDatum |= (((fb & 0x3E) >> 1) << 16);
+            uint32_t towerDatum2 = ((fb & 0x3E) >> 1);
             if (ctp7Data_HCALFB.isLinkMisaligned(cType, negativeEta, iEta, iPhi))
               towerDatum |= 0x0200;
             if (ctp7Data_HCALFB.isLinkInError(cType, negativeEta, iEta, iPhi))
@@ -348,10 +348,12 @@ namespace l1t {
                 ctp7Data_HCALFB.isLinkDown(cType, negativeEta, iEta, iPhi))
               towerDatum |= 0x8000;
             HcalTriggerPrimitiveSample sample(towerDatum);
+            HcalTriggerPrimitiveSample sample2(towerDatum2);
             HcalTrigTowerDetId id(cEta, cPhi);
             HcalTriggerPrimitiveDigi tpg(id);
-            tpg.setSize(1);
+            tpg.setSize(2);
             tpg.setSample(0, sample);
+            tpg.setSample(1, sample2);
             hcalTPGs->push_back(tpg);
           }
         }
@@ -705,7 +707,7 @@ namespace l1t {
             uint32_t towerDatum = ctp7Data5BX_HCALFB.getET(cType, negativeEta, iEta, iPhi, BX_n);
             uint32_t fb = ctp7Data5BX_HCALFB.getFB(cType, negativeEta, iEta, iPhi, BX_n);
             towerDatum |= ((fb & 0x1) << 8);
-            towerDatum |= (((fb & 0x3E) >> 1) << 16);
+            uint32_t towerDatum2 = ((fb & 0x3E) >> 1);
             if (ctp7Data5BX_HCALFB.isLinkMisaligned(cType, negativeEta, iEta, iPhi, BX_n))
               towerDatum |= 0x0200;
             if (ctp7Data5BX_HCALFB.isLinkInError(cType, negativeEta, iEta, iPhi, BX_n))
@@ -721,10 +723,12 @@ namespace l1t {
                 ctp7Data5BX_HCALFB.isLinkDown(cType, negativeEta, iEta, iPhi, BX_n))
               towerDatum |= 0x8000;
             HcalTriggerPrimitiveSample sample(towerDatum);
+            HcalTriggerPrimitiveSample sample2(towerDatum2);
             HcalTrigTowerDetId id(cEta, cPhi);
             HcalTriggerPrimitiveDigi tpg(id);
-            tpg.setSize(1);
+            tpg.setSize(2);
             tpg.setSample(0, sample);
+            tpg.setSample(1, sample2);
             hcalTPGs->push_back(tpg);
           }
         }
