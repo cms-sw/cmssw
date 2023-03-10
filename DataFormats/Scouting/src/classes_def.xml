@@ -41,11 +41,39 @@
   <class name="Run3ScoutingVertex" ClassVersion="3">
       <version ClassVersion="3" checksum="316446070"/>
   </class>
-  <class name="Run3ScoutingElectron" ClassVersion="5">
+  <class name="Run3ScoutingElectron" ClassVersion="6">
       <version ClassVersion="3" checksum="1086011373"/>
       <version ClassVersion="4" checksum="1250202632"/>
       <version ClassVersion="5" checksum="2230390721"/>
+      <version ClassVersion="6" checksum="2815634332"/>
   </class>
+
+  <!-- Adding ioread rules for backwards compatibility -->
+  
+  <ioread sourceClass="Run3ScoutingElectron" version="[3-5]" 
+	  source="float d0_;" 
+	  targetClass="Run3ScoutingElectron" target="trkd0_">
+    <![CDATA[
+	     trkd0_.clear();
+	     trkd0_.push_back(onfile.d0_);]]>
+  </ioread>
+  
+  <ioread sourceClass="Run3ScoutingElectron" version="[3-5]" 
+	  source="float dz_;" 
+	  targetClass="Run3ScoutingElectron" target="trkdz_">
+    <![CDATA[
+	     trkdz_.clear();
+	     trkdz_.push_back(onfile.dz_);]]>
+  </ioread>
+  
+  <ioread sourceClass="Run3ScoutingElectron" version="[3-5]" 
+	  source="int charge_;" 
+	  targetClass="Run3ScoutingElectron" target="trkcharge_">
+    <![CDATA[
+	     trkcharge_.clear();
+	     trkcharge_.push_back(onfile.charge_);]]>
+  </ioread>
+  
   <class name="Run3ScoutingMuon" ClassVersion="4">
       <version ClassVersion="3" checksum="3882497397"/>
       <version ClassVersion="4" checksum="4206297195"/>
