@@ -1,4 +1,47 @@
-#include "DBremWatcher.h"
+#include "SimG4Core/Notification/interface/Observer.h"
+#include "SimG4Core/Notification/interface/BeginOfTrack.h"
+#include "SimG4Core/Notification/interface/EndOfTrack.h"
+#include "SimG4Core/Notification/interface/BeginOfEvent.h"
+#include "SimG4Core/Notification/interface/BeginOfRun.h"
+#include "SimG4Core/Notification/interface/EndOfEvent.h"
+
+#include "SimG4Core/Watcher/interface/SimProducer.h"
+#include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "G4ThreeVector.hh"
+
+#include <vector>
+#include <tuple>
+
+class DBremWatcher : public SimProducer,
+                     public Observer<const BeginOfTrack *>,
+                     public Observer<const BeginOfEvent *>,
+                     public Observer<const BeginOfRun *>,
+                     public Observer<const EndOfEvent *>,
+                     public Observer<const EndOfTrack *> {
+public:
+  DBremWatcher(edm::ParameterSet const &p);
+  ~DBremWatcher() override = default;
+  void update(const BeginOfTrack *trk) override;
+  void update(const BeginOfEvent *event) override;
+  void update(const EndOfEvent *event) override;
+  void update(const BeginOfRun *run) override;
+  void update(const EndOfTrack *trk) override;
+  void produce(edm::Event &, const edm::EventSetup &) override;
+
+private:
+  std::vector<int> pdgs_;
+  int MotherId;
+  float m_weight;
+  double biasFactor;
+  bool foundbrem;
+  G4ThreeVector aPrimeTraj;
+  G4ThreeVector finaltraj;
+  G4ThreeVector VertexPos;
+  float f_energy;
+};
 
 #include "SimG4Core/Notification/interface/BeginOfTrack.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
@@ -7,8 +50,12 @@
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Watcher/interface/SimWatcher.h"
 #include "SimG4Core/Notification/interface/Observer.h"
+#include "SimG4Core/CustomPhysics/interface/G4muDarkBremsstrahlung.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+
 #include "G4Region.hh"
 #include "G4RegionStore.hh"
 #include "G4LogicalVolumeStore.hh"
@@ -16,13 +63,11 @@
 #include "G4ProcessTable.hh"
 #include "G4ProcessManager.hh"
 #include "G4MuonMinus.hh"
-#include "SimG4Core/CustomPhysics/interface/G4muDarkBremsstrahlung.h"
 #include "G4Track.hh"
 #include "G4PhysicalConstants.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4VProcess.hh"
 #include "G4VParticleChange.hh"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include <algorithm>
 
 DBremWatcher::DBremWatcher(edm::ParameterSet const& p) {
@@ -38,19 +83,16 @@ DBremWatcher::DBremWatcher(edm::ParameterSet const& p) {
   produces<float>("DBremLocationX");
   produces<float>("DBremLocationY");
   produces<float>("DBremLocationZ");
-  //produces<std::string>("DBremMaterial");
   produces<float>("DBremAngle");
   produces<float>("DBremInitialEnergy");
   produces<float>("DBremFinalEnergy");
   produces<float>("BiasFactor");
   pdgs_ = ps.getUntrackedParameter<std::vector<int>>("PDGCodes");
-  edm::LogInfo("DBremWatcher") << "DBremWatcher:: Save Sim Track if PDG code "
-                               << "is one from the list of " << pdgs_.size() << " items";
+  edm::LogVerbatim("DBremWatcher") << "DBremWatcher:: Save Sim Track if PDG code "
+                                   << "is one from the list of " << pdgs_.size() << " items";
   for (unsigned int k = 0; k < pdgs_.size(); ++k)
-    edm::LogInfo("DBremWatcher") << "[" << k << "] " << pdgs_[k];
+    edm::LogVerbatim("DBremWatcher") << "[" << k << "] " << pdgs_[k];
 }
-
-DBremWatcher::~DBremWatcher() {}
 
 void DBremWatcher::update(const BeginOfTrack* trk) {
   G4Track* theTrack = (G4Track*)((*trk)());
@@ -63,7 +105,7 @@ void DBremWatcher::update(const BeginOfTrack* trk) {
       if ((theTrack->GetCreatorProcess()->GetProcessName()) == "muDBrem") {
         if (std::find(pdgs_.begin(), pdgs_.end(), pdg) == pdgs_.end()) {
           //Found the deflected muon track
-          trkInfo->storeTrack(true);
+          trkInfo->storeTrack();
           if (!theTrack->IsGoodForTracking()) {
             theTrack->SetGoodForTrackingFlag(true);
           }
@@ -77,7 +119,7 @@ void DBremWatcher::update(const BeginOfTrack* trk) {
     }
     if (std::find(pdgs_.begin(), pdgs_.end(), pdg) != pdgs_.end()) {
       //Found an A'
-      trkInfo->storeTrack(true);
+      trkInfo->setStoreTrack();
       VertexPos = Vpos;
       aPrimeTraj = theTrack->GetMomentum();
       LogDebug("DBremWatcher") << "Save SimTrack the Track " << theTrack->GetTrackID() << " Type "
@@ -108,7 +150,7 @@ void DBremWatcher::update(const EndOfTrack* trk) {
 
     if (std::find(pdgs_.begin(), pdgs_.end(), pdg) == pdgs_.end() &&
         (theTrack->GetCreatorProcess()->GetProcessName()) == "muDBrem") {
-      trkInfo->storeTrack(true);
+      trkInfo->setStoreTrack();
     }
   }
 }
@@ -142,7 +184,5 @@ void DBremWatcher::produce(edm::Event& fEvent, const edm::EventSetup&) {
     fEvent.put(std::move(weight), "DBremEventWeight");
   }
 }
-
-#include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 
 DEFINE_SIMWATCHER(DBremWatcher);
