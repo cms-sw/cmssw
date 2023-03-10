@@ -10,7 +10,7 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 
-process.load("Configuration.Geometry.GeometryExtended2026D88Reco_cff")
+process.load("Configuration.Geometry.GeometryExtended2026D95Reco_cff")
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag

@@ -48,7 +48,7 @@ process.MessageLogger.files.mtdNumberingDD4hep = cms.untracked.PSet(
 )
 
 process.load('Configuration.Geometry.GeometryDD4hep_cff')
-process.DDDetectorESProducer.confGeomXMLFiles = cms.FileInPath("Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2026D88.xml")
+process.DDDetectorESProducer.confGeomXMLFiles = cms.FileInPath("Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2026D95.xml")
 
 process.DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
                                                  appendToDataLabel = cms.string('')
