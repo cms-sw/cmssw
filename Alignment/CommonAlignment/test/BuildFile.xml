@@ -1,4 +1,4 @@
 <bin file="test_AlignableObjectId.cc">
   <use name="Alignment/CommonAlignment"/>
 </bin>
-<test name="test_CreateFileLists" command="tkal_create_file_lists.py --test-mode --force -i /OVERRIDDEN/IN/TESTMODE -o ${LOCALTOP}/tmp/mps_create_file_lists -n 200000 --iov 42 --iov 174"/>
+<test name="test_CreateFileLists" command="tkal_create_file_lists.py --test-mode --force -i /OVERRIDDEN/IN/TESTMODE -o ./mps_create_file_lists -n 200000 --iov 42 --iov 174"/>
