@@ -506,7 +506,7 @@ unsigned int CaloSD::findBoundaryCrossingParent(const G4Track* track, bool markA
     edm::LogVerbatim("DoFineCalo") << "Track " << id << " crosses boundary itself";
 #endif
     boundaryCrossingParentMap_[id] = id;
-    trkInfo->storeTrack(true);
+    trkInfo->setStoreTrack();
     return id;
   }
   // Else, traverse the history of the track
@@ -613,8 +613,7 @@ CaloG4Hit* CaloSD::createNewHit(const G4Step* aStep, const G4Track* theTrack) {
                                   << " save: " << (etrack >= energyCut || forceSave);
 #endif
       if (etrack >= energyCut || forceSave) {
-        trkInfo->storeTrack(true);
-        trkInfo->putInHistory();
+        trkInfo->setStoreTrack();
       }
     } else {
       TrackWithHistory* trkh = tkMap[currentID.trackID()];
