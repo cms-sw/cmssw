@@ -48,8 +48,8 @@ private:
   void PrintKilledTrack(const G4Track*, const TrackStatus&) const;
 
   SimTrackManager* trackManager_;
-  const G4VPhysicalVolume *tracker{nullptr};
-  const G4VPhysicalVolume *calo{nullptr};
+  const G4VPhysicalVolume* tracker{nullptr};
+  const G4VPhysicalVolume* calo{nullptr};
   const CMSSteppingVerbose* steppingVerbose;
   double theCriticalEnergyForVacuum;
   double theCriticalDensity;

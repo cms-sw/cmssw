@@ -50,7 +50,9 @@ void TrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
   }
   if (nullptr != steppingVerbose_) {
     steppingVerbose_->trackStarted(aTrack, false);
-    if(aTrack->GetTrackID() == endPrintTrackID_) { steppingVerbose_->stopEventPrint(); }
+    if (aTrack->GetTrackID() == endPrintTrackID_) {
+      steppingVerbose_->stopEventPrint();
+    }
   }
   double ekin = aTrack->GetKineticEnergy();
 

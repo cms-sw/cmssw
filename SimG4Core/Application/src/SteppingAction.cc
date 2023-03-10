@@ -16,9 +16,7 @@
 //#define DebugLog
 
 SteppingAction::SteppingAction(SimTrackManager* stm, const CMSSteppingVerbose* sv, const edm::ParameterSet& p, bool hasW)
-    : trackManager_(stm),
-      steppingVerbose(sv),
-      hasWatcher(hasW) {
+    : trackManager_(stm), steppingVerbose(sv), hasWatcher(hasW) {
   theCriticalEnergyForVacuum = (p.getParameter<double>("CriticalEnergyForVacuum") * CLHEP::MeV);
   if (0.0 < theCriticalEnergyForVacuum) {
     killBeamPipe = true;
@@ -244,8 +242,7 @@ bool SteppingAction::initPointer() {
       const G4ParticleDefinition* part = theParticleTable->FindParticle(ekinParticles[i]);
       if (nullptr != part)
         ekinPDG[i] = part->GetPDGEncoding();
-      edm::LogVerbatim("SimG4CoreApplication") << "Particle " << ekinParticles[i] 
-                                               << " with PDG code " << ekinPDG[i]
+      edm::LogVerbatim("SimG4CoreApplication") << "Particle " << ekinParticles[i] << " with PDG code " << ekinPDG[i]
                                                << " and KE cut off " << ekinMins[i] / MeV << " MeV";
     }
   }
@@ -316,9 +313,8 @@ void SteppingAction::PrintKilledTrack(const G4Track* aTrack, const TrackStatus& 
     return;
   }
   edm::LogWarning("SimG4CoreApplication")
-      << "Track #" << aTrack->GetTrackID() << " StepN= " << aTrack->GetCurrentStepNumber()
-      << " " << aTrack->GetDefinition()->GetParticleName() << " E(MeV)=" << ekin / CLHEP::MeV
-      << " T(ns)=" << aTrack->GetGlobalTime() / CLHEP::ns << " is killed due to " << typ 
-      << "\n  LV: " << vname << " (" << rname << ") at " << aTrack->GetPosition()
-      << " step(cm)=" << aTrack->GetStep()->GetStepLength() / CLHEP::cm;
+      << "Track #" << aTrack->GetTrackID() << " StepN= " << aTrack->GetCurrentStepNumber() << " "
+      << aTrack->GetDefinition()->GetParticleName() << " E(MeV)=" << ekin / CLHEP::MeV
+      << " T(ns)=" << aTrack->GetGlobalTime() / CLHEP::ns << " is killed due to " << typ << "\n  LV: " << vname << " ("
+      << rname << ") at " << aTrack->GetPosition() << " step(cm)=" << aTrack->GetStep()->GetStepLength() / CLHEP::cm;
 }

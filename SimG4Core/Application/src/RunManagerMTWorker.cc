@@ -398,7 +398,8 @@ void RunManagerMTWorker::initializeUserActions() {
   Connect(userEventAction);
   eventManager->SetUserAction(userEventAction);
 
-  TrackingAction* userTrackingAction = new TrackingAction(m_tls->trackManager.get(), m_sVerbose.get(), m_pTrackingAction);
+  TrackingAction* userTrackingAction =
+      new TrackingAction(m_tls->trackManager.get(), m_sVerbose.get(), m_pTrackingAction);
   Connect(userTrackingAction);
   eventManager->SetUserAction(userTrackingAction);
 
