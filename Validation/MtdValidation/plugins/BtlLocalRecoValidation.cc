@@ -637,24 +637,17 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
       ibook.bookProfile("BtlHitTvsZ", "BTL RECO ToA vs Z;Z_{RECO} [cm];ToA_{RECO} [ns]", 50, -260., 260., 0., 100.);
   meHitLongPos_ = ibook.book1D("BtlLongPos", "BTL RECO hits longitudinal position;long. pos._{RECO}", 50, -5, 5);
   meTimeRes_ = ibook.book1D("BtlTimeRes", "BTL time resolution;T_{RECO}-T_{SIM}", 100, -0.5, 0.5);
-  meTimeResVsE_ = ibook.bookProfile("BtlTimeResvsE",
-                                    "BTL time resolution vs hit energy;E_{RECO} [MeV];T_{RECO}-T_{SIM}",
-                                    50,
-                                    0.,
-                                    20.,
-                                    -0.5,
-                                    0.5,
-                                    "S");
+  meTimeResVsE_ = ibook.bookProfile(
+      "BtlTimeResvsE", "BTL time resolution vs hit energy;E_{RECO} [MeV];T_{RECO}-T_{SIM}", 50, 0., 20., -0.5, 0.5, "S");
   meEnergyRes_ = ibook.book1D("BtlEnergyRes", "BTL energy resolution;E_{RECO}-E_{SIM}", 100, -0.5, 0.5);
-  meEnergyRelResVsE_ =
-      ibook.bookProfile("BtlEnergyRelResvsE",
-                        "BTL relative energy resolution vs hit energy;E_{RECO} [MeV];E_{RECO}-E_{SIM}",
-                        50,
-                        0.,
-                        20.,
-                        -0.15,
-                        0.15,
-                        "S");
+  meEnergyRelResVsE_ = ibook.bookProfile("BtlEnergyRelResvsE",
+                                         "BTL relative energy resolution vs hit energy;E_{RECO} [MeV];E_{RECO}-E_{SIM}",
+                                         50,
+                                         0.,
+                                         20.,
+                                         -0.15,
+                                         0.15,
+                                         "S");
   meLongPosPull_ = ibook.book1D("BtlLongPosPull",
                                 "BTL longitudinal position pull;X^{loc}_{RECO}-X^{loc}_{SIM}/#sigma_{xloc_{RECO}}",
                                 100,
