@@ -1,12 +1,9 @@
 #!/bin/bash
 
-LOCAL_TEST_DIR=${CMSSW_BASE}/src/FWCore/Integration/test
-LOCAL_TMP_DIR=${CMSSW_BASE}/tmp/${SCRAM_ARCH}
+LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
 
 # Pass in name and status
 function die { echo $1: status $2 ; echo === Log file === ; cat ${3:-/dev/null} ; echo === End log file === ; exit $2; }
-
-pushd ${LOCAL_TMP_DIR}
 
 cat <<EOF > finalpath_expected_empty.log
 EOF

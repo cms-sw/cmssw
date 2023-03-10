@@ -1,12 +1,8 @@
 #!/bin/sh
 set -x
-LOCAL_TEST_DIR=${CMSSW_BASE}/src/FWCore/Integration/test
-LOCAL_TMP_DIR=${CMSSW_BASE}/tmp/${SCRAM_ARCH}
-
+LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
 # Pass in name and status
 function die { echo $1: status $2 ;  exit $2; }
-
-pushd ${LOCAL_TMP_DIR}
 
 cmsRun ${LOCAL_TEST_DIR}/CatchCmsExceptiontest_cfg.py &> CatchCmsException.log && die 'Failed in using CatchCmsException_cfg.py' 1
 
@@ -25,7 +21,5 @@ grep -q WhatsItESProducer CatchCmsException.log || die 'Failed to find Producers
 # It is intentional that this test throws an exception. The test fails if it does not.
 cmsRun ${LOCAL_TEST_DIR}/testMissingDictionaryChecking_cfg.py &> testMissingDictionaryChecking.log && die 'Failed to get exception running testMissingDictionaryChecking_cfg.py' 1
 grep -q MissingDictionaryTestF testMissingDictionaryChecking.log || die 'Failed to print out exception message with missing dictionary listed' $?
-
-popd
 
 #grep -w ESProducer CatcheStdException.log

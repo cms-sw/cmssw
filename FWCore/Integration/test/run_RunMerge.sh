@@ -4,9 +4,7 @@ test=testRunMerge
 
 function die { echo Failure $1: status $2 ; exit $2 ; }
 
-echo LOCAL_TMP_DIR = ${LOCAL_TMP_DIR}
-
-pushd ${LOCAL_TMP_DIR}
+LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
   echo ${test}PROD0 ------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}PROD0_cfg.py || die "cmsRun ${test}PROD0_cfg.py" $?
 
@@ -117,7 +115,5 @@ pushd ${LOCAL_TMP_DIR}
   echo testLooperEventNavigation1-----------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/testLooperEventNavigation1_cfg.py < ${LOCAL_TEST_DIR}/testLooperEventNavigation.txt > testLooperEventNavigationOutput1.txt || die "cmsRun testLooperEventNavigation1_cfg.py " $?
   diff ${LOCAL_TEST_DIR}/unit_test_outputs/testLooperEventNavigationOutput.txt testLooperEventNavigationOutput1.txt || die "comparing testLooperEventNavigationOutput1.txt" $?
-
-popd
 
 exit 0

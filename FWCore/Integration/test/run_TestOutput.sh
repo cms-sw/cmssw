@@ -4,7 +4,7 @@ test=testOutput
 
 function die { echo Failure $1: status $2 ; exit $2 ; }
 
-pushd ${LOCAL_TMP_DIR}
+LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
 
   echo "testOutput1"
   cmsRun -p ${LOCAL_TEST_DIR}/${test}1_cfg.py 2> testOutput1.log || die "cmsRun ${test}1_cfg.py" $?
@@ -65,7 +65,5 @@ pushd ${LOCAL_TMP_DIR}
   grep "limited globalBeginLuminosityBlock" testOutput2.log > /dev/null || die "grep failed to find 'limited globalBeginLuminosityBlock'" $?
   grep "limited globalEndLuminosityBlock" testOutput2.log > /dev/null || die "grep failed to find 'limited globalEndLuminosityBlock'" $?
   grep "limited branchID 4057644746" testOutput2.log > /dev/null || die "grep failed to find 'limited branchID 4057644746'" $?
-
-popd
 
 exit 0

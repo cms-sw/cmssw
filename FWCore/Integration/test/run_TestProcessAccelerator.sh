@@ -1,12 +1,9 @@
 #!/bin/bash
 
 test=testProcessAccelerator
-LOCAL_TEST_DIR=${CMSSW_BASE}/src/FWCore/Integration/test
-LOCAL_TMP_DIR=${CMSSW_BASE}/tmp/${SCRAM_ARCH}
+LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
 
 function die { echo Failure $1: status $2 ; exit $2 ; }
-
-pushd ${LOCAL_TMP_DIR}
 
 echo "*************************************************"
 echo "accelerators=*"
