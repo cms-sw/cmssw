@@ -2,7 +2,7 @@
 # Pass in name and status
 function die { echo $1: status $2 ;  exit $2; }
 
-pushd ${LOCAL_TMP_DIR}
+LOCAL_TEST_DIR=$SCRAM_TEST_PATH
 
 cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolOutputTest_cfg.py || die 'Failure using PoolOutputTest_cfg.py 1' $?
 GUID1=$(edmFileUtil -u PoolOutputTest.root | fgrep uuid | awk '{print $10}')
@@ -74,5 +74,3 @@ if [ "x${GUID1}" == "x${GUID2}" ]; then
     echo "GUID from two output files are the same: ${GUID1}"
     exit 1
 fi
-
-popd

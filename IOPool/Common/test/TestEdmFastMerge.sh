@@ -2,9 +2,8 @@
 # Pass in name and status
 function die { echo $1: status $2 ;  exit $2; }
 
-LOCAL_TEST_DIR=$CMSSW_BASE/src/IOPool/Common/test
-LOCAL_TMP_DIR=$CMSSW_BASE/tmp
-pushd ${LOCAL_TMP_DIR}
+LOCAL_TEST_DIR=$SCRAM_TEST_PATH
+LOCAL_TMP_DIR=.
 
 #---------------------------
 # Create first input file
@@ -71,5 +70,3 @@ egrep -v "<GUID>|<PFN>|^$" $LOCAL_TMP_DIR/TestFastMergeRFJR.xml  > $LOCAL_TMP_DI
 diff $LOCAL_TMP_DIR/proper_Rfjr_output_filtered $LOCAL_TMP_DIR/TestFastMergeRFJR_filtered.xml || die 'output run framework job report is wrong for proper_Rfjr_output_filtered' $?
 
 cmsRun -p ${LOCAL_TEST_DIR}/ReadFastMergeTestOutput_cfg.py || die 'Failure using ReadFastMergeTestOutput_cfg.py' $?
-
-popd
