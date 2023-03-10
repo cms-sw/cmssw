@@ -2,9 +2,7 @@
 
 function die { echo Failure $1: status $2 ; exit $2 ; }
 
-echo LOCAL_TMP_DIR = ${LOCAL_TMP_DIR}
-
-pushd ${LOCAL_TMP_DIR}
+LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
   testConfig=create_run_only_file_cfg.py
   rm -f dqm_run_only.root
   echo ${testConfig} ------------------------------------------------------------
@@ -183,6 +181,4 @@ pushd ${LOCAL_TMP_DIR}
   echo ${testConfig} ------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${testConfig} && die "cmsRun ${testConfig}" $?
   
-popd
-
 exit 0
