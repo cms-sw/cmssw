@@ -22,20 +22,14 @@
 #include <memory>
 
 // user include filter
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/one/EDFilter.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
@@ -49,7 +43,8 @@
 class DisappearingMuonsSkimming : public edm::one::EDFilter<> {
 public:
   explicit DisappearingMuonsSkimming(const edm::ParameterSet&);
-  ~DisappearingMuonsSkimming() override;
+  ~DisappearingMuonsSkimming() override = default;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void beginJob() override;
@@ -65,49 +60,43 @@ private:
 
   // ----------member data ---------------------------
 
-  edm::EDGetToken recoMuonToken_;
-  edm::EDGetToken standaloneMuonToken_;
-  edm::EDGetTokenT<std::vector<reco::Track>> trackCollectionToken_;
-  edm::EDGetTokenT<std::vector<reco::Vertex>> primaryVerticesToken_;
-  edm::EDGetTokenT<EcalRecHitCollection> reducedEndcapRecHitCollectionToken_;
-  edm::EDGetTokenT<EcalRecHitCollection> reducedBarrelRecHitCollectionToken_;
-  edm::EDGetTokenT<edm::TriggerResults> trigResultsToken_;
-  edm::EDGetToken genParticleToken_;
-  edm::EDGetToken genInfoToken_;
-  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackToken_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
-  std::vector<std::string> muonPathsToPass_;
+  const edm::EDGetToken recoMuonToken_;
+  const edm::EDGetToken standaloneMuonToken_;
+  const edm::EDGetTokenT<std::vector<reco::Track>> trackCollectionToken_;
+  const edm::EDGetTokenT<std::vector<reco::Vertex>> primaryVerticesToken_;
+  const edm::EDGetTokenT<EcalRecHitCollection> reducedEndcapRecHitCollectionToken_;
+  const edm::EDGetTokenT<EcalRecHitCollection> reducedBarrelRecHitCollectionToken_;
+  const edm::EDGetTokenT<edm::TriggerResults> trigResultsToken_;
+  const edm::EDGetToken genParticleToken_;
+  const edm::EDGetToken genInfoToken_;
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackToken_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
+  const std::vector<std::string> muonPathsToPass_;
 
   //options
-  double minMuPt_ = 26;
-  double maxMuEta_ = 2.4;
-  double minTrackEta_ = 1.4;
-  double maxTrackEta_ = 2.4;
-  double minTrackPt_ = 20;
-  double maxTransDCA_ = 0.005;
-  double maxLongDCA_ = 0.05;
-  double maxVtxChi_ = 3.;
-  double minInvMass_ = 50;
-  double maxInvMass_ = 150;
-  double trackIsoConesize_ = 0.3;
-  double trackIsoInnerCone_ = 0.01;
-  double ecalIsoConesize_ = 0.4;
-  double minEcalHitE_ = 0.3;
-  double maxTrackIso_ = 0.05;
-  double maxEcalIso_ = 10;
-  double minSigInvMass_ = 76;
-  double maxSigInvMass_ = 106;
-  double minStandaloneDr_ = 1.;
-  double maxStandaloneDE_ = -0.5;
-  bool keepOffPeak_ = true;
-  bool keepSameSign_ = true;
-  bool keepTotalRegion_ = true;
-  bool keepPartialRegion_ = true;
-
-  //Event categories
-  bool sameSign;
-  bool totalRegion;
-  bool partialRegion;
-  bool offPeak;
+  const double minMuPt_;
+  const double maxMuEta_;
+  const double minTrackEta_;
+  const double maxTrackEta_;
+  const double minTrackPt_;
+  const double maxTransDCA_;
+  const double maxLongDCA_;
+  const double maxVtxChi_;
+  const double minInvMass_;
+  const double maxInvMass_;
+  const double trackIsoConesize_;
+  const double trackIsoInnerCone_;
+  const double ecalIsoConesize_;
+  const double minEcalHitE_;
+  const double maxTrackIso_;
+  const double maxEcalIso_;
+  const double minSigInvMass_;
+  const double maxSigInvMass_;
+  const double minStandaloneDr_;
+  const double maxStandaloneDE_;
+  const bool keepOffPeak_;
+  const bool keepSameSign_;
+  const bool keepTotalRegion_;
+  const bool keepPartialRegion_;
 };
 #endif

@@ -17,41 +17,27 @@
 //
 // system include files
 #include <memory>
-#include <iomanip>
-#include <iostream>
 
 #include "Math/VectorUtil.h"
 // user include files
 #include "Configuration/Skimming/interface/DisappearingMuonsSkimming.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDFilter.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/StreamID.h"
-
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/Common/interface/SortedCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-
-// HCAL Stuff
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-
-// for vertexing
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
@@ -70,36 +56,32 @@ DisappearingMuonsSkimming::DisappearingMuonsSkimming(const edm::ParameterSet& iC
       trigResultsToken_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("TriggerResultsTag"))),
       transientTrackToken_(
           esConsumes<TransientTrackBuilder, TransientTrackRecord>(edm::ESInputTag("", "TransientTrackBuilder"))),
-      geometryToken_(esConsumes<CaloGeometry, CaloGeometryRecord>(edm::ESInputTag{})) {
-  muonPathsToPass_ = iConfig.getParameter<std::vector<std::string>>("muonPathsToPass");
-  //Get the options
-  minMuPt_ = iConfig.getParameter<double>("minMuPt");
-  maxMuEta_ = iConfig.getParameter<double>("maxMuEta");
-  minTrackEta_ = iConfig.getParameter<double>("minTrackEta");
-  maxTrackEta_ = iConfig.getParameter<double>("maxTrackEta");
-  minTrackPt_ = iConfig.getParameter<double>("minTrackPt");
-  maxTransDCA_ = iConfig.getParameter<double>("maxTransDCA");
-  maxLongDCA_ = iConfig.getParameter<double>("maxLongDCA");
-  maxVtxChi_ = iConfig.getParameter<double>("maxVtxChi");
-  minInvMass_ = iConfig.getParameter<double>("minInvMass");
-  maxInvMass_ = iConfig.getParameter<double>("maxInvMass");
-  trackIsoConesize_ = iConfig.getParameter<double>("trackIsoConesize");
-  trackIsoInnerCone_ = iConfig.getParameter<double>("trackIsoInnerCone");
-  ecalIsoConesize_ = iConfig.getParameter<double>("ecalIsoConesize");
-  minEcalHitE_ = iConfig.getParameter<double>("minEcalHitE");
-  maxTrackIso_ = iConfig.getParameter<double>("maxTrackIso");
-  maxEcalIso_ = iConfig.getParameter<double>("maxEcalIso");
-  minSigInvMass_ = iConfig.getParameter<double>("minSigInvMass");
-  maxSigInvMass_ = iConfig.getParameter<double>("maxSigInvMass");
-  minStandaloneDr_ = iConfig.getParameter<double>("minStandaloneDr");
-  maxStandaloneDE_ = iConfig.getParameter<double>("maxStandaloneDE");
-  keepOffPeak_ = iConfig.getParameter<bool>("keepOffPeak");
-  keepSameSign_ = iConfig.getParameter<bool>("keepSameSign");
-  keepTotalRegion_ = iConfig.getParameter<bool>("keepTotalRegion");
-  keepPartialRegion_ = iConfig.getParameter<bool>("keepPartialRegion");
-}
-
-DisappearingMuonsSkimming::~DisappearingMuonsSkimming() {}
+      geometryToken_(esConsumes<CaloGeometry, CaloGeometryRecord>(edm::ESInputTag{})),
+      muonPathsToPass_(iConfig.getParameter<std::vector<std::string>>("muonPathsToPass")),
+      minMuPt_(iConfig.getParameter<double>("minMuPt")),
+      maxMuEta_(iConfig.getParameter<double>("maxMuEta")),
+      minTrackEta_(iConfig.getParameter<double>("minTrackEta")),
+      maxTrackEta_(iConfig.getParameter<double>("maxTrackEta")),
+      minTrackPt_(iConfig.getParameter<double>("minTrackPt")),
+      maxTransDCA_(iConfig.getParameter<double>("maxTransDCA")),
+      maxLongDCA_(iConfig.getParameter<double>("maxLongDCA")),
+      maxVtxChi_(iConfig.getParameter<double>("maxVtxChi")),
+      minInvMass_(iConfig.getParameter<double>("minInvMass")),
+      maxInvMass_(iConfig.getParameter<double>("maxInvMass")),
+      trackIsoConesize_(iConfig.getParameter<double>("trackIsoConesize")),
+      trackIsoInnerCone_(iConfig.getParameter<double>("trackIsoInnerCone")),
+      ecalIsoConesize_(iConfig.getParameter<double>("ecalIsoConesize")),
+      minEcalHitE_(iConfig.getParameter<double>("minEcalHitE")),
+      maxTrackIso_(iConfig.getParameter<double>("maxTrackIso")),
+      maxEcalIso_(iConfig.getParameter<double>("maxEcalIso")),
+      minSigInvMass_(iConfig.getParameter<double>("minSigInvMass")),
+      maxSigInvMass_(iConfig.getParameter<double>("maxSigInvMass")),
+      minStandaloneDr_(iConfig.getParameter<double>("minStandaloneDr")),
+      maxStandaloneDE_(iConfig.getParameter<double>("maxStandaloneDE")),
+      keepOffPeak_(iConfig.getParameter<bool>("keepOffPeak")),
+      keepSameSign_(iConfig.getParameter<bool>("keepSameSign")),
+      keepTotalRegion_(iConfig.getParameter<bool>("keepTotalRegion")),
+      keepPartialRegion_(iConfig.getParameter<bool>("keepPartialRegion")) {}
 
 //
 // member functions
@@ -111,10 +93,10 @@ bool DisappearingMuonsSkimming::filter(edm::Event& iEvent, const edm::EventSetup
   using namespace std;
   using namespace reco;
 
-  totalRegion = false;
-  sameSign = false;
-  offPeak = false;
-  partialRegion = false;
+  bool totalRegion = false;
+  bool sameSign = false;
+  bool offPeak = false;
+  bool partialRegion = false;
 
   edm::Handle<reco::TrackCollection> staTracks;
   iEvent.getByToken(standaloneMuonToken_, staTracks);
@@ -163,13 +145,16 @@ bool DisappearingMuonsSkimming::filter(edm::Event& iEvent, const edm::EventSetup
           continue;
         }
         for (unsigned int j = 0; j < vtx->tracksSize(); j++) {
-          double dR = deltaR(vtx->trackRefAt(j)->eta(), vtx->trackRefAt(j)->phi(), iTrack->eta(), iTrack->phi());
           double dPt = fabs(vtx->trackRefAt(j)->pt() - iTrack->pt()) / iTrack->pt();
           //Find the vertex track that is the same as the probe
-          if (dR < 0.001 && dPt < 0.001) {
-            foundtrack = true;
-            GlobalPoint vert(vtx->x(), vtx->y(), vtx->z());
-            tkVtx = vert;
+          if (dPt < 0.001) {
+            double dR2 = deltaR2(vtx->trackRefAt(j)->eta(), vtx->trackRefAt(j)->phi(), iTrack->eta(), iTrack->phi());
+            if (dR2 < 0.001 * 0.001) {
+              foundtrack = true;
+              GlobalPoint vert(vtx->x(), vtx->y(), vtx->z());
+              tkVtx = vert;
+              break;
+            }
           }
         }
       }
@@ -186,11 +171,7 @@ bool DisappearingMuonsSkimming::filter(edm::Event& iEvent, const edm::EventSetup
       // make a pair of TransientTracks to feed the vertexer
       std::vector<reco::TransientTrack> tracksToVertex;
       tracksToVertex.push_back(transientTrackBuilder->build(*iTrack));
-      if (iMuon->isGlobalMuon()) {
-        tracksToVertex.push_back(transientTrackBuilder->build(iMuon->globalTrack()));
-      } else {
-        continue;
-      }
+      tracksToVertex.push_back(transientTrackBuilder->build(iMuon->globalTrack()));
       // try to fit these two tracks to a common vertex
       KalmanVertexFitter vertexFitter;
       CachingVertex<5> fittedVertex = vertexFitter.vertex(tracksToVertex);
@@ -224,7 +205,7 @@ bool DisappearingMuonsSkimming::filter(edm::Event& iEvent, const edm::EventSetup
         continue;
 
       double trackIso = getTrackIsolation(iEvent, vertices, iTrack);
-      //Track iso returns -1 when it fails to find the vertex containing the track
+      //Track iso returns -1 when it fails to find the vertex containing the track (already checked in track selection, but might as well make sure)
       if (trackIso < 0)
         continue;
       double ecalIso = getECALIsolation(iEvent, iSetup, transientTrackBuilder->build(*iTrack));
@@ -232,34 +213,37 @@ bool DisappearingMuonsSkimming::filter(edm::Event& iEvent, const edm::EventSetup
         continue;
 
       //A good tag/probe pair has been selected, now check for control or signal regions
-
       if (iMuon->charge() == iTrack->charge()) {
         sameSign = true;
       }
 
-      //If neither off-peak or same sign CR, need to check standalone muons for signal regions
-      double staMinDr = 10;
+      //If not same sign CR, need to check standalone muons for signal regions
+      double staMinDr2 = 1000;
       double staMinDEoverE = -10;
       if (!staTracks->empty()) {
         for (reco::TrackCollection::const_iterator staTrack = staTracks->begin(); staTrack != staTracks->end();
              ++staTrack) {
           reco::TransientTrack track = transientTrackBuilder->build(*staTrack);
-          double dR = deltaR(track.impactPointTSCP().momentum().eta(),
-                             track.impactPointTSCP().momentum().phi(),
-                             (*iTrack).eta(),
-                             (*iTrack).phi());
+          double dR2 = deltaR2(track.impactPointTSCP().momentum().eta(),
+                               track.impactPointTSCP().momentum().phi(),
+                               (*iTrack).eta(),
+                               (*iTrack).phi());
           double staDE = (std::sqrt(track.impactPointTSCP().momentum().mag2()) - (*iTrack).p()) / (*iTrack).p();
-          if (dR < staMinDr) {
-            staMinDr = dR;
+          if (dR2 < staMinDr2) {
+            staMinDr2 = dR2;
           }
           //Pick the largest standalone muon within the cone
-          if (dR < minStandaloneDr_ && staDE > staMinDEoverE) {
+          if (dR2 < minStandaloneDr_ * minStandaloneDr_ && staDE > staMinDEoverE) {
             staMinDEoverE = staDE;
           }
         }
       }
-      if (staMinDr > minStandaloneDr_) {
-        totalRegion = true;
+      if (staMinDr2 > minStandaloneDr_ * minStandaloneDr_) {
+        if (MuonTrackMass < minSigInvMass_ || MuonTrackMass > maxSigInvMass_) {
+          offPeak = true;
+        } else {
+          totalRegion = true;
+        }
       } else {
         if (staMinDEoverE < maxStandaloneDE_) {
           if (MuonTrackMass < minSigInvMass_ || MuonTrackMass > maxSigInvMass_) {
@@ -308,6 +292,7 @@ bool DisappearingMuonsSkimming::passTriggers(const edm::Event& iEvent,
       if ((name.find(pathName) != std::string::npos)) {
         if (triggerResults->accept(i)) {
           passTriggers = true;
+          break;
         }
       }
     }
@@ -328,14 +313,16 @@ double DisappearingMuonsSkimming::getTrackIsolation(const edm::Event& iEvent,
       continue;
     }
     for (unsigned int j = 0; j < vtx->tracksSize(); j++) {
-      double dR = deltaR(vtx->trackRefAt(j)->eta(), vtx->trackRefAt(j)->phi(), iTrack->eta(), iTrack->phi());
       double dPt = fabs(vtx->trackRefAt(j)->pt() - iTrack->pt()) / iTrack->pt();
       //Find the vertex track that is the same as the probe
-      if (dR < 0.001 && dPt < 0.001) {
-        vtxindex = i;
-        trackindex = j;
-        foundtrack = true;
-        GlobalPoint vert(vtx->x(), vtx->y(), vtx->z());
+      if (dPt < 0.001) {
+        double dR2 = deltaR2(vtx->trackRefAt(j)->eta(), vtx->trackRefAt(j)->phi(), iTrack->eta(), iTrack->phi());
+        if (dR2 < 0.001 * 0.001) {
+          vtxindex = i;
+          trackindex = j;
+          foundtrack = true;
+          break;
+        }
       }
     }
   }
@@ -350,8 +337,10 @@ double DisappearingMuonsSkimming::getTrackIsolation(const edm::Event& iEvent,
     if (i == trackindex)
       continue;
     reco::TrackBaseRef secondarytrack = primaryVtx->trackRefAt(i);
-    if (deltaR(iTrack->eta(), iTrack->phi(), secondarytrack->eta(), secondarytrack->phi()) > trackIsoConesize_ ||
-        deltaR(iTrack->eta(), iTrack->phi(), secondarytrack->eta(), secondarytrack->phi()) < trackIsoInnerCone_)
+    if (deltaR2(iTrack->eta(), iTrack->phi(), secondarytrack->eta(), secondarytrack->phi()) >
+            trackIsoConesize_ * trackIsoConesize_ ||
+        deltaR2(iTrack->eta(), iTrack->phi(), secondarytrack->eta(), secondarytrack->phi()) <
+            trackIsoInnerCone_ * trackIsoInnerCone_)
       continue;
     Isolation += secondarytrack->pt();
   }
@@ -401,6 +390,48 @@ double DisappearingMuonsSkimming::getECALIsolation(const edm::Event& iEvent,
   }
 
   return eDR;
+}
+
+void DisappearingMuonsSkimming::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.add<edm::InputTag>("recoMuons", edm::InputTag("muons"));
+  desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
+  desc.add<edm::InputTag>("StandaloneTracks", edm::InputTag("standAloneMuons"));
+  desc.add<edm::InputTag>("primaryVertices", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<edm::InputTag>("EERecHits", edm::InputTag("reducedEcalRecHitsEE"));
+  desc.add<edm::InputTag>("EBRecHits", edm::InputTag("reducedEcalRecHitsEB"));
+  desc.add<edm::InputTag>("TriggerResultsTag", edm::InputTag("TriggerResults", "", "HLT"));
+  desc.add<std::vector<std::string>>("muonPathsToPass",
+                                     {
+                                         "HLT_IsoMu24_v",
+                                         "HLT_IsoMu27_v",
+                                     });
+  desc.add<double>("minMuPt", 26);
+  desc.add<double>("maxMuEta", 2.4);
+  desc.add<double>("minTrackEta", 0);
+  desc.add<double>("maxTrackEta", 2.4);
+  desc.add<double>("minTrackPt", 20);
+  desc.add<double>("maxTransDCA", 0.005);
+  desc.add<double>("maxLongDCA", 0.05);
+  desc.add<double>("maxVtxChi", 3.0);
+  desc.add<double>("minInvMass", 50);
+  desc.add<double>("maxInvMass", 150);
+  desc.add<double>("trackIsoConesize", 0.3);
+  desc.add<double>("trackIsoInnerCone", 0.01);
+  desc.add<double>("ecalIsoConesize", 0.4);
+  desc.add<double>("minEcalHitE", 0.3);
+  desc.add<double>("maxTrackIso", 0.05);
+  desc.add<double>("maxEcalIso", 10);
+  desc.add<double>("minSigInvMass", 76);
+  desc.add<double>("maxSigInvMass", 106);
+  desc.add<double>("minStandaloneDr", 1.0);
+  desc.add<double>("maxStandaloneDE", -0.5);
+  desc.add<bool>("keepOffPeak", true);
+  desc.add<bool>("keepSameSign", true);
+  desc.add<bool>("keepTotalRegion", true);
+  desc.add<bool>("keepPartialRegion", true);
+  descriptions.add("disappMuonsSelection", desc);
 }
 
 // ------------ method called once each job just before starting event loop  ------------
