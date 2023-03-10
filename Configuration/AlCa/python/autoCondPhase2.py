@@ -1,13 +1,16 @@
 from Configuration.StandardSequences.CondDBESSource_cff import GlobalTag as essource
 connectionString = essource.connect.value()
 
-SiPixelLARecord           =   "SiPixelLorentzAngleRcd"                  
-SiPixelSimLARecord        =   "SiPixelLorentzAngleSimRcd"   
-SiPixelGenErrorRecord     =   "SiPixelGenErrorDBObjectRcd"       
-SiPixelTemplatesRecord    =   "SiPixelTemplateDBObjectRcd"       
-SiPixel2DTemplatesRecord  =   "SiPixel2DTemplateDBObjectRcd"     
+SiPixelLARecord           =   "SiPixelLorentzAngleRcd"            
+SiPixelSimLARecord        =   "SiPixelLorentzAngleSimRcd"
+SiPixelGenErrorRecord     =   "SiPixelGenErrorDBObjectRcd"
+SiPixelTemplatesRecord    =   "SiPixelTemplateDBObjectRcd"
+SiPixel2DTemplatesRecord  =   "SiPixel2DTemplateDBObjectRcd"
 TrackerLARecord           =   "SiPhase2OuterTrackerLorentzAngleRcd"
 TrackerSimLARecord        =   "SiPhase2OuterTrackerLorentzAngleSimRcd"
+TkAlRecord                =   "TrackerAlignmentRcd"
+TkAPERecord               =   "TrackerAlignmentErrorExtendedRcd"
+TkSurfRecord              =   "TrackerSurfaceDeformationRcd"
 
 ##
 ## Active geometries: https://github.com/cms-sw/cmssw/blob/master/Configuration/Geometry/README.md
@@ -56,6 +59,24 @@ allTags["Template"] = {
     'T30' : ( ','.join( [ 'SiPixelTemplateDBObject_phase2_IT_v6.4.0_25x100_v1_mc',SiPixelTemplatesRecord,connectionString, "", "2021-11-22 21:00:00"] ), ),  # cell is 25um (local-x) x 100um (local-y) , VBias=350V
 }
 
+allTags["TkAlignment"] = {
+    'T21' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T21_design_v0' ,TkAlRecord, connectionString, "", "2023-03-16 15:30:00"] ), ),
+    'T25' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T25_design_v0' ,TkAlRecord, connectionString, "", "2023-03-16 15:30:00"] ), ),
+    'T30' : ( ','.join( [ 'TrackerAlignment_Upgrade2026_T30_design_v0' ,TkAlRecord, connectionString, "", "2023-03-16 15:30:00"] ), ),
+}
+
+allTags["TkAPE"] = {
+    'T21' : ( ','.join( [ 'TrackerAlignmentErrorsExtended_Upgrade2026_T21_design_v0' ,TkAPERecord, connectionString, "", "2023-03-16 15:30:00"] ), ),
+    'T25' : ( ','.join( [ 'TrackerAlignmentErrorsExtended_Upgrade2026_T25_design_v0' ,TkAPERecord, connectionString, "", "2023-03-16 15:30:00"] ), ),
+    'T30' : ( ','.join( [ 'TrackerAlignmentErrorsExtended_Upgrade2026_T30_design_v0' ,TkAPERecord, connectionString, "", "2023-03-16 15:30:00"] ), ),
+}
+
+allTags["TkSurf"] = {
+    'T21' : ( ','.join( [ 'TrackerSurfaceDeformations_Upgrade2026_Zero' ,TkSurfRecord, connectionString, "", "2023-03-16 15:30:00"] ), ),
+    'T25' : ( ','.join( [ 'TrackerSurfaceDeformations_Upgrade2026_Zero' ,TkSurfRecord, connectionString, "", "2023-03-16 15:30:00"] ), ),
+    'T30' : ( ','.join( [ 'TrackerSurfaceDeformations_Upgrade2026_Zero' ,TkSurfRecord, connectionString, "", "2023-03-16 15:30:00"] ), ),
+}
+
 ##
 ## Outer Tracker records (to be filled if necessary)
 ##
@@ -87,7 +108,7 @@ allTags["Template2Dden"] = {
 '''
 
 # list of active tags to be replaced
-activeKeys = ["LA","LAWidth","SimLA","LAfromAlignment","GenError","Template"]#,"SimOTLA","OTLA"]
+activeKeys = ["LA", "LAWidth", "SimLA", "LAfromAlignment", "GenError", "Template", "TkAlignment", "TkAPE", "TkSurf"] #,"SimOTLA","OTLA"]
 
 # list of geometries supported
 activeDets = ["T21","T25","T30"]
