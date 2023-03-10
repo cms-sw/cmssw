@@ -22,7 +22,7 @@ class DBremWatcher : public SimProducer,
                      public Observer<const EndOfTrack *> {
 public:
   DBremWatcher(edm::ParameterSet const &p);
-  ~DBremWatcher() override;
+  ~DBremWatcher() override = default;
   void update(const BeginOfTrack *trk) override;
   void update(const BeginOfEvent *event) override;
   void update(const EndOfEvent *event) override;
