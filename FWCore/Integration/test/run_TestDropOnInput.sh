@@ -4,7 +4,7 @@ test=testDropOnInput
 
 function die { echo Failure $1: status $2 ; exit $2 ; }
 
-pushd ${LOCAL_TMP_DIR}
+LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
 
   echo "testDropOnInput1_1"
   cmsRun -p ${LOCAL_TEST_DIR}/${test}1_1_cfg.py || die "cmsRun ${test}1_1_cfg.py" $?
@@ -32,8 +32,6 @@ pushd ${LOCAL_TMP_DIR}
 
   echo "testDropOnInputReadSubProcess_cfg.py"
   cmsRun -p ${LOCAL_TEST_DIR}/${test}ReadSubProcess_cfg.py || die "cmsRun ${test}ReadSubProcess_cfg.py" $?
-
-popd
 
 exit 0
 
