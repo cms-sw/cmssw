@@ -34,9 +34,9 @@ l1tVertexProducer = cms.EDProducer('VertexProducer',
         # TDR settings: [-14.95, 15.0, 0.1]
         # L1TkPrimaryVertexProducer: [-30.0, 30.0, 0.09983361065]
         # HLS Firmware: [-14.4, 14.4, 0.4]
-        # Track word limits (128 binns): [-20.46921512, 20.46921512, 0.31983148625]
-        # Track word limits (256 binns): [-20.46921512, 20.46921512, 0.159915743125]
-        FH_HistogramParameters = cms.vdouble(-20.46921512, 20.46921512, 0.31983148625),
+        # Track word limits (128 binns): [-20.46912512, 20.46912512, 0.31983008]
+        # Track word limits (256 binns): [-20.46912512, 20.46912512, 0.15991504]
+        FH_HistogramParameters = cms.vdouble(-20.46912512, 20.46912512, 0.15991504),
         # The number of vertixes to return (i.e. N windows with the highest combined pT)
         FH_NVtx = cms.uint32(10),
         # fastHisto algorithm assumed vertex half-width [cm]
