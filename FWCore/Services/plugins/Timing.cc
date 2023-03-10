@@ -22,10 +22,12 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
+#include "FWCore/ServiceRegistry/interface/ESModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
 
 #include <iostream>
 #include <sstream>
@@ -111,6 +113,10 @@ namespace edm {
       std::atomic<unsigned long> begin_run_count_;
       unsigned int nStreams_;
       unsigned int nThreads_;
+
+      std::vector<std::unique_ptr<std::atomic<double>>> eventSetupModuleStartTimes_;
+      std::vector<std::pair<uintptr_t, eventsetup::EventSetupRecordKey>> eventSetupModuleCallInfo_;
+      std::atomic<double> accumulatedEventSetupModuleTimings_;
 
       std::vector<std::unique_ptr<std::atomic<unsigned int>>> countSubProcessesPreEvent_;
       std::vector<std::unique_ptr<std::atomic<unsigned int>>> countSubProcessesPostEvent_;
@@ -287,6 +293,41 @@ namespace edm {
         iRegistry.watchPostSourceConstruction(this, &Timing::postModule);
       }
 
+      iRegistry.preESModuleSignal_.connect([this](auto const& recordKey, auto const& context) {
+        //find available slot
+        auto startTime = getTime();
+        bool foundSlot = false;
+        do {
+          for (size_t i = 0; i < eventSetupModuleStartTimes_.size(); ++i) {
+            auto& slot = *eventSetupModuleStartTimes_[i];
+            double expect = 0.;
+            if (slot.compare_exchange_strong(expect, startTime)) {
+              foundSlot = true;
+              eventSetupModuleCallInfo_[i].first = uintptr_t(context.componentDescription());
+              eventSetupModuleCallInfo_[i].second = recordKey;
+              break;
+            }
+          }
+          //if foundSlot == false then other threads stole the slots before this thread
+          // so should check starting over again
+        } while (not foundSlot);
+      });
+      iRegistry.postESModuleSignal_.connect([this](auto const& recordKey, auto const& context) {
+        auto stopTime = getTime();
+        for (size_t i = 0; i < eventSetupModuleStartTimes_.size(); ++i) {
+          auto const& info = eventSetupModuleCallInfo_[i];
+          if (info.first == uintptr_t(context.componentDescription()) and info.second == recordKey) {
+            auto startTime = eventSetupModuleStartTimes_[i]->exchange(0.);
+            auto expect = accumulatedEventSetupModuleTimings_.load();
+            auto timeDiff = stopTime - startTime;
+            auto accumulatedTime = expect + timeDiff;
+            while (not accumulatedEventSetupModuleTimings_.compare_exchange_strong(expect, accumulatedTime)) {
+              accumulatedTime = expect + timeDiff;
+            }
+            break;
+          }
+        }
+      });
       iRegistry.watchPostGlobalBeginRun(this, &Timing::postGlobalBeginRun);
       iRegistry.watchPostGlobalBeginLumi(this, &Timing::postGlobalBeginLumi);
 
@@ -297,6 +338,12 @@ namespace edm {
         sum_events_time_.resize(nStreams_, 0.);
         max_events_time_.resize(nStreams_, 0.);
         min_events_time_.resize(nStreams_, 1.E6);
+        eventSetupModuleStartTimes_.reserve(nThreads_);
+        for (unsigned int i = 0; i < nThreads_; ++i) {
+          eventSetupModuleStartTimes_.emplace_back(std::make_unique<std::atomic<double>>(0.));
+        }
+        eventSetupModuleCallInfo_.resize(nThreads_);
+
         for (unsigned int i = 0; i < nStreams_; ++i) {
           countSubProcessesPreEvent_.emplace_back(std::make_unique<std::atomic<unsigned int>>(0));
           countSubProcessesPostEvent_.emplace_back(std::make_unique<std::atomic<unsigned int>>(0));
@@ -415,6 +462,7 @@ namespace edm {
                                  << " - Total loop:  " << total_loop_time << "\n"
                                  << " - Total init:  " << total_initialization_time << "\n"
                                  << " - Total job:   " << total_job_time << "\n"
+                                 << " - Total EventSetup: " << accumulatedEventSetupModuleTimings_.load() << "\n"
                                  << " Event Throughput: " << event_throughput << " ev/s\n"
                                  << " CPU Summary: \n"
                                  << " - Total loop:     " << total_loop_cpu << "\n"
@@ -439,6 +487,7 @@ namespace edm {
         reportData.insert(std::make_pair("TotalJobCPU", d2str(total_job_cpu)));
         reportData.insert(std::make_pair("TotalJobChildrenCPU", d2str(job_end_children_cpu)));
         reportData.insert(std::make_pair("TotalLoopTime", d2str(total_loop_time)));
+        reportData.insert(std::make_pair("TotalEventSetupTime", d2str(accumulatedEventSetupModuleTimings_.load())));
         reportData.insert(std::make_pair("TotalLoopCPU", d2str(total_loop_cpu)));
         reportData.insert(std::make_pair("TotalInitTime", d2str(total_initialization_time)));
         reportData.insert(std::make_pair("TotalInitCPU", d2str(total_initialization_cpu)));
