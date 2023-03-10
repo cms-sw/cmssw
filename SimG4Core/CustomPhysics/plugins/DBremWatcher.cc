@@ -16,20 +16,20 @@
 #include <tuple>
 
 class DBremWatcher : public SimProducer,
-                     public Observer<const BeginOfTrack *>,
-                     public Observer<const BeginOfEvent *>,
-                     public Observer<const BeginOfRun *>,
-                     public Observer<const EndOfEvent *>,
-                     public Observer<const EndOfTrack *> {
+                     public Observer<const BeginOfTrack*>,
+                     public Observer<const BeginOfEvent*>,
+                     public Observer<const BeginOfRun*>,
+                     public Observer<const EndOfEvent*>,
+                     public Observer<const EndOfTrack*> {
 public:
-  DBremWatcher(edm::ParameterSet const &p);
+  DBremWatcher(edm::ParameterSet const& p);
   ~DBremWatcher() override = default;
-  void update(const BeginOfTrack *trk) override;
-  void update(const BeginOfEvent *event) override;
-  void update(const EndOfEvent *event) override;
-  void update(const BeginOfRun *run) override;
-  void update(const EndOfTrack *trk) override;
-  void produce(edm::Event &, const edm::EventSetup &) override;
+  void update(const BeginOfTrack* trk) override;
+  void update(const BeginOfEvent* event) override;
+  void update(const EndOfEvent* event) override;
+  void update(const BeginOfRun* run) override;
+  void update(const EndOfTrack* trk) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
   std::vector<int> pdgs_;
