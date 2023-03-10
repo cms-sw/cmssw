@@ -11,13 +11,16 @@
 
 class TrackInformation : public G4VUserTrackInformation {
 public:
-  ~TrackInformation() override {};
+  ~TrackInformation() override{};
   inline void *operator new(size_t);
   inline void operator delete(void *TrackInformation);
 
   bool storeTrack() const { return storeTrack_; }
   /// can only be set to true, cannot be reset to false!
-  void setStoreTrack() { storeTrack_ = true; isInHistory_ = true; }
+  void setStoreTrack() {
+    storeTrack_ = true;
+    isInHistory_ = true;
+  }
 
   bool isPrimary() const { return isPrimary_; }
   void setPrimary(bool v) { isPrimary_ = v; }
