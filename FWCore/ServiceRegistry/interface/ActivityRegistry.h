@@ -972,39 +972,6 @@ namespace edm {
     // WARNING - ModuleDescription is not in fixed place.  See note M above.
     AR_WATCH_USING_METHOD_1(watchPostSourceConstruction)
 
-    //DEPRECATED
-    typedef signalslot::Signal<void(
-        eventsetup::ComponentDescription const*, eventsetup::EventSetupRecordKey const&, eventsetup::DataKey const&)>
-        PreLockEventSetupGet;
-    ///signal is emitted before lock taken in EventSetup DataProxy::get function
-    PreLockEventSetupGet preLockEventSetupGetSignal_;
-    void watchPreLockEventSetupGet(PreLockEventSetupGet::slot_type const& iSlot) {
-      preLockEventSetupGetSignal_.connect(iSlot);
-    }
-    AR_WATCH_USING_METHOD_3(watchPreLockEventSetupGet)
-
-    //DEPRECATED
-    typedef signalslot::Signal<void(
-        eventsetup::ComponentDescription const*, eventsetup::EventSetupRecordKey const&, eventsetup::DataKey const&)>
-        PostLockEventSetupGet;
-    ///signal is emitted after lock taken in EventSetup DataProxy::get function
-    PostLockEventSetupGet postLockEventSetupGetSignal_;
-    void watchPostLockEventSetupGet(PostLockEventSetupGet::slot_type const& iSlot) {
-      postLockEventSetupGetSignal_.connect_front(iSlot);
-    }
-    AR_WATCH_USING_METHOD_3(watchPostLockEventSetupGet)
-
-    //DEPRECATED
-    typedef signalslot::Signal<void(
-        eventsetup::ComponentDescription const*, eventsetup::EventSetupRecordKey const&, eventsetup::DataKey const&)>
-        PostEventSetupGet;
-    ///signal is emitted after getImpl has returned in the EventSetup DataProxy::get function
-    PostEventSetupGet postEventSetupGetSignal_;
-    void watchPostEventSetupGet(PostEventSetupGet::slot_type const& iSlot) {
-      postEventSetupGetSignal_.connect_front(iSlot);
-    }
-    AR_WATCH_USING_METHOD_3(watchPostEventSetupGet)
-
     // ---------- member functions ---------------------------
 
     ///forwards our signals to slots connected to iOther
