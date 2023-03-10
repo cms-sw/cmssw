@@ -18,7 +18,6 @@ def customize_ecalclustering_caloparticle(process):
     process.mix.digitizers.mergedtruth.select.signalOnlyTP = True
 
     process.PREMIXRAWoutput.outputCommands.append('keep *_*_MergedCaloTruth_*')
-    process.PREMIXRAWoutput.outputCommands.append('keep *_*_MergedTrackTruth_*')
     return process
 
 def customize_step2(process):
