@@ -331,6 +331,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         common_MCtruth,
         DetailedTiming = cms.untracked.bool(False),
         CheckTrack = cms.untracked.bool(False),
+        EndPrintTrackID = cms.int32(0)
     ),
     SteppingAction = cms.PSet(
         common_maximum_time,

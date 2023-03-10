@@ -36,7 +36,6 @@
 #include "G4MTRunManagerKernel.hh"
 #include "G4UImanager.hh"
 
-#include "G4EventManager.hh"
 #include "G4Run.hh"
 #include "G4Event.hh"
 #include "G4TransportationManager.hh"
