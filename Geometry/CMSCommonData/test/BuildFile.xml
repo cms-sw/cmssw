@@ -6,7 +6,4 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<bin file="TestIntegration.cpp" name="GeometryDOMCount">
-  <flags TEST_RUNNER_ARGS=" /bin/bash Geometry/CMSCommonData/test run_DOMCount.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="GeometryDOMCount" command="run_DOMCount.sh"/>
