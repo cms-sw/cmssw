@@ -27,7 +27,7 @@ numWFIB.extend([22434.0]) #2026D92
 numWFIB.extend([22834.0]) #2026D93
 numWFIB.extend([23234.0]) #2026D94
 numWFIB.extend([23634.0,23634.103]) #2026D95 (NoPU, with aging)
-numWFIB.extend([23634.5,23634.9,23634.501,23634.502]) #2026D95 pixelTrackingOnly, vector hits, Patatrack local reconstruction on CPU, Patatrack local reconstruction on GPU
+numWFIB.extend([23634.5,23634.9]) #2026D95 pixelTrackingOnly, vector hits
 numWFIB.extend([23834.99,23834.999]) #2026D95 premixing combined stage1+stage2 (ttbar+PU200, ttbar+PU50 for PR test) 
 numWFIB.extend([24034.0]) #2026D96
 numWFIB.extend([24434.0]) #2026D97
