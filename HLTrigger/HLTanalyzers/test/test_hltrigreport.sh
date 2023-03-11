@@ -1,8 +1,7 @@
 #!/bin/sh
 
 function die { echo $1: status $2; exit $2; }
-
-pushd ${LOCAL_TMP_DIR}
+LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
 cp ${LOCAL_TEST_DIR}/test_hltrigreport_base_cfg.py .
 
 echo reset:event report:event
@@ -53,5 +52,3 @@ echo reset:never report:run
 
 echo reset:never report:job
 (cmsRun ${LOCAL_TEST_DIR}/test_hltrigreport_never_job.py 2>&1) | grep 'HLT-Report' | diff - ${LOCAL_TEST_DIR}/comparison_logs/never_job.log || die 'failed running cmsRun test_hltrigreport_never_job.py' $?
-
-popd
