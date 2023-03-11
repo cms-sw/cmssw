@@ -90,16 +90,6 @@ namespace edm {
 
       double postCommon() const;
 
-      struct CountAndTime {
-      public:
-        CountAndTime(unsigned int count, double time) : count_(count), time_(time) {}
-        unsigned int count_;
-        double time_;
-      };
-
-      void accumulateTimeBegin(std::atomic<CountAndTime*>& countAndTime, double& accumulatedTime);
-      void accumulateTimeEnd(std::atomic<CountAndTime*>& countAndTime, double& accumulatedTime);
-
       double curr_job_time_;               // seconds
       double curr_job_cpu_;                // seconds
       std::atomic<double> extra_job_cpu_;  //seconds
@@ -121,14 +111,6 @@ namespace edm {
       std::atomic<unsigned long> begin_run_count_;
       unsigned int nStreams_;
       unsigned int nThreads_;
-
-      CountAndTime countAndTimeZero_;
-
-      std::atomic<CountAndTime*> countAndTimeForLock_;
-      CMS_THREAD_GUARD(countAndTimeForLock_) double accumulatedTimeForLock_;
-
-      std::atomic<CountAndTime*> countAndTimeForGet_;
-      CMS_THREAD_GUARD(countAndTimeForGet_) double accumulatedTimeForGet_;
 
       std::vector<std::unique_ptr<std::atomic<unsigned int>>> countSubProcessesPreEvent_;
       std::vector<std::unique_ptr<std::atomic<unsigned int>>> countSubProcessesPostEvent_;
@@ -229,11 +211,6 @@ namespace edm {
           total_event_count_(0),
           begin_lumi_count_(0),
           begin_run_count_(0),
-          countAndTimeZero_{0, 0.0},
-          countAndTimeForLock_{&countAndTimeZero_},
-          accumulatedTimeForLock_{0.0},
-          countAndTimeForGet_{&countAndTimeZero_},
-          accumulatedTimeForGet_{0.0},
           configuredInTopLevelProcess_{false},
           nSubProcesses_{0} {
       iRegistry.watchPreBeginJob(this, &Timing::preBeginJob);
@@ -438,8 +415,6 @@ namespace edm {
                                  << " - Total loop:  " << total_loop_time << "\n"
                                  << " - Total init:  " << total_initialization_time << "\n"
                                  << " - Total job:   " << total_job_time << "\n"
-                                 << " - EventSetup Lock: " << accumulatedTimeForLock_ << "\n"
-                                 << " - EventSetup Get:  " << accumulatedTimeForGet_ << "\n"
                                  << " Event Throughput: " << event_throughput << " ev/s\n"
                                  << " CPU Summary: \n"
                                  << " - Total loop:     " << total_loop_cpu << "\n"
@@ -469,8 +444,6 @@ namespace edm {
         reportData.insert(std::make_pair("TotalInitCPU", d2str(total_initialization_cpu)));
         reportData.insert(std::make_pair("NumberOfStreams", ui2str(nStreams_)));
         reportData.insert(std::make_pair("NumberOfThreads", ui2str(nThreads_)));
-        reportData.insert(std::make_pair("EventSetup Lock", d2str(accumulatedTimeForLock_)));
-        reportData.insert(std::make_pair("EventSetup Get", d2str(accumulatedTimeForGet_)));
         reportSvc->reportPerformanceSummary("Timing", reportData);
 
         std::map<std::string, std::string> reportData1;
@@ -603,57 +576,6 @@ namespace edm {
             << " seconds.";
       }
       return t;
-    }
-
-    void Timing::accumulateTimeBegin(std::atomic<CountAndTime*>& countAndTime, double& accumulatedTime) {
-      double newTime = getTime();
-      auto newStat = std::make_unique<CountAndTime>(0, newTime);
-
-      CountAndTime* oldStat = countAndTime.load();
-      while (true) {
-        if (oldStat == nullptr) {
-          oldStat = countAndTime.load();
-        } else if (countAndTime.compare_exchange_strong(oldStat, nullptr)) {
-          break;
-        }
-      }
-
-      newStat->count_ = oldStat->count_ + 1;
-      if (oldStat->count_ != 0) {
-        accumulatedTime += (newTime - oldStat->time_) * oldStat->count_;
-      }
-      countAndTime.store(newStat.release());
-      if (oldStat != &countAndTimeZero_) {
-        delete oldStat;
-      }
-    }
-
-    void Timing::accumulateTimeEnd(std::atomic<CountAndTime*>& countAndTime, double& accumulatedTime) {
-      double newTime = getTime();
-
-      CountAndTime* oldStat = countAndTime.load();
-      while (true) {
-        if (oldStat == nullptr) {
-          oldStat = countAndTime.load();
-        } else if (countAndTime.compare_exchange_strong(oldStat, nullptr)) {
-          break;
-        }
-      }
-
-      if (oldStat->count_ == 1) {
-        accumulatedTime += newTime - oldStat->time_;
-        countAndTime.store(&countAndTimeZero_);
-      } else {
-        try {
-          auto newStat = std::make_unique<CountAndTime>(oldStat->count_ - 1, newTime);
-          accumulatedTime += (newTime - oldStat->time_) * oldStat->count_;
-          countAndTime.store(newStat.release());
-        } catch (std::exception&) {
-          countAndTime.store(oldStat);
-          throw;
-        }
-      }
-      delete oldStat;
     }
   }  // namespace service
 }  // namespace edm
