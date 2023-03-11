@@ -19,44 +19,44 @@ cmsRun ${LOCAL_TEST_DIR}/PoolGUIDTest_cfg.py file:${GUID_NAME} || die 'Failure u
 
 cp PoolInputTest.root PoolInputOther.root
 
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolInputTest_cfg.py || die 'Failure using PoolInputTest_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/PoolInputTest_cfg.py || die 'Failure using PoolInputTest_cfg.py' $?
 cmsRun  ${LOCAL_TEST_DIR}/PoolInputTest_noDelay_cfg.py >& PoolInputTest_noDelay_cfg.txt || die 'Failure using PoolInputTest_noDelay_cfg.py' $?
 grep 'event delayed read from source' PoolInputTest_noDelay_cfg.txt && die 'Failure in PoolInputTest_noDelay_cfg.py, found delay reads from source' 1
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolInputTest_skip_with_failure_cfg.py || die 'Failure using PoolInputTest_skip_with_failure_cfg.py' $?
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolInputTest_skipBadFiles_cfg.py  || die 'Failure using PoolInputTest_skipBadFiles_cfg.py ' $?
+cmsRun ${LOCAL_TEST_DIR}/PoolInputTest_skip_with_failure_cfg.py || die 'Failure using PoolInputTest_skip_with_failure_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/PoolInputTest_skipBadFiles_cfg.py  || die 'Failure using PoolInputTest_skipBadFiles_cfg.py ' $?
 
 cmsRun ${LOCAL_TEST_DIR}/PrePool2FileInputTest_cfg.py || die 'Failure using PrePool2FileInputTest_cfg.py' $?
 cmsRun ${LOCAL_TEST_DIR}/Pool2FileInputTest_cfg.py || die 'Failure using Pool2FileInputTest_cfg.py' $?
 
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/PrePoolInputTest2_cfg.py || die 'Failure using PrePoolInputTest2_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/PrePoolInputTest2_cfg.py || die 'Failure using PrePoolInputTest2_cfg.py' $?
 
 cp PoolInputTest.root PoolInputOther.root
 
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolInputTest2_cfg.py || die 'Failure using PoolInputTest2_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/PoolInputTest2_cfg.py || die 'Failure using PoolInputTest2_cfg.py' $?
 
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolInputTest3_cfg.py || die 'Failure using PoolInputTest3_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/PoolInputTest3_cfg.py || die 'Failure using PoolInputTest3_cfg.py' $?
 
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolEmptyTest_cfg.py || die 'Failure using PoolEmptyTest_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/PoolEmptyTest_cfg.py || die 'Failure using PoolEmptyTest_cfg.py' $?
 
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolEmptyTest2_cfg.py || die 'Failure using PoolEmptyTest2_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/PoolEmptyTest2_cfg.py || die 'Failure using PoolEmptyTest2_cfg.py' $?
 
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolAliasTestStep1_cfg.py || die 'Failure using PoolAliasTestStep1_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/PoolAliasTestStep1_cfg.py || die 'Failure using PoolAliasTestStep1_cfg.py' $?
 
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolAliasTestStep2_cfg.py || die 'Failure using PoolAliasTestStep2_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/PoolAliasTestStep2_cfg.py || die 'Failure using PoolAliasTestStep2_cfg.py' $?
 
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolAliasTestStep1_DifferentOrder_cfg.py || die 'Failure using PoolAliasTestStep1_DifferentOrder_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/PoolAliasTestStep1_DifferentOrder_cfg.py || die 'Failure using PoolAliasTestStep1_DifferentOrder_cfg.py' $?
 
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolAliasTestStep2_DifferentOrder_cfg.py || die 'Failure using PoolAliasTestStep2_DifferentOrder_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/PoolAliasTestStep2_DifferentOrder_cfg.py || die 'Failure using PoolAliasTestStep2_DifferentOrder_cfg.py' $?
 
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolAliasTestStep2A_cfg.py || die 'Failure using PoolAliasTestStep2A_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/PoolAliasTestStep2A_cfg.py || die 'Failure using PoolAliasTestStep2A_cfg.py' $?
 
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolAliasTestStep1C_cfg.py || die 'Failure using PoolAliasTestStep2A_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/PoolAliasTestStep1C_cfg.py || die 'Failure using PoolAliasTestStep2A_cfg.py' $?
 
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolAliasTestStep2C_cfg.py || die 'Failure using PoolAliasTestStep2A_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/PoolAliasTestStep2C_cfg.py || die 'Failure using PoolAliasTestStep2A_cfg.py' $?
 
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolAliasSubProcessTestStep1_cfg.py || die 'Failure using PoolAliasSubProcessTestStep1_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/PoolAliasSubProcessTestStep1_cfg.py || die 'Failure using PoolAliasSubProcessTestStep1_cfg.py' $?
 
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolAliasSubProcessTestStep2_cfg.py || die 'Failure using PoolAliasSubProcessTestStep2_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/PoolAliasSubProcessTestStep2_cfg.py || die 'Failure using PoolAliasSubProcessTestStep2_cfg.py' $?
 
 cmsRun ${LOCAL_TEST_DIR}/PrePoolInputTest_cfg.py RunPerLumiTest.root 50 1 25 1 5 || die 'Failure using PrePoolInputTest_cfg.py' $?
 
@@ -83,11 +83,11 @@ cmsRun ${LOCAL_TEST_DIR}/firstLuminosityBlockForEachRun_skipLumis2_Test_cfg.py '
 
 #test merging of heterogeneous files with extra provenenace in subsequent files
 
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/preMerge_cfg.py || die 'Failure using preMerge_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/preMerge_cfg.py || die 'Failure using preMerge_cfg.py' $?
 
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/preMerge2_cfg.py || die 'Failure using preMerge2_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/preMerge2_cfg.py || die 'Failure using preMerge2_cfg.py' $?
 
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/HeteroMerge_cfg.py || die 'Failure using HeteroMerge_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/HeteroMerge_cfg.py || die 'Failure using HeteroMerge_cfg.py' $?
 
 #test reading of the old format files
 IOPoolInputData=$CMSSW_BASE/src

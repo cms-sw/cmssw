@@ -1,4 +1,5 @@
 <environment>
+  <flags USE_UNITTEST_DIR="1"/>
   <test name="TestSecondaryInput" command="TestSecondaryInput.sh"/>
 
   <library file="SecondaryProducer.cc" name="SecondaryProducer">
