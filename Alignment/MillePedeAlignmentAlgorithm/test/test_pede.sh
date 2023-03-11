@@ -1,10 +1,7 @@
 #!/bin/bash
 function die { echo $1: status $2; exit $2; }
 
-if [ "${SCRAM_TEST_NAME}" != "" ] ; then
-  mkdir ${SCRAM_TEST_NAME}
-  cd ${SCRAM_TEST_NAME}
-fi
+LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
 
 clean_up(){
     echo "cleaning the local test area"
