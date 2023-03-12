@@ -19,7 +19,6 @@
     <use name="FWCore/Utilities"/>
     <use name="HeterogeneousCore/CUDAServices"/>
     <use name="HeterogeneousCore/CUDAUtilities"/>
-    <use name="HeterogeneousCore/CUDAUtilities"/>
     <use name="PhysicsTools/TensorFlow"/>
   </bin>
 </iftool>
@@ -42,7 +41,6 @@
     <use name="FWCore/ServiceRegistry"/>
     <use name="FWCore/Utilities"/>
     <use name="HeterogeneousCore/CUDAServices"/>
-    <use name="HeterogeneousCore/CUDAUtilities"/>
     <use name="HeterogeneousCore/CUDAUtilities"/>
     <use name="PhysicsTools/TensorFlow"/>
   </bin>
@@ -67,7 +65,6 @@
     <use name="FWCore/Utilities"/>
     <use name="HeterogeneousCore/CUDAServices"/>
     <use name="HeterogeneousCore/CUDAUtilities"/>
-    <use name="HeterogeneousCore/CUDAUtilities"/>
     <use name="PhysicsTools/TensorFlow"/>
   </bin>
 </iftool>
@@ -90,7 +87,6 @@
     <use name="FWCore/ServiceRegistry"/>
     <use name="FWCore/Utilities"/>
     <use name="HeterogeneousCore/CUDAServices"/>
-    <use name="HeterogeneousCore/CUDAUtilities"/>
     <use name="HeterogeneousCore/CUDAUtilities"/>
     <use name="PhysicsTools/TensorFlow"/>
   </bin>
@@ -115,7 +111,6 @@
     <use name="FWCore/Utilities"/>
     <use name="HeterogeneousCore/CUDAServices"/>
     <use name="HeterogeneousCore/CUDAUtilities"/>
-    <use name="HeterogeneousCore/CUDAUtilities"/>
     <use name="PhysicsTools/TensorFlow"/>
   </bin>
 </iftool>
@@ -138,7 +133,6 @@
     <use name="FWCore/ServiceRegistry"/>
     <use name="FWCore/Utilities"/>
     <use name="HeterogeneousCore/CUDAServices"/>
-    <use name="HeterogeneousCore/CUDAUtilities"/>
     <use name="HeterogeneousCore/CUDAUtilities"/>
     <use name="PhysicsTools/TensorFlow"/>
   </bin>
