@@ -21,8 +21,7 @@ namespace edmtest_thing {
   class StreamThingAnalyzer : public edm::one::EDAnalyzer<> {
   public:
     explicit StreamThingAnalyzer(edm::ParameterSet const&);
-
-    ~StreamThingAnalyzer() override;
+    void endJob() override;
 
     void analyze(edm::Event const& e, edm::EventSetup const& c) override;
 
@@ -30,6 +29,8 @@ namespace edmtest_thing {
     std::string name_;
     int total_;
     std::ofstream out_;
+    std::string inChecksumFile_;
+    std::string outChecksumFile_;
     int cnt_;
     edm::GetterOfProducts<WriteThis> getterUsingLabel_;
   };
