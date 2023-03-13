@@ -431,7 +431,7 @@ void DisappearingMuonsSkimming::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<bool>("keepSameSign", true);
   desc.add<bool>("keepTotalRegion", true);
   desc.add<bool>("keepPartialRegion", true);
-  descriptions.add("disappMuonsSelection", desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 // ------------ method called once each job just before starting event loop  ------------
