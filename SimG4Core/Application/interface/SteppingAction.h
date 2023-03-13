@@ -14,7 +14,7 @@
 #include <string>
 #include <vector>
 
-class EventAction;
+class SimTrackManager;
 class CMSSteppingVerbose;
 
 enum TrackStatus {
@@ -31,8 +31,8 @@ enum TrackStatus {
 
 class SteppingAction : public G4UserSteppingAction {
 public:
-  explicit SteppingAction(EventAction* ea, const edm::ParameterSet& ps, const CMSSteppingVerbose*, bool hasW);
-  ~SteppingAction() override;
+  explicit SteppingAction(SimTrackManager*, const CMSSteppingVerbose*, const edm::ParameterSet&, bool hasW);
+  ~SteppingAction() override = default;
 
   void UserSteppingAction(const G4Step* aStep) final;
 
@@ -47,8 +47,9 @@ private:
   bool isLowEnergy(const G4LogicalVolume*, const G4Track*) const;
   void PrintKilledTrack(const G4Track*, const TrackStatus&) const;
 
-  EventAction* eventAction_;
-  const G4VPhysicalVolume *tracker, *calo;
+  SimTrackManager* trackManager_;
+  const G4VPhysicalVolume* tracker{nullptr};
+  const G4VPhysicalVolume* calo{nullptr};
   const CMSSteppingVerbose* steppingVerbose;
   double theCriticalEnergyForVacuum;
   double theCriticalDensity;
@@ -60,11 +61,11 @@ private:
   unsigned int numberEkins;
   unsigned int numberPart;
   unsigned int ndeadRegions;
-  unsigned int nWarnings;
+  unsigned int nWarnings{0};
   G4int maxNumberOfSteps;
 
-  bool initialized;
-  bool killBeamPipe;
+  bool initialized{false};
+  bool killBeamPipe{false};
   bool hasWatcher;
 
   std::vector<double> maxTrackTimes, ekinMins;

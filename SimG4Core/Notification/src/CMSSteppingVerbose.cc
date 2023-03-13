@@ -29,9 +29,7 @@ CMSSteppingVerbose::CMSSteppingVerbose(
   m_g4SteppingVerbose->SetSilent(1);
 }
 
-CMSSteppingVerbose::~CMSSteppingVerbose() {}
-
-void CMSSteppingVerbose::BeginOfEvent(const G4Event* evt) {
+void CMSSteppingVerbose::beginOfEvent(const G4Event* evt) {
   m_PrintEvent = false;
   if (0 >= m_verbose) {
     return;
@@ -59,7 +57,13 @@ void CMSSteppingVerbose::BeginOfEvent(const G4Event* evt) {
   G4cout << G4endl;
 }
 
-void CMSSteppingVerbose::TrackStarted(const G4Track* track, bool isKilled) {
+void CMSSteppingVerbose::stopEventPrint() {
+  m_PrintEvent = false;
+  m_PrintTrack = false;
+  m_verbose = 0;
+}
+
+void CMSSteppingVerbose::trackStarted(const G4Track* track, bool isKilled) {
   m_PrintTrack = false;
   if (!m_PrintEvent) {
     return;
@@ -127,13 +131,7 @@ void CMSSteppingVerbose::TrackStarted(const G4Track* track, bool isKilled) {
   G4cout.precision(prec);
 }
 
-void CMSSteppingVerbose::TrackEnded(const G4Track* track) const {
-  if (!m_PrintTrack || 1 == m_verbose) {
-    return;
-  }
-}
-
-void CMSSteppingVerbose::StackFilled(const G4Track* track, bool isKilled) const {
+void CMSSteppingVerbose::stackFilled(const G4Track* track, bool isKilled) const {
   if (2 >= m_verbose || !m_PrintTrack || track->GetKineticEnergy() < m_EkinThreshold) {
     return;
   }
@@ -153,7 +151,7 @@ void CMSSteppingVerbose::StackFilled(const G4Track* track, bool isKilled) const 
   G4cout.precision(prec);
 }
 
-void CMSSteppingVerbose::NextStep(const G4Step* step, const G4SteppingManager* sManager, bool isKilled) const {
+void CMSSteppingVerbose::nextStep(const G4Step* step, const G4SteppingManager* sManager, bool isKilled) const {
   if (!m_PrintTrack) {
     return;
   }

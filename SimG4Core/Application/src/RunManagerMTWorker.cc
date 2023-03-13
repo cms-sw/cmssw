@@ -24,6 +24,7 @@
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
+#include "SimG4Core/Notification/interface/SimTrackManager.h"
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
@@ -120,7 +121,7 @@ struct RunManagerMTWorker::TLSData {
   std::vector<SensitiveCaloDetector*> sensCaloDets;
   std::vector<std::shared_ptr<SimWatcher>> watchers;
   std::vector<std::shared_ptr<SimProducer>> producers;
-  //G4Run can only be deleted if there is a G4RunManager
+  // G4Run can only be deleted if there is a G4RunManager
   // on the thread where the G4Run is being deleted,
   // else it causes a segmentation fault
   G4Run* currentRun = nullptr;
@@ -131,15 +132,15 @@ struct RunManagerMTWorker::TLSData {
 
   TLSData() {}
 
-  ~TLSData() {}
+  ~TLSData() = default;
 };
 
-//This can not be a smart pointer since we must delete some of the members
+// This can not be a smart pointer since we must delete some of the members
 // before leaving main() else we get a segmentation fault caused by accessing
 // other 'singletons' after those singletons have been deleted. Instead we
 // atempt to delete all TLS at RunManagerMTWorker destructor. If that fails for
 // some reason, it is better to leak than cause a crash.
-//thread_local RunManagerMTWorker::TLSData* RunManagerMTWorker::m_tls{nullptr};
+// thread_local RunManagerMTWorker::TLSData* RunManagerMTWorker::m_tls{nullptr};
 
 RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC)
     : m_generator(iConfig.getParameter<edm::ParameterSet>("Generator")),
@@ -397,12 +398,13 @@ void RunManagerMTWorker::initializeUserActions() {
   Connect(userEventAction);
   eventManager->SetUserAction(userEventAction);
 
-  TrackingAction* userTrackingAction = new TrackingAction(userEventAction, m_pTrackingAction, m_sVerbose.get());
+  TrackingAction* userTrackingAction =
+      new TrackingAction(m_tls->trackManager.get(), m_sVerbose.get(), m_pTrackingAction);
   Connect(userTrackingAction);
   eventManager->SetUserAction(userTrackingAction);
 
   SteppingAction* userSteppingAction =
-      new SteppingAction(userEventAction, m_pSteppingAction, m_sVerbose.get(), m_hasWatchers);
+      new SteppingAction(m_tls->trackManager.get(), m_sVerbose.get(), m_pSteppingAction, m_hasWatchers);
   Connect(userSteppingAction);
   eventManager->SetUserAction(userSteppingAction);
 
