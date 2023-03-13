@@ -1,6 +1,6 @@
 #include "RecoTracker/SpecialSeedGenerators/interface/SeedGeneratorForCosmics.h"
 #include "RecoTracker/TkHitPairs/interface/CosmicLayerPairs.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/CosmicLayerTriplets.h"
+#include "RecoTracker/PixelSeeding/interface/CosmicLayerTriplets.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"

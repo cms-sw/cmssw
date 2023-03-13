@@ -97,14 +97,14 @@ highPtTripletStepHitDoublets = _hitPairEDProducer.clone(
     maxElement      = 50000000,
     produceIntermediateHitDoublets = True,
 )
-from RecoPixelVertexing.PixelTriplets.caHitTripletEDProducer_cfi import caHitTripletEDProducer as _caHitTripletEDProducer
-from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
-from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
-import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
+from RecoTracker.PixelSeeding.caHitTripletEDProducer_cfi import caHitTripletEDProducer as _caHitTripletEDProducer
+from RecoTracker.PixelSeeding.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
+from RecoTracker.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
+import RecoTracker.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
 highPtTripletStepHitTriplets = _caHitTripletEDProducer.clone(
     doublets = 'highPtTripletStepHitDoublets',
     extraHitRPhitolerance = _pixelTripletHLTEDProducer.extraHitRPhitolerance,
-    SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone(),
+    SeedComparitorPSet = RecoTracker.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone(),
     maxChi2 = dict(
         pt1    = 0.8, pt2    = 8,
         value1 = 100, value2 = 6,

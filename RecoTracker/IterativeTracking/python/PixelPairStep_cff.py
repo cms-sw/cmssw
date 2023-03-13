@@ -231,8 +231,8 @@ trackingPhase2PU140.toReplaceWith(pixelPairStepTrajectoryFilterBase, _pixelPairS
 ))
 highBetaStar_2018.toModify(pixelPairStepTrajectoryFilterBase, minPt = 0.05)
 
-import RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi
-pixelPairStepTrajectoryFilterShape = RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi.StripSubClusterShapeTrajectoryFilterTIX12.clone()
+import RecoTracker.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi
+pixelPairStepTrajectoryFilterShape = RecoTracker.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi.StripSubClusterShapeTrajectoryFilterTIX12.clone()
 pixelPairStepTrajectoryFilter = cms.PSet(
     ComponentType = cms.string('CompositeTrajectoryFilter'),
     filters = cms.VPSet(
@@ -240,7 +240,7 @@ pixelPairStepTrajectoryFilter = cms.PSet(
     #    cms.PSet( refToPSet_ = cms.string('pixelPairStepTrajectoryFilterShape'))
     ),
 )
-from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeTrajectoryFilter_cfi import *
+from RecoTracker.PixelLowPtUtilities.ClusterShapeTrajectoryFilter_cfi import *
 trackingPhase2PU140.toModify(pixelPairStepTrajectoryFilter,
     filters = pixelPairStepTrajectoryFilter.filters + [cms.PSet(refToPSet_ = cms.string('ClusterShapeTrajectoryFilter'))]
 )

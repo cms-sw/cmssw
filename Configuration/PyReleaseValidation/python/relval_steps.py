@@ -2601,7 +2601,7 @@ step3_pixel_ntuplet_gpu = {
     '--procModifiers': 'pixelNtupletFit,gpu'
 }
 step3_pixel_triplets = {
-    '--customise': 'RecoPixelVertexing/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets'
+    '--customise': 'RecoTracker/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets'
 }
 step3_gpu = {
     '--procModifiers': 'gpu',

@@ -1,8 +1,8 @@
 #include "RecoTracker/TkSeedGenerator/plugins/MultiHitGeneratorFromChi2.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitPredictionFromCircle.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitRZPrediction.h"
+#include "RecoTracker/PixelSeeding/interface/ThirdHitPredictionFromCircle.h"
+#include "RecoTracker/PixelSeeding/interface/ThirdHitRZPrediction.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -12,7 +12,7 @@
 
 #include "CommonTools/RecoAlgos/interface/KDTreeLinkerAlgo.h"
 
-#include "RecoPixelVertexing/PixelTrackFitting/interface/RZLine.h"
+#include "RecoTracker/PixelTrackFitting/interface/RZLine.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"

@@ -16,7 +16,7 @@
 
 #include "RecoMuon/TrackerSeedGenerator/interface/L1MuonRegionProducer.h"
 
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
+#include "RecoTracker/PixelTrackFitting/interface/PixelTrackFilter.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 

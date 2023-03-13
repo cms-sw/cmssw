@@ -73,7 +73,7 @@ from RecoTracker.IterativeTracking.MixedTripletStep_cff import _mixedTripletStep
 )
 
 # Triplet seeding
-from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import ClusterShapeHitFilterESProducer as _ClusterShapeHitFilterESProducer
+from RecoTracker.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import ClusterShapeHitFilterESProducer as _ClusterShapeHitFilterESProducer
 tobTecStepClusterShapeHitFilter = _ClusterShapeHitFilterESProducer.clone(
     ComponentName    = 'tobTecStepClusterShapeHitFilter',
     doStripShapeCut  = cms.bool(False),
@@ -113,7 +113,7 @@ tobTecStepSeedsTripl = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProduce
     SeedComparitorPSet = _tobTecStepSeedComparitorPSet,
 )
 
-from RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeSeedFilter_cfi import StripSubClusterShapeSeedFilter as _StripSubClusterShapeSeedFilter
+from RecoTracker.PixelLowPtUtilities.StripSubClusterShapeSeedFilter_cfi import StripSubClusterShapeSeedFilter as _StripSubClusterShapeSeedFilter
 from Configuration.ProcessModifiers.approxSiStripClusters_cff import approxSiStripClusters
 (~approxSiStripClusters).toModify(tobTecStepSeedsTripl.SeedComparitorPSet.comparitors, func = lambda list: list.append(_StripSubClusterShapeSeedFilter.clone()) )
 

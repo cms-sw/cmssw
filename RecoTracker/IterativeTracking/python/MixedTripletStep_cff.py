@@ -119,7 +119,7 @@ _mixedTripletStepTrackingRegionsCommon_pp_on_HI = _globalTrackingRegionWithVerti
 
 
 # seeding
-from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import ClusterShapeHitFilterESProducer as _ClusterShapeHitFilterESProducer
+from RecoTracker.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import ClusterShapeHitFilterESProducer as _ClusterShapeHitFilterESProducer
 mixedTripletStepClusterShapeHitFilter  = _ClusterShapeHitFilterESProducer.clone(
     ComponentName    = 'mixedTripletStepClusterShapeHitFilter',
     clusterChargeCut = dict(refToPSet_ = 'SiStripClusterChargeCutTight')
@@ -131,8 +131,8 @@ mixedTripletStepHitDoubletsA = _hitPairEDProducer.clone(
     maxElement      = 50000000,
     produceIntermediateHitDoublets = True,
 )
-from RecoPixelVertexing.PixelTriplets.pixelTripletLargeTipEDProducer_cfi import pixelTripletLargeTipEDProducer as _pixelTripletLargeTipEDProducer
-from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
+from RecoTracker.PixelSeeding.pixelTripletLargeTipEDProducer_cfi import pixelTripletLargeTipEDProducer as _pixelTripletLargeTipEDProducer
+from RecoTracker.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 mixedTripletStepHitTripletsA = _pixelTripletLargeTipEDProducer.clone(
     doublets              = 'mixedTripletStepHitDoubletsA',
     produceSeedingHitSets = True,

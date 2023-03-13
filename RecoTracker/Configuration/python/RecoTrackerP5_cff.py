@@ -11,7 +11,7 @@ from RecoTracker.SpecialSeedGenerators.CosmicSeedP5Pairs_cff import *
 from RecoTracker.SingleTrackPattern.CosmicTrackFinderP5_cff import *
 # Final Track Selector for CosmicTF
 from RecoTracker.FinalTrackSelectors.CosmicTFFinalTrackSelectorP5_cff import *
-from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
+from RecoTracker.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
 
 #chi2 set to 40!!
 # CTF

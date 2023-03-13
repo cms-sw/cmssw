@@ -18,7 +18,7 @@
 <use name="MagneticField/Engine"/>
 <use name="MagneticField/Records"/>
 <use name="RecoMuon/TrackingTools"/>
-<use name="RecoPixelVertexing/PixelTrackFitting"/>
+<use name="RecoTracker/PixelTrackFitting"/>
 <use name="RecoTracker/TkMSParametrization"/>
 <use name="RecoTracker/TkSeedingLayers"/>
 <use name="RecoTracker/TkTrackingRegions"/>

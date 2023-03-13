@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoPixelVertexing.PixelLowPtUtilities.clusterShapeTrackFilter_cfi import clusterShapeTrackFilter as _clusterShapeTrackFilter
+from RecoTracker.PixelLowPtUtilities.clusterShapeTrackFilter_cfi import clusterShapeTrackFilter as _clusterShapeTrackFilter
 clusterFilter = _clusterShapeTrackFilter.clone(
     ptMin = 1.5,
 )
@@ -8,7 +8,7 @@ clusterFilter = _clusterShapeTrackFilter.clone(
 from RecoHI.HiTracking.hiPixelTrackFilter_cfi import hiPixelTrackFilter as _hiPixelTrackFilter
 hiFilter = _hiPixelTrackFilter.clone()
 
-from RecoPixelVertexing.PixelTrackFitting.pixelTrackFilterByKinematics_cfi import pixelTrackFilterByKinematics as _pixelTrackFilterByKinematics
+from RecoTracker.PixelTrackFitting.pixelTrackFilterByKinematics_cfi import pixelTrackFilterByKinematics as _pixelTrackFilterByKinematics
 kinematicFilter = _pixelTrackFilterByKinematics.clone(
     ptMin = 0.7,
 )

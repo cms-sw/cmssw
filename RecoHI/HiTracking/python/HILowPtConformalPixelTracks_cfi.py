@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
-from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
-from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
-from RecoPixelVertexing.PixelLowPtUtilities.trackCleaner_cfi import *
-from RecoPixelVertexing.PixelTrackFitting.pixelFitterByConformalMappingAndLine_cfi import *
+from RecoTracker.PixelSeeding.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
+from RecoTracker.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
+from RecoTracker.PixelLowPtUtilities.trackCleaner_cfi import *
+from RecoTracker.PixelTrackFitting.pixelFitterByConformalMappingAndLine_cfi import *
 from RecoHI.HiTracking.HIPixelTrackFilter_cff import *
 from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
 
@@ -23,7 +23,7 @@ hiConformalPixelTracksHitTriplets = _pixelTripletHLTEDProducer.clone(
     produceSeedingHitSets = True,
 )
 
-import RecoPixelVertexing.PixelTrackFitting.pixelTracks_cfi as _mod
+import RecoTracker.PixelTrackFitting.pixelTracks_cfi as _mod
 # Pixel tracks
 hiConformalPixelTracks = _mod.pixelTracks.clone(
     #passLabel  = 'Pixel triplet low-pt tracks with vertex constraint',
@@ -111,7 +111,7 @@ hiConformalPixelTracksPhase1Filter = hiConformalPixelFilter.clone(
     tipMax = 999.0
 )
 
-from RecoPixelVertexing.PixelTrackFitting.pixelNtupletsFitter_cfi import pixelNtupletsFitter
+from RecoTracker.PixelTrackFitting.pixelNtupletsFitter_cfi import pixelNtupletsFitter
 
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toModify(hiConformalPixelTracks,

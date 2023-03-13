@@ -65,7 +65,7 @@ from Configuration.EventContent.EventContent_cff import DQMEventContent
 #include "RecoBTag/Configuration/data/RecoBTag_EventContent.cff"
 #include "RecoTauTag/Configuration/data/RecoTauTag_EventContent.cff"
 #include "RecoVertex/Configuration/data/RecoVertex_EventContent.cff"
-#include "RecoPixelVertexing/Configuration/data/RecoPixelVertexing_EventContent.cff"
+#include "RecoTracker/Configuration/data/RecoPixelVertexing_EventContent.cff"
 #include "RecoEgamma/Configuration/data/RecoEgamma_EventContent.cff"
 #include "RecoParticleFlow/Configuration/data/RecoParticleFlow_EventContent.cff"
 

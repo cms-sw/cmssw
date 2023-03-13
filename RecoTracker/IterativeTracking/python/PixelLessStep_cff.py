@@ -168,7 +168,7 @@ from RecoTracker.IterativeTracking.MixedTripletStep_cff import _mixedTripletStep
 
 
 # seeding
-from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import ClusterShapeHitFilterESProducer as _ClusterShapeHitFilterESProducer
+from RecoTracker.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import ClusterShapeHitFilterESProducer as _ClusterShapeHitFilterESProducer
 pixelLessStepClusterShapeHitFilter = _ClusterShapeHitFilterESProducer.clone(
     ComponentName    = 'pixelLessStepClusterShapeHitFilter',
     doStripShapeCut  = cms.bool(False),
@@ -187,7 +187,7 @@ pixelLessStepHitTriplets = _multiHitFromChi2EDProducer.clone(
     doublets = 'pixelLessStepHitDoublets',
 )
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer_cff import seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer as _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer
-from RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeSeedFilter_cfi import StripSubClusterShapeSeedFilter as _StripSubClusterShapeSeedFilter
+from RecoTracker.PixelLowPtUtilities.StripSubClusterShapeSeedFilter_cfi import StripSubClusterShapeSeedFilter as _StripSubClusterShapeSeedFilter
 pixelLessStepSeeds = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer.clone(
     seedingHitSets = 'pixelLessStepHitTriplets',
     SeedComparitorPSet = dict(
@@ -206,7 +206,7 @@ pixelLessStepSeeds = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer.
     )
 )
 
-from RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeSeedFilter_cfi import StripSubClusterShapeSeedFilter as _StripSubClusterShapeSeedFilter
+from RecoTracker.PixelLowPtUtilities.StripSubClusterShapeSeedFilter_cfi import StripSubClusterShapeSeedFilter as _StripSubClusterShapeSeedFilter
 from Configuration.ProcessModifiers.approxSiStripClusters_cff import approxSiStripClusters
 (~approxSiStripClusters).toModify(pixelLessStepSeeds.SeedComparitorPSet.comparitors, func = lambda list: list.append(_StripSubClusterShapeSeedFilter.clone()) )
 

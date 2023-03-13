@@ -28,7 +28,7 @@ displacedGeneralStepTrackingRegions = _globalTrackingRegion.clone(
 
 #----------------------------------------- Triplet seeding
 
-from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import ClusterShapeHitFilterESProducer as _ClusterShapeHitFilterESProducer
+from RecoTracker.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import ClusterShapeHitFilterESProducer as _ClusterShapeHitFilterESProducer
 displacedGeneralStepClusterShapeHitFilter = _ClusterShapeHitFilterESProducer.clone(
     ComponentName = 'displacedGeneralStepClusterShapeHitFilter',
     doStripShapeCut = cms.bool(False),
@@ -51,7 +51,7 @@ displacedGeneralStepHitTriplets = _multiHitFromChi2EDProducer.clone(
 
 
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer_cff import seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer as _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer
-from RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeSeedFilter_cfi import StripSubClusterShapeSeedFilter as _StripSubClusterShapeSeedFilter
+from RecoTracker.PixelLowPtUtilities.StripSubClusterShapeSeedFilter_cfi import StripSubClusterShapeSeedFilter as _StripSubClusterShapeSeedFilter
 displacedGeneralStepSeeds = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer.clone(
     seedingHitSets = "displacedGeneralStepHitTriplets",
     SeedComparitorPSet = dict(

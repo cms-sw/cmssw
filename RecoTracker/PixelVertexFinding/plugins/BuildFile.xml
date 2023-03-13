@@ -1,0 +1,34 @@
+<use name="CUDADataFormats/Vertex"/>
+<use name="CUDADataFormats/Track"/>
+<use name="CommonTools/Clustering1D"/>
+<use name="DataFormats/BeamSpot"/>
+<use name="DataFormats/GeometryCommonDetAlgo"/>
+<use name="DataFormats/HepMCCandidate"/>
+<use name="DataFormats/JetReco"/>
+<use name="DataFormats/Math"/>
+<use name="DataFormats/SiPixelCluster"/>
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/TrackerRecHit2D"/>
+<use name="DataFormats/TrackingRecHit"/>
+<use name="DataFormats/VertexReco"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="HeterogeneousCore/CUDACore"/>
+<use name="HeterogeneousCore/CUDAUtilities"/>
+<use name="RecoLocalTracker/ClusterParameterEstimator"/>
+<use name="RecoLocalTracker/Records"/>
+<use name="RecoTracker/PixelVertexFinding"/>
+<use name="SimDataFormats/PileupSummaryInfo"/>
+<iftool name="cuda-gcc-support">
+  <use name="cuda"/>
+  <set name="cuda_src" value="*.cu"/>
+<else/>
+  <set name="cuda_src" value=""/>
+</iftool>
+<library file="*.cc ${cuda_src}" name="RecoPixelVertexingPixelVertexFindingPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>

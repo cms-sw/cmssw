@@ -9,8 +9,8 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/PluginManager"/>
 <use name="TrackingTools/PatternTools"/>
-<use name="RecoPixelVertexing/PixelTrackFitting"/>
-<use name="RecoPixelVertexing/PixelLowPtUtilities"/>
+<use name="RecoTracker/PixelTrackFitting"/>
+<use name="RecoTracker/PixelLowPtUtilities"/>
 <use name="SimDataFormats/TrackingAnalysis"/>
 <export>
   <lib name="1"/>

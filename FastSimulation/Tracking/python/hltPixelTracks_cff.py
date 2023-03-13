@@ -4,10 +4,10 @@ from RecoTracker.TkTrackingRegions.GlobalTrackingRegion_cfi import *
 
 # Note: naming convention of pixel track filter needs to follow HLT,
 # current it is set to what gets used in customizeHLTforCMSSW
-from RecoPixelVertexing.PixelTrackFitting.pixelFitterByHelixProjections_cfi import pixelFitterByHelixProjections as _pixelFitterByHelixProjections
+from RecoTracker.PixelTrackFitting.pixelFitterByHelixProjections_cfi import pixelFitterByHelixProjections as _pixelFitterByHelixProjections
 hltPixelTracksFitter = _pixelFitterByHelixProjections.clone()
 
-from RecoPixelVertexing.PixelTrackFitting.pixelTrackFilterByKinematics_cfi import pixelTrackFilterByKinematics as _pixelTrackFilterByKinematics
+from RecoTracker.PixelTrackFitting.pixelTrackFilterByKinematics_cfi import pixelTrackFilterByKinematics as _pixelTrackFilterByKinematics
 hltPixelTracksFilter = _pixelTrackFilterByKinematics.clone()
 
 hltPixelTracks = cms.EDProducer("PixelTracksProducer",
