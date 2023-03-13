@@ -1,19 +1,33 @@
+#include "SimG4Core/Watcher/interface/SimProducer.h"
+#include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
+
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Notification/interface/BeginOfTrack.h"
 #include "SimG4Core/Notification/interface/EndOfTrack.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
+#include "SimG4Core/Notification/interface/TrackInformation.h"
 
-#include "SimG4Core/Watcher/interface/SimProducer.h"
-#include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
+#include "SimG4Core/CustomPhysics/interface/G4muDarkBremsstrahlung.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+
+#include "G4Region.hh"
+#include "G4RegionStore.hh"
+#include "G4LogicalVolumeStore.hh"
+#include "G4ProcessTable.hh"
+#include "G4MuonMinus.hh"
+#include "G4Track.hh"
+#include "G4PhysicalConstants.hh"
+#include "G4SystemOfUnits.hh"
+#include "G4VProcess.hh"
 
 #include "G4ThreeVector.hh"
-
 #include <vector>
-#include <tuple>
 
 class DBremWatcher : public SimProducer,
                      public Observer<const BeginOfTrack*>,
@@ -40,35 +54,8 @@ private:
   G4ThreeVector aPrimeTraj;
   G4ThreeVector finaltraj;
   G4ThreeVector VertexPos;
-  float f_energy;
+  double f_energy;
 };
-
-#include "SimG4Core/Notification/interface/BeginOfTrack.h"
-#include "SimG4Core/Notification/interface/BeginOfEvent.h"
-#include "SimG4Core/Notification/interface/BeginOfRun.h"
-#include "SimG4Core/Notification/interface/EndOfEvent.h"
-#include "SimG4Core/Notification/interface/TrackInformation.h"
-#include "SimG4Core/Watcher/interface/SimWatcher.h"
-#include "SimG4Core/Notification/interface/Observer.h"
-#include "SimG4Core/CustomPhysics/interface/G4muDarkBremsstrahlung.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-
-#include "G4Region.hh"
-#include "G4RegionStore.hh"
-#include "G4LogicalVolumeStore.hh"
-#include "G4ProductionCuts.hh"
-#include "G4ProcessTable.hh"
-#include "G4ProcessManager.hh"
-#include "G4MuonMinus.hh"
-#include "G4Track.hh"
-#include "G4PhysicalConstants.hh"
-#include "G4SystemOfUnits.hh"
-#include "G4VProcess.hh"
-#include "G4VParticleChange.hh"
-#include <algorithm>
 
 DBremWatcher::DBremWatcher(edm::ParameterSet const& p) {
   edm::ParameterSet ps = p.getParameter<edm::ParameterSet>("DBremWatcher");
@@ -169,12 +156,12 @@ void DBremWatcher::produce(edm::Event& fEvent, const edm::EventSetup&) {
     fEvent.put(std::move(finalE), "DBremFinalEnergy");
     float deflectionAngle = -1;
     float initialEnergy = sqrt(pow(finaltraj.x() + aPrimeTraj.x(), 2) + pow(finaltraj.y() + aPrimeTraj.y(), 2) +
-                               pow(finaltraj.z() + aPrimeTraj.z(), 2) + pow(0.1056 * GeV, 2));
+                               pow(finaltraj.z() + aPrimeTraj.z(), 2) + pow(0.1056 * CLHEP::GeV, 2));
     G4ThreeVector mother(
         finaltraj.x() + aPrimeTraj.x(), finaltraj.y() + aPrimeTraj.y(), finaltraj.z() + aPrimeTraj.z());
     deflectionAngle = mother.angle(finaltraj);
     std::unique_ptr<float> dAngle = std::make_unique<float>(deflectionAngle);
-    std::unique_ptr<float> initialE = std::make_unique<float>(initialEnergy / GeV);
+    std::unique_ptr<float> initialE = std::make_unique<float>(initialEnergy / CLHEP::GeV);
     fEvent.put(std::move(dAngle), "DBremAngle");
     fEvent.put(std::move(initialE), "DBremInitialEnergy");
     std::unique_ptr<float> bias = std::make_unique<float>(biasFactor);
