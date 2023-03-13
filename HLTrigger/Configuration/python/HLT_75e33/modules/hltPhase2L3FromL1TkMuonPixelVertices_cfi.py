@@ -14,5 +14,5 @@ hltPhase2L3FromL1TkMuonPixelVertices = cms.EDProducer("PixelVertexProducer",
     WtAverage = cms.bool(True),
     ZOffset = cms.double(5.0),
     ZSeparation = cms.double(0.05),
-    beamSpot = cms.InputTag("offlineBeamSpot")
+    beamSpot = cms.InputTag("hltOnlineBeamSpot")
 )

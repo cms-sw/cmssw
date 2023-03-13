@@ -27,7 +27,7 @@ hltPhase2L3MuonsTrkIsoRegionalNewdR0p3dRVeto0p005dz0p25dr0p20ChisqInfPtMin0p0Cut
     OutputMuIsoDeposits = cms.bool(True),
     TrackPt_Min = cms.double(-1.0),
     TrkExtractorPSet = cms.PSet(
-        BeamSpotLabel = cms.InputTag("offlineBeamSpot"),
+        BeamSpotLabel = cms.InputTag("hltOnlineBeamSpot"),
         BeamlineOption = cms.string('BeamSpotFromEvent'),
         Chi2Ndof_Max = cms.double(1e+64),
         Chi2Prob_Min = cms.double(-1.0),
