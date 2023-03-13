@@ -561,7 +561,9 @@ namespace l1t {
     void setLayer1ECalScaleFactors(std::vector<double> params) { pnode_[layer1ECal].dparams_ = std::move(params); }
     void setLayer1HCalScaleFactors(std::vector<double> params) { pnode_[layer1HCal].dparams_ = std::move(params); }
     void setLayer1HFScaleFactors(std::vector<double> params) { pnode_[layer1HF].dparams_ = std::move(params); }
-    void setLayer1HCalFBLUT(std::vector<unsigned long long> params) { pnode_[layer1HCal].u64params_ = std::move(params); }
+    void setLayer1HCalFBLUT(std::vector<unsigned long long> params) {
+      pnode_[layer1HCal].u64params_ = std::move(params);
+    }
     void setLayer1ECalScaleETBins(std::vector<int> params) { pnode_[layer1ECal].iparams_ = std::move(params); }
     void setLayer1HCalScaleETBins(std::vector<int> params) { pnode_[layer1HCal].iparams_ = std::move(params); }
     void setLayer1HFScaleETBins(std::vector<int> params) { pnode_[layer1HF].iparams_ = std::move(params); }

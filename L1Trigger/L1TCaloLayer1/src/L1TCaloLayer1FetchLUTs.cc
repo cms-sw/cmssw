@@ -129,8 +129,7 @@ bool L1TCaloLayer1FetchLUTs(
   //   So, index = ieta
   auto fbLUT = caloParams.layer1HCalFBLUT();
   if (fbLUT.size() != 28) {
-    edm::LogError("L1TCaloLayer1FetchLUTs")
-        << "caloParams.layer1HCalFBLUT().size() != 28 !!";
+    edm::LogError("L1TCaloLayer1FetchLUTs") << "caloParams.layer1HCalFBLUT().size() != 28 !!";
     return false;
   }
 
