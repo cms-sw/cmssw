@@ -43,7 +43,7 @@ particleFlowBlock = cms.EDProducer("PFBlockProducer",
         ),
         cms.PSet(
             importerName = cms.string('GenericClusterImporter'),
-            source = cms.InputTag("particleFlowClusterHCAL")
+            source = cms.InputTag("hltParticleFlowClusterHCAL")
         ),
         cms.PSet(
             importerName = cms.string('GenericClusterImporter'),

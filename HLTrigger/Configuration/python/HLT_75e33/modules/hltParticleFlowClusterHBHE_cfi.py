@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-particleFlowClusterHBHE = cms.EDProducer("PFClusterProducer",
+hltParticleFlowClusterHBHE = cms.EDProducer("PFClusterProducer",
     energyCorrector = cms.PSet(
 
     ),
@@ -59,7 +59,7 @@ particleFlowClusterHBHE = cms.EDProducer("PFClusterProducer",
         ),
         clusterTimeResFromSeed = cms.bool(False),
         excludeOtherSeeds = cms.bool(True),
-        maxIterations = cms.uint32(50),
+        maxIterations = cms.uint32(5),
         maxNSigmaTime = cms.double(10.0),
         minChi2Prob = cms.double(0.0),
         minFracTot = cms.double(1e-20),
@@ -133,7 +133,7 @@ particleFlowClusterHBHE = cms.EDProducer("PFClusterProducer",
 
     ),
     recHitCleaners = cms.VPSet(),
-    recHitsSource = cms.InputTag("particleFlowRecHitHBHE"),
+    recHitsSource = cms.InputTag("hltParticleFlowRecHitHBHE"),
     seedCleaners = cms.VPSet(),
     seedFinder = cms.PSet(
         algoName = cms.string('LocalMaximumSeedFinder'),
