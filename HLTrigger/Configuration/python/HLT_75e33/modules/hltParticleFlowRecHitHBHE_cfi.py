@@ -1,18 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-hltParticleFlowRecHitHBHEForEgamma = cms.EDProducer("PFRecHitProducer",
+hltParticleFlowRecHitHBHE = cms.EDProducer("PFRecHitProducer",
     navigator = cms.PSet(
-        name = cms.string('PFRecHitHCALNavigator'),
-        sigmaCut = cms.double(4.0),
-        timeResolutionCalc = cms.PSet(
-            constantTerm = cms.double(1.92),
-            constantTermLowE = cms.double(6.0),
-            corrTermLowE = cms.double(0.0),
-            noiseTerm = cms.double(8.64),
-            noiseTermLowE = cms.double(0.0),
-            threshHighE = cms.double(8.0),
-            threshLowE = cms.double(2.0)
-        )
+        hcalEnums = cms.vint32(1, 2),
+        name = cms.string('PFRecHitHCALDenseIdNavigator')
     ),
     producers = cms.VPSet(cms.PSet(
         name = cms.string('PFHBHERecHitCreator'),
@@ -31,13 +22,12 @@ hltParticleFlowRecHitHBHEForEgamma = cms.EDProducer("PFRecHitProducer",
                         ),
                         detectorEnum = cms.int32(2),
                         threshold = cms.vdouble(
-                            0.8, 0.8, 0.8, 0.8, 0.8,
-                            0.8, 0.8
+                            0.1, 0.2, 0.2, 0.2, 0.2,
+                            0.2, 0.2
                         )
                     )
                 ),
-                name = cms.string('PFRecHitQTestThreshold'),
-                threshold = cms.double(0.8)
+                name = cms.string('PFRecHitQTestHCALThresholdVsDepth')
             ),
             cms.PSet(
                 cleaningThresholds = cms.vdouble(0.0),
