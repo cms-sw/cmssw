@@ -2285,7 +2285,7 @@ upgradeProperties[2017] = {
     '2023' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2023_realistic',
-        'HLTmenu': '@relval2022',
+        'HLTmenu': '@relval2023',
         'Era' : 'Run3',
         'BeamSpot': 'Realistic25ns13p6TeVEarly2022Collision',
         'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
@@ -2293,7 +2293,7 @@ upgradeProperties[2017] = {
     '2024' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2024_realistic',
-        'HLTmenu': '@relval2022',
+        'HLTmenu': '@relval2023',
         'Era' : 'Run3',
         'BeamSpot': 'Realistic25ns13p6TeVEarly2022Collision',
         'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
