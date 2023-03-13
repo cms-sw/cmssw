@@ -89,20 +89,20 @@ lowPtTripletStepHitDoublets = _hitPairEDProducer.clone(
     maxElement      = 50000000,
     produceIntermediateHitDoublets = True,
 )
-from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
-from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
-import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
+from RecoTracker.PixelSeeding.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
+from RecoTracker.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
+import RecoTracker.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
 lowPtTripletStepHitTriplets = _pixelTripletHLTEDProducer.clone(
     doublets              = 'lowPtTripletStepHitDoublets',
     produceSeedingHitSets = True,
-    SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone()
+    SeedComparitorPSet = RecoTracker.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone()
 )
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsEDProducer
 lowPtTripletStepSeeds = _seedCreatorFromRegionConsecutiveHitsEDProducer.clone(
     seedingHitSets = 'lowPtTripletStepHitTriplets',
 )
 
-from RecoPixelVertexing.PixelTriplets.caHitTripletEDProducer_cfi import caHitTripletEDProducer as _caHitTripletEDProducer
+from RecoTracker.PixelSeeding.caHitTripletEDProducer_cfi import caHitTripletEDProducer as _caHitTripletEDProducer
 trackingPhase1.toModify(lowPtTripletStepHitDoublets, layerPairs = [0,1]) # layer pairs (0,1), (1,2)
 trackingPhase1.toReplaceWith(lowPtTripletStepHitTriplets, _caHitTripletEDProducer.clone(
     doublets = 'lowPtTripletStepHitDoublets',
@@ -178,7 +178,7 @@ trackingPhase2PU140.toReplaceWith(lowPtTripletStepStandardTrajectoryFilter, _low
 
 (pp_on_XeXe_2017 | pp_on_AA).toModify(lowPtTripletStepStandardTrajectoryFilter, minPt=0.49)
 
-from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeTrajectoryFilter_cfi import *
+from RecoTracker.PixelLowPtUtilities.ClusterShapeTrajectoryFilter_cfi import *
 # Composite filter
 lowPtTripletStepTrajectoryFilter = _TrajectoryFilter_cff.CompositeTrajectoryFilter_block.clone(
     filters   = [cms.PSet(refToPSet_ = cms.string('lowPtTripletStepStandardTrajectoryFilter')),

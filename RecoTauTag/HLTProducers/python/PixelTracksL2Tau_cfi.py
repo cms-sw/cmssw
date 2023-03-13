@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoPixelVertexing.PixelTrackFitting.pixelTracks_cfi import pixelTracks as _pixelTracks
+from RecoTracker.PixelTrackFitting.pixelTracks_cfi import pixelTracks as _pixelTracks
 from RecoTauTag.HLTProducers.trackingRegionsFromBeamSpotAndL2Tau_cfi import trackingRegionsFromBeamSpotAndL2Tau
 
 # Note from new seeding framework migration

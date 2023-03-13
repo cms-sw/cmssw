@@ -862,7 +862,7 @@ upgradeWFs['PatatrackPixelOnlyTripletsCPU'] = PatatrackWorkflow(
     reco = {
         '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
         '--procModifiers': 'pixelNtupletFit',
-        '--customise' : 'RecoPixelVertexing/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets'
+        '--customise' : 'RecoTracker/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets'
     },
     harvest = {
         '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'
@@ -883,7 +883,7 @@ upgradeWFs['PatatrackPixelOnlyTripletsGPU'] = PatatrackWorkflow(
     reco = {
         '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
         '--procModifiers': 'pixelNtupletFit,gpu',
-        '--customise': 'RecoPixelVertexing/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets'
+        '--customise': 'RecoTracker/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets'
     },
     harvest = {
         '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'
@@ -906,7 +906,7 @@ upgradeWFs['PatatrackPixelOnlyTripletsGPUValidation'] = PatatrackWorkflow(
         '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
         '--accelerators': 'gpu-nvidia',
         '--procModifiers': 'pixelNtupletFit,gpuValidation',
-        '--customise': 'RecoPixelVertexing/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets'
+        '--customise': 'RecoTracker/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets'
     },
     harvest = {
         '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM',
@@ -927,7 +927,7 @@ upgradeWFs['PatatrackPixelOnlyTripletsGPUProfiling'] = PatatrackWorkflow(
     reco = {
         '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly',
         '--procModifiers': 'pixelNtupletFit,gpu',
-        '--customise': 'RecoPixelVertexing/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets,RecoTracker/Configuration/customizePixelOnlyForProfiling.customizePixelOnlyForProfilingGPUOnly'
+        '--customise': 'RecoTracker/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets,RecoTracker/Configuration/customizePixelOnlyForProfiling.customizePixelOnlyForProfilingGPUOnly'
     },
     harvest = None,
     suffix = 'Patatrack_PixelOnlyTripletsGPU_Profiling',
@@ -1300,7 +1300,7 @@ upgradeWFs['PatatrackFullRecoTripletsCPU'] = PatatrackWorkflow(
         # skip the @pixelTrackingOnlyValidation which cannot run together with the full reconstruction
         '-s': 'RAW2DIGI:RawToDigi+RawToDigi_pixelOnly,L1Reco,RECO:reconstruction+reconstruction_pixelTrackingOnly,RECOSIM,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM+@pixelTrackingOnlyDQM',
         '--procModifiers': 'pixelNtupletFit',
-        '--customise' : 'RecoPixelVertexing/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets'
+        '--customise' : 'RecoTracker/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets'
     },
     harvest = {
         # skip the @pixelTrackingOnlyDQM harvesting
@@ -1322,7 +1322,7 @@ upgradeWFs['PatatrackFullRecoTripletsGPU'] = PatatrackWorkflow(
         # skip the @pixelTrackingOnlyValidation which cannot run together with the full reconstruction
         '-s': 'RAW2DIGI:RawToDigi+RawToDigi_pixelOnly,L1Reco,RECO:reconstruction+reconstruction_pixelTrackingOnly,RECOSIM,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM+@pixelTrackingOnlyDQM',
         '--procModifiers': 'pixelNtupletFit,gpu',
-        '--customise': 'RecoPixelVertexing/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets'
+        '--customise': 'RecoTracker/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets'
     },
     harvest = {
         # skip the @pixelTrackingOnlyDQM harvesting
@@ -1346,7 +1346,7 @@ upgradeWFs['PatatrackFullRecoTripletsGPUValidation'] = PatatrackWorkflow(
         '-s': 'RAW2DIGI:RawToDigi+RawToDigi_pixelOnly,L1Reco,RECO:reconstruction+reconstruction_pixelTrackingOnly,RECOSIM,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM+@pixelTrackingOnlyDQM',
         '--accelerators': 'gpu-nvidia',
         '--procModifiers': 'pixelNtupletFit,gpuValidation',
-        '--customise' : 'RecoPixelVertexing/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets'
+        '--customise' : 'RecoTracker/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets'
     },
     harvest = {
         # skip the @pixelTrackingOnlyDQM harvesting
