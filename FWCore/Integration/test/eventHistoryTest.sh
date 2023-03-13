@@ -3,7 +3,7 @@
 # Pass in name and status
 function die { echo $1: status $2 ;  exit $2; }
 
-pushd ${LOCAL_TMP_DIR}
+LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
 
 # Write a file for the FIRST process
 cmsRun --parameter-set ${LOCAL_TEST_DIR}/EventHistory_1_cfg.py || die 'Failed in EventHistory_1' $?
@@ -46,5 +46,3 @@ cmsRun --parameter-set ${LOCAL_TEST_DIR}/EventHistory_SubProcess_cfg.py || die '
 echo "*************************************************"
 echo "**************** Finished pass SubProcess *******"
 echo "*************************************************"
-
-popd

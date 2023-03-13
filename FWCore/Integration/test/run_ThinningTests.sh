@@ -2,7 +2,7 @@
 
 function die { echo Failure $1: status $2 ; exit $2 ; }
 
-pushd ${LOCAL_TMP_DIR}
+LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
 
   cmsRun -p ${LOCAL_TEST_DIR}/ThinningTest1_cfg.py || die "cmsRun ThinningTest1_cfg.py" $?
 
@@ -50,7 +50,5 @@ pushd ${LOCAL_TMP_DIR}
 
   cmsRun -p ${LOCAL_TEST_DIR}/SlimmingTest4B_cfg.py || die "cmsRun SlimmingTest4B_cfg.py" $?
   cmsRun -p ${LOCAL_TEST_DIR}/SlimmingTest4F_cfg.py && die "cmsRun SlimmingTest4F_cfg.py" 1
-
-popd
 
 exit 0

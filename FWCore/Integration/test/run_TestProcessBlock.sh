@@ -1,11 +1,8 @@
 #!/bin/bash
 set -x
-LOCAL_TEST_DIR=${CMSSW_BASE}/src/FWCore/Integration/test
-LOCAL_TMP_DIR=${CMSSW_BASE}/tmp/${SCRAM_ARCH}
+LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
 
 function die { echo Failure $1: status $2 ; exit $2 ; }
-
-pushd ${LOCAL_TMP_DIR}
 
 # The tests executed by this bash script are all related and
 # it seemed clearest to include them all in the same file.
@@ -318,7 +315,5 @@ then
   #rm testProcessBlockNonStrict3.root
 
 fi
-
-popd
 
 exit 0
