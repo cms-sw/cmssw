@@ -75,6 +75,7 @@ phase2TrackerDigitizer = cms.PSet(
     GeometryType = cms.string('idealForDigi'),
     isOTreadoutAnalog = cms.bool(False),#set this to true if you want analog readout for OT
 # Common for Algos
+    usePseudoPixel3DAlgo = cms.bool(False),
     premixStage1 = cms.bool(False),
     AlgorithmCommon = cms.PSet(
       DeltaProductionCut = cms.double(0.03),
