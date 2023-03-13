@@ -2,30 +2,30 @@
 # Pass in name and status
 function die { echo $1: status $2 ;  exit $2; }
 
-pushd ${LOCAL_TMP_DIR}
+LOCAL_TEST_DIR=$SCRAM_TEST_PATH
 
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolOutputTest_cfg.py || die 'Failure using PoolOutputTest_cfg.py 1' $?
+cmsRun ${LOCAL_TEST_DIR}/PoolOutputTest_cfg.py || die 'Failure using PoolOutputTest_cfg.py 1' $?
 GUID1=$(edmFileUtil -u PoolOutputTest.root | fgrep uuid | awk '{print $10}')
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolOutputTest_cfg.py || die 'Failure using PoolOutputTest_cfg.py 2' $?
+cmsRun ${LOCAL_TEST_DIR}/PoolOutputTest_cfg.py || die 'Failure using PoolOutputTest_cfg.py 2' $?
 GUID2=$(edmFileUtil -u PoolOutputTest.root | fgrep uuid | awk '{print $10}')
 if [ "x${GUID1}" == "x${GUID2}" ]; then
     echo "GUID from two executions are the same: ${GUID1}"
     exit 1
 fi
 
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolDropTest_cfg.py || die 'Failure using PoolDropTest_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/PoolDropTest_cfg.py || die 'Failure using PoolDropTest_cfg.py' $?
 
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolMissingTest_cfg.py || die 'Failure using PoolMissingTest_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/PoolMissingTest_cfg.py || die 'Failure using PoolMissingTest_cfg.py' $?
 
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolOutputRead_cfg.py || die 'Failure using PoolOutputRead_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/PoolOutputRead_cfg.py || die 'Failure using PoolOutputRead_cfg.py' $?
 
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolDropRead_cfg.py || die 'Failure using PoolDropRead_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/PoolDropRead_cfg.py || die 'Failure using PoolDropRead_cfg.py' $?
 
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolMissingRead_cfg.py || die 'Failure using PoolMissingRead_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/PoolMissingRead_cfg.py || die 'Failure using PoolMissingRead_cfg.py' $?
 
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolTransientTest_cfg.py || die 'Failure using PoolTransientTest_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/PoolTransientTest_cfg.py || die 'Failure using PoolTransientTest_cfg.py' $?
 
-cmsRun --parameter-set ${LOCAL_TEST_DIR}/PoolTransientRead_cfg.py || die 'Failure using PoolTransientRead_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/PoolTransientRead_cfg.py || die 'Failure using PoolTransientRead_cfg.py' $?
 
 cmsRun ${LOCAL_TEST_DIR}/PoolOutputEmptyEventsTest_cfg.py || die 'Failure using PoolOutputEmptyEventsTest_cfg.py' $?
 #reads file from above and from PoolOutputTest_cfg.py
@@ -74,5 +74,3 @@ if [ "x${GUID1}" == "x${GUID2}" ]; then
     echo "GUID from two output files are the same: ${GUID1}"
     exit 1
 fi
-
-popd
