@@ -1,5 +1,6 @@
 #include "SimG4Core/Application/interface/SteppingAction.h"
-#include "SimG4Core/Application/interface/EventAction.h"
+
+#include "SimG4Core/Notification/interface/SimTrackManager.h"
 #include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
 
 #include "G4LogicalVolumeStore.hh"
@@ -14,15 +15,8 @@
 
 //#define DebugLog
 
-SteppingAction::SteppingAction(EventAction* e, const edm::ParameterSet& p, const CMSSteppingVerbose* sv, bool hasW)
-    : eventAction_(e),
-      tracker(nullptr),
-      calo(nullptr),
-      steppingVerbose(sv),
-      nWarnings(0),
-      initialized(false),
-      killBeamPipe(false),
-      hasWatcher(hasW) {
+SteppingAction::SteppingAction(SimTrackManager* stm, const CMSSteppingVerbose* sv, const edm::ParameterSet& p, bool hasW)
+    : trackManager_(stm), steppingVerbose(sv), hasWatcher(hasW) {
   theCriticalEnergyForVacuum = (p.getParameter<double>("CriticalEnergyForVacuum") * CLHEP::MeV);
   if (0.0 < theCriticalEnergyForVacuum) {
     killBeamPipe = true;
@@ -85,14 +79,11 @@ SteppingAction::SteppingAction(EventAction* e, const edm::ParameterSet& p, const
   }
 }
 
-SteppingAction::~SteppingAction() {}
-
 void SteppingAction::UserSteppingAction(const G4Step* aStep) {
   if (!initialized) {
     initialized = initPointer();
   }
 
-  //if(hasWatcher) { m_g4StepSignal(aStep); }
   m_g4StepSignal(aStep);
 
   G4Track* theTrack = aStep->GetTrack();
@@ -111,23 +102,10 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
   const G4StepPoint* preStep = aStep->GetPreStepPoint();
   const G4StepPoint* postStep = aStep->GetPostStepPoint();
 
-  // NaN energy deposit
-  if (edm::isNotFinite(aStep->GetTotalEnergyDeposit())) {
-    tstat = sEnergyDepNaN;
-    if (nWarnings < 5) {
-      ++nWarnings;
-      edm::LogWarning("SimG4CoreApplication")
-          << "Track #" << theTrack->GetTrackID() << " " << theTrack->GetDefinition()->GetParticleName()
-          << " E(MeV)= " << preStep->GetKineticEnergy() / MeV << " Nstep= " << theTrack->GetCurrentStepNumber()
-          << " is killed due to edep=NaN inside PV: " << preStep->GetPhysicalVolume()->GetName() << " at "
-          << theTrack->GetPosition() << " StepLen(mm)= " << aStep->GetStepLength();
-    }
-  }
-
   // the track is killed by the process
   if (tstat == sKilledByProcess) {
     if (nullptr != steppingVerbose) {
-      steppingVerbose->NextStep(aStep, fpSteppingManager, false);
+      steppingVerbose->nextStep(aStep, fpSteppingManager, false);
     }
     return;
   }
@@ -191,10 +169,10 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
                                    (postStep->GetMomentum()).z(),
                                    postStep->GetTotalEnergy());
 
+      // record intersection
       uint32_t id = theTrack->GetTrackID();
-
       std::pair<math::XYZVectorD, math::XYZTLorentzVectorD> p(pos, mom);
-      eventAction_->addTkCaloStateInfo(id, p);
+      trackManager_->addTkCaloStateInfo(id, p);
     }
   } else {
     theTrack->SetTrackStatus(fStopAndKill);
@@ -204,7 +182,7 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
 #endif
   }
   if (nullptr != steppingVerbose) {
-    steppingVerbose->NextStep(aStep, fpSteppingManager, isKilled);
+    steppingVerbose->nextStep(aStep, fpSteppingManager, isKilled);
   }
 }
 
@@ -229,11 +207,11 @@ bool SteppingAction::initPointer() {
   const G4PhysicalVolumeStore* pvs = G4PhysicalVolumeStore::GetInstance();
   for (auto const& pvcite : *pvs) {
     const G4String& pvname = pvcite->GetName();
-    if (pvname == "Tracker" || pvname == "tracker:Tracker_1")
+    if (pvname == "Tracker" || pvname == "tracker:Tracker_1") {
       tracker = pvcite;
-    else if (pvname == "CALO" || pvname == "caloBase:CALO_1")
+    } else if (pvname == "CALO" || pvname == "caloBase:CALO_1") {
       calo = pvcite;
-
+    }
     if (tracker && calo)
       break;
   }

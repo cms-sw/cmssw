@@ -369,7 +369,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
     }
   }
   if (nullptr != steppingVerbose) {
-    steppingVerbose->StackFilled(aTrack, (classification == fKill));
+    steppingVerbose->stackFilled(aTrack, (classification == fKill));
   }
   return classification;
 }

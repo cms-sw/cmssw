@@ -152,13 +152,13 @@ void TkAccumulatingSensitiveDetector::update(const BeginOfTrack* bot) {
     TrackInformation* info = nullptr;
     if (gTrack->GetKineticEnergy() > energyCut) {
       info = cmsTrackInformation(gTrack);
-      info->storeTrack(true);
+      info->setStoreTrack();
     }
     //
     // Save History?
     //
     if (gTrack->GetKineticEnergy() > energyHistoryCut) {
-      if (!info) {
+      if (nullptr == info) {
         info = cmsTrackInformation(gTrack);
       }
       info->putInHistory();
