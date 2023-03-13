@@ -345,6 +345,7 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf) 
   m_params_helper.setLayer1ECalScaleFactors(conf.getParameter<std::vector<double>>("layer1ECalScaleFactors"));
   m_params_helper.setLayer1HCalScaleFactors(conf.getParameter<std::vector<double>>("layer1HCalScaleFactors"));
   m_params_helper.setLayer1HFScaleFactors(conf.getParameter<std::vector<double>>("layer1HFScaleFactors"));
+  m_params_helper.setLayer1HCalFBLUT(conf.getParameter<std::vector<unsigned long long>>("layer1HCalFBLUT"));
 
   m_params_helper.setLayer1ECalScaleETBins(conf.getParameter<std::vector<int>>("layer1ECalScaleETBins"));
   m_params_helper.setLayer1HCalScaleETBins(conf.getParameter<std::vector<int>>("layer1HCalScaleETBins"));

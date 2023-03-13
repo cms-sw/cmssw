@@ -33,6 +33,7 @@ namespace l1t {
       l1t::LUT LUT_;
       std::vector<double> dparams_;
       std::vector<unsigned> uparams_;
+      std::vector<unsigned long long> u64params_;
       std::vector<int> iparams_;
       std::vector<std::string> sparams_;
       Node() {

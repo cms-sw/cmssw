@@ -551,6 +551,7 @@ namespace l1t {
     std::vector<double> const& layer1ECalScaleFactors() const { return pnode_[layer1ECal].dparams_; }
     std::vector<double> const& layer1HCalScaleFactors() const { return pnode_[layer1HCal].dparams_; }
     std::vector<double> const& layer1HFScaleFactors() const { return pnode_[layer1HF].dparams_; }
+    std::vector<unsigned long long> const& layer1HCalFBLUT() const { return pnode_[layer1HCal].u64params_; }
     std::vector<int> const& layer1ECalScaleETBins() const { return pnode_[layer1ECal].iparams_; }
     std::vector<int> const& layer1HCalScaleETBins() const { return pnode_[layer1HCal].iparams_; }
     std::vector<int> const& layer1HFScaleETBins() const { return pnode_[layer1HF].iparams_; }
@@ -560,6 +561,7 @@ namespace l1t {
     void setLayer1ECalScaleFactors(std::vector<double> params) { pnode_[layer1ECal].dparams_ = std::move(params); }
     void setLayer1HCalScaleFactors(std::vector<double> params) { pnode_[layer1HCal].dparams_ = std::move(params); }
     void setLayer1HFScaleFactors(std::vector<double> params) { pnode_[layer1HF].dparams_ = std::move(params); }
+    void setLayer1HCalFBLUT(std::vector<unsigned long long> params) { pnode_[layer1HCal].u64params_ = std::move(params); }
     void setLayer1ECalScaleETBins(std::vector<int> params) { pnode_[layer1ECal].iparams_ = std::move(params); }
     void setLayer1HCalScaleETBins(std::vector<int> params) { pnode_[layer1HCal].iparams_ = std::move(params); }
     void setLayer1HFScaleETBins(std::vector<int> params) { pnode_[layer1HF].iparams_ = std::move(params); }

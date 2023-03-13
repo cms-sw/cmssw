@@ -45,6 +45,7 @@ bool L1TCaloParamsOnlineProd::readCaloLayer1OnlineSettings(l1t::CaloParamsHelper
       "layer1ECalScaleFactors",
       "layer1HCalScaleFactors",
       "layer1HFScaleFactors",
+      "layer1HCalFBLUT",
       "layer1ECalScaleETBins",
       "layer1HCalScaleETBins",
       "layer1HFScaleETBins"
@@ -65,6 +66,7 @@ bool L1TCaloParamsOnlineProd::readCaloLayer1OnlineSettings(l1t::CaloParamsHelper
   paramsHelper.setLayer1ECalScaleFactors((conf["layer1ECalScaleFactors"].getVector<double>()));
   paramsHelper.setLayer1HCalScaleFactors((conf["layer1HCalScaleFactors"].getVector<double>()));
   paramsHelper.setLayer1HFScaleFactors((conf["layer1HFScaleFactors"].getVector<double>()));
+  paramsHelper.setLayer1HCalFBLUT((conf["layer1HCalFBLUT"].getVector<unsigned long long>()));
   paramsHelper.setLayer1ECalScaleETBins(conf["layer1ECalScaleETBins"].getVector<int>());
   paramsHelper.setLayer1HCalScaleETBins(conf["layer1HCalScaleETBins"].getVector<int>());
   paramsHelper.setLayer1HFScaleETBins(conf["layer1HFScaleETBins"].getVector<int>());

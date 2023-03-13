@@ -32,6 +32,7 @@ bool L1TCaloLayer1FetchLUTs(
     std::vector<std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> > &eLUT,
     std::vector<std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> > &hLUT,
     std::vector<std::array<std::array<uint32_t, nEtBins>, nHfEtaBins> > &hfLUT,
+    std::vector<std::array<uint64_t, nCalSideBins> > &hcalFBLUT,
     std::vector<unsigned int> &ePhiMap,
     std::vector<unsigned int> &hPhiMap,
     std::vector<unsigned int> &hfPhiMap,
@@ -40,6 +41,7 @@ bool L1TCaloLayer1FetchLUTs(
     bool useECALLUT,
     bool useHCALLUT,
     bool useHFLUT,
+    bool useHCALFBLUT,
     int fwVersion) {
   int hfValid = 1;
   const HcalTrigTowerGeometry &pG = iSetup.getData(iTokens.geom_);
@@ -122,8 +124,18 @@ bool L1TCaloLayer1FetchLUTs(
     return false;
   }
 
+  // HCAL FB LUT will be a 1*28 array:
+  //   ieta = 28 eta scale factors (1 .. 28)
+  //   So, index = ieta
+  auto fbLUT = caloParams.layer1HCalFBLUT();
+  if (fbLUT.size() != 28) {
+    edm::LogError("L1TCaloLayer1FetchLUTs")
+        << "caloParams.layer1HCalFBLUT().size() != 28 !!";
+    return false;
+  }
+
   // Sanity check scale factors exist
-  if (useCalib && (ecalSF.empty() || hcalSF.empty() || hfSF.empty())) {
+  if (useCalib && (ecalSF.empty() || hcalSF.empty() || hfSF.empty() || fbLUT.empty())) {
     edm::LogError("L1TCaloLayer1FetchLUTs") << "Layer 1 calibrations requested (useCalib = True) but there are missing "
                                                "scale factors in CaloParams!  Please check conditions setup.";
     return false;
@@ -328,6 +340,16 @@ bool L1TCaloLayer1FetchLUTs(
         }
         hfLUT[phiBin][etaBin][etCode] = value;
       }
+    }
+  }
+
+  // Make HCal FB LUT
+  for (uint32_t etaBin = 0; etaBin < 28; etaBin++) {
+    std::array<uint64_t, l1tcalo::nCalSideBins> etaLUT;
+    hcalFBLUT.push_back(etaLUT);
+    for (uint32_t fb = 0; fb < nCalSideBins; fb++) {
+      uint64_t value = fbLUT.at(etaBin);
+      hcalFBLUT[etaBin][fb] = value;
     }
   }
 
