@@ -48,7 +48,7 @@ process.MessageLogger.files.mtdDetLayerGeometry = cms.untracked.PSet(
     threshold = cms.untracked.string('INFO'))
 
 # Choose Tracker Geometry
-process.load("Configuration.Geometry.GeometryExtended2026D88_cff")
+process.load("Configuration.Geometry.GeometryExtended2026D95_cff")
 
 process.load("Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff")
 

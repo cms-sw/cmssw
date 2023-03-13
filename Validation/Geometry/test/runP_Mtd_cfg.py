@@ -7,7 +7,7 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 #Geometry
 #
-process.load("Configuration.Geometry.GeometryExtended2026D77Reco_cff")
+process.load("Configuration.Geometry.GeometryExtended2026D95Reco_cff")
 
 #Magnetic Field
 #
