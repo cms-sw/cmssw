@@ -4,7 +4,6 @@
 function die { echo $1: status $2 ;  exit $2; }
 
 dir=${PWD}
-cd ${LOCALTOP}
 
 #test programs are placed on PATH when tests are run by scram
 testpath="testFWCoreSharedMemoryMonitorThread"
