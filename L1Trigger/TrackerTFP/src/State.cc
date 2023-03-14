@@ -46,10 +46,10 @@ namespace trackerTFP {
     x2_ = 0.;
     x3_ = 0.;
     // initial uncertainties
-    C00_ = pow(dataFormats_->base(Variable::inv2R, Process::kfin), 2);
-    C11_ = pow(dataFormats_->base(Variable::phiT, Process::kfin), 2);
-    C22_ = pow(dataFormats_->base(Variable::cot, Process::kfin), 2);
-    C33_ = pow(dataFormats_->base(Variable::zT, Process::kfin), 2);
+    C00_ = pow(dataFormats_->base(Variable::inv2R, Process::kfin), 2) * pow(2, setup_->kfShiftInitialC00());
+    C11_ = pow(dataFormats_->base(Variable::phiT, Process::kfin), 2) * pow(2, setup_->kfShiftInitialC11());
+    C22_ = pow(dataFormats_->base(Variable::cot, Process::kfin), 2) * pow(2, setup_->kfShiftInitialC22());
+    C33_ = pow(dataFormats_->base(Variable::zT, Process::kfin), 2) * pow(2, setup_->kfShiftInitialC33());
     C01_ = 0.;
     C23_ = 0.;
     // first stub from first layer on input track with stubs

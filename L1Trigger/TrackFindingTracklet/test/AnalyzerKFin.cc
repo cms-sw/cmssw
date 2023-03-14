@@ -60,7 +60,6 @@ namespace trklet {
                    set<TPPtr>& tps,
                    int& sum,
                    bool perfect = false) const;
-
     // ED input token of stubs
     EDGetTokenT<StreamsStub> edGetTokenAcceptedStubs_;
     // ED input token of tracks
@@ -77,14 +76,10 @@ namespace trklet {
     ESGetToken<Setup, SetupRcd> esGetTokenSetup_;
     // DataFormats token
     ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
-    // ChannelAssignment token
-    ESGetToken<ChannelAssignment, ChannelAssignmentRcd> esGetTokenChannelAssignment_;
     // stores, calculates and provides run-time constants
     const Setup* setup_ = nullptr;
     // helper class to extract structured data from tt::Frames
     const DataFormats* dataFormats_ = nullptr;
-    // helper class to assign tracklet track to channel
-    const ChannelAssignment* channelAssignment_ = nullptr;
     // enables analyze of TPs
     bool useMCTruth_;
     //
@@ -121,7 +116,6 @@ namespace trklet {
     // book ES products
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
     esGetTokenDataFormats_ = esConsumes<DataFormats, DataFormatsRcd, Transition::BeginRun>();
-    esGetTokenChannelAssignment_ = esConsumes<ChannelAssignment, ChannelAssignmentRcd, Transition::BeginRun>();
     // log config
     log_.setf(ios::fixed, ios::floatfield);
     log_.precision(4);
@@ -132,8 +126,6 @@ namespace trklet {
     setup_ = &iSetup.getData(esGetTokenSetup_);
     // helper class to extract structured data from tt::Frames
     dataFormats_ = &iSetup.getData(esGetTokenDataFormats_);
-    // helper class to assign tracklet track to channel
-    channelAssignment_ = &iSetup.getData(esGetTokenChannelAssignment_);
     // book histograms
     Service<TFileService> fs;
     TFileDirectory dir;
@@ -151,7 +143,7 @@ namespace trklet {
     prof_->GetXaxis()->SetBinLabel(10, "Perfect TPs");
     // channel occupancy
     constexpr int maxOcc = 180;
-    const int numChannels = channelAssignment_->numChannelsTrack() * setup_->numLayers() * setup_->numRegions();
+    const int numChannels = setup_->kfNumWorker();
     hisChannel_ = dir.make<TH1F>("His Channel Occupancy", ";", maxOcc, -.5, maxOcc - .5);
     profChannel_ = dir.make<TProfile>("Prof Channel Occupancy", ";", numChannels, -.5, numChannels - .5);
   }
@@ -190,11 +182,11 @@ namespace trklet {
     int allMatched(0);
     int allTracks(0);
     for (int region = 0; region < setup_->numRegions(); region++) {
-      const int offset = region * channelAssignment_->numChannelsTrack();
+      const int offset = region * setup_->kfNumWorker();
       int nStubs(0);
       int nTracks(0);
       int nLost(0);
-      for (int channel = 0; channel < channelAssignment_->numChannelsTrack(); channel++) {
+      for (int channel = 0; channel < setup_->kfNumWorker(); channel++) {
         vector<vector<TTStubRef>> tracks;
         formTracks(acceptedTracks, acceptedStubs, tracks, offset + channel);
         vector<vector<TTStubRef>> lost;
@@ -212,6 +204,12 @@ namespace trklet {
         associate(tracks, selection, tpPtrsPerfect, tmp, true);
         associate(lost, selection, tpPtrsLost, tmp);
         associate(tracks, reconstructable, tpPtrs, allMatched);
+        const StreamTrack& stream = acceptedTracks[offset + channel];
+        const auto end =
+            find_if(stream.rbegin(), stream.rend(), [](const FrameTrack& frame) { return frame.first.isNonnull(); });
+        const int size = distance(stream.begin(), end.base()) - 1;
+        hisChannel_->Fill(size);
+        profChannel_->Fill(channel, size);
       }
       prof_->Fill(1, nStubs);
       prof_->Fill(2, nTracks);

@@ -85,6 +85,7 @@ namespace tt {
         hybridDiskZs_(pSetHybrid_.getParameter<vector<double>>("DiskZs")),
         hybridDisk2SRsSet_(pSetHybrid_.getParameter<vector<ParameterSet>>("Disk2SRsSet")),
         tbInnerRadius_(pSetHybrid_.getParameter<double>("InnerRadius")),
+        tbWidthsR_(pSetHybrid_.getParameter<vector<int>>("WidthsRTB")),
         // Parameter specifying TrackingParticle used for Efficiency measurements
         pSetTP_(iConfig.getParameter<ParameterSet>("TrackingParticle")),
         tpMinPt_(pSetTP_.getParameter<double>("MinPt")),
@@ -201,6 +202,10 @@ namespace tt {
         kfMinLayers_(pSetKF_.getParameter<int>("MinLayers")),
         kfMaxLayers_(pSetKF_.getParameter<int>("MaxLayers")),
         kfRangeFactor_(pSetKF_.getParameter<double>("RangeFactor")),
+        kfShiftInitialC00_(pSetKF_.getParameter<int>("ShiftInitialC00")),
+        kfShiftInitialC11_(pSetKF_.getParameter<int>("ShiftInitialC11")),
+        kfShiftInitialC22_(pSetKF_.getParameter<int>("ShiftInitialC22")),
+        kfShiftInitialC33_(pSetKF_.getParameter<int>("ShiftInitialC33")),
         // Parmeter specifying KalmanFilter Output Formatter
         pSetKFOut_(iConfig.getParameter<ParameterSet>("KalmanFilterOut")),
         kfoutchi2rphiBins_(pSetKFOut_.getParameter<vector<double>>("chi2rphiBins")),
