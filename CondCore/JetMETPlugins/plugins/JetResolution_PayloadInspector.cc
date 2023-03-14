@@ -24,6 +24,13 @@
 #include "TPave.h"
 #include "TPaveStats.h"
 
+#define MIN_ETA -5.05
+#define MAX_ETA 5.05
+#define NBIN_ETA 51
+#define MIN_PT -5.
+#define MAX_PT 3005.
+#define NBIN_PT 301
+
 namespace JME {
 
   using namespace cond::payloadInspector;
@@ -40,13 +47,9 @@ namespace JME {
 
   class JetResolutionVsEta : public cond::payloadInspector::Histogram1D<JetResolutionObject, SINGLE_IOV> {
   public:
-    const float MIN_ETA = -5.05;
-    const float MAX_ETA = 5.05;
-    static const int NBIN = 51;
-
     JetResolutionVsEta()
         : cond::payloadInspector::Histogram1D<JetResolutionObject, SINGLE_IOV>(
-              "Jet Resolution", "#eta", NBIN, MIN_ETA, MAX_ETA, "Resolution") {}
+              "Jet Resolution", "#eta", NBIN_ETA, MIN_ETA, MAX_ETA, "Resolution") {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
@@ -66,8 +69,8 @@ namespace JME {
                 if (!record.getBinsRange().empty() && payload->getDefinition().getBinName(0) == "JetEta") {
                   reco::FormulaEvaluator f(payload->getDefinition().getFormulaString());
 
-                  for (size_t idx = 0; idx < NBIN; idx++) {
-                    double x_axis = (idx + 0.5) * (MAX_ETA - MIN_ETA) / NBIN + MIN_ETA;
+                  for (size_t idx = 0; idx <= NBIN_ETA; idx++) {
+                    double x_axis = (idx + 0.5) * (MAX_ETA - MIN_ETA) / NBIN_ETA + MIN_ETA;
                     if (record.getBinsRange()[0].is_inside(x_axis)) {
                       std::vector<double> var = {100.};
                       std::vector<double> param;
@@ -92,13 +95,9 @@ namespace JME {
 
   class JetResolutionVsPt : public cond::payloadInspector::Histogram1D<JetResolutionObject, SINGLE_IOV> {
   public:
-    const float MIN_PT = -0.0;
-    const float MAX_PT = 3000.0;
-    static const int NBIN = 300;
-
     JetResolutionVsPt()
         : cond::payloadInspector::Histogram1D<JetResolutionObject, SINGLE_IOV>(
-              "Jet Energy Resolution", "p_T", NBIN, MIN_PT, MAX_PT, "Resolution") {}
+              "Jet Energy Resolution", "p_T", NBIN_PT, MIN_PT, MAX_PT, "Resolution") {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
@@ -118,8 +117,8 @@ namespace JME {
                 if (!record.getVariablesRange().empty() && payload->getDefinition().getVariableName(0) == "JetPt") {
                   reco::FormulaEvaluator f(payload->getDefinition().getFormulaString());
 
-                  for (size_t idx = 0; idx <= NBIN; idx++) {
-                    double x_axis = (idx + 0.5) * (MAX_PT - MIN_PT) / NBIN + MIN_PT;
+                  for (size_t idx = 0; idx <= NBIN_PT; idx++) {
+                    double x_axis = (idx + 0.5) * (MAX_PT - MIN_PT) / NBIN_PT + MIN_PT;
                     if (record.getVariablesRange()[0].is_inside(x_axis)) {
                       std::vector<double> var = {x_axis};
                       std::vector<double> param;
@@ -144,13 +143,6 @@ namespace JME {
 
   class JetResolutionSummary : public cond::payloadInspector::PlotImage<JetResolutionObject, SINGLE_IOV> {
   public:
-    const float MIN_ETA = -5.05;
-    const float MAX_ETA = 5.05;
-    static const int NBIN_ETA = 51;
-    const float MIN_PT = -5.0;
-    const float MAX_PT = 3005.0;
-    static const int NBIN_PT = 302;
-
     JetResolutionSummary()
         : cond::payloadInspector::PlotImage<JetResolutionObject, SINGLE_IOV>("Jet Resolution Summary") {}
 
@@ -177,7 +169,7 @@ namespace JME {
               if (!record.getBinsRange().empty() && payload->getDefinition().getBinName(0) == "JetEta") {
                 reco::FormulaEvaluator f(payload->getDefinition().getFormulaString());
 
-                for (size_t idx = 0; idx < NBIN_ETA; idx++) {
+                for (size_t idx = 0; idx <= NBIN_ETA; idx++) {
                   double x_axis = (idx + 0.5) * (MAX_ETA - MIN_ETA) / NBIN_ETA + MIN_ETA;
                   if (record.getBinsRange()[0].is_inside(x_axis)) {
                     std::vector<double> var = {100.};
@@ -253,13 +245,9 @@ namespace JME {
   template <index ii>
   class JetScaleFactorVsEta : public cond::payloadInspector::Histogram1D<JetResolutionObject, SINGLE_IOV> {
   public:
-    const float MIN_ETA = -5.0;
-    const float MAX_ETA = 5.0;
-    static const int NBIN = 50;
-
     JetScaleFactorVsEta()
         : cond::payloadInspector::Histogram1D<JetResolutionObject, SINGLE_IOV>(
-              "Jet Energy Scale Factor", "#eta", NBIN, MIN_ETA, MAX_ETA, "Scale Factor") {}
+              "Jet Energy Scale Factor", "#eta", NBIN_ETA, MIN_ETA, MAX_ETA, "Scale Factor") {}
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
@@ -274,8 +262,8 @@ namespace JME {
             if (!record.getBinsRange().empty() && payload->getDefinition().getBinName(0) == "JetEta" &&
                 record.getParametersValues().size() == 3) {  // norm, down, up
 
-              for (size_t it = 0; it < NBIN; it++) {
-                double x_axis = (it + 0.5) * (MAX_ETA - MIN_ETA) / NBIN + MIN_ETA;
+              for (size_t it = 0; it <= NBIN_ETA; it++) {
+                double x_axis = (it + 0.5) * (MAX_ETA - MIN_ETA) / NBIN_ETA + MIN_ETA;
                 if (record.getBinsRange()[0].is_inside(x_axis)) {
                   double sf = 0.;
                   sf = record.getParametersValues()[ii];
@@ -298,10 +286,6 @@ namespace JME {
 
   class JetScaleFactorSummary : public cond::payloadInspector::PlotImage<JetResolutionObject, SINGLE_IOV> {
   public:
-    const float MIN_ETA = -5.05;
-    const float MAX_ETA = 5.05;
-    static const int NBIN_ETA = 51;
-
     JetScaleFactorSummary()
         : cond::payloadInspector::PlotImage<JetResolutionObject, SINGLE_IOV>("Jet ScaleFactor Summary") {}
 
