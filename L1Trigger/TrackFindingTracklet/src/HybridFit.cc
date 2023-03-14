@@ -187,70 +187,76 @@ void HybridFit::Fit(Tracklet* tracklet, std::vector<const Stub*>& trackstublist)
   tmtt::L1fittedTrack fittedTrk = fitterKF.fit(l1track3d);
 
   if (fittedTrk.accepted()) {
-    tmtt::KFTrackletTrack trk = fittedTrk.returnKFTrackletTrack();
+    if (fittedTrk.consistentSector()) {
+      tmtt::KFTrackletTrack trk = fittedTrk.returnKFTrackletTrack();
 
-    if (settings_.printDebugKF())
-      edm::LogVerbatim("L1track") << "Done with Kalman fit. Pars: pt = " << trk.pt()
-                                  << ", 1/2R = " << settings_.bfield() * 3 * trk.qOverPt() / 2000
-                                  << ", phi0 = " << trk.phi0() << ", eta = " << trk.eta() << ", z0 = " << trk.z0()
-                                  << ", chi2 = " << trk.chi2() << ", accepted = " << trk.accepted();
+      if (settings_.printDebugKF())
+        edm::LogVerbatim("L1track") << "Done with Kalman fit. Pars: pt = " << trk.pt()
+                                    << ", 1/2R = " << settings_.bfield() * 3 * trk.qOverPt() / 2000
+                                    << ", phi0 = " << trk.phi0() << ", eta = " << trk.eta() << ", z0 = " << trk.z0()
+                                    << ", chi2 = " << trk.chi2() << ", accepted = " << trk.accepted();
 
-    double d0, chi2rphi, phi0, qoverpt = -999;
-    if (trk.done_bcon()) {
-      d0 = trk.d0_bcon();
-      chi2rphi = trk.chi2rphi_bcon();
-      phi0 = trk.phi0_bcon();
-      qoverpt = trk.qOverPt_bcon();
+      double d0, chi2rphi, phi0, qoverpt = -999;
+      if (trk.done_bcon()) {
+        d0 = trk.d0_bcon();
+        chi2rphi = trk.chi2rphi_bcon();
+        phi0 = trk.phi0_bcon();
+        qoverpt = trk.qOverPt_bcon();
+      } else {
+        d0 = trk.d0();
+        chi2rphi = trk.chi2rphi();
+        phi0 = trk.phi0();
+        qoverpt = trk.qOverPt();
+      }
+
+      // Tracklet wants phi0 with respect to lower edge of sector, not global phi0.
+      double phi0fit = reco::reduceRange(phi0 - iSector_ * 2 * M_PI / N_SECTOR + 0.5 * settings_.dphisectorHG());
+      double rinvfit = 0.01 * settings_.c() * settings_.bfield() * qoverpt;
+
+      int irinvfit = floor(rinvfit / settings_.krinvpars());
+      int iphi0fit = floor(phi0fit / settings_.kphi0pars());
+      int itanlfit = floor(trk.tanLambda() / settings_.ktpars());
+      int iz0fit = floor(trk.z0() / settings_.kz0pars());
+      int id0fit = floor(d0 / settings_.kd0pars());
+      int ichi2rphifit = chi2rphi / 16;
+      int ichi2rzfit = trk.chi2rz() / 16;
+
+      const vector<const tmtt::Stub*>& stubsFromFit = trk.stubs();
+      vector<const L1TStub*> l1stubsFromFit;
+      for (const tmtt::Stub* s : stubsFromFit) {
+        unsigned int IDf = s->index();
+        const L1TStub* l1s = L1StubIndices.at(IDf);
+        l1stubsFromFit.push_back(l1s);
+      }
+
+      tracklet->setFitPars(rinvfit,
+                           phi0fit,
+                           d0,
+                           trk.tanLambda(),
+                           trk.z0(),
+                           chi2rphi,
+                           trk.chi2rz(),
+                           rinvfit,
+                           phi0fit,
+                           d0,
+                           trk.tanLambda(),
+                           trk.z0(),
+                           chi2rphi,
+                           trk.chi2rz(),
+                           irinvfit,
+                           iphi0fit,
+                           id0fit,
+                           itanlfit,
+                           iz0fit,
+                           ichi2rphifit,
+                           ichi2rzfit,
+                           trk.hitPattern(),
+                           l1stubsFromFit);
     } else {
-      d0 = trk.d0();
-      chi2rphi = trk.chi2rphi();
-      phi0 = trk.phi0();
-      qoverpt = trk.qOverPt();
+      if (settings_.printDebugKF()) {
+        edm::LogVerbatim("L1track") << "FitTrack:KF rejected track";
+      }
     }
-
-    // Tracklet wants phi0 with respect to lower edge of sector, not global phi0.
-    double phi0fit = reco::reduceRange(phi0 - iSector_ * 2 * M_PI / N_SECTOR + 0.5 * settings_.dphisectorHG());
-    double rinvfit = 0.01 * settings_.c() * settings_.bfield() * qoverpt;
-
-    int irinvfit = floor(rinvfit / settings_.krinvpars());
-    int iphi0fit = floor(phi0fit / settings_.kphi0pars());
-    int itanlfit = floor(trk.tanLambda() / settings_.ktpars());
-    int iz0fit = floor(trk.z0() / settings_.kz0pars());
-    int id0fit = floor(d0 / settings_.kd0pars());
-    int ichi2rphifit = chi2rphi / 16;
-    int ichi2rzfit = trk.chi2rz() / 16;
-
-    const vector<const tmtt::Stub*>& stubsFromFit = trk.stubs();
-    vector<const L1TStub*> l1stubsFromFit;
-    for (const tmtt::Stub* s : stubsFromFit) {
-      unsigned int IDf = s->index();
-      const L1TStub* l1s = L1StubIndices.at(IDf);
-      l1stubsFromFit.push_back(l1s);
-    }
-
-    tracklet->setFitPars(rinvfit,
-                         phi0fit,
-                         d0,
-                         trk.tanLambda(),
-                         trk.z0(),
-                         chi2rphi,
-                         trk.chi2rz(),
-                         rinvfit,
-                         phi0fit,
-                         d0,
-                         trk.tanLambda(),
-                         trk.z0(),
-                         chi2rphi,
-                         trk.chi2rz(),
-                         irinvfit,
-                         iphi0fit,
-                         id0fit,
-                         itanlfit,
-                         iz0fit,
-                         ichi2rphifit,
-                         ichi2rzfit,
-                         trk.hitPattern(),
-                         l1stubsFromFit);
   } else {
     if (settings_.printDebugKF()) {
       edm::LogVerbatim("L1track") << "FitTrack:KF rejected track";
