@@ -134,8 +134,8 @@ uint32_t HFNoseSD::setDetUnitId(const G4Step* aStep) {
   int module = (moduleLev >= 0) ? touch->GetReplicaNumber(moduleLev) : -1;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFNSim") << "DepthsInside: " << touch->GetHistoryDepth() << " name "
-			     << touch->GetVolume(0)->GetName() << " layer:module:cell " << layer << ":" << moduleLev
-			     << ":" << module << ":" << cell;
+                             << touch->GetVolume(0)->GetName() << " layer:module:cell " << layer << ":" << moduleLev
+                             << ":" << module << ":" << cell;
   G4Material* mat = aStep->GetPreStepPoint()->GetMaterial();
   edm::LogVerbatim("HFNSim") << "Depths: " << touch->GetHistoryDepth() << " name " << touch->GetVolume(0)->GetName()
                              << ":" << touch->GetReplicaNumber(0) << "   " << touch->GetVolume(1)->GetName() << ":"

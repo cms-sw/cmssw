@@ -153,8 +153,8 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
   int module = touch->GetReplicaNumber(moduleLev);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCSim") << "DepthsTop: " << touch->GetHistoryDepth() << ":" << levelT1_ << ":" << levelT2_ << ":"
-			     << useSimWt_ << " name " << touch->GetVolume(0)->GetName() << " layer:module:cell "
-			     << layer << ":" << moduleLev << ":" << module << ":" << cell;
+                             << useSimWt_ << " name " << touch->GetVolume(0)->GetName() << " layer:module:cell "
+                             << layer << ":" << moduleLev << ":" << module << ":" << cell;
   printDetectorLevels(touch);
   G4Material* mat = aStep->GetPreStepPoint()->GetMaterial();
   edm::LogVerbatim("HGCSim") << "Depths: " << touch->GetHistoryDepth() << " name " << touch->GetVolume(0)->GetName()
@@ -181,9 +181,9 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
       int layertype = hgcons_->layerType(layer);
       int frontBack = HGCalTypes::layerFrontBack(layertype);
       if (guardRing_->exclude(local, iz, frontBack, layer, uv.first, uv.second)) {
-	id = 0;
+        id = 0;
 #ifdef EDM_ML_DEBUG
-	edm::LogVerbatim("HGCSim") << "Rejected by GuardRing cutoff *****";
+        edm::LogVerbatim("HGCSim") << "Rejected by GuardRing cutoff *****";
 #endif
       }
     }

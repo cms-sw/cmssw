@@ -26,7 +26,7 @@ bool HGCMouseBite::exclude(G4ThreeVector& point, int zside, int lay, int waferU,
   double dx(0), dy(0);
   if (point == G4ThreeVector()) {
     std::pair<double, double> xy =
-      (modeUV_ ? hgcons_.waferPosition(lay, waferU, waferV, false, false) : hgcons_.waferPosition(waferU, false));
+        (modeUV_ ? hgcons_.waferPosition(lay, waferU, waferV, false, false) : hgcons_.waferPosition(waferU, false));
     double xx = (zside > 0) ? xy.first : -xy.first;
     if (rot_) {
       dx = std::abs(point.y() - xy.second);

@@ -504,8 +504,8 @@ int HGCalWaferMask::getRotation(int zside, int type, int rotn) {
 
 std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
                                                 const double& ypos,
-						const double& delX, 
-						const double& delY,
+                                                const double& delX,
+                                                const double& delY,
                                                 const double& rin,
                                                 const double& rout,
                                                 const int& wType,

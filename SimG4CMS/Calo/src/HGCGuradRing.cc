@@ -6,49 +6,54 @@
 
 //#define EDM_ML_DEBUG
 
-HGCGuardRing::HGCGuardRing(const HGCalDDDConstants& hgc) :
-  hgcons_(hgc),
-  modeUV_(hgcons_.geomMode()),
-  waferSize_(hgcons_.waferSize(false)),
-  sensorSizeOffset_(hgcons_.getParameter()->sensorSizeOffset_),
-  guardRingOffset_(hgcons_.getParameter()->guardRingOffset_) {
+HGCGuardRing::HGCGuardRing(const HGCalDDDConstants& hgc)
+    : hgcons_(hgc),
+      modeUV_(hgcons_.geomMode()),
+      waferSize_(hgcons_.waferSize(false)),
+      sensorSizeOffset_(hgcons_.getParameter()->sensorSizeOffset_),
+      guardRingOffset_(hgcons_.getParameter()->guardRingOffset_) {
   offset_ = sensorSizeOffset_ + 2.0 * guardRingOffset_;
   xmax_ = 0.5 * (waferSize_ - offset_);
   ymax_ = xmax_ / sqrt3_;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCSim") << "Creating HGCGuardRing with wafer size " << waferSize_ << ", Offsets " << sensorSizeOffset_ << ":" << guardRingOffset_ << ":" << offset_<< ", and mode " << modeUV_ << " xmax|ymax " << xmax_ << ":" << ymax_;
+  edm::LogVerbatim("HGCSim") << "Creating HGCGuardRing with wafer size " << waferSize_ << ", Offsets "
+                             << sensorSizeOffset_ << ":" << guardRingOffset_ << ":" << offset_ << ", and mode "
+                             << modeUV_ << " xmax|ymax " << xmax_ << ":" << ymax_;
 #endif
 }
 
 bool HGCGuardRing::exclude(G4ThreeVector& point, int zside, int frontBack, int layer, int waferU, int waferV) {
   bool check(false);
-  if ((modeUV_ == HGCalGeometryMode::Hexagon8Module) ||
-      (modeUV_ == HGCalGeometryMode::Hexagon8Cassette)) {
+  if ((modeUV_ == HGCalGeometryMode::Hexagon8Module) || (modeUV_ == HGCalGeometryMode::Hexagon8Cassette)) {
     int index = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
     int partial = HGCalWaferType::getPartial(index, hgcons_.getParameter()->waferInfoMap_);
     if (partial == HGCalTypes::WaferFull) {
       double dx = std::abs(point.x());
       double dy = std::abs(point.y());
       if (dx > xmax_) {
-	check = true;
+        check = true;
       } else if (dy > (2 * ymax_)) {
-	check = true;
+        check = true;
       } else {
-	check = (dx > (sqrt3_ * (2 * ymax_ - dy)));
+        check = (dx > (sqrt3_ * (2 * ymax_ - dy)));
       }
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCSim") << "HGCGuardRing:: Point " << point << " zside " << zside << " layer " << layer << " wafer " << waferU << ":" << waferV << " partial type " << partial << ":" << HGCalTypes::WaferFull << " x " << dx << ":" << xmax_ << " y " << dy << ":" << ymax_ << " check " << check;
+      edm::LogVerbatim("HGCSim") << "HGCGuardRing:: Point " << point << " zside " << zside << " layer " << layer
+                                 << " wafer " << waferU << ":" << waferV << " partial type " << partial << ":"
+                                 << HGCalTypes::WaferFull << " x " << dx << ":" << xmax_ << " y " << dy << ":" << ymax_
+                                 << " check " << check;
 #endif
     } else {
       int orient = HGCalWaferType::getOrient(index, hgcons_.getParameter()->waferInfoMap_);
       if (modeUV_ == HGCalGeometryMode::Hexagon8Module) {
-	std::vector<std::pair<double, double> > wxy = HGCalWaferMask::waferXY(partial, orient, zside, waferSize_, offset_, 0.0, 0.0);
-	check = insidePolygon(point.x(), point.y(), wxy);
+        std::vector<std::pair<double, double> > wxy =
+            HGCalWaferMask::waferXY(partial, orient, zside, waferSize_, offset_, 0.0, 0.0);
+        check = insidePolygon(point.x(), point.y(), wxy);
       } else {
-	int placement = HGCalCell::cellPlacementIndex(zside, frontBack, orient);
-	std::vector<std::pair<double, double> > wxy =
-	  HGCalWaferMask::waferXY(partial, placement, waferSize_, offset_, 0.0, 0.0);
-	check = insidePolygon(point.x(), point.y(), wxy);
+        int placement = HGCalCell::cellPlacementIndex(zside, frontBack, orient);
+        std::vector<std::pair<double, double> > wxy =
+            HGCalWaferMask::waferXY(partial, placement, waferSize_, offset_, 0.0, 0.0);
+        check = insidePolygon(point.x(), point.y(), wxy);
       }
     }
   }
@@ -63,13 +68,13 @@ bool HGCGuardRing::insidePolygon(double x, double y, const std::vector<std::pair
     double x2(xyv[i2].first), y2(xyv[i2].second);
     if (y > std::min(y1, y2)) {
       if (y <= std::max(y1, y2)) {
-	if (x <= std::max(x1, x2)) {
-	  if (y1 != y2) {
-	    double xinter = (y - y1) * (x2 - x1) / (y2 - y1) + x1;
-	    if ((x1 == x2) || (x <= xinter))
-	      ++counter;
-	  }
-	}
+        if (x <= std::max(x1, x2)) {
+          if (y1 != y2) {
+            double xinter = (y - y1) * (x2 - x1) / (y2 - y1) + x1;
+            if ((x1 == x2) || (x <= xinter))
+              ++counter;
+          }
+        }
       }
     }
     x1 = x2;
@@ -78,6 +83,6 @@ bool HGCGuardRing::insidePolygon(double x, double y, const std::vector<std::pair
 
   if (counter % 2 == 0)
     return false;
-  else 
+  else
     return true;
 }

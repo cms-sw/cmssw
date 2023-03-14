@@ -171,9 +171,12 @@ uint32_t HGCSD::setDetUnitId(const G4Step* aStep) {
   edm::LogVerbatim("HGCSim") << "Depths: " << touch->GetHistoryDepth() << " name " << touch->GetVolume(0)->GetName()
                              << ":" << touch->GetReplicaNumber(0) << "   " << touch->GetVolume(1)->GetName() << ":"
                              << touch->GetReplicaNumber(1) << "   " << touch->GetVolume(2)->GetName() << ":"
-                             << touch->GetReplicaNumber(2) << "    layer:module:cell " << layer << ":" << moduleLev << ":" << module << ":" << cell << " Material " << mat->GetName() << ":" << mat->GetRadlen();
-  for (int k = 0; k< touch->GetHistoryDepth(); ++k)
-    edm::LogVerbatim("HGCSim") << "Level [" << k << "] " << touch->GetVolume(k)->GetName() << ":" << touch->GetReplicaNumber(k);
+                             << touch->GetReplicaNumber(2) << "    layer:module:cell " << layer << ":" << moduleLev
+                             << ":" << module << ":" << cell << " Material " << mat->GetName() << ":"
+                             << mat->GetRadlen();
+  for (int k = 0; k < touch->GetHistoryDepth(); ++k)
+    edm::LogVerbatim("HGCSim") << "Level [" << k << "] " << touch->GetVolume(k)->GetName() << ":"
+                               << touch->GetReplicaNumber(k);
 #endif
   // The following statement should be examined later before elimination
   // VI: this is likely a check if media is vacuum - not needed
@@ -190,7 +193,8 @@ uint32_t HGCSD::setDetUnitId(const G4Step* aStep) {
                                << " Decode " << det << ":" << z << ":" << lay << ":" << wafer << ":" << type << ":"
                                << ic;
 #endif
-    G4ThreeVector local = ((moduleLev >= 0) ? (touch->GetHistory()->GetTransform(moduleLev).TransformPoint(hitPoint)) : G4ThreeVector());
+    G4ThreeVector local =
+        ((moduleLev >= 0) ? (touch->GetHistory()->GetTransform(moduleLev).TransformPoint(hitPoint)) : G4ThreeVector());
     if (mouseBite_->exclude(local, z, layer, wafer, 0))
       id = 0;
   }
