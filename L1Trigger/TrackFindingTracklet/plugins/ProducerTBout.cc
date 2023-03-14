@@ -130,8 +130,8 @@ namespace trklet {
       int channelId(-1);
       for (int i = 0; i < (int)handleTTTracks->size(); i++) {
         const TTTrackRef ttTrackRef(handleTTTracks, i);
-        if (channelAssignment_->channelId(ttTrackRef, channelId))
-          ttTrackRefs[channelId].push_back(ttTrackRef);
+        const int channelId = channelAssignment_->channelId(ttTrackRef);
+        ttTrackRefs[channelId].push_back(ttTrackRef);
       }
       // get and trunacte tracks
       Handle<Streams> handleTracks;

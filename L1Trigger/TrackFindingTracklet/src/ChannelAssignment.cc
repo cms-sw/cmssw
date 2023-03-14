@@ -16,11 +16,20 @@ namespace trklet {
 
   ChannelAssignment::ChannelAssignment(const edm::ParameterSet& iConfig, const Setup* setup)
       : setup_(setup),
-        useDuplicateRemoval_(iConfig.getParameter<bool>("UseDuplicateRemoval")),
-        boundaries_(iConfig.getParameter<vector<double>>("PtBoundaries")),
+        pSetDRin_(iConfig.getParameter<ParameterSet>("DRin")),
+        widthLayerId_(pSetDRin_.getParameter<int>("WidthLayerId")),
+        widthStubId_(pSetDRin_.getParameter<int>("WidthStubId")),
+        widthSeedStubId_(pSetDRin_.getParameter<int>("WidthSeedStubId")),
+        widthPSTilt_(pSetDRin_.getParameter<int>("WidthPSTilt")),
+        depthMemory_(pSetDRin_.getParameter<int>("DepthMemory")),
+        ptBoundaries_(pSetDRin_.getParameter<vector<double>>("PtBoundaries")),
+        pSetDR_(iConfig.getParameter<ParameterSet>("DR")),
+        numComparisonModules_(pSetDR_.getParameter<int>("NumComparisonModules")),
+        minIdenticalStubs_(pSetDR_.getParameter<int>("MinIdenticalStubs")),
+        numNodesDR_(2 * (ptBoundaries_.size() + 1)),
         seedTypeNames_(iConfig.getParameter<vector<string>>("SeedTypes")),
         numSeedTypes_(seedTypeNames_.size()),
-        numChannelsTrack_(useDuplicateRemoval_ ? 2 * boundaries_.size() : numSeedTypes_),
+        numChannelsTrack_(numSeedTypes_),
         channelEncoding_(iConfig.getParameter<vector<int>>("IRChannelsIn")) {
     const ParameterSet& pSetSeedTypesSeedLayers = iConfig.getParameter<ParameterSet>("SeedTypesSeedLayers");
     const ParameterSet& pSetSeedTypesProjectionLayers = iConfig.getParameter<ParameterSet>("SeedTypesProjectionLayers");
@@ -29,13 +38,6 @@ namespace trklet {
     for (const string& s : seedTypeNames_) {
       seedTypesSeedLayers_.emplace_back(pSetSeedTypesSeedLayers.getParameter<vector<int>>(s));
       seedTypesProjectionLayers_.emplace_back(pSetSeedTypesProjectionLayers.getParameter<vector<int>>(s));
-    }
-    auto acc = [](int sum, vector<int> ints) { return sum + (int)ints.size(); };
-    numChannelsStub_ = accumulate(seedTypesProjectionLayers_.begin(), seedTypesProjectionLayers_.end(), 0, acc);
-    offsetsStubs_.reserve(numSeedTypes_);
-    for (int seed = 0; seed < numSeedTypes_; seed++) {
-      const auto it = next(seedTypesProjectionLayers_.begin(), seed);
-      offsetsStubs_.emplace_back(accumulate(seedTypesProjectionLayers_.begin(), it, 0, acc));
     }
     // consistency check
     const int offsetBarrel = setup_->offsetLayerId();
@@ -112,37 +114,29 @@ namespace trklet {
     numSeedingLayers_ = max_element(seedTypesSeedLayers_.begin(), seedTypesSeedLayers_.end(), bigger)->size();
     maxNumProjectionLayers_ =
         max_element(seedTypesProjectionLayers_.begin(), seedTypesProjectionLayers_.end(), bigger)->size();
+    auto acc = [](int sum, vector<int> ints) { return sum += (int)ints.size(); };
+    offsetsStubs_.reserve(numSeedTypes_);
+    numChannelsStub_ = accumulate(
+        seedTypesProjectionLayers_.begin(), seedTypesProjectionLayers_.end(), numSeedingLayers_ * numSeedTypes_, acc);
+    for (int seed = 0; seed < numSeedTypes_; seed++) {
+      const auto it = next(seedTypesProjectionLayers_.begin(), seed);
+      offsetsStubs_.emplace_back(accumulate(seedTypesProjectionLayers_.begin(), it, numSeedingLayers_ * seed, acc));
+    }
   }
 
-  // sets channelId of given TTTrackRef, return false if track outside pt range
-  bool ChannelAssignment::channelId(const TTTrackRef& ttTrackRef, int& channelId) {
-    if (!useDuplicateRemoval_) {
-      const int seedType = ttTrackRef->trackSeedType();
-      if (seedType >= numSeedTypes_) {
-        cms::Exception exception("logic_error");
-        exception << "TTTracks form seed type" << seedType << " not in supported list: (";
-        for (const auto& s : seedTypeNames_)
-          exception << s << " ";
-        exception << ").";
-        exception.addContext("trklet:ChannelAssignment:channelId");
-        throw exception;
-      }
-      channelId = ttTrackRef->phiSector() * numSeedTypes_ + seedType;
-      return true;
+  // returns channelId of given TTTrackRef
+  int ChannelAssignment::channelId(const TTTrackRef& ttTrackRef) const {
+    const int seedType = ttTrackRef->trackSeedType();
+    if (seedType >= numSeedTypes_) {
+      cms::Exception exception("logic_error");
+      exception << "TTTracks form seed type" << seedType << " not in supported list: (";
+      for (const auto& s : seedTypeNames_)
+        exception << s << " ";
+      exception << ").";
+      exception.addContext("trklet:ChannelAssignment:channelId");
+      throw exception;
     }
-    const double pt = ttTrackRef->momentum().perp();
-    channelId = -1;
-    for (double boundary : boundaries_) {
-      if (pt < boundary)
-        break;
-      else
-        channelId++;
-    }
-    if (channelId == -1)
-      return false;
-    channelId = ttTrackRef->rInv() < 0. ? channelId : numChannelsTrack_ - channelId - 1;
-    channelId += ttTrackRef->phiSector() * numChannelsTrack_;
-    return true;
+    return ttTrackRef->phiSector() * numSeedTypes_ + seedType;
   }
 
   // sets layerId of given TTStubRef and seedType, returns false if seeed stub
@@ -174,20 +168,45 @@ namespace trklet {
 
   // index of first stub channel belonging to given track channel
   int ChannelAssignment::offsetStub(int channelTrack) const {
-    return channelTrack / numChannelsTrack_ * numChannelsStub_ + offsetsStubs_[channelTrack % numChannelsTrack_];
+    const int region = channelTrack / numChannelsTrack_;
+    const int channel = channelTrack % numChannelsTrack_;
+    return region * numChannelsStub_ + offsetsStubs_[channel];
   }
 
-  //
+  // returns TBout channel Id
   int ChannelAssignment::channelId(int seedType, int layerId) const {
     const vector<int>& projections = seedTypesProjectionLayers_.at(seedType);
-    const vector<int>& seeds = seedTypesSeedLayers_.at(seedType);
     const auto itp = find(projections.begin(), projections.end(), layerId);
+    if (itp != projections.end())
+      return distance(projections.begin(), itp);
+    const vector<int>& seeds = seedTypesSeedLayers_.at(seedType);
     const auto its = find(seeds.begin(), seeds.end(), layerId);
     if (its != seeds.end())
       return (int)projections.size() + distance(seeds.begin(), its);
-    if (itp != projections.end())
-      return distance(projections.begin(), itp);
     return -1;
+  }
+
+  // return DR node for given ttTrackRef
+  int ChannelAssignment::nodeDR(const TTTrackRef& ttTrackRef) const {
+    const double pt = ttTrackRef->momentum().perp();
+    int bin(0);
+    for (double b : ptBoundaries_) {
+      if (pt < b)
+        break;
+      bin++;
+    }
+    if (ttTrackRef->rInv() >= 0.)
+      bin += numNodesDR_ / 2;
+    else
+      bin = numNodesDR_ / 2 - 1 - bin;
+    return bin;
+  }
+
+  // layers a seed types can project to using default layer id [barrel: 1-6, discs: 11-15]
+  int ChannelAssignment::layerId(int seedType, int channel) const {
+    if (channel < numProjectionLayers(seedType))
+      return seedTypesProjectionLayers_.at(seedType).at(channel);
+    return seedTypesSeedLayers_.at(seedType).at(channel - numProjectionLayers(seedType));
   }
 
 }  // namespace trklet

@@ -66,6 +66,7 @@ TrackTrigger_params = cms.PSet (
       cms.PSet( Disk2SRs = cms.vdouble( 63.9903, 68.9903, 74.2750, 79.2750, 81.9562, 86.9562, 92.4920, 97.4920, 99.8160, 104.8160 ) )  # disk 5
     ),
     InnerRadius = cms.double( 19.6 ), # smallest stub radius after TrackBuilder in cm
+    WidthsRTB    = cms.vint32 (   7,     7,    12,     12   ), # number of bits used for stub r w.r.t layer/disk centre for module types (barrelPS, barrel2S, diskPS, disk2S) at TB output
   ),
 
   # Parameter specifying TrackingParticle used for Efficiency measurements
@@ -202,10 +203,14 @@ TrackTrigger_params = cms.PSet (
 
   # Parmeter specifying KalmanFilter
   KalmanFilter = cms.PSet (
-    NumWorker   = cms.int32 ( 2   ), # number of kf worker
-    RangeFactor = cms.double( 2.0 ), # search window of each track parameter in initial uncertainties
-    MinLayers   = cms.int32 ( 4   ), # required number of stub layers to form a track
-    MaxLayers   = cms.int32 ( 7   )  # maximum number of  layers added to a track
+    NumWorker       = cms.int32 (  2   ), # number of kf worker
+    RangeFactor     = cms.double(  2.0 ), # search window of each track parameter in initial uncertainties
+    MinLayers       = cms.int32 (  4   ), # required number of stub layers to form a track
+    MaxLayers       = cms.int32 (  7   ), # maximum number of  layers added to a track
+    ShiftInitialC00 = cms.int32 (  0   ), #
+    ShiftInitialC11 = cms.int32 ( -2   ), #
+    ShiftInitialC22 = cms.int32 (  0   ), #
+    ShiftInitialC33 = cms.int32 (  0   )  #
   ),
 
   # Parmeter specifying KalmanFilter Output Formatter

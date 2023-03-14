@@ -302,6 +302,10 @@ namespace tt {
     double hybridRangeR() const { return hybridRangesR_[SensorModule::DiskPS]; }
     // smallest stub radius after TrackBuilder in cm
     double tbInnerRadius() const { return tbInnerRadius_; }
+    // center radius of outer tracker endcap 2S diks strips
+    double disk2SR(int layerId, int r) const { return disk2SRs_.at(layerId).at(r); }
+    // number of bits used for stub r w.r.t layer/disk centre for module types (barrelPS, barrel2S, diskPS, disk2S) after TrackBuilder
+    int tbWidthR(SensorModule::Type type) const { return tbWidthsR_.at(type); }
 
     // Parameter specifying TTStub algorithm
 
@@ -491,6 +495,14 @@ namespace tt {
     int kfMaxLayers() const { return kfMaxLayers_; }
     // search window of each track parameter in initial uncertainties
     double kfRangeFactor() const { return kfRangeFactor_; }
+    //
+    int kfShiftInitialC00() const { return kfShiftInitialC00_; }
+    //
+    int kfShiftInitialC11() const { return kfShiftInitialC11_; }
+    //
+    int kfShiftInitialC22() const { return kfShiftInitialC22_; }
+    //
+    int kfShiftInitialC33() const { return kfShiftInitialC33_; }
 
     // Parameter specifying KalmanFilter Output Formatter
 
@@ -656,6 +668,8 @@ namespace tt {
     double hybridRangePhi_;
     // smallest stub radius after TrackBuilder in cm
     double tbInnerRadius_;
+    // number of bits used for stub r w.r.t layer/disk centre for module types (barrelPS, barrel2S, diskPS, disk2S) after TrackBuilder
+    std::vector<int> tbWidthsR_;
 
     // Parameter specifying TrackingParticle used for Efficiency measurements
     edm::ParameterSet pSetTP_;
@@ -897,6 +911,14 @@ namespace tt {
     int kfMaxLayers_;
     // search window of each track parameter in initial uncertainties
     double kfRangeFactor_;
+    //
+    int kfShiftInitialC00_;
+    //
+    int kfShiftInitialC11_;
+    //
+    int kfShiftInitialC22_;
+    //
+    int kfShiftInitialC33_;
 
     // Parameter specifying KalmanFilter Output Formatter
     edm::ParameterSet pSetKFOut_;
