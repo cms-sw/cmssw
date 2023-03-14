@@ -78,7 +78,7 @@ void PurgeDuplicate::addInput(MemoryBase* memory, std::string input) {
   throw cms::Exception("BadConfig") << __FILE__ << " " << __LINE__ << " could not find input: " << input;
 }
 
-void PurgeDuplicate::execute(std::vector<Track>& outputtracks_, unsigned int iSector) {
+void PurgeDuplicate::execute(std::vector<Track>& outputtracks, unsigned int iSector) {
   inputtracklets_.clear();
   inputtracks_.clear();
 
@@ -110,7 +110,7 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks_, unsigned int iSe
   if (settings_.removalType() == "merge") {
     // Track seed & duplicate flag
     std::vector<std::pair<int, bool>> trackInfo;
-    // Flag for tracks in multiple bins that get merged but are not in the correct variable bin
+    // Flag for tracks in multiple bins that get merged but are not in the correct bin
     std::vector<bool> trackBinInfo;
     // Vector to store the relative rank of the track candidate for merging, based on seed type
     std::vector<int> seedRank;
@@ -125,269 +125,278 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks_, unsigned int iSe
     std::vector<unsigned int> prefTracks;  // Stores all the tracks that are sent to the KF from each bin
     std::vector<int> prefTrackFit;  // Stores the track seed that corresponds to the associated track in prefTracks
 
-    for (unsigned int bin = 0; bin < settings_.varRInvBins().size() - 1; bin++) {
-      // Get vectors from TrackFit and save them
-      // inputtracklets: Tracklet objects from the FitTrack (not actually fit yet)
-      // inputstublists: L1Stubs for that track
-      // inputstubidslists: Stub stubIDs for that 3rack
-      // mergedstubidslists: the same as inputstubidslists, but will be used during duplicate removal
-      for (unsigned int i = 0; i < inputtrackfits_.size(); i++) {
-        if (inputtrackfits_[i]->nStublists() == 0)
-          continue;
-        if (inputtrackfits_[i]->nStublists() != inputtrackfits_[i]->nTracks())
-          throw "Number of stublists and tracks don't match up!";
-        for (unsigned int j = 0; j < inputtrackfits_[i]->nStublists(); j++) {
-          if (isTrackInBin(findOverlapRInvBins(inputtrackfits_[i]->getTrack(j)), bin)) {
-            if (inputtracklets_.size() >= settings_.maxStep("DR"))
+    for (unsigned int bin = 0; bin < settings_.rinvBins().size() - 1; bin++) {
+      for (unsigned int phiBin = 0; phiBin < settings_.phiBins().size() - 1; phiBin++) {
+        // Get vectors from TrackFit and save them
+        // inputtracklets: Tracklet objects from the FitTrack (not actually fit yet)
+        // inputstublists: L1Stubs for that track
+        // inputstubidslists: Stub stubIDs for that 3rack
+        // mergedstubidslists: the same as inputstubidslists, but will be used during duplicate removal
+        for (unsigned int i = 0; i < inputtrackfits_.size(); i++) {
+          if (inputtrackfits_[i]->nStublists() == 0)
+            continue;
+          if (inputtrackfits_[i]->nStublists() != inputtrackfits_[i]->nTracks())
+            throw "Number of stublists and tracks don't match up!";
+          for (unsigned int j = 0; j < inputtrackfits_[i]->nStublists(); j++) {
+            if (isTrackInBin(findOverlapRinvBins(inputtrackfits_[i]->getTrack(j)), bin)) {
+              if (!isTrackInBin(findOverlapPhiBins(inputtrackfits_[i]->getTrack(j)), phiBin))
+                continue;
+              if (inputtracklets_.size() >= settings_.maxStep("DR"))
+                continue;
+              Tracklet* aTrack = inputtrackfits_[i]->getTrack(j);
+              inputtracklets_.push_back(inputtrackfits_[i]->getTrack(j));
+              std::vector<const Stub*> stublist = inputtrackfits_[i]->getStublist(j);
+              inputstublists_.push_back(stublist);
+              std::vector<std::pair<int, int>> stubidslist = inputtrackfits_[i]->getStubidslist(j);
+              inputstubidslists_.push_back(stubidslist);
+              mergedstubidslists_.push_back(stubidslist);
+
+              // Encoding: L1L2=0, L2L3=1, L3L4=2, L5L6=3, D1D2=4, D3D4=5, L1D1=6, L2D1=7
+              // Best Guess:          L1L2 > L1D1 > L2L3 > L2D1 > D1D2 > L3L4 > L5L6 > D3D4
+              // Best Rank:           L1L2 > L3L4 > D3D4 > D1D2 > L2L3 > L2D1 > L5L6 > L1D1
+              // Rank-Informed Guess: L1L2 > L3L4 > L1D1 > L2L3 > L2D1 > D1D2 > L5L6 > D3D4
+              unsigned int curSeed = aTrack->seedIndex();
+              std::vector<int> ranks{1, 5, 2, 7, 4, 3, 8, 6};
+              if (settings_.extended())
+                seedRank.push_back(9);
+              else
+                seedRank.push_back(ranks[curSeed]);
+
+              if (stublist.size() != stubidslist.size())
+                throw "Number of stubs and stubids don't match up!";
+
+              trackInfo.emplace_back(i, false);
+              trackBinInfo.emplace_back(false);
+            } else
               continue;
-            Tracklet* aTrack = inputtrackfits_[i]->getTrack(j);
-            inputtracklets_.push_back(inputtrackfits_[i]->getTrack(j));
-            std::vector<const Stub*> stublist = inputtrackfits_[i]->getStublist(j);
-            inputstublists_.push_back(stublist);
-            std::vector<std::pair<int, int>> stubidslist = inputtrackfits_[i]->getStubidslist(j);
-            inputstubidslists_.push_back(stubidslist);
-            mergedstubidslists_.push_back(stubidslist);
-
-            // Encoding: L1L2=0, L2L3=1, L3L4=2, L5L6=3, D1D2=4, D3D4=5, L1D1=6, L2D1=7
-            // Best Guess:          L1L2 > L1D1 > L2L3 > L2D1 > D1D2 > L3L4 > L5L6 > D3D4
-            // Best Rank:           L1L2 > L3L4 > D3D4 > D1D2 > L2L3 > L2D1 > L5L6 > L1D1
-            // Rank-Informed Guess: L1L2 > L3L4 > L1D1 > L2L3 > L2D1 > D1D2 > L5L6 > D3D4
-            unsigned int curSeed = aTrack->seedIndex();
-            std::vector<int> ranks{1, 5, 2, 7, 4, 3, 8, 6};
-            if (settings_.extended())
-              seedRank.push_back(9);
-            else
-              seedRank.push_back(ranks[curSeed]);
-
-            if (stublist.size() != stubidslist.size())
-              throw "Number of stubs and stubids don't match up!";
-
-            trackInfo.emplace_back(i, false);
-            trackBinInfo.emplace_back(false);
-          } else
-            continue;
+          }
         }
-      }
 
-      if (inputtracklets_.empty())
-        continue;
-      const unsigned int numStublists = inputstublists_.size();
+        if (inputtracklets_.empty())
+          continue;
+        const unsigned int numStublists = inputstublists_.size();
 
-      if (settings_.inventStubs()) {
+        if (settings_.inventStubs()) {
+          for (unsigned int itrk = 0; itrk < numStublists; itrk++) {
+            inputstublists_[itrk] = getInventedSeedingStub(iSector, inputtracklets_[itrk], inputstublists_[itrk]);
+          }
+        }
+
+        // Initialize all-false 2D array of tracks being duplicates to other tracks
+        bool dupMap[numStublists][numStublists];  // Ends up symmetric
         for (unsigned int itrk = 0; itrk < numStublists; itrk++) {
-          inputstublists_[itrk] = getInventedSeedingStub(iSector, inputtracklets_[itrk], inputstublists_[itrk]);
+          for (unsigned int jtrk = 0; jtrk < numStublists; jtrk++) {
+            dupMap[itrk][jtrk] = false;
+          }
         }
-      }
 
-      // Initialize all-false 2D array of tracks being duplicates to other tracks
-      bool dupMap[numStublists][numStublists];  // Ends up symmetric
-      for (unsigned int itrk = 0; itrk < numStublists; itrk++) {
-        for (unsigned int jtrk = 0; jtrk < numStublists; jtrk++) {
-          dupMap[itrk][jtrk] = false;
+        // Used to check if a track is in two bins, is not a duplicate in either bin, so is sent out twice
+        bool noMerge[numStublists];
+        for (unsigned int itrk = 0; itrk < numStublists; itrk++) {
+          noMerge[itrk] = false;
         }
-      }
 
-      // Used to check if a track is in two bins, is not a duplicate in either bin, so is sent out twice
-      bool noMerge[numStublists];
-      for (unsigned int itrk = 0; itrk < numStublists; itrk++) {
-        noMerge[itrk] = false;
-      }
+        // Find duplicates; Fill dupMap by looping over all pairs of "tracks"
+        // numStublists-1 since last track has no other to compare to
+        for (unsigned int itrk = 0; itrk < numStublists - 1; itrk++) {
+          for (unsigned int jtrk = itrk + 1; jtrk < numStublists; jtrk++) {
+            if (itrk >= settings_.numTracksComparedPerBin())
+              continue;
+            // Get primary track stubids = (layer, unique stub index within layer)
+            const std::vector<std::pair<int, int>>& stubsTrk1 = inputstubidslists_[itrk];
 
-      // Find duplicates; Fill dupMap by looping over all pairs of "tracks"
-      // numStublists-1 since last track has no other to compare to
-      for (unsigned int itrk = 0; itrk < numStublists - 1; itrk++) {
-        for (unsigned int jtrk = itrk + 1; jtrk < numStublists; jtrk++) {
-          if (itrk >= settings_.numTracksComparedPerBin())
-            continue;
-          // Get primary track stubids = (layer, unique stub index within layer)
-          const std::vector<std::pair<int, int>>& stubsTrk1 = inputstubidslists_[itrk];
+            // Get and count secondary track stubids
+            const std::vector<std::pair<int, int>>& stubsTrk2 = inputstubidslists_[jtrk];
 
-          // Get and count secondary track stubids
-          const std::vector<std::pair<int, int>>& stubsTrk2 = inputstubidslists_[jtrk];
-
-          // Count number of layers that share stubs, and the number of UR that each track hits
-          unsigned int nShareLay = 0;
-          if (settings_.mergeComparison() == "CompareAll") {
-            bool layerArr[16];
-            for (auto& i : layerArr) {
-              i = false;
-            };
-            for (const auto& st1 : stubsTrk1) {
-              for (const auto& st2 : stubsTrk2) {
-                if (st1.first == st2.first && st1.second == st2.second) {  // tracks share stub
-                  // Converts layer/disk encoded in st1->first to an index in the layer array
-                  int i = st1.first;  // layer/disk
-                  bool barrel = (i > 0 && i < 10);
-                  bool endcapA = (i > 10);
-                  bool endcapB = (i < 0);
-                  int lay = barrel * (i - 1) + endcapA * (i - 5) - endcapB * i;  // encode in range 0-15
-                  if (!layerArr[lay]) {
-                    nShareLay++;
-                    layerArr[lay] = true;
+            // Count number of layers that share stubs, and the number of UR that each track hits
+            unsigned int nShareLay = 0;
+            if (settings_.mergeComparison() == "CompareAll") {
+              bool layerArr[16];
+              for (auto& i : layerArr) {
+                i = false;
+              };
+              for (const auto& st1 : stubsTrk1) {
+                for (const auto& st2 : stubsTrk2) {
+                  if (st1.first == st2.first && st1.second == st2.second) {  // tracks share stub
+                    // Converts layer/disk encoded in st1->first to an index in the layer array
+                    int i = st1.first;  // layer/disk
+                    bool barrel = (i > 0 && i < 10);
+                    bool endcapA = (i > 10);
+                    bool endcapB = (i < 0);
+                    int lay = barrel * (i - 1) + endcapA * (i - 5) - endcapB * i;  // encode in range 0-15
+                    if (!layerArr[lay]) {
+                      nShareLay++;
+                      layerArr[lay] = true;
+                    }
                   }
                 }
               }
-            }
-          } else if (settings_.mergeComparison() == "CompareBest") {
-            std::vector<const Stub*> fullStubslistsTrk1 = inputstublists_[itrk];
-            std::vector<const Stub*> fullStubslistsTrk2 = inputstublists_[jtrk];
+            } else if (settings_.mergeComparison() == "CompareBest") {
+              std::vector<const Stub*> fullStubslistsTrk1 = inputstublists_[itrk];
+              std::vector<const Stub*> fullStubslistsTrk2 = inputstublists_[jtrk];
 
-            // Arrays to store the index of the best stub in each layer
-            int layStubidsTrk1[16];
-            int layStubidsTrk2[16];
-            for (int i = 0; i < 16; i++) {
-              layStubidsTrk1[i] = -1;
-              layStubidsTrk2[i] = -1;
-            }
-            // For each stub on the first track, find the stub with the best residual and store its index in the layStubidsTrk1 array
-            for (unsigned int stcount = 0; stcount < stubsTrk1.size(); stcount++) {
-              int i = stubsTrk1[stcount].first;  // layer/disk
-              bool barrel = (i > 0 && i < 10);
-              bool endcapA = (i > 10);
-              bool endcapB = (i < 0);
-              int lay = barrel * (i - 1) + endcapA * (i - 5) - endcapB * i;  // encode in range 0-15
-              double nres = getPhiRes(inputtracklets_[itrk], fullStubslistsTrk1[stcount]);
-              double ores = 0;
-              if (layStubidsTrk1[lay] != -1)
-                ores = getPhiRes(inputtracklets_[itrk], fullStubslistsTrk1[layStubidsTrk1[lay]]);
-              if (layStubidsTrk1[lay] == -1 || nres < ores) {
-                layStubidsTrk1[lay] = stcount;
+              // Arrays to store the index of the best stub in each layer
+              int layStubidsTrk1[16];
+              int layStubidsTrk2[16];
+              for (int i = 0; i < 16; i++) {
+                layStubidsTrk1[i] = -1;
+                layStubidsTrk2[i] = -1;
               }
-            }
-            // For each stub on the second track, find the stub with the best residual and store its index in the layStubidsTrk1 array
-            for (unsigned int stcount = 0; stcount < stubsTrk2.size(); stcount++) {
-              int i = stubsTrk2[stcount].first;  // layer/disk
-              bool barrel = (i > 0 && i < 10);
-              bool endcapA = (i > 10);
-              bool endcapB = (i < 0);
-              int lay = barrel * (i - 1) + endcapA * (i - 5) - endcapB * i;  // encode in range 0-15
-              double nres = getPhiRes(inputtracklets_[jtrk], fullStubslistsTrk2[stcount]);
-              double ores = 0;
-              if (layStubidsTrk2[lay] != -1)
-                ores = getPhiRes(inputtracklets_[jtrk], fullStubslistsTrk2[layStubidsTrk2[lay]]);
-              if (layStubidsTrk2[lay] == -1 || nres < ores) {
-                layStubidsTrk2[lay] = stcount;
-              }
-            }
-            // For all 16 layers (6 layers and 10 disks), count the number of layers who's best stub on both tracks are the same
-            for (int i = 0; i < 16; i++) {
-              int t1i = layStubidsTrk1[i];
-              int t2i = layStubidsTrk2[i];
-              if (t1i != -1 && t2i != -1 && stubsTrk1[t1i].first == stubsTrk2[t2i].first &&
-                  stubsTrk1[t1i].second == stubsTrk2[t2i].second)
-                nShareLay++;
-            }
-          }
-          // Fill duplicate map
-          if (nShareLay >= settings_.minIndStubs()) {  // For number of shared stub merge condition
-            dupMap[itrk][jtrk] = true;
-            dupMap[jtrk][itrk] = true;
-          }
-        }
-      }
-
-      // Check to see if the track is a duplicate
-      for (unsigned int itrk = 0; itrk < numStublists; itrk++) {
-        for (unsigned int jtrk = 0; jtrk < numStublists; jtrk++) {
-          if (dupMap[itrk][jtrk]) {
-            noMerge[itrk] = true;
-          }
-        }
-      }
-
-      // If the track isn't a duplicate, and if it's in more than one bin, and it is not in the proper varrinvbin, then mark it so it won't be sent to output
-      for (unsigned int itrk = 0; itrk < numStublists; itrk++) {
-        if (noMerge[itrk] == false) {
-          if ((findOverlapRInvBins(inputtracklets_[itrk]).size() > 1) &&
-              (findVarRInvBin(inputtracklets_[itrk]) != bin)) {
-            trackInfo[itrk].second = true;
-          }
-        }
-      }
-      // Merge duplicate tracks
-      for (unsigned int itrk = 0; itrk < numStublists - 1; itrk++) {
-        for (unsigned int jtrk = itrk + 1; jtrk < numStublists; jtrk++) {
-          // Merge a track with its first duplicate found.
-          if (dupMap[itrk][jtrk]) {
-            // Set preferred track based on seed rank
-            int preftrk;
-            int rejetrk;
-            if (seedRank[itrk] < seedRank[jtrk]) {
-              preftrk = itrk;
-              rejetrk = jtrk;
-            } else {
-              preftrk = jtrk;
-              rejetrk = itrk;
-            }
-
-            // If the preffered track is in more than one bin, but not in the proper varrinvbin, then mark as true
-            if ((findOverlapRInvBins(inputtracklets_[preftrk]).size() > 1) &&
-                (findVarRInvBin(inputtracklets_[preftrk]) != bin)) {
-              trackBinInfo[preftrk] = true;
-              trackBinInfo[rejetrk] = true;
-            } else {
-              // Get a merged stub list
-              std::vector<const Stub*> newStubList;
-              std::vector<const Stub*> stubsTrk1 = inputstublists_[preftrk];
-              std::vector<const Stub*> stubsTrk2 = inputstublists_[rejetrk];
-              std::vector<unsigned int> stubsTrk1indices;
-              std::vector<unsigned int> stubsTrk2indices;
-              for (unsigned int stub1it = 0; stub1it < stubsTrk1.size(); stub1it++) {
-                stubsTrk1indices.push_back(stubsTrk1[stub1it]->l1tstub()->uniqueIndex());
-              }
-              for (unsigned int stub2it = 0; stub2it < stubsTrk2.size(); stub2it++) {
-                stubsTrk2indices.push_back(stubsTrk2[stub2it]->l1tstub()->uniqueIndex());
-              }
-              newStubList = stubsTrk1;
-              for (unsigned int stub2it = 0; stub2it < stubsTrk2.size(); stub2it++) {
-                if (find(stubsTrk1indices.begin(), stubsTrk1indices.end(), stubsTrk2indices[stub2it]) ==
-                    stubsTrk1indices.end()) {
-                  newStubList.push_back(stubsTrk2[stub2it]);
+              // For each stub on the first track, find the stub with the best residual and store its index in the layStubidsTrk1 array
+              for (unsigned int stcount = 0; stcount < stubsTrk1.size(); stcount++) {
+                int i = stubsTrk1[stcount].first;  // layer/disk
+                bool barrel = (i > 0 && i < 10);
+                bool endcapA = (i > 10);
+                bool endcapB = (i < 0);
+                int lay = barrel * (i - 1) + endcapA * (i - 5) - endcapB * i;  // encode in range 0-15
+                double nres = getPhiRes(inputtracklets_[itrk], fullStubslistsTrk1[stcount]);
+                double ores = 0;
+                if (layStubidsTrk1[lay] != -1)
+                  ores = getPhiRes(inputtracklets_[itrk], fullStubslistsTrk1[layStubidsTrk1[lay]]);
+                if (layStubidsTrk1[lay] == -1 || nres < ores) {
+                  layStubidsTrk1[lay] = stcount;
                 }
               }
-              //   Overwrite stublist of preferred track with merged list
-              inputstublists_[preftrk] = newStubList;
-
-              std::vector<std::pair<int, int>> newStubidsList;
-              std::vector<std::pair<int, int>> stubidsTrk1 = mergedstubidslists_[preftrk];
-              std::vector<std::pair<int, int>> stubidsTrk2 = mergedstubidslists_[rejetrk];
-              newStubidsList = stubidsTrk1;
-
-              for (unsigned int stub2it = 0; stub2it < stubsTrk2.size(); stub2it++) {
-                if (find(stubsTrk1indices.begin(), stubsTrk1indices.end(), stubsTrk2indices[stub2it]) ==
-                    stubsTrk1indices.end()) {
-                  newStubidsList.push_back(stubidsTrk2[stub2it]);
+              // For each stub on the second track, find the stub with the best residual and store its index in the layStubidsTrk1 array
+              for (unsigned int stcount = 0; stcount < stubsTrk2.size(); stcount++) {
+                int i = stubsTrk2[stcount].first;  // layer/disk
+                bool barrel = (i > 0 && i < 10);
+                bool endcapA = (i > 10);
+                bool endcapB = (i < 0);
+                int lay = barrel * (i - 1) + endcapA * (i - 5) - endcapB * i;  // encode in range 0-15
+                double nres = getPhiRes(inputtracklets_[jtrk], fullStubslistsTrk2[stcount]);
+                double ores = 0;
+                if (layStubidsTrk2[lay] != -1)
+                  ores = getPhiRes(inputtracklets_[jtrk], fullStubslistsTrk2[layStubidsTrk2[lay]]);
+                if (layStubidsTrk2[lay] == -1 || nres < ores) {
+                  layStubidsTrk2[lay] = stcount;
                 }
               }
-              // Overwrite stubidslist of preferred track with merged list
-              mergedstubidslists_[preftrk] = newStubidsList;
+              // For all 16 layers (6 layers and 10 disks), count the number of layers who's best stub on both tracks are the same
+              for (int i = 0; i < 16; i++) {
+                int t1i = layStubidsTrk1[i];
+                int t2i = layStubidsTrk2[i];
+                if (t1i != -1 && t2i != -1 && stubsTrk1[t1i].first == stubsTrk2[t2i].first &&
+                    stubsTrk1[t1i].second == stubsTrk2[t2i].second)
+                  nShareLay++;
+              }
+            }
 
-              // Mark that rejected track has been merged into another track
-              trackInfo[rejetrk].second = true;
+            // Fill duplicate map
+            if (nShareLay >= settings_.minIndStubs()) {  // For number of shared stub merge condition
+              dupMap[itrk][jtrk] = true;
+              dupMap[jtrk][itrk] = true;
             }
           }
         }
-      }
 
-      for (unsigned int ktrk = 0; ktrk < numStublists; ktrk++) {
-        if ((trackInfo[ktrk].second != true) && (trackBinInfo[ktrk] != true)) {
-          prefTracks.push_back(ktrk);
-          prefTrackFit.push_back(trackInfo[ktrk].first);
-          inputtrackletsall.push_back(inputtracklets_[ktrk]);
-          inputstublistsall.push_back(inputstublists_[ktrk]);
-          inputstubidslistsall.push_back(inputstubidslists_[ktrk]);
-          mergedstubidslistsall.push_back(mergedstubidslists_[ktrk]);
+        // Check to see if the track is a duplicate
+        for (unsigned int itrk = 0; itrk < numStublists; itrk++) {
+          for (unsigned int jtrk = 0; jtrk < numStublists; jtrk++) {
+            if (dupMap[itrk][jtrk]) {
+              noMerge[itrk] = true;
+            }
+          }
         }
-      }
 
-      // Need to clear all the vectors which will be used in the next bin
-      seedRank.clear();
-      trackInfo.clear();
-      trackBinInfo.clear();
-      inputtracklets_.clear();
-      inputstublists_.clear();
-      inputstubidslists_.clear();
-      mergedstubidslists_.clear();
+        // If the track isn't a duplicate, and if it's in more than one bin, and it is not in the proper rinv or phi bin, then mark it so it won't be sent to output
+        for (unsigned int itrk = 0; itrk < numStublists; itrk++) {
+          if (noMerge[itrk] == false) {
+            if (((findOverlapRinvBins(inputtracklets_[itrk]).size() > 1) &&
+                 (findRinvBin(inputtracklets_[itrk]) != bin)) ||
+                ((findOverlapPhiBins(inputtracklets_[itrk]).size() > 1) &&
+                 findPhiBin(inputtracklets_[itrk]) != phiBin)) {
+              trackInfo[itrk].second = true;
+            }
+          }
+        }
+        // Merge duplicate tracks
+        for (unsigned int itrk = 0; itrk < numStublists - 1; itrk++) {
+          for (unsigned int jtrk = itrk + 1; jtrk < numStublists; jtrk++) {
+            // Merge a track with its first duplicate found.
+            if (dupMap[itrk][jtrk]) {
+              // Set preferred track based on seed rank
+              int preftrk;
+              int rejetrk;
+              if (seedRank[itrk] < seedRank[jtrk]) {
+                preftrk = itrk;
+                rejetrk = jtrk;
+              } else {
+                preftrk = jtrk;
+                rejetrk = itrk;
+              }
+
+              // If the preffered track is in more than one bin, but not in the proper rinv or phi bin, then mark as true
+              if (((findOverlapRinvBins(inputtracklets_[preftrk]).size() > 1) &&
+                   (findRinvBin(inputtracklets_[preftrk]) != bin)) ||
+                  ((findOverlapPhiBins(inputtracklets_[preftrk]).size() > 1) &&
+                   (findPhiBin(inputtracklets_[preftrk]) != phiBin))) {
+                trackBinInfo[preftrk] = true;
+                trackBinInfo[rejetrk] = true;
+              } else {
+                // Get a merged stub list
+                std::vector<const Stub*> newStubList;
+                std::vector<const Stub*> stubsTrk1 = inputstublists_[preftrk];
+                std::vector<const Stub*> stubsTrk2 = inputstublists_[rejetrk];
+                std::vector<unsigned int> stubsTrk1indices;
+                std::vector<unsigned int> stubsTrk2indices;
+                for (unsigned int stub1it = 0; stub1it < stubsTrk1.size(); stub1it++) {
+                  stubsTrk1indices.push_back(stubsTrk1[stub1it]->l1tstub()->uniqueIndex());
+                }
+                for (unsigned int stub2it = 0; stub2it < stubsTrk2.size(); stub2it++) {
+                  stubsTrk2indices.push_back(stubsTrk2[stub2it]->l1tstub()->uniqueIndex());
+                }
+                newStubList = stubsTrk1;
+                for (unsigned int stub2it = 0; stub2it < stubsTrk2.size(); stub2it++) {
+                  if (find(stubsTrk1indices.begin(), stubsTrk1indices.end(), stubsTrk2indices[stub2it]) ==
+                      stubsTrk1indices.end()) {
+                    newStubList.push_back(stubsTrk2[stub2it]);
+                  }
+                }
+                //   Overwrite stublist of preferred track with merged list
+                inputstublists_[preftrk] = newStubList;
+
+                std::vector<std::pair<int, int>> newStubidsList;
+                std::vector<std::pair<int, int>> stubidsTrk1 = mergedstubidslists_[preftrk];
+                std::vector<std::pair<int, int>> stubidsTrk2 = mergedstubidslists_[rejetrk];
+                newStubidsList = stubidsTrk1;
+
+                for (unsigned int stub2it = 0; stub2it < stubsTrk2.size(); stub2it++) {
+                  if (find(stubsTrk1indices.begin(), stubsTrk1indices.end(), stubsTrk2indices[stub2it]) ==
+                      stubsTrk1indices.end()) {
+                    newStubidsList.push_back(stubidsTrk2[stub2it]);
+                  }
+                }
+                // Overwrite stubidslist of preferred track with merged list
+                mergedstubidslists_[preftrk] = newStubidsList;
+
+                // Mark that rejected track has been merged into another track
+                trackInfo[rejetrk].second = true;
+              }
+            }
+          }
+        }
+
+        for (unsigned int ktrk = 0; ktrk < numStublists; ktrk++) {
+          if ((trackInfo[ktrk].second != true) && (trackBinInfo[ktrk] != true)) {
+            prefTracks.push_back(ktrk);
+            prefTrackFit.push_back(trackInfo[ktrk].first);
+            inputtrackletsall.push_back(inputtracklets_[ktrk]);
+            inputstublistsall.push_back(inputstublists_[ktrk]);
+            inputstubidslistsall.push_back(inputstubidslists_[ktrk]);
+            mergedstubidslistsall.push_back(mergedstubidslists_[ktrk]);
+          }
+        }
+
+        // Need to clear all the vectors which will be used in the next bin
+        seedRank.clear();
+        trackInfo.clear();
+        trackBinInfo.clear();
+        inputtracklets_.clear();
+        inputstublists_.clear();
+        inputstubidslists_.clear();
+        mergedstubidslists_.clear();
+      }
     }
 
     // Make the final track objects, fit with KF, and send to output
@@ -410,7 +419,7 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks_, unsigned int iSe
         // Add all tracks to standalone root file output
         outtrack->setStubIDpremerge(inputstubidslistsall[itrk]);
         outtrack->setStubIDprefit(mergedstubidslistsall[itrk]);
-        outputtracks_.push_back(*outtrack);
+        outputtracks.push_back(*outtrack);
       }
     }
   }
@@ -539,7 +548,7 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks_, unsigned int iSe
           outputtracklets_[i]->addTrack(inputtrackfits_[i]->getTrack(j));
         }
         //For root file:
-        outputtracks_.push_back(*inputtrackfits_[i]->getTrack(j)->getTrack());
+        outputtracks.push_back(*inputtrackfits_[i]->getTrack(j)->getTrack());
       }
     }
   }
@@ -640,7 +649,7 @@ std::vector<double> PurgeDuplicate::getInventedCoords(unsigned int iSector,
     stub_r = 2 / tracklet_rinv * std::sin((stub_z - tracklet->z0()) * tracklet_rinv / 2 / tracklet->t());
   }
 
-  std::vector invented_coords{stub_r, stub_z, stub_phi};
+  std::vector<double> invented_coords{stub_r, stub_z, stub_phi};
   return invented_coords;
 }
 
@@ -691,7 +700,7 @@ std::vector<double> PurgeDuplicate::getInventedCoordsExtended(unsigned int iSect
     stub_r = st->l1tstub()->r();
   }
 
-  std::vector invented_coords{stub_r, stub_z, stub_phi};
+  std::vector<double> invented_coords{stub_r, stub_z, stub_phi};
   return invented_coords;
 }
 
@@ -733,33 +742,77 @@ std::vector<const Stub*> PurgeDuplicate::getInventedSeedingStub(
 }
 
 // Tells us the variable bin to which a track would belong
-unsigned int PurgeDuplicate::findVarRInvBin(const Tracklet* trk) const {
-  std::vector<double> rInvBins = settings_.varRInvBins();
+unsigned int PurgeDuplicate::findRinvBin(const Tracklet* trk) const {
+  std::vector<double> rinvBins = settings_.rinvBins();
 
   //Get rinverse of track
-  double rInv = trk->rinv();
+  double rinv = trk->rinv();
 
   //Check between what 2 values in rinvbins rinv is between
-  auto bins = std::upper_bound(rInvBins.begin(), rInvBins.end(), rInv);
+  auto bins = std::upper_bound(rinvBins.begin(), rinvBins.end(), rinv);
 
   //return integer for bin index
-  unsigned int rIndx = std::distance(rInvBins.begin(), bins);
-  if (rIndx == std::distance(rInvBins.end(), bins))
-    return rInvBins.size() - 2;
-  else if (bins == rInvBins.begin())
-    return std::distance(rInvBins.begin(), bins);
+  unsigned int rIndx = std::distance(rinvBins.begin(), bins);
+  if (rIndx == std::distance(rinvBins.end(), bins))
+    return rinvBins.size() - 2;
+  else if (bins == rinvBins.begin())
+    return std::distance(rinvBins.begin(), bins);
   else
     return rIndx - 1;
 }
 
-// Tells us the overlap bin(s) to which a track belongs
-std::vector<unsigned int> PurgeDuplicate::findOverlapRInvBins(const Tracklet* trk) const {
-  double rInv = trk->rinv();
-  const double overlapSize = settings_.overlapSize();
-  const std::vector<double>& varRInvBins = settings_.varRInvBins();
+// Tells us the phi bin to which a track would belong
+unsigned int PurgeDuplicate::findPhiBin(const Tracklet* trk) const {
+  std::vector<double> phiBins = settings_.phiBins();
+
+  //Get phi of track at rcrit
+  double phi0 = trk->phi0();
+  double rcrit = settings_.rcrit();
+  double rinv = trk->rinv();
+  double phi = phi0 - asin(0.5 * rinv * rcrit);
+
+  //Check between what 2 values in phibins phi is between
+  auto bins = std::upper_bound(phiBins.begin(), phiBins.end(), phi);
+
+  //return integer for bin index
+  unsigned int phiIndx = std::distance(phiBins.begin(), bins);
+  if (phiIndx == std::distance(phiBins.end(), bins))
+    return phiBins.size() - 2;
+  else if (bins == phiBins.begin())
+    return std::distance(phiBins.begin(), bins);
+  else
+    return phiIndx - 1;
+}
+
+// Tells us the overlap rinv bin(s) to which a track belongs
+std::vector<unsigned int> PurgeDuplicate::findOverlapRinvBins(const Tracklet* trk) const {
+  double rinv = trk->rinv();
+
+  const double rinvOverlapSize = settings_.rinvOverlapSize();
+  const std::vector<double>& rinvBins = settings_.rinvBins();
+
   std::vector<unsigned int> chosenBins;
-  for (long unsigned int i = 0; i < varRInvBins.size() - 1; i++) {
-    if ((rInv < varRInvBins[i + 1] + overlapSize) && (rInv > varRInvBins[i] - overlapSize)) {
+  for (long unsigned int i = 0; i < rinvBins.size() - 1; i++) {
+    if ((rinv < rinvBins[i + 1] + rinvOverlapSize) && (rinv > rinvBins[i] - rinvOverlapSize)) {
+      chosenBins.push_back(i);
+    }
+  }
+  return chosenBins;
+}
+
+// Tells us the overlap phi bin(s) to which a track belongs
+std::vector<unsigned int> PurgeDuplicate::findOverlapPhiBins(const Tracklet* trk) const {
+  double phi0 = trk->phi0();
+  double rcrit = settings_.rcrit();
+  double rinv = trk->rinv();
+  double phi = phi0 - asin(0.5 * rinv * rcrit);
+
+  const double phiOverlapSize = settings_.phiOverlapSize();
+  const std::vector<double>& phiBins = settings_.phiBins();
+
+  std::vector<unsigned int> chosenBins;
+  for (long unsigned int i = 0; i < phiBins.size() - 1; i++) {
+    if ((phi < phiBins[i + 1] + phiOverlapSize) && (phi > phiBins[i] - phiOverlapSize)) {
       chosenBins.push_back(i);
     }
   }
