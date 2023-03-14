@@ -145,7 +145,6 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_Photon100EB_TightID_Ti
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_Photon100EB_TightID_TightIso_Open_Unseeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_Photon100_Open_L1Seeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_Photon100_Open_Unseeded_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/paths/l1tReconstructionPath_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/CkfBaseTrajectoryFilter_block_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/ckfBaseTrajectoryFilterP5_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/CkfTrajectoryBuilder_cfi")
@@ -230,7 +229,6 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/psets/SiStripClusterChargeCutNo
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/SiStripClusterChargeCutTight_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/tobTecStepInOutTrajectoryFilter_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/tobTecStepTrajectoryFilter_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/psets/TrackAssociatorParameters_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/TrajectoryFilterForConversions_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/TrajectoryFilterForElectrons_cfi")
 
@@ -238,7 +236,6 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLTriggerFinalPath_cff")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLTAnalyzerEndpath_cff")
 
 fragment.schedule = cms.Schedule(*[
-    fragment.L1TReconstructionPath,
 
     fragment.L1T_SinglePFPuppiJet230off,
     fragment.L1T_PFPuppiHT450off,
@@ -310,44 +307,4 @@ fragment.schedule = cms.Schedule(*[
     fragment.HLTAnalyzerEndpath,
 ])
 
-
-
 del fragment.offlineBeamSpot
-
-del fragment.me0RecHits
-del fragment.me0Segments
-
-del fragment.l1tEGammaClusterEmuProducer
-#del fragment.L1TkElectronsEllipticMatchCrystal
-#del fragment.L1TkElectronsEllipticMatchHGC
-#del fragment.L1TkMuons
-#del fragment.L1TkPhotonsCrystal
-#del fragment.L1TkPhotonsHGC
-#del fragment.L1TkPrimaryVertex
-del fragment.l1tEGammaEEProducer
-del fragment.l1tNNTauProducerPuppi
-#del fragment.l1PFMetPuppi
-#del fragment.l1pfCandidates
-#del fragment.l1pfProducerBarrel
-#del fragment.l1pfProducerHF
-#del fragment.l1pfProducerHGCal
-#del fragment.l1pfProducerHGCalNoTK
-#del fragment.pfClustersFromCombinedCaloHCal
-#del fragment.pfClustersFromCombinedCaloHF
-#del fragment.pfClustersFromHGC3DClusters
-#del fragment.pfClustersFromL1EGClusters
-#del fragment.pfTracksFromL1TracksBarrel
-#del fragment.pfTracksFromL1TracksHGCal
-del fragment.simCaloStage2Layer1Digis
-del fragment.simCscTriggerPrimitiveDigis
-del fragment.simDtTriggerPrimitiveDigis
-del fragment.simEmtfDigis
-del fragment.simGmtCaloSumDigis
-del fragment.simGmtStage2Digis
-del fragment.simKBmtfDigis
-del fragment.simKBmtfStubs
-del fragment.simMuonGEMPadDigiClusters
-del fragment.simMuonGEMPadDigis
-del fragment.simOmtfDigis
-del fragment.simTwinMuxDigis
-
