@@ -422,7 +422,6 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
 
   //GEM variables
   std::vector<std::vector<int>> probe_coll_GEM_region;
-  std::vector<std::vector<int>> probe_coll_GEM_ring;
   std::vector<std::vector<int>> probe_coll_GEM_lay;
   std::vector<std::vector<int>> probe_coll_GEM_chamber;
   std::vector<std::vector<float>> probe_coll_GEM_pt;
@@ -452,7 +451,6 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
   for (const auto i : probe_indices) {
     //GEM variables
     std::vector<int> probe_GEM_region;
-    std::vector<int> probe_GEM_ring;
     std::vector<int> probe_GEM_sta;
     std::vector<int> probe_GEM_lay;
     std::vector<int> probe_GEM_chamber;
@@ -536,7 +534,6 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
           GEM_stationMatching = GEM_stationMatching | (1 << (station - 1));
 
           probe_GEM_region.push_back(region);
-          probe_GEM_ring.push_back(ring);
           probe_GEM_sta.push_back(station);
           probe_GEM_lay.push_back(layer);
           probe_GEM_chamber.push_back(chamber);
@@ -589,7 +586,6 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
 
     //Fill GEM variables
     probe_coll_GEM_region.push_back(probe_GEM_region);
-    probe_coll_GEM_ring.push_back(probe_GEM_ring);
     probe_coll_GEM_sta.push_back(probe_GEM_sta);
     probe_coll_GEM_lay.push_back(probe_GEM_lay);
     probe_coll_GEM_chamber.push_back(probe_GEM_chamber);
@@ -660,7 +656,6 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
 
       //GEM variables
       int GEM_region = probe_coll_GEM_region.at(i).at(j);
-      int GEM_ring   = probe_coll_GEM_ring.at(i).at(j);
       int GEM_sta    = probe_coll_GEM_sta.at(i).at(j);
       int GEM_lay    = probe_coll_GEM_lay.at(i).at(j);
       int GEM_chamber = probe_coll_GEM_chamber.at(i).at(j);
