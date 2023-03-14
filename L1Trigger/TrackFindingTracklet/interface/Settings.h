@@ -290,12 +290,16 @@ namespace trklet {
     void setStripLength_2S(double stripLength_2S) { stripLength_2S_ = stripLength_2S; }
 
     //Following functions are used for duplicate removal
-    //Function which gets the value corresponding to the overlap size for the overlap rinv bins in DR
-    double overlapSize() const { return overlapSize_; }
-    //Function which gets the value corresponding to the number of tracks that are compared to all the other tracks per rinv bin
+    //Function which returns the value corresponding to the overlap size for the overlap rinv bins in DR
+    double rinvOverlapSize() const { return rinvOverlapSize_; }
+    //Function which returns the value corresponding to the overlap size for the overlap phi bins in DR
+    double phiOverlapSize() const { return phiOverlapSize_; }
+    //Function which returns the value corresponding to the number of tracks that are compared to all the other tracks per rinv bin
     unsigned int numTracksComparedPerBin() const { return numTracksComparedPerBin_; }
-    //Grabs the bin edges you need for duplicate removal bins
-    const std::vector<double> varRInvBins() const { return varRInvBins_; }
+    //Returns the rinv bin edges you need for duplicate removal bins
+    const std::vector<double>& rinvBins() const { return rinvBins_; }
+    //Returns the phi bin edges you need for duplicate removal bins
+    const std::vector<double>& phiBins() const { return phiBins_; }
 
     std::string skimfile() const { return skimfile_; }
     void setSkimfile(std::string skimfile) { skimfile_ = skimfile; }
@@ -1041,12 +1045,16 @@ namespace trklet {
     double stripLength_2S_{5.0250};
 
     //Following values are used for duplicate removal
-    //Variable bin edges for 6 bins.
-    std::vector<double> varRInvBins_{-rinvcut(), -0.004968, -0.003828, 0, 0.003828, 0.004968, rinvcut()};
+    //Rinv bin edges for 6 bins.
+    std::vector<double> rinvBins_{-rinvcut(), -0.004968, -0.003828, 0, 0.003828, 0.004968, rinvcut()};
+    //Phi bin edges for 2 bins.
+    std::vector<double> phiBins_{0, dphisectorHG() / 2, dphisectorHG()};
     //Overlap size for the overlap rinv bins in DR
-    double overlapSize_{0.0004};
+    double rinvOverlapSize_{0.0004};
+    //Overlap size for the overlap phi bins in DR
+    double phiOverlapSize_{M_PI / 360};
     //The maximum number of tracks that are compared to all the other tracks per rinv bin
-    int numTracksComparedPerBin_{64};
+    int numTracksComparedPerBin_{32};
 
     double sensorSpacing_2S_{0.18};
   };
