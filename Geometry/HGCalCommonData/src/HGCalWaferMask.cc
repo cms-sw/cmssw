@@ -1111,11 +1111,11 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
                    HGCalTypes::c22 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c77 * delX,  -HGCalTypes::c22 * delX,
                    -HGCalTypes::c10 * delX, -HGCalTypes::c77 * delX, HGCalTypes::c22 * delX,  -HGCalTypes::c77 * delX,
                    -HGCalTypes::c10 * delX, -HGCalTypes::c22 * delX, HGCalTypes::c77 * delX,  HGCalTypes::c10 * delX,
-                   HGCalTypes::c50 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c50 * delX,  -HGCalTypes::c50 * delX, 
+                   HGCalTypes::c50 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c50 * delX,  -HGCalTypes::c50 * delX,
                    -HGCalTypes::c10 * delX, -HGCalTypes::c50 * delX, HGCalTypes::c50 * delX,  HGCalTypes::c10 * delX,
                    HGCalTypes::c50 * delX,  -HGCalTypes::c50 * delX, -HGCalTypes::c10 * delX, -HGCalTypes::c50 * delX,
-                   HGCalTypes::c22 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c77 * delX,  -HGCalTypes::c22 * delX, 
-                   -HGCalTypes::c10 * delX, -HGCalTypes::c77 * delX, HGCalTypes::c22 * delX,  -HGCalTypes::c77 * delX, 
+                   HGCalTypes::c22 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c77 * delX,  -HGCalTypes::c22 * delX,
+                   -HGCalTypes::c10 * delX, -HGCalTypes::c77 * delX, HGCalTypes::c22 * delX,  -HGCalTypes::c77 * delX,
                    -HGCalTypes::c10 * delX, -HGCalTypes::c22 * delX, HGCalTypes::c77 * delX,  HGCalTypes::c10 * delX};
   double dy[48] = {-HGCalTypes::c10 * delY, -HGCalTypes::c50 * delY, HGCalTypes::c50 * delY,  HGCalTypes::c10 * delY,
                    HGCalTypes::c50 * delY,  -HGCalTypes::c50 * delY, -HGCalTypes::c75 * delY, HGCalTypes::c00 * delY,
@@ -1125,7 +1125,7 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
                    -HGCalTypes::c27 * delY, -HGCalTypes::c88 * delY, -HGCalTypes::c61 * delY, HGCalTypes::c27 * delY,
                    -HGCalTypes::c75 * delY, HGCalTypes::c00 * delY,  -HGCalTypes::c75 * delY, HGCalTypes::c00 * delY,
                    HGCalTypes::c75 * delY,  HGCalTypes::c75 * delY,  HGCalTypes::c00 * delY,  -HGCalTypes::c75 * delY,
-                   HGCalTypes::c75 * delY,  HGCalTypes::c75 * delY,  HGCalTypes::c00 * delY,  -HGCalTypes::c75 * delY, 
+                   HGCalTypes::c75 * delY,  HGCalTypes::c75 * delY,  HGCalTypes::c00 * delY,  -HGCalTypes::c75 * delY,
                    -HGCalTypes::c88 * delY, -HGCalTypes::c27 * delY, HGCalTypes::c61 * delY,  HGCalTypes::c88 * delY,
                    HGCalTypes::c27 * delY,  -HGCalTypes::c61 * delY, HGCalTypes::c88 * delY,  HGCalTypes::c61 * delY,
                    -HGCalTypes::c27 * delY, -HGCalTypes::c88 * delY, -HGCalTypes::c61 * delY, HGCalTypes::c27 * delY};
