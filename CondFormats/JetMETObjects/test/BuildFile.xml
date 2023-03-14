@@ -1,8 +1,10 @@
+<flags USE_UNITTEST_DIR="1"/>
 <bin file="testSerializationJetMETObjects.cpp">
   <use name="CondFormats/JetMETObjects"/>
 </bin>
 
 <bin name="TestCondFormatsJetMETObjectsJetCorrectorParameters" file="JetCorrectorParameters_t.cpp">
+  <flags TEST_RUNNER_CMD="run_TestCondFormatsJetMETObjectsJetCorrectorParameters.sh"/>
   <use name="FWCore/Utilities"/>
   <use name="CondFormats/JetMETObjects"/>
   <use name="cppunit"/>
