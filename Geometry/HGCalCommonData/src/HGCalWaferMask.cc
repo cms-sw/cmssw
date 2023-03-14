@@ -504,8 +504,8 @@ int HGCalWaferMask::getRotation(int zside, int type, int rotn) {
 
 std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
                                                 const double& ypos,
-                                                const double& delX,
-                                                const double& delY,
+						const double& delX, 
+						const double& delY,
                                                 const double& rin,
                                                 const double& rout,
                                                 const int& wType,
@@ -1073,8 +1073,10 @@ bool HGCalWaferMask::goodTypeMode(
 }
 
 std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
-    int part, int ori, int zside, double delX, double delY, double xpos, double ypos) {
+    int part, int ori, int zside, double waferSize, double offset, double xpos, double ypos) {
   // Good for V15 and V16 versions
+  double delX = 0.5 * waferSize;
+  double delY = delX / sin_60_;
   std::vector<std::pair<double, double> > xy;
   int orient = getRotation(-zside, part, ori);
 #ifdef EDM_ML_DEBUG
