@@ -104,8 +104,6 @@ namespace trklet {
     vector<deque<FrameStub>> regionStubs_;
     //
     int region_;
-    //
-    vector<int> nOverflows_;
 
     // Histograms
 
@@ -146,8 +144,6 @@ namespace trklet {
     esGetTokenSetup_ = esConsumes<Setup, SetupRcd, Transition::BeginRun>();
     esGetTokenDataFormats_ = esConsumes<DataFormats, DataFormatsRcd, Transition::BeginRun>();
     esGetTokenChannelAssignment_ = esConsumes<ChannelAssignment, ChannelAssignmentRcd, Transition::BeginRun>();
-    //
-    nOverflows_ = vector<int>(2, 0);
     // log config
     log_.setf(ios::fixed, ios::floatfield);
     log_.precision(4);
@@ -321,7 +317,6 @@ namespace trklet {
     log_ << "     lost tracking efficiency = " << setw(wNums) << effLoss << " +- " << setw(wErrs) << errEffLoss << endl;
     log_ << "                    fake rate = " << setw(wNums) << fracFake << endl;
     log_ << "               duplicate rate = " << setw(wNums) << fracDup << endl;
-    log_ << "number of overflowed phi residuals: " << nOverflows_[0] << " and z: " << nOverflows_[1] << endl;
     log_ << "=============================================================";
     LogPrint("L1Trigger/TrackerTFP") << log_.str();
   }
@@ -343,19 +338,16 @@ namespace trklet {
       if (frameTrack.first.isNull())
         continue;
       vector<TTStubRef> ttStubRefs;
-      ttStubRefs.reserve(channelAssignment_->numProjectionLayers(seedType) +
-                         channelAssignment_->seedingLayers(seedType).size());
-      for (int layer = 0; layer < channelAssignment_->numProjectionLayers(seedType); layer++) {
-        const FrameStub& stub = streamsStubs[offset + layer][frame];
-        if (stub.first.isNonnull()) {
+      const int numProjectionLayers = channelAssignment_->numProjectionLayers(seedType);
+      const int numSeedingLayers = channelAssignment_->seedingLayers(seedType).size();
+      ttStubRefs.reserve(numProjectionLayers + numSeedingLayers);
+      for (int channel = 0; channel < numProjectionLayers + numSeedingLayers; channel++) {
+        const FrameStub& stub = streamsStubs[offset + channel][frame];
+        if (stub.first.isNull())
+          continue;
+        if (channel < numProjectionLayers)
           this->fill(frameTrack, stub);
-          ttStubRefs.push_back(stub.first);
-        }
-      }
-      for (const TTStubRef& ttStubRef : frameTrack.first->getStubRefs()) {
-        int layer(0);
-        if (!channelAssignment_->layerId(seedType, ttStubRef, layer))
-          ttStubRefs.push_back(ttStubRef);
+        ttStubRefs.push_back(stub.first);
       }
       tracks.push_back(ttStubRefs);
     }
@@ -417,19 +409,10 @@ namespace trklet {
     const TTBV hwRZ(hw, widthRZ, 0, true);
     hw >>= widthRZ;
     const TTBV hwPhi(hw, widthPhi, 0, true);
-    bool overflowPhi = abs(phii - hwPhi.val()) > pow(2, widthPhi) * 7. / 8.;
-    bool overflowZ = abs(rzi - hwRZ.val()) > pow(2, widthRZ) * 7. / 8.;
     const double hwPhid = hwPhi.val(basePhi);
     const double hwRZd = hwRZ.val(baseRZ);
     const vector<double> resolutions = {phid - hwPhid, rzd - hwRZd};
-    const vector<bool> overflows = {overflowPhi, overflowZ};
     for (Resolution r : AllResolution) {
-      if (overflows[r]) {
-        cout << rzi << " " << hwRZ.val() << " " << barrel << " " << setup_->psModule(frameStub.first) << " "
-             << frameStub.second << endl;
-        nOverflows_[r]++;
-        continue;
-      }
       hisResolution_[r]->Fill(resolutions[r]);
       profResolution_[r]->Fill(ttPos.z(), ttPos.perp(), abs(resolutions[r]));
     }

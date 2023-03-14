@@ -13,7 +13,7 @@
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
 #include "L1Trigger/TrackFindingTracklet/interface/ChannelAssignment.h"
-#include "L1Trigger/TrackFindingTracklet/interface/KFin.h"
+#include "L1Trigger/TrackFindingTracklet/interface/DR.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTTypes.h"
 
 #include <string>
@@ -30,15 +30,15 @@ using namespace tt;
 
 namespace trklet {
 
-  /*! \class  trklet::ProducerKFin
-   *  \brief  Transforms format of DR into that expected by KF input.
+  /*! \class  trklet::ProducerDR
+   *  \brief  Emulates removal of duplicated TTTracks f/w
    *  \author Thomas Schuh
    *  \date   2023, Feb
    */
-  class ProducerKFin : public stream::EDProducer<> {
+  class ProducerDR : public stream::EDProducer<> {
   public:
-    explicit ProducerKFin(const ParameterSet&);
-    ~ProducerKFin() override {}
+    explicit ProducerDR(const ParameterSet&);
+    ~ProducerDR() override {}
 
   private:
     void beginRun(const Run&, const EventSetup&) override;
@@ -70,8 +70,8 @@ namespace trklet {
     const ChannelAssignment* channelAssignment_ = nullptr;
   };
 
-  ProducerKFin::ProducerKFin(const ParameterSet& iConfig) : iConfig_(iConfig) {
-    const string& label = iConfig.getParameter<string>("LabelDR");
+  ProducerDR::ProducerDR(const ParameterSet& iConfig) : iConfig_(iConfig) {
+    const string& label = iConfig.getParameter<string>("LabelDRin");
     const string& branchAcceptedStubs = iConfig.getParameter<string>("BranchAcceptedStubs");
     const string& branchAcceptedTracks = iConfig.getParameter<string>("BranchAcceptedTracks");
     const string& branchLostStubs = iConfig.getParameter<string>("BranchLostStubs");
@@ -89,7 +89,7 @@ namespace trklet {
     esGetTokenChannelAssignment_ = esConsumes<ChannelAssignment, ChannelAssignmentRcd, Transition::BeginRun>();
   }
 
-  void ProducerKFin::beginRun(const Run& iRun, const EventSetup& iSetup) {
+  void ProducerDR::beginRun(const Run& iRun, const EventSetup& iSetup) {
     // helper class to store configurations
     setup_ = &iSetup.getData(esGetTokenSetup_);
     if (!setup_->configurationSupported())
@@ -103,9 +103,9 @@ namespace trklet {
     channelAssignment_ = &iSetup.getData(esGetTokenChannelAssignment_);
   }
 
-  void ProducerKFin::produce(Event& iEvent, const EventSetup& iSetup) {
-    // empty KFin products
-    const int numStreamsTracks = setup_->kfNumWorker() * setup_->numRegions();
+  void ProducerDR::produce(Event& iEvent, const EventSetup& iSetup) {
+    // empty DR products
+    const int numStreamsTracks = channelAssignment_->numNodesDR() * setup_->numRegions();
     const int numStreamsStubs = numStreamsTracks * setup_->numLayers();
     StreamsStub acceptedStubs(numStreamsStubs);
     StreamsTrack acceptedTracks(numStreamsTracks);
@@ -120,21 +120,21 @@ namespace trklet {
       iEvent.getByToken<StreamsTrack>(edGetTokenTracks_, handleTracks);
       const StreamsTrack& tracks = *handleTracks;
       for (int region = 0; region < setup_->numRegions(); region++) {
-        // object to reformat tracks from DR fromat to KF format in a processing region
-        KFin kfin(iConfig_, setup_, dataFormats_, channelAssignment_, region);
+        // object to remove duplicated tracks in a processing region
+        DR dr(iConfig_, setup_, dataFormats_, channelAssignment_, region);
         // read in and organize input tracks and stubs
-        kfin.consume(tracks, stubs);
+        dr.consume(tracks, stubs);
         // fill output products
-        kfin.produce(acceptedStubs, acceptedTracks, lostStubs, lostTracks);
+        dr.produce(acceptedStubs, acceptedTracks, lostStubs, lostTracks);
       }
     }
     // store products
-    iEvent.emplace(edPutTokenAcceptedStubs_, std::move(acceptedStubs));
-    iEvent.emplace(edPutTokenAcceptedTracks_, std::move(acceptedTracks));
-    iEvent.emplace(edPutTokenLostStubs_, std::move(lostStubs));
-    iEvent.emplace(edPutTokenLostTracks_, std::move(lostTracks));
+    iEvent.emplace(edPutTokenAcceptedStubs_, move(acceptedStubs));
+    iEvent.emplace(edPutTokenAcceptedTracks_, move(acceptedTracks));
+    iEvent.emplace(edPutTokenLostStubs_, move(lostStubs));
+    iEvent.emplace(edPutTokenLostTracks_, move(lostTracks));
   }
 
 }  // namespace trklet
 
-DEFINE_FWK_MODULE(trklet::ProducerKFin);
+DEFINE_FWK_MODULE(trklet::ProducerDR);

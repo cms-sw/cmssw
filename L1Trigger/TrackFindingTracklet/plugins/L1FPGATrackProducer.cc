@@ -660,13 +660,18 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   const std::vector<trklet::Track>& tracks = eventProcessor.tracks();
 
+  // max number of projection layers
   const unsigned int maxNumProjectionLayers = channelAssignment_->maxNumProjectionLayers();
   // number of track channels
   const unsigned int numStreamsTrack = N_SECTOR * channelAssignment_->numChannelsTrack();
   // number of stub channels
   const unsigned int numStreamsStub = N_SECTOR * channelAssignment_->numChannelsStub();
+  // number of seeding layers
+  const unsigned int numSeedingLayers = channelAssignment_->numSeedingLayers();
+  // max number of stub channel per track
+  const unsigned int numStubChannel = maxNumProjectionLayers + numSeedingLayers;
   // number of stub channels if all seed types streams padded to have same number of stub channels (for coding simplicity)
-  const unsigned int numStreamsStubRaw = numStreamsTrack * maxNumProjectionLayers;
+  const unsigned int numStreamsStubRaw = numStreamsTrack * numStubChannel;
 
   // Streams formatted to allow this code to run outside CMSSW.
   vector<vector<string>> streamsTrackRaw(numStreamsTrack);
@@ -767,23 +772,23 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       int iSeed = chanTrk % channelAssignment_->numChannelsTrack();  // seed type
       streamsTrack[chanTrk].emplace_back(bitsTrk);
 
-      const unsigned int chanStubOffsetIn = chanTrk * maxNumProjectionLayers;
+      const unsigned int chanStubOffsetIn = chanTrk * numStubChannel;
       const unsigned int chanStubOffsetOut = channelAssignment_->offsetStub(chanTrk);
       const unsigned int numProjLayers = channelAssignment_->numProjectionLayers(iSeed);
-      TTBV hitMap(0, numProjLayers);
+      TTBV hitMap(0, numProjLayers + numSeedingLayers);
       // remove padding from stub stream
-      for (unsigned int iproj = 0; iproj < maxNumProjectionLayers; iproj++) {
+      for (unsigned int iproj = 0; iproj < numStubChannel; iproj++) {
         // FW current has one (perhaps invalid) stub per layer per track.
         const StubStreamData& stubdata = streamsStubRaw[chanStubOffsetIn + iproj][itk];
         const L1TStub& stub = stubdata.stub();
-        if (stubdata.valid()) {
-          const TTStubRef ttStubRef = stubMap[stub];
-          int layerId(-1);
-          if (!channelAssignment_->layerId(stubdata.iSeed(), ttStubRef, layerId))
-            continue;
-          hitMap.set(layerId);
-          streamsStub[chanStubOffsetOut + layerId].emplace_back(ttStubRef, stubdata.dataBits());
-        }
+        if (!stubdata.valid())
+          continue;
+        const TTStubRef& ttStubRef = stubMap[stub];
+        const int seedType = stubdata.iSeed();
+        const int layerId = setup_->layerId(ttStubRef);
+        const int channelId = channelAssignment_->channelId(seedType, layerId);
+        hitMap.set(channelId);
+        streamsStub[chanStubOffsetOut + channelId].emplace_back(ttStubRef, stubdata.dataBits());
       }
       for (int layerId : hitMap.ids(false)) {  // invalid stubs
         streamsStub[chanStubOffsetOut + layerId].emplace_back(tt::FrameStub());
