@@ -231,8 +231,8 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
       continue;
 
     // Build taus from non-matched jets
-    // "Null" pftau with jet kinematics
-    reco::PFTau pfTauFromJet(bestCharge, jet.p4());
+    // "Null" pftau with raw (uncorrected) jet kinematics
+    reco::PFTau pfTauFromJet(bestCharge, jet.correctedP4("Uncorrected"));
     //FIXME, find leading track (and best PV?), build patTau with DM, charge and discriminants by PNet, find possible consistunets for DM by PNet using HPS-like method
     //FIXME, the simplest way is to build cone-like PFtau cf. RecoTauTag/RecoTau/plugins/RecoTauBuilderConePlugin.cc
 
