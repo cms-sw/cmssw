@@ -188,7 +188,6 @@ def nanoAOD_customizeCommon(process):
         jecPayload=nanoAOD_addDeepInfoAK8_switch.jecPayload
     )
 
-
     nanoAOD_tau_switch = cms.PSet(
         idsToAdd = cms.vstring()
     )
