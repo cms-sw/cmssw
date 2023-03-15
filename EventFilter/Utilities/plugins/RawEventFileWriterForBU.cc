@@ -161,13 +161,17 @@ void RawEventFileWriterForBU::initialize(std::string const& destinationDir, std:
   adlera_ = 1;
   adlerb_ = 0;
 
-  if (frdFileVersion_ > 0) {
-    assert(frdFileVersion_ == 1);
+  if (frdFileVersion_ == 1) {
     //reserve space for file header
     ftruncate(outfd_, sizeof(FRDFileHeader_v1));
     lseek(outfd_, sizeof(FRDFileHeader_v1), SEEK_SET);
     perFileSize_.value() = sizeof(FRDFileHeader_v1);
+  } else if (frdFileVersion_ == 2) {
+    ftruncate(outfd_, sizeof(FRDFileHeader_v2));
+    lseek(outfd_, sizeof(FRDFileHeader_v2), SEEK_SET);
+    perFileSize_.value() = sizeof(FRDFileHeader_v2);
   }
+  assert(frdFileVersion_ <= 2);
 }
 
 void RawEventFileWriterForBU::writeJsds() {
@@ -204,7 +208,7 @@ void RawEventFileWriterForBU::writeJsds() {
 }
 
 void RawEventFileWriterForBU::finishFileWrite(int ls) {
-  if (frdFileVersion_ > 0) {
+  if (frdFileVersion_ == 1) {
     //rewind
     lseek(outfd_, 0, SEEK_SET);
     FRDFileHeader_v1 frdFileHeader(perFileEventCount_.value(), (uint32_t)ls, perFileSize_.value());
@@ -213,6 +217,16 @@ void RawEventFileWriterForBU::finishFileWrite(int ls) {
     //move raw file from open to run directory
     rename(fileName_.c_str(), (destinationDir_ + fileName_.substr(fileName_.rfind('/'))).c_str());
 
+    edm::LogInfo("RawEventFileWriterForBU")
+        << "Wrote RAW input file: " << fileName_ << " with perFileEventCount = " << perFileEventCount_.value()
+        << " and size " << perFileSize_.value();
+  } else if (frdFileVersion_ == 2) {
+    lseek(outfd_, 0, SEEK_SET);
+    FRDFileHeader_v2 frdFileHeader(0, perFileEventCount_.value(), (uint32_t)run_, (uint32_t)ls, perFileSize_.value());
+    write(outfd_, (char*)&frdFileHeader, sizeof(FRDFileHeader_v2));
+    closefd();
+    //move raw file from open to run directory
+    rename(fileName_.c_str(), (destinationDir_ + fileName_.substr(fileName_.rfind('/'))).c_str());
     edm::LogInfo("RawEventFileWriterForBU")
         << "Wrote RAW input file: " << fileName_ << " with perFileEventCount = " << perFileEventCount_.value()
         << " and size " << perFileSize_.value();
