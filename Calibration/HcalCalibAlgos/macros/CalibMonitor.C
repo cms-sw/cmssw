@@ -296,9 +296,9 @@ private:
   const int etalo_, etahi_;
   int runlo_, runhi_;
   const int phimin_, phimax_, zside_, nvxlo_, nvxhi_, rbx_;
-  bool exclude_, corrE_, cutL1T_, selRBX_;
+  bool exclude_, cutL1T_, selRBX_;
   bool includeRun_;
-  int coarseBin_, etamp_, etamn_, plotType_;
+  int coarseBin_, plotType_;
   int flexibleSelect_, ifDepth_, duplicate_;
   double log2by18_;
   std::ofstream fileout_;
@@ -607,7 +607,7 @@ void CalibMonitor::Init(TChain *tree, const char *comFileName, const char *outFi
       nxbin = 1000;
   }
 
-  char name[20], title[200];
+  char name[100], title[500];
   std::string titl[5] = {
       "All tracks", "Good quality tracks", "Selected tracks", "Tracks with charge isolation", "Tracks MIP in ECAL"};
   for (int i = 0; i < 9; ++i)

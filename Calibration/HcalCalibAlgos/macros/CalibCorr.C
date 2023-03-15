@@ -648,7 +648,7 @@ CalibCorr::CalibCorr(const char* infile, int flag, bool debug) : flag_(flag), de
     good_ = readCorrResp(infile);
   else if (flag == 3)
     good_ = readCorrPU(infile);
-  else if (flag == 3)
+  else if (flag == 4)
     good_ = readCorrPhi(infile);
   else
     good_ = readCorrRun(infile);
@@ -1132,6 +1132,9 @@ double CalibDuplicate::getWeight(unsigned int detId) {
     int subdet, ieta, zside, depth, iphi;
     unpackDetId(detId, subdet, zside, ieta, iphi, depth);
     std::map<int, std::vector<double> >::const_iterator itr = weights_.find(ieta);
+    --depth;
+    if (depth < 0)
+      std::cout << "Strange Depth value " << depth << " in " << std::hex << detId << std::dec << std::endl;
     if (itr != weights_.end()) {
       if (depth < static_cast<int>(itr->second.size()))
         wt = itr->second[depth];

@@ -2036,59 +2036,52 @@ void CalibSplit::copyTree() {
   tout_qltyMissFlag = t_qltyMissFlag;
   tout_qltyPVFlag = t_qltyPVFlag;
   tout_gentrackP = t_gentrackP;
+  tout_DetIds->clear();
   if (t_DetIds != nullptr) {
     tout_DetIds->reserve(t_DetIds->size());
     for (unsigned int i = 0; i < t_DetIds->size(); ++i)
       tout_DetIds->push_back((*t_DetIds)[i]);
-  } else {
-    tout_DetIds->clear();
   }
+  tout_HitEnergies->clear();
   if (t_HitEnergies != nullptr) {
     tout_HitEnergies->reserve(t_HitEnergies->size());
     for (unsigned int i = 0; i < t_HitEnergies->size(); ++i)
       tout_HitEnergies->push_back((*t_HitEnergies)[i]);
-  } else {
-    tout_HitEnergies->clear();
   }
+  tout_trgbits->clear();
   if (t_trgbits != nullptr) {
     tout_trgbits->reserve(t_trgbits->size());
     for (unsigned int i = 0; i < t_trgbits->size(); ++i)
       tout_trgbits->push_back((*t_trgbits)[i]);
-  } else {
-    tout_trgbits->clear();
   }
+  tout_DetIds1->clear();
   if (t_DetIds1 != nullptr) {
     tout_DetIds1->reserve(t_DetIds1->size());
     for (unsigned int i = 0; i < t_DetIds1->size(); ++i)
       tout_DetIds1->push_back((*t_DetIds1)[i]);
-  } else {
-    tout_DetIds1->clear();
   }
+  tout_DetIds3->clear();
   if (t_DetIds3 != nullptr) {
     tout_DetIds3->reserve(t_DetIds3->size());
     for (unsigned int i = 0; i < t_DetIds3->size(); ++i)
       tout_DetIds3->push_back((*t_DetIds3)[i]);
-  } else {
-    tout_DetIds3->clear();
   }
+  tout_HitEnergies1->clear();
   if (t_HitEnergies1 != nullptr) {
     tout_HitEnergies1->reserve(t_HitEnergies1->size());
     for (unsigned int i = 0; i < t_HitEnergies1->size(); ++i)
       tout_HitEnergies1->push_back((*t_HitEnergies1)[i]);
-  } else {
-    tout_HitEnergies1->clear();
   }
+  tout_HitEnergies3->clear();
   if (t_HitEnergies1 != nullptr) {
     tout_HitEnergies3->reserve(t_HitEnergies3->size());
     for (unsigned int i = 0; i < t_HitEnergies3->size(); ++i)
       tout_HitEnergies3->push_back((*t_HitEnergies3)[i]);
-  } else {
-    tout_HitEnergies3->clear();
   }
 }
 
 void CalibSplit::close() {
-  if (!outputFile_) {
+  if (outputFile_) {
     outputDir_->cd();
     std::cout << "file yet to be Written" << std::endl;
     outputTree_->Write();
