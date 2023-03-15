@@ -120,7 +120,7 @@ private:
   TString getLayerSideName(Long_t k);
 
   // to be used everywhere
-  static constexpr int SiStripLayers_ = 22;
+  static constexpr int siStripLayers_ = 22;
   static constexpr double nBxInAnOrbit_ = 3565;
 
   edm::Service<TFileService> fs;
@@ -460,7 +460,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
         badquality = true;
 
       // don't compute efficiencies in modules from TOB6 and TEC9
-      if (!showTOB6TEC9_ && (layer_wheel == 10 || layer_wheel == SiStripLayers_))
+      if (!showTOB6TEC9_ && (layer_wheel == 10 || layer_wheel == siStripLayers_))
         continue;
 
       // don't use bad modules given in the bad module list
@@ -616,7 +616,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
               goodlayerfound[layer + 3]++;
             goodlayertotal[layer + 3]++;
           }
-        } else if (layer > 13 && layer <= SiStripLayers_) {
+        } else if (layer > 13 && layer <= siStripLayers_) {
           if (((id >> 18) & 0x3) == 1) {
             if (!badflag)
               goodlayerfound[layer + 3]++;
@@ -643,7 +643,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
             alllayerfound[layer + 3]++;
           alllayertotal[layer + 3]++;
         }
-      } else if (layer > 13 && layer <= SiStripLayers_) {
+      } else if (layer > 13 && layer <= siStripLayers_) {
         if (((id >> 18) & 0x3) == 1) {
           if (!badflag)
             alllayerfound[layer + 3]++;
@@ -885,7 +885,7 @@ void SiStripHitEffFromCalibTree::makeHotColdMaps() {
   //Already have access to the data as a private variable
   //Create all of the histograms in the TFileService
   TH2F* temph2;
-  for (Long_t maplayer = 1; maplayer <= SiStripLayers_; maplayer++) {
+  for (Long_t maplayer = 1; maplayer <= siStripLayers_; maplayer++) {
     //Initialize all of the histograms
     if (maplayer > 0 && maplayer <= 4) {
       //We are in the TIB
@@ -959,7 +959,7 @@ void SiStripHitEffFromCalibTree::makeHotColdMaps() {
       HotColdMaps.push_back(temph2);
     }
   }
-  for (Long_t mylayer = 1; mylayer <= SiStripLayers_; mylayer++) {
+  for (Long_t mylayer = 1; mylayer <= siStripLayers_; mylayer++) {
     //Determine what kind of plot we want to write out
     //Loop through the entirety of each layer
     //Create an array of the histograms
@@ -1013,7 +1013,7 @@ void SiStripHitEffFromCalibTree::makeTKMap(bool autoTagging = false) {
   double myeff, mynum, myden, myeff_up;
   double layer_min_eff = 0;
 
-  for (Long_t i = 1; i <= SiStripLayers_; i++) {
+  for (Long_t i = 1; i <= siStripLayers_; i++) {
     //Loop over every layer, extracting the information from
     //the map of the efficiencies
     layertotal[i] = 0;
@@ -1152,7 +1152,7 @@ void SiStripHitEffFromCalibTree::totalStatistics() {
     subdettotal[i] = 0;
   }
 
-  for (Long_t i = 1; i <= SiStripLayers_; i++) {
+  for (Long_t i = 1; i <= siStripLayers_; i++) {
     layereff = double(layerfound[i]) / double(layertotal[i]);
     LOGPRINT << "Layer " << i << " (" << ::layerName(i, showRings_, nTEClayers) << ") has total efficiency " << layereff
              << " " << layerfound[i] << "/" << layertotal[i];
@@ -1195,7 +1195,7 @@ void SiStripHitEffFromCalibTree::makeSummary() {
     nLayers = 30;
   if (!showEndcapSides_) {
     if (!showRings_)
-      nLayers = SiStripLayers_;
+      nLayers = siStripLayers_;
     else
       nLayers = 20;
   }
@@ -1374,7 +1374,7 @@ void SiStripHitEffFromCalibTree::makeSummary() {
 void SiStripHitEffFromCalibTree::makeSummaryVsBx() {
   LOGPRINT << "Computing efficiency vs bx";
 
-  unsigned int nLayers = SiStripLayers_;
+  unsigned int nLayers = siStripLayers_;
   if (showRings_)
     nLayers = 20;
 
@@ -1453,7 +1453,7 @@ void SiStripHitEffFromCalibTree::makeSummaryVsBx() {
 }
 
 void SiStripHitEffFromCalibTree::computeEff(vector<TH1F*>& vhfound, vector<TH1F*>& vhtotal, string name) {
-  unsigned int nLayers = SiStripLayers_;
+  unsigned int nLayers = siStripLayers_;
   if (showRings_)
     nLayers = 20;
 
@@ -1499,7 +1499,7 @@ void SiStripHitEffFromCalibTree::makeSummaryVsLumi() {
 
   else {  // from infos per hit
 
-    unsigned int nLayers = SiStripLayers_;
+    unsigned int nLayers = siStripLayers_;
     if (showRings_)
       nLayers = 20;
     unsigned int nLayersForAvg = 0;
