@@ -17,8 +17,7 @@ using namespace edm;
 using namespace reco;
 
 TauGenJetProducer::TauGenJetProducer(const edm::ParameterSet& iConfig)
-    : inputTagGenParticles_(iConfig.getParameter<InputTag>("GenParticles")),
-      tokenGenParticles_(consumes<GenParticleCollection>(inputTagGenParticles_)),
+    : tokenGenParticles_(consumes<GenParticleCollection>(iConfig.getParameter<InputTag>("GenParticles"))),
       includeNeutrinos_(iConfig.getParameter<bool>("includeNeutrinos")),
       verbose_(iConfig.getUntrackedParameter<bool>("verbose", false)) {
   produces<GenJetCollection>();
@@ -41,6 +40,20 @@ void TauGenJetProducer::produce(edm::StreamID, Event& iEvent, const EventSetup& 
     GenParticleRefVector descendents;
     findDescendents(*iTau, descendents, 1);
 
+    if (descendents.empty()) {
+      edm::LogWarning("NoTauDaughters") << "Tau p4: " << (*iTau)->p4() << " vtx: " << (*iTau)->vertex()
+                                        << " has no daughters";
+
+      math::XYZPoint vertex;
+      GenJet::Specific specific;
+      Jet::Constituents constituents;
+
+      constituents.push_back(refToPtr(*iTau));
+      GenJet jet((*iTau)->p4(), vertex, specific, constituents);
+      jet.setCharge((*iTau)->charge());
+      pOutVisTaus->emplace_back(std::move(jet));
+      continue;
+    }
     // CV: skip status 2 taus that radiate-off a photon
     //    --> have a status 2 tau lepton in the list of descendents
     GenParticleRefVector status2TauDaughters;
