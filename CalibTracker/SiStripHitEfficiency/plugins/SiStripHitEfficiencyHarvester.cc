@@ -500,13 +500,8 @@ void SiStripHitEfficiencyHarvester::printTotalStatistics(
   int totalfound = 0;
   int totaltotal = 0;
   double layereff;
-  int subdetfound[5];
-  int subdettotal[5];
-
-  for (unsigned int i = 1; i < 5; i++) {
-    subdetfound[i] = 0;
-    subdettotal[i] = 0;
-  }
+  int subdetfound[5] = {0, 0, 0, 0, 0};
+  int subdettotal[5] = {0, 0, 0, 0, 0};
 
   for (unsigned int i = 1; i <= bounds::k_LayersAtTECEnd; i++) {
     layereff = double(layerFound[i]) / double(layerTotal[i]);
