@@ -391,12 +391,13 @@ void RunManagerMTWorker::initializeUserActions() {
   m_tls->userRunAction = std::make_unique<RunAction>(m_pRunAction, m_tls->runInterface.get(), false);
   m_tls->userRunAction->SetMaster(false);
   Connect(m_tls->userRunAction.get());
-  
+
   G4int ver = m_p.getParameter<int>("EventVerbose");
   G4EventManager* eventManager = m_tls->kernel->GetEventManager();
   eventManager->SetVerboseLevel(ver);
-  
-  auto userEventAction = new EventAction(m_pEventAction, m_tls->runInterface.get(), m_tls->trackManager.get(), m_sVerbose.get());
+
+  auto userEventAction =
+      new EventAction(m_pEventAction, m_tls->runInterface.get(), m_tls->trackManager.get(), m_sVerbose.get());
   Connect(userEventAction);
   eventManager->SetUserAction(userEventAction);
   m_evtManager->SetUserAction(userEventAction);
@@ -406,7 +407,8 @@ void RunManagerMTWorker::initializeUserActions() {
   eventManager->SetUserAction(userTrackingAction);
   m_evtManager->SetUserAction(userTrackingAction);
 
-  auto userSteppingAction = new SteppingAction(m_tls->trackManager.get(), m_sVerbose.get(), m_pSteppingAction, m_hasWatchers);
+  auto userSteppingAction =
+      new SteppingAction(m_tls->trackManager.get(), m_sVerbose.get(), m_pSteppingAction, m_hasWatchers);
   Connect(userSteppingAction);
   eventManager->SetUserAction(userSteppingAction);
   m_evtManager->SetUserAction(userSteppingAction);

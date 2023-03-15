@@ -68,7 +68,6 @@ public:
   std::vector<SensitiveTkDetector*>& sensTkDetectors();
   std::vector<SensitiveCaloDetector*>& sensCaloDetectors();
   std::vector<std::shared_ptr<SimProducer>>& producers();
-  
 
   void initializeG4(RunManagerMT* runManagerMaster, const edm::EventSetup& es);
 
