@@ -64,7 +64,6 @@ private:
   reco::CaloCluster::AlgoId algoId;
 
   std::unique_ptr<HGCalClusteringAlgoBase> algo;
-  bool doSharing;
   std::string detector;
 
   std::string timeClname;
@@ -80,7 +79,6 @@ DEFINE_FWK_MODULE(HGCalLayerClusterProducer);
 
 HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet& ps)
     : algoId(reco::CaloCluster::undefined),
-      doSharing(ps.getParameter<bool>("doSharing")),
       detector(ps.getParameter<std::string>("detector")),  // one of EE, FH, BH, HFNose
       timeClname(ps.getParameter<std::string>("timeClname")),
       nHitsTime(ps.getParameter<unsigned int>("nHitsTime")) {
@@ -100,7 +98,6 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet& ps
 
   produces<std::vector<float>>("InitialLayerClustersMask");
   produces<std::vector<reco::BasicCluster>>();
-  produces<std::vector<reco::BasicCluster>>("sharing");
   //density
   produces<Density>();
   //time for layer clusters
@@ -116,7 +113,6 @@ void HGCalLayerClusterProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<edm::ParameterSetDescription>("plugin", pluginDesc);
   desc.add<std::string>("detector", "all")
       ->setComment("all (does not include HFNose); other options: EE, FH, HFNose; other value defaults to EE");
-  desc.add<bool>("doSharing", false);
   desc.add<edm::InputTag>("recHits", edm::InputTag("HGCalRecHit", "HGCEERecHits"));
   desc.add<std::string>("timeClname", "timeLayerCluster");
   desc.add<unsigned int>("nHitsTime", 3);
@@ -126,9 +122,6 @@ void HGCalLayerClusterProducer::fillDescriptions(edm::ConfigurationDescriptions&
 void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   edm::Handle<HGCRecHitCollection> hits;
 
-
-  std::unique_ptr<std::vector<reco::BasicCluster>> clusters(new std::vector<reco::BasicCluster>),
-      clusters_sharing(new std::vector<reco::BasicCluster>);
   auto density = std::make_unique<Density>();
 
   algo->getEventSetup(es);
@@ -147,16 +140,13 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
 
   algo->makeClusters();
   *clusters = algo->getClusters(false);
-  if (doSharing)
-    *clusters_sharing = algo->getClusters(true);
   auto clusterHandle = evt.put(std::move(clusters));
-  auto clusterHandleSharing = evt.put(std::move(clusters_sharing), "sharing");
 
   //Keep the density
   *density = algo->getDensity();
   evt.put(std::move(density));
 
-  edm::PtrVector<reco::BasicCluster> clusterPtrs, clusterPtrsSharing;
+  edm::PtrVector<reco::BasicCluster> clusterPtrs;
 
   std::vector<std::pair<float, float>> times;
   times.reserve(clusterHandle->size());
@@ -203,12 +193,6 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
   filler.fill();
   evt.put(std::move(timeCl), timeClname);
 
-  if (doSharing) {
-    for (unsigned i = 0; i < clusterHandleSharing->size(); ++i) {
-      edm::Ptr<reco::BasicCluster> ptr(clusterHandleSharing, i);
-      clusterPtrsSharing.push_back(ptr);
-    }
-  }
   algo->reset();
 }
 
