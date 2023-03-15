@@ -6,12 +6,14 @@
 // geometry
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
+#include "Geometry/CommonTopologies/interface/StackGeomDet.h"
 
 // alignment
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/CommonAlignment/interface/AlignableDetUnit.h"
 #include "Alignment/CommonAlignment/interface/AlignableCompositeBuilder.h"
 #include "Alignment/TrackerAlignment/interface/AlignableSiStripDet.h"
+#include "Alignment/TrackerAlignment/interface/AlignableStackDet.h"
 #include "Alignment/TrackerAlignment/interface/TrackerAlignableIndexer.h"
 
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
@@ -63,8 +65,15 @@ void AlignableTrackerBuilder ::buildAlignables(AlignableTracker* trackerAlignabl
 
   // create pixel-detector
   buildPixelDetector(trackerAlignables);
-  // create strip-detector
-  buildStripDetector(trackerAlignables);
+
+  // for the Outer Tracker, decide which geometry we are addressing
+  if (alignableObjectId_.geometry() < AlignableObjectId::Geometry::PhaseII) {
+    // create strip-detector
+    buildStripDetector(trackerAlignables);
+  } else {
+    // create Phase2 Outer Tracker-detector
+    buildOuterTrackerDetector(trackerAlignables);
+  }
 
   // tracker itself is of course also an Alignable
   alignableMap_->get("Tracker").push_back(trackerAlignables);
@@ -123,7 +132,12 @@ void AlignableTrackerBuilder ::convertGeomDetsToAlignables(const TrackingGeometr
                subdetId == SiStripDetId::TEC) {
       // for strip we create also <TIB/TID/TOB/TEC>ModuleUnit list
       // for 1D components of 2D layers
-      buildStripDetectorAlignable(geomDet, subdetId, alignables, aliUnits, update);
+
+      if (alignableObjectId_.geometry() < AlignableObjectId::Geometry::PhaseII) {
+        buildStripDetectorAlignable(geomDet, subdetId, alignables, aliUnits, update);
+      } else {
+        buildOuterTrackerDetectorAlignable(geomDet, subdetId, alignables, aliUnits, update);
+      }
 
     } else {
       throw cms::Exception("LogicError") << "[AlignableTrackerBuilder] GeomDet of unknown subdetector";
@@ -237,6 +251,52 @@ void AlignableTrackerBuilder ::buildStripDetectorAlignable(
 }
 
 //_____________________________________________________________________________
+void AlignableTrackerBuilder ::buildOuterTrackerDetectorAlignable(
+    const GeomDet* geomDet, int subdetId, Alignables& aliDets, Alignables& aliDetUnits, bool update) {
+  // hopefully all the geomdets are composite (either PS or SS modules in Ph-2 Outer Tracker)
+  if (!geomDet->components().empty()) {
+    // 2D-module, convert it to StackGeomDet
+    const StackGeomDet* stackGeomDet = dynamic_cast<const StackGeomDet*>(geomDet);
+    if (!stackGeomDet) {
+      throw cms::Exception("LogicError") << "[AlignableTrackerBuilder] dynamic_cast<const StackGeomDet*> "
+                                         << "failed.";
+    }
+
+    // components (AlignableDetUnits) constructed within
+    if (update) {
+      auto ali = std::find_if(aliDets.cbegin(), aliDets.cend(), [&stackGeomDet](const auto& i) {
+        return i->id() == stackGeomDet->geographicalId().rawId();
+      });
+      if (ali != aliDets.end()) {
+        auto aliStackDet = dynamic_cast<AlignableStackDet*>(*ali);
+        if (aliStackDet) {
+          aliStackDet->update(geomDet);
+        } else {
+          throw cms::Exception("LogicError") << "[AlignableTrackerBuilder::buildOuterTrackerDetectorAlignable] "
+                                             << "cast to 'AlignableStackDet*' failed while it should not\n";
+        }
+      } else {
+        throw cms::Exception("GeometryMismatch")
+            << "[AlignableTrackerBuilder::buildStripDetectorAlignable] "
+            << "GeomDet with DetId " << stackGeomDet->geographicalId().rawId() << " not found in current geometry.\n";
+      }
+    } else {
+      aliDets.push_back(new AlignableStackDet(stackGeomDet));
+    }
+    const auto& addAliDetUnits = aliDets.back()->components();
+    const auto& nAddedUnits = addAliDetUnits.size();
+
+    if (!update) {
+      // reserve space for the additional units:
+      aliDetUnits.reserve(aliDetUnits.size() + nAddedUnits - 1);
+      aliDetUnits.insert(aliDetUnits.end(), addAliDetUnits.begin(), addAliDetUnits.end());
+    }
+    numDetUnits += nAddedUnits;
+  }  // no else: stacked components of AlignableDet constructed within
+     // AlignableStackDet -> AlignableDet, see above
+}
+
+//_____________________________________________________________________________
 void AlignableTrackerBuilder ::buildAlignableComposites(bool update) {
   unsigned int numCompositeAlignables = 0;
 
@@ -315,4 +375,26 @@ void AlignableTrackerBuilder ::buildStripDetector(AlignableTracker* trackerAlign
                                         << "Built " << stripName << "-detector Alignable, consisting of Alignables"
                                         << " of " << tibName << ", " << tidName << ", " << tobName << " and "
                                         << tecName;
+}
+
+//_____________________________________________________________________________
+void AlignableTrackerBuilder ::buildOuterTrackerDetector(AlignableTracker* trackerAlignables) {
+  const std::string& tidName = alignableObjectId_.idToString(align::TIDEndcap);
+  const std::string& tobName = alignableObjectId_.idToString(align::TOBBarrel);
+  const std::string& stripName = alignableObjectId_.idToString(align::Strip);
+
+  auto& tidAlignables = alignableMap_->find(tidName);
+  auto& tobAlignables = alignableMap_->find(tobName);
+  auto& stripAlignables = alignableMap_->get(stripName);
+
+  stripAlignables.push_back(new AlignableComposite(tobAlignables[0]->id(), align::Strip, align::RotationType()));
+  stripAlignables[0]->addComponent(tobAlignables[0]);
+  stripAlignables[0]->addComponent(tidAlignables[0]);
+  stripAlignables[0]->addComponent(tidAlignables[1]);
+
+  trackerAlignables->addComponent(stripAlignables[0]);
+
+  edm::LogInfo("AlignableBuildProcess") << "@SUB=AlignableTrackerBuilder::buildStripDetector"
+                                        << "Built " << stripName << "-detector Alignable, consisting of Alignables"
+                                        << " of " << tidName << " and " << tobName;
 }
