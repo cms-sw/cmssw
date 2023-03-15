@@ -1,6 +1,6 @@
 //
-// CMSSimEventManager is designed on top of G4EventManager 
-// 
+// CMSSimEventManager is designed on top of G4EventManager
+//
 // 13.03.2023 V.Ivanchenko
 //
 
@@ -29,10 +29,8 @@ class G4PrimaryTransformer;
 class G4TrackingManager;
 class G4Navigator;
 
-class CMSSimEventManager 
-{
+class CMSSimEventManager {
 public:
-
   CMSSimEventManager(const edm::ParameterSet& iConfig);
   ~CMSSimEventManager();
 
@@ -49,13 +47,12 @@ public:
   void SetUserAction(TrackingAction* ptr);
   void SetUserAction(SteppingAction* ptr);
 
-  CMSSimEventManager(const CMSSimEventManager &right) = delete;
+  CMSSimEventManager(const CMSSimEventManager& right) = delete;
   CMSSimEventManager& operator=(const CMSSimEventManager& right) = delete;
 
 private:
-
   void StackTracks(G4TrackVector*, bool IDisSet);
-    
+
   G4Event* m_currentEvent{nullptr};
   G4StateManager* m_stateManager;
   G4TrackingManager* m_defTrackManager;
@@ -71,7 +68,6 @@ private:
   G4int verbose_;
 
   std::vector<G4Track*> m_tracks;
-
 };
 
 #endif

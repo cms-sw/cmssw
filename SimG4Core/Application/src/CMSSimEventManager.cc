@@ -22,8 +22,7 @@
 #include "G4Navigator.hh"
 
 CMSSimEventManager::CMSSimEventManager(const edm::ParameterSet& iConfig)
-  : verbose_(iConfig.getParameter<int>("EventVerbose"))
-{
+    : verbose_(iConfig.getParameter<int>("EventVerbose")) {
   m_stateManager = G4StateManager::GetStateManager();
   m_defTrackManager = new G4TrackingManager();
   m_primaryTransformer = new G4PrimaryTransformer();
@@ -32,23 +31,21 @@ CMSSimEventManager::CMSSimEventManager(const edm::ParameterSet& iConfig)
   m_tracks.reserve(1000);
 }
 
-CMSSimEventManager::~CMSSimEventManager()
-{
+CMSSimEventManager::~CMSSimEventManager() {
   delete m_primaryTransformer;
   delete m_defTrackManager;
   delete m_eventAction;
   delete m_stackingAction;
 }
 
-void CMSSimEventManager::ProcessOneEvent(G4Event* anEvent)
-{
+void CMSSimEventManager::ProcessOneEvent(G4Event* anEvent) {
   trackID_ = 0;
   m_stateManager->SetNewState(G4State_EventProc);
 
   // Resetting Navigator has been moved to CMSSimEventManager,
   // so that resetting is now done for every event.
-  G4ThreeVector center(0,0,0);
-  m_navigator->LocateGlobalPointAndSetup(center, 0, false);
+  G4ThreeVector center(0, 0, 0);
+  m_navigator->LocateGlobalPointAndSetup(center, nullptr, false);
 
   G4Track* track = nullptr;
 
@@ -59,8 +56,9 @@ void CMSSimEventManager::ProcessOneEvent(G4Event* anEvent)
   // Fill primary tracks
   StackTracks(m_primaryTransformer->GimmePrimaries(anEvent), true);
 
-  if(0 < verbose_) {
-    edm::LogVerbatim("CMSSimEventManager::ProcessOneEvent") << "### Event #" << anEvent->GetEventID() << "  " << trackID_ << " primary tracks";
+  if (0 < verbose_) {
+    edm::LogVerbatim("CMSSimEventManager::ProcessOneEvent")
+        << "### Event #" << anEvent->GetEventID() << "  " << trackID_ << " primary tracks";
   }
 
   // Loop over main stack of tracks
@@ -78,17 +76,19 @@ void CMSSimEventManager::ProcessOneEvent(G4Event* anEvent)
   m_stateManager->SetNewState(G4State_GeomClosed);
 }
 
-void CMSSimEventManager::StackTracks(G4TrackVector* trackVector, bool IDisSet)
-{
-  if( trackVector == nullptr || trackVector->empty() ) return;
-  for( auto & newTrack : *trackVector ) {
+void CMSSimEventManager::StackTracks(G4TrackVector* trackVector, bool IDisSet) {
+  if (trackVector == nullptr || trackVector->empty())
+    return;
+  for (auto& newTrack : *trackVector) {
     ++trackID_;
-    if(!IDisSet) {
+    if (!IDisSet) {
       newTrack->SetTrackID(trackID_);
       auto pp = newTrack->GetDynamicParticle()->GetPrimaryParticle();
-      if(pp != nullptr) { pp->SetTrackID(trackID_); }
+      if (pp != nullptr) {
+        pp->SetTrackID(trackID_);
+      }
     }
-    if(m_stackingAction->ClassifyNewTrack(newTrack) == fKill) {
+    if (m_stackingAction->ClassifyNewTrack(newTrack) == fKill) {
       delete newTrack;
     } else {
       newTrack->SetOriginTouchableHandle(newTrack->GetTouchableHandle());
@@ -98,24 +98,15 @@ void CMSSimEventManager::StackTracks(G4TrackVector* trackVector, bool IDisSet)
   trackVector->clear();
 }
 
-void CMSSimEventManager::SetUserAction(EventAction* ptr)
-{
-  m_eventAction = ptr;
-}
+void CMSSimEventManager::SetUserAction(EventAction* ptr) { m_eventAction = ptr; }
 
-void CMSSimEventManager::SetUserAction(StackingAction* ptr)
-{
-  m_stackingAction = ptr;
-}
+void CMSSimEventManager::SetUserAction(StackingAction* ptr) { m_stackingAction = ptr; }
 
-void CMSSimEventManager::SetUserAction(TrackingAction* ptr)
-{
+void CMSSimEventManager::SetUserAction(TrackingAction* ptr) {
   m_trackingAction = ptr;
   m_defTrackManager->SetUserAction((G4UserTrackingAction*)ptr);
 }
 
-void CMSSimEventManager::SetUserAction(SteppingAction* ptr)
-{
+void CMSSimEventManager::SetUserAction(SteppingAction* ptr) {
   m_defTrackManager->SetUserAction((G4UserSteppingAction*)ptr);
 }
-
