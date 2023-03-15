@@ -36,6 +36,7 @@ class EventAction;
 class TrackingAction;
 class SteppingAction;
 class CMSSteppingVerbose;
+class CMSSimEventManager;
 class G4Field;
 
 class SensitiveTkDetector;
@@ -67,6 +68,7 @@ public:
   std::vector<SensitiveTkDetector*>& sensTkDetectors();
   std::vector<SensitiveCaloDetector*>& sensCaloDetectors();
   std::vector<std::shared_ptr<SimProducer>>& producers();
+  
 
   void initializeG4(RunManagerMT* runManagerMaster, const edm::EventSetup& es);
 
@@ -115,6 +117,7 @@ private:
 
   CustomUIsession* m_UIsession{nullptr};
   G4SimEvent m_simEvent;
+  std::unique_ptr<CMSSimEventManager> m_evtManager;
   std::unique_ptr<CMSSteppingVerbose> m_sVerbose;
   std::unordered_map<std::string, std::unique_ptr<SensitiveDetectorMakerBase>> m_sdMakers;
 };
