@@ -6,6 +6,7 @@
 #include "SimG4Core/Application/interface/StackingAction.h"
 #include "SimG4Core/Application/interface/TrackingAction.h"
 #include "SimG4Core/Application/interface/SteppingAction.h"
+#include "SimG4Core/Application/interface/CMSSimEventManager.h"
 #include "SimG4Core/Application/interface/CustomUIsessionThreadPrefix.h"
 #include "SimG4Core/Application/interface/CustomUIsessionToFile.h"
 #include "SimG4Core/Application/interface/ExceptionHandler.h"
@@ -360,6 +361,7 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
     throw cms::Exception("Configuration")
         << "RunManagerMTWorker::InitializeG4: Geant4 kernel initialization failed in thread " << thisID;
   }
+
   //tell all interesting parties that we are beginning the job
   BeginOfJob aBeginOfJob(&es);
   m_tls->registry->beginOfJobSignal_(&aBeginOfJob);
@@ -373,6 +375,7 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   if (sv > 0) {
     m_sVerbose = std::make_unique<CMSSteppingVerbose>(sv, elim, ve, vn, vt);
   }
+  m_evtManager = std::make_unique<CMSSimEventManager>(m_p);
   initializeUserActions();
 
   G4StateManager::GetStateManager()->SetNewState(G4State_Idle);
@@ -388,27 +391,29 @@ void RunManagerMTWorker::initializeUserActions() {
   m_tls->userRunAction = std::make_unique<RunAction>(m_pRunAction, m_tls->runInterface.get(), false);
   m_tls->userRunAction->SetMaster(false);
   Connect(m_tls->userRunAction.get());
-
+  
   G4int ver = m_p.getParameter<int>("EventVerbose");
   G4EventManager* eventManager = m_tls->kernel->GetEventManager();
   eventManager->SetVerboseLevel(ver);
-
-  EventAction* userEventAction =
-      new EventAction(m_pEventAction, m_tls->runInterface.get(), m_tls->trackManager.get(), m_sVerbose.get());
+  
+  auto userEventAction = new EventAction(m_pEventAction, m_tls->runInterface.get(), m_tls->trackManager.get(), m_sVerbose.get());
   Connect(userEventAction);
   eventManager->SetUserAction(userEventAction);
+  m_evtManager->SetUserAction(userEventAction);
 
-  TrackingAction* userTrackingAction =
-      new TrackingAction(m_tls->trackManager.get(), m_sVerbose.get(), m_pTrackingAction);
+  auto userTrackingAction = new TrackingAction(m_tls->trackManager.get(), m_sVerbose.get(), m_pTrackingAction);
   Connect(userTrackingAction);
   eventManager->SetUserAction(userTrackingAction);
+  m_evtManager->SetUserAction(userTrackingAction);
 
-  SteppingAction* userSteppingAction =
-      new SteppingAction(m_tls->trackManager.get(), m_sVerbose.get(), m_pSteppingAction, m_hasWatchers);
+  auto userSteppingAction = new SteppingAction(m_tls->trackManager.get(), m_sVerbose.get(), m_pSteppingAction, m_hasWatchers);
   Connect(userSteppingAction);
   eventManager->SetUserAction(userSteppingAction);
+  m_evtManager->SetUserAction(userSteppingAction);
 
-  eventManager->SetUserAction(new StackingAction(userTrackingAction, m_pStackingAction, m_sVerbose.get()));
+  auto userStackingAction = new StackingAction(userTrackingAction, m_pStackingAction, m_sVerbose.get());
+  eventManager->SetUserAction(userStackingAction);
+  m_evtManager->SetUserAction(userStackingAction);
 }
 
 void RunManagerMTWorker::Connect(RunAction* runAction) {
@@ -538,7 +543,8 @@ G4SimEvent* RunManagerMTWorker::produce(const edm::Event& inpevt,
         << m_tls->currentEvent->GetNumberOfPrimaryVertex() << " vertices for Geant4; generator produced "
         << m_simEvent.nGenParts() << " particles.";
 
-    m_tls->kernel->GetEventManager()->ProcessOneEvent(m_tls->currentEvent.get());
+    // m_tls->kernel->GetEventManager()->ProcessOneEvent(m_tls->currentEvent.get());
+    m_evtManager->ProcessOneEvent(m_tls->currentEvent.get());
   }
 
   //remove memory only needed during event processing
