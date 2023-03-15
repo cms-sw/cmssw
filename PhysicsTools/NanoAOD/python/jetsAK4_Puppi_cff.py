@@ -110,7 +110,7 @@ jetPuppiTable = simpleCandidateFlatTableProducer.clone(
     )
 )
 
-from PhysicsTools.NanoAOD.nano_eras_cff import run2_nanoAOD_ANY
+from PhysicsTools.NanoAOD.nano_eras_cff import run2_nanoAOD_ANY,run3_nanoAOD_122,run3_nanoAOD_124
 run2_nanoAOD_ANY.toModify(
     jetPuppiTable.variables,
     btagCSVV2 = Var("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')",float,doc=" pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)",precision=10)
