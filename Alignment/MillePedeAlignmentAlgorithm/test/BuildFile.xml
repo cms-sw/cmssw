@@ -5,7 +5,6 @@
   <use name="CondFormats/Alignment"/>
   <flags EDM_PLUGIN="1"/>
 </library>
-<flags USE_UNITTEST_DIR="1"/>
 <test name="test_PrepareInputDb" command="mps_prepare_input_db.py -g auto:run2_data -r 1 -o ./test_input.db"/>
 <test name="test_MpsWorkFlow" command="test_mps-workflow.sh"/>
 <test name="test-pede" command="pede -t">
