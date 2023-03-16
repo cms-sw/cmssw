@@ -13,6 +13,7 @@ parser.add_argument("--stream", help="use stream module", action="store_true")
 parser.add_argument("--noPut", help="do not put data used by transform", action="store_true")
 parser.add_argument("--addTracer", help="add Tracer service", action="store_true")
 parser.add_argument("--async_", help="use asynchronous module", action="store_true")
+parser.add_argument("--exception", help="Make module consumed by transformer to throw an exception", action="store_true")
 
 argv = sys.argv[:]
 if '--' in argv:
@@ -27,6 +28,8 @@ process.source = cms.Source("EmptySource")
 process.maxEvents.input = 4
 
 process.start = cms.EDProducer("IntProducer", ivalue = cms.int32(1))
+if args.exception:
+  process.start = cms.EDProducer("FailingProducer")
 if args.stream:
   if args.async_:
     process.t = cms.EDProducer("TransformAsyncIntStreamProducer", get = cms.InputTag("start"), offset = cms.uint32(1), checkTransformNotCalled = cms.untracked.bool(False))
