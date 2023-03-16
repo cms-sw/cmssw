@@ -800,11 +800,26 @@ namespace {
           const auto& regName = this->attachLocationLabel(modules, PhInfo);
           namesOfParts.push_back(regName);
 
-          edm::LogVerbatim(label_) << "region name: " << regName << " has the following modules attached: ";
+          /*
+	   *  The following is needed for internal
+	   *  debug / cross-check
+	   */
+
+          std::stringstream ss;
+          ss << "region name: " << regName << " has the following modules attached: [";
           for (const auto& module : modules) {
-            edm::LogVerbatim(label_) << module << ", ";
+            ss << module << ", ";
           }
-          edm::LogVerbatim(label_) << "\n\n";
+          ss.seekp(-2, std::ios_base::end);  // remove last two chars
+          ss << "] "
+             << " has representation (";
+          for (const auto& param : listOfParametrizations[index]) {
+            ss << param << ", ";
+          }
+          ss.seekp(-2, std::ios_base::end);  // remove last two chars
+          ss << ") ";
+          edm::LogPrint(label_) << ss.str() << "\n\n";
+          ss.str(std::string()); /* clear the stringstream */
         }
 
         // functional for polynomial of n-th degree
