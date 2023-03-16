@@ -636,6 +636,11 @@ namespace SiPixelPI {
   inline bool isBPixOuterLadder(const DetId& detid, const TrackerTopology& tTopo, bool isPhase0)
   /*--------------------------------------------------------------------*/
   {
+    // Using TrackerTopology
+    // Ladders have a staggered structure
+    // Non-flipped ladders are on the outer radius
+    // Phase 0: Outer ladders are odd for layer 1,3 and even for layer 2
+    // Phase 1: Outer ladders are odd for layer 1,2,3 and even for layer 4
     bool isOuter = false;
     int layer = tTopo.pxbLayer(detid.rawId());
     bool odd_ladder = tTopo.pxbLadder(detid.rawId()) % 2;
@@ -646,9 +651,9 @@ namespace SiPixelPI {
         isOuter = odd_ladder;
     } else {
       if (layer == 4)
-        isOuter = odd_ladder;
-      else
         isOuter = !odd_ladder;
+      else
+        isOuter = odd_ladder;
     }
     return isOuter;
   }
@@ -671,16 +676,22 @@ namespace SiPixelPI {
     void fillGeometryInfo(const DetId& detId, const TrackerTopology& tTopo, const SiPixelPI::phase& ph);
     SiPixelPI::regions filterThePartition();
     bool sanityCheck();
-    void printAll();
+    int subDetId() { return m_subdetid; }
+    int layer() { return m_layer; }
+    int side() { return m_side; }
+    int ring() { return m_ring; }
+    bool isInternal() { return m_isInternal; }
+
+    void printAll(std::stringstream& ss) const;
     virtual ~topolInfo() {}
   };
 
   /*--------------------------------------------------------------------*/
-  inline void topolInfo::printAll()
+  inline void topolInfo::printAll(std::stringstream& ss) const
   /*--------------------------------------------------------------------*/
   {
-    std::cout << " detId:" << m_rawid << " subdetid: " << m_subdetid << " layer: " << m_layer << " side: " << m_side
-              << " ring: " << m_ring << " isInternal:" << m_isInternal << std::endl;
+    ss << " detId: " << m_rawid << " subdetid: " << m_subdetid << " layer: " << m_layer << " side: " << m_side
+       << " ring: " << m_ring << " isInternal: " << m_isInternal;
   }
 
   /*--------------------------------------------------------------------*/
