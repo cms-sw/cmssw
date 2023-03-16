@@ -150,6 +150,7 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
       m_theLHCTlinkToken(
           iC.consumes<edm::LHCTransportLinkContainer>(iConfig.getParameter<edm::InputTag>("theLHCTlinkTag"))),
       m_nonBeam(iConfig.getParameter<bool>("NonBeamEvent")),
+      m_UseG4EventManager(iConfig.getParameter<bool>("UseG4EventManager")),
       m_pUseMagneticField(iConfig.getParameter<bool>("UseMagneticField")),
       m_LHCTransport(iConfig.getParameter<bool>("LHCTransport")),
       m_thread_index{get_new_thread_index()},
@@ -375,7 +376,8 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   if (sv > 0) {
     m_sVerbose = std::make_unique<CMSSteppingVerbose>(sv, elim, ve, vn, vt);
   }
-  m_evtManager = std::make_unique<CMSSimEventManager>(m_p);
+  if(!m_UseG4EventManager)
+    m_evtManager = std::make_unique<CMSSimEventManager>(m_p);
   initializeUserActions();
 
   G4StateManager::GetStateManager()->SetNewState(G4State_Idle);
@@ -399,23 +401,35 @@ void RunManagerMTWorker::initializeUserActions() {
   auto userEventAction =
       new EventAction(m_pEventAction, m_tls->runInterface.get(), m_tls->trackManager.get(), m_sVerbose.get());
   Connect(userEventAction);
-  eventManager->SetUserAction(userEventAction);
-  m_evtManager->SetUserAction(userEventAction);
+  if(m_UseG4EventManager) {
+    eventManager->SetUserAction(userEventAction);
+  } else {
+    m_evtManager->SetUserAction(userEventAction);
+  }
 
   auto userTrackingAction = new TrackingAction(m_tls->trackManager.get(), m_sVerbose.get(), m_pTrackingAction);
   Connect(userTrackingAction);
-  eventManager->SetUserAction(userTrackingAction);
-  m_evtManager->SetUserAction(userTrackingAction);
+  if(m_UseG4EventManager) {
+    eventManager->SetUserAction(userTrackingAction);
+  } else {
+    m_evtManager->SetUserAction(userTrackingAction);
+  }
 
   auto userSteppingAction =
       new SteppingAction(m_tls->trackManager.get(), m_sVerbose.get(), m_pSteppingAction, m_hasWatchers);
   Connect(userSteppingAction);
-  eventManager->SetUserAction(userSteppingAction);
-  m_evtManager->SetUserAction(userSteppingAction);
+  if(m_UseG4EventManager) {
+    eventManager->SetUserAction(userSteppingAction);
+  } else {
+    m_evtManager->SetUserAction(userSteppingAction);
+  }
 
   auto userStackingAction = new StackingAction(userTrackingAction, m_pStackingAction, m_sVerbose.get());
-  eventManager->SetUserAction(userStackingAction);
-  m_evtManager->SetUserAction(userStackingAction);
+  if(m_UseG4EventManager) {
+    eventManager->SetUserAction(userStackingAction);
+  } else {
+    m_evtManager->SetUserAction(userStackingAction);
+  }
 }
 
 void RunManagerMTWorker::Connect(RunAction* runAction) {
@@ -545,8 +559,11 @@ G4SimEvent* RunManagerMTWorker::produce(const edm::Event& inpevt,
         << m_tls->currentEvent->GetNumberOfPrimaryVertex() << " vertices for Geant4; generator produced "
         << m_simEvent.nGenParts() << " particles.";
 
-    // m_tls->kernel->GetEventManager()->ProcessOneEvent(m_tls->currentEvent.get());
-    m_evtManager->ProcessOneEvent(m_tls->currentEvent.get());
+    if(m_UseG4EventManager) {
+      m_tls->kernel->GetEventManager()->ProcessOneEvent(m_tls->currentEvent.get());
+    } else {
+      m_evtManager->ProcessOneEvent(m_tls->currentEvent.get());
+    }
   }
 
   //remove memory only needed during event processing
