@@ -66,22 +66,23 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 #from MCsamples.Scripts.getCMSlocaldata_cfi import *
 
 if GEOMETRY == "D76":
-  # Read data from card files (defines getCMSdataFromCards()):
-  #from MCsamples.RelVal_1130_D76.PU200_TTbar_14TeV_cfi import *
-  #inputMC = getCMSdataFromCards()
 
-  # Or read .root files from directory on local computer:
-  #dirName = "$scratchmc/MCsamples1130_D76/RelVal/TTbar/PU200/"
-  #inputMC=getCMSlocaldata(dirName)
-
-  # Or read specified dataset (accesses CMS DB, so use this method only occasionally):
-  #dataName="/RelValTTbar_14TeV/CMSSW_11_3_0_pre6-PU_113X_mcRun4_realistic_v6_2026D76PU200-v1/GEN-SIM-DIGI-RAW"
-  #inputMC=getCMSdata(dataName)
-
-  # Or read specified .root file:
+  # Read specified .root file:
   inputMC = ["/store/relval/CMSSW_11_3_0_pre6/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_113X_mcRun4_realistic_v6_2026D76PU200-v1/00000/00026541-6200-4eed-b6f8-d3a1fd720e9c.root"]
 
 elif GEOMETRY == "D88":
+
+  # Read data from card files (defines getCMSdataFromCards()):
+  #from MCsamples.RelVal_1260_D88.PU200_TTbar_14TeV_cfi import *
+  #inputMC = getCMSdataFromCards()
+
+  # Or read .root files from directory on local computer:
+  #dirName = "$scratchmc/MCsamples1260_D88/RelVal/TTbar/PU200/"
+  #inputMC=getCMSlocaldata(dirName)
+
+  # Or read specified dataset (accesses CMS DB, so use this method only occasionally):
+  #dataName="/RelValTTbar_14TeV/CMSSW_12_6_0-PU_125X_mcRun4_realistic_v5_2026D88PU200RV183v2-v1/GEN-SIM-DIGI-RAW"
+  #inputMC=getCMSdata(dataName)
 
   # Read specified .root file:
   inputMC = ["/store/mc/CMSSW_12_6_0/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_125X_mcRun4_realistic_v5_2026D88PU200RV183v2-v1/30000/0959f326-3f52-48d8-9fcf-65fc41de4e27.root"]
