@@ -1,4 +1,3 @@
-<flags USE_UNITTEST_DIR="1"/>
 <bin file="testSerializationJetMETObjects.cpp">
   <use name="CondFormats/JetMETObjects"/>
 </bin>
