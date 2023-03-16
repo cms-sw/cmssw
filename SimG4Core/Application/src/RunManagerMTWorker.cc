@@ -376,7 +376,7 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   if (sv > 0) {
     m_sVerbose = std::make_unique<CMSSteppingVerbose>(sv, elim, ve, vn, vt);
   }
-  if(!m_UseG4EventManager)
+  if (!m_UseG4EventManager)
     m_evtManager = std::make_unique<CMSSimEventManager>(m_p);
   initializeUserActions();
 
@@ -401,7 +401,7 @@ void RunManagerMTWorker::initializeUserActions() {
   auto userEventAction =
       new EventAction(m_pEventAction, m_tls->runInterface.get(), m_tls->trackManager.get(), m_sVerbose.get());
   Connect(userEventAction);
-  if(m_UseG4EventManager) {
+  if (m_UseG4EventManager) {
     eventManager->SetUserAction(userEventAction);
   } else {
     m_evtManager->SetUserAction(userEventAction);
@@ -409,7 +409,7 @@ void RunManagerMTWorker::initializeUserActions() {
 
   auto userTrackingAction = new TrackingAction(m_tls->trackManager.get(), m_sVerbose.get(), m_pTrackingAction);
   Connect(userTrackingAction);
-  if(m_UseG4EventManager) {
+  if (m_UseG4EventManager) {
     eventManager->SetUserAction(userTrackingAction);
   } else {
     m_evtManager->SetUserAction(userTrackingAction);
@@ -418,14 +418,14 @@ void RunManagerMTWorker::initializeUserActions() {
   auto userSteppingAction =
       new SteppingAction(m_tls->trackManager.get(), m_sVerbose.get(), m_pSteppingAction, m_hasWatchers);
   Connect(userSteppingAction);
-  if(m_UseG4EventManager) {
+  if (m_UseG4EventManager) {
     eventManager->SetUserAction(userSteppingAction);
   } else {
     m_evtManager->SetUserAction(userSteppingAction);
   }
 
   auto userStackingAction = new StackingAction(userTrackingAction, m_pStackingAction, m_sVerbose.get());
-  if(m_UseG4EventManager) {
+  if (m_UseG4EventManager) {
     eventManager->SetUserAction(userStackingAction);
   } else {
     m_evtManager->SetUserAction(userStackingAction);
@@ -559,7 +559,7 @@ G4SimEvent* RunManagerMTWorker::produce(const edm::Event& inpevt,
         << m_tls->currentEvent->GetNumberOfPrimaryVertex() << " vertices for Geant4; generator produced "
         << m_simEvent.nGenParts() << " particles.";
 
-    if(m_UseG4EventManager) {
+    if (m_UseG4EventManager) {
       m_tls->kernel->GetEventManager()->ProcessOneEvent(m_tls->currentEvent.get());
     } else {
       m_evtManager->ProcessOneEvent(m_tls->currentEvent.get());
