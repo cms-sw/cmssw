@@ -1,2 +1,1 @@
-<flags USE_UNITTEST_DIR="1"/>
 <test name="TestPoolOutput" command="TestPoolOutput.sh"/>
