@@ -90,7 +90,7 @@ private:
   void printAndWriteBadModules(const SiStripQuality& quality, const SiStripDetInfo& detInfo) const;
   bool checkMapsValidity(const std::vector<MonitorElement*>& maps, const std::string& type) const;
   unsigned int countTotalHits(const std::vector<MonitorElement*>& maps); /* to check if TK was ON */
-  void makeSummary(DQMStore::IGetter& getter, DQMStore::IBooker& booker) const;
+  void makeSummary(DQMStore::IGetter& getter, DQMStore::IBooker& booker, bool doProfiles = false) const;
   template <typename T>
   void setEffBinLabels(const T gr, const T gr2, const unsigned int nLayers) const;
   void makeSummaryVsVariable(DQMStore::IGetter& getter, DQMStore::IBooker& booker, ::projections theProj) const;
@@ -500,13 +500,8 @@ void SiStripHitEfficiencyHarvester::printTotalStatistics(
   int totalfound = 0;
   int totaltotal = 0;
   double layereff;
-  int subdetfound[5];
-  int subdettotal[5];
-
-  for (unsigned int i = 1; i < 5; i++) {
-    subdetfound[i] = 0;
-    subdettotal[i] = 0;
-  }
+  int subdetfound[5] = {0, 0, 0, 0, 0};
+  int subdettotal[5] = {0, 0, 0, 0, 0};
 
   for (unsigned int i = 1; i <= bounds::k_LayersAtTECEnd; i++) {
     layereff = double(layerFound[i]) / double(layerTotal[i]);
@@ -559,7 +554,9 @@ void SiStripHitEfficiencyHarvester::writeBadStripPayload(const SiStripQuality& q
   }
 }
 
-void SiStripHitEfficiencyHarvester::makeSummary(DQMStore::IGetter& getter, DQMStore::IBooker& booker) const {
+void SiStripHitEfficiencyHarvester::makeSummary(DQMStore::IGetter& getter,
+                                                DQMStore::IBooker& booker,
+                                                bool doProfiles) const {
   // use goodlayer_total/found and alllayer_total/found, collapse side and/or ring if needed
   unsigned int nLayers{34};  // default
   if (showRings_)
@@ -657,6 +654,23 @@ void SiStripHitEfficiencyHarvester::makeSummary(DQMStore::IGetter& getter, DQMSt
   MonitorElement* h_eff_good =
       booker.book1D("eff_good", "Strip hit efficiency for good modules", nLayers + 1, 0, nLayers + 1);
 
+  if (doProfiles) {
+    // now do the profile
+    TProfile* profile_all = ::computeEff(found2->getTH1F(), all2->getTH1F(), "all");
+    profile_all->SetMinimum(tkMapMin_);
+    profile_all->SetTitle("Strip hit efficiency for all modules");
+    booker.bookProfile(profile_all->GetName(), profile_all);
+
+    TProfile* profile_good = ::computeEff(found->getTH1F(), all->getTH1F(), "good");
+    profile_good->SetMinimum(tkMapMin_);
+    profile_good->SetTitle("Strip hit efficiency for good modules");
+    booker.bookProfile(profile_good->GetName(), profile_good);
+
+    // clean the house
+    delete profile_all;
+    delete profile_good;
+  }
+
   for (int i = 1; i < found->getNbinsX(); i++) {
     const auto& den_all = all2->getBinContent(i);
     const auto& num_all = found2->getBinContent(i);
@@ -665,18 +679,26 @@ void SiStripHitEfficiencyHarvester::makeSummary(DQMStore::IGetter& getter, DQMSt
 
     // fill all modules efficiency
     if (den_all > 0.) {
-      float eff_all = num_all / den_all;
-      float err_eff_all = (eff_all * (1 - eff_all)) / den_all;
-      h_eff_all->setBinContent(i, eff_all);
-      h_eff_all->setBinError(i, err_eff_all);
+      // naive binomial errors
+      //float eff_all = num_all / den_all;
+      //float err_eff_all = (eff_all * (1 - eff_all)) / den_all;
+
+      // use Clopper-Pearson errors
+      const auto& effPair_all = ::computeCPEfficiency(num_all, den_all);
+      h_eff_all->setBinContent(i, effPair_all.value());
+      h_eff_all->setBinError(i, effPair_all.error());
     }
 
     // fill good modules efficiency
     if (den_good > 0.) {
-      float eff_good = num_good / den_good;
-      float err_eff_good = (eff_good * (1 - eff_good)) / den_good;
-      h_eff_good->setBinContent(i, eff_good);
-      h_eff_good->setBinError(i, err_eff_good);
+      // naive binomial errors
+      //float eff_good = num_good / den_good;
+      //float err_eff_good = (eff_good * (1 - eff_good)) / den_good;
+
+      // use Clopper-Pearson errors
+      const auto& effPair_good = ::computeCPEfficiency(num_good, den_good);
+      h_eff_good->setBinContent(i, effPair_good.value());
+      h_eff_good->setBinError(i, effPair_good.error());
     }
   }
 
@@ -876,18 +898,29 @@ void SiStripHitEfficiencyHarvester::makeSummaryVsVariable(DQMStore::IGetter& get
       const auto& num = hfound->getBinContent(i);
 
       // fill all modules efficiency
-      // error on efficiency computed with binomial approximation
       if (den > 0.) {
-        float eff = num / den;
-        float err_eff = (eff * (1 - eff)) / den;
-        effVsVariable[iLayer]->setBinContent(i, eff);
-        effVsVariable[iLayer]->setBinError(i, err_eff);
+        const auto& effPair = ::computeCPEfficiency(num, den);
+        effVsVariable[iLayer]->setBinContent(i, effPair.value());
+        effVsVariable[iLayer]->setBinError(i, effPair.error());
+
+        LogDebug("SiStripHitEfficiencyHarvester")
+            << __PRETTY_FUNCTION__ << " " << lyrName << " bin:" << i << " err:" << effPair.error() << std::endl;
       }
     }
 
     // graphics adjustment
     effVsVariable[iLayer]->getTH1F()->SetMinimum(tkMapMin_);
 
+    // now do the profile
+    TProfile* profile = ::computeEff(hfound->getTH1F(), htotal->getTH1F(), lyrName);
+    TString title =
+        fmt::sprintf("Efficiency vs %s for layer %s;%s;SiStrip Hit efficiency", titleString, lyrName, titleXString);
+    profile->SetMinimum(tkMapMin_);
+
+    profile->SetTitle(title.Data());
+    booker.bookProfile(profile->GetName(), profile);
+
+    delete profile;
   }  // loop on layers
 }
 
