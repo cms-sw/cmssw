@@ -4,12 +4,21 @@
 // A bunch of helper functions to deal with menial tasks in the
 // hit efficiency computation for the PCL workflow
 
-#include "TString.h"
-#include <string>
+// system includes
 #include <fmt/printf.h>
+#include <string>
+
+// user includes
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+
+// ROOT includes
+#include "TEfficiency.h"
+#include "TProfile.h"
+#include "TString.h"
 
 namespace {
 
@@ -215,5 +224,50 @@ namespace {
     return phi;
   }
 
+  inline TProfile* computeEff(const TH1F* num, const TH1F* denum, const std::string nameHist) {
+    std::string name = "eff_" + nameHist;
+    std::string title = "SiStrip Hit Efficiency" + std::string(num->GetTitle());
+    TProfile* efficHist = new TProfile(name.c_str(),
+                                       title.c_str(),
+                                       denum->GetXaxis()->GetNbins(),
+                                       denum->GetXaxis()->GetXmin(),
+                                       denum->GetXaxis()->GetXmax());
+
+    for (int i = 1; i <= denum->GetNbinsX(); i++) {
+      double nNum = num->GetBinContent(i);
+      double nDenum = denum->GetBinContent(i);
+      if (nDenum == 0 || nNum == 0) {
+        continue;
+      }
+      if (nNum > nDenum) {
+        edm::LogWarning("SiStripHitEfficiencyHelpers")
+            << "Alert! specific bin's num is bigger than denum " << i << " " << nNum << " " << nDenum;
+        nNum = nDenum;  // set the efficiency to 1
+      }
+      const double effVal = nNum / nDenum;
+      efficHist->SetBinContent(i, effVal);
+      efficHist->SetBinEntries(i, 1);
+      const double errLo = TEfficiency::ClopperPearson((int)nDenum, (int)nNum, 0.683, false);
+      const double errUp = TEfficiency::ClopperPearson((int)nDenum, (int)nNum, 0.683, true);
+      const double errVal = (effVal - errLo > errUp - effVal) ? effVal - errLo : errUp - effVal;
+      efficHist->SetBinError(i, sqrt(effVal * effVal + errVal * errVal));
+
+      LogDebug("SiStripHitEfficiencyHelpers") << __PRETTY_FUNCTION__ << " " << nameHist << " bin:" << i
+                                              << " err:" << sqrt(effVal * effVal + errVal * errVal);
+    }
+    return efficHist;
+  }
+
+  inline Measurement1D computeCPEfficiency(const double num, const double den) {
+    if (den > 0) {
+      const double effVal = num / den;
+      const double errLo = TEfficiency::ClopperPearson((int)den, (int)num, 0.683, false);
+      const double errUp = TEfficiency::ClopperPearson((int)den, (int)num, 0.683, true);
+      const double errVal = (effVal - errLo > errUp - effVal) ? effVal - errLo : errUp - effVal;
+      return Measurement1D(effVal, errVal);
+    } else {
+      return Measurement1D(0., 0.);
+    }
+  }
 }  // namespace
 #endif
