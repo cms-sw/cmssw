@@ -1,5 +1,4 @@
 <environment>
-  <flags USE_UNITTEST_DIR="1"/>
   <test name="TestPoolInput" command="TestPoolInput.sh"/>
 
   <library file="IOExerciser.cc" name="IOExerciser">

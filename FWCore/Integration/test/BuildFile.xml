@@ -1,5 +1,4 @@
 <environment>
-  <flags USE_UNITTEST_DIR="1"/>
   <bin name="TestFWCoreIntegrationStandalone" file="testRunner.cpp,standalone_t.cppunit.cc">
     <use name="cppunit"/>
     <use name="FWCore/Framework"/>
