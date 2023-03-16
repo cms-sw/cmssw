@@ -29,7 +29,7 @@
 
 // user include files
 #include "FWCore/Utilities/interface/Transition.h"
-#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/SharedMemory/interface/BufferInfo.h"
 
 // forward declarations
@@ -63,7 +63,7 @@ namespace edm::shared_memory {
       if (not wait(lock)) {
         //std::cout << id_ << " FAILED waiting for external process" << std::endl;
         *stop_ = true;
-        throw cms::Exception("ExternalFailed")
+        throw edm::Exception(edm::errors::ExternalFailure)
             << "Failed waiting for external process while setting up the process. Timed out after " << maxWaitInSeconds_
             << " seconds.";
       } else {
@@ -87,7 +87,7 @@ namespace edm::shared_memory {
         if (not wait(lock)) {
           if (not iRetry()) {
             *stop_ = true;
-            throw cms::Exception("ExternalFailed")
+            throw edm::Exception(edm::errors::ExternalFailure)
                 << "Failed waiting for external process while setting up the process. Timed out after "
                 << maxWaitInSeconds_ << " seconds with " << retryCount << " retries.";
           }
