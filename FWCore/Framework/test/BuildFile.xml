@@ -1,4 +1,3 @@
-<flags USE_UNITTEST_DIR="1"/>
 <use name="boost"/>
 <library file="DummyData.cc,DummyRecord.cc,DepRecord.cc,Dummy2Record.cc,DepOn2Record.cc" name="FWCoreFrameworkTestDummyForEventSetup">
   <use name="FWCore/Framework"/>
