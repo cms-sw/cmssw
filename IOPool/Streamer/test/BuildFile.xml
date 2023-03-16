@@ -1,5 +1,4 @@
 <environment>
-  <flags USE_UNITTEST_DIR="1"/>
   <use name="FWCore/Framework"/>
   <bin file="EventMessageTest.cpp">
     <use name="IOPool/Streamer"/>

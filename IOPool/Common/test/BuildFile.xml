@@ -1,4 +1,3 @@
-<flags USE_UNITTEST_DIR="1"/>
 <test name="TestEdmFastMerge" command="TestEdmFastMerge.sh"/>
 <test name="TestEdmConfigDump" command="run_TestEdmConfigDump.sh"/>
 <test name="testIOPoolCommonLumiOverlap" command="test_overlap_lumi_fast_copy.sh"/>
