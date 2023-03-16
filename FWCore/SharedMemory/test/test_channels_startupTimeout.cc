@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
       retValue = controller(argc, argv, 5);
     }
   } catch (cms::Exception const& iException) {
-    if (iException.category() != "ExternalFailed") {
+    if (iException.category() != "ExternalFailure") {
       throw;
     } else {
       std::cout << "expected failure occurred\n";
