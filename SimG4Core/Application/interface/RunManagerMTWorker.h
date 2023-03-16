@@ -93,6 +93,7 @@ private:
   const MagneticField* m_pMagField{nullptr};
 
   bool m_nonBeam{false};
+  bool m_UseG4EventManager{true};
   bool m_pUseMagneticField{true};
   bool m_hasWatchers{false};
   bool m_LHCTransport{false};
