@@ -50,10 +50,8 @@ process.esProducerB = cms.ESProducer("cms::alpakatest::TestESProducerB", value =
 process.esProducerC = cms.ESProducer("cms::alpakatest::TestESProducerC", value = cms.int32(27))
 
 from HeterogeneousCore.AlpakaTest.testAlpakaESProducerA_cfi import testAlpakaESProducerA 
-process.alpakaESProducerA = testAlpakaESProducerA.clone()
-process.alpakaESProducerAdataLabel = process.alpakaESProducerA.clone(appendToDataLabel = cms.string("appendedLabel"))
-process.alpakaESProducerB = cms.ESProducer("TestAlpakaESProducerB@alpaka")
-process.alpakaESProducerBexplicitLabel = process.alpakaESProducerB.clone(explicitLabel = cms.string("explicitLabel"))
+process.alpakaESProducerA = testAlpakaESProducerA.clone(appendToDataLabel = cms.string("appendedLabel"))
+process.alpakaESProducerB = cms.ESProducer("TestAlpakaESProducerB@alpaka", explicitLabel = cms.string("explicitLabel"))
 process.alpakaESProducerC = cms.ESProducer("TestAlpakaESProducerC@alpaka")
 process.alpakaESProducerD = cms.ESProducer("TestAlpakaESProducerD@alpaka",
     srcA = cms.ESInputTag("", "appendedLabel"),
@@ -64,6 +62,7 @@ process.intProduct = cms.EDProducer("IntProducer", ivalue = cms.int32(42))
 
 from HeterogeneousCore.AlpakaTest.testAlpakaGlobalProducer_cfi import testAlpakaGlobalProducer
 process.alpakaGlobalProducer = testAlpakaGlobalProducer.clone(
+    eventSetupSource = cms.ESInputTag("alpakaESProducerA", "appendedLabel"),
     size = dict(
         alpaka_serial_sync = 10,
         alpaka_cuda_async = 20
@@ -71,6 +70,7 @@ process.alpakaGlobalProducer = testAlpakaGlobalProducer.clone(
 )
 process.alpakaStreamProducer = cms.EDProducer("TestAlpakaStreamProducer@alpaka",
     source = cms.InputTag("intProduct"),
+    eventSetupSource = cms.ESInputTag("alpakaESProducerB", "explicitLabel"),
     size = cms.PSet(
         alpaka_serial_sync = cms.int32(5),
         alpaka_cuda_async = cms.int32(25)
@@ -78,6 +78,7 @@ process.alpakaStreamProducer = cms.EDProducer("TestAlpakaStreamProducer@alpaka",
 )
 process.alpakaStreamInstanceProducer = cms.EDProducer("TestAlpakaStreamProducer@alpaka",
     source = cms.InputTag("intProduct"),
+    eventSetupSource = cms.ESInputTag("alpakaESProducerB", "explicitLabel"),
     productInstanceName = cms.string("testInstance"),
     size = cms.PSet(
         alpaka_serial_sync = cms.int32(6),
