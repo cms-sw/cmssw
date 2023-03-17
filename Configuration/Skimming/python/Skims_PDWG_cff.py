@@ -327,15 +327,15 @@ SKIMStreamEXODisappTrk = cms.FilteredStream(
     dataTier = cms.untracked.string('AOD')
     )
 
-from Configuration.Skimming.PDWG_EXODisappMuon_cff import *
-EXODisappMuonPath = cms.Path(EXODisappMuonSkimSequence)
-SKIMStreamEXODisappMuon = cms.FilteredStream(
-    responsible = 'PDWG',
-    name = 'EXODisappMuon',
-    paths = (EXODisappMuonPath),
-    content = EXODisappMuonSkimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('USER')
+from Configuration.Skimming.PDWG_EXOLLPJetHCAL_cff import *
+EXOLLPJetHCALPath = cms.Path(EXOLLPJetHCALSkimSequence)
+SKIMStreamEXOLLPJetHCAL = cms.FilteredStream(
+    responsible = 'PDWG', 
+    name = 'EXOLLPJetHCAL', 
+    paths = (EXOLLPJetHCALPath),
+    content = skimRawAODContent.outputCommands+['drop *_*_*_*RECO', 'keep *_reducedHcalRecHits_*_*'],
+    selectEvents = cms.untracked.PSet(), 
+    dataTier = cms.untracked.string('AOD')
     )
 
 #####################
