@@ -377,13 +377,6 @@ nanoAOD_addDeepInfoAK4CHS_switch = cms.PSet(
     nanoAOD_addParticleNet_switch = cms.untracked.bool(False)
 )
 
-# Add new ParticleNet nodes to 106Xv2 MINIAOD
-# (b/c tagging, q vs. g, flavor-aware jet pT regression, tau ID + reco.)
-run2_nanoAOD_106Xv2.toModify(
-    nanoAOD_addDeepInfoAK4CHS_switch,
-    nanoAOD_addParticleNet_switch = True
-)
-
 ################################################
 ## DeepInfoAK4CHS:End
 #################################################
