@@ -111,8 +111,8 @@ void HGCalLayerClusterProducer::fillDescriptions(edm::ConfigurationDescriptions&
   pluginDesc.addNode(edm::PluginDescription<HGCalLayerClusterAlgoFactory>("type", "CLUE", true));
 
   desc.add<edm::ParameterSetDescription>("plugin", pluginDesc);
-  desc.add<std::string>("detector", "all")
-      ->setComment("all (does not include HFNose); other options: EE, FH, HFNose; other value defaults to EE");
+  desc.add<std::string>("detector", "EE")
+      ->setComment("options EE, FH, BH,  HFNose; other value defaults to EE");
   desc.add<edm::InputTag>("recHits", edm::InputTag("HGCalRecHit", "HGCEERecHits"));
   desc.add<std::string>("timeClname", "timeLayerCluster");
   desc.add<unsigned int>("nHitsTime", 3);
@@ -198,6 +198,8 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
 
 // todo or we can make a map but I dont think it is necessary
 void HGCalLayerClusterProducer::setAlgoId(){
+   algoId = reco::CaloCluster::hgcal_mixed;
+   return;
     if (detector == "HFNose") {
       algoId = reco::CaloCluster::hfnose;
     }  else if (detector == "EE") {
