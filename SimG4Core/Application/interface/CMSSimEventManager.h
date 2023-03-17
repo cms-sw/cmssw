@@ -17,7 +17,6 @@ namespace edm {
   class ParameterSet;
 }
 
-class G4Track;
 class G4Event;
 class EventAction;
 class StackingAction;
@@ -53,7 +52,6 @@ public:
 private:
   void StackTracks(G4TrackVector*, bool IDisSet);
 
-  G4Event* m_currentEvent{nullptr};
   G4StateManager* m_stateManager;
   G4TrackingManager* m_defTrackManager;
   G4SDManager* m_sdManager;
