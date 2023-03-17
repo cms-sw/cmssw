@@ -1,11 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-from ..modules.hltParticleFlowClusterHBHEForEgamma_cfi import *
-from ..modules.hltParticleFlowClusterHCALForEgamma_cfi import *
-from ..modules.hltParticleFlowRecHitHBHEForEgamma_cfi import *
+from ..modules.hltParticleFlowClusterHBHE_cfi import *
+from ..modules.hltParticleFlowClusterHCAL_cfi import *
+from ..modules.hltParticleFlowRecHitHBHE_cfi import *
 
 HLTPFHcalClusteringForEgammaTask = cms.Task(
-    hltParticleFlowClusterHBHEForEgamma,
-    hltParticleFlowClusterHCALForEgamma,
-    hltParticleFlowRecHitHBHEForEgamma
+    hltParticleFlowClusterHBHE,
+    hltParticleFlowClusterHCAL,
+    hltParticleFlowRecHitHBHE
 )
