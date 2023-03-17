@@ -31,14 +31,14 @@ autoCond = {
     'run2_data_promptlike_hi'      : '124X_dataRun2_PromptLike_HI_v1',
     # GlobalTag with fixed snapshot time for Run2 HLT RelVals: customizations to run with fixed L1 Menu
     'run2_hlt_relval'              : '123X_dataRun2_HLT_relval_v3',
-    # GlobalTag for Run3 HLT: identical to the online GT (126X_dataRun3_HLT_v1) but with snapshot at 2023-01-28 12:00:00 (UTC)
-    'run3_hlt'                     : '126X_dataRun3_HLT_frozen_v2',
-    # GlobalTag for Run3 data relvals (express GT) - identical to 126X_dataRun3_Express_v1 but with snapshot at 2023-01-28 12:00:00 (UTC)
-    'run3_data_express'            : '126X_dataRun3_Express_frozen_v2',
-    # GlobalTag for Run3 data relvals (prompt GT) - identical to 126X_dataRun3_Prompt_v1 but with snapshot at 2023-01-28 12:00:00 (UTC)
-    'run3_data_prompt'             : '126X_dataRun3_Prompt_frozen_v2',
-    # GlobalTag for Run3 offline data reprocessing - snapshot at 2023-01-28 12:00:00 (UTC)
-    'run3_data'                    : '126X_dataRun3_v2',
+    # GlobalTag for Run3 HLT: identical to the online GT (130X_dataRun3_HLT_v2) but with snapshot at 2023-03-16 19:00:00 (UTC)
+    'run3_hlt'                     : '130X_dataRun3_HLT_frozen_v1',
+    # GlobalTag for Run3 data relvals (express GT) - identical to 130X_dataRun3_Express_v2 but with snapshot at 2023-03-16 19:00:00 (UTC)
+    'run3_data_express'            : '130X_dataRun3_Express_frozen_v1',
+    # GlobalTag for Run3 data relvals (prompt GT) - identical to 130X_dataRun3_Prompt_v2 but with snapshot at 2023-03-16 19:00:00 (UTC)
+    'run3_data_prompt'             : '130X_dataRun3_Prompt_frozen_v1',
+    # GlobalTag for Run3 offline data reprocessing - snapshot at 2023-03-16 19:00:00 (UTC)
+    'run3_data'                    : '130X_dataRun3_v1',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
     'phase1_2017_design'           : '131X_mc2017_design_v1',
     # GlobalTag for MC production with realistic conditions for Phase1 2017 detector
