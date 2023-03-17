@@ -154,7 +154,8 @@ namespace {
       }
 
       // fill all the histograms together
-      std::vector<int> boundaries;
+      std::map<int, AlignmentPI::partitions> boundaries;
+      boundaries.insert({0, AlignmentPI::BPix});  // always start with BPix, not filled in the loop
       AlignmentPI::fillComparisonHistograms(boundaries, ref_ali, target_ali, diffs);
 
       unsigned int subpad{1};
@@ -219,9 +220,9 @@ namespace {
 
         unsigned int i = 0;
         for (const auto &line : boundaries) {
-          l[subpad][i] = TLine(diffs[coord]->GetBinLowEdge(line),
+          l[subpad][i] = TLine(diffs[coord]->GetBinLowEdge(line.first),
                                canvas.cd(subpad + 1)->GetUymin(),
-                               diffs[coord]->GetBinLowEdge(line),
+                               diffs[coord]->GetBinLowEdge(line.first),
                                canvas.cd(subpad + 1)->GetUymax() * 0.84);
           l[subpad][i].SetLineWidth(1);
           l[subpad][i].SetLineStyle(9);
@@ -230,11 +231,32 @@ namespace {
           i++;
         }
 
-        const auto &theX_ = {0.2, 0.24, 0.31, 0.4, 0.55, 0.8};
-        for (unsigned int j = 1; j <= 7; j++) {
-          auto thePart = static_cast<AlignmentPI::partitions>(j);
-          tSubdet[subpad].DrawLatex(
-              theX_.begin()[j - 1], 0.20, Form("%s", (AlignmentPI::getStringFromPart(thePart)).c_str()));
+        if (ref_ali.size() <= AlignmentPI::phase1size) {
+          const auto &theX_ = {0.2, 0.24, 0.31, 0.4, 0.55, 0.8};
+          for (unsigned int j = 1; j < 7; j++) {
+            auto thePart = static_cast<AlignmentPI::partitions>(j);
+            tSubdet[subpad].DrawLatex(
+                theX_.begin()[j - 1], 0.20, Form("%s", (AlignmentPI::getStringFromPart(thePart)).c_str()));
+          }
+        } else {
+          // this is for phase-2
+          unsigned int j = 0;
+          for (const auto &elem : boundaries) {
+            const auto &lm = canvas.cd(subpad + 1)->GetLeftMargin();
+            const auto &rm = 1 - canvas.cd(subpad + 1)->GetRightMargin();
+            const auto &frac = float(elem.first) / ref_ali.size();
+
+            LogDebug("TrackerAlignmentCompareAll")
+                << __PRETTY_FUNCTION__ << " left margin:  " << lm << " right margin: " << rm << " fraction: " << frac;
+
+            float theX_ = lm + (rm - lm) * frac + (j > 0 ? 0.025 : 0.01);
+
+            tSubdet[subpad].DrawLatex(
+                theX_,
+                0.23,
+                Form("%s", AlignmentPI::getStringFromPart(elem.second, /*guaranteed is phase2*/ true).c_str()));
+            j++;
+          }
         }
 
         auto ltx = TLatex();
@@ -342,7 +364,8 @@ namespace {
                                  ref_ali.size() - 0.5);
 
       // fill the histograms
-      std::vector<int> boundaries;
+      std::map<int, AlignmentPI::partitions> boundaries;
+      boundaries.insert({0, AlignmentPI::BPix});  // always start with BPix, not filled in the loop
       AlignmentPI::fillComparisonHistogram(coord, boundaries, ref_ali, target_ali, compare);
 
       canvas.cd();
@@ -371,9 +394,9 @@ namespace {
       TLine l[boundaries.size()];
       unsigned int i = 0;
       for (const auto &line : boundaries) {
-        l[i] = TLine(compare->GetBinLowEdge(line),
+        l[i] = TLine(compare->GetBinLowEdge(line.first),
                      canvas.cd()->GetUymin(),
-                     compare->GetBinLowEdge(line),
+                     compare->GetBinLowEdge(line.first),
                      canvas.cd()->GetUymax());
         l[i].SetLineWidth(1);
         l[i].SetLineStyle(9);
@@ -382,18 +405,20 @@ namespace {
         i++;
       }
 
+      //std::cout << "boundaries.size()= " << boundaries.size() << std::endl;
+
       TLatex tSubdet;
       tSubdet.SetNDC();
       tSubdet.SetTextAlign(21);
       tSubdet.SetTextSize(0.027);
       tSubdet.SetTextAngle(90);
-      for (unsigned int j = 1; j <= 6; j++) {
-        auto thePart = static_cast<AlignmentPI::partitions>(j);
+
+      for (const auto &elem : boundaries) {
         tSubdet.SetTextColor(kRed);
-        auto myPair = (j > 1) ? AlignmentPI::calculatePosition(gPad, compare->GetBinLowEdge(boundaries[j - 2]))
-                              : AlignmentPI::calculatePosition(gPad, compare->GetBinLowEdge(0));
-        float theX_ = myPair.first + 0.025;
-        tSubdet.DrawLatex(theX_, 0.20, Form("%s", (AlignmentPI::getStringFromPart(thePart)).c_str()));
+        auto myPair = AlignmentPI::calculatePosition(gPad, compare->GetBinLowEdge(elem.first));
+        float theX_ = elem.first != 0 ? myPair.first + 0.025 : myPair.first + 0.01;
+        bool isPhase2 = (ref_ali.size() > AlignmentPI::phase1size);
+        tSubdet.DrawLatex(theX_, 0.20, Form("%s", AlignmentPI::getStringFromPart(elem.second, isPhase2).c_str()));
       }
 
       TLegend legend = TLegend(0.17, 0.86, 0.95, 0.94);
@@ -538,7 +563,7 @@ namespace {
       }
 
       // fill the comparison histograms
-      std::vector<int> boundaries{};
+      std::map<int, AlignmentPI::partitions> boundaries;
       AlignmentPI::fillComparisonHistograms(boundaries, ref_ali, target_ali, diffs, true, q);
 
       int c_index = 1;
