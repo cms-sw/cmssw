@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 particleNetAK8HbbTagEfficiency = DQMEDHarvester("DQMGenericClient",
-    subDirs    = cms.untracked.vstring("HLT/HIG/PNETAK8/HLT_IsoMu50_AK8PFJet230_SoftDropMass40_PFAK8ParticleNetBB0p35_or_HLT_Ele50_CaloIdVT_GsfTrkIdT_AK8PFJet230_SoftDropMass40/"),
+    subDirs    = cms.untracked.vstring("HLT/HIG/PNETAK8/HLT_IsoMu50_AK8PFJet220_SDMass40_PFAK8PNetBB0p35_or_HLT_Ele50_CaloIdVT_GsfTrkIdT_AK8PFJet220_SDMass40/"),
     verbose    = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution = cms.vstring(),
     efficiency = cms.vstring(

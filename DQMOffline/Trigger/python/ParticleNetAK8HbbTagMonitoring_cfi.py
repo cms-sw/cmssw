@@ -4,7 +4,7 @@ from DQMOffline.Trigger.ParticleNetJetTagMonitor_cfi import ParticleNetJetTagMon
 
 particleNetAK8HbbTagMonitoring = _particleNetJetTagMonitor.clone(
     ## general options
-    FolderName = "HLT/HIG/PNETAK8/HLT_IsoMu50_AK8PFJet230_SoftDropMass40_PFAK8ParticleNetBB0p35_or_HLT_Ele50_CaloIdVT_GsfTrkIdT_AK8PFJet230_SoftDropMass40/",
+    FolderName = "HLT/HIG/PNETAK8/HLT_IsoMu50_AK8PFJet220_SDMass40_PFAK8PNetBB0p35_or_HLT_Ele50_CaloIdVT_GsfTrkIdT_AK8PFJet220_SDMass40/",
     requireValidHLTPaths = True,
     requireHLTOfflineJetMatching = True,
     ## objects
@@ -84,8 +84,8 @@ particleNetAK8HbbTagMonitoring = _particleNetJetTagMonitor.clone(
     jet2PNETscoreTransBinning2d = [],
     ## trigger for numerator and denominator
     numGenericTriggerEvent = dict(
-        hltPaths      = ["HLT_IsoMu50_AK8PFJet230_SoftDropMass40_PFAK8ParticleNetBB0p35_v*",
-                         "HLT_Ele50_CaloIdVT_GsfTrkIdT_AK8PFJet230_SoftDropMass40_PFAK8ParticleNetBB0p35_v*"],
+        hltPaths      = ["HLT_IsoMu50_AK8PFJet220_SDMass40_PFAK8PNetBB0p35_v*",
+                         "HLT_Ele50_CaloIdVT_GsfTrkIdT_AK8PFJet220_SDMass40_PFAK8PNetBB0p35_v*"],
         andOr         = False,
         andOrHlt      = True,
         #hltInputTag   = "TriggerResults::reHLT", ## when testing in the DQM workflow (https://twiki.cern.ch/twiki/bin/viewauth/CMS/HLTValidationAndDQM)
@@ -98,8 +98,8 @@ particleNetAK8HbbTagMonitoring = _particleNetJetTagMonitor.clone(
         verbosityLevel = 1,
     ),
     denGenericTriggerEvent = dict(
-        hltPaths      = ["HLT_IsoMu50_AK8PFJet230_SoftDropMass40_v*",
-                         "HLT_Ele50_CaloIdVT_GsfTrkIdT_AK8PFJet230_SoftDropMass40_v*",
+        hltPaths      = ["HLT_IsoMu50_AK8PFJet220_SDMass40_v*",
+                         "HLT_Ele50_CaloIdVT_GsfTrkIdT_AK8PFJet220_SDMass40_v*",
                      ],
         andOr         = False,
         andOrHlt      = True,
