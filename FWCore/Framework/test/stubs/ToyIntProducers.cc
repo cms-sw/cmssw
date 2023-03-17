@@ -16,6 +16,8 @@ Toy EDProducers of Ints for testing purposes only.
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ProcessBlock.h"
+#include "FWCore/Framework/interface/GetterOfProducts.h"
+#include "FWCore/Framework/interface/TypeMatch.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -485,21 +487,36 @@ namespace edmtest {
 
   class AddAllIntsProducer : public edm::global::EDProducer<> {
   public:
-    explicit AddAllIntsProducer(edm::ParameterSet const& p) : putToken_{produces()} { consumesMany<IntProduct>(); }
+    explicit AddAllIntsProducer(edm::ParameterSet const& p)
+        : putToken_{produces()}, useConsumesMany_(p.getUntrackedParameter<bool>("useConsumesMany")) {
+      if (useConsumesMany_) {
+        consumesMany<IntProduct>();
+      } else {
+        getter_ = edm::GetterOfProducts<IntProduct>(edm::TypeMatch(), this);
+        callWhenNewProductsRegistered(*getter_);
+      }
+    }
     void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
+      desc.addUntracked<bool>("useConsumesMany", true);
       descriptions.addDefault(desc);
     }
 
   private:
     const edm::EDPutTokenT<int> putToken_;
+    std::optional<edm::GetterOfProducts<IntProduct>> getter_;
+    bool useConsumesMany_;
   };
 
   void AddAllIntsProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
     std::vector<edm::Handle<IntProduct>> ints;
-    e.getManyByType(ints);
+    if (useConsumesMany_) {
+      e.getManyByType(ints);
+    } else {
+      getter_->fillHandles(e, ints);
+    }
 
     int value = 0;
     for (auto const& i : ints) {
