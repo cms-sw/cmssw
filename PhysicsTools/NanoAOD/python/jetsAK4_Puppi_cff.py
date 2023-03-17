@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.NanoAOD.common_cff import *
+from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.simpleCandidateFlatTableProducer_cfi import simpleCandidateFlatTableProducer
 
 ##################### User floats producers, selectors ##########################
@@ -110,7 +111,6 @@ jetPuppiTable = simpleCandidateFlatTableProducer.clone(
     )
 )
 
-from PhysicsTools.NanoAOD.nano_eras_cff import run2_nanoAOD_ANY,run3_nanoAOD_122,run3_nanoAOD_124
 run2_nanoAOD_ANY.toModify(
     jetPuppiTable.variables,
     btagCSVV2 = Var("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')",float,doc=" pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)",precision=10)
@@ -160,7 +160,14 @@ def nanoAOD_addDeepInfoAK4(process,addParticleNet):
     return process
 
 nanoAOD_addDeepInfoAK4_switch = cms.PSet(
-    nanoAOD_addParticleNet_switch = cms.untracked.bool(False),
+    nanoAOD_addParticleNet_switch = cms.untracked.bool(False)
+)
+
+# Add new ParticleNet nodes to 106Xv2 MINIAOD
+# (b/c tagging, q vs. g, flavor-aware jet pT regression, tau ID + reco.)
+run2_nanoAOD_106Xv2.toModify(
+    nanoAOD_addDeepInfoAK4_switch,
+    nanoAOD_addParticleNet_switch = True
 )
 
 ################################################

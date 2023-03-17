@@ -154,17 +154,6 @@ def nanoAOD_activateVID(process):
 def nanoAOD_customizeCommon(process):
 
     process = nanoAOD_activateVID(process)
-    
-    # Include new ParticleNet trainings for Run-2 UL
-    run2_nanoAOD_106Xv2.toModify(
-        nanoAOD_addDeepInfoAK4CHS_switch, nanoAOD_addParticleNet_switch=True, 
-    )
-    run2_nanoAOD_106Xv2.toModify(
-        nanoAOD_addDeepInfoAK4_switch, nanoAOD_addParticleNet_switch=True, 
-    )
-    run2_nanoAOD_106Xv2.toModify(
-        nanoAOD_addDeepInfoAK8_switch, nanoAOD_addParticleNet_switch=True
-    )
 
     # This function is defined in jetsAK4_Puppi_cff.py
     process = nanoAOD_addDeepInfoAK4(process,
@@ -184,6 +173,7 @@ def nanoAOD_customizeCommon(process):
         addDeepBoostedJet=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBoostedJet_switch,
         addDeepDoubleX=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepDoubleX_switch,
         addDeepDoubleXV2=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepDoubleXV2_switch,
+        addParticleNetMassLegacy=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addParticleNetMassLegacy_switch,
         addParticleNet=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addParticleNet_switch,
         jecPayload=nanoAOD_addDeepInfoAK8_switch.jecPayload
     )
