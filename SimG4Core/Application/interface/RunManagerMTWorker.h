@@ -36,6 +36,7 @@ class EventAction;
 class TrackingAction;
 class SteppingAction;
 class CMSSteppingVerbose;
+class CMSSimEventManager;
 class G4Field;
 
 class SensitiveTkDetector;
@@ -92,6 +93,7 @@ private:
   const MagneticField* m_pMagField{nullptr};
 
   bool m_nonBeam{false};
+  bool m_UseG4EventManager{true};
   bool m_pUseMagneticField{true};
   bool m_hasWatchers{false};
   bool m_LHCTransport{false};
@@ -115,6 +117,7 @@ private:
 
   CustomUIsession* m_UIsession{nullptr};
   G4SimEvent m_simEvent;
+  std::unique_ptr<CMSSimEventManager> m_evtManager;
   std::unique_ptr<CMSSteppingVerbose> m_sVerbose;
   std::unordered_map<std::string, std::unique_ptr<SensitiveDetectorMakerBase>> m_sdMakers;
 };

@@ -6,6 +6,7 @@
 #include "SimG4Core/Application/interface/StackingAction.h"
 #include "SimG4Core/Application/interface/TrackingAction.h"
 #include "SimG4Core/Application/interface/SteppingAction.h"
+#include "SimG4Core/Application/interface/CMSSimEventManager.h"
 #include "SimG4Core/Application/interface/CustomUIsessionThreadPrefix.h"
 #include "SimG4Core/Application/interface/CustomUIsessionToFile.h"
 #include "SimG4Core/Application/interface/ExceptionHandler.h"
@@ -149,6 +150,7 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
       m_theLHCTlinkToken(
           iC.consumes<edm::LHCTransportLinkContainer>(iConfig.getParameter<edm::InputTag>("theLHCTlinkTag"))),
       m_nonBeam(iConfig.getParameter<bool>("NonBeamEvent")),
+      m_UseG4EventManager(iConfig.getParameter<bool>("UseG4EventManager")),
       m_pUseMagneticField(iConfig.getParameter<bool>("UseMagneticField")),
       m_LHCTransport(iConfig.getParameter<bool>("LHCTransport")),
       m_thread_index{get_new_thread_index()},
@@ -360,6 +362,7 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
     throw cms::Exception("Configuration")
         << "RunManagerMTWorker::InitializeG4: Geant4 kernel initialization failed in thread " << thisID;
   }
+
   //tell all interesting parties that we are beginning the job
   BeginOfJob aBeginOfJob(&es);
   m_tls->registry->beginOfJobSignal_(&aBeginOfJob);
@@ -373,6 +376,8 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   if (sv > 0) {
     m_sVerbose = std::make_unique<CMSSteppingVerbose>(sv, elim, ve, vn, vt);
   }
+  if (!m_UseG4EventManager)
+    m_evtManager = std::make_unique<CMSSimEventManager>(m_p);
   initializeUserActions();
 
   G4StateManager::GetStateManager()->SetNewState(G4State_Idle);
@@ -393,22 +398,38 @@ void RunManagerMTWorker::initializeUserActions() {
   G4EventManager* eventManager = m_tls->kernel->GetEventManager();
   eventManager->SetVerboseLevel(ver);
 
-  EventAction* userEventAction =
+  auto userEventAction =
       new EventAction(m_pEventAction, m_tls->runInterface.get(), m_tls->trackManager.get(), m_sVerbose.get());
   Connect(userEventAction);
-  eventManager->SetUserAction(userEventAction);
+  if (m_UseG4EventManager) {
+    eventManager->SetUserAction(userEventAction);
+  } else {
+    m_evtManager->SetUserAction(userEventAction);
+  }
 
-  TrackingAction* userTrackingAction =
-      new TrackingAction(m_tls->trackManager.get(), m_sVerbose.get(), m_pTrackingAction);
+  auto userTrackingAction = new TrackingAction(m_tls->trackManager.get(), m_sVerbose.get(), m_pTrackingAction);
   Connect(userTrackingAction);
-  eventManager->SetUserAction(userTrackingAction);
+  if (m_UseG4EventManager) {
+    eventManager->SetUserAction(userTrackingAction);
+  } else {
+    m_evtManager->SetUserAction(userTrackingAction);
+  }
 
-  SteppingAction* userSteppingAction =
+  auto userSteppingAction =
       new SteppingAction(m_tls->trackManager.get(), m_sVerbose.get(), m_pSteppingAction, m_hasWatchers);
   Connect(userSteppingAction);
-  eventManager->SetUserAction(userSteppingAction);
+  if (m_UseG4EventManager) {
+    eventManager->SetUserAction(userSteppingAction);
+  } else {
+    m_evtManager->SetUserAction(userSteppingAction);
+  }
 
-  eventManager->SetUserAction(new StackingAction(userTrackingAction, m_pStackingAction, m_sVerbose.get()));
+  auto userStackingAction = new StackingAction(userTrackingAction, m_pStackingAction, m_sVerbose.get());
+  if (m_UseG4EventManager) {
+    eventManager->SetUserAction(userStackingAction);
+  } else {
+    m_evtManager->SetUserAction(userStackingAction);
+  }
 }
 
 void RunManagerMTWorker::Connect(RunAction* runAction) {
@@ -538,7 +559,11 @@ G4SimEvent* RunManagerMTWorker::produce(const edm::Event& inpevt,
         << m_tls->currentEvent->GetNumberOfPrimaryVertex() << " vertices for Geant4; generator produced "
         << m_simEvent.nGenParts() << " particles.";
 
-    m_tls->kernel->GetEventManager()->ProcessOneEvent(m_tls->currentEvent.get());
+    if (m_UseG4EventManager) {
+      m_tls->kernel->GetEventManager()->ProcessOneEvent(m_tls->currentEvent.get());
+    } else {
+      m_evtManager->ProcessOneEvent(m_tls->currentEvent.get());
+    }
   }
 
   //remove memory only needed during event processing
