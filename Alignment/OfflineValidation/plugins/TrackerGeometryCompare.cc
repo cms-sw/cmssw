@@ -70,7 +70,7 @@ TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg)
       fromDD4hep_(cfg.getUntrackedParameter<bool>("fromDD4hep")),
       writeToDB_(cfg.getUntrackedParameter<bool>("writeToDB")),
       commonTrackerLevel_(align::invalid),
-      moduleListFile_(nullptr),
+      moduleListFile_(),
       moduleList_(0),
       inputRootFile1_(nullptr),
       inputRootFile2_(nullptr),
@@ -337,8 +337,9 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup) {
       AlignTransform transform1(translation1, eulerangles1, detid1);
       alignments1->m_align.push_back(transform1);
 
-      //dummy errors
-      CLHEP::HepSymMatrix clhepSymMatrix(3, 0);
+      // dummy errors
+      // APE matrix was 3x3, now it's 6x6 (because of muons), see PR #6483
+      CLHEP::HepSymMatrix clhepSymMatrix(6, 0);
       AlignTransformErrorExtended transformError(clhepSymMatrix, detid1);
       alignmentErrors1->m_alignError.push_back(transformError);
     }
@@ -371,8 +372,9 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup) {
       AlignTransform transform2(translation2, eulerangles2, detid2);
       alignments2->m_align.push_back(transform2);
 
-      //dummy errors
-      CLHEP::HepSymMatrix clhepSymMatrix(3, 0);
+      // dummy errors
+      // APE matrix was 3x3, now it's 6x6 (because of muons), see PR #6483
+      CLHEP::HepSymMatrix clhepSymMatrix(6, 0);
       AlignTransformErrorExtended transformError(clhepSymMatrix, detid2);
       alignmentErrors2->m_alignError.push_back(transformError);
     }
