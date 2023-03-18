@@ -3024,7 +3024,7 @@ steps['RECOHI2018PPRECOMB']=merge([hiDefaults2018_ppReco,{'-s':'RAW2DIGI,L1Reco,
 
 steps['RECOHI2022MIX']=merge([hiDefaults2022_ppReco,{'-s':'RAW2DIGI,L1Reco,RECO,PAT,VALIDATION:@standardValidationNoHLTHiMix+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM',
                                                      '--pileup':'HiMix',
-                                                     '--pileup_input':'das:/RelValHydjetQ_B12_5020GeV_2022_ppReco/%s/GEN-SIM'%(baseDataSetRelease[23])
+                                                     '--pileup_input':'das:/RelValHydjetQ_B12_5020GeV_2021_ppReco/%s/GEN-SIM'%(baseDataSetRelease[23])
                                                  },step3Up2015Defaults])
 
 
