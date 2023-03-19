@@ -57,9 +57,9 @@ void CaloTowerCreatorForTauHLT::produce(StreamID sid, Event& evt, const EventSet
         }
         if (cal->et() >= mEtThreshold && cal->energy() >= mEThreshold) {
           math::PtEtaPhiELorentzVector p(cal->et(), cal->eta(), cal->phi(), cal->energy());
-          double delta = ROOT::Math::VectorUtil::DeltaR((*myL1Jet).p4().Vect(), p);
+          double delta2 = ROOT::Math::VectorUtil::DeltaR2((*myL1Jet).p4().Vect(), p);
 
-          if (delta < mCone) {
+          if (delta2 < mCone * mCone) {
             isAccepted = true;
             cands->push_back(*cal);
           }
