@@ -70,6 +70,7 @@ bool JetMCTagUtils::decayFromCHadron(const Candidate &c) {
 std::string JetMCTagUtils::genTauDecayMode(const CompositePtrCandidate &c) {
   int numElectrons = 0;
   int numMuons = 0;
+  int numTaus = 0;
   int numChargedHadrons = 0;
   int numNeutralHadrons = 0;
   int numPhotons = 0;
@@ -89,6 +90,9 @@ std::string JetMCTagUtils::genTauDecayMode(const CompositePtrCandidate &c) {
       case 13:
         numMuons++;
         break;
+      case 15:
+        numTaus++;
+        break;
       default: {
         if ((*daughter)->charge() != 0)
           numChargedHadrons++;
@@ -102,6 +106,8 @@ std::string JetMCTagUtils::genTauDecayMode(const CompositePtrCandidate &c) {
     return std::string("electron");
   else if (numMuons == 1)
     return std::string("muon");
+  else if (numTaus == 1)  //MB: a tau undecayed by generator or an intermediate state used to generate radiations
+    return std::string("tau");
 
   switch (numChargedHadrons) {
     case 1:
