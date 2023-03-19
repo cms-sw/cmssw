@@ -26,8 +26,7 @@ L1THLTTauMatching::~L1THLTTauMatching() {}
 void L1THLTTauMatching::produce(edm::StreamID iSId, edm::Event& iEvent, const edm::EventSetup& iES) const {
   unique_ptr<PFTauCollection> tauL2jets(new PFTauCollection);
 
-  double deltaR = 1.0;
-  double matchingR = 0.5;
+  constexpr double matchingR = 0.5 * 0.5;
 
   // Getting HLT jets to be matched
   edm::Handle<PFTauCollection> tauJets;
@@ -45,8 +44,8 @@ void L1THLTTauMatching::produce(edm::StreamID iSId, edm::Event& iEvent, const ed
     for (unsigned int iJet = 0; iJet < tauJets->size(); iJet++) {
       // Find the relative L2TauJets, to see if it has been reconstructed
       const PFTau& myJet = (*tauJets)[iJet];
-      deltaR = ROOT::Math::VectorUtil::DeltaR(myJet.p4().Vect(), (tauCandRefVec[iL1Tau]->p4()).Vect());
-      if (deltaR < matchingR) {
+      double deltaR2 = ROOT::Math::VectorUtil::DeltaR2(myJet.p4().Vect(), (tauCandRefVec[iL1Tau]->p4()).Vect());
+      if (deltaR2 < matchingR) {
         if (myJet.leadChargedHadrCand().isNonnull()) {
           a = myJet.leadChargedHadrCand()->vertex();
         }

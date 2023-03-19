@@ -58,8 +58,8 @@ void L2TauJetsMerger::produce(edm::StreamID iSId, edm::Event& iEvent, const edm:
     tauL2jets->push_back(myTmpJets[0]);
     CaloJetCollection tmp;
     for (unsigned int i = 1; i < myTmpJets.size(); ++i) {
-      double DR = ROOT::Math::VectorUtil::DeltaR(myTmpJets[0].p4(), myTmpJets[i].p4());
-      if (DR > 0.1)
+      double DR2 = ROOT::Math::VectorUtil::DeltaR2(myTmpJets[0].p4(), myTmpJets[i].p4());
+      if (DR2 > 0.1 * 0.1)
         tmp.push_back(myTmpJets[i]);
     }
     myTmpJets.swap(tmp);
