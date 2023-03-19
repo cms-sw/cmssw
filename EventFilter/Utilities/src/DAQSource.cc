@@ -1192,13 +1192,13 @@ void DAQSource::readWorker(unsigned int tid) {
 
       file->fileSizes_[0] = bufferLeft;
 
-      if (chunk->offset_ + bufferLeft == file->fileSize_) {  //file reading finished using same fd
+      if (chunk->offset_ + bufferLeft == file->diskFileSizes_[0] || bufferLeft == chunk->size_) {
+        //file reading finished using this fd
+        //or the whole buffer is filled (single sequential file spread over more chunks)
         close(fileDescriptor);
         fileDescriptor = -1;
-      }
-      //close if first thread reading this fd
-      if (numConcurrentReads_ > 1 && fileDescriptor != -1)
-        close(fileDescriptor);
+      } else
+        assert(fileDescriptor == -1);
 
       if (fitToBuffer && bufferLeft != file->diskFileSizes_[0]) {
         edm::LogError("DAQSource") << "mismatch between read file size for file -: " << file->fileNames_[0]
