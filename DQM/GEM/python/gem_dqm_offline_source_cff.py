@@ -5,6 +5,8 @@ from DQM.GEM.GEMRecHitSource_cfi import *
 from DQM.GEM.GEMDAQStatusSource_cfi import *
 from DQM.GEM.gemEfficiencyAnalyzer_cff import *
 
+from DQMOffline.MuonDPG.gemTnPEfficiencyTask_cfi import *
+
 GEMDigiSource.runType      = "offline"
 GEMRecHitSource.runType    = "offline"
 GEMDAQStatusSource.runType = "offline"
@@ -14,5 +16,6 @@ gemSources = cms.Sequence(
     GEMRecHitSource *
     GEMDAQStatusSource *
     gemEfficiencyAnalyzerTightGlbSeq *
-    gemEfficiencyAnalyzerStaSeq
+    gemEfficiencyAnalyzerStaSeq *
+    gemTnPEfficiencyMonitor
 )
