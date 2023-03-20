@@ -162,6 +162,31 @@ unsigned int repackId(int eta, int depth) {
   return id;
 }
 
+unsigned int repackId(int subdet, int ieta, int iphi, int depth) {
+  unsigned int id = ((subdet & 0x7) << 25);
+  id |= ((0x1000000) | ((depth & 0xF) << 20) | ((ieta > 0) ? (0x80000 | (ieta << 10)) : ((-ieta) << 10)) |
+         (iphi & 0x3FF));
+  return id;
+}
+
+bool ifHB(int ieta, int depth) { return ((std::abs(ieta) < 16) || ((std::abs(ieta) == 16) && (depth != 4))); }
+
+int truncateDepth(int ieta, int depth, int truncateFlag) {
+  int d(depth);
+  if (truncateFlag == 5) {
+    d = (depth == 1) ? 1 : 2;
+  } else if (truncateFlag == 4) {
+    d = ifHB(ieta, depth) ? ((depth == 1) ? 1 : 2) : depth;
+  } else if (truncateFlag == 3) {
+    d = (!ifHB(ieta, depth)) ? ((depth == 1) ? 1 : 2) : depth;
+  } else if (truncateFlag == 2) {
+    d = 1;
+  } else if (truncateFlag == 1) {
+    d = ((std::abs(ieta) == 15) || (std::abs(ieta) == 16)) ? 1 : depth;
+  }
+  return d;
+}
+
 double puFactor(int type, int ieta, double pmom, double eHcal, double ediff, bool debug = false) {
   double fac(1.0);
   if (debug)
