@@ -11,6 +11,8 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "FWCore/Framework/interface/GetterOfProducts.h"
+#include "FWCore/Framework/interface/ProcessMatch.h"
 using namespace std;
 
 GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet)
@@ -28,9 +30,20 @@ GlobalRecHitsAnalyzer::GlobalRecHitsAnalyzer(const edm::ParameterSet& iPSet)
       cscGeomToken_(esConsumes()),
       rpcGeomToken_(esConsumes()),
       count(0) {
-  consumesMany<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>>();
-  consumesMany<edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>>();
-  consumesMany<edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit>>>();
+  HBHERecHitgetter_ = edm::GetterOfProducts<edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>>(
+      edm::ProcessMatch("*"), this);
+  HFRecHitgetter_ = edm::GetterOfProducts<edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>>(
+      edm::ProcessMatch("*"), this);
+  HORecHitgetter_ = edm::GetterOfProducts<edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit>>>(
+      edm::ProcessMatch("*"), this);
+  callWhenNewProductsRegistered([this](edm::BranchDescription const& bd) {
+    // in case of EDAliases, consume only the aliased-for original products
+    if (bd.isAnyAlias())
+      return;
+    this->HBHERecHitgetter_(bd);
+    this->HFRecHitgetter_(bd);
+    this->HORecHitgetter_(bd);
+  });
   std::string MsgLoggerCat = "GlobalRecHitsAnalyzer_GlobalRecHitsAnalyzer";
 
   // get information from parameter set
@@ -602,8 +615,7 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent, const edm::EventS
   // get HBHE information
   ///////////////////////
   std::vector<edm::Handle<HBHERecHitCollection>> hbhe;
-  iEvent.getManyByType(hbhe);
-
+  HBHERecHitgetter_.fillHandles(iEvent, hbhe);
   bool validHBHE = hbhe[0].isValid();
 
   if (!validHBHE) {
@@ -647,7 +659,7 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent, const edm::EventS
   // get HF information
   ///////////////////////
   std::vector<edm::Handle<HFRecHitCollection>> hf;
-  iEvent.getManyByType(hf);
+  HFRecHitgetter_.fillHandles(iEvent, hf);
   bool validHF = hf[0].isValid();
   if (!validHF) {
     LogDebug(MsgLoggerCat) << "Unable to find any HFRecHitCollections in event!";
@@ -677,7 +689,7 @@ void GlobalRecHitsAnalyzer::fillHCal(const edm::Event& iEvent, const edm::EventS
   // get HO information
   ///////////////////////
   std::vector<edm::Handle<HORecHitCollection>> ho;
-  iEvent.getManyByType(ho);
+  HORecHitgetter_.fillHandles(iEvent, ho);
   bool validHO = ho[0].isValid();
   if (!validHO) {
     LogDebug(MsgLoggerCat) << "Unable to find any HORecHitCollections in event!";
