@@ -22,7 +22,8 @@ BTLDeviceSim::BTLDeviceSim(const edm::ParameterSet& pset, edm::ConsumesCollector
       LightCollEff_(pset.getParameter<double>("LightCollectionEff")),
       LightCollSlopeR_(pset.getParameter<double>("LightCollectionSlopeR")),
       LightCollSlopeL_(pset.getParameter<double>("LightCollectionSlopeL")),
-      PDE_(pset.getParameter<double>("PhotonDetectionEff")) {}
+      PDE_(pset.getParameter<double>("PhotonDetectionEff")),
+      LCEpositionSlope_(pset.getParameter<double>("LCEpositionSlope")) {}
 
 void BTLDeviceSim::getEventSetup(const edm::EventSetup& evs) {
   geom_ = &evs.getData(geomToken_);
@@ -97,7 +98,7 @@ void BTLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
     // --- Right side
     if (iBXR > 0 && iBXR < mtd_digitizer::kNumberOfBX) {
       // Accumulate the energy of simHits in the same crystal
-      (simHitIt->second).hit_info[0][iBXR] += Npe;
+      (simHitIt->second).hit_info[0][iBXR] += Npe * (1. + LCEpositionSlope_ * convertMmToCm(hit.localPosition().x()));
 
       // Store the time of the first SimHit in the i-th BX
       if ((simHitIt->second).hit_info[1][iBXR] == 0 || tR < (simHitIt->second).hit_info[1][iBXR])
@@ -107,7 +108,7 @@ void BTLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
     // --- Left side
     if (iBXL > 0 && iBXL < mtd_digitizer::kNumberOfBX) {
       // Accumulate the energy of simHits in the same crystal
-      (simHitIt->second).hit_info[2][iBXL] += Npe;
+      (simHitIt->second).hit_info[2][iBXL] += Npe * (1. - LCEpositionSlope_ * convertMmToCm(hit.localPosition().x()));
 
       // Store the time of the first SimHit in the i-th BX
       if ((simHitIt->second).hit_info[3][iBXL] == 0 || tL < (simHitIt->second).hit_info[3][iBXL])

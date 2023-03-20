@@ -6,6 +6,8 @@
 #include "CLHEP/Random/RandPoissonQ.h"
 #include "CLHEP/Random/RandGaussQ.h"
 
+#include "Math/ChebyshevPol.h"
+
 using namespace mtd;
 
 BTLElectronicsSim::BTLElectronicsSim(const edm::ParameterSet& pset, edm::ConsumesCollector iC)
@@ -27,6 +29,7 @@ BTLElectronicsSim::BTLElectronicsSim(const edm::ParameterSet& pset, edm::Consume
       smearTimeForOOTtails_(pset.getParameter<bool>("SmearTimeForOOTtails")),
       Npe_to_pC_(pset.getParameter<double>("Npe_to_pC")),
       Npe_to_V_(pset.getParameter<double>("Npe_to_V")),
+      sigmaRelTOFHIRenergy_(pset.getParameter<std::vector<double>>("SigmaRelTOFHIRenergy")),
       adcNbits_(pset.getParameter<uint32_t>("adcNbits")),
       tdcNbits_(pset.getParameter<uint32_t>("tdcNbits")),
       adcSaturation_MIP_(pset.getParameter<double>("adcSaturation_MIP")),
@@ -141,7 +144,17 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
       finalToA1 += cosPhi_ * smearing_thr1_uncorr + sinPhi_ * smearing_thr2_uncorr;
       finalToA2 += sinPhi_ * smearing_thr1_uncorr + cosPhi_ * smearing_thr2_uncorr;
 
-      chargeColl[iside] = Npe * Npe_to_pC_;  // the p.e. number is here converted to pC
+      //Smear the energy according to TOFHIR energy branch measured resolution
+      float tofhir_ampnoise_relsigma = ROOT::Math::Chebyshev4(Npe,
+                                                              sigmaRelTOFHIRenergy_[0],
+                                                              sigmaRelTOFHIRenergy_[1],
+                                                              sigmaRelTOFHIRenergy_[2],
+                                                              sigmaRelTOFHIRenergy_[3],
+                                                              sigmaRelTOFHIRenergy_[4]);
+      float smearing_tofhir = CLHEP::RandGaussQ::shoot(hre, 0., tofhir_ampnoise_relsigma);
+      // the amplitude resolution already includes the photostatistics fluctuation, use the original average deposit
+      chargeColl[iside] = (it->second).hit_info[2 * iside][iBX] * Npe_to_pC_ *
+                          (1. + smearing_tofhir);  // the p.e. number is here converted to pC
 
       toa1[iside] = finalToA1;
       toa2[iside] = finalToA2;

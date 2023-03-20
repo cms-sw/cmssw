@@ -15,6 +15,7 @@ _barrel_MTDDigitizer = cms.PSet(
         LightCollectionSlopeR    = cms.double(0.075),   # [ns/cm]
         LightCollectionSlopeL    = cms.double(0.075),   # [ns/cm]
         PhotonDetectionEff       = cms.double(0.20),
+        LCEpositionSlope         = cms.double(0.071),   # [1/cm] LCE variation vs longitudinal position shift
         ),
     ElectronicsSimulation = cms.PSet(
         bxTime                     = cms.double(25),    # [ns]
@@ -36,6 +37,7 @@ _barrel_MTDDigitizer = cms.PSet(
         SmearTimeForOOTtails       = cms.bool(True),
         Npe_to_pC                  = cms.double(0.016), # [pC]
         Npe_to_V                   = cms.double(0.0064),# [V]
+        SigmaRelTOFHIRenergy       = cms.vdouble(0.139,-4.35e-05,3.315e-09,-1.20e-13,1.67e-18), # [%] coefficients of 4th degree Chebyshev polynomial parameterization
 
         # n bits for the ADC 
         adcNbits          = cms.uint32(10),

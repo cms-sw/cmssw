@@ -63,6 +63,7 @@ private:
   const bool smearTimeForOOTtails_;
   const float Npe_to_pC_;
   const float Npe_to_V_;
+  const std::vector<double> sigmaRelTOFHIRenergy_;
 
   // adc/tdc bitwidths
   const uint32_t adcNbits_, tdcNbits_;
