@@ -143,10 +143,32 @@ private:
   MonitorElement* meCluRhoRes_;
   MonitorElement* meCluPhiRes_;
   MonitorElement* meCluLocalXRes_;
-  MonitorElement* meCluLocalYRes_;
+
+  MonitorElement* meCluLocalYResZGlobPlus_;
+  MonitorElement* meCluLocalYResZGlobMinus_;
+
   MonitorElement* meCluZRes_;
   MonitorElement* meCluLocalXPull_;
-  MonitorElement* meCluLocalYPull_;
+
+  MonitorElement* meCluLocalYPullZGlobPlus_;
+  MonitorElement* meCluLocalYPullZGlobMinus_;
+
+  MonitorElement* meCluSingCrystalLocalYRes_;
+  MonitorElement* meCluSingCrystalLocalYResZGlobPlus_;
+  MonitorElement* meCluSingCrystalLocalYResZGlobMinus_;
+
+  MonitorElement* meCluMultiCrystalLocalYRes_;
+  MonitorElement* meCluMultiCrystalLocalYResZGlobPlus_;
+  MonitorElement* meCluMultiCrystalLocalYResZGlobMinus_;
+
+  MonitorElement* meCluCentralLocalYRes_;
+  MonitorElement* meCluCentralLocalYResZGlobPlus_;
+  MonitorElement* meCluCentralLocalYResZGlobMinus_;
+
+  MonitorElement* meCluForwardLocalYRes_;
+  MonitorElement* meCluForwardPlusLocalYRes_;
+  MonitorElement* meCluForwardMinusLocalYRes_;
+
   MonitorElement* meCluZPull_;
   MonitorElement* meCluYXLocal_;
   MonitorElement* meCluYXLocalSim_;
@@ -453,23 +475,69 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
         float xlocal_res = local_point.x() - cluLocalPosSIM.x();
         float ylocal_res = local_point.y() - cluLocalPosSIM.y();
+
         float z_res = global_point.z() - cluGlobalPosSIM.z();
 
         meCluZRes_->Fill(z_res);
 
         if (matchClu && comp != nullptr) {
           meCluLocalXRes_->Fill(xlocal_res);
-          meCluLocalYRes_->Fill(ylocal_res);
+
+          if (global_point.z() > 0) {
+            meCluLocalYResZGlobPlus_->Fill(ylocal_res);
+            meCluLocalYPullZGlobPlus_->Fill(ylocal_res / std::sqrt(comp->localPositionError().yy()));
+          } else {
+            meCluLocalYResZGlobMinus_->Fill(ylocal_res);
+            meCluLocalYPullZGlobMinus_->Fill(ylocal_res / std::sqrt(comp->localPositionError().yy()));
+          }
+          if (optionalPlots_) {
+            if (cluster.size() == 1) {  // single-crystal clusters
+              meCluSingCrystalLocalYRes_->Fill(ylocal_res);
+              if (global_point.z() > 0) {
+                meCluSingCrystalLocalYResZGlobPlus_->Fill(ylocal_res);
+              } else {
+                meCluSingCrystalLocalYResZGlobMinus_->Fill(ylocal_res);
+              }
+            }  // end of single-crystal clusters
+            else {
+              if (cluster.size() > 1) {  // multi-crystal clusters
+                meCluMultiCrystalLocalYRes_->Fill(ylocal_res);
+                if (global_point.z() > 0) {
+                  meCluMultiCrystalLocalYResZGlobPlus_->Fill(ylocal_res);
+                } else {
+                  meCluMultiCrystalLocalYResZGlobMinus_->Fill(ylocal_res);
+                }
+              }
+            }  // end of multi-crystal clusters
+
+            if (abs(global_point.eta()) < 0.3) {
+              meCluCentralLocalYRes_->Fill(ylocal_res);
+              if (global_point.z() > 0) {
+                meCluCentralLocalYResZGlobPlus_->Fill(ylocal_res);
+              } else {
+                meCluCentralLocalYResZGlobMinus_->Fill(ylocal_res);
+              }
+
+            } else {
+              if (abs(global_point.eta()) > 1) {
+                meCluForwardLocalYRes_->Fill(ylocal_res);
+                if (global_point.z() > 0) {
+                  meCluForwardPlusLocalYRes_->Fill(ylocal_res);
+                } else {
+                  meCluForwardMinusLocalYRes_->Fill(ylocal_res);
+                }
+              }
+            }
+
+            meCluYXLocal_->Fill(local_point.x(), local_point.y());
+            meCluYXLocalSim_->Fill(cluLocalPosSIM.x(), cluLocalPosSIM.y());
+
+          }  //end of optional plots
+
           meCluLocalXPull_->Fill(xlocal_res / std::sqrt(comp->localPositionError().xx()));
-          meCluLocalYPull_->Fill(ylocal_res / std::sqrt(comp->localPositionError().yy()));
           meCluZPull_->Fill(z_res / std::sqrt(comp->globalPositionError().czz()));
           meCluXLocalErr_->Fill(std::sqrt(comp->localPositionError().xx()));
           meCluYLocalErr_->Fill(std::sqrt(comp->localPositionError().yy()));
-        }
-
-        if (optionalPlots_) {
-          meCluYXLocal_->Fill(local_point.x(), local_point.y());
-          meCluYXLocalSim_->Fill(cluLocalPosSIM.x(), cluLocalPosSIM.y());
         }
 
         meCluEnergyvsEta_->Fill(std::abs(cluGlobalPosSIM.eta()), cluster.energy());
@@ -720,12 +788,93 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
   meCluZRes_ = ibook.book1D("BtlCluZRes", "BTL cluster Z resolution;Z_{RECO}-Z_{SIM} [cm]", 100, -0.2, 0.2);
   meCluLocalXRes_ =
       ibook.book1D("BtlCluLocalXRes", "BTL cluster local X resolution;X_{RECO}-X_{SIM} [cm]", 100, -3.1, 3.1);
-  meCluLocalYRes_ =
-      ibook.book1D("BtlCluLocalYRes", "BTL cluster local Y resolution;Y_{RECO}-Y_{SIM} [cm]", 100, -0.2, 0.2);
+  meCluLocalYResZGlobPlus_ = ibook.book1D(
+      "BtlCluLocalYResZGlobPlus", "BTL cluster local Y resolution (glob Z > 0);Y_{RECO}-Y_{SIM} [cm]", 100, -0.2, 0.2);
+  meCluLocalYResZGlobMinus_ = ibook.book1D(
+      "BtlCluLocalYResZGlobMinus", "BTL cluster local Y resolution (glob Z < 0);Y_{RECO}-Y_{SIM} [cm]", 100, -0.2, 0.2);
+  if (optionalPlots_) {
+    meCluSingCrystalLocalYRes_ =
+        ibook.book1D("BtlCluSingCrystalLocalYRes",
+                     "BTL cluster local Y resolution (single Crystal clusters);Y_{RECO}-Y_{SIM} [cm]",
+                     100,
+                     -0.2,
+                     0.2);
+    meCluSingCrystalLocalYResZGlobPlus_ =
+        ibook.book1D("BtlCluSingCrystalLocalYResZGlobPlus",
+                     "BTL cluster local Y resolution (single Crystal clusters, Z glob > 0);Y_{RECO}-Y_{SIM} [cm]",
+                     100,
+                     -0.2,
+                     0.2);
+    meCluSingCrystalLocalYResZGlobMinus_ =
+        ibook.book1D("BtlCluSingCrystalLocalYResZGlobMinus",
+                     "BTL cluster local Y resolution (single Crystal clusters, Z glob < 0);Y_{RECO}-Y_{SIM} [cm]",
+                     100,
+                     -0.2,
+                     0.2);
+    meCluMultiCrystalLocalYRes_ =
+        ibook.book1D("BtlCluMultiCrystalLocalYRes",
+                     "BTL cluster local Y resolution (Multi-Crystal clusters);Y_{RECO}-Y_{SIM} [cm]",
+                     100,
+                     -0.2,
+                     0.2);
+    meCluMultiCrystalLocalYResZGlobPlus_ =
+        ibook.book1D("BtlCluMultiCrystalLocalYResZGlobPlus",
+                     "BTL cluster local Y resolution (Multi-Crystal clusters, Z glob > 0);Y_{RECO}-Y_{SIM} [cm]",
+                     100,
+                     -0.2,
+                     0.2);
+    meCluMultiCrystalLocalYResZGlobMinus_ =
+        ibook.book1D("BtlCluMultiCrystalLocalYResZGlobMinus",
+                     "BTL cluster local Y resolution (Multi-Crystal clusters, Z glob < 0);Y_{RECO}-Y_{SIM} [cm]",
+                     100,
+                     -0.2,
+                     0.2);
+    meCluCentralLocalYRes_ = ibook.book1D("BtlCluCentralLocalYRes",
+                                          "BTL cluster local Y resolution (central region);Y_{RECO}-Y_{SIM} [cm]",
+                                          100,
+                                          -0.2,
+                                          0.2);
+    meCluCentralLocalYResZGlobPlus_ =
+        ibook.book1D("BtlCluCentralLocalYResZGlobPlus",
+                     "BTL cluster local Y resolution (central region, Z glob > 0);Y_{RECO}-Y_{SIM} [cm]",
+                     100,
+                     -0.2,
+                     0.2);
+    meCluCentralLocalYResZGlobMinus_ =
+        ibook.book1D("BtlCluCentralLocalYResZGlobMinus",
+                     "BTL cluster local Y resolution (central region, Z glob < 0);Y_{RECO}-Y_{SIM} [cm]",
+                     100,
+                     -0.2,
+                     0.2);
+    meCluForwardLocalYRes_ = ibook.book1D("BtlCluForwardLocalYRes",
+                                          "BTL cluster local Y resolution (forward region);Y_{RECO}-Y_{SIM} [cm]",
+                                          100,
+                                          -0.2,
+                                          0.2);
+    meCluForwardPlusLocalYRes_ =
+        ibook.book1D("BtlCluForwardPlusLocalYRes",
+                     "BTL cluster local Y resolution (forward region, Z glob > 0);Y_{RECO}-Y_{SIM} [cm]",
+                     100,
+                     -0.2,
+                     0.2);
+    meCluForwardMinusLocalYRes_ =
+        ibook.book1D("BtlCluForwardMinusLocalYRes",
+                     "BTL cluster local Y resolution (forward region, Z glob < 0);Y_{RECO}-Y_{SIM} [cm]",
+                     100,
+                     -0.2,
+                     0.2);
+  }
+  meCluLocalYPullZGlobPlus_ = ibook.book1D(
+      "BtlCluLocalYPullZGlobPlus", "BTL cluster local Y pull (glob Z > 0);Y_{RECO}-Y_{SIM}/sigmaY_[RECO]", 100, -5., 5.);
+  meCluLocalYPullZGlobMinus_ = ibook.book1D("BtlCluLocalYPullZGlobMinus",
+                                            "BTL cluster local Y pull (glob Z < 0);Y_{RECO}-Y_{SIM}/sigmaY_[RECO]",
+                                            100,
+                                            -5.,
+                                            5.);
+
   meCluLocalXPull_ =
       ibook.book1D("BtlCluLocalXPull", "BTL cluster local X pull;X_{RECO}-X_{SIM}/sigmaX_[RECO]", 100, -5., 5.);
-  meCluLocalYPull_ =
-      ibook.book1D("BtlCluLocalYPull", "BTL cluster local Y pull;Y_{RECO}-Y_{SIM}/sigmaY_[RECO]", 100, -5., 5.);
+
   meCluZPull_ = ibook.book1D("BtlCluZPull", "BTL cluster Z pull;Z_{RECO}-Z_{SIM}/sigmaZ_[RECO]", 100, -5., 5.);
   meCluXLocalErr_ = ibook.book1D("BtlCluXLocalErr", "BTL cluster X local error;sigmaX_{RECO,loc} [cm]", 20, 0., 2.);
   meCluYLocalErr_ = ibook.book1D("BtlCluYLocalErr", "BTL cluster Y local error;sigmaY_{RECO,loc} [cm]", 20, 0., 0.4);
