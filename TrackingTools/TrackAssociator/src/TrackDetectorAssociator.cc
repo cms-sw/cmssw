@@ -679,12 +679,8 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
       float tangent = (wideWidth - narrowWidth) / (2.f * length);
       float halfWidthAtY = tangent * localPoint.y() + 0.5f * narrowWidth;
       
-      float yOfFirstWire = std::abs(wireTopology->wireAngle()) > 1.E-06f ? -0.5 * length : wireTopology->yOfWire(1);
-      // y offset between local origin and symmetry center of wire plane
-      float yCOWPOffset = yOfFirstWire + 0.5f * length;
-      
       distanceX = std::abs(localPoint.x()) - halfWidthAtY;
-      distanceY = std::abs(localPoint.y() + 0.5f * length) - 0.5f * length;
+      distanceY = std::abs(localPoint.y() - 0.5f * length) - 0.5f * length;
     } else if (const GEMSuperChamber* gemsuperchamber = dynamic_cast<const GEMSuperChamber*>(geomDet)) {
       
       const TrapezoidalPlaneBounds* bounds = dynamic_cast<const TrapezoidalPlaneBounds*>(&geomDet->surface().bounds());
