@@ -23,7 +23,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 
 #include "SiStripRawToClusterGPUKernel.h"
 #include "ChannelLocsGPU.h"
