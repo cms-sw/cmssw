@@ -11,7 +11,6 @@
 
 #include "DataFormats/MuonReco/interface/MuonSegmentMatch.h"
 #include "DataFormats/MuonReco/interface/MuonGEMHitMatch.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "DQMOffline/MuonDPG/interface/BaseTnPEfficiencyTask.h"
 
@@ -525,7 +524,7 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
     std::vector<float> probe_ME0_dx;
     uint8_t ME0_stationMatching = 0;
 
-    float gem_matched = false;  // fill detailed plots only for probes matching GEM
+    bool gem_matched = false;  // fill detailed plots only for probes matching GEM
 
     for (const auto& chambMatch : (*muons).at(i).matches()) {
       // look in GEMs
@@ -535,21 +534,19 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
 
           GEMDetId chId(chambMatch.id.rawId());
 
-          int roll = chId.roll();
-          int region = chId.region();
-          int station = chId.station();
-          int layer = chId.layer();
-          int chamber = chId.chamber();
-          float pt = (*muons).at(i).pt();
-          float eta = (*muons).at(i).eta();
-          float phi = (*muons).at(i).phi();
+          const int roll = chId.roll();
+          const int region = chId.region();
+          const int station = chId.station();
+          const int layer = chId.layer();
+          const int chamber = chId.chamber();
+          const float pt = (*muons).at(i).pt();
+          const float eta = (*muons).at(i).eta();
+          const float phi = (*muons).at(i).phi();
 
-          //reco::MuonSegmentMatch closest_matchedSegment;
           reco::MuonGEMHitMatch closest_matchedHit;
           double smallestDx = 99999.;
           double matched_GEMHit_x = 99999.;
 
-          //for (auto& seg : chambMatch.gemMatches) {
           for (auto& gemHit : chambMatch.gemHitMatches) {
             float dx = std::abs(chambMatch.x - gemHit.x);
             if (dx < smallestDx) {
@@ -558,8 +555,6 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
               matched_GEMHit_x = gemHit.x;
             }
           }
-
-          //////////
 
           reco::MuonSegmentMatch closest_matchedSegment;
           double smallestDx_seg = 99999.;
@@ -724,21 +719,21 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
           if (GEM_region < 0) {
             if (GEM_sta == 2 and GEM_lay == 2)
               m_histos.find("GEM_nPassingProbe_Ch_region_layer_phase2")->second->Fill(0, GEM_chamber);
-            if (GEM_sta == 2 and GEM_lay == 1)
+            else if (GEM_sta == 2 and GEM_lay == 1)
               m_histos.find("GEM_nPassingProbe_Ch_region_layer_phase2")->second->Fill(1, GEM_chamber);
-            if (GEM_sta == 1 and GEM_lay == 2)
+            else if (GEM_sta == 1 and GEM_lay == 2)
               m_histos.find("GEM_nPassingProbe_Ch_region_layer_phase2")->second->Fill(2, GEM_chamber);
-            if (GEM_sta == 1 and GEM_lay == 1)
+            else if (GEM_sta == 1 and GEM_lay == 1)
               m_histos.find("GEM_nPassingProbe_Ch_region_layer_phase2")->second->Fill(3, GEM_chamber);
           }
           if (GEM_region > 0) {
             if (GEM_sta == 1 and GEM_lay == 1)
               m_histos.find("GEM_nPassingProbe_Ch_region_layer_phase2")->second->Fill(6, GEM_chamber);
-            if (GEM_sta == 1 and GEM_lay == 2)
+            else if (GEM_sta == 1 and GEM_lay == 2)
               m_histos.find("GEM_nPassingProbe_Ch_region_layer_phase2")->second->Fill(7, GEM_chamber);
-            if (GEM_sta == 2 and GEM_lay == 1)
+            else if (GEM_sta == 2 and GEM_lay == 1)
               m_histos.find("GEM_nPassingProbe_Ch_region_layer_phase2")->second->Fill(8, GEM_chamber);
-            if (GEM_sta == 2 and GEM_lay == 2)
+            else if (GEM_sta == 2 and GEM_lay == 2)
               m_histos.find("GEM_nPassingProbe_Ch_region_layer_phase2")->second->Fill(9, GEM_chamber);
           }
           if (GEM_region == -1 && GEM_sta == 1) {
@@ -786,21 +781,21 @@ void GEMTnPEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetu
           if (GEM_region < 0) {
             if (GEM_sta == 2 and GEM_lay == 2)
               m_histos.find("GEM_nFailingProbe_Ch_region_layer_phase2")->second->Fill(0, GEM_chamber);
-            if (GEM_sta == 2 and GEM_lay == 1)
+            else if (GEM_sta == 2 and GEM_lay == 1)
               m_histos.find("GEM_nFailingProbe_Ch_region_layer_phase2")->second->Fill(1, GEM_chamber);
-            if (GEM_sta == 1 and GEM_lay == 2)
+            else if (GEM_sta == 1 and GEM_lay == 2)
               m_histos.find("GEM_nFailingProbe_Ch_region_layer_phase2")->second->Fill(2, GEM_chamber);
-            if (GEM_sta == 1 and GEM_lay == 1)
+            else if (GEM_sta == 1 and GEM_lay == 1)
               m_histos.find("GEM_nFailingProbe_Ch_region_layer_phase2")->second->Fill(3, GEM_chamber);
           }
           if (GEM_region > 0) {
             if (GEM_sta == 1 and GEM_lay == 1)
               m_histos.find("GEM_nFailingProbe_Ch_region_layer_phase2")->second->Fill(6, GEM_chamber);
-            if (GEM_sta == 1 and GEM_lay == 2)
+            else if (GEM_sta == 1 and GEM_lay == 2)
               m_histos.find("GEM_nFailingProbe_Ch_region_layer_phase2")->second->Fill(7, GEM_chamber);
-            if (GEM_sta == 2 and GEM_lay == 1)
+            else if (GEM_sta == 2 and GEM_lay == 1)
               m_histos.find("GEM_nFailingProbe_Ch_region_layer_phase2")->second->Fill(8, GEM_chamber);
-            if (GEM_sta == 2 and GEM_lay == 2)
+            else if (GEM_sta == 2 and GEM_lay == 2)
               m_histos.find("GEM_nFailingProbe_Ch_region_layer_phase2")->second->Fill(9, GEM_chamber);
           }
           if (GEM_region == -1 && GEM_sta == 1) {
