@@ -77,8 +77,9 @@ namespace externalgen {
       if (not channel_.doTransition(
               [&value, &iDeserializer]() { value = iDeserializer.deserialize(); }, iTrans, iTransitionID)) {
         externalFailed_ = true;
-        throw cms::Exception("ExternalFailed") << "failed waiting for external process " << channel_.uniqueID()
-                                               << ". Timed out after " << channel_.maxWaitInSeconds() << " seconds.";
+        throw edm::Exception(edm::errors::EventGenerationFailure)
+            << "failed waiting for external process " << channel_.uniqueID() << ". Timed out after "
+            << channel_.maxWaitInSeconds() << " seconds.";
       }
       return value;
     }
