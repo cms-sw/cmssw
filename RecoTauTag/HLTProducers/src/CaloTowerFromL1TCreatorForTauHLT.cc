@@ -29,9 +29,10 @@ CaloTowerFromL1TCreatorForTauHLT::CaloTowerFromL1TCreatorForTauHLT(const Paramet
   produces<CaloTowerCollection>();
 }
 
-CaloTowerFromL1TCreatorForTauHLT::~CaloTowerFromL1TCreatorForTauHLT() {}
-
 void CaloTowerFromL1TCreatorForTauHLT::produce(StreamID sid, Event& evt, const EventSetup& stp) const {
+  if (mCone < 0.)
+    return;
+
   edm::Handle<CaloTowerCollection> caloTowers;
   evt.getByToken(mtowers_token, caloTowers);
 

@@ -33,7 +33,7 @@ public:
   /// constructor from parameter set
   CaloTowerFromL1TCreatorForTauHLT(const edm::ParameterSet&);
   /// destructor
-  ~CaloTowerFromL1TCreatorForTauHLT() override;
+  ~CaloTowerFromL1TCreatorForTauHLT() override = default;
   ///
   static void fillDescriptions(edm::ConfigurationDescriptions& desc);
 
