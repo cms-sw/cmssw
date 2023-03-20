@@ -138,13 +138,7 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/paths/L1T_TripleTkMuon_5_3_3_cf
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_BTV_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_Ele5_Open_L1Seeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_Ele5_Open_Unseeded_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_Ele5_WP70_Open_L1Seeded_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_Ele5_WP70_Open_Unseeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_JME_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_Photon100EB_TightID_TightIso_Open_L1Seeded_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_Photon100EB_TightID_TightIso_Open_Unseeded_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_Photon100_Open_L1Seeded_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/paths/MC_Photon100_Open_Unseeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/CkfBaseTrajectoryFilter_block_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/ckfBaseTrajectoryFilterP5_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/CkfTrajectoryBuilder_cfi")
@@ -295,13 +289,7 @@ fragment.schedule = cms.Schedule(*[
     fragment.MC_JME,
     fragment.MC_BTV,
     fragment.MC_Ele5_Open_Unseeded,
-    fragment.MC_Ele5_WP70_Open_Unseeded,
     fragment.MC_Ele5_Open_L1Seeded,
-    fragment.MC_Ele5_WP70_Open_L1Seeded,
-    fragment.MC_Photon100_Open_Unseeded,
-    fragment.MC_Photon100EB_TightID_TightIso_Open_Unseeded,
-    fragment.MC_Photon100_Open_L1Seeded,
-    fragment.MC_Photon100EB_TightID_TightIso_Open_L1Seeded,
 
     fragment.HLTriggerFinalPath,
     fragment.HLTAnalyzerEndpath,
