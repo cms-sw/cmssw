@@ -51,7 +51,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
 
   hitMap_ = consumes<std::unordered_map<DetId, const HGCRecHit*>>(edm::InputTag("hgcalRecHitMapProducer"));
 
-  density_ = consumes<Density>(edm::InputTag("hgcalLayerClusters"));
+  density_ = consumes<Density>(edm::InputTag("hgcalMergeLayerClusters"));
 
   simClusters_ = consumes<std::vector<SimCluster>>(pset.getParameter<edm::InputTag>("label_scl"));
 

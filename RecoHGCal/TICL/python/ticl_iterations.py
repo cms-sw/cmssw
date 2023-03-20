@@ -7,7 +7,7 @@ from RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi import *
 # (for now until global reco is going with some sort of clustering)
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHGC_cff import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHGC_cfi import *
-from RecoLocalCalo.HGCalRecProducers.hgcalLayerClusters_cff import hgcalLayerClusters
+from RecoLocalCalo.HGCalRecProducers.hgcalMergeLayerClusters_cff import hgcalMergeLayerClusters
 from RecoLocalCalo.HGCalRecProducers.hgcalMultiClusters_cfi import hgcalMultiClusters
 
 from RecoHGCal.TICL.ticlSeedingRegionProducer_cfi import ticlSeedingRegionProducer
@@ -120,7 +120,7 @@ def TICL_iterations_withReco(process):
   process.hgcalValidation.insert(-1, process.ticlPFValidation)
   
   if getattr(process,'hgcalValidator'):
-    process.hgcalValidator.label_lcl = "hgcalLayerClusters"
+    process.hgcalValidator.label_lcl = "hgcalMergeLayerClusters"
     process.hgcalValidator.label_mcl = ["multiClustersFromTrackstersEM:MultiClustersFromTracksterByCA", "multiClustersFromTrackstersHAD:MultiClustersFromTracksterByCA"]
     process.hgcalValidator.domulticlustersPlots = True
     
@@ -170,11 +170,11 @@ def TICL_iterations(process):
 
   process.HGCalUncalibRecHit = HGCalUncalibRecHit
   process.HGCalRecHit = HGCalRecHit
-  process.hgcalLayerClusters = hgcalLayerClusters
+  process.hgcalMergeLayerClusters = hgcalMergeLayerClusters
   process.hgcalMultiClusters = hgcalMultiClusters
   process.TICL_Task = cms.Task(process.HGCalUncalibRecHit,
       process.HGCalRecHit,
-      process.hgcalLayerClusters,
+      process.hgcalMergeLayerClusters,
       process.filteredLayerClustersMIP,
       process.ticlLayerTileProducer,
       process.ticlSeedingGlobal,

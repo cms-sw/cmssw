@@ -13,13 +13,18 @@ from ..modules.particleFlowSuperClusterHGCalFromTICLUnseeded_cfi import *
 from ..modules.ticlLayerTileProducer_cfi import *
 from ..modules.ticlSeedingGlobal_cfi import *
 from ..modules.ticlTrackstersCLUE3DHigh_cfi import *
+from RecoLocalCalo.HGCalRecProducers.hgcalMergeLayerClusters_cfi import hgcalMergeLayerClusters
+
 
 HLTHgcalTiclPFClusteringForEgammaUnseededTask = cms.Task(
     HGCalRecHit,
     HGCalUncalibRecHit,
     filteredLayerClustersCLUE3DHigh,
     hgcalDigis,
-    hgcalLayerClusters,
+    hgcalLayerClustersEE,
+    hgcalLayerClustersHSi,
+    hgcalLayerClustersHSci,
+    hgcalMergeLayerClusters,
     offlineBeamSpot,
     particleFlowClusterHGCalFromTICLHAD,
     particleFlowClusterHGCalFromTICLUnseeded,

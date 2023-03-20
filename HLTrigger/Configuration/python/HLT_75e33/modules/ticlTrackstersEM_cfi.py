@@ -4,7 +4,7 @@ ticlTrackstersEM = cms.EDProducer("TrackstersProducer",
     detector = cms.string('HGCAL'),
     filtered_mask = cms.InputTag("filteredLayerClustersEM","EM"),
     itername = cms.string('EM'),
-    layer_clusters = cms.InputTag("hgcalLayerClusters"),
+    layer_clusters = cms.InputTag("hgcalMergeLayerClusters"),
     layer_clusters_hfnose_tiles = cms.InputTag("ticlLayerTileHFNose"),
     layer_clusters_tiles = cms.InputTag("ticlLayerTileProducer"),
     mightGet = cms.optional.untracked.vstring,
@@ -68,5 +68,5 @@ ticlTrackstersEM = cms.EDProducer("TrackstersProducer",
         type = cms.string('FastJet')
     ),
     seeding_regions = cms.InputTag("ticlSeedingGlobal"),
-    time_layerclusters = cms.InputTag("hgcalLayerClusters","timeLayerCluster")
+    time_layerclusters = cms.InputTag("hgcalMergeLayerClusters","timeLayerCluster")
 )

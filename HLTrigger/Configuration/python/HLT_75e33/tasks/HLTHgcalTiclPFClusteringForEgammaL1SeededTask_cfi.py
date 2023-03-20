@@ -15,6 +15,12 @@ from ..modules.particleFlowSuperClusterHGCalFromTICLL1Seeded_cfi import *
 from ..modules.ticlLayerTileProducerL1Seeded_cfi import *
 from ..modules.ticlSeedingL1_cfi import *
 from ..modules.ticlTrackstersCLUE3DHighL1Seeded_cfi import *
+from RecoLocalCalo.HGCalRecProducers.hgcalMergeLayerClusters_cfi import hgcalMergeLayerClusters
+
+hgcalMergeLayerClustersL1Seeded = hgcalMergeLayerClusters.clone()
+# hgcalMergeLayerClustersL1Seeded.layerClustersEE = cms.InputTag('hgcalLayerClusters', 'hgcalLayerClustersEEL1Seeded')
+# hgcalMergeLayerClustersL1Seeded.layerClustersHSi = cms.InputTag('hgcalLayerClusters', 'hgcalLayerClustersHSiL1Seeded')
+# hgcalMergeLayerClustersL1Seeded.layerClustersHSci = cms.InputTag('hgcalLayerClusters', 'hgcalLayerClustersHSciL1Seeded')
 
 HLTHgcalTiclPFClusteringForEgammaL1SeededTask = cms.Task(
     HGCalRecHitL1Seeded,
@@ -22,7 +28,10 @@ HLTHgcalTiclPFClusteringForEgammaL1SeededTask = cms.Task(
     filteredLayerClustersCLUE3DHighL1Seeded,
     hgcalDigis,
     hgcalDigisL1Seeded,
-    hgcalLayerClustersL1Seeded,
+    # hgcalLayerClustersEEL1Seeded,
+    # hgcalLayerClustersHSiL1Seeded,
+    # hgcalLayerClustersHSciL1Seeded,
+    hgcalMergeLayerClustersL1Seeded,
     hltL1TEGammaHGCFilteredCollectionProducer,
     hltRechitInRegionsHGCAL,
     offlineBeamSpot,
