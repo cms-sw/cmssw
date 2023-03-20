@@ -110,10 +110,11 @@ private:
   MonitorElement* meHitTvsEta_;
   MonitorElement* meHitTvsZ_;
   MonitorElement* meHitLongPos_;
-  MonitorElement* meHitLongPosErr_;
 
   MonitorElement* meTimeRes_;
+  MonitorElement* meTimeResVsE_;
   MonitorElement* meEnergyRes_;
+  MonitorElement* meEnergyRelResVsE_;
 
   MonitorElement* meLongPosPull_;
   MonitorElement* meLongPosPullvsE_;
@@ -179,6 +180,11 @@ private:
 
   // --- UncalibratedRecHits histograms
 
+  MonitorElement* meUncEneLVsX_;
+  MonitorElement* meUncEneRVsX_;
+  MonitorElement* meUncTimeLVsX_;
+  MonitorElement* meUncTimeRVsX_;
+
   static constexpr int nBinsQ_ = 20;
   static constexpr float binWidthQ_ = 30.;
   static constexpr int nBinsQEta_ = 3;
@@ -212,9 +218,8 @@ BtlLocalRecoValidation::BtlLocalRecoValidation(const edm::ParameterSet& iConfig)
       mtdtopoToken_(esConsumes<MTDTopology, MTDTopologyRcd>()),
       cpeToken_(esConsumes<MTDClusterParameterEstimator, MTDCPERecord>(edm::ESInputTag("", "MTDCPEBase"))) {
   btlRecHitsToken_ = consumes<FTLRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsTag"));
-  if (uncalibRecHitsPlots_)
-    btlUncalibRecHitsToken_ =
-        consumes<FTLUncalibratedRecHitCollection>(iConfig.getParameter<edm::InputTag>("uncalibRecHitsTag"));
+  btlUncalibRecHitsToken_ =
+      consumes<FTLUncalibratedRecHitCollection>(iConfig.getParameter<edm::InputTag>("uncalibRecHitsTag"));
   btlSimHitsToken_ = consumes<CrossingFrame<PSimHit> >(iConfig.getParameter<edm::InputTag>("simHitsTag"));
   btlRecCluToken_ = consumes<FTLClusterCollection>(iConfig.getParameter<edm::InputTag>("recCluTag"));
   mtdTrackingHitToken_ = consumes<MTDTrackingDetSetVector>(iConfig.getParameter<edm::InputTag>("trkHitTag"));
@@ -303,7 +308,6 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
     meHitTime_->Fill(recHit.time());
     meHitTimeError_->Fill(recHit.timeError());
     meHitLongPos_->Fill(recHit.position());
-    meHitLongPosErr_->Fill(recHit.positionError());
 
     meOccupancy_->Fill(global_point.z(), global_point.phi());
 
@@ -339,7 +343,9 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       const auto& global_point_sim = thedet->toGlobal(local_point_sim);
 
       meTimeRes_->Fill(time_res);
+      meTimeResVsE_->Fill(recHit.energy(), time_res);
       meEnergyRes_->Fill(energy_res);
+      meEnergyRelResVsE_->Fill(recHit.energy(), energy_res / recHit.energy());
 
       meLongPosPull_->Fill(longpos_res / recHit.positionError());
       meLongPosPullvsEta_->Fill(std::abs(global_point_sim.eta()), longpos_res / recHit.positionError());
@@ -565,16 +571,49 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
   meNevents_->Fill(0.5);
 
   // --- Loop over the BTL Uncalibrated RECO hits
-  if (uncalibRecHitsPlots_) {
-    auto btlUncalibRecHitsHandle = makeValid(iEvent.getHandle(btlUncalibRecHitsToken_));
+  auto btlUncalibRecHitsHandle = makeValid(iEvent.getHandle(btlUncalibRecHitsToken_));
 
-    for (const auto& uRecHit : *btlUncalibRecHitsHandle) {
-      BTLDetId detId = uRecHit.id();
+  for (const auto& uRecHit : *btlUncalibRecHitsHandle) {
+    BTLDetId detId = uRecHit.id();
 
-      // --- Skip UncalibratedRecHits not matched to SimHits
-      if (m_btlSimHits.count(detId.rawId()) != 1)
-        continue;
+    // --- Skip UncalibratedRecHits not matched to SimHits
+    if (m_btlSimHits.count(detId.rawId()) != 1)
+      continue;
 
+    // --- Combine the information from the left and right BTL cell sides
+
+    float nHits = 0.;
+    float hit_amplitude = 0.;
+    float hit_time = 0.;
+
+    // left side:
+    if (uRecHit.amplitude().first > 0.) {
+      hit_amplitude += uRecHit.amplitude().first;
+      hit_time += uRecHit.time().first;
+      nHits += 1.;
+    }
+    // right side:
+    if (uRecHit.amplitude().second > 0.) {
+      hit_amplitude += uRecHit.amplitude().second;
+      hit_time += uRecHit.time().second;
+      nHits += 1.;
+    }
+
+    hit_amplitude /= nHits;
+    hit_time /= nHits;
+
+    // --- Fill the histograms
+
+    if (hit_amplitude < hitMinAmplitude_)
+      continue;
+
+    meUncEneRVsX_->Fill(uRecHit.position(), uRecHit.amplitude().first - hit_amplitude);
+    meUncEneLVsX_->Fill(uRecHit.position(), uRecHit.amplitude().second - hit_amplitude);
+
+    meUncTimeRVsX_->Fill(uRecHit.position(), uRecHit.time().first - hit_time);
+    meUncTimeLVsX_->Fill(uRecHit.position(), uRecHit.time().second - hit_time);
+
+    if (uncalibRecHitsPlots_) {
       DetId geoId = detId.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode()));
       const MTDGeomDet* thedet = geom->idToDet(geoId);
       if (thedet == nullptr)
@@ -586,33 +625,6 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
       Local3DPoint local_point(0., 0., 0.);
       local_point = topo.pixelToModuleLocalPoint(local_point, detId.row(topo.nrows()), detId.column(topo.nrows()));
       const auto& global_point = thedet->toGlobal(local_point);
-
-      // --- Combine the information from the left and right BTL cell sides
-
-      float nHits = 0.;
-      float hit_amplitude = 0.;
-      float hit_time = 0.;
-
-      // left side:
-      if (uRecHit.amplitude().first > 0.) {
-        hit_amplitude += uRecHit.amplitude().first;
-        hit_time += uRecHit.time().first;
-        nHits += 1.;
-      }
-      // right side:
-      if (uRecHit.amplitude().second > 0.) {
-        hit_amplitude += uRecHit.amplitude().second;
-        hit_time += uRecHit.time().second;
-        nHits += 1.;
-      }
-
-      hit_amplitude /= nHits;
-      hit_time /= nHits;
-
-      // --- Fill the histograms
-
-      if (hit_amplitude < hitMinAmplitude_)
-        continue;
 
       float time_res = hit_time - m_btlSimHits[detId.rawId()].time;
 
@@ -645,9 +657,8 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
           qBin = ibin;
 
       meTimeResEtavsQ_[etaBin][qBin]->Fill(time_res);
-
-    }  // uRecHit loop
-  }
+    }
+  }  // uRecHit loop}
 }
 
 // ------------ method for histogram booking ------------
@@ -692,11 +703,19 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
       ibook.bookProfile("BtlHitTvsEta", "BTL RECO ToA vs #eta;#eta_{RECO};ToA_{RECO} [ns]", 50, -1.6, 1.6, 0., 100.);
   meHitTvsZ_ =
       ibook.bookProfile("BtlHitTvsZ", "BTL RECO ToA vs Z;Z_{RECO} [cm];ToA_{RECO} [ns]", 50, -260., 260., 0., 100.);
-  meHitLongPos_ = ibook.book1D("BtlLongPos", "BTL RECO hits longitudinal position;long. pos._{RECO}", 100, -10, 10);
-  meHitLongPosErr_ =
-      ibook.book1D("BtlLongPosErr", "BTL RECO hits longitudinal position error; long. pos. error_{RECO}", 100, -1, 1);
+  meHitLongPos_ = ibook.book1D("BtlLongPos", "BTL RECO hits longitudinal position;long. pos._{RECO}", 50, -5, 5);
   meTimeRes_ = ibook.book1D("BtlTimeRes", "BTL time resolution;T_{RECO}-T_{SIM}", 100, -0.5, 0.5);
+  meTimeResVsE_ = ibook.bookProfile(
+      "BtlTimeResvsE", "BTL time resolution vs hit energy;E_{RECO} [MeV];T_{RECO}-T_{SIM}", 50, 0., 20., -0.5, 0.5, "S");
   meEnergyRes_ = ibook.book1D("BtlEnergyRes", "BTL energy resolution;E_{RECO}-E_{SIM}", 100, -0.5, 0.5);
+  meEnergyRelResVsE_ = ibook.bookProfile("BtlEnergyRelResvsE",
+                                         "BTL relative energy resolution vs hit energy;E_{RECO} [MeV];E_{RECO}-E_{SIM}",
+                                         50,
+                                         0.,
+                                         20.,
+                                         -0.15,
+                                         0.15,
+                                         "S");
   meLongPosPull_ = ibook.book1D("BtlLongPosPull",
                                 "BTL longitudinal position pull;X^{loc}_{RECO}-X^{loc}_{SIM}/#sigma_{xloc_{RECO}}",
                                 100,
@@ -900,6 +919,40 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
       ibook.book1D("BtlUnmatchedCluEnergy", "BTL unmatched cluster log10(energy);log10(E_{RECO} [MeV])", 5, -3, 2);
 
   // --- UncalibratedRecHits histograms
+
+  meUncEneLVsX_ = ibook.bookProfile("BTLUncEneLVsX",
+                                    "BTL uncalibrated hit amplitude left - average vs X;X [cm];Delta(Q_{left}) [pC]",
+                                    20,
+                                    -5.,
+                                    5.,
+                                    -640.,
+                                    640.,
+                                    "S");
+  meUncEneRVsX_ = ibook.bookProfile("BTLUncEneRVsX",
+                                    "BTL uncalibrated hit amplitude right - average vs X;X [cm];Delta(Q_{right}) [pC]",
+                                    20,
+                                    -5.,
+                                    5.,
+                                    -640.,
+                                    640.,
+                                    "S");
+
+  meUncTimeLVsX_ = ibook.bookProfile("BTLUncTimeLVsX",
+                                     "BTL uncalibrated hit time left - average vs X;X [cm];Delta(T_{left}) [MeV]",
+                                     20,
+                                     -5.,
+                                     5.,
+                                     -25.,
+                                     25.,
+                                     "S");
+  meUncTimeRVsX_ = ibook.bookProfile("BTLUncTimeRVsX",
+                                     "BTL uncalibrated hit time right - average vs X;X [cm];Delta(T_{right}) [MeV]",
+                                     20,
+                                     -5.,
+                                     5.,
+                                     -25.,
+                                     25.,
+                                     "S");
 
   if (uncalibRecHitsPlots_) {
     for (unsigned int ihistoQ = 0; ihistoQ < nBinsQ_; ++ihistoQ) {

@@ -9,6 +9,7 @@
 <use name="CLHEP"/>
 <use name="CommonTools/Utils"/>
 <use name="vdt_headers"/>
+<use name="rootmath"/>
 <export>
   <lib name="1"/>
 </export>

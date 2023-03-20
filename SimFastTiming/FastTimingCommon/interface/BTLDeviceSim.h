@@ -46,6 +46,7 @@ private:
   const float LightCollSlopeR_;
   const float LightCollSlopeL_;
   const float PDE_;
+  const float LCEpositionSlope_;
 };
 
 #endif
