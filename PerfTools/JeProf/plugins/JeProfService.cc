@@ -12,34 +12,11 @@
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
+#include "PerfTools/JeProf/interface/jeprof.h"
 #include <string>
 #include <dlfcn.h>
 #include <cstdio>
 #include <cstring>
-
-extern "C" {
-typedef int (*mallctl_t)(const char *name, void *oldp, size_t *oldlenp, void *newp, size_t newlen);
-}
-
-namespace {
-  bool initialize_prof();
-
-  mallctl_t mallctl = nullptr;
-  const bool have_jemalloc_and_prof = initialize_prof();
-
-  bool initialize_prof() {
-    // check if mallctl and friends are available, if we are using jemalloc
-    mallctl = (mallctl_t)::dlsym(RTLD_DEFAULT, "mallctl");
-    if (mallctl == nullptr)
-      return false;
-    // check if heap profiling available, if --enable-prof was specified at build time
-    bool enable_prof = false;
-    size_t bool_s = sizeof(bool);
-    mallctl("prof.active", &enable_prof, &bool_s, nullptr, 0);
-    return enable_prof;
-  }
-
-}  // namespace
 
 namespace edm {
   class GlobalContext;
@@ -123,10 +100,6 @@ using namespace edm::service;
 
 JeProfService::JeProfService(ParameterSet const &ps, ActivityRegistry &iRegistry)
     : mineventrecord_(1), prescale_(1), nrecord_(0), nevent_(0), nrun_(0), nlumi_(0), nfileopened_(0), nfileclosed_(0) {
-  if (!have_jemalloc_and_prof) {
-    edm::LogWarning("JeProfModule") << "JeProfModule requested but application is not"
-                                    << " currently being profiled with jemalloc profiling\n";
-  }
   // Get the configuration
   prescale_ = ps.getUntrackedParameter<int>("reportEventInterval", prescale_);
   mineventrecord_ = ps.getUntrackedParameter<int>("reportFirstEvent", mineventrecord_);
@@ -266,9 +239,6 @@ void JeProfService::postCloseFile(std::string const &) {
 }
 
 void JeProfService::makeDump(const std::string &format, std::string_view moduleLabel) {
-  if (!have_jemalloc_and_prof || format.empty())
-    return;
-
   std::string final(format);
   final = replace(final, "%I", nrecord_);
   final = replaceU64(final, "%E", nevent_);
@@ -278,7 +248,7 @@ void JeProfService::makeDump(const std::string &format, std::string_view moduleL
   final = replace(final, "%C", nfileclosed_);
   final = replace(final, "%M", moduleLabel);
   const char *fileName = final.c_str();
-  mallctl("prof.dump", nullptr, nullptr, &fileName, sizeof(const char *));
+  cms::jeprof::makeHeapDump(fileName);
 }
 
 std::string JeProfService::replace(const std::string &s, const char *pat, int val) {

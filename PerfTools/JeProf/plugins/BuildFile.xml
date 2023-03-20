@@ -2,6 +2,8 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ServiceRegistry"/>
+<use name="PerfTools/JeProf"/>
+<use name="jemalloc-prof"/>
 <library file="*.cc" name="JeProfPlugin">
   <flags EDM_PLUGIN="1"/>
 </library>
