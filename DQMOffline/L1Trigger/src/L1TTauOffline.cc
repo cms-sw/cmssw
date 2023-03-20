@@ -533,10 +533,23 @@ bool L1TTauOffline::matchHlt(edm::Handle<trigger::TriggerEvent> const& triggerEv
 
   trigger::TriggerObjectCollection trigObjs = triggerEvent->getObjects();
 
-  for (auto trigIndexIt = m_trigIndices.begin(); trigIndexIt != m_trigIndices.end(); ++trigIndexIt) {
-    const vector<string> moduleLabels(m_hltConfig.moduleLabels(*trigIndexIt));
-    const unsigned moduleIndex = m_hltConfig.size((*trigIndexIt)) - 2;
+  vector<int>::const_iterator trigIndexIt = m_trigIndices.begin();
+  vector<int>::const_iterator trigIndexEnd = m_trigIndices.end();
 
+  for (; trigIndexIt != trigIndexEnd; ++trigIndexIt) {
+    const vector<string> moduleLabels(m_hltConfig.moduleLabels(*trigIndexIt));
+    // V.M. 2023.03.08 Same issue as in the L1TMuonDQMOffline.cc - some modules are behind hltBoolEnd, but we want the last one before the "hltBoolEnd"
+    unsigned int moduleIndex = 999999;
+    for (int ii = 0; ii < int(moduleLabels.size()); ii++) {
+      if (moduleLabels[ii] == "hltBoolEnd") {
+        moduleIndex = ii - 1;
+        break;
+      }
+    }
+    if (moduleIndex == 999999) {
+      edm::LogError("L1TMuonDQMOffline") << "Found no module label in trigger " << (*trigIndexIt) << endl;
+      continue;
+    }
     const unsigned hltFilterIndex = triggerEvent->filterIndex(InputTag(moduleLabels[moduleIndex], "", trigProcess_));
 
     if (hltFilterIndex < triggerEvent->sizeFilters()) {
@@ -553,7 +566,6 @@ bool L1TTauOffline::matchHlt(edm::Handle<trigger::TriggerEvent> const& triggerEv
       }
     }
   }
-
   return (matchDeltaR < m_MaxHltTauDR);
 }
 
@@ -634,28 +646,32 @@ void L1TTauOffline::getProbeTaus(const edm::Event& iEvent,
   edm::Handle<reco::TauDiscriminatorContainer> antimu;
   iEvent.getByToken(AntiMuInputTag_, antimu);
   if (!antimu.isValid()) {
-    edm::LogWarning("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator " << std::endl;
+    edm::LogWarning("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator  anti-mu" << std::endl;
     return;
   }
 
   edm::Handle<reco::PFTauDiscriminator> dmf;
   iEvent.getByToken(DecayModeFindingInputTag_, dmf);
   if (!dmf.isValid()) {
-    edm::LogWarning("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator " << std::endl;
+    edm::LogWarning("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator decay mode finding input" << std::endl;
     return;
   }
+  
+  m_AntiEleExists = true;
 
   edm::Handle<reco::TauDiscriminatorContainer> antiele;
   iEvent.getByToken(AntiEleInputTag_, antiele);
   if (!antiele.isValid()) {
-    edm::LogWarning("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator " << std::endl;
-    return;
+    //edm::LogWarning("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator anti-ele" << std::endl;
+    //V.M. 16.3.2023. Bypassing the return option for now, as the anti-ele discr. is not available.
+    m_AntiEleExists = false;
+    //return;
   }
 
   edm::Handle<reco::TauDiscriminatorContainer> comb3T;
   iEvent.getByToken(comb3TInputTag_, comb3T);
   if (!comb3T.isValid()) {
-    edm::LogWarning("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator " << std::endl;
+    edm::LogWarning("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator  comb3T" << std::endl;
     return;
   }
 
@@ -678,13 +694,15 @@ void L1TTauOffline::getProbeTaus(const edm::Event& iEvent,
         }
       }
       {
-        const edm::Provenance* prov = antiele.provenance();
-        const std::vector<std::string> psetsFromProvenance =
-            edm::parameterSet(prov->stable(), iEvent.processHistory())
-                .getParameter<std::vector<std::string>>("workingPoints");
-        for (uint i = 0; i < psetsFromProvenance.size(); i++) {
-          if (psetsFromProvenance[i] == AntiEleWP_)
-            AntiEleWPIndex_ = i;
+        if (m_AntiEleExists){
+          const edm::Provenance* prov = antiele.provenance();
+          const std::vector<std::string> psetsFromProvenance =
+              edm::parameterSet(prov->stable(), iEvent.processHistory())
+                  .getParameter<std::vector<std::string>>("workingPoints");
+          for (uint i = 0; i < psetsFromProvenance.size(); i++) {
+            if (psetsFromProvenance[i] == AntiEleWP_)
+              AntiEleWPIndex_ = i;
+          }
         }
       }
       {
@@ -708,18 +726,29 @@ void L1TTauOffline::getProbeTaus(const edm::Event& iEvent,
         edm::LogWarning("L1TTauOffline") << "This offline tau has no antimu discriminator, skipping" << std::endl;
         continue;
       }
-      if ((*antiele)[tauCandidate].workingPoints.empty()) {
-        edm::LogWarning("L1TTauOffline") << "This offline tau has no antiele discriminator, skipping" << std::endl;
-        continue;
+      if (m_AntiEleExists){
+        if ((*antiele)[tauCandidate].workingPoints.empty()) {
+          edm::LogWarning("L1TTauOffline") << "This offline tau has no antiele discriminator, skipping" << std::endl;
+          continue;
+        }
       }
       if ((*comb3T)[tauCandidate].workingPoints.empty()) {
         edm::LogWarning("L1TTauOffline") << "This offline tau has no comb3T discriminator, skipping" << std::endl;
         continue;
       }
+      bool antiele_condition = true;
+     
+      if (m_AntiEleExists)  antiele_condition = (*antiele)[tauCandidate].workingPoints[AntiEleWPIndex_];
+
+      bool anti_mu = (*antimu)[tauCandidate].workingPoints[AntiMuWPIndex_];
+      bool dmf_test =  ((*dmf)[tauCandidate] > 0.5);
+      bool comb3T_test =  (*comb3T)[tauCandidate].workingPoints[comb3TWPIndex_];
+      bool tau_pt_test = (fabs(tauIt->charge()) == 1 && fabs(tauIt->eta()) < 2.1 && tauIt->pt() > 20 );
 
       if (fabs(tauIt->charge()) == 1 && fabs(tauIt->eta()) < 2.1 && tauIt->pt() > 20 &&
           (*antimu)[tauCandidate].workingPoints[AntiMuWPIndex_] &&
-          (*antiele)[tauCandidate].workingPoints[AntiEleWPIndex_] && (*dmf)[tauCandidate] > 0.5 &&
+          antiele_condition && 
+          (*dmf)[tauCandidate] > 0.5 &&
           (*comb3T)[tauCandidate].workingPoints[comb3TWPIndex_]) {
         if (mymu.DeltaR(mytau) > 0.5 && (mymu + mytau).M() > 40 && (mymu + mytau).M() < 80 &&
             m_TightMuons[0]->charge() * tauIt->charge() < 0) {
