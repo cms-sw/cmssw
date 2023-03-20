@@ -5,7 +5,7 @@ hltLLPJetHCAL = _hltHighLevel.hltHighLevel.clone(
    throw = False,
    andOr = True,
    HLTPaths = [
-      "HLT_HT*_L1SingleLLPJet_*",
+      "HLT*_L1SingleLLPJet_*",
    ]
 )
 
