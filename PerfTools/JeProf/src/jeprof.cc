@@ -33,12 +33,14 @@ namespace cms::jeprof {
   void makeHeapDump(const char *fileName) {
     std::once_flag warning_flag;
     if (!have_jemalloc_and_prof) {
-      std::call_once(warning_flag, []() {
-        edm::LogWarning("JeProfModule") << "JeProfModule requested but application is not"
-                                        << " currently being profiled with jemalloc profiling enabled\n"
-                                        << "Enable jemalloc profiling by running\n"
-				        << "MALLOC_CONF=prof_leak:true,lg_prof_sample:10,prof_final:true cmsRunJEProf config.py\n";
-      });
+      std::call_once(warning_flag,
+                     []() {
+                       edm::LogWarning("JeProfModule")
+                           << "JeProfModule requested but application is not"
+                           << " currently being profiled with jemalloc profiling enabled\n"
+                           << "Enable jemalloc profiling by running\n"
+                           << "MALLOC_CONF=prof_leak:true,lg_prof_sample:10,prof_final:true cmsRunJEProf config.py\n";
+                     });
       return;
     }
     mallctl("prof.dump", nullptr, nullptr, &fileName, sizeof(const char *));
