@@ -38,7 +38,7 @@ private:
   const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tauSrc_;
   const edm::EDGetTokenT<reco::PFJetCollection> pfJetSrc_;
   const double extraTauPtCut_;
-  const double m2jjMin_;
+  const double mjjMin_, m2jjMin_;
   const double dRmin_, dRmin2_;
   // pt comparator
   GreaterByPt<reco::PFJet> pTComparator_;
@@ -51,7 +51,8 @@ HLTPFDiJetCorrCheckerWithDiTau::HLTPFDiJetCorrCheckerWithDiTau(const edm::Parame
     : tauSrc_(consumes(iConfig.getParameter<edm::InputTag>("tauSrc"))),
       pfJetSrc_(consumes(iConfig.getParameter<edm::InputTag>("pfJetSrc"))),
       extraTauPtCut_(iConfig.getParameter<double>("extraTauPtCut")),
-      m2jjMin_(iConfig.getParameter<double>("mjjMin") * iConfig.getParameter<double>("mjjMin")),
+      mjjMin_(iConfig.getParameter<double>("mjjMin")),
+      m2jjMin_(mjjMin_ * mjjMin_),
       dRmin_(iConfig.getParameter<double>("dRmin")),
       dRmin2_(dRmin_ * dRmin_) {
   if (dRmin_ <= 0.) {
@@ -78,7 +79,7 @@ void HLTPFDiJetCorrCheckerWithDiTau::produce(edm::StreamID iSId, edm::Event& iEv
       const reco::PFJet& myPFJet1 = pfJets[iJet1];
       const reco::PFJet& myPFJet2 = pfJets[iJet2];
 
-      if ((myPFJet1.p4() + myPFJet2.p4()).M2() < m2jjMin_)
+      if (mjjMin_ <= 0. || (myPFJet1.p4() + myPFJet2.p4()).M2() < m2jjMin_)
         continue;
 
       for (unsigned int iTau1 = 0; iTau1 < taus.size(); iTau1++) {
