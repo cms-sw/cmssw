@@ -333,7 +333,7 @@ SKIMStreamEXOLLPJetHCAL = cms.FilteredStream(
     responsible = 'PDWG', 
     name = 'EXOLLPJetHCAL', 
     paths = (EXOLLPJetHCALPath),
-    content = skimRawAODContent.outputCommands+['keep *_reducedHcalRecHits_*_*'],
+    content = skimRawAODContent.outputCommands+['keep *_hbhereco__*'],
     selectEvents = cms.untracked.PSet(), 
     dataTier = cms.untracked.string('AOD')
     )
