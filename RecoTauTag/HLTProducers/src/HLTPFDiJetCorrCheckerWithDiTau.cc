@@ -79,7 +79,7 @@ void HLTPFDiJetCorrCheckerWithDiTau::produce(edm::StreamID iSId, edm::Event& iEv
       const reco::PFJet& myPFJet1 = pfJets[iJet1];
       const reco::PFJet& myPFJet2 = pfJets[iJet2];
 
-      if (mjjMin_ <= 0. || (myPFJet1.p4() + myPFJet2.p4()).M2() < m2jjMin_)
+      if (mjjMin_ >= 0. && (myPFJet1.p4() + myPFJet2.p4()).M2() < m2jjMin_)
         continue;
 
       for (unsigned int iTau1 = 0; iTau1 < taus.size(); iTau1++) {
