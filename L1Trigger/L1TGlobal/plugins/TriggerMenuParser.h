@@ -45,12 +45,13 @@
 
 #include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 
-#include "tmEventSetup/esTriggerMenu.hh"
-#include "tmEventSetup/esAlgorithm.hh"
-#include "tmEventSetup/esCondition.hh"
-#include "tmEventSetup/esObject.hh"
-#include "tmEventSetup/esCut.hh"
-#include "tmEventSetup/esScale.hh"
+#include <cmath>
+#include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
+#include "CondFormats/L1TObjects/interface/L1TUtmAlgorithm.h"
+#include "CondFormats/L1TObjects/interface/L1TUtmCondition.h"
+#include "CondFormats/L1TObjects/interface/L1TUtmObject.h"
+#include "CondFormats/L1TObjects/interface/L1TUtmCut.h"
+#include "CondFormats/L1TObjects/interface/L1TUtmScale.h"
 
 // forward declarations
 class GlobalCondition;
@@ -261,52 +262,52 @@ namespace l1t {
     int l1tstr2int(const std::string data);
 
     /// parse scales
-    /*     bool parseScale(tmeventsetup::esScale scale); */
-    //    bool parseScales( tmeventsetup::esScale scale);
+    /*     bool parseScale(L1TUtmScale scale); */
+    //    bool parseScales( L1TUtmScale scale);
     bool parseScales(std::map<std::string, tmeventsetup::esScale> scaleMap);
 
     /// parse a muon condition
     /*     bool parseMuon(XERCES_CPP_NAMESPACE::DOMNode* node, */
     /*             const std::string& name, unsigned int chipNr = 0, */
     /*             const bool corrFlag = false); */
-    bool parseMuon(tmeventsetup::esCondition condMu, unsigned int chipNr = 0, const bool corrFlag = false);
+    bool parseMuon(L1TUtmCondition condMu, unsigned int chipNr = 0, const bool corrFlag = false);
 
-    bool parseMuonCorr(const tmeventsetup::esObject* condMu, unsigned int chipNr = 0);
+    bool parseMuonCorr(const L1TUtmObject* condMu, unsigned int chipNr = 0);
 
     /// parse a muon shower condition
-    bool parseMuonShower(tmeventsetup::esCondition condMu, unsigned int chipNr = 0, const bool corrFlag = false);
+    bool parseMuonShower(L1TUtmCondition condMu, unsigned int chipNr = 0, const bool corrFlag = false);
 
     /// parse a calorimeter condition
     /*     bool parseCalo(XERCES_CPP_NAMESPACE::DOMNode* node, */
     /*             const std::string& name, unsigned int chipNr = 0, */
     /*             const bool corrFlag = false); */
-    bool parseCalo(tmeventsetup::esCondition condCalo, unsigned int chipNr = 0, const bool corrFlag = false);
+    bool parseCalo(L1TUtmCondition condCalo, unsigned int chipNr = 0, const bool corrFlag = false);
 
-    bool parseCaloCorr(const tmeventsetup::esObject* corrCalo, unsigned int chipNr = 0);
+    bool parseCaloCorr(const L1TUtmObject* corrCalo, unsigned int chipNr = 0);
 
     /// parse an "energy sum" condition
     /* bool parseEnergySum(XERCES_CPP_NAMESPACE::DOMNode* node, */
     /*         const std::string& name, unsigned int chipNr = 0, */
     /*         const bool corrFlag = false); */
 
-    bool parseEnergySum(tmeventsetup::esCondition condEnergySums, unsigned int chipNr = 0, const bool corrFlag = false);
+    bool parseEnergySum(L1TUtmCondition condEnergySums, unsigned int chipNr = 0, const bool corrFlag = false);
 
-    bool parseEnergySumCorr(const tmeventsetup::esObject* corrESum, unsigned int chipNr = 0);
+    bool parseEnergySumCorr(const L1TUtmObject* corrESum, unsigned int chipNr = 0);
 
-    bool parseExternal(tmeventsetup::esCondition condExt, unsigned int chipNr = 0);
+    bool parseExternal(L1TUtmCondition condExt, unsigned int chipNr = 0);
 
     /// parse a correlation condition
-    bool parseCorrelation(tmeventsetup::esCondition corrCond, unsigned int chipNr = 0);
+    bool parseCorrelation(L1TUtmCondition corrCond, unsigned int chipNr = 0);
 
     /// parse a three-body correlation condition
-    bool parseCorrelationThreeBody(tmeventsetup::esCondition corrCond, unsigned int chipNr = 0);
+    bool parseCorrelationThreeBody(L1TUtmCondition corrCond, unsigned int chipNr = 0);
 
     /// parse a correlation condition with overlap removal
-    bool parseCorrelationWithOverlapRemoval(const tmeventsetup::esCondition& corrCond, unsigned int chipNr = 0);
+    bool parseCorrelationWithOverlapRemoval(const L1TUtmCondition& corrCond, unsigned int chipNr = 0);
 
     /// parse all algorithms
     //bool parseAlgorithms(XERCES_CPP_NAMESPACE::XercesDOMParser* parser);
-    bool parseAlgorithm(tmeventsetup::esAlgorithm algorithm, unsigned int chipNr = 0);
+    bool parseAlgorithm(L1TUtmAlgorithm algorithm, unsigned int chipNr = 0);
 
     // Parse LUT for Cal Mu Eta
     void parseCalMuEta_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap, std::string obj1, std::string obj2);

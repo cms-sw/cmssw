@@ -13,6 +13,8 @@
 #include "CondFormats/L1TObjects/interface/L1TUtmCut.h"
 #include "CondFormats/Serialization/interface/Serializable.h"
 
+#include "tmEventSetup/esObject.hh"
+
 #include <limits>
 #include <string>
 #include <vector>
@@ -32,6 +34,38 @@ public:
         ext_channel_id_(std::numeric_limits<unsigned int>::max()),
         cuts_(),
         version(0){};
+  L1TUtmObject(std::string name,
+               int type,
+               int comparison_operator,
+               int bx_offset,
+               double threshold,
+               std::string ext_signal_name,
+               unsigned int ext_channel_id,
+               std::vector<L1TUtmCut> cuts,
+               unsigned int vers)
+      : name_(name),
+        type_(type),
+        comparison_operator_(comparison_operator),
+        bx_offset_(bx_offset),
+        threshold_(threshold),
+        ext_signal_name_(ext_signal_name),
+        ext_channel_id_(ext_channel_id),
+        cuts_(cuts),
+        version(vers){};
+
+  L1TUtmObject(const tmeventsetup::esObject& esObj)
+      : name_(esObj.getName()),
+        type_(esObj.getType()),
+        comparison_operator_(esObj.getComparisonOperator()),
+        bx_offset_(esObj.getBxOffset()),
+        threshold_(esObj.getThreshold()),
+        ext_signal_name_(esObj.getExternalSignalName()),
+        ext_channel_id_(esObj.getExternalChannelId()),
+        version(0) {
+    cuts_.reserve(esObj.getCuts().size());
+    for (auto it = esObj.getCuts().begin(); it != esObj.getCuts().end(); ++it)
+      cuts_.emplace_back(L1TUtmCut(*it));
+  };
 
   virtual ~L1TUtmObject() = default;
 

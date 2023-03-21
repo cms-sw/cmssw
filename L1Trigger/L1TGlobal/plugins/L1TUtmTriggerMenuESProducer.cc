@@ -89,10 +89,10 @@ L1TUtmTriggerMenuESProducer::~L1TUtmTriggerMenuESProducer() {
 
 // ------------ method called to produce the data  ------------
 L1TUtmTriggerMenuESProducer::ReturnType L1TUtmTriggerMenuESProducer::produce(const L1TUtmTriggerMenuRcd& iRecord) {
-  //const L1TUtmTriggerMenu * cmenu = reinterpret_cast<const L1TUtmTriggerMenu *>(tmeventsetup::getTriggerMenu("/afs/cern.ch/user/t/tmatsush/public/tmGui/test-menu.xml"));
-  const L1TUtmTriggerMenu* cmenu =
-      reinterpret_cast<const L1TUtmTriggerMenu*>(tmeventsetup::getTriggerMenu(m_L1TriggerMenuFile));
-  return ReturnType(cmenu);
+  const tmeventsetup::esTriggerMenu* theEsMenu = tmeventsetup::getTriggerMenu(m_L1TriggerMenuFile);
+  auto l1Menu = L1TUtmTriggerMenu(*theEsMenu);
+  delete theEsMenu;
+  return make_unique<const L1TUtmTriggerMenu>(l1Menu);
 }
 
 //define this as a plug-in

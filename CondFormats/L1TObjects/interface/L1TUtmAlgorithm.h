@@ -14,6 +14,7 @@
 #include <string>
 #include <vector>
 #include "CondFormats/Serialization/interface/Serializable.h"
+#include "tmEventSetup/esAlgorithm.hh"
 
 /**
  *  This class implements data structure for Algorithm
@@ -29,6 +30,33 @@ public:
         module_id_(),
         module_index_(),
         version(0){};
+  L1TUtmAlgorithm(std::string name,
+                  std::string expression,
+                  std::string expression_in_condition,
+                  std::vector<std::string> rpn_vector,
+                  unsigned int index,
+                  unsigned int module_id,
+                  unsigned int module_index,
+                  unsigned int ver)
+      : name_(name),
+        expression_(expression),
+        expression_in_condition_(expression_in_condition),
+        rpn_vector_(rpn_vector),
+        index_(index),
+        module_id_(module_id),
+        module_index_(module_index),
+        version(ver){};
+
+  L1TUtmAlgorithm(const tmeventsetup::esAlgorithm& esAlg)
+      : L1TUtmAlgorithm(esAlg.getName(),
+                        esAlg.getExpression(),
+                        esAlg.getExpressionInCondition(),
+                        esAlg.getRpnVector(),
+                        esAlg.getIndex(),
+                        esAlg.getModuleId(),
+                        esAlg.getModuleIndex(),
+                        0  //There is no version retrieval in esAlgorithm. However, it seems pretty hard coded to 0
+        ){};
 
   virtual ~L1TUtmAlgorithm() = default;
 

@@ -14,6 +14,8 @@
 #include "CondFormats/L1TObjects/interface/L1TUtmObject.h"
 #include "CondFormats/Serialization/interface/Serializable.h"
 
+#include "tmEventSetup/esCondition.hh"
+
 #include <string>
 #include <vector>
 
@@ -23,6 +25,19 @@
 class L1TUtmCondition {
 public:
   L1TUtmCondition() : name_(), type_(-9999), objects_(), cuts_(), version(0){};
+  L1TUtmCondition(
+      std::string name, int type, std::vector<L1TUtmObject> objects, std::vector<L1TUtmCut> cuts, unsigned int vers)
+      : name_(name), type_(type), objects_(objects), cuts_(cuts), version(vers){};
+
+  L1TUtmCondition(const tmeventsetup::esCondition& esCond)
+      : name_(esCond.getName()), type_(esCond.getType()), version(0) {
+    objects_.reserve(esCond.getObjects().size());
+    for (auto it = esCond.getObjects().begin(); it != esCond.getObjects().end(); ++it)
+      objects_.emplace_back(L1TUtmObject(*it));
+    cuts_.reserve(esCond.getCuts().size());
+    for (auto it = esCond.getCuts().begin(); it != esCond.getCuts().end(); ++it)
+      cuts_.emplace_back(L1TUtmCut(*it));
+  };
 
   virtual ~L1TUtmCondition() = default;
 

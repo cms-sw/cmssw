@@ -13,6 +13,8 @@
 #include "CondFormats/L1TObjects/interface/L1TUtmCutValue.h"
 #include "CondFormats/Serialization/interface/Serializable.h"
 
+#include "tmEventSetup/esCut.hh"
+
 #include <string>
 
 /**
@@ -21,6 +23,32 @@
 class L1TUtmCut {
 public:
   L1TUtmCut() : name_(), object_type_(), cut_type_(), minimum_(), maximum_(), data_(), key_(), version(0){};
+  L1TUtmCut(std::string name,
+            int object_type,
+            int cut_type,
+            L1TUtmCutValue minimum,
+            L1TUtmCutValue maximum,
+            std::string data,
+            std::string key,
+            unsigned int vers)
+      : name_(name),
+        object_type_(object_type),
+        cut_type_(cut_type),
+        minimum_(minimum),
+        maximum_(maximum),
+        data_(data),
+        key_(key),
+        version(vers){};
+
+  L1TUtmCut(const tmeventsetup::esCut& esC)
+      : L1TUtmCut(esC.getName(),
+                  esC.getObjectType(),
+                  esC.getCutType(),
+                  L1TUtmCutValue(esC.getMinimum()),
+                  L1TUtmCutValue(esC.getMaximum()),
+                  esC.getData(),
+                  esC.getKey(),
+                  0){};
 
   virtual ~L1TUtmCut() = default;
 
