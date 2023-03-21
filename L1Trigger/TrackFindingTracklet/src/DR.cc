@@ -63,15 +63,20 @@ namespace trklet {
           if (frameStub.first.isNull())
             continue;
           TTBV ttBV = frameStub.second;
+          const TTBV z(ttBV, dataFormats_->format(Variable::z, Process::kfin).width(), 0, true);
           ttBV >>= dataFormats_->format(Variable::z, Process::kfin).width();
+          const TTBV phi(ttBV, dataFormats_->format(Variable::phi, Process::kfin).width(), 0, true);
           ttBV >>= dataFormats_->format(Variable::phi, Process::kfin).width();
+          const TTBV r(ttBV, dataFormats_->format(Variable::r, Process::kfin).width(), 0, true);
           ttBV >>= dataFormats_->format(Variable::r, Process::kfin).width();
-          const TTBV stubId(ttBV, channelAssignment_->widthStubId(), 0);
-          ttBV >>= channelAssignment_->widthStubId();
+          const TTBV stubId(ttBV, channelAssignment_->widthSeedStubId(), 0);
+          ttBV >>= channelAssignment_->widthSeedStubId();
           const TTBV layerId(ttBV, channelAssignment_->widthLayerId(), 0);
           ttBV >>= channelAssignment_->widthLayerId();
-          const TTBV seed(ttBV, 1, 0);
-          stubs_.emplace_back(frameStub, (seed.val() == 1), layerId.val(), stubId.val(), layer);
+          const TTBV tilt(ttBV, channelAssignment_->widthPSTilt(), 0);
+          const FrameStub frame(frameStub.first,
+                                Frame("1" + tilt.str() + layerId.str() + r.str() + phi.str() + z.str()));
+          stubs_.emplace_back(frame, stubId.val(), layer);
           stubs.push_back(&stubs_.back());
         }
         tracks_.emplace_back(frameTrack, stubs);

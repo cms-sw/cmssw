@@ -114,7 +114,7 @@ namespace trackerTFP {
        << "Metadata: (strobe,) start of orbit, start of packet, end of packet, valid" << endl
        << endl;
     // link header
-    ss << "      Link :";
+    ss << "      Link  ";
     for (int link = 0; link < numLinks; link++)
       ss << "            " << setfill('0') << setw(3) << link << "        ";
     ss << endl;
@@ -136,7 +136,7 @@ namespace trackerTFP {
   // creates frame number
   string Demonstrator::frame(int& nFrame) const {
     stringstream ss;
-    ss << "Frame " << setfill('0') << setw(4) << nFrame++ << " :";
+    ss << "Frame " << setfill('0') << setw(4) << nFrame++ << "  ";
     return ss.str();
   }
 

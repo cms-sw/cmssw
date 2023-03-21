@@ -3,6 +3,7 @@
 
 #include "L1Trigger/TrackTrigger/interface/Setup.h"
 #include "L1Trigger/TrackerTFP/interface/DataFormats.h"
+#include "L1Trigger/TrackerTFP/interface/LayerEncoding.h"
 #include "L1Trigger/TrackFindingTracklet/interface/ChannelAssignment.h"
 
 #include <vector>
@@ -19,6 +20,7 @@ namespace trklet {
     KFin(const edm::ParameterSet& iConfig,
          const tt::Setup* setup_,
          const trackerTFP::DataFormats* dataFormats,
+         const trackerTFP::LayerEncoding* layerEncoding,
          const ChannelAssignment* channelAssignment,
          int region);
     ~KFin() {}
@@ -74,6 +76,8 @@ namespace trklet {
     const tt::Setup* setup_;
     // provides dataformats
     const trackerTFP::DataFormats* dataFormats_;
+    // helper class to encode layer
+    const trackerTFP::LayerEncoding* layerEncoding_;
     // helper class to assign tracks to channel
     const ChannelAssignment* channelAssignment_;
     // processing region (0 - 8) aka processing phi nonant
