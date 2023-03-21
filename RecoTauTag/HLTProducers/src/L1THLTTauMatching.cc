@@ -1,12 +1,17 @@
 #include "RecoTauTag/HLTProducers/interface/L1THLTTauMatching.h"
 #include "Math/GenVector/VectorUtil.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "DataFormats/TauReco/interface/PFTau.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/L1Trigger/interface/Tau.h"
+#include "DataFormats/TauReco/interface/PFTau.h"
 
 //
-// class decleration
+// class declaration
 //
 using namespace reco;
 using namespace std;
@@ -21,13 +26,11 @@ L1THLTTauMatching::L1THLTTauMatching(const edm::ParameterSet& iConfig)
       keepOriginalVertex(iConfig.getParameter<bool>("KeepOriginalVertex")) {
   produces<PFTauCollection>();
 }
-L1THLTTauMatching::~L1THLTTauMatching() {}
 
 void L1THLTTauMatching::produce(edm::StreamID iSId, edm::Event& iEvent, const edm::EventSetup& iES) const {
   unique_ptr<PFTauCollection> tauL2jets(new PFTauCollection);
 
-  double deltaR = 1.0;
-  double matchingR = 0.5;
+  constexpr double matchingR2 = 0.5 * 0.5;
 
   // Getting HLT jets to be matched
   edm::Handle<PFTauCollection> tauJets;
@@ -45,8 +48,8 @@ void L1THLTTauMatching::produce(edm::StreamID iSId, edm::Event& iEvent, const ed
     for (unsigned int iJet = 0; iJet < tauJets->size(); iJet++) {
       // Find the relative L2TauJets, to see if it has been reconstructed
       const PFTau& myJet = (*tauJets)[iJet];
-      deltaR = ROOT::Math::VectorUtil::DeltaR(myJet.p4().Vect(), (tauCandRefVec[iL1Tau]->p4()).Vect());
-      if (deltaR < matchingR) {
+      double deltaR2 = ROOT::Math::VectorUtil::DeltaR2(myJet.p4().Vect(), (tauCandRefVec[iL1Tau]->p4()).Vect());
+      if (deltaR2 < matchingR2) {
         if (myJet.leadChargedHadrCand().isNonnull()) {
           a = myJet.leadChargedHadrCand()->vertex();
         }
