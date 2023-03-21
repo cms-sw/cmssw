@@ -22,6 +22,7 @@ CaloTowerFromL1TCreatorForTauHLT::CaloTowerFromL1TCreatorForTauHLT(const Paramet
       mVerbose(p.getUntrackedParameter<int>("verbose", 0)),
       mtowers_token(consumes<CaloTowerCollection>(p.getParameter<InputTag>("towers"))),
       mCone(p.getParameter<double>("UseTowersInCone")),
+      mCone2(mCone * mCone),
       mTauTrigger_token(consumes<l1t::TauBxCollection>(p.getParameter<InputTag>("TauTrigger"))),
       mEtThreshold(p.getParameter<double>("minimumEt")),
       mEThreshold(p.getParameter<double>("minimumE")),
@@ -30,9 +31,6 @@ CaloTowerFromL1TCreatorForTauHLT::CaloTowerFromL1TCreatorForTauHLT(const Paramet
 }
 
 void CaloTowerFromL1TCreatorForTauHLT::produce(StreamID sid, Event& evt, const EventSetup& stp) const {
-  if (mCone < 0.)
-    return;
-
   edm::Handle<CaloTowerCollection> caloTowers;
   evt.getByToken(mtowers_token, caloTowers);
 
@@ -42,6 +40,11 @@ void CaloTowerFromL1TCreatorForTauHLT::produce(StreamID sid, Event& evt, const E
 
   std::unique_ptr<CaloTowerCollection> cands(new CaloTowerCollection);
   cands->reserve(caloTowers->size());
+
+  if (mCone < 0.) {
+    evt.put(std::move(cands));
+    return;
+  }
 
   int idTau = 0;
   if (jetsgen.isValid()) {
@@ -59,7 +62,7 @@ void CaloTowerFromL1TCreatorForTauHLT::produce(StreamID sid, Event& evt, const E
           if (cal->et() >= mEtThreshold && cal->energy() >= mEThreshold) {
             math::PtEtaPhiELorentzVector p(cal->et(), cal->eta(), cal->phi(), cal->energy());
             double delta2 = ROOT::Math::VectorUtil::DeltaR2((*myL1Jet).p4().Vect(), p);
-            if (delta2 < mCone * mCone) {
+            if (delta2 < mCone2) {
               isAccepted = true;
               cands->push_back(*cal);
             }

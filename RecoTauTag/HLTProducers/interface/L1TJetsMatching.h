@@ -99,7 +99,7 @@ std::pair<std::vector<T>, std::vector<T>> L1TJetsMatching<T>::categorise(
 
     const T& myJet1 = (pfMatchedJets)[i1];
     const T& myJet2 = (pfMatchedJets)[i2];
-    const double M2jj = (Mjj > 0. ? Mjj * Mjj : -1.);
+    const double M2jj = (Mjj >= 0. ? Mjj * Mjj : -1.);
 
     if ((m2jj > M2jj) && (myJet1.pt() >= pt1) && (myJet2.pt() > pt2)) {
       output.first.push_back(myJet1);
@@ -145,7 +145,7 @@ std::tuple<std::vector<T>, std::vector<T>, std::vector<T>> L1TJetsMatching<T>::c
 
     const T& myJet1 = (pfMatchedJets)[i1];
     const T& myJet2 = (pfMatchedJets)[i2];
-    const double M2jj = (Mjj > 0. ? Mjj * Mjj : -1.);
+    const double M2jj = (Mjj >= 0. ? Mjj * Mjj : -1.);
 
     std::vector<T> vec4jets;
     vec4jets.reserve(4);

@@ -1,9 +1,11 @@
 #include "RecoTauTag/HLTProducers/interface/L1HLTTauMatching.h"
 #include "Math/GenVector/VectorUtil.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 
 //
@@ -20,7 +22,6 @@ L1HLTTauMatching::L1HLTTauMatching(const edm::ParameterSet& iConfig)
       mEt_Min(iConfig.getParameter<double>("EtMin")) {
   produces<PFTauCollection>();
 }
-L1HLTTauMatching::~L1HLTTauMatching() {}
 
 void L1HLTTauMatching::produce(edm::StreamID iSId, edm::Event& iEvent, const edm::EventSetup& iES) const {
   using namespace edm;
@@ -31,13 +32,11 @@ void L1HLTTauMatching::produce(edm::StreamID iSId, edm::Event& iEvent, const edm
 
   unique_ptr<PFTauCollection> tauL2jets(new PFTauCollection);
 
-  constexpr double matchingR = 0.5;
+  constexpr double matchingR2 = 0.5 * 0.5;
 
   //Getting HLT jets to be matched
   edm::Handle<PFTauCollection> tauJets;
   iEvent.getByToken(jetSrc, tauJets);
-
-  //		std::cout <<"Size of input jet collection "<<tauJets->size()<<std::endl;
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> l1TriggeredTaus;
   iEvent.getByToken(tauTrigger, l1TriggeredTaus);
@@ -54,7 +53,7 @@ void L1HLTTauMatching::produce(edm::StreamID iSId, edm::Event& iEvent, const edm
       //Find the relative L2TauJets, to see if it has been reconstructed
       const PFTau& myJet = (*tauJets)[iJet];
       double deltaR2 = ROOT::Math::VectorUtil::DeltaR2(myJet.p4().Vect(), (tauCandRefVec[iL1Tau]->p4()).Vect());
-      if (deltaR2 < matchingR) {
+      if (deltaR2 < matchingR2) {
         //		 LeafCandidate myLC(myJet);
         if (myJet.leadChargedHadrCand().isNonnull()) {
           a = myJet.leadChargedHadrCand()->vertex();
@@ -74,7 +73,7 @@ void L1HLTTauMatching::produce(edm::StreamID iSId, edm::Event& iEvent, const edm
       const PFTau& myJet = (*tauJets)[iJet];
       //Find the relative L2TauJets, to see if it has been reconstructed
       double deltaR2 = ROOT::Math::VectorUtil::DeltaR2(myJet.p4().Vect(), (jetCandRefVec[iL1Tau]->p4()).Vect());
-      if (deltaR2 < matchingR) {
+      if (deltaR2 < matchingR2) {
         //		 LeafCandidate myLC(myJet);
         if (myJet.leadChargedHadrCand().isNonnull()) {
           a = myJet.leadChargedHadrCand()->vertex();
@@ -89,8 +88,6 @@ void L1HLTTauMatching::produce(edm::StreamID iSId, edm::Event& iEvent, const edm
       }
     }
   }
-
-  //std::cout <<"Size of L1HLT matched jets "<<tauL2jets->size()<<std::endl;
 
   iEvent.put(std::move(tauL2jets));
   // iEvent.put(std::move(tauL2LC));
