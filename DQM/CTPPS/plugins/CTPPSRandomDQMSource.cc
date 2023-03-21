@@ -51,7 +51,7 @@ private:
   static constexpr int kStationIDMAX_ = 4;  // possible range of ID
   static constexpr int kRPotsIDMAX_ = 8;    // possible range of ID
 
-  const std::string folderName_ = "CTPPS/RandomPixel";
+  const std::string folderName_ = "PPSRANDOM/RandomPixel";
 
   unsigned int rpStatusWord_ = 0x8008;          // 220_fr_hr(stn2rp3)+ 210_fr_hr
   int rpStatus_[kStationIDMAX_][kRPotsIDMAX_];  // symmetric in both arms
@@ -79,7 +79,7 @@ private:
 
 CTPPSRandomDQMSource::CTPPSRandomDQMSource(const edm::ParameterSet &ps)
     : tokenDigi_(consumes<edm::DetSetVector<CTPPSPixelDigi>>(ps.getParameter<edm::InputTag>("tagRPixDigi"))),
-      folderName_(ps.getUntrackedParameter<std::string>("folderName", "CTPPS/RandomPixel")),
+      folderName_(ps.getUntrackedParameter<std::string>("folderName", "PPSRANDOM/RandomPixel")),
       rpStatusWord_(ps.getUntrackedParameter<unsigned int>("RPStatusWord", 0x8008)) {
   for (int stn = 0; stn < kStationIDMAX_; stn++) {
     stationStatus_[stn] = 0;
@@ -196,7 +196,7 @@ void CTPPSRandomDQMSource::analyze(edm::Event const &event, edm::EventSetup cons
 void CTPPSRandomDQMSource::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("tagRPixDigi", edm::InputTag("ctppsPixelDigisAlCaRecoProducer"));
-  desc.addUntracked<std::string>("folderName", "CTPPS/RandomPixel");
+  desc.addUntracked<std::string>("folderName", "PPSRANDOM/RandomPixel");
   desc.addUntracked<unsigned int>("RPStatusWord", 0x8008);
   descriptions.add("ctppsRandomDQMSource", desc);
 }

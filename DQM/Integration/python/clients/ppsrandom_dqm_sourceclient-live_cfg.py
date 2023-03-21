@@ -29,6 +29,8 @@ else:
     'drop *',
     'keep FEDRawDataCollection_*_*_*'
   )
+  
+process.source.streamLabel = "streamExpressPPSRandom"
 
 # DQM environment
 process.load("DQM.Integration.config.environment_cfi")
