@@ -3,8 +3,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/PatCandidates/interface/PATTauDiscriminator.h"
-#include "DataFormats/TauReco/interface/TauDiscriminatorContainer.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "FWCore/Utilities/interface/transform.h"
@@ -53,7 +51,7 @@ PATTauHybridProducer::PATTauHybridProducer(const edm::ParameterSet& cfg)
       chargeAssignmentProbMin_(cfg.getParameter<double>("chargeAssignmentProbMin")),
       checkTauScoreIsBest_(cfg.getParameter<bool>("checkTauScoreIsBest")),
       tagToDM_({{"1h0p", 0}, {"1h1or2p", 1}, {"1h1p", 1}, {"1h2p", 2}, {"3h0p", 10}, {"3h1p", 11}}) {
-  // read the different PNet score names
+  // Read the different PNet score names
   std::vector<std::string> pnetScoreNames = cfg.getParameter<std::vector<std::string>>("pnetScoreNames");
   for (const auto& scoreName : pnetScoreNames) {
     size_t labelLenght = scoreName.find(':') == std::string::npos ? 0 : scoreName.find(':') + 1;
@@ -99,19 +97,9 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   if (addGenJetMatch_)
     evt.getByToken(genJetMatchToken_, genJetMatch);
 
-  //FIXME: How do the following using a global cache once per execution?
-  //minimal HPS-like tauID list
+  // Minimal HPS-like tauID list
   std::vector<pat::Tau::IdPair> tauIds_minimal((size_t)tauId_min_idx::last);
   tauIds_minimal[(size_t)tauId_min_idx::hpsnew] = std::make_pair("decayModeFindingNewDMs", -1);
-  /* potentially can be added and computed when tau consistuents are defiend:
-     'againstMuonLoose3' 'againstMuonTight3'
-     'chargedIsoPtSum' 'chargedIsoPtSumdR03'
-     'decayModeFinding' = -1 as newDMs by definition, add?
-     'footprintCorrection' 'footprintCorrectiondR03' - usefull?
-     'neutralIsoPtSum' 'neutralIsoPtSumdR03'
-     'neutralIsoPtSumWeight' 'neutralIsoPtSumWeightdR03' - usefull?
-     'photonPtSumOutsideSignalCone' 'photonPtSumOutsideSignalConedR03' - duplicated 
-     'puCorrPtSum'*/
 
   // PNet tauID list
   std::vector<pat::Tau::IdPair> tauIds_pnet((size_t)tauId_pnet_idx::last);
@@ -204,8 +192,8 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
       if (matched_taus.count(tau_idx - 1) > 0)
         continue;
       float dR = deltaR(jet, inputTau);
-      if (dR <
-          dRMax_) {  //for now 1st fulfilling this requirement, one can look also for the closest tau with some overhead. But, for reasonable drMax_ the two should be equival in terms of found matches.
+      // select 1st found match rather than best match (both should be equivalent for reasonable dRMax)
+      if (dR < dRMax_) {
         matched_taus.insert(tau_idx - 1);
         pat::Tau outputTau(inputTau);
         const size_t nTauIds = inputTau.tauIDs().size();
@@ -214,7 +202,6 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
           tauIds[i] = inputTau.tauIDs()[i];
         for (size_t i = 0; i < tauIds_pnet.size(); ++i)
           tauIds[nTauIds + i] = tauIds_pnet[i];
-        //FIXME: add jet ref, possible?
         outputTau.setTauIDs(tauIds);
         matched = true;
         outputTaus->push_back(outputTau);
@@ -233,12 +220,15 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     // Build taus from non-matched jets
     // "Null" pftau with raw (uncorrected) jet kinematics
     reco::PFTau pfTauFromJet(bestCharge, jet.correctedP4("Uncorrected"));
-    //FIXME, find leading track (and best PV?), build patTau with DM, charge and discriminants by PNet, find possible consistunets for DM by PNet using HPS-like method
-    //FIXME, the simplest way is to build cone-like PFtau cf. RecoTauTag/RecoTau/plugins/RecoTauBuilderConePlugin.cc
+    // Set PDGid
+    pfTauFromJet.setPdgId(bestCharge < 0 ? 15 : -15);
+    // and decay mode predicted by PNet
+    pfTauFromJet.setDecayMode(
+        static_cast<const reco::PFTau::hadronicDecayMode>(int(tauIds_pnet[(size_t)tauId_pnet_idx::dm].second)));
 
     // PATTau
     pat::Tau outputTauFromJet(pfTauFromJet);
-    //Add tauIDs
+    // Add tauIDs
     std::vector<pat::Tau::IdPair> newtauIds(tauIds_minimal.size() + tauIds_pnet.size());
     for (size_t i = 0; i < tauIds_minimal.size(); ++i)
       newtauIds[i] = tauIds_minimal[i];
@@ -247,7 +237,7 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     outputTauFromJet.setTauIDs(newtauIds);
     // Add genTauJet match
     if (addGenJetMatch_) {
-      edm::Ref<pat::JetCollection> jetRef(jets, jet_idx-1);  //FIXME: can be moved upper if needed
+      const edm::Ref<pat::JetCollection> jetRef(jets, jet_idx - 1);
       reco::GenJetRef genJetTau = (*genJetMatch)[jetRef];
       if (genJetTau.isNonnull() && genJetTau.isAvailable()) {
         outputTauFromJet.setGenJet(genJetTau);
@@ -259,10 +249,10 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
   // Taus non-matched to jets (usually at pt-threshold or/and eta boundaries)
   if (matched_taus.size() < inputTaus->size()) {
-    for (size_t i = 0; i < inputTaus->size(); ++i) {
-      if (matched_taus.count(i) > 0)
+    for (size_t iTau = 0; iTau < inputTaus->size(); ++iTau) {
+      if (matched_taus.count(iTau) > 0)
         continue;
-      const pat::Tau& inputTau = inputTaus->at(i);
+      const pat::Tau& inputTau = inputTaus->at(iTau);
       pat::Tau outputTau(inputTau);
       const size_t nTauIds = inputTau.tauIDs().size();
       std::vector<pat::Tau::IdPair> tauIds(nTauIds + tauIds_pnet.size());
@@ -270,7 +260,7 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
         tauIds[i] = inputTau.tauIDs()[i];
       for (size_t i = 0; i < tauIds_pnet.size(); ++i) {
         tauIds[nTauIds + i] = tauIds_pnet[i];
-        tauIds[nTauIds + i].second = -1;
+        tauIds[nTauIds + i].second = (i == (size_t)tauId_pnet_idx::ptcorr ? 1 : -1);
       }
       outputTau.setTauIDs(tauIds);
       outputTaus->push_back(outputTau);
