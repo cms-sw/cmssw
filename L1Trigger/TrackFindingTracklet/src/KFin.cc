@@ -14,11 +14,13 @@ namespace trklet {
   KFin::KFin(const ParameterSet& iConfig,
              const Setup* setup,
              const DataFormats* dataFormats,
+             const LayerEncoding* layerEncoding,
              const ChannelAssignment* channelAssignment,
              int region)
       : enableTruncation_(iConfig.getParameter<bool>("EnableTruncation")),
         setup_(setup),
         dataFormats_(dataFormats),
+        layerEncoding_(layerEncoding),
         channelAssignment_(channelAssignment),
         region_(region),
         input_(channelAssignment_->numNodesDR()) {}
@@ -69,7 +71,6 @@ namespace trklet {
           ttBV >>= dataFormats_->format(Variable::phi, Process::kfin).width();
           const TTBV rBV(ttBV, dataFormats_->format(Variable::r, Process::kfin).width(), 0, true);
           ttBV >>= dataFormats_->format(Variable::r, Process::kfin).width();
-          ttBV >>= channelAssignment_->widthStubId();
           const TTBV layerIdBV(ttBV, channelAssignment_->widthLayerId(), 0);
           ttBV >>= channelAssignment_->widthPSTilt();
           const TTBV tiltBV(ttBV, channelAssignment_->widthPSTilt(), 0);
@@ -84,14 +85,24 @@ namespace trklet {
         ttBV >>= dataFormats_->format(Variable::cot, Process::kfin).width();
         const TTBV zTBV(ttBV, dataFormats_->format(Variable::zT, Process::kfin).width(), 0, true);
         ttBV >>= dataFormats_->format(Variable::zT, Process::kfin).width();
+        const TTBV phiTBV(ttBV, dataFormats_->format(Variable::phiT, Process::kfin).width(), 0, true);
+        ttBV >>= dataFormats_->format(Variable::phiT, Process::kfin).width();
         const TTBV inv2RBV(ttBV, dataFormats_->format(Variable::inv2R, Process::kfin).width(), 0, true);
         ttBV >>= dataFormats_->format(Variable::inv2R, Process::kfin).width();
-        ttBV >>= dataFormats_->format(Variable::phiT, Process::kfin).width();
         const TTBV sectorEtaBV(ttBV, dataFormats_->format(Variable::sectorEta, Process::kfin).width(), 0);
+        ttBV >>= dataFormats_->format(Variable::sectorEta, Process::kfin).width();
+        const TTBV sectorPhiBV(ttBV, dataFormats_->format(Variable::sectorPhi, Process::kfin).width(), 0);
         const double cot = cotBV.val(dataFormats_->base(Variable::cot, Process::kfin));
         const double zT = zTBV.val(dataFormats_->base(Variable::zT, Process::kfin));
         const double inv2R = inv2RBV.val(dataFormats_->base(Variable::inv2R, Process::kfin));
-        tracks_.emplace_back(frameTrack, stubs, cot, zT, inv2R, sectorEtaBV.val());
+        const int sectorEta = sectorEtaBV.val();
+        const int zTu = dataFormats_->format(Variable::zT, Process::kfin).toUnsigned(zT);
+        const int cotu = dataFormats_->format(Variable::cot, Process::kfin).toUnsigned(cot);
+        const TTBV maybe = layerEncoding_->maybePattern(sectorEta, zTu, cotu);
+        const FrameTrack frameT(frameTrack.first,
+                                Frame("1" + maybe.str() + sectorPhiBV.str() + sectorEtaBV.str() + phiTBV.str() +
+                                      inv2RBV.str() + zTBV.str() + cotBV.str()));
+        tracks_.emplace_back(frameT, stubs, cot, zT, inv2R, sectorEtaBV.val());
         input.push_back(&tracks_.back());
       }
       // remove all gaps between end and last track
