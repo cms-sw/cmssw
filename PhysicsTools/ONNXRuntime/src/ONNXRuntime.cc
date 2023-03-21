@@ -39,7 +39,7 @@ namespace cms::Ort {
 
     for (size_t i = 0; i < num_input_nodes; i++) {
       // get input node names
-      std::string input_name(session_->GetInputNameAllocated(i, allocator));
+      std::string input_name(session_->GetInputNameAllocated(i, allocator).get());
       input_node_strings_[i] = input_name;
       input_node_names_[i] = input_node_strings_[i].c_str();
 
@@ -57,7 +57,7 @@ namespace cms::Ort {
 
     for (size_t i = 0; i < num_output_nodes; i++) {
       // get output node names
-      std::string output_name(session_->GetOutputNameAllocated(i, allocator));
+      std::string output_name(session_->GetOutputNameAllocated(i, allocator).get());
       output_node_strings_[i] = output_name;
       output_node_names_[i] = output_node_strings_[i].c_str();
 
