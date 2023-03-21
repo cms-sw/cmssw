@@ -11,14 +11,29 @@
 #include "DataFormats/Common/interface/RefToPtr.h"
 
 #include "PhysicsTools/HepMCCandAlgos/interface/GenParticlesHelper.h"
+#include "PhysicsTools/JetMCUtils/interface/JetMCTag.h"
+#include "DataFormats/TauReco/interface/PFTau.h"
 
 using namespace std;
 using namespace edm;
 using namespace reco;
 
+namespace {
+  //Map to convert names of decay modes to integer codes
+  const std::map<std::string, int> decayModeStringToCodeMap = {{"null", PFTau::kNull},
+                                                               {"oneProng0Pi0", PFTau::kOneProng0PiZero},
+                                                               {"oneProng1Pi0", PFTau::kOneProng1PiZero},
+                                                               {"oneProng2Pi0", PFTau::kOneProng2PiZero},
+                                                               {"threeProng0Pi0", PFTau::kThreeProng0PiZero},
+                                                               {"threeProng1Pi0", PFTau::kThreeProng1PiZero},
+                                                               {"electron", PFTau::kRareDecayMode + 1},
+                                                               {"muon", PFTau::kRareDecayMode + 2},
+                                                               {"rare", PFTau::kRareDecayMode},
+                                                               {"tau", PFTau::kNull - 1}};
+}  // namespace
+
 TauGenJetProducer::TauGenJetProducer(const edm::ParameterSet& iConfig)
-    : inputTagGenParticles_(iConfig.getParameter<InputTag>("GenParticles")),
-      tokenGenParticles_(consumes<GenParticleCollection>(inputTagGenParticles_)),
+    : tokenGenParticles_(consumes<GenParticleCollection>(iConfig.getParameter<InputTag>("GenParticles"))),
       includeNeutrinos_(iConfig.getParameter<bool>("includeNeutrinos")),
       verbose_(iConfig.getUntrackedParameter<bool>("verbose", false)) {
   produces<GenJetCollection>();
@@ -40,7 +55,21 @@ void TauGenJetProducer::produce(edm::StreamID, Event& iEvent, const EventSetup& 
     // look for all status 1 (stable) descendents
     GenParticleRefVector descendents;
     findDescendents(*iTau, descendents, 1);
+    if (descendents.empty()) {
+      edm::LogWarning("NoTauDaughters") << "Tau p4: " << (*iTau)->p4() << " vtx: " << (*iTau)->vertex()
+                                        << " has no daughters";
 
+      math::XYZPoint vertex;
+      GenJet::Specific specific;
+      Jet::Constituents constituents;
+
+      constituents.push_back(refToPtr(*iTau));
+      GenJet jet((*iTau)->p4(), vertex, specific, constituents);
+      jet.setCharge((*iTau)->charge());
+      jet.setStatus(decayModeStringToCodeMap.at("tau"));
+      pOutVisTaus->emplace_back(std::move(jet));
+      continue;
+    }
     // CV: skip status 2 taus that radiate-off a photon
     //    --> have a status 2 tau lepton in the list of descendents
     GenParticleRefVector status2TauDaughters;
@@ -88,6 +117,12 @@ void TauGenJetProducer::produce(edm::StreamID, Event& iEvent, const EventSetup& 
                                          << " # descendents: " << constituents.size() << "\n";
 
     jet.setCharge(charge);
+    // determine tau decay mode and set it as jet status
+    if (auto search = decayModeStringToCodeMap.find(JetMCTagUtils::genTauDecayMode(jet));
+        search != decayModeStringToCodeMap.end())
+      jet.setStatus(search->second);
+    else
+      jet.setStatus(decayModeStringToCodeMap.at("null"));
     pOutVisTaus->push_back(jet);
   }
   iEvent.put(std::move(pOutVisTaus));
