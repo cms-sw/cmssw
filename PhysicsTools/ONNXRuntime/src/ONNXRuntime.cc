@@ -47,7 +47,7 @@ namespace cms::Ort {
       auto type_info = session_->GetInputTypeInfo(i);
       auto tensor_info = type_info.GetTensorTypeAndShapeInfo();
 
-      input_node_dims_[input_name] = tensor_info.GetDimensions();
+      input_node_dims_[input_name] = tensor_info.GetShape();
     }
 
     size_t num_output_nodes = session_->GetOutputCount();
@@ -64,7 +64,7 @@ namespace cms::Ort {
       // get output node types
       auto type_info = session_->GetOutputTypeInfo(i);
       auto tensor_info = type_info.GetTensorTypeAndShapeInfo();
-      output_node_dims_[output_name] = tensor_info.GetDimensions();
+      output_node_dims_[output_name] = tensor_info.GetShape();
 
       // the 0th dim depends on the batch size
       output_node_dims_[output_name].at(0) = -1;
