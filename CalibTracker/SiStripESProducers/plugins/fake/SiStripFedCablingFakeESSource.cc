@@ -95,15 +95,13 @@ SiStripFedCabling* SiStripFedCablingFakeESSource::make(const SiStripFedCablingRc
   bool insufficient = false;
   Feds::const_iterator ifed = feds.begin();
   uint16_t fed_ch = 0;
-  for (std::vector<SiStripFecCrate>::const_iterator icrate = fec_cabling->crates().begin();
+  for (std::vector<SiStripFecCrate>::iterator icrate = fec_cabling->crates().begin();
        icrate != fec_cabling->crates().end();
        icrate++) {
-    for (std::vector<SiStripFec>::const_iterator ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++) {
-      for (std::vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end();
-           iring++) {
-        for (std::vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end();
-             iccu++) {
-          for (std::vector<SiStripModule>::const_iterator imod = iccu->modules().begin(); imod != iccu->modules().end();
+    for (std::vector<SiStripFec>::iterator ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++) {
+      for (std::vector<SiStripRing>::iterator iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++) {
+        for (std::vector<SiStripCcu>::iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end(); iccu++) {
+          for (std::vector<SiStripModule>::iterator imod = iccu->modules().begin(); imod != iccu->modules().end();
                imod++) {
             if (populateAllFeds) {
               for (uint16_t ipair = 0; ipair < imod->nApvPairs(); ipair++) {
@@ -121,7 +119,7 @@ SiStripFedCabling* SiStripFedCablingFakeESSource::make(const SiStripFedCablingRc
                                                       (*ifed) % 16 + 2,  // FED slot starts from 2
                                                       *ifed,
                                                       fed_ch);
-                const_cast<SiStripModule&>(*imod).fedCh(addr.first, fed_channel);
+                imod->fedCh(addr.first, fed_channel);
                 ifed++;
               }
             } else {
@@ -134,12 +132,12 @@ SiStripFedCabling* SiStripFedCablingFakeESSource::make(const SiStripFedCablingRc
                 fed_ch = 0;
               }  // move to next FED
               for (uint16_t ipair = 0; ipair < imod->nApvPairs(); ipair++) {
-                std::pair<uint16_t, uint16_t> addr = imod->activeApvPair((*imod).lldChannel(ipair));
+                std::pair<uint16_t, uint16_t> addr = imod->activeApvPair(imod->lldChannel(ipair));
                 SiStripModule::FedChannel fed_channel((*ifed) / 16 + 1,  // 16 FEDs per crate, numbering starts from 1
                                                       (*ifed) % 16 + 2,  // FED slot starts from 2
                                                       (*ifed),
                                                       fed_ch);
-                const_cast<SiStripModule&>(*imod).fedCh(addr.first, fed_channel);
+                imod->fedCh(addr.first, fed_channel);
                 fed_ch++;
               }
             }
