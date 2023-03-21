@@ -302,10 +302,29 @@ namespace edm {
     }
   }
 
+  static constexpr std::string_view kJobReportEndElement = "</FrameworkJobReport>\n";
+  static constexpr int kMinSizeOfComment = 8;
+
   JobReport::~JobReport() {
     impl_->flushFiles();
     if (impl_->ost_) {
-      *(impl_->ost_) << "</FrameworkJobReport>\n" << std::flush;
+      //are we actually at the end of the file?
+      auto pos = impl_->ost_->tellp();
+      impl_->ost_->seekp(0, std::ios_base::end);
+      auto endpos = impl_->ost_->tellp();
+      impl_->ost_->seekp(pos);
+      if ((endpos - pos) > static_cast<long int>(kJobReportEndElement.size())) {
+        //need to add some padding so use a comment element
+        // comment is used since white spaces are converted to a special node
+        // while comments are usually ignored by xml parsers
+        auto padding = (endpos - pos) - (kJobReportEndElement.size() + kMinSizeOfComment);
+        *(impl_->ost_) << "<!--";
+        for (int i = padding; i > 0; --i) {
+          (*impl_->ost_) << ' ';
+        }
+        *(impl_->ost_) << "-->\n";
+      }
+      *(impl_->ost_) << kJobReportEndElement << std::flush;
     }
   }
 
@@ -313,7 +332,11 @@ namespace edm {
     if (impl_->ost_) {
       //remember where we were
       auto pos = impl_->ost_->tellp();
-      *(impl_->ost_) << "</FrameworkJobReport>\n" << std::flush;
+      if (not errorLogged_) {
+        *(impl_->ost_) << "<FrameworkError ExitStatus=\"8901\" Type=\"UnexpectedJobTermination\"/>\n";
+      }
+      *(impl_->ost_) << kJobReportEndElement << std::flush;
+
       //overwrite above during next write.
       impl_->ost_->seekp(pos);
     }
@@ -507,6 +530,7 @@ namespace edm {
     if (impl_->ost_) {
       {
         std::lock_guard<std::mutex> lock(write_mutex);
+        errorLogged_ = true;
         std::ostream& msg = *(impl_->ost_);
         msg << "<FrameworkError ExitStatus=\"" << exitCode << "\" Type=\"" << shortDesc << "\" >\n";
         msg << "<![CDATA[\n" << longDesc << "\n]]>\n";
