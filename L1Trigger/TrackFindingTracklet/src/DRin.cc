@@ -145,7 +145,7 @@ namespace trklet {
           if (basePhi > baseUphi_)
             phi += baseUphi_ / 2.;
           const double z = digi(hwRZ.val(baseRZ) * (barrel ? 1. : -cot), baseUz_);
-          const TTBV hwStubId(hw, channelAssignment_->widthStubId(), 0, false);
+          const TTBV hwStubId(hw, channelAssignment_->widthSeedStubId(), 0, false);
           const int stubId = hwStubId.val();
           // determine module type
           bool psTilt;
@@ -327,7 +327,6 @@ namespace trklet {
     }
     // store helper
     auto frameTrack = [this](Track* track) {
-      const TTBV maybe(track->maybe_);
       const TTBV sectorPhi(
           dataFormats_->format(Variable::sectorPhi, Process::kfin).ttBV(track->sector_ / setup_->numSectorsEta()));
       const TTBV sectorEta(
@@ -336,9 +335,9 @@ namespace trklet {
       const TTBV phiT(dataFormats_->format(Variable::phiT, Process::kfin).ttBV(track->phiT_));
       const TTBV cot(dataFormats_->format(Variable::cot, Process::kfin).ttBV(track->cot_));
       const TTBV zT(dataFormats_->format(Variable::zT, Process::kfin).ttBV(track->zT_));
-      return FrameTrack(track->ttTrackRef_,
-                        Frame("1" + maybe.str() + sectorPhi.str() + sectorEta.str() + phiT.str() + inv2R.str() +
-                              zT.str() + cot.str()));
+      return FrameTrack(
+          track->ttTrackRef_,
+          Frame("1" + sectorPhi.str() + sectorEta.str() + inv2R.str() + phiT.str() + zT.str() + cot.str()));
     };
     auto frameStub = [this](Track* track, int layer) {
       auto equal = [layer](Stub* stub) { return stub->valid_ && stub->layerKF_ == layer; };
@@ -347,13 +346,13 @@ namespace trklet {
         return FrameStub();
       Stub* stub = *it;
       const TTBV layerId(stub->layerDet_, channelAssignment_->widthLayerId());
-      const TTBV stubId(stub->stubId_, channelAssignment_->widthStubId(), true);
+      const TTBV stubId(stub->stubId_, channelAssignment_->widthSeedStubId(), true);
       const TTBV r(dataFormats_->format(Variable::r, Process::kfin).ttBV(stub->r_));
       const TTBV phi(dataFormats_->format(Variable::phi, Process::kfin).ttBV(stub->phi_));
       const TTBV z(dataFormats_->format(Variable::z, Process::kfin).ttBV(stub->z_));
-      return FrameStub(stub->ttStubRef_,
-                       Frame("1" + to_string(stub->psTilt_) + to_string(stub->seed_) + layerId.str() + stubId.str() +
-                             r.str() + phi.str() + z.str()));
+      return FrameStub(
+          stub->ttStubRef_,
+          Frame("1" + to_string(stub->psTilt_) + layerId.str() + stubId.str() + r.str() + phi.str() + z.str()));
     };
     // route tracks into pt bins and store result
     const int offsetTrack = region_ * channelAssignment_->numNodesDR();
