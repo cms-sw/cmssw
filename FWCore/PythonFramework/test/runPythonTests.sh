@@ -14,4 +14,4 @@ do
 done
 
 echo "running test_producer.py"
-${python_cmd} ${LOCAL_TEST_DIR}/test_producer.py || die "test_producer.py failed" $?
+${python_cmd} ${SCRAM_TEST_PATH}/test_producer.py || die "test_producer.py failed" $?

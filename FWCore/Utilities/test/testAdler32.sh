@@ -2,7 +2,7 @@
 echo "===== Running test of cms_adler32 ======"
 
 expect="fd466a74"
-results=`cms_adler32 $LOCAL_TEST_DIR/doNotModify.txt | awk '{print $1}'`
+results=`cms_adler32 ${SCRAM_TEST_PATH}/doNotModify.txt | awk '{print $1}'`
 
 if [ "$results" != "$expect" ]; then
     echo "result: " $results

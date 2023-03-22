@@ -4,50 +4,47 @@ function die { echo Failure $1: status $2 ; exit $2 ; }
 
 test=testRandomService
 
-pushd ${LOCAL_TMP_DIR}
-
-
   echo " "
   echo "RandomNumberGeneratorService 1"
   echo "=============================================="
-  cmsRun ${LOCAL_TEST_DIR}/${test}1_cfg.py > testRandomService1Dump.txt || die "cmsRun ${LOCAL_TEST_DIR}/${test}1_cfg.py" $?
-  diff ${LOCAL_TEST_DIR}/unit_test_outputs/testRandomService1Dump.txt  testRandomService1Dump.txt || die "comparing testRandomService1Dump.txt" $?
+  cmsRun ${SCRAM_TEST_PATH}/${test}1_cfg.py > testRandomService1Dump.txt || die "cmsRun ${SCRAM_TEST_PATH}/${test}1_cfg.py" $?
+  diff ${SCRAM_TEST_PATH}/unit_test_outputs/testRandomService1Dump.txt  testRandomService1Dump.txt || die "comparing testRandomService1Dump.txt" $?
   mv testRandomService_0_t1.txt testRandomService1_0_t1.txt
   mv testRandomService_0_t2.txt testRandomService1_0_t2.txt
   mv testRandomService_0_t3.txt testRandomService1_0_t3.txt
   mv testRandomService_0_t4.txt testRandomService1_0_t4.txt
   mv testRandomService_0_t6.txt testRandomService1_0_t6.txt
 
-  diff ${LOCAL_TEST_DIR}/unit_test_outputs/testRandomService1_0_t1.txt testRandomService1_0_t1.txt || die "comparing testRandomService1_0_t1.txt" $?
-  diff ${LOCAL_TEST_DIR}/unit_test_outputs/testRandomService1_0_t2.txt testRandomService1_0_t2.txt || die "comparing testRandomService1_0_t2.txt" $?
-  diff ${LOCAL_TEST_DIR}/unit_test_outputs/testRandomService1_0_t3.txt testRandomService1_0_t3.txt || die "comparing testRandomService1_0_t3.txt" $?
-  diff ${LOCAL_TEST_DIR}/unit_test_outputs/testRandomService1_0_t4.txt testRandomService1_0_t4.txt || die "comparing testRandomService1_0_t4.txt" $?
-  diff ${LOCAL_TEST_DIR}/unit_test_outputs/testRandomService1_0_t6.txt testRandomService1_0_t6.txt || die "comparing testRandomService1_0_t6.txt" $?
+  diff ${SCRAM_TEST_PATH}/unit_test_outputs/testRandomService1_0_t1.txt testRandomService1_0_t1.txt || die "comparing testRandomService1_0_t1.txt" $?
+  diff ${SCRAM_TEST_PATH}/unit_test_outputs/testRandomService1_0_t2.txt testRandomService1_0_t2.txt || die "comparing testRandomService1_0_t2.txt" $?
+  diff ${SCRAM_TEST_PATH}/unit_test_outputs/testRandomService1_0_t3.txt testRandomService1_0_t3.txt || die "comparing testRandomService1_0_t3.txt" $?
+  diff ${SCRAM_TEST_PATH}/unit_test_outputs/testRandomService1_0_t4.txt testRandomService1_0_t4.txt || die "comparing testRandomService1_0_t4.txt" $?
+  diff ${SCRAM_TEST_PATH}/unit_test_outputs/testRandomService1_0_t6.txt testRandomService1_0_t6.txt || die "comparing testRandomService1_0_t6.txt" $?
 
   echo " "
   echo "RandomNumberGeneratorService 2"
   echo "=============================================="
-  cmsRun ${LOCAL_TEST_DIR}/${test}2_cfg.py || die "cmsRun ${LOCAL_TEST_DIR}/${test}2_cfg.py" $?
+  cmsRun ${SCRAM_TEST_PATH}/${test}2_cfg.py || die "cmsRun ${SCRAM_TEST_PATH}/${test}2_cfg.py" $?
 
   echo " "
   echo "RandomNumberGeneratorService 3"
   echo "=============================================="
-  cmsRun ${LOCAL_TEST_DIR}/${test}3_cfg.py || die "cmsRun ${LOCAL_TEST_DIR}/${test}3_cfg.py" $?
+  cmsRun ${SCRAM_TEST_PATH}/${test}3_cfg.py || die "cmsRun ${SCRAM_TEST_PATH}/${test}3_cfg.py" $?
 
   echo " "
   echo "RandomNumberGeneratorService merge"
   echo "=============================================="
-  cmsRun ${LOCAL_TEST_DIR}/${test}Merge1_cfg.py || die "cmsRun ${LOCAL_TEST_DIR}/${test}Merge1_cfg.py" $?
+  cmsRun ${SCRAM_TEST_PATH}/${test}Merge1_cfg.py || die "cmsRun ${SCRAM_TEST_PATH}/${test}Merge1_cfg.py" $?
 
   echo " "
   echo "RandomNumberGeneratorService test 1, replay from event"
   echo "=============================================="
-  cmsRun ${LOCAL_TEST_DIR}/${test}Test1_cfg.py || die "cmsRun ${LOCAL_TEST_DIR}/${test}Test1_cfg.py" $?
+  cmsRun ${SCRAM_TEST_PATH}/${test}Test1_cfg.py || die "cmsRun ${SCRAM_TEST_PATH}/${test}Test1_cfg.py" $?
 
   echo " "
   echo "RandomNumberGeneratorService test 2, replay from text file"
   echo "=============================================="
-  cmsRun ${LOCAL_TEST_DIR}/${test}Test2_cfg.py || die "cmsRun ${LOCAL_TEST_DIR}/${test}Test2_cfg.py" $?
+  cmsRun ${SCRAM_TEST_PATH}/${test}Test2_cfg.py || die "cmsRun ${SCRAM_TEST_PATH}/${test}Test2_cfg.py" $?
 
   echo " "
   echo "RandomNumberGeneratorService multistream"
@@ -63,8 +60,8 @@ pushd ${LOCAL_TMP_DIR}
   rm -rf stream1LastEvent.txt
   rm -rf stream2LastEvent.txt
 
-  cmsRun ${LOCAL_TEST_DIR}/testMultiStream_cfg.py > testMultiStreamDump.txt || die "cmsRun testMultiStream_cfg.py" $?
-  diff -I "TrackTSelector" ${LOCAL_TEST_DIR}/unit_test_outputs/testMultiStreamDump.txt  testMultiStreamDump.txt || die "comparing testMultiStreamDump.txt" $?
+  cmsRun ${SCRAM_TEST_PATH}/testMultiStream_cfg.py > testMultiStreamDump.txt || die "cmsRun testMultiStream_cfg.py" $?
+  diff -I "TrackTSelector" ${SCRAM_TEST_PATH}/unit_test_outputs/testMultiStreamDump.txt  testMultiStreamDump.txt || die "comparing testMultiStreamDump.txt" $?
 
   echo " "
   echo "RandomNumberGeneratorService multistream test replay from event"
@@ -80,7 +77,7 @@ pushd ${LOCAL_TMP_DIR}
   rm -rf replaystream1LastEvent.txt
   rm -rf replaystream2LastEvent.txt
 
-  cmsRun ${LOCAL_TEST_DIR}/testMultiStreamReplay1_cfg.py || die "cmsRun testMultiStreamReplay1_cfg.py" $?
+  cmsRun ${SCRAM_TEST_PATH}/testMultiStreamReplay1_cfg.py || die "cmsRun testMultiStreamReplay1_cfg.py" $?
 
   # sort so this does not depend on module execution order
   sort testRandomServiceL1E3.txt > testRandomServiceL1E3.sorted
@@ -126,14 +123,10 @@ pushd ${LOCAL_TMP_DIR}
   rm -rf replaystream1LastEvent.txt
   rm -rf replaystream2LastEvent.txt
 
-  cmsRun ${LOCAL_TEST_DIR}/testMultiStreamReplay2_cfg.py || die "cmsRun testMultiStreamReplay2_cfg.py" $?
+  cmsRun ${SCRAM_TEST_PATH}/testMultiStreamReplay2_cfg.py || die "cmsRun testMultiStreamReplay2_cfg.py" $?
 
   # sort so this does not depend on module execution order
   sort lastEvent.txt > lastEvent.sorted
   sort replaystream0LastEvent.txt > replayLastEvent.sorted
 
   diff lastEvent.sorted replayLastEvent.sorted || die "comparing files containing random numbers of last event in a stream" $?
-
-popd
-
-exit 0
