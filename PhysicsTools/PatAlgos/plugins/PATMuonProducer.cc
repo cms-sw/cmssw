@@ -970,7 +970,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       muon.setSelector(reco::Muon::PuppiIsoTight, puppiCombinedIsolationPAT < 0.12);
     }
 
-    std::vector<float> jetPtRatioRel = {0.0, 0.0};
+    std::array<float, 2> jetPtRatioRel = {{0.0, 0.0}};
     if (primaryVertexIsValid && computeMiniIso_) {
       if (useJec_) {
         jetPtRatioRel = globalCache()->calculatePtRatioRel().computePtRatioRel(
