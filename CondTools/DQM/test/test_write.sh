@@ -8,4 +8,4 @@ if test -f "testXML.db"; then
 fi
 
 echo "TESTING CondTools/DQM ..."
-cmsRun ${LOCAL_TEST_DIR}/DQMUploadXMLFile.py || die "Failure running testCondToolsDQMUpload" $?
+cmsRun ${SCRAM_TEST_PATH}/DQMUploadXMLFile.py || die "Failure running testCondToolsDQMUpload" $?
