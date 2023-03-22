@@ -42,6 +42,12 @@ public:
 private:
   float sigma2_pe(const float& Q, const float& R) const;
 
+  float sigma_stochastic(const float& npe) const;
+
+  float sigma2_DCR(const float& npe) const;
+
+  float sigma2_electronics(const float npe) const;
+
   const bool debug_;
 
   const float bxTime_;
