@@ -69,6 +69,22 @@
  </class>
  <class name="HcalGainWidths"/>
 
+ <class name="HcalPFCut"/>
+ <class name="std::vector<HcalPFCut>"/>
+ <class name="std::pair<std::string, std::vector<HcalPFCut> >"/>
+ <class name="std::vector<std::pair<std::string, std::vector<HcalPFCut> > >"/>
+ <class name="HcalCondObjectContainer<HcalPFCut>">
+  <field name="HBcontainer" mapping="blob" />
+  <field name="HEcontainer" mapping="blob" />
+  <field name="HFcontainer" mapping="blob" />
+  <field name="HOcontainer" mapping="blob" />
+  <field name="HTcontainer" mapping="blob" />
+  <field name="ZDCcontainer" mapping="blob" />
+  <field name="CALIBcontainer" mapping="blob" />
+  <field name="CASTORcontainer" mapping="blob" />
+ </class>
+ <class name="HcalPFCuts"/>
+
  <class name="HcalQIECoder">
    <field name="mQIEIndex" transient="true"/>
  </class>
