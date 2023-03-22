@@ -22,6 +22,6 @@ ids_to_test=(
 
 for id_set in "${ids_to_test[@]}"; do
     echo Checking: $id_set
-    cmsRun ${LOCAL_TEST_DIR}/runElectron_VID.py 1 $id_set || die "Failure using runElectron_VID.py on AOD $id_set" $?
-    cmsRun ${LOCAL_TEST_DIR}/runElectron_VID.py 0 $id_set || die "Failure using runElectron_VID.py on MiniAOD $id_set" $?
+    cmsRun ${SCRAM_TEST_PATH}/runElectron_VID.py 1 $id_set || die "Failure using runElectron_VID.py on AOD $id_set" $?
+    cmsRun ${SCRAM_TEST_PATH}/runElectron_VID.py 0 $id_set || die "Failure using runElectron_VID.py on MiniAOD $id_set" $?
 done

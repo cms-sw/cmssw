@@ -15,11 +15,9 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<bin file="TestIntegration.cpp" name="TestLumiProd">
+<test name="TestLumiProd" command="run_lumiProd.sh">
   <flags NO_TESTRUN="1"/>
-  <flags TEST_RUNNER_ARGS=" /bin/bash RecoLuminosity/LumiProducer/test run_lumiProd.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+</test>
 
 <bin file="testWrite2LumiDB.cpp" name="testWrite2LumiDB">
   <flags NO_TESTRUN="1"/>
