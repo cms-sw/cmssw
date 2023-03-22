@@ -324,7 +324,7 @@ using namespace std;
 PATMuonHeavyObjectCache::PATMuonHeavyObjectCache(const edm::ParameterSet& iConfig) {
   if (iConfig.getParameter<bool>("computeMiniIso")) {
     float mvaDrMax = iConfig.getParameter<double>("mvaDrMax");
-    calculatePtRatioRel_ = std::make_unique<CalculatePtRatioRel>(mvaDrMax);
+    calculatePtRatioRel_ = std::make_unique<CalculatePtRatioRel>(mvaDrMax * mvaDrMax);
   }
 
   if (iConfig.getParameter<bool>("computeMuonIDMVA")) {
