@@ -118,7 +118,7 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 ####################################################################
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, ('auto:phase2_realistic' if options.isPhase2 else 'auto:phase1_2022_realistic'), '')
+process.GlobalTag = GlobalTag(process.GlobalTag, ('auto:phase2_realistic_T21' if options.isPhase2 else 'auto:phase1_2022_realistic'), '')
 
 if _allFromGT:
      print("############ testPVValidation_cfg.py: msg%-i: All is taken from GT")
