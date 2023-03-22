@@ -9,6 +9,8 @@ GEMPadDigiClusterSource::GEMPadDigiClusterSource(const edm::ParameterSet& cfg) :
       cfg.getUntrackedParameter<edm::InputTag>("lumiCollection", edm::InputTag("scalersRawToDigi")));
   nBXMin_ = cfg.getParameter<int>("bxMin");
   nBXMax_ = cfg.getParameter<int>("bxMax");
+  nCLSMax_ = cfg.getParameter<int>("clsMax");
+  nClusterSizeBinNum_ = cfg.getParameter<int>("ClusterSizeBinNum");
 }
 
 void GEMPadDigiClusterSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -16,8 +18,10 @@ void GEMPadDigiClusterSource::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<edm::InputTag>("padDigiClusterInputLabel", edm::InputTag("muonCSCDigis","MuonGEMPadDigiCluster"));
   desc.addUntracked<std::string>("runType", "online");
   desc.addUntracked<std::string>("logCategory", "GEMPadDigiClusterSource");
-  desc.add<int>("bxMin", -10);
-  desc.add<int>("bxMax", 10);
+  desc.add<int>("bxMin", -15);
+  desc.add<int>("bxMax", 15);
+  desc.add<int>("clsMax", 10);
+  desc.add<int>("ClusterSizeBinNum", 9);
   descriptions.add("GEMPadDigiClusterSource", desc);
 }
 
@@ -61,8 +65,13 @@ void GEMPadDigiClusterSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Ru
 
   mapBX_ = MEMap2Inf(this, "bx", "Digi Bunch Crossing", 21, nBXMin_ - 0.5, nBXMax_ + 0.5, "Bunch crossing");
 
-  mapPadDigiOccPerCh_ = MEMap4Inf(this, "occ", "Pad Digi Occupancy", 1, -0.5, 1.5, 1, 0.5, 1.5, "Pad", "iEta");
+  mapPadDiffPerCh_=MEMap3Inf(this, "occ", "Pad Digi Difference", 41,  - 0.5, 40 + 0.5, "Pad Digi Difference");
+  mapBXDiffPerCh_=MEMap3Inf(this, "bx", "BX Difference", 10,  - 0.5, 10 + 0.5, "BX Difference");
+  mapPadBXDiffPerCh_ = MEMap3Inf(this,"delta_pad_bx","Pad difference over time difference",41,  - 0.5, 40 + 0.5,10,  - 0.5, 10 + 0.5, "Delta Pads","Delta BX");
 
+  mapPadDigiOccPerCh_ = MEMap4Inf(this, "occ", "Pad Digi Occupancy", 1, -0.5, 1.5, 1, 0.5, 1.5, "Pads", "iEta");
+  mapPadBxPerCh_ = MEMap4Inf(this, "bx", "GEM Pads Hits in Time", 1536, 0.5, 1536.5, 15, -0.5, 15 - 0.5, "Pads", "Time Bins");
+  mapPadCLSPerCh_= MEMap4Inf(this, "cls", "Cluster size of Pad Digi", nCLSMax_, 0.5, nCLSMax_ + 0.5, 1, 0.5, 1.5, "Cluster size", "iEta");
   if (nRunType_ == GEMDQM_RUNTYPE_OFFLINE) {
     mapDigiWheel_layer_.TurnOff();
     mapBX_.TurnOff();
@@ -92,6 +101,8 @@ void GEMPadDigiClusterSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Ru
 int GEMPadDigiClusterSource::ProcessWithMEMap2(BookingHelper& bh, ME2IdsKey key) {
   mapBX_.bookND(bh, key);
 
+ 
+
   return 0;
 }
 
@@ -105,6 +116,13 @@ int GEMPadDigiClusterSource::ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key)
   MEStationInfo& stationInfo = mapStationInfo_[key];
 
   int nNumVFATPerEta = stationInfo.nMaxVFAT_ / stationInfo.nNumEtaPartitions_;
+  //int nNumCh = stationInfo.nNumDigi_;
+  
+  
+
+
+
+
 
   mapTotalDigi_layer_.SetBinConfX(stationInfo.nNumChambers_);
   mapTotalDigi_layer_.SetBinConfY(stationInfo.nMaxVFAT_, -0.5);
@@ -127,9 +145,25 @@ int GEMPadDigiClusterSource::ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key)
   mapDigiOcc_phi_.bookND(bh, key);
   mapTotalDigiPerEvtLayer_.bookND(bh, key);
 
+  
+
   return 0;
 }
+int GEMPadDigiClusterSource::ProcessWithMEMap2WithChamber(BookingHelper& bh, ME3IdsKey key) {
+  //ME2IdsKey key2 = key3Tokey2(key);
+  bh.getBooker()->setCurrentFolder(strFolderMain_ + "/Pad_Difference_");
 
+  mapPadDiffPerCh_.bookND(bh,key);
+  bh.getBooker()->setCurrentFolder(strFolderMain_ + "/BX_Difference_");
+
+  mapBXDiffPerCh_.bookND(bh,key);
+  
+  bh.getBooker()->setCurrentFolder(strFolderMain_ + "/Pad_BX_Difference_");
+  mapPadBXDiffPerCh_.bookND(bh,key);
+  bh.getBooker()->setCurrentFolder(strFolderMain_);
+   
+  return 0;
+}
 int GEMPadDigiClusterSource::ProcessWithMEMap3WithChamber(BookingHelper& bh, ME4IdsKey key) {
   ME3IdsKey key3 = key4Tokey3(key);
   MEStationInfo& stationInfo = mapStationInfo_[key3];
@@ -143,6 +177,17 @@ int GEMPadDigiClusterSource::ProcessWithMEMap3WithChamber(BookingHelper& bh, ME4
   mapPadDigiOccPerCh_.SetBinConfY(stationInfo.nNumEtaPartitions_);
   mapPadDigiOccPerCh_.bookND(bh, key);
   mapPadDigiOccPerCh_.SetLabelForIEta(key, 2);
+
+  bh.getBooker()->setCurrentFolder(strFolderMain_ + "/bx_" + getNameDirLayer(key3));
+  mapPadBxPerCh_.SetBinConfX(nNumCh * nNumVFATPerEta * stationInfo.nNumEtaPartitions_/ 2, -0.5);
+  mapPadBxPerCh_.bookND(bh, key);
+  
+  bh.getBooker()->setCurrentFolder(strFolderMain_ + "/cluster size_" + getNameDirLayer(key3));
+
+  mapPadCLSPerCh_.SetBinConfY(stationInfo.nNumEtaPartitions_);
+  mapPadCLSPerCh_.bookND(bh, key);
+  mapPadCLSPerCh_.SetLabelForIEta(key, 2);
+
 
   bh.getBooker()->setCurrentFolder(strFolderMain_);
 
@@ -158,24 +203,53 @@ void GEMPadDigiClusterSource::analyze(edm::Event const& event, edm::EventSetup c
 
   for (auto it = gemPadDigiClusters->begin(); it != gemPadDigiClusters->end(); it++) {
     auto range = gemPadDigiClusters->get((*it).first);
-    const int type = ((*it).first).station() - 1;
+    //const int type = ((*it).first).station() - 1;
     for (auto cluster = range.first; cluster != range.second; cluster++) {
       if (cluster->isValid()) {
         // ignore data clusters in BX's other than BX0
        // if (usegemPadDigiClustersOnlyInBX0_ and cluster->bx() != 0)
        //   continue;
-       std::cout << "Cluster front: " << cluster->pads().front() << " , Cluster size:  "<< cluster->pads().size() 
-       << " , Cluster BX: " <<  cluster->bx() << " , Cluster station: " << ((*it).first).station()
-       << " , Cluster chamber: " << ((*it).first).chamber() << " , Cluster layer: " << ((*it).first).layer()
-       << " , Cluster eta: " << ((*it).first).roll()<< std::endl;
+       /* std::cout << "Cluster front: " << cluster->pads().front() << " , Cluster size:  "<< cluster->pads().size() 
+        << " , Cluster BX: " <<  cluster->bx() << " , Cluster station: " << ((*it).first).station()
+        << " , Cluster chamber: " << ((*it).first).chamber() << " , Cluster layer: " << ((*it).first).layer()
+        << " , Cluster eta: " << ((*it).first).roll()<< std::endl;*/
        
-      ME4IdsKey key4Ch{((*it).first).region(), ((*it).first).station(), ((*it).first).layer(), ((*it).first).chamber()};  
+        ME4IdsKey key4Ch{((*it).first).region(), ((*it).first).station(), ((*it).first).layer(), ((*it).first).chamber()};
+        ME3IdsKey key3Ch{((*it).first).region(), ((*it).first).station(),((*it).first).chamber()};  
+
         for (auto pad=cluster->pads().front(); pad < (cluster->pads().front() + cluster->pads().size()); pad++  ) {
-           mapPadDigiOccPerCh_.Fill(key4Ch, pad , ((*it).first).roll());
-        //chamberHistos[type]["cluster_size_data"]->Fill(cluster->pads().size());
-        //chamberHistos[type]["cluster_pad_data"]->Fill(cluster->pads().front());
-        //chamberHistos[type]["cluster_bx_data"]->Fill(cluster->bx());
+          mapPadDigiOccPerCh_.Fill(key4Ch, pad , ((*it).first).roll());
+          mapPadBxPerCh_.Fill(key4Ch, pad + (192 * (8 - ((*it).first).roll())), cluster->bx());
+          //std::cout << "pad:"<< pad << "  BX:"<< cluster->bx() <<"  chamber:"<< ((*it).first).chamber() << "  layer:"<< ((*it).first).layer()<<std::endl;
+          
+          
         }
+
+        for (auto it2 = gemPadDigiClusters->begin(); it2 != gemPadDigiClusters->end(); it2++) {
+          auto range2 = gemPadDigiClusters->get((*it2).first);
+          for (auto cluster2 = range2.first; cluster2 != range2.second; cluster2++) {
+            if (cluster2->isValid()) {
+                 if (((*it).first).chamber()==((*it2).first).chamber() && ((*it).first).station()==((*it2).first).station() && ((*it).first).region()==((*it2).first).region() && ((*it).first).layer()==1 &&((*it2).first).layer()==2 ){
+                    if(abs(cluster->bx() - cluster2->bx()) <10 ){
+                      mapBXDiffPerCh_.Fill(key3Ch, abs(cluster->bx() - cluster2->bx()));
+                    }
+                    for (auto pad=cluster->pads().front(); pad < (cluster->pads().front() + cluster->pads().size()); pad++  ) {
+                      for (auto pad2=cluster2->pads().front(); pad2 < (cluster2->pads().front() + cluster2->pads().size()); pad2++  ){
+                        if (abs(pad - pad2) < 40 ){
+                          mapPadDiffPerCh_.Fill(key3Ch, abs(pad-pad2));
+                          mapPadBXDiffPerCh_.Fill(key3Ch,abs(pad-pad2), abs(cluster->bx() - cluster2->bx()));
+                        }
+                      }
+                    }
+                  } 
+            }
+          }
+        }
+        Int_t nCLS = cluster->pads().size();
+        Int_t nCLSCutOff = std::min(nCLS, nCLSMax_); 
+        mapPadCLSPerCh_.Fill(key4Ch, nCLSCutOff, ((*it).first).roll() );
+        //std::cout << "Cluster Size:"<< cluster->pads().size() << "  Eta:"<< ((*it).first).roll()  <<std::endl;
+        
       }
     }
 

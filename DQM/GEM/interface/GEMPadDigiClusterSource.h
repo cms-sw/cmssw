@@ -43,6 +43,11 @@ private:
   int ProcessWithMEMap2WithEta(BookingHelper& bh, ME3IdsKey key) override;
   int ProcessWithMEMap2(BookingHelper& bh, ME2IdsKey key) override;
   int ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) override;
+
+
+  int ProcessWithMEMap2WithChamber(BookingHelper& bh, ME3IdsKey key) override;
+
+  
   int ProcessWithMEMap3WithChamber(BookingHelper& bh, ME4IdsKey key) override;
 
   const static int nNumBitDigiOcc_ = 16384;
@@ -57,13 +62,19 @@ private:
   MEMap3Inf mapDigiOcc_phi_;
   MEMap3Inf mapTotalDigiPerEvtLayer_;
   MEMap3Inf mapTotalDigiPerEvtIEta_;
+  MEMap3Inf mapPadDiffPerCh_;
+  MEMap3Inf mapBXDiffPerCh_;
+  MEMap3Inf mapPadBXDiffPerCh_;
   MEMap2Inf mapBX_;
 
   MEMap4Inf mapPadDigiOccPerCh_;
+  MEMap4Inf mapPadBxPerCh_ ;
+  MEMap4Inf mapPadCLSPerCh_;
 
   std::string strFolderMain_;
 
   Int_t nBXMin_, nBXMax_;
+  Int_t nCLSMax_, nClusterSizeBinNum_;
   Float_t fRadiusMin_;
   Float_t fRadiusMax_;
 };
