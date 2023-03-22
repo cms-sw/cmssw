@@ -17,17 +17,17 @@ namespace reco {
 namespace pat {
   class CalculatePtRatioRel {
   public:
-    CalculatePtRatioRel(float dRmax);
+    CalculatePtRatioRel(float dR2max);
 
     ~CalculatePtRatioRel();
 
-    std::vector<float> computePtRatioRel(const pat::Muon& imuon,
-                                         const reco::JetTagCollection& bTags,
-                                         const reco::JetCorrector* correctorL1 = nullptr,
-                                         const reco::JetCorrector* correctorL1L2L3Res = nullptr) const;
+    std::array<float, 2> computePtRatioRel(const pat::Muon& imuon,
+                                           const reco::JetTagCollection& bTags,
+                                           const reco::JetCorrector* correctorL1 = nullptr,
+                                           const reco::JetCorrector* correctorL1L2L3Res = nullptr) const;
 
   private:
-    float dRmax_;
+    float dR2max_;
   };
 }  // namespace pat
 #endif

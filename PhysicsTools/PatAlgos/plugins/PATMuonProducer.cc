@@ -99,7 +99,7 @@ namespace pat {
     typedef std::vector<edm::Handle<edm::ValueMap<double>>> IsolationValueMaps;
     typedef std::pair<pat::IsolationKeys, edm::InputTag> IsolationLabel;
     typedef std::vector<IsolationLabel> IsolationLabels;
-    
+
     /// common muon filling, for both the standard and PF2PAT case
     void fillMuon(Muon& aMuon,
                   const MuonBaseRef& muonRef,
@@ -970,7 +970,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       muon.setSelector(reco::Muon::PuppiIsoTight, puppiCombinedIsolationPAT < 0.12);
     }
 
-    std::vector<float> jetPtRatioRel = {0.0, 0.0};
+    std::array<float, 2> jetPtRatioRel = {{0.0, 0.0}};
     if (primaryVertexIsValid && computeMiniIso_) {
       if (useJec_) {
         jetPtRatioRel = globalCache()->calculatePtRatioRel().computePtRatioRel(
@@ -981,7 +981,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       muon.setJetPtRatio(jetPtRatioRel[0]);
       muon.setJetPtRel(jetPtRatioRel[1]);
-      
+
       // multi-isolation
       if (computeMiniIso_) {
         muon.setSelector(reco::Muon::MultiIsoMedium,
