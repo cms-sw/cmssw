@@ -21,6 +21,9 @@ namespace edmtest_thing {
   class StreamThingAnalyzer : public edm::one::EDAnalyzer<> {
   public:
     explicit StreamThingAnalyzer(edm::ParameterSet const&);
+
+    ~StreamThingAnalyzer() override;
+
     void endJob() override;
 
     void analyze(edm::Event const& e, edm::EventSetup const& c) override;

@@ -37,6 +37,8 @@ namespace edmtest_thing {
     //edm::LogInfo("stuff") << "again, ctor completing";
   }
 
+  StreamThingAnalyzer::~StreamThingAnalyzer() { std::cout << "\nSTREAMTHING_CHECKSUM " << total_ << "\n" << std::endl; }
+
   void StreamThingAnalyzer::endJob() {
     edm::LogInfo("StreamThingAnalyzer") << "STREAMTHING_CHECKSUM " << total_;
     if (!outChecksumFile_.empty()) {
