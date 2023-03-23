@@ -8,7 +8,4 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<bin name="testHcalPulseContainmentTest" file="TestDriver.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash CalibCalorimetry/HcalAlgos/test HcalPulseContainmentTest.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="testHcalPulseContainmentTest" command="HcalPulseContainmentTest.sh"/>
