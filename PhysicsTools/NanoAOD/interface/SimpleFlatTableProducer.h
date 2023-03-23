@@ -379,7 +379,8 @@ public:
         "define the maximum length of the input collection to put in the branch");
     desc.add<int>("minBX", -2)->setComment("min bx (inclusive) to include");
     desc.add<int>("maxBX", 2)->setComment("max bx (inclusive) to include");
-    desc.add<bool>("alwaysWriteBXValue",true)->setComment("always write the bx number (event  when only one bx can be present, ie minBX==maxBX)");
+    desc.add<bool>("alwaysWriteBXValue", true)
+        ->setComment("always write the bx number (event  when only one bx can be present, ie minBX==maxBX)");
     descriptions.addWithDefaultLabel(desc);
   }
 
@@ -406,7 +407,7 @@ public:
     auto out = std::make_unique<nanoaod::FlatTable>(selObjs.size(), this->name_, false, this->extension_);
     for (const auto &var : this->vars_)
       var->fill(selObjs, *out);
-    if(alwaysWriteBXValue_ || minBX_!=maxBX_){
+    if (alwaysWriteBXValue_ || minBX_ != maxBX_) {
       out->template addColumn<int16_t>(bxVarName_, selObjBXs, "BX of the L1 candidate");
     }
     return out;
