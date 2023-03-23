@@ -740,11 +740,6 @@ void L1TTauOffline::getProbeTaus(const edm::Event& iEvent,
      
       if (m_AntiEleExists)  antiele_condition = (*antiele)[tauCandidate].workingPoints[AntiEleWPIndex_];
 
-      bool anti_mu = (*antimu)[tauCandidate].workingPoints[AntiMuWPIndex_];
-      bool dmf_test =  ((*dmf)[tauCandidate] > 0.5);
-      bool comb3T_test =  (*comb3T)[tauCandidate].workingPoints[comb3TWPIndex_];
-      bool tau_pt_test = (fabs(tauIt->charge()) == 1 && fabs(tauIt->eta()) < 2.1 && tauIt->pt() > 20 );
-
       if (fabs(tauIt->charge()) == 1 && fabs(tauIt->eta()) < 2.1 && tauIt->pt() > 20 &&
           (*antimu)[tauCandidate].workingPoints[AntiMuWPIndex_] &&
           antiele_condition && 
