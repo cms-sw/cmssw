@@ -1,4 +1,1 @@
-<bin name="TestCTPPSDirectProtonSimulation" file="TestDriver.cc">
-  <flags TEST_RUNNER_ARGS=" /bin/bash Validation/CTPPS/test/simu run_multiple"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="TestCTPPSDirectProtonSimulation" command="simu/run_multiple"/>
