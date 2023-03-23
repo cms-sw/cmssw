@@ -29,6 +29,14 @@
 #include <string>
 #include <typeinfo>
 #include <vector>
+#include <TFile.h>
+#include <TH1.h>
+#include <TH2.h>
+#include <cassert>
+#include <cmath>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
 
 // user include files
 
@@ -43,6 +51,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CondFormats/Alignment/interface/AlignTransform.h"
+#include "CondFormats/Alignment/interface/Alignments.h"
+#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 
 // references
 #include "DataFormats/DetId/interface/DetId.h"
@@ -73,18 +88,6 @@
 #include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-
-// Database
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-
-// Alignment
-#include "CondFormats/Alignment/interface/AlignTransform.h"
-#include "CondFormats/Alignment/interface/Alignments.h"
-#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
-
-// Refit
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
@@ -92,17 +95,6 @@
 #include "TrackingTools/TrackFitters/interface/KFTrajectorySmoother.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
-#include <TFile.h>
-#include <TH1.h>
-#include <TH2.h>
-
-#include <cassert>
-#include <cmath>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-
-#include "FWCore/Framework/interface/EventSetup.h"  //MK Library
 
 using namespace edm;
 using namespace std;
@@ -154,17 +146,17 @@ private:
   void endJob() override;
 
   // ----------member data ---------------------------
-  edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> m_TkGeometryToken;
-  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_MagFieldToken;
-  edm::ESGetToken<Alignments, GlobalPositionRcd> m_globalPosToken;
-  edm::ESGetToken<Propagator, TrackingComponentsRecord> m_propToken;
-  edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> m_ttrhBuilderToken;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> m_TkGeometryToken;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> m_MagFieldToken;
+  const edm::ESGetToken<Alignments, GlobalPositionRcd> m_globalPosToken;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> m_propToken;
+  const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> m_ttrhBuilderToken;
 
-  edm::InputTag trackTags_;  // used to select what tracks to read from configuration file
+  const edm::InputTag trackTags_;  // used to select what tracks to read from configuration file
 
-  edm::EDGetTokenT<TrajTrackAssociationCollection> ref_track_;
-  edm::EDGetTokenT<TrajTrackAssociationCollection> ref_muon_;
-  edm::EDGetTokenT<reco::MuonCollection> smuons_;
+  const edm::EDGetTokenT<TrajTrackAssociationCollection> ref_track_;
+  const edm::EDGetTokenT<TrajTrackAssociationCollection> ref_muon_;
+  const edm::EDGetTokenT<reco::MuonCollection> smuons_;
 
   string propagator_;       // name of the propagator
   bool selectOnlyEndCap1_;  // if true, select EndCap1
@@ -349,7 +341,7 @@ void GlobalTrackerMuonAlignment::fillDescriptions(edm::ConfigurationDescriptions
   descriptions.add("GlobalTrackerMuonAlignment", desc);
 }
 
-GlobalTrackerMuonAlignment::~GlobalTrackerMuonAlignment() {}
+GlobalTrackerMuonAlignment::~GlobalTrackerMuonAlignment() = default;
 
 // ------------ method called to for each event  ------------
 void GlobalTrackerMuonAlignment::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
@@ -359,7 +351,6 @@ void GlobalTrackerMuonAlignment::analyze(const edm::Event &iEvent, const edm::Ev
 // ------------ method called once for job just before starting event loop
 // ------------
 void GlobalTrackerMuonAlignment::beginJob() {
-  std::cout << "beginJob start" << std::endl;
   N_event = 0;
   N_track = 0;
 
@@ -401,7 +392,6 @@ void GlobalTrackerMuonAlignment::beginJob() {
 }
 
 // ------------ method called once each job just after ending the event loop
-// ------------
 void GlobalTrackerMuonAlignment::endJob() {
   CLHEP::HepVector vectorToDb(6, 0), vectorErrToDb(6, 0);
   if (extPar) {
@@ -428,7 +418,6 @@ void GlobalTrackerMuonAlignment::endJob() {
     }
   bool ierr = !InfI.Invert();
   if (ierr) {
-    std::cout << " Error inverse  Inf matrix !!!!!!!!!!!" << std::endl;
   }
 
   for (int i = 0; i <= 2; i++)
@@ -440,27 +429,18 @@ void GlobalTrackerMuonAlignment::endJob() {
   CLHEP::HepVector d3 = CLHEP::solve(Hess, -Grad);
   int iEr3;
   CLHEP::HepMatrix Errd3 = Hess.inverse(iEr3);
-  if (iEr3 != 0) {
-    std::cout << " endJob Error inverse Hess matrix !!!!!!!!!!!" << std::endl;
-  }
   // end of Global CLHEP
 
   //                                ----------------- alignment Local CLHEP
   CLHEP::HepVector dLI = CLHEP::solve(HessL, -GradL);
   int iErI;
   CLHEP::HepMatrix ErrdLI = HessL.inverse(iErI);
-  if (iErI != 0) {
-    std::cout << " endJob Error inverse HessL matrix !!!!!!!!!!!" << std::endl;
-  }
   // end of Local CLHEP
   //                                ----------------- alignment Local CLHEP
   CLHEP::HepVector dLI4 = CLHEP::solve(HessL4, -GradL4);
   int iErI4;
   CLHEP::HepMatrix ErrdLI4 = HessL.inverse(iErI4);
 
-  if (iErI4 != 0) {
-    std::cout << " endJob Error inverse HessL4 matrix !!!!!!!!!!!" << std::endl;
-  }
   // end of Local CLHEP
   CLHEP::HepVector dLGI;
   CLHEP::HepMatrix ErrdLGI;
@@ -469,14 +449,10 @@ void GlobalTrackerMuonAlignment::endJob() {
     dLGI = CLHEP::solve(HessLG, -GradLG);
     int iErIG;
     ErrdLGI = HessLG.inverse(iErIG);
-    if (iErIG != 0) {
-      std::cout << " gradLocalGlobal Error inverse  Hess matrix !!!!!!!!!!!" << std::endl;
-    }
   }
   // end of LocalGlobal CLHEP
 
   // printout of final parameters
-  std::cout << " ---- " << N_event << " event " << N_track << " tracks " << MuSelect << " ---- " << std::endl;
 
   // what do we write to DB
   if (Global_) {
@@ -511,7 +487,7 @@ void GlobalTrackerMuonAlignment::endJob() {
   // write global parameters to text file
   OutGlobalTxt.open(txtOutFile_.c_str(), ios::out);
   if (!OutGlobalTxt.is_open())
-    std::cout << " outglobal.txt is not open !!!!!" << std::endl;
+    edm::LogVerbatim("GlobalTrackerMuonAlignment") << " outglobal.txt is not open !!!!!";
   else if (!writeDB_) {
     if (Local4_) {
       OutGlobalTxt << "HessL \n" << std::setprecision(17) << std::scientific << HessL4 << "\n";
@@ -579,7 +555,6 @@ void GlobalTrackerMuonAlignment::endJob() {
 
     OutGlobalTxt << "ALCARECOMuAlCalIsolatedMu.\n";
     OutGlobalTxt.close();
-    std::cout << " Write to the file outglobal.txt done  " << std::endl;
   }
 
   // write new GlobalPositionRcd to DB
@@ -1528,9 +1503,6 @@ void GlobalTrackerMuonAlignment::gradientLocal4(GlobalVector &GRt,
   CLHEP::HepVector dLI4 = CLHEP::solve(HessL4, -GradL4);
   int iErI4;
   CLHEP::HepMatrix ErrdLI4 = HessL4.inverse(iErI4);
-  if (iErI4 != 0) {
-    std::cout << " events loop Error inverse HessL matrix !!!!!!!!!!!" << std::endl;
-  }
   CLHEP::HepVector chiL4 = V.T() * W * V;
   CLHEP::HepVector dchiL4 = gradL.T() * dLI4 + 0.5 * dLI4.T() * hessL * dLI4;
   ChiL4 += chiL4(1);
@@ -1540,7 +1512,6 @@ void GlobalTrackerMuonAlignment::gradientLocal4(GlobalVector &GRt,
 
 // ----  write GlobalPositionRcd   ------
 void GlobalTrackerMuonAlignment::writeGlPosRcd(CLHEP::HepVector &paramVec) {
-  std::cout << " paramVector " << paramVec.T() << std::endl;
   CLHEP::Hep3Vector colX, colY, colZ;
   double s1, s2, s3, c1, c2, c3;
   if (Local4_) {
@@ -1577,7 +1548,6 @@ void GlobalTrackerMuonAlignment::writeGlPosRcd(CLHEP::HepVector &paramVec) {
   AlignTransform muon;
   if ((angMuGlRcd.phi() == 0.) && (angMuGlRcd.theta() == 0.) && (angMuGlRcd.psi() == 0.) && (posMuGlRcd.x() == 0.) &&
       (posMuGlRcd.y() == 0.) && (posMuGlRcd.z() == 0.)) {
-    std::cout << " New muon parameters are stored in Rcd" << std::endl;
 
     AlignTransform muonNew(AlignTransform::Translation(paramVec(1), paramVec(2), paramVec(3)),
                            AlignTransform::Rotation(colX, colY, colZ),
@@ -1585,12 +1555,10 @@ void GlobalTrackerMuonAlignment::writeGlPosRcd(CLHEP::HepVector &paramVec) {
     muon = muonNew;
   } else if ((paramVec(1) == 0.) && (paramVec(2) == 0.) && (paramVec(3) == 0.) && (paramVec(4) == 0.) &&
              (paramVec(5) == 0.) && (paramVec(6) == 0.)) {
-    std::cout << " Old muon parameters are stored in Rcd" << std::endl;
 
     AlignTransform muonNew(iteratorMuonRcd->translation(), iteratorMuonRcd->rotation(), DetId(DetId::Muon).rawId());
     muon = muonNew;
   } else {
-    std::cout << " New + Old muon parameters are stored in Rcd" << std::endl;
     CLHEP::Hep3Vector posMuGlRcdThis = CLHEP::Hep3Vector(paramVec(1), paramVec(2), paramVec(3));
     CLHEP::HepRotation rotMuGlRcdThis = CLHEP::HepRotation(colX, colY, colZ);
     CLHEP::Hep3Vector posMuGlRcdNew =
@@ -1611,28 +1579,7 @@ void GlobalTrackerMuonAlignment::writeGlPosRcd(CLHEP::HepVector &paramVec) {
                       AlignTransform::EulerAngles(param0(4), param0(5), param0(6)),
                       DetId(DetId::Calo).rawId());
 
-  std::cout << "Tracker (" << tracker.rawId() << ") at " << tracker.translation() << " "
-            << tracker.rotation().eulerAngles() << std::endl;
-  std::cout << tracker.rotation() << std::endl;
 
-  std::cout << "Muon (" << muon.rawId() << ") at " << muon.translation() << " " << muon.rotation().eulerAngles()
-            << std::endl;
-  std::cout << "          rotations angles around x,y,z "
-            << " ( " << -muon.rotation().zy() << " " << muon.rotation().zx() << " " << -muon.rotation().yx() << " )"
-            << std::endl;
-  std::cout << muon.rotation() << std::endl;
-
-  std::cout << "Ecal (" << ecal.rawId() << ") at " << ecal.translation() << " " << ecal.rotation().eulerAngles()
-            << std::endl;
-  std::cout << ecal.rotation() << std::endl;
-
-  std::cout << "Hcal (" << hcal.rawId() << ") at " << hcal.translation() << " " << hcal.rotation().eulerAngles()
-            << std::endl;
-  std::cout << hcal.rotation() << std::endl;
-
-  std::cout << "Calo (" << calo.rawId() << ") at " << calo.translation() << " " << calo.rotation().eulerAngles()
-            << std::endl;
-  std::cout << calo.rotation() << std::endl;
 
   globalPositions->m_align.push_back(tracker);
   globalPositions->m_align.push_back(muon);
@@ -1640,12 +1587,10 @@ void GlobalTrackerMuonAlignment::writeGlPosRcd(CLHEP::HepVector &paramVec) {
   globalPositions->m_align.push_back(hcal);
   globalPositions->m_align.push_back(calo);
 
-  std::cout << "Uploading to the database..." << std::endl;
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (!poolDbService.isAvailable())
     throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
   poolDbService->writeOneIOV<Alignments>((*globalPositions), 1, "GlobalPositionRcd");
-  std::cout << "done!" << std::endl;
 
   return;
 }
