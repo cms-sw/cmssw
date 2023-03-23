@@ -360,6 +360,7 @@ public:
         cut_(params.getParameter<std::string>("cut"), true),
         minBX_(params.getParameter<int>("minBX")),
         maxBX_(params.getParameter<int>("maxBX")),
+        alwaysWriteBXValue_(params.getParameter<bool>("alwaysWriteBXValue")),
         bxVarName_("bx") {
     edm::ParameterSet const &varsPSet = params.getParameter<edm::ParameterSet>("variables");
     auto varNames = varsPSet.getParameterNamesForType<edm::ParameterSet>();
@@ -378,6 +379,7 @@ public:
         "define the maximum length of the input collection to put in the branch");
     desc.add<int>("minBX", -2)->setComment("min bx (inclusive) to include");
     desc.add<int>("maxBX", 2)->setComment("max bx (inclusive) to include");
+    desc.add<bool>("alwaysWriteBXValue",true)->setComment("always write the bx number (event  when only one bx can be present, ie minBX==maxBX)");
     descriptions.addWithDefaultLabel(desc);
   }
 
@@ -404,7 +406,9 @@ public:
     auto out = std::make_unique<nanoaod::FlatTable>(selObjs.size(), this->name_, false, this->extension_);
     for (const auto &var : this->vars_)
       var->fill(selObjs, *out);
-    out->template addColumn<int>(bxVarName_, selObjBXs, "BX of the L1 candidate");
+    if(alwaysWriteBXValue_ || minBX_!=maxBX_){
+      out->template addColumn<int16_t>(bxVarName_, selObjBXs, "BX of the L1 candidate");
+    }
     return out;
   }
 
@@ -413,6 +417,7 @@ protected:
   const StringCutObjectSelector<T> cut_;
   const int minBX_;
   const int maxBX_;
+  const bool alwaysWriteBXValue_;
   const std::string bxVarName_;
 };
 

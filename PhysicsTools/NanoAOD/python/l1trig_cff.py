@@ -2,13 +2,15 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
 
+precision=10
+
 l1PtVars = cms.PSet(
-    pt  = Var("pt",  float, precision=10),
-    phi = Var("phi", float, precision=10),
+    pt  = Var("pt",  float, precision=precision),
+    phi = Var("phi", float, precision=precision),
 )
 l1P3Vars = cms.PSet(
     l1PtVars,
-    eta = Var("eta", float, precision=10),
+    eta = Var("eta", float, precision=precision),
 )
 
 l1ObjVars = cms.PSet(
@@ -41,11 +43,11 @@ l1TauReducedVars = cms.PSet(
 l1MuonReducedVars = cms.PSet(
     l1P3Vars,
     hwQual = Var("hwQual()",int,doc="hardware qual"),
-    hwCharge = Var("hwCharge()",int,doc=""), 
-    etaAtVtx = Var("etaAtVtx()",float,doc=""),
-    phiAtVtx = Var("phiAtVtx()",float,doc=""),
-    ptUnconstrained = Var("ptUnconstrained()",float,doc=""),
-    hwDXY = Var("hwDXY()",int,doc=""),
+    hwCharge = Var("hwCharge()",int,doc="hardware charge"), 
+    etaAtVtx = Var("etaAtVtx()",float,precision=precision,doc="eta estimated at the vertex"),
+    phiAtVtx = Var("phiAtVtx()",float,precision=precision,doc="phi estimated at the vertex"),
+    ptUnconstrained = Var("ptUnconstrained()",float,precision=precision,doc="pt when not constrained to the beamspot"),
+    hwDXY = Var("hwDXY()",int,doc="hardware impact parameter"),
 )
 
 l1MuTable = cms.EDProducer("SimpleTriggerL1MuonFlatTableProducer",
@@ -61,11 +63,11 @@ l1MuTable = cms.EDProducer("SimpleTriggerL1MuonFlatTableProducer",
                          hwChargeValid = Var("hwChargeValid()",int,doc=""),
                          tfMuonIndex = Var("tfMuonIndex()",int,doc=""),
                          hwTag = Var("hwTag()",int,doc=""),
-                         hwEtaAtVtx = Var("hwEtaAtVtx()",int,doc=""),
-                         hwPhiAtVtx = Var("hwPhiAtVtx()",int,doc=""),
-                         etaAtVtx = Var("etaAtVtx()",float,doc=""),
-                         phiAtVtx = Var("phiAtVtx()",float,doc=""),
-                         hwIsoSum = Var("hwIsoSum()",int,doc=""),
+                         hwEtaAtVtx = Var("hwEtaAtVtx()",int,doc="hardware eta estimated at the vertex"),
+                         hwPhiAtVtx = Var("hwPhiAtVtx()",int,doc="hardware phi estimated at the vertex"),
+                         etaAtVtx = Var("etaAtVtx()",float,doc="eta estimated at the vertex"),
+                         phiAtVtx = Var("phiAtVtx()",float,doc="phi estimated at the vertex"),
+                         hwIsoSum = Var("hwIsoSum()",int,doc="hardware iso sum"),
                          hwDPhiExtra = Var("hwDPhiExtra()",int,doc=""),
                          hwDEtaExtra = Var("hwDEtaExtra()",int,doc=""),
                          hwRank = Var("hwRank()",int,doc=""),
@@ -85,11 +87,11 @@ l1JetTable = cms.EDProducer("SimpleTriggerL1JetFlatTableProducer",
     doc = cms.string(""),
     extension = cms.bool(False),
     variables = cms.PSet(l1ObjVars,
-                         towerIEta = Var("towerIEta()",int,doc=""),
-                         towerIPhi = Var("towerIPhi()",int,doc=""),
-                         rawEt = Var("rawEt()",int,doc=""),
-                         seedEt = Var("seedEt()",int,doc=""),
-                         puEt = Var("puEt()",int,doc=""),
+                         towerIEta = Var("towerIEta()",int,doc="the ieta of the tower"),
+                         towerIPhi = Var("towerIPhi()",int,doc="the iphi of the tower"),
+                         rawEt = Var("rawEt()",int,doc="raw (uncalibrated) et"),
+                         seedEt = Var("seedEt()",int,doc="et of the seed"),
+                         puEt = Var("puEt()",int,doc="pile up et "),
                          puDonutEt0 = Var("puDonutEt(0)",int,doc=""),
                          puDonutEt1 = Var("puDonutEt(1)",int,doc=""),
                          puDonutEt2 = Var("puDonutEt(2)",int,doc=""),
@@ -106,13 +108,13 @@ l1TauTable = cms.EDProducer("SimpleTriggerL1TauFlatTableProducer",
     doc = cms.string(""),
     extension = cms.bool(False), # this is the main table for L1 EGs
     variables = cms.PSet(l1ObjVars,
-                         towerIEta = Var("towerIEta()",int,doc=""),
-                         towerIPhi = Var("towerIPhi()",int,doc=""),
-                         rawEt = Var("rawEt()",int,doc=""),
-                         isoEt = Var("isoEt()",int,doc=""),
-                         nTT = Var("nTT()",int,doc=""),                         
-                         hasEM = Var("hasEM()",int,doc=""),
-                         isMerged = Var("isMerged()",int,doc=""),
+                         towerIEta = Var("towerIEta()",int,doc="the ieta of the tower"),
+                         towerIPhi = Var("towerIPhi()",int,doc="the iphi of the tower"),
+                         rawEt = Var("rawEt()",int,doc="raw Et of tau"),
+                         isoEt = Var("isoEt()",int,doc="raw isolation sum - cluster sum"),
+                         nTT = Var("nTT()",int,doc=" nr towers above threshold"),
+                         hasEM = Var("hasEM()",int,doc="has an em component"),
+                         isMerged = Var("isMerged()",int,doc="is merged"),
 
                      )
 )
@@ -128,7 +130,7 @@ l1EtSumTable = cms.EDProducer("SimpleTriggerL1EtSumFlatTableProducer",
     variables = cms.PSet(l1PtVars,
                          hwPt = Var("hwPt()",int,doc="hardware pt"),
                          hwPhi = Var("hwPhi()",int,doc="hardware phi"),
-                         etSumType = Var("getType()",int,doc=""),
+                         etSumType = Var("getType()",int,doc="the type of the ET Sum (https://github.com/cms-sw/cmssw/blob/master/DataFormats/L1Trigger/interface/EtSum.h#L27-L56)"),
                      )
 )
 
@@ -167,18 +169,6 @@ def setL1NanoToReduced(process):
     process.l1TauTable.variables = cms.PSet(l1TauReducedVars)
     process.l1EtSumTable.variables = cms.PSet(l1EtSumReducedVars)
    
-    #restrict bx
-    process.l1EGTable.minBX = 0
-    process.l1EGTable.maxBX = 0
-    process.l1MuTable.minBX = 0
-    process.l1MuTable.maxBX = 0
-    process.l1JetTable.minBX = 0 
-    process.l1JetTable.maxBX = 0
-    process.l1TauTable.minBX = 0 
-    process.l1TauTable.maxBX = 0
-    process.l1EtSumTable.minBX = 0 
-    process.l1EtSumTable.maxBX = 0
-    
     #apply cuts
     process.l1EGTable.cut="pt>=10"
     process.l1TauTable.cut="pt>=24"
