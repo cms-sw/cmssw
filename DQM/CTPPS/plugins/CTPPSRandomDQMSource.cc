@@ -149,6 +149,7 @@ void CTPPSRandomDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run c
                                                     kNplaneMAX_,
                                                     0,
                                                     kNplaneMAX_);
+        h2HitsVsBXRandoms_[indexP]->getTH2F()->SetOption("colz");
 
       }  // end for(int rp=0; rp<kNRPotsMAX_;...
     }    // end of for(int stn=0; stn<
