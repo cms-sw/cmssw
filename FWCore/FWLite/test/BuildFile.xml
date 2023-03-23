@@ -1,12 +1,7 @@
-<environment>
-  <use name="cppunit"/>
-</environment>
+<use name="cppunit"/>
 <bin name="testFWCoreFWLite" file="ref_t.cppunit.cpp">
   <use name="FWCore/FWLite"/>
   <use name="DataFormats/TestObjects"/>
 </bin>
 
-<bin file="TestRunnerFWCoreFWLite.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/FWLite/test run_all_t.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="TestRunnerFWCoreFWLite" command="run_all_t.sh"/>

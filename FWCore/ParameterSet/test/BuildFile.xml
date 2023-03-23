@@ -11,10 +11,7 @@
   <use name="boost"/>
 </bin>
 
-<bin file="TestFWCoreParameterSetDriver.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/ParameterSet/test runPythonTests.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="TestFWCoreParameterSetDriver" command="runPythonTests.sh"/>
 
 <bin name="testDefaultModuleLabel" file="defaultModuleLabel_t.cc">
   <use name="cppunit"/>
