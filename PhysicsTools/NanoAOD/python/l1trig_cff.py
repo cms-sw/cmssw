@@ -2,24 +2,30 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
 
-precision=10
-
+l1_float_precision_=12
+print("l1pre",l1_float_precision_)
 l1PtVars = cms.PSet(
-    pt  = Var("pt",  float, precision=precision),
-    phi = Var("phi", float, precision=precision),
+    pt  = Var("pt",  float, precision=l1_float_precision_),
+    phi = Var("phi", float, precision=l1_float_precision_),
 )
 l1P3Vars = cms.PSet(
     l1PtVars,
-    eta = Var("eta", float, precision=precision),
+    eta = Var("eta", float, precision=l1_float_precision_),
 )
 
 l1ObjVars = cms.PSet(
     l1P3Vars,
-    hwPt = Var("hwPt()",int,doc="hardware pt"),
-    hwEta = Var("hwEta()",int,doc="hardware eta"),
-    hwPhi = Var("hwPhi()",int,doc="hardware phi"),
-    hwQual = Var("hwQual()",int,doc="hardware qual"),
-    hwIso = Var("hwIso()",int,doc="hardware iso")
+    hwPt = Var("hwPt()","int16",doc="hardware pt"),
+    hwEta = Var("hwEta()","int16",doc="hardware eta"),
+    hwPhi = Var("hwPhi()","int16",doc="hardware phi"),
+    hwQual = Var("hwQual()","int16",doc="hardware qual"),
+    hwIso = Var("hwIso()","int16",doc="hardware iso")
+)
+
+l1CaloObjVars = cms.PSet(
+    l1ObjVars,
+    towerIEta = Var("towerIEta()","int16",doc="the ieta of the tower"),
+    towerIPhi = Var("towerIPhi()","int16",doc="the iphi of the tower"),
 )
 
 l1JetReducedVars = cms.PSet(
@@ -32,22 +38,22 @@ l1EtSumReducedVars = cms.PSet(
 )
 l1EGReducedVars = cms.PSet(
     l1P3Vars,
-    hwIso = Var("hwIso()",int,doc="hardware iso")
+    hwIso = Var("hwIso()","int16",doc="hardware iso")
 )
 
 l1TauReducedVars = cms.PSet(
     l1P3Vars,
-    hwIso = Var("hwIso()",int,doc="hardware iso")
+    hwIso = Var("hwIso()","int16",doc="hardware iso")
 )
 
 l1MuonReducedVars = cms.PSet(
     l1P3Vars,
     hwQual = Var("hwQual()",int,doc="hardware qual"),
-    hwCharge = Var("hwCharge()",int,doc="hardware charge"), 
-    etaAtVtx = Var("etaAtVtx()",float,precision=precision,doc="eta estimated at the vertex"),
-    phiAtVtx = Var("phiAtVtx()",float,precision=precision,doc="phi estimated at the vertex"),
-    ptUnconstrained = Var("ptUnconstrained()",float,precision=precision,doc="pt when not constrained to the beamspot"),
-    hwDXY = Var("hwDXY()",int,doc="hardware impact parameter"),
+    hwCharge = Var("hwCharge()","int16",doc="hardware charge"), 
+    etaAtVtx = Var("etaAtVtx()",float,precision=l1_float_precision_,doc="eta estimated at the vertex"),
+    phiAtVtx = Var("phiAtVtx()",float,precision=l1_float_precision_,doc="phi estimated at the vertex"),
+    ptUnconstrained = Var("ptUnconstrained()",float,precision=l1_float_precision_,doc="pt when not constrained to the beamspot"),
+    hwDXY = Var("hwDXY()","int16",doc="hardware impact parameter"),
 )
 
 l1MuTable = cms.EDProducer("SimpleTriggerL1MuonFlatTableProducer",
@@ -59,21 +65,21 @@ l1MuTable = cms.EDProducer("SimpleTriggerL1MuonFlatTableProducer",
     doc = cms.string(""),
     extension = cms.bool(False), 
     variables = cms.PSet(l1ObjVars,
-                         hwCharge = Var("hwCharge()",int,doc=""),
-                         hwChargeValid = Var("hwChargeValid()",int,doc=""),
-                         tfMuonIndex = Var("tfMuonIndex()",int,doc=""),
-                         hwTag = Var("hwTag()",int,doc=""),
-                         hwEtaAtVtx = Var("hwEtaAtVtx()",int,doc="hardware eta estimated at the vertex"),
-                         hwPhiAtVtx = Var("hwPhiAtVtx()",int,doc="hardware phi estimated at the vertex"),
+                         hwCharge = Var("hwCharge()","int16",doc="Charge (can be 0 if the charge measurement was not valid)"),
+                         hwChargeValid = Var("hwChargeValid()","int16",doc=""),
+                         tfMuonIndex = Var("tfMuonIndex()","uint16",doc="Index of muon at the uGMT input. 3 indices per link/sector/wedge. EMTF+ are 0-17, OMTF+ are 18-35, BMTF are 36-71, OMTF- are 72-89, EMTF- are 90-107"),
+                         hwTag = Var("hwTag()","int16",doc="not in L1 ntuples"),
+                         hwEtaAtVtx = Var("hwEtaAtVtx()","int16",doc="hardware eta estimated at the vertex"),
+                         hwPhiAtVtx = Var("hwPhiAtVtx()","int16",doc="hardware phi estimated at the vertex"),
                          etaAtVtx = Var("etaAtVtx()",float,doc="eta estimated at the vertex"),
                          phiAtVtx = Var("phiAtVtx()",float,doc="phi estimated at the vertex"),
-                         hwIsoSum = Var("hwIsoSum()",int,doc="hardware iso sum"),
-                         hwDPhiExtra = Var("hwDPhiExtra()",int,doc=""),
-                         hwDEtaExtra = Var("hwDEtaExtra()",int,doc=""),
-                         hwRank = Var("hwRank()",int,doc=""),
-                         hwPtUnconstrained = Var("hwPtUnconstrained()",int,doc=""),
+                         hwIsoSum = Var("hwIsoSum()","int16",doc="not in L1 ntuples"),
+                         hwDPhiExtra = Var("hwDPhiExtra()","int16",doc="Delta between Pseudo-rapidity at the muon system and the projected coordinate at the vertex in HW unit (for future l1t-integration-tag"),
+                         hwDEtaExtra = Var("hwDEtaExtra()","int16",doc="Delta between Azimuth at the muon system and the projected coordinate at the vertex in HW unit (for future l1t-integration-tag)"),
+                         hwRank = Var("hwRank()","int16",doc="not in L1Ntuples"),
+                         hwPtUnconstrained = Var("hwPtUnconstrained()","int16",doc=""),
                          ptUnconstrained = Var("ptUnconstrained()",float,doc=""),
-                         hwDXY = Var("hwDXY()",int,doc=""),
+                         hwDXY = Var("hwDXY()","uint16",doc=""),
                      )
 )
 
@@ -86,16 +92,14 @@ l1JetTable = cms.EDProducer("SimpleTriggerL1JetFlatTableProducer",
     name= cms.string("L1Jet"),
     doc = cms.string(""),
     extension = cms.bool(False),
-    variables = cms.PSet(l1ObjVars,
-                         towerIEta = Var("towerIEta()",int,doc="the ieta of the tower"),
-                         towerIPhi = Var("towerIPhi()",int,doc="the iphi of the tower"),
-                         rawEt = Var("rawEt()",int,doc="raw (uncalibrated) et"),
-                         seedEt = Var("seedEt()",int,doc="et of the seed"),
-                         puEt = Var("puEt()",int,doc="pile up et "),
-                         puDonutEt0 = Var("puDonutEt(0)",int,doc=""),
-                         puDonutEt1 = Var("puDonutEt(1)",int,doc=""),
-                         puDonutEt2 = Var("puDonutEt(2)",int,doc=""),
-                         puDonutEt3 = Var("puDonutEt(3)",int,doc=""),
+    variables = cms.PSet(l1CaloObjVars,
+                         rawEt = Var("rawEt()","int16",doc="raw (uncalibrated) et"),
+                         seedEt = Var("seedEt()","int16",doc="et of the seed"),
+                         puEt = Var("puEt()","int16",doc="pile up et "),
+                         puDonutEt0 = Var("puDonutEt(0)","int16",doc=""),
+                         puDonutEt1 = Var("puDonutEt(1)","int16",doc=""),
+                         puDonutEt2 = Var("puDonutEt(2)","int16",doc=""),
+                         puDonutEt3 = Var("puDonutEt(3)","int16",doc=""),
                      )
 )
 
@@ -107,14 +111,12 @@ l1TauTable = cms.EDProducer("SimpleTriggerL1TauFlatTableProducer",
     name= cms.string("L1Tau"),
     doc = cms.string(""),
     extension = cms.bool(False), # this is the main table for L1 EGs
-    variables = cms.PSet(l1ObjVars,
-                         towerIEta = Var("towerIEta()",int,doc="the ieta of the tower"),
-                         towerIPhi = Var("towerIPhi()",int,doc="the iphi of the tower"),
-                         rawEt = Var("rawEt()",int,doc="raw Et of tau"),
-                         isoEt = Var("isoEt()",int,doc="raw isolation sum - cluster sum"),
-                         nTT = Var("nTT()",int,doc=" nr towers above threshold"),
-                         hasEM = Var("hasEM()",int,doc="has an em component"),
-                         isMerged = Var("isMerged()",int,doc="is merged"),
+    variables = cms.PSet(l1CaloObjVars,
+                         rawEt = Var("rawEt()","int16",doc="raw Et of tau"),
+                         isoEt = Var("isoEt()","int16",doc="raw isolation sum - cluster sum"),
+                         nTT = Var("nTT()","int16",doc=" nr towers above threshold"),
+                         hasEM = Var("hasEM()",bool,doc="has an em component"),
+                         isMerged = Var("isMerged()",bool,doc="is merged"),
 
                      )
 )
@@ -142,15 +144,13 @@ l1EGTable = cms.EDProducer("SimpleTriggerL1EGFlatTableProducer",
     name= cms.string("L1EG"),
     doc = cms.string(""),
     extension = cms.bool(False), 
-    variables = cms.PSet(l1ObjVars,
-                         towerIEta = Var("towerIEta()",int,doc="tower ieta"),
-                         towerIPhi = Var("towerIPhi()",int,doc="tower iphi"),
-                         rawEt = Var("rawEt()",int,doc="raw et"),
-                         isoEt = Var("isoEt()",int,doc="iso et"),
-                         footprintEt = Var("footprintEt()",int,doc=" footprint et"),
-                         nTT = Var("nTT()",int,doc="nr trig towers"),
-                         shape = Var("shape()",int,doc="shape"),
-                         towerHoE = Var("towerHoE()",int,doc="tower H/E"),
+    variables = cms.PSet(l1CaloObjVars,
+                         rawEt = Var("rawEt()","int16",doc="raw et"),
+                         isoEt = Var("isoEt()","int16",doc="iso et"),
+                         footprintEt = Var("footprintEt()","int16",doc=" footprint et"),
+                         nTT = Var("nTT()","int16",doc="nr trig towers"),
+                         shape = Var("shape()","int16",doc="shape"),
+                         towerHoE = Var("towerHoE()","int16",doc="tower H/E"),
                      )
 )
 
