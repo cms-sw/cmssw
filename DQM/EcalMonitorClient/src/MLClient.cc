@@ -164,14 +164,14 @@ namespace ecaldqm {
 
     Ort::AllocatorWithDefaultOptions allocator;
 
-    const char* inputName = session.GetInputName(0, allocator);
+    const char* inputName = session.GetInputNameAllocated(0, allocator).get();
 
     Ort::TypeInfo inputTypeInfo = session.GetInputTypeInfo(0);
     auto inputTensorInfo = inputTypeInfo.GetTensorTypeAndShapeInfo();
 
     std::vector<int64_t> inputDims = inputTensorInfo.GetShape();
 
-    const char* outputName = session.GetOutputName(0, allocator);
+    const char* outputName = session.GetOutputNameAllocated(0, allocator).get();
 
     Ort::TypeInfo outputTypeInfo = session.GetOutputTypeInfo(0);
     auto outputTensorInfo = outputTypeInfo.GetTensorTypeAndShapeInfo();
