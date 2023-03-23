@@ -84,3 +84,17 @@ L1TriggerFEVTDEBUG = cms.PSet(
         'keep LumiSummary_lumiProducer_*_*'       
         )
 )
+
+def _appendStage2Digis(obj):
+    l1Stage2Digis = [
+        'keep *_gtStage2Digis_*_*',
+        'keep *_gmtStage2Digis_*_*',
+        'keep *_caloStage2Digis_*_*',
+        ]
+    obj.outputCommands += l1Stage2Digis
+
+# adding them to all places where we had l1extraParticles
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+stage2L1Trigger.toModify(L1TriggerRECO, func=_appendStage2Digis)
+stage2L1Trigger.toModify(L1TriggerAOD, func=_appendStage2Digis)
+stage2L1Trigger.toModify(L1TriggerFEVTDEBUG, func=_appendStage2Digis)

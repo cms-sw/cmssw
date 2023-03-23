@@ -132,6 +132,7 @@ AODEventContent.outputCommands.extend(MEtoEDMConverterAOD.outputCommands)
 AODEventContent.outputCommands.extend(EvtScalersAOD.outputCommands)
 AODEventContent.outputCommands.extend(OnlineMetaDataContent.outputCommands)
 AODEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
+AODEventContent.outputCommands.extend(L1TriggerAOD.outputCommands)
 #
 #
 # RAWSIM Data Tier definition
