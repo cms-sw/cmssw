@@ -89,7 +89,7 @@ process.l1tLayer1BarrelTDR.regionizerAlgoParameters = cms.PSet(
         nCalo = cms.uint32(15),
         nEmCalo = cms.uint32(12),
         nMu = cms.uint32(2),
-        nClocks = cms.int32(162),
+        nClocks = cms.uint32(162),
         doSort = cms.bool(False),
         bigRegionEdges = cms.vint32(-560, -80, 400, -560)
     )
