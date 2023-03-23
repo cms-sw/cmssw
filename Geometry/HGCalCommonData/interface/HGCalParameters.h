@@ -156,6 +156,7 @@ public:
   double sensorSizeOffset_;
   double guardRingOffset_;
   double mouseBite_;
+  int useOffset_;
   int waferUVMax_;
   std::vector<int> waferUVMaxLayer_;
   bool defineFull_;

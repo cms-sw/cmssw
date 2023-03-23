@@ -49,11 +49,11 @@ public:
   // Gets the corners of the partial wafers from its type, orientation, zside
   // (Good for V15, V16 geometries)
   static std::vector<std::pair<double, double> > waferXY(
-      int part, int orient, int zside, double delX, double delY, double xpos, double ypos);
+      int part, int orient, int zside, double waferSize, double offset, double xpos, double ypos);
   // Gets the corners of the partial wafers from its type, placement index
   // (Good for V17 geometry)
   static std::vector<std::pair<double, double> > waferXY(
-      int part, int placement, double delX, double delY, double xpos, double ypos);
+      int part, int placement, double wafersize, double offset, double xpos, double ypos);
 
 private:
   static constexpr double sqrt3_ = 1.732050807568877;  // std::sqrt(3.0) in double precision
