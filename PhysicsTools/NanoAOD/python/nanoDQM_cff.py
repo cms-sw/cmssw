@@ -78,11 +78,11 @@ _FatJet_Run2_plots.extend([
     Plot1D('deepTag_TvsQCD', 'deepTag_TvsQCD', 20, 0, 1, 'DeepBoostedJet tagger top vs QCD discriminator'),
     Plot1D('deepTag_WvsQCD', 'deepTag_WvsQCD', 20, 0, 1, 'DeepBoostedJet tagger W vs QCD discriminator'),
     Plot1D('deepTag_ZvsQCD', 'deepTag_ZvsQCD', 20, 0, 1, 'DeepBoostedJet tagger Z vs QCD discriminator'),
-    Plot1D('particleNetLegacy_mass', 'particleNetLegacy_mass', 25, 0, 250, 'ParticleNet Legacy Run-2 mass regression')
-    Plot1D('particleNetLegacy_Xbb', 'particleNetLegacy_Xbb', 20, 0, 1, 'ParticleNet Legacy Run-2 X->bb score')
-    Plot1D('particleNetLegacy_Xcc', 'particleNetLegacy_Xcc', 20, 0, 1, 'ParticleNet Legacy Run-2 X->cc score')
-    Plot1D('particleNetLegacy_Xqq', 'particleNetLegacy_Xqq', 20, 0, 1, 'ParticleNet Legacy Run-2 X->qq (uds) score')
-    Plot1D('particleNetLegacy_QCD', 'particleNetLegacy_QCD', 20, 0, 1, 'ParticleNet Legacy Run-2 QCD score')
+    Plot1D('particleNetLegacy_mass', 'particleNetLegacy_mass', 25, 0, 250, 'ParticleNet Legacy Run-2 mass regression'),
+    Plot1D('particleNetLegacy_Xbb', 'particleNetLegacy_Xbb', 20, 0, 1, 'ParticleNet Legacy Run-2 X->bb score'),
+    Plot1D('particleNetLegacy_Xcc', 'particleNetLegacy_Xcc', 20, 0, 1, 'ParticleNet Legacy Run-2 X->cc score'),
+    Plot1D('particleNetLegacy_Xqq', 'particleNetLegacy_Xqq', 20, 0, 1, 'ParticleNet Legacy Run-2 X->qq (uds) score'),
+    Plot1D('particleNetLegacy_QCD', 'particleNetLegacy_QCD', 20, 0, 1, 'ParticleNet Legacy Run-2 QCD score'),
 ])
 
 _FatJet_EarlyRun3_plots = cms.VPSet()
