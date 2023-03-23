@@ -5,9 +5,9 @@ dqmFile="/eos/cms/store/group/comm_dqm/DQMGUI_data/Run2018/ZeroBias/R0003191xx/D
 if [ ! -f "${dqmFile}" ]; then
   die "SKIPPING test, file ${dqmFile} not found" 0
 fi
-runStartTime=$( (python "${LOCAL_TEST_DIR}/cfg/getRunStartTime.py" "${run}" | tail -n1 ) || die "Failed to get run start time" $? )
+runStartTime=$( (python "${SCRAM_TEST_PATH}/cfg/getRunStartTime.py" "${run}" | tail -n1 ) || die "Failed to get run start time" $? )
 echo "DEBUG: Run ${run} started at ${runStartTime}"
-(cmsRun "${LOCAL_TEST_DIR}/cfg/makeMergeBadComponentPayload_example_cfg.py" globalTag=auto:run3_data_prompt runNumber="${run}"  runStartTime="${runStartTime}" dqmFile="${dqmFile}" dbfile="test.db" outputTag="TestBadComponents" ) || die "Failure running cmsRun makeMergeBadComponentPayload_example_cfg.py" $?
+(cmsRun "${SCRAM_TEST_PATH}/cfg/makeMergeBadComponentPayload_example_cfg.py" globalTag=auto:run3_data_prompt runNumber="${run}"  runStartTime="${runStartTime}" dqmFile="${dqmFile}" dbfile="test.db" outputTag="TestBadComponents" ) || die "Failure running cmsRun makeMergeBadComponentPayload_example_cfg.py" $?
 # get the hash
 plEntryLn=$( (conddb --db sqlite_file:test.db list TestBadComponents | grep SiStripBadStrip) || die "Failed to get payload" $? )
 read -a plEntryLn_split <<< "${plEntryLn}"

@@ -1,4 +1,1 @@
-<bin name="testSiStripHitResolution" file="TestDriver.cpp">
-  <flags TEST_RUNNER_ARGS="/bin/bash CalibTracker/SiStripHitResolution/test test_SiStripHitResolution.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="testSiStripHitResolution" command="test_SiStripHitResolution.sh"/>
