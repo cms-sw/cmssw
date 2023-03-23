@@ -11,6 +11,10 @@
 <test name="testUncertainties" command="testUncertainties.py"/>
 <test name="testJupyter" command="testJupyter.sh"/>
 <test name="testCorrectionlib" command="test_correctionlib.py"/>
+<test name="testTorch" command="test_torch.py cpu"/>
+<iftool name="cuda">
+<test name="testTorchGPU" command="test_torch.py cuda:0"/>
+</iftool>
 
 <bin name="test_PyMVA" file="test_PyMVA.cpp">
   <use name="rootpymva"/>
@@ -126,6 +130,7 @@
 <test name="import-lxml" command="python3 -c 'import lxml'"/>
 <test name="import-bs4" command="python3 -c 'import bs4'"/>
 <test name="import-professor2" command="python3 -c 'import professor2'"/>
+<test name="import-torch" command="python3 -c 'import torch'"/>
 <test name="run-flawfinder" command="flawfinder -h"/>
 <test name="run-ipython" command="ipython -h"/>
 <test name="run-pylint" command="pylint -h"/>
