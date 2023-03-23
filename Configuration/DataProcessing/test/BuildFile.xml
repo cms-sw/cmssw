@@ -1,4 +1,2 @@
 <use name="FWCore/Utilities"/>
-<bin name="TestConfigDP" file="TestCfg.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash Configuration/DataProcessing/test run_CfgTest.sh"/>
-</bin>
+<test name="TestConfigDP" command="run_CfgTest.sh"/>
