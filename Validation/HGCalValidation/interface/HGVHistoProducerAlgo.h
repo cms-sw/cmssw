@@ -311,7 +311,6 @@ public:
                                    const int count,
                                    edm::Handle<reco::CaloClusterCollection> clusterHandle,
                                    const reco::CaloClusterCollection& clusters,
-                                   const Density& densities,
                                    edm::Handle<std::vector<CaloParticle>> caloParticleHandle,
                                    std::vector<CaloParticle> const& cP,
                                    std::vector<size_t> const& cPIndices,

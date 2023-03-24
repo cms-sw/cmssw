@@ -59,15 +59,10 @@ public:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   private:
-  typedef std::map<DetId, float> Density;
   //todo make them const
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> EEclusters_token_;
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> HSiclusters_token_;
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> HSciclusters_token_;
-
-  edm::EDGetTokenT<Density> EEdensity_token_;
-  edm::EDGetTokenT<Density> HSidensity_token_;
-  edm::EDGetTokenT<Density> HScidensity_token_;
 
   std::string timeClname_;
   const edm::EDGetTokenT<edm::ValueMap<std::pair<float, float>>> clustersTimeEE_token_;
@@ -85,16 +80,6 @@ public:
   */
   void mergeTogether(std::vector<reco::CaloCluster> &merge, const std::vector<reco::CaloCluster> &EE, 
                     const std::vector<reco::CaloCluster> &HSi, const std::vector<reco::CaloCluster> &HSci);
-  /**
-   * @brief method merge three Densities (std::map<DetId, float>) to one
-   * 
-   * @param[out] merge the Density into which others Density will be merge
-   * @param[in] EE Density for Electromagnetic silicon
-   * @param[in] HSi Density for Hardon silicon
-   * @param[in] ESci Density for hadron scintillator
-  */
-  void mergeTogether(Density  &merge, const Density &EE, const Density &HSi, const Density &HSci);
-
 
   void addTo(std::vector<std::pair<float, float>> &to, const edm::ValueMap<std::pair<float, float>> &vm){
     size_t size = vm.size();
@@ -118,7 +103,7 @@ public:
   /**
    * @brief get info form event and then call merge
    * 
-   * it is used for merge density and clusters and time
+   * it is used for merge and clusters and time
    * 
    * @param[in] evt Event
    * @param[in] EE_token token for Electromagnetic silicon
@@ -151,15 +136,9 @@ MergeClusterProducer::MergeClusterProducer(const edm::ParameterSet& ps)
     HSiclusters_token_ = consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layerClustersHSi"));
     HSciclusters_token_ = consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layerClustersHSci"));
 
-    EEdensity_token_ = consumes<Density>(ps.getParameter<edm::InputTag>("densityEE"));
-    HSidensity_token_ = consumes<Density>(ps.getParameter<edm::InputTag>("densityHSi"));
-    HScidensity_token_ = consumes<Density>(ps.getParameter<edm::InputTag>("densityHSci"));
-
     produces<std::vector<float>>("InitialLayerClustersMask");
     produces<std::vector<reco::BasicCluster>>();
     produces<std::vector<reco::BasicCluster>>("sharing");
-    //density
-    produces<Density>();
     //time for layer clusters
     produces<edm::ValueMap<std::pair<float, float>>>(timeClname_);
 }
@@ -172,11 +151,6 @@ void MergeClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<edm::InputTag>("layerClustersHSi", edm::InputTag( "hgcalLayerClustersHSi"));
   desc.add<edm::InputTag>("layerClustersHSci", edm::InputTag( "hgcalLayerClustersHSci"));
 
-  //density
-  //todo could be like that??
-  desc.add<edm::InputTag>("densityEE", edm::InputTag("hgcalLayerClustersEE"));
-  desc.add<edm::InputTag>("densityHSi", edm::InputTag("hgcalLayerClustersHSi"));
-  desc.add<edm::InputTag>("densityHSci", edm::InputTag("hgcalLayerClustersHSci"));
   //time
   desc.add<edm::InputTag>("time_layerclustersEE", edm::InputTag( "hgcalLayerClustersEE", "timeLayerCluster"));
   desc.add<edm::InputTag>("time_layerclustersHSi", edm::InputTag( "hgcalLayerClustersHSi", "timeLayerCluster"));
@@ -193,12 +167,6 @@ void MergeClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es){
   createMerge(evt, EEclusters_token_, HSiclusters_token_, HSciclusters_token_, *clusters );
   //put new clusters to event
   auto clusterHandle  = evt.put(std::move(clusters));
-
-  //merge densities
-  auto density = std::make_unique<Density>();
-  createMerge(evt, EEdensity_token_, HSidensity_token_, HScidensity_token_, *density);
-  //put merged density to event
-  evt.put(std::move(density));
 
   //create layer cluster mask
   std::unique_ptr<std::vector<float>> layerClustersMask(new std::vector<float>);
@@ -229,13 +197,6 @@ void MergeClusterProducer::mergeTogether(std::vector<reco::CaloCluster> &merge, 
     merge.insert(merge.end(), HSci.begin(), HSci.end());
 
 
-}
-
- void MergeClusterProducer::mergeTogether(Density  &merge, const Density &EE, const Density &HSi, const Density &HSci){
-  // merge is in this order HSci(BH), HSi(FH), EE, because in original one is it inserted in reverse order so if tere will be any same values in EE they will be rewrited by FH or BH
-    merge.insert(HSci.begin(), HSci.end());
-    merge.insert(HSi.begin(), HSi.end());
-    merge.insert(EE.begin(), EE.end());
 }
 
 #endif

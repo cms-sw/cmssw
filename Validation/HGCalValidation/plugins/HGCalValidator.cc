@@ -51,8 +51,6 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
 
   hitMap_ = consumes<std::unordered_map<DetId, const HGCRecHit*>>(edm::InputTag("hgcalRecHitMapProducer"));
 
-  density_ = consumes<Density>(edm::InputTag("hgcalMergeLayerClusters"));
-
   simClusters_ = consumes<std::vector<SimCluster>>(pset.getParameter<edm::InputTag>("label_scl"));
 
   layerclusters_ = consumes<reco::CaloClusterCollection>(label_lcl);
@@ -322,11 +320,6 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   event.getByToken(layerclusters_, clusterHandle);
   const reco::CaloClusterCollection& clusters = *clusterHandle;
 
-  //Density
-  edm::Handle<Density> densityHandle;
-  event.getByToken(density_, densityHandle);
-  const Density& densities = *densityHandle;
-
   auto nSimClusters = simClusters.size();
   std::vector<size_t> sCIndices;
   //There shouldn't be any SimTracks from different crossings, but maybe they will be added later.
@@ -388,7 +381,6 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
                                                     w,
                                                     clusterHandle,
                                                     clusters,
-                                                    densities,
                                                     caloParticleHandle,
                                                     caloParticles,
                                                     cPIndices,
