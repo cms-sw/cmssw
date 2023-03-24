@@ -47,7 +47,9 @@ DTRecoIdealDBLoader::DTRecoIdealDBLoader(const edm::ParameterSet& iConfig)
   edm::LogVerbatim("DTGeometry") << "DTRecoIdealDBLoader::DTRecoIdealDBLoader";
 }
 
-DTRecoIdealDBLoader::~DTRecoIdealDBLoader() { edm::LogVerbatim("DTGeometry") << "DTRecoIdealDBLoader::~DTRecoIdealDBLoader"; }
+DTRecoIdealDBLoader::~DTRecoIdealDBLoader() {
+  edm::LogVerbatim("DTGeometry") << "DTRecoIdealDBLoader::~DTRecoIdealDBLoader";
+}
 
 void DTRecoIdealDBLoader::analyze(const edm::Event& evt, const edm::EventSetup& es) {
   edm::LogVerbatim("DTGeometry") << "DTRecoIdealDBLoader::beginJob";
@@ -67,7 +69,8 @@ void DTRecoIdealDBLoader::analyze(const edm::Event& evt, const edm::EventSetup& 
   edm::LogVerbatim("DTGeometry") << "RecoIdealGeometry " << rig.size();
 
   if (mydbservice->isNewTagRequest("RecoIdealGeometryRcd")) {
-    edm::LogVerbatim("DTGeometry") << "mydbservice " << mydbservice->beginOfTime() << " to " << mydbservice->endOfTime();
+    edm::LogVerbatim("DTGeometry") << "mydbservice " << mydbservice->beginOfTime() << " to "
+                                   << mydbservice->endOfTime();
     mydbservice->createOneIOV(rig, mydbservice->beginOfTime(), "RecoIdealGeometryRcd");
   } else {
     edm::LogVerbatim("DTGeometry") << "RecoIdealGeometryRcd Tag is already present.";

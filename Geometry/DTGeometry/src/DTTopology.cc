@@ -26,7 +26,11 @@ DTTopology::DTTopology(int firstWire, int nChannels, float semilenght)
   theOffSet = Local2DPoint(-theNChannels / 2. * theWidth, -theLength / 2.);
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("DTGeometry") << "Constructing DTTopology with:" << std::endl << "number of wires = " << theNChannels << ", first wire number = " << theFirstChannel << std::endl << ", width = " << theWidth << ", height = " << theHeight << ", length = " << theLength;
+  edm::LogVerbatim("DTGeometry") << "Constructing DTTopology with:" << std::endl
+                                 << "number of wires = " << theNChannels << ", first wire number = " << theFirstChannel
+                                 << std::endl
+                                 << ", width = " << theWidth << ", height = " << theHeight
+                                 << ", length = " << theLength;
 #endif
 }
 

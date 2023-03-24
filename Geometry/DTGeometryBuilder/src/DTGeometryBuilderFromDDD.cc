@@ -121,7 +121,8 @@ DTChamber* DTGeometryBuilderFromDDD::buildChamber(DDFilteredView& fv,
   // length is along local Y. z      dimension - constant 125.55 cm
   // thickness is long local Z. radial thickness - almost constant about 18 cm
 
-  edm::LogVerbatim("DTGeometryBuilder") << "(1) detId: " << rawid << " par[0]: " << par[0] << " par[1]: " << par[1] << " par[2]: " << par[2];
+  edm::LogVerbatim("DTGeometryBuilder") << "(1) detId: " << rawid << " par[0]: " << par[0] << " par[1]: " << par[1]
+                                        << " par[2]: " << par[2];
 
   RCPPlane surf(plane(fv, dtGeometryBuilder::getRecPlaneBounds(par.begin())));
 
@@ -142,7 +143,8 @@ DTSuperLayer* DTGeometryBuilderFromDDD::buildSuperLayer(DDFilteredView& fv,
   // Slayer specific parameter (size)
   vector<double> par = extractParameters(fv);
 
-  edm::LogVerbatim("DTGeometryBuilder") << "(2) detId: " << rawid << " par[0]: " << par[0] << " par[1]: " << par[1] << " par[2]: " << par[2];
+  edm::LogVerbatim("DTGeometryBuilder") << "(2) detId: " << rawid << " par[0]: " << par[0] << " par[1]: " << par[1]
+                                        << " par[2]: " << par[2];
 
   // r-phi  dimension - different in different chambers
   // z      dimension - constant 126.8 cm
@@ -178,7 +180,8 @@ DTLayer* DTGeometryBuilderFromDDD::buildLayer(DDFilteredView& fv,
 
   RCPPlane surf(plane(fv, dtGeometryBuilder::getRecPlaneBounds(par.begin())));
 
-  edm::LogVerbatim("DTGeometryBuilder") << "(3) detId: " << rawid << " par[0]: " << par[0] << " par[1]: " << par[1] << " par[2]: " << par[2];
+  edm::LogVerbatim("DTGeometryBuilder") << "(3) detId: " << rawid << " par[0]: " << par[0] << " par[1]: " << par[1]
+                                        << " par[2]: " << par[2];
 
   // Loop on wires
   bool doWire = fv.firstChild();
@@ -235,8 +238,11 @@ DTGeometryBuilderFromDDD::RCPPlane DTGeometryBuilderFromDDD::plane(const DDFilte
   DD3Vector x, y, z;
   rotation.GetComponents(x, y, z);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("DTGeometry") << "INVERSE rotation by its own operator: "<< fv.rotation();
-  edm::LogVerbatim("DTGeometry") << "INVERSE rotation manually: " << x.X() << ", " << x.Y() << ", " << x.Z() << std::endl << y.X() << ", " << y.Y() << ", " << y.Z() << std::endl << z.X() << ", " << z.Y() << ", " << z.Z();
+  edm::LogVerbatim("DTGeometry") << "INVERSE rotation by its own operator: " << fv.rotation();
+  edm::LogVerbatim("DTGeometry") << "INVERSE rotation manually: " << x.X() << ", " << x.Y() << ", " << x.Z()
+                                 << std::endl
+                                 << y.X() << ", " << y.Y() << ", " << y.Z() << std::endl
+                                 << z.X() << ", " << z.Y() << ", " << z.Z();
 #endif
   Surface::RotationType rotResult(float(x.X()),
                                   float(x.Y()),

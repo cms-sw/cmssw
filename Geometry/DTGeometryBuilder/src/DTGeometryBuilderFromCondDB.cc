@@ -61,20 +61,20 @@ void DTGeometryBuilderFromCondDB::build(const std::shared_ptr<DTGeometry>& theGe
       // go for the actual one
       DTChamberId chid(detids[idt]);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("DTGeometry") << "CH: " <<  chid;
+      edm::LogVerbatim("DTGeometry") << "CH: " << chid;
 #endif
       chamber = buildChamber(chid, rig, idt);
     } else if (int(*(rig.shapeStart(idt))) == 1) {  // a SL
       DTSuperLayerId slid(detids[idt]);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("DTGeometry") << "  SL: " <<  slid;
+      edm::LogVerbatim("DTGeometry") << "  SL: " << slid;
 #endif
       sl = buildSuperLayer(chamber, slid, rig, idt);
       theGeometry->add(sl);
     } else if (int(*(rig.shapeStart(idt))) == 2) {  // a Layer
       DTLayerId lid(detids[idt]);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("DTGeometry") << "    LAY: " <<  lid;
+      edm::LogVerbatim("DTGeometry") << "    LAY: " << lid;
 #endif
       DTLayer* lay = buildLayer(sl, lid, rig, idt);
       theGeometry->add(lay);
@@ -129,7 +129,7 @@ DTSuperLayer* DTGeometryBuilderFromCondDB::buildSuperLayer(DTChamber* chamber,
   DTSuperLayer* slayer = new DTSuperLayer(slId, surf, chamber);
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("DTGeometry") << "adding slayer " << slayer->id() << " to chamber "<<  chamber->id();
+  edm::LogVerbatim("DTGeometry") << "adding slayer " << slayer->id() << " to chamber " << chamber->id();
 #endif
   assert(chamber);
   chamber->add(slayer);
@@ -161,7 +161,7 @@ DTLayer* DTGeometryBuilderFromCondDB::buildLayer(DTSuperLayer* sl,
 
   DTLayer* layer = new DTLayer(layId, surf, topology, layerType, sl);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("DTGeometry") << "adding layer " << layer->id() << " to sl "<<  sl->id();
+  edm::LogVerbatim("DTGeometry") << "adding layer " << layer->id() << " to sl " << sl->id();
 #endif
   assert(sl);
   sl->add(layer);

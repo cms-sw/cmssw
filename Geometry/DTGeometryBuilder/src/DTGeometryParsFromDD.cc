@@ -45,7 +45,7 @@ void DTGeometryParsFromDD::build(const DDCompactView* cview,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("DTGeometry") << "DTGeometryParsFromDD::build";
   static const string t0 = "DTGeometryParsFromDD::build";
-  TimeMe timer(t0,true);
+  TimeMe timer(t0, true);
 #endif
 
   std::string attribute = "MuStructure";
