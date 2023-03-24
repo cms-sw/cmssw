@@ -1,0 +1,2 @@
+<test name="testDataFormatsScoutingRun2" command="testDataFormatsScoutingRun2.sh"/>
+<test name="testDataFormatsScoutingRun3" command="testDataFormatsScoutingRun3.sh"/>
