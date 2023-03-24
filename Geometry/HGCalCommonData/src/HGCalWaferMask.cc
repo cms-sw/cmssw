@@ -1242,8 +1242,8 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
       xy.push_back(std::make_pair((xpos + dx[np[orient][k]] + offsetx[np[orient][k]]),
                                   (ypos + dy[np[orient][k]] + offsety[np[orient][k]])));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] + offsetx[np[orient][k]]<< ":"
-                                    << dy[np[orient][k]] + offsety[np[orient][k]];
+      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] + offsetx[np[orient][k]]
+                                    << ":" << dy[np[orient][k]] + offsety[np[orient][k]];
 #endif
     }
   } else if (part == HGCalTypes::WaferHalf) {
@@ -1253,8 +1253,8 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
       xy.push_back(std::make_pair((xpos + dx[np[orient][k]] + offsetx[np[orient][k]]),
                                   (ypos + dy[np[orient][k]] + offsety[np[orient][k]])));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] + offsetx[np[orient][k]]<< ":"
-                                    << dy[np[orient][k]] + offsety[np[orient][k]];
+      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] + offsetx[np[orient][k]]
+                                    << ":" << dy[np[orient][k]] + offsety[np[orient][k]];
 #endif
     }
   } else if (part == HGCalTypes::WaferThree) {
@@ -1263,8 +1263,8 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
       xy.push_back(std::make_pair((xpos + dx[np[orient][k]] + offsetx[np[orient][k]]),
                                   (ypos + dy[np[orient][k]] + offsety[np[orient][k]])));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] + offsetx[np[orient][k]]<< ":"
-                                    << dy[np[orient][k]] + offsety[np[orient][k]];
+      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] + offsetx[np[orient][k]]
+                                    << ":" << dy[np[orient][k]] + offsety[np[orient][k]];
 #endif
     }
   } else if (part == HGCalTypes::WaferChopTwo) {
@@ -1278,8 +1278,8 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
       xy.push_back(std::make_pair((xpos + dx[np[orient][k]] + offsetx[np[orient][k]]),
                                   (ypos + dy[np[orient][k]] + offsety[np[orient][k]])));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] + offsetx[np[orient][k]]<< ":"
-                                    << dy[np[orient][k]] + offsety[np[orient][k]];
+      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] + offsetx[np[orient][k]]
+                                    << ":" << dy[np[orient][k]] + offsety[np[orient][k]];
 #endif
     }
   } else if (part == HGCalTypes::WaferSemi) {
@@ -1293,8 +1293,8 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
       xy.push_back(std::make_pair((xpos + dx[np[orient][k]] + offsetx[np[orient][k]]),
                                   (ypos + dy[np[orient][k]] + offsety[np[orient][k]])));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] + offsetx[np[orient][k]]<< ":"
-                                    << dy[np[orient][k]] + offsety[np[orient][k]];
+      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] + offsetx[np[orient][k]]
+                                    << ":" << dy[np[orient][k]] + offsety[np[orient][k]];
 #endif
     }
   } else if (part == HGCalTypes::WaferChopTwoM) {
@@ -1308,8 +1308,8 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
       xy.push_back(std::make_pair((xpos + dx[np[orient][k]] + offsetx[np[orient][k]]),
                                   (ypos + dy[np[orient][k]] + offsety[np[orient][k]])));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] + offsetx[np[orient][k]]<< ":"
-                                    << dy[np[orient][k]] + offsety[np[orient][k]];
+      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] + offsetx[np[orient][k]]
+                                    << ":" << dy[np[orient][k]] + offsety[np[orient][k]];
 #endif
     }
   } else if (part == HGCalTypes::WaferSemi2) {
@@ -1323,8 +1323,8 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
       xy.push_back(std::make_pair((xpos + dx[np[orient][k]] + offsetx[np[orient][k]]),
                                   (ypos + dy[np[orient][k]] + offsety[np[orient][k]])));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] + offsetx[np[orient][k]]<< ":"
-                                    << dy[np[orient][k]] + offsety[np[orient][k]];
+      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] + offsetx[np[orient][k]]
+                                    << ":" << dy[np[orient][k]] + offsety[np[orient][k]];
 #endif
     }
   } else if (part == HGCalTypes::WaferFive2) {
@@ -1338,8 +1338,8 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
       xy.push_back(std::make_pair((xpos + dx[np[orient][k]] + offsetx[np[orient][k]]),
                                   (ypos + dy[np[orient][k]] + offsety[np[orient][k]])));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] + offsetx[np[orient][k]]<< ":"
-                                    << dy[np[orient][k]] + offsety[np[orient][k]];
+      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] + offsetx[np[orient][k]]
+                                    << ":" << dy[np[orient][k]] + offsety[np[orient][k]];
 #endif
     }
   } else if (part == HGCalTypes::WaferHalf2) {
@@ -1353,8 +1353,8 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
       xy.push_back(std::make_pair((xpos + dx[np[orient][k]] + offsetx[np[orient][k]]),
                                   (ypos + dy[np[orient][k]] + offsety[np[orient][k]])));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] + offsetx[np[orient][k]]<< ":"
-                                    << dy[np[orient][k]] + offsety[np[orient][k]];
+      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] + offsetx[np[orient][k]]
+                                    << ":" << dy[np[orient][k]] + offsety[np[orient][k]];
 #endif
     }
   }
