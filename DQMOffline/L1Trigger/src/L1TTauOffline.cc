@@ -537,7 +537,7 @@ bool L1TTauOffline::matchHlt(edm::Handle<trigger::TriggerEvent> const& triggerEv
     const vector<string> moduleLabels(m_hltConfig.moduleLabels(trigIndex));
     // V.M. 2023.03.08 Same issue as in the L1TMuonDQMOffline.cc - some modules are behind hltBoolEnd, but we want the last one before the "hltBoolEnd"
     size_type moduleIndex = 999999;
-    for (size_type ii = moduleLabels.size()-1; ii > 0; ii--) {
+    for (size_type ii = moduleLabels.size() - 1; ii > 0; ii--) {
       if (moduleLabels[ii] == "hltBoolEnd") {
         moduleIndex = ii - 1;
         break;
@@ -693,7 +693,7 @@ void L1TTauOffline::getProbeTaus(const edm::Event& iEvent,
           const std::vector<std::string> psetsFromProvenance =
               edm::parameterSet(prov->stable(), iEvent.processHistory())
                   .getParameter<std::vector<std::string>>("workingPoints");
-          for (uint i = 0; i < psetsFromProvenance.size(); i++) {
+          for (unsigned int i = 0; i < psetsFromProvenance.size(); i++) {
             if (psetsFromProvenance[i] == AntiEleWP_)
               AntiEleWPIndex_ = i;
           }
