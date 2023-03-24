@@ -17,7 +17,8 @@ namespace {
   struct Stat {
     Stat(const char* in) : name(in){};
     ~Stat() {
-      edm::LogVerbatim("CommonTopologies") << name << ": atan0 calls tot/large/over1: " << natan << "/" << nlarge << "/" << over1;
+      edm::LogVerbatim("CommonTopologies")
+          << name << ": atan0 calls tot/large/over1: " << natan << "/" << nlarge << "/" << over1;
     }
 
     void add(float t) {

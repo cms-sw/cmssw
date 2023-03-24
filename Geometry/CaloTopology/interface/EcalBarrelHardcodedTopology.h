@@ -10,7 +10,7 @@
 class EcalBarrelHardcodedTopology final : public CaloSubdetectorTopology {
 public:
   /// create a new Topology
-  EcalBarrelHardcodedTopology() {};
+  EcalBarrelHardcodedTopology(){};
 
   ~EcalBarrelHardcodedTopology() override = default;
 

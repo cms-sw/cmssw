@@ -12,7 +12,8 @@ TrapezoidalStripTopology::TrapezoidalStripTopology(int ns, float p, float l, flo
   theOffset = -theNumberOfStrips / 2. * thePitch;
   theYAxOr = 1;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("CommonTopologies") << "Constructing TrapezoidalStripTopology with nstrips = " << ns << " pitch = " << p << " length = " << l << " r0 =" << r0;
+  edm::LogVerbatim("CommonTopologies") << "Constructing TrapezoidalStripTopology with nstrips = " << ns
+                                       << " pitch = " << p << " length = " << l << " r0 =" << r0;
 #endif
 }
 
@@ -20,7 +21,9 @@ TrapezoidalStripTopology::TrapezoidalStripTopology(int ns, float p, float l, flo
     : theNumberOfStrips(ns), thePitch(p), theDistToBeam(r0), theDetHeight(l), theYAxOr(yAx) {
   theOffset = -theNumberOfStrips / 2. * thePitch;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("CommonTopologies") << "Constructing TrapezoidalStripTopology with nstrips = " << ns << " pitch = " << p << " length = " << l << " r0 =" << r0 << " yAxOrientation =" << yAx;
+  edm::LogVerbatim("CommonTopologies") << "Constructing TrapezoidalStripTopology with nstrips = " << ns
+                                       << " pitch = " << p << " length = " << l << " r0 =" << r0
+                                       << " yAxOrientation =" << yAx;
 #endif
 }
 

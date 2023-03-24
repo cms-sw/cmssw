@@ -195,7 +195,9 @@ bool ValidateRadial::pass_frame_change_test(const TkRadialStripTopology* t,
   const bool passe = (secondOrder ? pass2e : pass1e);
 
   if (printOut_ && ((!passp) || ((!posOnly_) && (!passe))))
-    edm::LogVerbatim("CommonTopologies") << "FAILED " << "(" << strip << ", " << newstrip << ", " << mp.x() << ")\t" << "(" << stripErr2 << ", " << me.uu() << ")\t\t" << (me.uv());
+    edm::LogVerbatim("CommonTopologies") << "FAILED "
+                                         << "(" << strip << ", " << newstrip << ", " << mp.x() << ")\t"
+                                         << "(" << stripErr2 << ", " << me.uu() << ")\t\t" << (me.uv());
   return passp & passe;
 }
 

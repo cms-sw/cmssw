@@ -29,7 +29,8 @@ public:
 // A simple helper for printing the object
 struct dump {
   void operator()(const GeomDet& o) {
-    edm::LogVerbatim("CommonTopologies") << o.position() << " R  : " << o.position().perp() << " Phi: " << o.position().phi() << " Z  : " << o.position().z();
+    edm::LogVerbatim("CommonTopologies") << o.position() << " R  : " << o.position().perp()
+                                         << " Phi: " << o.position().phi() << " Z  : " << o.position().z();
   }
   void operator()(const GeomDet* o) { operator()(*o); }
 };

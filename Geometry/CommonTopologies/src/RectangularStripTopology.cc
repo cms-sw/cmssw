@@ -11,7 +11,7 @@ RectangularStripTopology::RectangularStripTopology(int ns, float p, float l)
 
 #ifdef VERBOSE
   edm::LogVerbatim("CommonTopologies") << "Constructing RectangularStripTopology with"
-       << " nstrips = " << ns << " pitch = " << p << " length = " << l;
+                                       << " nstrips = " << ns << " pitch = " << p << " length = " << l;
 #endif
 }
 

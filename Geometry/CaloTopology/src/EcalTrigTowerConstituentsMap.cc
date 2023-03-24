@@ -40,7 +40,8 @@ EcalTrigTowerDetId EcalTrigTowerConstituentsMap::towerOf(const DetId& id) const 
       //..........from file and done only for 1 quadrant
       //move from quadrant 1 to the actual one:
       // phiTower = changeTowerQuadrant(phiTower, 1, originalId.iquadrant());
-      edm::LogVerbatim("EcalTrigTowerConstituentsMap") << "EcalTrigTowerConstituentsMap " << originalId.zside() <<  " " << etaTower << " " << phiTower;
+      edm::LogVerbatim("EcalTrigTowerConstituentsMap")
+          << "EcalTrigTowerConstituentsMap " << originalId.zside() << " " << etaTower << " " << phiTower;
       return EcalTrigTowerDetId(originalId.zside(), EcalEndcap, etaTower, phiTower);
     }
   }
