@@ -1,26 +1,26 @@
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 #include <cmath>
 #include <algorithm>
 
+//#define EDM_ML_DEBUG
+
 TrapezoidalStripTopology::TrapezoidalStripTopology(int ns, float p, float l, float r0)
     : theNumberOfStrips(ns), thePitch(p), theDistToBeam(r0), theDetHeight(l) {
   theOffset = -theNumberOfStrips / 2. * thePitch;
   theYAxOr = 1;
-#ifdef VERBOSE
-  cout << "Constructing TrapezoidalStripTopology with"
-       << " nstrips = " << ns << " pitch = " << p << " length = " << l << " r0 =" << r0 << endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("CommonTopologies") << "Constructing TrapezoidalStripTopology with nstrips = " << ns << " pitch = " << p << " length = " << l << " r0 =" << r0;
 #endif
 }
 
 TrapezoidalStripTopology::TrapezoidalStripTopology(int ns, float p, float l, float r0, int yAx)
     : theNumberOfStrips(ns), thePitch(p), theDistToBeam(r0), theDetHeight(l), theYAxOr(yAx) {
   theOffset = -theNumberOfStrips / 2. * thePitch;
-#ifdef VERBOSE
-  cout << "Constructing TrapezoidalStripTopology with"
-       << " nstrips = " << ns << " pitch = " << p << " length = " << l << " r0 =" << r0 << " yAxOrientation =" << yAx
-       << endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("CommonTopologies") << "Constructing TrapezoidalStripTopology with nstrips = " << ns << " pitch = " << p << " length = " << l << " r0 =" << r0 << " yAxOrientation =" << yAx;
 #endif
 }
 

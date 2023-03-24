@@ -2,6 +2,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -40,7 +41,7 @@ ValidateRadial::ValidateRadial(const edm::ParameterSet& cfg)
       printOut_(cfg.getParameter<bool>("PrintOut")),
       posOnly_(cfg.getParameter<bool>("PosOnly")),
       tokTrackerGeometry_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()) {
-  std::cout << "I'm ALIVE" << std::endl;
+  edm::LogVerbatim("CommonTopologies") << "I'm ALIVE";
 }
 
 void ValidateRadial::analyze(const edm::Event& e, const edm::EventSetup& es) {
@@ -68,7 +69,7 @@ std::vector<const TkRadialStripTopology*> ValidateRadial::get_list_of_radial_top
   for (unsigned int radial_detid : radial_detids) {
     auto g = dynamic_cast<const StripGeomDetUnit*>(theTrackerGeometry->idToDet(radial_detid));
     if (!g)
-      std::cout << "no geom for " << radial_detid << std::endl;
+      edm::LogVerbatim("CommonTopologies") << "no geom for " << radial_detid;
     auto const topol = &g->specificTopology();
     const TkRadialStripTopology* rt = nullptr;
     auto const proxyT = dynamic_cast<const ProxyStripTopology*>(topol);
@@ -77,7 +78,7 @@ std::vector<const TkRadialStripTopology*> ValidateRadial::get_list_of_radial_top
     else
       rt = dynamic_cast<const TkRadialStripTopology*>(topol);
     if (!rt)
-      std::cout << "no radial topology for " << radial_detid << std::endl;
+      edm::LogVerbatim("CommonTopologies") << "no radial topology for " << radial_detid;
     else
       topos.emplace_back(rt);
   }
@@ -105,22 +106,22 @@ void compare(const TkRadialStripTopology& t,
   const float onewstrip = ot.strip(lp);
 
   if (fabs(lp.x() - olp.x()) > 0.001)
-    std::cout << "FAILED " << lp.x() << " " << olp.x() << std::endl;
+    edm::LogVerbatim("CommonTopologies") << "FAILED " << lp.x() << " " << olp.x();
   if (fabs(lp.y() - olp.y()) > 0.001)
-    std::cout << "FAILED " << lp.y() << " " << olp.y() << std::endl;
+    edm::LogVerbatim("CommonTopologies") << "FAILED " << lp.y() << " " << olp.y();
   if (fabs(newstrip - onewstrip) > 0.001)
-    std::cout << "FAILED " << newstrip << " " << onewstrip << std::endl;
+    edm::LogVerbatim("CommonTopologies") << "FAILED " << newstrip << " " << onewstrip;
   if (fabs(le.xx() - ole.xx()) > 0.001)
-    std::cout << "FAILED " << le.xx() << " " << ole.xx() << std::endl;
+    edm::LogVerbatim("CommonTopologies") << "FAILED " << le.xx() << " " << ole.xx();
   if (fabs(le.yy() - ole.yy()) > 0.001)
-    std::cout << "FAILED " << le.yy() << " " << ole.xy() << std::endl;
+    edm::LogVerbatim("CommonTopologies") << "FAILED " << le.yy() << " " << ole.xy();
   if (fabs(le.xy() - ole.xy()) > 0.001)
-    std::cout << "FAILED " << le.xy() << " " << ole.yy() << std::endl;
+    edm::LogVerbatim("CommonTopologies") << "FAILED " << le.xy() << " " << ole.yy();
 
   if (fabs(mp.x() - omp.x()) > 0.001)
-    std::cout << "FAILED " << mp.x() << " " << omp.x() << std::endl;
+    edm::LogVerbatim("CommonTopologies") << "FAILED " << mp.x() << " " << omp.x();
   if (fabs(me.uu() - ome.uu()) > 0.001)
-    std::cout << "FAILED " << me.uu() << " " << ome.uu() << std::endl;
+    edm::LogVerbatim("CommonTopologies") << "FAILED " << me.uu() << " " << ome.uu();
 }
 
 void ValidateRadial::test_topology(const TkRadialStripTopology* t, unsigned i) {
@@ -131,8 +132,8 @@ void ValidateRadial::test_topology(const TkRadialStripTopology* t, unsigned i) {
                               t->yAxisOrientation(),
                               t->yCentreOfStripPlane());
 
-  std::cout << "\nTK\n" << *t << std::endl;
-  std::cout << "\nCSC\n" << oldt << std::endl;
+  edm::LogVerbatim("CommonTopologies") << "\nTK\n" << *t;
+  edm::LogVerbatim("CommonTopologies") << "\nCSC\n" << oldt;
 
   TProfile prof(("se2limit1" + std::to_string(i)).c_str(),
                 "Precision Limit of recoverable strip error (1st order);strip;strip error",
@@ -163,7 +164,7 @@ void ValidateRadial::test_topology(const TkRadialStripTopology* t, unsigned i) {
 }
 
 ValidateRadial::~ValidateRadial() {
-  std::cout << "ValidateRadial max UU, max UV " << maxerrU << " " << maxerrUV << std::endl;
+  edm::LogVerbatim("CommonTopologies") << "ValidateRadial max UU, max UV " << maxerrU << " " << maxerrUV;
 }
 
 bool ValidateRadial::pass_frame_change_test(const TkRadialStripTopology* t,
@@ -194,9 +195,7 @@ bool ValidateRadial::pass_frame_change_test(const TkRadialStripTopology* t,
   const bool passe = (secondOrder ? pass2e : pass1e);
 
   if (printOut_ && ((!passp) || ((!posOnly_) && (!passe))))
-    std::cout << "FAILED "
-              << "(" << strip << ", " << newstrip << ", " << mp.x() << ")\t"
-              << "(" << stripErr2 << ", " << me.uu() << ")\t\t" << (me.uv()) << std::endl;
+    edm::LogVerbatim("CommonTopologies") << "FAILED " << "(" << strip << ", " << newstrip << ", " << mp.x() << ")\t" << "(" << stripErr2 << ", " << me.uu() << ")\t\t" << (me.uv());
   return passp & passe;
 }
 

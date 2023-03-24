@@ -17,7 +17,7 @@ namespace {
   struct Stat {
     Stat(const char* in) : name(in){};
     ~Stat() {
-      std::cout << name << ": atan0 calls tot/large/over1: " << natan << "/" << nlarge << "/" << over1 << std::endl;
+      edm::LogVerbatim("CommonTopologies") << name << ": atan0 calls tot/large/over1: " << natan << "/" << nlarge << "/" << over1;
     }
 
     void add(float t) {
@@ -133,9 +133,7 @@ float TkRadialStripTopology::coveredStrips(const LocalPoint& lp1, const LocalPoi
 #ifdef MATH_STS
   statS.add(t);
 #endif
-  //   std::cout << "atans " << atanClip(t)
-  //                        <<" "<< std::atan2(lp1.x(),yDistanceToIntersection(lp1.y()) )
-  //                               -std::atan2(lp2.x(),yDistanceToIntersection(lp2.y()) ) << std::endl;
+  //  edm::LogVerbatim("CommonTopologies") << "atans " << atanClip(t) << " " << std::atan2(lp1.x(), yDistanceToIntersection(lp1.y())) - std::atan2(lp2.x(),yDistanceToIntersection(lp2.y()));
   // clip???
   return atanClip(t) * theAWidthInverse;
   //   return (measurementPosition(lp1)-measurementPosition(lp2)).x();
@@ -231,7 +229,7 @@ float TkRadialStripTopology::localPitch(const LocalPoint& lp) const {
   float y =  yDistanceToIntersection( lp.y() );
   float x = std::abs(lp.x());
   float myP = y*(y*theTanAW+x)/(y-theTanAW*x)-x; // (y*theTanAW+x)/(1.f-theTanAW*x/y)-x;
-  std::cout << "localPitch " << p << " " << myP << std::endl;
+  edm::LogVerbatim("CommonTopologies") << "localPitch " << p << " " << myP;
 
   return p;
 

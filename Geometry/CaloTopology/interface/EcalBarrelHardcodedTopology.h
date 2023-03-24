@@ -4,14 +4,15 @@
 #include <vector>
 #include <iostream>
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 
 class EcalBarrelHardcodedTopology final : public CaloSubdetectorTopology {
 public:
   /// create a new Topology
-  EcalBarrelHardcodedTopology(){};
+  EcalBarrelHardcodedTopology() {};
 
-  ~EcalBarrelHardcodedTopology() override{};
+  ~EcalBarrelHardcodedTopology() override = default;
 
   /// move the Topology north (increment iphi)
   DetId goNorth(const DetId& id) const override { return incrementIphi(EBDetId(id)); }
@@ -54,13 +55,13 @@ public:
   }
 
   std::vector<DetId> up(const DetId& /*id*/) const override {
-    std::cout << "EcalBarrelHardcodedTopology::up() not yet implemented" << std::endl;
+    edm::LogVerbatim("CaloTopology") << "EcalBarrelHardcodedTopology::up() not yet implemented";
     std::vector<DetId> vNeighborsDetId;
     return vNeighborsDetId;
   }
 
   std::vector<DetId> down(const DetId& /*id*/) const override {
-    std::cout << "EcalBarrelHardcodedTopology::down() not yet implemented" << std::endl;
+    edm::LogVerbatim("CaloTopology") << "EcalBarrelHardcodedTopology::down() not yet implemented";
     std::vector<DetId> vNeighborsDetId;
     return vNeighborsDetId;
   }

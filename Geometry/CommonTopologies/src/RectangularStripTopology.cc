@@ -1,4 +1,5 @@
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 #include <cmath>
@@ -9,8 +10,8 @@ RectangularStripTopology::RectangularStripTopology(int ns, float p, float l)
   theOffset = -0.5f * theNumberOfStrips * thePitch;
 
 #ifdef VERBOSE
-  cout << "Constructing RectangularStripTopology with"
-       << " nstrips = " << ns << " pitch = " << p << " length = " << l << endl;
+  edm::LogVerbatim("CommonTopologies") << "Constructing RectangularStripTopology with"
+       << " nstrips = " << ns << " pitch = " << p << " length = " << l;
 #endif
 }
 
