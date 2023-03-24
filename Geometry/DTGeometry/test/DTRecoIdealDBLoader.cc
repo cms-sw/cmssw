@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
@@ -43,18 +44,18 @@ DTRecoIdealDBLoader::DTRecoIdealDBLoader(const edm::ParameterSet& iConfig)
     : label_(),
       tokDT_{esConsumes<DTGeometry, MuonGeometryRecord>(edm::ESInputTag{})},
       tokDDD_{esConsumes<DDCompactView, IdealGeometryRecord>(edm::ESInputTag{"", label_})} {
-  std::cout << "DTRecoIdealDBLoader::DTRecoIdealDBLoader" << std::endl;
+  edm::LogVerbatim("DTGeometry") << "DTRecoIdealDBLoader::DTRecoIdealDBLoader";
 }
 
-DTRecoIdealDBLoader::~DTRecoIdealDBLoader() { std::cout << "DTRecoIdealDBLoader::~DTRecoIdealDBLoader" << std::endl; }
+DTRecoIdealDBLoader::~DTRecoIdealDBLoader() { edm::LogVerbatim("DTGeometry") << "DTRecoIdealDBLoader::~DTRecoIdealDBLoader"; }
 
 void DTRecoIdealDBLoader::analyze(const edm::Event& evt, const edm::EventSetup& es) {
-  std::cout << "DTRecoIdealDBLoader::beginJob" << std::endl;
+  edm::LogVerbatim("DTGeometry") << "DTRecoIdealDBLoader::beginJob";
   RecoIdealGeometry rig;
 
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if (!mydbservice.isAvailable()) {
-    std::cout << "PoolDBOutputService unavailable" << std::endl;
+    edm::LogVerbatim("DTGeometry") << "PoolDBOutputService unavailable";
     return;
   }
 
@@ -63,13 +64,13 @@ void DTRecoIdealDBLoader::analyze(const edm::Event& evt, const edm::EventSetup& 
   DTGeometryParsFromDD dtgp;
 
   dtgp.build(&cpv, *pMNDC, rig);
-  std::cout << "RecoIdealGeometry " << rig.size() << std::endl;
+  edm::LogVerbatim("DTGeometry") << "RecoIdealGeometry " << rig.size();
 
   if (mydbservice->isNewTagRequest("RecoIdealGeometryRcd")) {
-    cout << "mydbservice " << mydbservice->beginOfTime() << " to " << mydbservice->endOfTime() << endl;
+    edm::LogVerbatim("DTGeometry") << "mydbservice " << mydbservice->beginOfTime() << " to " << mydbservice->endOfTime();
     mydbservice->createOneIOV(rig, mydbservice->beginOfTime(), "RecoIdealGeometryRcd");
   } else {
-    std::cout << "RecoIdealGeometryRcd Tag is already present." << std::endl;
+    edm::LogVerbatim("DTGeometry") << "RecoIdealGeometryRcd Tag is already present.";
   }
 }
 

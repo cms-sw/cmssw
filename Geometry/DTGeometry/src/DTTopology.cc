@@ -3,10 +3,12 @@
  *  \author R. Bellan  - INFN Torino
  */
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/DTGeometry/interface/DTTopology.h"
 #include <FWCore/Utilities/interface/Exception.h>
 
 #include <iostream>
+//#define EDM_ML_DEBUG
 
 // FIXME now put by hand, check the number!
 
@@ -23,10 +25,8 @@ DTTopology::DTTopology(int firstWire, int nChannels, float semilenght)
     : theFirstChannel(firstWire), theNChannels(nChannels), theLength(semilenght * 2) {
   theOffSet = Local2DPoint(-theNChannels / 2. * theWidth, -theLength / 2.);
 
-#ifdef VERBOSE
-  cout << "Constructing DTTopology with:" << endl
-       << "number of wires = " << theNChannels << ", first wire number = " << theFirstChannel << endl
-       << ", width = " << theWidth << ", height = " << theHeight << ", length = " << theLength << endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("DTGeometry") << "Constructing DTTopology with:" << std::endl << "number of wires = " << theNChannels << ", first wire number = " << theFirstChannel << std::endl << ", width = " << theWidth << ", height = " << theHeight << ", length = " << theLength;
 #endif
 }
 

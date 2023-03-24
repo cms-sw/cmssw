@@ -42,9 +42,11 @@ DTGeometryParsFromDD::~DTGeometryParsFromDD() {}
 void DTGeometryParsFromDD::build(const DDCompactView* cview,
                                  const MuonGeometryConstants& muonConstants,
                                  RecoIdealGeometry& rig) {
-  //  cout << "DTGeometryParsFromDD::build" << endl;
-  //   static const string t0 = "DTGeometryParsFromDD::build";
-  //   TimeMe timer(t0,true);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("DTGeometry") << "DTGeometryParsFromDD::build";
+  static const string t0 = "DTGeometryParsFromDD::build";
+  TimeMe timer(t0,true);
+#endif
 
   std::string attribute = "MuStructure";
   std::string value = "MuonBarrelDT";
@@ -53,7 +55,9 @@ void DTGeometryParsFromDD::build(const DDCompactView* cview,
   DDSpecificsMatchesValueFilter filter{DDValue(attribute, value, 0.0)};
   DDFilteredView fview(*cview, filter);
   buildGeometry(fview, muonConstants, rig);
-  //cout << "RecoIdealGeometry " << rig.size() << endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("DTGeometry") << "RecoIdealGeometry " << rig.size();
+#endif
 }
 
 // DD4hep
@@ -130,7 +134,9 @@ void DTGeometryParsFromDD::insertChamber(DDFilteredView& fv,
   DTNumberingScheme dtnum(muonConstants);
   int rawid = dtnum.getDetId(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
   DTChamberId detId(rawid);
-  //cout << "inserting Chamber " << detId << endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("DTGeometry") << "inserting Chamber " << detId;
+#endif
 
   // Chamber specific parameter (size)
   vector<double> par;
@@ -156,7 +162,9 @@ void DTGeometryParsFromDD::insertSuperLayer(DDFilteredView& fv,
   DTNumberingScheme dtnum(muonConstants);
   int rawid = dtnum.getDetId(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
   DTSuperLayerId slId(rawid);
-  //cout << "inserting SuperLayer " << slId << endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("DTGeometry") << "inserting SuperLayer " << slId;
+#endif
 
   // Slayer specific parameter (size)
   vector<double> par;
@@ -178,8 +186,9 @@ void DTGeometryParsFromDD::insertLayer(DDFilteredView& fv,
   DTNumberingScheme dtnum(muonConstants);
   int rawid = dtnum.getDetId(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
   DTLayerId layId(rawid);
-  //cout << "inserting Layer " << layId << endl;
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("DTGeometry") << "inserting Layer " << layId;
+#endif
   // Layer specific parameter (size)
   vector<double> par;
   par.emplace_back(DTLayerTag);

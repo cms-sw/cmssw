@@ -19,15 +19,14 @@
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <string>
+#include <utility>
 
 using namespace std;
 using namespace geant_units;
 using namespace geant_units::operators;
-
-#include <string>
-#include <utility>
-
 using namespace std;
+
+//#define EDM_ML_DEBUG
 
 DTGeometryBuilderFromDDD::DTGeometryBuilderFromDDD() {}
 
@@ -36,9 +35,11 @@ DTGeometryBuilderFromDDD::~DTGeometryBuilderFromDDD() {}
 void DTGeometryBuilderFromDDD::build(DTGeometry& theGeometry,
                                      const DDCompactView* cview,
                                      const MuonGeometryConstants& muonConstants) {
-  //  cout << "DTGeometryBuilderFromDDD::build" << endl;
-  //   static const string t0 = "DTGeometryBuilderFromDDD::build";
-  //   TimeMe timer(t0,true);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("DTGeometry") << "DTGeometryBuilderFromDDD::build";
+  //static const string t0 = "DTGeometryBuilderFromDDD::build";
+  //TimeMe timer(t0,true);
+#endif
 
   std::string attribute = "MuStructure";
   std::string value = "MuonBarrelDT";
@@ -113,15 +114,14 @@ DTChamber* DTGeometryBuilderFromDDD::buildChamber(DDFilteredView& fv,
 
   // Chamber specific parameter (size)
   // FIXME: some trouble for boolean solids?
-  vector<double> par = extractParameters(fv);
+  std::vector<double> par = extractParameters(fv);
 
   ///SL the definition of length, width, thickness depends on the local reference frame of the Det
   // width is along local X. r-phi  dimension - different in different chambers
   // length is along local Y. z      dimension - constant 125.55 cm
   // thickness is long local Z. radial thickness - almost constant about 18 cm
 
-  edm::LogVerbatim("DTGeometryBuilder") << "(1) detId: " << rawid << " par[0]: " << par[0] << " par[1]: " << par[1]
-                                        << " par[2]: " << par[2];
+  edm::LogVerbatim("DTGeometryBuilder") << "(1) detId: " << rawid << " par[0]: " << par[0] << " par[1]: " << par[1] << " par[2]: " << par[2];
 
   RCPPlane surf(plane(fv, dtGeometryBuilder::getRecPlaneBounds(par.begin())));
 
@@ -142,8 +142,7 @@ DTSuperLayer* DTGeometryBuilderFromDDD::buildSuperLayer(DDFilteredView& fv,
   // Slayer specific parameter (size)
   vector<double> par = extractParameters(fv);
 
-  edm::LogVerbatim("DTGeometryBuilder") << "(2) detId: " << rawid << " par[0]: " << par[0] << " par[1]: " << par[1]
-                                        << " par[2]: " << par[2];
+  edm::LogVerbatim("DTGeometryBuilder") << "(2) detId: " << rawid << " par[0]: " << par[0] << " par[1]: " << par[1] << " par[2]: " << par[2];
 
   // r-phi  dimension - different in different chambers
   // z      dimension - constant 126.8 cm
@@ -172,15 +171,14 @@ DTLayer* DTGeometryBuilderFromDDD::buildLayer(DDFilteredView& fv,
   DTLayerId layId(rawid);
 
   // Layer specific parameter (size)
-  vector<double> par = extractParameters(fv);
+  std::vector<double> par = extractParameters(fv);
   // width -- r-phi  dimension - different in different chambers
   // length -- z      dimension - constant 126.8 cm
   // thickness -- radial thickness - almost constant about 20 cm
 
   RCPPlane surf(plane(fv, dtGeometryBuilder::getRecPlaneBounds(par.begin())));
 
-  edm::LogVerbatim("DTGeometryBuilder") << "(3) detId: " << rawid << " par[0]: " << par[0] << " par[1]: " << par[1]
-                                        << " par[2]: " << par[2];
+  edm::LogVerbatim("DTGeometryBuilder") << "(3) detId: " << rawid << " par[0]: " << par[0] << " par[1]: " << par[1] << " par[2]: " << par[2];
 
   // Loop on wires
   bool doWire = fv.firstChild();
@@ -230,19 +228,16 @@ DTGeometryBuilderFromDDD::RCPPlane DTGeometryBuilderFromDDD::plane(const DDFilte
 
   const Surface::PositionType posResult(
       float(convertMmToCm(trans.x())), float(convertMmToCm(trans.y())), float(convertMmToCm(trans.z())));
-  LogTrace("DTGeometryBuilderFromDDD") << "DTGeometryBuilderFromDDD::plane "
-                                       << " posResult: " << posResult << std::endl;
+  LogTrace("DTGeometryBuilderFromDDD") << "DTGeometryBuilderFromDDD::plane  posResult: " << posResult;
   // now the rotation
   //     'active' and 'passive' rotations are inverse to each other
   const DDRotationMatrix& rotation = fv.rotation();  //REMOVED .Inverse();
   DD3Vector x, y, z;
   rotation.GetComponents(x, y, z);
-  //   std::cout << "INVERSE rotation by its own operator: "<< fv.rotation() << std::endl;
-  //   std::cout << "INVERSE rotation manually: "
-  // 	    << x.X() << ", " << x.Y() << ", " << x.Z() << std::endl
-  // 	    << y.X() << ", " << y.Y() << ", " << y.Z() << std::endl
-  // 	    << z.X() << ", " << z.Y() << ", " << z.Z() << std::endl;
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("DTGeometry") << "INVERSE rotation by its own operator: "<< fv.rotation();
+  edm::LogVerbatim("DTGeometry") << "INVERSE rotation manually: " << x.X() << ", " << x.Y() << ", " << x.Z() << std::endl << y.X() << ", " << y.Y() << ", " << y.Z() << std::endl << z.X() << ", " << z.Y() << ", " << z.Z();
+#endif
   Surface::RotationType rotResult(float(x.X()),
                                   float(x.Y()),
                                   float(x.Z()),
@@ -252,14 +247,6 @@ DTGeometryBuilderFromDDD::RCPPlane DTGeometryBuilderFromDDD::plane(const DDFilte
                                   float(z.X()),
                                   float(z.Y()),
                                   float(z.Z()));
-
-  //   std::cout << "rotation by its own operator: "<< tmp << std::endl;
-  //   DD3Vector tx, ty,tz;
-  //   tmp.GetComponents(tx, ty, tz);
-  //   std::cout << "rotation manually: "
-  // 	    << tx.X() << ", " << tx.Y() << ", " << tx.Z() << std::endl
-  // 	    << ty.X() << ", " << ty.Y() << ", " << ty.Z() << std::endl
-  // 	    << tz.X() << ", " << tz.Y() << ", " << tz.Z() << std::endl;
 
   return RCPPlane(new Plane(posResult, rotResult, bounds));
 }
