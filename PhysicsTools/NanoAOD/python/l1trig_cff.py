@@ -3,7 +3,7 @@ from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
 
 l1_float_precision_=12
-print("l1pre",l1_float_precision_)
+
 l1PtVars = cms.PSet(
     pt  = Var("pt",  float, precision=l1_float_precision_),
     phi = Var("phi", float, precision=l1_float_precision_),
