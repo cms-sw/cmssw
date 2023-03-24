@@ -44,11 +44,25 @@ namespace clangcms {
     llvm::raw_svector_ostream os(buf);
     const std::string tfname = "TFileService::";
     const std::string eoname = "edm::one";
+    const std::string srname = "edm::one::SharedResources";
     if (mname.substr(0, tfname.length()) == tfname) {
-      for (auto I = PD->begin_overridden_methods(), E = PD->end_overridden_methods(); I != E; ++I) {
-        std::string oname = support::getQualifiedName(*(*I));
-        if (oname.substr(0, eoname.length()) != eoname) {
-          os << "TFileService function " << mname << " is called in function " << pname;
+      if (pname.substr(0, eoname.length()) != eoname) {
+        const CXXRecordDecl *CRD = PD->getParent();
+        if (!CRD)
+          return;
+        bool foundone = false;
+        for (auto J = CRD->bases_begin(), K = CRD->bases_end(); J != K; ++J) {
+          auto BRD = J->getType()->getAsCXXRecordDecl();
+          if (BRD) {
+            std::string bname = BRD->getQualifiedNameAsString();
+            if (bname.find(srname) != std::string::npos) {
+              foundone = true;
+            }
+          }
+        }
+        if (!foundone) {
+          os << "TFileService function " << mname << " is called in function " << pname
+             << " whose base classes do not declare usesResource(TFileService::kSharedResource) in its constructor";
           PathDiagnosticLocation CELoc = PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(), AC);
           BugType *BT = new BugType(Checker, "TFileService function called ", "ThreadSafety");
           std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, os.str(), CELoc);
@@ -59,18 +73,18 @@ namespace clangcms {
           std::string ostring = "function '" + pname + "' known thread unsafe function '" + mname + "'.\n";
           support::writeLog(ostring, tname);
         }
+      } else if (support::isKnownThrUnsafeFunc(mname)) {
+        os << "Known thread unsafe function " << mname << " is called in function " << pname;
+        PathDiagnosticLocation CELoc = PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(), AC);
+        BugType *BT = new BugType(Checker, "known thread unsafe function called", "ThreadSafety");
+        std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, os.str(), CELoc);
+        R->setDeclWithIssue(AC->getDecl());
+        R->addRange(CE->getSourceRange());
+        BR.emitReport(std::move(R));
+        std::string tname = "function-checker.txt.unsorted";
+        std::string ostring = "function '" + pname + "' known thread unsafe function '" + mname + "'.\n";
+        support::writeLog(ostring, tname);
       }
-    } else if (support::isKnownThrUnsafeFunc(mname)) {
-      os << "Known thread unsafe function " << mname << " is called in function " << pname;
-      PathDiagnosticLocation CELoc = PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(), AC);
-      BugType *BT = new BugType(Checker, "known thread unsafe function called", "ThreadSafety");
-      std::unique_ptr<BasicBugReport> R = std::make_unique<BasicBugReport>(*BT, os.str(), CELoc);
-      R->setDeclWithIssue(AC->getDecl());
-      R->addRange(CE->getSourceRange());
-      BR.emitReport(std::move(R));
-      std::string tname = "function-checker.txt.unsorted";
-      std::string ostring = "function '" + pname + "' known thread unsafe function '" + mname + "'.\n";
-      support::writeLog(ostring, tname);
     }
   }
 
