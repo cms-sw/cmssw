@@ -1,17 +1,18 @@
 #ifndef SimG4Core_TrackInformation_H
 #define SimG4Core_TrackInformation_H
 
-#include "FWCore/Utilities/interface/Exception.h"
 #include "G4VUserTrackInformation.hh"
 #include "G4Allocator.hh"
 #include "G4Track.hh"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+constexpr double invcm = 1.0/CLHEP::cm;
+constexpr double invgev = 1.0/CLHEP::GeV;
 
 class TrackInformation : public G4VUserTrackInformation {
 public:
-  ~TrackInformation() override{};
+  ~TrackInformation() override = default;
   inline void *operator new(size_t);
   inline void operator delete(void *TrackInformation);
 
@@ -58,14 +59,14 @@ public:
   // Boundary crossing variables
   void setCrossedBoundary(const G4Track *track) {
     crossedBoundary_ = true;
-    positionAtBoundary_ = math::XYZTLorentzVectorF(track->GetPosition().x() / CLHEP::cm,
-                                                   track->GetPosition().y() / CLHEP::cm,
-                                                   track->GetPosition().z() / CLHEP::cm,
+    positionAtBoundary_ = math::XYZTLorentzVectorF(track->GetPosition().x()*invcm,
+                                                   track->GetPosition().y()*invcm,
+                                                   track->GetPosition().z()*invcm,
                                                    track->GetGlobalTime());
-    momentumAtBoundary_ = math::XYZTLorentzVectorF(track->GetMomentum().x() / CLHEP::GeV,
-                                                   track->GetMomentum().y() / CLHEP::GeV,
-                                                   track->GetMomentum().z() / CLHEP::GeV,
-                                                   track->GetTotalEnergy() / CLHEP::GeV);
+    momentumAtBoundary_ = math::XYZTLorentzVectorF(track->GetMomentum().x()*invgev,
+                                                   track->GetMomentum().y()*invgev,
+                                                   track->GetMomentum().z()*invgev,
+                                                   track->GetTotalEnergy()*invgev);
   }
   bool crossedBoundary() const { return crossedBoundary_; }
   const math::XYZTLorentzVectorF &getPositionAtBoundary() const { return positionAtBoundary_; }

@@ -8,21 +8,16 @@ public:
   bool operator()(const SimTrack& a, const SimTrack& b) { return a.trackId() < b.trackId(); }
 };
 
-G4SimEvent::G4SimEvent()
-    : hepMCEvent_(nullptr),
-      weight_(0),
-      collisionPoint_(math::XYZTLorentzVectorD(0., 0., 0., 0.)),
-      nparam_(0),
-      param_(0) {
+G4SimEvent::G4SimEvent() {
   g4vertices_.reserve(2000);
   g4tracks_.reserve(4000);
 }
 
-G4SimEvent::~G4SimEvent() { clear(); }
+G4SimEvent::~G4SimEvent() { 
+  clear();
+}
 
-void G4SimEvent::clear() {
-  // per suggestion by Chris Jones, it's faster
-  // that delete back() and pop_back()
+void G4SimEvent::clear() { 
   for (auto& ptr : g4tracks_) {
     delete ptr;
   }
@@ -34,46 +29,39 @@ void G4SimEvent::clear() {
 }
 
 void G4SimEvent::load(edm::SimTrackContainer& c) const {
+  const double invgev = 1.0/CLHEP::GeV;
   for (auto& trk : g4tracks_) {
     int ip = trk->part();
-    math::XYZTLorentzVectorD p(
-        trk->momentum().x() / GeV, trk->momentum().y() / GeV, trk->momentum().z() / GeV, trk->energy() / GeV);
+    const math::XYZVectorD& mom = trk->momentum();
+    math::XYZTLorentzVectorD p(mom.x()*invgev, mom.y()*invgev, mom.z()*invgev, trk->energy()*invgev); 
     int iv = trk->ivert();
     int ig = trk->igenpart();
     int id = trk->id();
-    math::XYZVectorD tkpos(trk->trackerSurfacePosition().x() / cm,
-                           trk->trackerSurfacePosition().y() / cm,
-                           trk->trackerSurfacePosition().z() / cm);
-    math::XYZTLorentzVectorD tkmom(trk->trackerSurfaceMomentum().x() / GeV,
-                                   trk->trackerSurfaceMomentum().y() / GeV,
-                                   trk->trackerSurfaceMomentum().z() / GeV,
-                                   trk->trackerSurfaceMomentum().e() / GeV);
     // ip = particle ID as PDG
-    // pp = 4-momentum
+    // pp = 4-momentum in GeV
     // iv = corresponding G4SimVertex index
     // ig = corresponding GenParticle index
-    SimTrack t = SimTrack(ip, p, iv, ig, tkpos, tkmom);
+    SimTrack t = SimTrack(ip, p, iv, ig, trk->trackerSurfacePosition(), trk->trackerSurfaceMomentum());
     t.setTrackId(id);
     t.setEventId(EncodedEventId(0));
-    if (trk->crossedBoundary())
-      t.setCrossedBoundaryVars(
-          trk->crossedBoundary(), trk->getIDAtBoundary(), trk->getPositionAtBoundary(), trk->getMomentumAtBoundary());
+    t.setCrossedBoundaryVars(trk->crossedBoundary(), trk->getIDAtBoundary(),
+                             trk->getPositionAtBoundary(), trk->getMomentumAtBoundary());
     c.push_back(t);
   }
   std::stable_sort(c.begin(), c.end(), IdSort());
 }
 
 void G4SimEvent::load(edm::SimVertexContainer& c) const {
+  const double invcm = 1.0/CLHEP::cm;
+  // index of the vertex is needed to make SimVertex object
   for (unsigned int i = 0; i < g4vertices_.size(); ++i) {
     G4SimVertex* vtx = g4vertices_[i];
-    //
-    // starting 1_1_0_pre3, SimVertex stores in cm !!!
-    //
-    math::XYZVectorD v3(vtx->vertexPosition().x() / cm, vtx->vertexPosition().y() / cm, vtx->vertexPosition().z() / cm);
-    float t = vtx->vertexGlobalTime() / second;
+    auto pos = vtx->vertexPosition();
+    math::XYZVectorD v3(pos.x()*invcm, pos.y()*invcm, pos.z()*invcm);
+    float t = vtx->vertexGlobalTime() / CLHEP::second;
     int iv = vtx->parentIndex();
-    // vv = position
-    // t  = global time
+    // v3 = position in cm
+    // t  = global time in second
     // iv = index of the parent in the SimEvent SimTrack container (-1 if no parent)
     SimVertex v = SimVertex(v3, t, iv, i);
     v.setProcessType(vtx->processType());
