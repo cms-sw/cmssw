@@ -533,10 +533,8 @@ bool L1TTauOffline::matchHlt(edm::Handle<trigger::TriggerEvent> const& triggerEv
 
   trigger::TriggerObjectCollection trigObjs = triggerEvent->getObjects();
 
-  vector<int>::const_iterator trigIndexIt = m_trigIndices.begin();
-  vector<int>::const_iterator trigIndexEnd = m_trigIndices.end();
-
-  for (; trigIndexIt != trigIndexEnd; ++trigIndexIt) {
+  for (vector<int>::const_iterator trigIndexIt = m_trigIndices.begin(); trigIndexIt != m_trigIndices.end();
+       ++trigIndexIt) {
     const vector<string> moduleLabels(m_hltConfig.moduleLabels(*trigIndexIt));
     // V.M. 2023.03.08 Same issue as in the L1TMuonDQMOffline.cc - some modules are behind hltBoolEnd, but we want the last one before the "hltBoolEnd"
     unsigned int moduleIndex = 999999;
@@ -662,10 +660,8 @@ void L1TTauOffline::getProbeTaus(const edm::Event& iEvent,
   edm::Handle<reco::TauDiscriminatorContainer> antiele;
   iEvent.getByToken(AntiEleInputTag_, antiele);
   if (!antiele.isValid()) {
-    //edm::LogWarning("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator anti-ele" << std::endl;
     //V.M. 16.3.2023. Bypassing the return option for now, as the anti-ele discr. is not available.
     m_AntiEleExists = false;
-    //return;
   }
 
   edm::Handle<reco::TauDiscriminatorContainer> comb3T;
