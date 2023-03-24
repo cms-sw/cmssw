@@ -221,6 +221,8 @@ namespace edm {
       void postESModulePrefetching(eventsetup::EventSetupRecordKey const&, ESModuleCallingContext const&);
       void preESModule(eventsetup::EventSetupRecordKey const&, ESModuleCallingContext const&);
       void postESModule(eventsetup::EventSetupRecordKey const&, ESModuleCallingContext const&);
+      void preESModuleAcquire(eventsetup::EventSetupRecordKey const&, ESModuleCallingContext const&);
+      void postESModuleAcquire(eventsetup::EventSetupRecordKey const&, ESModuleCallingContext const&);
 
     private:
       std::string indention_;
@@ -413,6 +415,8 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry& iRegistry)
   iRegistry.watchPostESModulePrefetching(this, &Tracer::postESModulePrefetching);
   iRegistry.watchPreESModule(this, &Tracer::preESModule);
   iRegistry.watchPostESModule(this, &Tracer::postESModule);
+  iRegistry.watchPreESModuleAcquire(this, &Tracer::preESModuleAcquire);
+  iRegistry.watchPostESModuleAcquire(this, &Tracer::postESModuleAcquire);
 
   iRegistry.preSourceEarlyTerminationSignal_.connect([this](edm::TerminationOrigin iOrigin) {
     LogAbsolute out("Tracer");
@@ -1761,6 +1765,28 @@ void Tracer::postESModule(eventsetup::EventSetupRecordKey const& iKey, ESModuleC
     out << indention_;
   }
   out << " finished: processing esmodule: label = '" << mcc.componentDescription()->label_
+      << "' type = " << mcc.componentDescription()->type_ << " in record = " << iKey.name();
+}
+
+void Tracer::preESModuleAcquire(eventsetup::EventSetupRecordKey const& iKey, ESModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 4;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " starting: processing esmodule acquire: label = '" << mcc.componentDescription()->label_
+      << "' type = " << mcc.componentDescription()->type_ << " in record = " << iKey.name();
+}
+
+void Tracer::postESModuleAcquire(eventsetup::EventSetupRecordKey const& iKey, ESModuleCallingContext const& mcc) {
+  LogAbsolute out("Tracer");
+  out << TimeStamper(printTimestamps_);
+  unsigned int nIndents = mcc.depth() + 4;
+  for (unsigned int i = 0; i < nIndents; ++i) {
+    out << indention_;
+  }
+  out << " finished: processing esmodule acquire: label = '" << mcc.componentDescription()->label_
       << "' type = " << mcc.componentDescription()->type_ << " in record = " << iKey.name();
 }
 
