@@ -31,7 +31,7 @@ public:
   public:
     bool operator()(TrackWithHistory*& p, const unsigned int& i) const { return p->trackID() < i; }
   };
-  /// this map contains association between vertex number and position
+
   typedef std::pair<int, math::XYZVectorD> VertexPosition;
   typedef std::vector<std::pair<int, math::XYZVectorD> > VertexPositionVector;
   typedef std::map<int, VertexPositionVector> VertexMap;
@@ -39,30 +39,15 @@ public:
   SimTrackManager();
   virtual ~SimTrackManager();
 
-  // ---------- const member functions ---------------------
   const std::vector<TrackWithHistory*>* trackContainer() const { return &m_trackContainer; }
 
-  // ---------- member functions ---------------------------
   void storeTracks(G4SimEvent* simEvent);
 
   void reset();
   void deleteTracks();
   void cleanTracksWithHistory();
 
-  void addTrack(TrackWithHistory* iTrack, const G4Track* track, bool inHistory, bool withAncestor) {
-    std::pair<int, int> thePair(iTrack->trackID(), iTrack->parentID());
-    idsave.push_back(thePair);
-    if (inHistory) {
-      m_trackContainer.push_back(iTrack);
-      const auto& pos = track->GetStep()->GetPostStepPoint()->GetPosition();
-      std::pair<int, math::XYZVectorD> p(iTrack->trackID(), math::XYZVectorD(pos.x(), pos.y(), pos.z()));
-      m_endPoints.push_back(p);
-    }
-    if (withAncestor) {
-      std::pair<int, int> thisPair(iTrack->trackID(), 0);
-      ancestorList.push_back(thisPair);
-    }
-  }
+  void addTrack(TrackWithHistory* iTrack, const G4Track* track, bool inHistory, bool withAncestor);
 
   int giveMotherNeeded(int i) const {
     int theResult = 0;
@@ -85,6 +70,7 @@ public:
     }
     return flag;
   }
+
   TrackWithHistory* getTrackByID(unsigned int trackID, bool strict = false) const {
     TrackWithHistory* track = nullptr;
     for (auto& ptr : m_trackContainer) {
@@ -106,6 +92,7 @@ public:
   const SimTrackManager& operator=(const SimTrackManager&) = delete;
 
 private:
+
   void saveTrackAndItsBranch(TrackWithHistory*);
   int getOrCreateVertex(TrackWithHistory*, int, G4SimEvent* simEvent);
   void cleanVertexMap();

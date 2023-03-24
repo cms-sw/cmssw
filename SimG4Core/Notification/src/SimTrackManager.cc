@@ -26,6 +26,7 @@
 #include "G4VProcess.hh"
 #include "G4Track.hh"
 #include "G4ThreeVector.hh"
+#include "G4SystemOfUnits.hh"
 
 //#define DebugLog
 
@@ -61,6 +62,23 @@ void SimTrackManager::cleanVertexMap() {
   m_vertexMap.clear();
   m_vertexMap.swap(m_vertexMap);
   m_nVertices = 0;
+}
+
+void SimTrackManager::addTrack(TrackWithHistory* iTrack, const G4Track* track,
+                               bool inHistory, bool withAncestor) {
+  std::pair<int, int> thePair(iTrack->trackID(), iTrack->parentID());
+  idsave.push_back(thePair);
+  if (inHistory) {
+    m_trackContainer.push_back(iTrack);
+    const auto& v = track->GetStep()->GetPostStepPoint()->GetPosition();
+    const double invcm = 1.0/CLHEP::cm;
+    std::pair<int, math::XYZVectorD> p(iTrack->trackID(), math::XYZVectorD(v.x()*invcm, v.y()*invcm, v.z()*invcm));
+    m_endPoints.push_back(p);
+  }
+  if (withAncestor) {
+    std::pair<int, int> thisPair(iTrack->trackID(), 0);
+    ancestorList.push_back(thisPair);
+  }
 }
 
 /// this saves a track and all its parents looping over the non ordered vector
