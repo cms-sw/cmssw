@@ -7,9 +7,6 @@
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
-constexpr double invcm = 1.0 / CLHEP::cm;
-constexpr double invgev = 1.0 / CLHEP::GeV;
-
 class TrackInformation : public G4VUserTrackInformation {
 public:
   ~TrackInformation() override = default;
@@ -57,17 +54,7 @@ public:
   void setCaloSurfaceParticleP(double p) { caloSurfaceParticleP_ = p; }
 
   // Boundary crossing variables
-  void setCrossedBoundary(const G4Track *track) {
-    crossedBoundary_ = true;
-    positionAtBoundary_ = math::XYZTLorentzVectorF(track->GetPosition().x() * invcm,
-                                                   track->GetPosition().y() * invcm,
-                                                   track->GetPosition().z() * invcm,
-                                                   track->GetGlobalTime());
-    momentumAtBoundary_ = math::XYZTLorentzVectorF(track->GetMomentum().x() * invgev,
-                                                   track->GetMomentum().y() * invgev,
-                                                   track->GetMomentum().z() * invgev,
-                                                   track->GetTotalEnergy() * invgev);
-  }
+  void setCrossedBoundary(const G4Track *track);
   bool crossedBoundary() const { return crossedBoundary_; }
   const math::XYZTLorentzVectorF &getPositionAtBoundary() const { return positionAtBoundary_; }
   const math::XYZTLorentzVectorF &getMomentumAtBoundary() const { return momentumAtBoundary_; }
