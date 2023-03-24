@@ -92,7 +92,6 @@ public:
   const SimTrackManager& operator=(const SimTrackManager&) = delete;
 
 private:
-
   void saveTrackAndItsBranch(TrackWithHistory*);
   int getOrCreateVertex(TrackWithHistory*, int, G4SimEvent* simEvent);
   void cleanVertexMap();
