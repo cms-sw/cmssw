@@ -58,7 +58,6 @@ public:
   int getIDAtBoundary() const { return idAtBoundary_; }
 
 private:
-
   unsigned int trackID_;
   int particleID_;
   int parentID_;
@@ -76,8 +75,8 @@ private:
 
   bool crossedBoundary_{false};
   int idAtBoundary_{-1};
-  math::XYZTLorentzVectorF positionAtBoundary_{math::XYZTLorentzVectorF(0.f,0.f,0.f,0.f)};
-  math::XYZTLorentzVectorF momentumAtBoundary_{math::XYZTLorentzVectorF(0.f,0.f,0.f,0.f)};
+  math::XYZTLorentzVectorF positionAtBoundary_{math::XYZTLorentzVectorF(0.f, 0.f, 0.f, 0.f)};
+  math::XYZTLorentzVectorF momentumAtBoundary_{math::XYZTLorentzVectorF(0.f, 0.f, 0.f, 0.f)};
 };
 
 extern G4ThreadLocal G4Allocator<TrackWithHistory> *fpTrackWithHistoryAllocator;

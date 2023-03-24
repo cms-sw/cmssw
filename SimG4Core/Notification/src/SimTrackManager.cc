@@ -36,9 +36,7 @@ SimTrackManager::SimTrackManager() {
   m_endPoints.reserve(1000);
 }
 
-SimTrackManager::~SimTrackManager() {
-  reset();
-}
+SimTrackManager::~SimTrackManager() { reset(); }
 
 void SimTrackManager::reset() {
   deleteTracks();
@@ -50,8 +48,10 @@ void SimTrackManager::reset() {
 }
 
 void SimTrackManager::deleteTracks() {
-  if(!m_trackContainer.empty()) {
-    for (auto & ptr : m_trackContainer) { delete ptr; }
+  if (!m_trackContainer.empty()) {
+    for (auto& ptr : m_trackContainer) {
+      delete ptr;
+    }
     m_trackContainer.clear();
     m_endPoints.clear();
   }
@@ -73,8 +73,8 @@ void SimTrackManager::saveTrackAndItsBranch(TrackWithHistory* trkWHist) {
   trkH->setToBeSaved();
   unsigned int parent = trkH->parentID();
 
-  auto tk_itr = std::lower_bound(
-      m_trackContainer.begin(), m_trackContainer.end(), parent, SimTrackManager::StrictWeakOrdering());
+  auto tk_itr =
+      std::lower_bound(m_trackContainer.begin(), m_trackContainer.end(), parent, SimTrackManager::StrictWeakOrdering());
 
   if (tk_itr != m_trackContainer.end() && (*tk_itr)->trackID() == parent) {
     saveTrackAndItsBranch(*tk_itr);
@@ -102,8 +102,7 @@ void SimTrackManager::storeTracks(G4SimEvent* simEvent) {
 void SimTrackManager::reallyStoreTracks(G4SimEvent* simEvent) {
   // loop over the (now ordered) vector and really save the tracks
 #ifdef DebugLog
-  edm::LogVerbatim("SimTrackManager") 
-      << "reallyStoreTracks() NtracksWithHistory= " << m_trackContainer->size();
+  edm::LogVerbatim("SimTrackManager") << "reallyStoreTracks() NtracksWithHistory= " << m_trackContainer->size();
 #endif
 
   int nn = m_endPoints.size();
@@ -115,42 +114,35 @@ void SimTrackManager::reallyStoreTracks(G4SimEvent* simEvent) {
     int ivertex = getOrCreateVertex(trkH, iParentID, simEvent);
 
     auto ptr = trkH;
-    if(0 < iParentID) {
+    if (0 < iParentID) {
       for (auto& trk : m_trackContainer) {
-	if (trk->trackID() == iParentID) {
-	  ptr = trk;
-	  break;
-	}
+        if (trk->trackID() == iParentID) {
+          ptr = trk;
+          break;
+        }
       }
     }
     // Track at surface is the track at intersection point between tracker and calo
     // envelops if exist. If not exist the momentum is zero, position is the end of
     // the track
     const math::XYZVectorD& pm = ptr->momentum();
-    math::XYZVectorD spos(0.,0.,0.);
-    math::XYZTLorentzVectorD smom(0.,0.,0.,0.);
+    math::XYZVectorD spos(0., 0., 0.);
+    math::XYZTLorentzVectorD smom(0., 0., 0., 0.);
     int id = trkH->trackID();
-    if(trkH->crossedBoundary()) {
+    if (trkH->crossedBoundary()) {
       spos = trkH->getPositionAtBoundary();
       smom = trkH->getMomentumAtBoundary();
     } else {
-      for(int i = 0; i<nn; ++i) { 
-	if(id == m_endPoints[i].first) {
+      for (int i = 0; i < nn; ++i) {
+        if (id == m_endPoints[i].first) {
           spos = m_endPoints[i].second;
-	  break; 
-	} 
+          break;
+        }
       }
     }
 
-    G4SimTrack* g4simtrack = new G4SimTrack(id,
-                                            trkH->particleID(),
-                                            trkH->momentum(),
-                                            trkH->totalEnergy(),
-                                            ivertex,
-                                            ig,
-                                            pm,
-                                            spos,
-                                            smom);
+    G4SimTrack* g4simtrack =
+        new G4SimTrack(id, trkH->particleID(), trkH->momentum(), trkH->totalEnergy(), ivertex, ig, pm, spos, smom);
     g4simtrack->copyCrossedBoundaryVars(trkH);
     simEvent->add(g4simtrack);
   }
@@ -252,11 +244,10 @@ void SimTrackManager::fillMotherList() {
     edm::LogError("SimTrackManager") << " SimTrackManager::fillMotherList track index corrupted";
   }
 #ifdef DebugLog
-  edm::LogVerbatim("SimTrackManager") 
-      << "### SimTrackManager::fillMotherList: "
-      << idsave.size() << " saved; ancestor: " << lastHist << "  " << ancestorList.size();
-  for (unsigned int i = 0; i< idsave.size(); ++i) { 
-    edm::LogVerbatim("SimTrackManager") << " ISV: Track ID = " << (idsave[i]).first 
+  edm::LogVerbatim("SimTrackManager") << "### SimTrackManager::fillMotherList: " << idsave.size()
+                                      << " saved; ancestor: " << lastHist << "  " << ancestorList.size();
+  for (unsigned int i = 0; i < idsave.size(); ++i) {
+    edm::LogVerbatim("SimTrackManager") << " ISV: Track ID = " << (idsave[i]).first
                                         << " Mother ID = " << (idsave[i]).second;
   }
 #endif
@@ -296,13 +287,12 @@ void SimTrackManager::cleanTracksWithHistory() {
                               << " tracks with history before branching";
   for (unsigned int it = 0; it < m_trackContainer.size(); it++) {
     LogDebug("SimTrackManager") << " 1 - Track in position " << it << " G4 track number "
-                                << m_trackContainer[it]->trackID() << " mother "
-                                << m_trackContainer[it]->parentID() << " status "
-                                << m_trackContainer[it]->saved();
+                                << m_trackContainer[it]->trackID() << " mother " << m_trackContainer[it]->parentID()
+                                << " status " << m_trackContainer[it]->saved();
   }
 #endif
 
-  for (auto & t : m_trackContainer) {
+  for (auto& t : m_trackContainer) {
     if (t->saved()) {
       saveTrackAndItsBranch(t);
     }
@@ -312,7 +302,9 @@ void SimTrackManager::cleanTracksWithHistory() {
     auto t = m_trackContainer[it];
     int g4ID = m_trackContainer[it]->trackID();
     if (t->saved()) {
-      if (it > num) { m_trackContainer[num] = t; }
+      if (it > num) {
+        m_trackContainer[num] = t;
+      }
       ++num;
       for (auto& xx : idsave) {
         if (xx.first == g4ID) {
@@ -331,11 +323,9 @@ void SimTrackManager::cleanTracksWithHistory() {
   LogDebug("SimTrackManager") << " AFTER CLEANING, I GET " << m_trackContainer.size()
                               << " tracks to be saved persistently";
   for (unsigned int it = 0; it < m_trackContainer.size(); ++it) {
-    LogDebug("SimTrackManager") << " Track in position " << it << " G4 track number "
-                                << m_trackContainer[it]->trackID() << " mother "
-                                << m_trackContainer[it]->parentID() << " Status "
-                                << m_trackContainer[it]->saved() << " id "
-                                << m_trackContainer[it]->particleID()
+    LogDebug("SimTrackManager") << " Track in position " << it << " G4 track number " << m_trackContainer[it]->trackID()
+                                << " mother " << m_trackContainer[it]->parentID() << " Status "
+                                << m_trackContainer[it]->saved() << " id " << m_trackContainer[it]->particleID()
                                 << " E(MeV)= " << m_trackContainer[it]->totalEnergy();
   }
 #endif
@@ -367,5 +357,5 @@ void SimTrackManager::resetGenID() {
 
 void SimTrackManager::ReportException(unsigned int id) const {
   throw cms::Exception("Unknown", "SimTrackManager::getTrackByID")
-    << "Fail to get track " << id << " from SimTrackManager, container size= " << m_trackContainer.size();
+      << "Fail to get track " << id << " from SimTrackManager, container size= " << m_trackContainer.size();
 }

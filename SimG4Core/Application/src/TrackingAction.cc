@@ -83,7 +83,9 @@ void TrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
     currentTrack_->setCrossedBoundaryPosMom(id, trkInfo_->getPositionAtBoundary(), trkInfo_->getMomentumAtBoundary());
     ok = (ok || saveCaloBoundaryInformation_ || doFineCalo_);
   }
-  if(ok) { currentTrack_->setToBeSaved(); }
+  if (ok) {
+    currentTrack_->setToBeSaved();
+  }
 
   bool withAncestor = (trkInfo_->getIDonCaloSurface() == id || trkInfo_->isAncestor());
   bool isInHistory = trkInfo_->isInHistory();
@@ -91,11 +93,9 @@ void TrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
   trackManager_->addTrack(currentTrack_, aTrack, isInHistory, withAncestor);
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("TrackingAction") << "TrackingAction end track=" << id
-				     << "  " << aTrack->GetDefinition()->GetParticleName()
-				     << " ansestor= " << withAncestor
-				     << " saved= " << currentTrack_->saved()
-				     << " end point " << aTrack->GetPosition();
+  edm::LogVerbatim("TrackingAction") << "TrackingAction end track=" << id << "  "
+                                     << aTrack->GetDefinition()->GetParticleName() << " ansestor= " << withAncestor
+                                     << " saved= " << currentTrack_->saved() << " end point " << aTrack->GetPosition();
 #endif
 
   EndOfTrack et(aTrack);

@@ -34,13 +34,15 @@ TrackWithHistory::TrackWithHistory(const G4Track* g4trk) {
   auto vgprimary = g4trk->GetDynamicParticle()->GetPrimaryParticle();
   if (vgprimary != nullptr) {
     auto priminfo = static_cast<GenParticleInfo*>(vgprimary->GetUserInformation());
-    if(nullptr != priminfo) { genParticleID_ = priminfo->id(); }
+    if (nullptr != priminfo) {
+      genParticleID_ = priminfo->id();
+    }
   }
   // V.I. weight is computed in the same way as before
   // without usage of G4Track::GetWeight()
   weight_ = 10000 * genParticleID_;
 #ifdef DEBUG
   LogDebug("TrackInformation") << " TrackWithHistory : created history for " << trackID_ << " with mother "
-			       << parentID_;
+                               << parentID_;
 #endif
 }

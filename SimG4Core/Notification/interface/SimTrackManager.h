@@ -66,7 +66,7 @@ public:
 
   int giveMotherNeeded(int i) const {
     int theResult = 0;
-    for (auto & p : idsave) {
+    for (auto& p : idsave) {
       if (p.first == i) {
         theResult = p.second;
         break;
@@ -77,7 +77,7 @@ public:
 
   bool trackExists(unsigned int i) const {
     bool flag = false;
-    for (auto & ptr : m_trackContainer) {
+    for (auto& ptr : m_trackContainer) {
       if (ptr->trackID() == i) {
         flag = true;
         break;
@@ -87,13 +87,15 @@ public:
   }
   TrackWithHistory* getTrackByID(unsigned int trackID, bool strict = false) const {
     TrackWithHistory* track = nullptr;
-    for (auto & ptr : m_trackContainer) {
+    for (auto& ptr : m_trackContainer) {
       if (ptr->trackID() == trackID) {
         track = ptr;
         break;
       }
     }
-    if (nullptr == track && strict) { ReportException(trackID); }
+    if (nullptr == track && strict) {
+      ReportException(trackID);
+    }
     return track;
   }
 
@@ -104,7 +106,6 @@ public:
   const SimTrackManager& operator=(const SimTrackManager&) = delete;
 
 private:
-
   void saveTrackAndItsBranch(TrackWithHistory*);
   int getOrCreateVertex(TrackWithHistory*, int, G4SimEvent* simEvent);
   void cleanVertexMap();

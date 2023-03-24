@@ -163,7 +163,9 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
   if (sAlive == tstat || sVeryForward == tstat) {
     if (preStep->GetPhysicalVolume() == tracker && postStep->GetPhysicalVolume() == calo) {
       TrackInformation* trkinfo = static_cast<TrackInformation*>(theTrack->GetUserInformation());
-      if(!trkinfo->crossedBoundary()) { trkinfo->setCrossedBoundary(theTrack); }
+      if (!trkinfo->crossedBoundary()) {
+        trkinfo->setCrossedBoundary(theTrack);
+      }
     }
   } else {
     theTrack->SetTrackStatus(fStopAndKill);
