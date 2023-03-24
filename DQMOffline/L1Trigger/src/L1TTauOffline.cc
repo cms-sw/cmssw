@@ -653,10 +653,10 @@ void L1TTauOffline::getProbeTaus(const edm::Event& iEvent,
   edm::Handle<reco::PFTauDiscriminator> dmf;
   iEvent.getByToken(DecayModeFindingInputTag_, dmf);
   if (!dmf.isValid()) {
-    edm::LogWarning("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator decay mode finding input" << std::endl;
+    edm::LogWarning("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator decay mode finding input"
+                                     << std::endl;
     return;
   }
-  
   m_AntiEleExists = true;
 
   edm::Handle<reco::TauDiscriminatorContainer> antiele;
@@ -694,7 +694,7 @@ void L1TTauOffline::getProbeTaus(const edm::Event& iEvent,
         }
       }
       {
-        if (m_AntiEleExists){
+        if (m_AntiEleExists) {
           const edm::Provenance* prov = antiele.provenance();
           const std::vector<std::string> psetsFromProvenance =
               edm::parameterSet(prov->stable(), iEvent.processHistory())
@@ -726,7 +726,7 @@ void L1TTauOffline::getProbeTaus(const edm::Event& iEvent,
         edm::LogWarning("L1TTauOffline") << "This offline tau has no antimu discriminator, skipping" << std::endl;
         continue;
       }
-      if (m_AntiEleExists){
+      if (m_AntiEleExists) {
         if ((*antiele)[tauCandidate].workingPoints.empty()) {
           edm::LogWarning("L1TTauOffline") << "This offline tau has no antiele discriminator, skipping" << std::endl;
           continue;
@@ -737,13 +737,12 @@ void L1TTauOffline::getProbeTaus(const edm::Event& iEvent,
         continue;
       }
       bool antiele_condition = true;
-     
-      if (m_AntiEleExists)  antiele_condition = (*antiele)[tauCandidate].workingPoints[AntiEleWPIndex_];
+
+      if (m_AntiEleExists)
+        antiele_condition = (*antiele)[tauCandidate].workingPoints[AntiEleWPIndex_];
 
       if (fabs(tauIt->charge()) == 1 && fabs(tauIt->eta()) < 2.1 && tauIt->pt() > 20 &&
-          (*antimu)[tauCandidate].workingPoints[AntiMuWPIndex_] &&
-          antiele_condition && 
-          (*dmf)[tauCandidate] > 0.5 &&
+          (*antimu)[tauCandidate].workingPoints[AntiMuWPIndex_] && antiele_condition && (*dmf)[tauCandidate] > 0.5 &&
           (*comb3T)[tauCandidate].workingPoints[comb3TWPIndex_]) {
         if (mymu.DeltaR(mytau) > 0.5 && (mymu + mytau).M() > 40 && (mymu + mytau).M() < 80 &&
             m_TightMuons[0]->charge() * tauIt->charge() < 0) {
