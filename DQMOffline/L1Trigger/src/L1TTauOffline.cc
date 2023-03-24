@@ -536,8 +536,8 @@ bool L1TTauOffline::matchHlt(edm::Handle<trigger::TriggerEvent> const& triggerEv
   for (auto& trigIndex : m_trigIndices) {
     const vector<string> moduleLabels(m_hltConfig.moduleLabels(trigIndex));
     // V.M. 2023.03.08 Same issue as in the L1TMuonDQMOffline.cc - some modules are behind hltBoolEnd, but we want the last one before the "hltBoolEnd"
-    unsigned int moduleIndex = 999999;
-    for (size_type ii = moduleLabels.size() - 1; ii > 0; ii--) {
+    int moduleIndex = 999999;
+    for (int ii = moduleLabels.size() - 1; ii > 0; ii--) {
       if (moduleLabels[ii] == "hltBoolEnd") {
         moduleIndex = ii - 1;
         break;
