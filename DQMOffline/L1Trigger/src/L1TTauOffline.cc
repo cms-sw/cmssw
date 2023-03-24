@@ -533,19 +533,18 @@ bool L1TTauOffline::matchHlt(edm::Handle<trigger::TriggerEvent> const& triggerEv
 
   trigger::TriggerObjectCollection trigObjs = triggerEvent->getObjects();
 
-  for (vector<int>::const_iterator trigIndexIt = m_trigIndices.begin(); trigIndexIt != m_trigIndices.end();
-       ++trigIndexIt) {
-    const vector<string> moduleLabels(m_hltConfig.moduleLabels(*trigIndexIt));
+  for (auto& trigIndex : m_trigIndices) {
+    const vector<string> moduleLabels(m_hltConfig.moduleLabels(trigIndex));
     // V.M. 2023.03.08 Same issue as in the L1TMuonDQMOffline.cc - some modules are behind hltBoolEnd, but we want the last one before the "hltBoolEnd"
-    unsigned int moduleIndex = 999999;
-    for (int ii = 0; ii < int(moduleLabels.size()); ii++) {
+    size_type moduleIndex = 999999;
+    for (size_type ii = moduleLabels.size()-1; ii > 0; ii--) {
       if (moduleLabels[ii] == "hltBoolEnd") {
         moduleIndex = ii - 1;
         break;
       }
     }
     if (moduleIndex == 999999) {
-      edm::LogError("L1TMuonDQMOffline") << "Found no module label in trigger " << (*trigIndexIt) << endl;
+      edm::LogError("L1TMuonDQMOffline") << "Found no module label in trigger " << trigIndex;
       continue;
     }
     const unsigned hltFilterIndex = triggerEvent->filterIndex(InputTag(moduleLabels[moduleIndex], "", trigProcess_));
@@ -644,15 +643,14 @@ void L1TTauOffline::getProbeTaus(const edm::Event& iEvent,
   edm::Handle<reco::TauDiscriminatorContainer> antimu;
   iEvent.getByToken(AntiMuInputTag_, antimu);
   if (!antimu.isValid()) {
-    edm::LogWarning("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator  anti-mu" << std::endl;
+    edm::LogWarning("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator  anti-mu";
     return;
   }
 
   edm::Handle<reco::PFTauDiscriminator> dmf;
   iEvent.getByToken(DecayModeFindingInputTag_, dmf);
   if (!dmf.isValid()) {
-    edm::LogWarning("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator decay mode finding input"
-                                     << std::endl;
+    edm::LogWarning("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator decay mode finding input";
     return;
   }
   m_AntiEleExists = true;
@@ -667,7 +665,7 @@ void L1TTauOffline::getProbeTaus(const edm::Event& iEvent,
   edm::Handle<reco::TauDiscriminatorContainer> comb3T;
   iEvent.getByToken(comb3TInputTag_, comb3T);
   if (!comb3T.isValid()) {
-    edm::LogWarning("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator  comb3T" << std::endl;
+    edm::LogWarning("L1TTauOffline") << "invalid collection: reco::PFTauDiscriminator  comb3T";
     return;
   }
 
@@ -719,17 +717,17 @@ void L1TTauOffline::getProbeTaus(const edm::Event& iEvent,
       mytau.SetPtEtaPhiE(tauIt->pt(), tauIt->eta(), tauIt->phi(), tauIt->energy());
 
       if ((*antimu)[tauCandidate].workingPoints.empty()) {
-        edm::LogWarning("L1TTauOffline") << "This offline tau has no antimu discriminator, skipping" << std::endl;
+        edm::LogWarning("L1TTauOffline") << "This offline tau has no antimu discriminator, skipping";
         continue;
       }
       if (m_AntiEleExists) {
         if ((*antiele)[tauCandidate].workingPoints.empty()) {
-          edm::LogWarning("L1TTauOffline") << "This offline tau has no antiele discriminator, skipping" << std::endl;
+          edm::LogWarning("L1TTauOffline") << "This offline tau has no antiele discriminator, skipping";
           continue;
         }
       }
       if ((*comb3T)[tauCandidate].workingPoints.empty()) {
-        edm::LogWarning("L1TTauOffline") << "This offline tau has no comb3T discriminator, skipping" << std::endl;
+        edm::LogWarning("L1TTauOffline") << "This offline tau has no comb3T discriminator, skipping";
         continue;
       }
       bool antiele_condition = true;
