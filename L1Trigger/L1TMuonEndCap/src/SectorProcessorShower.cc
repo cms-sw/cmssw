@@ -8,12 +8,10 @@ void SectorProcessorShower::configure(const edm::ParameterSet& pset, int endcap,
   endcap_ = endcap;
   sector_ = sector;
 
+  enableOneLooseShower_ = pset.getParameter<bool>("enableOneLooseShower");
   enableTwoLooseShowers_ = pset.getParameter<bool>("enableTwoLooseShowers");
   enableOneNominalShower_ = pset.getParameter<bool>("enableOneNominalShowers");
   enableOneTightShower_ = pset.getParameter<bool>("enableOneTightShowers");
-  nLooseShowers_ = pset.getParameter<unsigned>("nLooseShowers");
-  nNominalShowers_ = pset.getParameter<unsigned>("nNominalShowers");
-  nTightShowers_ = pset.getParameter<unsigned>("nTightShowers");
 }
 
 void SectorProcessorShower::process(const CSCShowerDigiCollection& in_showers,
@@ -45,6 +43,7 @@ void SectorProcessorShower::process(const CSCShowerDigiCollection& in_showers,
   }
 
   // Shower recognition logic: at least one nominal shower (see DN-20-033, section 5.2)
+  // Updated shower recognition logic: at least one loose shower (starting April 2023)
   const unsigned nLooseInTime(std::count_if(
       selected_showers.begin(), selected_showers.end(), [](CSCShowerDigi p) { return p.isLooseInTime(); }));
   const unsigned nNominalInTime(std::count_if(
@@ -52,21 +51,24 @@ void SectorProcessorShower::process(const CSCShowerDigiCollection& in_showers,
   const unsigned nTightInTime(std::count_if(
       selected_showers.begin(), selected_showers.end(), [](CSCShowerDigi p) { return p.isTightInTime(); }));
 
-  const bool hasTwoLooseInTime(nLooseInTime >= nLooseShowers_);
-  const bool hasOneNominalInTime(nNominalInTime >= nNominalShowers_);
-  const bool hasOneTightInTime(nTightInTime >= nTightShowers_);
+  const bool hasOneLooseInTime(nLooseInTime >= 1);
+  const bool hasTwoLooseInTime(nLooseInTime >= 2);
+  const bool hasOneNominalInTime(nNominalInTime >= 1);
+  const bool hasOneTightInTime(nTightInTime >= 1);
 
   // for startup Run-3 we're not considering out of time triggers
-  const bool acceptLoose(enableTwoLooseShowers_ and hasTwoLooseInTime);
+  const bool acceptLoose(enableOneLooseShower_ and hasOneLooseInTime);
+  const bool acceptTwoLoose(enableTwoLooseShowers_ and hasTwoLooseInTime);
   const bool acceptNominal(enableOneNominalShower_ and hasOneNominalInTime);
   const bool acceptTight(enableOneTightShower_ and hasOneTightInTime);
 
   // trigger condition
-  const bool accept(acceptLoose or acceptNominal or acceptTight);
+  const bool accept(acceptLoose or acceptTwoLoose or acceptNominal or acceptTight);
 
   if (accept) {
     // shower output
-    l1t::RegionalMuonShower out_shower(hasOneNominalInTime, false, hasTwoLooseInTime, false, hasOneTightInTime, false);
+    l1t::RegionalMuonShower out_shower(
+        hasOneNominalInTime, false, hasTwoLooseInTime, false, hasOneLooseInTime, hasOneTightInTime, false);
     l1t::tftype tftype = (endcap_ == 1) ? l1t::tftype::emtf_pos : l1t::tftype::emtf_neg;
     out_shower.setTFIdentifiers(sector_ - 1, tftype);
     out_showers.push_back(0, out_shower);
