@@ -311,6 +311,8 @@ void pat::PATLostTracks::addPackedCandidate(std::vector<pat::PackedCandidate>& c
   cands.back().setTrackHighPurity(trk->quality(reco::TrackBase::highPurity));
   cands.back().setCovarianceVersion(covarianceVersion_);
   cands.back().setLostInnerHits(lostHits);
+  cands.back().setTrkAlgo(static_cast<uint8_t>(trk->algo()));
+  cands.back().setTrkOriginalAlgo(static_cast<uint8_t>(trk->originalAlgo()));
   if (trk->pt() > minPtToStoreProps_ || trkStatus == TrkStatus::VTX) {
     if (useLegacySetup_ || std::abs(id) == 11 || trkStatus == TrkStatus::VTX) {
       cands.back().setTrackProperties(*trk, covariancePackingSchemas_[4], covarianceVersion_);

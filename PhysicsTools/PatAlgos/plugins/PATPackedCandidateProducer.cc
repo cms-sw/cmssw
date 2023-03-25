@@ -290,6 +290,8 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event &iEvent,
       }
       // properties of the best track
       outPtrP->back().setLostInnerHits(lostHits);
+      outPtrP->back().setTrkAlgo(static_cast<uint8_t>(ctrack->algo()));
+      outPtrP->back().setTrkOriginalAlgo(static_cast<uint8_t>(ctrack->originalAlgo()));
       if (outPtrP->back().pt() > minPtForTrackProperties_ || outPtrP->back().ptTrk() > minPtForTrackProperties_ ||
           whiteList.find(ic) != whiteList.end() ||
           (cand.trackRef().isNonnull() && whiteListTk.find(cand.trackRef()) != whiteListTk.end())) {

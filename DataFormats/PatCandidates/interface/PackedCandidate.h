@@ -837,6 +837,12 @@ namespace pat {
     /// Return first hit from HitPattern for tracks with high level details
     uint16_t firstHit() const { return firstHit_; }
 
+    /// Set/get track algo
+    void setTrkAlgo(uint8_t algo) { trkAlgo_ = algo; }
+    void setTrkOriginalAlgo(uint8_t algo) { trkOriginalAlgo_ = algo; }
+    uint8_t trkAlgo() const { return trkAlgo_; }
+    uint8_t trkOriginalAlgo() const { return trkOriginalAlgo_; }
+
     void setMuonID(bool isStandAlone, bool isGlobal) {
       int16_t muonFlags = isStandAlone | (2 * isGlobal);
       qualityFlags_ = (qualityFlags_ & ~muonFlagsMask) | ((muonFlags << muonFlagsShift) & muonFlagsMask);
@@ -1110,6 +1116,10 @@ namespace pat {
 
     /// details (hit pattern) of the first hit on track
     uint16_t firstHit_;
+
+    /// track algorithm details
+    uint8_t trkAlgo_ = 0;
+    uint8_t trkOriginalAlgo_ = 0;
 
     /// check overlap with another Candidate
     bool overlap(const reco::Candidate &) const override;
