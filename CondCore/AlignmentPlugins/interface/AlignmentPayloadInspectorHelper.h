@@ -744,7 +744,7 @@ namespace AlignmentPI {
   /*--------------------------------------------------------------------*/
   {
     char buffer[255];
-    TPaveText* stat = new TPaveText(0.60, 0.75, 0.95, 0.95, "NDC");
+    TPaveText* stat = new TPaveText(0.71, 0.75, 0.95, 0.88, "NDC");
     sprintf(buffer, "%s \n", AlignmentPI::getStringFromPart(part).c_str());
     stat->AddText(buffer);
 
@@ -765,7 +765,7 @@ namespace AlignmentPI {
     }
     stat->AddText(buffer);
 
-    stat->SetLineColor(color);
+    stat->SetLineColor(0);
     stat->SetTextColor(color);
     stat->SetFillColor(10);
     stat->SetShadowColor(10);

@@ -14,15 +14,16 @@ function die {
 # read Scouting collections from existing EDM file, and write them to disk
 cmsRun "${SCRAM_TEST_PATH}"/scoutingCollectionsIO_cfg.py -- \
   -i /store/mc/RunIISummer20UL18RECO/DoubleElectron_Pt-1To300-gun/AODSIM/FlatPU0to70EdalIdealGT_EdalIdealGT_106X_upgrade2018_realistic_v11_L1v1_EcalIdealIC-v2/270000/4CDD9457-E14C-D84A-9BD4-3140CB6AEEB6.root \
-  -n 150 --skip 900 -o testDataFormatsScoutingRun2_step1.root |& grep -v "Disabling gnu" &> testDataFormatsScoutingRun2_step1.log \
-  || die "Failure running scoutingCollectionsIO_cfg.py" $? testDataFormatsScoutingRun2_step1.log
+  -n 150 --skip 900 -o testDataFormatsScoutingRun2_step1.root \
+  > testDataFormatsScoutingRun2_step1.log 2> testDataFormatsScoutingRun2_step1_stderr.log \
+  || die "Failure running scoutingCollectionsIO_cfg.py" $? testDataFormatsScoutingRun2_step1_stderr.log
 
 cat testDataFormatsScoutingRun2_step1.log
 
 # validate content of Scouting collections
 "${SCRAM_TEST_PATH}"/scoutingCollectionsDumper.py -v 1 -n 1 --skip 81 -i testDataFormatsScoutingRun2_step1.root -k Scouting \
-  |& grep -v "Disabling gnu" &> testDataFormatsScoutingRun2_step2.log \
-  || die "Failure running scoutingCollectionsDumper.py" $? testDataFormatsScoutingRun2_step2.log
+  > testDataFormatsScoutingRun2_step2.log 2> testDataFormatsScoutingRun2_step2_stderr.log \
+  || die "Failure running scoutingCollectionsDumper.py" $? testDataFormatsScoutingRun2_step2_stderr.log
 
 diff -q "${SCRAM_TEST_PATH}"/testDataFormatsScoutingRun2_expected.log testDataFormatsScoutingRun2_step2.log \
   || die "Unexpected differences in outputs of testDataFormatsScoutingRun2 (step 2)" $?

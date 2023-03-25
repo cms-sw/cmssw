@@ -26,7 +26,7 @@ class StreamerOutputFile
   */
 {
 public:
-  explicit StreamerOutputFile(const std::string& name);
+  explicit StreamerOutputFile(const std::string& name, uint32 padding = 0);
   /**
       CTOR, takes file path name as argument
      */

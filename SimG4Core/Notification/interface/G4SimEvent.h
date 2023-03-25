@@ -35,10 +35,10 @@ public:
   void clear();
 
 private:
-  const HepMC::GenEvent* hepMCEvent_;
-  float weight_;
-  math::XYZTLorentzVectorD collisionPoint_;
-  int nparam_;
+  const HepMC::GenEvent* hepMCEvent_{nullptr};
+  float weight_{0.f};
+  math::XYZTLorentzVectorD collisionPoint_{math::XYZTLorentzVectorD(0., 0., 0., 0.)};
+  int nparam_{0};
   std::vector<float> param_;
   std::vector<G4SimTrack*> g4tracks_;
   std::vector<G4SimVertex*> g4vertices_;

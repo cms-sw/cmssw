@@ -28,10 +28,11 @@
 #include "CondCore/AlignmentPlugins/interface/AlignmentPayloadInspectorHelper.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
+#include <boost/range/adaptor/indexed.hpp>
+#include <iomanip>  // std::setprecision
+#include <iostream>
 #include <memory>
 #include <sstream>
-#include <iostream>
-#include <iomanip>  // std::setprecision
 
 // include ROOT
 #include "TH2F.h"
@@ -217,46 +218,32 @@ namespace {
       for (const auto &coord : coords) {
         auto s_coord = AlignmentPI::getStringFromCoordinate(coord);
         canvas.cd(subpad + 1);
-
-        unsigned int i = 0;
-        for (const auto &line : boundaries) {
-          l[subpad][i] = TLine(diffs[coord]->GetBinLowEdge(line.first),
-                               canvas.cd(subpad + 1)->GetUymin(),
-                               diffs[coord]->GetBinLowEdge(line.first),
-                               canvas.cd(subpad + 1)->GetUymax() * 0.84);
-          l[subpad][i].SetLineWidth(1);
-          l[subpad][i].SetLineStyle(9);
-          l[subpad][i].SetLineColor(2);
-          l[subpad][i].Draw("same");
-          i++;
+        for (const auto &line : boundaries | boost::adaptors::indexed(0)) {
+          const auto &index = line.index();
+          const auto value = line.value();
+          l[subpad][index] = TLine(diffs[coord]->GetBinLowEdge(value.first),
+                                   canvas.cd(subpad + 1)->GetUymin(),
+                                   diffs[coord]->GetBinLowEdge(value.first),
+                                   canvas.cd(subpad + 1)->GetUymax() * 0.84);
+          l[subpad][index].SetLineWidth(1);
+          l[subpad][index].SetLineStyle(9);
+          l[subpad][index].SetLineColor(2);
+          l[subpad][index].Draw("same");
         }
 
-        if (ref_ali.size() <= AlignmentPI::phase1size) {
-          const auto &theX_ = {0.2, 0.24, 0.31, 0.4, 0.55, 0.8};
-          for (unsigned int j = 1; j < 7; j++) {
-            auto thePart = static_cast<AlignmentPI::partitions>(j);
-            tSubdet[subpad].DrawLatex(
-                theX_.begin()[j - 1], 0.20, Form("%s", (AlignmentPI::getStringFromPart(thePart)).c_str()));
-          }
-        } else {
-          // this is for phase-2
-          unsigned int j = 0;
-          for (const auto &elem : boundaries) {
-            const auto &lm = canvas.cd(subpad + 1)->GetLeftMargin();
-            const auto &rm = 1 - canvas.cd(subpad + 1)->GetRightMargin();
-            const auto &frac = float(elem.first) / ref_ali.size();
+        const bool ph2 = (ref_ali.size() > AlignmentPI::phase1size);
+        for (const auto &elem : boundaries | boost::adaptors::indexed(0)) {
+          const auto &lm = canvas.cd(subpad + 1)->GetLeftMargin();
+          const auto &rm = 1 - canvas.cd(subpad + 1)->GetRightMargin();
+          const auto &frac = float(elem.value().first) / ref_ali.size();
 
-            LogDebug("TrackerAlignmentCompareAll")
-                << __PRETTY_FUNCTION__ << " left margin:  " << lm << " right margin: " << rm << " fraction: " << frac;
+          LogDebug("TrackerAlignmentCompareAll")
+              << __PRETTY_FUNCTION__ << " left margin:  " << lm << " right margin: " << rm << " fraction: " << frac;
 
-            float theX_ = lm + (rm - lm) * frac + (j > 0 ? 0.025 : 0.01);
+          float theX_ = lm + (rm - lm) * frac + (elem.index() > 0 ? 0.025 : 0.01);
 
-            tSubdet[subpad].DrawLatex(
-                theX_,
-                0.23,
-                Form("%s", AlignmentPI::getStringFromPart(elem.second, /*guaranteed is phase2*/ true).c_str()));
-            j++;
-          }
+          tSubdet[subpad].DrawLatex(
+              theX_, 0.23, Form("%s", AlignmentPI::getStringFromPart(elem.value().second, /*is phase2?*/ ph2).c_str()));
         }
 
         auto ltx = TLatex();
@@ -392,20 +379,18 @@ namespace {
       canvas.cd();
 
       TLine l[boundaries.size()];
-      unsigned int i = 0;
-      for (const auto &line : boundaries) {
-        l[i] = TLine(compare->GetBinLowEdge(line.first),
-                     canvas.cd()->GetUymin(),
-                     compare->GetBinLowEdge(line.first),
-                     canvas.cd()->GetUymax());
-        l[i].SetLineWidth(1);
-        l[i].SetLineStyle(9);
-        l[i].SetLineColor(2);
-        l[i].Draw("same");
-        i++;
+      for (const auto &line : boundaries | boost::adaptors::indexed(0)) {
+        const auto &index = line.index();
+        const auto value = line.value();
+        l[index] = TLine(compare->GetBinLowEdge(value.first),
+                         canvas.cd()->GetUymin(),
+                         compare->GetBinLowEdge(value.first),
+                         canvas.cd()->GetUymax());
+        l[index].SetLineWidth(1);
+        l[index].SetLineStyle(9);
+        l[index].SetLineColor(2);
+        l[index].Draw("same");
       }
-
-      //std::cout << "boundaries.size()= " << boundaries.size() << std::endl;
 
       TLatex tSubdet;
       tSubdet.SetNDC();
@@ -417,7 +402,7 @@ namespace {
         tSubdet.SetTextColor(kRed);
         auto myPair = AlignmentPI::calculatePosition(gPad, compare->GetBinLowEdge(elem.first));
         float theX_ = elem.first != 0 ? myPair.first + 0.025 : myPair.first + 0.01;
-        bool isPhase2 = (ref_ali.size() > AlignmentPI::phase1size);
+        const bool isPhase2 = (ref_ali.size() > AlignmentPI::phase1size);
         tSubdet.DrawLatex(theX_, 0.20, Form("%s", AlignmentPI::getStringFromPart(elem.second, isPhase2).c_str()));
       }
 
@@ -557,9 +542,9 @@ namespace {
 
         diffs[coord] = std::make_unique<TH1F>(Form("hDiff_%s", s_coord.c_str()),
                                               Form(";#Delta%s %s;n. of modules", s_coord.c_str(), unit.c_str()),
-                                              1000,
-                                              -500.,
-                                              500.);
+                                              1001,
+                                              -500.5,
+                                              500.5);
       }
 
       // fill the comparison histograms
@@ -568,16 +553,25 @@ namespace {
 
       int c_index = 1;
 
-      auto legend = std::make_unique<TLegend>(0.14, 0.93, 0.55, 0.98);
-      legend->AddEntry(
-          diffs[AlignmentPI::t_x].get(),
-          ("#DeltaIOV: " + std::to_string(std::get<0>(lastiov)) + "-" + std::to_string(std::get<0>(firstiov))).c_str(),
-          "L");
-      legend->SetTextSize(0.03);
+      //TLegend (Double_t x1, Double_t y1, Double_t x2, Double_t y2, const char *header="", Option_t *option="brNDC")
+      auto legend = std::make_unique<TLegend>(0.14, 0.88, 0.96, 0.99);
+      if (this->m_plotAnnotations.ntags == 2) {
+        legend->SetHeader("#bf{Two Tags Comparison}", "C");  // option "C" allows to center the header
+        legend->AddEntry(
+            diffs[AlignmentPI::t_x].get(),
+            ("#splitline{" + tagname1 + " : " + firstIOVsince + "}{" + tagname2 + " : " + lastIOVsince + "}").c_str(),
+            "PL");
+      } else {
+        legend->SetHeader(("tag: #bf{" + tagname1 + "}").c_str(), "C");  // option "C" allows to center the header
+        legend->AddEntry(diffs[AlignmentPI::t_x].get(),
+                         ("#splitline{IOV since: " + firstIOVsince + "}{IOV since: " + lastIOVsince + "}").c_str(),
+                         "PL");
+      }
+      legend->SetTextSize(0.025);
 
       for (const auto &coord : coords) {
         canvas.cd(c_index)->SetLogy();
-        canvas.cd(c_index)->SetTopMargin(0.02);
+        canvas.cd(c_index)->SetTopMargin(0.01);
         canvas.cd(c_index)->SetBottomMargin(0.15);
         canvas.cd(c_index)->SetLeftMargin(0.14);
         canvas.cd(c_index)->SetRightMargin(0.04);
@@ -592,6 +586,7 @@ namespace {
         int i_max = diffs[coord]->FindLastBinAbove(0.);
         int i_min = diffs[coord]->FindFirstBinAbove(0.);
         diffs[coord]->GetXaxis()->SetRange(std::max(1, i_min - 10), std::min(i_max + 10, diffs[coord]->GetNbinsX()));
+        diffs[coord]->SetMaximum(diffs[coord]->GetMaximum() * 5);
         diffs[coord]->Draw("HIST");
         AlignmentPI::makeNiceStats(diffs[coord].get(), q, kBlack);
 
