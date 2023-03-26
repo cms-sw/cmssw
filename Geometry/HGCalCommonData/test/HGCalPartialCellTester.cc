@@ -113,10 +113,8 @@ void HGCalPartialCellTester::analyze(const edm::Event&, const edm::EventSetup&) 
                  partialType_ == 24) {
         ug = nCells + 1;
         vg = 2 * (nCells - 1);
-        //std::cout << ug << " " << vg << std::endl;
       }
       std::pair<double, double> xyg = wafer2.cellUV2XY2(ug, vg, placeIndex_, waferType_);
-      //std::cout << xyg.first << ":" << xyg.second << std::endl;
       std::vector<std::pair<double, double> > wxy =
           HGCalWaferMask::waferXY(partialType_, placeIndex_, r2, R2, 0.0, 0.0);
       for (unsigned int i = 0; i < (wxy.size() - 1); ++i) {
