@@ -18,11 +18,13 @@ int main() {
 
     theTestMap.findCrystalAngles(thisCrystal, thisEta, thisPhi);
 
-    std::LogVerbatim("EcalTestBeam") << "Crystal number " << thisCrystal << " eta = " << thisEta << " phi = " << thisPhi;
+    std::LogVerbatim("EcalTestBeam") << "Crystal number " << thisCrystal << " eta = " << thisEta
+                                     << " phi = " << thisPhi;
 
     int checkThisCrystal = theTestMap.CrystalIndex(thisEta, thisPhi);
 
-    std::LogVerbatim("EcalTestBeam") << "(eta,phi) = " << thisEta << " , " << thisPhi << " corresponds to crystal n. = " << checkThisCrystal;
+    std::LogVerbatim("EcalTestBeam") << "(eta,phi) = " << thisEta << " , " << thisPhi
+                                     << " corresponds to crystal n. = " << checkThisCrystal;
   }
 
   return 0;
