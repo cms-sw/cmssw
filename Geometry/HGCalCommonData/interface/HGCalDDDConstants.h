@@ -182,8 +182,8 @@ public:
   std::pair<double, double> waferPosition(int lay, int waferU, int waferV, bool reco, bool debug) const;
   inline unsigned int waferFileSize() const { return hgpar_->waferInfoMap_.size(); }
   int waferFileIndex(unsigned int kk) const;
-  std::tuple<int, int, int> waferFileInfo(unsigned int kk) const;
-  std::tuple<int, int, int> waferFileInfoFromIndex(int kk) const;
+  std::tuple<int, int, int, int> waferFileInfo(unsigned int kk) const;
+  std::tuple<int, int, int, int> waferFileInfoFromIndex(int kk) const;
   inline bool waferFileInfoExist(int kk) const {
     return (hgpar_->waferInfoMap_.find(kk) != hgpar_->waferInfoMap_.end());
   }
