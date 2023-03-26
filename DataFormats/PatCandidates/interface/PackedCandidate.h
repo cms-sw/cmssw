@@ -221,7 +221,9 @@ namespace pat {
           normalizedChi2_(iOther.normalizedChi2_),
           covarianceVersion_(iOther.covarianceVersion_),
           covarianceSchema_(iOther.covarianceSchema_),
-          firstHit_(iOther.firstHit_) {}
+          firstHit_(iOther.firstHit_),
+          trkAlgo_(iOther.trkAlgo_),
+          trkOriginalAlgo_(iOther.trkOriginalAlgo_) {}
 
     PackedCandidate(PackedCandidate &&iOther)
         : packedPt_(iOther.packedPt_),
@@ -262,7 +264,9 @@ namespace pat {
           normalizedChi2_(iOther.normalizedChi2_),
           covarianceVersion_(iOther.covarianceVersion_),
           covarianceSchema_(iOther.covarianceSchema_),
-          firstHit_(iOther.firstHit_) {}
+          firstHit_(iOther.firstHit_),
+          trkAlgo_(iOther.trkAlgo_),
+          trkOriginalAlgo_(iOther.trkOriginalAlgo_) {}
 
     PackedCandidate &operator=(const PackedCandidate &iOther) {
       if (this == &iOther) {
@@ -339,6 +343,8 @@ namespace pat {
       covarianceVersion_ = iOther.covarianceVersion_;
       covarianceSchema_ = iOther.covarianceSchema_;
       firstHit_ = iOther.firstHit_;
+      trkAlgo_ = iOther.trkAlgo_;
+      trkOriginalAlgo_ = iOther.trkOriginalAlgo_;
       return *this;
     }
 
@@ -385,6 +391,8 @@ namespace pat {
       covarianceVersion_ = iOther.covarianceVersion_;
       covarianceSchema_ = iOther.covarianceSchema_;
       firstHit_ = iOther.firstHit_;
+      trkAlgo_ = iOther.trkAlgo_;
+      trkOriginalAlgo_ = iOther.trkOriginalAlgo_;
       return *this;
     }
 
