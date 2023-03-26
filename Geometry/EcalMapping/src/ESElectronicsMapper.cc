@@ -32,8 +32,9 @@ ESElectronicsMapper::ESElectronicsMapper(const edm::ParameterSet& ps) {
     }
 
   } else {
-    edm::LogVerbatim("EcalMapping") << "ESElectronicsMapper::ESElectronicsMapper : Look up table file can not be found in "
-              << lookup_.fullPath().c_str();
+    edm::LogVerbatim("EcalMapping")
+        << "ESElectronicsMapper::ESElectronicsMapper : Look up table file can not be found in "
+        << lookup_.fullPath().c_str();
   }
 
   // EE-ES FEDs mapping

@@ -19,13 +19,15 @@ typedef CaloCellGeometry::CCGFloat CCGFloat;
 #include <memory>
 
 std::unique_ptr<CaloSubdetectorGeometry> EcalTBHodoscopeGeometryLoaderFromDDD::load(const DDCompactView* cpv) {
-  edm::LogVerbatim("EcalTBHodoscopeGeometry") << "[EcalTBHodoscopeGeometryLoaderFromDDD]:: start the construction of EcalTBHodoscope";
+  edm::LogVerbatim("EcalTBHodoscopeGeometry")
+      << "[EcalTBHodoscopeGeometryLoaderFromDDD]:: start the construction of EcalTBHodoscope";
 
   std::unique_ptr<CaloSubdetectorGeometry> ebg(new EcalTBHodoscopeGeometry());
 
   makeGeometry(cpv, ebg.get());
 
-  edm::LogVerbatim("EcalTBHodoscopeGeometry") << "[EcalTBHodoscopeGeometryLoaderFromDDD]:: Returning EcalTBHodoscopeGeometry";
+  edm::LogVerbatim("EcalTBHodoscopeGeometry")
+      << "[EcalTBHodoscopeGeometryLoaderFromDDD]:: Returning EcalTBHodoscopeGeometry";
 
   return ebg;
 }

@@ -38,7 +38,7 @@ EcalElectronicsMapping::EcalElectronicsMapping() {
   // Fill the map (Barrel) for the Laser Monitoring readout numbers :
   // Each DCC actually corresponds to 2 LMs,  ilm and ilm + 1
 
-	int ilm = MIN_LM_EBM;
+  int ilm = MIN_LM_EBM;
   for (int dcc = MIN_DCCID_EBM; dcc <= MAX_DCCID_EBM; dcc++) {
     LaserMonitoringMap_EB[dcc] = ilm;
     ilm += 2;
@@ -819,7 +819,8 @@ std::vector<EcalScDetId> EcalElectronicsMapping::getEcalScDetId(int DCCid,
 
   if (debug) {
     std::ostringstream st1;
-    st1 << __FILE__ << ":" << __LINE__ << ": " << xtals.size() << " crystals read out by channel " << DCC_Channel << " of DCC " << DCCid << ": ";
+    st1 << __FILE__ << ":" << __LINE__ << ": " << xtals.size() << " crystals read out by channel " << DCC_Channel
+        << " of DCC " << DCCid << ": ";
     for (auto xtal : xtals) {
       st1 << EEDetId(xtal) << " ";
     }
@@ -862,9 +863,9 @@ std::vector<EcalScDetId> EcalElectronicsMapping::getEcalScDetId(int DCCid,
       if (nReadoutXtals[iSc] <= 1) {
         if (debug)
           edm::LogVerbatim("EcalMapping") << "EcalElectronicsMapping::getEcalScDetId: Ignore SC " << scDetIds[iSc]
-                    << " whose only one channel is read out by "
-                       "the DCC channel (DCC "
-                    << DCCid << ", ch " << DCC_Channel << ").\n";
+                                          << " whose only one channel is read out by "
+                                             "the DCC channel (DCC "
+                                          << DCCid << ", ch " << DCC_Channel << ").\n";
         scDetIds.erase(scDetIds.begin() + iSc);
         nReadoutXtals.erase(nReadoutXtals.begin() + iSc);
       } else {

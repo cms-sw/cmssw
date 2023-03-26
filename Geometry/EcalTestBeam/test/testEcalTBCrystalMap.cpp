@@ -1,4 +1,5 @@
 #include "Geometry/EcalTestBeam/interface/EcalTBCrystalMap.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "CLHEP/Random/RandFlat.h"
 
@@ -17,12 +18,11 @@ int main() {
 
     theTestMap.findCrystalAngles(thisCrystal, thisEta, thisPhi);
 
-    std::cout << "Crystal number " << thisCrystal << " eta = " << thisEta << " phi = " << thisPhi << std::endl;
+    std::LogVerbatim("EcalTestBeam") << "Crystal number " << thisCrystal << " eta = " << thisEta << " phi = " << thisPhi;
 
     int checkThisCrystal = theTestMap.CrystalIndex(thisEta, thisPhi);
 
-    std::cout << "(eta,phi) = " << thisEta << " , " << thisPhi << " corresponds to crystal n. = " << checkThisCrystal
-              << std::endl;
+    std::LogVerbatim("EcalTestBeam") << "(eta,phi) = " << thisEta << " , " << thisPhi << " corresponds to crystal n. = " << checkThisCrystal;
   }
 
   return 0;

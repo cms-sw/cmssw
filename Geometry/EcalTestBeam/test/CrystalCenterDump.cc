@@ -69,8 +69,8 @@ CrystalCenterDump::CrystalCenterDump(const edm::ParameterSet& iConfig) {
   beamEnergy_ = iConfig.getUntrackedParameter<double>("BeamEnergy", 120.);
 
   edm::LogVerbatim("CrysInfo") << "Position computed according to the depth " << crystalDepth() << " based on:"
-                           << "\n A = " << A_ << " cm "
-                           << "\n B = " << B_ << "\n BeamEnergy = " << beamEnergy_ << " GeV";
+                               << "\n A = " << A_ << " cm "
+                               << "\n B = " << B_ << "\n BeamEnergy = " << beamEnergy_ << " GeV";
 
   geometryToken_ = esConsumes<CaloGeometry, CaloGeometryRecord>(edm::ESInputTag{});
 }
@@ -104,7 +104,7 @@ void CrystalCenterDump::build(const CaloGeometry& cg, DetId::Detector det, int s
           double crysPhi = crysPos.phi();
 
           edm::LogVerbatim("CrysPos") << ebid.ic() << " x = " << crysX << " y = " << crysY << " z = " << crysZ << " \n "
-                                  << " eta = " << crysEta << " phi = " << crysPhi << " theta = " << crysTheta;
+                                      << " eta = " << crysEta << " phi = " << crysPhi << " theta = " << crysTheta;
           f << std::setw(4) << ebid.ic() << " " << std::setw(8) << std::setprecision(6) << crysEta << " "
             << std::setw(8) << std::setprecision(6) << crysPhi << " " << std::endl;
         }
