@@ -3,6 +3,7 @@
 
 #include "DataFormats/L1TParticleFlow/interface/datatypes.h"
 #include "DataFormats/L1TParticleFlow/interface/bit_encoding.h"
+#include "DataFormats/L1TParticleFlow/interface/gt_datatypes.h"
 
 namespace l1ct {
 
@@ -87,6 +88,7 @@ namespace l1ct {
       pack_into_bits(ret, start, hwIsoOrMVA);
       return ret;
     }
+
     inline static Tau unpack(const ap_uint<BITWIDTH> &src) {
       Tau ret;
       unsigned int start = 0;
@@ -101,6 +103,23 @@ namespace l1ct {
       unpack_from_bits(src, start, ret.hwIdVsEle);
       unpack_from_bits(src, start, ret.hwIsoOrMVA);
       return ret;
+    }
+
+    l1gt::Tau toGT() const {
+      l1gt::Tau t;
+      t.valid = hwPt != 0;
+
+      t.v3.pt = CTtoGT_pt(hwPt);
+      t.v3.phi = CTtoGT_phi(hwPhi);
+      t.v3.eta = CTtoGT_eta(hwEta);
+
+      t.seed_pt = hwSeedPt;
+      t.seed_z0 = hwSeedZ0;
+      t.charge = hwCharge;
+
+      t.type = hwType;
+      t.isolation = hwRawId;
+      return t;
     }
   };
 

@@ -35,6 +35,8 @@ namespace l1gt {
 
   // tau fields
   typedef ap_ufixed<10, 8> tauseed_pt_t;
+  typedef ap_uint<10> tau_rawid_t;
+  typedef std::array<uint64_t, 2> PackedTau;
 
   namespace Scales {
     const int INTPHI_PI = 1 << (phi_t::width - 1);
@@ -185,12 +187,12 @@ namespace l1gt {
     z0_t seed_z0;
     ap_uint<1> charge;
     ap_uint<2> type;
-    iso_t isolation;
+    tau_rawid_t isolation;
     ap_uint<2> id0;
     ap_uint<2> id1;
 
     static const int BITWIDTH = 128;
-    inline ap_uint<BITWIDTH> pack() const {
+    inline ap_uint<BITWIDTH> pack_ap() const {
       ap_uint<BITWIDTH> ret;
       unsigned int start = 0;
       pack_into_bits(ret, start, valid);
@@ -204,6 +206,44 @@ namespace l1gt {
       pack_into_bits(ret, start, id1);
       return ret;
     }
+
+    inline PackedTau pack() const {
+      PackedTau packed;
+      ap_uint<BITWIDTH> bits = this->pack_ap();
+      packed[0] = bits(63, 0);
+      packed[1] = bits(127, 64);
+      return packed;
+    }
+
+    inline static Tau unpack_ap(const ap_uint<BITWIDTH> &src) {
+      Tau ret;
+      ret.initFromBits(src);
+      return ret;
+    }
+
+    inline static Tau unpack(const PackedTau &src) {
+      ap_uint<BITWIDTH> bits;
+      bits(63, 0) = src[0];
+      bits(127, 64) = src[1];
+
+      return unpack_ap(bits);
+    }
+
+    inline void initFromBits(const ap_uint<BITWIDTH> &src) {
+      unsigned int start = 0;
+      unpack_from_bits(src, start, valid);
+      unpack_from_bits(src, start, v3.pt);
+      unpack_from_bits(src, start, v3.phi);
+      unpack_from_bits(src, start, v3.eta);
+      unpack_from_bits(src, start, seed_pt);
+      unpack_from_bits(src, start, seed_z0);
+      unpack_from_bits(src, start, charge);
+      unpack_from_bits(src, start, type);
+      unpack_from_bits(src, start, isolation);
+      unpack_from_bits(src, start, id0);
+      unpack_from_bits(src, start, id1);
+    }
+
   };  // struct Tau
 
   struct Electron {
