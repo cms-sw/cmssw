@@ -47,7 +47,7 @@ namespace l1ct {
       hwPhi = 0;
       hwSeedPt = 0;
       hwSeedZ0 = 0;
-      hwCharge = 0;
+      hwCharge = false;
       hwType = 0;
       hwIsoOrMVA = 0;
       hwIdVsMu = 0;
