@@ -1,3 +1,4 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/EcalMapping/interface/ESElectronicsMapper.h"
 
 ESElectronicsMapper::ESElectronicsMapper(const edm::ParameterSet& ps) {
@@ -31,8 +32,8 @@ ESElectronicsMapper::ESElectronicsMapper(const edm::ParameterSet& ps) {
     }
 
   } else {
-    std::cout << "ESElectronicsMapper::ESElectronicsMapper : Look up table file can not be found in "
-              << lookup_.fullPath().c_str() << std::endl;
+    edm::LogVerbatim("EcalMapping") << "ESElectronicsMapper::ESElectronicsMapper : Look up table file can not be found in "
+              << lookup_.fullPath().c_str();
   }
 
   // EE-ES FEDs mapping
