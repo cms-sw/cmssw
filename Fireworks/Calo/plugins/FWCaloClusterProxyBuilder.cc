@@ -106,7 +106,7 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData,
       continue;
 
     // HGCal
-    if (iData.algo() == 8 || (type >= 8 && type <= 10)) {
+    if (iData.algo() == reco::CaloCluster::hgcal_mixed || iData.algo() == reco::CaloCluster::hgcal_em || iData.algo() == reco::CaloCluster::hgcal_had || (type >= 8 && type <= 10)) {
       if (heatmap && hitmap->find(it->first) == hitmap->end())
         continue;
 

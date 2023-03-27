@@ -190,8 +190,6 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
 
 // todo or we can make a map but I dont think it is necessary
 void HGCalLayerClusterProducer::setAlgoId(){
-   algoId = reco::CaloCluster::hgcal_mixed;
-   return;
     if (detector == "HFNose") {
       algoId = reco::CaloCluster::hfnose;
     }  else if (detector == "EE") {

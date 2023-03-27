@@ -15,7 +15,7 @@ namespace ticl {
   class ClusterFilterByAlgo final : public ClusterFilterBase {
   public:
     ClusterFilterByAlgo(const edm::ParameterSet& ps)
-        : ClusterFilterBase(ps), algo_number_(ps.getParameter<int>("algo_number")) {}
+        : ClusterFilterBase(ps), algo_number_(ps.getParameter<std::vector<int>>("algo_number")) {}
     ~ClusterFilterByAlgo() override{};
 
     void filter(const std::vector<reco::CaloCluster>& layerClusters,
@@ -24,7 +24,8 @@ namespace ticl {
                 hgcal::RecHitTools& rhtools) const override {
       auto filteredLayerClusters = std::make_unique<HgcalClusterFilterMask>();
       for (auto const& cl : availableLayerClusters) {
-        if (layerClusters[cl.first].algo() == algo_number_) {
+        // if (algo_number_.find(layerClusters[cl.first].algo()) != algo_number_.end()) {
+        if (find(algo_number_.begin(), algo_number_.end(), layerClusters[cl.first].algo()) != algo_number_.end()) {
           filteredLayerClusters->emplace_back(cl);
         } else {
           layerClustersMask[cl.first] = 0.;
@@ -33,7 +34,7 @@ namespace ticl {
     }
 
   private:
-    int algo_number_;
+    std::vector<int> algo_number_;
   };
 }  // namespace ticl
 
