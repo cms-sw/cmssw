@@ -84,9 +84,12 @@ namespace l1t {
           shower = muonShowerCollection_->at(bx, 0);
           muonShowerCollection_->erase(bx, 0);
         }
-        if (linkID == 0) {  // OneNominal shower
+        if (linkID ==
+            0) {  // OneNominal and TwoLoose showers are embedded in the first and second muons of the first link
           shower.setOneNominalInTime(l1t::MuonRawDigiTranslator::showerFired(payload[i + 1], fed_, getAlgoVersion()));
-        } else if (linkID == 1) {  // OneTight shower
+          shower.setTwoLooseDiffSectorsInTime(
+              l1t::MuonRawDigiTranslator::showerFired(payload[i + 3], fed_, getAlgoVersion()));
+        } else if (linkID == 1) {  // OneTight shower is embedded in the first muon of the second link
           shower.setOneTightInTime(l1t::MuonRawDigiTranslator::showerFired(payload[i + 1], fed_, getAlgoVersion()));
         }
 
