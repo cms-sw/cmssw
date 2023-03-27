@@ -7,7 +7,7 @@
   CSC shower and send a trigger to the uGMT. In a possible extension, the
   EMTF shower sector processor can also trigger on two loose showers - to
   enhance the sensitivity to long-lived particles that produce multiple
-  showers, instead of a single showers.
+  showers, instead of a single shower.
  */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
