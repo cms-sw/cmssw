@@ -10,8 +10,8 @@ void SectorProcessorShower::configure(const edm::ParameterSet& pset, int endcap,
 
   enableOneLooseShower_ = pset.getParameter<bool>("enableOneLooseShower");
   enableTwoLooseShowers_ = pset.getParameter<bool>("enableTwoLooseShowers");
-  enableOneNominalShower_ = pset.getParameter<bool>("enableOneNominalShowers");
-  enableOneTightShower_ = pset.getParameter<bool>("enableOneTightShowers");
+  enableOneNominalShower_ = pset.getParameter<bool>("enableOneNominalShower");
+  enableOneTightShower_ = pset.getParameter<bool>("enableOneTightShower");
 }
 
 void SectorProcessorShower::process(const CSCShowerDigiCollection& in_showers,
