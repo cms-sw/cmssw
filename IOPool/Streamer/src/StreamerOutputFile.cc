@@ -3,8 +3,8 @@
 
 StreamerOutputFile::~StreamerOutputFile() {}
 
-StreamerOutputFile::StreamerOutputFile(const std::string& name)
-    : streamerfile_(std::make_shared<edm::streamer::OutputFile>(name)) {
+StreamerOutputFile::StreamerOutputFile(const std::string& name, uint32 padding)
+    : streamerfile_(std::make_shared<edm::streamer::OutputFile>(name, padding)) {
   streamerfile_->set_do_adler(true);
 }
 
@@ -18,7 +18,7 @@ uint64 StreamerOutputFile::write(const EventMsgView& ineview) {
   uint64 offset_to_return = streamerfile_->current_offset();
 
   writeEventHeader(ineview);
-  bool ret = streamerfile_->write((const char*)ineview.eventData(), ineview.size() - ineview.headerSize());
+  bool ret = streamerfile_->write((const char*)ineview.eventData(), ineview.size() - ineview.headerSize(), true);
   if (ret) {
     throw cms::Exception("OutputFile", "write(EventMsgView)")
         << "Error writing streamer event data to " << streamerfile_->fileName() << ".  Possibly the output disk "
@@ -56,7 +56,7 @@ void StreamerOutputFile::write(const InitMsgBuilder& inview) {
 
 void StreamerOutputFile::write(const InitMsgView& inview) {
   writeStart(inview);
-  bool ret = streamerfile_->write((const char*)inview.descData(), inview.size() - inview.headerSize());
+  bool ret = streamerfile_->write((const char*)inview.descData(), inview.size() - inview.headerSize(), true);
   if (ret) {
     throw cms::Exception("OutputFile", "write(InitMsgView)")
         << "Error writing streamer header data to " << streamerfile_->fileName() << ".  Possibly the output disk "
