@@ -17,6 +17,8 @@ from DQM.CTPPS.elasticPlotDQMSource_cfi import *
 
 from DQM.CTPPS.ctppsCommonDQMSource_cfi import *
 
+from DQM.CTPPS.ctppsRandomDQMSource_cfi import *
+
 # sequences used by the online DQM in normal running
 ctppsCommonDQMSourceOnline = ctppsCommonDQMSource.clone(
   makeProtonRecoPlots = False
@@ -49,6 +51,14 @@ _ctppsDQMCalibrationHarvest = cms.Sequence(
 # sequences used by the offline DQM
 ctppsCommonDQMSourceOffline = ctppsCommonDQMSource.clone(
   makeProtonRecoPlots = True
+)
+
+# sequences used by the dedicated random trigger stream
+_ctppsDQMRandomSource = cms.Sequence(
+  ctppsRandomDQMSource
+)
+
+_ctppsDQMRandomHarvest = cms.Sequence(
 )
 
 #Check if perLSsaving is enabled to mask MEs vs LS
@@ -99,3 +109,8 @@ ctppsDQMOfflineSource = cms.Sequence()
 ctppsDQMOfflineHarvest = cms.Sequence()
 ctpps.toReplaceWith(ctppsDQMOfflineSource, _ctppsDQMOfflineSource)
 ctpps.toReplaceWith(ctppsDQMOfflineHarvest, _ctppsDQMOfflineHarvest)
+
+ctppsDQMRandomSource = cms.Sequence()
+ctppsDQMRandomHarvest = cms.Sequence()
+ctpps.toReplaceWith(ctppsDQMRandomSource, _ctppsDQMRandomSource)
+ctpps.toReplaceWith(ctppsDQMRandomHarvest, _ctppsDQMRandomHarvest)
