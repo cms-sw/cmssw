@@ -4,6 +4,7 @@
   <use name="FWCore/Utilities"/>
   <use name="L1Trigger/L1TMuon"/>
   <use name="L1Trigger/L1TCommon"/>
+  <use name="L1Trigger/CSCTriggerPrimitives"/>
   <use name="DataFormats/L1Trigger"/>
   <use name="CondFormats/L1TObjects"/>
   <use name="CondFormats/DataRecord"/>

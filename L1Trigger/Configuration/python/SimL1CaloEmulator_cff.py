@@ -7,4 +7,4 @@ SimL1CaloEmulator = cms.Sequence( SimL1TCalorimeter )
 
 # Emulators are configured from DB (GlobalTags)
 # but in the integration branch conffigure from static hackConditions
-from L1Trigger.L1TCalorimeter.hackConditions_cff import *
+#from L1Trigger.L1TCalorimeter.hackConditions_cff import *

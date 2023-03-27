@@ -276,7 +276,7 @@ void L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
                           object->boostedJetRegionET()[4] >= object->boostedJetRegionET()[7] &&
                           object->boostedJetRegionET()[4] >= object->boostedJetRegionET()[8];
 
-    if (abs(eta) < 2.5 && ((regionEta == "101" && (regionPhi == "110" || regionPhi == "101" || regionPhi == "010")) ||
+    if (abs(eta) < 2.4 && ((regionEta == "101" && (regionPhi == "110" || regionPhi == "101" || regionPhi == "010")) ||
                            ((regionEta == "110" || regionEta == "101" || regionEta == "010") && regionPhi == "101") ||
                            (regionEta == "111" && (regionPhi == "110" || regionPhi == "010")) ||
                            ((regionEta == "110" || regionEta == "010") && regionPhi == "111") ||
