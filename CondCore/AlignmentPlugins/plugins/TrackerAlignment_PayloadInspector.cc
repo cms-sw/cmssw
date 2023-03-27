@@ -542,9 +542,9 @@ namespace {
 
         diffs[coord] = std::make_unique<TH1F>(Form("hDiff_%s", s_coord.c_str()),
                                               Form(";#Delta%s %s;n. of modules", s_coord.c_str(), unit.c_str()),
-                                              1000,
-                                              -500.,
-                                              500.);
+                                              1001,
+                                              -500.5,
+                                              500.5);
       }
 
       // fill the comparison histograms
@@ -553,16 +553,25 @@ namespace {
 
       int c_index = 1;
 
-      auto legend = std::make_unique<TLegend>(0.14, 0.93, 0.55, 0.98);
-      legend->AddEntry(
-          diffs[AlignmentPI::t_x].get(),
-          ("#DeltaIOV: " + std::to_string(std::get<0>(lastiov)) + "-" + std::to_string(std::get<0>(firstiov))).c_str(),
-          "L");
-      legend->SetTextSize(0.03);
+      //TLegend (Double_t x1, Double_t y1, Double_t x2, Double_t y2, const char *header="", Option_t *option="brNDC")
+      auto legend = std::make_unique<TLegend>(0.14, 0.88, 0.96, 0.99);
+      if (this->m_plotAnnotations.ntags == 2) {
+        legend->SetHeader("#bf{Two Tags Comparison}", "C");  // option "C" allows to center the header
+        legend->AddEntry(
+            diffs[AlignmentPI::t_x].get(),
+            ("#splitline{" + tagname1 + " : " + firstIOVsince + "}{" + tagname2 + " : " + lastIOVsince + "}").c_str(),
+            "PL");
+      } else {
+        legend->SetHeader(("tag: #bf{" + tagname1 + "}").c_str(), "C");  // option "C" allows to center the header
+        legend->AddEntry(diffs[AlignmentPI::t_x].get(),
+                         ("#splitline{IOV since: " + firstIOVsince + "}{IOV since: " + lastIOVsince + "}").c_str(),
+                         "PL");
+      }
+      legend->SetTextSize(0.025);
 
       for (const auto &coord : coords) {
         canvas.cd(c_index)->SetLogy();
-        canvas.cd(c_index)->SetTopMargin(0.02);
+        canvas.cd(c_index)->SetTopMargin(0.01);
         canvas.cd(c_index)->SetBottomMargin(0.15);
         canvas.cd(c_index)->SetLeftMargin(0.14);
         canvas.cd(c_index)->SetRightMargin(0.04);
@@ -577,6 +586,7 @@ namespace {
         int i_max = diffs[coord]->FindLastBinAbove(0.);
         int i_min = diffs[coord]->FindFirstBinAbove(0.);
         diffs[coord]->GetXaxis()->SetRange(std::max(1, i_min - 10), std::min(i_max + 10, diffs[coord]->GetNbinsX()));
+        diffs[coord]->SetMaximum(diffs[coord]->GetMaximum() * 5);
         diffs[coord]->Draw("HIST");
         AlignmentPI::makeNiceStats(diffs[coord].get(), q, kBlack);
 
