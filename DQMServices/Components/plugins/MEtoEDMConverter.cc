@@ -21,6 +21,8 @@
 #include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/GetterOfProducts.h"
+#include "FWCore/Framework/interface/ProcessMatch.h"
 
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -94,6 +96,8 @@ private:
 
   // private statistics information
   std::map<int, int> iCount;
+  edm::GetterOfProducts<DQMToken> lumigetter_;
+  edm::GetterOfProducts<DQMToken> rungetter_;
 
 };  // end class declaration
 
@@ -158,8 +162,12 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet& iPSet) : fName(""), 
   produces<MEtoEDM<long long>, edm::Transition::EndLuminosityBlock>(sName);
   produces<MEtoEDM<TString>, edm::Transition::EndLuminosityBlock>(sName);
 
-  consumesMany<DQMToken, edm::InLumi>();
-  consumesMany<DQMToken, edm::InRun>();
+  lumigetter_ = edm::GetterOfProducts<DQMToken>(edm::ProcessMatch("*"), this, edm::InLumi);
+  rungetter_ = edm::GetterOfProducts<DQMToken>(edm::ProcessMatch("*"), this, edm::InRun);
+  callWhenNewProductsRegistered([this](edm::BranchDescription const& bd) {
+    this->lumigetter_(bd);
+    this->rungetter_(bd);
+  });
   usesResource("DQMStore");
 
   static_assert(sizeof(int64_t) == sizeof(long long), "type int64_t is not the same length as long long");

@@ -68,8 +68,8 @@ void EcalPreshowerCellParameterDump::analyze(const edm::Event& /*iEvent*/, const
   const CaloSubdetectorGeometry* ecalGeom =
       static_cast<const CaloSubdetectorGeometry*>(geo->getSubdetectorGeometry(DetId::Ecal, EcalPreshower));
 
-  std::cout << "\n\nStudy Detector = Ecal SubDetector = ES"
-            << "\n======================================\n\n";
+  edm::LogVerbatim("EcalGeom") << "\n\nStudy Detector = Ecal SubDetector = ES"
+                               << "\n======================================\n";
   const std::vector<DetId>& ids = ecalGeom->getValidDetIds(DetId::Ecal, EcalPreshower);
   int nall(0);
   for (auto id : ids) {
@@ -78,26 +78,26 @@ void EcalPreshowerCellParameterDump::analyze(const edm::Event& /*iEvent*/, const
     ESDetId esid(id);
 
     if (debug_) {
-      std::cout << nall << " " << esid.rawId() << " " << std::setprecision(6) << geom->getPosition() << std::endl;
+      edm::LogVerbatim("EcalGeom") << nall << " " << esid.rawId() << " " << std::setprecision(6) << geom->getPosition();
       unsigned int hid = ((esid.zside() + 1) + esid.plane() - 1);
       if (hid < hist_.size())
         hist_[hid]->Fill(geom->getPosition().x(), geom->getPosition().y());
     } else {
-      std::cout << "Cell[" << nall << "] " << esid << " geom->getPosition " << std::setprecision(4)
-                << geom->getPosition() << " BackPoint " << geom->getBackPoint() << " [rho,eta:etaSpan,phi:phiSpan] ("
-                << geom->rhoPos() << ", " << geom->etaPos() << ":" << geom->etaSpan() << ", " << geom->phiPos() << ":"
-                << geom->phiSpan() << ")";
+      std::ostringstream st1;
+      st1 << "Cell[" << nall << "] " << esid << " geom->getPosition " << std::setprecision(4) << geom->getPosition()
+          << " BackPoint " << geom->getBackPoint() << " [rho,eta:etaSpan,phi:phiSpan] (" << geom->rhoPos() << ", "
+          << geom->etaPos() << ":" << geom->etaSpan() << ", " << geom->phiPos() << ":" << geom->phiSpan() << ")";
 
       const CaloCellGeometry::CornersVec& corners(geom->getCorners());
 
       for (unsigned int ci(0); ci != corners.size(); ci++) {
-        std::cout << " Corner: " << ci << "  Location" << corners[ci] << " ; ";
+        st1 << " Corner: " << ci << "  Location" << corners[ci] << " ; ";
       }
 
-      std::cout << std::endl;
+      edm::LogVerbatim("EcalGeom") << st1.str();
     }
   }
-  std::cout << "\n\nDumps a total of : " << nall << " cells of the detector\n" << std::endl;
+  edm::LogVerbatim("EcalGeom") << "\n\nDumps a total of : " << nall << " cells of the detector\n";
 }
 
 DEFINE_FWK_MODULE(EcalPreshowerCellParameterDump);

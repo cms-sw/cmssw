@@ -323,7 +323,7 @@ class MatrixInjector(object):
             wmsplit['HYBRIDZSHI2015'] = 1
             wmsplit['RECOHID15'] = 1
             wmsplit['RECOHID18'] = 1
-            wmsplit['HLTDR3_2022'] = 1
+            wmsplit['HLTDR3_2023'] = 1
             wmsplit['RECONANORUN3_reHLT'] = 1
             wmsplit['HARVESTRUN3'] = 1
             # automate for phase 2

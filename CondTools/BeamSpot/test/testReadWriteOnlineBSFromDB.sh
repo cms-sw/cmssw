@@ -18,17 +18,17 @@ cp -pr $CMSSW_BASE/src/CondTools/BeamSpot/data/BeamFitResults_Run306171.txt .
 
 # test write
 printf "TESTING Writing BeamSpotOnlineLegacyObjectsRcd DB object ...\n\n"
-cmsRun ${LOCAL_TEST_DIR}/BeamSpotOnlineRecordsWriter_cfg.py unitTest=True inputRecord=BeamSpotOnlineLegacyObjectsRcd || die "Failure writing payload for BeamSpotOnlineLegacyObjectsRcd" $? 
+cmsRun ${SCRAM_TEST_PATH}/BeamSpotOnlineRecordsWriter_cfg.py unitTest=True inputRecord=BeamSpotOnlineLegacyObjectsRcd || die "Failure writing payload for BeamSpotOnlineLegacyObjectsRcd" $?
 
 printf "TESTING Writing BeamSpotOnlineHLTObjectsRcd DB object ...\n\n"
-cmsRun ${LOCAL_TEST_DIR}/BeamSpotOnlineRecordsWriter_cfg.py unitTest=True inputRecord=BeamSpotOnlineHLTObjectsRcd || die "Failure writing payload for BeamSpotOnlineHLTObjectsRcd" $? 
+cmsRun ${SCRAM_TEST_PATH}/BeamSpotOnlineRecordsWriter_cfg.py unitTest=True inputRecord=BeamSpotOnlineHLTObjectsRcd || die "Failure writing payload for BeamSpotOnlineHLTObjectsRcd" $?
 # test read
 
 printf "TESTING Reading BeamSpotOnlineLegacyObjectsRcd DB object ...\n\n"
-cmsRun ${LOCAL_TEST_DIR}/BeamSpotOnlineRecordsReader_cfg.py unitTest=True inputRecord=BeamSpotOnlineLegacyObjectsRcd || die "Failure reading payload for BeamSpotOnlineLegacyObjectsRcd" $? 
+cmsRun ${SCRAM_TEST_PATH}/BeamSpotOnlineRecordsReader_cfg.py unitTest=True inputRecord=BeamSpotOnlineLegacyObjectsRcd || die "Failure reading payload for BeamSpotOnlineLegacyObjectsRcd" $?
 
 printf "TESTING Reading BeamSpotOnlineHLTObjectsRcd DB object ...\n\n"
-cmsRun ${LOCAL_TEST_DIR}/BeamSpotOnlineRecordsReader_cfg.py unitTest=True inputRecord=BeamSpotOnlineHLTObjectsRcd || die "Failure reading payload for BeamSpotOnlineHLTObjectsRcd" $? 
+cmsRun ${SCRAM_TEST_PATH}/BeamSpotOnlineRecordsReader_cfg.py unitTest=True inputRecord=BeamSpotOnlineHLTObjectsRcd || die "Failure reading payload for BeamSpotOnlineHLTObjectsRcd" $?
 
 echo "TESTING reading BeamSpotObjectRcd DB object ...\n\n"
-cmsRun ${LOCAL_TEST_DIR}/BeamSpotRcdPrinter_cfg.py || die "Failure running BeamSpotRcdPrinter" $?
+cmsRun ${SCRAM_TEST_PATH}/BeamSpotRcdPrinter_cfg.py || die "Failure running BeamSpotRcdPrinter" $?

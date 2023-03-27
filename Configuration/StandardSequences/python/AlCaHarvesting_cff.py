@@ -7,6 +7,7 @@ from Calibration.TkAlCaRecoProducers.AlcaSiStripGainsHarvester_cff import *
 from Calibration.TkAlCaRecoProducers.AlcaSiStripGainsAAGHarvester_cff import *
 from Calibration.TkAlCaRecoProducers.AlcaSiStripHitEfficiencyHarvester_cff import *
 from Calibration.TkAlCaRecoProducers.AlcaSiPixelLorentzAngleHarvester_cff import *
+from Calibration.TkAlCaRecoProducers.AlcaSiPixelLorentzAngleHarvesterMCS_cff import *
 from Alignment.CommonAlignmentProducer.AlcaSiPixelAliHarvester_cff import *
 from Alignment.CommonAlignmentProducer.AlcaSiPixelAliHarvesterHG_cff import *
 from Calibration.EcalCalibAlgos.AlcaEcalPedestalsHarvester_cff import *
@@ -187,6 +188,14 @@ ALCAHARVESTSiPixelLA_dbOutput = cms.PSet(record = cms.string('SiPixelLorentzAngl
                                          )
 
 # --------------------------------------------------------------------------------------
+# SiPixel Lorentz Angle Minimal Cluster Size
+ALCAHARVESTSiPixelLAMCS_metadata = cms.PSet(record = cms.untracked.string('SiPixelLorentzAngleRcdMCS'))
+
+ALCAHARVESTSiPixelLAMCS_dbOutput = cms.PSet(record = cms.string('SiPixelLorentzAngleRcdMCS'),
+                                            tag = cms.string('SiPixelLAMCS_pcl'),
+                                            timetype   = cms.untracked.string('runnumber')
+                                         )
+# --------------------------------------------------------------------------------------
 # ECAL Pedestals
 ALCAHARVESTEcalPedestals_metadata = cms.PSet(record = cms.untracked.string('EcalPedestalsRcd'))
 
@@ -278,6 +287,7 @@ SiStripHitEff = cms.Path(ALCAHARVESTSiStripHitEfficiency)
 SiPixelAli     = cms.Path(ALCAHARVESTSiPixelAli)
 SiPixelAliHG     = cms.Path(ALCAHARVESTSiPixelAliHG)
 SiPixelLA      = cms.Path(ALCAHARVESTSiPixelLorentzAngle)
+SiPixelLAMCS      = cms.Path(ALCAHARVESTSiPixelLorentzAngleMCS)
 EcalPedestals  = cms.Path(ALCAHARVESTEcalPedestals)
 LumiPCC = cms.Path(ALCAHARVESTLumiPCC)
 SiPixelQuality = cms.Path(dqmEnvSiPixelQuality+ALCAHARVESTSiPixelQuality)#+siPixelPhase1DQMHarvester)

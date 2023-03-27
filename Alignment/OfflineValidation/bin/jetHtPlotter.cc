@@ -1,3 +1,7 @@
+// framework includes
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 // C++ includes
 #include <iostream>  // Input/output stream. Needed for cout.
 #include <vector>
@@ -256,7 +260,12 @@ std::tuple<std::vector<int>, std::vector<double>, std::vector<TString>, std::vec
   double thisLumi;
 
   // Load the iovList
-  std::ifstream iovList(inputFile);
+  std::ifstream iovList(edm::FileInPath(inputFile).fullPath().c_str());
+  if (!iovList.good()) {
+    edm::LogError("jetHTPlotter") << __PRETTY_FUNCTION__ << "\n Input file: " << inputFile
+                                  << " is corrupt or not existing";
+    return std::make_tuple(iovVector, lumiPerIov, iovNames, iovLegend);
+  }
 
   // Go through the file line by line. Each line has an IOV boundary and luminosity for this IOV.
   while (std::getline(iovList, lineInFile)) {
@@ -643,6 +652,11 @@ void jetHtPlotter(std::string configurationFileName) {
   std::vector<TString> iovLegend;
 
   std::tie(iovVector, lumiPerIov, iovNames, iovLegend) = runAndLumiLists(iovAndLumiFile, iovListMode);
+  // protection against empty input
+  if (iovVector.empty()) {
+    edm::LogError("jetHTPlotter") << __PRETTY_FUNCTION__ << "\n The list of input IOVs is empty. Exiting!";
+    return;
+  }
 
   // For the IOV legend, remove the two last entries and replace them with user defined names
   iovLegend.pop_back();

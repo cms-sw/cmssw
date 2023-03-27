@@ -4,9 +4,10 @@
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/ServiceRegistry"/>
+  <use name="FWCore/Utilities"/>
   <use name="HeterogeneousCore/ROCmServices"/>
   <use name="HeterogeneousCore/ROCmUtilities" source_only="true"/>
-  <library file="*.cc" name="HeterogeneousCoreROCmServicesPlugins">
+  <library file="ROCmMonitoringService.cc ROCmService.cc" name="HeterogeneousCoreROCmServicesPlugins">
     <flags EDM_PLUGIN="1"/>
   </library>
 </iftool>

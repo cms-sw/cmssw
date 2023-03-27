@@ -27,6 +27,7 @@ namespace mkfit {
                                 const MPlexHV& msPar,
                                 MPlexLS& outErr,
                                 MPlexLV& outPar,
+                                MPlexQI& outFailFlag,
                                 const int N_proc,
                                 const PropagationFlags propFlags,
                                 const bool propToHit);
@@ -46,6 +47,7 @@ namespace mkfit {
                                      const MPlexHV& msPar,
                                      MPlexQF& outChi2,
                                      MPlexLV& propPar,
+                                     MPlexQI& outFailFlag,
                                      const int N_proc,
                                      const PropagationFlags propFlags,
                                      const bool propToHit);
@@ -77,6 +79,7 @@ namespace mkfit {
                                       const MPlexHV& msPar,
                                       MPlexLS& outErr,
                                       MPlexLV& outPar,
+                                      MPlexQI& outFailFlag,
                                       const int N_proc,
                                       const PropagationFlags propFlags,
                                       const bool propToHit);
@@ -96,6 +99,7 @@ namespace mkfit {
                                            const MPlexHV& msPar,
                                            MPlexQF& outChi2,
                                            MPlexLV& propPar,
+                                           MPlexQI& outFailFlag,
                                            const int N_proc,
                                            const PropagationFlags propFlags,
                                            const bool propToHit);

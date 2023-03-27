@@ -1,7 +1,4 @@
-<bin file="TestIntegration.cpp" name="DetectorDescriptionParserTE">
-  <flags TEST_RUNNER_ARGS=" /bin/bash DetectorDescription/Parser/test run_testDoc.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="DetectorDescriptionParserTE" command="run_testDoc.sh"/>
 
 <bin name="testmat" file="testmat.cpp">
   <use name="DetectorDescription/Parser"/>

@@ -22,10 +22,12 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
+#include "FWCore/ServiceRegistry/interface/ESModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
 
 #include <iostream>
 #include <sstream>
@@ -90,16 +92,6 @@ namespace edm {
 
       double postCommon() const;
 
-      struct CountAndTime {
-      public:
-        CountAndTime(unsigned int count, double time) : count_(count), time_(time) {}
-        unsigned int count_;
-        double time_;
-      };
-
-      void accumulateTimeBegin(std::atomic<CountAndTime*>& countAndTime, double& accumulatedTime);
-      void accumulateTimeEnd(std::atomic<CountAndTime*>& countAndTime, double& accumulatedTime);
-
       double curr_job_time_;               // seconds
       double curr_job_cpu_;                // seconds
       std::atomic<double> extra_job_cpu_;  //seconds
@@ -122,13 +114,9 @@ namespace edm {
       unsigned int nStreams_;
       unsigned int nThreads_;
 
-      CountAndTime countAndTimeZero_;
-
-      std::atomic<CountAndTime*> countAndTimeForLock_;
-      CMS_THREAD_GUARD(countAndTimeForLock_) double accumulatedTimeForLock_;
-
-      std::atomic<CountAndTime*> countAndTimeForGet_;
-      CMS_THREAD_GUARD(countAndTimeForGet_) double accumulatedTimeForGet_;
+      std::vector<std::unique_ptr<std::atomic<double>>> eventSetupModuleStartTimes_;
+      std::vector<std::pair<uintptr_t, eventsetup::EventSetupRecordKey>> eventSetupModuleCallInfo_;
+      std::atomic<double> accumulatedEventSetupModuleTimings_;
 
       std::vector<std::unique_ptr<std::atomic<unsigned int>>> countSubProcessesPreEvent_;
       std::vector<std::unique_ptr<std::atomic<unsigned int>>> countSubProcessesPostEvent_;
@@ -229,11 +217,6 @@ namespace edm {
           total_event_count_(0),
           begin_lumi_count_(0),
           begin_run_count_(0),
-          countAndTimeZero_{0, 0.0},
-          countAndTimeForLock_{&countAndTimeZero_},
-          accumulatedTimeForLock_{0.0},
-          countAndTimeForGet_{&countAndTimeZero_},
-          accumulatedTimeForGet_{0.0},
           configuredInTopLevelProcess_{false},
           nSubProcesses_{0} {
       iRegistry.watchPreBeginJob(this, &Timing::preBeginJob);
@@ -310,6 +293,47 @@ namespace edm {
         iRegistry.watchPostSourceConstruction(this, &Timing::postModule);
       }
 
+      auto preESModuleLambda = [this](auto const& recordKey, auto const& context) {
+        //find available slot
+        auto startTime = getTime();
+        bool foundSlot = false;
+        do {
+          for (size_t i = 0; i < eventSetupModuleStartTimes_.size(); ++i) {
+            auto& slot = *eventSetupModuleStartTimes_[i];
+            double expect = 0.;
+            if (slot.compare_exchange_strong(expect, startTime)) {
+              foundSlot = true;
+              eventSetupModuleCallInfo_[i].first = uintptr_t(context.componentDescription());
+              eventSetupModuleCallInfo_[i].second = recordKey;
+              break;
+            }
+          }
+          //if foundSlot == false then other threads stole the slots before this thread
+          // so should check starting over again
+        } while (not foundSlot);
+      };
+      iRegistry.preESModuleSignal_.connect(preESModuleLambda);
+      iRegistry.preESModuleAcquireSignal_.connect(preESModuleLambda);
+
+      auto postESModuleLambda = [this](auto const& recordKey, auto const& context) {
+        auto stopTime = getTime();
+        for (size_t i = 0; i < eventSetupModuleStartTimes_.size(); ++i) {
+          auto const& info = eventSetupModuleCallInfo_[i];
+          if (info.first == uintptr_t(context.componentDescription()) and info.second == recordKey) {
+            auto startTime = eventSetupModuleStartTimes_[i]->exchange(0.);
+            auto expect = accumulatedEventSetupModuleTimings_.load();
+            auto timeDiff = stopTime - startTime;
+            auto accumulatedTime = expect + timeDiff;
+            while (not accumulatedEventSetupModuleTimings_.compare_exchange_strong(expect, accumulatedTime)) {
+              accumulatedTime = expect + timeDiff;
+            }
+            break;
+          }
+        }
+      };
+      iRegistry.postESModuleSignal_.connect(postESModuleLambda);
+      iRegistry.postESModuleAcquireSignal_.connect(postESModuleLambda);
+
       iRegistry.watchPostGlobalBeginRun(this, &Timing::postGlobalBeginRun);
       iRegistry.watchPostGlobalBeginLumi(this, &Timing::postGlobalBeginLumi);
 
@@ -320,6 +344,12 @@ namespace edm {
         sum_events_time_.resize(nStreams_, 0.);
         max_events_time_.resize(nStreams_, 0.);
         min_events_time_.resize(nStreams_, 1.E6);
+        eventSetupModuleStartTimes_.reserve(nThreads_);
+        for (unsigned int i = 0; i < nThreads_; ++i) {
+          eventSetupModuleStartTimes_.emplace_back(std::make_unique<std::atomic<double>>(0.));
+        }
+        eventSetupModuleCallInfo_.resize(nThreads_);
+
         for (unsigned int i = 0; i < nStreams_; ++i) {
           countSubProcessesPreEvent_.emplace_back(std::make_unique<std::atomic<unsigned int>>(0));
           countSubProcessesPostEvent_.emplace_back(std::make_unique<std::atomic<unsigned int>>(0));
@@ -438,8 +468,7 @@ namespace edm {
                                  << " - Total loop:  " << total_loop_time << "\n"
                                  << " - Total init:  " << total_initialization_time << "\n"
                                  << " - Total job:   " << total_job_time << "\n"
-                                 << " - EventSetup Lock: " << accumulatedTimeForLock_ << "\n"
-                                 << " - EventSetup Get:  " << accumulatedTimeForGet_ << "\n"
+                                 << " - Total EventSetup: " << accumulatedEventSetupModuleTimings_.load() << "\n"
                                  << " Event Throughput: " << event_throughput << " ev/s\n"
                                  << " CPU Summary: \n"
                                  << " - Total loop:     " << total_loop_cpu << "\n"
@@ -464,13 +493,12 @@ namespace edm {
         reportData.insert(std::make_pair("TotalJobCPU", d2str(total_job_cpu)));
         reportData.insert(std::make_pair("TotalJobChildrenCPU", d2str(job_end_children_cpu)));
         reportData.insert(std::make_pair("TotalLoopTime", d2str(total_loop_time)));
+        reportData.insert(std::make_pair("TotalEventSetupTime", d2str(accumulatedEventSetupModuleTimings_.load())));
         reportData.insert(std::make_pair("TotalLoopCPU", d2str(total_loop_cpu)));
         reportData.insert(std::make_pair("TotalInitTime", d2str(total_initialization_time)));
         reportData.insert(std::make_pair("TotalInitCPU", d2str(total_initialization_cpu)));
         reportData.insert(std::make_pair("NumberOfStreams", ui2str(nStreams_)));
         reportData.insert(std::make_pair("NumberOfThreads", ui2str(nThreads_)));
-        reportData.insert(std::make_pair("EventSetup Lock", d2str(accumulatedTimeForLock_)));
-        reportData.insert(std::make_pair("EventSetup Get", d2str(accumulatedTimeForGet_)));
         reportSvc->reportPerformanceSummary("Timing", reportData);
 
         std::map<std::string, std::string> reportData1;
@@ -603,57 +631,6 @@ namespace edm {
             << " seconds.";
       }
       return t;
-    }
-
-    void Timing::accumulateTimeBegin(std::atomic<CountAndTime*>& countAndTime, double& accumulatedTime) {
-      double newTime = getTime();
-      auto newStat = std::make_unique<CountAndTime>(0, newTime);
-
-      CountAndTime* oldStat = countAndTime.load();
-      while (true) {
-        if (oldStat == nullptr) {
-          oldStat = countAndTime.load();
-        } else if (countAndTime.compare_exchange_strong(oldStat, nullptr)) {
-          break;
-        }
-      }
-
-      newStat->count_ = oldStat->count_ + 1;
-      if (oldStat->count_ != 0) {
-        accumulatedTime += (newTime - oldStat->time_) * oldStat->count_;
-      }
-      countAndTime.store(newStat.release());
-      if (oldStat != &countAndTimeZero_) {
-        delete oldStat;
-      }
-    }
-
-    void Timing::accumulateTimeEnd(std::atomic<CountAndTime*>& countAndTime, double& accumulatedTime) {
-      double newTime = getTime();
-
-      CountAndTime* oldStat = countAndTime.load();
-      while (true) {
-        if (oldStat == nullptr) {
-          oldStat = countAndTime.load();
-        } else if (countAndTime.compare_exchange_strong(oldStat, nullptr)) {
-          break;
-        }
-      }
-
-      if (oldStat->count_ == 1) {
-        accumulatedTime += newTime - oldStat->time_;
-        countAndTime.store(&countAndTimeZero_);
-      } else {
-        try {
-          auto newStat = std::make_unique<CountAndTime>(oldStat->count_ - 1, newTime);
-          accumulatedTime += (newTime - oldStat->time_) * oldStat->count_;
-          countAndTime.store(newStat.release());
-        } catch (std::exception&) {
-          countAndTime.store(oldStat);
-          throw;
-        }
-      }
-      delete oldStat;
     }
   }  // namespace service
 }  // namespace edm

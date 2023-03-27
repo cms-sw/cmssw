@@ -19,11 +19,7 @@ EventAction::EventAction(const edm::ParameterSet& p,
       m_SteppingVerbose(sv),
       m_stopFile(p.getParameter<std::string>("StopFile")),
       m_printRandom(p.getParameter<bool>("PrintRandomSeed")),
-      m_debug(p.getUntrackedParameter<bool>("debug", false)) {
-  m_trackManager->setCollapsePrimaryVertices(p.getParameter<bool>("CollapsePrimaryVertices"));
-}
-
-EventAction::~EventAction() {}
+      m_debug(p.getUntrackedParameter<bool>("debug", false)) {}
 
 void EventAction::BeginOfEventAction(const G4Event* anEvent) {
   m_trackManager->reset();
@@ -37,7 +33,7 @@ void EventAction::BeginOfEventAction(const G4Event* anEvent) {
   }
 
   if (nullptr != m_SteppingVerbose) {
-    m_SteppingVerbose->BeginOfEvent(anEvent);
+    m_SteppingVerbose->beginOfEvent(anEvent);
   }
 }
 
@@ -60,16 +56,12 @@ void EventAction::EndOfEventAction(const G4Event* anEvent) {
 
   m_trackManager->storeTracks(m_runInterface->simEvent());
 
-  // dispatch now end of event, and only then delete tracks...
+  // dispatch now end of event
   EndOfEvent e(anEvent);
   m_endOfEventSignal(&e);
 
-  m_trackManager->deleteTracks();
-  m_trackManager->cleanTkCaloStateInfoMap();
-}
-
-void EventAction::addTkCaloStateInfo(uint32_t t, const std::pair<math::XYZVectorD, math::XYZTLorentzVectorD>& p) {
-  m_trackManager->addTkCaloStateInfo(t, p);
+  // delete transient objects
+  m_trackManager->reset();
 }
 
 void EventAction::abortEvent() { m_runInterface->abortEvent(); }

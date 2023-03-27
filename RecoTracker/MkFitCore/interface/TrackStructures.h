@@ -372,6 +372,10 @@ namespace mkfit {
       m_hots.reserve(expected_num_hots);
       m_hots_size = 0;
       m_hots.clear();
+
+      m_lastHitIdx_before_bkwsearch = -1;
+      m_nInsideMinusOneHits_before_bkwsearch = -1;
+      m_nTailMinusOneHits_before_bkwsearch = -1;
     }
 
     void importSeed(const Track& seed, const track_score_func& score_func, int region);
@@ -388,7 +392,8 @@ namespace mkfit {
 
     void compactifyHitStorageForBestCand(bool remove_seed_hits, int backward_fit_min_hits);
     void beginBkwSearch();
-    void endBkwSearch();
+    void repackCandPostBkwSearch(int i);
+    // not needed for CombCand::endBkwSearch(), reinit performed in reset() for a new event.
 
     // Accessors
     //-----------
@@ -634,10 +639,11 @@ namespace mkfit {
     void beginBkwSearch() {
       for (int i = 0; i < m_size; ++i)
         m_candidates[i].beginBkwSearch();
+      m_cands_in_backward_rep = true;
     }
     void endBkwSearch() {
-      for (int i = 0; i < m_size; ++i)
-        m_candidates[i].endBkwSearch();
+      // There is no CombCand::endBkwSearch(), setup correctly in CombCand::reset().
+      m_cands_in_backward_rep = false;
     }
 
     // Accessors
@@ -646,6 +652,8 @@ namespace mkfit {
     const CombCandidate& operator[](int i) const { return m_candidates[i]; }
     CombCandidate& operator[](int i) { return m_candidates[i]; }
     CombCandidate& cand(int i) { return m_candidates[i]; }
+
+    bool cands_in_backward_rep() const { return m_cands_in_backward_rep; }
 
     // Direct access for vectorized functions in MkBuilder / MkFinder
     const std::vector<CombCandidate>& refCandidates() const { return m_candidates; }
@@ -659,6 +667,7 @@ namespace mkfit {
     int m_capacity = 0;
     int m_size = 0;
     int m_n_seeds_inserted = 0;
+    bool m_cands_in_backward_rep = false;
   };
 
 }  // namespace mkfit

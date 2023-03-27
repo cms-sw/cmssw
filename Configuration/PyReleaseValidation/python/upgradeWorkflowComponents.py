@@ -28,6 +28,8 @@ upgradeKeys[2017] = [
     '2021FSPU',
     '2021postEE',
     '2021postEEPU',
+    '2023FS',
+    '2023FSPU',
 ]
 
 upgradeKeys[2026] = [
@@ -726,7 +728,21 @@ class PatatrackWorkflow(UpgradeWorkflow):
                 'ALCA',
                 'ALCAPhase2'
             ],
-            PU = [],
+            PU = [
+                'Digi',
+                'DigiTrigger',
+                'Reco',
+                'HARVEST',
+                'RecoFakeHLT',
+                'HARVESTFakeHLT',
+                'RecoGlobal',
+                'HARVESTGlobal',
+                'RecoNano',
+                'HARVESTNano',
+                'Nano',
+                'ALCA',
+                'ALCAPhase2'
+            ],
             **kwargs)
         self.__digi = digi
         self.__reco = reco
@@ -740,9 +756,9 @@ class PatatrackWorkflow(UpgradeWorkflow):
         # select only a subset of the workflows
         selected = [
             ('2018' in key and fragment == "TTbar_13"),
-            ('2021' in key and fragment == "TTbar_14TeV" and 'FS' not in key),
+            (('2021' in key or '2023' in key) and fragment == "TTbar_14TeV" and 'FS' not in key),
             ('2018' in key and fragment == "ZMM_13"),
-            ('2021' in key and fragment == "ZMM_14" and 'FS' not in key),
+            (('2021' in key or '2023' in key) and fragment == "ZMM_14" and 'FS' not in key),
             ('2026D88' in key and fragment == "TTbar_14TeV" and "PixelOnly" in self.suffix)
         ]
         result = any(selected) and hasHarvest
@@ -1473,10 +1489,22 @@ upgradeWFs['ProdLikePU50'] = UpgradeWorkflow_ProdLikeRunningPU(
     fixedPU = 50,
 )
 
+upgradeWFs['ProdLikePU55'] = UpgradeWorkflow_ProdLikeRunningPU(
+    suffix = '_ProdLikePU55',
+    offset = 0.21551,
+    fixedPU = 55,
+)
+
 upgradeWFs['ProdLikePU60'] = UpgradeWorkflow_ProdLikeRunningPU(
     suffix = '_ProdLikePU60',
     offset = 0.21601,
     fixedPU = 60,
+)
+
+upgradeWFs['ProdLikePU65'] = UpgradeWorkflow_ProdLikeRunningPU(
+    suffix = '_ProdLikePU65',
+    offset = 0.21651,
+    fixedPU = 65,
 )
 
 upgradeWFs['ProdLikePU70'] = UpgradeWorkflow_ProdLikeRunningPU(
@@ -2053,7 +2081,7 @@ class UpgradeWorkflow_Run3FStrackingOnly(UpgradeWorkflow):
         else:
             stepDict[stepName][k] = merge([stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return '2021FS' in key
+        return ('2021FS' in key or '2023FS' in key)
 upgradeWFs['Run3FStrackingOnly'] = UpgradeWorkflow_Run3FStrackingOnly(
     steps = [
         'Gen',
@@ -2080,7 +2108,7 @@ class UpgradeWorkflow_Run3FSMBMixing(UpgradeWorkflow):
         else:
             stepDict[stepName][k] = None
     def condition(self, fragment, stepList, key, hasHarvest):
-        return '2021FS' in key and fragment=="MinBias_14TeV"
+        return ('2021FS' in key or '2023FS' in key) and fragment=="MinBias_14TeV"
 upgradeWFs['Run3FSMBMixing'] = UpgradeWorkflow_Run3FSMBMixing(
     steps = [
         'Gen',
@@ -2095,13 +2123,16 @@ upgradeWFs['Run3FSMBMixing'] = UpgradeWorkflow_Run3FSMBMixing(
 class UpgradeWorkflow_DD4hep(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'Run3' in stepDict[step][k]['--era'] and 'Fast' not in stepDict[step][k]['--era']:
-            stepDict[stepName][k] = merge([{'--geometry': 'DD4hepExtended2021'}, stepDict[step][k]])
+            if '2023' in stepDict[step][k]['--conditions']:
+                stepDict[stepName][k] = merge([{'--geometry': 'DD4hepExtended2023'}, stepDict[step][k]])
+            else:
+                stepDict[stepName][k] = merge([{'--geometry': 'DD4hepExtended2021'}, stepDict[step][k]])
         elif 'Phase2' in stepDict[step][k]['--era']:
             dd4hepGeom="DD4hep"
             dd4hepGeom+=stepDict[step][k]['--geometry']
             stepDict[stepName][k] = merge([{'--geometry' : dd4hepGeom, '--procModifiers': 'dd4hep'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return ('2021' in key or '2026' in key) and ('FS' not in key)
+        return ('2021' in key or '2023' in key or '2026' in key) and ('FS' not in key)
 upgradeWFs['DD4hep'] = UpgradeWorkflow_DD4hep(
     steps = [
         'GenSim',
@@ -2282,7 +2313,7 @@ upgradeProperties[2017] = {
     '2023' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2023_realistic',
-        'HLTmenu': '@relval2022',
+        'HLTmenu': '@relval2023',
         'Era' : 'Run3',
         'BeamSpot': 'Realistic25ns13p6TeVEarly2022Collision',
         'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
@@ -2290,7 +2321,7 @@ upgradeProperties[2017] = {
     '2024' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2024_realistic',
-        'HLTmenu': '@relval2022',
+        'HLTmenu': '@relval2023',
         'Era' : 'Run3',
         'BeamSpot': 'Realistic25ns13p6TeVEarly2022Collision',
         'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
@@ -2310,6 +2341,14 @@ upgradeProperties[2017] = {
         'Era' : 'Run3',
         'BeamSpot': 'Realistic25ns13p6TeVEarly2022Collision',
         'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
+    },
+    '2023FS' : {
+        'Geom' : 'DB:Extended',
+        'GT' : 'auto:phase1_2023_realistic',
+        'HLTmenu': '@relval2023',
+        'Era' : 'Run3_FastSim',
+        'BeamSpot': 'Realistic25ns13p6TeVEarly2022Collision',
+        'ScenToRun' : ['Gen','FastSimRun3','HARVESTFastRun3'],
     },
 }
 

@@ -7,7 +7,4 @@
   <use name="SimDataFormats/PileupSummaryInfo"/>
 </library>
 
-<bin file="runtestSimGeneralPreMixingModule.cpp" name="runtestSimGeneralPreMixingModule">
-  <flags TEST_RUNNER_ARGS=" /bin/bash SimGeneral/PreMixingModule/test run_testPremixPileupAdjustment.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="runtestSimGeneralPreMixingModule" command="run_testPremixPileupAdjustment.sh"/>

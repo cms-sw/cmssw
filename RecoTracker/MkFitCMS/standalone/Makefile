@@ -7,11 +7,12 @@ CMS_DIR := ${SRCDIR}/RecoTracker/MkFitCMS
 LIB_CMS := ../libMicCMS.so
 MAIN    := ../mkFit
 WRMEMF  := ../writeMemoryFile
-DICTPCM := ../DictsDict_rdict.pcm
+WMF_DICT_PCM := ../WriteMemFileDict_rdict.pcm
+SHELL_DICT_PCM := ../ShellDict_rdict.pcm
 
 TGTS := ${LIB_CMS} ${MAIN}
 ifdef WITH_ROOT
-TGTS += ${WRMEMF} ${DICTPCM}
+TGTS += ${WRMEMF} ${WMF_DICT_PCM}
 endif
 
 .PHONY: all clean distclean
@@ -21,9 +22,14 @@ all: ${TGTS}
 SRCS := $(wildcard ${CMS_DIR}/src/*.cc) $(wildcard ${SACMS}/*.cc)
 ifdef WITH_ROOT
 SRCS += ${SACMS}/tkNtuple/WriteMemoryFile.cc
-DictsDict.cc ${DICTPCM}: ${SACMS}/tkNtuple/DictsLinkDef.h
-	rootcint -v3 -f $@ $<
-	mv DictsDict_rdict.pcm ${DICTPCM}
+WriteMemFileDict.cc ${WMF_DICT_PCM}: ${SACMS}/tkNtuple/DictsLinkDef.h
+	rootcling -I=${SRCDIR} -f WriteMemFileDict.cc $<
+	mv WriteMemFileDict_rdict.pcm ${WMF_DICT_PCM}
+
+SRCS += ShellDict.cc
+ShellDict.cc ${SHELL_DICT_PCM}: ${SACMS}/Shell.h ${SACMS}/ShellLinkDef.h
+	rootcling -I=${SRCDIR} -f ShellDict.cc ${SACMS}/Shell.h ${SACMS}/ShellLinkDef.h
+	mv ShellDict_rdict.pcm ${SHELL_DICT_PCM}
 endif
 SRCB := $(notdir ${SRCS})
 DEPS := $(SRCB:.cc=.d)
@@ -55,7 +61,7 @@ ${LIB_CMS}: ${CMS_OBJS}
 ${MAIN}: ${LIB_CMS} mkFit.o
 	${CXX} ${CXXFLAGS} ${VEC_HOST} ${LDFLAGS} mkFit.o -o $@ ${LDFLAGS_HOST} -ltbb -L.. -lMicCore -lMicCMS -Wl,-rpath=.
 
-${WRMEMF}: WriteMemoryFile.o DictsDict.o
+${WRMEMF}: WriteMemoryFile.o WriteMemFileDict.o
 	${CXX} ${CXXFLAGS} ${LDFLAGS} $^ -o $@ ${LDFLAGS_HOST} -ltbb -L.. -lMicCore -Wl,-rpath=.
 
 ${OBJS}: %.o: %.cc %.d

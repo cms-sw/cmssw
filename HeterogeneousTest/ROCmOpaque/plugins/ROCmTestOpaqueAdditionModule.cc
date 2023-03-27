@@ -11,7 +11,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "HeterogeneousCore/ROCmServices/interface/ROCmService.h"
+#include "HeterogeneousCore/ROCmServices/interface/ROCmInterface.h"
 #include "HeterogeneousTest/ROCmOpaque/interface/DeviceAdditionOpaque.h"
 
 class ROCmTestOpaqueAdditionModule : public edm::global::EDAnalyzer<> {
@@ -38,9 +38,9 @@ void ROCmTestOpaqueAdditionModule::fillDescriptions(edm::ConfigurationDescriptio
 
 void ROCmTestOpaqueAdditionModule::analyze(edm::StreamID, edm::Event const& event, edm::EventSetup const& setup) const {
   // require ROCm for running
-  edm::Service<ROCmService> cs;
-  if (not cs->enabled()) {
-    std::cout << "The ROCmService is disabled, the test will be skipped.\n";
+  edm::Service<ROCmInterface> rocm;
+  if (not rocm or not rocm->enabled()) {
+    std::cout << "The ROCmService is not available or disabled, the test will be skipped.\n";
     return;
   }
 

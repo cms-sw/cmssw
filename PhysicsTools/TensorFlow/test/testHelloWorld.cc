@@ -10,29 +10,34 @@
 
 #include "tensorflow/cc/saved_model/loader.h"
 #include "tensorflow/cc/saved_model/tag_constants.h"
+#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 
 #include "testBase.h"
 
 class testHelloWorld : public testBase {
   CPPUNIT_TEST_SUITE(testHelloWorld);
-  CPPUNIT_TEST(checkAll);
+  CPPUNIT_TEST(test);
   CPPUNIT_TEST_SUITE_END();
 
 public:
   std::string pyScript() const override;
-  void checkAll() override;
+  void test() override;
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testHelloWorld);
 
 std::string testHelloWorld::pyScript() const { return "creategraph.py"; }
 
-void testHelloWorld::checkAll() {
+void testHelloWorld::test() {
   std::string modelDir = dataPath_ + "/simplegraph";
+  // Testing CPU
+  std::cout << "Testing CPU backend" << std::endl;
+  tensorflow::Backend backend = tensorflow::Backend::cpu;
 
   // object to load and run the graph / session
   tensorflow::Status status;
   tensorflow::SessionOptions sessionOptions;
+  tensorflow::setBackend(sessionOptions, backend);
   tensorflow::RunOptions runOptions;
   tensorflow::SavedModelBundle bundle;
 

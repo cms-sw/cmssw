@@ -50,15 +50,19 @@ process.esProducerB = cms.ESProducer("cms::alpakatest::TestESProducerB", value =
 process.esProducerC = cms.ESProducer("cms::alpakatest::TestESProducerC", value = cms.int32(27))
 
 from HeterogeneousCore.AlpakaTest.testAlpakaESProducerA_cfi import testAlpakaESProducerA 
-process.alpakaESProducerA = testAlpakaESProducerA.clone()
-process.alpakaESProducerB = cms.ESProducer("TestAlpakaESProducerB@alpaka")
+process.alpakaESProducerA = testAlpakaESProducerA.clone(appendToDataLabel = cms.string("appendedLabel"))
+process.alpakaESProducerB = cms.ESProducer("TestAlpakaESProducerB@alpaka", explicitLabel = cms.string("explicitLabel"))
 process.alpakaESProducerC = cms.ESProducer("TestAlpakaESProducerC@alpaka")
-process.alpakaESProducerD = cms.ESProducer("TestAlpakaESProducerD@alpaka")
+process.alpakaESProducerD = cms.ESProducer("TestAlpakaESProducerD@alpaka",
+    srcA = cms.ESInputTag("", "appendedLabel"),
+    srcB = cms.ESInputTag("", "explicitLabel"),
+)
 
 process.intProduct = cms.EDProducer("IntProducer", ivalue = cms.int32(42))
 
 from HeterogeneousCore.AlpakaTest.testAlpakaGlobalProducer_cfi import testAlpakaGlobalProducer
 process.alpakaGlobalProducer = testAlpakaGlobalProducer.clone(
+    eventSetupSource = cms.ESInputTag("alpakaESProducerA", "appendedLabel"),
     size = dict(
         alpaka_serial_sync = 10,
         alpaka_cuda_async = 20
@@ -66,13 +70,25 @@ process.alpakaGlobalProducer = testAlpakaGlobalProducer.clone(
 )
 process.alpakaStreamProducer = cms.EDProducer("TestAlpakaStreamProducer@alpaka",
     source = cms.InputTag("intProduct"),
+    eventSetupSource = cms.ESInputTag("alpakaESProducerB", "explicitLabel"),
     size = cms.PSet(
         alpaka_serial_sync = cms.int32(5),
         alpaka_cuda_async = cms.int32(25)
     )
 )
+process.alpakaStreamInstanceProducer = cms.EDProducer("TestAlpakaStreamProducer@alpaka",
+    source = cms.InputTag("intProduct"),
+    eventSetupSource = cms.ESInputTag("alpakaESProducerB", "explicitLabel"),
+    productInstanceName = cms.string("testInstance"),
+    size = cms.PSet(
+        alpaka_serial_sync = cms.int32(6),
+        alpaka_cuda_async = cms.int32(36)
+    )
+)
 process.alpakaStreamSynchronizingProducer = cms.EDProducer("TestAlpakaStreamSynchronizingProducer@alpaka",
-    source = cms.InputTag("alpakaGlobalProducer")
+    source = cms.InputTag("alpakaGlobalProducer"),
+    intSource = cms.InputTag("intProduct"),
+    expectedInt = cms.int32(84) # sum of intProduct and esProducerA
 )
 
 process.alpakaGlobalConsumer = cms.EDAnalyzer("TestAlpakaAnalyzer",
@@ -83,6 +99,10 @@ process.alpakaStreamConsumer = cms.EDAnalyzer("TestAlpakaAnalyzer",
     source = cms.InputTag("alpakaStreamProducer"),
     expectSize = cms.int32(5)
 )
+process.alpakaStreamInstanceConsumer = cms.EDAnalyzer("TestAlpakaAnalyzer",
+    source = cms.InputTag("alpakaStreamInstanceProducer", "testInstance"),
+    expectSize = cms.int32(6)
+)
 process.alpakaStreamSynchronizingConsumer = cms.EDAnalyzer("TestAlpakaAnalyzer",
     source = cms.InputTag("alpakaStreamSynchronizingProducer"),
     expectSize = cms.int32(10)
@@ -90,12 +110,13 @@ process.alpakaStreamSynchronizingConsumer = cms.EDAnalyzer("TestAlpakaAnalyzer",
 
 if args.moduleBackend != "":
     for name in ["ESProducerA", "ESProducerB", "ESProducerC", "ESProducerD",
-                 "GlobalProducer", "StreamProducer", "StreamSynchronizingProducer"]:
+                 "GlobalProducer", "StreamProducer", "StreamInstanceProducer", "StreamSynchronizingProducer"]:
         mod = getattr(process, "alpaka"+name)
         mod.alpaka = cms.untracked.PSet(backend = cms.untracked.string(args.moduleBackend))
 if args.expectBackend == "cuda_async":
     process.alpakaGlobalConsumer.expectSize = 20
     process.alpakaStreamConsumer.expectSize = 25
+    process.alpakaStreamInstanceConsumer.expectSize = 36
     process.alpakaStreamSynchronizingConsumer.expectSize = 20
 
 process.output = cms.OutputModule('PoolOutputModule',
@@ -112,11 +133,13 @@ process.t = cms.Task(
     process.intProduct,
     process.alpakaGlobalProducer,
     process.alpakaStreamProducer,
+    process.alpakaStreamInstanceProducer,
     process.alpakaStreamSynchronizingProducer
 )
 process.p = cms.Path(
     process.alpakaGlobalConsumer+
     process.alpakaStreamConsumer+
+    process.alpakaStreamInstanceConsumer+
     process.alpakaStreamSynchronizingConsumer,
     process.t
 )

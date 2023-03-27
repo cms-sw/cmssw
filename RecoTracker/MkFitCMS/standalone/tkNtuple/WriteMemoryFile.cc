@@ -45,6 +45,7 @@ void printHelp(const char* av0) {
   printf(
       "Usage: %s [options]\n"
       "Options:\n"
+      "  --help                    print help and exit\n"
       "  --input          <str>    input file\n"
       "  --output         <str>    output file\n"
       "  --geo            <file>   binary TrackerInfo geometry (def: CMS-phase1.bin)\n"
@@ -54,7 +55,8 @@ void printHelp(const char* av0) {
       "  --write-all-events        write all events (def: skip events with 0 simtracks or seeds)\n"
       "  --write-rec-tracks        write rec tracks (def: not written)\n"
       "  --apply-ccc               apply cluster charge cut to strip hits (def: false)\n"
-      "  --all-seeds               merge all seeds from the input file (def: false)\n",
+      "  --all-seeds               write all seeds from the input file, not only initialStep and hltIter0 (def: "
+      "false)\n",
       av0);
 }
 
@@ -88,6 +90,7 @@ int main(int argc, char* argv[]) {
 
     if (*i == "-h" || *i == "-help" || *i == "--help") {
       printHelp(argv[0]);
+      exit(0);
     } else if (*i == "--input") {
       next_arg_or_die(mArgs, i);
       inputFileName = *i;

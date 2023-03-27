@@ -30,7 +30,7 @@ protected:
   //	Tags and Tokens
   edm::InputTag _tagHF;
   edm::InputTag _taguMN;
-  edm::EDGetTokenT<HFDigiCollection> _tokHF;
+  edm::EDGetTokenT<QIE10DigiCollection> _tokHF;
   edm::EDGetTokenT<HcalUMNioDigi> _tokuMN;
 
   //	vector of Detector Ids for RadDam

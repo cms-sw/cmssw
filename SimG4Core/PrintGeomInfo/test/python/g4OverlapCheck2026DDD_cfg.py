@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun g4OverlapCheck2026DDD_cfg.py geometry=D88 tol=0.1
 #
-#   Options for geometry D88, D92, D93, D94, D95, D96, D98, D99
+#   Options for geometry D86, D88, D91, D92, D93, D94, D95, D96, D98, D99
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('geometry',
                  "D88",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D88, D92, D93, D94, D95, D96, D98, D99")
+                  "geometry of operations: D86, D88, D91, D92, D93, D94, D95, D96, D98, D99")
 options.register('tol',
                  0.1,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -32,8 +32,12 @@ print(options)
 ####################################################################
 # Use the options
 
-from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
-process = cms.Process('PROD',Phase2C17I13M9)
+if (options.geometry == "D94"):
+    from Configuration.Eras.Era_Phase2C20I13M9_cff import Phase2C20I13M9
+    process = cms.Process('OverlapCheck',Phase2C20I13M9)
+else:
+    from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+    process = cms.Process('OverlapCheck',Phase2C17I13M9)
 
 geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
 baseName = "cms2026" + options.geometry + "DDD"

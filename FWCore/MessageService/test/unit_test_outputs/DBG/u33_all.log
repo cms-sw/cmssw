@@ -1,0 +1,225 @@
+%MSG-w cat_BJ:  UTC_V1:ssm_1a@beginJob pre-events
+T1 beginJob warning with identifier 11 event 0
+%MSG
+%MSG-w cat_BJ:  UTC_V1:ssm_1b@beginJob pre-events
+T1 beginJob warning with identifier 12 event 0
+%MSG
+%MSG-d cat_BJ:  UTC_V1:ssm_1b@beginJob pre-events UnitTestClient_V.cc:55
+T1 beginJob debug with identifier 12 event 0
+%MSG
+%MSG-e TestMessageLogger:  PreBeginProcessBlock pre-events
+test message from TestService::preBeginProcessBlock
+%MSG
+%MSG-i cat_BPB:  UTC_V1:ssm_1a@beginProcessBlock pre-events
+T1 beginProcessBlock info with identifier 11 event 0
+%MSG
+%MSG-i cat_BPB:  UTC_V1:ssm_1b@beginProcessBlock pre-events
+T1 beginProcessBlock info with identifier 12 event 0
+%MSG
+%MSG-d cat_BPB:  UTC_V1:ssm_1b@beginProcessBlock pre-events UnitTestClient_V.cc:70
+T1 beginProcessBlock debug with identifier 12 event 0
+%MSG
+%MSG-e TestMessageLogger:  PreGlobalBeginRun Run: 1
+test message from TestService::preGlobalBeginRun
+%MSG
+%MSG-i cat_BR:  UTC_V1:ssm_1a@beginRun Run: 1
+T1 beginRun info with identifier 11 event 0
+%MSG
+%MSG-i cat_BR:  UTC_V1:ssm_1b@beginRun Run: 1
+T1 beginRun info with identifier 12 event 0
+%MSG
+%MSG-d cat_BR:  UTC_V1:ssm_1b@beginRun Run: 1 UnitTestClient_V.cc:60
+T1 beginRun debug with identifier 12 event 0
+%MSG
+%MSG-e TestMessageLogger:  PreGlobalBeginLumi Run: 1 Lumi: 1
+test message from TestService::preGlobalBeginLumi
+%MSG
+%MSG-w cat_BL:  UTC_V1:ssm_1a@beginLumi Run: 1 Lumi: 1
+T1 beginLumi warning with identifier 11 event 0
+%MSG
+%MSG-w cat_BL:  UTC_V1:ssm_1b@beginLumi Run: 1 Lumi: 1
+T1 beginLumi warning with identifier 12 event 0
+%MSG
+%MSG-d cat_BL:  UTC_V1:ssm_1b@beginLumi Run: 1 Lumi: 1 UnitTestClient_V.cc:65
+T1 beginLumi debug with identifier 12 event 0
+%MSG
+Begin processing the 1st record. Run 1, Event 1, LumiSection 1 on stream 0 at {Timestamp} 
+%MSG-e cat_A:  UTC_V1:ssm_1a Run: 1 Event: 1
+T1 analyze error with identifier 11 event 0
+%MSG
+%MSG-w cat_A:  UTC_V1:ssm_1a Run: 1 Event: 1
+T1 analyze warning with identifier 11 event 0
+%MSG
+%MSG-i cat_A:  UTC_V1:ssm_1a Run: 1 Event: 1
+T1 analyze info with identifier 11 event 0
+%MSG
+%MSG-e cat_A:  UTC_V2:ssm_2a Run: 1 Event: 1
+T1 analyze error with identifier 21 event 0
+%MSG
+%MSG-w cat_A:  UTC_V2:ssm_2a Run: 1 Event: 1
+T1 analyze warning with identifier 21 event 0
+%MSG
+%MSG-e cat_A:  UTC_V1:ssm_1b Run: 1 Event: 1
+T1 analyze error with identifier 12 event 0
+%MSG
+%MSG-w cat_A:  UTC_V1:ssm_1b Run: 1 Event: 1
+T1 analyze warning with identifier 12 event 0
+%MSG
+%MSG-i cat_A:  UTC_V1:ssm_1b Run: 1 Event: 1
+T1 analyze info with identifier 12 event 0
+%MSG
+%MSG-d cat_A:  UTC_V1:ssm_1b Run: 1 Event: 1 UnitTestClient_V.cc:49
+T1 analyze debug with identifier 12 event 0
+%MSG
+%MSG-e cat_A:  UTC_V2:ssm_2b Run: 1 Event: 1
+T1 analyze error with identifier 22 event 0
+%MSG
+%MSG-w cat_A:  UTC_V2:ssm_2b Run: 1 Event: 1
+T1 analyze warning with identifier 22 event 0
+%MSG
+%MSG-i cat_A:  UTC_V2:ssm_2b Run: 1 Event: 1
+T1 analyze info with identifier 22 event 0
+%MSG
+Begin processing the 2nd record. Run 1, Event 2, LumiSection 1 on stream 0 at {Timestamp} 
+%MSG-e cat_A:  UTC_V1:ssm_1a Run: 1 Event: 2
+T1 analyze error with identifier 11 event 1
+%MSG
+%MSG-w cat_A:  UTC_V1:ssm_1a Run: 1 Event: 2
+T1 analyze warning with identifier 11 event 1
+%MSG
+%MSG-i cat_A:  UTC_V1:ssm_1a Run: 1 Event: 2
+T1 analyze info with identifier 11 event 1
+%MSG
+%MSG-e cat_A:  UTC_V2:ssm_2a Run: 1 Event: 2
+T1 analyze error with identifier 21 event 1
+%MSG
+%MSG-w cat_A:  UTC_V2:ssm_2a Run: 1 Event: 2
+T1 analyze warning with identifier 21 event 1
+%MSG
+%MSG-e cat_A:  UTC_V1:ssm_1b Run: 1 Event: 2
+T1 analyze error with identifier 12 event 1
+%MSG
+%MSG-w cat_A:  UTC_V1:ssm_1b Run: 1 Event: 2
+T1 analyze warning with identifier 12 event 1
+%MSG
+%MSG-i cat_A:  UTC_V1:ssm_1b Run: 1 Event: 2
+T1 analyze info with identifier 12 event 1
+%MSG
+%MSG-d cat_A:  UTC_V1:ssm_1b Run: 1 Event: 2 UnitTestClient_V.cc:49
+T1 analyze debug with identifier 12 event 1
+%MSG
+%MSG-e cat_A:  UTC_V2:ssm_2b Run: 1 Event: 2
+T1 analyze error with identifier 22 event 1
+%MSG
+%MSG-w cat_A:  UTC_V2:ssm_2b Run: 1 Event: 2
+T1 analyze warning with identifier 22 event 1
+%MSG
+%MSG-i cat_A:  UTC_V2:ssm_2b Run: 1 Event: 2
+T1 analyze info with identifier 22 event 1
+%MSG
+%MSG-e TestMessageLogger:  PreGlobalEndLumi Run: 1 Lumi: 1
+test message from TestService::preGlobalEndLumi
+%MSG
+%MSG-e TestMessageLogger:  PreGlobalEndRun End Run: 1
+test message from TestService::preGlobalEndRun
+%MSG
+%MSG-e TestMessageLogger:  PreEndProcessBlock post-events
+test message from TestService::preEndProcessBlock
+%MSG
+%MSG-i cat_EPB:  UTC_V1:ssm_1a@endProcessBlock post-events
+T1 endProcessBlock info with identifier 11 event 2
+%MSG
+%MSG-i cat_EPB:  UTC_V1:ssm_1b@endProcessBlock post-events
+T1 endProcessBlock info with identifier 12 event 2
+%MSG
+%MSG-d cat_EPB:  UTC_V1:ssm_1b@endProcessBlock post-events UnitTestClient_V.cc:75
+T1 endProcessBlock debug with identifier 12 event 2
+%MSG
+
+=============================================
+
+MessageLogger Summary
+
+ type     category        sev    module        subroutine        count    total
+ ---- -------------------- -- ---------------- ----------------  -----    -----
+    1 cat_A                -d UTC_V1:ssm_1b                          2        2
+    2 cat_BJ               -d UTC_V1:ssm_1b@be                       1        1
+    3 cat_BL               -d UTC_V1:ssm_1b@be                       1        1
+    4 cat_BPB              -d UTC_V1:ssm_1b@be                       1        1
+    5 cat_BR               -d UTC_V1:ssm_1b@be                       1        1
+    6 cat_EPB              -d UTC_V1:ssm_1b@en                       1        1
+    7 cat_A                -i UTC_V1:ssm_1a                          2        2
+    8 cat_A                -i UTC_V1:ssm_1b                          2        2
+    9 cat_A                -i UTC_V2:ssm_2b                          2        2
+   10 cat_BPB              -i UTC_V1:ssm_1a@be                       1        1
+   11 cat_BPB              -i UTC_V1:ssm_1b@be                       1        1
+   12 cat_BR               -i UTC_V1:ssm_1a@be                       1        1
+   13 cat_BR               -i UTC_V1:ssm_1b@be                       1        1
+   14 cat_EPB              -i UTC_V1:ssm_1a@en                       1        1
+   15 cat_EPB              -i UTC_V1:ssm_1b@en                       1        1
+   16 FwkReport            -f AfterSource                            2        2
+   17 cat_A                -w UTC_V1:ssm_1a                          2        2
+   18 cat_A                -w UTC_V1:ssm_1b                          2        2
+   19 cat_A                -w UTC_V2:ssm_2a                          2        2
+   20 cat_A                -w UTC_V2:ssm_2b                          2        2
+   21 cat_BJ               -w UTC_V1:ssm_1a@be                       1        1
+   22 cat_BJ               -w UTC_V1:ssm_1b@be                       1        1
+   23 cat_BL               -w UTC_V1:ssm_1a@be                       1        1
+   24 cat_BL               -w UTC_V1:ssm_1b@be                       1        1
+   25 TestMessageLogger    -e PreBeginProcessB                       1        1
+   26 TestMessageLogger    -e PreEndProcessBlo                       1        1
+   27 TestMessageLogger    -e PreGlobalBeginLu                       1        1
+   28 TestMessageLogger    -e PreGlobalBeginRu                       1        1
+   29 TestMessageLogger    -e PreGlobalEndLumi                       1        1
+   30 TestMessageLogger    -e PreGlobalEndRun                        1        1
+   31 cat_A                -e UTC_V1:ssm_1a                          2        2
+   32 cat_A                -e UTC_V1:ssm_1b                          2        2
+   33 cat_A                -e UTC_V2:ssm_2a                          2        2
+   34 cat_A                -e UTC_V2:ssm_2b                          2        2
+
+ type    category    Examples: run/evt        run/evt          run/evt
+ ---- -------------------- ---------------- ---------------- ----------------
+    1 cat_A                1/1              1/2              
+    2 cat_BJ               pre-events                        
+    3 cat_BL               Run: 1 Lumi: 1                    
+    4 cat_BPB              pre-events                        
+    5 cat_BR               Run: 1                            
+    6 cat_EPB              post-events                       
+    7 cat_A                1/1              1/2              
+    8 cat_A                1/1              1/2              
+    9 cat_A                1/1              1/2              
+   10 cat_BPB              pre-events                        
+   11 cat_BPB              pre-events                        
+   12 cat_BR               Run: 1                            
+   13 cat_BR               Run: 1                            
+   14 cat_EPB              post-events                       
+   15 cat_EPB              post-events                       
+   16 FwkReport            AfterSource      AfterSource      
+   17 cat_A                1/1              1/2              
+   18 cat_A                1/1              1/2              
+   19 cat_A                1/1              1/2              
+   20 cat_A                1/1              1/2              
+   21 cat_BJ               pre-events                        
+   22 cat_BJ               pre-events                        
+   23 cat_BL               Run: 1 Lumi: 1                    
+   24 cat_BL               Run: 1 Lumi: 1                    
+   25 TestMessageLogger    pre-events                        
+   26 TestMessageLogger    post-events                       
+   27 TestMessageLogger    Run: 1 Lumi: 1                    
+   28 TestMessageLogger    Run: 1                            
+   29 TestMessageLogger    Run: 1 Lumi: 1                    
+   30 TestMessageLogger    End Run: 1                        
+   31 cat_A                1/1              1/2              
+   32 cat_A                1/1              1/2              
+   33 cat_A                1/1              1/2              
+   34 cat_A                1/1              1/2              
+
+Severity    # Occurrences   Total Occurrences
+--------    -------------   -----------------
+Debug                   7                   7
+Info                   12                  12
+FwkInfo                 2                   2
+Warning                12                  12
+Error                  14                  14
+
+dropped waiting message count 0

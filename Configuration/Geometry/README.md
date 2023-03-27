@@ -32,6 +32,7 @@ Calorimeters:
 
 Muon system:
 * M1: 2021 baseline
+* M2: 2023 GE21 shifted in position
 
 PPS:
 * P7: 2021 baseline (after removing overlaps and using common materials whenever possible)
@@ -49,6 +50,7 @@ Several detector combinations have been generated:
 * 2021FlatMinus10Percent = T6+C1+M1+P7+O5+F1
 * 2021FlatPlus05Percent = T7+C1+M1+P7+O5+F1
 * 2021FlatPlus10Percent = T8+C1+M1+P7+O5+F1
+* 2023 = T3+C1+M2+P7+O6+F1
 
 # Phase 2 Geometries
 

@@ -575,6 +575,24 @@ namespace edm {
     void watchPostESModule(PostESModule::slot_type const& iSlot) { postESModuleSignal_.connect_front(iSlot); }
     AR_WATCH_USING_METHOD_2(watchPostESModule)
 
+    /// signal is emitted before an esmodule starts running its acquire method
+    typedef signalslot::Signal<void(eventsetup::EventSetupRecordKey const&, ESModuleCallingContext const&)>
+        PreESModuleAcquire;
+    PreESModuleAcquire preESModuleAcquireSignal_;
+    void watchPreESModuleAcquire(PreESModuleAcquire::slot_type const& iSlot) {
+      preESModuleAcquireSignal_.connect(iSlot);
+    }
+    AR_WATCH_USING_METHOD_2(watchPreESModuleAcquire)
+
+    /// signal is emitted after an esmodule finishes running its acquire method
+    typedef signalslot::Signal<void(eventsetup::EventSetupRecordKey const&, ESModuleCallingContext const&)>
+        PostESModuleAcquire;
+    PostESModuleAcquire postESModuleAcquireSignal_;
+    void watchPostESModuleAcquire(PostESModuleAcquire::slot_type const& iSlot) {
+      postESModuleAcquireSignal_.connect_front(iSlot);
+    }
+    AR_WATCH_USING_METHOD_2(watchPostESModuleAcquire)
+
     /* Note M:
 	   Concerning use of address of module descriptor
 	   during functions called before/after module or source construction:
@@ -971,39 +989,6 @@ namespace edm {
     }
     // WARNING - ModuleDescription is not in fixed place.  See note M above.
     AR_WATCH_USING_METHOD_1(watchPostSourceConstruction)
-
-    //DEPRECATED
-    typedef signalslot::Signal<void(
-        eventsetup::ComponentDescription const*, eventsetup::EventSetupRecordKey const&, eventsetup::DataKey const&)>
-        PreLockEventSetupGet;
-    ///signal is emitted before lock taken in EventSetup DataProxy::get function
-    PreLockEventSetupGet preLockEventSetupGetSignal_;
-    void watchPreLockEventSetupGet(PreLockEventSetupGet::slot_type const& iSlot) {
-      preLockEventSetupGetSignal_.connect(iSlot);
-    }
-    AR_WATCH_USING_METHOD_3(watchPreLockEventSetupGet)
-
-    //DEPRECATED
-    typedef signalslot::Signal<void(
-        eventsetup::ComponentDescription const*, eventsetup::EventSetupRecordKey const&, eventsetup::DataKey const&)>
-        PostLockEventSetupGet;
-    ///signal is emitted after lock taken in EventSetup DataProxy::get function
-    PostLockEventSetupGet postLockEventSetupGetSignal_;
-    void watchPostLockEventSetupGet(PostLockEventSetupGet::slot_type const& iSlot) {
-      postLockEventSetupGetSignal_.connect_front(iSlot);
-    }
-    AR_WATCH_USING_METHOD_3(watchPostLockEventSetupGet)
-
-    //DEPRECATED
-    typedef signalslot::Signal<void(
-        eventsetup::ComponentDescription const*, eventsetup::EventSetupRecordKey const&, eventsetup::DataKey const&)>
-        PostEventSetupGet;
-    ///signal is emitted after getImpl has returned in the EventSetup DataProxy::get function
-    PostEventSetupGet postEventSetupGetSignal_;
-    void watchPostEventSetupGet(PostEventSetupGet::slot_type const& iSlot) {
-      postEventSetupGetSignal_.connect_front(iSlot);
-    }
-    AR_WATCH_USING_METHOD_3(watchPostEventSetupGet)
 
     // ---------- member functions ---------------------------
 

@@ -20,7 +20,7 @@ namespace edm {
       } else {
         edm::printCmsException(ex);
       }
-      ex.setAlreadyPrinted(true);
+      ex.setAlreadyPrinted();
     }
   }
 }  // namespace edm

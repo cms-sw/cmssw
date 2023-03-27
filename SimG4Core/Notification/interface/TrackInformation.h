@@ -1,37 +1,33 @@
 #ifndef SimG4Core_TrackInformation_H
 #define SimG4Core_TrackInformation_H
 
-#include "FWCore/Utilities/interface/Exception.h"
 #include "G4VUserTrackInformation.hh"
 #include "G4Allocator.hh"
 #include "G4Track.hh"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class TrackInformation : public G4VUserTrackInformation {
 public:
-  ~TrackInformation() override {}
+  ~TrackInformation() override = default;
   inline void *operator new(size_t);
   inline void operator delete(void *TrackInformation);
 
   bool storeTrack() const { return storeTrack_; }
   /// can only be set to true, cannot be reset to false!
-  void storeTrack(bool v) {
-    if (v)
-      storeTrack_ = v;
-    if (v == true)
-      putInHistory();
+  void setStoreTrack() {
+    storeTrack_ = true;
+    isInHistory_ = true;
   }
 
   bool isPrimary() const { return isPrimary_; }
-  void isPrimary(bool v) { isPrimary_ = v; }
+  void setPrimary(bool v) { isPrimary_ = v; }
 
   bool hasHits() const { return hasHits_; }
-  void hasHits(bool v) { hasHits_ = v; }
+  void setHasHits(bool v) { hasHits_ = v; }
 
   bool isGeneratedSecondary() const { return isGeneratedSecondary_; }
-  void isGeneratedSecondary(bool v) { isGeneratedSecondary_ = v; }
+  void setGeneratedSecondary(bool v) { isGeneratedSecondary_ = v; }
 
   bool isInHistory() const { return isInHistory_; }
   void putInHistory() { isInHistory_ = true; }
@@ -58,17 +54,7 @@ public:
   void setCaloSurfaceParticleP(double p) { caloSurfaceParticleP_ = p; }
 
   // Boundary crossing variables
-  void setCrossedBoundary(const G4Track *track) {
-    crossedBoundary_ = true;
-    positionAtBoundary_ = math::XYZTLorentzVectorF(track->GetPosition().x() / CLHEP::cm,
-                                                   track->GetPosition().y() / CLHEP::cm,
-                                                   track->GetPosition().z() / CLHEP::cm,
-                                                   track->GetGlobalTime());
-    momentumAtBoundary_ = math::XYZTLorentzVectorF(track->GetMomentum().x() / CLHEP::GeV,
-                                                   track->GetMomentum().y() / CLHEP::GeV,
-                                                   track->GetMomentum().z() / CLHEP::GeV,
-                                                   track->GetTotalEnergy() / CLHEP::GeV);
-  }
+  void setCrossedBoundary(const G4Track *track);
   bool crossedBoundary() const { return crossedBoundary_; }
   const math::XYZTLorentzVectorF &getPositionAtBoundary() const { return positionAtBoundary_; }
   const math::XYZTLorentzVectorF &getMomentumAtBoundary() const { return momentumAtBoundary_; }

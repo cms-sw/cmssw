@@ -225,6 +225,10 @@ int main(int argc, char** argv) {
   histo28.process(connectionString, PI::mk_input(tag2, start, end));
   edm::LogPrint("testSiPixelPayloadInspector") << histo28.data() << std::endl;
 
+  SiPixelDynamicInefficiencyPUParametrization histo29;
+  histo29.process(connectionString, PI::mk_input(tag2, start, end));
+  edm::LogPrint("testSiPixelPayloadInspector") << histo29.data() << std::endl;
+
   inputs.clear();
 #if PY_MAJOR_VERSION >= 3
   // TODO I don't know why this Py_INCREF is necessary...

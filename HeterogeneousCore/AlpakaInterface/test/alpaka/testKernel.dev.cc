@@ -68,10 +68,10 @@ TEST_CASE("Standard checks of " ALPAKA_TYPE_ALIAS_NAME(alpakaTestKernel), s_tag)
     // buffer size
     constexpr size_t size = 1024 * 1024;
 
-    // allocate input and output host buffers
-    auto in1_h = cms::alpakatools::make_host_buffer<float[]>(size);
-    auto in2_h = cms::alpakatools::make_host_buffer<float[]>(size);
-    auto out_h = cms::alpakatools::make_host_buffer<float[]>(size);
+    // allocate input and output host buffers in pinned memory accessible by the Platform devices
+    auto in1_h = cms::alpakatools::make_host_buffer<float[], Platform>(size);
+    auto in2_h = cms::alpakatools::make_host_buffer<float[], Platform>(size);
+    auto out_h = cms::alpakatools::make_host_buffer<float[], Platform>(size);
 
     // fill the input buffers with random data, and the output buffer with zeros
     for (size_t i = 0; i < size; ++i) {
@@ -158,10 +158,10 @@ TEST_CASE("Standard checks of " ALPAKA_TYPE_ALIAS_NAME(alpakaTestKernel3D), s_ta
     constexpr Vec3D ndsize = {50, 125, 16};
     constexpr size_t size = ndsize.prod();
 
-    // allocate input and output host buffers
-    auto in1_h = cms::alpakatools::make_host_buffer<float[]>(size);
-    auto in2_h = cms::alpakatools::make_host_buffer<float[]>(size);
-    auto out_h = cms::alpakatools::make_host_buffer<float[]>(size);
+    // allocate input and output host buffers in pinned memory accessible by the Platform devices
+    auto in1_h = cms::alpakatools::make_host_buffer<float[], Platform>(size);
+    auto in2_h = cms::alpakatools::make_host_buffer<float[], Platform>(size);
+    auto out_h = cms::alpakatools::make_host_buffer<float[], Platform>(size);
 
     // fill the input buffers with random data, and the output buffer with zeros
     for (size_t i = 0; i < size; ++i) {

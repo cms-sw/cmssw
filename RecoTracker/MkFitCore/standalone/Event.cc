@@ -251,7 +251,7 @@ namespace mkfit {
       printf("Read %i seedtracks (neg value means actual reading was skipped)\n", ns);
       for (int it = 0; it < ns; it++) {
         const Track &ss = seedTracks_[it];
-        printf("  %3i q=%+i pT=%7.3f eta=% 7.3f nHits=%i label=%4i algo=%2i\n",
+        printf("  %-3i q=%+i pT=%7.3f eta=% 7.3f nHits=%i label=%4i algo=%2i\n",
                it,
                ss.charge(),
                ss.pT(),
@@ -303,7 +303,7 @@ namespace mkfit {
     printf("Read %i simtracks\n", nt);
     for (int it = 0; it < nt; it++) {
       const Track &t = simTracks_[it];
-      printf("  %3i q=%+i pT=%7.3f eta=% 7.3f nHits=%2d  label=%4d\n",
+      printf("  %-3i q=%+i pT=%7.3f eta=% 7.3f nHits=%2d  label=%4d\n",
              it,
              t.charge(),
              t.pT(),
@@ -360,7 +360,7 @@ namespace mkfit {
     printf("Read %i rectracks\n", nert);
     for (int it = 0; it < nert; it++) {
       const Track &t = cmsswTracks_[it];
-      printf("  %i with q=%+i pT=%7.3f eta=% 7.3f nHits=%2d  label=%4d algo=%2d\n",
+      printf("  %-3i with q=%+i pT=%7.3f eta=% 7.3f nHits=%2d  label=%4d algo=%2d\n",
              it,
              t.charge(),
              t.pT(),
@@ -937,6 +937,12 @@ namespace mkfit {
     fwrite(&f_header, sizeof(DataFileHeader), 1, f_fp);
   }
 
+  void DataFile::rewind() {
+    std::lock_guard<std::mutex> readlock(f_next_ev_mutex);
+    f_pos = sizeof(DataFileHeader);
+    fseek(f_fp, f_pos, SEEK_SET);
+  }
+
   int DataFile::advancePosToNextEvent(FILE *fp) {
     int evsize;
 
@@ -983,6 +989,29 @@ namespace mkfit {
       fwrite(&f_header, sizeof(DataFileHeader), 1, f_fp);
     }
     close();
+  }
+
+  //==============================================================================
+  // Misc debug / printout
+  //==============================================================================
+
+  void print(std::string pfx, int itrack, const Track &trk, const Event &ev) {
+    std::cout << std::endl
+              << pfx << ": " << itrack << " hits: " << trk.nFoundHits() << " label: " << trk.label()
+              << " State:" << std::endl;
+    print(trk.state());
+
+    for (int i = 0; i < trk.nTotalHits(); ++i) {
+      auto hot = trk.getHitOnTrack(i);
+      printf("  %2d: lyr %2d idx %5d", i, hot.layer, hot.index);
+      if (hot.index >= 0) {
+        auto &h = ev.layerHits_[hot.layer][hot.index];
+        int hl = ev.simHitsInfo_[h.mcHitID()].mcTrackID_;
+        printf("  %4d  %8.3f %8.3f %8.3f  r=%.3f\n", hl, h.x(), h.y(), h.z(), h.r());
+      } else {
+        printf("\n");
+      }
+    }
   }
 
 }  // end namespace mkfit

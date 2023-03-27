@@ -9,6 +9,7 @@
 
 #include <vector>
 #include <map>
+#include <limits>
 
 namespace mkfit {
 
@@ -601,7 +602,7 @@ namespace mkfit {
   }
 
   inline float getScoreWorstPossible() {
-    return -1e16;  // somewhat arbitrary value, used for handling of best short track during finding (will try to take it out)
+    return -std::numeric_limits<float>::max();  // used for handling of best short track during finding
   }
 
   inline float getScoreCand(const track_score_func& score_func,
@@ -656,8 +657,8 @@ namespace mkfit {
   }
 
   void print(const TrackState& s);
-  void print(std::string label, int itrack, const Track& trk, bool print_hits = false);
-  void print(std::string label, const TrackState& s);
+  void print(std::string pfx, int itrack, const Track& trk, bool print_hits = false);
+  void print(std::string pfx, const TrackState& s);
 
 }  // end namespace mkfit
 #endif

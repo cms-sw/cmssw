@@ -7,158 +7,39 @@
     <use name="FWCore/ParameterSetReader"/>
   </bin>
 
-  <bin file="TestIntegration.cpp" name="TestIntegrationEventHistory">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test eventHistoryTest.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-  <bin file="TestIntegration.cpp" name="TestIntegrationRef">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test refTest.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-  <bin file="TestIntegration.cpp" name="TestIntegrationTransRef">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test transRefTest.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-  <bin file="TestIntegration.cpp" name="TestIntegrationTableTest">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test testTables.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-  <bin file="TestIntegration.cpp" name="TestIntegrationProducedSource">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test inputSourceTest.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-  <bin file="TestIntegration.cpp" name="TestIntegrationExternalSource">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test inputExtSourceTest.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-  <bin file="TestIntegration.cpp" name="TestIntegrationEventSetup">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test eventSetupTest.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-  <bin file="TestIntegration.cpp" name="TestIntegrationHierarchyExample">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test hierarchy_example.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-  <bin file="TestIntegration.cpp" name="TestIntegrationServiceExample">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test service_example.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-  <bin file="TestIntegration.cpp" name="TestIntegrationView">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test ViewTest.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-  <bin file="TestIntegration.cpp" name="TestIntegrationSeriesOfProcesses">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_SeriesOfProcesses.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-  <bin file="TestIntegration.cpp" name="TestParentageWithStreamerIO">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_ParentageWithStreamerIO.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-  <bin file="TestIntegration.cpp" name="TestIntegrationThinningTests">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_ThinningTests.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-  <bin file="TestIntegration.cpp" name="TestIntegrationGetBy">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_TestGetBy.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-  <bin file="TestIntegration.cpp" name="TestIntegrationOutput">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_TestOutput.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-  <bin file="TestIntegration.cpp" name="TestIntegrationDropOnInput">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_TestDropOnInput.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-  <bin file="TestIntegration.cpp" name="TestSubProcess">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_SubProcess.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-  <bin file="TestIntegration.cpp" name="TestIntegrationUnscheduledFailOnOutput">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_unscheduledFailOnOutput.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-  <bin file="TestIntegration.cpp" name="TestIntegrationGetProductAtEnd">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_getProductAtEnd.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-  <bin file="TestIntegration.cpp" name="TestIntegrationParentless">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test parentlessTest.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-  <bin file="TestIntegration.cpp" name="TestIntegrationWaitingThread">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test waiting_thread_test.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-  <bin file="TestIntegration.cpp" name="TestIntegrationRunMerge">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_RunMerge.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-  <bin file="TestIntegration.cpp" name="TestIntegrationRunMerge2">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_RunMerge2.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-  <bin file="TestIntegration.cpp" name="TestIntegrationRefMerge">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_RefMerge.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-  <bin file="TestIntegration.cpp" name="TestIntegrationRefAlias">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_RefAlias.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-  <bin file="TestIntegration.cpp" name="TestIntegrationParameterSet">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_ParameterSet.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-  <bin file="TestIntegration.cpp" name="TestIntegrationSwitchProducer">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_TestSwitchProducer.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-  <bin file="TestIntegration.cpp" name="TestIntegration_TestEDAlias">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_TestEDAlias.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
+  <test name="TestIntegrationEventHistory" command="eventHistoryTest.sh"/>
+  <test name="TestIntegrationRef" command="refTest.sh"/>
+  <test name="TestIntegrationTransRef" command="transRefTest.sh"/>
+  <test name="TestIntegrationTableTest" command="testTables.sh"/>
+  <test name="TestIntegrationProducedSource" command="inputSourceTest.sh"/>
+  <test name="TestIntegrationExternalSource" command="inputExtSourceTest.sh"/>
+  <test name="TestIntegrationEventSetup" command="eventSetupTest.sh"/>
+  <test name="TestIntegrationHierarchyExample" command="hierarchy_example.sh"/>
+  <test name="TestIntegrationServiceExample" command="service_example.sh"/>
+  <test name="TestIntegrationView" command="ViewTest.sh"/>
+  <test name="TestIntegrationSeriesOfProcesses" command="run_SeriesOfProcesses.sh"/>
+  <test name="TestParentageWithStreamerIO" command="run_ParentageWithStreamerIO.sh"/>
+  <test name="TestIntegrationThinningTests" command="run_ThinningTests.sh"/>
+  <test name="TestIntegrationGetBy" command="run_TestGetBy.sh"/>
+  <test name="TestIntegrationOutput" command="run_TestOutput.sh"/>
+  <test name="TestIntegrationDropOnInput" command="run_TestDropOnInput.sh"/>
+  <test name="TestSubProcess" command="run_SubProcess.sh"/>
+  <test name="TestIntegrationUnscheduledFailOnOutput" command="run_unscheduledFailOnOutput.sh"/>
+  <test name="TestIntegrationGetProductAtEnd" command="run_getProductAtEnd.sh"/>
+  <test name="TestIntegrationParentless" command="parentlessTest.sh"/>
+  <test name="TestIntegrationWaitingThread" command="waiting_thread_test.sh"/>
+  <test name="TestIntegrationRunMerge" command="run_RunMerge.sh"/>
+  <test name="TestIntegrationRunMerge2" command="run_RunMerge2.sh"/>
+  <test name="TestIntegrationRefMerge" command="run_RefMerge.sh"/>
+  <test name="TestIntegrationRefAlias" command="run_RefAlias.sh"/>
+  <test name="TestIntegrationParameterSet" command="run_ParameterSet.sh"/>
+  <test name="TestIntegrationSwitchProducer" command="run_TestSwitchProducer.sh"/>
+  <test name="TestIntegration_TestEDAlias" command="run_TestEDAlias.sh"/>
   <test name="TestIntegrationProcessAccelerator" command="run_TestProcessAccelerator.sh"/>
-
   <test name="TestFWCoreIntegrationModuleTypeResolver" command="run_TestModuleTypeResolver.sh"/>
-
   <test name="CatchStdExceptiontest" command="CatchStdExceptiontest.sh"/>
-
   <test name="CatchCmsExceptiontest" command="CatchCmsExceptiontest.sh"/>
-
-  <bin file="TestIntegration.cpp" name="TestIntegrationExistingDictionary">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Integration/test run_TestExistingDictionary.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
+  <test name="TestIntegrationExistingDictionary" command="run_TestExistingDictionary.sh"/>
 
   <bin file="ProcessConfiguration_t.cpp,ProcessHistory_t.cpp" name="TestIntegrationDataFormatsProvenance">
     <use name="FWCore/ParameterSet"/>
@@ -209,7 +90,10 @@
   <test name="testFWCoreIntegrationTransform_stream_onPath_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --stream --onPath --async_"/>
   <test name="testFWCoreIntegrationTransform_noPut" command="! cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --noPut"/>
   <test name="testFWCoreIntegrationTransform_noPut_async" command="! cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --noPut --async_"/>
-
+  <test name="testFWCoreIntegrationTransform_exception" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --exception 2>&amp;1 | fgrep 'exception for testing purposes'"/>
+  <test name="testFWCoreIntegrationTransform_async_exception" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --async --exception 2>&amp;1 | fgrep 'exception for testing purposes'"/>
+  <test name="testFWCoreIntegrationTransform_onPath_exception" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --onPath --exception 2>&amp;1 | fgrep 'exception for testing purposes'"/>
+  <test name="testFWCoreIntegrationTransform_onPath_async_exception" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --onPath --async --exception 2>&amp;1 | fgrep 'exception for testing purposes'"/>
 
   <test name="TestFWCoreIntegrationModuleThread" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/moduleThread_test_cfg.py"/>
 
@@ -222,24 +106,12 @@
   </bin>
 
   <test name="TestFWCoreIntegrationInterProcess" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/test_TestInterProcessProd_cfg.py"/>
-
   <test name="TestFWCoreIntegrationPutOrMerge" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/putOrMergeTest_cfg.py"/>
-
   <test name="TestFWCoreIntegrationInputSourceAlias" command="cmsRun ${LOCALTOP}//src/FWCore/Integration/test/inputSource_alias_Test_cfg.py"/>
-
   <test name="TestFWCoreIntegrationEDLooperESProcuer" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/testEDLooperESProducer_cfg.py"/>
-
   <test name="TestFWCoreIntegrationDelayedReaderTest" command="delayedreader_throw_test.sh"/>
 
-  <test name="TestFrameworkExceptionHandling1" command="run_TestFrameworkExceptionHandling.sh 1"/>
-  <test name="TestFrameworkExceptionHandling2" command="run_TestFrameworkExceptionHandling.sh 2"/>
-  <test name="TestFrameworkExceptionHandling3" command="run_TestFrameworkExceptionHandling.sh 3"/>
-  <test name="TestFrameworkExceptionHandling4" command="run_TestFrameworkExceptionHandling.sh 4"/>
-  <test name="TestFrameworkExceptionHandling5" command="run_TestFrameworkExceptionHandling.sh 5"/>
-  <test name="TestFrameworkExceptionHandling6" command="run_TestFrameworkExceptionHandling.sh 6"/>
-  <test name="TestFrameworkExceptionHandling7" command="run_TestFrameworkExceptionHandling.sh 7"/>
-  <test name="TestFrameworkExceptionHandling8" command="run_TestFrameworkExceptionHandling.sh 8"/>
-  <test name="TestFrameworkExceptionHandling9" command="run_TestFrameworkExceptionHandling.sh 9"/>
+  <test name="TestFrameworkExceptionHandling" command="run_TestFrameworkExceptionHandling.sh ${value}" for="1,9"/>
 
   <test name="TestIntegrationProcessBlock1" command="run_TestProcessBlock.sh 1"/>
   <test name="TestIntegrationProcessBlock2" command="run_TestProcessBlock.sh 2"/>

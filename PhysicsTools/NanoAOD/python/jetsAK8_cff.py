@@ -35,14 +35,14 @@ looseJetIdAK8 = cms.EDProducer("PatJetIDValueMapProducer",
 )
 tightJetIdAK8 = cms.EDProducer("PatJetIDValueMapProducer",
     filterParams=cms.PSet(
-        version = cms.string('RUN2ULPUPPI'),
+        version = cms.string('RUN3WINTER22PUPPI'),
         quality = cms.string('TIGHT'),
     ),
     src = cms.InputTag("updatedJetsAK8")
 )
 tightJetIdLepVetoAK8 = cms.EDProducer("PatJetIDValueMapProducer",
     filterParams=cms.PSet(
-        version = cms.string('RUN2ULPUPPI'),
+        version = cms.string('RUN3WINTER22PUPPI'),
         quality = cms.string('TIGHTLEPVETO'),
     ),
     src = cms.InputTag("updatedJetsAK8")
@@ -52,6 +52,18 @@ run2_jme_2016.toModify(
     tightJetIdAK8.filterParams, version = "RUN2UL16PUPPI"
 ).toModify(
     tightJetIdLepVetoAK8.filterParams, version = "RUN2UL16PUPPI"
+)
+
+(run2_jme_2017 | run2_jme_2018).toModify(
+    tightJetIdAK8.filterParams, version = "RUN2ULPUPPI"
+).toModify(
+    tightJetIdLepVetoAK8.filterParams, version = "RUN2ULPUPPI"
+)
+
+run3_jme_Winter22runsBCDEprompt.toModify(
+    tightJetIdAK8.filterParams, version = "RUN3WINTER22PUPPIrunsBCDEprompt"
+).toModify(
+    tightJetIdLepVetoAK8.filterParams, version = "RUN3WINTER22PUPPIrunsBCDEprompt"
 )
 
 updatedJetsAK8WithUserData = cms.EDProducer("PATJetUserDataEmbedder",

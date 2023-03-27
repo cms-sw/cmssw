@@ -39,6 +39,7 @@
 */
 
 class FedRawDataInputSource;
+class DAQSource;
 
 namespace edm {
   class ConfigurationDescriptions;
@@ -219,6 +220,7 @@ namespace evf {
     }
     std::string getRunDirName() const { return runDirectory_.stem().string(); }
     void setInputSource(FedRawDataInputSource* inputSource) { inputSource_ = inputSource; }
+    void setInputSource(DAQSource* inputSource) { daqInputSource_ = inputSource; }
     void setInState(FastMonState::InputState inputState) { inputState_ = inputState; }
     void setInStateSup(FastMonState::InputState inputState) { inputSupervisorState_ = inputState; }
 
@@ -232,6 +234,7 @@ namespace evf {
     //Encoding encModule_;
     //std::vector<Encoding> encPath_;
     FedRawDataInputSource* inputSource_ = nullptr;
+    DAQSource* daqInputSource_ = nullptr;
     std::atomic<FastMonState::InputState> inputState_{FastMonState::InputState::inInit};
     std::atomic<FastMonState::InputState> inputSupervisorState_{FastMonState::InputState::inInit};
 

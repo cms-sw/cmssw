@@ -130,6 +130,7 @@ from L1Trigger.L1TGlobal.simGtExtFakeProd_cfi import simGtExtFakeProd
 valGtStage2Digis = simGtStage2Digis.clone(
     ExtInputTag = "gtStage2Digis",
     MuonInputTag = "gtStage2Digis:Muon",
+    MuonShowerInputTag = "gtStage2Digis:MuonShower",
     EGammaInputTag = "gtStage2Digis:EGamma",
     TauInputTag = "gtStage2Digis:Tau",
     JetInputTag = "gtStage2Digis:Jet",

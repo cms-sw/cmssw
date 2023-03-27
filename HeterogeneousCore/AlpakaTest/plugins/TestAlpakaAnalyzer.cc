@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -73,14 +73,14 @@ namespace {
 
 }  // namespace
 
-class TestAlpakaAnalyzer : public edm::stream::EDAnalyzer<> {
+class TestAlpakaAnalyzer : public edm::global::EDAnalyzer<> {
 public:
   TestAlpakaAnalyzer(edm::ParameterSet const& config)
       : source_{config.getParameter<edm::InputTag>("source")},
         token_{consumes(source_)},
         expectSize_(config.getParameter<int>("expectSize")) {}
 
-  void analyze(edm::Event const& event, edm::EventSetup const&) override {
+  void analyze(edm::StreamID sid, edm::Event const& event, edm::EventSetup const&) const override {
     portabletest::TestHostCollection const& product = event.get(token_);
     auto const& view = product.const_view();
     auto& mview = product.view();

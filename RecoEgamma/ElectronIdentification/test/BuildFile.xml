@@ -8,10 +8,4 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<environment>
-  <bin file="runtestRecoEgammaElectronIdentification.cpp">
-    <flags TEST_RUNNER_ARGS=" /bin/bash RecoEgamma/ElectronIdentification/test runtests.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-</environment>
+<test name="runtestRecoEgammaElectronIdentification" command="runtests.sh"/>

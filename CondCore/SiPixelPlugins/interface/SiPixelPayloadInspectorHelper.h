@@ -36,7 +36,7 @@
 
 namespace SiPixelPI {
 
-  enum phase { zero = 0, one = 1, two = 2 };
+  enum phase { zero = 0, one = 1, two = 2, undefined = 999 };
 
   // size of the phase-0 pixel detID list
   static const unsigned int phase0size = 1440;
@@ -636,6 +636,11 @@ namespace SiPixelPI {
   inline bool isBPixOuterLadder(const DetId& detid, const TrackerTopology& tTopo, bool isPhase0)
   /*--------------------------------------------------------------------*/
   {
+    // Using TrackerTopology
+    // Ladders have a staggered structure
+    // Non-flipped ladders are on the outer radius
+    // Phase 0: Outer ladders are odd for layer 1,3 and even for layer 2
+    // Phase 1: Outer ladders are odd for layer 1,2,3 and even for layer 4
     bool isOuter = false;
     int layer = tTopo.pxbLayer(detid.rawId());
     bool odd_ladder = tTopo.pxbLadder(detid.rawId()) % 2;
@@ -646,9 +651,9 @@ namespace SiPixelPI {
         isOuter = odd_ladder;
     } else {
       if (layer == 4)
-        isOuter = odd_ladder;
-      else
         isOuter = !odd_ladder;
+      else
+        isOuter = odd_ladder;
     }
     return isOuter;
   }
@@ -664,29 +669,36 @@ namespace SiPixelPI {
     int m_side;
     int m_ring;
     bool m_isInternal;
-    SiPixelPI::phase* m_Phase;
+    SiPixelPI::phase m_Phase;
 
   public:
     void init();
     void fillGeometryInfo(const DetId& detId, const TrackerTopology& tTopo, const SiPixelPI::phase& ph);
     SiPixelPI::regions filterThePartition();
     bool sanityCheck();
-    void printAll();
+    int subDetId() { return m_subdetid; }
+    int layer() { return m_layer; }
+    int side() { return m_side; }
+    int ring() { return m_ring; }
+    bool isInternal() { return m_isInternal; }
+
+    void printAll(std::stringstream& ss) const;
     virtual ~topolInfo() {}
   };
 
   /*--------------------------------------------------------------------*/
-  inline void topolInfo::printAll()
+  inline void topolInfo::printAll(std::stringstream& ss) const
   /*--------------------------------------------------------------------*/
   {
-    std::cout << " detId:" << m_rawid << " subdetid: " << m_subdetid << " layer: " << m_layer << " side: " << m_side
-              << " ring: " << m_ring << " isInternal:" << m_isInternal << std::endl;
+    ss << " detId: " << m_rawid << " subdetid: " << m_subdetid << " layer: " << m_layer << " side: " << m_side
+       << " ring: " << m_ring << " isInternal: " << m_isInternal;
   }
 
   /*--------------------------------------------------------------------*/
   inline void topolInfo::init()
   /*--------------------------------------------------------------------*/
   {
+    m_Phase = SiPixelPI::undefined;
     m_rawid = 0;
     m_subdetid = -1;
     m_layer = -1;
@@ -710,7 +722,7 @@ namespace SiPixelPI {
   /*--------------------------------------------------------------------*/
   {
     // set the phase
-    m_Phase = const_cast<SiPixelPI::phase*>(&ph);
+    m_Phase = ph;
     unsigned int subdetId = static_cast<unsigned int>(detId.subdetId());
 
     m_rawid = detId.rawId();
@@ -733,7 +745,7 @@ namespace SiPixelPI {
   {
     SiPixelPI::regions ret = SiPixelPI::NUM_OF_REGIONS;
 
-    if (m_Phase == nullptr) {
+    if (m_Phase == SiPixelPI::undefined) {
       throw cms::Exception("LogicError") << "Cannot call filterThePartition BEFORE filling the geometry info!";
     }
 
@@ -741,16 +753,16 @@ namespace SiPixelPI {
     if (m_subdetid == 1) {
       switch (m_layer) {
         case 1:
-          m_isInternal > 0 ? ret = SiPixelPI::BPixL1o : ret = SiPixelPI::BPixL1i;
+          m_isInternal ? ret = SiPixelPI::BPixL1i : ret = SiPixelPI::BPixL1o;
           break;
         case 2:
-          m_isInternal > 0 ? ret = SiPixelPI::BPixL2o : ret = SiPixelPI::BPixL2i;
+          m_isInternal ? ret = SiPixelPI::BPixL2i : ret = SiPixelPI::BPixL2o;
           break;
         case 3:
-          m_isInternal > 0 ? ret = SiPixelPI::BPixL3o : ret = SiPixelPI::BPixL3i;
+          m_isInternal ? ret = SiPixelPI::BPixL3i : ret = SiPixelPI::BPixL3o;
           break;
         case 4:
-          m_isInternal > 0 ? ret = SiPixelPI::BPixL4o : ret = SiPixelPI::BPixL4i;
+          m_isInternal ? ret = SiPixelPI::BPixL4i : ret = SiPixelPI::BPixL4o;
           break;
         default:
           edm::LogWarning("LogicError") << "Unknow BPix layer: " << m_layer;
@@ -769,7 +781,7 @@ namespace SiPixelPI {
           m_side > 1 ? ret = SiPixelPI::FPixpL3 : ret = SiPixelPI::FPixmL3;
           break;
         default:
-          if (*m_Phase < SiPixelPI::phase::two) {
+          if (m_Phase < SiPixelPI::phase::two) {
             // warning message only if the phase2 is < 2
             edm::LogWarning("LogicError") << "Unknow FPix disk: " << m_layer;
           }

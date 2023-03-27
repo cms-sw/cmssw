@@ -27,10 +27,10 @@ process.add_(cms.Service('TFileService',fileName=cms.string('tesTrackAnalyzer1.r
   //   REQUIRE_NOTHROW(tester.test());
   // }
 
-  // SECTION("beginJob and endJob only") {
-  //   edm::test::TestProcessor tester(config);
-  //   REQUIRE_NOTHROW(tester.testBeginAndEndJobOnly());
-  // }
+  SECTION("beginJob and endJob only") {
+    edm::test::TestProcessor tester(config);
+    REQUIRE_NOTHROW(tester.testBeginAndEndJobOnly());
+  }
 
   // SECTION("Run with no LuminosityBlocks") {
   //   edm::test::TestProcessor tester(config);

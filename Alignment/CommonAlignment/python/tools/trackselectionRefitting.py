@@ -363,10 +363,6 @@ def getSequence(process, collection,
     ## put the sequence together ##
     ###############################
 
-    if "Fast" in TTRHBuilder:
-        print("PixelCPEFast has been chosen, here we must include CUDAService first")
-        process.load('HeterogeneousCore.CUDAServices.CUDAService_cfi')
-
     modules = []
     src = collection
     prevsrc = None

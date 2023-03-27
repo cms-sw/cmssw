@@ -51,7 +51,7 @@ namespace cms::alpakatools {
       // of that activity (which has nothing to do with the memory here).
       auto dstBuffer = cms::alpakatools::make_device_buffer<int[]>(queue, srcData.size());
       alpaka::memcpy(queue, dstBuffer, srcData.buffer());
-      return cms::alpakatest::AlpakaESTestDataB<typename alpaka::trait::DevType<TQueue>::type>(std::move(dstBuffer));
+      return cms::alpakatest::AlpakaESTestDataB<alpaka::Dev<TQueue>>(std::move(dstBuffer));
     }
   };
 }  // namespace cms::alpakatools

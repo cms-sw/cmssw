@@ -11,7 +11,7 @@
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
+#include "HeterogeneousCore/CUDAServices/interface/CUDAInterface.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/deviceAllocatorStatus.h"
 
@@ -37,10 +37,11 @@ private:
 
 CUDAMonitoringService::CUDAMonitoringService(edm::ParameterSet const& config, edm::ActivityRegistry& registry) {
   // make sure that CUDA is initialised, and that the CUDAService destructor is called after this service's destructor
-  edm::Service<CUDAService> cudaService;
-  if (!cudaService->enabled())
+  edm::Service<CUDAInterface> cuda;
+  if (not cuda or not cuda->enabled())
     return;
-  numberOfDevices_ = cudaService->numberOfDevices();
+
+  numberOfDevices_ = cuda->numberOfDevices();
 
   if (config.getUntrackedParameter<bool>("memoryConstruction")) {
     registry.watchPostModuleConstruction(this, &CUDAMonitoringService::postModuleConstruction);

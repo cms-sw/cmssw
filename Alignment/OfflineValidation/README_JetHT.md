@@ -1,6 +1,6 @@
-## JetHT validation
+# JetHT validation
 
-### Validation analysis - JetHT_cfg.py
+## Validation analysis - JetHT_cfg.py
 
 The vast majority of the time in the JetHT validation goes to running the actual validation analysis. This is done with cmsRun using the JetHT_cfg.py configuration file. To configure the analysis in the all-in-one framework, the following parameters can be set in the json/yaml configuration file:
 
@@ -29,7 +29,7 @@ profilePtBorders | [3,5,10,20,50,100] | List for pT borders used in wide pT bin 
 TrackerAlignmentRcdFile | "nothing" | Local database file from which the TrackerAlignmentRcd is read. Notice that usual method to set this is reading from the database for each alignment.
 TrackerAlignmentErrorFile | "nothing" | Local database file from which the TrackerAlignmentExtendedErrorRcd is read. Notice that usual method to set this is reading from the database for each alignment.
 
-### File merging - addHistograms.sh
+## File merging - addHistograms.sh
 
 The addHistograms.sh script is used to merge the root files for jetHT validation. Merging is fast and can easily be done locally in seconds, but the tool is fully integrated to the all-in-one configuration for automated processing.
 
@@ -61,8 +61,7 @@ Variable | Default value | Explanation
 singles    | None | An array of single job names that must be finished before plotting can be run.
 alignments | None | An array of alignment names for which the files are merged within those alignments. Different alignments are kept separate.
 
-
-### Plotting - jetHtPlotter
+## Plotting - jetHtPlotter
 
 The tool is originally designed to be used standalone, since the plotting the histograms locally does not take more that tens of second at maximum. But the plotter works also together with the all-in-one configuration. The only difference for user is the structure of the configuration file, that changes a bit between standalone and all-in-one usage.
 

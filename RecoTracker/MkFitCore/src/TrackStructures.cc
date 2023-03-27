@@ -226,11 +226,15 @@ namespace mkfit {
     tc.setNTailMinusOneHits(0);
   }
 
-  void CombCandidate::endBkwSearch() {
+  void CombCandidate::repackCandPostBkwSearch(int i) {
+    // Called during filtering following backward search when a TrackCand's
+    // front hits need to be reindexed.
     // mergeCandsAndBestShortOne() has already been called (from MkBuilder::FindXxx()).
-    // We have to fixup the best candidate.
+    // NOTES:
+    // 1. Should only be called once for each i (flag/bit to allow multiple calls can be added).
+    // 2. Alternatively, CombCand could provide hit iterator/exporter that would handle this correctly.
 
-    TrackCand &tc = m_trk_cands[0];
+    TrackCand &tc = m_trk_cands[i];
 
     int curr_idx = tc.lastCcIndex();
     if (curr_idx != 0) {
@@ -248,9 +252,6 @@ namespace mkfit {
     tc.setLastCcIndex(m_lastHitIdx_before_bkwsearch);
     tc.setNInsideMinusOneHits(m_nInsideMinusOneHits_before_bkwsearch + tc.nInsideMinusOneHits());
     tc.setNTailMinusOneHits(m_nTailMinusOneHits_before_bkwsearch + tc.nTailMinusOneHits());
-    m_lastHitIdx_before_bkwsearch = -1;
-    m_nInsideMinusOneHits_before_bkwsearch = -1;
-    m_nTailMinusOneHits_before_bkwsearch = -1;
   }
 
 }  // namespace mkfit

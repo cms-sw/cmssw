@@ -4,6 +4,8 @@
 # Pass in name and status
 function die { echo $1: status $2 ;  exit $2; }
 
+LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
+
 ${LOCAL_TEST_DIR}/refTest.sh || die 'Failed in refTest.sh' $?
 
 ${LOCAL_TEST_DIR}/transRefTest.sh || die 'Failed in transRefTest.sh' $?

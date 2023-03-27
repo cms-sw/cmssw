@@ -4,11 +4,8 @@
 # argument from 0 to 4 specifying which test to run
 
 LOCAL_TEST_DIR=${CMSSW_BASE}/src/FWCore/Framework/test
-LOCAL_TMP_DIR=${CMSSW_BASE}/tmp/${SCRAM_ARCH}
 
 function die { echo Failure $1: status $2 ; exit $2 ; }
-
-pushd ${LOCAL_TMP_DIR}
 
 echo "Running run_testOptions.sh $1"
 
@@ -24,7 +21,5 @@ grep "Number of Concurrent Lumis = ${expectedConcurrentLumis[$1]}" ${configFiles
 grep "Number of Concurrent IOVs = ${expectedConcurrentIOVs[$1]}" ${configFiles[$1]}.log || die "Failed number of concurrent IOVs test" $?
 
 rm ${configFiles[$1]}.log
-
-popd
 
 exit 0

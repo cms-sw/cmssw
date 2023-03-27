@@ -1,4 +1,5 @@
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
+#include "SimG4Core/PhysicsLists/interface/CMSHepEmTrackingManager.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4SystemOfUnits.hh"
@@ -76,6 +77,7 @@ CMSEmStandardPhysics::CMSEmStandardPhysics(G4int ver, const edm::ParameterSet& p
   double tcut = p.getParameter<double>("G4TrackingCut") * CLHEP::MeV;
   param->SetLowestElectronEnergy(tcut);
   param->SetLowestMuHadEnergy(tcut);
+  fG4HepEmActive = p.getParameter<bool>("G4HepEmActive");
 }
 
 void CMSEmStandardPhysics::ConstructParticle() {
@@ -276,6 +278,14 @@ void CMSEmStandardPhysics::ConstructProcess() {
   ph->RegisterProcess(new G4eBremsstrahlung(), particle);
   ph->RegisterProcess(new G4eplusAnnihilation(), particle);
   ph->RegisterProcess(ss, particle);
+
+#if G4VERSION_NUMBER >= 1110
+  if (fG4HepEmActive) {
+    auto* hepEmTM = new CMSHepEmTrackingManager(highEnergyLimit);
+    G4Electron::Electron()->SetTrackingManager(hepEmTM);
+    G4Positron::Positron()->SetTrackingManager(hepEmTM);
+  }
+#endif
 
   // generic ion
   particle = G4GenericIon::GenericIon();

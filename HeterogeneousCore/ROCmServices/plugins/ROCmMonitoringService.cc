@@ -11,7 +11,7 @@
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
-#include "HeterogeneousCore/ROCmServices/interface/ROCmService.h"
+#include "HeterogeneousCore/ROCmServices/interface/ROCmInterface.h"
 #include "HeterogeneousCore/ROCmUtilities/interface/hipCheck.h"
 
 namespace edm {
@@ -36,10 +36,11 @@ private:
 
 ROCmMonitoringService::ROCmMonitoringService(edm::ParameterSet const& config, edm::ActivityRegistry& registry) {
   // make sure that ROCm is initialised, and that the ROCmService destructor is called after this service's destructor
-  edm::Service<ROCmService> rocmService;
-  if (!rocmService->enabled())
+  edm::Service<ROCmInterface> service;
+  if (not service or not service->enabled())
     return;
-  numberOfDevices_ = rocmService->numberOfDevices();
+
+  numberOfDevices_ = service->numberOfDevices();
 
   if (config.getUntrackedParameter<bool>("memoryConstruction")) {
     registry.watchPostModuleConstruction(this, &ROCmMonitoringService::postModuleConstruction);

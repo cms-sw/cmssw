@@ -75,7 +75,7 @@ namespace testinter {
               iTransitionID)) {
         std::cout << id_ << " FAILED waiting for external process" << std::endl;
         externalFailed_ = true;
-        throw cms::Exception("ExternalFailed");
+        throw edm::Exception(edm::errors::ExternalFailure);
       }
       return value;
     }

@@ -113,8 +113,6 @@ private:
           TTTrack_TrackWord::TrackBitLocations::kRinvMSB - 1, TTTrack_TrackWord::TrackBitLocations::kRinvLSB);
       ap_ufixed<TrackBitWidths::kPtSize, TrackBitWidths::kPtMagSize> ptEmulation;
       ptEmulation.V = ptEmulationBits.range();
-      //edm::LogInfo("L1TrackSelectionProducer") << "produce::Emulation track properties::ap_uint(bits) = " << ptEmulationBits.to_string(2)
-      //                                         << " ap_ufixed(bits) = " << ptEmulation.to_string(2) << " ap_ufixed(float) = " << ptEmulation.to_double();
       return ptEmulation.to_double() >= ptMin_;
     }
 
@@ -156,7 +154,11 @@ private:
     TTTrackWordAbsZ0MaxSelector(double absZ0Max) : absZ0Max_(absZ0Max) {}
     TTTrackWordAbsZ0MaxSelector(const edm::ParameterSet& cfg)
         : absZ0Max_(cfg.template getParameter<double>("absZ0Max")) {}
-    bool operator()(const L1Track& t) const { return std::abs(t.getZ0()) <= absZ0Max_; }
+    bool operator()(const L1Track& t) const {
+      double floatZ0 = t.undigitizeSignedValue(
+          t.getZ0Bits(), TTTrack_TrackWord::TrackBitWidths::kZ0Size, TTTrack_TrackWord::stepZ0, 0.0);
+      return std::abs(floatZ0) <= absZ0Max_;
+    }
 
   private:
     double absZ0Max_;
@@ -263,7 +265,7 @@ private:
           deltaZMax_(cfg.template getParameter<double>("deltaZMax")) {}
     bool operator()(const L1Track& t, const l1t::Vertex& v) const {
       size_t etaIndex =
-          std::lower_bound(deltaZMaxEtaBounds_.begin(), deltaZMaxEtaBounds_.end(), std::abs(t.momentum().eta())) -
+          std::upper_bound(deltaZMaxEtaBounds_.begin(), deltaZMaxEtaBounds_.end(), std::abs(t.momentum().eta())) -
           deltaZMaxEtaBounds_.begin() - 1;
       if (etaIndex > deltaZMax_.size() - 1)
         etaIndex = deltaZMax_.size() - 1;
@@ -281,12 +283,18 @@ private:
         : deltaZMaxEtaBounds_(cfg.template getParameter<double>("deltaZMaxEtaBounds")),
           deltaZMax_(cfg.template getParameter<double>("deltaZMax")) {}
     bool operator()(const L1Track& t, const l1t::VertexWord& v) const {
+      TTTrack_TrackWord::tanl_t etaEmulationBits = t.getTanlWord();
+      ap_fixed<TrackBitWidths::kEtaSize, TrackBitWidths::kEtaMagSize> etaEmulation;
+      etaEmulation.V = etaEmulationBits.range();
       size_t etaIndex =
-          std::lower_bound(deltaZMaxEtaBounds_.begin(), deltaZMaxEtaBounds_.end(), std::abs(t.momentum().eta())) -
+          std::upper_bound(deltaZMaxEtaBounds_.begin(), deltaZMaxEtaBounds_.end(), std::abs(etaEmulation.to_double())) -
           deltaZMaxEtaBounds_.begin() - 1;
       if (etaIndex > deltaZMax_.size() - 1)
         etaIndex = deltaZMax_.size() - 1;
-      return std::abs(v.z0() - t.getZ0()) <= deltaZMax_[etaIndex];
+      l1t::VertexWord::vtxz0_t fixedTkZ0 = t.undigitizeSignedValue(
+          t.getZ0Bits(), TTTrack_TrackWord::TrackBitWidths::kZ0Size, TTTrack_TrackWord::stepZ0, 0.0);
+
+      return std::abs(v.z0() - fixedTkZ0.to_double()) <= deltaZMax_[etaIndex];
     }
 
   private:
@@ -496,9 +504,13 @@ void L1TrackSelectionProducer::printTrackInfo(edm::LogInfo& log, const L1Track& 
     TTTrack_TrackWord::tanl_t etaEmulationBits = track.getTanlWord();
     ap_fixed<TrackBitWidths::kEtaSize, TrackBitWidths::kEtaMagSize> etaEmulation;
     etaEmulation.V = etaEmulationBits.range();
-    log << "\t\t(" << ptEmulation.to_double() << ", " << etaEmulation.to_double() << ", " << track.getPhi() << ", "
+    double floatTkZ0 = track.undigitizeSignedValue(
+        track.getZ0Bits(), TTTrack_TrackWord::TrackBitWidths::kZ0Size, TTTrack_TrackWord::stepZ0, 0.0);
+    double floatTkPhi = track.undigitizeSignedValue(
+        track.getPhiBits(), TTTrack_TrackWord::TrackBitWidths::kPhiSize, TTTrack_TrackWord::stepPhi0, 0.0);
+    log << "\t\t(" << ptEmulation.to_double() << ", " << etaEmulation.to_double() << ", " << floatTkPhi << ", "
         << track.getNStubs() << ", " << track.getBendChi2() << ", " << track.getChi2RZ() << ", " << track.getChi2RPhi()
-        << ", " << track.getZ0() << ")\n";
+        << ", " << floatTkZ0 << ")\n";
   }
 }
 

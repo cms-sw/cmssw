@@ -4,6 +4,7 @@
 <ConstantsSection label="hgcalcell.xml" eval="true">
   <Constant name="WaferSize"             value="[hgcal:WaferSize]"/>
   <Constant name="SensorSeparation"      value="[hgcal:SensorSeparation]"/>
+  <Constant name="SensorSizeOffset"      value="[hgcal:SensorSizeOffset]"/>
   <Constant name="WaferThicknessFine"    value="[hgcal:WaferThicknessFine]"/>
   <Constant name="WaferThicknessCoarse1" value="[hgcal:WaferThicknessCoarse1]"/>
   <Constant name="WaferThicknessCoarse2" value="[hgcal:WaferThicknessCoarse2]"/>
@@ -18,7 +19,7 @@
   <Algorithm name="hgcal:DDHGCalCell">
     <rParent name="hgcalwafer:HGCalCell"/>
     <Numeric name="WaferSize"          value="[WaferSize]"/>
-    <Numeric name="WaferSeparation"    value="[SensorSeparation]"/>
+    <Numeric name="WaferSeparation"    value="[SensorSizeOffset]"/>
     <Numeric name="AddWaferSeparation" value="1"/>
     <Numeric name="WaferThick"         value="[WaferThicknessFine]"/>
     <Numeric name="CellThick"          value="[CellThicknessFine]"/>
@@ -61,7 +62,7 @@
   <Algorithm name="hgcal:DDHGCalCell">
     <rParent name="hgcalwafer:HGCalCell"/>
     <Numeric name="WaferSize"          value="[WaferSize]"/>
-    <Numeric name="WaferSeparation"    value="[SensorSeparation]"/>
+    <Numeric name="WaferSeparation"    value="[SensorSizeOffset]"/>
     <Numeric name="AddWaferSeparation" value="1"/>
     <Numeric name="WaferThick"         value="[WaferThicknessFine]"/>
     <Numeric name="CellThick"          value="[CellThicknessFine]"/>
@@ -104,7 +105,7 @@
   <Algorithm name="hgcal:DDHGCalCell">
     <rParent name="hgcalwafer:HGCalCell"/>
     <Numeric name="WaferSize"          value="[WaferSize]"/>
-    <Numeric name="WaferSeparation"    value="[SensorSeparation]"/>
+    <Numeric name="WaferSeparation"    value="[SensorSizeOffset]"/>
     <Numeric name="AddWaferSeparation" value="1"/>
     <Numeric name="WaferThick"         value="[WaferThicknessCoarse1]"/>
     <Numeric name="CellThick"          value="[CellThicknessCoarse1]"/>
@@ -147,7 +148,7 @@
   <Algorithm name="hgcal:DDHGCalCell">
     <rParent name="hgcalwafer:HGCalCell"/>
     <Numeric name="WaferSize"          value="[WaferSize]"/>
-    <Numeric name="WaferSeparation"    value="[SensorSeparation]"/>
+    <Numeric name="WaferSeparation"    value="[SensorSizeOffset]"/>
     <Numeric name="AddWaferSeparation" value="1"/>
     <Numeric name="WaferThick"         value="[WaferThicknessCoarse1]"/>
     <Numeric name="CellThick"          value="[CellThicknessCoarse1]"/>
@@ -190,7 +191,7 @@
   <Algorithm name="hgcal:DDHGCalCell">
     <rParent name="hgcalwafer:HGCalCell"/>
     <Numeric name="WaferSize"          value="[WaferSize]"/>
-    <Numeric name="WaferSeparation"    value="[SensorSeparation]"/>
+    <Numeric name="WaferSeparation"    value="[SensorSizeOffset]"/>
     <Numeric name="AddWaferSeparation" value="1"/>
     <Numeric name="WaferThick"         value="[WaferThicknessCoarse2]"/>
     <Numeric name="CellThick"          value="[CellThicknessCoarse2]"/>
@@ -233,7 +234,7 @@
   <Algorithm name="hgcal:DDHGCalCell">
     <rParent name="hgcalwafer:HGCalCell"/>
     <Numeric name="WaferSize"          value="[WaferSize]"/>
-    <Numeric name="WaferSeparation"    value="[SensorSeparation]"/>
+    <Numeric name="WaferSeparation"    value="[SensorSizeOffset]"/>
     <Numeric name="AddWaferSeparation" value="1"/>
     <Numeric name="WaferThick"         value="[WaferThicknessCoarse2]"/>
     <Numeric name="CellThick"          value="[CellThicknessCoarse2]"/>
@@ -276,7 +277,7 @@
   <Algorithm name="hgcal:DDHGCalCell">
     <rParent name="hgcalwafer:HGCalCell"/>
     <Numeric name="WaferSize"          value="[WaferSize]"/>
-    <Numeric name="WaferSeparation"    value="[SensorSeparation]"/>
+    <Numeric name="WaferSeparation"    value="[SensorSizeOffset]"/>
     <Numeric name="AddWaferSeparation" value="1"/>
     <Numeric name="WaferThick"         value="[WaferThicknessFine]"/>
     <Numeric name="CellThick"          value="[CellThicknessFine]"/>
@@ -319,7 +320,7 @@
   <Algorithm name="hgcal:DDHGCalCell">
     <rParent name="hgcalwafer:HGCalCell"/>
     <Numeric name="WaferSize"          value="[WaferSize]"/>
-    <Numeric name="WaferSeparation"    value="[SensorSeparation]"/>
+    <Numeric name="WaferSeparation"    value="[SensorSizeOffset]"/>
     <Numeric name="AddWaferSeparation" value="1"/>
     <Numeric name="WaferThick"         value="[WaferThicknessFine]"/>
     <Numeric name="CellThick"          value="[CellThicknessFine]"/>
@@ -362,7 +363,7 @@
   <Algorithm name="hgcal:DDHGCalCell">
     <rParent name="hgcalwafer:HGCalCell"/>
     <Numeric name="WaferSize"          value="[WaferSize]"/>
-    <Numeric name="WaferSeparation"    value="[SensorSeparation]"/>
+    <Numeric name="WaferSeparation"    value="[SensorSizeOffset]"/>
     <Numeric name="AddWaferSeparation" value="1"/>
     <Numeric name="WaferThick"         value="[WaferThicknessCoarse1]"/>
     <Numeric name="CellThick"          value="[CellThicknessCoarse1]"/>
@@ -405,7 +406,7 @@
   <Algorithm name="hgcal:DDHGCalCell">
     <rParent name="hgcalwafer:HGCalCell"/>
     <Numeric name="WaferSize"          value="[WaferSize]"/>
-    <Numeric name="WaferSeparation"    value="[SensorSeparation]"/>
+    <Numeric name="WaferSeparation"    value="[SensorSizeOffset]"/>
     <Numeric name="AddWaferSeparation" value="1"/>
     <Numeric name="WaferThick"         value="[WaferThicknessCoarse1]"/>
     <Numeric name="CellThick"          value="[CellThicknessCoarse1]"/>
@@ -448,7 +449,7 @@
   <Algorithm name="hgcal:DDHGCalCell">
     <rParent name="hgcalwafer:HGCalCell"/>
     <Numeric name="WaferSize"          value="[WaferSize]"/>
-    <Numeric name="WaferSeparation"    value="[SensorSeparation]"/>
+    <Numeric name="WaferSeparation"    value="[SensorSizeOffset]"/>
     <Numeric name="AddWaferSeparation" value="1"/>
     <Numeric name="WaferThick"         value="[WaferThicknessCoarse2]"/>
     <Numeric name="CellThick"          value="[CellThicknessCoarse2]"/>
@@ -491,7 +492,7 @@
   <Algorithm name="hgcal:DDHGCalCell">
     <rParent name="hgcalwafer:HGCalCell"/>
     <Numeric name="WaferSize"          value="[WaferSize]"/>
-    <Numeric name="WaferSeparation"    value="[SensorSeparation]"/>
+    <Numeric name="WaferSeparation"    value="[SensorSizeOffset]"/>
     <Numeric name="AddWaferSeparation" value="1"/>
     <Numeric name="WaferThick"         value="[WaferThicknessCoarse2]"/>
     <Numeric name="CellThick"          value="[CellThicknessCoarse2]"/>

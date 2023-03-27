@@ -1,10 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('TestCUDATestDeviceAdditionModule')
+process.load('HeterogeneousCore.CUDACore.ProcessAcceleratorCUDA_cfi')
 
 process.source = cms.Source('EmptySource')
-
-process.CUDAService = cms.Service('CUDAService')
 
 process.cudaTestDeviceAdditionModule = cms.EDAnalyzer('CUDATestDeviceAdditionModule',
     size = cms.uint32( 1024*1024 )

@@ -1,6 +1,7 @@
 <use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/Framework"/>
 <use name="IOMC/RandomEngine"/>
+<use name="SimDataFormats/RandomEngine"/>
 <library file="*.cc" name="IOMCRandomEnginePlugins">
   <flags EDM_PLUGIN="1"/>
 </library>

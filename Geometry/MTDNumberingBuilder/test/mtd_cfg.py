@@ -46,7 +46,7 @@ process.MessageLogger.files.mtdNumberingDDD = cms.untracked.PSet(
     threshold = cms.untracked.string('INFO')
 )
 
-process.load("Configuration.Geometry.GeometryExtended2026D88_cff")
+process.load("Configuration.Geometry.GeometryExtended2026D95_cff")
 
 process.load("Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff")
 
@@ -58,4 +58,3 @@ process.Timing = cms.Service("Timing")
 process.prod = cms.EDAnalyzer("GeometricTimingDetAnalyzer")
 
 process.p1 = cms.Path(process.prod)
-

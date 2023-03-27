@@ -17,7 +17,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
    */
   class TestAlpakaESProducerA : public ESProducer {
   public:
-    TestAlpakaESProducerA(edm::ParameterSet const& iConfig) {
+    TestAlpakaESProducerA(edm::ParameterSet const& iConfig) : ESProducer(iConfig) {
       auto cc = setWhatProduced(this);
       token_ = cc.consumes();
     }

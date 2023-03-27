@@ -171,6 +171,9 @@ public:
     return ((mode_ == HGCalGeometryMode::Hexagon8File) || (mode_ == HGCalGeometryMode::Hexagon8Module) ||
             (mode_ == HGCalGeometryMode::Hexagon8Cassette));
   }
+  inline bool waferHexagon8Module() const {
+    return ((mode_ == HGCalGeometryMode::Hexagon8Module) || (mode_ == HGCalGeometryMode::Hexagon8Cassette));
+  }
   bool waferInLayer(int wafer, int lay, bool reco) const;
   bool waferFullInLayer(int wafer, int lay, bool reco) const;
   inline int waferCount(const int type) const { return ((type == 0) ? waferMax_[2] : waferMax_[3]); }

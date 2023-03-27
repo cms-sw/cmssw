@@ -1,3 +1,5 @@
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 #include "TestHelperClass.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
@@ -5,6 +7,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       : getToken_(iC.consumes(iConfig.getParameter<edm::InputTag>("source"))),
         esTokenHost_(iC.esConsumes()),
         esTokenDevice_(iC.esConsumes()) {}
+
+  void TestHelperClass::fillPSetDescription(edm::ParameterSetDescription& iDesc) { iDesc.add<edm::InputTag>("source"); }
 
   void TestHelperClass::makeAsync(device::Event const& iEvent, device::EventSetup const& iSetup) {
     [[maybe_unused]] auto esDataHostHandle = iSetup.getHandle(esTokenHost_);

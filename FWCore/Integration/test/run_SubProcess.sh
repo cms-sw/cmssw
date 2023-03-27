@@ -4,7 +4,7 @@ test=testSubProcess
 
 function die { echo Failure $1: status $2 ; exit $2 ; }
 
-pushd ${LOCAL_TMP_DIR}
+LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
 
   rm -f testSubProcess.grep.txt
   rm -f ${test}.log
@@ -37,7 +37,5 @@ pushd ${LOCAL_TMP_DIR}
 
   echo cmsRun testSubProcessUnscheduledRead_cfg.py
   cmsRun -p ${LOCAL_TEST_DIR}/testSubProcessUnscheduledRead_cfg.py || die "cmsRun testSubProcessUnscheduledRead_cfg.py" $?
-
-popd
 
 exit 0

@@ -8,7 +8,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 using namespace geant_units::operators;
 
 bool HGCalParametersFromDD::build(const DDCompactView* cpv,
@@ -113,7 +113,10 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
         php.waferSize_ = HGCalParameters::k_ScaleFromDDD * getDDDValue("WaferSize", sv2);
         php.waferThick_ = HGCalParameters::k_ScaleFromDDD * getDDDValue("WaferThickness", sv2);
         php.sensorSeparation_ = HGCalParameters::k_ScaleFromDDD * getDDDValue("SensorSeparation", sv2);
+        php.sensorSizeOffset_ = HGCalParameters::k_ScaleFromDDD * getDDDValue("SensorSizeOffset", sv2);
+        php.guardRingOffset_ = HGCalParameters::k_ScaleFromDDD * getDDDValue("GuardRingOffset", sv2);
         php.mouseBite_ = HGCalParameters::k_ScaleFromDDD * getDDDValue("MouseBite", sv2);
+        php.useOffset_ = static_cast<int>(getDDDValue("UseOffset", sv2));
         php.waferR_ = HGCalParameters::k_ScaleToDDD * php.waferSize_ * tan30deg_;
         php.cellSize_.emplace_back(HGCalParameters::k_ScaleToDDD * php.waferSize_ / php.nCellsFine_);
         php.cellSize_.emplace_back(HGCalParameters::k_ScaleToDDD * php.waferSize_ / php.nCellsCoarse_);
@@ -122,8 +125,9 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
                                       << HGCalGeometryMode::ExtrudedPolygon << " # of cells|size for fine/coarse "
                                       << php.nCellsFine_ << ":" << php.cellSize_[0] << ":" << php.nCellsCoarse_ << ":"
                                       << php.cellSize_[1] << " wafer Params " << php.waferSize_ << ":" << php.waferR_
-                                      << ":" << php.waferThick_ << ":" << php.sensorSeparation_ << ":" << php.mouseBite_
-                                      << ":" << php.waferR_;
+                                      << ":" << php.waferThick_ << ":" << php.sensorSeparation_ << ":"
+                                      << php.sensorSizeOffset_ << ":" << php.guardRingOffset_ << ":" << php.mouseBite_
+                                      << ":" << php.useOffset_ << ":" << php.waferR_;
 #endif
         for (int k = 0; k < 2; ++k)
           getCellPosition(php, k);
@@ -190,6 +194,7 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
       php.minTileSize_ = HGCalParameters::k_ScaleFromDDD * getDDDValue("MinimumTileSize", sv);
       php.waferSize_ = php.waferR_ = 0;
       php.sensorSeparation_ = php.mouseBite_ = 0;
+      php.sensorSizeOffset_ = php.guardRingOffset_ = php.useOffset_ = 0;
       php.waferMaskMode_ = static_cast<int>(getDDDValue("WaferMaskMode", sv));
       php.waferZSide_ = static_cast<int>(getDDDValue("WaferZside", sv));
       if ((php.mode_ == HGCalGeometryMode::TrapezoidModule) || (php.mode_ == HGCalGeometryMode::TrapezoidCassette))
@@ -333,8 +338,14 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
       php.waferThick_ = HGCalParameters::k_ScaleFromDD4hep * tempD[0];
       tempD = fv.get<std::vector<double> >(namet, "SensorSeparation");
       php.sensorSeparation_ = HGCalParameters::k_ScaleFromDD4hep * tempD[0];
+      tempD = fv.get<std::vector<double> >(namet, "SensorSizeOffset");
+      php.sensorSizeOffset_ = HGCalParameters::k_ScaleFromDD4hep * tempD[0];
+      tempD = fv.get<std::vector<double> >(namet, "GuardRingOffset");
+      php.guardRingOffset_ = HGCalParameters::k_ScaleFromDD4hep * tempD[0];
       tempD = fv.get<std::vector<double> >(namet, "MouseBite");
       php.mouseBite_ = HGCalParameters::k_ScaleFromDD4hep * tempD[0];
+      tempD = fv.get<std::vector<double> >(namet, "UseOffset");
+      php.useOffset_ = static_cast<int>(tempD[0]);
       php.waferR_ = HGCalParameters::k_ScaleToDDD * php.waferSize_ * tan30deg_;
       php.cellSize_.emplace_back(HGCalParameters::k_ScaleToDDD * php.waferSize_ / php.nCellsFine_);
       php.cellSize_.emplace_back(HGCalParameters::k_ScaleToDDD * php.waferSize_ / php.nCellsCoarse_);
@@ -343,8 +354,9 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
                                     << HGCalGeometryMode::ExtrudedPolygon << " # of cells|size for fine/coarse "
                                     << php.nCellsFine_ << ":" << php.cellSize_[0] << ":" << php.nCellsCoarse_ << ":"
                                     << php.cellSize_[1] << " wafer Params " << php.waferSize_ << ":" << php.waferR_
-                                    << ":" << php.waferThick_ << ":" << php.sensorSeparation_ << ":" << php.mouseBite_
-                                    << ":" << php.waferR_;
+                                    << ":" << php.waferThick_ << ":" << php.sensorSeparation_ << ":"
+                                    << php.sensorSizeOffset_ << ":" << php.guardRingOffset_ << ":" << php.mouseBite_
+                                    << ":" << php.useOffset_ << ":" << php.waferR_;
 #endif
       for (int k = 0; k < 2; ++k)
         getCellPosition(php, k);
@@ -418,6 +430,7 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
       php.minTileSize_ = HGCalParameters::k_ScaleFromDD4hep * tempD[0];
       php.waferSize_ = php.waferR_ = 0;
       php.sensorSeparation_ = php.mouseBite_ = 0;
+      php.sensorSizeOffset_ = php.guardRingOffset_ = php.useOffset_ = 0;
       tempD = fv.get<std::vector<double> >(name, "WaferMaskMode");
       php.waferMaskMode_ = static_cast<int>(tempD[0]);
       tempD = fv.get<std::vector<double> >(name, "WaferZside");

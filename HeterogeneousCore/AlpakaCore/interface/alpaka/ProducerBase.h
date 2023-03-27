@@ -78,9 +78,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // can think of it later if really needed
     template <typename TProduct, typename TToken, edm::Transition Tr>
     edm::EDPutTokenT<TToken> deviceProduces(std::string instanceName) {
-      edm::EDPutTokenT<TToken> token = Base::template produces<TToken, Tr>(std::move(instanceName));
-
-      if constexpr (not detail::useProductDirectly<TProduct>) {
+      if constexpr (detail::useProductDirectly<TProduct>) {
+        return Base::template produces<TToken, Tr>(std::move(instanceName));
+      } else {
+        edm::EDPutTokenT<TToken> token = Base::template produces<TToken, Tr>(instanceName);
         this->registerTransformAsync(
             token,
             [](TToken const& deviceProduct, edm::WaitingTaskWithArenaHolder holder) {
@@ -100,9 +101,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               // Wrap possibly move-only type into a copyable type
               return std::make_shared<TplType>(std::move(productOnHost), sentry.finish());
             },
-            [](auto tplPtr) { return std::move(std::get<0>(*tplPtr)); });
+            [](auto tplPtr) { return std::move(std::get<0>(*tplPtr)); },
+            std::move(instanceName));
+        return token;
       }
-      return token;
     }
   };
 
