@@ -222,8 +222,7 @@ namespace pat {
           covarianceVersion_(iOther.covarianceVersion_),
           covarianceSchema_(iOther.covarianceSchema_),
           firstHit_(iOther.firstHit_),
-          trkAlgo_(iOther.trkAlgo_),
-          trkOriginalAlgo_(iOther.trkOriginalAlgo_) {}
+          trkAlgoPacked_(iOther.trkAlgoPacked_) {}
 
     PackedCandidate(PackedCandidate &&iOther)
         : packedPt_(iOther.packedPt_),
@@ -265,8 +264,7 @@ namespace pat {
           covarianceVersion_(iOther.covarianceVersion_),
           covarianceSchema_(iOther.covarianceSchema_),
           firstHit_(iOther.firstHit_),
-          trkAlgo_(iOther.trkAlgo_),
-          trkOriginalAlgo_(iOther.trkOriginalAlgo_) {}
+          trkAlgoPacked_(iOther.trkAlgoPacked_) {}
 
     PackedCandidate &operator=(const PackedCandidate &iOther) {
       if (this == &iOther) {
@@ -343,8 +341,7 @@ namespace pat {
       covarianceVersion_ = iOther.covarianceVersion_;
       covarianceSchema_ = iOther.covarianceSchema_;
       firstHit_ = iOther.firstHit_;
-      trkAlgo_ = iOther.trkAlgo_;
-      trkOriginalAlgo_ = iOther.trkOriginalAlgo_;
+      trkAlgoPacked_ = iOther.trkAlgoPacked_;
       return *this;
     }
 
@@ -391,8 +388,7 @@ namespace pat {
       covarianceVersion_ = iOther.covarianceVersion_;
       covarianceSchema_ = iOther.covarianceSchema_;
       firstHit_ = iOther.firstHit_;
-      trkAlgo_ = iOther.trkAlgo_;
-      trkOriginalAlgo_ = iOther.trkOriginalAlgo_;
+      trkAlgoPacked_ = iOther.trkAlgoPacked_;
       return *this;
     }
 
@@ -846,10 +842,13 @@ namespace pat {
     uint16_t firstHit() const { return firstHit_; }
 
     /// Set/get track algo
-    void setTrkAlgo(uint8_t algo) { trkAlgo_ = algo; }
-    void setTrkOriginalAlgo(uint8_t algo) { trkOriginalAlgo_ = algo; }
-    uint8_t trkAlgo() const { return trkAlgo_; }
-    uint8_t trkOriginalAlgo() const { return trkOriginalAlgo_; }
+    void setTrkAlgo(uint8_t algo, uint8_t original) {
+      trkAlgoPacked_ = algo | ((algo == original ? 0 : original) << 8);
+    }
+    uint8_t trkAlgo() const { return trkAlgoPacked_ & 0xff; }
+    uint8_t trkOriginalAlgo() const {
+      return (trkAlgoPacked_ & 0xff00) == 0 ? trkAlgo() : ((trkAlgoPacked_ >> 8) & 0xff);
+    }
 
     void setMuonID(bool isStandAlone, bool isGlobal) {
       int16_t muonFlags = isStandAlone | (2 * isGlobal);
@@ -1126,8 +1125,7 @@ namespace pat {
     uint16_t firstHit_;
 
     /// track algorithm details
-    uint8_t trkAlgo_ = 0;
-    uint8_t trkOriginalAlgo_ = 0;
+    uint16_t trkAlgoPacked_ = 0;
 
     /// check overlap with another Candidate
     bool overlap(const reco::Candidate &) const override;
