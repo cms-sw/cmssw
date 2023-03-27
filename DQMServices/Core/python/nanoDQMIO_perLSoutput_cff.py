@@ -148,7 +148,7 @@ nanoDQMIO_perLSoutput = cms.PSet(
     "Tracking/TrackParameters/generalTracks/HitProperties/NumberOfMissingOuterRecHitsPerTrack_GenTk",
     "Tracking/TrackParameters/generalTracks/HitProperties/NumberMORecHitsPerTrackVsPt_GenTk",
     "OfflinePV/offlinePrimaryVertices/tagVtxProb",
-    "OfflinePV/offlinePrimaryVertice/tagType",
+    "OfflinePV/offlinePrimaryVertices/tagType",
     "OfflinePV/Resolution/PV/pull_x",
     "OfflinePV/Resolution/PV/pull_y",
     "OfflinePV/Resolution/PV/pull_z",
