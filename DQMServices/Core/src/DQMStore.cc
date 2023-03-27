@@ -99,15 +99,31 @@ namespace dqm::implementation {
       MonitorElementData medata;
       medata.key_.path_ = path;
       medata.key_.kind_ = kind;
-      medata.key_.scope_ = this->scope_;
+
+      bool pathInList = false;
+      if (not store_->MEsToSave_.empty()) {
+        for (std::vector<std::string>::const_iterator ipath = store_->MEsToSave_.begin();
+             ipath != store_->MEsToSave_.end();
+             ++ipath) {
+          if (fullpath == ipath->data()) {
+            medata.key_.scope_ = MonitorElementData::Scope::LUMI;
+            this->scope_ = MonitorElementData::Scope::LUMI;
+            pathInList = true;
+            break;
+          }
+        }
+        if (not pathInList)
+          medata.key_.scope_ = this->scope_;
+      } else
+        medata.key_.scope_ = this->scope_;
 
       // will be (0,0) ( = prototype) in the common case.
       // This branching is for harvesting, where we have run/lumi in the booker.
-      if (this->scope_ == MonitorElementData::Scope::JOB) {
+      if (medata.key_.scope_ == MonitorElementData::Scope::JOB) {
         medata.key_.id_ = edm::LuminosityBlockID();
-      } else if (this->scope_ == MonitorElementData::Scope::RUN) {
+      } else if (medata.key_.scope_ == MonitorElementData::Scope::RUN) {
         medata.key_.id_ = edm::LuminosityBlockID(this->runlumi_.run(), 0);
-      } else if (this->scope_ == MonitorElementData::Scope::LUMI) {
+      } else if (medata.key_.scope_ == MonitorElementData::Scope::LUMI) {
         // In the messy case of legacy-booking a LUMI ME in beginRun (or
         // similar), where we don't have a valid lumi number yet, make sure to
         // book a prototype instead.

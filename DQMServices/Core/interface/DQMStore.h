@@ -792,11 +792,15 @@ namespace dqm {
 
       // Book MEs by lumi by default whenever possible.
       bool doSaveByLumi_;
-      std::vector<std::string> MEsToSave_;  //just if perLS is ON
+      //      std::vector<std::string> MEsToSave_;  //just if perLS is ON
 
       // if non-empty, debugTrackME calls will log some information whenever a
       // ME path contains this string.
       std::string trackME_;
+
+    public:
+      // Book MEs by lumi from list in DQMServices/Core/python/DQMStore_cfi.py
+      std::vector<std::string> MEsToSave_;  //just if perLS is ON
     };
   }  // namespace implementation
 
