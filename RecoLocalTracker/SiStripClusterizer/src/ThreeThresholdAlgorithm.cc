@@ -15,6 +15,7 @@ ThreeThresholdAlgorithm::ThreeThresholdAlgorithm(
     unsigned holes,
     unsigned bad,
     unsigned adj,
+    unsigned maxClusterSize,
     bool removeApvShots,
     float minGoodCharge)
     : StripClusterizerAlgorithm(conditionsToken),
@@ -24,6 +25,7 @@ ThreeThresholdAlgorithm::ThreeThresholdAlgorithm(
       MaxSequentialHoles(holes),
       MaxSequentialBad(bad),
       MaxAdjacentBad(adj),
+      MaxClusterSize(maxClusterSize),
       RemoveApvShots(removeApvShots),
       minGoodCharge(minGoodCharge) {}
 
@@ -80,7 +82,8 @@ inline void ThreeThresholdAlgorithm::addToCandidate(State& state, uint16_t strip
   while (++state.lastStrip < strip)
     state.ADCs.push_back(0);  // pad holes
 
-  state.ADCs.push_back(adc);
+  if (state.ADCs.size() <= MaxClusterSize)
+    state.ADCs.push_back(adc);
   state.noiseSquared += Noise * Noise;
 }
 
@@ -98,7 +101,7 @@ inline void ThreeThresholdAlgorithm::endCandidate(State& state, T& out) const {
 }
 
 inline bool ThreeThresholdAlgorithm::candidateAccepted(State const& state) const {
-  return (!state.candidateLacksSeed &&
+  return (!state.candidateLacksSeed && state.ADCs.size() <= MaxClusterSize &&
           state.noiseSquared * ClusterThresholdSquared <=
               std::pow(float(std::accumulate(state.ADCs.begin(), state.ADCs.end(), int(0))), 2.f));
 }
