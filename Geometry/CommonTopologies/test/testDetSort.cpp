@@ -8,6 +8,7 @@
 #include <iostream>
 #include <iterator>
 
+using namespace std;
 using namespace geomsort;
 
 typedef Surface::PositionType PositionType;

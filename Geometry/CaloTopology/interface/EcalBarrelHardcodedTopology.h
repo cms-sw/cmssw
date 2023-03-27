@@ -12,7 +12,7 @@ public:
   /// create a new Topology
   EcalBarrelHardcodedTopology(){};
 
-  ~EcalBarrelHardcodedTopology() override = default;
+  ~EcalBarrelHardcodedTopology() override{};
 
   /// move the Topology north (increment iphi)
   DetId goNorth(const DetId& id) const override { return incrementIphi(EBDetId(id)); }

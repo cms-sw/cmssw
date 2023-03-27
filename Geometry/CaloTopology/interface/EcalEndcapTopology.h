@@ -16,7 +16,7 @@ public:
   EcalEndcapTopology() : theGeom_(nullptr){};
 
   /// virtual destructor
-  ~EcalEndcapTopology() override = default;
+  ~EcalEndcapTopology() override {}
 
   /// create a new Topology from geometry
   EcalEndcapTopology(CaloGeometry const& theGeom) {
