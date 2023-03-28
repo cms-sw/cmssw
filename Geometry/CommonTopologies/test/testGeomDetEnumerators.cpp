@@ -11,11 +11,13 @@ int main(void) {
     auto subdet = static_cast<GeomDetEnumerators::SubDetector>(subdetRaw);
     if (!(GeomDetEnumerators::isBarrel(subdet) || GeomDetEnumerators::isEndcap(subdet))) {
       success = false;
-      edm::LogVerbatim("CommonTopologies") << "GeomDetEnumerator::SubDetector " << subdet << " (" << subdetRaw << ") is not barrel or endcap!";
+      edm::LogVerbatim("CommonTopologies")
+          << "GeomDetEnumerator::SubDetector " << subdet << " (" << subdetRaw << ") is not barrel or endcap!";
     }
     if (GeomDetEnumerators::isBarrel(subdet) && GeomDetEnumerators::isEndcap(subdet)) {
       success = false;
-      edm::LogVerbatim("CommonTopologies") << "GeomDetEnumerator::SubDetector " << subdet << " (" << subdetRaw << ") is both barrel and endcap!";
+      edm::LogVerbatim("CommonTopologies")
+          << "GeomDetEnumerator::SubDetector " << subdet << " (" << subdetRaw << ") is both barrel and endcap!";
     }
   }
 
