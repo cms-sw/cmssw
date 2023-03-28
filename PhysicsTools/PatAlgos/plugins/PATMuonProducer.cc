@@ -42,7 +42,7 @@
 #include "PhysicsTools/PatAlgos/interface/EfficiencyLoader.h"
 #include "PhysicsTools/PatAlgos/interface/KinResolutionsLoader.h"
 #include "PhysicsTools/PatAlgos/interface/MultiIsolator.h"
-#include "PhysicsTools/PatAlgos/interface/MuonMvaEstimator.h"
+#include "PhysicsTools/PatAlgos/interface/CalculatePtRatioRel.h"
 #include "PhysicsTools/PatAlgos/interface/MuonMvaIDEstimator.h"
 #include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
 #include "PhysicsTools/PatAlgos/interface/SoftMuonMvaEstimator.h"
@@ -58,14 +58,12 @@ namespace pat {
   public:
     PATMuonHeavyObjectCache(const edm::ParameterSet&);
 
-    pat::MuonMvaEstimator const& muonMvaEstimator() const { return *muonMvaEstimator_; }
-    pat::MuonMvaEstimator const& muonLowPtMvaEstimator() const { return *muonLowPtMvaEstimator_; }
+    pat::CalculatePtRatioRel const& calculatePtRatioRel() const { return *calculatePtRatioRel_; }
     pat::MuonMvaIDEstimator const& muonMvaIDEstimator() const { return *muonMvaIDEstimator_; }
     pat::SoftMuonMvaEstimator const& softMuonMvaEstimator() const { return *softMuonMvaEstimator_; }
 
   private:
-    std::unique_ptr<const pat::MuonMvaEstimator> muonLowPtMvaEstimator_;
-    std::unique_ptr<const pat::MuonMvaEstimator> muonMvaEstimator_;
+    std::unique_ptr<const pat::CalculatePtRatioRel> calculatePtRatioRel_;
     std::unique_ptr<const pat::MuonMvaIDEstimator> muonMvaIDEstimator_;
     std::unique_ptr<const pat::SoftMuonMvaEstimator> softMuonMvaEstimator_;
   };
@@ -234,11 +232,10 @@ namespace pat {
     edm::EDGetTokenT<edm::ValueMap<float>> PUPPINoLeptonsIsolation_neutral_hadrons_;
     edm::EDGetTokenT<edm::ValueMap<float>> PUPPINoLeptonsIsolation_photons_;
     /// standard muon selectors
-    bool computeMuonMVA_;
     bool computeMuonIDMVA_;
     bool computeSoftMuonMVA_;
     bool recomputeBasicSelectors_;
-    bool mvaUseJec_;
+    bool useJec_;
     edm::EDGetTokenT<reco::JetTagCollection> mvaBTagCollectionTag_;
     edm::EDGetTokenT<reco::JetCorrector> mvaL1Corrector_;
     edm::EDGetTokenT<reco::JetCorrector> mvaL1L2L3ResCorrector_;
@@ -325,12 +322,9 @@ using namespace pat;
 using namespace std;
 
 PATMuonHeavyObjectCache::PATMuonHeavyObjectCache(const edm::ParameterSet& iConfig) {
-  if (iConfig.getParameter<bool>("computeMuonMVA")) {
-    edm::FileInPath mvaTrainingFile = iConfig.getParameter<edm::FileInPath>("mvaTrainingFile");
-    edm::FileInPath mvaLowPtTrainingFile = iConfig.getParameter<edm::FileInPath>("lowPtmvaTrainingFile");
+  if (iConfig.getParameter<bool>("computeMiniIso")) {
     float mvaDrMax = iConfig.getParameter<double>("mvaDrMax");
-    muonMvaEstimator_ = std::make_unique<MuonMvaEstimator>(mvaTrainingFile, mvaDrMax);
-    muonLowPtMvaEstimator_ = std::make_unique<MuonMvaEstimator>(mvaLowPtTrainingFile, mvaDrMax);
+    calculatePtRatioRel_ = std::make_unique<CalculatePtRatioRel>(mvaDrMax * mvaDrMax);
   }
 
   if (iConfig.getParameter<bool>("computeMuonIDMVA")) {
@@ -347,11 +341,10 @@ PATMuonHeavyObjectCache::PATMuonHeavyObjectCache(const edm::ParameterSet& iConfi
 PATMuonProducer::PATMuonProducer(const edm::ParameterSet& iConfig, PATMuonHeavyObjectCache const*)
     : relMiniIsoPUCorrected_(0),
       useUserData_(iConfig.exists("userData")),
-      computeMuonMVA_(false),
       computeMuonIDMVA_(false),
       computeSoftMuonMVA_(false),
       recomputeBasicSelectors_(false),
-      mvaUseJec_(false),
+      useJec_(false),
       isolator_(iConfig.getParameter<edm::ParameterSet>("userIsolation"), consumesCollector(), false),
       geometryToken_{esConsumes()},
       transientTrackBuilderToken_{esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))},
@@ -460,18 +453,15 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet& iConfig, PATMuonHeavyO
 
   // standard selectors
   recomputeBasicSelectors_ = iConfig.getParameter<bool>("recomputeBasicSelectors");
-  computeMuonMVA_ = iConfig.getParameter<bool>("computeMuonMVA");
   computeMuonIDMVA_ = iConfig.getParameter<bool>("computeMuonIDMVA");
-  if (computeMuonMVA_ and not computeMiniIso_)
-    throw cms::Exception("ConfigurationError") << "MiniIso is needed for Muon MVA calculation.\n";
 
-  if (computeMuonMVA_) {
+  if (computeMiniIso_) {
     // pfCombinedInclusiveSecondaryVertexV2BJetTags
     mvaBTagCollectionTag_ = consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("mvaJetTag"));
     mvaL1Corrector_ = consumes<reco::JetCorrector>(iConfig.getParameter<edm::InputTag>("mvaL1Corrector"));
     mvaL1L2L3ResCorrector_ = consumes<reco::JetCorrector>(iConfig.getParameter<edm::InputTag>("mvaL1L2L3ResCorrector"));
     rho_ = consumes<double>(iConfig.getParameter<edm::InputTag>("rho"));
-    mvaUseJec_ = iConfig.getParameter<bool>("mvaUseJec");
+    useJec_ = iConfig.getParameter<bool>("useJec");
   }
 
   computeSoftMuonMVA_ = iConfig.getParameter<bool>("computeSoftMuonMVA");
@@ -642,7 +632,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<reco::JetTagCollection> mvaBTagCollectionTag;
   edm::Handle<reco::JetCorrector> mvaL1Corrector;
   edm::Handle<reco::JetCorrector> mvaL1L2L3ResCorrector;
-  if (computeMuonMVA_) {
+  if (computeMiniIso_) {
     iEvent.getByToken(mvaBTagCollectionTag_, mvaBTagCollectionTag);
     iEvent.getByToken(mvaL1Corrector_, mvaL1Corrector);
     iEvent.getByToken(mvaL1L2L3ResCorrector_, mvaL1L2L3ResCorrector);
@@ -932,7 +922,7 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // Need a separate loop over muons to have all inputs properly
   // computed and stored in the object.
   edm::Handle<double> rho;
-  if (computeMuonMVA_)
+  if (computeMiniIso_)
     iEvent.getByToken(rho_, rho);
   const reco::Vertex* pv(nullptr);
   if (primaryVertexIsValid)
@@ -980,67 +970,22 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       muon.setSelector(reco::Muon::PuppiIsoTight, puppiCombinedIsolationPAT < 0.12);
     }
 
-    float jetPtRatio = 0.0;
-    float jetPtRel = 0.0;
-    float mva = 0.0;
-    float mva_lowpt = 0.0;
-    if (computeMuonMVA_ && primaryVertexIsValid && computeMiniIso_) {
-      if (mvaUseJec_) {
-        mva = globalCache()->muonMvaEstimator().computeMva(muon,
-                                                           primaryVertex,
-                                                           *(mvaBTagCollectionTag.product()),
-                                                           jetPtRatio,
-                                                           jetPtRel,
-                                                           miniIsoValue,
-                                                           mvaL1Corrector.product(),
-                                                           mvaL1L2L3ResCorrector.product());
-        mva_lowpt = globalCache()->muonLowPtMvaEstimator().computeMva(muon,
-                                                                      primaryVertex,
-                                                                      *(mvaBTagCollectionTag.product()),
-                                                                      jetPtRatio,
-                                                                      jetPtRel,
-                                                                      miniIsoValue,
-                                                                      mvaL1Corrector.product(),
-                                                                      mvaL1L2L3ResCorrector.product());
-
+    std::array<float, 2> jetPtRatioRel = {{0.0, 0.0}};
+    if (primaryVertexIsValid && computeMiniIso_) {
+      if (useJec_) {
+        jetPtRatioRel = globalCache()->calculatePtRatioRel().computePtRatioRel(
+            muon, *(mvaBTagCollectionTag.product()), mvaL1Corrector.product(), mvaL1L2L3ResCorrector.product());
       } else {
-        mva = globalCache()->muonMvaEstimator().computeMva(
-            muon, primaryVertex, *mvaBTagCollectionTag, jetPtRatio, jetPtRel, miniIsoValue);
-        mva_lowpt = globalCache()->muonLowPtMvaEstimator().computeMva(
-            muon, primaryVertex, *mvaBTagCollectionTag, jetPtRatio, jetPtRel, miniIsoValue);
+        jetPtRatioRel = globalCache()->calculatePtRatioRel().computePtRatioRel(muon, *mvaBTagCollectionTag);
       }
 
-      muon.setMvaValue(mva);
-      muon.setLowPtMvaValue(mva_lowpt);
-      muon.setJetPtRatio(jetPtRatio);
-      muon.setJetPtRel(jetPtRel);
+      muon.setJetPtRatio(jetPtRatioRel[0]);
+      muon.setJetPtRel(jetPtRatioRel[1]);
 
       // multi-isolation
       if (computeMiniIso_) {
         muon.setSelector(reco::Muon::MultiIsoMedium,
                          miniIsoValue < 0.11 && (muon.jetPtRatio() > 0.74 || muon.jetPtRel() > 6.8));
-      }
-
-      // MVA working points
-      // https://twiki.cern.ch/twiki/bin/viewauth/CMS/LeptonMVA
-      const double dB2D = std::abs(muon.dB(pat::Muon::PV2D));
-      const double dB3D = std::abs(muon.dB(pat::Muon::PV3D));
-      const double edB3D = std::abs(muon.edB(pat::Muon::PV3D));
-      const double sip3D = edB3D > 0 ? dB3D / edB3D : 0.0;
-      const double dz = std::abs(muon.muonBestTrack()->dz(primaryVertex.position()));
-
-      // muon preselection
-      if (muon.pt() > 5 and muon.isLooseMuon() and muon.passed(reco::Muon::MiniIsoLoose) and sip3D < 8.0 and
-          dB2D < 0.05 and dz < 0.1) {
-        muon.setSelector(reco::Muon::MvaLoose, muon.mvaValue() > -0.60);
-        muon.setSelector(reco::Muon::MvaMedium, muon.mvaValue() > -0.20);
-        muon.setSelector(reco::Muon::MvaTight, muon.mvaValue() > 0.15);
-        muon.setSelector(reco::Muon::MvaVTight, muon.mvaValue() > 0.45);
-        muon.setSelector(reco::Muon::MvaVVTight, muon.mvaValue() > 0.9);
-      }
-      if (muon.pt() > 5 and muon.isLooseMuon() and sip3D < 4 and dB2D < 0.5 and dz < 1) {
-        muon.setSelector(reco::Muon::LowPtMvaLoose, muon.lowptMvaValue() > -0.60);
-        muon.setSelector(reco::Muon::LowPtMvaMedium, muon.lowptMvaValue() > -0.20);
       }
     }
 
