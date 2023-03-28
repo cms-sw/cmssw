@@ -1609,21 +1609,21 @@ int HGCalDDDConstants::waferFileIndex(unsigned int kk) const {
     return 0;
 }
 
-std::tuple<int, int, int> HGCalDDDConstants::waferFileInfo(unsigned int kk) const {
+std::tuple<int, int, int, int> HGCalDDDConstants::waferFileInfo(unsigned int kk) const {
   if (kk < hgpar_->waferInfoMap_.size()) {
     auto itr = hgpar_->waferInfoMap_.begin();
     std::advance(itr, kk);
-    return std::make_tuple(itr->second.type, itr->second.part, itr->second.orient);
+    return std::make_tuple(itr->second.type, itr->second.part, itr->second.orient, itr->second.cassette);
   } else
-    return std::make_tuple(0, 0, 0);
+    return std::make_tuple(0, 0, 0, 0);
 }
 
-std::tuple<int, int, int> HGCalDDDConstants::waferFileInfoFromIndex(int kk) const {
+std::tuple<int, int, int, int> HGCalDDDConstants::waferFileInfoFromIndex(int kk) const {
   auto itr = hgpar_->waferInfoMap_.find(kk);
   if (itr != hgpar_->waferInfoMap_.end()) {
-    return std::make_tuple(itr->second.type, itr->second.part, itr->second.orient);
+    return std::make_tuple(itr->second.type, itr->second.part, itr->second.orient, itr->second.cassette);
   } else
-    return std::make_tuple(0, 0, 0);
+    return std::make_tuple(0, 0, 0, 0);
 }
 
 GlobalPoint HGCalDDDConstants::waferLocal2Global(
