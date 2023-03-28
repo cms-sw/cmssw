@@ -1344,8 +1344,8 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
     }
   } else if (part == HGCalTypes::WaferHalf2) {
     int np[6][5] = {{45, 39, 4, 5, 45},
-                    {47, 40, 5, 0, 47},
-                    {48, 41, 0, 1, 48},
+                    {46, 40, 5, 0, 46},
+                    {47, 41, 0, 1, 47},
                     {42, 36, 1, 2, 42},
                     {43, 37, 2, 3, 43},
                     {44, 38, 3, 4, 44}};
