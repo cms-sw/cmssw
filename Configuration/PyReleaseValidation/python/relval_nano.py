@@ -106,6 +106,9 @@ steps['MuonEG2022MINIAOD12.4'] = {'INPUT':InputInfo(location='STD',ls=run3_lumis
 steps['NANO_data12.4']=merge([{'--era':'Run3,run3_nanoAOD_124',
                                '--conditions':'auto:run3_data'},
                               _NANO_data])
+#prompt nano test
+steps['NANO_data12.4_prompt']=merge([{'--customise' : 'PhysicsTools/NanoAOD/nano_cff.nanoL1TrigObjCustomize', '-n' : '1000'},
+                                     steps['NANO_data12.4']])
 
 ##12.6 workflows
 steps['TTBarMINIAOD12.6'] = {'INPUT':InputInfo(location='STD',ls=run3_lumis,
@@ -134,6 +137,8 @@ workflows[2500.401] = ['NANOmc122Xrun3', ['TTbarMINIAOD12.2','NANO_mc12.2', 'HRV
 #12.4 input
 workflows[2500.501] = ['NANOmc124Xrun3', ['TTbarMINIAOD12.4','NANO_mc12.4', 'HRV_NANO_mc']]
 workflows[2500.511] = ['NANOdata124Xrun3', ['MuonEG2022MINIAOD12.4','NANO_data12.4', 'HRV_NANO_data']]
+workflows[2500.5111] = ['NANOdata124Xrun3', ['MuonEG2022MINIAOD12.4','NANO_data12.4_prompt', 'HRV_NANO_data']]
+
 
 ################
 #12.6 workflows
