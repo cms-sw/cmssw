@@ -17,38 +17,37 @@
 //
 // system include files
 #include <memory>
-
 #include "Math/VectorUtil.h"
+
 // user include files
 #include "Configuration/Skimming/interface/DisappearingMuonsSkimming.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDFilter.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/Common/interface/TriggerNames.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Utilities/interface/EDGetToken.h"
-#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 
 DisappearingMuonsSkimming::DisappearingMuonsSkimming(const edm::ParameterSet& iConfig)
-    : recoMuonToken_(consumes<std::vector<reco::Muon>>(iConfig.getParameter<edm::InputTag>("recoMuons"))),
-      standaloneMuonToken_(consumes<std::vector<reco::Track>>(iConfig.getParameter<edm::InputTag>("StandaloneTracks"))),
-      trackCollectionToken_(consumes<std::vector<reco::Track>>(iConfig.getParameter<edm::InputTag>("tracks"))),
-      primaryVerticesToken_(
-          consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("primaryVertices"))),
+    : recoMuonToken_(consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("recoMuons"))),
+      standaloneMuonToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("StandaloneTracks"))),
+      trackCollectionToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"))),
+      primaryVerticesToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primaryVertices"))),
       reducedEndcapRecHitCollectionToken_(
           consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EERecHits"))),
       reducedBarrelRecHitCollectionToken_(
@@ -98,14 +97,11 @@ bool DisappearingMuonsSkimming::filter(edm::Event& iEvent, const edm::EventSetup
   bool offPeak = false;
   bool partialRegion = false;
 
-  edm::Handle<reco::TrackCollection> staTracks;
-  iEvent.getByToken(standaloneMuonToken_, staTracks);
-  edm::Handle<std::vector<reco::Vertex>> vertices;
-  iEvent.getByToken(primaryVerticesToken_, vertices);
-  edm::Handle<std::vector<reco::Muon>> recoMuons;
-  iEvent.getByToken(recoMuonToken_, recoMuons);
-  edm::Handle<std::vector<reco::Track>> thePATTrackHandle;
-  iEvent.getByToken(trackCollectionToken_, thePATTrackHandle);
+  const auto& staTracks = iEvent.get(standaloneMuonToken_);
+  const auto& vertices = iEvent.get(primaryVerticesToken_);
+  const auto& recoMuons = iEvent.get(recoMuonToken_);
+  const auto& thePATTrackHandle = iEvent.get(trackCollectionToken_);
+
   // this wraps tracks with additional methods that are used in vertex-calculation
   const TransientTrackBuilder* transientTrackBuilder = &iSetup.getData(transientTrackToken_);
 
@@ -116,39 +112,39 @@ bool DisappearingMuonsSkimming::filter(edm::Event& iEvent, const edm::EventSetup
   float MuonTrackMass = 0.;
 
   //Looping over the reconstructed Muons
-  for (std::vector<reco::Muon>::const_iterator iMuon = recoMuons->begin(); iMuon != recoMuons->end(); iMuon++) {
-    if (!(iMuon->isPFMuon() && iMuon->isGlobalMuon()))
+  for (const auto& iMuon : recoMuons) {
+    if (!(iMuon.isPFMuon() && iMuon.isGlobalMuon()))
       continue;
-    if (!(iMuon->passed(reco::Muon::CutBasedIdTight)))
+    if (!(iMuon.passed(reco::Muon::CutBasedIdTight)))
       continue;
-    if (!(iMuon->passed(reco::Muon::PFIsoTight)))
+    if (!(iMuon.passed(reco::Muon::PFIsoTight)))
       continue;
-    if (iMuon->pt() < minMuPt_ || fabs(iMuon->eta()) > maxMuEta_)
+    if (iMuon.pt() < minMuPt_ || std::abs(iMuon.eta()) > maxMuEta_)
       continue;
 
     //Looping over tracks for any good muon
-    for (std::vector<reco::Track>::const_iterator iTrack = thePATTrackHandle->begin();
-         iTrack != thePATTrackHandle->end();
-         ++iTrack) {
-      if (!iTrack->quality(reco::Track::qualityByName("highPurity")))
+    for (const auto& iTrack : thePATTrackHandle) {
+
+      if (!iTrack.quality(reco::Track::qualityByName("highPurity")))
         continue;
-      if (fabs(iTrack->eta()) > maxTrackEta_ || fabs(iTrack->eta()) < minTrackEta_)
+      if (std::abs(iTrack.eta()) > maxTrackEta_ || std::abs(iTrack.eta()) < minTrackEta_)
         continue;
-      if (iTrack->pt() < minTrackPt_)
+      if (iTrack.pt() < minTrackPt_)
         continue;
       //Check if the track belongs to a primary vertex for isolation calculation
+
       bool foundtrack = false;
       GlobalPoint tkVtx;
-      for (unsigned int i = 0; i < vertices->size(); i++) {
-        reco::VertexRef vtx(vertices, i);
+      for (unsigned int i = 0; i < vertices.size(); i++) {
+        reco::VertexRef vtx(&vertices, i);
         if (!vtx->isValid()) {
           continue;
         }
         for (unsigned int j = 0; j < vtx->tracksSize(); j++) {
-          double dPt = fabs(vtx->trackRefAt(j)->pt() - iTrack->pt()) / iTrack->pt();
+          double dPt = std::abs(vtx->trackRefAt(j)->pt() - iTrack.pt()) / iTrack.pt();
           //Find the vertex track that is the same as the probe
           if (dPt < 0.001) {
-            double dR2 = deltaR2(vtx->trackRefAt(j)->eta(), vtx->trackRefAt(j)->phi(), iTrack->eta(), iTrack->phi());
+            double dR2 = deltaR2(vtx->trackRefAt(j)->eta(), vtx->trackRefAt(j)->phi(), iTrack.eta(), iTrack.phi());
             if (dR2 < 0.001 * 0.001) {
               foundtrack = true;
               GlobalPoint vert(vtx->x(), vtx->y(), vtx->z());
@@ -158,20 +154,21 @@ bool DisappearingMuonsSkimming::filter(edm::Event& iEvent, const edm::EventSetup
           }
         }
       }
+
       if (!foundtrack)
         continue;
-      reco::TransientTrack tk = transientTrackBuilder->build(*iTrack);
+      reco::TransientTrack tk = transientTrackBuilder->build(iTrack);
       TrajectoryStateClosestToPoint traj = tk.trajectoryStateClosestToPoint(tkVtx);
       double transDCA = traj.perigeeParameters().transverseImpactParameter();
       double longDCA = traj.perigeeParameters().longitudinalImpactParameter();
-      if (fabs(longDCA) > maxLongDCA_)
+      if (std::abs(longDCA) > maxLongDCA_)
         continue;
-      if (fabs(transDCA) > maxTransDCA_)
+      if (std::abs(transDCA) > maxTransDCA_)
         continue;
       // make a pair of TransientTracks to feed the vertexer
       std::vector<reco::TransientTrack> tracksToVertex;
-      tracksToVertex.push_back(transientTrackBuilder->build(*iTrack));
-      tracksToVertex.push_back(transientTrackBuilder->build(iMuon->globalTrack()));
+      tracksToVertex.push_back(transientTrackBuilder->build(iTrack));
+      tracksToVertex.push_back(transientTrackBuilder->build(iMuon.globalTrack()));
       // try to fit these two tracks to a common vertex
       KalmanVertexFitter vertexFitter;
       CachingVertex<5> fittedVertex = vertexFitter.vertex(tracksToVertex);
@@ -208,27 +205,26 @@ bool DisappearingMuonsSkimming::filter(edm::Event& iEvent, const edm::EventSetup
       //Track iso returns -1 when it fails to find the vertex containing the track (already checked in track selection, but might as well make sure)
       if (trackIso < 0)
         continue;
-      double ecalIso = getECALIsolation(iEvent, iSetup, transientTrackBuilder->build(*iTrack));
+      double ecalIso = getECALIsolation(iEvent, iSetup, transientTrackBuilder->build(iTrack));
       if (trackIso > maxTrackIso_ || ecalIso > maxEcalIso_)
         continue;
 
       //A good tag/probe pair has been selected, now check for control or signal regions
-      if (iMuon->charge() == iTrack->charge()) {
+      if (iMuon.charge() == iTrack.charge()) {
         sameSign = true;
       }
 
       //If not same sign CR, need to check standalone muons for signal regions
       double staMinDr2 = 1000;
       double staMinDEoverE = -10;
-      if (!staTracks->empty()) {
-        for (reco::TrackCollection::const_iterator staTrack = staTracks->begin(); staTrack != staTracks->end();
-             ++staTrack) {
-          reco::TransientTrack track = transientTrackBuilder->build(*staTrack);
+      if (!staTracks.empty()) {
+        for (const auto& staTrack : staTracks) {
+          reco::TransientTrack track = transientTrackBuilder->build(staTrack);
           double dR2 = deltaR2(track.impactPointTSCP().momentum().eta(),
                                track.impactPointTSCP().momentum().phi(),
-                               (*iTrack).eta(),
-                               (*iTrack).phi());
-          double staDE = (std::sqrt(track.impactPointTSCP().momentum().mag2()) - (*iTrack).p()) / (*iTrack).p();
+                               iTrack.eta(),
+                               iTrack.phi());
+          double staDE = (std::sqrt(track.impactPointTSCP().momentum().mag2()) - iTrack.p()) / iTrack.p();
           if (dR2 < staMinDr2) {
             staMinDr2 = dR2;
           }
@@ -301,22 +297,22 @@ bool DisappearingMuonsSkimming::passTriggers(const edm::Event& iEvent,
 }
 
 double DisappearingMuonsSkimming::getTrackIsolation(const edm::Event& iEvent,
-                                                    edm::Handle<reco::VertexCollection> vtxHandle,
-                                                    std::vector<reco::Track>::const_iterator& iTrack) {
+                                                    const reco::VertexCollection& vtxHandle,
+                                                    const reco::Track& iTrack) {
   bool foundtrack = false;
   unsigned int vtxindex = -1;
   unsigned int trackindex = -1;
   double Isolation = 0;
-  for (unsigned int i = 0; i < vtxHandle->size(); i++) {
-    reco::VertexRef vtx(vtxHandle, i);
+  for (unsigned int i = 0; i < vtxHandle.size(); i++) {
+    reco::VertexRef vtx(&vtxHandle, i);
     if (!vtx->isValid()) {
       continue;
     }
     for (unsigned int j = 0; j < vtx->tracksSize(); j++) {
-      double dPt = fabs(vtx->trackRefAt(j)->pt() - iTrack->pt()) / iTrack->pt();
+      double dPt = std::abs(vtx->trackRefAt(j)->pt() - iTrack.pt()) / iTrack.pt();
       //Find the vertex track that is the same as the probe
       if (dPt < 0.001) {
-        double dR2 = deltaR2(vtx->trackRefAt(j)->eta(), vtx->trackRefAt(j)->phi(), iTrack->eta(), iTrack->phi());
+        double dR2 = deltaR2(vtx->trackRefAt(j)->eta(), vtx->trackRefAt(j)->phi(), iTrack.eta(), iTrack.phi());
         if (dR2 < 0.001 * 0.001) {
           vtxindex = i;
           trackindex = j;
@@ -331,21 +327,21 @@ double DisappearingMuonsSkimming::getTrackIsolation(const edm::Event& iEvent,
     return -1;
   }
 
-  reco::VertexRef primaryVtx(vtxHandle, vtxindex);
+  reco::VertexRef primaryVtx(&vtxHandle, vtxindex);
 
   for (unsigned int i = 0; i < primaryVtx->tracksSize(); i++) {
     if (i == trackindex)
       continue;
     reco::TrackBaseRef secondarytrack = primaryVtx->trackRefAt(i);
-    if (deltaR2(iTrack->eta(), iTrack->phi(), secondarytrack->eta(), secondarytrack->phi()) >
+    if (deltaR2(iTrack.eta(), iTrack.phi(), secondarytrack->eta(), secondarytrack->phi()) >
             trackIsoConesize_ * trackIsoConesize_ ||
-        deltaR2(iTrack->eta(), iTrack->phi(), secondarytrack->eta(), secondarytrack->phi()) <
+        deltaR2(iTrack.eta(), iTrack.phi(), secondarytrack->eta(), secondarytrack->phi()) <
             trackIsoInnerCone_ * trackIsoInnerCone_)
       continue;
     Isolation += secondarytrack->pt();
   }
 
-  return Isolation / iTrack->pt();
+  return Isolation / iTrack.pt();
 }
 
 double DisappearingMuonsSkimming::getECALIsolation(const edm::Event& iEvent,
