@@ -19,12 +19,11 @@ namespace ticl {
     ~ClusterFilterByAlgo() override{};
 
     void filter(const std::vector<reco::CaloCluster>& layerClusters,
-                const HgcalClusterFilterMask& availableLayerClusters,
+                const TICLClusterFilterMask& availableLayerClusters,
                 std::vector<float>& layerClustersMask,
                 hgcal::RecHitTools& rhtools) const override {
-      auto filteredLayerClusters = std::make_unique<HgcalClusterFilterMask>();
+      auto filteredLayerClusters = std::make_unique<TICLClusterFilterMask>();
       for (auto const& cl : availableLayerClusters) {
-        // if (algo_number_.find(layerClusters[cl.first].algo()) != algo_number_.end()) {
         if (find(algo_number_.begin(), algo_number_.end(), layerClusters[cl.first].algo()) != algo_number_.end()) {
           filteredLayerClusters->emplace_back(cl);
         } else {

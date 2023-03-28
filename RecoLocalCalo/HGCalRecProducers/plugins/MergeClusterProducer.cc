@@ -16,12 +16,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/PluginDescription.h"
 
-// #include "RecoParticleFlow/PFClusterProducer/interface/RecHitTopologicalCleanerBase.h"
-// #include "RecoParticleFlow/PFClusterProducer/interface/SeedFinderBase.h"
-// #include "RecoParticleFlow/PFClusterProducer/interface/InitialClusteringStepBase.h"
-// #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterBuilderBase.h"
-// #include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorBase.h"
-// #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterEnergyCorrectorBase.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/ComputeClusterTime.h"
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalDepthPreClusterer.h"
@@ -59,7 +53,6 @@ public:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   private:
-  //todo make them const
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> EEclusters_token_;
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> HSiclusters_token_;
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> HSciclusters_token_;
@@ -68,7 +61,6 @@ public:
   const edm::EDGetTokenT<edm::ValueMap<std::pair<float, float>>> clustersTimeEE_token_;
   const edm::EDGetTokenT<edm::ValueMap<std::pair<float, float>>> clustersTimeHSi_token_;
   const edm::EDGetTokenT<edm::ValueMap<std::pair<float, float>>> clustersTimeHSci_token_;
-  // OrphanHandle<std::vector<reco::CaloCluster>> clusterHandle; todo
 
   /**
    * @brief method merge three vectors of reco::CaloCluster to one
@@ -81,13 +73,25 @@ public:
   void mergeTogether(std::vector<reco::CaloCluster> &merge, const std::vector<reco::CaloCluster> &EE, 
                     const std::vector<reco::CaloCluster> &HSi, const std::vector<reco::CaloCluster> &HSci);
 
+  /**
+   * @brief copy all values from vm to to
+   * 
+   * @param[in] vm Value map with values
+   * @param[out] to vector to will be copy value map
+  */
   void addTo(std::vector<std::pair<float, float>> &to, const edm::ValueMap<std::pair<float, float>> &vm){
     size_t size = vm.size();
     for (size_t i = 0; i < size; ++i){
       to.push_back(vm.get(i));
     }
   }
-
+  /**
+   * @brief Merge value map of time for all parts of detector together  to vector times
+   * 
+   * @param[in] evt Event to get time value maps
+   * @param[in] size of all 3 value maps
+   * @param[out] times vector of merged time vectors
+  */
   void mergeTime(edm::Event& evt, size_t size, std::vector<std::pair<float, float>>& times){
     edm::Handle<edm::ValueMap<std::pair<float, float>>> EE, HSi, HSci;
     // get values from all three part of detectors

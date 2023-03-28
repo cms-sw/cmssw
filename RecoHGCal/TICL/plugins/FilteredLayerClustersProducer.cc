@@ -73,7 +73,7 @@ void FilteredLayerClustersProducer::fillDescriptions(edm::ConfigurationDescripti
 void FilteredLayerClustersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   edm::Handle<std::vector<reco::CaloCluster>> clusterHandle;
   edm::Handle<std::vector<float>> inputClustersMaskHandle;
-  auto availableLayerClusters = std::make_unique<ticl::HgcalClusterFilterMask>();
+  auto availableLayerClusters = std::make_unique<ticl::TICLClusterFilterMask>();
   evt.getByToken(clusters_token_, clusterHandle);
   evt.getByToken(clustersMask_token_, inputClustersMaskHandle);
   const auto& inputClusterMask = *inputClustersMaskHandle;
