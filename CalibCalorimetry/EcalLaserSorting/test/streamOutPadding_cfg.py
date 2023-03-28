@@ -35,12 +35,12 @@ process.m1 = cms.EDProducer("StreamThingProducer",
 process.m2 = cms.EDProducer("NonProducer")
 
 process.a1 = cms.EDAnalyzer("StreamThingAnalyzer",
-    product_to_get = cms.string('m1'),
-    outChecksum = cms.untracked.string('out')
+    product_to_get = cms.string('m1')
 )
 
 process.out = cms.OutputModule("EventStreamFileWriter",
     fileName = cms.untracked.string('teststreamfile.dat'),
+    padding = cms.untracked.uint32(4096),
     compression_level = cms.untracked.int32(1),
     use_compression = cms.untracked.bool(True),
     compression_algorithm = cms.untracked.string(options.compAlgo),

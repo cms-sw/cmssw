@@ -23,7 +23,20 @@ mkdir ${OUTDIR}
 cp *_cfg.py ${OUTDIR}
 cd ${OUTDIR}
 
+rm -rf run000001
 mkdir run000001
+
+#test checksum with padded format
+echo "{\"data\" :[10,10, \"teststreamfile.dat\"]}" >  run000001/run1_ls1_test.jsn
+cmsRun streamOutPadding_cfg.py > outp 2>&1 || die "cmsRun streamOutPadding_cfg.py" $?
+mv teststreamfile.dat run000001/teststreamfile.dat
+cmsRun streamOutAlt_cfg.py  > outAlt 2>&1 || die "cmsRun streamOutAlt_cfg.py" $?
+cmsRun streamOutExt_cfg.py  > outExt 2>&1 || die "cmsRun streamOutExt_cfg.py" $?
+timeout --signal SIGTERM 180 cmsRun streamIn_cfg.py  > inp  2>&1 || die "cmsRun streamIn_cfg.py" $?
+
+rm -rf run000001
+mkdir run000001
+
 #the initial json file to read
 echo "{\"data\" :[10,10, \"teststreamfile.dat\"]}" >  run000001/run1_ls1_test.jsn
 cmsRun streamOut_cfg.py > out 2>&1 || die "cmsRun streamOut_cfg.py" $?
@@ -48,6 +61,9 @@ timeout --signal SIGTERM 180 cmsRun streamInExt_cfg.py  > ext  2>&1 || die "cmsR
 ANS_OUT_SIZE=`grep -c CHECKSUM out`
 ANS_OUT=`grep CHECKSUM out`
 ANS_IN=`grep CHECKSUM in`
+ANS_OUTP_SIZE=`grep -c CHECKSUM outp`
+ANS_OUTP=`grep CHECKSUM outp`
+ANS_INP=`grep CHECKSUM inp`
 
 if [ "${ANS_OUT_SIZE}" == "0" ]
 then
@@ -61,5 +77,16 @@ then
     RC=1
 fi
 
-#rm -rf ${OUTDIR}
+if [ "${ANS_OUTP_SIZE}" == "0" ]
+then
+    echo "New Stream Padded Test Failed (out was not created)"
+    RC=1
+fi
+
+if [ "${ANS_OUTP}" != "${ANS_INP}" ]
+then
+    echo "New Stream Padded Test Failed (out!=in)"
+    RC=1
+fi
+
 exit ${RC}
