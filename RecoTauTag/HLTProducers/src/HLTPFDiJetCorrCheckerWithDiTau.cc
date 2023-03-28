@@ -15,6 +15,7 @@ The module stores j1, j2 of any (j1, j2, t1, t2) that satisfies the conditions a
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -37,7 +38,7 @@ private:
   const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tauSrc_;
   const edm::EDGetTokenT<reco::PFJetCollection> pfJetSrc_;
   const double extraTauPtCut_;
-  const double mjjMin_;
+  const double mjjMin_, m2jjMin_;
   const double dRmin_, dRmin2_;
   // pt comparator
   GreaterByPt<reco::PFJet> pTComparator_;
@@ -51,6 +52,7 @@ HLTPFDiJetCorrCheckerWithDiTau::HLTPFDiJetCorrCheckerWithDiTau(const edm::Parame
       pfJetSrc_(consumes(iConfig.getParameter<edm::InputTag>("pfJetSrc"))),
       extraTauPtCut_(iConfig.getParameter<double>("extraTauPtCut")),
       mjjMin_(iConfig.getParameter<double>("mjjMin")),
+      m2jjMin_(mjjMin_ * mjjMin_),
       dRmin_(iConfig.getParameter<double>("dRmin")),
       dRmin2_(dRmin_ * dRmin_) {
   if (dRmin_ <= 0.) {
@@ -77,7 +79,7 @@ void HLTPFDiJetCorrCheckerWithDiTau::produce(edm::StreamID iSId, edm::Event& iEv
       const reco::PFJet& myPFJet1 = pfJets[iJet1];
       const reco::PFJet& myPFJet2 = pfJets[iJet2];
 
-      if ((myPFJet1.p4() + myPFJet2.p4()).M() < mjjMin_)
+      if (mjjMin_ >= 0. && (myPFJet1.p4() + myPFJet2.p4()).M2() < m2jjMin_)
         continue;
 
       for (unsigned int iTau1 = 0; iTau1 < taus.size(); iTau1++) {

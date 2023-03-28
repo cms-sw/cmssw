@@ -9,12 +9,13 @@
 #include <cstdlib>
 
 #include "tmEventSetup/tmEventSetup.hh"
-#include "tmEventSetup/esTriggerMenu.hh"
-#include "tmEventSetup/esAlgorithm.hh"
-#include "tmEventSetup/esCondition.hh"
-#include "tmEventSetup/esObject.hh"
-#include "tmEventSetup/esCut.hh"
-#include "tmEventSetup/esScale.hh"
+
+#include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
+#include "CondFormats/L1TObjects/interface/L1TUtmAlgorithm.h"
+#include "CondFormats/L1TObjects/interface/L1TUtmCondition.h"
+#include "CondFormats/L1TObjects/interface/L1TUtmObject.h"
+#include "CondFormats/L1TObjects/interface/L1TUtmCut.h"
+#include "CondFormats/L1TObjects/interface/L1TUtmScale.h"
 #include "tmGrammar/Algorithm.hh"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -65,11 +66,12 @@ void L1TUtmTriggerMenuDumper::endJob() { cout << "INFO:  L1TUtmTriggerMenuDumper
 
 void L1TUtmTriggerMenuDumper::beginRun(Run const& run, EventSetup const& iSetup) {
   edm::ESHandle<L1TUtmTriggerMenu> hmenu = iSetup.getHandle(m_l1TriggerMenuToken);
-  const esTriggerMenu* menu = reinterpret_cast<const esTriggerMenu*>(hmenu.product());
 
-  const std::map<std::string, esAlgorithm>& algoMap = menu->getAlgorithmMap();
-  const std::map<std::string, esCondition>& condMap = menu->getConditionMap();
-  const std::map<std::string, esScale>& scaleMap = menu->getScaleMap();
+  const std::map<std::string, L1TUtmAlgorithm>& algoMap = hmenu->getAlgorithmMap();
+  const std::map<std::string, L1TUtmCondition>& condMap = hmenu->getConditionMap();
+  //We use es types for scale map to use auxiliary functions without having to duplicate code
+  const std::map<std::string, tmeventsetup::esScale> scaleMap(std::begin(hmenu->getScaleMap()),
+                                                              std::end(hmenu->getScaleMap()));
 
   bool hasPrecision = false;
   std::map<std::string, unsigned int> precisions;
@@ -80,9 +82,9 @@ void L1TUtmTriggerMenuDumper::beginRun(Run const& run, EventSetup const& iSetup)
   }
 
   if (hasPrecision) {
-    std::map<std::string, esScale>::iterator it1, it2;
-    const esScale* scale1 = &scaleMap.find("EG-ETA")->second;
-    const esScale* scale2 = &scaleMap.find("MU-ETA")->second;
+    std::map<std::string, tmeventsetup::esScale>::iterator it1, it2;
+    const tmeventsetup::esScale* scale1 = &scaleMap.find("EG-ETA")->second;
+    const tmeventsetup::esScale* scale2 = &scaleMap.find("MU-ETA")->second;
 
     std::vector<long long> lut_eg_2_mu_eta;
     getCaloMuonEtaConversionLut(lut_eg_2_mu_eta, scale1, scale2);
@@ -129,8 +131,8 @@ void L1TUtmTriggerMenuDumper::beginRun(Run const& run, EventSetup const& iSetup)
     }
   }
 
-  for (std::map<std::string, esAlgorithm>::const_iterator cit = algoMap.begin(); cit != algoMap.end(); cit++) {
-    const esAlgorithm& algo = cit->second;
+  for (std::map<std::string, L1TUtmAlgorithm>::const_iterator cit = algoMap.begin(); cit != algoMap.end(); cit++) {
+    const L1TUtmAlgorithm& algo = cit->second;
     std::cout << "algo name = " << algo.getName() << "\n";
     std::cout << "algo exp. = " << algo.getExpression() << "\n";
     std::cout << "algo exp. in cond. = " << algo.getExpressionInCondition() << "\n";
@@ -140,12 +142,12 @@ void L1TUtmTriggerMenuDumper::beginRun(Run const& run, EventSetup const& iSetup)
       const std::string& token = rpn_vec.at(ii);
       if (Algorithm::isGate(token))
         continue;
-      const esCondition& condition = condMap.find(token)->second;
+      const L1TUtmCondition& condition = condMap.find(token)->second;
       std::cout << "  cond type = " << condition.getType() << "\n";
 
-      const std::vector<esCut>& cuts = condition.getCuts();
+      const std::vector<L1TUtmCut>& cuts = condition.getCuts();
       for (size_t jj = 0; jj < cuts.size(); jj++) {
-        const esCut& cut = cuts.at(jj);
+        const L1TUtmCut& cut = cuts.at(jj);
         std::cout << "    cut name = " << cut.getName() << "\n";
         std::cout << "    cut target = " << cut.getObjectType() << "\n";
         std::cout << "    cut type = " << cut.getCutType() << "\n";
@@ -154,9 +156,9 @@ void L1TUtmTriggerMenuDumper::beginRun(Run const& run, EventSetup const& iSetup)
         std::cout << "    cut data = " << cut.getData() << "\n";
       }
 
-      const std::vector<esObject>& objects = condition.getObjects();
+      const std::vector<L1TUtmObject>& objects = condition.getObjects();
       for (size_t jj = 0; jj < objects.size(); jj++) {
-        const esObject& object = objects.at(jj);
+        const L1TUtmObject& object = objects.at(jj);
         std::cout << "      obj name = " << object.getName() << "\n";
         std::cout << "      obj type = " << object.getType() << "\n";
         std::cout << "      obj op = " << object.getComparisonOperator() << "\n";
@@ -166,9 +168,9 @@ void L1TUtmTriggerMenuDumper::beginRun(Run const& run, EventSetup const& iSetup)
           std::cout << "      ext ch id = " << object.getExternalChannelId() << "\n";
         }
 
-        const std::vector<esCut>& cuts = object.getCuts();
+        const std::vector<L1TUtmCut>& cuts = object.getCuts();
         for (size_t kk = 0; kk < cuts.size(); kk++) {
-          const esCut& cut = cuts.at(kk);
+          const L1TUtmCut& cut = cuts.at(kk);
           std::cout << "        cut name = " << cut.getName() << "\n";
           std::cout << "        cut target = " << cut.getObjectType() << "\n";
           std::cout << "        cut type = " << cut.getCutType() << "\n";

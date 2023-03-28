@@ -16,12 +16,24 @@ collisionParameters5020GeV = cms.PSet(aBeamTarget = cms.double(208.0), ## beam/t
                                    comEnergy = cms.double(5020.0)
                                    )
 
+collisionParameters5362GeV = cms.PSet(aBeamTarget = cms.double(208.0), ## beam/target atomic number
+                                   comEnergy = cms.double(5362.0)
+                                   )
+
 qgpParameters = cms.PSet(qgpInitialTemperature = cms.double(1.1), ## initial temperature of QGP; allowed range [0.2,2.0]GeV;
                          qgpProperTimeFormation = cms.double(0.1), ## proper time of QGP formation; allowed range [0.01,10.0]fm/c;
                          hadronFreezoutTemperature = cms.double(0.125),
                          doRadiativeEnLoss = cms.bool(True), ## if true, perform partonic radiative en loss
                          doCollisionalEnLoss = cms.bool(True),
                          qgpNumQuarkFlavor = cms.int32(0),  ## number of active quark flavors in qgp; allowed values: 0,1,2,3
+                         )
+
+qgpParameters2023 = cms.PSet(qgpInitialTemperature = cms.double(1.0), ## initial temperature of QGP; allowed range [0.2,2.0]GeV;
+                             qgpProperTimeFormation = cms.double(0.1), ## proper time of QGP formation; allowed range [0.01,10.0]fm/c;
+                             hadronFreezoutTemperature = cms.double(0.125),
+                             doRadiativeEnLoss = cms.bool(True), ## if true, perform partonic radiative en loss
+                             doCollisionalEnLoss = cms.bool(True),
+                             qgpNumQuarkFlavor = cms.int32(0),  ## number of active quark flavors in qgp; allowed values: 0,1,2,3
                          )
 
 pyquenParameters  = cms.PSet(doIsospin = cms.bool(True),
@@ -39,6 +51,18 @@ hydjetParameters = cms.PSet(sigmaInelNN = cms.double(70),
                             allowEmptyEvents = cms.bool(False),
                             angularSpectrumSelector = cms.int32(1), ## angular emitted gluon spectrum
                             embeddingMode = cms.int32(0)
+                            )
+
+hydjetParameters2023 = cms.PSet(sigmaInelNN = cms.double(70),
+                                shadowingSwitch = cms.int32(1),
+                                nMultiplicity = cms.int32(9000),
+                                fracSoftMultiplicity = cms.double(1.),
+                                maxLongitudinalRapidity = cms.double(2.3),
+                                maxTransverseRapidity = cms.double(1.15),
+                                rotateEventPlane = cms.bool(True),
+                                allowEmptyEvents = cms.bool(False),
+                                angularSpectrumSelector = cms.int32(0), ## angular emitted gluon spectrum
+                                embeddingMode = cms.int32(0)
                             )
 
 pyquenPythiaDefaultBlock = cms.PSet(

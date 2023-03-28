@@ -1,5 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
+_common_BTLparameters = cms.PSet(
+    bxTime                   = cms.double(25),      # [ns]
+    LightYield               = cms.double(40000.),  # [photons/MeV]
+    LightCollectionEff       = cms.double(0.25),
+    PhotonDetectionEff       = cms.double(0.20),
+)
+
 _barrel_MTDDigitizer = cms.PSet(
     digitizerName     = cms.string("BTLDigitizer"),
     inputSimHits      = cms.InputTag("g4SimHits:FastTimerHitsBarrel"),
@@ -9,15 +16,12 @@ _barrel_MTDDigitizer = cms.PSet(
     premixStage1MinCharge = cms.double(1e-4),
     premixStage1MaxCharge = cms.double(1e6),
     DeviceSimulation = cms.PSet(
-        bxTime                   = cms.double(25),      # [ns]
-        LightYield               = cms.double(40000.),  # [photons/MeV]
-        LightCollectionEff       = cms.double(0.25),
-        LightCollectionSlopeR    = cms.double(0.075),   # [ns/cm]
-        LightCollectionSlopeL    = cms.double(0.075),   # [ns/cm]
-        PhotonDetectionEff       = cms.double(0.20),
+        _common_BTLparameters,
+        LightCollectionSlope     = cms.double(0.075),   # [ns/cm]
+        LCEpositionSlope         = cms.double(0.071),   # [1/cm] LCE variation vs longitudinal position shift
         ),
     ElectronicsSimulation = cms.PSet(
-        bxTime                     = cms.double(25),    # [ns]
+        _common_BTLparameters,
         TestBeamMIPTimeRes         = cms.double(4.293), # This is given by 0.048[ns]*sqrt(8000.), in order to
                                                         # rescale the time resolution of 1 MIP = 8000 p.e.
         ScintillatorRiseTime       = cms.double(1.1),   # [ns]
@@ -36,6 +40,7 @@ _barrel_MTDDigitizer = cms.PSet(
         SmearTimeForOOTtails       = cms.bool(True),
         Npe_to_pC                  = cms.double(0.016), # [pC]
         Npe_to_V                   = cms.double(0.0064),# [V]
+        SigmaRelTOFHIRenergy       = cms.vdouble(0.139,-4.35e-05,3.315e-09,-1.20e-13,1.67e-18), # [%] coefficients of 4th degree Chebyshev polynomial parameterization
 
         # n bits for the ADC 
         adcNbits          = cms.uint32(10),

@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_13_0_0/PIon --full --data --type PIon --unprescale --process HLTPIon --globaltag auto:run3_hlt_PIon --input file:RelVal_Raw_PIon_DATA.root
 
-# /dev/CMSSW_13_0_0/PIon/V30 (CMSSW_13_0_0)
+# /dev/CMSSW_13_0_0/PIon/V47 (CMSSW_13_0_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ process = cms.Process( "HLTPIon" )
 process.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_13_0_0/PIon/V30')
+  tableName = cms.string('/dev/CMSSW_13_0_0/PIon/V47')
 )
 
 process.transferSystem = cms.PSet( 
@@ -2294,45 +2294,48 @@ process.hcalQIETypesGPUESProducer = cms.ESProducer( "HcalQIETypesGPUESProducer",
 )
 process.hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
   phase = cms.uint32( 1 ),
-  RecoveredRecHitBits = cms.vstring(  ),
+  RecoveredRecHitBits = cms.vstring( '' ),
   SeverityLevels = cms.VPSet( 
-    cms.PSet(  ChannelStatus = cms.vstring(  ),
-      RecHitFlags = cms.vstring( 'TimingFromTDC' ),
+    cms.PSet(  ChannelStatus = cms.vstring( '' ),
+      RecHitFlags = cms.vstring( '' ),
       Level = cms.int32( 0 )
     ),
     cms.PSet(  ChannelStatus = cms.vstring( 'HcalCellCaloTowerProb' ),
-      RecHitFlags = cms.vstring(  ),
+      RecHitFlags = cms.vstring( '' ),
       Level = cms.int32( 1 )
     ),
     cms.PSet(  ChannelStatus = cms.vstring( 'HcalCellExcludeFromHBHENoiseSummary' ),
-      RecHitFlags = cms.vstring(  ),
+      RecHitFlags = cms.vstring( 'HBHEIsolatedNoise',
+        'HFAnomalousHit' ),
       Level = cms.int32( 5 )
     ),
-    cms.PSet(  ChannelStatus = cms.vstring(  ),
+    cms.PSet(  ChannelStatus = cms.vstring( '' ),
       RecHitFlags = cms.vstring( 'HBHEHpdHitMultiplicity',
-        'HBHEIsolatedNoise',
-        'HBHEFlatNoise',
         'HBHESpikeNoise',
         'HBHETS4TS5Noise',
-        'HBHENegativeNoise',
-        'HBHEPulseFitBit',
-        'HBHEOOTPU' ),
+        'HBHEOOTPU',
+        'HBHEFlatNoise',
+        'HBHENegativeNoise' ),
       Level = cms.int32( 8 )
     ),
-    cms.PSet(  ChannelStatus = cms.vstring(  ),
+    cms.PSet(  ChannelStatus = cms.vstring( '' ),
       RecHitFlags = cms.vstring( 'HFLongShort',
         'HFS8S1Ratio',
         'HFPET',
         'HFSignalAsymmetry' ),
       Level = cms.int32( 11 )
     ),
-    cms.PSet(  ChannelStatus = cms.vstring( 'HcalCellHot' ),
+    cms.PSet(  ChannelStatus = cms.vstring( 'HcalCellCaloTowerMask' ),
       RecHitFlags = cms.vstring(  ),
+      Level = cms.int32( 12 )
+    ),
+    cms.PSet(  ChannelStatus = cms.vstring( 'HcalCellHot' ),
+      RecHitFlags = cms.vstring( '' ),
       Level = cms.int32( 15 )
     ),
     cms.PSet(  ChannelStatus = cms.vstring( 'HcalCellOff',
   'HcalCellDead' ),
-      RecHitFlags = cms.vstring(  ),
+      RecHitFlags = cms.vstring( '' ),
       Level = cms.int32( 20 )
     )
   ),
@@ -3771,8 +3774,8 @@ process.muonDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   nEta = cms.int32( 48 ),
   nPhi = cms.int32( 48 ),
   hcalRegion = cms.int32( 2 ),
-  includeBadChambers = cms.bool( False ),
-  includeGEM = cms.bool( False ),
+  includeBadChambers = cms.bool( True ),
+  includeGEM = cms.bool( True ),
   includeME0 = cms.bool( False )
 )
 process.muonSeededTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
@@ -4127,8 +4130,8 @@ process.statusOnGPU = SwitchProducerCUDA(
 
 process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputDQM.root" ),
-    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
-    compressionLevel = cms.untracked.int32( 1 ),
+    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
+    compressionLevel = cms.untracked.int32( 3 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -4163,8 +4166,8 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
 )
 process.hltOutputPhysicsCommissioning = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputPhysicsCommissioning.root" ),
-    compressionAlgorithm = cms.untracked.string( "ZLIB" ),
-    compressionLevel = cms.untracked.int32( 1 ),
+    compressionAlgorithm = cms.untracked.string( "ZSTD" ),
+    compressionLevel = cms.untracked.int32( 3 ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),

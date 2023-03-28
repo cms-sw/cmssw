@@ -10,9 +10,9 @@ DDCompactViewImpl::DDCompactViewImpl(const DDLogicalPart& rootnodedata) : root_(
 DDCompactViewImpl::~DDCompactViewImpl() {
   Graph::adj_list::size_type it = 0;
   if (graph_.size() == 0) {
-    LogDebug("DDCompactViewImpl") << "In destructor, graph is empty.  Root:" << root_ << std::endl;
+    LogDebug("DDCompactViewImpl") << "In destructor, graph is empty." << std::endl;
   } else {
-    LogDebug("DDCompactViewImpl") << "In destructor, graph is NOT empty.  Root:" << root_
+    LogDebug("DDCompactViewImpl") << "In destructor, graph is NOT empty."
                                   << " graph_.size() = " << graph_.size() << std::endl;
     for (; it < graph_.size(); ++it) {
       Graph::edge_range erange = graph_.edges(it);

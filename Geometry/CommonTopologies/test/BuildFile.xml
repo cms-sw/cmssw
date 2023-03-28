@@ -8,11 +8,7 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<bin file="dummyMain.cpp" name="GeometryCommonTopologiesTestDriver">
-  <use name="boost"/>
-  <use name="FWCore/Utilities"/>
-  <flags TEST_RUNNER_ARGS="/bin/bash Geometry/CommonTopologies/test runTest.sh"/>
-</bin>
+<test name="GeometryCommonTopologiesTestDriver" command="runTest.sh"/>
 
 <bin file="testDetSort.cpp" name="testDetSort">
   <use name="Geometry/CommonTopologies"/>

@@ -129,22 +129,19 @@
 #include <cstdlib>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Run.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
-//#include "FWCore/Framework/interface/EventSetup.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
 
 template <class T>
 class ConditionDBWriter
@@ -161,7 +158,7 @@ public:
         setSinceTime_(false),
         firstRun_(true) {
     usesResource(cond::service::PoolDBOutputService::kSharedResource);
-    edm::LogInfo("ConditionDBWriter::ConditionDBWriter()") << std::endl;
+    edm::LogInfo("ConditionDBWriter") << "ConditionDBWriter()";
     SinceAppendMode_ = iConfig.getParameter<bool>("SinceAppendMode");
     std::string IOVMode = iConfig.getParameter<std::string>("IOVMode");
     if (IOVMode == std::string("Job"))
@@ -173,20 +170,19 @@ public:
     else if (IOVMode == std::string("AlgoDriven"))
       AlgoDrivenMode_ = true;
     else
-      edm::LogError(
-          "ConditionDBWriter::ConditionDBWriter(): ERROR - unknown IOV interval write mode...will not store anything "
-          "on the DB")
-          << std::endl;
+      edm::LogError("ConditionDBWriter")
+          << "ConditionDBWriter(): ERROR - unknown IOV interval write mode...will not store anything "
+             "on the DB";
     Record_ = iConfig.getParameter<std::string>("Record");
     doStore_ = iConfig.getParameter<bool>("doStoreOnDB");
     timeFromEndRun_ = iConfig.getUntrackedParameter<bool>("TimeFromEndRun", false);
     timeFromStartOfRunRange_ = iConfig.getUntrackedParameter<bool>("TimeFromStartOfRunRange", false);
 
     if (!SinceAppendMode_)
-      edm::LogError("ConditionDBWriter::endJob(): ERROR - only SinceAppendMode support!!!!");
+      edm::LogError("ConditionDBWriter") << "endJob(): ERROR - only SinceAppendMode support!!!!";
   }
 
-  ~ConditionDBWriter() override { edm::LogInfo("ConditionDBWriter::~ConditionDBWriter()") << std::endl; }
+  ~ConditionDBWriter() override { edm::LogInfo("ConditionDBWriter") << "~ConditionDBWriter()"; }
 
   // utility method to validate configurations of inherited classes
   static void fillPSetDescription(edm::ParameterSetDescription &desc) {
@@ -222,7 +218,7 @@ private:
 
   void beginRun(const edm::Run &run, const edm::EventSetup &es) override {
     if (firstRun_) {
-      edm::LogInfo("ConditionDBWriter::beginJob") << std::endl;
+      edm::LogInfo("ConditionDBWriter") << "beginJob";
       if ((JobMode_ || AlgoDrivenMode_) && SinceAppendMode_)
         setSinceTime_ = true;
       algoBeginJob(es);
@@ -234,14 +230,14 @@ private:
     if (run.id().run() > maxRunRange_)
       maxRunRange_ = run.id().run();
 
-    edm::LogInfo("ConditionDBWriter::beginRun") << std::endl;
+    edm::LogInfo("ConditionDBWriter") << "beginRun";
     if (RunMode_ && SinceAppendMode_)
       setSinceTime_ = true;
     algoBeginRun(run, es);
   }
 
   void beginLuminosityBlock(const edm::LuminosityBlock &lumiBlock, const edm::EventSetup &iSetup) override {
-    edm::LogInfo("ConditionDBWriter::beginLuminosityBlock") << std::endl;
+    edm::LogInfo("ConditionDBWriter") << "beginLuminosityBlock";
     if (LumiBlockMode_ && SinceAppendMode_)
       setSinceTime_ = true;
     algoBeginLuminosityBlock(lumiBlock, iSetup);
@@ -256,7 +252,7 @@ private:
   }
 
   void endLuminosityBlock(const edm::LuminosityBlock &lumiBlock, const edm::EventSetup &es) override {
-    edm::LogInfo("ConditionDBWriter::endLuminosityBlock") << std::endl;
+    edm::LogInfo("ConditionDBWriter") << "endLuminosityBlock";
     algoEndLuminosityBlock(lumiBlock, es);
 
     if (LumiBlockMode_) {
@@ -265,10 +261,9 @@ private:
       if (objPointer) {
         storeOnDb(objPointer);
       } else {
-        edm::LogError(
-            "ConditionDBWriter::endLuminosityblock(): ERROR - requested to store on DB on a Lumi Block based interval, "
-            "but received null pointer...will not store anything on the DB")
-            << std::endl;
+        edm::LogError("ConditionDBWriter")
+            << "endLuminosityblock(): ERROR - requested to store on DB on a Lumi Block based interval, "
+               "but received null pointer...will not store anything on the DB";
       }
     }
   }
@@ -276,7 +271,7 @@ private:
   virtual void algoEndLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &){};
 
   void endRun(const edm::Run &run, const edm::EventSetup &es) override {
-    edm::LogInfo("ConditionDBWriter::endRun") << std::endl;
+    edm::LogInfo("ConditionDBWriter") << "endRun";
 
     algoEndRun(run, es);
 
@@ -288,16 +283,15 @@ private:
           Time_ = run.id().run();
         storeOnDb(objPointer);
       } else {
-        edm::LogError(
-            "ConditionDBWriter::endRun(): ERROR - requested to store on DB on a Run based interval, but received null "
-            "pointer...will not store anything on the DB")
-            << std::endl;
+        edm::LogError("ConditionDBWriter")
+            << "endRun(): ERROR - requested to store on DB on a Run based interval, but received null "
+               "pointer...will not store anything on the DB";
       }
     }
   }
 
   void endJob() override {
-    edm::LogInfo("ConditionDBWriter::endJob") << std::endl;
+    edm::LogInfo("ConditionDBWriter") << "endJob";
 
     algoEndJob();
 
@@ -309,16 +303,14 @@ private:
       }
 
       else {
-        edm::LogError(
-            "ConditionDBWriter::endJob(): ERROR - requested to store on DB on a Job based interval, but received null "
-            "pointer...will not store anything on the DB")
-            << std::endl;
+        edm::LogError("ConditionDBWriter") << "endJob() : ERROR - requested to store on DB on a Job based interval, "
+                                              "but received null pointer...will not store anything on the DB";
       }
     }
   }
 
   void storeOnDb(std::unique_ptr<T> &objPointer) {
-    edm::LogInfo("ConditionDBWriter::storeOnDb ") << std::endl;
+    edm::LogInfo("ConditionDBWriter)") << "storeOnDb ";
 
     setSinceTime_ = true;
 
@@ -332,7 +324,7 @@ private:
       return;
     edm::Service<cond::service::PoolDBOutputService> mydbservice;
     if (!mydbservice.isAvailable()) {
-      edm::LogError("ConditionDBWriter") << "PoolDBOutputService is unavailable" << std::endl;
+      edm::LogError("ConditionDBWriter") << "PoolDBOutputService is unavailable";
       return;
     }
 
@@ -343,7 +335,7 @@ private:
     if (timeFromStartOfRunRange_)
       since = minRunRange_;
 
-    edm::LogInfo("ConditionDBWriter") << "appending a new object to tag " << Record_ << " in since mode " << std::endl;
+    edm::LogInfo("ConditionDBWriter") << "appending a new object to tag " << Record_ << " in since mode ";
 
     mydbservice->writeOneIOV<T>(*objPointer, since, Record_);
   }
@@ -353,10 +345,9 @@ private:
 
     if (mydbservice.isAvailable()) {
       Time_ = mydbservice->currentTime();
-      edm::LogInfo("ConditionDBWriter::setTime: time set to ") << Time_ << std::endl;
+      edm::LogInfo("ConditionDBWriter") << "setTime: time set to " << Time_;
     } else {
-      edm::LogError("ConditionDBWriter::setTime(): PoolDBOutputService is not available...cannot set current time")
-          << std::endl;
+      edm::LogError("ConditionDBWriter") << "setTime(): PoolDBOutputService is not available...cannot set current time";
     }
   }
 
@@ -370,21 +361,19 @@ protected:
       std::unique_ptr<T> objPointer = getNewObject();
 
       if (!objPointer) {
-        edm::LogError(
-            "ConditionDBWriter::storeOnDbNow: ERROR - requested to store on DB a new object (module configuration is "
-            "algo driven based IOV), but received NULL pointer...will not store anything on the DB")
-            << std::endl;
+        edm::LogError("ConditionDBWriter")
+            << "storeOnDbNow: ERROR - requested to store on DB a new object (module configuration is "
+               "algo driven based IOV), but received NULL pointer...will not store anything on the DB";
         return;
       } else {
         storeOnDb(objPointer);
       }
 
     } else {
-      edm::LogError(
-          "ConditionDBWriter::storeOnDbNow(): ERROR - received a direct request from concrete algorithm to store on DB "
-          "a new object, but module configuration is not to store on DB on an algo driven based interval...will not "
-          "store anything on the DB")
-          << std::endl;
+      edm::LogError("ConditionDBWriter")
+          << "storeOnDbNow(): ERROR - received a direct request from concrete algorithm to store on DB "
+             "a new object, but module configuration is not to store on DB on an algo driven based interval...will not "
+             "store anything on the DB";
       return;
     }
   }
@@ -403,14 +392,14 @@ private:
   bool SinceAppendMode_;  // till or since append mode
 
   bool LumiBlockMode_;  //LumiBlock since/till time
-  bool RunMode_;        //
+  bool RunMode_;
   bool JobMode_;
   bool AlgoDrivenMode_;
   bool doStore_;
 
   std::string Record_;
-  cond::Time_t
-      Time_;  //time until which the DB object is valid. It is taken from the time of the first event analyzed. The end of the validity is infinity. However as soon as a new DB object with a later start time is inserted, the end time of this one becomes the start time of the new one.
+  //time until which the DB object is valid. It is taken from the time of the first event analyzed. The end of the validity is infinity. However as soon as a new DB object with a later start time is inserted, the end time of this one becomes the start time of the new one.
+  cond::Time_t Time_;
 
   bool setSinceTime_;
 

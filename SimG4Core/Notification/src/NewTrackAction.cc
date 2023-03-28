@@ -8,13 +8,7 @@
 
 NewTrackAction::NewTrackAction() {}
 
-void NewTrackAction::primary(const G4Track *aTrack) const { primary(const_cast<G4Track *>(aTrack)); }
-
 void NewTrackAction::primary(G4Track *aTrack) const { addUserInfoToPrimary(aTrack); }
-
-void NewTrackAction::secondary(const G4Track *aSecondary, const G4Track &mother, int flag) const {
-  secondary(const_cast<G4Track *>(aSecondary), mother, flag);
-}
 
 void NewTrackAction::secondary(G4Track *aSecondary, const G4Track &mother, int flag) const {
   const TrackInformation *motherInfo = static_cast<const TrackInformation *>(mother.GetUserInformation());

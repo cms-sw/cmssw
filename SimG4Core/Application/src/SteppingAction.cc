@@ -1,6 +1,6 @@
 #include "SimG4Core/Application/interface/SteppingAction.h"
 
-#include "SimG4Core/Notification/interface/SimTrackManager.h"
+#include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
 
 #include "G4LogicalVolumeStore.hh"
@@ -15,8 +15,8 @@
 
 //#define DebugLog
 
-SteppingAction::SteppingAction(SimTrackManager* stm, const CMSSteppingVerbose* sv, const edm::ParameterSet& p, bool hasW)
-    : trackManager_(stm), steppingVerbose(sv), hasWatcher(hasW) {
+SteppingAction::SteppingAction(const CMSSteppingVerbose* sv, const edm::ParameterSet& p, bool hasW)
+    : steppingVerbose(sv), hasWatcher(hasW) {
   theCriticalEnergyForVacuum = (p.getParameter<double>("CriticalEnergyForVacuum") * CLHEP::MeV);
   if (0.0 < theCriticalEnergyForVacuum) {
     killBeamPipe = true;
@@ -162,17 +162,10 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
   bool isKilled = false;
   if (sAlive == tstat || sVeryForward == tstat) {
     if (preStep->GetPhysicalVolume() == tracker && postStep->GetPhysicalVolume() == calo) {
-      math::XYZVectorD pos((postStep->GetPosition()).x(), (postStep->GetPosition()).y(), (postStep->GetPosition()).z());
-
-      math::XYZTLorentzVectorD mom((postStep->GetMomentum()).x(),
-                                   (postStep->GetMomentum()).y(),
-                                   (postStep->GetMomentum()).z(),
-                                   postStep->GetTotalEnergy());
-
-      // record intersection
-      uint32_t id = theTrack->GetTrackID();
-      std::pair<math::XYZVectorD, math::XYZTLorentzVectorD> p(pos, mom);
-      trackManager_->addTkCaloStateInfo(id, p);
+      TrackInformation* trkinfo = static_cast<TrackInformation*>(theTrack->GetUserInformation());
+      if (!trkinfo->crossedBoundary()) {
+        trkinfo->setCrossedBoundary(theTrack);
+      }
     }
   } else {
     theTrack->SetTrackStatus(fStopAndKill);

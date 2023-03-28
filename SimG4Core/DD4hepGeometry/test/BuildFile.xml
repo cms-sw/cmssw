@@ -1,10 +1,7 @@
 <use name="FWCore/Framework"/>
 <use name="dd4hep-geant4"/>
 <use name="DetectorDescription/DDCMS"/>
-<bin file="dummyMain.cpp" name="DD4hepGeometryTestDriver">
-  <use name="FWCore/Utilities"/>
-  <flags TEST_RUNNER_ARGS="/bin/bash SimG4Core/DD4hepGeometry/test runTest.sh"/>
-</bin>
+<test name="DD4hepGeometryTestDriver" command="runTest.sh"/>
 
 <library name="DD4hepGeometryTestPlugins" file="plugins/*.cc">
   <use name="SimG4Core/DD4hepGeometry"/>

@@ -31,6 +31,7 @@ namespace AlignmentPI {
 
   // size of the phase-I Tracker APE payload (including both SS + DS modules)
   static const unsigned int phase0size = 19876;
+  static const unsigned int phase1size = 20292;
   static const float cmToUm = 10000.f;
   static const float tomRad = 1000.f;
 
@@ -670,7 +671,7 @@ namespace AlignmentPI {
   }
 
   /*--------------------------------------------------------------------*/
-  inline std::string getStringFromPart(AlignmentPI::partitions i)
+  inline std::string getStringFromPart(AlignmentPI::partitions i, bool isPhase2 = false)
   /*--------------------------------------------------------------------*/
   {
     switch (i) {
@@ -679,13 +680,13 @@ namespace AlignmentPI {
       case FPix:
         return "FPix";
       case TIB:
-        return "TIB";
+        return (isPhase2 ? "TIB-invalid" : "TIB");
       case TID:
-        return "TID";
+        return (isPhase2 ? "P2OTEC" : "TID");
       case TOB:
-        return "TOB";
+        return (isPhase2 ? "P2OTB" : "TOB");
       case TEC:
-        return "TEC";
+        return (isPhase2 ? "TEC-invalid" : "TEC");
       default:
         return "should never be here!";
     }
@@ -743,7 +744,7 @@ namespace AlignmentPI {
   /*--------------------------------------------------------------------*/
   {
     char buffer[255];
-    TPaveText* stat = new TPaveText(0.60, 0.75, 0.95, 0.95, "NDC");
+    TPaveText* stat = new TPaveText(0.71, 0.75, 0.95, 0.88, "NDC");
     sprintf(buffer, "%s \n", AlignmentPI::getStringFromPart(part).c_str());
     stat->AddText(buffer);
 
@@ -764,7 +765,7 @@ namespace AlignmentPI {
     }
     stat->AddText(buffer);
 
-    stat->SetLineColor(color);
+    stat->SetLineColor(0);
     stat->SetTextColor(color);
     stat->SetFillColor(10);
     stat->SetShadowColor(10);
@@ -998,7 +999,7 @@ namespace AlignmentPI {
 
   /*--------------------------------------------------------------------*/
   inline void fillComparisonHistogram(const AlignmentPI::coordinate& coord,
-                                      std::vector<int>& boundaries,
+                                      std::map<int, AlignmentPI::partitions>& boundaries,
                                       const std::vector<AlignTransform>& ref_ali,
                                       const std::vector<AlignTransform>& target_ali,
                                       std::unique_ptr<TH1F>& compare)
@@ -1014,7 +1015,7 @@ namespace AlignmentPI {
         auto thePart = static_cast<AlignmentPI::partitions>(subid);
         if (thePart != currentPart) {
           currentPart = thePart;
-          boundaries.push_back(counter);
+          boundaries.insert({counter, thePart});
         }
 
         CLHEP::HepRotation target_rot(target_ali[i].rotation());
@@ -1074,7 +1075,7 @@ namespace AlignmentPI {
   }
 
   /*--------------------------------------------------------------------*/
-  inline void fillComparisonHistograms(std::vector<int>& boundaries,
+  inline void fillComparisonHistograms(std::map<int, AlignmentPI::partitions>& boundaries,
                                        const std::vector<AlignTransform>& ref_ali,
                                        const std::vector<AlignTransform>& target_ali,
                                        std::unordered_map<AlignmentPI::coordinate, std::unique_ptr<TH1F> >& compare,
@@ -1098,7 +1099,7 @@ namespace AlignmentPI {
 
         if (thePart != currentPart) {
           currentPart = thePart;
-          boundaries.push_back(counter);
+          boundaries.insert({counter, thePart});
         }
 
         CLHEP::HepRotation target_rot(target_ali[i].rotation());

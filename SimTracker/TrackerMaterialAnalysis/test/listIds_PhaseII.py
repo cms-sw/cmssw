@@ -23,6 +23,7 @@ if options.fromDB :
    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
 else:
    process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
+   process.trackerGeometry.applyAlignment = False # needed to avoid to pass the Global Position Record
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 

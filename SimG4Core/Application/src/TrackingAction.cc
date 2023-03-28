@@ -46,7 +46,7 @@ void TrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
   // default. The primary is the earliest ancestor, and it must be saved.
   if (trkInfo_->isPrimary()) {
     trackManager_->cleanTracksWithHistory();
-    currentTrack_->save();
+    currentTrack_->setToBeSaved();
   }
   if (nullptr != steppingVerbose_) {
     steppingVerbose_->trackStarted(aTrack, false);
@@ -74,72 +74,29 @@ void TrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
 }
 
 void TrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
+  // Add the post-step position for every track in history to the TrackManager.
+  // Tracks in history may be upgraded to stored tracks, at which point
+  // the post-step position is needed again.
   int id = aTrack->GetTrackID();
-  const auto& ppos = aTrack->GetStep()->GetPostStepPoint()->GetPosition();
-  math::XYZVectorD pos(ppos.x(), ppos.y(), ppos.z());
-  math::XYZTLorentzVectorD mom;
-  std::pair<math::XYZVectorD, math::XYZTLorentzVectorD> p(pos, mom);
-
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("DoFineCalo") << "PostUserTrackingAction:"
-                                 << " aTrack->GetTrackID()=" << id
-                                 << " currentTrack_->saved()=" << currentTrack_->saved();
-#endif
-
-  bool boundary = false;
-  if (doFineCalo_) {
-    // Add the post-step position for _every_ track
-    // in history to the TrackManager. Tracks in history _may_ be upgraded to stored
-    // tracks, at which point the post-step position is needed again.
-    trackManager_->addTkCaloStateInfo(id, p);
-    boundary = true;
-  } else if (trkInfo_->storeTrack() || currentTrack_->saved() ||
-             (saveCaloBoundaryInformation_ && trkInfo_->crossedBoundary())) {
-    currentTrack_->save();
-    trackManager_->addTkCaloStateInfo(id, p);
-    boundary = true;
-  }
-  if (boundary && trkInfo_->crossedBoundary()) {
+  bool ok = (trkInfo_->storeTrack() || currentTrack_->saved());
+  if (trkInfo_->crossedBoundary()) {
     currentTrack_->setCrossedBoundaryPosMom(id, trkInfo_->getPositionAtBoundary(), trkInfo_->getMomentumAtBoundary());
-    currentTrack_->save();
-
-#ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("DoFineCalo") << "PostUserTrackingAction:"
-                                   << " Track " << id << " crossed boundary; pos=("
-                                   << trkInfo_->getPositionAtBoundary().x() << ","
-                                   << trkInfo_->getPositionAtBoundary().y() << ","
-                                   << trkInfo_->getPositionAtBoundary().z() << ")"
-                                   << " mom[GeV]=(" << trkInfo_->getMomentumAtBoundary().x() << ","
-                                   << trkInfo_->getMomentumAtBoundary().y() << ","
-                                   << trkInfo_->getMomentumAtBoundary().z() << ","
-                                   << trkInfo_->getMomentumAtBoundary().e() << ")";
-#endif
+    ok = (ok || saveCaloBoundaryInformation_ || doFineCalo_);
+  }
+  if (ok) {
+    currentTrack_->setToBeSaved();
   }
 
   bool withAncestor = (trkInfo_->getIDonCaloSurface() == id || trkInfo_->isAncestor());
+  bool isInHistory = trkInfo_->isInHistory();
 
-  if (trkInfo_->isInHistory()) {
-    // check with end-of-track information
-    if (checkTrack_) {
-      currentTrack_->checkAtEnd(aTrack);
-    }
-
-    trackManager_->addTrack(currentTrack_, true, withAncestor);
+  trackManager_->addTrack(currentTrack_, aTrack, isInHistory, withAncestor);
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("SimTrackManager") << "TrackingAction addTrack " << id << "  "
-                                        << aTrack->GetDefinition()->GetParticleName() << " added= " << withAncestor
-                                        << " at " << aTrack->GetPosition();
+  edm::LogVerbatim("TrackingAction") << "TrackingAction end track=" << id << "  "
+                                     << aTrack->GetDefinition()->GetParticleName() << " ansestor= " << withAncestor
+                                     << " saved= " << currentTrack_->saved() << " end point " << aTrack->GetPosition();
 #endif
-
-  } else {
-    trackManager_->addTrack(currentTrack_, false, false);
-    delete currentTrack_;
-
-#ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("SimTrackManager") << "TrackingAction addTrack " << id << " added with false flags and deleted";
-#endif
-  }
 
   EndOfTrack et(aTrack);
   m_endOfTrackSignal(&et);
