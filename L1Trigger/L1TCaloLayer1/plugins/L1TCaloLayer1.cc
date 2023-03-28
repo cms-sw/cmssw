@@ -297,7 +297,7 @@ void L1TCaloLayer1::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
                               ecalLUT,
                               hcalLUT,
                               hfLUT,
-			      hcalFBLUT,
+                              hcalFBLUT,
                               ePhiMap,
                               hPhiMap,
                               hfPhiMap,
@@ -306,7 +306,7 @@ void L1TCaloLayer1::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
                               useECALLUT,
                               useHCALLUT,
                               useHFLUT,
-			      useHCALFBLUT,
+                              useHCALFBLUT,
                               fwVersion)) {
     LOG_ERROR << "L1TCaloLayer1::beginRun: failed to fetch LUTS - using unity" << std::endl;
     std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> eCalLayer1EtaSideEtArray;

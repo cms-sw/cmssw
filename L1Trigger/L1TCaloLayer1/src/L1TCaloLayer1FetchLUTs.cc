@@ -130,13 +130,11 @@ bool L1TCaloLayer1FetchLUTs(
   auto fbLUTUpper = caloParams.layer1HCalFBLUTUpper();
   auto fbLUTLower = caloParams.layer1HCalFBLUTLower();
   if (fbLUTUpper.size() != 28) {
-    edm::LogError("L1TCaloLayer1FetchLUTs")
-      << "caloParams.layer1HCalFBLUTUpper().size() != 28 !!";
+    edm::LogError("L1TCaloLayer1FetchLUTs") << "caloParams.layer1HCalFBLUTUpper().size() != 28 !!";
     return false;
   }
   if (fbLUTLower.size() != 28) {
-    edm::LogError("L1TCaloLayer1FetchLUTs")
-        << "caloParams.layer1HCalFBLUTLower().size() != 28 !!";
+    edm::LogError("L1TCaloLayer1FetchLUTs") << "caloParams.layer1HCalFBLUTLower().size() != 28 !!";
     return false;
   }
 
