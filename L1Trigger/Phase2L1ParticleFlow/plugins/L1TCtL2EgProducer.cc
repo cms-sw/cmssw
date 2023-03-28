@@ -351,7 +351,8 @@ void L1TCtL2EgProducer::convertToEmu(const l1t::TkElectron &tkele,
   emu.setHwIso(EGIsoEleObjEmu::IsoType::PfIso, l1ct::Scales::makeIso(tkele.pfIsol() * tkele.pt()));
   emu.setHwIso(EGIsoEleObjEmu::IsoType::PuppiIso, l1ct::Scales::makeIso(tkele.puppiIsol() * tkele.pt()));
   // std::cout << "[convertToEmu] TkEle pt: " << emu.hwPt << " eta: " << emu.hwEta << " phi: " << emu.hwPhi << " staidx: " << emu.sta_idx << std::endl;
-
+  // FIXME: this is temporary while waiting to move the BDT score to the FW object
+  emu.idScore = tkele.idScore();
   boarOut.egelectron.push_back(emu);
 }
 
@@ -421,6 +422,7 @@ l1t::TkElectron L1TCtL2EgProducer::convertFromEmu(const l1ct::EGIsoEleObjEmu &eg
   tkele.setPFIsol(egele.floatRelIso(l1ct::EGIsoEleObjEmu::IsoType::PfIso));
   tkele.setPuppiIsol(egele.floatRelIso(l1ct::EGIsoEleObjEmu::IsoType::PuppiIso));
   tkele.setEgBinaryWord(gteg.pack());
+  tkele.setIdScore(egele.idScore);
   return tkele;
 }
 

@@ -175,7 +175,7 @@ namespace l1ct {
     stub_t hwStubs;
     redChi2Bin_t hwRedChi2RZ;    // 4 bits
     redChi2Bin_t hwRedChi2RPhi;  // 4 bits
-    //FIXME: is this actually filled? 3 bits would be enough
+    //FIXME: 3 bits would be enough
     redChi2Bin_t hwRedChi2Bend;  // 4 bits
 
     enum TkQuality { PFLOOSE = 1, PFTIGHT = 2 };

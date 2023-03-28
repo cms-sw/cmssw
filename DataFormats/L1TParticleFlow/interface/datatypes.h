@@ -156,8 +156,9 @@ namespace l1ct {
     constexpr float DXY_LSB = 0.05;
     constexpr float PUPPIW_LSB = 1.0 / 256;
     constexpr float MEANZ_OFFSET = 320.;
-    constexpr float SRRTOT_LSB = pow(2, -9);
-    constexpr float HOE_LSB = pow(2, -5);
+    constexpr float SRRTOT_LSB = 0.0019531250;  // pow(2, -9)
+    constexpr unsigned int SRRTOT_SCALE = 64;   // pow(2, 6)
+    constexpr float HOE_LSB = 0.031250000;      // pow(2, -5)
 
     inline float floatPt(pt_t pt) { return pt.to_float(); }
     inline float floatPt(dpt_t pt) { return pt.to_float(); }
@@ -174,7 +175,7 @@ namespace l1ct {
     inline float floatDxy(dxy_t dxy) { return dxy.to_float() * DXY_LSB; }
     inline float floatPuppiW(puppiWgt_t puppiw) { return puppiw.to_float() * PUPPIW_LSB; }
     inline float floatIso(iso_t iso) { return iso.to_float(); }
-    inline float floatSrrTot(srrtot_t srrtot) { return srrtot.to_float(); };
+    inline float floatSrrTot(srrtot_t srrtot) { return srrtot.to_float() / SRRTOT_SCALE; };
     inline float floatMeanZ(meanz_t meanz) { return meanz + MEANZ_OFFSET; };
     inline float floatHoe(hoe_t hoe) { return hoe.to_float(); };
 
@@ -207,7 +208,7 @@ namespace l1ct {
     inline iso_t makeIso(float iso) { return iso_t(0.25 * round(iso * 4)); }
 
     inline int makeDR2FromFloatDR(float dr) { return ceil(dr * dr / ETAPHI_LSB / ETAPHI_LSB); }
-    inline srrtot_t makeSrrTot(float var) { return srrtot_t(SRRTOT_LSB * round(var * pow(2,6) / SRRTOT_LSB)); };
+    inline srrtot_t makeSrrTot(float var) { return srrtot_t(SRRTOT_LSB * round(var * SRRTOT_SCALE / SRRTOT_LSB)); };
     inline meanz_t makeMeanZ(float var) { return round(var - MEANZ_OFFSET); };
     inline hoe_t makeHoe(float var) { return hoe_t(HOE_LSB * round(var / HOE_LSB)); };
 

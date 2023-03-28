@@ -52,9 +52,9 @@ l1ct::PFTkEGAlgoEmuConfig::IsoParameters::IsoParameters(const edm::ParameterSet 
                     pset.getParameter<double>("dRMax")) {}
 
 l1ct::PFTkEGAlgoEmuConfig::CompIDParameters::CompIDParameters(const edm::ParameterSet &pset)
-    : CompIDParameters(pset.getParameter<double>("bdt_loose_wp"),
-                       pset.getParameter<double>("bdt_tight_wp"),
-                       pset.getParameter<std::string>("conifer_model")) {}
+    : CompIDParameters(pset.getParameter<double>("loose_wp"),
+                       pset.getParameter<double>("tight_wp"),
+                       pset.getParameter<std::string>("model")) {}
 
 #endif
 
@@ -66,7 +66,7 @@ PFTkEGAlgoEmulator::PFTkEGAlgoEmulator(const PFTkEGAlgoEmuConfig &config)
 #else
     auto resolvedFileName = cfg.compIDparams.conifer_model;
 #endif
-    composite_bdt_ = new conifer::BDT<bdt_feature_t, ap_fixed<12, 3, AP_RND_CONV, AP_SAT>, false>(resolvedFileName);
+    composite_bdt_ = new conifer::BDT<bdt_feature_t, bdt_score_t, false>(resolvedFileName);
   }
 }
 
@@ -230,14 +230,12 @@ float PFTkEGAlgoEmulator::compute_composite_score(CompositeCandidate &cand,
   const auto &calo = emcalo[cand.cluster_idx];
   const auto &tk = track[cand.track_idx];
 
-  // Call and normalize input feature values, then cast to ap_fixed.
-  // Note that for some features (e.g. track pT) we call the floating point representation, but that's already quantized!
-  // Several other features, such as chi2 or most cluster features, are not quantized before casting them to ap_fixed.
+  // Prepare the input features
   bdt_feature_t hoe = calo.hwHoe;
   bdt_feature_t tkpt = tk.hwPt;
   bdt_feature_t srrtot = calo.hwSrrTot;
   bdt_feature_t deta = tk.hwEta - calo.hwEta;
-  ap_fixed<18, 9> calo_invPt = invert_with_shift<pt_t, ap_fixed<18, 9>, 1024>(calo.hwPt);  // TODO: this is a guess
+  ap_ufixed<18, 0> calo_invPt = invert_with_shift<pt_t, ap_ufixed<18, 0>, 1024>(calo.hwPt);
   bdt_feature_t dpt = tk.hwPt * calo_invPt;
   bdt_feature_t meanz = calo.hwMeanZ;
   bdt_feature_t dphi = tk.hwPhi - calo.hwPhi;
@@ -248,12 +246,9 @@ float PFTkEGAlgoEmulator::compute_composite_score(CompositeCandidate &cand,
 
   // Run BDT inference
   std::vector<bdt_feature_t> inputs = {tkpt, hoe, srrtot, deta, dphi, dpt, meanz, nstubs, chi2rphi, chi2rz, chi2bend};
-  std::vector<ap_fixed<12, 3, AP_RND_CONV, AP_SAT>> bdt_score = composite_bdt_->decision_function(inputs);
+  std::vector<bdt_score_t> bdt_score = composite_bdt_->decision_function(inputs);
 
-  float bdt_score_CON = bdt_score[0];
-  float bdt_score_XGB = 1 / (1 + exp(-bdt_score_CON));  // Map Conifer score to XGboost score. (same as scipy.expit)
-
-  return bdt_score_XGB;
+  return bdt_score[0];
 }
 
 void PFTkEGAlgoEmulator::sel_emCalo(unsigned int nmax_sel,
@@ -451,7 +446,7 @@ EGIsoEleObjEmu &PFTkEGAlgoEmulator::addEGIsoEleToPF(std::vector<EGIsoEleObjEmu> 
   egiso.hwCharge = track.hwCharge;
   egiso.srcCluster = calo.src;
   egiso.srcTrack = track.src;
-  egiso.bdtScore = bdtScore;
+  egiso.idScore = bdtScore;
   egobjs.push_back(egiso);
 
   if (debug_ > 2)

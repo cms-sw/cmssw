@@ -43,7 +43,7 @@ table_t invert_with_shift(in_t in) {
   // find the first '1' in the denominator
   int msb = 0;
   for (int b = 0; b < in.width; b++) {
-// #pragma HLS unroll
+    // #pragma HLS unroll
     if (in[b])
       msb = b;
   }

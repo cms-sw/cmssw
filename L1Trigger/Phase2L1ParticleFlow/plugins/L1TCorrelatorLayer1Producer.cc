@@ -38,7 +38,6 @@
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 #include "DataFormats/L1TCorrelator/interface/TkEm.h"
 #include "DataFormats/L1TCorrelator/interface/TkEmFwd.h"
-#include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
 
 //--------------------------------------------------------------------------------------------------
 class L1TCorrelatorLayer1Producer : public edm::stream::EDProducer<> {
@@ -698,8 +697,8 @@ void L1TCorrelatorLayer1Producer::addRawHgcalCluster(l1ct::DetectorSector<ap_uin
   ap_int<9> w_eta = round(sec.region.localEta(c.eta()) / ETAPHI_LSB);
   ap_int<9> w_phi = round(sec.region.localPhi(c.phi()) / ETAPHI_LSB);
   ap_uint<10> w_qual = c.hwQual();
-
-  ap_uint<13> w_srrtot = round(c.sigmaRR() / l1ct::Scales::SRRTOT_LSB);
+  // FIXME: this is an arbitrary choice to keep the rounding consistent with the "addDecodedHadCalo" one
+  ap_uint<13> w_srrtot = round(c.sigmaRR() * l1ct::Scales::SRRTOT_SCALE / l1ct::Scales::SRRTOT_LSB);
   ap_uint<12> w_meanz = round(c.absZBarycenter());
   // FIXME: the calibration can actually make hoe become negative....we add a small protection for now
   // We use ap_ufixed to handle saturation and rounding
@@ -1101,7 +1100,7 @@ void L1TCorrelatorLayer1Producer::putEgObjects(edm::Event &iEvent,
       tkele.setHwQual(egele.hwQual);
       tkele.setPFIsol(egele.floatRelIso(l1ct::EGIsoEleObjEmu::IsoType::PfIso));
       tkele.setEgBinaryWord(egele.pack());
-      tkele.setCompositeBdtScore(egele.bdtScore);
+      tkele.setIdScore(egele.idScore);
       tkeles->push_back(tkele);
       nele_obj.push_back(tkeles->size() - 1);
     }

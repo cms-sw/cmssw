@@ -159,6 +159,7 @@ namespace l1ct {
     bool writeEgSta() const { return cfg.writeEgSta; }
 
     typedef ap_fixed<21, 12, AP_RND_CONV, AP_SAT> bdt_feature_t;
+    typedef ap_fixed<12, 3, AP_RND_CONV, AP_SAT> bdt_score_t;
 
   private:
     void link_emCalo2emCalo(const std::vector<EmCaloObjEmu> &emcalo, std::vector<int> &emCalo2emCalo) const;
