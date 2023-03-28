@@ -241,12 +241,13 @@ float PFTkEGAlgoEmulator::compute_composite_score(CompositeCandidate &cand,
   bdt_feature_t dpt = tk.hwPt * calo_invPt;
   bdt_feature_t meanz = calo.hwMeanZ;
   bdt_feature_t dphi = tk.hwPhi - calo.hwPhi;
-  bdt_feature_t chi2 = tk.hwRedChi2RPhi;
-  bdt_feature_t tkz0 = tk.hwZ0;
   bdt_feature_t nstubs = tk.hwStubs;
+  bdt_feature_t chi2rphi = tk.hwRedChi2RPhi;
+  bdt_feature_t chi2rz = tk.hwRedChi2RZ;
+  bdt_feature_t chi2bend = tk.hwRedChi2Bend;
 
   // Run BDT inference
-  std::vector<bdt_feature_t> inputs = {hoe, tkpt, srrtot, deta, dpt, meanz, dphi, chi2, tkz0, nstubs};
+  std::vector<bdt_feature_t> inputs = {tkpt, hoe, srrtot, deta, dphi, dpt, meanz, nstubs, chi2rphi, chi2rz, chi2bend};
   std::vector<ap_fixed<12, 3, AP_RND_CONV, AP_SAT>> bdt_score = composite_bdt_->decision_function(inputs);
 
   float bdt_score_CON = bdt_score[0];

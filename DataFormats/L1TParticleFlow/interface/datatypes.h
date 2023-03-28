@@ -207,7 +207,7 @@ namespace l1ct {
     inline iso_t makeIso(float iso) { return iso_t(0.25 * round(iso * 4)); }
 
     inline int makeDR2FromFloatDR(float dr) { return ceil(dr * dr / ETAPHI_LSB / ETAPHI_LSB); }
-    inline srrtot_t makeSrrTot(float var) { return srrtot_t(SRRTOT_LSB * round(var / SRRTOT_LSB)); };
+    inline srrtot_t makeSrrTot(float var) { return srrtot_t(SRRTOT_LSB * round(var * pow(2,6) / SRRTOT_LSB)); };
     inline meanz_t makeMeanZ(float var) { return round(var - MEANZ_OFFSET); };
     inline hoe_t makeHoe(float var) { return hoe_t(HOE_LSB * round(var / HOE_LSB)); };
 
