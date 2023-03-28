@@ -23,7 +23,7 @@ import RecoTracker.TkSeedingLayers.seedingLayersEDProducer_cfi as _mod
 displacedRegionalStepSeedLayersTripl = _mod.seedingLayersEDProducer.clone(
     layerList = [
     #TOB
-    'TOB1+TOB2+MTOB3',
+    'TOB1+TOB2+MTOB3',#'TOB1+TOB2+MTOB4',
     #TOB+MTEC
     'TOB1+TOB2+MTEC1_pos','TOB1+TOB2+MTEC1_neg',
     ],
@@ -70,17 +70,19 @@ displacedRegionalStepSeedingV0Candidates = _generalV0Candidates.clone(
 )
 displacedRegionalStepSeedingVertices = _displacedRegionProducer.clone(
     minRadius = 2.0,
+    nearThreshold = 20.0,
+    farThreshold = -1.0,
     discriminatorCut = 0.5,
     trackClusters = ["displacedRegionalStepSeedingV0Candidates", "Kshort"],
 )
 
 from RecoTracker.TkTrackingRegions.globalTrackingRegionWithVertices_cfi import globalTrackingRegionWithVertices as _globalTrackingRegionWithVertices
-displacedRegionalStepTrackingRegionsTripl = _globalTrackingRegionWithVertices.clone(RegionPSet = dict(
+displacedRegionalStepFarTrackingRegions = _globalTrackingRegionWithVertices.clone(RegionPSet = dict(
     originRadius = 1.0,
     fixedError = 1.0,
-    VertexCollection = "displacedRegionalStepSeedingVertices",
+    VertexCollection = ["displacedRegionalStepSeedingVertices", "farRegionsOfInterest"],
     useFakeVertices = True,
-    ptMin = 0.55,
+    ptMin = 0.6,
     allowEmpty = True
 ))
 
@@ -95,7 +97,7 @@ displacedRegionalStepClusterShapeHitFilter = _ClusterShapeHitFilterESProducer.cl
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
 displacedRegionalStepHitDoubletsTripl = _hitPairEDProducer.clone(
     seedingLayers = "displacedRegionalStepSeedLayersTripl",
-    trackingRegions = "displacedRegionalStepTrackingRegionsTripl",
+    trackingRegions = "displacedRegionalStepFarTrackingRegions",
     maxElement = 50000000,
     produceIntermediateHitDoublets = True,
 )
@@ -131,12 +133,12 @@ from Configuration.ProcessModifiers.approxSiStripClusters_cff import approxSiStr
 
 # PAIR SEEDING LAYERS
 displacedRegionalStepSeedLayersPair = _mod.seedingLayersEDProducer.clone(
-    layerList = ['TOB1+TEC1_pos','TOB1+TEC1_neg',
-                 'TEC1_pos+TEC2_pos','TEC1_neg+TEC2_neg',
-                 'TEC2_pos+TEC3_pos','TEC2_neg+TEC3_neg',
-                 'TEC3_pos+TEC4_pos','TEC3_neg+TEC4_neg',
-                 'TEC4_pos+TEC5_pos','TEC4_neg+TEC5_neg',
-                 'TEC5_pos+TEC6_pos','TEC5_neg+TEC6_neg',
+    layerList = ['TOB1+TEC1_pos','TOB1+TEC1_neg', 
+                 'TEC1_pos+TEC2_pos','TEC1_neg+TEC2_neg', 
+                 'TEC2_pos+TEC3_pos','TEC2_neg+TEC3_neg', 
+                 'TEC3_pos+TEC4_pos','TEC3_neg+TEC4_neg', 
+                 'TEC4_pos+TEC5_pos','TEC4_neg+TEC5_neg', 
+                 'TEC5_pos+TEC6_pos','TEC5_neg+TEC6_neg', 
                  'TEC6_pos+TEC7_pos','TEC6_neg+TEC7_neg'],
     TOB = dict(
          TTRHBuilder    = cms.string('WithTrackAngle'),
@@ -154,20 +156,12 @@ displacedRegionalStepSeedLayersPair = _mod.seedingLayersEDProducer.clone(
         maxRing = cms.int32(5)
     )
 )
-# Pair TrackingRegion
-displacedRegionalStepTrackingRegionsPair = _globalTrackingRegionWithVertices.clone(RegionPSet = dict(
-    originRadius = 1.0,
-    fixedError = 1.0,
-    VertexCollection = "displacedRegionalStepSeedingVertices",
-    useFakeVertices = True,
-    ptMin = 0.6,
-    allowEmpty = True
-))
+
 
 # Pair seeds
 displacedRegionalStepHitDoubletsPair = _hitPairEDProducer.clone(
     seedingLayers = "displacedRegionalStepSeedLayersPair",
-    trackingRegions = "displacedRegionalStepTrackingRegionsPair",
+    trackingRegions = "displacedRegionalStepFarTrackingRegions",
     produceSeedingHitSets = True,
     maxElementTotal = 12000000,
 )
@@ -177,10 +171,114 @@ displacedRegionalStepSeedsPair = _seedCreatorFromRegionConsecutiveHitsEDProducer
     SeedComparitorPSet = _displacedRegionalStepSeedComparitorPSet,
 )
 
+# FROM PIXELLESS
+displacedRegionalStepPLSeedLayersTripl = _mod.seedingLayersEDProducer.clone(
+    layerList = [
+    #TIB
+    'TIB1+TIB2+MTIB3',#'TIB1+TIB2+MTIB4',
+    #TIB+TID
+    'TIB1+TIB2+MTID1_pos','TIB1+TIB2+MTID1_neg',
+    #TID
+    'TID1_pos+TID2_pos+TID3_pos','TID1_neg+TID2_neg+TID3_neg',#ring 1-2 (matched)
+    'TID1_pos+TID2_pos+MTID3_pos','TID1_neg+TID2_neg+MTID3_neg',#ring 3 (mono)
+    'TID1_pos+TID2_pos+MTEC1_pos','TID1_neg+TID2_neg+MTEC1_neg',
+    #TID+TEC RING 1-3
+    'TID2_pos+TID3_pos+TEC1_pos','TID2_neg+TID3_neg+TEC1_neg',#ring 1-2 (matched)
+    'TID2_pos+TID3_pos+MTEC1_pos','TID2_neg+TID3_neg+MTEC1_neg',#ring 3 (mono)
+    #TEC RING 1-3
+    #'TEC1_pos+TEC2_pos+TEC3_pos', 'TEC1_neg+TEC2_neg+TEC3_neg',
+    #'TEC1_pos+TEC2_pos+MTEC3_pos','TEC1_neg+TEC2_neg+MTEC3_neg',
+    #'TEC1_pos+TEC2_pos+TEC4_pos', 'TEC1_neg+TEC2_neg+TEC4_neg',
+    #'TEC1_pos+TEC2_pos+MTEC4_pos','TEC1_neg+TEC2_neg+MTEC4_neg',
+    #'TEC2_pos+TEC3_pos+TEC4_pos', 'TEC2_neg+TEC3_neg+TEC4_neg',
+    #'TEC2_pos+TEC3_pos+MTEC4_pos','TEC2_neg+TEC3_neg+MTEC4_neg',
+    #'TEC2_pos+TEC3_pos+TEC5_pos', 'TEC2_neg+TEC3_neg+TEC5_neg',
+    #'TEC2_pos+TEC3_pos+TEC6_pos', 'TEC2_neg+TEC3_neg+TEC6_neg',
+    #'TEC3_pos+TEC4_pos+TEC5_pos', 'TEC3_neg+TEC4_neg+TEC5_neg',
+    #'TEC3_pos+TEC4_pos+MTEC5_pos','TEC3_neg+TEC4_neg+MTEC5_neg',
+    #'TEC3_pos+TEC5_pos+TEC6_pos', 'TEC3_neg+TEC5_neg+TEC6_neg',
+    #'TEC4_pos+TEC5_pos+TEC6_pos', 'TEC4_neg+TEC5_neg+TEC6_neg'    
+    ],
+    TIB = dict(
+         TTRHBuilder    = cms.string('WithTrackAngle'), 
+         clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
+         matchedRecHits = cms.InputTag('siStripMatchedRecHits','matchedRecHit'),
+         skipClusters   = cms.InputTag('displacedRegionalStepClusters')
+    ),
+    MTIB = dict(
+         TTRHBuilder    = cms.string('WithTrackAngle'), 
+         clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
+         skipClusters   = cms.InputTag('displacedRegionalStepClusters'),
+         rphiRecHits    = cms.InputTag('siStripMatchedRecHits','rphiRecHit')
+    ),
+    TID = dict(
+        matchedRecHits = cms.InputTag('siStripMatchedRecHits','matchedRecHit'),
+        skipClusters = cms.InputTag('displacedRegionalStepClusters'),
+        useRingSlector = cms.bool(True),
+        TTRHBuilder = cms.string('WithTrackAngle'), 
+        clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
+        minRing = cms.int32(1),
+        maxRing = cms.int32(2)
+    ),
+    MTID = dict(
+        rphiRecHits    = cms.InputTag('siStripMatchedRecHits','rphiRecHit'),
+        skipClusters = cms.InputTag('displacedRegionalStepClusters'),
+        useRingSlector = cms.bool(True),
+        TTRHBuilder = cms.string('WithTrackAngle'), 
+        clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
+        minRing = cms.int32(3),
+        maxRing = cms.int32(3)
+    ),
+    TEC = dict(
+        matchedRecHits = cms.InputTag('siStripMatchedRecHits','matchedRecHit'),
+        skipClusters = cms.InputTag('displacedRegionalStepClusters'),
+        useRingSlector = cms.bool(True),
+        TTRHBuilder = cms.string('WithTrackAngle'), 
+        clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
+        minRing = cms.int32(1),
+        maxRing = cms.int32(2)
+    ),
+    MTEC = dict(
+        rphiRecHits = cms.InputTag('siStripMatchedRecHits','rphiRecHit'),
+        skipClusters = cms.InputTag('displacedRegionalStepClusters'),
+        useRingSlector = cms.bool(True),
+        TTRHBuilder = cms.string('WithTrackAngle'), 
+        clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutTight')),
+        minRing = cms.int32(3),
+        maxRing = cms.int32(3)
+    )
+)
+
+# Pair TrackingRegion
+displacedRegionalStepNearTrackingRegions = _globalTrackingRegionWithVertices.clone(RegionPSet = dict(
+    originRadius = 1.0,
+    fixedError = 1.0,
+    VertexCollection = ["displacedRegionalStepSeedingVertices", "nearRegionsOfInterest"],
+    useFakeVertices = True,
+    ptMin = 0.6,
+    allowEmpty = True
+))
+
+displacedRegionalStepPLHitDoubletsTripl = _hitPairEDProducer.clone(
+    seedingLayers   = 'displacedRegionalStepPLSeedLayersTripl',
+    trackingRegions = 'displacedRegionalStepNearTrackingRegions',
+    maxElement      = 50000000,
+    produceIntermediateHitDoublets = True,
+)
+
+displacedRegionalStepPLHitTripletsTripl = _multiHitFromChi2EDProducer.clone(
+    doublets = 'displacedRegionalStepPLHitDoubletsTripl',
+)
+
+displacedRegionalStepPLSeedsTripl = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer.clone(
+    seedingHitSets = 'displacedRegionalStepPLHitTripletsTripl',
+    SeedComparitorPSet = _displacedRegionalStepSeedComparitorPSet,
+)
+
 # Combined seeds
 import RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi
 displacedRegionalStepSeeds = RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi.globalCombinedSeeds.clone(
-    seedCollections = ['displacedRegionalStepSeedsTripl', 'displacedRegionalStepSeedsPair']
+    seedCollections = ['displacedRegionalStepSeedsTripl', 'displacedRegionalStepSeedsPair', 'displacedRegionalStepPLSeedsTripl']
 )
 
 # QUALITY CUTS DURING TRACK BUILDING (for inwardss and outwards track building steps)
@@ -364,14 +462,18 @@ DisplacedRegionalStepTask = cms.Task(displacedRegionalStepClusters,
                           displacedRegionalStepInputTracks,
                           displacedRegionalStepSeedingV0Candidates,
                           displacedRegionalStepSeedingVertices,
-                          displacedRegionalStepTrackingRegionsTripl,
+                          displacedRegionalStepFarTrackingRegions,
                           displacedRegionalStepHitDoubletsTripl,
                           displacedRegionalStepHitTripletsTripl,
                           displacedRegionalStepSeedsTripl,
                           displacedRegionalStepSeedLayersPair,
-                          displacedRegionalStepTrackingRegionsPair,
                           displacedRegionalStepHitDoubletsPair,
                           displacedRegionalStepSeedsPair,
+                          displacedRegionalStepPLSeedLayersTripl,
+                          displacedRegionalStepNearTrackingRegions,
+                          displacedRegionalStepPLHitDoubletsTripl,
+                          displacedRegionalStepPLHitTripletsTripl,
+                          displacedRegionalStepPLSeedsTripl,
                           displacedRegionalStepSeeds,
                           displacedRegionalStepTrackCandidates,
                           displacedRegionalStepTracks,
