@@ -121,7 +121,7 @@ namespace l1t {
           // Fill RegionalMuonShower objects. For this we need to look at all six words together.
           RegionalMuonShower muShower;
           if (RegionalMuonRawDigiTranslator::fillRegionalMuonShower(
-                  muShower, bxPayload, processor, trackFinder, useEmtfShowers_)) {
+                  muShower, bxPayload, processor, trackFinder, useEmtfNominalTightShowers_, useEmtfLooseShowers_)) {
             regionalMuonShowerCollection->push_back(bx, muShower);
           }
         } else {
