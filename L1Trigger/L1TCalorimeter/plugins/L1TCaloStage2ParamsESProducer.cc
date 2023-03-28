@@ -348,6 +348,8 @@ L1TCaloStage2ParamsESProducer::L1TCaloStage2ParamsESProducer(const edm::Paramete
   m_params_helper.setLayer1ECalScaleFactors(conf.getParameter<std::vector<double>>("layer1ECalScaleFactors"));
   m_params_helper.setLayer1HCalScaleFactors(conf.getParameter<std::vector<double>>("layer1HCalScaleFactors"));
   m_params_helper.setLayer1HFScaleFactors(conf.getParameter<std::vector<double>>("layer1HFScaleFactors"));
+  m_params_helper.setLayer1HCalFBLUTUpper(conf.getParameter<std::vector<unsigned>>("layer1HCalFBLUTUpper"));
+  m_params_helper.setLayer1HCalFBLUTLower(conf.getParameter<std::vector<unsigned>>("layer1HCalFBLUTLower"));
 
   m_params_helper.setLayer1ECalScaleETBins(conf.getParameter<std::vector<int>>("layer1ECalScaleETBins"));
   m_params_helper.setLayer1HCalScaleETBins(conf.getParameter<std::vector<int>>("layer1HCalScaleETBins"));

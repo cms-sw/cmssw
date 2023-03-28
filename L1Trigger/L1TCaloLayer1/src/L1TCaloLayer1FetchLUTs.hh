@@ -34,6 +34,7 @@ bool L1TCaloLayer1FetchLUTs(
     std::vector<std::array<std::array<std::array<uint32_t, l1tcalo::nEtBins>, l1tcalo::nCalSideBins>,
                            l1tcalo::nCalEtaBins> > &hLUT,
     std::vector<std::array<std::array<uint32_t, l1tcalo::nEtBins>, l1tcalo::nHfEtaBins> > &hfLUT,
+    std::vector<unsigned long long int> &hcalFBLUT,
     std::vector<unsigned int> &ePhiMap,
     std::vector<unsigned int> &hPhiMap,
     std::vector<unsigned int> &hfPhiMap,
@@ -42,6 +43,7 @@ bool L1TCaloLayer1FetchLUTs(
     bool useECALLUT = true,
     bool useHCALLUT = true,
     bool useHFLUT = true,
+    bool useHCALFBLUT = true,
     int fwVersion = 0);
 
 #endif

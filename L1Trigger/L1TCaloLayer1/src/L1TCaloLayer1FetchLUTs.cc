@@ -32,6 +32,7 @@ bool L1TCaloLayer1FetchLUTs(
     std::vector<std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> > &eLUT,
     std::vector<std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> > &hLUT,
     std::vector<std::array<std::array<uint32_t, nEtBins>, nHfEtaBins> > &hfLUT,
+    std::vector<unsigned long long int> &hcalFBLUT,
     std::vector<unsigned int> &ePhiMap,
     std::vector<unsigned int> &hPhiMap,
     std::vector<unsigned int> &hfPhiMap,
@@ -40,6 +41,7 @@ bool L1TCaloLayer1FetchLUTs(
     bool useECALLUT,
     bool useHCALLUT,
     bool useHFLUT,
+    bool useHCALFBLUT,
     int fwVersion) {
   int hfValid = 1;
   const HcalTrigTowerGeometry &pG = iSetup.getData(iTokens.geom_);
@@ -122,8 +124,24 @@ bool L1TCaloLayer1FetchLUTs(
     return false;
   }
 
+  // HCAL FB LUT will be a 1*28 array:
+  //   ieta = 28 eta scale factors (1 .. 28)
+  //   So, index = ieta
+  auto fbLUTUpper = caloParams.layer1HCalFBLUTUpper();
+  auto fbLUTLower = caloParams.layer1HCalFBLUTLower();
+  if (fbLUTUpper.size() != 28) {
+    edm::LogError("L1TCaloLayer1FetchLUTs")
+      << "caloParams.layer1HCalFBLUTUpper().size() != 28 !!";
+    return false;
+  }
+  if (fbLUTLower.size() != 28) {
+    edm::LogError("L1TCaloLayer1FetchLUTs")
+        << "caloParams.layer1HCalFBLUTLower().size() != 28 !!";
+    return false;
+  }
+
   // Sanity check scale factors exist
-  if (useCalib && (ecalSF.empty() || hcalSF.empty() || hfSF.empty())) {
+  if (useCalib && (ecalSF.empty() || hcalSF.empty() || hfSF.empty() || fbLUTUpper.empty() || fbLUTLower.empty())) {
     edm::LogError("L1TCaloLayer1FetchLUTs") << "Layer 1 calibrations requested (useCalib = True) but there are missing "
                                                "scale factors in CaloParams!  Please check conditions setup.";
     return false;
@@ -329,6 +347,12 @@ bool L1TCaloLayer1FetchLUTs(
         hfLUT[phiBin][etaBin][etCode] = value;
       }
     }
+  }
+
+  // Make HCal FB LUT
+  for (uint32_t etaBin = 0; etaBin < 28; etaBin++) {
+    uint64_t value = (((uint64_t)fbLUTUpper.at(etaBin)) << 32) | fbLUTLower.at(etaBin);
+    hcalFBLUT.push_back(value);
   }
 
   // plus/minus, 18 CTP7, 4 iPhi each
