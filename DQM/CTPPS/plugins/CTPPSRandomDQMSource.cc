@@ -191,7 +191,7 @@ void CTPPSRandomDQMSource::analyze(edm::Event const &event, edm::EventSetup cons
 
 void CTPPSRandomDQMSource::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("tagRPixDigi", edm::InputTag("ctppsPixelDigisAlCaRecoProducer"));
+  desc.add<edm::InputTag>("tagRPixDigi", edm::InputTag("ctppsPixelDigisAlCaRecoProducer", ""));
   desc.addUntracked<std::string>("folderName", "PPSRANDOM/RandomPixel");
   desc.addUntracked<unsigned int>("RPStatusWord", 0x8008);
   descriptions.add("ctppsRandomDQMSource", desc);
