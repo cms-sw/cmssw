@@ -97,7 +97,9 @@ void TrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
                                      << aTrack->GetDefinition()->GetParticleName() << " ansestor= " << withAncestor
                                      << " saved= " << currentTrack_->saved() << " end point " << aTrack->GetPosition();
 #endif
-  if(!isInHistory) { delete currentTrack_; }
+  if (!isInHistory) {
+    delete currentTrack_;
+  }
 
   EndOfTrack et(aTrack);
   m_endOfTrackSignal(&et);
