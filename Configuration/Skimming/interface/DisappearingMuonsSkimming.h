@@ -49,13 +49,18 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginJob() override;
   bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
+
   bool passTriggers(const edm::Event& iEvent,
-                    edm::EDGetToken m_trigResultsToken,
+                    const edm::TriggerResults& results,
                     std::vector<std::string> m_muonPathsToPass);
-  double getTrackIsolation(const edm::Event&, const reco::VertexCollection& vtxHandle, const reco::Track& iTrack);
+
+  bool findTrackInVertices(const reco::TrackRef& tkToMatch,
+                           const reco::VertexCollection& vertices,
+                           unsigned int& vtxIndex,
+                           unsigned int& trackIndex);
+
+  double getTrackIsolation(const reco::TrackRef& tkToMatch, const reco::VertexCollection& vertices);
   double getECALIsolation(const edm::Event&, const edm::EventSetup&, const reco::TransientTrack track);
 
   // ----------member data ---------------------------
