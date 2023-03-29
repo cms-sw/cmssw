@@ -59,7 +59,8 @@ void HFNoseGeometryTester::doTestWafer(const HGCalGeometry* geom) {
       for (int waferU : wafers) {
         for (int waferV : wafers) {
           int type = geom->topology().dddConstants().getTypeHex(layer, waferU, waferV);
-          edm::LogVerbatim("ForwardGeom") << "zside " << zside << " layer " << layer << " wafer " << waferU << ":" << waferV << " type " << type;
+          edm::LogVerbatim("ForwardGeom")
+              << "zside " << zside << " layer " << layer << " wafer " << waferU << ":" << waferV << " type " << type;
           for (int cellU : cells) {
             for (int cellV : cells) {
               edm::LogVerbatim("ForwardGeom") << " cell " << cellU << ":" << cellV;
@@ -69,13 +70,17 @@ void HFNoseGeometryTester::doTestWafer(const HGCalGeometry* geom) {
                 auto icell1 = geom->getGeometry(id1);
                 GlobalPoint global1 = geom->getPosition(id1);
                 DetId idc1 = geom->getClosestCell(global1);
-		std::ostringstream st1;
-                st1 << "DetId (" << zside << ":" << type << ":" << layer << ":" << waferU << ":" << waferV << ":" << cellU << ":" << cellV << ") Geom " << icell1 << " position (" << global1.x() << ", " << global1.y() << ", " << global1.z() << ") ids " << std::hex << id1.rawId() << ":" << idc1.rawId() << std::dec << ":" << HFNoseDetId(id1) << ":" << HFNoseDetId(idc1) << " parameter[3] = " << icell1->param()[2] << ":" << icell1->param()[2];
+                std::ostringstream st1;
+                st1 << "DetId (" << zside << ":" << type << ":" << layer << ":" << waferU << ":" << waferV << ":"
+                    << cellU << ":" << cellV << ") Geom " << icell1 << " position (" << global1.x() << ", "
+                    << global1.y() << ", " << global1.z() << ") ids " << std::hex << id1.rawId() << ":" << idc1.rawId()
+                    << std::dec << ":" << HFNoseDetId(id1) << ":" << HFNoseDetId(idc1)
+                    << " parameter[3] = " << icell1->param()[2] << ":" << icell1->param()[2];
                 if (id1.rawId() != idc1.rawId())
                   st1 << "***** ERROR *****";
                 edm::LogVerbatim("ForwardGeom") << st1.str();
                 std::vector<GlobalPoint> corners = geom->getCorners(idc1);
-		std::ostringstream st2;
+                std::ostringstream st2;
                 st2 << corners.size() << " corners";
                 for (auto const& cor : corners)
                   st2 << " [" << cor.x() << "," << cor.y() << "," << cor.z() << "]";
