@@ -6,6 +6,8 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/SystemBounds.h"
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -62,6 +64,9 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
       startedFallback_(false),
       pid_(std::to_string(::getpid())) {
   //module construction is assumed to be serial (correct at the time this code was written)
+  
+  areg.watchPreallocate(this, &TritonService::preallocate);
+
   areg.watchPreModuleConstruction(this, &TritonService::preModuleConstruction);
   areg.watchPostModuleConstruction(this, &TritonService::postModuleConstruction);
   areg.watchPreModuleDestruction(this, &TritonService::preModuleDestruction);
@@ -134,6 +139,10 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
   }
   if (verbose_)
     edm::LogInfo("TritonService") << msg;
+}
+
+void TritonService::preallocate(edm::service::SystemBounds const& bounds) {
+  numberOfThreads_ = bounds.maxNumberOfThreads();
 }
 
 void TritonService::preModuleConstruction(edm::ModuleDescription const& desc) {
@@ -238,7 +247,65 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
   if (fallbackOpts_.wait >= 0)
     fallbackOpts_.command += " -w " + std::to_string(fallbackOpts_.wait);
   for (const auto& [modelName, model] : unservedModels_) {
-    fallbackOpts_.command += " -m " + model.path;
+
+    //We need to edit the triton config files, need to copy from cvmfs
+    std::string delimiter = "/";
+    std::string tmp_model_path = model.path;
+    size_t pos = 0;
+    std::string token;
+    std::string model_dir;
+    while ((pos = tmp_model_path.find(delimiter)) != std::string::npos) {
+      if(tmp_model_path.substr(0, pos) != "config.pbtxt"){
+	token = tmp_model_path.substr(0, pos);
+	model_dir += token + "/";
+      }
+      tmp_model_path.erase(0, pos + delimiter.length());
+    }
+    
+    std::string remover = "mkdir local_model_repo; rm -rf local_model_repo/" + token;
+    std::string copier = "cp -r ";
+    const auto& [output, rv] = execSys(remover + "; " + copier + model_dir + " local_model_repo/");
+    fallbackOpts_.command += " -m ./local_model_repo/" + token + "/config.pbtxt";
+
+    //Need to edit files differently depending on model framework
+    bool isONNX = false;
+    bool isTF = false;
+
+    size_t offset; 
+    std::string line;
+    std::ifstream Myfile;
+    Myfile.open ("./local_model_repo/" + token + "/config.pbtxt");
+    if (Myfile.is_open()){
+      while (!Myfile.eof()){
+	getline(Myfile,line);
+	if ((offset = line.find("onnx", 0)) != std::string::npos) {
+	  isONNX = true;
+	  Myfile.close();
+	}
+	else if ((offset = line.find("tensorflow", 0)) != std::string::npos) {
+	  isTF = true;
+	  Myfile.close();
+	}
+      }
+      Myfile.close();
+    }
+
+    //append instance and thread information to config files
+    std::ofstream out;
+    out.open("./local_model_repo/" + token + "/config.pbtxt", std::ios::app);
+    out << std::endl<<"instance_group ["<<std::endl<<"  {"<<std::endl<<"    count: "<<numberOfThreads_<<std::endl<<"    kind: KIND_CPU"<<std::endl<<"  }"<<std::endl<<"]"<<std::endl;
+
+    if(isONNX){
+      out << "parameters { key: \"intra_op_thread_count\" value: { string_value: \"1\" } }" << std::endl;
+      out << "parameters { key: \"inter_op_thread_count\" value: { string_value: \"1\" } }" << std::endl;
+    }
+    if(isTF){
+      out << "parameters { key: \"TF_NUM_INTRA_THREADS\" value: { string_value: \"1\" } }" << std::endl;
+      out << "parameters { key: \"TF_NUM_INTER_THREADS\" value: { string_value: \"1\" } }" << std::endl;
+      out << "parameters { key: \"TF_USE_PER_SESSION_THREADS\" value: { string_value: \"1\" } }" << std::endl;
+    }
+
+
   }
   if (!fallbackOpts_.imageName.empty())
     fallbackOpts_.command += " -i " + fallbackOpts_.imageName;

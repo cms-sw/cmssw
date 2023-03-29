@@ -218,6 +218,7 @@ start_singularity(){
 	for REPO in ${REPOS[@]}; do
 		MOUNTARGS="$MOUNTARGS -B $REPO"
 		REPOARGS="$REPOARGS --model-repository=${REPO}"
+		ls ${REPO}
 	done
 
 	# compatibility driver environment

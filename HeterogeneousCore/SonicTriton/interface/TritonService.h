@@ -3,6 +3,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
+#include "FWCore/ServiceRegistry/interface/SystemBounds.h"
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
 #include <vector>
 #include <unordered_set>
@@ -113,6 +115,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
+  void preallocate(edm::service::SystemBounds const&);
   void preModuleConstruction(edm::ModuleDescription const&);
   void postModuleConstruction(edm::ModuleDescription const&);
   void preModuleDestruction(edm::ModuleDescription const&);
@@ -128,12 +131,14 @@ private:
   unsigned currentModuleId_;
   bool allowAddModel_;
   bool startedFallback_;
+  unsigned int numInstancesForFallbacks_;
   std::string pid_;
   std::unordered_map<std::string, Model> unservedModels_;
   //this represents a many:many:many map
   std::unordered_map<std::string, Server> servers_;
   std::unordered_map<std::string, Model> models_;
   std::unordered_map<unsigned, Module> modules_;
+  int numberOfThreads_;
 };
 
 #endif
