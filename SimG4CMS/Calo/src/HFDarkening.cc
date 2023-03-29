@@ -12,7 +12,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
 HFDarkening::HFDarkening(const edm::ParameterSet& pset) {
   //HF area of consideration is 1115 cm from interaction point to 1280cm in z-axis
   //Radius (cm) - 13 cm from Beam pipe to 130cm (the top of HF active area)
