@@ -28,7 +28,7 @@
 #include <memory>
 #include <sstream>
 
-// #define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 CaloSD::CaloSD(const std::string& name,
                const SensitiveDetectorCatalog& clg,
@@ -707,7 +707,7 @@ void CaloSD::update(const EndOfTrack* trk) {
       if (trkH->trackID() == (unsigned int)(id)) {
         tkMap[id] = trkH;
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("CaloSim") << "CaloSD: get track " << it << " from Container of size "
+        edm::LogVerbatim("CaloSim") << "CaloSD: get track " << id << " from Container of size "
                                     << trksForThisEvent->size() << " with ID " << trkH->trackID();
 #endif
       }
