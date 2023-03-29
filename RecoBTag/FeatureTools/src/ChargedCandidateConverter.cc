@@ -8,8 +8,9 @@ namespace btagbtvdeep {
                                  const float drminpfcandsv,
                                  const float jetR,
                                  ChargedCandidateFeatures& c_pf_features,
-                                 const bool flip) {
-    commonCandidateToFeatures(c_pf, jet, track_info, drminpfcandsv, jetR, c_pf_features, flip);
+                                 const bool flip,
+                                 const float distminpfcandsv) {
+    commonCandidateToFeatures(c_pf, jet, track_info, drminpfcandsv, jetR, c_pf_features, flip, distminpfcandsv);
 
     c_pf_features.vtx_ass = c_pf->pvAssociationQuality();
 
@@ -43,8 +44,9 @@ namespace btagbtvdeep {
                                const int pv_ass_quality,
                                const reco::VertexRef& pv,
                                ChargedCandidateFeatures& c_pf_features,
-                               const bool flip) {
-    commonCandidateToFeatures(c_pf, jet, track_info, drminpfcandsv, jetR, c_pf_features, flip);
+                               const bool flip,
+                               const float distminpfcandsv) {
+    commonCandidateToFeatures(c_pf, jet, track_info, drminpfcandsv, jetR, c_pf_features, flip, distminpfcandsv);
 
     c_pf_features.vtx_ass = vtx_ass_from_pfcand(*c_pf, pv_ass_quality, pv);
     c_pf_features.puppiw = puppiw;

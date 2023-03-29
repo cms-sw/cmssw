@@ -644,7 +644,30 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                       vertex_associator = vertex_associator,
                                       flip = flip),
                                     process, task)
-                
+            
+            if 'ParticleTransformerAK4TagInfos' in btagInfo:
+                svUsed = svSource
+                if btagInfo == 'pfNegativeParticleTransformerAK4TagInfos':
+                    svUsed = cms.InputTag(btagPrefix+'inclusiveCandidateNegativeSecondaryVertices'+labelName+postfix)
+                    flip = True 
+                else:
+                    flip = False
+                if not ('limmed' in jetSource.value()):
+                    puppi_value_map = cms.InputTag("puppi")
+                    vertex_associator = cms.InputTag("primaryVertexAssociation","original")
+                else:
+                    puppi_value_map = cms.InputTag("")
+                    vertex_associator = cms.InputTag("")
+                addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                    btag.pfParticleTransformerAK4TagInfos.clone(
+                                    jets = jetSource,
+                                    vertices=pvSource,
+                                    secondary_vertices=svUsed,
+                                    puppi_value_map = puppi_value_map,
+                                    vertex_associator = vertex_associator,
+                                    flip = flip),
+                                    process, task)
+            
             if btagInfo == 'pfDeepDoubleXTagInfos':
                 # can only run on PAT jets, so the updater needs to be used
                 if 'updated' not in jetSource.value().lower():

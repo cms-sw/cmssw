@@ -439,7 +439,7 @@ def miniAOD_customizeCommon(process):
     def _add_jetsPuppi(process):
         from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
         noDeepFlavourDiscriminators = [x.value() if isinstance(x, cms.InputTag) else x for x in process.patJets.discriminatorSources 
-                                       if not "DeepFlavour" in str(x)]
+                                       if (not "DeepFlavour" in str(x) and not "Transformer" in str(x))]
         addJetCollection(process, postfix   = "", labelName = 'Puppi', jetSource = cms.InputTag('ak4PFJetsPuppi'),
                          jetCorrections = ('AK4PFPuppi', ['L2Relative', 'L3Absolute'], ''),
                          pfCandidates = cms.InputTag("particleFlow"),

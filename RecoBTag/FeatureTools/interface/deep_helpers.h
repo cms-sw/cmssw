@@ -5,6 +5,7 @@
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
 
 #include "TrackingTools/IPTools/interface/IPTools.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
 #include "DataFormats/BTauReco/interface/CandIPTagInfo.h"
 
@@ -80,6 +81,10 @@ namespace btagbtvdeep {
   float mindrsvpfcand(const std::vector<reco::VertexCompositePtrCandidate> &svs,
                       const reco::Candidate *cand,
                       float mindr = 0.4);
+
+  // compute minimum distance between SVs and a candidate (from DeepNTuples, now polymorphic)
+  float mindistsvpfcand(const std::vector<reco::VertexCompositePtrCandidate> &svs,
+                        const reco::TransientTrack track);
 
   // mimic the calculation in PackedCandidate
   float vtx_ass_from_pfcand(const reco::PFCandidate &pfcand, int pv_ass_quality, const reco::VertexRef &pv);

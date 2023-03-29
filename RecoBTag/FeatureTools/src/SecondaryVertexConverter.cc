@@ -17,6 +17,14 @@ namespace btagbtvdeep {
     math::XYZVector jet_dir = jet.momentum().Unit();
     sv_features.pt = sv.pt();
     sv_features.ptrel = sv.pt() / jet.pt();
+    sv_features.etarel = catch_infs_and_bound(std::fabs(sv.eta() - jet.eta()) - 0.5, 0, -2, 0);
+    sv_features.phirel = catch_infs_and_bound(std::fabs(reco::deltaPhi(sv.phi(), jet.phi())) - 0.5, 0, -2, 0);
+    sv_features.eta = sv.eta();
+    sv_features.phi = sv.phi();
+    sv_features.e = sv.energy();
+    sv_features.px = sv.px();
+    sv_features.py = sv.py();
+    sv_features.pz = sv.pz();
     sv_features.deltaR = catch_infs_and_bound(std::fabs(reco::deltaR(sv, jet_dir)) - 0.5, 0, -2, 0);
     sv_features.mass = sv.mass();
     sv_features.ntracks = sv.numberOfDaughters();
