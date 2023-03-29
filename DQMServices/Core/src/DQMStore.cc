@@ -107,7 +107,6 @@ namespace dqm::implementation {
              ++ipath) {
           if (fullpath == (*ipath)) {
             medata.key_.scope_ = MonitorElementData::Scope::LUMI;
-            this->scope_ = MonitorElementData::Scope::LUMI;
             pathInList = true;
             break;
           }
