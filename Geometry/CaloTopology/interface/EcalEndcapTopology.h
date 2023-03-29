@@ -2,6 +2,7 @@
 #define GEOMETRY_CALOTOPOLOGY_ECALENDCAPTOPOLOGY_H 1
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -63,13 +64,13 @@ public:
   }
 
   std::vector<DetId> up(const DetId& /*id*/) const override {
-    std::cout << "EcalBarrelTopology::up() not yet implemented" << std::endl;
+    edm::LogVerbatim("CaloTopology") << "EcalBarrelTopology::up() not yet implemented";
     std::vector<DetId> vNeighborsDetId;
     return vNeighborsDetId;
   }
 
   std::vector<DetId> down(const DetId& /*id*/) const override {
-    std::cout << "EcalBarrelTopology::down() not yet implemented" << std::endl;
+    edm::LogVerbatim("CaloTopology") << "EcalBarrelTopology::down() not yet implemented";
     std::vector<DetId> vNeighborsDetId;
     return vNeighborsDetId;
   }
