@@ -3,6 +3,9 @@
     <flags TEST_RUNNER_CMD="mpirun -np 4 testMPI -s 1000 -r 12345 -n 10"/>
 </bin>
 
+<test name="testMPI" command="testMPI.sh">
+</test>
+
 <bin name="testSerialisation" file="testSerialisation.cc">
     <use name="root"/>
 </bin>
