@@ -1,0 +1,4 @@
+<lcgdict>
+  <class name="MPIOrigin" persistent="false"/>
+  <class name="edm::Wrapper<MPIOrigin>" persistent="false"/>
+</lcgdict>
