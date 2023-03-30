@@ -50,7 +50,7 @@ private:
     kVertices4Vec = 5
   };
   unsigned n_cpf_;
-  constexpr static unsigned n_features_cpf_ = 17;
+  constexpr static unsigned n_features_cpf_ = 16;
   constexpr static unsigned n_pairwise_features_cpf_ = 4;
   unsigned n_npf_;
   constexpr static unsigned n_features_npf_ = 8;
@@ -88,7 +88,7 @@ void ParticleTransformerAK4ONNXJetTagsProducer::fillDescriptions(edm::Configurat
                                      {
                                          "input_1", "input_2", "input_3", "input_4", "input_5", "input_6"
                                      });
-  desc.add<edm::FileInPath>("model_path", edm::FileInPath("RecoBTag/Combined/data/RobustParTAK4/Run2/V00/RobustParTAK4_Run2.onnx"));
+  desc.add<edm::FileInPath>("model_path", edm::FileInPath("RecoBTag/Combined/data/RobustParTAK4/PUPPI/V00/DJT.onnx"));
   desc.add<std::vector<std::string>>("output_names", {"softmax"});
   desc.add<std::vector<std::string>>(
       "flav_names", std::vector<std::string>{"probb", "probbb", "problepb", "probc", "probuds", "probg"});
@@ -171,16 +171,16 @@ void ParticleTransformerAK4ONNXJetTagsProducer::get_input_sizes(edm::Handle<TagI
       unsigned int n_vtx = features.sv_features.size();
 
       if (jet_n == 0){
-	n_cpf_ = std::max((unsigned int)1, n_cpf);
-	n_npf_ = std::max((unsigned int)1, n_npf);
-	n_sv_ = std::max((unsigned int)1, n_vtx);
-      }
+        n_cpf_ = std::max((unsigned int)1, n_cpf);
+        n_npf_ = std::max((unsigned int)1, n_npf);
+        n_sv_ = std::max((unsigned int)1, n_vtx);
+          }
       else{
-	n_cpf_ = std::max(n_cpf_, n_cpf);
-	n_npf_ = std::max(n_npf_, n_npf);
-	n_sv_ = std::max(n_sv_, n_vtx);
-      }
-    }
+        n_cpf_ = std::max(n_cpf_, n_cpf);
+        n_npf_ = std::max(n_npf_, n_npf);
+        n_sv_ = std::max(n_sv_, n_vtx);
+          }
+        }
     n_cpf_ = std::min((unsigned int)25, n_cpf_);
     n_npf_ = std::min((unsigned int)25, n_npf_);
     n_sv_ = std::min((unsigned int)5, n_sv_);
@@ -191,7 +191,7 @@ void ParticleTransformerAK4ONNXJetTagsProducer::get_input_sizes(edm::Handle<TagI
         n_cpf_ * n_pairwise_features_cpf_,
         n_npf_ * n_pairwise_features_npf_,
         n_sv_ * n_pairwise_features_sv_,
-    };
+        };
 }
 
 void ParticleTransformerAK4ONNXJetTagsProducer::make_inputs(
@@ -220,7 +220,7 @@ void ParticleTransformerAK4ONNXJetTagsProducer::make_inputs(
     *(++ptr) = c_pf_features.btagPf_trackJetDistVal;
     *(++ptr) = c_pf_features.ptrel;
     *(++ptr) = c_pf_features.drminsv;
-    *(++ptr) = c_pf_features.distminsv; // later during Run 3 after feature engineering
+    //*(++ptr) = c_pf_features.distminsv; // later during Run 3 after feature engineering
     *(++ptr) = c_pf_features.vtx_ass;
     *(++ptr) = c_pf_features.puppiw;
     *(++ptr) = c_pf_features.chi2;
