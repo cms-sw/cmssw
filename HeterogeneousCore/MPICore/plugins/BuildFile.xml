@@ -1,0 +1,14 @@
+<library file="*.cc" name="HeterogeneousCoreMPICorePlugins">
+  <use name="DataFormats/FEDRawData"/>
+  <use name="DataFormats/Provenance"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Reflection"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="FWCore/Sources"/>
+  <use name="FWCore/Utilities"/>
+  <use name="HeterogeneousCore/MPICore"/>
+  <use name="HeterogeneousCore/MPIServices"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
