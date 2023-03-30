@@ -18,6 +18,8 @@ EDProducts into an Event.
 #include <vector>
 #include <array>
 
+class MPISource;
+
 namespace edm {
   class BranchDescription;
   class ModuleDescription;
@@ -113,8 +115,10 @@ namespace edm {
     friend class global::EDFilterBase;
     friend class limited::EDProducerBase;
     friend class limited::EDFilterBase;
+    friend class ::MPISource;
     friend class PuttableSourceBase;
     friend class TransformerBase;
+
     template <typename T>
     friend class stream::ProducingModuleAdaptorBase;
 
