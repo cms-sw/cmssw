@@ -951,7 +951,9 @@ namespace p2eg {
   /*
   * Compare the ET of two clusters (pass this to std::sort to get clusters sorted in decreasing ET).
   */
-  inline bool compareClusterET(const Cluster& lhs, const Cluster& rhs) { return (lhs.clusterEnergy() > rhs.clusterEnergy()); }
+  inline bool compareClusterET(const Cluster& lhs, const Cluster& rhs) {
+    return (lhs.clusterEnergy() > rhs.clusterEnergy());
+  }
 
   /*******************************************************************/
   /* RCT helper functions                                            */

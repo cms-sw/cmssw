@@ -16,9 +16,9 @@
  * The first argument is for RCTcardEtaPos/Neg, which are arrays of RCTcard_t of size N_RCTCARDS_PHI. We pass by reference for the second argument to modify it.
  */
 inline void p2eg::doProximityAndBremsStitching(const p2eg::RCTcard_t (&inputCards)[p2eg::N_RCTCARDS_PHI],
-                                        p2eg::RCTcard_t (&outputCards)[p2eg::N_RCTCARDS_PHI],
-                                        int iStartingCard,
-                                        bool isPositiveEta) {
+                                               p2eg::RCTcard_t (&outputCards)[p2eg::N_RCTCARDS_PHI],
+                                               int iStartingCard,
+                                               bool isPositiveEta) {
   for (int i = iStartingCard; i < p2eg::N_RCTCARDS_PHI - 1; i = i + 2) {
     for (int j = 0; j < p2eg::N_RCTGCT_FIBERS; j++) {
       for (int k = 0; k < p2eg::N_RCTCLUSTERS_FIBER; k++) {
@@ -342,13 +342,13 @@ inline void p2eg::writeGCTToCMSSWAndCorrelatorOutputs(
  */
 
 inline void p2eg::algo_top(const p2eg::GCTcard_t& GCTcard,
-                    p2eg::GCTtoCorr_t& GCTtoCorr,
-                    unsigned int nGCTCard,
-                    std::unique_ptr<l1tp2::CaloCrystalClusterCollection> const& gctClusters,
-                    std::unique_ptr<l1tp2::CaloTowerCollection> const& gctTowers,
-                    std::unique_ptr<l1tp2::CaloTowerCollection> const& gctFullTowers,
-                    std::unique_ptr<l1t::EGammaBxCollection> const& gctEGammas,
-                    l1tp2::ParametricCalibration calib_) {
+                           p2eg::GCTtoCorr_t& GCTtoCorr,
+                           unsigned int nGCTCard,
+                           std::unique_ptr<l1tp2::CaloCrystalClusterCollection> const& gctClusters,
+                           std::unique_ptr<l1tp2::CaloTowerCollection> const& gctTowers,
+                           std::unique_ptr<l1tp2::CaloTowerCollection> const& gctFullTowers,
+                           std::unique_ptr<l1t::EGammaBxCollection> const& gctEGammas,
+                           l1tp2::ParametricCalibration calib_) {
   //-------------------------//
   // Initialize the GCT area
   //-------------------------//

@@ -1012,7 +1012,8 @@ inline p2eg::crystalMax p2eg::getPeakBin15N(const p2eg::etaStripPeak_t etaStrip)
 // Take a 3x4 ECAL region (i.e. 15x20 in crystals, add crystal energies in squares of 5x5, giving
 // 3x4 = 12 ECAL tower sums.) Store these 12 values in towerEt.
 
-inline void p2eg::getECALTowersEt(p2eg::crystal tempX[p2eg::CRYSTAL_IN_ETA][p2eg::CRYSTAL_IN_PHI], ap_uint<12> towerEt[12]) {
+inline void p2eg::getECALTowersEt(p2eg::crystal tempX[p2eg::CRYSTAL_IN_ETA][p2eg::CRYSTAL_IN_PHI],
+                                  ap_uint<12> towerEt[12]) {
   ap_uint<10> temp[p2eg::CRYSTAL_IN_ETA][p2eg::CRYSTAL_IN_PHI];
   ap_uint<12> towerEtN[3][4][5];
   for (int i = 0; i < p2eg::CRYSTAL_IN_ETA; i++) {
@@ -1117,9 +1118,9 @@ inline p2eg::Cluster p2eg::packCluster(ap_uint<15>& clusterEt, ap_uint<5>& etaMa
 // from the given crystal array temp. Functionally identical to "RemoveTmp".
 
 inline void p2eg::removeClusterFromCrystal(p2eg::crystal temp[p2eg::CRYSTAL_IN_ETA][p2eg::CRYSTAL_IN_PHI],
-                                    ap_uint<5> seed_eta,
-                                    ap_uint<5> seed_phi,
-                                    ap_uint<2> brems) {
+                                           ap_uint<5> seed_eta,
+                                           ap_uint<5> seed_phi,
+                                           ap_uint<2> brems) {
   // Zero out the crystal energies in a 3 (eta) by 5 (phi) window (the clusters are 3x5 in crystals)
   for (int i = 0; i < p2eg::CRYSTAL_IN_ETA; i++) {
     for (int k = 0; k < p2eg::CRYSTAL_IN_PHI; k++) {
@@ -1161,8 +1162,8 @@ inline void p2eg::removeClusterFromCrystal(p2eg::crystal temp[p2eg::CRYSTAL_IN_E
 // the cluster energy for a positive bremmstrahulung shift
 
 inline p2eg::clusterInfo p2eg::getBremsValuesPos(p2eg::crystal tempX[p2eg::CRYSTAL_IN_ETA][p2eg::CRYSTAL_IN_PHI],
-                                          ap_uint<5> seed_eta,
-                                          ap_uint<5> seed_phi) {
+                                                 ap_uint<5> seed_eta,
+                                                 ap_uint<5> seed_phi) {
   ap_uint<12> temp[p2eg::CRYSTAL_IN_ETA + 2][p2eg::CRYSTAL_IN_PHI + 4];
   ap_uint<12> phi0eta[3], phi1eta[3], phi2eta[3], phi3eta[3], phi4eta[3];
   ap_uint<12> eta_slice[3];
@@ -1236,8 +1237,8 @@ inline p2eg::clusterInfo p2eg::getBremsValuesPos(p2eg::crystal tempX[p2eg::CRYST
 // the cluster energy for a *negative* bremmstrahlung shift
 
 inline p2eg::clusterInfo p2eg::getBremsValuesNeg(p2eg::crystal tempX[p2eg::CRYSTAL_IN_ETA][p2eg::CRYSTAL_IN_PHI],
-                                          ap_uint<5> seed_eta,
-                                          ap_uint<5> seed_phi) {
+                                                 ap_uint<5> seed_eta,
+                                                 ap_uint<5> seed_phi) {
   ap_uint<12> temp[p2eg::CRYSTAL_IN_ETA + 2][p2eg::CRYSTAL_IN_PHI + 4];
   ap_uint<12> phi0eta[3], phi1eta[3], phi2eta[3], phi3eta[3], phi4eta[3];
 
@@ -1311,8 +1312,8 @@ inline p2eg::clusterInfo p2eg::getBremsValuesNeg(p2eg::crystal tempX[p2eg::CRYST
 // the cluster energy (central value)
 
 inline p2eg::clusterInfo p2eg::getClusterValues(p2eg::crystal tempX[p2eg::CRYSTAL_IN_ETA][p2eg::CRYSTAL_IN_PHI],
-                                         ap_uint<5> seed_eta,
-                                         ap_uint<5> seed_phi) {
+                                                ap_uint<5> seed_eta,
+                                                ap_uint<5> seed_phi) {
   ap_uint<12> temp[p2eg::CRYSTAL_IN_ETA + 4][p2eg::CRYSTAL_IN_PHI + 4];
   ap_uint<12> phi0eta[5], phi1eta[5], phi2eta[5], phi3eta[5], phi4eta[5];
   ap_uint<12> eta_slice[5];
@@ -1475,9 +1476,9 @@ inline p2eg::Cluster p2eg::getClusterFromRegion3x4(p2eg::crystal temp[p2eg::CRYS
 // cc is the RCT card number (for print-out statements only).
 
 inline void p2eg::stitchClusterOverRegionBoundary(std::vector<Cluster>& cluster_list,
-                                           int towerEtaUpper,
-                                           int towerEtaLower,
-                                           int cc) {
+                                                  int towerEtaUpper,
+                                                  int towerEtaLower,
+                                                  int cc) {
   (void)cc;  // for printout statements
 
   int crystalEtaUpper = 0;
