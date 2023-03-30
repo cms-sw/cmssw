@@ -20,6 +20,8 @@ Text file formats for different data types is as following:
 - # in first column comments the line
 - HcalPedestals, HcalGains, HcalGainWidths have identical formats:
   eta(int)  phi(int) depth(int) det(HB,HE,HF) cap1_value(float) cap2_value(float) cap3_value(float) cap4_value(float)  HcalDetId(int,optional)
+- HcalPFCuts:
+  eta(int)  phi(int) depth(int) det(HB,HE,HF) noiseThreshold(float) seedThreshold(float)
 - HcalPedestalWidths:
   eta(int)  phi(int) depth(int) det(HB,HE,HF) sigma_1_1(float) sigma_2_1 sigma_2_2 sigma_3_1 sigma_3_2 sigma_3_3 sigma_4_1 sigma_4_2 sigma_4_3 sigma_4_4
 - HcalQIEShape:
@@ -67,6 +69,8 @@ namespace HcalDbASCIIIO {
   bool dumpObject(std::ostream& fOutput, const HcalGains& fObject);
   bool getObject(std::istream& fInput, HcalGainWidths* fObject);
   bool dumpObject(std::ostream& fOutput, const HcalGainWidths& fObject);
+  bool getObject(std::istream& fInput, HcalPFCuts* fObject);
+  bool dumpObject(std::ostream& fOutput, const HcalPFCuts& fObject);
   bool getObject(std::istream& fInput, HcalQIEData* fObject);
   bool dumpObject(std::ostream& fOutput, const HcalQIEData& fObject);
   bool getObject(std::istream& fInput, HcalCalibrationQIEData* fObject);
