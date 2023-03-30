@@ -246,9 +246,8 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
   //ToA is in central BX if fired -- std::floor(BX/25.)+9;
   int fireBX = 9;
   //noise fluctuation on charge is added after ToA computation
-  //do not recheck the ToA firing threshold tdcForToAOnset_fC_[thickness-1] not to bias the efficiency
   //to be done properly with realistic ToA shaper and jitter for the moment accounted in the smearing
-  if (toaColl[fireBX] != 0.f) {
+  if (toaColl[fireBX] != 0.f && chargeColl[fireBX]>tdcForToAOnset_fC_[thickness-1]) {
     timeToA = toaColl[fireBX];
     float sensor_noise = noiseWidth <= 0 ? noise_fC_[thickness - 1] : noiseWidth;
     float noise = jitterNoise_ns_[thickness - 1] * sensor_noise;
