@@ -355,7 +355,7 @@ void Phase2L1CaloEGammaEmulator::produce(edm::Event& iEvent, const edm::EventSet
     //-------------------------------------------//
     // Stitching across ECAL regions             //
     //-------------------------------------------//
-    int nRegionBoundariesEta = (p2eg::N_REGIONS_PER_CARD - 1);  // 6 regions -> 5 boundaries to check
+    const int nRegionBoundariesEta = (p2eg::N_REGIONS_PER_CARD - 1);  // 6 regions -> 5 boundaries to check
     // Upper and lower boundaries respectively, to check for stitching along
     int towerEtaBoundaries[nRegionBoundariesEta][2] = {{15, 14}, {12, 11}, {9, 8}, {6, 5}, {3, 2}};
 

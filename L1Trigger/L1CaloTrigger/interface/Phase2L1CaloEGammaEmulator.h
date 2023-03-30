@@ -344,7 +344,7 @@ namespace p2eg {
 
   public:
     // constructor
-    linkECAL() { crystalE[CRYSTALS_IN_TOWER_ETA][CRYSTALS_IN_TOWER_PHI] = {}; }
+    linkECAL() {}
 
     // Set members
     inline void zeroOut() {  // zero out the crystalE array
