@@ -1,5 +1,7 @@
 <use name="FWCore/ParameterSet"/>
-<use   name="clhep"/>
+<use name="clhep"/>
+<use name="hls"/>
+
 
 <export> 
   <lib   name="1"/>
