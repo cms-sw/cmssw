@@ -6,7 +6,7 @@ from Configuration.Generator.Herwig7Settings.Herwig7StableParticlesForDetector_c
 from Configuration.Generator.Herwig7Settings.Herwig7MGMergingSettings_cfi import *
 
 
-generator = cms.EDFilter("Herwig7HadronizerFilter",
+generator = cms.EDFilter("Herwig7GeneratorFilter",
     herwig7CH3SettingsBlock,
     herwig7StableParticlesForDetectorBlock,
     herwig7MGMergingSettingsBlock,
