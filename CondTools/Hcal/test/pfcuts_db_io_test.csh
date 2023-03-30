@@ -1,5 +1,8 @@
 #!/bin/csh
-setenv CMSSW_SEARCH_PATH ${CMSSW_SEARCH_PATH}:${LOCAL_TOP_DIR}/src
+
+set inputfile = `ls -1 $CMSSW_DATA_PATH/data-CondTools-Hcal/V*/CondTools/Hcal/data/hcalpfcuts.txt | tail -1`
+set inputdir = `dirname $inputfile`
+setenv CMSSW_SEARCH_PATH ${CMSSW_SEARCH_PATH}:$inputdir
 
 cat >! temp_pfcuts_to_db.py <<%
 
@@ -31,7 +34,7 @@ process.es_ascii = cms.ESSource("HcalTextCalibrations",
    input = cms.VPSet(
        cms.PSet(
            object = cms.string("PFCuts"),
-           file = cms.FileInPath("CondTools/Hcal/data/hcalpfcuts.txt")
+           file = cms.FileInPath("hcalpfcuts.txt")
       )
    )
 )
@@ -102,4 +105,4 @@ process.p = cms.Path(process.dumpcond)
 cmsRun temp_pfcuts_from_db.py
 rm temp_pfcuts_from_db.py
 
-diff DumpPFCuts_Run1.txt ${LOCAL_TOP_DIR}/src/CondTools/Hcal/data/hcalpfcuts.txt
+diff DumpPFCuts_Run1.txt $inputfile
