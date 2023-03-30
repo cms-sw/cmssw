@@ -15,7 +15,7 @@
  * iStartingCard is 0 for even phi boundaries, and 1 for odd phi boundaries.
  * The first argument is for RCTcardEtaPos/Neg, which are arrays of RCTcard_t of size N_RCTCARDS_PHI. We pass by reference for the second argument to modify it.
  */
-void p2eg::doProximityAndBremsStitching(const p2eg::RCTcard_t (&inputCards)[p2eg::N_RCTCARDS_PHI],
+inline void p2eg::doProximityAndBremsStitching(const p2eg::RCTcard_t (&inputCards)[p2eg::N_RCTCARDS_PHI],
                                         p2eg::RCTcard_t (&outputCards)[p2eg::N_RCTCARDS_PHI],
                                         int iStartingCard,
                                         bool isPositiveEta) {
@@ -95,7 +95,7 @@ void p2eg::doProximityAndBremsStitching(const p2eg::RCTcard_t (&inputCards)[p2eg
   }
 }
 
-p2eg::GCTcard_t p2eg::getClustersCombined(const p2eg::GCTcard_t& GCTcard, unsigned int nGCTCard) {
+inline p2eg::GCTcard_t p2eg::getClustersCombined(const p2eg::GCTcard_t& GCTcard, unsigned int nGCTCard) {
   p2eg::GCTcard_t GCTcombinedClusters;
 
   // Initialize the output
@@ -193,7 +193,7 @@ p2eg::GCTcard_t p2eg::getClustersCombined(const p2eg::GCTcard_t& GCTcard, unsign
  * Populate a GCTinternal_t struct (consisting of 64 fibers, each fiber has clusters and towers) by converting RCT clusters and towers to GCT notation.
  */
 
-p2eg::GCTinternal_t p2eg::getClustersTowers(const p2eg::GCTcard_t& GCTcard, unsigned int nGCTCard) {
+inline p2eg::GCTinternal_t p2eg::getClustersTowers(const p2eg::GCTcard_t& GCTcard, unsigned int nGCTCard) {
   p2eg::GCTcard_t GCTcombinedClusters;
   p2eg::GCTinternal_t GCTout;
 
@@ -238,7 +238,7 @@ p2eg::GCTinternal_t p2eg::getClustersTowers(const p2eg::GCTcard_t& GCTcard, unsi
 /*
  * Return full towers with the tower energy (i.e. unclustered energy) and cluster energy added together.
  */
-p2eg::GCTintTowers_t p2eg::getFullTowers(const p2eg::GCTinternal_t& GCTinternal) {
+inline p2eg::GCTintTowers_t p2eg::getFullTowers(const p2eg::GCTinternal_t& GCTinternal) {
   p2eg::GCTintTowers_t GCTintTowers;
 
   // Positive eta
@@ -291,7 +291,7 @@ p2eg::GCTintTowers_t p2eg::getFullTowers(const p2eg::GCTinternal_t& GCTinternal)
 /*
  * Fill CMSSW collections and correlator outputs, using GCTinternal.
  */
-void p2eg::writeGCTToCMSSWAndCorrelatorOutputs(
+inline void p2eg::writeGCTToCMSSWAndCorrelatorOutputs(
     const p2eg::GCTinternal_t& GCTinternal,
     p2eg::GCTtoCorr_t& GCTtoCorrOutput,
     std::unique_ptr<l1tp2::CaloCrystalClusterCollection> const& gctClustersOutput,
@@ -341,7 +341,7 @@ void p2eg::writeGCTToCMSSWAndCorrelatorOutputs(
  * gctTowers is the CMSSW-style output collection of towers.
  */
 
-void p2eg::algo_top(const p2eg::GCTcard_t& GCTcard,
+inline void p2eg::algo_top(const p2eg::GCTcard_t& GCTcard,
                     p2eg::GCTtoCorr_t& GCTtoCorr,
                     unsigned int nGCTCard,
                     std::unique_ptr<l1tp2::CaloCrystalClusterCollection> const& gctClusters,

@@ -7,7 +7,7 @@
 // Other emulator helper functions
 //////////////////////////////////////////////////////////////////////////
 
-p2eg::ecalRegion_t p2eg::initStructure(p2eg::crystal temporary[p2eg::CRYSTAL_IN_ETA][p2eg::CRYSTAL_IN_PHI]) {
+inline p2eg::ecalRegion_t p2eg::initStructure(p2eg::crystal temporary[p2eg::CRYSTAL_IN_ETA][p2eg::CRYSTAL_IN_PHI]) {
   ap_uint<5> Eta = 0x0;
   ap_uint<5> Phi = 0x0;
 
@@ -937,7 +937,7 @@ p2eg::ecalRegion_t p2eg::initStructure(p2eg::crystal temporary[p2eg::CRYSTAL_IN_
 //--------------------------------------------------------//
 
 // Compare two ecaltp_t and return the one with the larger pT.
-p2eg::ecaltp_t p2eg::bestOf2(const p2eg::ecaltp_t ecaltp0, const p2eg::ecaltp_t ecaltp1) {
+inline p2eg::ecaltp_t p2eg::bestOf2(const p2eg::ecaltp_t ecaltp0, const p2eg::ecaltp_t ecaltp1) {
   p2eg::ecaltp_t x;
   x = (ecaltp0.energy > ecaltp1.energy) ? ecaltp0 : ecaltp1;
 
@@ -947,7 +947,7 @@ p2eg::ecaltp_t p2eg::bestOf2(const p2eg::ecaltp_t ecaltp0, const p2eg::ecaltp_t 
 //--------------------------------------------------------//
 
 // For a given etaStrip_t, find the ecaltp_t (out of 20 of them) with the largest pT, using pairwise comparison
-p2eg::ecaltp_t p2eg::getPeakBin20N(const p2eg::etaStrip_t etaStrip) {
+inline p2eg::ecaltp_t p2eg::getPeakBin20N(const p2eg::etaStrip_t etaStrip) {
   p2eg::ecaltp_t best01 = p2eg::bestOf2(etaStrip.cr0, etaStrip.cr1);
   p2eg::ecaltp_t best23 = p2eg::bestOf2(etaStrip.cr2, etaStrip.cr3);
   p2eg::ecaltp_t best45 = p2eg::bestOf2(etaStrip.cr4, etaStrip.cr5);
@@ -979,7 +979,7 @@ p2eg::ecaltp_t p2eg::getPeakBin20N(const p2eg::etaStrip_t etaStrip) {
 // For a given etaStripPeak_t (representing the 15 crystals, one per row in eta, not necessarily with the same phi),
 // return the crystal with the highest pT).
 
-p2eg::crystalMax p2eg::getPeakBin15N(const p2eg::etaStripPeak_t etaStrip) {
+inline p2eg::crystalMax p2eg::getPeakBin15N(const p2eg::etaStripPeak_t etaStrip) {
   p2eg::crystalMax x;
 
   p2eg::ecaltp_t best01 = p2eg::bestOf2(etaStrip.pk0, etaStrip.pk1);
@@ -1012,7 +1012,7 @@ p2eg::crystalMax p2eg::getPeakBin15N(const p2eg::etaStripPeak_t etaStrip) {
 // Take a 3x4 ECAL region (i.e. 15x20 in crystals, add crystal energies in squares of 5x5, giving
 // 3x4 = 12 ECAL tower sums.) Store these 12 values in towerEt.
 
-void p2eg::getECALTowersEt(p2eg::crystal tempX[p2eg::CRYSTAL_IN_ETA][p2eg::CRYSTAL_IN_PHI], ap_uint<12> towerEt[12]) {
+inline void p2eg::getECALTowersEt(p2eg::crystal tempX[p2eg::CRYSTAL_IN_ETA][p2eg::CRYSTAL_IN_PHI], ap_uint<12> towerEt[12]) {
   ap_uint<10> temp[p2eg::CRYSTAL_IN_ETA][p2eg::CRYSTAL_IN_PHI];
   ap_uint<12> towerEtN[3][4][5];
   for (int i = 0; i < p2eg::CRYSTAL_IN_ETA; i++) {
@@ -1056,7 +1056,7 @@ void p2eg::getECALTowersEt(p2eg::crystal tempX[p2eg::CRYSTAL_IN_ETA][p2eg::CRYST
 
 //--------------------------------------------------------//
 
-p2eg::clusterInfo p2eg::getClusterPosition(const p2eg::ecalRegion_t ecalRegion) {
+inline p2eg::clusterInfo p2eg::getClusterPosition(const p2eg::ecalRegion_t ecalRegion) {
   p2eg::etaStripPeak_t etaStripPeak;
   p2eg::clusterInfo cluster;
 
@@ -1095,7 +1095,7 @@ p2eg::clusterInfo p2eg::getClusterPosition(const p2eg::ecalRegion_t ecalRegion) 
 /*
 * Return initialized cluster with specified Et, eta, phi, with all other fields (saturation, Et2x5, Et5x5, brems, flags initialized to 0/ false).
 */
-p2eg::Cluster p2eg::packCluster(ap_uint<15>& clusterEt, ap_uint<5>& etaMax_t, ap_uint<5>& phiMax_t) {
+inline p2eg::Cluster p2eg::packCluster(ap_uint<15>& clusterEt, ap_uint<5>& etaMax_t, ap_uint<5>& phiMax_t) {
   ap_uint<12> peggedEt;
   p2eg::Cluster pack;
 
@@ -1116,7 +1116,7 @@ p2eg::Cluster p2eg::packCluster(ap_uint<15>& clusterEt, ap_uint<5>& etaMax_t, ap
 // Given the cluster seed_eta, seed_phi, and brems, remove the cluster energy
 // from the given crystal array temp. Functionally identical to "RemoveTmp".
 
-void p2eg::removeClusterFromCrystal(p2eg::crystal temp[p2eg::CRYSTAL_IN_ETA][p2eg::CRYSTAL_IN_PHI],
+inline void p2eg::removeClusterFromCrystal(p2eg::crystal temp[p2eg::CRYSTAL_IN_ETA][p2eg::CRYSTAL_IN_PHI],
                                     ap_uint<5> seed_eta,
                                     ap_uint<5> seed_phi,
                                     ap_uint<2> brems) {
@@ -1160,7 +1160,7 @@ void p2eg::removeClusterFromCrystal(p2eg::crystal temp[p2eg::CRYSTAL_IN_ETA][p2e
 // Given a 15x20 crystal tempX, and a seed with seed_eta and seed_phi, return a clusterInfo containing
 // the cluster energy for a positive bremmstrahulung shift
 
-p2eg::clusterInfo p2eg::getBremsValuesPos(p2eg::crystal tempX[p2eg::CRYSTAL_IN_ETA][p2eg::CRYSTAL_IN_PHI],
+inline p2eg::clusterInfo p2eg::getBremsValuesPos(p2eg::crystal tempX[p2eg::CRYSTAL_IN_ETA][p2eg::CRYSTAL_IN_PHI],
                                           ap_uint<5> seed_eta,
                                           ap_uint<5> seed_phi) {
   ap_uint<12> temp[p2eg::CRYSTAL_IN_ETA + 2][p2eg::CRYSTAL_IN_PHI + 4];
@@ -1235,7 +1235,7 @@ p2eg::clusterInfo p2eg::getBremsValuesPos(p2eg::crystal tempX[p2eg::CRYSTAL_IN_E
 // Given a 15x20 crystal tempX, and a seed with seed_eta and seed_phi, return a clusterInfo containing
 // the cluster energy for a *negative* bremmstrahlung shift
 
-p2eg::clusterInfo p2eg::getBremsValuesNeg(p2eg::crystal tempX[p2eg::CRYSTAL_IN_ETA][p2eg::CRYSTAL_IN_PHI],
+inline p2eg::clusterInfo p2eg::getBremsValuesNeg(p2eg::crystal tempX[p2eg::CRYSTAL_IN_ETA][p2eg::CRYSTAL_IN_PHI],
                                           ap_uint<5> seed_eta,
                                           ap_uint<5> seed_phi) {
   ap_uint<12> temp[p2eg::CRYSTAL_IN_ETA + 2][p2eg::CRYSTAL_IN_PHI + 4];
@@ -1310,7 +1310,7 @@ p2eg::clusterInfo p2eg::getBremsValuesNeg(p2eg::crystal tempX[p2eg::CRYSTAL_IN_E
 // Given a 15x20 crystal tempX, and a seed with seed_eta and seed_phi, return a clusterInfo containing
 // the cluster energy (central value)
 
-p2eg::clusterInfo p2eg::getClusterValues(p2eg::crystal tempX[p2eg::CRYSTAL_IN_ETA][p2eg::CRYSTAL_IN_PHI],
+inline p2eg::clusterInfo p2eg::getClusterValues(p2eg::crystal tempX[p2eg::CRYSTAL_IN_ETA][p2eg::CRYSTAL_IN_PHI],
                                          ap_uint<5> seed_eta,
                                          ap_uint<5> seed_phi) {
   ap_uint<12> temp[p2eg::CRYSTAL_IN_ETA + 4][p2eg::CRYSTAL_IN_PHI + 4];
@@ -1414,7 +1414,7 @@ p2eg::clusterInfo p2eg::getClusterValues(p2eg::crystal tempX[p2eg::CRYSTAL_IN_ET
 // In 15x20 crystal array temp, return the next cluster, and remove the cluster's energy
 // from the crystal array.
 
-p2eg::Cluster p2eg::getClusterFromRegion3x4(p2eg::crystal temp[p2eg::CRYSTAL_IN_ETA][p2eg::CRYSTAL_IN_PHI]) {
+inline p2eg::Cluster p2eg::getClusterFromRegion3x4(p2eg::crystal temp[p2eg::CRYSTAL_IN_ETA][p2eg::CRYSTAL_IN_PHI]) {
   p2eg::Cluster returnCluster;
   p2eg::clusterInfo cluster_tmp;
   p2eg::clusterInfo cluster_tmpCenter;
@@ -1474,7 +1474,7 @@ p2eg::Cluster p2eg::getClusterFromRegion3x4(p2eg::crystal temp[p2eg::CRYSTAL_IN_
 // zero out the energy of the smaller-energy cluster.
 // cc is the RCT card number (for print-out statements only).
 
-void p2eg::stitchClusterOverRegionBoundary(std::vector<Cluster>& cluster_list,
+inline void p2eg::stitchClusterOverRegionBoundary(std::vector<Cluster>& cluster_list,
                                            int towerEtaUpper,
                                            int towerEtaLower,
                                            int cc) {

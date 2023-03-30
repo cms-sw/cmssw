@@ -3,10 +3,10 @@
 //------------------------------------
 
 #include <ap_int.h>
+#include <cstdio>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <stdio.h>
 
 // Output collections
 #include "DataFormats/L1TCalorimeterPhase2/interface/CaloCrystalCluster.h"
@@ -88,7 +88,7 @@ namespace p2eg {
   /*
     * Convert HCAL ET to ECAL ET convention 
     */
-  ap_uint<12> convertHcalETtoEcalET(ap_uint<12> HCAL) {
+  inline ap_uint<12> convertHcalETtoEcalET(ap_uint<12> HCAL) {
     float hcalEtAsFloat = HCAL * HCAL_LSB;
     return (ap_uint<12>(hcalEtAsFloat / ECAL_LSB));
   }
@@ -98,13 +98,13 @@ namespace p2eg {
   //////////////////////////////////////////////////////////////////////////
 
   // Assert that the card index is within bounds. (Valid cc: 0 to 35, since there are 36 RCT cards)
-  bool isValidCard(int cc) { return ((cc > -1) && (cc < 36)); }
+  inline bool isValidCard(int cc) { return ((cc > -1) && (cc < 36)); }
 
   // RCT Cards: need to know their min/max crystal boundaries.
 
   // For a card (ranging from 0 to 35, since there are 36 cards), return the iEta of the crystal with max iEta.
   // This represents the card boundaries in eta (identical to getEtaMax_card in the original emulator)
-  int getCard_iEtaMax(int cc) {
+  inline int getCard_iEtaMax(int cc) {
     assert(isValidCard(cc));
 
     int etamax = 0;
@@ -116,7 +116,7 @@ namespace p2eg {
   }
 
   // Same as above but for minimum iEta.
-  int getCard_iEtaMin(int cc) {
+  inline int getCard_iEtaMin(int cc) {
     int etamin = 0;
     if (cc % 2 == 0)  // Even card: negative eta
       etamin = (0);
@@ -126,19 +126,19 @@ namespace p2eg {
   }
 
   // Same as above but for maximum iPhi.
-  int getCard_iPhiMax(int cc) {
+  inline int getCard_iPhiMax(int cc) {
     int phimax = ((cc / 2) + 1) * 4 * CRYSTALS_IN_TOWER_PHI - 1;
     return phimax;
   }
 
   // Same as above but for minimum iPhi.
-  int getCard_iPhiMin(int cc) {
+  inline int getCard_iPhiMin(int cc) {
     int phimin = (cc / 2) * 4 * CRYSTALS_IN_TOWER_PHI;
     return phimin;
   }
 
   // Given the RCT card number (0-35), get the crystal iEta of the "bottom left" corner
-  int getCard_refCrystal_iEta(int cc) {
+  inline int getCard_refCrystal_iEta(int cc) {
     if ((cc % 2) == 1) {  // if cc is odd (positive eta)
       return (17 * CRYSTALS_IN_TOWER_ETA);
     } else {  // if cc is even (negative eta) the bottom left corner is further in eta, hence +4
@@ -147,7 +147,7 @@ namespace p2eg {
   }
 
   // Given the RCT card number (0-35), get the global crystal iPhi of the "bottom left" corner (0- 71*5)
-  int getCard_refCrystal_iPhi(int cc) {
+  inline int getCard_refCrystal_iPhi(int cc) {
     if ((cc % 2) == 1) {
       // if cc is odd: positive eta
       return int(cc / 2) * TOWER_IN_PHI * CRYSTALS_IN_TOWER_PHI;
@@ -163,7 +163,7 @@ namespace p2eg {
   * For a real eta, get the tower absolute Eta index (possible values are 0-33, since there
   * are 34 towers in eta. (Adapted from getTower_absoluteEtaID)
   */
-  int getTower_absEtaID(float eta) {
+  inline int getTower_absEtaID(float eta) {
     float size_cell = 2 * ECAL_eta_range / n_towers_Eta;
     int etaID = int((eta + ECAL_eta_range) / size_cell);
     return etaID;
@@ -173,7 +173,7 @@ namespace p2eg {
   * Same as above, but for phi.
   * Possible values range from 0-71 (Adapted from getTower_absolutePhiID)
   */
-  int getTower_absPhiID(float phi) {
+  inline int getTower_absPhiID(float phi) {
     float size_cell = 2 * M_PI / n_towers_Phi;
     int phiID = int((phi + M_PI) / size_cell);
     return phiID;
@@ -187,7 +187,7 @@ namespace p2eg {
   * in the firmware, negative eta cards are "rotated" (link 0, tower 0) starts in the "top right" corner if we
   * look at a diagram of the barrel region.
   */
-  int getAbsID_iEta_fromFirmwareCardTowerLink(int nCard, int nTower, int nLink) {
+  inline int getAbsID_iEta_fromFirmwareCardTowerLink(int nCard, int nTower, int nLink) {
     // iEta only depends on the tower position in the link
     (void)nCard;
     (void)nLink;
@@ -201,7 +201,7 @@ namespace p2eg {
   /*
   * Get the global tower iPhi (0-71) from the firmware card, tower number (0-16), and link (0-3).
   */
-  int getAbsID_iPhi_fromFirmwareCardTowerLink(int nCard, int nTower, int nLink) {
+  inline int getAbsID_iPhi_fromFirmwareCardTowerLink(int nCard, int nTower, int nLink) {
     // iPhi only depends on the card and link number
     (void)nTower;
     if ((nCard % 2) == 1) {  // if cc is odd (positive eta),
@@ -222,7 +222,7 @@ namespace p2eg {
   * From the tower absolute ID in eta (0-33), get the real eta of the tower center
   * Same as getTowerEta_fromAbsoluteID in previous CMSSW emulator
   */
-  float getTowerEta_fromAbsID(int id) {
+  inline float getTowerEta_fromAbsID(int id) {
     float size_cell = 2 * ECAL_eta_range / n_towers_Eta;
     float eta = (id * size_cell) - ECAL_eta_range + 0.5 * size_cell;
     return eta;
@@ -232,7 +232,7 @@ namespace p2eg {
   * From the tower absolute ID in phi (0-71), get the real phi of the tower center
   * Same as getTowerPhi_fromAbsoluteID in previous CMSSW emulator
   */
-  float getTowerPhi_fromAbsID(int id) {
+  inline float getTowerPhi_fromAbsID(int id) {
     float size_cell = 2 * M_PI / n_towers_Phi;
     float phi = (id * size_cell) - M_PI + 0.5 * size_cell;
     return phi;
@@ -242,7 +242,7 @@ namespace p2eg {
   * Get the RCT card region that a crystal is in, given the "local" iEta of the crystal 
   * 0 is region closest to eta = 0. Regions 0, 1, 2, 3, 4 are in the barrel, Region 5 is in overlap
   */
-  int getRegionNumber(const int local_iEta) {
+  inline int getRegionNumber(const int local_iEta) {
     int no = int(local_iEta / (TOWER_IN_ETA * CRYSTALS_IN_TOWER_ETA));
     assert(no < 6);
     return no;
@@ -402,7 +402,7 @@ namespace p2eg {
 
     // overload operator= to use copy constructor
     region3x4 operator=(const region3x4& other) {
-      region3x4 newRegion(other);
+      const region3x4& newRegion(other);
       return newRegion;
     };
 
@@ -535,7 +535,7 @@ namespace p2eg {
 
     // overload operator= to use copy constructor
     card operator=(const card& other) {
-      card newCard(other);
+      const card& newCard(other);
       return newCard;
     };
 
@@ -951,7 +951,7 @@ namespace p2eg {
   /*
   * Compare the ET of two clusters (pass this to std::sort to get clusters sorted in decreasing ET).
   */
-  bool compareClusterET(const Cluster& lhs, const Cluster& rhs) { return (lhs.clusterEnergy() > rhs.clusterEnergy()); }
+  inline bool compareClusterET(const Cluster& lhs, const Cluster& rhs) { return (lhs.clusterEnergy() > rhs.clusterEnergy()); }
 
   /*******************************************************************/
   /* RCT helper functions                                            */
@@ -980,7 +980,7 @@ namespace p2eg {
   /*******************************************************************/
   /* Cluster flags                                                   */
   /*******************************************************************/
-  bool passes_iso(float pt, float iso) {
+  inline bool passes_iso(float pt, float iso) {
     bool is_iso = true;
     if (pt < slideIsoPtThreshold) {
       if (!((a0_80 - a1_80 * pt) > iso))
@@ -994,21 +994,21 @@ namespace p2eg {
     return is_iso;
   }
 
-  bool passes_looseTkiso(float pt, float iso) {
+  inline bool passes_looseTkiso(float pt, float iso) {
     bool is_iso = (b0 + b1 * std::exp(-b2 * pt) > iso);
     if (pt > 130)
       is_iso = true;
     return is_iso;
   }
 
-  bool passes_ss(float pt, float ss) {
+  inline bool passes_ss(float pt, float ss) {
     bool is_ss = ((c0_ss + c1_ss * std::exp(-c2_ss * pt)) <= ss);
     if (pt > 130)
       is_ss = true;
     return is_ss;
   }
 
-  bool passes_looseTkss(float pt, float ss) {
+  inline bool passes_looseTkss(float pt, float ss) {
     bool is_ss = ((e0_looseTkss - e1_looseTkss * std::exp(-e2_looseTkss * pt)) <= ss);
     if (pt > 130)
       is_ss = true;
@@ -1625,7 +1625,7 @@ namespace p2eg {
   /*
    * Helper function to monitor l1tp2::CaloTower members.
    */
-  void printl1tp2TowerInfo(l1tp2::CaloTower thisTower, std::string description = "") {
+  inline void printl1tp2TowerInfo(l1tp2::CaloTower thisTower, std::string description = "") {
     std::cout << "[Print l1tp2::CaloTower info:] [" << description << "]: "
               << ".ecalTowerEta() (float): " << thisTower.ecalTowerEt() << ", "
               << ".hcalTowerEta() (float): " << thisTower.hcalTowerEt() << ", "
