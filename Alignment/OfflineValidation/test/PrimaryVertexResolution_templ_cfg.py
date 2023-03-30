@@ -5,13 +5,17 @@ cfg to produce pv resolution plots
 here doing refit of tracks and vertices using latest alignment 
 '''
 
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from fnmatch import fnmatch
 import FWCore.ParameterSet.VarParsing as VarParsing
 from pdb import set_trace
 
 process = cms.Process("PrimaryVertexResolution")
+
+###################################################################
+# Set the process to run multi-threaded
+###################################################################
+process.options.numberOfThreads = 8
 
 ###################################################################
 def best_match(rcd):

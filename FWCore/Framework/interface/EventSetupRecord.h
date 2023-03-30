@@ -46,18 +46,14 @@
 #include "FWCore/Framework/interface/EventSetupRecordImpl.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Utilities/interface/ESGetTokenGeneric.h"
-#include "FWCore/Utilities/interface/ESInputTag.h"
 #include "FWCore/Utilities/interface/ESIndices.h"
 #include "FWCore/Utilities/interface/Likely.h"
-#include "FWCore/Utilities/interface/deprecated_macro.h"
 
 // system include files
 #include <exception>
-#include <map>
 #include <memory>
 #include <utility>
 #include <vector>
-#include <atomic>
 #include <cassert>
 #include <limits>
 
@@ -70,15 +66,12 @@ class testEventsetup;
 class testEventsetupRecord;
 
 namespace edm {
-  template <typename T>
-  class ESHandle;
   class ESHandleExceptionFactory;
-  class ESInputTag;
+  class ESParentContext;
   class EventSetupImpl;
 
   namespace eventsetup {
     struct ComponentDescription;
-    class DataProxy;
     class EventSetupRecordKey;
 
     class EventSetupRecord {
@@ -104,27 +97,6 @@ namespace edm {
         getTokenIndices_ = getTokenIndices;
         eventSetupImpl_ = iEventSetupImpl;
         context_ = iContext;
-      }
-
-      template <typename HolderT>
-      CMS_DEPRECATED bool get(HolderT& iHolder) const {
-        return deprecated_get("", iHolder);
-      }
-
-      template <typename HolderT>
-      CMS_DEPRECATED bool get(char const* iName, HolderT& iHolder) const {
-        return deprecated_get(iName, iHolder);
-      }
-
-      template <typename HolderT>
-      CMS_DEPRECATED bool get(std::string const& iName, HolderT& iHolder) const {
-        return deprecated_get(iName.c_str(), iHolder);
-      }
-
-      template <typename HolderT>
-      CMS_DEPRECATED bool get(ESInputTag const& iTag, HolderT& iHolder) const {
-        throwCalledGetWithoutToken(heterocontainer::className<typename HolderT::value_type>(), iTag.data().c_str());
-        return false;
       }
 
       ///returns false if no data available for key
@@ -199,7 +171,7 @@ namespace edm {
         ComponentDescription const* desc = nullptr;
         std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
 
-        impl_->getImplementation(value, proxyIndex, H<T>::transientAccessOnly, desc, whyFailedFactory, eventSetupImpl_);
+        impl_->getImplementation(value, proxyIndex, H<T>::transientAccessOnly, desc, whyFailedFactory);
 
         if UNLIKELY (not value) {
           return H<T>(std::move(whyFailedFactory));
@@ -213,8 +185,6 @@ namespace edm {
 
       ESParentContext const* esParentContext() const noexcept { return context_; }
 
-      void validate(ComponentDescription const*, ESInputTag const&) const;
-
       void addTraceInfoToCmsException(cms::Exception& iException,
                                       char const* iName,
                                       ComponentDescription const*,
@@ -225,12 +195,6 @@ namespace edm {
       unsigned int transitionID() const { return transitionID_; }
 
     private:
-      template <typename HolderT>
-      bool deprecated_get(char const* iName, HolderT& iHolder) const {
-        throwCalledGetWithoutToken(heterocontainer::className<typename HolderT::value_type>(), iName);
-        return false;
-      }
-
       template <template <typename> typename H, typename T, typename R>
       H<T> invalidTokenHandle(ESGetToken<T, R> const& iToken) const {
         auto const key = this->key();
@@ -249,14 +213,10 @@ namespace edm {
         })};
       }
 
-      void const* getFromProxy(DataKey const& iKey,
-                               ComponentDescription const*& iDesc,
-                               bool iTransientAccessOnly) const;
-
       static std::exception_ptr makeUninitializedTokenException(EventSetupRecordKey const&, TypeTag const&);
       static std::exception_ptr makeInvalidTokenException(EventSetupRecordKey const&, TypeTag const&, unsigned int);
       void throwWrongTransitionID() const;
-      static void throwCalledGetWithoutToken(const char* iTypeName, const char* iLabel);
+
       // ---------- member data --------------------------------
       EventSetupRecordImpl const* impl_ = nullptr;
       EventSetupImpl const* eventSetupImpl_ = nullptr;

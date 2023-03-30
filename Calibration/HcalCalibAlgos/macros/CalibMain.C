@@ -1,3 +1,40 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+//  This provides a provision of executing CalibMonitor, CalibProperties,
+//  CalibTree, or CalibSplit in batch operation.
+//
+//  Usage:
+//  ./calibMain.exe <mode> <other parameters depending on mode>
+//  mode = 0:CalibMonitor, 1:CalibProperties, 2:CalibTree; 3: CalibSplit
+//
+//  Other parameters for CalibMonitor:
+//  <InputFile> <HistogramFile> <Flag> <DirectoryName> <Prefix> <PUcorr>
+//  <Truncate> <Nmax> <datamc> <numb> <usegen> <scale> <usescale> <etalo>
+//  <etahi> <runlo> <runhi> <phimin> <phimax> <zside> <nvxlo> <nvxhi> <rbx>
+//  <exclude> <etamax> <append> <all> <corrfile> <rcorfile> <dupfile>
+//  <comfile> <outfile>
+//
+//  Other parameters for CalibProperties:
+//  <InputFile> <HistogramFile> <Flag> <DirectoryName> <Prefix> <PUcorr>
+//  <Truncate> <Nmax> <datamc> <usegen> <scale> <usescale> <etalo> <etahi>
+//  <runlo> <runhi> <phimin> <phimax> <zside> <nvxlo> <nvxhi> <rbx>
+//  <exclude> <etamax> <append> <all> <corrfile> <rcorfile> <dupfile>
+//
+//  Other parameters for CalibTree:
+//  <InputFile> <OutputFile> <Flag> <DirectoryName> <Prefix> <PUcorr>
+//  <Truncate> <Nmax> <maxIter> <corrfile> <applyl1> <l1cut> <useiter>
+//  <useweight> <usemean> <nmin> <inverse> <ratmin> <ratmax> <ietamax>
+//  <ietatrack> <sysmode> <rcorform> <usegen> <runlo> <runhi> <phimin>
+//  <phimax> <zside> <nvxlo> <nvxhi> <rbx> <exclude> <higheta> <fraction>
+//  <writehisto> <debug> <rcorfile> <dupfile> <treename>
+//
+//  Other parameters for CalibSplit:
+//  <InputFile> <HistogramFile> <Flag> <DirectoryName> <Prefix> <PUcorr>
+//  <Truncate> <Nmax> <pmin> <pmax> <debug>
+//
+//
+////////////////////////////////////////////////////////////////////////////////
+
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
@@ -30,12 +67,11 @@ void unpackDetId(unsigned int, int&, int&, int&, int&, int&);
 int main(Int_t argc, Char_t* argv[]) {
   if (argc < 10) {
     std::cerr << "Please give N arguments \n"
-              << "Mode (0 CalibMonitor; 1 CalibProperties; 2 CalibTree)\n"
+              << "Mode (0 CalibMonitor; 1 CalibProperties; 2 CalibTree; 3 CalibSplit)\n"
               << "Input File Name\n"
               << "Output File Name(ROOT)\n"
-              << "Correction File Name\n"
+              << "Flag\n"
               << "Directory Name\n"
-              << "Duplicate File Name\n"
               << "Prefix\n"
               << "PUcorr\n"
               << "Truncate\n"
@@ -57,9 +93,9 @@ int main(Int_t argc, Char_t* argv[]) {
 
   if (mode == 0) {
     // CalibMonitor
-    bool datamc = (argc > 10) ? (std::atoi(argv[10]) < 1) : true;
+    bool datamc = (argc > 10) ? (std::atoi(argv[10]) > 0) : true;
     int numb = (argc > 11) ? std::atoi(argv[11]) : 50;
-    bool usegen = (argc > 12) ? (std::atoi(argv[12]) < 1) : false;
+    bool usegen = (argc > 12) ? (std::atoi(argv[12]) > 0) : false;
     double scale = (argc > 13) ? std::atof(argv[13]) : 1.0;
     int usescale = (argc > 14) ? std::atoi(argv[14]) : 0;
     int etalo = (argc > 15) ? std::atoi(argv[15]) : 0;
@@ -74,13 +110,13 @@ int main(Int_t argc, Char_t* argv[]) {
     int rbx = (argc > 24) ? std::atoi(argv[24]) : 0;
     bool exclude = (argc > 25) ? (std::atoi(argv[25]) > 0) : false;
     bool etamax = (argc > 26) ? (std::atoi(argv[26]) > 0) : false;
-    const char* corrfile = (argc > 27) ? argv[27] : "";
-    const char* dupfile = (argc > 28) ? argv[28] : "";
-    const char* comfile = (argc > 29) ? argv[29] : "";
-    const char* outfile = (argc > 30) ? argv[30] : "";
-    const char* rcorfile = (argc > 31) ? argv[31] : "";
-    bool append = (argc > 32) ? (std::atoi(argv[32]) > 0) : true;
-    bool all = (argc > 33) ? (std::atoi(argv[33]) > 0) : true;
+    bool append = (argc > 27) ? (std::atoi(argv[27]) > 0) : true;
+    bool all = (argc > 28) ? (std::atoi(argv[28]) > 0) : true;
+    const char* corrfile = (argc > 29) ? argv[29] : "";
+    const char* rcorfile = (argc > 30) ? argv[30] : "";
+    const char* dupfile = (argc > 31) ? argv[31] : "";
+    const char* comfile = (argc > 32) ? argv[32] : "";
+    const char* outfile = (argc > 33) ? argv[33] : "";
     CalibMonitor c1(infile,
                     dirname,
                     dupfile,
@@ -113,8 +149,8 @@ int main(Int_t argc, Char_t* argv[]) {
     c1.savePlot(histfile, append, all);
   } else if (mode == 1) {
     // CalibPlotProperties
-    bool datamc = (argc > 10) ? (std::atoi(argv[10]) < 1) : true;
-    bool usegen = (argc > 11) ? (std::atoi(argv[11]) < 1) : false;
+    bool datamc = (argc > 10) ? (std::atoi(argv[10]) > 0) : true;
+    bool usegen = (argc > 11) ? (std::atoi(argv[11]) > 0) : false;
     double scale = (argc > 12) ? std::atof(argv[12]) : 1.0;
     int usescale = (argc > 13) ? std::atoi(argv[13]) : 0;
     int etalo = (argc > 14) ? std::atoi(argv[14]) : 0;
@@ -129,11 +165,11 @@ int main(Int_t argc, Char_t* argv[]) {
     int rbx = (argc > 23) ? std::atoi(argv[23]) : 0;
     bool exclude = (argc > 24) ? (std::atoi(argv[24]) > 0) : false;
     bool etamax = (argc > 25) ? (std::atoi(argv[25]) > 0) : false;
-    const char* corrfile = (argc > 26) ? argv[26] : "";
-    const char* dupfile = (argc > 27) ? argv[27] : "";
-    const char* rcorfile = (argc > 28) ? argv[28] : "";
-    bool append = (argc > 29) ? (std::atoi(argv[29]) > 0) : true;
-    bool all = (argc > 30) ? (std::atoi(argv[30]) > 0) : true;
+    bool append = (argc > 26) ? (std::atoi(argv[26]) > 0) : true;
+    bool all = (argc > 27) ? (std::atoi(argv[27]) > 0) : true;
+    const char* corrfile = (argc > 28) ? argv[28] : "";
+    const char* rcorfile = (argc > 29) ? argv[29] : "";
+    const char* dupfile = (argc > 30) ? argv[30] : "";
     bool debug(false);
     CalibPlotProperties c1(infile,
                            dirname,
@@ -162,24 +198,24 @@ int main(Int_t argc, Char_t* argv[]) {
                            etamax);
     c1.Loop(nmax);
     c1.savePlot(histfile, append, all, debug);
-  } else {
+  } else if (mode == 2) {
     // CalibTree
     int maxIter = (argc > 10) ? std::atoi(argv[10]) : 30;
     const char* corrfile = (argc > 11) ? argv[11] : "";
     int applyl1 = (argc > 12) ? std::atoi(argv[12]) : 1;
     double l1cut = (argc > 13) ? std::atof(argv[13]) : 0.5;
-    bool useiter = (argc > 14) ? (std::atoi(argv[14]) < 1) : true;
-    bool useweight = (argc > 15) ? (std::atoi(argv[15]) < 1) : true;
-    bool usemean = (argc > 16) ? (std::atoi(argv[16]) < 1) : false;
+    bool useiter = (argc > 14) ? (std::atoi(argv[14]) > 0) : true;
+    bool useweight = (argc > 15) ? (std::atoi(argv[15]) > 0) : true;
+    bool usemean = (argc > 16) ? (std::atoi(argv[16]) > 0) : false;
     int nmin = (argc > 17) ? std::atoi(argv[17]) : 0;
-    bool inverse = (argc > 18) ? (std::atoi(argv[18]) < 1) : true;
+    bool inverse = (argc > 18) ? (std::atoi(argv[18]) > 0) : true;
     double ratmin = (argc > 19) ? std::atof(argv[19]) : 0.25;
     double ratmax = (argc > 20) ? std::atof(argv[20]) : 3.0;
     int ietamax = (argc > 21) ? std::atoi(argv[21]) : 25;
     int ietatrack = (argc > 22) ? std::atoi(argv[22]) : -1;
     int sysmode = (argc > 23) ? std::atoi(argv[23]) : -1;
     int rcorform = (argc > 24) ? std::atoi(argv[24]) : 0;
-    bool usegen = (argc > 25) ? (std::atoi(argv[25]) < 1) : false;
+    bool usegen = (argc > 25) ? (std::atoi(argv[25]) > 0) : false;
     int runlo = (argc > 26) ? std::atoi(argv[26]) : 0;
     int runhi = (argc > 27) ? std::atoi(argv[27]) : 99999999;
     int phimin = (argc > 28) ? std::atoi(argv[28]) : 1;
@@ -193,9 +229,9 @@ int main(Int_t argc, Char_t* argv[]) {
     double fraction = (argc > 36) ? std::atof(argv[36]) : 1.0;
     bool writehisto = (argc > 37) ? (std::atoi(argv[37]) > 0) : false;
     bool debug = (argc > 38) ? (std::atoi(argv[38]) > 0) : false;
-    const char* treename = (argc > 39) ? argv[39] : "CalibTree";
+    const char* rcorfile = (argc > 39) ? argv[39] : "";
     const char* dupfile = (argc > 40) ? argv[40] : "";
-    const char* rcorfile = (argc > 41) ? argv[41] : "";
+    const char* treename = (argc > 41) ? argv[41] : "CalibTree";
 
     char name[500];
     sprintf(name, "%s/%s", dirname, treename);
@@ -284,7 +320,13 @@ int main(Int_t argc, Char_t* argv[]) {
       t.makeplots(ratmin, ratmax, ietamax, useweight, fraction, debug, nmax);
       fout->Close();
     }
+  } else {
+    // CalibSplit
+    double pmin = (argc > 10) ? std::atof(argv[10]) : 40.0;
+    double pmax = (argc > 11) ? std::atof(argv[11]) : 60.0;
+    bool debug = (argc > 12) ? (std::atoi(argv[12]) > 0) : false;
+    CalibSplit c1(infile, dirname, histfile, pmin, pmax, debug);
+    c1.Loop(nmax);
   }
-
   return 0;
 }

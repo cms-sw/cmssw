@@ -1,0 +1,8 @@
+<iftool name="cuda-gcc-support">
+  <use name="cuda"/>
+  <use name="HeterogeneousTest/CUDAKernel"/>
+  <use name="HeterogeneousCore/CUDAUtilities" source_only="true"/>
+  <export>
+    <lib name="1"/>
+  </export>
+</iftool>

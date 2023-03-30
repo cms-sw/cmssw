@@ -1,4 +1,4 @@
 <lcgdict>
-  <class name="reco::JetCorrector" persistence="false"/>
+  <class name="reco::JetCorrector" persistent="false"/>
   <class name="edm::Wrapper<reco::JetCorrector>" persistent="false"/>
 </lcgdict>

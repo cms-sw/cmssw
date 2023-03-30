@@ -179,12 +179,14 @@ private:
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
+#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
-#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 /**
    \class   SelectionStep TopDQMHelpers.h
@@ -269,7 +271,7 @@ private:
   /// https://twiki.cern.ch/twiki/bin/view/CMS/SimpleCutBasedEleID
   double eidCutValue_;
   /// jet corrector as extra selection type
-  edm::ESGetToken<JetCorrector, JetCorrectionsRecord> jetCorrector_;
+  edm::EDGetTokenT<reco::JetCorrector> jetCorrector_;
   /// choice for b-tag as extra selection type
   edm::EDGetTokenT<reco::JetTagCollection> btagLabel_;
   /// choice of b-tag working point as extra selection type
@@ -301,7 +303,7 @@ SelectionStep<Object>::SelectionStep(const edm::ParameterSet& cfg, edm::Consumes
     eidCutValue_ = elecId.getParameter<double>("cutValue");
   }
   if (cfg.exists("jetCorrector")) {
-    jetCorrector_ = iC.esConsumes(edm::ESInputTag("", cfg.getParameter<std::string>("jetCorrector")));
+    jetCorrector_ = iC.consumes<reco::JetCorrector>(edm::InputTag(cfg.getParameter<std::string>("jetCorrector")));
   }
   if (cfg.existsAs<edm::ParameterSet>("jetBTagger")) {
     edm::ParameterSet jetBTagger = cfg.getParameter<edm::ParameterSet>("jetBTagger");
@@ -467,24 +469,17 @@ bool SelectionStep<Object>::select(const edm::Event& event, const edm::EventSetu
   }
 
   // load jet corrector if configured such
-  const JetCorrector* corrector = nullptr;
-  if (!jetCorrector_.isInitialized() && jetCorrector_.hasValidIndex()) {
-    // check whether a jet correcto is in the event setup or not
-    if (setup.find(edm::eventsetup::EventSetupRecordKey::makeKey<JetCorrectionsRecord>())) {
-      corrector = &setup.getData(jetCorrector_);
+  const reco::JetCorrector* corrector = nullptr;
+  if (!jetCorrector_.isUninitialized()) {
+    // check whether a jet corrector is in the event or not
+    edm::Handle<reco::JetCorrector> correctorHandle = event.getHandle(jetCorrector_);
+    if (correctorHandle.isValid()) {
+      corrector = correctorHandle.product();
     } else {
       edm::LogVerbatim("TopDQMHelpers") << "\n"
                                         << "---------------------------------------------------------------\n"
-                                        << " No JetCorrectionsRecord available from EventSetup:\n"
+                                        << " No reco::JetCorrrector available from Event:\n"
                                         << "  - Jets will not be corrected.\n"
-                                        << "  - If you want to change this add the following lines to your "
-                                           "cfg file:\n"
-                                        << "\n"
-                                        << "  ## load jet corrections\n"
-                                        << "  process.load(\""
-                                           "JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff"
-                                           "\")\n"
-                                        << "  process.prefer(\"ak5CaloL2L3\")\n"
                                         << "---------------------------------------------------------------"
                                            "\n";
     }

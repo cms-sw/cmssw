@@ -8,6 +8,7 @@ TARGET_LIST_OF_TAGS=['BeamSpotObject_ByLumi',           # beamspot
                      'BeamSpotObjectHP_ByLumi', 
                      'BeamSpotObjectHP_ByRun',
                      'SiPixelLA_pcl',                   # SiPixel
+                     'SiPixelLAMCS_pcl',                   # SiPixel
                      'SiPixelQualityFromDbRcd_other', 
                      'SiPixelQualityFromDbRcd_prompt', 
                      'SiPixelQualityFromDbRcd_stuckTBM',

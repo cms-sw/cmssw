@@ -273,21 +273,39 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
         continue;
     }
 
-    float d0 = 0.0;
-    float dz = 0.0;
-    int charge = -999;
+    unsigned int const maxTrkSize = EgammaGsfTrackCollection->size();
+    std::vector<float> trkd0;
+    std::vector<float> trkdz;
+    std::vector<float> trkpt;
+    std::vector<float> trketa;
+    std::vector<float> trkphi;
+    std::vector<float> trkchi2overndf;
+    std::vector<int> trkcharge;
+    trkd0.reserve(maxTrkSize);
+    trkdz.reserve(maxTrkSize);
+    trkpt.reserve(maxTrkSize);
+    trketa.reserve(maxTrkSize);
+    trkphi.reserve(maxTrkSize);
+    trkchi2overndf.reserve(maxTrkSize);
+    trkcharge.reserve(maxTrkSize);
+
     for (auto& track : *EgammaGsfTrackCollection) {
       RefToBase<TrajectorySeed> seed = track.extra()->seedRef();
       reco::ElectronSeedRef elseed = seed.castTo<reco::ElectronSeedRef>();
       RefToBase<reco::CaloCluster> caloCluster = elseed->caloCluster();
       reco::SuperClusterRef scRefFromTrk = caloCluster.castTo<reco::SuperClusterRef>();
       if (scRefFromTrk == scRef) {
-        d0 = track.d0();
-        dz = track.dz();
-        charge = track.charge();
+        trkd0.push_back(track.d0());
+        trkdz.push_back(track.dz());
+        trkpt.push_back(track.pt());
+        trketa.push_back(track.eta());
+        trkphi.push_back(track.phi());
+        auto const trackndof = track.ndof();
+        trkchi2overndf.push_back(((trackndof == 0) ? -1 : (track.chi2() / trackndof)));
+        trkcharge.push_back(track.charge());
       }
     }
-    if (charge == -999) {  // No associated track. Candidate is a scouting photon
+    if (trkcharge.empty()) {  // No associated track. Candidate is a scouting photon
       outPhotons->emplace_back(candidate.pt(),
                                candidate.eta(),
                                candidate.phi(),
@@ -310,15 +328,19 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
                                  candidate.eta(),
                                  candidate.phi(),
                                  candidate.mass(),
-                                 d0,
-                                 dz,
+                                 trkd0,
+                                 trkdz,
+                                 trkpt,
+                                 trketa,
+                                 trkphi,
+                                 trkchi2overndf,
                                  (*DetaMap)[candidateRef],
                                  (*DphiMap)[candidateRef],
                                  (*SigmaIEtaIEtaMap)[candidateRef],
                                  HoE,
                                  (*OneOEMinusOneOPMap)[candidateRef],
                                  (*MissingHitsMap)[candidateRef],
-                                 charge,
+                                 trkcharge,
                                  (*EcalPFClusterIsoMap)[candidateRef],
                                  (*HcalPFClusterIsoMap)[candidateRef],
                                  (*EleGsfTrackIsoMap)[candidateRef],

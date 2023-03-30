@@ -31,10 +31,7 @@
   <use name="FWCore/ParameterSet"/>
 </library>
 
-<bin name="TestFWCoreFrameworkTBBTasks" file="TestDriver.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test run_tbbTasks.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="TestFWCoreFrameworkTBBTasks" command="run_tbbTasks.sh"/>
 
 <test name="TestFWCoreFrameworkOptions" command="run_testOptions.sh ${value}" for="0,4"/>
 
@@ -189,6 +186,13 @@
   <use name="FWCore/ParameterSet"/>
 </library>
 
+<library file="stubs/TestTypeResolverPlugins.cc" name="FWCoreFrameworkTestTypeResolver">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+</library>
+
 <bin name="TestFWCoreFramework" file="testRunner.cpp,maker2_t.cppunit.cc,maker_t.cppunit.cc,productregistry.cppunit.cc,edproducer_productregistry_callback.cc,event_getrefbeforeput_t.cppunit.cc,generichandle_t.cppunit.cc,edconsumerbase_t.cppunit.cc,global_producer_t.cppunit.cc,global_filter_t.cppunit.cc,one_outputmodule_t.cppunit.cc,global_outputmodule_t.cppunit.cc,stream_producer_t.cppunit.cc,stream_filter_t.cppunit.cc,limited_producer_t.cppunit.cc,limited_filter_t.cppunit.cc,limited_outputmodule_t.cppunit.cc,checkForModuleDependencyCorrectness_t.cppunit.cc">
   <use name="DataFormats/Common"/>
   <use name="DataFormats/Provenance"/>
@@ -247,55 +251,25 @@
   <use name="cppunit"/>
 </bin>
 
-<bin name="TestFWCoreFrameworkCmsRun" file="TestDriver.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test run_cmsRun.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="TestFWCoreFrameworkCmsRun" command="run_cmsRun.sh"/>
 
-<bin name="TestFWCoreFrameworkESRefer" file="TestDriver.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test run_es_refer_tests.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="TestFWCoreFrameworkESRefer" command="run_es_refer_tests.sh"/>
 
-<bin name="TestFWCoreFrameworkUnscheduled" file="TestDriver.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test run_unscheduled.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="TestFWCoreFrameworkUnscheduled" command="run_unscheduled.sh"/>
 
-<bin name="TestFWCoreFrameworkGlobalStreamOne" file="TestDriver.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test run_global_stream_one.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="TestFWCoreFrameworkGlobalStreamOne" command="run_global_stream_one.sh"/>
 
-<bin name="TestFWCoreFrameworkMayConsumesDeadlock" file="TestDriver.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test run_deadlock_test.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="TestFWCoreFrameworkMayConsumesDeadlock" command="run_deadlock_test.sh"/>
 
-<bin name="TestFWCoreFrameworkReplace" file="TestDriver.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test run_replace_tests.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="TestFWCoreFrameworkReplace" command="run_replace_tests.sh"/>
 
-<bin name="TestFWCoreFrameworkESProducerLooper" file="TestDriver.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test run_esproducerlooper.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="TestFWCoreFrameworkESProducerLooper" command="run_esproducerlooper.sh"/>
 
-<bin name="TestFWCoreFrameworkTrigBit" file="TestDriver.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test run_trigbit.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="TestFWCoreFrameworkTrigBit" command="run_trigbit.sh"/>
 
-<bin name="TestFWCoreFrameworkTrigMask" file="TestDriver.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test run_trigmask.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="TestFWCoreFrameworkTrigMask" command="run_trigmask.sh"/>
 
-<bin name="TestXMLSafeException" file="TestDriver.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test run_XMLException.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="TestXMLSafeException" command="run_XMLException.sh"/>
 
 <bin name="TestFWCoreFrameworkProductSelector" file="ProductSelector_t.cpp">
   <use name="DataFormats/Provenance"/>
@@ -352,40 +326,19 @@
   <use name="boost_program_options"/>
 </bin>
 
-<bin name="TestFWCoreFrameworkStatemachineSH" file="TestDriver.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test run_statemachine.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="TestFWCoreFrameworkStatemachineSH" command="run_statemachine.sh"/>
 
-<bin name="TestFWCoreFrameworkInputTagFailure" file="TestDriver.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test test_InputTag_cache_failure.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="TestFWCoreFrameworkInputTagFailure" command="test_InputTag_cache_failure.sh"/>
 
-<bin name="TestFWCoreFrameworkDeleteEarly" file="TestDriver.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test test_deleteEarly.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+test name="TestFWCoreFrameworkDeleteEarly" command="test_deleteEarly.sh"/>
 
-<bin name="TestFWCoreFrameworkEarlyTerminationSignal" file="TestDriver.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test test_earlyTerminationSignal.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="TestFWCoreFrameworkEarlyTerminationSignal" command="test_earlyTerminationSignal.sh"/>
 
-<bin name="TestFWCoreFrameworkPrintDependencies" file="TestDriver.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test run_PrintDependencies.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="TestFWCoreFrameworkPrintDependencies" command="run_PrintDependencies.sh"/>
 
-<bin name="TestFWCoreFrameworkTransitions" file="TestDriver.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test transition_test.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="TestFWCoreFrameworkTransitions" command="transition_test.sh"/>
 
-<bin name="TestFWCoreFrameworkEmptyPath" file="TestDriver.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test test_emptyPath.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="TestFWCoreFrameworkEmptyPath" command="test_emptyPath.sh"/>
 
 <bin file="test_catch2_main.cc,test_catch2notTP_*.cc" name="TestFWCoreFrameworkCatch2notTP">
   <use name="catch2"/>
@@ -419,3 +372,7 @@
 <test name="testFWCoreFrameworkConditionalTask_testView_testAlias_aliasWithStar" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_conditionaltasks_cfg.py -- --testView --testAlias --aliasWithStar"/>
 <test name="testFWCoreFrameworkConditionalTask_testConsumesMany" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_conditionaltasks_cfg.py -- --testConsumesMany"/>
 <test name="testFWCoreFrameworkModuleSynchLumiBoundary" command="run_module_synch_lumiboundary.sh"/>
+<test name="testFWCoreFrameworkGetByType_consumesMany" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_get_by_type_cfg.py -- --useConsumesMany"/>
+<test name="testFWCoreFrameworkGetByType_consumesMany_alias" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_get_by_type_cfg.py -- --useConsumesMany --useEDAlias"/>
+<test name="testFWCoreFrameworkGetByType_getterOfProduct" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_get_by_type_cfg.py"/>
+<test name="testFWCoreFrameworkGetByType_getterOfProduct_alias" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_get_by_type_cfg.py -- --useEDAlias"/>

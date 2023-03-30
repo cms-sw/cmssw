@@ -26,7 +26,7 @@ process.GlobalTag.globaltag = cms.string(options.globaltag)
 
 ## input file 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(options.inputFiles),
+    fileNames = cms.untracked.vstring('file:EXOTICA_DQM_TEST.root'),
     processingMode = cms.untracked.string('RunsAndLumis')
 )
 

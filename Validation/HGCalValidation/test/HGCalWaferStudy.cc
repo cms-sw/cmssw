@@ -166,13 +166,15 @@ void HGCalWaferStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& i
           layer = detId.layer();
           zside = detId.zside();
           wvtype = hgcons_[k]->waferVirtual(layer, detId.waferU(), detId.waferV());
-          xy = hgcons_[k]->locateCell(layer, detId.waferU(), detId.waferV(), detId.cellU(), detId.cellV(), false, true);
+          xy = hgcons_[k]->locateCell(
+              zside, layer, detId.waferU(), detId.waferV(), detId.cellU(), detId.cellV(), false, true, false, false);
         } else if (hgcons_[k]->waferHexagon8()) {
           HGCSiliconDetId detId = HGCSiliconDetId(id);
           layer = detId.layer();
           zside = detId.zside();
           wvtype = hgcons_[k]->waferVirtual(layer, detId.waferU(), detId.waferV());
-          xy = hgcons_[k]->locateCell(layer, detId.waferU(), detId.waferV(), detId.cellU(), detId.cellV(), false, true);
+          xy = hgcons_[k]->locateCell(
+              zside, layer, detId.waferU(), detId.waferV(), detId.cellU(), detId.cellV(), false, true, false, false);
         } else {
           int subdet, sector, type, cell;
           HGCalTestNumbering::unpackHexagonIndex(id, subdet, zside, layer, sector, type, cell);

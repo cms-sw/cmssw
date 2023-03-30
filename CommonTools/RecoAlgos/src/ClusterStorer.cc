@@ -71,13 +71,17 @@ namespace helper {
   void ClusterStorer::clear() {
     pixelClusterRecords_.clear();
     stripClusterRecords_.clear();
+    phase2OTClusterRecords_.clear();
   }
 
   // -------------------------------------------------------------
-  void ClusterStorer::processAllClusters(edmNew::DetSetVector<SiPixelCluster> &pixelDsvToFill,
-                                         edm::RefProd<edmNew::DetSetVector<SiPixelCluster> > refPixelClusters,
-                                         edmNew::DetSetVector<SiStripCluster> &stripDsvToFill,
-                                         edm::RefProd<edmNew::DetSetVector<SiStripCluster> > refStripClusters) {
+  void ClusterStorer::processAllClusters(
+      edmNew::DetSetVector<SiPixelCluster> &pixelDsvToFill,
+      edm::RefProd<edmNew::DetSetVector<SiPixelCluster> > refPixelClusters,
+      edmNew::DetSetVector<SiStripCluster> &stripDsvToFill,
+      edm::RefProd<edmNew::DetSetVector<SiStripCluster> > refStripClusters,
+      edmNew::DetSetVector<Phase2TrackerCluster1D> &phase2OTDsvToFill,
+      edm::RefProd<edmNew::DetSetVector<Phase2TrackerCluster1D> > refPhase2OTClusters) {
     if (!pixelClusterRecords_.empty()) {
       this->processClusters<SiPixelRecHit, SiPixelCluster>(pixelClusterRecords_, pixelDsvToFill, refPixelClusters);
     }
@@ -89,6 +93,10 @@ namespace helper {
       // is specialised such that 'RecHitType' is not used...
       this->processClusters<SiStripRecHit2D, SiStripCluster>(stripClusterRecords_, stripDsvToFill, refStripClusters);
     }
+    if (!phase2OTClusterRecords_.empty()) {
+      this->processClusters<Phase2TrackerRecHit1D, Phase2TrackerCluster1D>(
+          phase2OTClusterRecords_, phase2OTDsvToFill, refPhase2OTClusters);
+    }
   }
 
   //-------------------------------------------------------------
@@ -97,7 +105,7 @@ namespace helper {
                                       edmNew::DetSetVector<ClusterType> &dsvToFill,
                                       edm::RefProd<edmNew::DetSetVector<ClusterType> > &refprod) {
     std::sort(clusterRecords.begin(), clusterRecords.end());  // this sorts them by detid
-    typedef typename std::vector<ClusterHitRecord<typename HitType::ClusterRef> >::const_iterator RIT;
+    typedef typename std::vector<ClusterHitRecord<typename HitType::ClusterRef> >::iterator RIT;
     RIT it = clusterRecords.begin(), end = clusterRecords.end();
     size_t clusters = 0;
     while (it != end) {
@@ -135,7 +143,7 @@ namespace helper {
   // generic rekey (in practise for pixel only...)
   template <typename ClusterRefType>  // template for class
   template <typename RecHitType>      // template for member function
-  void ClusterStorer::ClusterHitRecord<ClusterRefType>::rekey(const ClusterRefType &newRef) const {
+  void ClusterStorer::ClusterHitRecord<ClusterRefType>::rekey(const ClusterRefType &newRef) {
     TrackingRecHit &genericHit = (*hits_)[index_];
     RecHitType *hit = nullptr;
     if (genericHit.geographicalId().rawId() == detid_) {  // a hit on this det, so it's simple
@@ -151,9 +159,7 @@ namespace helper {
   // RecHitType is not used.
   template <>
   template <typename RecHitType>  // or template<> to specialise also here?
-  void ClusterStorer::ClusterHitRecord<SiStripRecHit2D::ClusterRef>::
-      //  rekey<SiStripRecHit2D>(const SiStripRecHit2D::ClusterRef &newRef) const
-      rekey(const SiStripRecHit2D::ClusterRef &newRef) const {
+  void ClusterStorer::ClusterHitRecord<SiStripRecHit2D::ClusterRef>::rekey(const SiStripRecHit2D::ClusterRef &newRef) {
     TrackingRecHit &genericHit = (*hits_)[index_];
     const std::type_info &hit_type = typeid(genericHit);
 
@@ -167,6 +173,30 @@ namespace helper {
       cluRef = (SiStripDetId(detid_).stereo() ? &mhit.stereoClusterRef() : &mhit.monoClusterRef());
     } else if (typeid(ProjectedSiStripRecHit2D) == hit_type) {
       cluRef = &static_cast<ProjectedSiStripRecHit2D &>(genericHit).omniCluster();
+    }
+
+    assert(cluRef != nullptr);            // to catch missing RecHit types
+    assert(cluRef->key() == ref_.key());  // otherwise something went wrong
+    (*cluRef) = OmniClusterRef(newRef);
+  }
+
+  // -------------------------------------------------------------
+  // Specific rekey for class template ClusterRefType = Phase2TrackerRecHit1D::ClusterRef
+  template <>
+  template <typename RecHitType>
+  void ClusterStorer::ClusterHitRecord<Phase2TrackerRecHit1D::ClusterRef>::rekey(
+      const Phase2TrackerRecHit1D::ClusterRef &newRef) {
+    TrackingRecHit &genericHit = (*hits_)[index_];
+    const std::type_info &hit_type = typeid(genericHit);
+
+    OmniClusterRef *cluRef = nullptr;
+    if (typeid(Phase2TrackerRecHit1D) == hit_type) {
+      cluRef = &static_cast<Phase2TrackerRecHit1D &>(genericHit).omniCluster();
+    } else if (typeid(VectorHit) == hit_type) {
+      VectorHit &vHit = static_cast<VectorHit &>(genericHit);
+      // FIXME: this essentially uses a hack
+      // https://github.com/cms-sw/cmssw/blob/master/DataFormats/TrackerCommon/interface/TrackerTopology.h#L291
+      cluRef = (SiStripDetId(detid_).stereo() ? &vHit.upperClusterRef() : &vHit.lowerClusterRef());
     }
 
     assert(cluRef != nullptr);            // to catch missing RecHit types

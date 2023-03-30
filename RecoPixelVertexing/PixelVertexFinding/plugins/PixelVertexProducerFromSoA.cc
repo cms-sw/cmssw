@@ -1,4 +1,5 @@
-#include "CUDADataFormats/Vertex/interface/ZVertexHeterogeneous.h"
+#include "CUDADataFormats/Vertex/interface/ZVertexSoAHeterogeneousHost.h"
+#include "CUDADataFormats/Vertex/interface/ZVertexSoAHeterogeneousDevice.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -25,7 +26,7 @@
 
 class PixelVertexProducerFromSoA : public edm::global::EDProducer<> {
 public:
-  using IndToEdm = std::vector<uint16_t>;
+  using IndToEdm = std::vector<uint32_t>;
 
   explicit PixelVertexProducerFromSoA(const edm::ParameterSet &iConfig);
   ~PixelVertexProducerFromSoA() override = default;
@@ -35,17 +36,17 @@ public:
 private:
   void produce(edm::StreamID streamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const override;
 
-  edm::EDGetTokenT<ZVertexHeterogeneous> tokenVertex_;
+  edm::EDGetTokenT<ZVertexSoAHost> tokenVertex_;
   edm::EDGetTokenT<reco::BeamSpot> tokenBeamSpot_;
   edm::EDGetTokenT<reco::TrackCollection> tokenTracks_;
   edm::EDGetTokenT<IndToEdm> tokenIndToEdm_;
 };
 
 PixelVertexProducerFromSoA::PixelVertexProducerFromSoA(const edm::ParameterSet &conf)
-    : tokenVertex_(consumes<ZVertexHeterogeneous>(conf.getParameter<edm::InputTag>("src"))),
-      tokenBeamSpot_(consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpot"))),
-      tokenTracks_(consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("TrackCollection"))),
-      tokenIndToEdm_(consumes<IndToEdm>(conf.getParameter<edm::InputTag>("TrackCollection"))) {
+    : tokenVertex_(consumes(conf.getParameter<edm::InputTag>("src"))),
+      tokenBeamSpot_(consumes(conf.getParameter<edm::InputTag>("beamSpot"))),
+      tokenTracks_(consumes(conf.getParameter<edm::InputTag>("TrackCollection"))),
+      tokenIndToEdm_(consumes(conf.getParameter<edm::InputTag>("TrackCollection"))) {
   produces<reco::VertexCollection>();
 }
 
@@ -81,31 +82,31 @@ void PixelVertexProducerFromSoA::produce(edm::StreamID streamID, edm::Event &iEv
     dydz = bs.dydz();
   }
 
-  auto const &soa = *(iEvent.get(tokenVertex_).get());
+  auto const &soa = iEvent.get(tokenVertex_);
 
-  int nv = soa.nvFinal;
+  int nv = soa.view().nvFinal();
 
 #ifdef PIXVERTEX_DEBUG_PRODUCE
   std::cout << "converting " << nv << " vertices "
             << " from " << indToEdm.size() << " tracks" << std::endl;
 #endif  // PIXVERTEX_DEBUG_PRODUCE
 
-  std::set<uint16_t> uind;  // for verifing index consistency
+  std::set<uint32_t> uind;  // for verifing index consistency
   for (int j = nv - 1; j >= 0; --j) {
-    auto i = soa.sortInd[j];  // on gpu sorted in ascending order....
+    auto i = soa.view()[j].sortInd();  // on gpu sorted in ascending order....
     assert(i < nv);
     uind.insert(i);
     assert(itrk.empty());
-    auto z = soa.zv[i];
+    auto z = soa.view()[i].zv();
     auto x = x0 + dxdz * z;
     auto y = y0 + dydz * z;
     z += z0;
     reco::Vertex::Error err;
-    err(2, 2) = 1.f / soa.wv[i];
+    err(2, 2) = 1.f / soa.view()[i].wv();
     err(2, 2) *= 2.;  // artifically inflate error
     //Copy also the tracks (no intention to be efficient....)
     for (auto k = 0U; k < indToEdm.size(); ++k) {
-      if (soa.idv[k] == int16_t(i))
+      if (soa.view()[k].idv() == int16_t(i))
         itrk.push_back(k);
     }
     auto nt = itrk.size();
@@ -119,7 +120,7 @@ void PixelVertexProducerFromSoA::produce(edm::StreamID streamID, edm::Event &iEv
       itrk.clear();
       continue;
     }  // remove outliers
-    (*vertexes).emplace_back(reco::Vertex::Point(x, y, z), err, soa.chi2[i], soa.ndof[i], nt);
+    (*vertexes).emplace_back(reco::Vertex::Point(x, y, z), err, soa.view()[i].chi2(), soa.view()[i].ndof(), nt);
     auto &v = (*vertexes).back();
     v.reserve(itrk.size());
     for (auto it : itrk) {

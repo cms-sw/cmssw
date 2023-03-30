@@ -8,10 +8,4 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<environment>
-  <bin file="runtestPhysicsToolsPatAlgos.cpp">
-    <flags TEST_RUNNER_ARGS=" /bin/bash PhysicsTools/PatAlgos/test runtests.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-</environment>
+<test name="runtestPhysicsToolsPatAlgos" command="runtests.sh"/>

@@ -11,6 +11,7 @@
 
 #include <iomanip>
 #include <iostream>
+#include <sstream>
 
 typedef EZArrayFL<GlobalPoint> CornersVec;
 
@@ -34,8 +35,8 @@ void EcalEndcapCellParameterDump::analyze(const edm::Event& /*iEvent*/, const ed
   const CaloSubdetectorGeometry* ecalGeom =
       static_cast<const CaloSubdetectorGeometry*>(geo->getSubdetectorGeometry(DetId::Ecal, EcalEndcap));
 
-  std::cout << "\n\nStudy Detector = Ecal SubDetector = EE"
-            << "\n======================================\n\n";
+  edm::LogVerbatim("EcalGeom") << "\n\nStudy Detector = Ecal SubDetector = EE"
+                               << "\n======================================\n";
   const std::vector<DetId>& ids = ecalGeom->getValidDetIds(DetId::Ecal, EcalEndcap);
   int nall(0);
   for (auto id : ids) {
@@ -43,20 +44,21 @@ void EcalEndcapCellParameterDump::analyze(const edm::Event& /*iEvent*/, const ed
     std::shared_ptr<const CaloCellGeometry> geom = ecalGeom->getGeometry(id);
     EEDetId ebid(id.rawId());
 
-    std::cout << "IX = " << ebid.ix() << ";  IY = " << ebid.iy() << " geom->getPosition " << std::setprecision(4)
-              << geom->getPosition() << " BackPoint " << geom->getBackPoint() << " [rho,eta:etaSpan,phi:phiSpan] ("
-              << geom->rhoPos() << ", " << geom->etaPos() << ":" << geom->etaSpan() << ", " << geom->phiPos() << ":"
-              << geom->phiSpan() << ")";
+    std::ostringstream st1;
+    st1 << "IX = " << ebid.ix() << ";  IY = " << ebid.iy() << " geom->getPosition " << std::setprecision(4)
+        << geom->getPosition() << " BackPoint " << geom->getBackPoint() << " [rho,eta:etaSpan,phi:phiSpan] ("
+        << geom->rhoPos() << ", " << geom->etaPos() << ":" << geom->etaSpan() << ", " << geom->phiPos() << ":"
+        << geom->phiSpan() << ")";
 
     const CaloCellGeometry::CornersVec& corners(geom->getCorners());
 
     for (unsigned int ci(0); ci != corners.size(); ci++) {
-      std::cout << " Corner: " << ci << "  Location" << corners[ci] << " ; ";
+      st1 << " Corner: " << ci << "  Location" << corners[ci] << " ; ";
     }
 
-    std::cout << std::endl;
+    edm::LogVerbatim("EcalGeom") << st1.str();
   }
-  std::cout << "\n\nDumps a total of : " << nall << " cells of the detector\n" << std::endl;
+  edm::LogVerbatim("EcalGeom") << "\n\nDumps a total of : " << nall << " cells of the detector\n";
 }
 
 DEFINE_FWK_MODULE(EcalEndcapCellParameterDump);

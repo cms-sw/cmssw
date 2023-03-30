@@ -7,6 +7,7 @@
 #include "HeterogeneousCore/AlpakaCore/interface/QueueCache.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESGetToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESDeviceProduct.h"
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESDeviceProductType.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class ESProducer;
@@ -46,10 +47,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       template <typename TProduct, typename TDepRecord>
       edm::ESHandle<TProduct> getHandle(device::ESGetToken<TProduct, TDepRecord> const& iToken) const {
         auto handle = record_.getHandle(iToken.underlyingToken());
-        if (not handle) {
-          return edm::ESHandle<TProduct>(handle.whyFailedFactory());
+        if constexpr (detail::useESProductDirectly<TProduct>) {
+          return handle;
+        } else {
+          if (not handle) {
+            return edm::ESHandle<TProduct>(handle.whyFailedFactory());
+          }
+          return edm::ESHandle<TProduct>(&handle->get(alpaka::getDev(*queue_)), handle.description());
         }
-        return edm::ESHandle<TProduct>(&handle->get(alpaka::getDev(*queue_)), handle.description());
       }
 
       // getTransientHandle()
@@ -62,13 +67,17 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       template <typename TProduct, typename TDepRecord>
       edm::ESTransientHandle<TProduct> getTransientHandle(device::ESGetToken<TProduct, TDepRecord> const& iToken) const {
         auto handle = record_.getTransientHandle(iToken.underlyingToken());
-        if (not handle) {
-          return edm::ESTransientHandle<TProduct>();
+        if constexpr (detail::useESProductDirectly<TProduct>) {
+          return handle;
+        } else {
+          if (not handle) {
+            return edm::ESTransientHandle<TProduct>();
+          }
+          if (handle.failedToGet()) {
+            return edm::ESTransientHandle<TProduct>(handle.whyFailedFactory());
+          }
+          return edm::ESTransientHandle<TProduct>(&handle->get(alpaka::getDev(*queue_)), handle.description());
         }
-        if (handle.failedToGet()) {
-          return edm::ESTransientHandle<TProduct>(handle.whyFailedFactory());
-        }
-        return edm::ESTransientHandle<TProduct>(&handle->get(alpaka::getDev(*queue_)), handle.description());
       }
 
       // get()
@@ -81,7 +90,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       template <typename TProduct, typename TDepRecord>
       TProduct const& get(device::ESGetToken<TProduct, TDepRecord> const& iToken) const {
         auto const& product = record_.get(iToken.underlyingToken());
-        return product.get(alpaka::getDev(*queue_));
+        if constexpr (detail::useESProductDirectly<TProduct>) {
+          return product;
+        } else {
+          return product.get(alpaka::getDev(*queue_));
+        }
       }
 
     private:

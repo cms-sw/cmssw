@@ -40,8 +40,6 @@ namespace edm {
 
     explicit EventSelector(Strings const& pathspecs);
 
-    EventSelector(edm::ParameterSet const& pset, Strings const& pathNames);
-
     bool wantAll() const { return accept_all_; }
     bool acceptEvent(TriggerResults const&);
     bool acceptEvent(unsigned char const*, int) const;

@@ -1,5 +1,65 @@
-#include "SimG4CMS/ShowerLibraryProducer/interface/HcalForwardLibWriter.h"
+#include <memory>
+#include <string>
+#include <fstream>
+#include <utility>
+#include <vector>
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "SimDataFormats/CaloHit/interface/HFShowerPhoton.h"
+#include "SimDataFormats/CaloHit/interface/HFShowerLibraryEventInfo.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "TFile.h"
+#include "TTree.h"
+
+class HcalForwardLibWriter : public edm::one::EDAnalyzer<> {
+public:
+  struct FileHandle {
+    std::string name;
+    std::string id;
+    int momentum;
+  };
+  explicit HcalForwardLibWriter(const edm::ParameterSet&);
+  ~HcalForwardLibWriter() override {}
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+  int readUserData();
+  int nbins;
+  int nshowers;
+  int bsize;
+  int splitlevel;
+  int compressionAlgo;
+  int compressionLevel;
+
+  TFile* theFile;
+  TTree* theTree;
+  TFile* LibFile;
+  TTree* LibTree;
+  TBranch* emBranch;
+  TBranch* hadBranch;
+  std::vector<float>* partsEm;
+  std::vector<float>* partsHad;
+
+  std::string theDataFile;
+  std::vector<FileHandle> theFileHandle;
+
+  HFShowerLibraryEventInfo evtInfo;
+  HFShowerPhotonCollection emColl;
+  HFShowerPhotonCollection hadColl;
+};
 
 HcalForwardLibWriter::HcalForwardLibWriter(const edm::ParameterSet& iConfig) {
   edm::ParameterSet theParms = iConfig.getParameter<edm::ParameterSet>("hcalForwardLibWriterParameters");
@@ -26,8 +86,10 @@ HcalForwardLibWriter::HcalForwardLibWriter(const edm::ParameterSet& iConfig) {
 
   //https://root.cern/root/html534/TTree.html
   // TBranch*Branch(const char* name, const char* classname, void** obj, Int_t bufsize = 32000, Int_t splitlevel = 99)
-  emBranch = LibTree->Branch("emParticles", "HFShowerPhotons-emParticles", &emColl, bsize, splitlevel);
-  hadBranch = LibTree->Branch("hadParticles", "HFShowerPhotons-hadParticles", &hadColl, bsize, splitlevel);
+  partsEm = new std::vector<float>();
+  partsHad = new std::vector<float>();
+  emBranch = LibTree->Branch("emParticles", &partsEm, bsize, splitlevel);
+  hadBranch = LibTree->Branch("hadParticles", &partsHad, bsize, splitlevel);
 }
 
 void HcalForwardLibWriter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -90,19 +152,22 @@ void HcalForwardLibWriter::analyze(const edm::Event& iEvent, const edm::EventSet
     theTree->SetBranchAddress("primZ", &primZ);  // added
     int nentries = int(theTree->GetEntries());
     int ngood = 0;
-    int nbytes = 0;
     // cycle over showers ====================================================
     for (int iev = 0; iev < nentries; iev++) {
-      nbytes += theTree->GetEntry(iev);
       if (primZ < 990.)
         continue;  // exclude showers with interactions in front of HF (1m of air)
       ngood++;
       if (ngood > nshowers)
         continue;
+      unsigned int nph = nphot;  //++
       if (particle == "electron") {
         emColl.clear();
+        partsEm->clear();          //++
+        partsEm->resize(5 * nph);  //++
       } else {
         hadColl.clear();
+        partsHad->clear();          //++
+        partsHad->resize(5 * nph);  //++
       }
       float nphot_long = 0;
       float nphot_short = 0;
@@ -115,23 +180,29 @@ void HcalForwardLibWriter::analyze(const edm::Event& iEvent, const edm::EventSet
           z[iph] = -z[iph];
         }
 
-        HFShowerPhoton::Point pos(x[iph], y[iph], z[iph]);
-        HFShowerPhoton aPhoton(pos, t[iph], lambda[iph]);
         if (particle == "electron") {
-          emColl.push_back(aPhoton);
+          (*partsEm)[iph] = (x[iph]);
+          (*partsEm)[iph + 1 * nph] = (y[iph]);
+          (*partsEm)[iph + 2 * nph] = (z[iph]);
+          (*partsEm)[iph + 3 * nph] = (t[iph]);
+          (*partsEm)[iph + 4 * nph] = (lambda[iph]);
         } else {
-          hadColl.push_back(aPhoton);
+          (*partsHad)[iph] = (x[iph]);
+          (*partsHad)[iph + 1 * nph] = (y[iph]);
+          (*partsHad)[iph + 2 * nph] = (z[iph]);
+          (*partsHad)[iph + 3 * nph] = (t[iph]);
+          (*partsHad)[iph + 4 * nph] = (lambda[iph]);
         }
       }
       // end of cycle over photons in shower -------------------------------------------
 
       if (particle == "electron") {
-        LibTree->SetEntries(nem + 1);
+        LibTree->SetEntries(nem);
         emBranch->Fill();
         nem++;
         emColl.clear();
       } else {
-        LibTree->SetEntries(nhad + 1);
+        LibTree->SetEntries(nhad);
         nhad++;
         hadBranch->Fill();
         hadColl.clear();

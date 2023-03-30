@@ -25,8 +25,8 @@ print(options)
 
 ####################################################################
 # Use the options
-from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-process = cms.Process('DigiStudy',Phase2C11M9)
+from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+process = cms.Process('DigiStudy',Phase2C17I13M9)
 
 geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
 fileInput = "file:step2" + options.geometry + "tt.root"

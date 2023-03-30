@@ -39,9 +39,8 @@ SurfaceDeformation::Local2DVector TwoBowedSurfacesDeformation::positionCorrectio
 
   // treatment of different widthes at high/low y could be done by theRelWidthLowY or so
   //   if (widthLowY > 0. && widthHighY != widthLowY) {
-  //     std::cout << "SurfaceDeformation::positionCorrection2Bowed: Cannot yet deal "
-  // 	      << " with different widthes, take " << widthHighY << " not " << widthLowY
-  // 	      << std::endl;
+  //     edm::LogVerbatim("CommonTopologies") << "SurfaceDeformation::positionCorrection2Bowed: Cannot yet deal "
+  // 	      << " with different widthes, take " << widthHighY << " not " << widthLowY;
   //   }
   //   const double width = widthHighY;
 

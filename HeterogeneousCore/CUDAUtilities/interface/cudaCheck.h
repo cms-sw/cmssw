@@ -42,8 +42,8 @@ namespace cms {
       if (LIKELY(result == CUDA_SUCCESS))
         return true;
 
-      const char* error;
-      const char* message;
+      const char* error = nullptr;
+      const char* message = nullptr;
       cuGetErrorName(result, &error);
       cuGetErrorString(result, &message);
       abortOnCudaError(file, line, cmd, error, message, description);

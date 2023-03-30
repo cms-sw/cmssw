@@ -2,7 +2,7 @@
     "destinationDatabase": "oracle://cms_orcoff_prep/CMS_CONDITIONS", 
     "destinationTags": {
         "SiStripBadChannel_PCL_v1_hlt": {}, 
-        "SiStripBadChannel_PCL_v1_prompt": {}
+        "SiStripBadChannel_PCL_prep_prompt": {}
     }, 
     "inputTag": "SiStripBadStrip_pcl", 
     "since": null, 

@@ -1,6 +1,7 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "RecoLocalFastTime/FTLCommonAlgos/interface/MTDUncalibratedRecHitAlgoBase.h"
 #include "RecoLocalFastTime/FTLClusterizer/interface/BTLRecHitsErrorEstimatorIM.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CommonTools/Utils/interface/FormulaEvaluator.h"
 
@@ -53,14 +54,17 @@ FTLUncalibratedRecHit BTLUncalibRecHitAlgo::makeRecHit(const BTLDataFrame& dataF
 
   unsigned char flag = 0;
 
-  const auto& sampleLeft = dataFrame.sample(0);
-  const auto& sampleRight = dataFrame.sample(1);
+  const auto& sampleRight = dataFrame.sample(0);
+  const auto& sampleLeft = dataFrame.sample(1);
 
   double nHits = 0.;
 
-  if (sampleLeft.data() > 0) {
-    amplitude.first = float(sampleLeft.data()) * adcLSB_;
-    time.first = float(sampleLeft.toa()) * toaLSBToNS_;
+  LogDebug("BTLUncalibRecHit") << "Original input time t1,t2 " << float(sampleRight.toa()) * toaLSBToNS_ << ", "
+                               << float(sampleLeft.toa()) * toaLSBToNS_ << std::endl;
+
+  if (sampleRight.data() > 0) {
+    amplitude.first = float(sampleRight.data()) * adcLSB_;
+    time.first = float(sampleRight.toa()) * toaLSBToNS_;
 
     nHits += 1.;
 
@@ -70,9 +74,9 @@ FTLUncalibratedRecHit BTLUncalibRecHitAlgo::makeRecHit(const BTLDataFrame& dataF
   }
 
   // --- If available, reconstruct the amplitude and time of the second SiPM
-  if (sampleRight.data() > 0) {
-    amplitude.second = sampleRight.data() * adcLSB_;
-    time.second = sampleRight.toa() * toaLSBToNS_;
+  if (sampleLeft.data() > 0) {
+    amplitude.second = float(sampleLeft.data()) * adcLSB_;
+    time.second = float(sampleLeft.toa()) * toaLSBToNS_;
 
     nHits += 1.;
 
@@ -90,14 +94,17 @@ FTLUncalibratedRecHit BTLUncalibRecHitAlgo::makeRecHit(const BTLDataFrame& dataF
 
   // Calculate the position
   // Distance from center of bar to hit
+
   float position = 0.5f * (c_LYSO_ * (time.second - time.first));
   float positionError = BTLRecHitsErrorEstimatorIM::positionError();
 
+  LogDebug("BTLUncalibRecHit") << "DetId: " << dataFrame.id().rawId() << " x position = " << position << " +/- "
+                               << positionError;
   LogDebug("BTLUncalibRecHit") << "ADC+: set the charge to: (" << amplitude.first << ", " << amplitude.second << ")  ("
-                               << sampleLeft.data() << ", " << sampleRight.data() << "  " << adcLSB_ << ' '
+                               << sampleRight.data() << ", " << sampleLeft.data() << ") " << adcLSB_ << ' '
                                << std::endl;
   LogDebug("BTLUncalibRecHit") << "TDC+: set the time to: (" << time.first << ", " << time.second << ")  ("
-                               << sampleLeft.toa() << ", " << sampleRight.toa() << "  " << toaLSBToNS_ << ' '
+                               << sampleRight.toa() << ", " << sampleLeft.toa() << ") " << toaLSBToNS_ << ' '
                                << std::endl;
 
   return FTLUncalibratedRecHit(

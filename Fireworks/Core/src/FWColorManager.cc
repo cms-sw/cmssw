@@ -105,6 +105,9 @@ void FWColorManager::setDefaultGeomColors() {
   m_geomColor[kFwHGCalHSiColorIndex] = 1000;
   m_geomColor[kFwHGCalHScColorIndex] = 1012;
 
+  m_geomColor[kFWMtdBarrelColorIndex] = 1042;
+  m_geomColor[kFWMtdEndcapColorIndex] = 1043;
+
   switch (m_paletteId) {
     case (kArctic):
       // m_geomColor[kFWMuonBarrelLineColorIndex] = 1027;

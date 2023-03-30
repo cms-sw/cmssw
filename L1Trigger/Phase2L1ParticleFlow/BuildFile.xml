@@ -3,7 +3,6 @@
 <use name="FWCore/Utilities"/>
 <use name="DataFormats/L1THGCal"/>
 <use name="DataFormats/L1TParticleFlow"/>
-<use name="DataFormats/L1TCorrelator"/>
 <use name="CommonTools/BaseParticlePropagator"/>
 <use name="DataFormats/ParticleFlowReco"/>
 <use name="CommonTools/Utils"/>

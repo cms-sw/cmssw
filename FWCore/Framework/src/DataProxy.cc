@@ -10,28 +10,17 @@
 // Created:     Thu Mar 31 12:49:19 EST 2005
 //
 
-// system include files
-#include <mutex>
-
-// user include files
-#include "FWCore/Concurrency/interface/include_first_syncWait.h"
-
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Framework/interface/MakeDataException.h"
-#include "FWCore/Framework/interface/EventSetupRecord.h"
-#include "FWCore/Framework/interface/EventSetupImpl.h"
-#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
-#include "FWCore/ServiceRegistry/interface/ESParentContext.h"
-#include "FWCore/Concurrency/interface/WaitingTaskList.h"
-#include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/Framework/interface/EventSetupRecordImpl.h"
+#include "FWCore/Utilities/interface/Likely.h"
 
 namespace edm {
   namespace eventsetup {
 
     static const ComponentDescription* dummyDescription() {
-      static ComponentDescription s_desc;
+      static const ComponentDescription s_desc;
       return &s_desc;
     }
 
@@ -94,19 +83,6 @@ namespace edm {
         throwMakeException(iRecord, iKey);
       }
       return cache_;
-    }
-
-    const void* DataProxy::get(const EventSetupRecordImpl& iRecord,
-                               const DataKey& iKey,
-                               bool iTransiently,
-                               ActivityRegistry const* activityRegistry,
-                               EventSetupImpl const* iEventSetupImpl,
-                               ESParentContext const& iParent) const {
-      if (!cacheIsValid()) {
-        throw edm::Exception(errors::LogicError) << "DataProxy::get called without first doing prefetch.\nThis should "
-                                                    "not be able to happen.\nPlease contact framework developers";
-      }
-      return getAfterPrefetch(iRecord, iKey, iTransiently);
     }
 
   }  // namespace eventsetup

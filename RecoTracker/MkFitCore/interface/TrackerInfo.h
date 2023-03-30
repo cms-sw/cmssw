@@ -7,7 +7,7 @@
 
 namespace mkfit {
 
-  enum WithinSensitiveRegion_e { WSR_Undef = -1, WSR_Inside = 0, WSR_Edge, WSR_Outside };
+  enum WithinSensitiveRegion_e { WSR_Undef = -1, WSR_Inside = 0, WSR_Edge, WSR_Outside, WSR_Failed };
 
   struct WSR_Result {
     // Could also store XHitSize count equivalent here : 16;

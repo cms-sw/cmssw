@@ -26,6 +26,7 @@ namespace edm {
   class StreamID;
   class PreallocationConfiguration;
   class SubProcessParentageHelper;
+  class ModuleTypeResolverMaker;
   namespace service {
     class TriggerNamesService;
   }
@@ -55,6 +56,7 @@ namespace edm {
                                            bool hasSubprocesses,
                                            PreallocationConfiguration const& iAllocConfig,
                                            ProcessContext const*,
+                                           ModuleTypeResolverMaker const*,
                                            ProcessBlockHelperBase& processBlockHelper);
 
     class MadeModules {
@@ -70,7 +72,8 @@ namespace edm {
     MadeModules initModules(ParameterSet& parameterSet,
                             service::TriggerNamesService const& tns,
                             PreallocationConfiguration const& iAllocConfig,
-                            ProcessContext const*);
+                            ProcessContext const*,
+                            ModuleTypeResolverMaker const* typeResolverMaker);
     std::unique_ptr<Schedule> finishSchedule(MadeModules,
                                              ParameterSet& parameterSet,
                                              service::TriggerNamesService const& tns,

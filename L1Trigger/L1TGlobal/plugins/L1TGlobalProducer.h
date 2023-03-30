@@ -186,12 +186,15 @@ private:
   edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> m_l1GtMenuToken;
   edm::ESGetToken<L1TGlobalPrescalesVetosFract, L1TGlobalPrescalesVetosFractRcd> m_l1GtPrescaleVetosToken;
 
-  //disables reseting the prescale counters each lumisection (needed for offline)
+  // disables resetting the prescale counters each lumisection (needed for offline)
   bool m_resetPSCountersEachLumiSec;
-  // start the PS counter from a random value between [1,PS] instead of PS
+
+  // initialise prescale counters with a semi-random value in the range [0, prescale*10^precision - 1];
+  // if false, the prescale counters are initialised to zero
   bool m_semiRandomInitialPSCounters;
+
   // switch to load muon showers in the global board
   bool m_useMuonShowers;
 };
 
-#endif /*L1TGlobalProducer_h*/
+#endif  // L1TGlobalProducer_h

@@ -21,12 +21,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class TestAlpakaGlobalProducer : public global::EDProducer<> {
   public:
     TestAlpakaGlobalProducer(edm::ParameterSet const& config)
-        : esToken_(esConsumes()), deviceToken_{produces()}, size_{config.getParameter<int32_t>("size")} {}
+        : esToken_(esConsumes(config.getParameter<edm::ESInputTag>("eventSetupSource"))),
+          deviceToken_{produces()},
+          size_{config.getParameter<edm::ParameterSet>("size").getParameter<int32_t>(
+              EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE))} {}
 
     void produce(edm::StreamID, device::Event& iEvent, device::EventSetup const& iSetup) const override {
       [[maybe_unused]] auto const& esData = iSetup.getData(esToken_);
 
-      portabletest::TestDeviceCollection deviceProduct{size_, alpaka::getDev(iEvent.queue())};
+      portabletest::TestDeviceCollection deviceProduct{size_, iEvent.queue()};
 
       // run the algorithm, potentially asynchronously
       algo_.fill(iEvent.queue(), deviceProduct);
@@ -36,12 +39,18 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
-      desc.add<int32_t>("size");
+      desc.add("eventSetupSource", edm::ESInputTag{});
+
+      edm::ParameterSetDescription psetSize;
+      psetSize.add<int32_t>("alpaka_serial_sync");
+      psetSize.add<int32_t>("alpaka_cuda_async");
+      desc.add("size", psetSize);
+
       descriptions.addWithDefaultLabel(desc);
     }
 
   private:
-    const device::ESGetToken<AlpakaESTestDataA, AlpakaESTestRecordA> esToken_;
+    const device::ESGetToken<AlpakaESTestDataADevice, AlpakaESTestRecordA> esToken_;
     const device::EDPutToken<portabletest::TestDeviceCollection> deviceToken_;
     const int32_t size_;
 
@@ -51,5 +60,5 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
-#include "HeterogeneousCore/AlpakaCore/interface/MakerMacros.h"
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"
 DEFINE_FWK_ALPAKA_MODULE(TestAlpakaGlobalProducer);

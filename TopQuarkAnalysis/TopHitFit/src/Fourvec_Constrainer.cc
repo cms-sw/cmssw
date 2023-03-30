@@ -1637,15 +1637,12 @@ namespace hitfit {
     int nobjs = ev.nobjs();
     int n_measured_vars = nobjs * 3;
     int n_unmeasured_vars = 0;
-    int n_constraints = _constraints.size();
 
     if (use_kt) {
       n_measured_vars += 2;
 
       if (ev.has_neutrino())
         n_unmeasured_vars = 1;
-      else
-        n_constraints += 2;
     }
 
     Matrix G_i(n_measured_vars, n_measured_vars);

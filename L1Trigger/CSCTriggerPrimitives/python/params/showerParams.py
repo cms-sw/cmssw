@@ -43,21 +43,21 @@ showerPSet = cms.PSet(
 	## 10000 means to disable cathode HMT for this chamber type
         showerThresholds = cms.vuint32(
             # ME1/1
-            100, 100, 100,
+            80, 100, 100,
             # ME1/2
             10000, 10000, 10000,
             # ME1/3
             10000, 10000, 10000,
             # ME2/1
-            17, 33, 35,
+            14, 33, 35,
             # ME2/2
             10000, 10000, 10000,
             # ME3/1
-            15, 31, 33,
+            12, 31, 33,
             # ME3/2
             10000, 10000, 10000,
             # ME4/1
-            17, 34, 36,
+            14, 34, 36,
             # ME4/2
             10000, 10000, 10000
         ),
@@ -72,23 +72,23 @@ showerPSet = cms.PSet(
         ## {loose, nominal, tight} thresholds for hit counters
         showerThresholds = cms.vuint32(
             # ME1/1
-            140, 140, 140,
+            112, 140, 140,
             # ME1/2
-            20, 41, 45,
+            112, 140, 140,
             # ME1/3
-            8, 12, 16,
+            7, 14, 18,
             # ME2/1
-            28, 56, 58,
+            23, 56, 58,
             # ME2/2
-            9, 18, 22,
+            8, 28, 32,
             # ME3/1
-            26, 55, 57,
+            21, 55, 57,
             # ME3/2
-            8, 16, 20,
+            7, 26, 34,
             # ME4/1
-            31, 62, 64,
+            25, 62, 64,
             # ME4/2
-            13, 27, 31
+            11, 27, 31
         ),
         showerNumTBins = cms.uint32(1),# 1BX for anode HMT
         minLayersCentralTBin = cms.uint32(5),

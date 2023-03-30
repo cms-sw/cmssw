@@ -8,6 +8,8 @@
 
 #include <cassert>
 
+#include "FWCore/Reflection/interface/reflex.h"
+
 #include "SoACommon.h"
 #include "SoAView.h"
 
@@ -267,6 +269,17 @@
 #define _VALUE_ELEMENT_INITIALIZERS(R, DATA, TYPE_NAME) BOOST_PP_EXPAND(_VALUE_ELEMENT_INITIALIZERS_IMPL TYPE_NAME)
 
 /**
+ * Freeing of the ROOT-allocated column or scalar buffer
+ */
+// clang-format off
+#define _ROOT_FREE_SOA_COLUMN_OR_SCALAR_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                                  \
+  delete[] BOOST_PP_CAT(NAME, _); \
+  BOOST_PP_CAT(NAME, _) = nullptr; \
+// clang-format on
+
+#define _ROOT_FREE_SOA_COLUMN_OR_SCALAR(R, DATA, TYPE_NAME) _ROOT_FREE_SOA_COLUMN_OR_SCALAR_IMPL TYPE_NAME
+
+/**
  * Computation of the column or scalar pointer location in the memory layout (at SoA construction time)
  */
 // clang-format off
@@ -386,14 +399,14 @@
 #define _DECLARE_SOA_DATA_MEMBER_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                                      \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar */                                                                                                     \
-      CPP_TYPE* BOOST_PP_CAT(NAME, _) = nullptr;                                                                       \
+      CPP_TYPE* BOOST_PP_CAT(NAME, _) EDM_REFLEX_SIZE(scalar_) = nullptr;                                              \
       ,                                                                                                                \
       /* Column */                                                                                                     \
-      CPP_TYPE * BOOST_PP_CAT(NAME, _) = nullptr;                                                                      \
+      CPP_TYPE * BOOST_PP_CAT(NAME, _) EDM_REFLEX_SIZE(elements_) = nullptr;                                           \
       ,                                                                                                                \
       /* Eigen column */                                                                                               \
-      size_type BOOST_PP_CAT(NAME, ElementsWithPadding_); /* For ROOT serialization, (displikes the default value) */  \
-      CPP_TYPE::Scalar * BOOST_PP_CAT(NAME, _) = nullptr;                                                              \
+      size_type BOOST_PP_CAT(NAME, ElementsWithPadding_) = 0; /* For ROOT serialization */                             \
+      CPP_TYPE::Scalar * BOOST_PP_CAT(NAME, _) EDM_REFLEX_SIZE(BOOST_PP_CAT(NAME, ElementsWithPadding_)) = nullptr;    \
       byte_size_type BOOST_PP_CAT(NAME, Stride_) = 0;                                                                  \
   )
 // clang-format on
@@ -563,6 +576,12 @@
       _ITERATE_ON_ALL(_STREAMER_READ_SOA_DATA_MEMBER, ~, __VA_ARGS__)                                                  \
     }                                                                                                                  \
                                                                                                                        \
+    /* ROOT allocation cleanup */                                                                                      \
+    void ROOTStreamerCleaner() {                                                                                       \
+      /* This function should only be called from the PortableCollection ROOT streamer */                              \
+      _ITERATE_ON_ALL(_ROOT_FREE_SOA_COLUMN_OR_SCALAR, ~, __VA_ARGS__)                                                 \
+    }                                                                                                                  \
+                                                                                                                       \
     /* Dump the SoA internal structure */                                                                              \
     template <typename T>                                                                                              \
     SOA_HOST_ONLY friend void dump();                                                                                  \
@@ -582,10 +601,10 @@
     }                                                                                                                  \
                                                                                                                        \
     /* Data members */                                                                                                 \
-    std::byte* mem_;                                                                                                   \
+    std::byte* mem_ EDM_REFLEX_TRANSIENT;                                                                              \
     size_type elements_;                                                                                               \
     size_type const scalar_ = 1;                                                                                       \
-    byte_size_type byteSize_;                                                                                          \
+    byte_size_type byteSize_ EDM_REFLEX_TRANSIENT;                                                                     \
     _ITERATE_ON_ALL(_DECLARE_SOA_DATA_MEMBER, ~, __VA_ARGS__)                                                          \
     /* Making the code conditional is problematic in macros as the commas will interfere with parameter lisings     */ \
     /* So instead we make the code unconditional with paceholder names which are protected by a private protection. */ \

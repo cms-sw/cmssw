@@ -44,7 +44,7 @@ namespace reco {
                                                  bool sort = true) {
       std::vector<CandidatePtr> output;
       for (Iterator iter = begin; iter != end; ++iter) {
-        reco::CandidatePtr ptr(*iter);
+        const reco::CandidatePtr& ptr(*iter);
         if (std::abs(ptr->pdgId()) == pdgId)
           output.push_back(ptr);
       }

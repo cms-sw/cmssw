@@ -2,6 +2,9 @@ from __future__ import print_function
 import sys
 import FWCore.ParameterSet.Config as cms
 
+def customlog(s):
+    print("# MSG-i trackselectionRefitting:  %s" % s)
+
 def getSequence(process, collection,
                 saveCPU = False,
                 TTRHBuilder = "WithAngleAndTemplate",
@@ -52,13 +55,13 @@ def getSequence(process, collection,
     # resolve default values incl. consistency checks #
     ###################################################
 
-    print("g4Refitting=",g4Refitting)
+    customlog("g4Refitting=%s" % g4Refitting)
 
     if usePixelQualityFlag is None:
         if "Template" not in TTRHBuilder:
             usePixelQualityFlag = False # not defined without templates
-            print("Using 'TTRHBuilder' without templates:", TTRHBuilder)
-            print(" --> Turning off pixel quality flag in hit filter.")
+            customlog("Using 'TTRHBuilder' without templates %s" % TTRHBuilder)
+            customlog(" --> Turning off pixel quality flag in hit filter.")
         else:
             usePixelQualityFlag = True # default for usage with templates
 
@@ -371,11 +374,11 @@ def getSequence(process, collection,
     else:
         if mods[-1][-1]["method"] == "load" and \
                 not mods[-1][-1].get("clone", False):
-            print("Name of the last module needs to be modifiable.")
+            customlog("Name of the last module needs to be modifiable.")
             sys.exit(1)
 
         if g4Refitting:
-            print("Here we must include geopro first")
+            customlog("Here we must include geopro first")
             process.load('Configuration.StandardSequences.GeometryDB_cff')
             process.load("TrackPropagation.Geant4e.geantRefit_cff")
             modules.append(getattr(process,"geopro"))
@@ -453,7 +456,7 @@ def _getModule(process, src, modType, moduleName, options, **kwargs):
             obj = getattr(process, objTuple[1])
             moduleName = objTuple[1]
     else:
-        print("Unknown method:", method)
+        customlog("Unknown method: %s" % method)
         sys.exit(1)
 
     if modType == "TrackSplitting":

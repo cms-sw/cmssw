@@ -9,7 +9,8 @@
 #include "DataFormats/Portable/interface/PortableHostCollection.h"
 #include "DataFormats/Portable/interface/PortableDeviceCollection.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/TransferToHost.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/CopyToDevice.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/CopyToHost.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -41,17 +42,24 @@ namespace traits {
 }  // namespace traits
 
 namespace cms::alpakatools {
-  // TODO: Is this the right place for the specialization? Or should it be in PortableDeviceProduct?
-  template <typename T>
-  struct TransferToHost<ALPAKA_ACCELERATOR_NAMESPACE::PortableCollection<T>> {
-    using HostDataType = ::PortableHostCollection<T>;
-
+  template <typename TLayout, typename TDevice>
+  struct CopyToHost<PortableDeviceCollection<TLayout, TDevice>> {
     template <typename TQueue>
-    static HostDataType transferAsync(TQueue& queue,
-                                      ALPAKA_ACCELERATOR_NAMESPACE::PortableCollection<T> const& deviceData) {
-      HostDataType hostData(deviceData->metadata().size(), queue);
-      alpaka::memcpy(queue, hostData.buffer(), deviceData.buffer());
-      return hostData;
+    static auto copyAsync(TQueue& queue, PortableDeviceCollection<TLayout, TDevice> const& srcData) {
+      PortableHostCollection<TLayout> dstData(srcData->metadata().size(), queue);
+      alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());
+      return dstData;
+    }
+  };
+
+  template <typename TLayout>
+  struct CopyToDevice<PortableHostCollection<TLayout>> {
+    template <typename TQueue>
+    static auto copyAsync(TQueue& queue, PortableHostCollection<TLayout> const& srcData) {
+      using TDevice = typename alpaka::trait::DevType<TQueue>::type;
+      PortableDeviceCollection<TLayout, TDevice> dstData(srcData->metadata().size(), queue);
+      alpaka::memcpy(queue, dstData.buffer(), srcData.buffer());
+      return dstData;
     }
   };
 }  // namespace cms::alpakatools

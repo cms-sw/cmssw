@@ -21,21 +21,21 @@ Implementation:
 #include <vector>
 #include <string>
 
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "SimDataFormats/CaloHit/interface/HFShowerPhoton.h"
 #include "SimDataFormats/CaloHit/interface/HFShowerLibraryEventInfo.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TBranch.h"
@@ -46,6 +46,7 @@ class AnalyzeTuples : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit AnalyzeTuples(const edm::ParameterSet&);
   ~AnalyzeTuples() override = default;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void beginJob() override;
@@ -71,15 +72,14 @@ AnalyzeTuples::AnalyzeTuples(const edm::ParameterSet& iConfig) {
   usesResource(TFileService::kSharedResource);
 
   edm::LogVerbatim("HcalSim") << "analyzetuples a buraya girdi";
-  edm::ParameterSet m_HS = iConfig.getParameter<edm::ParameterSet>("HFShowerLibrary");
-  edm::FileInPath fp = m_HS.getParameter<edm::FileInPath>("FileName");
+  edm::FileInPath fp = iConfig.getParameter<edm::FileInPath>("FileName");
   std::string pTreeName = fp.fullPath();
-  std::string emName = m_HS.getParameter<std::string>("TreeEMID");
-  std::string hadName = m_HS.getParameter<std::string>("TreeHadID");
-  std::string branchEvInfo = m_HS.getUntrackedParameter<std::string>(
+  std::string emName = iConfig.getParameter<std::string>("TreeEMID");
+  std::string hadName = iConfig.getParameter<std::string>("TreeHadID");
+  std::string branchEvInfo = iConfig.getUntrackedParameter<std::string>(
       "BranchEvt", "HFShowerLibraryEventInfos_hfshowerlib_HFShowerLibraryEventInfo");
-  std::string branchPre = m_HS.getUntrackedParameter<std::string>("BranchPre", "HFShowerPhotons_hfshowerlib_");
-  std::string branchPost = m_HS.getUntrackedParameter<std::string>("BranchPost", "_R.obj");
+  std::string branchPre = iConfig.getUntrackedParameter<std::string>("BranchPre", "HFShowerPhotons_hfshowerlib_");
+  std::string branchPost = iConfig.getUntrackedParameter<std::string>("BranchPost", "_R.obj");
 
   if (pTreeName.find(".") == 0)
     pTreeName.erase(0, 2);
@@ -124,6 +124,17 @@ AnalyzeTuples::AnalyzeTuples(const edm::ParameterSet& iConfig) {
                            << " entries and Branch " << hadName << " has " << hadBranch->GetEntries() << " entries";
   edm::LogInfo("HFShower") << "HFShowerLibrary::No packing information -"
                            << " Assume x, y, z are not in packed form";
+}
+
+void AnalyzeTuples::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("FileName", "SimG4CMS/Calo/data/HFShowerLibrary_oldpmt_noatt_eta4_16en_v3.root");
+  desc.add<std::string>("TreeEMID", "emParticles");
+  desc.add<std::string>("TreeHadID", "hadParticles");
+  desc.add<std::string>("BranchEvt", "");
+  desc.add<std::string>("BranchPre", "");
+  desc.add<std::string>("BranchPost", "");
+  descriptions.add("analyzeTuples", desc);
 }
 
 void AnalyzeTuples::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {

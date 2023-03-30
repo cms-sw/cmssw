@@ -467,10 +467,8 @@ void DAClusterizerInZ::dump(const double beta,
   }
 
   cout << endl << "                                                               pk=";
-  double sumpk = 0;
   for (vector<vertex_t>::const_iterator k = y.begin(); k != y.end(); k++) {
     cout << setw(8) << setprecision(3) << fixed << k->pk;
-    sumpk += k->pk;
   }
   cout << endl;
 
@@ -515,7 +513,6 @@ void DAClusterizerInZ::dump(const double beta,
       cout << " " << setw(5) << setprecision(2) << tks[i].tt->track().phi() << " " << setw(5) << setprecision(2)
            << tks[i].tt->track().eta();
 
-      double sump = 0.;
       for (vector<vertex_t>::const_iterator k = y.begin(); k != y.end(); k++) {
         if ((tks[i].pi > 0) && (tks[i].Z > 0)) {
           //double p=pik(beta,tks[i],*k);
@@ -526,7 +523,6 @@ void DAClusterizerInZ::dump(const double beta,
             cout << "    .   ";
           }
           E += p * Eik(tks[i], *k);
-          sump += p;
         } else {
           cout << "        ";
         }

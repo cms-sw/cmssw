@@ -1,6 +1,9 @@
 #include "RiemannFitOnGPU.h"
 
-void HelixFitOnGPU::launchRiemannKernelsOnCPU(HitsView const *hv, uint32_t nhits, uint32_t maxNumberOfTuples) {
+template <typename TrackerTraits>
+void HelixFitOnGPU<TrackerTraits>::launchRiemannKernelsOnCPU(const TrackingRecHitSoAConstView<TrackerTraits> &hv,
+                                                             uint32_t nhits,
+                                                             uint32_t maxNumberOfTuples) {
   assert(tuples_);
 
   //  Fit internals
@@ -16,98 +19,101 @@ void HelixFitOnGPU::launchRiemannKernelsOnCPU(HitsView const *hv, uint32_t nhits
 
   for (uint32_t offset = 0; offset < maxNumberOfTuples; offset += maxNumberOfConcurrentFits_) {
     // triplets
-    kernel_FastFit<3>(
+    kernel_FastFit<3, TrackerTraits>(
         tuples_, tupleMultiplicity_, 3, hv, hitsGPU.get(), hits_geGPU.get(), fast_fit_resultsGPU.get(), offset);
 
-    kernel_CircleFit<3>(tupleMultiplicity_,
-                        3,
-                        bField_,
-                        hitsGPU.get(),
-                        hits_geGPU.get(),
-                        fast_fit_resultsGPU.get(),
-                        circle_fit_resultsGPU,
-                        offset);
+    kernel_CircleFit<3, TrackerTraits>(tupleMultiplicity_,
+                                       3,
+                                       bField_,
+                                       hitsGPU.get(),
+                                       hits_geGPU.get(),
+                                       fast_fit_resultsGPU.get(),
+                                       circle_fit_resultsGPU,
+                                       offset);
 
-    kernel_LineFit<3>(tupleMultiplicity_,
-                      3,
-                      bField_,
-                      outputSoa_,
-                      hitsGPU.get(),
-                      hits_geGPU.get(),
-                      fast_fit_resultsGPU.get(),
-                      circle_fit_resultsGPU,
-                      offset);
+    kernel_LineFit<3, TrackerTraits>(tupleMultiplicity_,
+                                     3,
+                                     bField_,
+                                     outputSoa_,
+                                     hitsGPU.get(),
+                                     hits_geGPU.get(),
+                                     fast_fit_resultsGPU.get(),
+                                     circle_fit_resultsGPU,
+                                     offset);
 
     // quads
-    kernel_FastFit<4>(
+    kernel_FastFit<4, TrackerTraits>(
         tuples_, tupleMultiplicity_, 4, hv, hitsGPU.get(), hits_geGPU.get(), fast_fit_resultsGPU.get(), offset);
 
-    kernel_CircleFit<4>(tupleMultiplicity_,
-                        4,
-                        bField_,
-                        hitsGPU.get(),
-                        hits_geGPU.get(),
-                        fast_fit_resultsGPU.get(),
-                        circle_fit_resultsGPU,
-                        offset);
+    kernel_CircleFit<4, TrackerTraits>(tupleMultiplicity_,
+                                       4,
+                                       bField_,
+                                       hitsGPU.get(),
+                                       hits_geGPU.get(),
+                                       fast_fit_resultsGPU.get(),
+                                       circle_fit_resultsGPU,
+                                       offset);
 
-    kernel_LineFit<4>(tupleMultiplicity_,
-                      4,
-                      bField_,
-                      outputSoa_,
-                      hitsGPU.get(),
-                      hits_geGPU.get(),
-                      fast_fit_resultsGPU.get(),
-                      circle_fit_resultsGPU,
-                      offset);
+    kernel_LineFit<4, TrackerTraits>(tupleMultiplicity_,
+                                     4,
+                                     bField_,
+                                     outputSoa_,
+                                     hitsGPU.get(),
+                                     hits_geGPU.get(),
+                                     fast_fit_resultsGPU.get(),
+                                     circle_fit_resultsGPU,
+                                     offset);
 
     if (fitNas4_) {
       // penta
-      kernel_FastFit<4>(
+      kernel_FastFit<4, TrackerTraits>(
           tuples_, tupleMultiplicity_, 5, hv, hitsGPU.get(), hits_geGPU.get(), fast_fit_resultsGPU.get(), offset);
 
-      kernel_CircleFit<4>(tupleMultiplicity_,
-                          5,
-                          bField_,
-                          hitsGPU.get(),
-                          hits_geGPU.get(),
-                          fast_fit_resultsGPU.get(),
-                          circle_fit_resultsGPU,
-                          offset);
+      kernel_CircleFit<4, TrackerTraits>(tupleMultiplicity_,
+                                         5,
+                                         bField_,
+                                         hitsGPU.get(),
+                                         hits_geGPU.get(),
+                                         fast_fit_resultsGPU.get(),
+                                         circle_fit_resultsGPU,
+                                         offset);
 
-      kernel_LineFit<4>(tupleMultiplicity_,
-                        5,
-                        bField_,
-                        outputSoa_,
-                        hitsGPU.get(),
-                        hits_geGPU.get(),
-                        fast_fit_resultsGPU.get(),
-                        circle_fit_resultsGPU,
-                        offset);
+      kernel_LineFit<4, TrackerTraits>(tupleMultiplicity_,
+                                       5,
+                                       bField_,
+                                       outputSoa_,
+                                       hitsGPU.get(),
+                                       hits_geGPU.get(),
+                                       fast_fit_resultsGPU.get(),
+                                       circle_fit_resultsGPU,
+                                       offset);
 
     } else {
       // penta all 5
-      kernel_FastFit<5>(
+      kernel_FastFit<5, TrackerTraits>(
           tuples_, tupleMultiplicity_, 5, hv, hitsGPU.get(), hits_geGPU.get(), fast_fit_resultsGPU.get(), offset);
 
-      kernel_CircleFit<5>(tupleMultiplicity_,
-                          5,
-                          bField_,
-                          hitsGPU.get(),
-                          hits_geGPU.get(),
-                          fast_fit_resultsGPU.get(),
-                          circle_fit_resultsGPU,
-                          offset);
+      kernel_CircleFit<5, TrackerTraits>(tupleMultiplicity_,
+                                         5,
+                                         bField_,
+                                         hitsGPU.get(),
+                                         hits_geGPU.get(),
+                                         fast_fit_resultsGPU.get(),
+                                         circle_fit_resultsGPU,
+                                         offset);
 
-      kernel_LineFit<5>(tupleMultiplicity_,
-                        5,
-                        bField_,
-                        outputSoa_,
-                        hitsGPU.get(),
-                        hits_geGPU.get(),
-                        fast_fit_resultsGPU.get(),
-                        circle_fit_resultsGPU,
-                        offset);
+      kernel_LineFit<5, TrackerTraits>(tupleMultiplicity_,
+                                       5,
+                                       bField_,
+                                       outputSoa_,
+                                       hitsGPU.get(),
+                                       hits_geGPU.get(),
+                                       fast_fit_resultsGPU.get(),
+                                       circle_fit_resultsGPU,
+                                       offset);
     }
   }
 }
+
+template class HelixFitOnGPU<pixelTopology::Phase1>;
+template class HelixFitOnGPU<pixelTopology::Phase2>;

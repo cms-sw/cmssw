@@ -1,0 +1,9 @@
+<use name="DataFormats/GeometryVector"/>
+<use name="DataFormats/ForwardDetId"/>
+<use name="DetectorDescription/Core"/>
+<use name="DetectorDescription/DDCMS"/>
+<use name="Geometry/HGCalCommonData"/>
+<use name="dd4hep"/>
+<export>
+  <lib name="1"/>
+</export>

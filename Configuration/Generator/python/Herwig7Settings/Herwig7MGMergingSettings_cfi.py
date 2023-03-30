@@ -14,6 +14,7 @@ herwig7MGMergingSettingsBlock = cms.PSet(
         'set LesHouchesHandler:HadronizationHandler /Herwig/Hadronization/ClusterHadHandler',
         'set LesHouchesHandler:DecayHandler /Herwig/Decays/DecayHandler',
         'set LesHouchesHandler:WeightOption VarNegWeight',
+        'set LesHouchesHandler:EventNumbering LHE',
         'set /Herwig/Generators/EventGenerator:EventHandler  /Herwig/EventHandlers/LesHouchesHandler',
         'create ThePEG::Cuts /Herwig/Cuts/NoCuts',
         'cd /Herwig/EventHandlers',

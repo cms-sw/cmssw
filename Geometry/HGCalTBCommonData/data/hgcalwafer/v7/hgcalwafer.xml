@@ -1,0 +1,366 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="hgcalwafer.xml" eval="true">
+  <Constant name="WaferW" value="[hgcal:WaferW]"/>
+  <Constant name="WaferT" value="0.10*mm"/>
+  <Constant name="CellNC" value="11"/>
+  <Constant name="CellNF" value="15"/>
+  <Constant name="CellWC" value="[WaferW]/[CellNC]"/>
+  <Constant name="CellWF" value="[WaferW]/[CellNF]"/>
+  <Constant name="TypeWC" value="2"/>
+  <Constant name="TypeWF" value="1"/>
+  <Vector name="waferFine" type="numeric" nEntries="20">
+   3, 6, 9, 12, 15, 16, 15, 16, 15, 16, 15, 16, 15, 16, 15, 14, 11, 8, 5, 2
+  </Vector>
+  <Vector name="waferCoarse" type="numeric" nEntries="15">
+   2, 5, 8, 11, 12, 11, 12, 11, 12, 11, 12, 11, 8, 5, 2
+  </Vector>
+</ConstantsSection>
+
+<SolidSection label="hgcalwafer.xml">
+  <Polyhedra name="HGCalWafer" numSide="6" startPhi="330*deg" deltaPhi="360*deg">
+    <ZSection z="-[WaferT]/2" rMin="0*fm" rMax="[WaferW]/2"/>
+    <ZSection z= "[WaferT]/2" rMin="0*fm" rMax="[WaferW]/2"/>
+  </Polyhedra>
+  <Polyhedra name="HGCalCellCoarse" numSide="6" startPhi="330*deg" deltaPhi="360*deg">
+    <ZSection z="-[WaferT]/2" rMin="0*fm" rMax="[CellWC]/2"/>
+    <ZSection z= "[WaferT]/2" rMin="0*fm" rMax="[CellWC]/2"/>
+  </Polyhedra>
+  <Polyhedra name="HGCalCellFine" numSide="6" startPhi="330*deg" deltaPhi="360*deg">
+    <ZSection z="-[WaferT]/2" rMin="0*fm" rMax="[CellWF]/2"/>
+    <ZSection z= "[WaferT]/2" rMin="0*fm" rMax="[CellWF]/2"/>
+  </Polyhedra>  
+  <Box name="HGCalCellCoarseMask" dx="[CellWC]/2" dy="[CellWC]" dz="[WaferT]/2"/>
+  <Box name="HGCalCellFineMask" dx="[CellWF]/2" dy="[CellWF]" dz="[WaferT]/2"/>
+  <SubtractionSolid name="HGCalCellCoarseHalf">
+   <rSolid name="HGCalCellCoarse"/>
+   <rSolid name="HGCalCellCoarseMask"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="[CellWC]/2" y="0.0*fm" z="0.0*fm"/>
+  </SubtractionSolid>
+  <SubtractionSolid name="HGCalCellFineHalf">
+   <rSolid name="HGCalCellFine"/>
+   <rSolid name="HGCalCellFineMask"/>
+   <rRotation name="rotations:000D"/>
+   <Translation x="[CellWF]/2" y="0.0*fm" z="0.0*fm"/>
+  </SubtractionSolid>
+</SolidSection> 
+
+<LogicalPartSection label="hgcalwafer.xml">
+  <LogicalPart name="HGCalEEWaferCoarse" category="unspecified">
+    <rSolid name="HGCalWafer"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalHEWaferCoarse" category="unspecified">
+    <rSolid name="HGCalWafer"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+
+  <LogicalPart name="HGCalEEWaferFine" category="unspecified">
+    <rSolid name="HGCalWafer"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalHEWaferFine" category="unspecified">
+    <rSolid name="HGCalWafer"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+
+  <LogicalPart name="HGCalEECellCoarse" category="unspecified">
+    <rSolid name="HGCalCellCoarse"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalHECellCoarse" category="unspecified">
+    <rSolid name="HGCalCellCoarse"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+
+  <LogicalPart name="HGCalEECellCoarseHalf" category="unspecified">
+    <rSolid name="HGCalCellCoarseHalf"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalHECellCoarseHalf" category="unspecified">
+    <rSolid name="HGCalCellCoarseHalf"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+
+  <LogicalPart name="HGCalEECellFine" category="unspecified">
+    <rSolid name="HGCalCellFine"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalHECellFine" category="unspecified">
+    <rSolid name="HGCalCellFine"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  
+  <LogicalPart name="HGCalEECellFineHalf" category="unspecified">
+    <rSolid name="HGCalCellFineHalf"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalHECellFineHalf" category="unspecified">
+    <rSolid name="HGCalCellFineHalf"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="hgcalwafer.xml">
+  <Algorithm name="hgcal:DDHGCalWaferAlgo">
+    <rParent name="hgcalwafer:HGCalEEWaferCoarse"/>
+    <Numeric name="CellSize" value="[CellWC]"/>
+    <Numeric name="CellType" value="[TypeWC]"/>
+    <Vector name="ChildNames" type="string" nEntries="2">
+      HGCalEECellCoarse, HGCalEECellCoarseHalf</Vector>
+    <Vector name="PositionX" type="numeric" nEntries="133">
+      -1,1,-4,-2,0,2,4,
+      -7,-5,-3,-1,1,3,5,7,
+      -10,-8,-6,-4,-2,0,2,4,6,8,10,
+      -11,-9,-7,-5,-3,-1,1,3,5,7,9,11,
+      -10,-8,-6,-4,-2,0,2,4,6,8,10,
+      -11,-9,-7,-5,-3,-1,1,3,5,7,9,11,
+      -10,-8,-6,-4,-2,0,2,4,6,8,10,
+      -11,-9,-7,-5,-3,-1,1,3,5,7,9,11,
+      -10,-8,-6,-4,-2,0,2,4,6,8,10,
+      -11,-9,-7,-5,-3,-1,1,3,5,7,9,11,
+      -10,-8,-6,-4,-2,0,2,4,6,8,10,
+      -7,-5,-3,-1,1,3,5,7,
+      -4,-2,0,2,4,-1,1
+    </Vector>
+    <Vector name="PositionY" type="numeric" nEntries="133">
+      -42,-42,-36,-36,-36,-36,-36,
+      -30,-30,-30,-30,-30,-30,-30,-30,
+      -24,-24,-24,-24,-24,-24,-24,-24,-24,-24,-24,
+      -18,-18,-18,-18,-18,-18,-18,-18,-18,-18,-18,-18,
+      -12,-12,-12,-12,-12,-12,-12,-12,-12,-12,-12,
+      -6,-6,-6,-6,-6,-6,-6,-6,-6,-6,-6,-6,
+       0,0,0,0,0,0,0,0,0,0,0,
+       6,6,6,6,6,6,6,6,6,6,6,6,
+       12,12,12,12,12,12,12,12,12,12,12,
+       18,18,18,18,18,18,18,18,18,18,18,18,
+       24,24,24,24,24,24,24,24,24,24,24,
+       30,30,30,30,30,30,30,30,
+       36,36,36,36,36,42,42
+    </Vector>
+    <Vector name="Angles" type="numeric" nEntries="133">
+      240,300,240,0,0,0,300,240,0,0,0,0,0,0,300,240,0,0,0,0,0,0,0,0,0,300,
+      180,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      180,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      180,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      180,0,0,0,0,0,0,0,0,0,0,0,120,0,0,0,0,0,0,0,0,0,60,
+      120,0,0,0,0,0,0,60,120,0,0,0,60,120,60
+    </Vector>
+    <Vector name="DetectorType" type="numeric" nEntries="133">
+     1,1,1,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,1,
+     1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,
+     1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,
+     1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,
+     1,0,0,0,0,0,0,0,0,0,0,1,
+     1,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,1,1,1
+    </Vector>
+    <String name="RotNameSpace" value="hgcalwafer"/>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWaferAlgo">
+    <rParent name="hgcalwafer:HGCalEEWaferFine"/>
+    <Numeric name="CellSize" value="[CellWF]"/>
+    <Numeric name="CellType" value="[TypeWF]"/>
+    <Vector name="ChildNames" type="string" nEntries="2">
+      HGCalEECellFine, HGCalEECellFineHalf</Vector>
+    <Vector name="PositionX" type="numeric" nEntries="240">
+      -2,0,2,-5,-3,-1,1,3,5,
+      -8,-6,-4,-2,0,2,4,6,8,
+      -11,-9,-7,-5,-3,-1,1,3,5,7,9,11,
+      -14,-12,-10,-8,-6,-4,-2,0,2,4,6,8,10,12,14,
+      -15,-13,-11,-9,-7,-5,-3,-1,1,3,5,7,9,11,13,15,
+      -14,-12,-10,-8,-6,-4,-2,0,2,4,6,8,10,12,14,
+      -15,-13,-11,-9,-7,-5,-3,-1,1,3,5,7,9,11,13,15,
+      -14,-12,-10,-8,-6,-4,-2,0,2,4,6,8,10,12,14,
+      -15,-13,-11,-9,-7,-5,-3,-1,1,3,5,7,9,11,13,15,
+      -14,-12,-10,-8,-6,-4,-2,0,2,4,6,8,10,12,14,
+      -15,-13,-11,-9,-7,-5,-3,-1,1,3,5,7,9,11,13,15,
+      -14,-12,-10,-8,-6,-4,-2,0,2,4,6,8,10,12,14,
+      -15,-13,-11,-9,-7,-5,-3,-1,1,3,5,7,9,11,13,15,
+      -14,-12,-10,-8,-6,-4,-2,0,2,4,6,8,10,12,14,
+      -13,-11,-9,-7,-5,-3,-1,1,3,5,7,9,11,13,
+      -10,-8,-6,-4,-2,0,2,4,6,8,10,
+      -7,-5,-3,-1,1,3,5,7,
+      -4,-2,0,2,4,-1,1
+    </Vector>
+    <Vector name="PositionY" type="numeric" nEntries="240">
+      -56,-56,-56,-50,-50,-50,-50,-50,-50,
+      -44,-44,-44,-44,-44,-44,-44,-44,-44,
+      -38,-38,-38,-38,-38,-38,-38,-38,-38,-38,-38,-38,
+      -32,-32,-32,-32,-32,-32,-32,-32,-32,-32,-32,-32,-32,-32,-32,
+      -26,-26,-26,-26,-26,-26,-26,-26,-26,-26,-26,-26,-26,-26,-26,-26,
+      -20,-20,-20,-20,-20,-20,-20,-20,-20,-20,-20,-20,-20,-20,-20,
+      -14,-14,-14,-14,-14,-14,-14,-14,-14,-14,-14,-14,-14,-14,-14,-14,
+      -8,-8,-8,-8,-8,-8,-8,-8,-8,-8,-8,-8,-8,-8,-8,
+      -2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
+       4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+       10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,
+       16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,
+       22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,
+       28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,
+       34,34,34,34,34,34,34,34,34,34,34,34,34,34,
+       40,40,40,40,40,40,40,40,40,40,40,
+       46,46,46,46,46,46,46,46,
+       52,52,52,52,52,58,58
+    </Vector>
+    <Vector name="Angles" type="numeric" nEntries="240">
+      240,0,300,240,0,0,0,0,300,240,0,0,0,0,0,0,0,300,
+      240,0,0,0,0,0,0,0,0,0,0,300,240,0,0,0,0,0,0,0,0,0,0,0,0,0,300,
+      180,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      180,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      180,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      180,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      180,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      120,0,0,0,0,0,0,0,0,0,0,0,0,60,120,0,0,0,0,0,0,0,0,0,60,
+      120,0,0,0,0,0,0,60,120,0,0,0,60,120,60
+    </Vector>
+    <Vector name="DetectorType" type="numeric" nEntries="240">
+     1,0,1,1,0,0,0,0,1,1,0,0,0,0,0,0,0,1,
+     1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+     1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+     1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+     1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+     1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+     1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+     1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,1,
+     1,0,0,0,0,0,0,1,1,0,0,0,1,1,1
+    </Vector>
+    <String name="RotNameSpace" value="hgcalwafer"/>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWaferAlgo">
+    <rParent name="hgcalwafer:HGCalHEWaferCoarse"/>
+    <Numeric name="CellSize" value="[CellWC]"/>
+    <Numeric name="CellType" value="[TypeWC]"/>
+    <Vector name="ChildNames" type="string" nEntries="2">
+      HGCalHECellCoarse, HGCalHECellCoarseHalf</Vector>
+    <Vector name="PositionX" type="numeric" nEntries="133">
+      -1,1,-4,-2,0,2,4,
+      -7,-5,-3,-1,1,3,5,7,
+      -10,-8,-6,-4,-2,0,2,4,6,8,10,
+      -11,-9,-7,-5,-3,-1,1,3,5,7,9,11,
+      -10,-8,-6,-4,-2,0,2,4,6,8,10,
+      -11,-9,-7,-5,-3,-1,1,3,5,7,9,11,
+      -10,-8,-6,-4,-2,0,2,4,6,8,10,
+      -11,-9,-7,-5,-3,-1,1,3,5,7,9,11,
+      -10,-8,-6,-4,-2,0,2,4,6,8,10,
+      -11,-9,-7,-5,-3,-1,1,3,5,7,9,11,
+      -10,-8,-6,-4,-2,0,2,4,6,8,10,
+      -7,-5,-3,-1,1,3,5,7,
+      -4,-2,0,2,4,-1,1
+    </Vector>
+    <Vector name="PositionY" type="numeric" nEntries="133">
+      -42,-42,-36,-36,-36,-36,-36,
+      -30,-30,-30,-30,-30,-30,-30,-30,
+      -24,-24,-24,-24,-24,-24,-24,-24,-24,-24,-24,
+      -18,-18,-18,-18,-18,-18,-18,-18,-18,-18,-18,-18,
+      -12,-12,-12,-12,-12,-12,-12,-12,-12,-12,-12,
+      -6,-6,-6,-6,-6,-6,-6,-6,-6,-6,-6,-6,
+       0,0,0,0,0,0,0,0,0,0,0,
+       6,6,6,6,6,6,6,6,6,6,6,6,
+       12,12,12,12,12,12,12,12,12,12,12,
+       18,18,18,18,18,18,18,18,18,18,18,18,
+       24,24,24,24,24,24,24,24,24,24,24,
+       30,30,30,30,30,30,30,30,
+       36,36,36,36,36,42,42
+    </Vector>
+    <Vector name="Angles" type="numeric" nEntries="133">
+      240,300,240,0,0,0,300,240,0,0,0,0,0,0,300,240,0,0,0,0,0,0,0,0,0,300,
+      180,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      180,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      180,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      180,0,0,0,0,0,0,0,0,0,0,0,120,0,0,0,0,0,0,0,0,0,60,
+      120,0,0,0,0,0,0,60,120,0,0,0,60,120,60
+    </Vector>
+    <Vector name="DetectorType" type="numeric" nEntries="133">
+     1,1,1,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,1,
+     1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,
+     1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,
+     1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,
+     1,0,0,0,0,0,0,0,0,0,0,1,
+     1,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,1,1,1
+    </Vector>
+    <String name="RotNameSpace" value="hgcalwafer"/>
+  </Algorithm>
+  <Algorithm name="hgcal:DDHGCalWaferAlgo">
+    <rParent name="hgcalwafer:HGCalHEWaferFine"/>
+    <Numeric name="CellSize" value="[CellWF]"/>
+    <Numeric name="CellType" value="[TypeWF]"/>
+    <Vector name="ChildNames" type="string" nEntries="2">
+      HGCalHECellFine, HGCalHECellFineHalf</Vector>
+    <Vector name="PositionX" type="numeric" nEntries="240">
+      -2,0,2,-5,-3,-1,1,3,5,
+      -8,-6,-4,-2,0,2,4,6,8,
+      -11,-9,-7,-5,-3,-1,1,3,5,7,9,11,
+      -14,-12,-10,-8,-6,-4,-2,0,2,4,6,8,10,12,14,
+      -15,-13,-11,-9,-7,-5,-3,-1,1,3,5,7,9,11,13,15,
+      -14,-12,-10,-8,-6,-4,-2,0,2,4,6,8,10,12,14,
+      -15,-13,-11,-9,-7,-5,-3,-1,1,3,5,7,9,11,13,15,
+      -14,-12,-10,-8,-6,-4,-2,0,2,4,6,8,10,12,14,
+      -15,-13,-11,-9,-7,-5,-3,-1,1,3,5,7,9,11,13,15,
+      -14,-12,-10,-8,-6,-4,-2,0,2,4,6,8,10,12,14,
+      -15,-13,-11,-9,-7,-5,-3,-1,1,3,5,7,9,11,13,15,
+      -14,-12,-10,-8,-6,-4,-2,0,2,4,6,8,10,12,14,
+      -15,-13,-11,-9,-7,-5,-3,-1,1,3,5,7,9,11,13,15,
+      -14,-12,-10,-8,-6,-4,-2,0,2,4,6,8,10,12,14,
+      -13,-11,-9,-7,-5,-3,-1,1,3,5,7,9,11,13,
+      -10,-8,-6,-4,-2,0,2,4,6,8,10,
+      -7,-5,-3,-1,1,3,5,7,
+      -4,-2,0,2,4,-1,1
+    </Vector>
+    <Vector name="PositionY" type="numeric" nEntries="240">
+      -56,-56,-56,-50,-50,-50,-50,-50,-50,
+      -44,-44,-44,-44,-44,-44,-44,-44,-44,
+      -38,-38,-38,-38,-38,-38,-38,-38,-38,-38,-38,-38,
+      -32,-32,-32,-32,-32,-32,-32,-32,-32,-32,-32,-32,-32,-32,-32,
+      -26,-26,-26,-26,-26,-26,-26,-26,-26,-26,-26,-26,-26,-26,-26,-26,
+      -20,-20,-20,-20,-20,-20,-20,-20,-20,-20,-20,-20,-20,-20,-20,
+      -14,-14,-14,-14,-14,-14,-14,-14,-14,-14,-14,-14,-14,-14,-14,-14,
+      -8,-8,-8,-8,-8,-8,-8,-8,-8,-8,-8,-8,-8,-8,-8,
+      -2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
+       4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+       10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,
+       16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,
+       22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,22,
+       28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,
+       34,34,34,34,34,34,34,34,34,34,34,34,34,34,
+       40,40,40,40,40,40,40,40,40,40,40,
+       46,46,46,46,46,46,46,46,
+       52,52,52,52,52,58,58
+    </Vector>
+    <Vector name="Angles" type="numeric" nEntries="240">
+      240,0,300,240,0,0,0,0,300,240,0,0,0,0,0,0,0,300,
+      240,0,0,0,0,0,0,0,0,0,0,300,240,0,0,0,0,0,0,0,0,0,0,0,0,0,300,
+      180,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      180,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      180,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      180,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      180,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      120,0,0,0,0,0,0,0,0,0,0,0,0,60,120,0,0,0,0,0,0,0,0,0,60,
+      120,0,0,0,0,0,0,60,120,0,0,0,60,120,60
+    </Vector>
+    <Vector name="DetectorType" type="numeric" nEntries="240">
+     1,0,1,1,0,0,0,0,1,1,0,0,0,0,0,0,0,1,
+     1,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+     1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+     1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+     1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+     1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+     1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+     1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,1,
+     1,0,0,0,0,0,0,1,1,0,0,0,1,1,1
+    </Vector>
+    <String name="RotNameSpace" value="hgcalwafer"/>
+  </Algorithm>
+</PosPartSection> 
+
+<SpecParSection label="hgcalwafer.xml" eval="true">
+  <SpecPar name="HGCal">
+    <PartSelector path="//HGCalEECell.*"/>
+    <PartSelector path="//HGCalHECell.*"/>
+    <Parameter name="OnlyForHGCalNumbering" value="HGCal" eval="false"/>
+    <Parameter name="WaferMode" value="HGCalGeometryMode::Polyhedra" eval="false"/>
+  </SpecPar>
+</SpecParSection>
+
+</DDDefinition>

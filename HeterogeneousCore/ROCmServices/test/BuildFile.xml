@@ -1,0 +1,14 @@
+<use name="catch2"/>
+<use name="fmt"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ParameterSetReader"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
+
+<iftool name="rocm">
+  <bin file="test_main.cpp testROCmService.cpp" name="testROCmService">
+    <use name="rocm"/>
+    <use name="HeterogeneousCore/ROCmServices"/>
+  </bin>
+</iftool>

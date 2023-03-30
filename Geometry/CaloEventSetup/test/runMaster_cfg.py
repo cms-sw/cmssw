@@ -25,6 +25,8 @@ process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.CaloGeom=dict()
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(4) )
 

@@ -61,7 +61,7 @@
 class PixelBaryCentreAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit PixelBaryCentreAnalyzer(const edm::ParameterSet&);
-  ~PixelBaryCentreAnalyzer() override;
+  ~PixelBaryCentreAnalyzer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -160,11 +160,6 @@ PixelBaryCentreAnalyzer::PixelBaryCentreAnalyzer(const edm::ParameterSet& iConfi
   }
 
   usesResource("TFileService");
-}
-
-PixelBaryCentreAnalyzer::~PixelBaryCentreAnalyzer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -405,19 +400,19 @@ void PixelBaryCentreAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
           if (phase_ == 1) {
             if (layer != 4) {  // layer 1-3
 
-              if (ladder % 2 != 0) {  // odd ladder = inner = flipped
-                nmodulesLayer_Flipped += nmodules_bpix[layer][ladder];
-                BPIXLayer_Flipped += barycentreLayer[ladder];
-              } else {
+              if (ladder % 2 != 0) {  // odd ladder = outer ladder = unflipped
                 nmodulesLayer_NonFlipped += nmodules_bpix[layer][ladder];
                 BPIXLayer_NonFlipped += barycentreLayer[ladder];
+              } else {  // even ladder = inner ladder = flipped
+                nmodulesLayer_Flipped += nmodules_bpix[layer][ladder];
+                BPIXLayer_Flipped += barycentreLayer[ladder];
               }
             } else {  // layer-4
 
-              if (ladder % 2 == 0) {  // even ladder = inner = flipped
+              if (ladder % 2 != 0) {  // odd ladder = inner = flipped
                 nmodulesLayer_Flipped += nmodules_bpix[layer][ladder];
                 BPIXLayer_Flipped += barycentreLayer[ladder];
-              } else {  // odd ladder = outer = non-flipped
+              } else {  //even ladder = outer ladder  = unflipped
                 nmodulesLayer_NonFlipped += nmodules_bpix[layer][ladder];
                 BPIXLayer_NonFlipped += barycentreLayer[ladder];
               }
@@ -651,11 +646,12 @@ void PixelBaryCentreAnalyzer::endJob() {
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void PixelBaryCentreAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.setComment("Validates alignment payloads by providing the position of the pixel barycenter positions");
+  desc.addUntracked<bool>("usePixelQuality", false);
+  desc.addUntracked<std::vector<std::string>>("tkAlignLabels", {});
+  desc.addUntracked<std::vector<std::string>>("beamSpotLabels", {});
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

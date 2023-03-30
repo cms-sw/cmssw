@@ -191,7 +191,7 @@ void OutputMagneticFieldDDToDDL::beginRun(const edm::Run&, edm::EventSetup const
     if (!rit->isDefined().second)
       continue;
     if (rit->toString() != ":") {
-      DDRotation r(*rit);
+      const DDRotation& r(*rit);
       out.rotation(r, *m_xos);
     }
   }

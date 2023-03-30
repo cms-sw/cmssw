@@ -26,4 +26,5 @@
 <bin file="CAsizes_t.cpp">
   <use name="cuda"/>
   <use name="eigen"/>
+  <use name="boost"/>
 </bin>

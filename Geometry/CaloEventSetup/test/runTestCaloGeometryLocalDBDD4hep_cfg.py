@@ -10,6 +10,10 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2021', '')
 
+process.load('FWCore.MessageLogger.MessageLogger_cfi')
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.CaloGeom=dict()
+
 process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet(

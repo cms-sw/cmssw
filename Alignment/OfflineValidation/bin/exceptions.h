@@ -49,8 +49,6 @@ namespace AllInOneConfig {
       std::cerr << colorify("Logic Error: ") << e.what() << '\n';
     } catch (const std::exception &e) {
       std::cerr << colorify("Standard Error: ") << e.what() << '\n';
-    } catch (...) {
-      std::cerr << colorify("Unkown failure\n");
     }
     return EXIT_FAILURE;
   }

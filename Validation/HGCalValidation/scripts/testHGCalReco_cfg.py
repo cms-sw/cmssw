@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun testHGCalDigi_cfg.py geometry=D92 type=mu tag=Def
 #
-#   Options for geometry D88, D92, D93
+#   Options for geometry D88, D92, D93, D92Shift
 #               type mu, tt
 #               tag Def, Thr, 0Noise
 #
@@ -18,7 +18,7 @@ options.register('geometry',
                  "D92",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D88, D92, D93")
+                  "geometry of operations: D88, D92, D93, D92Shift")
 options.register('type',
                  "mu",
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -39,7 +39,10 @@ print(options)
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 process = cms.Process('TestReco',Phase2C17I13M9)
 
-geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+if (options.geometry == "D92Shift"):
+    geomFile = "Geometry.HGCalCommonData.testHGCalV17ShiftReco_cff"
+else:
+    geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
 globalTag = "auto:phase2_realistic_T21"
 inFile = "file:step2" + options.geometry + options.type + ".root"
 outFile = "file:step3" + options.geometry + options.type  + ".root"
@@ -66,9 +69,9 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Validation.HGCalValidation.hgcMissingRecHit_cfi')
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
-#if hasattr(process,'MessageLogger'):
-#    process.MessageLogger.HGCalMiss=dict()
-#    process.MessageLogger.HGCalError=dict()
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.HGCalMiss=dict()
+    process.MessageLogger.HGCalError=dict()
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1),

@@ -1,15 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
-from ..modules.particleFlowClusterHBHE_cfi import *
-from ..modules.particleFlowClusterHCAL_cfi import *
+from ..modules.hltParticleFlowClusterHBHE_cfi import *
+from ..modules.hltParticleFlowClusterHCAL_cfi import *
 from ..modules.particleFlowClusterHF_cfi import *
-from ..modules.particleFlowRecHitHBHE_cfi import *
+from ..modules.hltParticleFlowRecHitHBHE_cfi import *
 from ..modules.particleFlowRecHitHF_cfi import *
 
 pfClusteringHBHEHFTask = cms.Task(
-    particleFlowClusterHBHE,
-    particleFlowClusterHCAL,
+    hltParticleFlowClusterHBHE,
+    hltParticleFlowClusterHCAL,
     particleFlowClusterHF,
-    particleFlowRecHitHBHE,
+    hltParticleFlowRecHitHBHE,
     particleFlowRecHitHF
 )

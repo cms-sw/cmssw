@@ -14,11 +14,13 @@
 #include <sstream>
 
 // user include files
+#include "FWCore/Framework/interface/DataKeyTags.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/TypeIDBase.h"
 
 namespace {
   void throwWrongRecordType(const edm::TypeIDBase& aFromToken, const edm::eventsetup::EventSetupRecordKey& aRecord) {
@@ -29,8 +31,6 @@ namespace {
 
 namespace edm {
   namespace eventsetup {
-
-    typedef std::map<DataKey, const DataProxy*> Proxies;
 
     EventSetupRecord::EventSetupRecord() {}
 
@@ -57,27 +57,6 @@ namespace edm {
 
     edm::eventsetup::ComponentDescription const* EventSetupRecord::providerDescription(const DataKey& aKey) const {
       return impl_->providerDescription(aKey);
-    }
-
-    void EventSetupRecord::validate(const ComponentDescription* iDesc, const ESInputTag& iTag) const {
-      if (iDesc && !iTag.module().empty()) {
-        bool matched = false;
-        if (iDesc->label_.empty()) {
-          matched = iDesc->type_ == iTag.module();
-        } else {
-          matched = iDesc->label_ == iTag.module();
-        }
-        if (!matched) {
-          throw cms::Exception("EventSetupWrongModule")
-              << "EventSetup data was retrieved using an ESInputTag with the values\n"
-              << "  moduleLabel = '" << iTag.module() << "'\n"
-              << "  dataLabel = '" << iTag.data() << "'\n"
-              << "but the data matching the C++ class type and dataLabel comes from module type=" << iDesc->type_
-              << " label='" << iDesc->label_ << "'.\n Please either change the ESInputTag's 'module' label to be "
-              << (iDesc->label_.empty() ? iDesc->type_ : iDesc->label_) << "\n or add the EventSetup module "
-              << iTag.module() << " to the configuration.";
-        }
-      }
     }
 
     void EventSetupRecord::addTraceInfoToCmsException(cms::Exception& iException,
@@ -129,14 +108,6 @@ namespace edm {
          << "must be used in the function associated with the ESConsumesCollector\n"
          << "returned by the setWhatProduced function.";
       throw ex;
-    }
-
-    void EventSetupRecord::throwCalledGetWithoutToken(const char* iTypeName, const char* iLabel) {
-      throw cms::Exception("MustUseESGetToken")
-          << "Called EventSetupRecord::get without using a ESGetToken.\n While requesting data type:" << iTypeName
-          << " label:'" << iLabel << "'\n"
-          << "See https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideHowToGetDataFromES\n"
-          << "for instructions how to migrate the calling code";
     }
 
   }  // namespace eventsetup

@@ -217,8 +217,6 @@ namespace tmtt {
     // If user asked to add up to 7 layers to track, increase number of iterations by 1.
     const unsigned int maxIterations = std::max(nTypicalLayers, settings_->kalmanMaxNumStubs());
     for (unsigned iteration = 0; iteration < maxIterations; iteration++) {
-      int combinations_per_iteration = 0;
-
       bool easy = (l1track3D.numStubs() < settings_->kalmanMaxStubsEasy());
       unsigned int kalmanMaxSkipLayers =
           easy ? settings_->kalmanMaxSkipLayersEasy() : settings_->kalmanMaxSkipLayersHard();
@@ -303,8 +301,6 @@ namespace tmtt {
           thislay_stubs = temp_thislaystubs;
           nextlay_stubs = temp_nextlaystubs;
         }
-
-        combinations_per_iteration += thislay_stubs.size() + nextlay_stubs.size();
 
         // loop over each stub in this layer and check for compatibility with this state
         for (unsigned i = 0; i < thislay_stubs.size(); i++) {

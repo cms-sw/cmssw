@@ -356,7 +356,7 @@ void ZdcTestAnalysis::update(const EndOfEvent* evt) {
     theZdcNumScheme = new ZdcNumberingScheme(1);
   }
 
-  float ETot = 0., SEnergy = 0.;
+  //float ETot = 0.;
   int maxTime = 0;
   int fiberID = 0;
   unsigned int unsignedfiberID = 0;
@@ -421,11 +421,12 @@ void ZdcTestAnalysis::update(const EndOfEvent* evt) {
         zdceventntuple->Fill(zdceventarray);
       }
 
+      /*
       for (std::map<int, float, std::less<int> >::iterator is = energyInFibers.begin(); is != energyInFibers.end();
            is++) {
         ETot = (*is).second;
-        SEnergy += ETot;
       }
+      */
 
       // Find Primary info:
       int trackID = 0;

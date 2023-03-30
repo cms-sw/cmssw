@@ -96,7 +96,7 @@ namespace reco {
     float trackWeight(const TREF &r) const {
       int i = 0;
       for (auto const &t : tracks_) {
-        if ((r.id() == t.id()) & (t.key() == r.key()))
+        if ((r.id() == t.id()) && (t.key() == r.key()))
           return weights_[i] / 255.f;
         ++i;
       }

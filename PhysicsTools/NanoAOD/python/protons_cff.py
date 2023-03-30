@@ -26,7 +26,7 @@ multiRPTable = simpleProtonTrackFlatTableProducer.clone(
         timeUnc = Var("timeError",float,doc="time uncertainty",precision=13),
     ),
     externalVariables = cms.PSet(
-        arm = ExtVar("protonTable:arm",int,doc="0 = sector45, 1 = sector56"),
+        arm = ExtVar("protonTable:arm", "uint8", doc="0 = sector45, 1 = sector56"),
     ),
 )
 
@@ -40,7 +40,7 @@ singleRPTable = simpleProtonTrackFlatTableProducer.clone(
         thetaY = Var("thetaY",float,doc="th y",precision=10),
     ),
     externalVariables = cms.PSet(
-        decRPId = ExtVar("protonTable:protonRPId",int,doc="Detector ID",precision=8),
+        decRPId = ExtVar("protonTable:protonRPId", "int16",doc="Detector ID"),
     ),
 )
 

@@ -19,7 +19,7 @@ namespace {
     mva(const edm::ParameterSet &cfg, edm::ConsumesCollector iC)
         : forestLabel_(cfg.getParameter<std::string>("GBRForestLabel")),
           dbFileName_(cfg.getParameter<std::string>("GBRForestFileName")),
-          useForestFromDB_((!forestLabel_.empty()) & dbFileName_.empty()) {
+          useForestFromDB_((!forestLabel_.empty()) && dbFileName_.empty()) {
       if (useForestFromDB_) {
         forestToken_ = iC.esConsumes(edm::ESInputTag("", forestLabel_));
       }

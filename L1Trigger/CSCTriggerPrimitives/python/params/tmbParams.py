@@ -15,6 +15,8 @@ tmbPhase1 = cms.PSet(
     # perfectly in-time CLCTs are preferred, followed by
     # first-early, first-late, second-early, second late, etc.
     preferredBxMatch = cms.vint32(0, -1, 1, -2, 2, -3, 3),
+    #use CLCT sorted by Bx only for ALCT-CLCTmatch
+    sortClctBx = cms.bool(True),
     # readout window for the DAQ
     # LCTs found in the window [5, 6, 7, 8, 9, 10, 11] are good
     tmbL1aWindowSize = cms.uint32(7),
@@ -49,6 +51,8 @@ tmbPhase1 = cms.PSet(
 tmbPhase2 = tmbPhase1.clone(
     # ALCT-CLCT stays at 7 for the moment
     matchTrigWindowSize = 7,
+    #use CLCT sorted by Bx only for ALCT-CLCTmatch for now
+    sortClctBx = True,
     # LCTs found in the window [5, 6, 7, 8, 9, 10, 11] are good
     tmbL1aWindowSize = 7,
     tmbDropUsedClcts = False,

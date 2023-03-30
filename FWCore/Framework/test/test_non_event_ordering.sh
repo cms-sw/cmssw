@@ -3,7 +3,7 @@
 # Pass in name and status
 function die { echo $1: status $2 ;  exit $2; }
 
-TEST_DIR=src/FWCore/Framework/test
+TEST_DIR=$CMSSW_BASE/src/FWCore/Framework/test
 
 echo test_non_event_ordering_beginLumi_cfg.py
 cmsRun $TEST_DIR/test_non_event_ordering_beginLumi_cfg.py || die "begin Lumi test failed" $?

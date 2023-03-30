@@ -3,15 +3,6 @@
 ##____________________________________________________________________________||
 function die { echo $1: status $2 ; exit $2; }
 
-
-
-
-pushd ${LOCAL_TMP_DIR}
-wd=embeddingTest
-mkdir ${wd}
-pushd ${wd}
-
-
 # echo '{
 #"274199" : [[1, 180]]
 #}' > step1_lumiRanges.log  2>&1
@@ -37,10 +28,3 @@ cmsDriver.py LHEembeddingCLEAN --filein file:selected.root --fileout file:lhe_an
 cmsDriver.py TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.py --filein file:lhe_and_cleaned.root --fileout file:simulated_and_cleaned.root --conditions auto:run2_mc --era Run2_2016 --eventcontent RAWRECO --step GEN,SIM,DIGI,L1,DIGI2RAW,RAW2DIGI,RECO --datatier RAWRECO --customise TauAnalysis/MCEmbeddingTools/customisers.customiseGenerator --beamspot Realistic25ns13TeV2016Collision -n -1 --customise_commands "process.generator.nAttempts = cms.uint32(1000)\n"  --python_filename simulation.py || die 'Failure during Simulation step' $?
 
 cmsDriver.py MERGE -s PAT --filein file:simulated_and_cleaned.root  --fileout file:merged.root --era Run2_2016_HIPM --data --scenario pp --conditions auto:run2_data --eventcontent  MINIAODSIM --datatier USER --customise TauAnalysis/MCEmbeddingTools/customisers.customiseMerging --customise_commands "process.patTrigger.processName = cms.string('SIMembedding')" -n -1  || die 'Failure during merging step' $?
-
-
-
-
-popd
-rm -rf ${wd}
-popd

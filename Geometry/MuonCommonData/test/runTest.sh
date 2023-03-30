@@ -2,14 +2,14 @@
 
 function die { echo $1: status $2 ; exit $2; }
 
-F1=${LOCAL_TEST_DIR}/python/dumpMuonGeometry.py
-F2=${LOCAL_TEST_DIR}/python/testMuonGeometry.py
-F3=${LOCAL_TEST_DIR}/python/testMuonNumbering.py
-F4=${LOCAL_TEST_DIR}/python/testDDGEMAngularAlgorithm.py
+F1=${SCRAM_TEST_PATH}/python/dumpMuonGeometry.py
+F2=${SCRAM_TEST_PATH}/python/testMuonGeometry.py
+F3=${SCRAM_TEST_PATH}/python/testMuonNumbering.py
+F4=${SCRAM_TEST_PATH}/python/testDDGEMAngularAlgorithm.py
 
 echo " testing Geometry/MuonCommonData"
 
-export tmpdir=${LOCAL_TMP_DIR:-/tmp}
+export tmpdir=${PWD}
 echo "===== Test \"cmsRun dumpMuonGeometry.py\" ===="
 (cmsRun $F1) || die "Failure using cmsRun $F1" $?
 echo "===== Test \"cmsRun testMuonGeometry.py\" ===="

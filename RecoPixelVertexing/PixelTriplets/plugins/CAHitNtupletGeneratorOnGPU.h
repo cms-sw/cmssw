@@ -2,18 +2,21 @@
 #define RecoPixelVertexing_PixelTriplets_plugins_CAHitNtupletGeneratorOnGPU_h
 
 #include <cuda_runtime.h>
-#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DHeterogeneous.h"
-#include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
 
+#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousDevice.h"
+#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousHost.h"
+
+#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitSoADevice.h"
+#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitSoAHost.h"
+#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitsUtilities.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/SimpleVector.h"
 
 #include "CAHitNtupletGeneratorKernels.h"
-#include "HelixFitOnGPU.h"
-
 #include "GPUCACell.h"
+#include "HelixFitOnGPU.h"
 
 namespace edm {
   class Event;
@@ -21,20 +24,33 @@ namespace edm {
   class ParameterSetDescription;
 }  // namespace edm
 
+template <typename TrackerTraits>
 class CAHitNtupletGeneratorOnGPU {
 public:
-  using HitsOnGPU = TrackingRecHit2DSOAView;
-  using HitsOnCPU = TrackingRecHit2DGPU;
-  using hindex_type = TrackingRecHit2DSOAView::hindex_type;
+  using HitsView = TrackingRecHitSoAView<TrackerTraits>;
+  using HitsConstView = TrackingRecHitSoAConstView<TrackerTraits>;
+  using HitsOnDevice = TrackingRecHitSoADevice<TrackerTraits>;
+  using HitsOnHost = TrackingRecHitSoAHost<TrackerTraits>;
+  using hindex_type = typename TrackingRecHitSoA<TrackerTraits>::hindex_type;
 
-  using Quality = pixelTrack::Quality;
-  using OutputSoA = pixelTrack::TrackSoA;
-  using HitContainer = pixelTrack::HitContainer;
+  using HitToTuple = caStructures::HitToTupleT<TrackerTraits>;
+  using TupleMultiplicity = caStructures::TupleMultiplicityT<TrackerTraits>;
+  using OuterHitOfCell = caStructures::OuterHitOfCellT<TrackerTraits>;
+
+  using GPUCACell = GPUCACellT<TrackerTraits>;
+  using TrackSoAHost = TrackSoAHeterogeneousHost<TrackerTraits>;
+  using TrackSoADevice = TrackSoAHeterogeneousDevice<TrackerTraits>;
+  using HitContainer = typename TrackSoA<TrackerTraits>::HitContainer;
   using Tuple = HitContainer;
 
-  using QualityCuts = cAHitNtupletGenerator::QualityCuts;
-  using Params = cAHitNtupletGenerator::Params;
-  using Counters = cAHitNtupletGenerator::Counters;
+  using CellNeighborsVector = caStructures::CellNeighborsVectorT<TrackerTraits>;
+  using CellTracksVector = caStructures::CellTracksVectorT<TrackerTraits>;
+
+  using Quality = pixelTrack::Quality;
+
+  using QualityCuts = pixelTrack::QualityCutsT<TrackerTraits>;
+  using Params = caHitNtupletGenerator::ParamsT<TrackerTraits>;
+  using Counters = caHitNtupletGenerator::Counters;
 
 public:
   CAHitNtupletGeneratorOnGPU(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC)
@@ -42,21 +58,21 @@ public:
   CAHitNtupletGeneratorOnGPU(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
   static void fillDescriptions(edm::ParameterSetDescription& desc);
-  static const char* fillDescriptionsLabel() { return "caHitNtupletOnGPU"; }
+  static void fillDescriptionsCommon(edm::ParameterSetDescription& desc);
 
   void beginJob();
   void endJob();
 
-  PixelTrackHeterogeneous makeTuplesAsync(TrackingRecHit2DGPU const& hits_d, float bfield, cudaStream_t stream) const;
+  TrackSoADevice makeTuplesAsync(HitsOnDevice const& hits_d, float bfield, cudaStream_t stream) const;
 
-  PixelTrackHeterogeneous makeTuples(TrackingRecHit2DCPU const& hits_d, float bfield) const;
+  TrackSoAHost makeTuples(HitsOnHost const& hits_d, float bfield) const;
 
 private:
-  void buildDoublets(HitsOnCPU const& hh, cudaStream_t stream) const;
+  void buildDoublets(const HitsConstView& hh, cudaStream_t stream) const;
 
-  void hitNtuplets(HitsOnCPU const& hh, const edm::EventSetup& es, bool useRiemannFit, cudaStream_t cudaStream);
+  void hitNtuplets(const HitsConstView& hh, const edm::EventSetup& es, bool useRiemannFit, cudaStream_t cudaStream);
 
-  void launchKernels(HitsOnCPU const& hh, bool useRiemannFit, cudaStream_t cudaStream) const;
+  void launchKernels(const HitsConstView& hh, bool useRiemannFit, cudaStream_t cudaStream) const;
 
   Params m_params;
 

@@ -16,6 +16,8 @@ Toy EDProducers of Ints for testing purposes only.
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ProcessBlock.h"
+#include "FWCore/Framework/interface/GetterOfProducts.h"
+#include "FWCore/Framework/interface/TypeMatch.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -485,21 +487,36 @@ namespace edmtest {
 
   class AddAllIntsProducer : public edm::global::EDProducer<> {
   public:
-    explicit AddAllIntsProducer(edm::ParameterSet const& p) : putToken_{produces()} { consumesMany<IntProduct>(); }
+    explicit AddAllIntsProducer(edm::ParameterSet const& p)
+        : putToken_{produces()}, useConsumesMany_(p.getUntrackedParameter<bool>("useConsumesMany")) {
+      if (useConsumesMany_) {
+        consumesMany<IntProduct>();
+      } else {
+        getter_ = edm::GetterOfProducts<IntProduct>(edm::TypeMatch(), this);
+        callWhenNewProductsRegistered(*getter_);
+      }
+    }
     void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
+      desc.addUntracked<bool>("useConsumesMany", true);
       descriptions.addDefault(desc);
     }
 
   private:
     const edm::EDPutTokenT<int> putToken_;
+    std::optional<edm::GetterOfProducts<IntProduct>> getter_;
+    bool useConsumesMany_;
   };
 
   void AddAllIntsProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
     std::vector<edm::Handle<IntProduct>> ints;
-    e.getManyByType(ints);
+    if (useConsumesMany_) {
+      e.getManyByType(ints);
+    } else {
+      getter_->fillHandles(e, ints);
+    }
 
     int value = 0;
     for (auto const& i : ints) {
@@ -528,6 +545,18 @@ namespace edmtest {
                 return TokenValue{produces<IntProduct>(pset.getParameter<std::string>("instance")),
                                   pset.getParameter<int>("value")};
               })},
+          transientTokenValues_{vector_transform(
+              p.getParameter<std::vector<edm::ParameterSet>>("transientValues"),
+              [this](edm::ParameterSet const& pset) {
+                auto const& branchAlias = pset.getParameter<std::string>("branchAlias");
+                if (not branchAlias.empty()) {
+                  return TransientTokenValue{produces<TransientIntProduct>(pset.getParameter<std::string>("instance"))
+                                                 .setBranchAlias(branchAlias),
+                                             pset.getParameter<int>("value")};
+                }
+                return TransientTokenValue{produces<TransientIntProduct>(pset.getParameter<std::string>("instance")),
+                                           pset.getParameter<int>("value")};
+              })},
           throw_{p.getUntrackedParameter<bool>("throw")} {
       tokenValues_.push_back(TokenValue{produces<IntProduct>(), p.getParameter<int>("ivalue")});
     }
@@ -543,6 +572,7 @@ namespace edmtest {
         pset.add<int>("value");
         pset.add<std::string>("branchAlias", "");
         desc.addVPSet("values", pset, std::vector<edm::ParameterSet>{});
+        desc.addVPSet("transientValues", pset, std::vector<edm::ParameterSet>{});
       }
 
       descriptions.addDefault(desc);
@@ -556,6 +586,13 @@ namespace edmtest {
       int value;
     };
     std::vector<TokenValue> tokenValues_;
+
+    struct TransientTokenValue {
+      edm::EDPutTokenT<TransientIntProduct> token;
+      int value;
+    };
+    std::vector<TransientTokenValue> transientTokenValues_;
+
     bool throw_;
   };
 
@@ -566,6 +603,9 @@ namespace edmtest {
 
     // EventSetup is not used.
     for (auto const& tv : tokenValues_) {
+      e.emplace(tv.token, tv.value);
+    }
+    for (auto const& tv : transientTokenValues_) {
       e.emplace(tv.token, tv.value);
     }
   }
@@ -939,6 +979,50 @@ namespace edmtest {
   };
 }  // namespace edmtest
 
+namespace edm::test {
+  namespace other {
+    class IntProducer : public edm::global::EDProducer<> {
+    public:
+      explicit IntProducer(edm::ParameterSet const& p)
+          : token_{produces()}, value_(p.getParameter<int>("valueOther")) {}
+      void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const final { e.emplace(token_, value_); }
+
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+        edm::ParameterSetDescription desc;
+        desc.add<int>("valueOther");
+        desc.add<int>("valueCpu");
+        desc.addUntracked<std::string>("variant", "");
+
+        descriptions.addWithDefaultLabel(desc);
+      }
+
+    private:
+      edm::EDPutTokenT<edmtest::IntProduct> token_;
+      int value_;
+    };
+  }  // namespace other
+  namespace cpu {
+    class IntProducer : public edm::global::EDProducer<> {
+    public:
+      explicit IntProducer(edm::ParameterSet const& p) : token_{produces()}, value_(p.getParameter<int>("valueCpu")) {}
+      void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const final { e.emplace(token_, value_); }
+
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+        edm::ParameterSetDescription desc;
+        desc.add<int>("valueOther");
+        desc.add<int>("valueCpu");
+        desc.addUntracked<std::string>("variant", "");
+
+        descriptions.addWithDefaultLabel(desc);
+      }
+
+    private:
+      edm::EDPutTokenT<edmtest::IntProduct> token_;
+      int value_;
+    };
+  }  // namespace cpu
+}  // namespace edm::test
+
 using edmtest::AddAllIntsProducer;
 using edmtest::AddIntsProducer;
 using edmtest::BusyWaitIntLimitedProducer;
@@ -984,3 +1068,5 @@ DEFINE_FWK_MODULE(IntProducerBeginProcessBlock);
 DEFINE_FWK_MODULE(IntProducerEndProcessBlock);
 DEFINE_FWK_MODULE(TransientIntProducerEndProcessBlock);
 DEFINE_FWK_MODULE(edmtest::MustRunIntProducer);
+DEFINE_FWK_MODULE(edm::test::other::IntProducer);
+DEFINE_FWK_MODULE(edm::test::cpu::IntProducer);

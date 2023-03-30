@@ -40,7 +40,9 @@ linkedObjects = cms.EDProducer("PATObjectCrossLinker",
    electrons=cms.InputTag("finalElectrons"),
    lowPtElectrons=cms.InputTag("finalLowPtElectrons"),
    taus=cms.InputTag("finalTaus"),
+   boostedTaus=cms.InputTag("finalBoostedTaus"),
    photons=cms.InputTag("finalPhotons"),
+   vertices=cms.InputTag("slimmedSecondaryVertices")
 )
 
 # Switch to AK4 CHS jets for Run-2
@@ -48,26 +50,10 @@ run2_nanoAOD_ANY.toModify(
     linkedObjects, jets="finalJets"
 )
 
-simpleCleanerTable = cms.EDProducer("NanoAODSimpleCrossCleaner",
-   name=cms.string("cleanmask"),
-   doc=cms.string("simple cleaning mask with priority to leptons"),
-   jets=cms.InputTag("linkedObjects","jets"),
-   muons=cms.InputTag("linkedObjects","muons"),
-   electrons=cms.InputTag("linkedObjects","electrons"),
-   lowPtElectrons=cms.InputTag("linkedObjects","lowPtElectrons"),
-   taus=cms.InputTag("linkedObjects","taus"),
-   photons=cms.InputTag("linkedObjects","photons"),
-   jetSel=cms.string("pt>15"),
-   muonSel=cms.string("track.isNonnull && isLooseMuon && isPFMuon && innerTrack.validFraction >= 0.49 && ( isGlobalMuon && globalTrack.normalizedChi2 < 3 && combinedQuality.chi2LocalPosition < 12 && combinedQuality.trkKink < 20 && segmentCompatibility >= 0.303 || segmentCompatibility >= 0.451 )"),
-   electronSel=cms.string(""),
-   lowPtElectronSel=cms.string(""),
-   tauSel=cms.string(""),
-   photonSel=cms.string(""),
-   jetName=cms.string("Jet"),muonName=cms.string("Muon"),electronName=cms.string("Electron"),
-   lowPtElectronName=cms.string("LowPtElectron"),
-   tauName=cms.string("Tau"),photonName=cms.string("Photon")
+# boosted taus don't exist in 122X MINI
+run3_nanoAOD_122.toModify(
+    linkedObjects, boostedTaus=None,
 )
-
 
 lhcInfoTable = cms.EDProducer("LHCInfoProducer")
 
@@ -82,7 +68,7 @@ nanoTableTaskCommon = cms.Task(
     jetPuppiTablesTask, jetAK8TablesTask,
     muonTablesTask, fsrTablesTask, tauTablesTask, boostedTauTablesTask,
     electronTablesTask, lowPtElectronTablesTask, photonTablesTask,
-    globalTablesTask, vertexTablesTask, metTablesTask, simpleCleanerTable, extraFlagsTableTask,
+    globalTablesTask, vertexTablesTask, metTablesTask, extraFlagsTableTask,
     isoTrackTablesTask,softActivityTablesTask
 )
 
@@ -203,14 +189,6 @@ def nanoAOD_customizeCommon(process):
         process, lambda p : nanoAOD_addBoostedTauIds(p, nanoAOD_boostedTau_switch.idsToAdd.value())
     )
 
-    return process
-
-def nanoAOD_customizeData(process):
-    process = nanoAOD_customizeCommon(process)
-    return process
-
-def nanoAOD_customizeMC(process):
-    process = nanoAOD_customizeCommon(process)
     return process
 
 ###increasing the precision of selected GenParticles.

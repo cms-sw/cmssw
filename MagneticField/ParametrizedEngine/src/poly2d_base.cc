@@ -169,7 +169,7 @@ double poly2d_base::Eval() {
 
 //_______________________________________________________________________________
 void poly2d_base::Collect() {
-  if (!(data.size()))
+  if (data.empty())
     return;
 
   unsigned j1, j2, rpow, zpow, noff = 0, jend = data.size();

@@ -158,8 +158,16 @@ typename HGCalSiNoiseMap<T>::SiCellOpCharacteristics HGCalSiNoiseMap<T>::getSiCe
 
   //location of the cell
   int subdet = cellId.subdet();
-  const auto &xy(
-      ddd()->locateCell(cellId.layer(), cellId.waferU(), cellId.waferV(), cellId.cellU(), cellId.cellV(), true, true));
+  const auto &xy(ddd()->locateCell(cellId.zside(),
+                                   cellId.layer(),
+                                   cellId.waferU(),
+                                   cellId.waferV(),
+                                   cellId.cellU(),
+                                   cellId.cellV(),
+                                   true,
+                                   true,
+                                   false,
+                                   false));
   double radius = sqrt(std::pow(xy.first, 2) + std::pow(xy.second, 2));  //in cm
 
   //call baseline method and add to cache

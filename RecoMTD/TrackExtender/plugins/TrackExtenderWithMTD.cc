@@ -958,6 +958,14 @@ namespace {
               if (!est.first)
                 continue;
 
+              LogTrace("TrackExtenderWithMTD")
+                  << "Spatial compatibility DetId " << detWithState.first->geographicalId().rawId() << " TSOS dx/dy "
+                  << std::fixed << std::setw(14) << std::sqrt(detWithState.second.localError().positionError().xx())
+                  << " " << std::fixed << std::setw(14)
+                  << std::sqrt(detWithState.second.localError().positionError().yy()) << " hit dx/dy " << std::fixed
+                  << std::setw(14) << std::sqrt(hit.localPositionError().xx()) << " " << std::fixed << std::setw(14)
+                  << std::sqrt(hit.localPositionError().yy()) << " chi2 " << std::fixed << std::setw(14) << est.second;
+
               TrackTofPidInfo tof = computeTrackTofPidInfo(lastpmag2,
                                                            std::abs(pl.second),
                                                            trs0,

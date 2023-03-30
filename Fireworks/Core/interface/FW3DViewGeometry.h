@@ -50,6 +50,8 @@ public:
   TEveElementList const* const getHGCalHSi() { return m_HGCalHSiElements; }
   void showHGCalHSc(bool);
   TEveElementList const* const getHGCalHSc() { return m_HGCalHScElements; }
+  void showMtdBarrel(bool);
+  void showMtdEndcap(bool);
 
   FW3DViewGeometry(const FW3DViewGeometry&) = delete;  // stop default
 
@@ -69,6 +71,8 @@ private:
   TEveElementList* m_HGCalEEElements;
   TEveElementList* m_HGCalHSiElements;
   TEveElementList* m_HGCalHScElements;
+  TEveElementList* m_mtdBarrelElements;
+  TEveElementList* m_mtdEndcapElements;
 };
 
 #endif

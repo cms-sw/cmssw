@@ -35,6 +35,7 @@ public:
     Ecal = 3,
     Hcal = 4,
     Calo = 5,
+    Forward = 6,
     HGCalEE = 8,
     HGCalHSi = 9,
     HGCalHSc = 10,

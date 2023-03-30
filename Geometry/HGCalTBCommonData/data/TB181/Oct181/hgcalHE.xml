@@ -1,0 +1,216 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="hgcalHE.xml" eval="true">
+  <Constant name="rMinFine"   value="0.0*fm"/>
+  <Constant name="rMaxFine"   value="0.0*fm"/>
+  <Constant name="rMaxMiddle" value="0.0*fm"/>
+  <Constant name="rMaxCoarse" value="2000.0*cm"/>
+  <Constant name="rMin"       value="[hgcal:rminHE]"/>
+  <Constant name="rMax"       value="[hgcal:rmaxHE]"/>
+  <Constant name="rMaxB"      value="[hgcal:rmaxHEF]"/>
+  <Constant name="absorbW"    value="1.5*[hgcal:WaferW]"/>
+  <Constant name="absorbH"    value="1.5*[hgcal:WaferW]"/>
+</ConstantsSection>
+
+<PosPartSection label="hgcalHE.xml">
+  <Algorithm name="hgcal:DDHGCalTBModuleX">
+    <rParent name="hgcal:HGCalHE"/>
+    <String name="GeneralMaterial" value="materials:Air"/>
+    <Vector name="WaferName" type="string" nEntries="2">
+      hgcalwafer:HGCalHEWaferFine, hgcalwafer:HGCalHEWaferCoarse</Vector>
+    <Vector name="CoverName" type="string" nEntries="9">
+      hgcal:HGCalHESiliconSensitive, hgcal:HGCalHEPCB,
+      hgcal:HGCalHEKapton,           hgcal:HGCalHEAbsorber,
+      hgcal:HGCalHECuAbsorber,       hgcal:HGCalHEPCBAbsorber,
+      hgcal:HGCalHECuKapton,         hgcal:HGCalHECuPCB,
+      hgcal:HGCalHEAirAbsorber</Vector>
+    <Vector name="MaterialNames" type="string" nEntries="64">
+      materials:Air,    materials:Air,    materials:Air,
+      materials:Air,    materials:Air,    materials:Iron, 
+      materials:Copper, materials:Air,    materials:Iron,
+      materials:Air,    materials:Air,    materials:Air,
+      materials:Air,    materials:Air,    materials:Air,
+      materials:Air,    materials:Air,    materials:Air,
+      materials:Air,    materials:Air,    materials:Air,
+      materials:Air,    materials:Air,    materials:Air,
+      materials:Air,    materials:Air,    materials:Air,
+      materials:Air,    materials:Air,    materials:Air,
+      materials:Air,    materials:Air,
+      materials:Air,    materials:Air,    materials:Air,
+      materials:Air,    materials:Air,    materials:Iron, 
+      materials:Copper, materials:Air,    materials:Iron,
+      materials:Air,    materials:Air,    materials:Air,
+      materials:Air,    materials:Air,    materials:Air,
+      materials:Air,    materials:Air,    materials:Air,
+      materials:Air,    materials:Air,    materials:Air,
+      materials:Air,    materials:Air,    materials:Air,
+      materials:Air,    materials:Air,    materials:Air,
+      materials:Air,    materials:Air,    materials:Air,
+      materials:Air,    materials:Air</Vector>
+    <Vector name="VolumeNames" type="string" nEntries="64">
+      HEPCB,          HEKapton,           HECuWShield, 
+      HECuShield,     HEPCBShield,        HEFeAbsorber,
+      HECuHeatShield, HESiliconSensitive, HEFeBox, 
+      HEAirGap1,      HEAirGap2,          HEAirGap3, 
+      HEAirGap4,      HEAirGap5,          HEAirGap6, 
+      HEAirGap7,      HEAirGap8,          HEAirGap9,
+      HEAirGap10,     HEAirGap11,         HEAirGap12,
+      HEAirGap13,     HEAirGap14,         HEAirGap15,
+      HEAirGap16,     HEAirGap17,         HEAirGap18,
+      HECuKapton,     HECuPCB,            HEAirGap19,
+      HEAirGap20,     HEAirGap21,
+      HEPCB,          HEKapton,           HECuWShield, 
+      HECuShield,     HEPCBShield,        HEFeAbsorber,
+      HECuHeatShield, HESiliconSensitive, HEFeBox, 
+      HEAirGap1,      HEAirGap2,          HEAirGap3, 
+      HEAirGap4,      HEAirGap5,          HEAirGap6, 
+      HEAirGap7,      HEAirGap8,          HEAirGap9,
+      HEAirGap10,     HEAirGap11,         HEAirGap12,
+      HEAirGap13,     HEAirGap14,         HEAirGap15,
+      HEAirGap16,     HEAirGap17,         HEAirGap18,
+      HECuKapton,     HECuPCB,            HEAirGap19,
+      HEAirGap20,     HEAirGap21</Vector>
+    <Vector name="Thickness" type="numeric" nEntries="64">
+      [hgcal:thPCB],      [hgcal:thKapton],   [hgcal:thAbsHE], 
+      [hgcal:thAbsCuHE],  [hgcal:thAbsPCBHE], 40.0*mm,
+      6.0*mm,             [hgcal:thSilicon],  9.0*mm, 
+      10.7*mm,            12.8*mm,            13.8*mm, 
+      14.8*mm,            16.8*mm,            17.0*mm, 
+      18.0*mm,            3.0*mm,             4.0*mm, 
+      5.0*mm,             6.0*mm,             7.0*mm, 
+      8.0*mm,             9.0*mm,             10.0*mm, 
+      36.0*mm,            52.0*mm,            29.0*mm,
+      [hgcal:thCuKapton], [hgcal:thCuPCB],    8.8*mm,
+      9.8*mm,             [hgcal:thAbsCuHE],
+      [hgcal:thPCB],      [hgcal:thKapton],   [hgcal:thAbsHE], 
+      [hgcal:thAbsCuHE],  [hgcal:thAbsPCBHE], 40.0*mm,
+      6.0*mm,             [hgcal:thSilicon],  9.0*mm, 
+      10.7*mm,            12.8*mm,            13.8*mm, 
+      14.8*mm,            16.8*mm,            17.0*mm, 
+      18.0*mm,            3.0*mm,             4.0*mm, 
+      5.0*mm,             6.0*mm,             7.0*mm, 
+      8.0*mm,             9.0*mm,             10.0*mm, 
+      36.0*mm,            52.0*mm,            29.0*mm,
+      [hgcal:thCuKapton], [hgcal:thCuPCB],    8.8*mm,
+      9.8*mm,             [hgcal:thAbsCuHE]</Vector>
+    <Vector name="BlockThick" type="numeric" nEntries="12">
+      28.075*mm,  67.075*mm,  67.075*mm, 
+      68.075*mm,  66.975*mm,  67.075*mm, 
+      169.075*mm, 74.075*mm,  74.075*mm, 
+      77.075*mm,  74.075*mm,  111.075*mm
+      </Vector>
+    <Numeric name="InOut"   value="2"/>
+    <Vector name="LayerFrontIn" type="numeric" nEntries="12"> 
+       0, 12, 25, 38, 51, 62, 77, 94,107,120,132,144</Vector>
+    <Vector name="LayerBackIn" type="numeric" nEntries="12"> 
+      11, 24, 37, 50, 61, 76, 93,106,119,131,143,157</Vector>
+    <Vector name="LayerFrontOut" type="numeric" nEntries="12"> 
+     158,170,183,196,209,220,235,252,265,278,290,302</Vector>
+    <Vector name="LayerBackOut" type="numeric" nEntries="12"> 
+     169,182,195,208,219,234,251,264,277,289,301,315</Vector>
+    <Vector name="LayerType" type="numeric" nEntries="316"> 
+      8,  29,  0, 28,  7,  7,  7, 27,  1,  3,  3,  6,
+      21,  5, 29,  0, 28,  7,  7,  7, 27,  1,  3,  3,  6,
+      16,  5, 11,  0, 28,  7,  7,  7, 27,  1,  3,  3,  6,
+      18,  5, 10,  0, 28,  7,  7,  7, 27,  1,  3,  3,  6,
+      20,  5, 30,  0, 28,  7,  7,  7,  4,  3,  6, 
+      19,  5,  9,  0, 28,  7,  7,  7, 27,  1, 27,  1,  3,  3,  6,
+      17,  8, 24,  5, 25,  8, 29,  0, 28,  7,  7,  7, 27,  1,  3,  3,  6, 
+      20,  5, 13,  0, 28,  7,  7,  7, 27,  1,  3,  3,  6,
+      22,  5, 12,  0, 28,  7,  7,  7, 27,  1,  2,  3,  6,
+      23,  5, 15,  0, 28,  7,  7,  7, 27,  1,  2,  6,
+      21,  5, 14,  0, 28,  7,  7,  7, 27,  1,  3,  6,
+      20,  5, 14,  0, 28,  7,  7,  7, 27,  1,  3,  6, 26,  8,
+      40, 61, 32, 60, 39, 39, 39, 59, 33, 35, 63, 38,
+      53, 37, 61, 32, 60, 39, 39, 39, 59, 33, 35, 63, 38,
+      48, 37, 43, 32, 60, 39, 39, 39, 59, 33, 35, 63, 38,
+      50, 37, 42, 32, 60, 39, 39, 39, 59, 33, 35, 63, 38,
+      52, 37, 62, 32, 60, 39, 39, 39, 36, 63, 38, 
+      51, 37, 41, 32, 60, 39, 39, 39, 59, 33, 59, 33, 35, 63, 38,
+      49, 40, 56, 37, 57, 40, 61, 32, 60, 39, 39, 39, 59, 33, 35, 63, 38, 
+      52, 37, 45, 32, 60, 39, 39, 39, 59, 33, 35, 63, 38,
+      54, 37, 44, 32, 60, 39, 39, 39, 59, 33, 34, 63, 38,
+      55, 37, 47, 32, 60, 39, 39, 39, 59, 33, 34, 38,
+      53, 37, 46, 32, 60, 39, 39, 39, 59, 33, 35, 38,
+      52, 37, 46, 32, 60, 39, 39, 39, 59, 33, 35, 38, 58, 40
+    </Vector>
+    <Vector name="LayerSense" type="numeric" nEntries="316">
+      0, 0, 2, 8, 1, 1, 1, 7, 3, 5, 5, 0,
+      0, 0, 0, 2, 8, 1, 1, 1, 7, 3, 5, 5, 0,
+      0, 0, 0, 2, 8, 1, 1, 1, 7, 3, 5, 5, 0,
+      0, 0, 0, 2, 8, 1, 1, 1, 7, 3, 5, 5, 0,
+      0, 0, 0, 2, 8, 1, 1, 1, 6, 5, 0,
+      0, 0, 0, 2, 8, 1, 1, 1, 7, 3, 7, 3, 5, 5, 0,
+      0, 0, 0, 0, 0, 0, 0, 2, 8, 1, 1, 1, 7, 3, 5, 5, 0,
+      0, 0, 0, 2, 8, 1, 1, 1, 7, 3, 5, 5, 0,
+      0, 0, 0, 2, 8, 1, 1, 1, 7, 3, 4, 5, 0,
+      0, 0, 0, 2, 8, 1, 1, 1, 7, 3, 4, 0,
+      0, 0, 0, 2, 8, 1, 1, 1, 7, 3, 5, 0,
+      0, 0, 0, 2, 8, 1, 1, 1, 7, 3, 5, 0, 0, 0,
+      0, 0, 2, 8, 1, 1, 1, 7, 3, 5, 9, 0,
+      0, 0, 0, 2, 8, 1, 1, 1, 7, 3, 5, 9, 0,
+      0, 0, 0, 2, 8, 1, 1, 1, 7, 3, 5, 9, 0,
+      0, 0, 0, 2, 8, 1, 1, 1, 7, 3, 5, 9, 0,
+      0, 0, 0, 2, 8, 1, 1, 1, 6, 9, 0,
+      0, 0, 0, 2, 8, 1, 1, 1, 7, 3, 7, 3, 5, 9, 0,
+      0, 0, 0, 0, 0, 0, 0, 2, 8, 1, 1, 1, 7, 3, 5, 9, 0,
+      0, 0, 0, 2, 8, 1, 1, 1, 7, 3, 5, 9, 0,
+      0, 0, 0, 2, 8, 1, 1, 1, 7, 3, 4, 9, 0,
+      0, 0, 0, 2, 8, 1, 1, 1, 7, 3, 4, 0,
+      0, 0, 0, 2, 8, 1, 1, 1, 7, 3, 5, 0,
+      0, 0, 0, 2, 8, 1, 1, 1, 7, 3, 5, 0, 0, 0
+    </Vector>
+    <Vector name="MaxModule" nEntries="316">
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0,
+      0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0,
+      0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0,
+      0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0,
+      0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 0,
+      0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0,
+      0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0,
+      0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0,
+      0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    </Vector>
+    <Numeric name="zMinBlock"   value="[hgcal:zminHE]"/>
+    <Numeric name="rMaxFine"    value="[rMaxFine]"/>
+    <Numeric name="waferW"      value="[hgcal:WaferW]"/>
+    <Numeric name="waferGap"    value="1.0*mm"/>
+    <Numeric name="absorberW"   value="[hgcalHE:absorbW]"/>
+    <Numeric name="absorberH"   value="[hgcalHE:absorbH]"/>
+    <Numeric name="rMax"        value="[rMax]"/>
+    <Numeric name="rMaxB"       value="[rMaxB]"/>
+  </Algorithm>
+</PosPartSection> 
+
+<SpecParSection label="hgcalHE.xml" eval="true">
+  <SpecPar name="HGCalHE">
+    <PartSelector path="//HGCalHESiliconSensitive.*"/>
+    <Parameter name="Volume" value="HGCalHESiliconSensitive" eval="false"/>
+    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon" eval="false"/>
+    <Parameter name="RadiusBound"  value="[rMinFine]"/>
+    <Parameter name="RadiusBound"  value="[rMaxFine]"/>
+    <Parameter name="RadiusBound"  value="[rMaxMiddle]"/>
+    <Parameter name="RadiusBound"  value="[rMaxCoarse]"/>
+    <Parameter name="RadiusLimits" value="[rMin]"/>
+    <Parameter name="RadiusLimits" value="[rMax]"/>
+    <Parameter name="LevelTop"     value="99"/>
+  </SpecPar>
+</SpecParSection>
+
+</DDDefinition>

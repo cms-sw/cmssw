@@ -2,13 +2,13 @@
 // Author: Felice Pantaleo, CERN
 //
 
-// #define BROKENLINE_DEBUG
-
+//#define BROKENLINE_DEBUG
+//#define BL_DUMP_HITS
 #include <cstdint>
 
 #include <cuda_runtime.h>
 
-#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DHeterogeneous.h"
+#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitsUtilities.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"
@@ -16,19 +16,20 @@
 
 #include "HelixFitOnGPU.h"
 
-using HitsOnGPU = TrackingRecHit2DSOAView;
-using Tuples = pixelTrack::HitContainer;
-using OutputSoA = pixelTrack::TrackSoA;
-using tindex_type = caConstants::tindex_type;
-constexpr auto invalidTkId = std::numeric_limits<tindex_type>::max();
+template <typename TrackerTraits>
+using Tuples = typename TrackSoA<TrackerTraits>::HitContainer;
+template <typename TrackerTraits>
+using OutputSoAView = TrackSoAView<TrackerTraits>;
+template <typename TrackerTraits>
+using TupleMultiplicity = caStructures::TupleMultiplicityT<TrackerTraits>;
 
 // #define BL_DUMP_HITS
 
-template <int N>
-__global__ void kernel_BLFastFit(Tuples const *__restrict__ foundNtuplets,
-                                 caConstants::TupleMultiplicity const *__restrict__ tupleMultiplicity,
-                                 HitsOnGPU const *__restrict__ hhp,
-                                 tindex_type *__restrict__ ptkids,
+template <int N, typename TrackerTraits>
+__global__ void kernel_BLFastFit(Tuples<TrackerTraits> const *__restrict__ foundNtuplets,
+                                 TupleMultiplicity<TrackerTraits> const *__restrict__ tupleMultiplicity,
+                                 TrackingRecHitSoAConstView<TrackerTraits> hh,
+                                 typename TrackerTraits::tindex_type *__restrict__ ptkids,
                                  double *__restrict__ phits,
                                  float *__restrict__ phits_ge,
                                  double *__restrict__ pfast_fit,
@@ -36,10 +37,10 @@ __global__ void kernel_BLFastFit(Tuples const *__restrict__ foundNtuplets,
                                  uint32_t nHitsH,
                                  int32_t offset) {
   constexpr uint32_t hitsInFit = N;
+  constexpr auto invalidTkId = std::numeric_limits<typename TrackerTraits::tindex_type>::max();
 
   assert(hitsInFit <= nHitsL);
   assert(nHitsL <= nHitsH);
-  assert(hhp);
   assert(phits);
   assert(pfast_fit);
   assert(foundNtuplets);
@@ -67,7 +68,7 @@ __global__ void kernel_BLFastFit(Tuples const *__restrict__ foundNtuplets,
     }
     // get it from the ntuple container (one to one to helix)
     auto tkid = *(tupleMultiplicity->begin(nHitsL) + tuple_idx);
-    assert(tkid < foundNtuplets->nOnes());
+    assert(int(tkid) < foundNtuplets->nOnes());
 
     ptkids[local_idx] = tkid;
 
@@ -93,9 +94,9 @@ __global__ void kernel_BLFastFit(Tuples const *__restrict__ foundNtuplets,
     // #define YERR_FROM_DC
 #ifdef YERR_FROM_DC
     // try to compute more precise error in y
-    auto dx = hhp->xGlobal(hitId[hitsInFit - 1]) - hhp->xGlobal(hitId[0]);
-    auto dy = hhp->yGlobal(hitId[hitsInFit - 1]) - hhp->yGlobal(hitId[0]);
-    auto dz = hhp->zGlobal(hitId[hitsInFit - 1]) - hhp->zGlobal(hitId[0]);
+    auto dx = hh[hitId[hitsInFit - 1]].xGlobal() - hh[hitId[0]].xGlobal();
+    auto dy = hh[hitId[hitsInFit - 1]].yGlobal() - hh[hitId[0]].yGlobal();
+    auto dz = hh[hitId[hitsInFit - 1]].zGlobal() - hh[hitId[0]].zGlobal();
     float ux, uy, uz;
 #endif
 
@@ -111,8 +112,8 @@ __global__ void kernel_BLFastFit(Tuples const *__restrict__ foundNtuplets,
       float ge[6];
 
 #ifdef YERR_FROM_DC
-      auto const &dp = hhp->cpeParams().detParams(hhp->detectorIndex(hit));
-      auto status = hhp->status(hit);
+      auto const &dp = hh.cpeParams().detParams(hh.detectorIndex(hit));
+      auto status = hh[hit].chargeAndStatus().status;
       int qbin = CPEFastParametrisation::kGenErrorQBins - 1 - status.qBin;
       assert(qbin >= 0 && qbin < 5);
       bool nok = (status.isBigY | status.isOneY);
@@ -129,12 +130,10 @@ __global__ void kernel_BLFastFit(Tuples const *__restrict__ foundNtuplets,
       yerr *= dp.yfact[qbin];                // inflate
       yerr *= yerr;
       yerr += dp.apeYY;
-      yerr = nok ? hhp->yerrLocal(hit) : yerr;
-      dp.frame.toGlobal(hhp->xerrLocal(hit), 0, yerr, ge);
+      yerr = nok ? hh[hit].yerrLocal() : yerr;
+      dp.frame.toGlobal(hh[hit].xerrLocal(), 0, yerr, ge);
 #else
-      hhp->cpeParams()
-          .detParams(hhp->detectorIndex(hit))
-          .frame.toGlobal(hhp->xerrLocal(hit), 0, hhp->yerrLocal(hit), ge);
+      hh.cpeParams().detParams(hh[hit].detectorIndex()).frame.toGlobal(hh[hit].xerrLocal(), 0, hh[hit].yerrLocal(), ge);
 #endif
 
 #ifdef BL_DUMP_HITS
@@ -144,16 +143,16 @@ __global__ void kernel_BLFastFit(Tuples const *__restrict__ foundNtuplets,
                local_idx,
                tkid,
                hit,
-               hhp->detectorIndex(hit),
+               hh[hit].detectorIndex(),
                i,
-               hhp->xGlobal(hit),
-               hhp->yGlobal(hit),
-               hhp->zGlobal(hit));
+               hh[hit].xGlobal(),
+               hh[hit].yGlobal(),
+               hh[hit].zGlobal());
         printf("Error: hits_ge.col(%d) << %e,%e,%e,%e,%e,%e\n", i, ge[0], ge[1], ge[2], ge[3], ge[4], ge[5]);
       }
 #endif
 
-      hits.col(i) << hhp->xGlobal(hit), hhp->yGlobal(hit), hhp->zGlobal(hit);
+      hits.col(i) << hh[hit].xGlobal(), hh[hit].yGlobal(), hh[hit].zGlobal();
       hits_ge.col(i) << ge[0], ge[1], ge[2], ge[3], ge[4], ge[5];
     }
     brokenline::fastFit(hits, fast_fit);
@@ -166,29 +165,30 @@ __global__ void kernel_BLFastFit(Tuples const *__restrict__ foundNtuplets,
   }
 }
 
-template <int N>
-__global__ void kernel_BLFit(caConstants::TupleMultiplicity const *__restrict__ tupleMultiplicity,
+template <int N, typename TrackerTraits>
+__global__ void kernel_BLFit(TupleMultiplicity<TrackerTraits> const *__restrict__ tupleMultiplicity,
                              double bField,
-                             OutputSoA *results,
-                             tindex_type const *__restrict__ ptkids,
+                             OutputSoAView<TrackerTraits> results_view,
+                             typename TrackerTraits::tindex_type const *__restrict__ ptkids,
                              double *__restrict__ phits,
                              float *__restrict__ phits_ge,
                              double *__restrict__ pfast_fit) {
-  assert(results);
+  assert(results_view.pt());
+  assert(results_view.eta());
+  assert(results_view.chi2());
   assert(pfast_fit);
+  constexpr auto invalidTkId = std::numeric_limits<typename TrackerTraits::tindex_type>::max();
 
   // same as above...
-
   // look in bin for this hit multiplicity
   auto local_start = blockIdx.x * blockDim.x + threadIdx.x;
   for (int local_idx = local_start, nt = riemannFit::maxNumberOfConcurrentFits; local_idx < nt;
        local_idx += gridDim.x * blockDim.x) {
     if (invalidTkId == ptkids[local_idx])
       break;
-
     auto tkid = ptkids[local_idx];
 
-    assert(tkid < caConstants::maxTuples);
+    assert(tkid < TrackerTraits::maxNumberOfTuples);
 
     riemannFit::Map3xNd<N> hits(phits + local_idx);
     riemannFit::Map4d fast_fit(pfast_fit + local_idx);
@@ -203,17 +203,18 @@ __global__ void kernel_BLFit(caConstants::TupleMultiplicity const *__restrict__ 
     brokenline::lineFit(hits_ge, fast_fit, bField, data, line);
     brokenline::circleFit(hits, hits_ge, fast_fit, bField, data, circle);
 
-    results->stateAtBS.copyFromCircle(circle.par, circle.cov, line.par, line.cov, 1.f / float(bField), tkid);
-    results->pt(tkid) = float(bField) / float(std::abs(circle.par(2)));
-    results->eta(tkid) = asinhf(line.par(0));
-    results->chi2(tkid) = (circle.chi2 + line.chi2) / (2 * N - 5);
+    TracksUtilities<TrackerTraits>::copyFromCircle(
+        results_view, circle.par, circle.cov, line.par, line.cov, 1.f / float(bField), tkid);
+    results_view[tkid].pt() = float(bField) / float(std::abs(circle.par(2)));
+    results_view[tkid].eta() = asinhf(line.par(0));
+    results_view[tkid].chi2() = (circle.chi2 + line.chi2) / (2 * N - 5);
 
 #ifdef BROKENLINE_DEBUG
     if (!(circle.chi2 >= 0) || !(line.chi2 >= 0))
       printf("kernelBLFit failed! %f/%f\n", circle.chi2, line.chi2);
     printf("kernelBLFit size %d for %d hits circle.par(0,1,2): %d %f,%f,%f\n",
            N,
-           nHits,
+           N,
            tkid,
            circle.par(0),
            circle.par(1),

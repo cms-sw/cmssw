@@ -74,6 +74,7 @@ ElectronMcFakeValidator::ElectronMcFakeValidator(const edm::ParameterSet &conf) 
 
   maxPt_ = conf.getParameter<double>("MaxPt");
   maxAbsEta_ = conf.getParameter<double>("MaxAbsEta");
+  maxAbsEtaExtended_ = conf.getParameter<double>("MaxAbsEtaExtended");
   deltaR2_ = conf.getParameter<double>("DeltaR") * conf.getParameter<double>("DeltaR");
   inputFile_ = conf.getParameter<std::string>("InputFile");
   outputFile_ = conf.getParameter<std::string>("OutputFile");
@@ -110,6 +111,11 @@ ElectronMcFakeValidator::ElectronMcFakeValidator(const edm::ParameterSet &conf) 
   eta2D_nbin = histosSet.getParameter<int>("Nbineta2D");
   eta_min = histosSet.getParameter<double>("Etamin");
   eta_max = histosSet.getParameter<double>("Etamax");
+
+  eta_nbin_extended = histosSet.getParameter<int>("NbinetaExtended");
+  eta2D_nbin_extended = histosSet.getParameter<int>("Nbineta2DExtended");
+  eta_min_extended = histosSet.getParameter<double>("EtaminExtended");
+  eta_max_extended = histosSet.getParameter<double>("EtamaxExtended");
 
   deta_nbin = histosSet.getParameter<int>("Nbindeta");
   deta_min = histosSet.getParameter<double>("Detamin");
@@ -178,7 +184,9 @@ ElectronMcFakeValidator::ElectronMcFakeValidator(const edm::ParameterSet &conf) 
   h1_recOfflineVertices_ = nullptr;
 
   h1_matchingObjectEta = nullptr;
+  h1_matchingObjectEta_Extended = nullptr;
   h1_matchingObjectAbsEta = nullptr;
+  h1_matchingObjectAbsEta_Extended = nullptr;
   h1_matchingObjectP = nullptr;
   h1_matchingObjectPt = nullptr;
   h1_matchingObjectPhi = nullptr;
@@ -203,7 +211,9 @@ ElectronMcFakeValidator::ElectronMcFakeValidator(const edm::ParameterSet &conf) 
   h2_ele_E2mnE1vsMee_egeg_all = nullptr;
 
   h1_ele_matchingObjectEta_matched = nullptr;
+  h1_ele_matchingObjectEta_Extended_matched = nullptr;
   h1_ele_matchingObjectAbsEta_matched = nullptr;
+  h1_ele_matchingObjectAbsEta_Extended_matched = nullptr;
   h1_ele_matchingObjectPt_matched = nullptr;
   h1_ele_matchingObjectPhi_matched = nullptr;
   h1_ele_matchingObjectZ_matched = nullptr;
@@ -259,6 +269,7 @@ ElectronMcFakeValidator::ElectronMcFakeValidator(const edm::ParameterSet &conf) 
   h1_scl_SigIEtaIEta_barrel_ = nullptr;
   h1_scl_SigIEtaIEta_endcaps_ = nullptr;
   h1_scl_full5x5_sigmaIetaIeta_ = nullptr;
+  h1_scl_full5x5_sigmaIetaIeta_Extended_ = nullptr;
   h1_scl_full5x5_sigmaIetaIeta_barrel_ = nullptr;
   h1_scl_full5x5_sigmaIetaIeta_endcaps_ = nullptr;
   h1_scl_E1x5_ = nullptr;
@@ -278,7 +289,7 @@ ElectronMcFakeValidator::ElectronMcFakeValidator(const edm::ParameterSet &conf) 
   h1_ele_foundHits = nullptr;
   h1_ele_foundHits_barrel = nullptr;
   h1_ele_foundHits_endcaps = nullptr;
-  h2_ele_foundHitsVsEta = nullptr;
+  h2_ele_foundHitsVsEta_Extended = nullptr;
   h2_ele_foundHitsVsPhi = nullptr;
   h2_ele_foundHitsVsPt = nullptr;
   h1_ele_lostHits = nullptr;
@@ -313,7 +324,7 @@ ElectronMcFakeValidator::ElectronMcFakeValidator(const edm::ParameterSet &conf) 
   h1_ele_EoP = nullptr;
   h1_ele_EoP_barrel = nullptr;
   h1_ele_EoP_endcaps = nullptr;
-  h2_ele_EoPVsEta = nullptr;
+  h2_ele_EoPVsEta_Extended = nullptr;
   h2_ele_EoPVsPhi = nullptr;
   h2_ele_EoPVsE = nullptr;
   h1_ele_EseedOP = nullptr;
@@ -336,12 +347,14 @@ ElectronMcFakeValidator::ElectronMcFakeValidator(const edm::ParameterSet &conf) 
   h2_ele_EeleOPoutVsE = nullptr;
 
   h1_ele_dEtaSc_propVtx = nullptr;
+  h1_ele_dEtaSc_propVtx_Extended = nullptr;
   h1_ele_dEtaSc_propVtx_barrel = nullptr;
   h1_ele_dEtaSc_propVtx_endcaps = nullptr;
   h2_ele_dEtaScVsEta_propVtx = nullptr;
   h2_ele_dEtaScVsPhi_propVtx = nullptr;
   h2_ele_dEtaScVsPt_propVtx = nullptr;
   h1_ele_dPhiSc_propVtx = nullptr;
+  h1_ele_dPhiSc_propVtx_Extended = nullptr;
   h1_ele_dPhiSc_propVtx_barrel = nullptr;
   h1_ele_dPhiSc_propVtx_endcaps = nullptr;
   h2_ele_dPhiScVsEta_propVtx = nullptr;
@@ -398,6 +411,7 @@ ElectronMcFakeValidator::ElectronMcFakeValidator(const edm::ParameterSet &conf) 
   h1_ele_eta_shower = nullptr;
 
   h1_ele_HoE = nullptr;
+  h1_ele_HoE_Extended = nullptr;
   h1_ele_HoE_barrel = nullptr;
   h1_ele_HoE_endcaps = nullptr;
   h1_ele_HoE_fiducial = nullptr;
@@ -407,6 +421,7 @@ ElectronMcFakeValidator::ElectronMcFakeValidator(const edm::ParameterSet &conf) 
   h1_scl_ESFrac_endcaps = nullptr;
 
   h1_ele_fbrem = nullptr;
+  h1_ele_fbrem_Extended = nullptr;
   p1_ele_fbremVsEta_mode = nullptr;
   p1_ele_fbremVsEta_mean = nullptr;
   h1_ele_superclusterfbrem = nullptr;
@@ -428,6 +443,20 @@ ElectronMcFakeValidator::ElectronMcFakeValidator(const edm::ParameterSet &conf) 
   h1_ele_mva = nullptr;
   h1_ele_mva_isolated = nullptr;
   h1_ele_provenance = nullptr;
+  h1_ele_provenance_Extended = nullptr;
+
+  h1_ele_chargedHadronRelativeIso = nullptr;
+  h1_ele_chargedHadronRelativeIso_Extended = nullptr;
+  h1_ele_chargedHadronRelativeIso_barrel = nullptr;
+  h1_ele_chargedHadronRelativeIso_endcaps = nullptr;
+  h1_ele_neutralHadronRelativeIso = nullptr;
+  h1_ele_neutralHadronRelativeIso_Extended = nullptr;
+  h1_ele_neutralHadronRelativeIso_barrel = nullptr;
+  h1_ele_neutralHadronRelativeIso_endcaps = nullptr;
+  h1_ele_photonRelativeIso = nullptr;
+  h1_ele_photonRelativeIso_Extended = nullptr;
+  h1_ele_photonRelativeIso_barrel = nullptr;
+  h1_ele_photonRelativeIso_endcaps = nullptr;
 
   h1_ele_tkSumPt_dr03 = nullptr;
   h1_ele_tkSumPt_dr03_barrel = nullptr;
@@ -439,16 +468,15 @@ ElectronMcFakeValidator::ElectronMcFakeValidator(const edm::ParameterSet &conf) 
   h1_ele_hcalTowerSumEt_dr03_depth1_barrel = nullptr;
   h1_ele_hcalTowerSumEt_dr03_depth1_endcaps = nullptr;
   h1_ele_hcalTowerSumEt_dr03_depth2 = nullptr;
-  h1_ele_tkSumPt_dr04 = nullptr;
-  h1_ele_tkSumPt_dr04_barrel = nullptr;
-  h1_ele_tkSumPt_dr04_endcaps = nullptr;
-  h1_ele_ecalRecHitSumEt_dr04 = nullptr;
-  h1_ele_ecalRecHitSumEt_dr04_barrel = nullptr;
-  h1_ele_ecalRecHitSumEt_dr04_endcaps = nullptr;
-  h1_ele_hcalTowerSumEt_dr04_depth1 = nullptr;
-  h1_ele_hcalTowerSumEt_dr04_depth1_barrel = nullptr;
-  h1_ele_hcalTowerSumEt_dr04_depth1_endcaps = nullptr;
-  h1_ele_hcalTowerSumEt_dr04_depth2 = nullptr;
+
+  h1_ele_ecalPFClusterIso = nullptr;
+  h1_ele_hcalPFClusterIso = nullptr;
+  h1_ele_ecalPFClusterIso_Extended = nullptr;
+  h1_ele_hcalPFClusterIso_Extended = nullptr;
+  h1_ele_ecalPFClusterIso_barrel = nullptr;
+  h1_ele_hcalPFClusterIso_barrel = nullptr;
+  h1_ele_ecalPFClusterIso_endcaps = nullptr;
+  h1_ele_hcalPFClusterIso_endcaps = nullptr;
 
   h1_ele_convFlags = nullptr;
   h1_ele_convFlags_all = nullptr;
@@ -486,8 +514,21 @@ void ElectronMcFakeValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::Ru
   // mc
   h1_matchingObjectEta =
       bookH1withSumw2(iBooker, "matchingObject_eta", matchingObjectType + " #eta", eta_nbin, eta_min, eta_max, "#eta");
+  h1_matchingObjectEta_Extended = bookH1withSumw2(iBooker,
+                                                  "matchingObject_eta_Extended",
+                                                  matchingObjectType + " #eta",
+                                                  eta_nbin_extended,
+                                                  eta_min_extended,
+                                                  eta_max_extended,
+                                                  "#eta");
   h1_matchingObjectAbsEta =
       bookH1withSumw2(iBooker, "matchingObject_abseta", matchingObjectType + " |#eta|", eta_nbin / 2, 0., eta_max);
+  h1_matchingObjectAbsEta_Extended = bookH1withSumw2(iBooker,
+                                                     "matchingObject_abseta_Extended",
+                                                     matchingObjectType + " |#eta|",
+                                                     eta_nbin_extended / 2,
+                                                     0.,
+                                                     eta_max_extended);
   h1_matchingObjectP =
       bookH1withSumw2(iBooker, "matchingObject_P", matchingObjectType + " p", p_nbin, 0., p_max, "p (GeV/c)");
   h1_matchingObjectPt =
@@ -646,8 +687,16 @@ void ElectronMcFakeValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::Ru
   htitle = "Efficiency vs matching " + matchingObjectType + " ";
   h1_ele_matchingObjectEta_matched =
       bookH1withSumw2(iBooker, "matchingObjectEta_matched", htitle + "#eta", eta_nbin, eta_min, eta_max);
+  h1_ele_matchingObjectEta_Extended_matched = bookH1withSumw2(iBooker,
+                                                              "matchingObjectEta_Extended_matched",
+                                                              htitle + "#eta",
+                                                              eta_nbin_extended,
+                                                              eta_min_extended,
+                                                              eta_max_extended);
   h1_ele_matchingObjectAbsEta_matched =
       bookH1withSumw2(iBooker, "matchingObjectAbsEta_matched", htitle + "|#eta|", eta_nbin / 2, 0., eta_max);
+  h1_ele_matchingObjectAbsEta_Extended_matched = bookH1withSumw2(
+      iBooker, "matchingObjectAbsEta_Extended_matched", htitle + "|#eta|", eta_nbin_extended / 2, 0., eta_max_extended);
   h1_ele_matchingObjectPt_matched =
       bookH1(iBooker, "matchingObjectPt_matched", htitle + "p_{T}", pteff_nbin, 5., pt_max);
   h1_ele_matchingObjectPhi_matched =
@@ -888,6 +937,15 @@ void ElectronMcFakeValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::Ru
                                                   "#sigma_{i#eta i#eta}",
                                                   "Events",
                                                   "ELE_LOGY E1 P");
+  h1_scl_full5x5_sigmaIetaIeta_Extended_ = bookH1withSumw2(iBooker,
+                                                           "full5x5_sigietaieta_Extended",
+                                                           "ele supercluster full5x5 sigma ieta ieta, 2.5<|eta|<3",
+                                                           100,
+                                                           0.,
+                                                           0.05,
+                                                           "#sigma_{i#eta i#eta}",
+                                                           "Events",
+                                                           "ELE_LOGY E1 P");
   h1_scl_full5x5_sigmaIetaIeta_barrel_ = bookH1withSumw2(iBooker,
                                                          "full5x5_sigietaieta_barrel",
                                                          "ele supercluster full5x5 sigma ieta ieta, barrel",
@@ -995,15 +1053,15 @@ void ElectronMcFakeValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::Ru
       bookH2(iBooker, "ambiguousTracksVsPt", "ele # ambiguous tracks vs pt", pt2D_nbin, 0., pt_max, 5, 0., 5.);
   h1_ele_foundHits =
       bookH1withSumw2(iBooker, "foundHits", "ele track # found hits", fhits_nbin, 0., fhits_max, "N_{hits}");
-  h2_ele_foundHitsVsEta = bookH2(iBooker,
-                                 "foundHitsVsEta",
-                                 "ele track # found hits vs eta",
-                                 eta2D_nbin,
-                                 eta_min,
-                                 eta_max,
-                                 fhits_nbin,
-                                 0.,
-                                 fhits_max);
+  h2_ele_foundHitsVsEta_Extended = bookH2(iBooker,
+                                          "foundHitsVsEta_Extended",
+                                          "ele track # found hits vs eta",
+                                          eta2D_nbin_extended,
+                                          eta_min_extended,
+                                          eta_max_extended,
+                                          fhits_nbin,
+                                          0.,
+                                          fhits_max);
   h2_ele_foundHitsVsPhi = bookH2(iBooker,
                                  "foundHitsVsPhi",
                                  "ele track # found hits vs phi",
@@ -1152,8 +1210,15 @@ void ElectronMcFakeValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::Ru
                                        "E/P_{vertex}",
                                        "Events",
                                        "ELE_LOGY E1 P");
-  h2_ele_EoPVsEta =
-      bookH2(iBooker, "EoPVsEta", "ele E/P_{vertex} vs eta", eta2D_nbin, eta_min, eta_max, eop2D_nbin, 0., eopmaxsht);
+  h2_ele_EoPVsEta_Extended = bookH2(iBooker,
+                                    "EoPVsEta_Extended",
+                                    "ele E/P_{vertex} vs eta",
+                                    eta2D_nbin_extended,
+                                    eta_min_extended,
+                                    eta_max_extended,
+                                    eop2D_nbin,
+                                    0.,
+                                    eopmaxsht);
   h2_ele_EoPVsPhi =
       bookH2(iBooker, "EoPVsPhi", "ele E/P_{vertex} vs phi", phi2D_nbin, phi_min, phi_max, eop2D_nbin, 0., eopmaxsht);
   h2_ele_EoPVsE = bookH2(iBooker, "EoPVsE", "ele E/P_{vertex} vs E", 50, 0., p_max, 50, 0., 5.);
@@ -1264,6 +1329,15 @@ void ElectronMcFakeValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::Ru
                                           "#eta_{sc} - #eta_{tr}",
                                           "Events",
                                           "ELE_LOGY E1 P");
+  h1_ele_dEtaSc_propVtx_Extended = bookH1withSumw2(iBooker,
+                                                   "dEtaSc_propVtx_Extended",
+                                                   "ele #eta_{sc} - #eta_{tr}, prop from vertex, 2.5<|eta|<3",
+                                                   detamatch_nbin,
+                                                   detamatch_min,
+                                                   detamatch_max,
+                                                   "#eta_{sc} - #eta_{tr}",
+                                                   "Events",
+                                                   "ELE_LOGY E1 P");
   h1_ele_dEtaSc_propVtx_barrel = bookH1withSumw2(iBooker,
                                                  "dEtaSc_propVtx_barrel",
                                                  "ele #eta_{sc} - #eta_{tr}, prop from vertex, barrel",
@@ -1318,6 +1392,15 @@ void ElectronMcFakeValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::Ru
                                           "#phi_{sc} - #phi_{tr} (rad)",
                                           "Events",
                                           "ELE_LOGY E1 P");
+  h1_ele_dPhiSc_propVtx_Extended = bookH1withSumw2(iBooker,
+                                                   "dPhiSc_propVtx_Extended",
+                                                   "ele #phi_{sc} - #phi_{tr}, prop from vertex, 2.5<|eta|<3",
+                                                   dphimatch_nbin,
+                                                   dphimatch_min,
+                                                   dphimatch_max,
+                                                   "#phi_{sc} - #phi_{tr} (rad)",
+                                                   "Events",
+                                                   "ELE_LOGY E1 P");
   h1_ele_dPhiSc_propVtx_barrel = bookH1withSumw2(iBooker,
                                                  "dPhiSc_propVtx_barrel",
                                                  "ele #phi_{sc} - #phi_{tr}, prop from vertex, barrel",
@@ -1581,6 +1664,15 @@ void ElectronMcFakeValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::Ru
                                         dphimatch_max);
   h1_ele_HoE = bookH1withSumw2(
       iBooker, "HoE", "ele hadronic energy / em energy", hoe_nbin, hoe_min, hoe_max, "H/E", "Events", "ELE_LOGY E1 P");
+  h1_ele_HoE_Extended = bookH1withSumw2(iBooker,
+                                        "HoE_Extended",
+                                        "ele hadronic energy / em energy, 2.5<|eta|<3",
+                                        hoe_nbin,
+                                        hoe_min,
+                                        hoe_max,
+                                        "H/E",
+                                        "Events",
+                                        "ELE_LOGY E1 P");
   h1_ele_HoE_barrel = bookH1withSumw2(iBooker,
                                       "HoE_barrel",
                                       "ele hadronic energy / em energy, barrel",
@@ -1967,96 +2059,6 @@ void ElectronMcFakeValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::Ru
                                                       "Hcal2IsoSum, cone 0.3 (GeV)",
                                                       "Events",
                                                       "ELE_LOGY E1 P");
-  h1_ele_tkSumPt_dr04 = bookH1withSumw2(iBooker,
-                                        "tkSumPt_dr04",
-                                        "tk isolation sum, dR=0.4",
-                                        100,
-                                        0.0,
-                                        20.,
-                                        "TkIsoSum, cone 0.4 (GeV/c)",
-                                        "Events",
-                                        "ELE_LOGY E1 P");
-  h1_ele_tkSumPt_dr04_barrel = bookH1withSumw2(iBooker,
-                                               "tkSumPt_dr04_barrel",
-                                               "tk isolation sum, dR=0.4, barrel",
-                                               100,
-                                               0.0,
-                                               20.,
-                                               "TkIsoSum, cone 0.4 (GeV/c)",
-                                               "Events",
-                                               "ELE_LOGY E1 P");
-  h1_ele_tkSumPt_dr04_endcaps = bookH1withSumw2(iBooker,
-                                                "tkSumPt_dr04_endcaps",
-                                                "tk isolation sum, dR=0.4, endcaps",
-                                                100,
-                                                0.0,
-                                                20.,
-                                                "TkIsoSum, cone 0.4 (GeV/c)",
-                                                "Events",
-                                                "ELE_LOGY E1 P");
-  h1_ele_ecalRecHitSumEt_dr04 = bookH1withSumw2(iBooker,
-                                                "ecalRecHitSumEt_dr04",
-                                                "ecal isolation sum, dR=0.4",
-                                                100,
-                                                0.0,
-                                                20.,
-                                                "EcalIsoSum, cone 0.4 (GeV)",
-                                                "Events",
-                                                "ELE_LOGY E1 P");
-  h1_ele_ecalRecHitSumEt_dr04_barrel = bookH1withSumw2(iBooker,
-                                                       "ecalRecHitSumEt_dr04_barrel",
-                                                       "ecal isolation sum, dR=0.4, barrel",
-                                                       100,
-                                                       0.0,
-                                                       20.,
-                                                       "EcalIsoSum, cone 0.4 (GeV)",
-                                                       "Events",
-                                                       "ELE_LOGY E1 P");
-  h1_ele_ecalRecHitSumEt_dr04_endcaps = bookH1withSumw2(iBooker,
-                                                        "ecalRecHitSumEt_dr04_endcaps",
-                                                        "ecal isolation sum, dR=0.4, endcaps",
-                                                        100,
-                                                        0.0,
-                                                        20.,
-                                                        "EcalIsoSum, cone 0.4 (GeV)",
-                                                        "Events",
-                                                        "ELE_LOGY E1 P");
-  h1_ele_hcalTowerSumEt_dr04_depth1 = bookH1withSumw2(iBooker,
-                                                      "hcalTowerSumEt_dr04_depth1",
-                                                      "hcal depth1 isolation sum, dR=0.4",
-                                                      100,
-                                                      0.0,
-                                                      20.,
-                                                      "Hcal1IsoSum, cone 0.4 (GeV)",
-                                                      "Events",
-                                                      "ELE_LOGY E1 P");
-  h1_ele_hcalTowerSumEt_dr04_depth1_barrel = bookH1withSumw2(iBooker,
-                                                             "hcalTowerSumEt_dr04_depth1_barrel",
-                                                             "hcal depth1 isolation sum, dR=0.4, barrel",
-                                                             100,
-                                                             0.0,
-                                                             20.,
-                                                             "Hcal1IsoSum, cone 0.4 (GeV)",
-                                                             "Events",
-                                                             "ELE_LOGY E1 P");
-  h1_ele_hcalTowerSumEt_dr04_depth1_endcaps = bookH1withSumw2(iBooker,
-                                                              "hcalTowerSumEt_dr04_depth1_endcaps",
-                                                              "hcal depth1 isolation sum, dR=0.4, endcaps",
-                                                              100,
-                                                              0.0,
-                                                              20.,
-                                                              "Hcal1IsoSum, cone 0.4 (GeV)",
-                                                              "Events",
-                                                              "ELE_LOGY E1 P");
-  h1_ele_hcalTowerSumEt_dr04_depth2 = bookH1withSumw2(iBooker,
-                                                      "hcalTowerSumEt_dr04_depth2",
-                                                      "hcal depth2 isolation sum, dR=0.4",
-                                                      100,
-                                                      0.0,
-                                                      20.,
-                                                      "Hcal2IsoSum, cone 0.4 (GeV)",
-                                                      "Events",
-                                                      "ELE_LOGY E1 P");
 
   // newHCAL
   // isolation new hcal
@@ -2090,36 +2092,6 @@ void ElectronMcFakeValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::Ru
                       "Events",
                       "ELE_LOGY E1 P");
 
-  h1_ele_hcalTowerSumEtBc_dr04_depth1 = bookH1withSumw2(iBooker,
-                                                        "hcalTowerSumEtBc_dr04_depth1",
-                                                        "hcal depth1 isolation sum behind cluster, dR=0.4",
-                                                        100,
-                                                        0.0,
-                                                        20.,
-                                                        "Hcal1IsoSum, cone 0.4 (GeV)",
-                                                        "Events",
-                                                        "ELE_LOGY E1 P");
-  h1_ele_hcalTowerSumEtBc_dr04_depth1_barrel =
-      bookH1withSumw2(iBooker,
-                      "hcalTowerSumEtBc_dr04_depth1_barrel",
-                      "hcal depth1 isolation sum behind cluster, dR=0.4, barrel",
-                      100,
-                      0.0,
-                      20.,
-                      "Hcal1IsoSum, cone 0.4 (GeV)",
-                      "Events",
-                      "ELE_LOGY E1 P");
-  h1_ele_hcalTowerSumEtBc_dr04_depth1_endcaps =
-      bookH1withSumw2(iBooker,
-                      "hcalTowerSumEtBc_dr04_depth1_endcaps",
-                      "hcal depth1 isolation sum behind cluster, dR=0.4, endcaps",
-                      100,
-                      0.0,
-                      20.,
-                      "Hcal1IsoSum, cone 0.4 (GeV)",
-                      "Events",
-                      "ELE_LOGY E1 P");
-
   h1_ele_hcalTowerSumEtBc_dr03_depth2 = bookH1withSumw2(iBooker,
                                                         "hcalTowerSumEtBc_dr03_depth2",
                                                         "hcal depth2 isolation sum behind cluster, dR=0.3",
@@ -2150,39 +2122,89 @@ void ElectronMcFakeValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::Ru
                       "Events",
                       "ELE_LOGY E1 P");
 
-  h1_ele_hcalTowerSumEtBc_dr04_depth2 = bookH1withSumw2(iBooker,
-                                                        "hcalTowerSumEtBc_dr04_depth2",
-                                                        "hcal depth2 isolation sum behind cluster, dR=0.4",
-                                                        100,
-                                                        0.0,
-                                                        20.,
-                                                        "Hcal1IsoSum, cone 0.4 (GeV)",
-                                                        "Events",
-                                                        "ELE_LOGY E1 P");
-  h1_ele_hcalTowerSumEtBc_dr04_depth2_barrel =
-      bookH1withSumw2(iBooker,
-                      "hcalTowerSumEtBc_dr04_depth2_barrel",
-                      "hcal depth2 isolation sum behind cluster, dR=0.4, barrel",
-                      100,
-                      0.0,
-                      20.,
-                      "Hcal1IsoSum, cone 0.4 (GeV)",
-                      "Events",
-                      "ELE_LOGY E1 P");
-  h1_ele_hcalTowerSumEtBc_dr04_depth2_endcaps =
-      bookH1withSumw2(iBooker,
-                      "hcalTowerSumEtBc_dr04_depth2_endcaps",
-                      "hcal depth2 isolation sum behind cluster, dR=0.4, endcaps",
-                      100,
-                      0.0,
-                      20.,
-                      "Hcal1IsoSum, cone 0.4 (GeV)",
-                      "Events",
-                      "ELE_LOGY E1 P");
+  h1_ele_ecalPFClusterIso = bookH1withSumw2(iBooker,
+                                            "ecalPFClusterIso",
+                                            "ecal PF Cluster Iso",
+                                            100,
+                                            0.0,
+                                            100.,
+                                            "hcal PF Cluser Iso",
+                                            "Events",
+                                            "ELE_LOGY E1 P");
+  h1_ele_ecalPFClusterIso_barrel = bookH1withSumw2(iBooker,
+                                                   "ecalPFClusterIso_barrel",
+                                                   "ecal PF Cluster Iso barrel",
+                                                   100,
+                                                   0.0,
+                                                   100.,
+                                                   "hcal PF Cluser Iso",
+                                                   "Events",
+                                                   "ELE_LOGY E1 P");
+  h1_ele_ecalPFClusterIso_endcaps = bookH1withSumw2(iBooker,
+                                                    "ecalPFClusterIso_endcaps",
+                                                    "ecal PF Cluster Iso endcaps",
+                                                    100,
+                                                    0.0,
+                                                    100.,
+                                                    "hcal PF Cluser Iso",
+                                                    "Events",
+                                                    "ELE_LOGY E1 P");
+  h1_ele_hcalPFClusterIso = bookH1withSumw2(iBooker,
+                                            "hcalPFClusterIso",
+                                            "hcal PF Cluster Iso",
+                                            100,
+                                            0.0,
+                                            100.,
+                                            "hcal PF Cluser Iso",
+                                            "Events",
+                                            "ELE_LOGY E1 P");
+  h1_ele_hcalPFClusterIso_barrel = bookH1withSumw2(iBooker,
+                                                   "hcalPFClusterIso_barrel",
+                                                   "hcal PF Cluster Iso barrel",
+                                                   100,
+                                                   0.0,
+                                                   100.,
+                                                   "hcal PF Cluser Iso",
+                                                   "Events",
+                                                   "ELE_LOGY E1 P");
+  h1_ele_hcalPFClusterIso_endcaps = bookH1withSumw2(iBooker,
+                                                    "hcalPFClusterIso_endcaps",
+                                                    "hcal PF Cluster Iso endcaps",
+                                                    100,
+                                                    0.0,
+                                                    100.,
+                                                    "hcal PF Cluser Iso",
+                                                    "Events",
+                                                    "ELE_LOGY E1 P");
+  h1_ele_ecalPFClusterIso_Extended = bookH1withSumw2(iBooker,
+                                                     "ecalPFClusterIso_Extended",
+                                                     "ecal PF Cluster Iso Extended",
+                                                     100,
+                                                     0.0,
+                                                     100.,
+                                                     "hcal PF Cluser Iso Extended, 2.5<|eta|<3",
+                                                     "Events",
+                                                     "ELE_LOGY E1 P");
+  h1_ele_hcalPFClusterIso_Extended = bookH1withSumw2(iBooker,
+                                                     "hcalPFClusterIso_Extended",
+                                                     "hcal PF Cluster Iso Extended",
+                                                     100,
+                                                     0.0,
+                                                     100.,
+                                                     "hcal PF Cluser Iso Extended, 2.5<|eta|<3",
+                                                     "Events",
+                                                     "ELE_LOGY E1 P");
 
   // fbrem
   h1_ele_fbrem = bookH1withSumw2(
       iBooker, "fbrem", "ele brem fraction, mode of GSF components", 100, 0., 1., "P_{in} - P_{out} / P_{in}");
+  h1_ele_fbrem_Extended = bookH1withSumw2(iBooker,
+                                          "fbrem_Extended",
+                                          "ele brem fraction, mode of GSF components, 2.5<|eta|<3",
+                                          100,
+                                          0.,
+                                          1.,
+                                          "P_{in} - P_{out} / P_{in}");
   h1_ele_fbrem_barrel = bookH1withSumw2(iBooker,
                                         "fbrem_barrel",
                                         "ele brem fraction for barrel, mode of GSF components",
@@ -2238,6 +2260,7 @@ void ElectronMcFakeValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::Ru
   h1_ele_mva_endcaps_isolated =
       bookH1withSumw2(iBooker, "mva_isolated_endcaps", "ele identification mva isolated endcaps", 100, -1., 1.);
   h1_ele_provenance = bookH1withSumw2(iBooker, "provenance", "ele provenance", 5, -2., 3.);
+  h1_ele_provenance_Extended = bookH1withSumw2(iBooker, "provenance_Extended", "ele provenance_Extended", 5, -2., 3.);
   h1_ele_provenance_barrel = bookH1withSumw2(iBooker, "provenance_barrel", "ele provenance barrel", 5, -2., 3.);
   h1_ele_provenance_endcaps = bookH1withSumw2(iBooker, "provenance_endcaps", "ele provenance endcaps", 5, -2., 3.);
 
@@ -2305,6 +2328,15 @@ void ElectronMcFakeValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::Ru
                                                     "chargedHadronRelativeIso",
                                                     "Events",
                                                     "ELE_LOGY E1 P");
+  h1_ele_chargedHadronRelativeIso_Extended = bookH1withSumw2(iBooker,
+                                                             "chargedHadronRelativeIso_Extended",
+                                                             "chargedHadronRelativeIso_Extended",
+                                                             100,
+                                                             0.0,
+                                                             2.,
+                                                             "chargedHadronRelativeIso Extended, 2.5<|eta|<3",
+                                                             "Events",
+                                                             "ELE_LOGY E1 P");
   h1_ele_chargedHadronRelativeIso_barrel = bookH1withSumw2(iBooker,
                                                            "chargedHadronRelativeIso_barrel",
                                                            "chargedHadronRelativeIso for barrel",
@@ -2332,6 +2364,15 @@ void ElectronMcFakeValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::Ru
                                                     "neutralHadronRelativeIso",
                                                     "Events",
                                                     "ELE_LOGY E1 P");
+  h1_ele_neutralHadronRelativeIso_Extended = bookH1withSumw2(iBooker,
+                                                             "neutralHadronRelativeIso_Extended",
+                                                             "neutralHadronRelativeIso_Extended",
+                                                             100,
+                                                             0.0,
+                                                             2.,
+                                                             "neutralHadronRelativeIso Extended, 2.5<|eta|<3",
+                                                             "Events",
+                                                             "ELE_LOGY E1 P");
   h1_ele_neutralHadronRelativeIso_barrel = bookH1withSumw2(iBooker,
                                                            "neutralHadronRelativeIso_barrel",
                                                            "neutralHadronRelativeIso for barrel",
@@ -2352,6 +2393,15 @@ void ElectronMcFakeValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::Ru
                                                             "ELE_LOGY E1 P");
   h1_ele_photonRelativeIso = bookH1withSumw2(
       iBooker, "photonRelativeIso", "photonRelativeIso", 100, 0.0, 2., "photonRelativeIso", "Events", "ELE_LOGY E1 P");
+  h1_ele_photonRelativeIso_Extended = bookH1withSumw2(iBooker,
+                                                      "photonRelativeIso_Extended",
+                                                      "photonRelativeIso_Extended",
+                                                      100,
+                                                      0.0,
+                                                      2.,
+                                                      "photonRelativeIso Extended, 2.5<|eta|<3",
+                                                      "Events",
+                                                      "ELE_LOGY E1 P");
   h1_ele_photonRelativeIso_barrel = bookH1withSumw2(iBooker,
                                                     "photonRelativeIso_barrel",
                                                     "photonRelativeIso for barrel",
@@ -2410,7 +2460,7 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
 
   // get the beamspot from the Event:
   auto recoBeamSpotHandle = iEvent.getHandle(beamSpotTag_);
-  const BeamSpot bs = *recoBeamSpotHandle;
+  const BeamSpot &bs = *recoBeamSpotHandle;
 
   auto isoFromDepsTk03Handle = iEvent.getHandle(isoFromDepsTk03Tag_);
   auto isoFromDepsTk04Handle = iEvent.getHandle(isoFromDepsTk04Tag_);
@@ -2447,14 +2497,11 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
   // get a vector with EB  & EE
   //===============================================
   std::vector<reco::GsfElectron> localCollection;
-  int iBarrels = 0;
-  int iEndcaps = 0;
 
   // looking for EB
   for (gsfIter = gsfElectrons->begin(); gsfIter != gsfElectrons->end(); gsfIter++) {
     if (gsfIter->isEB()) {
       localCollection.push_back(*gsfIter);
-      iBarrels += 1;
     }
   }
 
@@ -2462,7 +2509,6 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
   for (gsfIter = gsfElectronsEndcaps->begin(); gsfIter != gsfElectronsEndcaps->end(); gsfIter++) {
     if (gsfIter->isEE()) {
       localCollection.push_back(*gsfIter);
-      iEndcaps += 1;
     }
   }
 
@@ -2523,22 +2569,30 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
     // number of matching objects
     matchingObjectNum++;
 
-    if (moIter->energy() / cosh(moIter->eta()) > maxPt_ || std::abs(moIter->eta()) > maxAbsEta_) {
+    if (moIter->energy() / cosh(moIter->eta()) > maxPt_ || std::abs(moIter->eta()) > maxAbsEtaExtended_) {
       continue;
     }
 
-    h1_matchingObjectEta->Fill(moIter->eta());
-    h1_matchingObjectAbsEta->Fill(std::abs(moIter->eta()));
-    h1_matchingObjectP->Fill(moIter->energy());
-    h1_matchingObjectPt->Fill(moIter->energy() / cosh(moIter->eta()));
-    h1_matchingObjectPhi->Fill(moIter->phi());
-    h1_matchingObjectZ->Fill(moIter->vz());
+    if (std::abs(moIter->eta()) < maxAbsEta_) {
+      h1_matchingObjectEta->Fill(moIter->eta());
+      h1_matchingObjectAbsEta->Fill(std::abs(moIter->eta()));
+      h1_matchingObjectAbsEta_Extended->Fill(std::abs(moIter->eta()));
+      h1_matchingObjectP->Fill(moIter->energy());
+      h1_matchingObjectPt->Fill(moIter->energy() / cosh(moIter->eta()));
+      h1_matchingObjectPhi->Fill(moIter->phi());
+      h1_matchingObjectZ->Fill(moIter->vz());
+    }
+    if (std::abs(moIter->eta()) < maxAbsEtaExtended_) {
+      h1_matchingObjectEta_Extended->Fill(moIter->eta());
+      h1_matchingObjectAbsEta_Extended->Fill(std::abs(moIter->eta()));
+    }
 
     // looking for the best matching gsf electron
     bool okGsfFound = false;
     double gsfOkRatio = 999999.;
     bool isEBflag = false;
     bool isEEflag = false;
+    bool isEEextendedflag = false;
 
     // find best matched electron
     reco::GsfElectron bestGsfElectron;
@@ -2560,9 +2614,63 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
     }  // loop over rec ele to look for the best one
 
     // analysis when the matching object is matched by a rec electron
+
     if (okGsfFound) {
+      //passMiniAODSelection = bestGsfElectron.pt() >= 5.;
       isEBflag = bestGsfElectron.isEB();
-      isEEflag = bestGsfElectron.isEE();
+      isEEflag = bestGsfElectron.isEE() && (std::abs(moIter->eta()) < maxAbsEta_);
+      isEEextendedflag = bestGsfElectron.isEE();
+      /*isEBflag = bestGsfElectron.isEB();
+      isEEflag = bestGsfElectron.isEE();*/
+
+      if (isEEextendedflag) {  // Extended flag
+        if (!isEEflag) {
+          h1_ele_matchingObjectEta_Extended_matched->Fill(moIter->eta());
+          h1_ele_matchingObjectAbsEta_matched->Fill(std::abs(moIter->eta()));
+          h1_ele_matchingObjectAbsEta_Extended_matched->Fill(std::abs(moIter->eta()));
+          h2_ele_EoPVsEta_Extended->Fill(bestGsfElectron.eta(), bestGsfElectron.eSuperClusterOverP());
+          h1_ele_dEtaSc_propVtx_Extended->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
+          h1_ele_dPhiSc_propVtx_Extended->Fill(bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
+          h1_scl_full5x5_sigmaIetaIeta_Extended_->Fill(bestGsfElectron.full5x5_sigmaIetaIeta());
+          h1_ele_HoE_Extended->Fill(bestGsfElectron.hadronicOverEm());
+          h1_ele_chargedHadronRelativeIso_Extended->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt /
+                                                         bestGsfElectron.pt());
+          h1_ele_neutralHadronRelativeIso_Extended->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt /
+                                                         bestGsfElectron.pt());
+          h1_ele_photonRelativeIso_Extended->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt /
+                                                  bestGsfElectron.pt());
+          h1_ele_ecalPFClusterIso_Extended->Fill(bestGsfElectron.ecalPFClusterIso());
+          h1_ele_hcalPFClusterIso_Extended->Fill(bestGsfElectron.hcalPFClusterIso());
+
+          double fbrem_mode = bestGsfElectron.fbrem();
+          h1_ele_fbrem_Extended->Fill(fbrem_mode);
+          if (!readAOD_) {
+            if (bestGsfElectron.ecalDrivenSeed()) {
+              h1_ele_provenance_Extended->Fill(1.);
+            }
+            if (bestGsfElectron.trackerDrivenSeed()) {
+              h1_ele_provenance_Extended->Fill(-1.);
+            }
+            if (bestGsfElectron.trackerDrivenSeed() || bestGsfElectron.ecalDrivenSeed()) {
+              h1_ele_provenance_Extended->Fill(0.);
+            }
+            if (bestGsfElectron.trackerDrivenSeed() && !bestGsfElectron.ecalDrivenSeed()) {
+              h1_ele_provenance_Extended->Fill(-2.);
+            }
+            if (!bestGsfElectron.trackerDrivenSeed() && bestGsfElectron.ecalDrivenSeed()) {
+              h1_ele_provenance_Extended->Fill(2.);
+            }
+          }
+        }
+
+        if (!readAOD_) {
+          h2_ele_foundHitsVsEta_Extended->Fill(bestGsfElectron.eta(), bestGsfElectron.gsfTrack()->numberOfValidHits());
+        }
+      }
+
+      if (!isEBflag && !isEEflag)
+        continue;
+
       // electron related distributions
       h1_ele_charge->Fill(bestGsfElectron.charge());
       h2_ele_chargeVsEta->Fill(bestGsfElectron.eta(), bestGsfElectron.charge());
@@ -2577,7 +2685,9 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
       h1_ele_matchingObjectPt_matched->Fill(moIter->energy() / cosh(moIter->eta()));
       h1_ele_matchingObjectPhi_matched->Fill(moIter->phi());
       h1_ele_matchingObjectAbsEta_matched->Fill(std::abs(moIter->eta()));
+      h1_ele_matchingObjectAbsEta_Extended_matched->Fill(std::abs(moIter->eta()));
       h1_ele_matchingObjectEta_matched->Fill(moIter->eta());
+      h1_ele_matchingObjectEta_Extended_matched->Fill(moIter->eta());
       h2_ele_vertexEtaVsPhi->Fill(bestGsfElectron.phi(), bestGsfElectron.eta());
       h1_ele_vertexPhi->Fill(bestGsfElectron.phi());
       h1_ele_vertexX->Fill(bestGsfElectron.vertex().x());
@@ -2657,8 +2767,8 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
       h2_ele_ambiguousTracksVsPt->Fill(bestGsfElectron.pt(), bestGsfElectron.ambiguousGsfTracksSize());
       if (!readAOD_) {  // track extra does not exist in AOD
         h1_ele_foundHits->Fill(bestGsfElectron.gsfTrack()->numberOfValidHits());
-        h2_ele_foundHitsVsEta->Fill(bestGsfElectron.eta(), bestGsfElectron.gsfTrack()->numberOfValidHits());
         h2_ele_foundHitsVsPhi->Fill(bestGsfElectron.phi(), bestGsfElectron.gsfTrack()->numberOfValidHits());
+        h2_ele_foundHitsVsEta_Extended->Fill(bestGsfElectron.eta(), bestGsfElectron.gsfTrack()->numberOfValidHits());
         h2_ele_foundHitsVsPt->Fill(bestGsfElectron.pt(), bestGsfElectron.gsfTrack()->numberOfValidHits());
         h1_ele_lostHits->Fill(bestGsfElectron.gsfTrack()->numberOfLostHits());
         h2_ele_lostHitsVsEta->Fill(bestGsfElectron.eta(), bestGsfElectron.gsfTrack()->numberOfLostHits());
@@ -2733,8 +2843,8 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
       }
       // match distributions
       h1_ele_EoP->Fill(bestGsfElectron.eSuperClusterOverP());
-      h2_ele_EoPVsEta->Fill(bestGsfElectron.eta(), bestGsfElectron.eSuperClusterOverP());
       h2_ele_EoPVsPhi->Fill(bestGsfElectron.phi(), bestGsfElectron.eSuperClusterOverP());
+      h2_ele_EoPVsEta_Extended->Fill(bestGsfElectron.eta(), bestGsfElectron.eSuperClusterOverP());
       h2_ele_EoPVsE->Fill(bestGsfElectron.caloEnergy(), bestGsfElectron.eSuperClusterOverP());
       h1_ele_EseedOP->Fill(bestGsfElectron.eSeedClusterOverP());
       h2_ele_EseedOPVsEta->Fill(bestGsfElectron.eta(), bestGsfElectron.eSeedClusterOverP());
@@ -2749,10 +2859,12 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
       h2_ele_EeleOPoutVsPhi->Fill(bestGsfElectron.phi(), bestGsfElectron.eEleClusterOverPout());
       h2_ele_EeleOPoutVsE->Fill(bestGsfElectron.caloEnergy(), bestGsfElectron.eEleClusterOverPout());
       h1_ele_dEtaSc_propVtx->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
+      //h1_ele_dEtaSc_propVtx_Extended->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
       h2_ele_dEtaScVsEta_propVtx->Fill(bestGsfElectron.eta(), bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
       h2_ele_dEtaScVsPhi_propVtx->Fill(bestGsfElectron.phi(), bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
       h2_ele_dEtaScVsPt_propVtx->Fill(bestGsfElectron.pt(), bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
       h1_ele_dPhiSc_propVtx->Fill(bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
+      //h1_ele_dPhiSc_propVtx_Extended->Fill(bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
       h2_ele_dPhiScVsEta_propVtx->Fill(bestGsfElectron.eta(), bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
       h2_ele_dPhiScVsPhi_propVtx->Fill(bestGsfElectron.phi(), bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
       h2_ele_dPhiScVsPt_propVtx->Fill(bestGsfElectron.pt(), bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
@@ -2885,16 +2997,21 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
         h1_ele_mva_endcaps_isolated->Fill(bestGsfElectron.mva_Isolated());
       }
 
-      if (bestGsfElectron.ecalDrivenSeed())
+      if (bestGsfElectron.ecalDrivenSeed()) {
         h1_ele_provenance->Fill(1.);
-      if (bestGsfElectron.trackerDrivenSeed())
+      }
+      if (bestGsfElectron.trackerDrivenSeed()) {
         h1_ele_provenance->Fill(-1.);
-      if (bestGsfElectron.trackerDrivenSeed() || bestGsfElectron.ecalDrivenSeed())
+      }
+      if (bestGsfElectron.trackerDrivenSeed() || bestGsfElectron.ecalDrivenSeed()) {
         h1_ele_provenance->Fill(0.);
-      if (bestGsfElectron.trackerDrivenSeed() && !bestGsfElectron.ecalDrivenSeed())
+      }
+      if (bestGsfElectron.trackerDrivenSeed() && !bestGsfElectron.ecalDrivenSeed()) {
         h1_ele_provenance->Fill(-2.);
-      if (!bestGsfElectron.trackerDrivenSeed() && bestGsfElectron.ecalDrivenSeed())
+      }
+      if (!bestGsfElectron.trackerDrivenSeed() && bestGsfElectron.ecalDrivenSeed()) {
         h1_ele_provenance->Fill(2.);
+      }
       if (bestGsfElectron.ecalDrivenSeed() && isEBflag)
         h1_ele_provenance_barrel->Fill(1.);
       if (bestGsfElectron.trackerDrivenSeed() && isEBflag)
@@ -2936,6 +3053,7 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
       h1_ele_neutralHadronRelativeIso->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt /
                                             bestGsfElectron.pt());
       h1_ele_photonRelativeIso->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt / bestGsfElectron.pt());
+
       if (isEBflag) {
         h1_ele_chargedHadronRelativeIso_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt /
                                                      bestGsfElectron.pt());
@@ -2954,17 +3072,13 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
 
       // isolation
       h1_ele_tkSumPt_dr03->Fill(bestGsfElectron.dr03TkSumPt());
+      h1_ele_ecalPFClusterIso->Fill(bestGsfElectron.ecalPFClusterIso());
+      h1_ele_hcalPFClusterIso->Fill(bestGsfElectron.hcalPFClusterIso());
       h1_ele_ecalRecHitSumEt_dr03->Fill(bestGsfElectron.dr03EcalRecHitSumEt());
       h1_ele_hcalTowerSumEt_dr03_depth1->Fill(bestGsfElectron.dr03HcalTowerSumEt(1));
       h1_ele_hcalTowerSumEt_dr03_depth2->Fill(bestGsfElectron.dr03HcalTowerSumEt(2));
       h1_ele_hcalTowerSumEtBc_dr03_depth1->Fill(bestGsfElectron.dr03HcalTowerSumEtBc(1));
       h1_ele_hcalTowerSumEtBc_dr03_depth2->Fill(bestGsfElectron.dr03HcalTowerSumEtBc(2));
-      h1_ele_tkSumPt_dr04->Fill(bestGsfElectron.dr04TkSumPt());
-      h1_ele_ecalRecHitSumEt_dr04->Fill(bestGsfElectron.dr04EcalRecHitSumEt());
-      h1_ele_hcalTowerSumEt_dr04_depth1->Fill(bestGsfElectron.dr04HcalTowerSumEt(1));
-      h1_ele_hcalTowerSumEt_dr04_depth2->Fill(bestGsfElectron.dr04HcalTowerSumEt(2));
-      h1_ele_hcalTowerSumEtBc_dr04_depth1->Fill(bestGsfElectron.dr04HcalTowerSumEtBc(1));
-      h1_ele_hcalTowerSumEtBc_dr04_depth2->Fill(bestGsfElectron.dr04HcalTowerSumEtBc(2));
       h1_ele_hcalDepth1OverEcalBc->Fill(bestGsfElectron.hcalOverEcalBc(1));
       h1_ele_hcalDepth2OverEcalBc->Fill(bestGsfElectron.hcalOverEcalBc(2));
       if (isEBflag) {
@@ -2973,26 +3087,20 @@ void ElectronMcFakeValidator::analyze(const edm::Event &iEvent, const edm::Event
         h1_ele_hcalTowerSumEt_dr03_depth1_barrel->Fill(bestGsfElectron.dr03HcalTowerSumEt(1));
         h1_ele_hcalTowerSumEtBc_dr03_depth1_barrel->Fill(bestGsfElectron.dr03HcalTowerSumEtBc(1));
         h1_ele_hcalTowerSumEtBc_dr03_depth2_barrel->Fill(bestGsfElectron.dr03HcalTowerSumEtBc(2));
-        h1_ele_tkSumPt_dr04_barrel->Fill(bestGsfElectron.dr04TkSumPt());
-        h1_ele_ecalRecHitSumEt_dr04_barrel->Fill(bestGsfElectron.dr04EcalRecHitSumEt());
-        h1_ele_hcalTowerSumEt_dr04_depth1_barrel->Fill(bestGsfElectron.dr04HcalTowerSumEt(1));
-        h1_ele_hcalTowerSumEtBc_dr04_depth1_barrel->Fill(bestGsfElectron.dr04HcalTowerSumEtBc(1));
-        h1_ele_hcalTowerSumEtBc_dr04_depth2_barrel->Fill(bestGsfElectron.dr04HcalTowerSumEtBc(2));
         h1_ele_hcalDepth1OverEcalBc_barrel->Fill(bestGsfElectron.hcalOverEcalBc(1));
         h1_ele_hcalDepth2OverEcalBc_barrel->Fill(bestGsfElectron.hcalOverEcalBc(2));
+        h1_ele_ecalPFClusterIso_barrel->Fill(bestGsfElectron.ecalPFClusterIso());
+        h1_ele_hcalPFClusterIso_barrel->Fill(bestGsfElectron.hcalPFClusterIso());
       } else if (isEEflag) {
         h1_ele_tkSumPt_dr03_endcaps->Fill(bestGsfElectron.dr03TkSumPt());
         h1_ele_ecalRecHitSumEt_dr03_endcaps->Fill(bestGsfElectron.dr03EcalRecHitSumEt());
         h1_ele_hcalTowerSumEt_dr03_depth1_endcaps->Fill(bestGsfElectron.dr03HcalTowerSumEt(1));
         h1_ele_hcalTowerSumEtBc_dr03_depth1_endcaps->Fill(bestGsfElectron.dr03HcalTowerSumEtBc(1));
         h1_ele_hcalTowerSumEtBc_dr03_depth2_endcaps->Fill(bestGsfElectron.dr03HcalTowerSumEtBc(2));
-        h1_ele_tkSumPt_dr04_endcaps->Fill(bestGsfElectron.dr04TkSumPt());
-        h1_ele_ecalRecHitSumEt_dr04_endcaps->Fill(bestGsfElectron.dr04EcalRecHitSumEt());
-        h1_ele_hcalTowerSumEt_dr04_depth1_endcaps->Fill(bestGsfElectron.dr04HcalTowerSumEt(1));
-        h1_ele_hcalTowerSumEtBc_dr04_depth1_endcaps->Fill(bestGsfElectron.dr04HcalTowerSumEtBc(1));
-        h1_ele_hcalTowerSumEtBc_dr04_depth2_endcaps->Fill(bestGsfElectron.dr04HcalTowerSumEtBc(2));
         h1_ele_hcalDepth1OverEcalBc_endcaps->Fill(bestGsfElectron.hcalOverEcalBc(1));
         h1_ele_hcalDepth2OverEcalBc_endcaps->Fill(bestGsfElectron.hcalOverEcalBc(2));
+        h1_ele_ecalPFClusterIso_endcaps->Fill(bestGsfElectron.ecalPFClusterIso());
+        h1_ele_hcalPFClusterIso_endcaps->Fill(bestGsfElectron.hcalPFClusterIso());
       }
 
       // conversion rejection

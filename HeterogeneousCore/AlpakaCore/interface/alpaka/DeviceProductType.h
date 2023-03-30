@@ -19,6 +19,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::detail {
     using type = edm::DeviceProduct<TProduct>;
 #endif
   };
+
+  template <typename TProduct>
+  inline constexpr bool useProductDirectly = std::is_same_v<typename DeviceProductType<TProduct>::type, TProduct>;
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::detail
 
 #endif

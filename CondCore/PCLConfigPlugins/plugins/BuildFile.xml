@@ -1,9 +1,15 @@
+<use name="CondCore/CondDB"/>
+<use name="CondCore/ESSources"/>
+<use name="CondCore/Utilities"/>
+<use name="CondFormats/PCLConfig"/>
+<use name="CondFormats/DataRecord"/>
+
+<library file="plugin.cc" name="CondCorePCLConfigPlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
 <library file="AlignPCLThresholds_PayloadInspector.cc" name="AlignPCLThresholds_PayloadInspector">
-  <use name="CondCore/Utilities"/>
-  <use name="CondCore/CondDB"/>
 </library>
 
 <library file="AlignPCLThresholdsHG_PayloadInspector.cc" name="AlignPCLThresholdsHG_PayloadInspector">
-  <use name="CondCore/Utilities"/>
-  <use name="CondCore/CondDB"/>
 </library>

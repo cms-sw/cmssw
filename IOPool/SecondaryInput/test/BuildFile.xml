@@ -1,8 +1,5 @@
 <environment>
-  <bin file="TestSecondaryInput.cpp">
-    <flags TEST_RUNNER_ARGS=" /bin/bash IOPool/SecondaryInput/test TestSecondaryInput.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
+  <test name="TestSecondaryInput" command="TestSecondaryInput.sh"/>
 
   <library file="SecondaryProducer.cc" name="SecondaryProducer">
     <flags EDM_PLUGIN="1"/>

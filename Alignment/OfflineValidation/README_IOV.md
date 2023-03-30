@@ -1,4 +1,4 @@
-Following document summarises usage of IOV/run-driven validations.
+The following document summarises usage of IOV/run-driven validations.
 
 ## DMR and PV
 

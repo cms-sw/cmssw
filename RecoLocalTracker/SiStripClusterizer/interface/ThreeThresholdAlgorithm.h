@@ -35,6 +35,7 @@ private:
                           unsigned,
                           unsigned,
                           unsigned,
+                          unsigned,
                           bool removeApvShots,
                           float minGoodCharge);
 
@@ -58,6 +59,7 @@ private:
 
   float ChannelThreshold, SeedThreshold, ClusterThresholdSquared;
   uint8_t MaxSequentialHoles, MaxSequentialBad, MaxAdjacentBad;
+  unsigned MaxClusterSize;
   bool RemoveApvShots;
   float minGoodCharge;
 };

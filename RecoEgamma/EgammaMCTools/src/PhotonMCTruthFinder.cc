@@ -152,7 +152,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(const std::vector<SimTrack>
         //std::cout << " Looping on gamma looking for conversions " << (*iPhoTk).momentum() << " photon track ID " << (*iPhoTk).trackId() << std::endl;
 
         // check who is his mother
-        SimVertex vertex = theSimVertices[photonVertexIndex];
+        const SimVertex& vertex = theSimVertices[photonVertexIndex];
         phoMotherId = -1;
         if (vertex.parentIndex() != -1) {
           unsigned motherGeantId = vertex.parentIndex();
@@ -177,7 +177,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(const std::vector<SimTrack>
             continue;
 
           int vertexId = (*iEleTk).vertIndex();
-          SimVertex vertex = theSimVertices[vertexId];
+          const SimVertex& vertex = theSimVertices[vertexId];
           int motherId = -1;
 
           //std::cout << " Secondary from photons particle type " << (*iEleTk).type() << " trackId " <<  (*iEleTk).trackId() << " vertex ID " << vertexId << std::endl;
@@ -226,7 +226,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(const std::vector<SimTrack>
                 //std::cout << " (*iEleTk)->trackId() " << (*iEleTk).trackId() << " (*iEleTk)->vertIndex() "<< (*iEleTk).vertIndex()  << " (*iSimTk).vertIndex() "  <<  (*iSimTk).vertIndex() << " (*iSimTk).type() " <<   (*iSimTk).type() << " (*iSimTk).trackId() " << (*iSimTk).trackId() << std::endl;
 
                 int vertexId1 = (*iSimTk).vertIndex();
-                SimVertex vertex1 = theSimVertices[vertexId1];
+                const SimVertex& vertex1 = theSimVertices[vertexId1];
                 int vertexId2 = trLast.vertIndex();
                 //SimVertex vertex2 = theSimVertices[vertexId2];
 
@@ -299,7 +299,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(const std::vector<SimTrack>
 
         if (phoMotherId >= 0) {
           phoMotherVtxIndex = theSimTracks[phoMotherId].vertIndex();
-          SimVertex motherVtx = theSimVertices[phoMotherVtxIndex];
+          const SimVertex& motherVtx = theSimVertices[phoMotherVtxIndex];
           motherVtxPosition = math::XYZTLorentzVectorD(
               motherVtx.position().x(), motherVtx.position().y(), motherVtx.position().z(), motherVtx.position().e());
 
@@ -322,7 +322,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(const std::vector<SimTrack>
 
           //int convVtxId =  trkFromConversion[0].vertIndex();
           int convVtxId = electronsFromConversions[0].vertexInd();
-          SimVertex convVtx = theSimVertices[convVtxId];
+          const SimVertex& convVtx = theSimVertices[convVtxId];
           // CLHEP::HepLorentzVector vtxPosition = convVtx.position();
           math::XYZTLorentzVectorD vtxPosition(
               convVtx.position().x(), convVtx.position().y(), convVtx.position().z(), convVtx.position().e());

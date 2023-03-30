@@ -36,7 +36,7 @@ public:
         hadronCalib_(conf.getParameter<std::vector<double> >("hadronCalib")),
         egammaCalib_(conf.getParameter<std::vector<double> >("egammaCalib")),
         simClusterToken_(cc.consumes<SimClusterCollection>(conf.getParameter<edm::InputTag>("simClusterSrc"))),
-        geomToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {}
+        geomToken_(cc.esConsumes<edm::Transition::BeginRun>()) {}
 
   ~RealisticSimClusterMapper() override {}
   RealisticSimClusterMapper(const RealisticSimClusterMapper&) = delete;

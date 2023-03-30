@@ -36,7 +36,7 @@ public:
         _esGeom(nullptr),
         _esPlus(false),
         _esMinus(false),
-        _geomToken(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {
+        _geomToken(cc.esConsumes<edm::Transition::BeginRun>()) {
     _timeResolutionCalc.reset(nullptr);
     if (conf.exists("timeResolutionCalc")) {
       const edm::ParameterSet& timeResConf = conf.getParameterSet("timeResolutionCalc");

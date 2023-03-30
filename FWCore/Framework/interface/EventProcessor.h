@@ -59,6 +59,7 @@ namespace edm {
   class LuminosityBlockProcessingStatus;
   class RunProcessingStatus;
   class IOVSyncValue;
+  class ModuleTypeResolverMaker;
 
   namespace eventsetup {
     class EventSetupProvider;
@@ -311,6 +312,7 @@ namespace edm {
     ServiceToken serviceToken_;
     edm::propagate_const<std::unique_ptr<InputSource>> input_;
     InputSource::ItemType lastSourceTransition_ = InputSource::IsInvalid;
+    edm::propagate_const<std::unique_ptr<ModuleTypeResolverMaker const>> moduleTypeResolverMaker_;
     edm::propagate_const<std::unique_ptr<eventsetup::EventSetupsController>> espController_;
     edm::propagate_const<std::shared_ptr<eventsetup::EventSetupProvider>> esp_;
     edm::SerialTaskQueue queueWhichWaitsForIOVsToFinish_;

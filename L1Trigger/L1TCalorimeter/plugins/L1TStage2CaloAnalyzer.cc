@@ -448,7 +448,6 @@ namespace l1t {
     }
 
     // get jet
-    int njetmp = 0;
     std::vector<l1t::Jet> thejets_poseta;
     std::vector<l1t::Jet> thejets_negeta;
 
@@ -464,7 +463,6 @@ namespace l1t {
           continue;
 
         for (auto itr = mpjets->begin(ibx); itr != mpjets->end(ibx); ++itr) {
-          njetmp += 1;
           hbx_.at(MPJet)->Fill(ibx);
           het_.at(MPJet)->Fill(itr->hwPt());
           heta_.at(MPJet)->Fill(itr->hwEta());
@@ -498,8 +496,6 @@ namespace l1t {
         }
       }
     }
-
-    //std::cout<<"njetmp "<<njetmp<<std::endl;
 
     // get sums
     if (m_doMPSums) {
@@ -631,7 +627,6 @@ namespace l1t {
     }
 
     // get jet
-    int njetdem = 0;
     std::vector<l1t::Jet> thejets;
 
     if (m_doJets) {
@@ -643,7 +638,6 @@ namespace l1t {
           continue;
 
         for (auto itr = jets->begin(ibx); itr != jets->end(ibx); ++itr) {
-          njetdem += 1;
           hbx_.at(Jet)->Fill(ibx);
           het_.at(Jet)->Fill(itr->hwPt());
           heta_.at(Jet)->Fill(itr->hwEta());

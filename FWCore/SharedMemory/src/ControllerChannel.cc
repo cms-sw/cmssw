@@ -35,24 +35,25 @@ ControllerChannel::ControllerChannel(std::string const& iName, int id, unsigned 
     : id_{id},
       maxWaitInSeconds_{iMaxWaitInSeconds},
       smName_{uniqueName(iName)},
-      managed_sm_{open_or_create, smName_.c_str(), 1024},
+      smRemover_{smName_},
+      managed_sm_{create_only, smName_.c_str(), 1024},
       toWorkerBufferInfo_{bufferInfo(channel_names::kToWorkerBufferInfo, managed_sm_)},
       fromWorkerBufferInfo_{bufferInfo(channel_names::kFromWorkerBufferInfo, managed_sm_)},
-      mutex_{open_or_create, uniqueName(channel_names::kMutex).c_str()},
-      cndFromMain_{open_or_create, uniqueName(channel_names::kConditionFromMain).c_str()},
-      cndToMain_{open_or_create, uniqueName(channel_names::kConditionToMain).c_str()} {
-  managed_sm_.destroy<bool>(channel_names::kStop);
+      mutexRemover_{uniqueName(channel_names::kMutex)},
+      mutex_{create_only, uniqueName(channel_names::kMutex).c_str()},
+      cndFromMainRemover_{uniqueName(channel_names::kConditionFromMain)},
+      cndFromMain_{create_only, uniqueName(channel_names::kConditionFromMain).c_str()},
+      cndToMainRemover_{uniqueName(channel_names::kConditionToMain)},
+      cndToMain_{create_only, uniqueName(channel_names::kConditionToMain).c_str()} {
   stop_ = managed_sm_.construct<bool>(channel_names::kStop)(false);
   assert(stop_);
   keepEvent_ = managed_sm_.construct<bool>(channel_names::kKeepEvent)(true);
   assert(keepEvent_);
 
-  managed_sm_.destroy<edm::Transition>(channel_names::kTransitionType);
   transitionType_ =
       managed_sm_.construct<edm::Transition>(channel_names::kTransitionType)(edm::Transition::NumberOfTransitions);
   assert(transitionType_);
 
-  managed_sm_.destroy<unsigned long long>(channel_names::kTransitionID);
   transitionID_ = managed_sm_.construct<unsigned long long>(channel_names::kTransitionID)(0);
   assert(transitionID_);
 }
@@ -64,10 +65,6 @@ ControllerChannel::~ControllerChannel() {
   managed_sm_.destroy<unsigned long long>(channel_names::kTransitionID);
   managed_sm_.destroy<BufferInfo>(channel_names::kToWorkerBufferInfo);
   managed_sm_.destroy<BufferInfo>(channel_names::kFromWorkerBufferInfo);
-
-  named_mutex::remove(uniqueName(channel_names::kMutex).c_str());
-  named_condition::remove(uniqueName(channel_names::kConditionFromMain).c_str());
-  named_condition::remove(uniqueName(channel_names::kConditionToMain).c_str());
 }
 
 //

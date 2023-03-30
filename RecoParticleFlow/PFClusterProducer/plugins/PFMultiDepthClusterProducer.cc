@@ -21,7 +21,7 @@ public:
   PFMultiDepthClusterProducer(const edm::ParameterSet&);
   ~PFMultiDepthClusterProducer() override = default;
 
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
@@ -66,7 +66,7 @@ PFMultiDepthClusterProducer::PFMultiDepthClusterProducer(const edm::ParameterSet
   produces<reco::PFClusterCollection>();
 }
 
-void PFMultiDepthClusterProducer::beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& es) {
+void PFMultiDepthClusterProducer::beginRun(const edm::Run& run, const edm::EventSetup& es) {
   _pfClusterBuilder->update(es);
 }
 

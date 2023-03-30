@@ -75,6 +75,49 @@ namespace {
   };
 
   /************************************************
+    Debugging class, to not be displayed
+  *************************************************/
+
+  class SiPixelQualityDebugger : public Histogram1D<SiPixelQuality, SINGLE_IOV> {
+  public:
+    SiPixelQualityDebugger()
+        : Histogram1D<SiPixelQuality, SINGLE_IOV>("SiPixelQuality test", "SiPixelQuality test", 10, 0.0, 10.0) {}
+
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
+        std::shared_ptr<SiPixelQuality> payload = Base::fetchPayload(std::get<1>(iov));
+        if (payload.get()) {
+          fillWithValue(1.);
+
+          SiPixelPI::topolInfo t_info_fromXML;
+          t_info_fromXML.init();
+
+          auto theDisabledModules = payload->getBadComponentList();
+          for (const auto& mod : theDisabledModules) {
+            DetId detid(mod.DetID);
+            auto PhInfo = SiPixelPI::PhaseInfo(SiPixelPI::phase1size);
+            const char* path_toTopologyXML = PhInfo.pathToTopoXML();
+            auto tTopo =
+                StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
+            t_info_fromXML.fillGeometryInfo(detid, tTopo, PhInfo.phase());
+            std::stringstream ss;
+            t_info_fromXML.printAll(ss);
+            std::bitset<16> bad_rocs(mod.BadRocs);
+
+            if (t_info_fromXML.subDetId() == 1 && t_info_fromXML.layer() == 1) {
+              std::cout << ss.str() << " s_module: " << SiPixelPI::signed_module(mod.DetID, tTopo, true)
+                        << " s_ladder: " << SiPixelPI::signed_ladder(mod.DetID, tTopo, true)
+                        << " error type:" << mod.errorType << " BadRocs: " << bad_rocs.to_string('O', 'X') << std::endl;
+            }
+          }
+        }  // payload
+      }    // iovs
+      return true;
+    }  // fill
+  };
+
+  /************************************************
     summary class
   *************************************************/
 
@@ -412,6 +455,7 @@ PAYLOAD_INSPECTOR_MODULE(SiPixelQuality) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelQualityTest);
   PAYLOAD_INSPECTOR_CLASS(SiPixelQualityBadRocsSummary);
   PAYLOAD_INSPECTOR_CLASS(SiPixelQualityBadRocsTimeHistory);
+  //PAYLOAD_INSPECTOR_CLASS(SiPixelQualityDebugger);
   PAYLOAD_INSPECTOR_CLASS(SiPixelBPixQualityMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelFPixQualityMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelFullQualityMap);

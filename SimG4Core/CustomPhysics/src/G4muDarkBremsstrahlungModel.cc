@@ -149,7 +149,6 @@ void G4muDarkBremsstrahlungModel::MakePlaceholders() {
 frame G4muDarkBremsstrahlungModel::GetMadgraphData(double E0)
 //Gets the energy fraction and Pt from the imported LHE data. E0 should be in GeV, returns the total energy and Pt in GeV. Scales from the closest imported beam energy above the given value (scales down to avoid biasing issues).
 {
-  double samplingE = energies[0].first;
   frame cmdata;
   uint64_t i = 0;
   bool pass = false;
@@ -157,8 +156,7 @@ frame G4muDarkBremsstrahlungModel::GetMadgraphData(double E0)
   //Cycle through imported beam energies until the closest one above is found, or the max is reached.
   while (!pass) {
     i++;
-    samplingE = energies[i].first;
-    if ((E0 <= samplingE) || (i >= energies.size())) {
+    if ((E0 <= energies[i].first) || (i >= energies.size())) {
       pass = true;
     }
   }
@@ -265,11 +263,7 @@ G4double G4muDarkBremsstrahlungModel::ComputeCrossSectionPerAtom(
   G.function = &DsigmaDx;
   G.params = &alpha;
   G4double xmin = 0;
-  G4double xmax = 1;
-  if ((muonMass / E0) > (MA / E0))
-    xmax = 1 - muonMass / E0;
-  else
-    xmax = 1 - MA / E0;
+  G4double xmax = muonMass > MA ? 1. - muonMass / E0 : 1. - MA / E0;
   G4double res, err;
 
   gsl_integration_qags(&G, xmin, xmax, 0, 1e-7, 1000, dxspace, &res, &err);
@@ -285,7 +279,6 @@ G4double G4muDarkBremsstrahlungModel::ComputeCrossSectionPerAtom(
   if (cross < 0.) {
     cross = 0.;
   }
-  E0 = E0 * CLHEP::GeV;
 
   cross = cross * cxBias;
   return cross;

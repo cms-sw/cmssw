@@ -389,8 +389,6 @@ process.PassingHLT = cms.EDProducer("trgMatchedGsfElectronProducer",
 ##   |_____/_/\_\\__\___|_|  |_| |_|\__,_|_|    \_/ \__,_|_|  |___/
 ##   
 ## Here we show how to use a module to compute an external variable
-## process.load("JetMETCorrections.Configuration.DefaultJEC_cff")
-## ak5PFResidual.useCondDB = False
 
 process.superClusterDRToNearestJet = cms.EDProducer("DeltaRNearestJetComputer",
     probes = cms.InputTag("goodSuperClusters"),

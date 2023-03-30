@@ -154,7 +154,7 @@ void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup&) {
     edm::LogVerbatim("HGCalValidation") << "HGCalBHValidation: HGCalDigi "
                                         << "buffer " << hecoll->size();
     for (HGCalDigiCollection::const_iterator it = hecoll->begin(); it != hecoll->end(); ++it) {
-      HGCalDataFrame df(*it);
+      const HGCalDataFrame& df(*it);
       double energy = df[iSample_].data();
       if (DetId(df.id()).det() == DetId::HGCalHSc) {
         HGCScintillatorDetId cell(df.id());

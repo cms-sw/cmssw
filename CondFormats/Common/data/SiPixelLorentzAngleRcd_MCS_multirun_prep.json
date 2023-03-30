@@ -1,0 +1,9 @@
+{
+    "destinationDatabase": "oracle://cms_orcoff_prep/CMS_CONDITIONS", 
+    "destinationTags": {
+        "SiPixelLorentzAngleMCS_byPCL_multirun_v0_prompt": {}
+    }, 
+    "inputTag": "SiPixelLAMCS_pcl", 
+    "since": null, 
+    "userText": "Multirun Upload for SiPixelLA Minimal Cluster Size Method (prep)"
+}

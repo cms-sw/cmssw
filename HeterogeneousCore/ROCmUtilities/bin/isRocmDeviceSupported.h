@@ -1,0 +1,6 @@
+#ifndef HeterogeneousCore_ROCmServices_bin_isRocmDeviceSupported_h
+#define HeterogeneousCore_ROCmServices_bin_isRocmDeviceSupported_h
+
+bool isRocmDeviceSupported(int device);
+
+#endif  // HeterogeneousCore_ROCmServices_bin_isRocmDeviceSupported_h

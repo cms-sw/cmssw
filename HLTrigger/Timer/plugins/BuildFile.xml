@@ -1,6 +1,8 @@
 <library file="*.cc" name="HLTriggerTimerPlugins">
+  <use name="boost_regex"/>
   <use name="fmt"/>
   <use name="json"/>
+  <use name="tbb"/>
   <use name="DQMServices/Core"/>
   <use name="DataFormats/Provenance"/>
   <use name="DataFormats/Scalers"/>
@@ -9,6 +11,5 @@
   <use name="FWCore/ServiceRegistry"/>
   <use name="FWCore/Utilities"/>
   <use name="HLTrigger/Timer"/>
-  <use name="boost_regex"/>
   <flags EDM_PLUGIN="1"/>
 </library>

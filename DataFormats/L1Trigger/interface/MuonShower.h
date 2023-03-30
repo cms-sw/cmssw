@@ -32,47 +32,46 @@ namespace l1t {
                bool twoLooseInTime = false,
                bool twoLooseOutOfTime = false,
                bool oneTightInTime = false,
-               bool oneTightOutOfTime = false);
+               bool oneTightOutOfTime = false,
+               bool twoLooseDiffSectorsIntime = false);
 
     ~MuonShower() override;
 
     /*
-      In CMSSW we consider 3 valid cases:
-      - 1 nominal shower (baseline trigger for physics at Run-3)
-      - 1 tight shower (backup trigger)
-      - 2 loose showers (to extend the physics reach)
-
-      In the uGT and UTM library, the hadronic shower trigger data is split
-      over 4 bits: 2 for in-time trigger data, 2 for out-of-time trigger data
-      - mus0, mus1 for in-time
-      - musOutOfTime0, musOutOfTime1 for out-of-time
-
-      The mapping for Run-3 startup is as follows:
-      - 1 nominal shower -> 0b01 (mus0)
-      - 1 tight shower -> 0b10 (mus1)
-
-      The 2 loose showers case would be mapped onto musOutOfTime0 and musOutOfTime1 later during Run-3
-    */
+     * We currently have three valid cases:
+     * - 1 nominal shower (baseline trigger for physics at Run-3)
+     * - 1 tight shower (backup trigger)
+     * - 2 loose showers in different sectors (to extend the physics reach)
+     *
+     * uGT receives shower information on five bits:
+     * - 2 bits for in-time showers (mus0, mus1 in UTM)
+     * - 2 bits for out-of-time showers (musOutOfTime0, musOutOfTime1 in UTM)
+     * - 1 bit for the newly added two loose showers in different sectors (mus2 in UTM)
+     * Disclaimer: The notion of "in time" and "out of time" showers is outdated, as there
+     * are no plans for out of time showers anymore, however the naming has been kept here
+     * to avoid confusion with the way things have been named from the start.
+     *
+     * The mapping as it is currently understood is:
+     * - 1 nominal shower -> mus0
+     * - 1 tight shower -> mus1
+     * - 2 loose showers in differnt sectors -> mus2
+     */
 
     void setOneNominalInTime(const bool bit) { oneNominalInTime_ = bit; }
     void setOneTightInTime(const bool bit) { oneTightInTime_ = bit; }
-    void setMus0(const bool bit) { oneNominalInTime_ = bit; }
-    void setMus1(const bool bit) { oneTightInTime_ = bit; }
+    void setTwoLooseDiffSectorsInTime(const bool bit) { twoLooseDiffSectorsInTime_ = bit; }
     void setMusOutOfTime0(const bool bit) { musOutOfTime0_ = bit; }
     void setMusOutOfTime1(const bool bit) { musOutOfTime1_ = bit; }
 
-    bool mus0() const { return oneNominalInTime_; }
-    bool mus1() const { return oneTightInTime_; }
+    bool isOneNominalInTime() const { return oneNominalInTime_; }
+    bool isOneTightInTime() const { return oneTightInTime_; }
+    bool isTwoLooseDiffSectorsInTime() const { return twoLooseDiffSectorsInTime_; }
     bool musOutOfTime0() const { return musOutOfTime0_; }
     bool musOutOfTime1() const { return musOutOfTime1_; }
 
     // at least one bit must be valid
     bool isValid() const;
 
-    // useful members for trigger performance studies
-    // needed at startup Run-3
-    bool isOneNominalInTime() const { return oneNominalInTime_; }
-    bool isOneTightInTime() const { return oneTightInTime_; }
     // to be developed during Run-3
     bool isTwoLooseInTime() const { return false; }
     // these options require more study
@@ -88,6 +87,7 @@ namespace l1t {
     // in time and out-of-time qualities. only 2 bits each.
     bool oneNominalInTime_;
     bool oneTightInTime_;
+    bool twoLooseDiffSectorsInTime_;
     bool musOutOfTime0_;
     bool musOutOfTime1_;
   };

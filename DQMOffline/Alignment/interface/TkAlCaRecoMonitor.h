@@ -36,10 +36,14 @@ public:
   explicit TkAlCaRecoMonitor(const edm::ParameterSet &);
   ~TkAlCaRecoMonitor() override = default;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions &);
+
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
 private:
+  static constexpr const double kMuonMass_ = 0.1056583755;  //GeV from PDG
+
   void fillHitmaps(const reco::Track &track, const TrackerGeometry &geometry);
   void fillRawIdMap(const TrackerGeometry &geometry);
 
@@ -47,9 +51,18 @@ private:
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> mfToken_;
 
-  edm::ParameterSet conf_;
+  const edm::EDGetTokenT<reco::TrackCollection> trackProducer_;
+  const edm::EDGetTokenT<reco::TrackCollection> referenceTrackProducer_;
+  const edm::EDGetTokenT<reco::CaloJetCollection> jetCollection_;
 
-  double maxJetPt_;
+  const double daughterMass_;
+  const double maxJetPt_;
+  const bool fillInvariantMass_;
+  const bool fillRawIdMap_;
+  const bool runsOnReco_;
+  const bool useSignedR_;
+
+  edm::ParameterSet conf_;
 
   // 1D
   MonitorElement *invariantMass_;
@@ -67,15 +80,6 @@ private:
   MonitorElement *Hits_ZvsR_;
   MonitorElement *Hits_XvsY_;
 
-  bool fillInvariantMass_;
-  bool fillRawIdMap_;
-  bool runsOnReco_;
-  bool useSignedR_;
-
-  edm::EDGetTokenT<reco::TrackCollection> trackProducer_;
-  edm::EDGetTokenT<reco::TrackCollection> referenceTrackProducer_;
-  edm::EDGetTokenT<reco::CaloJetCollection> jetCollection_;
-  double daughterMass_;
   std::map<int, int> binByRawId_;
 };
 #endif

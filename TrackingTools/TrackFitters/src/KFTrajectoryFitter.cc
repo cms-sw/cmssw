@@ -101,16 +101,16 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
     }
 
     if LIKELY (hit.isValid()) {
-      assert((hit.geographicalId() != 0U) | !hit.canImproveWithTrack());
+      assert((hit.geographicalId() != 0U) || !hit.canImproveWithTrack());
       assert(hit.surface() != nullptr);
       //update
       LogTrace("TrackFitters") << "THE HIT IS VALID: updating hit with predTsos";
-      assert((!hit.canImproveWithTrack()) | (nullptr != theHitCloner));
-      assert((!hit.canImproveWithTrack()) | (nullptr != dynamic_cast<BaseTrackerRecHit const*>((ihit).get())));
+      assert((!hit.canImproveWithTrack()) || (nullptr != theHitCloner));
+      assert((!hit.canImproveWithTrack()) || (nullptr != dynamic_cast<BaseTrackerRecHit const*>((ihit).get())));
       auto preciseHit = theHitCloner->makeShared(ihit, predTsos);
       dump(*preciseHit, hitcounter, "TrackFitters");
       assert(preciseHit->isValid());
-      assert((preciseHit->geographicalId() != 0U) | (!preciseHit->canImproveWithTrack()));
+      assert((preciseHit->geographicalId() != 0U) || (!preciseHit->canImproveWithTrack()));
       assert(preciseHit->surface() != nullptr);
 
       if UNLIKELY (!preciseHit->isValid()) {

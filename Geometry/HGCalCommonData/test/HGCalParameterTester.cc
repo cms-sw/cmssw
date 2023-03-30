@@ -133,7 +133,9 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     edm::LogVerbatim("HGCalGeom") << "DetectorType: " << phgp->detectorType_;
     edm::LogVerbatim("HGCalGeom") << "UseSimWt: " << phgp->useSimWt_;
     edm::LogVerbatim("HGCalGeom") << "Wafer Parameters: " << phgp->waferSize_ << ":" << phgp->waferR_ << ":"
-                                  << phgp->waferThick_ << ":" << phgp->sensorSeparation_ << ":" << phgp->mouseBite_;
+                                  << phgp->waferThick_ << ":" << phgp->sensorSeparation_ << ":"
+                                  << phgp->sensorSizeOffset_ << ":" << phgp->guardRingOffset_ << ":"
+                                  << phgp->mouseBite_;
     myPrint("waferThickness", phgp->waferThickness_, 10);
     edm::LogVerbatim("HGCalGeom") << "nCells_: " << phgp->nCellsFine_ << ":" << phgp->nCellsCoarse_;
     edm::LogVerbatim("HGCalGeom") << "nSectors_: " << phgp->nSectors_;

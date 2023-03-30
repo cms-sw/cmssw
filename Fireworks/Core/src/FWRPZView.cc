@@ -59,6 +59,9 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id)
       m_showGEM(this, "Show GEM", false),
       m_showME0(this, "Show ME0", false),
 
+      m_showMtdBarrel(this, "Show MTD Barrel", false),
+      m_showMtdEndcap(this, "Show MTD Endcap", false),
+
       m_shiftOrigin(this, "Shift origin to beam-spot", false),
       m_fishEyeDistortion(this, "Distortion", 0., 0., 100.),
       m_fishEyeR(this, "FixedRadius", (double)fireworks::Context::caloR1(), 0.0, 150.0),
@@ -171,6 +174,8 @@ void FWRPZView::setContext(const fireworks::Context& ctx) {
   m_showRpcEndcap.changed_.connect(std::bind(&FWRPZViewGeometry::showRpcEndcap, m_geometryList, std::placeholders::_1));
   m_showGEM.changed_.connect(std::bind(&FWRPZViewGeometry::showGEM, m_geometryList, std::placeholders::_1));
   m_showME0.changed_.connect(std::bind(&FWRPZViewGeometry::showME0, m_geometryList, std::placeholders::_1));
+  m_showMtdBarrel.changed_.connect(std::bind(&FWRPZViewGeometry::showMtdBarrel, m_geometryList, std::placeholders::_1));
+  m_showMtdEndcap.changed_.connect(std::bind(&FWRPZViewGeometry::showMtdEndcap, m_geometryList, std::placeholders::_1));
 }
 
 void FWRPZView::eventBegin() {
@@ -383,6 +388,10 @@ void FWRPZView::populateController(ViewerParameterGUI& gui) const {
     if (showME0)
       det.addParam(&m_showME0);
   }
+
+  det.addParam(&m_showMtdBarrel);
+  if (typeId() == FWViewType::kRhoZ)
+    det.addParam(&m_showMtdEndcap);
 
 #ifdef TEVEPROJECTIONS_DISPLACE_ORIGIN_MODE
   gui.requestTab("Projection").addParam(&m_shiftOrigin);

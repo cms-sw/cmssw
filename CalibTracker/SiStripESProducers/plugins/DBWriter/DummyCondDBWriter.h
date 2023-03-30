@@ -2,21 +2,20 @@
 #define CalibTracker_SiStripESProducer_DummyCondDBWriter_h
 
 // user include files
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESWatcher.h"
-#include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-
-#include "FWCore/Utilities/interface/Exception.h"
-
 #include <string>
 
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
 template <typename TObject, typename TObjectO, typename TRecord>
-class DummyCondDBWriter : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
+class DummyCondDBWriter : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit DummyCondDBWriter(const edm::ParameterSet& iConfig);
   ~DummyCondDBWriter() override;
@@ -35,13 +34,14 @@ DummyCondDBWriter<TObject, TObjectO, TRecord>::DummyCondDBWriter(const edm::Para
     : iConfig_(iConfig),
       token_(esConsumes<edm::Transition::EndRun>(
           edm::ESInputTag{"", iConfig.getUntrackedParameter<std::string>("label", "")})) {
+  usesResource(cond::service::PoolDBOutputService::kSharedResource);
   edm::LogInfo("DummyCondDBWriter") << "DummyCondDBWriter constructor for typename " << typeid(TObject).name()
-                                    << " and record " << typeid(TRecord).name() << std::endl;
+                                    << " and record " << typeid(TRecord).name();
 }
 
 template <typename TObject, typename TObjectO, typename TRecord>
 DummyCondDBWriter<TObject, TObjectO, TRecord>::~DummyCondDBWriter() {
-  edm::LogInfo("DummyCondDBWriter") << "DummyCondDBWriter::~DummyCondDBWriter()" << std::endl;
+  edm::LogInfo("DummyCondDBWriter") << "DummyCondDBWriter::~DummyCondDBWriter()";
 }
 
 template <typename TObject, typename TObjectO, typename TRecord>
@@ -49,8 +49,8 @@ void DummyCondDBWriter<TObject, TObjectO, TRecord>::endRun(const edm::Run& run, 
   std::string rcdName = iConfig_.getParameter<std::string>("record");
 
   if (!watcher_.check(es)) {
-    edm::LogInfo("DummyCondDBWriter") << "not needed to store objects with Record " << rcdName << " at run "
-                                      << run.run() << std::endl;
+    edm::LogInfo("DummyCondDBWriter") << "Not needed to store objects with Record " << rcdName << " at run "
+                                      << run.run();
     return;
   }
 
@@ -70,7 +70,7 @@ void DummyCondDBWriter<TObject, TObjectO, TRecord>::endRun(const edm::Run& run, 
 
     dbservice->writeOneIOV(*obj, Time_, rcdName);
   } else {
-    edm::LogError("SiStripFedCablingBuilder") << "Service is unavailable" << std::endl;
+    edm::LogError("DummyCondDBWriter") << "Service is unavailable";
   }
 }
 

@@ -1,53 +1,56 @@
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
-
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-#include <string>
-#include <vector>
-#include <map>
 #include <algorithm>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 class HLTFiltersDQMonitor : public DQMEDAnalyzer {
 public:
-  explicit HLTFiltersDQMonitor(const edm::ParameterSet&);
+  explicit HLTFiltersDQMonitor(edm::ParameterSet const&);
   ~HLTFiltersDQMonitor() override = default;
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
 
-  bool skipStreamByName(const std::string& streamName) const;
-  bool skipPathMonitorElement(const std::string& pathName) const;
-  bool skipModuleByEDMType(const std::string& moduleEDMType) const;
-  bool skipModuleByType(const std::string& moduleType) const;
+  bool skipStreamByName(std::string const& streamName) const;
+  bool skipPathMonitorElement(std::string const& pathName) const;
+  bool skipModuleByEDMType(std::string const& moduleEDMType) const;
+  bool skipModuleByType(std::string const& moduleType) const;
 
-  const std::string folderName_;
-  const std::string efficPlotNamePrefix_;
+  std::string const folderName_;
+  std::string const efficPlotNamePrefix_;
   std::string processName_;
   bool initFailed_;
   bool skipRun_;
 
   MonitorElement* meMenu_;
-  std::map<std::string, MonitorElement*> meDatasetMap_;
-  std::map<std::string, MonitorElement*> mePathMap_;
+  std::unordered_map<std::string, MonitorElement*> meDatasetMap_;
+  std::unordered_map<std::string, MonitorElement*> mePathMap_;
+
+  // map of bin-label-keyword -> bin-index in MonitorElement
+  std::unordered_map<std::string, size_t> binIndexMap_;
 
   edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
-  edm::EDGetTokenT<trigger::TriggerEvent> triggerSummaryTokenAOD_;
-  edm::EDGetTokenT<trigger::TriggerEventWithRefs> triggerSummaryTokenRAW_;
+  edm::EDGetTokenT<trigger::TriggerEvent> triggerEventToken_;
+  edm::EDGetTokenT<trigger::TriggerEventWithRefs> triggerEventWithRefsToken_;
 
   HLTConfigProvider hltConfigProvider_;
 };
@@ -59,11 +62,12 @@ HLTFiltersDQMonitor::HLTFiltersDQMonitor(const edm::ParameterSet& iConfig)
       initFailed_(false),
       skipRun_(false),
       meMenu_(nullptr) {
-  auto const triggerResultsInputTag(iConfig.getParameter<edm::InputTag>("triggerResults"));
+  auto const& triggerResultsInputTag = iConfig.getParameter<edm::InputTag>("triggerResults");
 
   if (triggerResultsInputTag.process().empty()) {
-    edm::LogError("Input") << "process not specified in HLT TriggerResults InputTag \""
-                           << triggerResultsInputTag.encode() << "\" -> plugin will not produce DQM outputs";
+    edm::LogError("HLTFiltersDQMonitor") << "process not specified in HLT TriggerResults InputTag \""
+                                         << triggerResultsInputTag.encode()
+                                         << "\" -> plugin will not produce DQM outputs";
     initFailed_ = true;
     return;
   } else {
@@ -71,31 +75,32 @@ HLTFiltersDQMonitor::HLTFiltersDQMonitor(const edm::ParameterSet& iConfig)
 
     triggerResultsToken_ = consumes<edm::TriggerResults>(triggerResultsInputTag);
 
-    auto triggerSummaryAODInputTag(iConfig.getParameter<edm::InputTag>("triggerSummaryAOD"));
-    if (triggerSummaryAODInputTag.process().empty()) {
-      triggerSummaryAODInputTag =
-          edm::InputTag(triggerSummaryAODInputTag.label(), triggerSummaryAODInputTag.instance(), processName_);
-    } else if (triggerSummaryAODInputTag.process() != processName_) {
-      edm::LogWarning("Input") << "edm::TriggerResults process name '" << processName_
-                               << "' differs from trigger::TriggerEvent process name '"
-                               << triggerSummaryAODInputTag.process() << "' -> plugin will not produce DQM outputs";
+    auto triggerEventInputTag = iConfig.getParameter<edm::InputTag>("triggerEvent");
+    if (triggerEventInputTag.process().empty()) {
+      triggerEventInputTag = edm::InputTag(triggerEventInputTag.label(), triggerEventInputTag.instance(), processName_);
+    } else if (triggerEventInputTag.process() != processName_) {
+      edm::LogWarning("HLTFiltersDQMonitor")
+          << "edm::TriggerResults process name '" << processName_
+          << "' differs from trigger::TriggerEvent process name '" << triggerEventInputTag.process()
+          << "' -> plugin will not produce DQM outputs";
       initFailed_ = true;
       return;
     }
-    triggerSummaryTokenAOD_ = consumes<trigger::TriggerEvent>(triggerSummaryAODInputTag);
+    triggerEventToken_ = consumes<trigger::TriggerEvent>(triggerEventInputTag);
 
-    auto triggerSummaryRAWInputTag(iConfig.getParameter<edm::InputTag>("triggerSummaryRAW"));
-    if (triggerSummaryRAWInputTag.process().empty()) {
-      triggerSummaryRAWInputTag =
-          edm::InputTag(triggerSummaryRAWInputTag.label(), triggerSummaryRAWInputTag.instance(), processName_);
-    } else if (triggerSummaryRAWInputTag.process() != processName_) {
-      edm::LogWarning("Input") << "edm::TriggerResults process name '" << processName_
-                               << "' differs from trigger::TriggerEventWithRefs process name '"
-                               << triggerSummaryRAWInputTag.process() << "' -> plugin will not produce DQM outputs";
+    auto triggerEventWithRefsInputTag = iConfig.getParameter<edm::InputTag>("triggerEventWithRefs");
+    if (triggerEventWithRefsInputTag.process().empty()) {
+      triggerEventWithRefsInputTag =
+          edm::InputTag(triggerEventWithRefsInputTag.label(), triggerEventWithRefsInputTag.instance(), processName_);
+    } else if (triggerEventWithRefsInputTag.process() != processName_) {
+      edm::LogWarning("HLTFiltersDQMonitor")
+          << "edm::TriggerResults process name '" << processName_
+          << "' differs from trigger::TriggerEventWithRefs process name '" << triggerEventWithRefsInputTag.process()
+          << "' -> plugin will not produce DQM outputs";
       initFailed_ = true;
       return;
     }
-    triggerSummaryTokenRAW_ = mayConsume<trigger::TriggerEventWithRefs>(triggerSummaryRAWInputTag);
+    triggerEventWithRefsToken_ = mayConsume<trigger::TriggerEventWithRefs>(triggerEventWithRefsInputTag);
   }
 }
 
@@ -104,22 +109,24 @@ void HLTFiltersDQMonitor::dqmBeginRun(edm::Run const& iRun, edm::EventSetup cons
     return;
   }
 
-  LogTrace("")
+  LogTrace("HLTFiltersDQMonitor")
       << "[HLTFiltersDQMonitor] "
       << "----------------------------------------------------------------------------------------------------";
-  LogTrace("") << "[HLTFiltersDQMonitor::dqmBeginRun] Run = " << iRun.id();
+  LogTrace("HLTFiltersDQMonitor") << "[HLTFiltersDQMonitor::dqmBeginRun] Run = " << iRun.id();
 
   // reset data members holding information from the previous run
   skipRun_ = false;
 
-  bool hltChanged(true);
+  bool hltChanged = true;
   if (hltConfigProvider_.init(iRun, iSetup, processName_, hltChanged)) {
-    LogTrace("") << "[HLTFiltersDQMonitor::dqmBeginRun] HLTConfigProvider initialized [processName() = "
-                 << hltConfigProvider_.processName() << ", tableName() = " << hltConfigProvider_.tableName()
-                 << ", size() = " << hltConfigProvider_.size() << "]";
+    LogTrace("HLTFiltersDQMonitor")
+        << "[HLTFiltersDQMonitor::dqmBeginRun] HLTConfigProvider initialized [processName() = "
+        << hltConfigProvider_.processName() << ", tableName() = " << hltConfigProvider_.tableName()
+        << ", size() = " << hltConfigProvider_.size() << "]";
   } else {
-    edm::LogError("Input") << "initialization of HLTConfigProvider failed for Run=" << iRun.id() << " (process=\""
-                           << processName_ << "\") -> plugin will not produce DQM outputs for this run";
+    edm::LogError("HLTFiltersDQMonitor") << "initialization of HLTConfigProvider failed for Run=" << iRun.id()
+                                         << " (process=\"" << processName_
+                                         << "\") -> plugin will not produce DQM outputs for this run";
     skipRun_ = true;
     return;
   }
@@ -132,18 +139,21 @@ void HLTFiltersDQMonitor::bookHistograms(DQMStore::IBooker& iBooker,
     return;
   }
 
+  // clear map of bin-label-keyword -> bin-index in MonitorElement
+  binIndexMap_.clear();
+
   iBooker.setCurrentFolder(folderName_);
 
   iBooker.bookString("HLTMenu", hltConfigProvider_.tableName().c_str());
 
-  auto hltMenuName(hltConfigProvider_.tableName());
+  auto hltMenuName = hltConfigProvider_.tableName();
   std::replace(hltMenuName.begin(), hltMenuName.end(), '/', '_');
-  std::replace(hltMenuName.begin(), hltMenuName.end(), '.', '_');
+  std::replace(hltMenuName.begin(), hltMenuName.end(), '.', 'p');
   while (hltMenuName.front() == '_') {
     hltMenuName.erase(0, 1);
   }
 
-  auto const& triggerNames(hltConfigProvider_.triggerNames());
+  auto const& triggerNames = hltConfigProvider_.triggerNames();
 
   meMenu_ = iBooker.bookProfile(efficPlotNamePrefix_ + hltMenuName,
                                 "Path Efficiency",
@@ -152,92 +162,119 @@ void HLTFiltersDQMonitor::bookHistograms(DQMStore::IBooker& iBooker,
                                 triggerNames.size(),
                                 -0.1,
                                 1.1,
-                                "");
-  if (meMenu_ and meMenu_->getTProfile() and meMenu_->getTProfile()->GetXaxis()) {
-    for (size_t idx = 0; idx < triggerNames.size(); ++idx) {
-      meMenu_->getTProfile()->GetXaxis()->SetBinLabel(idx + 1, triggerNames.at(idx).c_str());
-    }
+                                "",
+                                [&triggerNames](TProfile* tprof) {
+                                  for (size_t idx = 0; idx < triggerNames.size(); ++idx) {
+                                    tprof->GetXaxis()->SetBinLabel(idx + 1, triggerNames[idx].c_str());
+                                  }
+                                });
+
+  for (size_t idx = 0; idx < triggerNames.size(); ++idx) {
+    binIndexMap_[triggerNames[idx]] = idx + 1;
   }
 
-  LogTrace("") << "[HLTFiltersDQMonitor::bookHistograms] HLTConfigProvider::size() = " << hltConfigProvider_.size()
-               << ", HLTConfigProvider::triggerNames().size() = " << triggerNames.size();
+  LogTrace("HLTFiltersDQMonitor") << "[HLTFiltersDQMonitor::bookHistograms] HLTConfigProvider::size() = "
+                                  << hltConfigProvider_.size()
+                                  << ", HLTConfigProvider::triggerNames().size() = " << triggerNames.size();
 
   for (auto const& istream : hltConfigProvider_.streamNames()) {
-    LogTrace("") << "[HLTFiltersDQMonitor::bookHistograms] Stream = \"" << istream << "\"";
+    LogTrace("HLTFiltersDQMonitor") << "[HLTFiltersDQMonitor::bookHistograms] Stream = \"" << istream << "\"";
 
-    if (not this->skipStreamByName(istream)) {
-      auto const& dsets(hltConfigProvider_.streamContent(istream));
-      for (auto const& idset : dsets) {
-        const std::vector<std::string>& dsetPathNames = hltConfigProvider_.datasetContent(idset);
-        iBooker.setCurrentFolder(folderName_ + "/" + idset);
-        LogTrace("") << "[HLTFiltersDQMonitor::bookHistograms]   Dataset = \"" << idset << "\"";
-        const std::string meDatasetName(efficPlotNamePrefix_ + idset);
-        meDatasetMap_[meDatasetName] = iBooker.bookProfile(
-            meDatasetName.c_str(), meDatasetName.c_str(), dsetPathNames.size(), 0., dsetPathNames.size(), -0.1, 1.1, "");
-        TProfile* meDatasetTProf(nullptr);
-        if (meDatasetMap_.at(meDatasetName)) {
-          meDatasetTProf = meDatasetMap_.at(meDatasetName)->getTProfile();
-        }
-        for (size_t idxPath = 0; idxPath < dsetPathNames.size(); ++idxPath) {
-          auto const& iPathName(dsetPathNames.at(idxPath));
-          if (std::find(triggerNames.begin(), triggerNames.end(), iPathName) == triggerNames.end()) {
-            continue;
-          }
-          if (meDatasetTProf and meDatasetTProf->GetXaxis()) {
-            meDatasetTProf->GetXaxis()->SetBinLabel(idxPath + 1, iPathName.c_str());
-          }
-          if (this->skipPathMonitorElement(iPathName)) {
-            continue;
-          }
+    if (this->skipStreamByName(istream)) {
+      continue;
+    }
 
-          LogTrace("") << "[HLTFiltersDQMonitor::bookHistograms]     Path = \"" << iPathName << "\"";
-
-          auto const& moduleLabels(hltConfigProvider_.moduleLabels(iPathName));
-          std::vector<std::string> mePath_binLabels;
-          mePath_binLabels.reserve(moduleLabels.size());
-          for (size_t iMod = 0; iMod < moduleLabels.size(); ++iMod) {
-            auto const& moduleLabel(moduleLabels.at(iMod));
-            if (this->skipModuleByEDMType(hltConfigProvider_.moduleEDMType(moduleLabel)) or
-                this->skipModuleByType(hltConfigProvider_.moduleType(moduleLabel))) {
-              LogTrace("") << "[HLTFiltersDQMonitor::bookHistograms]       [-] Module = \"" << moduleLabel << "\"";
-              continue;
-            }
-            LogTrace("") << "[HLTFiltersDQMonitor::bookHistograms]       [bin=" << mePath_binLabels.size() + 1
-                         << "] Module = \"" << moduleLabel << "\"";
-
-            if (std::find(mePath_binLabels.begin(), mePath_binLabels.end(), moduleLabel) != mePath_binLabels.end()) {
-              edm::LogInfo("Input") << "module \"" << moduleLabel << "\" included multiple times in path \""
-                                    << iPathName << "\""
-                                    << "-> only 1 bin labelled \"" << moduleLabel
-                                    << "\" will be created in the DQM MonitorElement of the path";
-              continue;
-            }
-
-            mePath_binLabels.emplace_back(moduleLabel);
-          }
-
-          if (mePath_binLabels.empty()) {
-            continue;
-          }
-
-          const std::string mePathName(efficPlotNamePrefix_ + idset + "_" + iPathName);
-          mePathMap_[mePathName] = iBooker.bookProfile(mePathName.c_str(),
-                                                       iPathName.c_str(),
-                                                       mePath_binLabels.size(),
-                                                       0.,
-                                                       mePath_binLabels.size(),
-                                                       -0.1,
-                                                       1.1,
-                                                       "");
-
-          if (mePathMap_.at(mePathName)) {
-            auto* const mePathTProf(mePathMap_.at(mePathName)->getTProfile());
-            if (mePathTProf and mePathTProf->GetXaxis()) {
-              for (size_t iMod = 0; iMod < mePath_binLabels.size(); ++iMod) {
-                mePathTProf->GetXaxis()->SetBinLabel(iMod + 1, mePath_binLabels.at(iMod).c_str());
+    auto const& dsets = hltConfigProvider_.streamContent(istream);
+    for (auto const& idset : dsets) {
+      iBooker.setCurrentFolder(folderName_ + "/" + idset);
+      LogTrace("HLTFiltersDQMonitor") << "[HLTFiltersDQMonitor::bookHistograms]   Dataset = \"" << idset << "\"";
+      auto const& dsetPathNames = hltConfigProvider_.datasetContent(idset);
+      auto const meDatasetName = efficPlotNamePrefix_ + idset;
+      meDatasetMap_[meDatasetName] = iBooker.bookProfile(
+          meDatasetName.c_str(),
+          meDatasetName.c_str(),
+          dsetPathNames.size(),
+          0.,
+          dsetPathNames.size(),
+          -0.1,
+          1.1,
+          "",
+          [&dsetPathNames, &triggerNames](TProfile* tprof) {
+            for (size_t idxPath = 0; idxPath < dsetPathNames.size(); ++idxPath) {
+              auto const& iPathName = dsetPathNames[idxPath];
+              if (std::find(triggerNames.begin(), triggerNames.end(), iPathName) == triggerNames.end()) {
+                continue;
               }
+              tprof->GetXaxis()->SetBinLabel(idxPath + 1, iPathName.c_str());
             }
+          });
+      for (size_t idxPath = 0; idxPath < dsetPathNames.size(); ++idxPath) {
+        auto const& iPathName = dsetPathNames[idxPath];
+        if (std::find(triggerNames.begin(), triggerNames.end(), iPathName) == triggerNames.end()) {
+          continue;
+        }
+        binIndexMap_[idset + "." + iPathName] = idxPath + 1;
+
+        if (this->skipPathMonitorElement(iPathName)) {
+          continue;
+        }
+
+        LogTrace("HLTFiltersDQMonitor") << "[HLTFiltersDQMonitor::bookHistograms]     Path = \"" << iPathName << "\"";
+
+        auto const& moduleLabels = hltConfigProvider_.moduleLabels(iPathName);
+        std::vector<std::string> mePath_binLabels;
+        mePath_binLabels.reserve(moduleLabels.size());
+        for (size_t iMod = 0; iMod < moduleLabels.size(); ++iMod) {
+          auto const& moduleLabel = moduleLabels[iMod];
+
+          bool skipModule = false;
+          if (this->skipModuleByEDMType(hltConfigProvider_.moduleEDMType(moduleLabel)) or
+              this->skipModuleByType(hltConfigProvider_.moduleType(moduleLabel))) {
+            skipModule = true;
+          } else if (std::find(mePath_binLabels.begin(), mePath_binLabels.end(), moduleLabel) !=
+                     mePath_binLabels.end()) {
+            LogDebug("HLTFiltersDQMonitor")
+                << "module \"" << moduleLabel << "\" included multiple times in Path \"" << iPathName << "\""
+                << "-> only 1 bin labelled \"" << moduleLabel << "\" will be created in the MonitorElement of the Path";
+            skipModule = true;
           }
+
+          if (skipModule) {
+            LogTrace("HLTFiltersDQMonitor")
+                << "[HLTFiltersDQMonitor::bookHistograms]       [-] Module = \"" << moduleLabel << "\"";
+            continue;
+          }
+
+          mePath_binLabels.emplace_back(moduleLabel);
+
+          LogTrace("HLTFiltersDQMonitor")
+              << "[HLTFiltersDQMonitor::bookHistograms]       [bin=" << mePath_binLabels.size() << "] Module = \""
+              << moduleLabel << "\"";
+        }
+
+        if (mePath_binLabels.empty()) {
+          continue;
+        }
+
+        auto const mePathName = efficPlotNamePrefix_ + idset + "_" + iPathName;
+
+        mePathMap_[mePathName] =
+            iBooker.bookProfile(mePathName.c_str(),
+                                iPathName.c_str(),
+                                mePath_binLabels.size(),
+                                0.,
+                                mePath_binLabels.size(),
+                                -0.1,
+                                1.1,
+                                "",
+                                [&mePath_binLabels](TProfile* tprof) {
+                                  for (size_t iMod = 0; iMod < mePath_binLabels.size(); ++iMod) {
+                                    tprof->GetXaxis()->SetBinLabel(iMod + 1, mePath_binLabels[iMod].c_str());
+                                  }
+                                });
+
+        for (size_t iMod = 0; iMod < mePath_binLabels.size(); ++iMod) {
+          binIndexMap_[idset + "." + iPathName + "." + mePath_binLabels[iMod]] = iMod + 1;
         }
       }
     }
@@ -249,209 +286,260 @@ void HLTFiltersDQMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
     return;
   }
 
-  LogTrace("") << "[HLTFiltersDQMonitor::analyze] --------------------------------------------------------";
-  LogTrace("") << "[HLTFiltersDQMonitor::analyze] Run = " << iEvent.id().run()
-               << ", LuminosityBlock = " << iEvent.id().luminosityBlock() << ", Event = " << iEvent.id().event();
+  LogTrace("HLTFiltersDQMonitor")
+      << "[HLTFiltersDQMonitor::analyze] --------------------------------------------------------";
+  LogTrace("HLTFiltersDQMonitor") << "[HLTFiltersDQMonitor::analyze] Run = " << iEvent.id().run()
+                                  << ", LuminosityBlock = " << iEvent.id().luminosityBlock()
+                                  << ", Event = " << iEvent.id().event();
 
-  auto const& triggerResults(iEvent.getHandle(triggerResultsToken_));
+  auto const& triggerResults = iEvent.getHandle(triggerResultsToken_);
 
   if (not triggerResults.isValid()) {
-    edm::LogWarning("Input") << "invalid handle to edm::TriggerResults (InputTag: \"triggerResults\")"
-                             << " -> plugin will not fill DQM outputs for this event";
+    edm::EDConsumerBase::Labels labels;
+    labelsForToken(triggerResultsToken_, labels);
+    edm::LogWarning("HLTFiltersDQMonitor")
+        << "invalid handle to edm::TriggerResults (InputTag: \"" << labels.module << ":" << labels.productInstance
+        << ":" << labels.process << "\") -> plugin will not fill DQM outputs for this event";
     return;
   }
 
-  // fill MonitorElement: HLT-Menu (bin: path)
-  if (meMenu_ and meMenu_->getTProfile() and meMenu_->getTProfile()->GetXaxis()) {
-    auto const& triggerNames(hltConfigProvider_.triggerNames());
-    for (auto const& iPathName : triggerNames) {
-      const uint pathIndex(hltConfigProvider_.triggerIndex(iPathName));
-      if (pathIndex >= triggerResults->size()) {
-        edm::LogError("Logic") << "[HLTFiltersDQMonitor::analyze]       "
-                               << "index associated to path \"" << iPathName << "\" (" << pathIndex
-                               << ") is inconsistent with triggerResults::size() (" << triggerResults->size()
-                               << ") -> plugin will not fill bin associated to this path in HLT-Menu MonitorElement";
-        continue;
-      }
-      auto const pathAccept(triggerResults->accept(pathIndex));
-      auto* const axis(meMenu_->getTProfile()->GetXaxis());
-      auto const ibin(axis->FindBin(iPathName.c_str()));
-      if ((0 < ibin) and (ibin <= axis->GetNbins())) {
-        meMenu_->Fill(ibin - 0.5, pathAccept);
-      }
+  // fill MonitorElement: HLT-Menu (bin: Path)
+  auto const& triggerNames = hltConfigProvider_.triggerNames();
+  for (auto const& iPathName : triggerNames) {
+    unsigned int const pathIndex = hltConfigProvider_.triggerIndex(iPathName);
+    if (pathIndex >= triggerResults->size()) {
+      edm::LogError("HLTFiltersDQMonitor")
+          << "[HLTFiltersDQMonitor::analyze]       "
+          << "index associated to Path \"" << iPathName << "\" (" << pathIndex
+          << ") is inconsistent with triggerResults::size() (" << triggerResults->size()
+          << ") -> plugin will not fill bin associated to this Path in HLT-Menu MonitorElement";
+      continue;
+    }
+
+    auto const foundBin = binIndexMap_.find(iPathName);
+    if (foundBin == binIndexMap_.end()) {
+      throw cms::Exception("HLTFiltersDQMonitorInvalidBinLabel")
+          << "invalid key for bin-index map (name of Path bin in MonitorElement of HLT Menu): \"" << iPathName << "\"";
+    }
+    auto const ibin = foundBin->second;
+    if ((0 < ibin) and (ibin <= size_t(meMenu_->getNbinsX()))) {
+      auto const pathAccept = triggerResults->accept(pathIndex);
+      meMenu_->Fill(ibin - 0.5, pathAccept);
+    } else {
+      edm::LogError("HLTFiltersDQMonitor") << "out-of-range bin index of Path \"" << iPathName
+                                           << "\" in MonitorElement of HLT Menu (MonitorElement not filled): bin_key=\""
+                                           << iPathName << "\", bin_index=" << ibin;
     }
   }
 
-  auto const& triggerEventAOD(iEvent.getHandle(triggerSummaryTokenAOD_));
-  edm::Handle<trigger::TriggerEventWithRefs> triggerEventRAW;
+  auto const& triggerEventHandle = iEvent.getHandle(triggerEventToken_);
+  edm::Handle<trigger::TriggerEventWithRefs> triggerEventWithRefs;
 
-  bool useTriggerEventAOD(true);
-  if (not triggerEventAOD.isValid()) {
-    useTriggerEventAOD = false;
-    edm::LogInfo("Input") << "invalid handle to trigger::TriggerEvent (InputTag: \"triggerSummaryAOD\"),"
-                          << " will attempt to access trigger::TriggerEventWithRefs (InputTag: \"triggerSummaryRAW\")";
+  bool useTriggerEvent = true;
+  if (not triggerEventHandle.isValid()) {
+    useTriggerEvent = false;
 
-    triggerEventRAW = iEvent.getHandle(triggerSummaryTokenRAW_);
-    if (not triggerEventRAW.isValid()) {
-      edm::LogWarning("Input") << "invalid handle to trigger::TriggerEventWithRefs (InputTag: \"triggerSummaryRAW\")"
-                               << " -> plugin will not fill DQM outputs for this event";
+    edm::EDConsumerBase::Labels triggerEventLabels;
+    labelsForToken(triggerEventToken_, triggerEventLabels);
+
+    edm::EDConsumerBase::Labels triggerEventWithRefsLabels;
+    labelsForToken(triggerEventWithRefsToken_, triggerEventWithRefsLabels);
+
+    edm::LogInfo("HLTFiltersDQMonitor") << "invalid handle to trigger::TriggerEvent (InputTag: \""
+                                        << triggerEventLabels.module << ":" << triggerEventLabels.productInstance << ":"
+                                        << triggerEventLabels.process
+                                        << "\"), will attempt to access trigger::TriggerEventWithRefs (InputTag:\""
+                                        << triggerEventWithRefsLabels.module << ":"
+                                        << triggerEventWithRefsLabels.productInstance << ":"
+                                        << triggerEventWithRefsLabels.process << "\")";
+
+    triggerEventWithRefs = iEvent.getHandle(triggerEventWithRefsToken_);
+    if (not triggerEventWithRefs.isValid()) {
+      edm::LogWarning("HLTFiltersDQMonitor")
+          << "invalid handle to trigger::TriggerEventWithRefs (InputTag: \"" << triggerEventWithRefsLabels.module << ":"
+          << triggerEventWithRefsLabels.productInstance << ":" << triggerEventWithRefsLabels.process
+          << "\") -> plugin will not fill DQM outputs for this event";
       return;
     }
   }
 
-  auto const triggerEventSize(useTriggerEventAOD ? triggerEventAOD->sizeFilters() : triggerEventRAW->size());
-  LogTrace("") << "[HLTFiltersDQMonitor::analyze] useTriggerEventAOD = " << useTriggerEventAOD
-               << ", triggerEventSize = " << triggerEventSize;
+  auto const triggerEventSize = useTriggerEvent ? triggerEventHandle->sizeFilters() : triggerEventWithRefs->size();
+  LogTrace("HLTFiltersDQMonitor") << "[HLTFiltersDQMonitor::analyze] useTriggerEvent = " << useTriggerEvent
+                                  << ", triggerEventSize = " << triggerEventSize;
 
   // fill MonitorElements for PrimaryDatasets and Paths
   // loop over Streams
   for (auto const& istream : hltConfigProvider_.streamNames()) {
-    LogTrace("") << "[HLTFiltersDQMonitor::analyze]   Stream = \"" << istream << "\"";
-    auto const& dsets(hltConfigProvider_.streamContent(istream));
+    LogTrace("HLTFiltersDQMonitor") << "[HLTFiltersDQMonitor::analyze]   Stream = \"" << istream << "\"";
+
     // loop over PrimaryDatasets in Stream
+    auto const& dsets = hltConfigProvider_.streamContent(istream);
     for (auto const& idset : dsets) {
-      LogTrace("") << "[HLTFiltersDQMonitor::analyze]     Dataset = \"" << idset << "\"";
-      TProfile* meDatasetTProf(nullptr);
-      const std::string meDatasetName(efficPlotNamePrefix_ + idset);
-      if (meDatasetMap_.find(meDatasetName) != meDatasetMap_.end()) {
-        meDatasetTProf = meDatasetMap_.at(meDatasetName)->getTProfile();
+      LogTrace("HLTFiltersDQMonitor") << "[HLTFiltersDQMonitor::analyze]     Dataset = \"" << idset << "\"";
+
+      // consider only Datasets with a MonitorElement (see bookHistograms)
+      auto const meDatasetName = efficPlotNamePrefix_ + idset;
+      auto const meDatasetMapFindIt = meDatasetMap_.find(meDatasetName);
+      if (meDatasetMapFindIt == meDatasetMap_.end()) {
+        LogDebug("HLTFiltersDQMonitor") << "No MonitorElement associated to Dataset \"" << idset << "\" in Stream \""
+                                        << istream << "\" (will be ignored)";
+        continue;
       }
-      auto const& dsetPathNames(hltConfigProvider_.datasetContent(idset));
+      MonitorElement* const meDatasetProf = meDatasetMapFindIt->second;
+
       // loop over Paths in PrimaryDataset
+      auto const& dsetPathNames = hltConfigProvider_.datasetContent(idset);
       for (auto const& iPathName : dsetPathNames) {
-        const uint pathIndex(hltConfigProvider_.triggerIndex(iPathName));
+        unsigned int const pathIndex = hltConfigProvider_.triggerIndex(iPathName);
         if (pathIndex >= triggerResults->size()) {
-          edm::LogError("Logic") << "[HLTFiltersDQMonitor::analyze]       "
-                                 << "index associated to path \"" << iPathName << "\" (" << pathIndex
-                                 << ") is inconsistent with triggerResults::size() (" << triggerResults->size()
-                                 << ") -> plugin will not fill DQM info related to this path";
+          edm::LogError("HLTFiltersDQMonitor")
+              << "[HLTFiltersDQMonitor::analyze]       "
+              << "index associated to Path \"" << iPathName << "\" (" << pathIndex
+              << ") is inconsistent with triggerResults::size() (" << triggerResults->size()
+              << ") -> plugin will not fill DQM info related to this Path";
           continue;
         }
-        auto const pathAccept(triggerResults->accept(pathIndex));
-        LogTrace("") << "[HLTFiltersDQMonitor::analyze]       "
-                     << "Path = \"" << iPathName << "\", HLTConfigProvider::triggerIndex(\"" << iPathName
-                     << "\") = " << pathIndex << ", Accept = " << pathAccept;
-        // fill MonitorElement: PrimaryDataset (bin: path)
-        if (meDatasetTProf and meDatasetTProf->GetXaxis()) {
-          auto* const axis(meDatasetTProf->GetXaxis());
-          auto const ibin(axis->FindBin(iPathName.c_str()));
-          if ((0 < ibin) and (ibin <= axis->GetNbins())) {
-            meDatasetTProf->Fill(ibin - 0.5, pathAccept);
+        auto const pathAccept = triggerResults->accept(pathIndex);
+        LogTrace("HLTFiltersDQMonitor") << "[HLTFiltersDQMonitor::analyze]       "
+                                        << "Path = \"" << iPathName << "\", HLTConfigProvider::triggerIndex(\""
+                                        << iPathName << "\") = " << pathIndex << ", Accept = " << pathAccept;
+
+        // fill MonitorElement: PrimaryDataset (bin: Path)
+        auto const ibinKey = idset + "." + iPathName;
+        auto const foundBin = binIndexMap_.find(ibinKey);
+        if (foundBin == binIndexMap_.end()) {
+          throw cms::Exception("HLTFiltersDQMonitorInvalidBinLabel")
+              << "invalid key for bin-index map (name of Path bin in MonitorElement of Dataset): \"" << ibinKey << "\"";
+        }
+        auto const ibin = foundBin->second;
+        if (0 < ibin and ibin <= size_t(meDatasetProf->getNbinsX())) {
+          meDatasetProf->Fill(ibin - 0.5, pathAccept);
+        } else {
+          edm::LogError("HLTFiltersDQMonitor")
+              << "out-of-range bin index of Path \"" << iPathName << "\" in MonitorElement of Dataset \"" << idset
+              << "\" (MonitorElement not filled): bin_key=\"" << ibinKey << "\", bin_index=" << ibin;
+        }
+
+        // fill MonitorElement: Path (bin: filter)
+        auto const mePathName = efficPlotNamePrefix_ + idset + "_" + iPathName;
+
+        // consider only Paths with a MonitorElement
+        auto const mePathMapFindIt = mePathMap_.find(mePathName);
+        if (mePathMapFindIt == mePathMap_.end()) {
+          LogDebug("HLTFiltersDQMonitor") << "No MonitorElement associated to Path \"" << iPathName
+                                          << "\" in Dataset \"" << idset << "\" (will be ignored)";
+          continue;
+        }
+        MonitorElement* const mePathProf = mePathMapFindIt->second;
+
+        unsigned int indexLastFilterInPath = triggerResults->index(pathIndex) + 1;
+        LogTrace("HLTFiltersDQMonitor") << "[HLTFiltersDQMonitor::analyze]         "
+                                        << "indexLastFilterInPath = " << indexLastFilterInPath;
+        // identify module corresponding to last filter executed in the Path
+        while (indexLastFilterInPath > 0) {
+          --indexLastFilterInPath;
+          auto const& labelLastFilterInPath = hltConfigProvider_.moduleLabel(pathIndex, indexLastFilterInPath);
+          auto const labelLastFilterInPathTag = edm::InputTag(labelLastFilterInPath, "", processName_);
+          unsigned int const indexLastFilterInTriggerEvent =
+              useTriggerEvent ? triggerEventHandle->filterIndex(labelLastFilterInPathTag)
+                              : triggerEventWithRefs->filterIndex(labelLastFilterInPathTag);
+          LogTrace("HLTFiltersDQMonitor") << "[HLTFiltersDQMonitor::analyze]           "
+                                          << "indexLastFilterInPath = " << indexLastFilterInPath
+                                          << ", labelLastFilterInPath = " << labelLastFilterInPath
+                                          << ", indexLastFilterInTriggerEvent = " << indexLastFilterInTriggerEvent
+                                          << " (triggerEventSize = " << triggerEventSize << ")";
+          if (indexLastFilterInTriggerEvent < triggerEventSize) {
+            if (this->skipModuleByType(hltConfigProvider_.moduleType(labelLastFilterInPath))) {
+              continue;
+            }
+            break;
           }
         }
-        // fill MonitorElement: Path (bin: filter)
-        auto const mePathName(efficPlotNamePrefix_ + idset + "_" + iPathName);
-        if (mePathMap_.find(mePathName) != mePathMap_.end()) {
-          auto* const mePathTProf(mePathMap_.at(mePathName)->getTProfile());
-          if (mePathTProf) {
-            auto* const axis(mePathTProf->GetXaxis());
-            if (axis) {
-              unsigned indexLastFilterPathModules(triggerResults->index(pathIndex) + 1);
-              LogTrace("") << "[HLTFiltersDQMonitor::analyze]         "
-                           << "indexLastFilterPathModules = " << indexLastFilterPathModules;
-              // identify module corresponding to last filter executed in the path
-              while (indexLastFilterPathModules > 0) {
-                --indexLastFilterPathModules;
-                const std::string& labelLastFilterPathModules(
-                    hltConfigProvider_.moduleLabel(pathIndex, indexLastFilterPathModules));
-                const uint indexLastFilterFilters =
-                    useTriggerEventAOD
-                        ? triggerEventAOD->filterIndex(edm::InputTag(labelLastFilterPathModules, "", processName_))
-                        : triggerEventRAW->filterIndex(edm::InputTag(labelLastFilterPathModules, "", processName_));
-                LogTrace("") << "[HLTFiltersDQMonitor::analyze]           "
-                             << "indexLastFilterPathModules = " << indexLastFilterPathModules
-                             << ", labelLastFilterPathModules = " << labelLastFilterPathModules
-                             << ", indexLastFilterFilters = " << indexLastFilterFilters
-                             << " (triggerEventSize = " << triggerEventSize << ")";
-                if (indexLastFilterFilters < triggerEventSize) {
-                  if (this->skipModuleByType(hltConfigProvider_.moduleType(labelLastFilterPathModules))) {
-                    continue;
-                  }
-                  break;
-                }
-              }
-              // number of modules in the path
-              const unsigned sizeModulesPath(hltConfigProvider_.size(pathIndex));
-              LogTrace("") << "[HLTFiltersDQMonitor::analyze]         "
-                           << "-> selected indexLastFilterPathModules = " << indexLastFilterPathModules
-                           << " (HLTConfigProvider::size(" << pathIndex << ") = " << sizeModulesPath << ")";
-              if (indexLastFilterPathModules >= sizeModulesPath) {
-                edm::LogError("Logic") << " selected index (" << indexLastFilterPathModules
-                                       << ") for last filter of path \"" << iPathName
-                                       << "\" is inconsistent with number of modules in the path (" << sizeModulesPath
-                                       << ")";
-                continue;
-              }
-              // store decision of previous filter
-              bool previousFilterAccept(true);
-              for (size_t modIdx = 0; modIdx < sizeModulesPath; ++modIdx) {
-                // each filter-bin is filled, with a 0 or 1, only when all previous filters in the path have passed
-                if (not previousFilterAccept) {
-                  break;
-                }
-                // consider only selected EDFilter modules
-                auto const& moduleLabel(hltConfigProvider_.moduleLabel(pathIndex, modIdx));
-                if (this->skipModuleByEDMType(hltConfigProvider_.moduleEDMType(moduleLabel)) or
-                    this->skipModuleByType(hltConfigProvider_.moduleType(moduleLabel))) {
-                  continue;
-                }
-                // index of the module in the path [0,sizeModulesPath)
-                const unsigned slotModule(hltConfigProvider_.moduleIndex(pathIndex, moduleLabel));
-                bool filterAccept(false);
-                if (slotModule < indexLastFilterPathModules) {
-                  filterAccept = true;
-                } else if (slotModule == indexLastFilterPathModules) {
-                  filterAccept = pathAccept;
-                }
-                LogTrace("") << "[HLTFiltersDQMonitor::analyze]         "
-                             << "HLTConfigProvider::moduleLabel(" << pathIndex << ", " << modIdx << ") = \""
-                             << moduleLabel << "\", HLTConfigProvider::moduleIndex(" << pathIndex << ", \""
-                             << moduleLabel << "\") = " << slotModule << ", filterAccept = " << filterAccept
-                             << ", previousFilterAccept = " << previousFilterAccept;
-                auto const ibin(axis->FindBin(moduleLabel.c_str()));
-                if ((0 < ibin) and (ibin <= axis->GetNbins())) {
-                  mePathTProf->Fill(ibin - 0.5, filterAccept);
-                }
-                previousFilterAccept = filterAccept;
-              }
-            }
+        // number of modules in the path
+        unsigned int const nModulesInPath = hltConfigProvider_.size(pathIndex);
+        LogTrace("HLTFiltersDQMonitor") << "[HLTFiltersDQMonitor::analyze]         "
+                                        << "-> selected indexLastFilterInPath = " << indexLastFilterInPath
+                                        << " (HLTConfigProvider::size(" << pathIndex << ") = " << nModulesInPath << ")";
+        if (indexLastFilterInPath >= nModulesInPath) {
+          edm::LogError("HLTFiltersDQMonitor")
+              << " selected index (" << indexLastFilterInPath << ") for last filter of path \"" << iPathName
+              << "\" is inconsistent with number of modules in the Path (" << nModulesInPath << ")";
+          continue;
+        }
+        // store decision of previous filter
+        bool previousFilterAccept(true);
+        for (size_t modIdx = 0; modIdx < nModulesInPath; ++modIdx) {
+          // each filter-bin is filled, with a 0 or 1, only when all previous filters in the Path have passed
+          if (not previousFilterAccept) {
+            break;
           }
+          // consider only selected EDFilter modules
+          auto const& moduleLabel = hltConfigProvider_.moduleLabel(pathIndex, modIdx);
+          if (this->skipModuleByEDMType(hltConfigProvider_.moduleEDMType(moduleLabel)) or
+              this->skipModuleByType(hltConfigProvider_.moduleType(moduleLabel))) {
+            continue;
+          }
+          // index of module in this Path [0,nModulesInPath)
+          unsigned int const slotModule = hltConfigProvider_.moduleIndex(pathIndex, moduleLabel);
+          bool filterAccept = false;
+          if (slotModule < indexLastFilterInPath) {
+            filterAccept = true;
+          } else if (slotModule == indexLastFilterInPath) {
+            filterAccept = pathAccept;
+          }
+          LogTrace("HLTFiltersDQMonitor")
+              << "[HLTFiltersDQMonitor::analyze]         "
+              << "HLTConfigProvider::moduleLabel(" << pathIndex << ", " << modIdx << ") = \"" << moduleLabel
+              << "\", HLTConfigProvider::moduleIndex(" << pathIndex << ", \"" << moduleLabel << "\") = " << slotModule
+              << ", filterAccept = " << filterAccept << ", previousFilterAccept = " << previousFilterAccept;
+
+          auto const ibinKey = idset + "." + iPathName + "." + moduleLabel;
+          auto const foundBin = binIndexMap_.find(ibinKey);
+          if (foundBin == binIndexMap_.end()) {
+            throw cms::Exception("HLTFiltersDQMonitorInvalidBinLabel")
+                << "invalid key for bin-index map (name of Module bin in MonitorElement of Path): \"" << ibinKey
+                << "\"";
+          }
+          auto const ibin = foundBin->second;
+          if (0 < ibin and ibin <= size_t(mePathProf->getNbinsX())) {
+            mePathProf->Fill(ibin - 0.5, filterAccept);
+          } else {
+            edm::LogError("HLTFiltersDQMonitor")
+                << "out-of-range bin index of Module \"" << moduleLabel
+                << "\" in MonitorElement of Path \"iPathName\" in Dataset \"" << idset
+                << "\" (MonitorElement not filled): bin_key=\"" << ibinKey << "\", bin_index=" << ibin;
+          }
+          previousFilterAccept = filterAccept;
         }
       }
     }
   }
 }
 
-bool HLTFiltersDQMonitor::skipStreamByName(const std::string& streamName) const {
-  if ((streamName.find("Physics") != std::string::npos) || (streamName.find("Scouting") != std::string::npos) ||
-      (streamName.find("Parking") != std::string::npos) || (streamName == "A")) {
-    return false;
-  }
-  return true;
+bool HLTFiltersDQMonitor::skipStreamByName(std::string const& streamName) const {
+  return ((streamName.find("Physics") == std::string::npos) and (streamName.find("Scouting") == std::string::npos) and
+          (streamName.find("Parking") == std::string::npos) and (streamName != "A"));
 }
 
-bool HLTFiltersDQMonitor::skipPathMonitorElement(const std::string& pathName) const {
-  if ((pathName.find("HLT_") == std::string::npos) || (pathName.find("HLT_Physics") != std::string::npos) ||
-      (pathName.find("HLT_Random") != std::string::npos)) {
-    return true;
-  }
-  return false;
+bool HLTFiltersDQMonitor::skipPathMonitorElement(std::string const& pathName) const {
+  return ((pathName.find("HLT_") == std::string::npos) or (pathName.find("HLT_Physics") != std::string::npos) or
+          (pathName.find("HLT_Random") != std::string::npos));
 }
 
-bool HLTFiltersDQMonitor::skipModuleByEDMType(const std::string& moduleEDMType) const {
+bool HLTFiltersDQMonitor::skipModuleByEDMType(std::string const& moduleEDMType) const {
   return (moduleEDMType != "EDFilter");
 }
 
-bool HLTFiltersDQMonitor::skipModuleByType(const std::string& moduleType) const { return (moduleType == "HLTBool"); }
+bool HLTFiltersDQMonitor::skipModuleByType(std::string const& moduleType) const { return (moduleType == "HLTBool"); }
 
 void HLTFiltersDQMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("folderName", "HLT/Filters");
   desc.add<std::string>("efficPlotNamePrefix", "effic_");
   desc.add<edm::InputTag>("triggerResults", edm::InputTag("TriggerResults::HLT"));
-  desc.add<edm::InputTag>("triggerSummaryAOD", edm::InputTag("hltTriggerSummaryAOD::HLT"));
-  desc.add<edm::InputTag>("triggerSummaryRAW", edm::InputTag("hltTriggerSummaryRAW::HLT"));
-  descriptions.add("hltFiltersDQMonitor", desc);
+  desc.add<edm::InputTag>("triggerEvent", edm::InputTag("hltTriggerSummaryAOD::HLT"));
+  desc.add<edm::InputTag>("triggerEventWithRefs", edm::InputTag("hltTriggerSummaryRAW::HLT"));
+  descriptions.add("dqmHLTFiltersDQMonitor", desc);
 }
 
 DEFINE_FWK_MODULE(HLTFiltersDQMonitor);

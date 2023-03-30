@@ -607,24 +607,24 @@ ALCARECOTkAlCosmicsRegional0TTkAlDQM = ALCARECOTkAlCosmicsCTF0TTkAlDQM.clone(
 
 ALCARECOTkAlCosmicsRegional0TDQM = cms.Sequence( ALCARECOTkAlCosmicsRegional0TTrackingDQM + ALCARECOTkAlCosmicsRegional0TTkAlDQM )
 
-#############################
-### TkAlCosmicsInCollisions0T ###
-#############################
-__selectionName = 'TkAlCosmicsInCollisions0T'
-ALCARECOTkAlCosmicsInCollisions0TTrackingDQM = ALCARECOTkAlCosmicsCTF0TTrackingDQM.clone(
+#####################################
+### TkAlCosmicsDuringCollisions0T ###
+#####################################
+__selectionName = 'TkAlCosmicsDuringCollisions0T'
+ALCARECOTkAlCosmicsDuringCollisions0TTrackingDQM = ALCARECOTkAlCosmicsCTF0TTrackingDQM.clone(
 #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
     AlgoName = 'ALCARECO'+__selectionName,
     BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
 )
-ALCARECOTkAlCosmicsInCollisions0TTkAlDQM = ALCARECOTkAlCosmicsCTF0TTkAlDQM.clone(
+ALCARECOTkAlCosmicsDuringCollisions0TTkAlDQM = ALCARECOTkAlCosmicsCTF0TTkAlDQM.clone(
 #names and desigantions
     TrackProducer = 'ALCARECO'+__selectionName,
     ReferenceTrackProducer = 'cosmictrackfinderP5',
     AlgoName = 'ALCARECO'+__selectionName
 )
 
-ALCARECOTkAlCosmicsInCollisions0TDQM = cms.Sequence( ALCARECOTkAlCosmicsInCollisions0TTrackingDQM + ALCARECOTkAlCosmicsInCollisions0TTkAlDQM )
+ALCARECOTkAlCosmicsDuringCollisions0TDQM = cms.Sequence( ALCARECOTkAlCosmicsDuringCollisions0TTrackingDQM + ALCARECOTkAlCosmicsDuringCollisions0TTkAlDQM )
 
 ##########################################################################
 ###### DQM modules for cosmic data taking with momentum measurement ######

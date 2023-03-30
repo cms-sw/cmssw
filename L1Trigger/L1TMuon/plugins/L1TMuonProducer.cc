@@ -395,10 +395,8 @@ void L1TMuonProducer::sortMuons(MicroGMTConfiguration::InterMuonList& muons, uns
     (*mu1)->setHwWins(0);
   }
 
-  int nCancelled = 0;
   for (mu1 = muons.begin(); mu1 != muons.end(); ++mu1) {
     int mu1CancelBit = (*mu1)->hwCancelBit();
-    nCancelled += mu1CancelBit;
     auto mu2 = mu1;
     mu2++;
     for (; mu2 != muons.end(); ++mu2) {

@@ -1,11 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
-from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultData_JetHTRun2022A
+from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultData_JetHTRun2018DHcalIsoTrk
 
 options = VarParsing.VarParsing("analysis")
 
 options.register ('GlobalTag',
-                  'auto:run3_data',
+                  'auto:run2_data',
                   VarParsing.VarParsing.multiplicity.singleton,  # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "Global Tag to be used")
@@ -24,13 +24,13 @@ process = cms.Process("EnergyOverMomentumTree")
 ####################################################################
 process.load("FWCore.MessageService.MessageLogger_cfi")
 #process.MessageLogger.cerr.threshold = 'ERROR'
-process.MessageLogger.cerr.FwkReport.reportEvery = 10
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
 process.MessageLogger.TrackRefitter=dict()
 
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) )
 
 # define input files
-process.source = cms.Source("PoolSource", fileNames = filesDefaultData_JetHTRun2022A)
+process.source = cms.Source("PoolSource", fileNames = filesDefaultData_JetHTRun2018DHcalIsoTrk)
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(options.maxEvents)
@@ -97,7 +97,7 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 # configure alignment track selector
 ####################################################################
 process.load("Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi")
-process.AlignmentTrackSelector.src = cms.InputTag('ALCARECOTkAlMinBias') # 'TkAlIsoProd' # trackCollection' # 'ALCARECOTkAlZMuMu' # 'ALCARECOTkAlMinBias' # adjust to input file
+process.AlignmentTrackSelector.src = cms.InputTag('TkAlIsoProdFilter') # 'TkAlIsoProd' # trackCollection' # 'ALCARECOTkAlZMuMu' # 'ALCARECOTkAlMinBias' # adjust to input file
 process.AlignmentTrackSelector.ptMin = 1.
 process.AlignmentTrackSelector.etaMin = -5.
 process.AlignmentTrackSelector.etaMax = 5.
@@ -110,8 +110,8 @@ process.AlignmentTrackSelector.chi2nMax = 100.
 # configure track refitter
 ####################################################################
 process.load("RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi")
-process.MeasurementTrackerEvent.pixelClusterProducer = "ALCARECOTkAlMinBias"
-process.MeasurementTrackerEvent.stripClusterProducer = "ALCARECOTkAlMinBias"
+process.MeasurementTrackerEvent.pixelClusterProducer = "TkAlIsoProdFilter"
+process.MeasurementTrackerEvent.stripClusterProducer = "TkAlIsoProdFilter"
 #process.MeasurementTrackerEvent.inactivePixelDetectorLabels = cms.VInputTag([''])
 #process.MeasurementTrackerEvent.inactiveStripDetectorLabels = cms.VInputTag([''])
 
@@ -124,6 +124,13 @@ process.TrackRefitter.NavigationSchool = ''
 ####################################################################
 # configure tree writer
 ####################################################################
+
+# uncomment following block in case it is run over the HcalCalIsoTrk AlCaReco
+# TrackAssociatorParameterBlock.TrackAssociatorParameters.EBRecHitCollectionLabel = cms.InputTag("IsoProd", "IsoTrackEcalRecHitCollection")
+# TrackAssociatorParameterBlock.TrackAssociatorParameters.EERecHitCollectionLabel = cms.InputTag("IsoProd", "IsoTrackEcalRecHitCollection")
+# TrackAssociatorParameterBlock.TrackAssociatorParameters.HBHERecHitCollectionLabel = cms.InputTag("IsoProd", "IsoTrackHBHERecHitCollection")
+# TrackAssociatorParameterBlock.TrackAssociatorParameters.HORecHitCollectionLabel = cms.InputTag("IsoProd", "IsoTrackHORecHitCollection")
+
 TrackAssociatorParameterBlock.TrackAssociatorParameters.EERecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE")
 TrackAssociatorParameterBlock.TrackAssociatorParameters.EBRecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB")
 TrackAssociatorParameterBlock.TrackAssociatorParameters.HBHERecHitCollectionLabel = cms.InputTag("hbhereco")

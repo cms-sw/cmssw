@@ -98,6 +98,11 @@ namespace fireworks {
     static float caloTransAngle();
     static double caloMaxEta();
 
+    static float mtdEtlR1();
+    static float mtdEtlR2();
+    static float mtdEtlZ1(const unsigned int& disk_number = 1);
+    static float mtdEtlZ2(const unsigned int& disk_number = 1);
+
     Context(const Context&) = delete;                   // stop default
     const Context& operator=(const Context&) = delete;  // stop default
   private:
@@ -139,6 +144,13 @@ namespace fireworks {
     // proxy-builder offsets
     static const float s_caloOffR;
     static const float s_caloOffZ;
+
+    // mtd data
+    static const float s_mtdEtlR1;
+    static const float s_mtdEtlR2;
+    static const float s_mtdEtlZ1;
+    static const float s_mtdEtlZ2;
+    static const float s_mtdEtlOffZ;
   };
 }  // namespace fireworks
 

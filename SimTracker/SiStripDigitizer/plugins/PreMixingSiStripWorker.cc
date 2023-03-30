@@ -80,8 +80,8 @@ private:
   typedef std::pair<uint16_t, Amplitude> RawDigi;  // Replacement for SiStripDigi with pulse height instead of integer ADC
   typedef std::vector<SiStripDigi> OneDetectorMap;  // maps by strip ID for later combination - can have duplicate strips
   typedef std::vector<RawDigi> OneDetectorRawMap;  // maps by strip ID for later combination - can have duplicate strips
-  typedef std::map<uint32_t, OneDetectorMap> SiGlobalIndex;        // map to all data for each detector ID
-  typedef std::map<uint32_t, OneDetectorRawMap> SiGlobalRawIndex;  // map to all data for each detector ID
+  typedef std::map<uint32_t, OneDetectorMap> SiGlobalIndex;                      // map to all data for each detector ID
+  typedef std::vector<std::pair<uint32_t, OneDetectorRawMap>> SiGlobalRawIndex;  // map to all data for each detector ID
 
   typedef SiDigitalConverter::DigitalVecType DigitalVecType;
 
@@ -89,10 +89,10 @@ private:
   SiGlobalRawIndex SiRawDigis_;
 
   // variables for temporary storage of mixed hits:
-  typedef std::map<int, Amplitude> SignalMapType;
+  typedef std::vector<std::pair<int, Amplitude>> SignalMapType;
   typedef std::map<uint32_t, SignalMapType> signalMaps;
 
-  const SignalMapType* getSignal(uint32_t detID) const {
+  SignalMapType const* getSignal(uint32_t detID) const {
     auto where = signals_.find(detID);
     if (where == signals_.end()) {
       return nullptr;
@@ -382,7 +382,6 @@ void PreMixingSiStripWorker::put(edm::Event& e,
   }
 
   std::map<int, std::bitset<6>> DeadAPVList;
-  DeadAPVList.clear();
 
   // First, have to convert all ADC counts to raw pulse heights so that values can be added properly
   // In PreMixing, pulse heights are saved with ADC = sqrt(9.0*PulseHeight) - have to undo.
@@ -391,8 +390,6 @@ void PreMixingSiStripWorker::put(edm::Event& e,
   // Simultaneously, merge lists of hit channels in each DetId.
   // Signal Digis are in the list first, have to merge lists of hit strips on the fly,
   // add signals on duplicates later
-
-  OneDetectorRawMap LocalRawMap;
 
   // Now, loop over hits and add them to the map in the proper sorted order
   // Note: We are assuming that the hits from the Signal events have been created in
@@ -407,32 +404,28 @@ void PreMixingSiStripWorker::put(edm::Event& e,
   for (SiGlobalIndex::const_iterator IDet = SiHitStorage_.begin(); IDet != SiHitStorage_.end(); IDet++) {
     uint32_t detID = IDet->first;
 
-    OneDetectorMap LocalMap = IDet->second;
+    auto const& LocalMap = IDet->second;
 
     //loop over hit strips for this DetId, do conversion to pulse height, store.
-
-    LocalRawMap.clear();
-
-    OneDetectorMap::const_iterator iLocal = LocalMap.begin();
-    for (; iLocal != LocalMap.end(); ++iLocal) {
-      uint16_t currentStrip = iLocal->strip();
-      float signal = float(iLocal->adc());
-      if (iLocal->adc() == 1022)
-        signal = 1500.;  // average values for overflows
-      if (iLocal->adc() == 1023)
-        signal = 3000.;
+    SiRawDigis_.emplace_back(detID, OneDetectorRawMap());
+    auto& localRawMap = SiRawDigis_.back().second;
+    localRawMap.reserve(LocalMap.size());
+    for (auto const& iLocal : LocalMap) {
+      uint16_t currentStrip = iLocal.strip();
+      float signal = float(iLocal.adc());
+      if (iLocal.adc() == 1022)
+        signal = 1500.f;  // average values for overflows
+      if (iLocal.adc() == 1023)
+        signal = 3000.f;
 
       //convert signals back to raw counts
+      constexpr float inv9 = 1.f / 9.0f;
+      float ReSignal = signal * signal * inv9;  // The PreMixing conversion is adc = sqrt(9.0*pulseHeight)
 
-      float ReSignal = signal * signal / 9.0;  // The PreMixing conversion is adc = sqrt(9.0*pulseHeight)
+      // RawDigi NewRawDigi = std::make_pair(currentStrip, ReSignal);
 
-      RawDigi NewRawDigi = std::make_pair(currentStrip, ReSignal);
-
-      LocalRawMap.push_back(NewRawDigi);
+      localRawMap.emplace_back(currentStrip, ReSignal);
     }
-
-    // save information for this detiD into global map
-    SiRawDigis_.insert(SiGlobalRawIndex::value_type(detID, LocalRawMap));
   }
 
   // If we are killing APVs, merge list of dead ones before we digitize
@@ -492,13 +485,16 @@ void PreMixingSiStripWorker::put(edm::Event& e,
   signals_.clear();
 
   // big loop over Detector IDs:
-  for (SiGlobalRawIndex::const_iterator IDet = SiRawDigis_.begin(); IDet != SiRawDigis_.end(); IDet++) {
-    uint32_t detID = IDet->first;
+  for (auto const& IDet : SiRawDigis_) {
+    uint32_t detID = IDet.first;
 
-    SignalMapType Signals;
-    Signals.clear();
+    // create merged map:
+    auto& lSignals = signals_[detID];
 
-    OneDetectorRawMap LocalMap = IDet->second;
+    auto const& LocalMap = IDet.second;
+
+    // guess max occupancy...
+    lSignals.reserve(std::min(LocalMap.size(), 512ul));
 
     //counter variables
     int formerStrip = -1;
@@ -517,7 +513,7 @@ void PreMixingSiStripWorker::put(edm::Event& e,
         ADCSum += iLocal->second;  // raw pulse height is second element.
       } else {
         if (formerStrip != -1) {
-          Signals.insert(std::make_pair(formerStrip, ADCSum));
+          lSignals.emplace_back(formerStrip, ADCSum);
         }
         // save pointers for next iteration
         formerStrip = currentStrip;
@@ -526,11 +522,9 @@ void PreMixingSiStripWorker::put(edm::Event& e,
 
       iLocalchk = iLocal;
       if ((++iLocalchk) == LocalMap.end()) {  //make sure not to lose the last one
-        Signals.insert(std::make_pair(formerStrip, ADCSum));
+        lSignals.emplace_back(formerStrip, ADCSum);
       }
     }
-    // save merged map:
-    signals_.insert(std::make_pair(detID, Signals));
   }
 
   //Now, do noise, zero suppression, take into account bad channels, etc.
@@ -547,11 +541,11 @@ void PreMixingSiStripWorker::put(edm::Event& e,
 
       // see if there is some signal on this detector
 
-      const SignalMapType* theSignal(getSignal(detID));
+      auto const* lSignal = getSignal(detID);
 
       std::vector<float> detAmpl(numStrips, 0.);
-      if (theSignal) {
-        for (const auto& amp : *theSignal) {
+      if (lSignal) {
+        for (const auto& amp : *lSignal) {
           detAmpl[amp.first] = amp.second;
         }
       }
@@ -688,11 +682,14 @@ void PreMixingSiStripWorker::put(edm::Event& e,
         }
       }
 
-      DigitalVecType digis;
-      theSiZeroSuppress->suppress(
-          theSiDigitalConverter->convert(detAmpl, &gain, detID), digis, detID, noise, threshold);
+      auto const& data = theSiDigitalConverter->convert(detAmpl, &gain, detID);
+      // if suppression is trival just copy data
+      if (5 == theFedAlgo)
+        SSD.data = data;
+      else
+        theSiZeroSuppress->suppress(data, SSD.data, detID, noise, threshold);
 
-      SSD.data = digis;
+      LogDebug("PreMixingSiStripWorker") << detID << " " << data.size() << ' ' << SSD.data.size();
 
       // stick this into the global vector of detector info
       vSiStripDigi.push_back(SSD);

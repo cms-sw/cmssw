@@ -9,6 +9,7 @@
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/path_configuration.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 using namespace pat;
@@ -416,7 +417,7 @@ std::vector<std::string> const *TriggerObjectStandAlone::allLabels(edm::Paramete
       if (pset->existsAs<vector<string>>(triggerNames.triggerName(i), true)) {
         auto const &modules = pset->getParameter<vector<string>>(triggerNames.triggerName(i));
         for (auto const &module : modules) {
-          auto const moduleStrip = module.front() != '-' and module.front() != '!' ? module : module.substr(1);
+          auto const moduleStrip = edm::path_configuration::removeSchedulingTokensFromModuleLabel(module);
           if (pset->exists(moduleStrip)) {
             const auto &modulePSet = pset->getParameterSet(moduleStrip);
             if (modulePSet.existsAs<bool>("saveTags", true) and modulePSet.getParameter<bool>("saveTags")) {
