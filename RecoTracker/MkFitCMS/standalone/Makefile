@@ -22,13 +22,14 @@ all: ${TGTS}
 SRCS := $(wildcard ${CMS_DIR}/src/*.cc) $(wildcard ${SACMS}/*.cc)
 ifdef WITH_ROOT
 SRCS += ${SACMS}/tkNtuple/WriteMemoryFile.cc
-WriteMemFileDict.cc ${WMF_DICT_PCM}: ${SACMS}/tkNtuple/DictsLinkDef.h
+WriteMemFileDict.cc: ${SACMS}/tkNtuple/DictsLinkDef.h
 	rootcling -I=${SRCDIR} -f WriteMemFileDict.cc $<
+${WMF_DICT_PCM}: WriteMemFileDict.cc
 	mv WriteMemFileDict_rdict.pcm ${WMF_DICT_PCM}
-
 SRCS += ShellDict.cc
-ShellDict.cc ${SHELL_DICT_PCM}: ${SACMS}/Shell.h ${SACMS}/ShellLinkDef.h
+ShellDict.cc: ${SACMS}/Shell.h ${SACMS}/ShellLinkDef.h
 	rootcling -I=${SRCDIR} -f ShellDict.cc ${SACMS}/Shell.h ${SACMS}/ShellLinkDef.h
+${SHELL_DICT_PCM}: ShellDict.cc
 	mv ShellDict_rdict.pcm ${SHELL_DICT_PCM}
 endif
 SRCB := $(notdir ${SRCS})
