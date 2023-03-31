@@ -5,6 +5,8 @@
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"
 #include "DataFormats/Common/interface/Ptr.h"
+#include "DataFormats/L1TParticleFlow/interface/jets.h"
+#include "DataFormats/L1TParticleFlow/interface/gt_datatypes.h"
 
 namespace l1t {
 
@@ -38,13 +40,24 @@ namespace l1t {
     edm::Ptr<l1t::PFCandidate> daughterPtr(size_type i) const { return constituents_[i]; }
 
     // Get and set the encodedJet_ bits. The Jet is encoded in 128 bits as a 2-element array of uint64_t
-    std::array<uint64_t, 2> encodedJet() { return encodedJet_; }
-    void setEncodedJet(std::array<uint64_t, 2> jet) { encodedJet_ = jet; }
+    // We store encodings both for Correlator internal usage and for Global Trigger
+    enum class HWEncoding { CT, GT };
+    typedef std::array<uint64_t, 2> PackedJet;
+    const PackedJet& encodedJet(const HWEncoding encoding = HWEncoding::GT) const {
+      return encodedJet_[static_cast<int>(encoding)];
+    }
+    void setEncodedJet(const HWEncoding encoding, const PackedJet jet) {
+      encodedJet_[static_cast<int>(encoding)] = jet;
+    }
+
+    // Accessors to HW objects with ap_* types from encoded words
+    l1gt::Jet getHWJetGT() const { return l1gt::Jet::unpack(encodedJet(HWEncoding::GT)); }
+    l1ct::Jet getHWJetCT() const { return l1ct::Jet::unpack(encodedJet(HWEncoding::CT)); }
 
   private:
     float rawPt_;
     Constituents constituents_;
-    std::array<uint64_t, 2> encodedJet_ = {{0, 0}};
+    std::array<PackedJet, 2> encodedJet_ = {{{{0, 0}}, {{0, 0}}}};
   };
 
   typedef std::vector<l1t::PFJet> PFJetCollection;
