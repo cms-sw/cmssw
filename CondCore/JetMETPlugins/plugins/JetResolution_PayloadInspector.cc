@@ -149,11 +149,43 @@ namespace JME {
     bool fill() override {
       TH1D* resol_eta = new TH1D("Jet Resolution vs #eta", "", NBIN_ETA, MIN_ETA, MAX_ETA);
       TH1D* resol_pt = new TH1D("Jet Resolution vs p_T", "", NBIN_PT, MIN_PT, MAX_PT);
+      TLegend* leg_eta = new TLegend(0.26, 0.73, 0.935, 0.90);
+      TLegend* leg_pt = new TLegend(0.26, 0.73, 0.935, 0.90);
+
+      leg_eta->SetBorderSize(0);
+      leg_eta->SetLineStyle(0);
+      leg_eta->SetFillStyle(0);
+
+      leg_eta->SetTextFont(42);
+      leg_pt->SetBorderSize(0);
+      leg_pt->SetLineStyle(0);
+      leg_pt->SetFillStyle(0);
+
       auto tag = PlotBase::getTag<0>();
       auto iov = tag.iovs.front();
       std::shared_ptr<JetResolutionObject> payload = fetchPayload(std::get<1>(iov));
       unsigned int run = std::get<0>(iov);
       std::string tagname = tag.name;
+      std::stringstream ss_tagname(tag.name);
+      std::string stmp;
+
+      std::string tag_ver;
+      std::string tag_res;
+      std::string tag_jet;
+
+      getline(ss_tagname, stmp, '_');  // drop first
+      getline(ss_tagname, stmp, '_');  // year
+      tag_ver = stmp;
+      getline(ss_tagname, stmp, '_');  // ver
+      tag_ver += '_' + stmp;
+      getline(ss_tagname, stmp, '_');  // cmssw
+      tag_ver += '_' + stmp;
+      getline(ss_tagname, stmp, '_');  // data/mc
+      tag_ver += '_' + stmp;
+      getline(ss_tagname, stmp, '_');  // bin
+      tag_res = stmp;
+      getline(ss_tagname, stmp, '_');  // jet algorithm
+      tag_jet = stmp;
 
       if (payload.get()) {
         if (!payload->getRecords().empty() &&  // No formula for SF
@@ -221,17 +253,26 @@ namespace JME {
         canvas.Divide(1, 2);
 
         canvas.cd(1);
-        resol_eta->SetTitle(tagname.c_str());
+        resol_eta->SetTitle(tag_res.c_str());
         resol_eta->SetXTitle("#eta");
         resol_eta->SetYTitle("Resolution");
         resol_eta->SetLineWidth(3);
+        resol_eta->SetMaximum(resol_eta->GetMaximum() * 1.25);
         resol_eta->Draw("");
+
+        leg_eta->AddEntry(resol_eta, (tag_ver + '_' + tag_jet).c_str(), "l");
+        leg_eta->AddEntry((TObject*)nullptr, "JetPt=100, Rho=20", "");
+        leg_eta->Draw();
 
         canvas.cd(2);
         resol_pt->SetXTitle("p_{T} [GeV]");
         resol_pt->SetYTitle("Resolution");
         resol_pt->SetLineWidth(3);
         resol_pt->Draw("][");
+
+        leg_pt->AddEntry(resol_pt, (tag_ver + '_' + tag_jet).c_str(), "l");
+        leg_pt->AddEntry((TObject*)nullptr, "JetEta=2.3, Rho=15", "");
+        leg_pt->Draw();
 
         canvas.SaveAs(m_imageFileName.c_str());
 
@@ -262,6 +303,10 @@ namespace JME {
             if (!record.getBinsRange().empty() && payload->getDefinition().getBinName(0) == "JetEta" &&
                 record.getParametersValues().size() == 3) {  // norm, down, up
 
+              if (record.getBinsRange().size() > 1 && payload->getDefinition().getBinName(1) == "JetPt" &&
+                  !record.getBinsRange()[1].is_inside(500.))
+                continue;  // for 2-bin payload, take jetpt=500
+
               for (size_t it = 0; it <= NBIN_ETA; it++) {
                 double x_axis = (it + 0.5) * (MAX_ETA - MIN_ETA) / NBIN_ETA + MIN_ETA;
                 if (record.getBinsRange()[0].is_inside(x_axis)) {
@@ -284,6 +329,50 @@ namespace JME {
   typedef JetScaleFactorVsEta<DOWN> JetScaleFactorVsEtaDOWN;
   typedef JetScaleFactorVsEta<UP> JetScaleFactorVsEtaUP;
 
+  template <index ii>
+  class JetScaleFactorVsPt : public cond::payloadInspector::Histogram1D<JetResolutionObject, SINGLE_IOV> {
+  public:
+    JetScaleFactorVsPt()
+        : cond::payloadInspector::Histogram1D<JetResolutionObject, SINGLE_IOV>(
+              "Jet Energy Scale Factor", "p_T", NBIN_PT, MIN_PT, MAX_PT, "Scale Factor") {}
+
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
+        std::shared_ptr<JetResolutionObject> payload = Base::fetchPayload(std::get<1>(iov));
+        if (payload.get()) {
+          if (!payload->getRecords().empty() &&  // No formula for SF
+              payload->getDefinition().getFormulaString().compare("") != 0)
+            return false;
+
+          for (const auto& record : payload->getRecords()) {
+            if (record.getBinsRange().size() > 1 && payload->getDefinition().getBinName(0) == "JetEta" &&
+                record.getBinsRange()[0].is_inside(2.55) &&           // take jeteta=2.5
+                payload->getDefinition().getBinName(1) == "JetPt" &&  // 2-bin
+                record.getParametersValues().size() == 3) {           // norm, down, up
+
+              for (size_t it = 0; it <= NBIN_PT; it++) {
+                double x_axis = (it + 0.5) * (MAX_PT - MIN_PT) / NBIN_PT + MIN_PT;
+                if (record.getBinsRange()[1].is_inside(x_axis)) {
+                  double sf = 0.;
+                  sf = record.getParametersValues()[ii];
+                  fillWithBinAndValue(it, sf);
+                }
+              }
+            }
+          }  // records
+          return true;
+        } else
+          return false;
+      }  // for
+      return false;
+    }  // fill
+  };   // class
+
+  typedef JetScaleFactorVsPt<NORM> JetScaleFactorVsPtNORM;
+  typedef JetScaleFactorVsPt<DOWN> JetScaleFactorVsPtDOWN;
+  typedef JetScaleFactorVsPt<UP> JetScaleFactorVsPtUP;
+
   class JetScaleFactorSummary : public cond::payloadInspector::PlotImage<JetResolutionObject, SINGLE_IOV> {
   public:
     JetScaleFactorSummary()
@@ -293,32 +382,91 @@ namespace JME {
       TH1D* sf_eta_norm = new TH1D("Jet SF vs #eta NORM", "", NBIN_ETA, MIN_ETA, MAX_ETA);
       TH1D* sf_eta_down = new TH1D("Jet SF vs #eta DOWN", "", NBIN_ETA, MIN_ETA, MAX_ETA);
       TH1D* sf_eta_up = new TH1D("Jet SF vs #eta UP", "", NBIN_ETA, MIN_ETA, MAX_ETA);
+      TH1D* sf_pt_norm = new TH1D("Jet SF vs p_T NORM", "", NBIN_PT, MIN_PT, MAX_PT);
+      TH1D* sf_pt_down = new TH1D("Jet SF vs p_T DOWN", "", NBIN_PT, MIN_PT, MAX_PT);
+      TH1D* sf_pt_up = new TH1D("Jet SF vs p_T UP", "", NBIN_PT, MIN_PT, MAX_PT);
+
+      TLegend* leg_eta = new TLegend(0.26, 0.73, 0.935, 0.90);
+      TLegend* leg_pt = new TLegend(0.26, 0.73, 0.935, 0.90);
+
+      leg_eta->SetBorderSize(0);
+      leg_eta->SetLineStyle(0);
+      leg_eta->SetFillStyle(0);
+
+      leg_eta->SetTextFont(42);
+      leg_pt->SetBorderSize(0);
+      leg_pt->SetLineStyle(0);
+      leg_pt->SetFillStyle(0);
 
       auto tag = PlotBase::getTag<0>();
       auto iov = tag.iovs.front();
       std::shared_ptr<JetResolutionObject> payload = fetchPayload(std::get<1>(iov));
       unsigned int run = std::get<0>(iov);
       std::string tagname = tag.name;
+      std::stringstream ss_tagname(tag.name);
+      std::string stmp;
+
+      std::string tag_ver;
+      std::string tag_res;
+      std::string tag_jet;
+
+      getline(ss_tagname, stmp, '_');  // drop first
+      getline(ss_tagname, stmp, '_');  // year
+      tag_ver = stmp;
+      getline(ss_tagname, stmp, '_');  // ver
+      tag_ver += '_' + stmp;
+      getline(ss_tagname, stmp, '_');  // cmssw
+      tag_ver += '_' + stmp;
+      getline(ss_tagname, stmp, '_');  // data/mc
+      tag_ver += '_' + stmp;
+      getline(ss_tagname, stmp, '_');  // bin
+      tag_res = stmp;
+      getline(ss_tagname, stmp, '_');  // jet algorithm
+      tag_jet = stmp;
+
+      bool is_2bin = false;
 
       if (payload.get()) {
         if (!payload->getRecords().empty() &&  // No formula for SF
             payload->getDefinition().getFormulaString().compare("") != 0)
           return false;
 
+        is_2bin = false;
         for (const auto& record : payload->getRecords()) {
+          if (record.getBinsRange().size() > 1)
+            is_2bin = true;
+
           if (!record.getBinsRange().empty() && payload->getDefinition().getBinName(0) == "JetEta" &&
               record.getParametersValues().size() == 3) {  // norm, down, up
 
             for (size_t it = 0; it <= NBIN_ETA; it++) {
               double x_axis = (it + 0.5) * (MAX_ETA - MIN_ETA) / NBIN_ETA + MIN_ETA;
-              if (record.getBinsRange()[0].is_inside(x_axis)) {
+              if (((is_2bin == false) || (is_2bin == true && record.getBinsRange()[1].is_inside(500.))) &&
+                  record.getBinsRange()[0].is_inside(x_axis)) {
                 sf_eta_norm->SetBinContent(it + 1, record.getParametersValues()[0]);
                 sf_eta_down->SetBinContent(it + 1, record.getParametersValues()[1]);
                 sf_eta_up->SetBinContent(it + 1, record.getParametersValues()[2]);
               }
             }
           }
-        }  // records
+
+          if (record.getBinsRange().size() > 1 && payload->getDefinition().getBinName(0) == "JetEta" &&
+              record.getBinsRange()[0].is_inside(2.55) &&  // take jeteta=2.5
+              payload->getDefinition().getBinName(1) == "JetPt" &&
+              record.getParametersValues().size() == 3) {  // norm, down, up
+
+            is_2bin = true;
+
+            for (size_t it = 0; it <= NBIN_PT; it++) {
+              double x_axis = (it + 0.5) * (MAX_PT - MIN_PT) / NBIN_PT + MIN_PT;
+              if (record.getBinsRange()[1].is_inside(x_axis)) {
+                sf_pt_norm->SetBinContent(it + 1, record.getParametersValues()[0]);
+                sf_pt_down->SetBinContent(it + 1, record.getParametersValues()[1]);
+                sf_pt_up->SetBinContent(it + 1, record.getParametersValues()[2]);
+              }
+            }
+          }  // 2-bin
+        }    // records
 
         gStyle->SetOptStat(0);
         gStyle->SetLabelFont(42, "XYZ");
@@ -326,15 +474,17 @@ namespace JME {
         gStyle->SetFrameLineWidth(3);
 
         std::string title = Form("Summary Run %i", run);
-        TCanvas canvas("Jet ScaleFactor Summary", title.c_str(), 800, 600);
+        TCanvas canvas("Jet ScaleFactor Summary", title.c_str(), 800, 1200);
+        canvas.Divide(1, 2);
 
-        canvas.cd();
-        sf_eta_up->SetTitle(tagname.c_str());
+        canvas.cd(1);
+        sf_eta_up->SetTitle("ScaleFactor vs. #eta");
         sf_eta_up->SetXTitle("#eta");
         sf_eta_up->SetYTitle("Scale Factor");
         sf_eta_up->SetLineStyle(7);
         sf_eta_up->SetLineWidth(3);
         sf_eta_up->SetFillColorAlpha(kGray, 0.5);
+        sf_eta_up->SetMaximum(sf_eta_up->GetMaximum() * 1.25);
         sf_eta_up->SetMinimum(0.);
         sf_eta_up->Draw("][");
 
@@ -349,6 +499,38 @@ namespace JME {
         sf_eta_norm->Draw("][ same");
         sf_eta_norm->Draw("axis same");
 
+        leg_eta->AddEntry(sf_eta_norm, (tag_ver + '_' + tag_jet).c_str(), "l");
+        leg_eta->AddEntry((TObject*)nullptr, "JetPt=500", "");
+        leg_eta->Draw();
+
+        if (is_2bin == true) {
+          canvas.cd(2);
+          sf_pt_up->SetTitle("ScaleFactor vs. p_{T}");
+          sf_pt_up->SetXTitle("p_{T} [GeV]");
+          sf_pt_up->SetYTitle("Scale Factor");
+          sf_pt_up->SetLineStyle(7);
+          sf_pt_up->SetLineWidth(3);
+          sf_pt_up->SetFillColorAlpha(kGray, 0.5);
+          sf_pt_up->SetMaximum(sf_pt_up->GetMaximum() * 1.25);
+          sf_pt_up->SetMinimum(0.);
+          sf_pt_up->Draw("][");
+
+          sf_pt_down->SetLineStyle(7);
+          sf_pt_down->SetLineWidth(3);
+          sf_pt_down->SetFillColorAlpha(kWhite, 1);
+          sf_pt_down->Draw("][ same");
+
+          sf_pt_norm->SetLineStyle(1);
+          sf_pt_norm->SetLineWidth(5);
+          sf_pt_norm->SetFillColor(0);
+          sf_pt_norm->Draw("][ same");
+          sf_pt_norm->Draw("axis same");
+
+          leg_pt->AddEntry(sf_pt_norm, (tag_ver + '_' + tag_jet).c_str(), "l");
+          leg_pt->AddEntry((TObject*)nullptr, "JetEta=2.55", "");
+          leg_pt->Draw();
+        }
+
         canvas.SaveAs(m_imageFileName.c_str());
 
         return true;
@@ -357,6 +539,7 @@ namespace JME {
     }  // fill
 
   };  // class
+
   // Register the classes as boost python plugin
   PAYLOAD_INSPECTOR_MODULE(JetResolutionObject) {
     PAYLOAD_INSPECTOR_CLASS(JetResolutionVsEta);
@@ -364,6 +547,9 @@ namespace JME {
     PAYLOAD_INSPECTOR_CLASS(JetScaleFactorVsEtaNORM);
     PAYLOAD_INSPECTOR_CLASS(JetScaleFactorVsEtaDOWN);
     PAYLOAD_INSPECTOR_CLASS(JetScaleFactorVsEtaUP);
+    PAYLOAD_INSPECTOR_CLASS(JetScaleFactorVsPtNORM);
+    PAYLOAD_INSPECTOR_CLASS(JetScaleFactorVsPtDOWN);
+    PAYLOAD_INSPECTOR_CLASS(JetScaleFactorVsPtUP);
     PAYLOAD_INSPECTOR_CLASS(JetResolutionSummary);
     PAYLOAD_INSPECTOR_CLASS(JetScaleFactorSummary);
   }
