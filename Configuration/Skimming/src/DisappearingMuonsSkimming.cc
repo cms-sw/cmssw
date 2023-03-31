@@ -16,7 +16,6 @@
 //
 //
 // system include files
-#include <boost/range/adaptor/indexed.hpp>
 #include <memory>
 #include "Math/VectorUtil.h"
 
@@ -294,27 +293,31 @@ bool DisappearingMuonsSkimming::findTrackInVertices(const reco::TrackRef& tkToMa
   trackIndex = -1;
 
   bool foundtrack{false};
-  for (const auto& vtx : vertices | boost::adaptors::indexed(0)) {
-    if (!vtx.value().isValid()) {
+  unsigned int idx = 0;
+  for (const auto& vtx : vertices) {
+    if (!vtx.isValid()) {
+      idx++;
       continue;
     }
 
+    const auto& thePVtracks{vtx.tracks()};
     std::vector<unsigned int> thePVkeys;
-    for (auto tv = vtx.value().tracks_begin(); tv != vtx.value().tracks_end(); tv++) {
-      if (tv->isNonnull()) {
-        const reco::TrackRef tkToMatch = tv->castTo<reco::TrackRef>();
-        thePVkeys.push_back(tkToMatch.key());
-      }
+    thePVkeys.reserve(thePVtracks.size());
+    for (const auto& tv : thePVtracks) {
+      thePVkeys.push_back(tv.key());
     }
 
-    auto result = std::find(thePVkeys.begin(), thePVkeys.end(), tkToMatch.key());
+    auto result = std::find_if(
+        thePVkeys.begin(), thePVkeys.end(), [tkToMatch](const auto& tkRef) { return tkRef == tkToMatch.key(); });
     if (result != thePVkeys.end()) {
       foundtrack = true;
       trackIndex = std::distance(thePVkeys.begin(), result);
-      vtxIndex = vtx.index();
+      vtxIndex = idx;
     }
     if (foundtrack)
       break;
+
+    idx++;
   }
   return foundtrack;
 }
