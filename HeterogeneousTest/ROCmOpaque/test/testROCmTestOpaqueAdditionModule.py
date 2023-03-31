@@ -1,10 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('TestROCmTestOpaqueAdditionModule')
+process.load('HeterogeneousCore.ROCmCore.ProcessAcceleratorROCm_cfi')
 
 process.source = cms.Source('EmptySource')
-
-process.ROCmService = cms.Service('ROCmService')
 
 process.rocmTestOpaqueAdditionModule = cms.EDAnalyzer('ROCmTestOpaqueAdditionModule',
     size = cms.uint32( 1024*1024 )

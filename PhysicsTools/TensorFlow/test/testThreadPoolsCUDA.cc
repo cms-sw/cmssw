@@ -46,11 +46,8 @@ process.add_(cms.Service('CUDAService'))
   edm::makeParameterSets(config, params);
   edm::ServiceToken tempToken(edm::ServiceRegistry::createServicesFromConfig(std::move(params)));
   edm::ServiceRegistry::Operate operate2(tempToken);
-
-  auto cs = makeCUDAService(edm::ParameterSet{});
-  std::cout << "CUDA service enabled: " << cs.enabled() << std::endl;
-
-  std::string pbFile = dataPath_ + "/constantgraph.pb";
+  edm::Service<CUDAInterface> cuda;
+  std::cout << "CUDA service enabled: " << cuda->enabled() << std::endl;
 
   std::cout << "Testing CUDA backend" << std::endl;
   tensorflow::Backend backend = tensorflow::Backend::cuda;
@@ -60,6 +57,7 @@ process.add_(cms.Service('CUDAService'))
   tensorflow::TBBThreadPool::instance(nThreads);
 
   // load the graph
+  std::string pbFile = dataPath_ + "/constantgraph.pb";
   tensorflow::setLogging();
   tensorflow::GraphDef* graphDef = tensorflow::loadGraphDef(pbFile);
   CPPUNIT_ASSERT(graphDef != nullptr);

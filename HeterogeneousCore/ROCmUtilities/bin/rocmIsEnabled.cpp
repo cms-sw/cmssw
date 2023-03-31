@@ -4,23 +4,28 @@
 // ROCm headers
 #include <hip/hip_runtime.h>
 
+// CMSSW headers
+#include "HeterogeneousCore/Common/interface/PlatformStatus.h"
+
 // local headers
 #include "isRocmDeviceSupported.h"
 
-// returns EXIT_SUCCESS if at least one visible ROCm device can be used, or EXIT_FAILURE otherwise
+// returns PlatformStatus::Success if at least one visible ROCm device can be used,
+// or different failure codes depending on the problem.
 int main() {
   int devices = 0;
   auto status = hipGetDeviceCount(&devices);
   if (status != hipSuccess) {
-    return EXIT_FAILURE;
+    // could not initialise the ROCm runtime
+    return PlatformStatus::RuntimeNotAvailable;
   }
 
   // check that at least one visible ROCm device can be used
   for (int i = 0; i < devices; ++i) {
     if (isRocmDeviceSupported(i))
-      return EXIT_SUCCESS;
+      return PlatformStatus::Success;
   }
 
-  // no visible usable devices
-  return EXIT_FAILURE;
+  // no usable ROCm devices were found
+  return PlatformStatus::DevicesNotAvailable;
 }

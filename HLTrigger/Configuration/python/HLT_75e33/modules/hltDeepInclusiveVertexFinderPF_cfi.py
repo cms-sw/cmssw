@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 hltDeepInclusiveVertexFinderPF = cms.EDProducer("InclusiveCandidateVertexFinder",
-    beamSpot = cms.InputTag("offlineBeamSpot"),
+    beamSpot = cms.InputTag("hltOnlineBeamSpot"),
     clusterizer = cms.PSet(
         clusterMaxDistance = cms.double(0.05),
         clusterMaxSignificance = cms.double(4.5),

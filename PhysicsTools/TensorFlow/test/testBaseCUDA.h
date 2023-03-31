@@ -23,17 +23,8 @@
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ResourceInformation.h"
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
+#include "HeterogeneousCore/CUDAServices/interface/CUDAInterface.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
-
-namespace {
-  CUDAService makeCUDAService(edm::ParameterSet ps) {
-    auto desc = edm::ConfigurationDescriptions("Service", "CUDAService");
-    CUDAService::fillDescriptions(desc);
-    desc.validate(ps, "CUDAService");
-    return CUDAService(ps);
-  }
-}  // namespace
 
 class testBaseCUDA : public CppUnit::TestFixture {
 public:

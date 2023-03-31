@@ -4,6 +4,7 @@
 #include <vector>
 #include <iostream>
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 
 class EcalEndcapHardcodedTopology final : public CaloSubdetectorTopology {
@@ -54,13 +55,13 @@ public:
   }
 
   std::vector<DetId> up(const DetId& /*id*/) const override {
-    std::cout << "EcalEndcapHardcodedTopology::up() not yet implemented" << std::endl;
+    edm::LogVerbatim("CaloTopology") << "EcalEndcapHardcodedTopology::up() not yet implemented";
     std::vector<DetId> vNeighborsDetId;
     return vNeighborsDetId;
   }
 
   std::vector<DetId> down(const DetId& /*id*/) const override {
-    std::cout << "EcalEndcapHardcodedTopology::down() not yet implemented" << std::endl;
+    edm::LogVerbatim("CaloTopology") << "EcalEndcapHardcodedTopology::down() not yet implemented";
     std::vector<DetId> vNeighborsDetId;
     return vNeighborsDetId;
   }

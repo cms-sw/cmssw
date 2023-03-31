@@ -92,6 +92,7 @@ HitEff::HitEff(const edm::ParameterSet& conf)
       chi2MeasurementEstimatorToken_(esConsumes(edm::ESInputTag("", "Chi2"))),
       propagatorToken_(esConsumes(edm::ESInputTag("", "PropagatorWithMaterial"))),
       conf_(conf) {
+  usesResource(TFileService::kSharedResource);
   compSettings = conf_.getUntrackedParameter<int>("CompressionSettings", -1);
   layers = conf_.getParameter<int>("Layer");
   DEBUG = conf_.getParameter<bool>("Debug");
@@ -243,7 +244,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
   //e.getByLabel("siStripDigis", fedErrorIds );
   e.getByToken(digis_token_, fedErrorIds);
 
-  ESHandle<MeasurementTracker> measurementTrackerHandle = es.getHandle(measurementTkToken_);
+  edm::ESHandle<MeasurementTracker> measurementTrackerHandle = es.getHandle(measurementTkToken_);
 
   edm::Handle<MeasurementTrackerEvent> measurementTrackerEvent;
   //e.getByLabel("MeasurementTrackerEvent", measurementTrackerEvent);
@@ -298,7 +299,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
 #ifdef ExtendedCALIBTree
     //get dEdx info if available
-    Handle<ValueMap<DeDxData> > dEdxUncalibHandle;
+    edm::Handle<ValueMap<DeDxData> > dEdxUncalibHandle;
     if (e.getByLabel("dedxMedianCTF", dEdxUncalibHandle)) {
       const ValueMap<DeDxData> dEdxTrackUncalib = *dEdxUncalibHandle.product();
 
@@ -311,7 +312,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
     }
 
     //get muon and ecal timing info if available
-    Handle<MuonCollection> muH;
+    edm::Handle<MuonCollection> muH;
     if (e.getByLabel("muonsWitht0Correction", muH)) {
       const MuonCollection& muonsT0 = *muH.product();
       if (!muonsT0.empty()) {

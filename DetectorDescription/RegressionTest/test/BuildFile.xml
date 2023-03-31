@@ -49,10 +49,7 @@
   <use name="FWCore/Utilities"/>
 </bin>
 
-<bin file="TestIntegration.cpp" name="DetectorDescriptionRegressionTestDDErrorReport">
-  <flags TEST_RUNNER_ARGS=" /bin/bash DetectorDescription/RegressionTest/test run_DDErrorReport.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="DetectorDescriptionRegressionTestDDErrorReport" command="run_DDErrorReport.sh"/>
 
 <bin file="DDCompareCPV.cpp">
   <use name="FWCore/PluginManager"/>

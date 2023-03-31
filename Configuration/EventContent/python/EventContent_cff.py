@@ -56,7 +56,7 @@ from RecoBTau.Configuration.RecoBTau_EventContent_cff import *
 from RecoBTag.Configuration.RecoBTag_EventContent_cff import *
 from RecoTauTag.Configuration.RecoTauTag_EventContent_cff import *
 from RecoVertex.Configuration.RecoVertex_EventContent_cff import *
-from RecoPixelVertexing.Configuration.RecoPixelVertexing_EventContent_cff import *
+from RecoTracker.Configuration.RecoPixelVertexing_EventContent_cff import *
 from RecoEgamma.Configuration.RecoEgamma_EventContent_cff import *
 from RecoParticleFlow.Configuration.RecoParticleFlow_EventContent_cff import *
 from RecoVertex.BeamSpotProducer.BeamSpot_EventContent_cff import *

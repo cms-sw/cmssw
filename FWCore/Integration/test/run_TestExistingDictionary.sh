@@ -4,7 +4,7 @@ test=testExistingDictionaryChecking
 
 function die { echo Failure $1: status $2 ; exit $2 ; }
 
-pushd ${LOCAL_TMP_DIR}
+LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
 
   echo "*************************************************"
   echo "Producer"
@@ -13,6 +13,4 @@ pushd ${LOCAL_TMP_DIR}
   echo "*************************************************"
   echo "Consumer"
   cmsRun ${LOCAL_TEST_DIR}/${test}Read_cfg.py || die "cmsRun ${test}Read_cfg.py 1" $?
-
-popd
 

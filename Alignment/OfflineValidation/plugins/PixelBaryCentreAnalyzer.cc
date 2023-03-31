@@ -400,19 +400,19 @@ void PixelBaryCentreAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
           if (phase_ == 1) {
             if (layer != 4) {  // layer 1-3
 
-              if (ladder % 2 != 0) {  // odd ladder = inner = flipped
-                nmodulesLayer_Flipped += nmodules_bpix[layer][ladder];
-                BPIXLayer_Flipped += barycentreLayer[ladder];
-              } else {
+              if (ladder % 2 != 0) {  // odd ladder = outer ladder = unflipped
                 nmodulesLayer_NonFlipped += nmodules_bpix[layer][ladder];
                 BPIXLayer_NonFlipped += barycentreLayer[ladder];
+              } else {  // even ladder = inner ladder = flipped
+                nmodulesLayer_Flipped += nmodules_bpix[layer][ladder];
+                BPIXLayer_Flipped += barycentreLayer[ladder];
               }
             } else {  // layer-4
 
-              if (ladder % 2 == 0) {  // even ladder = inner = flipped
+              if (ladder % 2 != 0) {  // odd ladder = inner = flipped
                 nmodulesLayer_Flipped += nmodules_bpix[layer][ladder];
                 BPIXLayer_Flipped += barycentreLayer[ladder];
-              } else {  // odd ladder = outer = non-flipped
+              } else {  //even ladder = outer ladder  = unflipped
                 nmodulesLayer_NonFlipped += nmodules_bpix[layer][ladder];
                 BPIXLayer_NonFlipped += barycentreLayer[ladder];
               }

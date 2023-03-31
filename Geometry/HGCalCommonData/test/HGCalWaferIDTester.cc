@@ -142,23 +142,33 @@ void HGCalWaferIDTester::analyze(const edm::Event& iEvent, const edm::EventSetup
       st1 << "Hit[" << k << "] " << detIds_[k];
       int cellU(0), cellV(0), waferType(-1), waferU(0), waferV(0);
       double wt(0);
-      double xx = posXY_[k].first;
-      double yy = posXY_[k].second;
       int layer = detIds_[k].layer();
       int zside = detIds_[k].zside();
+      int indx = HGCalWaferIndex::waferIndex(layer, detIds_[k].waferU(), detIds_[k].waferV());
+      st1 << " Part:Orient:Cassette:Shift " << std::get<1>(hgdc.waferFileInfo(indx)) << ":"
+          << std::get<2>(hgdc.waferFileInfo(indx)) << ":" << std::get<3>(hgdc.waferFileInfo(indx)) << ":"
+          << hgdc.cassetteShiftSilicon(layer, detIds_[k].waferU(), detIds_[k].waferV());
+      double xx = (zside < 0) ? -posXY_[k].first : posXY_[k].first;
+      double yy = posXY_[k].second;
       hgdc.waferFromPosition(xx, yy, zside, layer, waferU, waferV, cellU, cellV, waferType, wt, false, debug);
       HGCSiliconDetId id(detIds_[k].det(), detIds_[k].zside(), waferType, layer, waferU, waferV, cellU, cellV);
       if (id.rawId() != detIds_[k].rawId())
         st1 << " non-matching DetId: new ID " << id;
+      else
+        st1 << " new ID " << id;
+      indx = HGCalWaferIndex::waferIndex(layer, id.waferU(), id.waferV());
+      st1 << " Part:Orient:Cassette:Shift " << std::get<1>(hgdc.waferFileInfo(indx)) << ":"
+          << std::get<2>(hgdc.waferFileInfo(indx)) << ":" << std::get<3>(hgdc.waferFileInfo(indx)) << ":"
+          << hgdc.cassetteShiftSilicon(layer, id.waferU(), id.waferV());
       auto xy = hgdc.locateCell(id, true);
       double xx0 = (id.zside() > 0) ? xy.first : -xy.first;
       double yy0 = xy.second;
-      double dx = xx0 - (xx / CLHEP::cm);
+      double dx = xx0 - (posXY_[k].first / CLHEP::cm);
       double dy = yy0 - (yy / CLHEP::cm);
       double diff = std::sqrt(dx * dx + dy * dy);
-      st1 << " input position: (" << xx / CLHEP::cm << ", " << yy / CLHEP::cm << "); position from ID (" << xx0 << ", "
-          << yy0 << ") distance " << diff;
-      constexpr double tol = 1.0;
+      st1 << " input position: (" << posXY_[k].first / CLHEP::cm << ", " << yy / CLHEP::cm << "); position from ID ("
+          << xx0 << ", " << yy0 << ") distance " << diff;
+      constexpr double tol = 1.5;
       if (diff > tol)
         st1 << " ***** CheckID *****";
       bool valid1 = hgdc.isValidHex8(

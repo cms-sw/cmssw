@@ -1,0 +1,20 @@
+<library file="ClusterShapeExtractor.cc" name="ClusterShapeExtractor">
+  <use name="root"/>
+  <use name="FWCore/Framework"/>
+  <use name="Geometry/CommonDetUnit" source_only="1"/>
+  <use name="Geometry/Records"/>
+  <use name="Geometry/TrackerGeometryBuilder"/>
+  <use name="DataFormats/TrackerRecHit2D"/>
+  <use name="RecoTracker/PixelLowPtUtilities"/>
+  <use name="SimDataFormats/TrackingHit"/>
+  <use name="SimTracker/TrackerHitAssociation"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<bin file="LowPtGlobalDir_t.cpp">
+  <use name="RecoTracker/PixelLowPtUtilities"/>
+</bin>
+
+<bin file="ClusterShapeHitFilter_t.cpp">
+  <use name="RecoTracker/PixelLowPtUtilities"/>
+</bin>

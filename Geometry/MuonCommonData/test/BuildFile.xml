@@ -1,4 +1,1 @@
-<bin file="dummyMain.cpp" name="GeometryMuonCommonDataTestDriver">
-  <use name="FWCore/Utilities"/>
-  <flags TEST_RUNNER_ARGS="/bin/bash Geometry/MuonCommonData/test runTest.sh"/>
-</bin>
+<test name="GeometryMuonCommonDataTestDriver" command="runTest.sh"/>

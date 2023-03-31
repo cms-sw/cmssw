@@ -49,7 +49,4 @@
 </bin>
 </iftool>
 
-<bin file="runTests.cpp" name="GeometryTrackerGeometryBuilderTestDriver">
-  <use name="FWCore/Utilities"/>
-  <flags TEST_RUNNER_ARGS="/bin/bash Geometry/TrackerGeometryBuilder/test runTest.sh"/>
-</bin>
+<test name="GeometryTrackerGeometryBuilderTestDriver" command="runTest.sh"/>

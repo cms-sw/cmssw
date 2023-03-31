@@ -1448,11 +1448,9 @@ void HGCalDDDConstants::waferFromPosition(const double x,
     xx = HGCalParameters::k_ScaleFromDDD * x - hgpar_->xLayerHex_[ll];
     yy = HGCalParameters::k_ScaleFromDDD * y - hgpar_->yLayerHex_[ll];
   }
-#ifdef EDM_ML_DEBUG
   if (debug)
     edm::LogVerbatim("HGCalGeom") << "waferFromPosition:: Layer " << layer << ":" << ll << " Rot " << rotx << " X " << x
                                   << ":" << xx << " Y " << y << ":" << yy;
-#endif
   double rmax = extend ? rmaxT_ : rmax_;
   double hexside = extend ? hexsideT_ : hexside_;
   for (unsigned int k = 0; k < hgpar_->waferPosX_.size(); ++k) {
@@ -1464,11 +1462,9 @@ void HGCalDDDConstants::waferFromPosition(const double x,
       auto ktr = hgpar_->waferInfoMap_.find(indx);
       if (ktr != hgpar_->waferInfoMap_.end()) {
         auto cshift = hgcassette_.getShift(layer, -zside, (ktr->second).cassette);
-#ifdef EDM_ML_DEBUG
         if (debug)
           edm::LogVerbatim("HGCalGeom") << "Cassette " << (ktr->second).cassette << " Shift " << -(zside * cshift.first)
                                         << ":" << cshift.second;
-#endif
         dx0 = -(zside * cshift.first);
         dy0 = cshift.second;
       }
@@ -1480,19 +1476,16 @@ void HGCalDDDConstants::waferFromPosition(const double x,
         if (waferHexagon8File()) {
           int index = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
           celltype = HGCalWaferType::getType(index, hgpar_->waferInfoMap_);
-#ifdef EDM_ML_DEBUG
           if (debug)
             edm::LogVerbatim("HGCalGeom") << "Position (" << x << ", " << y << ") Wafer type:partial:orient:cassette "
                                           << celltype << ":" << HGCalWaferType::getPartial(index, hgpar_->waferInfoMap_)
                                           << ":" << HGCalWaferType::getOrient(index, hgpar_->waferInfoMap_) << ":"
                                           << HGCalWaferType::getCassette(index, hgpar_->waferInfoMap_);
-#endif
         } else {
           auto itr = hgpar_->typesInLayers_.find(HGCalWaferIndex::waferIndex(layer, waferU, waferV));
           celltype = ((itr == hgpar_->typesInLayers_.end()) ? HGCSiliconDetId::HGCalCoarseThick
                                                             : hgpar_->waferTypeL_[itr->second]);
         }
-#ifdef EDM_ML_DEBUG
         if (debug)
           edm::LogVerbatim("HGCalGeom") << "WaferFromPosition:: Input " << layer << ":" << ll << ":"
                                         << hgpar_->firstLayer_ << ":" << rotx << ":" << x << ":" << y << ":"
@@ -1502,7 +1495,6 @@ void HGCalDDDConstants::waferFromPosition(const double x,
                                         << dx * tan30deg_ << ":" << (hexside_ - dy) << " comparator " << rmax_ << ":"
                                         << rmaxT_ << ":" << hexside_ << ":" << hexsideT_ << " wafer " << waferU << ":"
                                         << waferV << ":" << celltype;
-#endif
         xx -= (dx0 + hgpar_->waferPosX_[k]);
         yy -= (dy0 + hgpar_->waferPosY_[k]);
         break;
@@ -1517,12 +1509,10 @@ void HGCalDDDConstants::waferFromPosition(const double x,
       if (ktr != hgpar_->waferInfoMap_.end()) {
         place = HGCalCell::cellPlacementIndex(1, HGCalTypes::layerFrontBack(layertype), (ktr->second).orient);
         part = (ktr->second).part;
-#ifdef EDM_ML_DEBUG
         if (debug)
           edm::LogVerbatim("HGCalGeom") << "waferFromPosition: frontback " << layertype << ":"
                                         << HGCalTypes::layerFrontBack(layertype) << " Orient " << (ktr->second).orient
                                         << " place " << place << " part " << part;
-#endif
       }
     }
     cellHex(xx, yy, celltype, place, part, cellU, cellV, extend, debug);
@@ -1619,21 +1609,21 @@ int HGCalDDDConstants::waferFileIndex(unsigned int kk) const {
     return 0;
 }
 
-std::tuple<int, int, int> HGCalDDDConstants::waferFileInfo(unsigned int kk) const {
+std::tuple<int, int, int, int> HGCalDDDConstants::waferFileInfo(unsigned int kk) const {
   if (kk < hgpar_->waferInfoMap_.size()) {
     auto itr = hgpar_->waferInfoMap_.begin();
     std::advance(itr, kk);
-    return std::make_tuple(itr->second.type, itr->second.part, itr->second.orient);
+    return std::make_tuple(itr->second.type, itr->second.part, itr->second.orient, itr->second.cassette);
   } else
-    return std::make_tuple(0, 0, 0);
+    return std::make_tuple(0, 0, 0, 0);
 }
 
-std::tuple<int, int, int> HGCalDDDConstants::waferFileInfoFromIndex(int kk) const {
+std::tuple<int, int, int, int> HGCalDDDConstants::waferFileInfoFromIndex(int kk) const {
   auto itr = hgpar_->waferInfoMap_.find(kk);
   if (itr != hgpar_->waferInfoMap_.end()) {
-    return std::make_tuple(itr->second.type, itr->second.part, itr->second.orient);
+    return std::make_tuple(itr->second.type, itr->second.part, itr->second.orient, itr->second.cassette);
   } else
-    return std::make_tuple(0, 0, 0);
+    return std::make_tuple(0, 0, 0, 0);
 }
 
 GlobalPoint HGCalDDDConstants::waferLocal2Global(

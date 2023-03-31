@@ -22,7 +22,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
    */
   class TestAlpakaESProducerD : public ESProducer {
   public:
-    TestAlpakaESProducerD(edm::ParameterSet const& iConfig) {
+    TestAlpakaESProducerD(edm::ParameterSet const& iConfig) : ESProducer(iConfig) {
       auto cc = setWhatProduced(this);
       tokenA_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("srcA"));
       tokenB_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("srcB"));

@@ -8,13 +8,7 @@
 
 NewTrackAction::NewTrackAction() {}
 
-void NewTrackAction::primary(const G4Track *aTrack) const { primary(const_cast<G4Track *>(aTrack)); }
-
 void NewTrackAction::primary(G4Track *aTrack) const { addUserInfoToPrimary(aTrack); }
-
-void NewTrackAction::secondary(const G4Track *aSecondary, const G4Track &mother, int flag) const {
-  secondary(const_cast<G4Track *>(aSecondary), mother, flag);
-}
 
 void NewTrackAction::secondary(G4Track *aSecondary, const G4Track &mother, int flag) const {
   const TrackInformation *motherInfo = static_cast<const TrackInformation *>(mother.GetUserInformation());
@@ -25,8 +19,8 @@ void NewTrackAction::secondary(G4Track *aSecondary, const G4Track &mother, int f
 
 void NewTrackAction::addUserInfoToPrimary(G4Track *aTrack) const {
   TrackInformation *trkInfo = new TrackInformation();
-  trkInfo->isPrimary(true);
-  trkInfo->storeTrack(true);
+  trkInfo->setPrimary(true);
+  trkInfo->setStoreTrack();
   trkInfo->putInHistory();
   trkInfo->setGenParticlePID(aTrack->GetDefinition()->GetPDGEncoding());
   trkInfo->setGenParticleP(aTrack->GetMomentum().mag());
@@ -40,7 +34,7 @@ void NewTrackAction::addUserInfoToSecondary(G4Track *aTrack, const TrackInformat
 
   // Take care of cascade decays
   if (flag == 1) {
-    trkInfo->isPrimary(true);
+    trkInfo->setPrimary(true);
     trkInfo->setGenParticlePID(aTrack->GetDefinition()->GetPDGEncoding());
     trkInfo->setGenParticleP(aTrack->GetMomentum().mag());
   } else {
@@ -50,7 +44,7 @@ void NewTrackAction::addUserInfoToSecondary(G4Track *aTrack, const TrackInformat
 
   // Store if decay or conversion
   if (flag > 0) {
-    trkInfo->storeTrack(true);
+    trkInfo->setStoreTrack();
     trkInfo->putInHistory();
     trkInfo->setIDonCaloSurface(aTrack->GetTrackID(),
                                 motherInfo.getIDCaloVolume(),

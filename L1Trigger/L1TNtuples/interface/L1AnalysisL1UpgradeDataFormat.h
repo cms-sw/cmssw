@@ -131,6 +131,7 @@ namespace L1Analysis {
       muonShowerOneNominal.clear();
       muonShowerOneTight.clear();
       muonShowerTwoLoose.clear();
+      muonShowerTwoLooseDiffSectors.clear();
 
       nSums = 0;
       sumType.clear();
@@ -224,6 +225,7 @@ namespace L1Analysis {
     std::vector<short int> muonShowerOneNominal;
     std::vector<short int> muonShowerOneTight;
     std::vector<short int> muonShowerTwoLoose;
+    std::vector<short int> muonShowerTwoLooseDiffSectors;
 
     unsigned short int nSums;
     std::vector<short int> sumType;

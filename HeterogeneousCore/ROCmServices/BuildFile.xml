@@ -1,11 +1,5 @@
-<iftool name="rocm">
-  <use name="rocm"/>
-  <use name="FWCore/MessageLogger"/>
-  <use name="FWCore/ParameterSet"/>
-  <use name="FWCore/ServiceRegistry"/>
-  <use name="FWCore/Utilities"/>
-  <use name="HeterogeneousCore/ROCmUtilities" source_only="true"/>
-  <export>
-    <lib name="1"/>
-  </export>
-</iftool>
+<use name="FWCore/ServiceRegistry"/>
+<use name="HeterogeneousCore/ROCmUtilities" source_only="true"/>
+<export>
+  <lib name="1"/>
+</export>

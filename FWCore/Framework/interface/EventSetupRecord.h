@@ -51,11 +51,9 @@
 
 // system include files
 #include <exception>
-#include <map>
 #include <memory>
 #include <utility>
 #include <vector>
-#include <atomic>
 #include <cassert>
 #include <limits>
 
@@ -69,12 +67,11 @@ class testEventsetupRecord;
 
 namespace edm {
   class ESHandleExceptionFactory;
-  class ESInputTag;
+  class ESParentContext;
   class EventSetupImpl;
 
   namespace eventsetup {
     struct ComponentDescription;
-    class DataProxy;
     class EventSetupRecordKey;
 
     class EventSetupRecord {
@@ -174,7 +171,7 @@ namespace edm {
         ComponentDescription const* desc = nullptr;
         std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
 
-        impl_->getImplementation(value, proxyIndex, H<T>::transientAccessOnly, desc, whyFailedFactory, eventSetupImpl_);
+        impl_->getImplementation(value, proxyIndex, H<T>::transientAccessOnly, desc, whyFailedFactory);
 
         if UNLIKELY (not value) {
           return H<T>(std::move(whyFailedFactory));
@@ -187,8 +184,6 @@ namespace edm {
       ESProxyIndex const* getTokenIndices() const noexcept { return getTokenIndices_; }
 
       ESParentContext const* esParentContext() const noexcept { return context_; }
-
-      void validate(ComponentDescription const*, ESInputTag const&) const;
 
       void addTraceInfoToCmsException(cms::Exception& iException,
                                       char const* iName,
@@ -217,10 +212,6 @@ namespace edm {
           return std::make_exception_ptr(ex);
         })};
       }
-
-      void const* getFromProxy(DataKey const& iKey,
-                               ComponentDescription const*& iDesc,
-                               bool iTransientAccessOnly) const;
 
       static std::exception_ptr makeUninitializedTokenException(EventSetupRecordKey const&, TypeTag const&);
       static std::exception_ptr makeInvalidTokenException(EventSetupRecordKey const&, TypeTag const&, unsigned int);

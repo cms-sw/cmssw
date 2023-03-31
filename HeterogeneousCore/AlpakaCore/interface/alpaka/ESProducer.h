@@ -33,6 +33,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
   protected:
+    ESProducer(edm::ParameterSet const& iConfig);
+
     template <typename T>
     auto setWhatProduced(T* iThis, edm::es::Label const& label = {}) {
       return setWhatProduced(iThis, &T::produce, label);
@@ -52,7 +54,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               return std::optional{CopyT::copyAsync(iRecord.queue(), *handle)};
             },
             label);
-        *tokenPtr = ccDev.consumes();
+        *tokenPtr = ccDev.consumes(edm::ESInputTag{moduleLabel_, label.default_ + appendToDataLabel_});
       }
       return cc;
     }
@@ -129,6 +131,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 
     static void throwSomeNullException();
+
+    std::string const moduleLabel_;
+    std::string const appendToDataLabel_;
   };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 

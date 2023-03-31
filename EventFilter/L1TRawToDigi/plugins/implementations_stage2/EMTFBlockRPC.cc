@@ -126,6 +126,9 @@ namespace l1t {
         bool run3_DAQ_format =
             (getAlgoVersion() >=
              11546);  // Firmware from 26.08.22 which enabled new Run 3 DAQ format for RPCs - EY 13.09.22
+        bool reducedDAQWindow =
+            (getAlgoVersion() >=
+             11656);  // Firmware from 08.12.22 which is used as a flag for new reduced readout window - EY 01.03.23
 
         int nTPs = run3_DAQ_format ? 2 : 1;
 
@@ -165,7 +168,10 @@ namespace l1t {
               RPC_.set_word(GetHexBits(RPCa, 11, 12));
               RPC_.set_frame(GetHexBits(RPCa, 13, 14));
 
-              RPC_.set_tbin(GetHexBits(RPCb, 0, 2));
+              if (reducedDAQWindow)  // reduced DAQ window is used only after run3 DAQ format
+                RPC_.set_tbin(GetHexBits(RPCb, 0, 2) + 1);
+              else
+                RPC_.set_tbin(GetHexBits(RPCb, 0, 2));
               RPC_.set_vp(GetHexBits(RPCb, 3, 3));
               RPC_.set_theta(GetHexBits(RPCb, 4, 8));
               RPC_.set_bc0(GetHexBits(RPCb, 9, 9));
@@ -175,7 +181,10 @@ namespace l1t {
               RPC_.set_word(GetHexBits(RPCc, 11, 12));
               RPC_.set_frame(GetHexBits(RPCc, 13, 14));
 
-              RPC_.set_tbin(GetHexBits(RPCd, 0, 2));
+              if (reducedDAQWindow)  // reduced DAQ window is used only after run3 DAQ format
+                RPC_.set_tbin(GetHexBits(RPCd, 0, 2) + 1);
+              else
+                RPC_.set_tbin(GetHexBits(RPCd, 0, 2));
               RPC_.set_vp(GetHexBits(RPCd, 3, 3));
               RPC_.set_theta(GetHexBits(RPCd, 4, 8));
               RPC_.set_bc0(GetHexBits(RPCd, 9, 9));

@@ -22,6 +22,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::device {
   public:
     EventSetup(edm::EventSetup const& iSetup, Device const& dev) : setup_(iSetup), device_(dev) {}
 
+    // To be able to interact with non-Alpaka helper code that needs
+    // to access edm::EventSetup
+    operator edm::EventSetup const &() const { return setup_; }
+
     // getData()
 
     template <typename T, typename R>

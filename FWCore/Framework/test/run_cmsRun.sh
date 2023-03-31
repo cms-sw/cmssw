@@ -3,6 +3,8 @@
 # Pass in name and status
 function die { echo $1: status $2 ;  exit $2; }
 
+LOCAL_TEST_DIR="${CMSSW_BASE}/src/FWCore/Framework/test"
+
 (cmsRun --help ) || die 'Failure running cmsRun --help' $?
 
 # This test is supposed to throw an exception.

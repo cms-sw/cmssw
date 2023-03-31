@@ -30,10 +30,7 @@ _isMC = True
 _allFromGT = True
 _applyBows = True
 _applyExtraConditions = True
-if(options.isPhase2):
-     _theRefitter = RefitType.STANDARD # FIXME: once the sequence is cleared out    
-else: 
-     _theRefitter = RefitType.COMMON  
+_theRefitter = RefitType.COMMON # RefitType.STANDARD (other option not involving filtering)
 _theTrackCollection = 'generalTracks' # FIXME: 'ALCARECOTkAlMinBias' once a sample is available
 
 ###################################################################
@@ -121,7 +118,7 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 ####################################################################
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, ('auto:phase2_realistic' if options.isPhase2 else 'auto:phase1_2022_realistic'), '')
+process.GlobalTag = GlobalTag(process.GlobalTag, ('auto:phase2_realistic_T21' if options.isPhase2 else 'auto:phase1_2022_realistic'), '')
 
 if _allFromGT:
      print("############ testPVValidation_cfg.py: msg%-i: All is taken from GT")

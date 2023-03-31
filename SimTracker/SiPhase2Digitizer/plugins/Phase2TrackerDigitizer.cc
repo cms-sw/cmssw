@@ -68,7 +68,9 @@ namespace cms {
         pSetupToken_(iC.esConsumes()),
         tTopoToken_(iC.esConsumes()),
         isOuterTrackerReadoutAnalog_(iConfig.getParameter<bool>("isOTreadoutAnalog")),
+        usePseudoPixel3DAlgo_(iConfig.getParameter<bool>("usePseudoPixel3DAlgo")),
         premixStage1_(iConfig.getParameter<bool>("premixStage1")),
+
         makeDigiSimLinks_(
             iConfig.getParameter<edm::ParameterSet>("AlgorithmCommon").getUntrackedParameter<bool>("makeDigiSimLinks")) {
     const std::string alias1("simSiPixelDigis");
@@ -247,12 +249,12 @@ namespace cms {
       case TrackerGeometry::ModuleType::Ph2PXF:
         algotype = AlgorithmType::InnerPixel;
         break;
-      case TrackerGeometry::ModuleType::Ph2PXB3D:
-        algotype = AlgorithmType::InnerPixel3D;
-        break;
-      case TrackerGeometry::ModuleType::Ph2PXF3D:
-        algotype = AlgorithmType::InnerPixel3D;
-        break;
+      case TrackerGeometry::ModuleType::Ph2PXB3D: {
+        algotype = (usePseudoPixel3DAlgo_) ? AlgorithmType::InnerPixel : AlgorithmType::InnerPixel3D;
+      } break;
+      case TrackerGeometry::ModuleType::Ph2PXF3D: {
+        algotype = (usePseudoPixel3DAlgo_) ? AlgorithmType::InnerPixel : AlgorithmType::InnerPixel3D;
+      } break;
       case TrackerGeometry::ModuleType::Ph2PSP:
         algotype = AlgorithmType::PixelinPS;
         break;

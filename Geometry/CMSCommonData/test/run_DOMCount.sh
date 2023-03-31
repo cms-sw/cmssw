@@ -2,8 +2,7 @@
 
 function die { echo Failure $1: status $2 ; exit $2 ; }
 
-pushd ${LOCAL_TMP_DIR}
-
+export LOCAL_TOP_DIR=${CMSSW_BASE}
 rm -f run_DOMCount.log
 echo "Normal output of DOMCount is written to file tmp/${SCRAM_ARCH}/run_DOMCount.log"
 
@@ -40,7 +39,7 @@ cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometryXML_cfi"
 cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometryZeroMaterialXML_cfi"
 
 # automatically retrieve active phase 2 geometries
-read -a DETS <<< $(python3 -c 'from Configuration.Geometry.dict2026Geometry import detectorVersionDict; print " ".join(sorted([x[1] for x in detectorVersionDict.items()]))')
+read -a DETS <<< $(python3 -c 'from Configuration.Geometry.dict2026Geometry import detectorVersionDict; print (" ".join(sorted([x[1] for x in detectorVersionDict.items()])))')
 for DET in ${DETS[@]}; do
 	cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometry2026${DET}XML_cfi"
 done
@@ -48,7 +47,7 @@ done
 for cfiFile in ${cfiFiles}
 do
   echo "run_DOMCount.py $cfiFile" | tee -a run_DOMCount.log
-  ${LOCAL_TEST_DIR}/run_DOMCount.py $cfiFile >> run_DOMCount.log 2>&1 || die "run_DOMCount.py $cfiFile" $?
+  ${SCRAM_TEST_PATH}/run_DOMCount.py $cfiFile >> run_DOMCount.log 2>&1 || die "run_DOMCount.py $cfiFile" $?
 done
 
 # Errors in the xml files and also missing xml or schema files will
@@ -67,5 +66,4 @@ else
     exit 1
 fi
 
-popd
 exit 0

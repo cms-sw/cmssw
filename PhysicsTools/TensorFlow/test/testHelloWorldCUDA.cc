@@ -48,12 +48,9 @@ process.add_(cms.Service('CUDAService'))
   edm::makeParameterSets(config, params);
   edm::ServiceToken tempToken(edm::ServiceRegistry::createServicesFromConfig(std::move(params)));
   edm::ServiceRegistry::Operate operate2(tempToken);
+  edm::Service<CUDAInterface> cuda;
+  std::cout << "CUDA service enabled: " << cuda->enabled() << std::endl;
 
-  auto cs = makeCUDAService(edm::ParameterSet{});
-  std::cout << "CUDA service enabled: " << cs.enabled() << std::endl;
-
-  std::string modelDir = dataPath_ + "/simplegraph";
-  // Testing CPU
   std::cout << "Testing CUDA backend" << std::endl;
   tensorflow::Backend backend = tensorflow::Backend::cuda;
 
@@ -65,6 +62,7 @@ process.add_(cms.Service('CUDAService'))
   tensorflow::SavedModelBundle bundle;
 
   // load everything
+  std::string modelDir = dataPath_ + "/simplegraph";
   status = tensorflow::LoadSavedModel(sessionOptions, runOptions, modelDir, {"serve"}, &bundle);
   if (!status.ok()) {
     std::cout << status.ToString() << std::endl;

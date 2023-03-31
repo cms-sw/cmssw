@@ -5,7 +5,6 @@
     <use name="FWCore/ParameterSet"/>
     <use name="FWCore/ServiceRegistry"/>
     <use name="HeterogeneousCore/CUDAServices"/>
-    <use name="HeterogeneousCore/CUDAUtilities"/>
     <use name="HeterogeneousTest/CUDAOpaque"/>
     <flags EDM_PLUGIN="1"/>
   </library>

@@ -150,7 +150,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset, edm:
   }
   //should delete chunks when run stops
   for (unsigned int i = 0; i < numBuffers_; i++) {
-    freeChunks_.push(new InputChunk(i, eventChunkSize_));
+    freeChunks_.push(new InputChunk(eventChunkSize_));
   }
 
   quit_threads_ = false;
@@ -882,9 +882,11 @@ void FedRawDataInputSource::readSupervisor() {
         //return LS if LS not set, otherwise return file
         status = getFile(ls, nextFile, fileSizeIndex, thisLockWaitTimeUs);
         if (status == evf::EvFDaqDirector::newFile) {
+          uint16_t rawDataType;
           if (evf::EvFDaqDirector::parseFRDFileHeader(nextFile,
                                                       rawFd,
                                                       rawHeaderSize,
+                                                      rawDataType,
                                                       lsFromRaw,
                                                       serverEventsInNewFile,
                                                       fileSizeFromMetadata,
@@ -1202,13 +1204,22 @@ void FedRawDataInputSource::readSupervisor() {
           break;
         }
         //in single-buffer mode put single chunk in the file and let the main thread read the file
-        InputChunk* newChunk;
+        InputChunk* newChunk = nullptr;
         //should be available immediately
         while (!freeChunks_.try_pop(newChunk)) {
           usleep(100000);
-          if (quit_threads_.load(std::memory_order_relaxed))
+          if (quit_threads_.load(std::memory_order_relaxed)) {
+            stop = true;
             break;
+          }
         }
+
+        if (newChunk == nullptr) {
+          stop = true;
+        }
+
+        if (stop)
+          break;
 
         std::unique_lock<std::mutex> lkw(mWakeup_);
 
@@ -1343,8 +1354,9 @@ void FedRawDataInputSource::readWorker(unsigned int tid) {
       ssize_t last;
 
       //protect against reading into next block
-      last = ::read(
-          fileDescriptor, (void*)(chunk->buf_ + bufferLeft), std::min(chunk->usedSize_ - bufferLeft, eventChunkBlock_));
+      last = ::read(fileDescriptor,
+                    (void*)(chunk->buf_ + bufferLeft),
+                    std::min(chunk->usedSize_ - bufferLeft, (uint64_t)eventChunkBlock_));
 
       if (last < 0) {
         edm::LogError("FedRawDataInputSource") << "readWorker failed to read file -: " << file->fileName_
@@ -1356,7 +1368,7 @@ void FedRawDataInputSource::readWorker(unsigned int tid) {
         bufferLeft += last;
       if (last < eventChunkBlock_) {  //last read
         //check if this is last block, then total read size must match file size
-        if (!(chunk->usedSize_ - skipped == i * eventChunkBlock_ + last)) {
+        if (!(chunk->usedSize_ - skipped == i * eventChunkBlock_ + (unsigned int)last)) {
           edm::LogError("FedRawDataInputSource")
               << "readWorker failed to read file -: " << file->fileName_ << " fd:" << fileDescriptor << " last:" << last
               << " expectedChunkSize:" << chunk->usedSize_
@@ -1452,7 +1464,7 @@ inline bool InputFile::advance(unsigned char*& dataPosition, const size_t size) 
   }
 }
 
-inline void InputFile::moveToPreviousChunk(const size_t size, const size_t offset) {
+void InputFile::moveToPreviousChunk(const size_t size, const size_t offset) {
   //this will fail in case of events that are too large
   assert(size < chunks_[currentChunk_]->size_ - chunkPosition_);
   assert(size - offset < chunks_[currentChunk_]->size_);
@@ -1461,7 +1473,7 @@ inline void InputFile::moveToPreviousChunk(const size_t size, const size_t offse
   bufferPosition_ += size;
 }
 
-inline void InputFile::rewindChunk(const size_t size) {
+void InputFile::rewindChunk(const size_t size) {
   chunkPosition_ -= size;
   bufferPosition_ -= size;
 }
@@ -1470,21 +1482,25 @@ InputFile::~InputFile() {
   if (rawFd_ != -1)
     close(rawFd_);
 
-  if (deleteFile_ && !fileName_.empty()) {
-    const std::filesystem::path filePath(fileName_);
-    try {
-      //sometimes this fails but file gets deleted
-      LogDebug("FedRawDataInputSource:InputFile") << "Deleting input file -:" << fileName_;
-      std::filesystem::remove(filePath);
-      return;
-    } catch (const std::filesystem::filesystem_error& ex) {
-      edm::LogError("FedRawDataInputSource:InputFile")
-          << " - deleteFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what() << ". Trying again.";
-    } catch (std::exception& ex) {
-      edm::LogError("FedRawDataInputSource:InputFile")
-          << " - deleteFile std::exception CAUGHT -: " << ex.what() << ". Trying again.";
+  if (deleteFile_) {
+    for (auto& fileName : fileNames_) {
+      if (!fileName.empty()) {
+        const std::filesystem::path filePath(fileName);
+        try {
+          //sometimes this fails but file gets deleted
+          LogDebug("FedRawDataInputSource:InputFile") << "Deleting input file -:" << fileName;
+          std::filesystem::remove(filePath);
+          continue;
+        } catch (const std::filesystem::filesystem_error& ex) {
+          edm::LogError("FedRawDataInputSource:InputFile")
+              << " - deleteFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what() << ". Trying again.";
+        } catch (std::exception& ex) {
+          edm::LogError("FedRawDataInputSource:InputFile")
+              << " - deleteFile std::exception CAUGHT -: " << ex.what() << ". Trying again.";
+        }
+        std::filesystem::remove(filePath);
+      }
     }
-    std::filesystem::remove(filePath);
   }
 }
 

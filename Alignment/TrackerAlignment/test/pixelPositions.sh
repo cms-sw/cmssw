@@ -154,6 +154,7 @@ EOF
     then
        mkdir ${PLOTDIR}
        cp -r $PLOTMILLEPEDEDIR/* ${PLOTDIR}
+       chmod -R +w ${PLOTDIR}
     fi
     cd ${PLOTDIR}
     root -b -q -l allMillePede.C "pixelPositionChange.C+(\"${HEREIAM}/$TREEFILE1\", \"${HEREIAM}/$TREEFILE2\")"

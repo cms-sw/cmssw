@@ -49,7 +49,7 @@
 
 class TrackerTopology;
 
-class HitEff : public edm::one::EDAnalyzer<> {
+class HitEff : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit HitEff(const edm::ParameterSet& conf);
   ~HitEff() override = default;

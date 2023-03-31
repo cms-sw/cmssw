@@ -38,7 +38,7 @@
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/FitUtils.h"
+#include "RecoTracker/PixelTrackFitting/interface/FitUtils.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCurvilinear.h"

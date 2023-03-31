@@ -132,6 +132,9 @@ namespace l1t {
         bool run3_DAQ_format =
             (getAlgoVersion() >=
              11546);  // Firmware from 26.08.22 which enabled new Run 3 DAQ format for GEMs - EY 13.09.22
+        bool reducedDAQWindow =
+            (getAlgoVersion() >=
+             11656);  // Firmware from 08.12.22 which is used as a flag for new reduced readout window - EY 01.03.23
 
         int nTPs = run3_DAQ_format ? 2 : 1;
 
@@ -172,7 +175,10 @@ namespace l1t {
               GEM_.set_partition(GetHexBits(GEMa, 9, 11));
               GEM_.set_cluster_size(GetHexBits(GEMa, 12, 14));
 
-              GEM_.set_tbin(GetHexBits(GEMb, 0, 2));
+              if (reducedDAQWindow)  // reduced DAQ window is used only after run3 DAQ format
+                GEM_.set_tbin(GetHexBits(GEMb, 0, 2) + 1);
+              else
+                GEM_.set_tbin(GetHexBits(GEMb, 0, 2));
               GEM_.set_vp(GetHexBits(GEMb, 3, 3));
               GEM_.set_bc0(GetHexBits(GEMb, 7, 7));
               GEM_.set_cluster_id(GetHexBits(GEMb, 8, 11));
@@ -182,7 +188,10 @@ namespace l1t {
               GEM_.set_partition(GetHexBits(GEMc, 9, 11));
               GEM_.set_cluster_size(GetHexBits(GEMc, 12, 14));
 
-              GEM_.set_tbin(GetHexBits(GEMd, 0, 2));
+              if (reducedDAQWindow)  // reduced DAQ window is used only after run3 DAQ format
+                GEM_.set_tbin(GetHexBits(GEMd, 0, 2) + 1);
+              else
+                GEM_.set_tbin(GetHexBits(GEMd, 0, 2));
               GEM_.set_vp(GetHexBits(GEMd, 3, 3));
               GEM_.set_bc0(GetHexBits(GEMd, 7, 7));
               GEM_.set_cluster_id(GetHexBits(GEMd, 8, 11));

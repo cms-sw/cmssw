@@ -3,6 +3,7 @@
 <use name="tbb"/>
 <use name="DataFormats/FEDRawData"/>
 <use name="DataFormats/TCDS"/>
+<use name="DataFormats/L1Trigger"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ServiceRegistry"/>

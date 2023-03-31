@@ -115,7 +115,7 @@ void EcalTBHodoscopeGeometryAnalyzer::build(const CaloGeometry& cg, DetId::Detec
 
 // ------------ method called to produce the data  ------------
 void EcalTBHodoscopeGeometryAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  std::cout << "Here I am " << std::endl;
+  edm::LogVerbatim("EcalGeom") << "Here I am ";
 
   auto const& pG = iSetup.getData(geometryToken_);
   //

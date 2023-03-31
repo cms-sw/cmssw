@@ -47,6 +47,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::device {
     auto streamID() const { return constEvent_.streamID(); }
     auto id() const { return constEvent_.id(); }
 
+    // To be able to interact with non-Alpaka helper code that needs
+    // to access edm::Event
+    operator edm::Event const &() const { return constEvent_; }
+
     Device device() const { return metadata_->device(); }
 
     // Alpaka operations do not accept a temporary as an argument

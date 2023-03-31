@@ -203,9 +203,17 @@ namespace HepMCValidationHelper {
       std::vector<const HepMC::GenParticle*> taudaughters;
       findDescendents(taus[i], taudaughters);
       if (taudaughters.empty()) {
+        std::ostringstream ss;
+        auto vertex = taus[i]->end_vertex();
+        if (vertex) {
+          ss << "( " << vertex->point3d().x() << " " << vertex->point3d().y() << " " << vertex->point3d().z() << " )";
+        } else {
+          ss << "( did not decay )";
+        }
         throw cms::Exception("NoTauDaugters")
             << " HepMCValidationHelper found no daughters for Tau within index " << i << " and info \n"
-            << *taus[i] << "\n  This should not be able to happen and needs to be fixed.";
+            << *taus[i] << " decay point " << ss.str()
+            << "\n  This should not be able to happen and needs to be fixed.";
       }
       const HepMC::FourVector& taumom = taus[i]->momentum();
       //remove the daughters from the list of particles to compute isolation

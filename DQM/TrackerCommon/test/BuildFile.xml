@@ -1,6 +1,1 @@
-<environment>
-  <bin file="test_DetectorStateFilter.cpp">
-    <flags TEST_RUNNER_ARGS="/bin/bash DQM/TrackerCommon/test test_DetectorStateFilter.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-</environment>
+<test name="test_DetectorStateFilter" command="test_DetectorStateFilter.sh"/>

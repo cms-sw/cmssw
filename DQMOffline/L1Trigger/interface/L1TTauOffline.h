@@ -172,6 +172,9 @@ private:
 
   std::vector<int> m_trigIndices;
 
+  //V.M. 16.3.2023. Temporary variable for checking the anti-ele discriminator
+  bool m_AntiEleExists;
+
   // Histograms
   MonitorElement* h_nVertex_;
   MonitorElement* h_tagAndProbeMass_;
