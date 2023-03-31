@@ -9,8 +9,4 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<test name="DRNTest" command="runtests.sh">
-  <ifrelease name="_ASAN_|_UBSAN_">
-    <flags NO_TEST_PREFIX="1"/>
-  </ifrelease>
-</test>
+<test name="DRNTest" command="runtests.sh"/>
