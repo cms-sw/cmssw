@@ -7,14 +7,16 @@
  * Implementation:                                                                                                     
  *    This condition class checks for the presente of a valid muon shower in the event.                                                                  
  *    If present, according to the condition parsed by the xml menu 
- *    (four possibilities for the first Run 3 implementation: MuonShower0, MuonShower1, MuonShowerOutOfTime0, MuonShowerOutOfTime1)
- *    the corresponding boolean flag is checked (isOneNominalInTime, isOneTightInTime, musOutOfTime0, musOutOfTime1).   
+ *    (five possibilities for the 2023 Run 3 implementation: MuonShower0, MuonShower1, MuonShower2, MuonShowerOutOfTime0, MuonShowerOutOfTime1)
+ *    the corresponding boolean flag is checked (isOneNominalInTime, isOneTightInTime, isTwoLooseDiffSectorsInTime, musOutOfTime0, musOutOfTime1).   
  *    If it is set to 1, the condition is satisfied and the object  is saved.
- *    Note that for the start of Run 3 only two cases are considered in the menu: Nominal and Tight muon showers.  
+ *    Note that for the start of Run 3 only two cases were considered in the menu: Nominal and Tight muon showers,  
+ *    an additional case is added for the 2023 data-taking: TwoLooseDiffSectors muon showers.
  *  
  * \author: S. Dildick (2021) - Rice University                                                    
  *         
  * \fixes by: E. Fontanesi, E. Yigitbasi, A. Loeliger (2023)                                                                                                
+ * \adding TwoLooseDiffSectors HMT: E. Fontanesi                                                                                                
  *         
  */
 
@@ -177,12 +179,14 @@ const bool l1t::MuonShowerCondition::checkObjectParameter(const int iCondition,
 
   LogDebug("L1TGlobal") << "\n MuonShowerTemplate::ObjectParameter (utm objects, checking which condition is parsed): "
                         << std::hex << "\n\t MuonShower0 = 0x " << objPar.MuonShower0 << "\n\t MuonShower1 = 0x "
-                        << objPar.MuonShower1 << "\n\t MuonShowerOutOfTime0 = 0x " << objPar.MuonShowerOutOfTime0
+                        << objPar.MuonShower1 << "\n\t MuonShower2 = 0x " << objPar.MuonShower2
+                        << "\n\t MuonShowerOutOfTime0 = 0x " << objPar.MuonShowerOutOfTime0
                         << "\n\t MuonShowerOutOfTime1 = 0x " << objPar.MuonShowerOutOfTime1 << std::endl;
 
   LogDebug("L1TGlobal") << "\n l1t::MuonShower (uGT emulator bits): "
                         << "\n\t MuonShower0: isOneNominalInTime() = " << cand.isOneNominalInTime()
                         << "\n\t MuonShower1: isOneTightInTime() = " << cand.isOneTightInTime()
+                        << "\n\t MuonShower2: isTwoLooseDiffSectorsInTime() = " << cand.isTwoLooseDiffSectorsInTime()
                         << "\n\t MuonShowerOutOfTime0: musOutOfTime0() = " << cand.musOutOfTime0()
                         << "\n\t MuonShowerOutOfTime1: musOutOfTime1() = " << cand.musOutOfTime1() << std::endl;
 
@@ -194,6 +198,11 @@ const bool l1t::MuonShowerCondition::checkObjectParameter(const int iCondition,
   // Check oneTightInTime
   if (cand.isOneTightInTime() != objPar.MuonShower1) {
     LogDebug("L1TGlobal") << "\t\t MuonShower failed MuonShower1 requirement" << std::endl;
+    return false;
+  }
+  // Check twoLooseInTime
+  if (cand.isTwoLooseDiffSectorsInTime() != objPar.MuonShower2) {
+    LogDebug("L1TGlobal") << "\t\t MuonShower failed MuonShower2 requirement" << std::endl;
     return false;
   }
   if (cand.musOutOfTime0() != objPar.MuonShowerOutOfTime0) {
