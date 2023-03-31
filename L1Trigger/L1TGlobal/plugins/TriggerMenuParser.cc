@@ -1152,6 +1152,8 @@ bool l1t::TriggerMenuParser::parseMuon(tmeventsetup::esCondition condMu, unsigne
     int qualityLUT = 0xFFFF;       //default is to ignore unless specified.
 
     const std::vector<esCut>& cuts = object.getCuts();
+    std::vector<MuonTemplate::Window> tfMuonIndexWindows;
+
     for (size_t kk = 0; kk < cuts.size(); kk++) {
       const esCut& cut = cuts.at(kk);
 
@@ -1226,6 +1228,14 @@ bool l1t::TriggerMenuParser::parseMuon(tmeventsetup::esCondition condMu, unsigne
           isolationLUT = l1tstr2int(cut.getData());
 
         } break;
+
+        case esCutType::Index: {
+          tfMuonIndexWindows.push_back({
+            cut.getMinimum().index,
+            cut.getMaximum().index
+          });
+        } break;
+
         default:
           break;
       }  //end switch
@@ -1263,6 +1273,8 @@ bool l1t::TriggerMenuParser::parseMuon(tmeventsetup::esCondition condMu, unsigne
     objParameter[cnt].charge = charge;
     objParameter[cnt].qualityLUT = qualityLUT;
     objParameter[cnt].isolationLUT = isolationLUT;
+
+    objParameter[cnt].tfMuonIndexWindows = tfMuonIndexWindows;
 
     cnt++;
   }  //end loop over objects
@@ -1384,6 +1396,8 @@ bool l1t::TriggerMenuParser::parseMuonCorr(const tmeventsetup::esObject* corrMu,
   int qualityLUT = 0xFFFF;  //default is to ignore unless specified.
 
   const std::vector<esCut>& cuts = corrMu->getCuts();
+  std::vector<MuonTemplate::Window> tfMuonIndexWindows;
+
   for (size_t kk = 0; kk < cuts.size(); kk++) {
     const esCut& cut = cuts.at(kk);
 
@@ -1458,6 +1472,14 @@ bool l1t::TriggerMenuParser::parseMuonCorr(const tmeventsetup::esObject* corrMu,
         isolationLUT = l1tstr2int(cut.getData());
 
       } break;
+
+      case esCutType::Index: {
+        tfMuonIndexWindows.push_back({
+          cut.getMinimum().index,
+          cut.getMaximum().index
+        });
+      } break;
+
       default:
         break;
     }  //end switch
@@ -1495,6 +1517,8 @@ bool l1t::TriggerMenuParser::parseMuonCorr(const tmeventsetup::esObject* corrMu,
   objParameter[0].charge = charge;
   objParameter[0].qualityLUT = qualityLUT;
   objParameter[0].isolationLUT = isolationLUT;
+
+  objParameter[0].tfMuonIndexWindows = tfMuonIndexWindows;
 
   // object types - all muons
   std::vector<GlobalObject> objType(nrObj, gtMu);

@@ -142,6 +142,11 @@ namespace l1t {
                                   const Type1& lowerR,
                                   const Type1& upperR) const;
 
+    /// check if a value is in a given range
+    template <class Type1>
+    const bool checkRangeTfMuonIndex(const unsigned int bitNumber,
+                                     const std::vector<Type1>& windows) const;
+
   protected:
     /// maximum number of objects received for the evaluation of the condition
     /// usually retrieved from event setup
@@ -502,6 +507,22 @@ namespace l1t {
     else {
       return false;
     }
+  }
+
+  template <class Type1>
+  const bool ConditionEvaluation::checkRangeTfMuonIndex(const unsigned int value,
+                                                        const std::vector<Type1>& windows) const {
+    if (windows.empty()) {
+      return true;
+    }
+
+    for (const auto& window : windows) {
+      if ((window.lower <= value) and (value <= window.upper)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
 }  // namespace l1t
