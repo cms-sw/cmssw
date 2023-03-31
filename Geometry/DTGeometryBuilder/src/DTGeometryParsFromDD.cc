@@ -30,9 +30,10 @@
 #include <algorithm>
 #include <string>
 
-using namespace std;
 using namespace geant_units;
 using namespace geant_units::operators;
+
+//#define EDM_ML_DEBUG
 
 DTGeometryParsFromDD::DTGeometryParsFromDD() {}
 
@@ -44,8 +45,6 @@ void DTGeometryParsFromDD::build(const DDCompactView* cview,
                                  RecoIdealGeometry& rig) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("DTGeometry") << "DTGeometryParsFromDD::build";
-  static const string t0 = "DTGeometryParsFromDD::build";
-  TimeMe timer(t0, true);
 #endif
 
   std::string attribute = "MuStructure";
@@ -76,11 +75,9 @@ void DTGeometryParsFromDD::build(const cms::DDCompactView* cview,
 void DTGeometryParsFromDD::buildGeometry(DDFilteredView& fv,
                                          const MuonGeometryConstants& muonConstants,
                                          RecoIdealGeometry& rig) const {
-  // static const string t0 = "DTGeometryParsFromDD::buildGeometry";
-  // TimeMe timer(t0,true);
-
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("DTGeometryParsFromDD") << "(0) DTGeometryParsFromDD - DDD ";
-
+#endif
   bool doChamber = fv.firstChild();
 
   // Loop on chambers
@@ -89,12 +86,12 @@ void DTGeometryParsFromDD::buildGeometry(DDFilteredView& fv,
     ChamCounter++;
     DDValue val("Type");
     const DDsvalues_type params(fv.mergedSpecifics());
-    string type;
+    std::string type;
     if (DDfetch(&params, val))
       type = val.strings()[0];
     // FIXME
     val = DDValue("FEPos");
-    string FEPos;
+    std::string FEPos;
     if (DDfetch(&params, val))
       FEPos = val.strings()[0];
     insertChamber(fv, type, muonConstants, rig);
@@ -127,7 +124,7 @@ void DTGeometryParsFromDD::buildGeometry(DDFilteredView& fv,
 }
 
 void DTGeometryParsFromDD::insertChamber(DDFilteredView& fv,
-                                         const string& type,
+                                         const std::string& type,
                                          const MuonGeometryConstants& muonConstants,
                                          RecoIdealGeometry& rig) const {
   MuonGeometryNumbering mdddnum(muonConstants);
@@ -139,12 +136,14 @@ void DTGeometryParsFromDD::insertChamber(DDFilteredView& fv,
 #endif
 
   // Chamber specific parameter (size)
-  vector<double> par;
+  std::vector<double> par;
   par.emplace_back(DTChamberTag);
-  vector<double> size = extractParameters(fv);
+  std::vector<double> size = extractParameters(fv);
   par.insert(par.end(), size.begin(), size.end());
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("DTGeometryParsFromDD")
       << "(1) DDD, Chamber DetID " << rawid << " " << par[0] << " " << par[1] << " " << par[2] << " " << par[3];
+#endif
   ///SL the definition of length, width, thickness depends on the local reference frame of the Det
   // width is along local X
   // length is along local Y
@@ -167,12 +166,14 @@ void DTGeometryParsFromDD::insertSuperLayer(DDFilteredView& fv,
 #endif
 
   // Slayer specific parameter (size)
-  vector<double> par;
+  std::vector<double> par;
   par.emplace_back(DTSuperLayerTag);
-  vector<double> size = extractParameters(fv);
+  std::vector<double> size = extractParameters(fv);
   par.insert(par.end(), size.begin(), size.end());
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("DTGeometryParsFromDD")
       << "(2) DDD, Super Layer DetID " << rawid << " " << par[0] << " " << par[1] << " " << par[2] << " " << par[3];
+#endif
   // Ok this is the slayer position...
   PosRotPair posRot(plane(fv));
   rig.insert(slId, posRot.first, posRot.second, par);
@@ -190,9 +191,9 @@ void DTGeometryParsFromDD::insertLayer(DDFilteredView& fv,
   edm::LogVerbatim("DTGeometry") << "inserting Layer " << layId;
 #endif
   // Layer specific parameter (size)
-  vector<double> par;
+  std::vector<double> par;
   par.emplace_back(DTLayerTag);
-  vector<double> size = extractParameters(fv);
+  std::vector<double> size = extractParameters(fv);
   par.insert(par.end(), size.begin(), size.end());
 
   // Loop on wires
@@ -204,7 +205,7 @@ void DTGeometryParsFromDD::insertLayer(DDFilteredView& fv,
     WCounter++;
     doWire = fv.nextSibling();  // next wire
   }
-  vector<double> sensSize = extractParameters(fv);
+  std::vector<double> sensSize = extractParameters(fv);
   //int lastWire=fv.copyno();
   par.emplace_back(firstWire);
   par.emplace_back(WCounter);
@@ -213,14 +214,16 @@ void DTGeometryParsFromDD::insertLayer(DDFilteredView& fv,
 
   PosRotPair posRot(plane(fv));
 
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("DTGeometryParsFromDD")
       << "(3) DDD, Layer DetID " << rawid << " " << par[0] << " " << par[1] << " " << par[2] << " " << par[3] << " "
       << par[4] << " " << par[5] << " " << par[6];
+#endif
   rig.insert(layId, posRot.first, posRot.second, par);
 }
 
-vector<double> DTGeometryParsFromDD::extractParameters(DDFilteredView& fv) const {
-  vector<double> par;
+std::vector<double> DTGeometryParsFromDD::extractParameters(DDFilteredView& fv) const {
+  std::vector<double> par;
   if (fv.logicalPart().solid().shape() != DDSolidShape::ddbox) {
     DDBooleanSolid bs(fv.logicalPart().solid());
     DDSolid A = bs.solidA();
@@ -244,8 +247,10 @@ DTGeometryParsFromDD::PosRotPair DTGeometryParsFromDD::plane(const DDFilteredVie
   gtran[1] = convertMmToCm(trans.y());
   gtran[2] = convertMmToCm(trans.z());
 
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("DTGeometryParsFromDD") << "(4) DDD, Position "
                                            << " " << gtran[0] << " " << gtran[1] << " " << gtran[2];
+#endif
   // now the rotation
   //     'active' and 'passive' rotations are inverse to each other
   const DDRotationMatrix& rotation = fv.rotation();  //REMOVED .Inverse();
@@ -265,7 +270,7 @@ DTGeometryParsFromDD::PosRotPair DTGeometryParsFromDD::plane(const DDFilteredVie
   grmat[7] = z.Y();
   grmat[8] = z.Z();
 
-  return pair<std::vector<double>, std::vector<double> >(gtran, grmat);
+  return std::pair<std::vector<double>, std::vector<double> >(gtran, grmat);
 }
 
 // DD4hep
@@ -273,8 +278,9 @@ DTGeometryParsFromDD::PosRotPair DTGeometryParsFromDD::plane(const DDFilteredVie
 void DTGeometryParsFromDD::buildGeometry(cms::DDFilteredView& fv,
                                          const MuonGeometryConstants& muonConstants,
                                          RecoIdealGeometry& rig) const {
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("DTGeometryParsFromDD") << "(0) DTGeometryParsFromDD - DD4hep ";
-
+#endif
   bool doChamber = fv.firstChild();
 
   while (doChamber) {
@@ -309,9 +315,10 @@ DTGeometryParsFromDD::PosRotPair DTGeometryParsFromDD::plane(const cms::DDFilter
   gtran[1] = tr[1] / dd4hep::cm;
   gtran[2] = tr[2] / dd4hep::cm;
 
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("DTGeometryParsFromDD") << "(4) DD4hep, Position "
                                            << " " << gtran[0] << " " << gtran[1] << " " << gtran[2];
-
+#endif
   DDRotationMatrix rotation = fv.rotation();
   DD3Vector x, y, z;
   rotation.GetComponents(x, y, z);
@@ -330,7 +337,7 @@ DTGeometryParsFromDD::PosRotPair DTGeometryParsFromDD::plane(const cms::DDFilter
   grmat[7] = z.Y();
   grmat[8] = z.Z();
 
-  return pair<std::vector<double>, std::vector<double> >(gtran, grmat);
+  return std::pair<std::vector<double>, std::vector<double> >(gtran, grmat);
 }
 
 void DTGeometryParsFromDD::insertChamber(cms::DDFilteredView& fv,
@@ -341,15 +348,17 @@ void DTGeometryParsFromDD::insertChamber(cms::DDFilteredView& fv,
   int rawid = dtnum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.history()));
   DTChamberId detId(rawid);
 
-  vector<double> par_temp = fv.parameters();
-  vector<double> par(4);
+  std::vector<double> par_temp = fv.parameters();
+  std::vector<double> par(4);
   par[0] = DTChamberTag;  //DTChamberTag is the ID of a Chamber
   par[1] = par_temp[0] / dd4hep::mm;
   par[2] = par_temp[1] / dd4hep::mm;
   par[3] = par_temp[2] / dd4hep::mm;
 
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("DTGeometryParsFromDD")
       << "(1) DD4hep, Chamber DetID " << rawid << " " << par[0] << " " << par[1] << " " << par[2] << " " << par[3];
+#endif
   PosRotPair posRot(plane(fv));
   rig.insert(rawid, posRot.first, posRot.second, par);
 }
@@ -362,15 +371,17 @@ void DTGeometryParsFromDD::insertSuperLayer(cms::DDFilteredView& fv,
   int rawid = dtnum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.history()));
   DTSuperLayerId slId(rawid);
 
-  vector<double> par_temp = fv.parameters();
-  vector<double> par(4);
+  std::vector<double> par_temp = fv.parameters();
+  std::vector<double> par(4);
   par[0] = DTSuperLayerTag;  //DTSuperLayerTag is the ID of a SuperLayer
   par[1] = par_temp[0] / dd4hep::mm;
   par[2] = par_temp[1] / dd4hep::mm;
   par[3] = par_temp[2] / dd4hep::mm;
 
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("DTGeometryParsFromDD")
       << "(2) DD4hep, Super Layer DetID " << rawid << " " << par[0] << " " << par[1] << " " << par[2] << " " << par[3];
+#endif
   PosRotPair posRot(plane(fv));
   rig.insert(slId, posRot.first, posRot.second, par);
 }
@@ -383,8 +394,8 @@ void DTGeometryParsFromDD::insertLayer(cms::DDFilteredView& fv,
   int rawid = dtnum.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.history()));
   DTLayerId layId(rawid);
 
-  vector<double> par_temp = fv.parameters();
-  vector<double> par(4);
+  std::vector<double> par_temp = fv.parameters();
+  std::vector<double> par(4);
   par[0] = DTLayerTag;  //DTLayerTag is the ID of a Layer
   par[1] = par_temp[0] / dd4hep::mm;
   par[2] = par_temp[1] / dd4hep::mm;
@@ -410,8 +421,10 @@ void DTGeometryParsFromDD::insertLayer(cms::DDFilteredView& fv,
 
   PosRotPair posRot(plane(fv));
 
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("DTGeometryParsFromDD")
       << "(3) DD4hep, Layer DetID " << rawid << " " << par[0] << " " << par[1] << " " << par[2] << " " << par[3] << " "
       << par[4] << " " << par[5] << " " << par[6];
+#endif
   rig.insert(layId, posRot.first, posRot.second, par);
 }
