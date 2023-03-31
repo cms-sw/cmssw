@@ -9,10 +9,11 @@ MAIN    := ../mkFit
 WRMEMF  := ../writeMemoryFile
 WMF_DICT_PCM := ../WriteMemFileDict_rdict.pcm
 SHELL_DICT_PCM := ../ShellDict_rdict.pcm
+ROOTOUT := WriteMemFileDict.cc ShellDict.cc
 
 TGTS := ${LIB_CMS} ${MAIN}
 ifdef WITH_ROOT
-TGTS += ${WRMEMF} ${WMF_DICT_PCM}
+TGTS += ${WRMEMF} ${WMF_DICT_PCM} ${SHELL_DICT_PCM}
 endif
 
 .PHONY: all clean distclean
@@ -45,7 +46,7 @@ include ${DEPS}
 endif
 
 clean-local:
-	-rm -f ${TGTS} *.d *.o *.om *.so *.pcm
+	-rm -f ${TGTS} *.d *.o *.om *.so *.pcm ${ROOTOUT}
 	-rm -rf main.dSYM
 	-rm -rf plotting/*.so plotting/*.d plotting/*.pcm
 
