@@ -1,3 +1,6 @@
+<use name="DataFormats/EcalDetId"/>
+<use name="DataFormats/HcalDetId"/>
+<use name="DataFormats/L1TCalorimeterPhase2"/>
 <use name="FWCore/ParameterSet"/>
 <use name="clhep"/>
 <use name="hls"/>

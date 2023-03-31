@@ -8,6 +8,10 @@
 #include <iomanip>
 #include <iostream>
 
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "L1Trigger/L1CaloTrigger/interface/ParametricCalibration.h"
+
 // Output collections
 #include "DataFormats/L1TCalorimeterPhase2/interface/CaloCrystalCluster.h"
 #include "DataFormats/L1TCalorimeterPhase2/interface/CaloTower.h"
