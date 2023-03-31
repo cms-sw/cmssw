@@ -3,8 +3,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
-#include "FWCore/ServiceRegistry/interface/SystemBounds.h"
-#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
 #include <vector>
 #include <unordered_set>
@@ -22,6 +20,9 @@ namespace edm {
   class PathsAndConsumesOfModulesBase;
   class ProcessContext;
   class ModuleDescription;
+  namespace service {
+    class SystemBounds;
+  }
 }  // namespace edm
 
 enum class TritonServerType { Remote = 0, LocalCPU = 1, LocalGPU = 2 };
@@ -131,7 +132,6 @@ private:
   unsigned currentModuleId_;
   bool allowAddModel_;
   bool startedFallback_;
-  unsigned int numInstancesForFallbacks_;
   std::string pid_;
   std::unordered_map<std::string, Model> unservedModels_;
   //this represents a many:many:many map

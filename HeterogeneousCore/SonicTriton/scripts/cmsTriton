@@ -13,6 +13,7 @@ MODELS=()
 FORCE=""
 CLEANUP=true
 TMPDIR=""
+INSTANCES=0
 DRYRUN=""
 PARENTPID=""
 BASEPORT=8000
@@ -50,6 +51,7 @@ usage() {
 	$ECHO "-r [num]    \t number of retries when starting container (default: ${RETRIES})"
 	$ECHO "-s [dir]    \t Singularity sandbox directory (default: $(get_sandbox))"
 	$ECHO "-t [dir]    \t non-default hidden temporary dir"
+	$ECHO "-I [num]    \t number of model instances (default: ${INSTANCES} -> means no local editing of config files)"
 	$ECHO "-v          \t (verbose) start: activate server debugging info; stop: keep server logs"
 	$ECHO "-w [time]   \t maximum time to wait for server to start (default: ${WTIME} seconds)"
 	$ECHO "-h          \t print this message and exit"
@@ -67,7 +69,7 @@ if [ -e /run/shm ]; then
 	SHM=/run/shm
 fi
 
-while getopts "cC:Ddfgi:M:m:n:P:p:r:s:t:vw:h" opt; do
+while getopts "cC:Ddfgi:M:m:n:P:p:r:s:t:I:vw:h" opt; do
 	case "$opt" in
 		c) CLEANUP=""
 		;;
@@ -98,6 +100,8 @@ while getopts "cC:Ddfgi:M:m:n:P:p:r:s:t:vw:h" opt; do
 		s) SANDBOX="$OPTARG"
 		;;
 		t) TMPDIR="$OPTARG"
+		;;
+		I) INSTANCES="$OPTARG"
 		;;
 		v) VERBOSE="$VERBOSE_ARGS"
 		;;
@@ -218,7 +222,6 @@ start_singularity(){
 	for REPO in ${REPOS[@]}; do
 		MOUNTARGS="$MOUNTARGS -B $REPO"
 		REPOARGS="$REPOARGS --model-repository=${REPO}"
-		ls ${REPO}
 	done
 
 	# compatibility driver environment
@@ -316,14 +319,59 @@ wait_server(){
 	echo "server is ready!"
 }
 
+edit_model(){
+    cp -r $1 $TMPDIR/local_model_repo/
+    IFS='/' read -ra ADDR <<< "$1"
+    CONFIG=$TMPDIR/local_model_repo/${ADDR[-1]}/config.pbtxt
+
+    echo "" >> "$CONFIG"
+    echo "instance_group [" >> "$CONFIG"
+    echo "  {" >> "$CONFIG"
+    echo "    count: "$2 >> "$CONFIG"
+    echo "    kind: KIND_CPU" >> "$CONFIG"
+    echo "  }" >> "$CONFIG"
+    echo "]" >> "$CONFIG"
+    echo "" >> "$CONFIG"
+
+    if grep -Fq "onnx" "$CONFIG"
+    then
+	echo "parameters { key: \"intra_op_thread_count\" value: { string_value: \"1\" } }" >> "$CONFIG"
+	echo "parameters { key: \"inter_op_thread_count\" value: { string_value: \"1\" } }" >> "$CONFIG"
+    fi
+
+    if grep -Fq "tensorflow" "$CONFIG"
+    then
+	echo "parameters { key: \"TF_NUM_INTRA_THREADS\" value: { string_value: \"1\" } }" >> "$CONFIG"
+	echo "parameters { key: \"TF_NUM_INTER_THREADS\" value: { string_value: \"1\" } }" >> "$CONFIG"
+	echo "parameters { key: \"TF_USE_PER_SESSION_THREADS\" value: { string_value: \"1\" } }" >> "$CONFIG"
+    fi
+}
+
 list_models(){
 	# make list of model repositories
+        if [ "$INSTANCES" -gt 0 ]
+	then
+	    if [ -d "$TMPDIR/local_model_repo" ]
+	    then
+		#Want to start with a fresh copy of model files in case this directory already exists with local edits
+		rm -rf $TMPDIR/local_model_repo
+		mkdir $TMPDIR/local_model_repo
+	    else
+		mkdir $TMPDIR/local_model_repo
+	    fi
+	fi
 	for MODEL in ${MODELS[@]}; do
 		# check if file was provided rather than directory
 		if [ -f "$MODEL" ]; then
 			MODEL="$(dirname "$MODEL")"
 		fi
-		REPOS+=("$(dirname "$MODEL")")
+		if [ "$INSTANCES" -gt 0 ]
+		then
+		    edit_model $MODEL "$INSTANCES"
+		    REPOS=$TMPDIR/local_model_repo
+		else
+		    REPOS+=("$(dirname "$MODEL")")
+		fi
 	done
 	for ((r=0; r < ${#REPOS[@]}; r++)); do
 		# avoid issues w/ multiple levels of symlinks
@@ -505,9 +553,11 @@ elif [ "$OP" == start ]; then
 	PORT_EXIT=$?
 	if [ "$PORT_EXIT" -ne 0 ]; then exit $PORT_EXIT; fi
 
+	make_tmp
+	
 	list_models
 
-	make_tmp
+	#make_tmp
 
 	# after make_tmp because this may create file in tmp dir
 	check_drivers
