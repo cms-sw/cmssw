@@ -21,10 +21,8 @@
 #include <string>
 #include <utility>
 
-using namespace std;
 using namespace geant_units;
 using namespace geant_units::operators;
-using namespace std;
 
 //#define EDM_ML_DEBUG
 
@@ -37,7 +35,7 @@ void DTGeometryBuilderFromDDD::build(DTGeometry& theGeometry,
                                      const MuonGeometryConstants& muonConstants) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("DTGeometry") << "DTGeometryBuilderFromDDD::build";
-  //static const string t0 = "DTGeometryBuilderFromDDD::build";
+  //static const std::string t0 = "DTGeometryBuilderFromDDD::build";
   //TimeMe timer(t0,true);
 #endif
 
@@ -64,12 +62,12 @@ void DTGeometryBuilderFromDDD::buildGeometry(DTGeometry& theGeometry,
     ChamCounter++;
     DDValue val("Type");
     const DDsvalues_type params(fv.mergedSpecifics());
-    string type;
+    std::string type;
     if (DDfetch(&params, val))
       type = val.strings()[0];
     // FIXME
     val = DDValue("FEPos");
-    string FEPos;
+    std::string FEPos;
     if (DDfetch(&params, val))
       FEPos = val.strings()[0];
     DTChamber* chamber = buildChamber(fv, type, muonConstants);
@@ -105,7 +103,7 @@ void DTGeometryBuilderFromDDD::buildGeometry(DTGeometry& theGeometry,
 }
 
 DTChamber* DTGeometryBuilderFromDDD::buildChamber(DDFilteredView& fv,
-                                                  const string& type,
+                                                  const std::string& type,
                                                   const MuonGeometryConstants& muonConstants) const {
   MuonGeometryNumbering mdddnum(muonConstants);
   DTNumberingScheme dtnum(muonConstants);
@@ -141,7 +139,7 @@ DTSuperLayer* DTGeometryBuilderFromDDD::buildSuperLayer(DDFilteredView& fv,
   DTSuperLayerId slId(rawid);
 
   // Slayer specific parameter (size)
-  vector<double> par = extractParameters(fv);
+  std::vector<double> par = extractParameters(fv);
 
   edm::LogVerbatim("DTGeometryBuilder") << "(2) detId: " << rawid << " par[0]: " << par[0] << " par[1]: " << par[1]
                                         << " par[2]: " << par[2];
@@ -209,8 +207,8 @@ DTLayer* DTGeometryBuilderFromDDD::buildLayer(DDFilteredView& fv,
   return layer;
 }
 
-vector<double> DTGeometryBuilderFromDDD::extractParameters(DDFilteredView& fv) const {
-  vector<double> par;
+std::vector<double> DTGeometryBuilderFromDDD::extractParameters(DDFilteredView& fv) const {
+  std::vector<double> par;
   if (fv.logicalPart().solid().shape() != DDSolidShape::ddbox) {
     DDBooleanSolid bs(fv.logicalPart().solid());
     DDSolid A = bs.solidA();
