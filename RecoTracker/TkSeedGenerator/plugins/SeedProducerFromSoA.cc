@@ -22,7 +22,7 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/FitUtils.h"
+#include "RecoTracker/PixelTrackFitting/interface/FitUtils.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCurvilinear.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"

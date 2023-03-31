@@ -1,0 +1,19 @@
+<use name="CondFormats/DataRecord"/>
+<use name="CondFormats/SiPixelObjects"/>
+<use name="CondFormats/SiStripObjects"/>
+<use name="DataFormats/TrackerCommon"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/Utilities"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/TrackerGeometryBuilder"/>
+<use name="MagneticField/Records"/>
+<use name="RecoTracker/PixelTrackFitting"/>
+<use name="RecoTracker/PixelSeeding"/>
+<use name="TrackingTools/PatternTools"/>
+<use name="TrackingTools/Records"/>
+<use name="TrackingTools/TrajectoryFiltering"/>
+<export>
+  <lib name="1"/>
+</export>

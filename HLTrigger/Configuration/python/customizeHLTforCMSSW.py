@@ -210,6 +210,12 @@ def customiseForOffline(process):
 
     return process
 
+def customizeForRecoPixelVertexing(process):
+    for prod in esproducers_by_type(process, 'ClusterShapeHitFilterESProducer'):
+        prod.PixelShapeFile = "RecoTracker/PixelLowPtUtilities/data/pixelShapePhase1_noL1.par"
+        prod.PixelShapeFileL1 = "RecoTracker/PixelLowPtUtilities/data/pixelShapePhase1_loose.par"
+
+    return process
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -218,5 +224,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
+
+    process = customizeForRecoPixelVertexing(process)
 
     return process

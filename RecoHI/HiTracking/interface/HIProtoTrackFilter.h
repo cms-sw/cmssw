@@ -1,7 +1,7 @@
 #ifndef _HIProtoTrackFilter_h_
 #define _HIProtoTrackFilter_h_
 
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilterBase.h"
+#include "RecoTracker/PixelTrackFitting/interface/PixelTrackFilterBase.h"
 
 namespace reco {
   class BeamSpot;
