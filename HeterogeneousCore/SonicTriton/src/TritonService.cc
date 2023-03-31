@@ -267,7 +267,7 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
     fallbackOpts_.command += " -t " + fallbackOpts_.tempDir;
 
   std::string command = fallbackOpts_.command + " start";
-  
+
   if (fallbackOpts_.debug)
     edm::LogInfo("TritonService") << "Fallback server temporary directory: " << fallbackOpts_.tempDir;
   if (verbose_)
