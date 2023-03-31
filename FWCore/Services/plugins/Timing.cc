@@ -92,6 +92,11 @@ namespace edm {
 
       double postCommon() const;
 
+      void setTaskCallbacks(ActivityRegistry&);
+      inline void addTask() { runningTasksChanged(true); }
+      inline void removeTask() { runningTasksChanged(false); }
+      void runningTasksChanged(bool iMoreTasks);
+
       double curr_job_time_;               // seconds
       double curr_job_cpu_;                // seconds
       std::atomic<double> extra_job_cpu_;  //seconds
@@ -102,6 +107,11 @@ namespace edm {
       bool summary_only_;
       bool report_summary_;
       double threshold_;
+      
+      std::atomic<bool> updating_task_info_ = false;
+      CMS_THREAD_GUARD(updating_task_info_) unsigned int num_running_tasks_ = 0;
+      CMS_THREAD_GUARD(updating_task_info_) double last_task_change_time_ = 0;
+      CMS_THREAD_GUARD(updating_task_info_) double total_time_without_tasks_ = 0;
       //
       // Min Max and total event times for each Stream.
       //  Used for summary at end of job
@@ -116,7 +126,7 @@ namespace edm {
 
       std::vector<std::unique_ptr<std::atomic<double>>> eventSetupModuleStartTimes_;
       std::vector<std::pair<uintptr_t, eventsetup::EventSetupRecordKey>> eventSetupModuleCallInfo_;
-      std::atomic<double> accumulatedEventSetupModuleTimings_;
+      std::atomic<double> accumulatedEventSetupModuleTimings_ = 0.;
 
       std::vector<std::unique_ptr<std::atomic<unsigned int>>> countSubProcessesPreEvent_;
       std::vector<std::unique_ptr<std::atomic<unsigned int>>> countSubProcessesPostEvent_;
@@ -349,6 +359,41 @@ namespace edm {
           countSubProcessesPostEvent_.emplace_back(std::make_unique<std::atomic<unsigned int>>(0));
         }
       });
+      setTaskCallbacks(iRegistry);
+    }
+  
+    void Timing::setTaskCallbacks(ActivityRegistry& iRegistry) {
+      iRegistry.preSourceSignal_.connect([this](auto){addTask();});
+      iRegistry.postSourceSignal_.connect([this](auto){removeTask();});
+
+      iRegistry.preSourceLumiSignal_.connect([this](auto){addTask();});
+      iRegistry.postSourceLumiSignal_.connect([this](auto){removeTask();});
+
+      iRegistry.preSourceRunSignal_.connect([this](auto){addTask();});
+      iRegistry.postSourceRunSignal_.connect([this](auto){removeTask();});
+
+      iRegistry.preEventReadFromSourceSignal_.connect([this](auto, auto){addTask();});
+      iRegistry.postEventReadFromSourceSignal_.connect([this](auto, auto){removeTask();});
+
+      iRegistry.preModuleStreamBeginRunSignal_.connect([this](auto, auto){addTask();});
+      iRegistry.postModuleStreamBeginRunSignal_.connect([this](auto, auto){removeTask();});
+      iRegistry.preModuleStreamEndRunSignal_.connect([this](auto, auto){addTask();});
+      iRegistry.postModuleStreamEndRunSignal_.connect([this](auto, auto){removeTask();});
+
+      iRegistry.preModuleStreamBeginLumiSignal_.connect([this](auto, auto){addTask();});
+      iRegistry.postModuleStreamBeginLumiSignal_.connect([this](auto, auto){removeTask();});
+      iRegistry.preModuleStreamEndLumiSignal_.connect([this](auto, auto){addTask();});
+      iRegistry.postModuleStreamEndLumiSignal_.connect([this](auto, auto){removeTask();});
+
+      iRegistry.preModuleGlobalBeginRunSignal_.connect([this](auto, auto){addTask();});
+      iRegistry.postModuleGlobalBeginRunSignal_.connect([this](auto, auto){removeTask();});
+      iRegistry.preModuleGlobalEndRunSignal_.connect([this](auto, auto){addTask();});
+      iRegistry.postModuleGlobalEndRunSignal_.connect([this](auto, auto){removeTask();});
+
+      iRegistry.preModuleGlobalBeginLumiSignal_.connect([this](auto, auto){addTask();});
+      iRegistry.postModuleGlobalBeginLumiSignal_.connect([this](auto, auto){removeTask();});
+      iRegistry.preModuleGlobalEndLumiSignal_.connect([this](auto, auto){addTask();});
+      iRegistry.postModuleGlobalEndLumiSignal_.connect([this](auto, auto){removeTask();});
     }
 
     Timing::~Timing() {}
@@ -388,6 +433,7 @@ namespace edm {
       }
       curr_job_time_ = getTime();
       curr_job_cpu_ = getCPU();
+      last_task_change_time_ = curr_job_time_;
 
       if (not summary_only_) {
         LogImportant("TimeReport") << "TimeReport> Report activated"
@@ -463,6 +509,7 @@ namespace edm {
                                  << " - Total init:  " << total_initialization_time << "\n"
                                  << " - Total job:   " << total_job_time << "\n"
                                  << " - Total EventSetup: " << accumulatedEventSetupModuleTimings_.load() << "\n"
+                                 << " - Total non-task: " << total_time_without_tasks_ << "\n"
                                  << " Event Throughput: " << event_throughput << " ev/s\n"
                                  << " CPU Summary: \n"
                                  << " - Total loop:     " << total_loop_cpu << "\n"
@@ -488,6 +535,7 @@ namespace edm {
         reportData.insert(std::make_pair("TotalJobChildrenCPU", d2str(job_end_children_cpu)));
         reportData.insert(std::make_pair("TotalLoopTime", d2str(total_loop_time)));
         reportData.insert(std::make_pair("TotalEventSetupTime", d2str(accumulatedEventSetupModuleTimings_.load())));
+        reportData.insert(std::make_pair("TotalNonTaskTime", d2str(total_time_without_tasks_)));
         reportData.insert(std::make_pair("TotalLoopCPU", d2str(total_loop_cpu)));
         reportData.insert(std::make_pair("TotalInitTime", d2str(total_initialization_time)));
         reportData.insert(std::make_pair("TotalInitCPU", d2str(total_initialization_cpu)));
@@ -625,6 +673,19 @@ namespace edm {
             << " seconds.";
       }
       return t;
+    }
+  
+    void Timing::runningTasksChanged(bool iMoreTasks) {
+      const auto presentTime = getTime();
+      bool expected = false;
+      while( not updating_task_info_.compare_exchange_strong(expected, true) ) {
+        expected = false;
+      }
+      auto previousNumberOfTasks = iMoreTasks? num_running_tasks_++ : --num_running_tasks_;
+      
+      total_time_without_tasks_ += (nThreads_ - previousNumberOfTasks) * (presentTime - last_task_change_time_);
+      last_task_change_time_ = presentTime;
+      updating_task_info_ = false;
     }
   }  // namespace service
 }  // namespace edm
