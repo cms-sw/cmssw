@@ -75,7 +75,6 @@ void DTGeometryParsFromDD::build(const cms::DDCompactView* cview,
 void DTGeometryParsFromDD::buildGeometry(DDFilteredView& fv,
                                          const MuonGeometryConstants& muonConstants,
                                          RecoIdealGeometry& rig) const {
-
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("DTGeometryParsFromDD") << "(0) DTGeometryParsFromDD - DDD ";
 #endif
