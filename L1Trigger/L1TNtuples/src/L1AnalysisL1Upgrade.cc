@@ -133,6 +133,7 @@ void L1Analysis::L1AnalysisL1Upgrade::SetMuonShower(const l1t::MuonShowerBxColle
         l1upgrade_.muonShowerOneNominal.push_back(it->isOneNominalInTime());
         l1upgrade_.muonShowerOneTight.push_back(it->isOneTightInTime());
         l1upgrade_.muonShowerTwoLoose.push_back(it->isTwoLooseInTime());
+        l1upgrade_.muonShowerTwoLooseDiffSectors.push_back(it->isTwoLooseDiffSectorsInTime());
         l1upgrade_.nMuonShowers++;
       }
     }
