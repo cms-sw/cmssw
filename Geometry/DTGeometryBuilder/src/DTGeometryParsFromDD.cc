@@ -45,7 +45,7 @@ void DTGeometryParsFromDD::build(const DDCompactView* cview,
                                  RecoIdealGeometry& rig) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("DTGeometry") << "DTGeometryParsFromDD::build";
-  static const std::string t0 = "DTGeometryParsFromDD::build";
+//  static const std::string t0 = "DTGeometryParsFromDD::build";
 //  TimeMe timer(t0, true);
 #endif
 
