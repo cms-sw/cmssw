@@ -35,8 +35,6 @@ void DTGeometryBuilderFromDDD::build(DTGeometry& theGeometry,
                                      const MuonGeometryConstants& muonConstants) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("DTGeometry") << "DTGeometryBuilderFromDDD::build";
-  //static const std::string t0 = "DTGeometryBuilderFromDDD::build";
-  //TimeMe timer(t0,true);
 #endif
 
   std::string attribute = "MuStructure";

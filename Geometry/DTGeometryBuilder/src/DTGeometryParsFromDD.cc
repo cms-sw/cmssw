@@ -45,8 +45,6 @@ void DTGeometryParsFromDD::build(const DDCompactView* cview,
                                  RecoIdealGeometry& rig) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("DTGeometry") << "DTGeometryParsFromDD::build";
-//  static const std::string t0 = "DTGeometryParsFromDD::build";
-//  TimeMe timer(t0, true);
 #endif
 
   std::string attribute = "MuStructure";
@@ -77,8 +75,6 @@ void DTGeometryParsFromDD::build(const cms::DDCompactView* cview,
 void DTGeometryParsFromDD::buildGeometry(DDFilteredView& fv,
                                          const MuonGeometryConstants& muonConstants,
                                          RecoIdealGeometry& rig) const {
-  // static const std::string t0 = "DTGeometryParsFromDD::buildGeometry";
-  // TimeMe timer(t0,true);
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("DTGeometryParsFromDD") << "(0) DTGeometryParsFromDD - DDD ";
