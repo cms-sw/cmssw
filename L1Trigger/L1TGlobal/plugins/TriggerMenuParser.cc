@@ -308,6 +308,7 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
 
         } else if (condition.getType() == esConditionType::MuonShower0 ||
                    condition.getType() == esConditionType::MuonShower1 ||
+                   condition.getType() == esConditionType::MuonShower2 ||
                    condition.getType() == esConditionType::MuonShowerOutOfTime0 ||
                    condition.getType() == esConditionType::MuonShowerOutOfTime1) {
           parseMuonShower(condition, chipNr, false);
@@ -1571,6 +1572,8 @@ bool l1t::TriggerMenuParser::parseMuonShower(L1TUtmCondition condMu, unsigned in
     objParameter[0].MuonShower0 = true;
   } else if (condMu.getType() == esConditionType::MuonShower1) {
     objParameter[0].MuonShower1 = true;
+  } else if (condMu.getType() == esConditionType::MuonShower2) {
+    objParameter[0].MuonShower2 = true;
   } else if (condMu.getType() == esConditionType::MuonShowerOutOfTime0) {
     objParameter[0].MuonShowerOutOfTime0 = true;
   } else if (condMu.getType() == esConditionType::MuonShowerOutOfTime1) {
