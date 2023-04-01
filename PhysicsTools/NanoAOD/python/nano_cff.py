@@ -27,6 +27,7 @@ from PhysicsTools.NanoAOD.protons_cff import *
 from PhysicsTools.NanoAOD.NanoAODEDMEventContent_cff import *
 from PhysicsTools.NanoAOD.fsrPhotons_cff import *
 from PhysicsTools.NanoAOD.softActivity_cff import *
+from PhysicsTools.NanoAOD.l1trig_cff import *
 
 nanoMetadata = cms.EDProducer("UniqueStringProducer",
     strings = cms.PSet(
@@ -201,4 +202,13 @@ def nanoWmassGenCustomize(process):
     process.genParticleTable.variables.phi.precision=cms.string(phiPrecision)
     etaPrecision="{} ? {} : {}".format(pdgSelection, CandVars.eta.precision.value(), genParticleTable.variables.eta.precision.value())
     process.genParticleTable.variables.eta.precision=cms.string(etaPrecision)
+    return process
+
+def nanoL1TrigObjCustomize(process):
+    process.nanoTableTaskCommon.add(process.l1TablesTask)
+    process = setL1NanoToReduced(process)
+    return process
+
+def nanoL1TrigObjCustomizeFull(process):
+    process.nanoTableTaskCommon.add(process.l1TablesTask)
     return process
