@@ -206,6 +206,7 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGOddWeightIdMap.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGTPMode.h"
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
+#include "CondFormats/EcalObjects/interface/EcalSimComponentShape.h"
 #include "CondFormats/EcalObjects/interface/EcalSimPulseShape.h"
 #include "CondFormats/Common/interface/FileBlob.h"
 //#include "CondFormats/GeometryObjects/interface/GeometryFile.h"

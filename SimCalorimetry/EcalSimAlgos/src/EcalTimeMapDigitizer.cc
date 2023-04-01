@@ -20,12 +20,14 @@
 
 #include <iostream>
 
-//#define ecal_time_debug 1
+// #define ecal_time_debug 1
+// #define waveform_debug 1
 
 const float EcalTimeMapDigitizer::MIN_ENERGY_THRESHOLD =
     5e-5;  //50 KeV threshold to consider a valid hit in the timing detector
 
-EcalTimeMapDigitizer::EcalTimeMapDigitizer(EcalSubdetector myDet) : m_subDet(myDet), m_geometry(nullptr) {
+EcalTimeMapDigitizer::EcalTimeMapDigitizer(EcalSubdetector myDet, ComponentShapeCollection* componentShapes)
+    : m_subDet(myDet), m_ComponentShapes(componentShapes), m_geometry(nullptr) {
   //    edm::Service<edm::RandomNumberGenerator> rng ;
   //    if ( !rng.isAvailable() )
   //    {
@@ -38,15 +40,12 @@ EcalTimeMapDigitizer::EcalTimeMapDigitizer(EcalSubdetector myDet) : m_subDet(myD
   //    m_RandGauss   = new CLHEP::RandGaussQ(   rng->getEngine() ) ;
 
   unsigned int size = 0;
-  DetId detId(0);
 
   //Initialize the map
   if (myDet == EcalBarrel) {
     size = EBDetId::kSizeForDenseIndexing;
-    detId = EBDetId::detIdFromDenseIndex(0);
   } else if (myDet == EcalEndcap) {
     size = EEDetId::kSizeForDenseIndexing;
-    detId = EEDetId::detIdFromDenseIndex(0);
   } else
     edm::LogError("TimeDigiError") << "[EcalTimeMapDigitizer]::ERROR::This subdetector " << myDet
                                    << " is not implemented";
@@ -55,11 +54,16 @@ EcalTimeMapDigitizer::EcalTimeMapDigitizer(EcalSubdetector myDet) : m_subDet(myD
   assert(m_minBunch <= 0);
 
   m_vSam.reserve(size);
+  m_index.reserve(size);
 
   for (unsigned int i(0); i != size; ++i) {
     //       m_vSam.emplace_back(CaloGenericDetId( detId.det(), detId.subdetId(), i ) ,
     // 			  m_maxBunch-m_minBunch+1, abs(m_minBunch) );
-    m_vSam.emplace_back(TimeSamples(CaloGenericDetId(detId.det(), detId.subdetId(), i)));
+    if (myDet == EcalBarrel) {
+      m_vSam.push_back(TimeSamples((DetId)(EBDetId::detIdFromDenseIndex(i))));
+    } else {
+      m_vSam.push_back(TimeSamples((DetId)(EEDetId::detIdFromDenseIndex(i))));
+    }
   }
 
   edm::LogInfo("TimeDigiInfo") << "[EcalTimeDigitizer]::Subdetector " << m_subDet << "::Reserved size for time digis "
@@ -81,14 +85,12 @@ void EcalTimeMapDigitizer::add(const std::vector<PCaloHit>& hits, int bunchCross
       if (edm::isNotFinite((*it).time()))
         continue;
 
-      //Just consider only the hits belonging to the specified time layer
-      int depth2 = (((*it).depth() >> PCaloHit::kEcalDepthOffset) & PCaloHit::kEcalDepthMask);
-
-      if (depth2 != m_timeLayerId)
-        continue;
-
       if ((*it).energy() < MIN_ENERGY_THRESHOLD)  //apply a minimal cut on the hit energy
         continue;
+
+      //Old behavior: Just consider only the hits belonging to the specified time layer
+      //int depth2 = (((*it).depth() >> PCaloHit::kEcalDepthOffset) & PCaloHit::kEcalDepthMask);
+      //I think things make more sense if we allow all depths -- JCH
 
       const DetId detId((*it).id());
 
@@ -99,7 +101,28 @@ void EcalTimeMapDigitizer::add(const std::vector<PCaloHit>& hits, int bunchCross
 
       TimeSamples& result(*findSignal(detId));
 
+      if (nullptr != m_ComponentShapes) {
+        // for now we have waveform_granularity = 1., 10 BX, and waveform capacity 250 -- we want to start at 25*bunchCrossing and go to the end of waveform capacity
+        double binTime(0);
+        for (unsigned int bin(0); bin != result.waveform_capacity; ++bin) {
+          if (ComponentShapeCollection::toDepthBin((*it).depth()) <= ComponentShapeCollection::maxDepthBin()) {
+            result.waveform[bin] +=
+                (*(shapes()->at((*it).depth())))(binTime - jitter - 25 * (bunchCrossing - m_minBunch)) * (*it).energy();
+          }
+#ifdef waveform_debug
+          else {
+            std::cout << "strange depth found: " << ComponentShapeCollection::toDepthBin((*it).depth()) << std::endl;
+          }  // note: understand what these depths mean
+#endif
+          binTime += result.waveform_granularity;
+        }
+      }
+
       //here fill the result for the given bunch crossing
+
+      // i think this is obsolete now that there is a real MTD
+      //if (depth2 != m_timeLayerId)
+      //  continue;
       result.average_time[bunchCrossing - m_minBunch] += jitter * (*it).energy();
       result.tot_energy[bunchCrossing - m_minBunch] += (*it).energy();
       result.nhits[bunchCrossing - m_minBunch]++;
@@ -134,8 +157,7 @@ void EcalTimeMapDigitizer::blankOutUsedSamples()  // blank out previously used e
     vSamAll(m_index[i])->setZero();
   }
 
-  m_index.erase(m_index.begin(),  // done and make ready to start over
-                m_index.end());
+  m_index.clear();  // done and make ready to start over
 }
 
 void EcalTimeMapDigitizer::finalizeHits() {
@@ -165,6 +187,17 @@ void EcalTimeMapDigitizer::initializeMap() {
   blankOutUsedSamples();
 }
 
+void EcalTimeMapDigitizer::setEventSetup(const edm::EventSetup& eventSetup) {
+  if (nullptr != m_ComponentShapes)
+    m_ComponentShapes->setEventSetup(eventSetup);
+  else
+    throw cms::Exception(
+        "[EcalTimeMapDigitizer] setEventSetup was called, but this should only be called when componentWaveform is "
+        "activated by cfg parameter");
+}
+
+const ComponentShapeCollection* EcalTimeMapDigitizer::shapes() const { return m_ComponentShapes; }
+
 void EcalTimeMapDigitizer::run(EcalTimeDigiCollection& output) {
 #ifdef ecal_time_debug
   std::cout << "[EcalTimeMapDigitizer]::Finalizing hits and fill output collection" << std::endl;
@@ -184,6 +217,8 @@ void EcalTimeMapDigitizer::run(EcalTimeDigiCollection& output) {
 #endif
 
     output.push_back(Digi(vSamAll(m_index[i])->id));
+    if (nullptr != m_ComponentShapes)
+      output.back().setWaveform(vSamAll(m_index[i])->waveform);
 
     unsigned int nTimeHits = 0;
     float timeHits[vSamAll(m_index[i])->time_average_capacity];
@@ -227,8 +262,8 @@ double EcalTimeMapDigitizer::timeOfFlight(const DetId& detId, int layer) const {
   //not using the layer yet
   auto cellGeometry(m_geometry->getGeometry(detId));
   assert(nullptr != cellGeometry);
-  GlobalPoint layerPos =
-      (cellGeometry)->getPosition(double(layer) + 0.5);  //depth in mm in the middle of the layer position
+  GlobalPoint layerPos = (cellGeometry)->getPosition();
+  //(cellGeometry)->getPosition(double(layer) + 0.5);  //depth in mm in the middle of the layer position // JCH : I am not sure this is doing what it's supposed to, probably unimplemented since CaloCellGeometry returns the same value regardless of this double
   return layerPos.mag() * cm / c_light;
 }
 
