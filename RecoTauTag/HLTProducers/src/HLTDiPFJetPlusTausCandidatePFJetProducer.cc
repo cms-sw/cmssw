@@ -9,14 +9,17 @@ The module stores j1, j2 of any (j1, j2, t1, t2) that satisfies the conditions a
 /* Extended for the case of j1, j2, t1 (no t2, i.e. there are only 3 different objects)
  */
 
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include <algorithm>
+#include <memory>
+#include <set>
+#include <utility>
+
 #include "FWCore/Framework/interface/global/EDProducer.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
@@ -25,12 +28,9 @@ The module stores j1, j2 of any (j1, j2, t1, t2) that satisfies the conditions a
 #include "DataFormats/Math/interface/deltaR.h"
 #include "CommonTools/Utils/interface/PtComparator.h"
 
-//
-// class definition
-//
-class HLTPFDiJetCorrCheckerWithDiTau : public edm::global::EDProducer<> {
+class HLTDiPFJetPlusTausCandidatePFJetProducer : public edm::global::EDProducer<> {
 public:
-  explicit HLTPFDiJetCorrCheckerWithDiTau(const edm::ParameterSet&);
+  explicit HLTDiPFJetPlusTausCandidatePFJetProducer(const edm::ParameterSet&);
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -40,14 +40,10 @@ private:
   const double extraTauPtCut_;
   const double mjjMin_, m2jjMin_;
   const double dRmin_, dRmin2_;
-  // pt comparator
-  GreaterByPt<reco::PFJet> pTComparator_;
+  GreaterByPt<reco::PFJet> pTComparator_;  // pt comparator
 };
 
-//
-// class declaration
-//
-HLTPFDiJetCorrCheckerWithDiTau::HLTPFDiJetCorrCheckerWithDiTau(const edm::ParameterSet& iConfig)
+HLTDiPFJetPlusTausCandidatePFJetProducer::HLTDiPFJetPlusTausCandidatePFJetProducer(const edm::ParameterSet& iConfig)
     : tauSrc_(consumes(iConfig.getParameter<edm::InputTag>("tauSrc"))),
       pfJetSrc_(consumes(iConfig.getParameter<edm::InputTag>("pfJetSrc"))),
       extraTauPtCut_(iConfig.getParameter<double>("extraTauPtCut")),
@@ -56,13 +52,15 @@ HLTPFDiJetCorrCheckerWithDiTau::HLTPFDiJetCorrCheckerWithDiTau(const edm::Parame
       dRmin_(iConfig.getParameter<double>("dRmin")),
       dRmin2_(dRmin_ * dRmin_) {
   if (dRmin_ <= 0.) {
-    throw cms::Exception("HLTPFDiJetCorrCheckerWithDiTau")
+    throw cms::Exception("HLTDiPFJetPlusTausCandidatePFJetProducer")
         << "invalid value for parameter \"dRmin\" (must be > 0): " << dRmin_;
   }
   produces<reco::PFJetCollection>();
 }
 
-void HLTPFDiJetCorrCheckerWithDiTau::produce(edm::StreamID iSId, edm::Event& iEvent, const edm::EventSetup& iES) const {
+void HLTDiPFJetPlusTausCandidatePFJetProducer::produce(edm::StreamID,
+                                                       edm::Event& iEvent,
+                                                       const edm::EventSetup&) const {
   auto const& pfJets = iEvent.get(pfJetSrc_);
 
   auto cleanedPFJets = std::make_unique<reco::PFJetCollection>();
@@ -125,7 +123,7 @@ void HLTPFDiJetCorrCheckerWithDiTau::produce(edm::StreamID iSId, edm::Event& iEv
   iEvent.put(std::move(cleanedPFJets));
 }
 
-void HLTPFDiJetCorrCheckerWithDiTau::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void HLTDiPFJetPlusTausCandidatePFJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pfJetSrc", edm::InputTag("hltAK4PFJetsCorrected"))->setComment("Input collection of PFJets");
   desc.add<edm::InputTag>("tauSrc", edm::InputTag("hltSinglePFTau20TrackPt1LooseChargedIsolationReg"))
@@ -139,10 +137,5 @@ void HLTPFDiJetCorrCheckerWithDiTau::fillDescriptions(edm::ConfigurationDescript
   descriptions.addWithDefaultLabel(desc);
 }
 
-//
-// module registration
-//
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(HLTPFDiJetCorrCheckerWithDiTau);
-using HLTDiPFJetPlusTausCandidatePFJetProducer = HLTPFDiJetCorrCheckerWithDiTau;
 DEFINE_FWK_MODULE(HLTDiPFJetPlusTausCandidatePFJetProducer);
