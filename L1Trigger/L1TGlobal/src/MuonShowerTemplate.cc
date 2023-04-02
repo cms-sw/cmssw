@@ -54,6 +54,7 @@ void MuonShowerTemplate::print(std::ostream& myCout) const {
     myCout << "  Template for object " << i << " [ hex ]" << std::endl;
     myCout << "    MuonShower0   = " << std::hex << m_objectParameter[i].MuonShower0 << std::endl;
     myCout << "    MuonShower1   = " << std::hex << m_objectParameter[i].MuonShower1 << std::endl;
+    myCout << "    MuonShower2   = " << std::hex << m_objectParameter[i].MuonShower2 << std::endl;
     myCout << "    MuonShowerOutOfTime0   = " << std::hex << m_objectParameter[i].MuonShowerOutOfTime0 << std::endl;
     myCout << "    MuonShowerOutOfTime1   = " << std::hex << m_objectParameter[i].MuonShowerOutOfTime1 << std::endl;
   }
