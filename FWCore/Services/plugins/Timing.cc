@@ -304,6 +304,7 @@ namespace edm {
       }
 
       auto preESModuleLambda = [this](auto const& recordKey, auto const& context) {
+        addTask();
         //find available slot
         auto startTime = getTime();
         bool foundSlot = false;
@@ -326,6 +327,7 @@ namespace edm {
       iRegistry.preESModuleAcquireSignal_.connect(preESModuleLambda);
 
       auto postESModuleLambda = [this](auto const& recordKey, auto const& context) {
+        removeTask();
         auto stopTime = getTime();
         for (size_t i = 0; i < eventSetupModuleStartTimes_.size(); ++i) {
           auto const& info = eventSetupModuleCallInfo_[i];
@@ -372,6 +374,9 @@ namespace edm {
       iRegistry.preSourceSignal_.connect([this](auto){addTask();});
       iRegistry.postSourceSignal_.connect([this](auto){removeTask();});
 
+      iRegistry.preModuleEventSignal_.connect([this](auto, auto){addTask();});
+      iRegistry.postModuleEventSignal_.connect([this](auto, auto){removeTask();});
+
       iRegistry.preSourceLumiSignal_.connect([this](auto){addTask();});
       iRegistry.postSourceLumiSignal_.connect([this](auto){removeTask();});
 
@@ -400,6 +405,10 @@ namespace edm {
       iRegistry.postModuleGlobalBeginLumiSignal_.connect([this](auto, auto){removeTask();});
       iRegistry.preModuleGlobalEndLumiSignal_.connect([this](auto, auto){addTask();});
       iRegistry.postModuleGlobalEndLumiSignal_.connect([this](auto, auto){removeTask();});
+      
+      //account for any time ESSources spend looking up new IOVs
+      iRegistry.preESSyncIOVSignal_.connect([this](auto const&){addTask();});
+      iRegistry.postESSyncIOVSignal_.connect([this](auto const&){removeTask();});
     }
 
     Timing::~Timing() {}
@@ -688,7 +697,6 @@ namespace edm {
         expected = false;
       }
       auto previousNumberOfTasks = iMoreTasks? num_running_tasks_++ : num_running_tasks_--;
-      
       total_time_without_tasks_ += (nThreads_ - previousNumberOfTasks) * (presentTime - last_task_change_time_);
       last_task_change_time_ = presentTime;
       updating_task_info_ = false;
