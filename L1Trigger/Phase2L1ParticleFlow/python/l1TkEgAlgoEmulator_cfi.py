@@ -55,7 +55,7 @@ tkEgAlgoParameters = cms.PSet(
     compositeParametersTkEle=cms.PSet(
         # the working points are cuts on BDT output logits log(p/1-p)
         loose_wp=cms.double(-4.),
-        tight_wp=cms.double(-1.029296875),
+        tight_wp=cms.double(0.214844),
         model=cms.string("L1Trigger/Phase2L1ParticleFlow/data/compositeID.json")
     ),
 )

@@ -235,7 +235,7 @@ float PFTkEGAlgoEmulator::compute_composite_score(CompositeCandidate &cand,
   bdt_feature_t tkpt = tk.hwPt;
   bdt_feature_t srrtot = calo.hwSrrTot;
   bdt_feature_t deta = tk.hwEta - calo.hwEta;
-  ap_ufixed<18, 0> calo_invPt = invert_with_shift<pt_t, ap_ufixed<18, 0>, 1024>(calo.hwPt);
+  ap_ufixed<18, 0> calo_invPt = l1ct::invert_with_shift<pt_t, ap_ufixed<18, 0>, 1024>(calo.hwPt);
   bdt_feature_t dpt = tk.hwPt * calo_invPt;
   bdt_feature_t meanz = calo.hwMeanZ;
   bdt_feature_t dphi = tk.hwPhi - calo.hwPhi;

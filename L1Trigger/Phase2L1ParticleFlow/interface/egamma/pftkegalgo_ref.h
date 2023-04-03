@@ -99,8 +99,7 @@ namespace l1ct {
                         bool doPfIso = false,
                         EGIsoEleObjEmu::IsoType hwIsoTypeTkEle = EGIsoEleObjEmu::IsoType::TkIso,
                         EGIsoObjEmu::IsoType hwIsoTypeTkEm = EGIsoObjEmu::IsoType::TkIsoPV,
-                        // FIXME: maybe we round these?
-                        const CompIDParameters &compIDparams = {0.7927004, 0.9826955, "compositeID.json"},
+                        const CompIDParameters &compIDparams = {-4, 0.214844, "compositeID.json"},
                         int debug = 0)
 
         : nTRACK(nTrack),
@@ -115,9 +114,6 @@ namespace l1ct {
           emClusterPtMin(emClusterPtMin),
           dEtaMaxBrem(dEtaMaxBrem),
           dPhiMaxBrem(dPhiMaxBrem),
-          //absEtaBoundaries(std::move(absEtaBoundaries)),
-          //dEtaValues(std::move(dEtaValues)),
-          //dPhiValues(std::move(dPhiValues)),
           absEtaBoundaries(absEtaBoundaries),
           dEtaValues(dEtaValues),
           dPhiValues(dPhiValues),

@@ -697,10 +697,10 @@ void L1TCorrelatorLayer1Producer::addRawHgcalCluster(l1ct::DetectorSector<ap_uin
   ap_int<9> w_eta = round(sec.region.localEta(c.eta()) / ETAPHI_LSB);
   ap_int<9> w_phi = round(sec.region.localPhi(c.phi()) / ETAPHI_LSB);
   ap_uint<10> w_qual = c.hwQual();
-  // FIXME: this is an arbitrary choice to keep the rounding consistent with the "addDecodedHadCalo" one
+  // NOTE: this is an arbitrary choice to keep the rounding consistent with the "addDecodedHadCalo" one
   ap_uint<13> w_srrtot = round(c.sigmaRR() * l1ct::Scales::SRRTOT_SCALE / l1ct::Scales::SRRTOT_LSB);
   ap_uint<12> w_meanz = round(c.absZBarycenter());
-  // FIXME: the calibration can actually make hoe become negative....we add a small protection for now
+  // NOTE: the calibration can actually make hoe become negative....we add a small protection for now
   // We use ap_ufixed to handle saturation and rounding
   ap_ufixed<10, 5, AP_RND_CONV, AP_SAT> w_hoe = c.hOverE();
 
