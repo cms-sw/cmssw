@@ -341,15 +341,11 @@ instance_group [
 
 EOF
 
-
-	#if grep -Fq "onnx" "$CONFIG"; then
 	if [[ $PLATFORM == *"onnx"* ]]; then
 		cat <<EOF >> $CONFIG
 parameters { key: "intra_op_thread_count" value: { string_value: "1" } }
 parameters { key: "inter_op_thread_count" value: { string_value: "1" } }
 EOF
-
-	#elif grep -Fq "tensorflow" "$CONFIG"; then
 	elif [[ $PLATFORM == *"tensorflow"* ]]; then
 		cat <<EOF >> $CONFIG
 parameters { key: "TF_NUM_INTRA_THREADS" value: { string_value: "1" } }
