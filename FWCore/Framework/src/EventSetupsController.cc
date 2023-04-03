@@ -119,10 +119,8 @@ namespace edm {
                 // new SyncValue in the call. The async part is just waiting for
                 // the Records to be available which is done after the SyncValue setup.
                 actReg->preESSyncIOVSignal_.emit(iSync);
-                auto postSignal = [&iSync](ActivityRegistry* actReg) {
-                  actReg->postESSyncIOVSignal_.emit(iSync);
-                };
-                std::unique_ptr<ActivityRegistry,decltype(postSignal)> guard(actReg, postSignal);
+                auto postSignal = [&iSync](ActivityRegistry* actReg) { actReg->postESSyncIOVSignal_.emit(iSync); };
+                std::unique_ptr<ActivityRegistry, decltype(postSignal)> guard(actReg, postSignal);
                 eventSetupForInstanceAsync(iSync, task, endIOVWaitingTasks, eventSetupImpls);
               }
               sentry.completedSuccessfully();
