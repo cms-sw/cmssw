@@ -2299,7 +2299,7 @@ upgradeProperties[2017] = {
         'GT' : 'auto:phase1_2022_realistic',
         'HLTmenu': '@relval2022',
         'Era' : 'Run3',
-        'BeamSpot': 'Realistic25ns13p6TeVEarly2022Collision',
+        'BeamSpot': 'Realistic25ns13p6TeVEOY2022Collision',
         'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
     },
     '2021Design' : {
