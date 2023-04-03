@@ -409,7 +409,7 @@ void DisappearingMuonsSkimming::fillDescriptions(edm::ConfigurationDescriptions&
                                      });
   desc.add<double>("minMuPt", 26);
   desc.add<double>("maxMuEta", 2.4);
-  desc.add<double>("minTrackEta", 0);
+  desc.add<double>("minTrackEta", 1.4);
   desc.add<double>("maxTrackEta", 2.4);
   desc.add<double>("minTrackPt", 20);
   desc.add<double>("maxTransDCA", 0.005);
