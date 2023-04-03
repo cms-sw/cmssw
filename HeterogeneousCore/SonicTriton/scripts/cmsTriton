@@ -14,6 +14,7 @@ FORCE=""
 CLEANUP=true
 TMPDIR=""
 INSTANCES=0
+LOCALMODELREPO=""
 DRYRUN=""
 PARENTPID=""
 BASEPORT=8000
@@ -320,65 +321,76 @@ wait_server(){
 }
 
 edit_model(){
-    cp -r $1 $TMPDIR/local_model_repo/
-    IFS='/' read -ra ADDR <<< "$1"
-    CONFIG=$TMPDIR/local_model_repo/${ADDR[-1]}/config.pbtxt
+	MODELNAME=$1
+	NUMINSTANCES=$2
 
-    echo "" >> "$CONFIG"
-    echo "instance_group [" >> "$CONFIG"
-    echo "  {" >> "$CONFIG"
-    echo "    count: "$2 >> "$CONFIG"
-    echo "    kind: KIND_CPU" >> "$CONFIG"
-    echo "  }" >> "$CONFIG"
-    echo "]" >> "$CONFIG"
-    echo "" >> "$CONFIG"
+	cp -r $MODELNAME $TMPDIR/$LOCALMODELREPO/
+	IFS='/' read -ra ADDR <<< "$MODELNAME"
+	CONFIG=$TMPDIR/$LOCALMODELREPO/${ADDR[-1]}/config.pbtxt
 
-    if grep -Fq "onnx" "$CONFIG"
-    then
-	echo "parameters { key: \"intra_op_thread_count\" value: { string_value: \"1\" } }" >> "$CONFIG"
-	echo "parameters { key: \"inter_op_thread_count\" value: { string_value: \"1\" } }" >> "$CONFIG"
-    fi
+	PLATFORM=$(grep -m 1 "^platform:" "$CONFIG")
 
-    if grep -Fq "tensorflow" "$CONFIG"
-    then
-	echo "parameters { key: \"TF_NUM_INTRA_THREADS\" value: { string_value: \"1\" } }" >> "$CONFIG"
-	echo "parameters { key: \"TF_NUM_INTER_THREADS\" value: { string_value: \"1\" } }" >> "$CONFIG"
-	echo "parameters { key: \"TF_USE_PER_SESSION_THREADS\" value: { string_value: \"1\" } }" >> "$CONFIG"
-    fi
+	cat <<EOF >> $CONFIG
+
+instance_group [
+  {
+    count: $NUMINSTANCES
+    kind: KIND_CPU
+  }
+]
+
+EOF
+
+
+	#if grep -Fq "onnx" "$CONFIG"; then
+	if [[ $PLATFORM == *"onnx"* ]]; then
+		cat <<EOF >> $CONFIG
+parameters { key: "intra_op_thread_count" value: { string_value: "1" } }
+parameters { key: "inter_op_thread_count" value: { string_value: "1" } }
+EOF
+
+	#elif grep -Fq "tensorflow" "$CONFIG"; then
+	elif [[ $PLATFORM == *"tensorflow"* ]]; then
+		cat <<EOF >> $CONFIG
+parameters { key: "TF_NUM_INTRA_THREADS" value: { string_value: "1" } }
+parameters { key: "TF_NUM_INTER_THREADS" value: { string_value: "1" } }
+parameters { key: "TF_USE_PER_SESSION_THREADS" value: { string_value: "1" } }
+EOF
+	else
+		echo "Warning: thread (instance) control not implemented for $PLATFORM"
+	fi
 }
 
 list_models(){
 	# make list of model repositories
-        if [ "$INSTANCES" -gt 0 ]
-	then
-	    if [ -d "$TMPDIR/local_model_repo" ]
-	    then
-		#Want to start with a fresh copy of model files in case this directory already exists with local edits
-		rm -rf $TMPDIR/local_model_repo
-		mkdir $TMPDIR/local_model_repo
-	    else
-		mkdir $TMPDIR/local_model_repo
-	    fi
+	LOCALMODELREPO="local_model_repo"
+	if [ "$INSTANCES" -gt 0 ]; then
+		if [ -d "$TMPDIR/$LOCALMODELREPO" ]; then
+			#Want to start with a fresh copy of model files in case this directory already exists with local edits
+			rm -rf $TMPDIR/$LOCALMODELREPO
+		fi
+		mkdir $TMPDIR/$LOCALMODELREPO
 	fi
 	for MODEL in ${MODELS[@]}; do
 		# check if file was provided rather than directory
 		if [ -f "$MODEL" ]; then
 			MODEL="$(dirname "$MODEL")"
 		fi
-		if [ "$INSTANCES" -gt 0 ]
-		then
-		    edit_model $MODEL "$INSTANCES"
-		    REPOS=$TMPDIR/local_model_repo
+		if [ "$INSTANCES" -gt 0 ]; then
+			edit_model $MODEL "$INSTANCES"
 		else
-		    REPOS+=("$(dirname "$MODEL")")
+			REPOS+=("$(dirname "$MODEL")")
 		fi
 	done
-	for ((r=0; r < ${#REPOS[@]}; r++)); do
-		# avoid issues w/ multiple levels of symlinks
-		REPOS[$r]=$(readlink -f ${REPOS[$r]})
-	done
-	# make unique list
-	read -a REPOS <<< "$(printf "%s\n" "${REPOS[@]}" | sort -u | tr '\n' ' ')"
+	if [ "$INSTANCES" -gt 0 ]; then
+		REPOS=$TMPDIR/$LOCALMODELREPO
+	else
+		for ((r=0; r < ${#REPOS[@]}; r++)); do
+			# avoid issues w/ multiple levels of symlinks
+			REPOS[$r]=$(readlink -f ${REPOS[$r]})
+		done
+		read -a REPOS <<< "$(printf "%s\n" "${REPOS[@]}" | sort -u | tr '\n' ' ')"
+	fi
 }
 
 auto_stop(){
@@ -556,8 +568,6 @@ elif [ "$OP" == start ]; then
 	make_tmp
 	
 	list_models
-
-	#make_tmp
 
 	# after make_tmp because this may create file in tmp dir
 	check_drivers
