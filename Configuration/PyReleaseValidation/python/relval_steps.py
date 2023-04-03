@@ -3903,7 +3903,7 @@ defaultDataSets['2017']='CMSSW_12_0_0_pre4-113X_mc2017_realistic_v5-v'
 defaultDataSets['2017Design']='CMSSW_12_0_0_pre4-113X_mc2017_design_v5-v'
 defaultDataSets['2018']='CMSSW_12_0_0_pre4-113X_upgrade2018_realistic_v5-v'
 defaultDataSets['2018Design']='CMSSW_12_0_0_pre4-113X_upgrade2018_design_v5-v'
-defaultDataSets['2021']='CMSSW_12_5_0_pre4-124X_mcRun3_2022_realistic_v10_BS2022-v'
+defaultDataSets['2021']='CMSSW_13_1_0_pre1-130X_mcRun3_2022_realistic_withNewBSFromEOY2022Data_v2_RV186-v'
 defaultDataSets['2021Design']='CMSSW_12_5_0_pre4-124X_mcRun3_2022_design_v7_design_BS2022-v'
 defaultDataSets['2021FS']='CMSSW_12_5_0_pre4-124X_mcRun3_2022_realistic_v10_BS2022_FastSim-v'
 defaultDataSets['2023']='CMSSW_12_5_0_pre4-124X_mcRun3_2023_realistic_v11_BS2022-v'
@@ -3920,7 +3920,7 @@ for key, value in defaultDataSets.items(): puDataSets[key+'PU'] = value
 defaultDataSets.update(puDataSets)
 
 # sometimes v1 won't be used - override it here - the dictionary key is gen fragment + '_' + geometry
-versionOverrides={'BuMixing_BMuonFilter_forSTEAM_13TeV_TuneCUETP8M1_2017':'2','HSCPstop_M_200_TuneCUETP8M1_13TeV_pythia8_2017':'2','RSGravitonToGammaGamma_kMpl01_M_3000_TuneCUETP8M1_13TeV_pythia8_2017':'2','WprimeToENu_M-2000_TuneCUETP8M1_13TeV-pythia8_2017':'2','DisplacedSUSY_stopToBottom_M_300_1000mm_TuneCUETP8M1_13TeV_pythia8_2017':'2','TenE_E_0_200_pythia8_2017':'2','TenE_E_0_200_pythia8_2017PU':'2', 'TenTau_E_15_500_pythia8_2018':'2','PhotonJet_Pt_10_13TeV_TuneCUETP8M1_2018':'2','Wjet_Pt_80_120_13TeV_TuneCUETP8M1_2018':'2'}
+versionOverrides={'BuMixing_BMuonFilter_forSTEAM_13TeV_TuneCUETP8M1_2017':'2','HSCPstop_M_200_TuneCUETP8M1_13TeV_pythia8_2017':'2','RSGravitonToGammaGamma_kMpl01_M_3000_TuneCUETP8M1_13TeV_pythia8_2017':'2','WprimeToENu_M-2000_TuneCUETP8M1_13TeV-pythia8_2017':'2','DisplacedSUSY_stopToBottom_M_300_1000mm_TuneCUETP8M1_13TeV_pythia8_2017':'2','TenE_E_0_200_pythia8_2017':'2','TenE_E_0_200_pythia8_2017PU':'2', 'TenTau_E_15_500_pythia8_2018':'2','PhotonJet_Pt_10_13TeV_TuneCUETP8M1_2018':'2','Wjet_Pt_80_120_13TeV_TuneCUETP8M1_2018':'2','SingleMuPt10_Eta2p85_2021':'2','SingleMuPt100_Eta2p85_2021':'2','SingleMuPt1000_Eta2p85_2021':'2'}
 
 baseDataSetReleaseBetter={}
 for gen in upgradeFragments:
