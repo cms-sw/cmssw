@@ -647,6 +647,7 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures 
           } else
             lostHits = (nlost == 1 ? pat::PackedCandidate::oneLostInnerHit : pat::PackedCandidate::moreLostInnerHits);
           candidate.setLostInnerHits(lostHits);
+          candidate.setTrkAlgo(static_cast<uint8_t>(track->algo()), static_cast<uint8_t>(track->originalAlgo()));
 
           if (useTrackProperties(reco_cand) or
               std::find(whiteListSV.begin(), whiteListSV.end(), icand) != whiteListSV.end() or
