@@ -167,14 +167,14 @@ namespace ecaldqm {
     Ort::AllocatorWithDefaultOptions allocator;
 
     // Strings returned by session.GetInputNameAllocated are temporary, need to copy them before they are deallocated
-    std::string inputName {session.GetInputNameAllocated(0, allocator).get()};
+    std::string inputName{session.GetInputNameAllocated(0, allocator).get()};
 
     Ort::TypeInfo inputTypeInfo = session.GetInputTypeInfo(0);
     auto inputTensorInfo = inputTypeInfo.GetTensorTypeAndShapeInfo();
 
     std::vector<int64_t> inputDims = inputTensorInfo.GetShape();
 
-    std::string outputName {session.GetOutputNameAllocated(0, allocator).get()};
+    std::string outputName{session.GetOutputNameAllocated(0, allocator).get()};
 
     Ort::TypeInfo outputTypeInfo = session.GetOutputTypeInfo(0);
     auto outputTensorInfo = outputTypeInfo.GetTensorTypeAndShapeInfo();
