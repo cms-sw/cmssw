@@ -7,17 +7,32 @@
 #include <vector>
 
 namespace hgcal::econd {
+
   /// Event index (L1A/BX/orbit)
   typedef std::tuple<uint32_t, uint32_t, uint32_t> EventId;
-  typedef std::tuple<uint8_t, uint8_t> ERx_t;
+
+  // chip/half
+  typedef std::pair<uint8_t, uint8_t> ERxId_t;
+
+  //e-rx data (already parsed)
+  //meta-data holds additional words accompannying the e-rx data
   struct ERxData {
-    std::vector<uint16_t> adc, adcm, toa, tot;
+    uint32_t cm0{0}, cm1{0};    
     std::vector<uint8_t> tctp;
-    uint32_t cm0{0}, cm1{0};
+    std::vector<uint16_t> adc, adcm, toa, tot;
+    std::vector<uint32_t> meta;
+    uint32_t crc32{0};
   };
-  typedef std::map<ERx_t, ERxData> ERxEvent;
-  typedef std::map<EventId, ERxEvent> ECONDInputs;
-  typedef std::pair<EventId, ERxEvent> ECONDEvent;
+
+  //e-rx data maps
+  typedef std::map<ERxId_t, ERxData> ERxInput;
+
+  //ECON-D inputs for a given event
+  typedef std::pair<EventId, ERxInput> ECONDInput;
+
+  //a collection of ECON-D inputs
+  typedef std::map<EventId, ERxInput> ECONDInputColl;
+
 }  // namespace hgcal::econd
 
 #endif

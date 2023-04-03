@@ -26,7 +26,7 @@
 
 #include "DataFormats/HGCalDigi/interface/HGCalRawDataEmulatorInfo.h"
 #include "EventFilter/HGCalRawToDigi/interface/HGCalFrameGenerator.h"
-#include "EventFilter/HGCalRawToDigi/interface/TBTreeReader.h"
+#include "EventFilter/HGCalRawToDigi/interface/HGCalModuleTreeReader.h"
 
 class HGCalSlinkEmulator : public edm::stream::EDProducer<> {
 public:
@@ -62,11 +62,11 @@ HGCalSlinkEmulator::HGCalSlinkEmulator(const edm::ParameterSet& iConfig)
     emulator_ = std::make_unique<hgcal::econd::EmptyEmulator>(frame_gen_.econdParams());
   else if (emul_type == "trivial")
     emulator_ = std::make_unique<hgcal::econd::TrivialEmulator>(frame_gen_.econdParams());
-  else if (emul_type == "tbTree")
-    emulator_ =
-        std::make_unique<hgcal::econd::TBTreeReader>(frame_gen_.econdParams(),
-                                                     iConfig.getUntrackedParameter<std::string>("treeName"),
-                                                     iConfig.getUntrackedParameter<std::vector<std::string>>("inputs"));
+  else if (emul_type == "hgcmodule")
+    emulator_ = std::make_unique<hgcal::econd::HGCalModuleTreeReader>(
+        frame_gen_.econdParams(),
+        iConfig.getUntrackedParameter<std::string>("treeName"),
+        iConfig.getUntrackedParameter<std::vector<std::string>>("inputs"));
   else
     throw cms::Exception("HGCalSlinkEmulator") << "Invalid emulator type chosen: '" << emul_type << "'.";
 
@@ -143,17 +143,19 @@ void HGCalSlinkEmulator::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     iEvent.emplace(fedEmulInfoToken_, std::move(frame_gen_.lastSlinkEmulatedInfo()));
 }
 
+//
 void HGCalSlinkEmulator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   auto desc = hgcal::HGCalFrameGenerator::description();
-  desc.ifValue(edm::ParameterDescription<std::string>("emulatorType", "empty", true),
-               // empty payload emulator
-               "empty" >> edm::EmptyGroupDescription() or
-                   // trivial emulator
-                   "trivial" >> edm::EmptyGroupDescription() or
-                   // test beam tree content
-                   "tbTree" >> (edm::ParameterDescription<std::string>("treeName", "unpacker_data/hgcroc", false) and
-                                edm::ParameterDescription<std::vector<std::string>>("inputs", {}, false)))
-      ->setComment("emulator mode (empty, trivial, or tbTree)");
+  desc.ifValue(
+          edm::ParameterDescription<std::string>("emulatorType", "empty", true),
+          // empty payload emulator
+          "empty" >> edm::EmptyGroupDescription() or
+              // trivial emulator
+              "trivial" >> edm::EmptyGroupDescription() or
+              // test beam tree content
+              "hgcmodule" >> (edm::ParameterDescription<std::string>("treeName", "hgcroc_rawdata/eventdata", false) and
+                              edm::ParameterDescription<std::vector<std::string>>("inputs", {}, false)))
+      ->setComment("emulator mode (empty, trivial, or hgcmodule)");
   desc.add<unsigned int>("fedId", 0)->setComment("FED number delivering the emulated frames");
   desc.add<bool>("fedHeaderTrailer", false)->setComment("also add FED header/trailer info");
   desc.add<bool>("storeEmulatorInfo", false)
