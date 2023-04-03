@@ -1179,7 +1179,7 @@ namespace edm {
 
     auto status = std::make_shared<RunProcessingStatus>(preallocations_.numberOfStreams(), iHolder);
 
-    chain::first([this, &status, &iSync](auto nextTask) {
+    chain::first([this, &status, iSync](auto nextTask) {
       espController_->runOrQueueEventSetupForInstanceAsync(iSync,
                                                            nextTask,
                                                            status->endIOVWaitingTasks(),
@@ -1188,7 +1188,7 @@ namespace edm {
                                                            actReg_.get(),
                                                            serviceToken_,
                                                            forceESCacheClearOnNewRun_);
-    }) | chain::then([this, status, iSync](std::exception_ptr const* iException, auto nextTask) {
+    }) | chain::then([this, status](std::exception_ptr const* iException, auto nextTask) {
       CMS_SA_ALLOW try {
         if (iException) {
           WaitingTaskHolder copyHolder(nextTask);
@@ -1433,7 +1433,7 @@ namespace edm {
                                                            queueWhichWaitsForIOVsToFinish_,
                                                            actReg_.get(),
                                                            serviceToken_);
-    }) | chain::then([this, iRunStatus, ts](std::exception_ptr const* iException, auto nextTask) {
+    }) | chain::then([this, iRunStatus](std::exception_ptr const* iException, auto nextTask) {
       if (iException) {
         iRunStatus->setEndingEventSetupSucceeded(false);
         handleEndRunExceptions(*iException, nextTask);
@@ -1633,7 +1633,7 @@ namespace edm {
                                                            queueWhichWaitsForIOVsToFinish_,
                                                            actReg_.get(),
                                                            serviceToken_);
-    }) | chain::then([this, status, iRunStatus, iSync](std::exception_ptr const* iException, auto nextTask) {
+    }) | chain::then([this, status, iRunStatus](std::exception_ptr const* iException, auto nextTask) {
       CMS_SA_ALLOW try {
         //the call to doneWaiting will cause the count to decrement
         if (iException) {
