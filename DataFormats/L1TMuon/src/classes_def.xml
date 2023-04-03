@@ -14,8 +14,7 @@
   <class name="l1t::RegionalMuonCandBxCollection"/>
   <class name="edm::Wrapper<l1t::RegionalMuonCandBxCollection>"/>
 
-  <class name="l1t::RegionalMuonShower" ClassVersion="13">
-   <version ClassVersion="13" checksum="420598270"/>
+  <class name="l1t::RegionalMuonShower" ClassVersion="12">
     <version ClassVersion="12" checksum="1591048325"/>
     <version ClassVersion="11" checksum="376206249"/>
     <version ClassVersion="10" checksum="3501434665"/>

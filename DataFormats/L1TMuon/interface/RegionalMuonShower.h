@@ -21,7 +21,6 @@ namespace l1t {
                        bool oneNominalOutOfTime = false,
                        bool twoLooseInTime = false,
                        bool twoLooseOutOfTime = false,
-                       bool oneLooseInTime = false,
                        bool oneTightInTime = false,
                        bool oneTightOutOfTime = false);
 
@@ -33,7 +32,6 @@ namespace l1t {
     void setOneTightOutOfTime(const bool bit) { isOneTightOutOfTime_ = bit; }
     void setTwoLooseOutOfTime(const bool bit) { isTwoLooseOutOfTime_ = bit; }
     void setTwoLooseInTime(const bool bit) { isTwoLooseInTime_ = bit; }
-    void setOneLooseInTime(const bool bit) { isOneLooseInTime_ = bit; }
 
     /// Set the processor ID, track-finder type. From these two, the link is set
     void setTFIdentifiers(int processor, tftype trackFinder);
@@ -45,7 +43,6 @@ namespace l1t {
     bool isOneTightOutOfTime() const { return isOneTightOutOfTime_; }
     bool isTwoLooseInTime() const { return isTwoLooseInTime_; }
     bool isTwoLooseOutOfTime() const { return isTwoLooseOutOfTime_; }
-    bool isOneLooseInTime() const { return isOneLooseInTime_; }
 
     /// Get link on which the MicroGMT receives the candidate
     const int link() const { return link_; };
@@ -66,7 +63,6 @@ namespace l1t {
     bool isOneTightOutOfTime_;
     bool isTwoLooseInTime_;
     bool isTwoLooseOutOfTime_;
-    bool isOneLooseInTime_;
     int link_;
     int processor_;
     tftype trackFinder_;
