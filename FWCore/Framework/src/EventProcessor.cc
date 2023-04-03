@@ -1196,7 +1196,6 @@ namespace edm {
           // Finish handling the exception in the task pushed to runQueue_
         }
         ServiceRegistry::Operate operate(serviceToken_);
-        actReg_->postESSyncIOVSignal_.emit(iSync);
 
         runQueue_->pushAndPause(
             *nextTask.group(),
@@ -1440,11 +1439,6 @@ namespace edm {
         handleEndRunExceptions(*iException, nextTask);
       }
       ServiceRegistry::Operate operate(serviceToken_);
-      CMS_SA_ALLOW try { actReg_->postESSyncIOVSignal_.emit(ts); } catch (...) {
-        WaitingTaskHolder copyHolder(nextTask);
-        copyHolder.doneWaiting(std::current_exception());
-      }
-
       streamQueuesInserter_.push(*nextTask.group(), [this, nextTask]() mutable {
         for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
           CMS_SA_ALLOW try {
@@ -1646,9 +1640,6 @@ namespace edm {
           WaitingTaskHolder copyHolder(nextTask);
           copyHolder.doneWaiting(*iException);
         }
-
-        ServiceRegistry::Operate operate(serviceToken_);
-        actReg_->postESSyncIOVSignal_.emit(iSync);
 
         lumiQueue_->pushAndPause(
             *nextTask.group(),
