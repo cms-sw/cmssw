@@ -85,23 +85,11 @@ private:
   edm::EDGetTokenT<edm::Association<VertexCollection>> pvas_token_;
   edm::EDGetTokenT<edm::View<reco::Candidate>> candidateToken_;
   edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> track_builder_token_;
-  /*
-  edm::ESGetToken<TrackProbabilityCalibration, BTagTrackProbability2DRcd> calib2d_token_;
-  edm::ESGetToken<TrackProbabilityCalibration, BTagTrackProbability3DRcd> calib3d_token_;
-*/
   bool use_puppi_value_map_;
   bool use_pvasq_value_map_;
 
   bool fallback_puppi_weight_;
   bool fallback_vertex_association_;
-  /*
-  //TrackProbability
-  void checkEventSetup(const edm::EventSetup& iSetup);
-  std::unique_ptr<HistogramProbabilityEstimator> probabilityEstimator_;
-  bool compute_probabilities_;
-  unsigned long long calibrationCacheId2D_;
-  unsigned long long calibrationCacheId3D_;
-*/
   const double min_jet_pt_;
   const double max_jet_eta_;
 };
@@ -120,7 +108,6 @@ ParticleTransformerAK4TagInfoProducer::ParticleTransformerAK4TagInfoProducer(con
       use_pvasq_value_map_(false),
       fallback_puppi_weight_(iConfig.getParameter<bool>("fallback_puppi_weight")),
       fallback_vertex_association_(iConfig.getParameter<bool>("fallback_vertex_association")),
-      //compute_probabilities_(iConfig.getParameter<bool>("compute_probabilities")),
       min_jet_pt_(iConfig.getParameter<double>("min_jet_pt")),
       max_jet_eta_(iConfig.getParameter<double>("max_jet_eta")) {
   produces<ParticleTransformerAK4TagInfoCollection>();
@@ -137,12 +124,6 @@ ParticleTransformerAK4TagInfoProducer::ParticleTransformerAK4TagInfoProducer(con
     pvas_token_ = consumes<edm::Association<VertexCollection>>(pvas_tag);
     use_pvasq_value_map_ = true;
   }
-  /*
-  if (compute_probabilities_) {
-    calib2d_token_ = esConsumes<TrackProbabilityCalibration, BTagTrackProbability2DRcd>();
-    calib3d_token_ = esConsumes<TrackProbabilityCalibration, BTagTrackProbability3DRcd>();
-  }
-  */
 }
 
 ParticleTransformerAK4TagInfoProducer::~ParticleTransformerAK4TagInfoProducer() {}
@@ -161,7 +142,6 @@ void ParticleTransformerAK4TagInfoProducer::fillDescriptions(edm::ConfigurationD
   desc.add<edm::InputTag>("vertex_associator", edm::InputTag("primaryVertexAssociation", "original"));
   desc.add<bool>("fallback_puppi_weight", false);
   desc.add<bool>("fallback_vertex_association", false);
-  //desc.add<bool>("compute_probabilities", false);
   desc.add<double>("min_jet_pt", 15.0);
   desc.add<double>("max_jet_eta", 2.5);
   descriptions.add("pfParticleTransformerAK4TagInfos", desc);
@@ -169,10 +149,6 @@ void ParticleTransformerAK4TagInfoProducer::fillDescriptions(edm::ConfigurationD
 
 void ParticleTransformerAK4TagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   auto output_tag_infos = std::make_unique<ParticleTransformerAK4TagInfoCollection>();
-  /*  
-  if (compute_probabilities_)
-    checkEventSetup(iSetup);
-  */
   edm::Handle<edm::View<reco::Jet>> jets;
   iEvent.getByToken(jet_token_, jets);
 
@@ -404,26 +380,6 @@ void ParticleTransformerAK4TagInfoProducer::produce(edm::Event& iEvent, const ed
 
   iEvent.put(std::move(output_tag_infos));
 }
-/*
-void ParticleTransformerAK4TagInfoProducer::checkEventSetup(const edm::EventSetup& iSetup) {
-  using namespace edm;
-  using namespace edm::eventsetup;
 
-  const EventSetupRecord& re2D = iSetup.get<BTagTrackProbability2DRcd>();
-  const EventSetupRecord& re3D = iSetup.get<BTagTrackProbability3DRcd>();
-  unsigned long long cacheId2D = re2D.cacheIdentifier();
-  unsigned long long cacheId3D = re3D.cacheIdentifier();
-  if (cacheId2D != calibrationCacheId2D_ || cacheId3D != calibrationCacheId3D_)  //Calibration changed
-  {
-    ESHandle<TrackProbabilityCalibration> calib2DHandle = iSetup.getHandle(calib2d_token_);
-    ESHandle<TrackProbabilityCalibration> calib3DHandle = iSetup.getHandle(calib3d_token_);
-    probabilityEstimator_ =
-        std::make_unique<HistogramProbabilityEstimator>(calib3DHandle.product(), calib2DHandle.product());
-  }
-
-  calibrationCacheId3D_ = cacheId3D;
-  calibrationCacheId2D_ = cacheId2D;
-}
-*/
 //define this as a plug-in
 DEFINE_FWK_MODULE(ParticleTransformerAK4TagInfoProducer);
