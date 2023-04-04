@@ -4,6 +4,8 @@ _thresholdsHB = cms.vdouble(0.8, 0.8, 0.8, 0.8)
 _thresholdsHE = cms.vdouble(0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8)
 _thresholdsHBphase1 = cms.vdouble(0.1, 0.2, 0.3, 0.3)
 _thresholdsHEphase1 = cms.vdouble(0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2)
+#updated HB RecHit threshold for 2023
+_thresholdsHBphase1_2023 = cms.vdouble(0.1, 0.2, 0.3, 0.3)
 
 particleFlowClusterHCAL = cms.EDProducer('PFMultiDepthClusterProducer',
        clustersSource = cms.InputTag("particleFlowClusterHBHE"),
@@ -48,6 +50,14 @@ from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
 run3_HB.toModify(particleFlowClusterHCAL,
     pfClusterBuilder = dict(
         allCellsPositionCalc = dict(logWeightDenominatorByDetector = {0 : dict(logWeightDenominator = _thresholdsHBphase1) } ),
+    ),
+)
+
+# offline 2023
+from Configuration.Eras.Modifier_run3_egamma_2023_cff import run3_egamma_2023
+run3_egamma_2023.toModify(particleFlowClusterHCAL,
+    pfClusterBuilder = dict(
+        allCellsPositionCalc = dict(logWeightDenominatorByDetector = {0 : dict(logWeightDenominator = _thresholdsHBphase1_2023) } ),
     ),
 )
 
