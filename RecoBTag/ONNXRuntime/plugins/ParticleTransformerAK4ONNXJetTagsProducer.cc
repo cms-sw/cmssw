@@ -88,7 +88,7 @@ void ParticleTransformerAK4ONNXJetTagsProducer::fillDescriptions(edm::Configurat
                                      {
                                          "input_1", "input_2", "input_3", "input_4", "input_5", "input_6"
                                      });
-  desc.add<edm::FileInPath>("model_path", edm::FileInPath("RecoBTag/Combined/data/RobustParTAK4/PUPPI/V00/DJT.onnx"));
+  desc.add<edm::FileInPath>("model_path", edm::FileInPath("RecoBTag/Combined/data/RobustParTAK4/PUPPI/V00/ParTAK4.onnx"));
   desc.add<std::vector<std::string>>("output_names", {"softmax"});
   desc.add<std::vector<std::string>>(
       "flav_names", std::vector<std::string>{"probb", "probbb", "problepb", "probc", "probuds", "probg"});
