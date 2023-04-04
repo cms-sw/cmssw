@@ -154,6 +154,12 @@ if __name__ == '__main__':
                         type=int,
                         default=0)
     
+    parser.add_argument('--nEvents',
+                        help='number of events to process in cmsRun. If 0 will use the standard 10 events.',
+                        dest='nEvents',
+                        type=int,
+                        default=0)
+    
     parser.add_argument('--numberEventsInLuminosityBlock',
                         help='number of events in a luminosity block',
                         dest='numberEventsInLuminosityBlock',
