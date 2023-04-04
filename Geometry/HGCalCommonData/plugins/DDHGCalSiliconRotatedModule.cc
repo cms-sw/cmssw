@@ -403,7 +403,8 @@ void DDHGCalSiliconRotatedModule::positionSensitive(const DDLogicalPart& glog, i
   std::vector<int> ntype(3, 0);
   edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedModule: " << glog.ddname() << "  r " << delx << " R " << dely
                                 << " dy " << dy << " Shift " << xyoff.first << ":" << xyoff.second << " WaferSize "
-                                << (waferSize_ + waferSepar_) << " index " << firstWafer << ":" << (lastWafer - 1) << " Layer Center " << layercenter << ":" << layertype;
+                                << (waferSize_ + waferSepar_) << " index " << firstWafer << ":" << (lastWafer - 1)
+                                << " Layer Center " << layercenter << ":" << layertype;
 #endif
   for (int k = firstWafer; k < lastWafer; ++k) {
     int u = HGCalWaferIndex::waferU(waferIndex_[k]);
@@ -429,7 +430,8 @@ void DDHGCalSiliconRotatedModule::positionSensitive(const DDLogicalPart& glog, i
     edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedLayer::Wafer: layer " << layer + 1 << " cassette "
                                   << cassette << " Shift " << cshift.first << ":" << cshift.second << " Original "
                                   << xorig << ":" << yorig << ":" << convertRadToDeg(angle) << " Final " << xpos << ":"
-                                  << ypos << " u|v " << u << ":" << v << " typee|part|orient|place " << type << ":" << part << ":" << orien << ":" << place;
+                                  << ypos << " u|v " << u << ":" << v << " typee|part|orient|place " << type << ":"
+                                  << part << ":" << orien << ":" << place;
 #endif
     std::string wafer;
     int i(999);
@@ -439,7 +441,8 @@ void DDHGCalSiliconRotatedModule::positionSensitive(const DDLogicalPart& glog, i
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << " layertype:type:part:orien:cassette:place:offsets:ind " << layertype << ":"
                                     << type << ":" << part << ":" << orien << ":" << cassette << ":" << place << ":"
-				    << placeOffset_ << ":" << facingTypes_ << ":" << orientationTypes_ << " wafer " << i << ":" << wafer;
+                                    << placeOffset_ << ":" << facingTypes_ << ":" << orientationTypes_ << " wafer " << i
+                                    << ":" << wafer;
 #endif
     } else {
       int partoffset = (part >= HGCalTypes::WaferHDTop) ? HGCalTypes::WaferPartHDOffset : HGCalTypes::WaferPartLDOffset;
