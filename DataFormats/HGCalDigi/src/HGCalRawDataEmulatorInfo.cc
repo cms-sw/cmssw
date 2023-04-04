@@ -1,11 +1,25 @@
+/****************************************************************************
+ *
+ * This is a part of HGCAL offline software.
+ * Authors:
+ *   Laurent Forthomme, CERN
+ *   Pedro Silva, CERN
+ *
+ ****************************************************************************/
+
 #include "DataFormats/HGCalDigi/interface/HGCalRawDataEmulatorInfo.h"
 
 //-----------------------------------------------
 // ECON-D emulator info
 //-----------------------------------------------
 
-HGCalECONDEmulatorInfo::HGCalECONDEmulatorInfo(
-    bool obit, bool bbit, bool ebit, bool tbit, bool hbit, bool sbit, std::vector<uint64_t> enabled_channels) {
+HGCalECONDEmulatorInfo::HGCalECONDEmulatorInfo(bool obit,
+                                               bool bbit,
+                                               bool ebit,
+                                               bool tbit,
+                                               bool hbit,
+                                               bool sbit,
+                                               const std::vector<std::vector<bool> >& enabled_channels) {
   header_bits_[StatusBits::O] = obit;
   header_bits_[StatusBits::B] = bbit;
   header_bits_[StatusBits::E] = ebit;
@@ -21,14 +35,14 @@ void HGCalECONDEmulatorInfo::clear() {
   erx_pois_.clear();
 }
 
-void HGCalECONDEmulatorInfo::addERxChannelsEnable(uint64_t erx_channels_poi) {
+void HGCalECONDEmulatorInfo::addERxChannelsEnable(const std::vector<bool>& erx_channels_poi) {
   erx_pois_.emplace_back(erx_channels_poi);
 }
 
 std::vector<bool> HGCalECONDEmulatorInfo::channelsEnabled(size_t ch_id) const {
   std::vector<bool> ch_en;
   for (const auto& erx_channels_poi : erx_pois_)
-    ch_en.emplace_back(erx_channels_poi.test(ch_id));
+    ch_en.emplace_back(erx_channels_poi.at(ch_id));
   return ch_en;
 }
 
@@ -37,11 +51,23 @@ HGCalECONDEmulatorInfo::HGCROCEventRecoStatus HGCalECONDEmulatorInfo::eventRecoS
 }
 
 //-----------------------------------------------
+// Capture block emulator info
+//-----------------------------------------------
+
+void HGCalCaptureBlockEmulatorInfo::addECONDEmulatedInfo(unsigned int econd_id,
+                                                         const HGCalECONDEmulatorInfo& econd_info) {
+  econd_info_[econd_id] = econd_info;
+}
+
+//-----------------------------------------------
 // S-link emulator info
 //-----------------------------------------------
 
-void HGCalSlinkEmulatorInfo::clear() { econd_info_.clear(); }
+void HGCalSlinkEmulatorInfo::addCaptureBlockEmulatedInfo(unsigned int cb_id,
+                                                         const HGCalCaptureBlockEmulatorInfo& cb_info) {
+  cb_info_[cb_id] = cb_info;
+}
 
-void HGCalSlinkEmulatorInfo::addECONDEmulatedInfo(unsigned int econd_id, const HGCalECONDEmulatorInfo& econd_info) {
-  econd_info_[econd_id] = econd_info;
+HGCalCaptureBlockEmulatorInfo& HGCalSlinkEmulatorInfo::captureBlockEmulatedInfo(unsigned int cb_id) {
+  return cb_info_[cb_id];
 }

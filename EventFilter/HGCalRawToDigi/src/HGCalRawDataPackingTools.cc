@@ -1,122 +1,123 @@
-#include <cstddef>
-
 #include "EventFilter/HGCalRawToDigi/interface/HGCalRawDataPackingTools.h"
 #include "EventFilter/HGCalRawToDigi/interface/HGCalRawDataDefinitions.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-std::vector<uint32_t> hgcal::econd::addChannelData(uint8_t& msb,
-                                                   uint16_t tctp,
-                                                   uint16_t adc,
-                                                   uint16_t tot,
-                                                   uint16_t adcm,
-                                                   uint16_t toa,
+std::vector<uint32_t> hgcal::econd::produceERxData(const ERxChannelEnable& channel_enable,
+                                                   const ERxData& erx,
                                                    bool passZS,
                                                    bool passZSm1,
                                                    bool hasToA,
-                                                   bool charmode) {
-  std::vector<uint32_t> newWords(0);
-
-  if (msb == 0)
-    msb = 32;
-
-  //characterization mode is easy
-  if (charmode) {
-    newWords.push_back((tctp & 0x3) << 30 | (adc & 0x3ff) << 20 | (tot & 0x3ff) << 10 | (toa & 0x3ff));
-
-    //normal mode will depend on the TcTp and ZS states
-  } else {
-    uint32_t rawWord(0);
-    uint8_t nbits(0);
-
-    switch (tctp) {
-      case 0x0:
-        if (passZS && passZSm1 && !hasToA) {
-          rawWord = ((adcm & 0x3ff) << 10) | (adc & 0x3ff);
-          nbits = 24;
-        } else if (passZS && !passZSm1 && !hasToA) {
-          rawWord = (1 << 10) | (adc & 0x3ff);
-          nbits = 16;
-        } else if (passZS && !passZSm1 && hasToA) {
-          rawWord = (3 << 20) | ((adc & 0x3ff) << 10) | (toa & 0x3ff);
-          nbits = 24;
-        } else if (passZS && passZSm1 && hasToA) {
-          rawWord = (1 << 30) | ((adcm & 0x3ff) << 20) | ((adc & 0x3ff) << 10) | (toa & 0x3ff);
-          nbits = 32;
+                                                   bool char_mode) {
+  auto format_word = [&erx, &passZS, &passZSm1, &hasToA, &char_mode](size_t i) -> std::pair<uint32_t, uint8_t> {
+    if (i >= erx.tctp.size())
+      throw cms::Exception("HGCalEmulator")
+          << "Not enough channels in eRx data payload: " << i << " >= " << erx.tctp.size() << ".";
+    if (char_mode)  // characterisation mode is easy
+      return std::make_pair(((uint8_t)erx.tctp.at(i) & 0x3) << 30 | (erx.adc.at(i) & 0x3ff) << 20 |
+                                (erx.tot.at(i) & 0x3ff) << 10 | (erx.toa.at(i) & 0x3ff),
+                            32);
+    switch (erx.tctp.at(i)) {
+      case ToTStatus::ZeroSuppressed: {
+        if (!passZS)
+          throw cms::Exception("HGCalEmulator") << "ToT status is ZeroSuppressed, but event frame does not pass ZS.";
+        if (passZSm1) {
+          if (hasToA)
+            return std::make_pair((0x1 << 30) | ((erx.adcm.at(i) & 0x3ff) << 20) | ((erx.adc.at(i) & 0x3ff) << 10) |
+                                      (erx.toa.at(i) & 0x3ff),
+                                  32);
+          else
+            return std::make_pair(((erx.adcm.at(i) & 0x3ff) << 10) | (erx.adc.at(i) & 0x3ff), 24);
         }
-        break;
-      case 0x1:
-        rawWord = (2 << 20) | ((adcm & 0x3ff) << 10) | (adc & 0x3ff);
-        nbits = 24;
-        break;
-      case 0x2:
-        rawWord = (2 << 30) | ((adcm & 0x3ff) << 20) | ((adc & 0x3ff) << 10) | (toa & 0x3ff);
-        nbits = 32;
-        break;
-      case 0x3:
-        rawWord = (3 << 30) | ((adcm & 0x3ff) << 20) | ((tot & 0x3ff) << 10) | (toa & 0x3ff);
-        nbits = 32;
-        break;
-    }
-
-    //pack raw word to 32b starting at the required msb
-    //if it still fits, it sits in the current word
-    if (msb >= nbits) {
-      uint32_t mask = 0xffffffff >> (32 - nbits);
-      if (nbits > 0) {
-        newWords.push_back((rawWord & mask) << (msb - nbits));
-        msb = msb == nbits ? 32 : msb - nbits;
+        // at this point, does not have any BX-1 ZS info
+        if (hasToA)
+          return std::make_pair((0x3 << 20) | ((erx.adc.at(i) & 0x3ff) << 10) | (erx.toa.at(i) & 0x3ff), 24);
+        return std::make_pair((0x1 << 10) | (erx.adc.at(i) & 0x3ff), 16);
       }
-      //if it doesn't fit start a new word
-      //    32                         0 32                            0 32
-      //    |           .    msb        |  nbits-msb  . 32-(nbits-msb)  |
-    } else {
-      uint8_t spill(nbits - msb);
-      uint32_t rawWord1(rawWord >> spill);
-      newWords.push_back(rawWord1);
-
-      uint32_t rawWord2(rawWord << (32 - spill));
-      newWords.push_back(rawWord2);
-
-      msb = spill != 32 ? 32 - spill : 32;
+      case ToTStatus::noZeroSuppressed_TOASuppressed:
+        return std::make_pair((0x2 << 20) | ((erx.adcm.at(i) & 0x3ff) << 10) | (erx.adc.at(i) & 0x3ff), 24);
+      case ToTStatus::invalid:
+        return std::make_pair(
+            (0x2 << 30) | ((erx.adcm.at(i) & 0x3ff) << 20) | ((erx.adc.at(i) & 0x3ff) << 10) | (erx.toa.at(i) & 0x3ff),
+            32);
+      case ToTStatus::AutomaticFull:
+        return std::make_pair(
+            (0x3 << 30) | ((erx.adcm.at(i) & 0x3ff) << 20) | ((erx.tot.at(i) & 0x3ff) << 10) | (erx.toa.at(i) & 0x3ff),
+            32);
+      default:
+        throw cms::Exception("HGCalEmulator")
+            << "Invalid ToT status retrieved for channel " << i << ": " << (int)erx.tctp.at(i) << ".";
     }
+  };
+
+  std::vector<uint32_t> data{0};
+  std::vector<uint32_t>::iterator it_data = data.begin();
+
+  uint8_t msb = 0;
+  for (size_t i = 0; i < channel_enable.size(); ++i) {
+    if (!channel_enable.at(i))
+      continue;
+    const auto [word, nbits] = format_word(i);  // retrieve the channel word in its proper formatting
+
+    if (msb >= 32)  // if we are already at the next word
+      it_data = data.insert(data.end(), 0);
+    msb %= 32;  // 0 <= msb < 32
+
+    if (msb > 0)  // do we have some room for additional information?
+      *it_data &= ((1 << msb) - 1);
+    if (msb + nbits > 32) {  // spilling onto the next word
+      uint8_t nbits_word1 = 32 - msb - nbits;
+      *it_data |= (word & ((1 << nbits_word1) - 1)) << msb;
+      it_data = data.insert(data.end(), word >> nbits_word1);
+    } else  // everything fits into one word
+      *it_data |= word << msb;
+    msb += nbits;
   }
+  return data;
+}
 
-  return newWords;
+//
+std::vector<uint32_t> hgcal::econd::eRxSubPacketHeader(uint8_t stat,
+                                                       uint8_t hamming,
+                                                       bool bitE,
+                                                       uint16_t common_mode0,
+                                                       uint16_t common_mode1,
+                                                       const ERxChannelEnable& channel_enable) {
+  uint64_t channels_map64b(0);
+  size_t i = 0;
+  for (const auto& ch : channel_enable)
+    channels_map64b |= (ch << i++);
+  return hgcal::econd::eRxSubPacketHeader(stat, hamming, bitE, common_mode0, common_mode1, channels_map64b);
 }
 
 //
 std::vector<uint32_t> hgcal::econd::eRxSubPacketHeader(
-    uint16_t stat, uint16_t ham, bool bitE, uint16_t cm0, uint16_t cm1, std::vector<bool> chmap) {
-  uint64_t chmap64b(0);
-  for (size_t i = 0; i < 65; i++)
-    chmap64b |= (chmap[i] << i);
-  return hgcal::econd::eRxSubPacketHeader(stat, ham, bitE, cm0, cm1, chmap64b);
-}
-
-//
-std::vector<uint32_t> hgcal::econd::eRxSubPacketHeader(
-    uint16_t stat, uint16_t ham, bool bitE, uint16_t cm0, uint16_t cm1, uint64_t chmap) {
-  uint32_t header((stat & hgcal::ECOND_FRAME::ERXSTAT_MASK) << hgcal::ECOND_FRAME::ERXSTAT_POS |
-                  (ham & hgcal::ECOND_FRAME::ERXHAM_MASK) << hgcal::ECOND_FRAME::ERXHAM_POS |
-                  (cm0 & hgcal::ECOND_FRAME::COMMONMODE0_MASK) << hgcal::ECOND_FRAME::COMMONMODE0_POS |
-                  (cm1 & hgcal::ECOND_FRAME::COMMONMODE1_MASK) << hgcal::ECOND_FRAME::COMMONMODE1_POS);
-
-  std::vector<uint32_t> newWords(1, header);
+    uint8_t stat, uint8_t hamming, bool bitE, uint16_t common_mode0, uint16_t common_mode1, uint64_t channels_map) {
+  std::vector<uint32_t> header = {
+      (stat & hgcal::ECOND_FRAME::ERXSTAT_MASK) << hgcal::ECOND_FRAME::ERXSTAT_POS |
+      (hamming & hgcal::ECOND_FRAME::ERXHAM_MASK) << hgcal::ECOND_FRAME::ERXHAM_POS |
+      (common_mode0 & hgcal::ECOND_FRAME::COMMONMODE0_MASK) << hgcal::ECOND_FRAME::COMMONMODE0_POS |
+      (common_mode1 & hgcal::ECOND_FRAME::COMMONMODE1_MASK) << hgcal::ECOND_FRAME::COMMONMODE1_POS};
 
   //summarize the channel status map
-  uint32_t chmapw0(chmap & hgcal::ECOND_FRAME::CHMAP0_MASK);
-  uint32_t chmapw1((chmap >> 32) & hgcal::ECOND_FRAME::CHMAP32_MASK);
+  const uint32_t chmapw0(channels_map & hgcal::ECOND_FRAME::CHMAP0_MASK),
+      chmapw1((channels_map >> 32) & hgcal::ECOND_FRAME::CHMAP32_MASK);
 
   //add the channel map
-  if (chmapw0 == 0 && chmapw1 == 0) {
-    newWords[0] |= (bitE << hgcal::ECOND_FRAME::ERX_E_POS);
-    newWords[0] |= (1 << hgcal::ECOND_FRAME::ERXFORMAT_POS);  //raise the F bit (empty eRX)
+  if (chmapw0 == 0 && chmapw1 == 0) {  // empty channels map (empty eRx)
+    header[0] |= (bitE << hgcal::ECOND_FRAME::ERX_E_POS);
+    header[0] |= (1 << hgcal::ECOND_FRAME::ERXFORMAT_POS);  //raise the F bit (empty eRX)
   } else {
-    newWords[0] |= (chmapw0 & hgcal::ECOND_FRAME::CHMAP32_MASK) << hgcal::ECOND_FRAME::CHMAP32_POS;
-    newWords.push_back((chmapw1 & hgcal::ECOND_FRAME::CHMAP0_MASK) << hgcal::ECOND_FRAME::CHMAP0_POS);
+    header[0] |= (chmapw1 & hgcal::ECOND_FRAME::CHMAP32_MASK) << hgcal::ECOND_FRAME::CHMAP32_POS;
+    header.push_back((chmapw0 & hgcal::ECOND_FRAME::CHMAP0_MASK) << hgcal::ECOND_FRAME::CHMAP0_POS);
   }
 
-  return newWords;
+  return header;
+}
+
+static uint8_t computeCRC8bit(const std::vector<uint32_t>& event_header) {
+  uint8_t crc = 0x42;  //TODO: implement 8-bit Bluetooth CRC
+  return crc;
 }
 
 //
@@ -133,8 +134,7 @@ std::vector<uint32_t> hgcal::econd::eventPacketHeader(uint16_t header,
                                                       uint16_t l1a,
                                                       uint8_t orb,
                                                       bool bitS,
-                                                      uint8_t rr,
-                                                      uint8_t ehCRC) {
+                                                      uint8_t rr) {
   std::vector<uint32_t> words(2, 0);
 
   words[0] = (header & hgcal::ECOND_FRAME::HEADER_MASK) << hgcal::ECOND_FRAME::HEADER_POS |
@@ -148,8 +148,10 @@ std::vector<uint32_t> hgcal::econd::eventPacketHeader(uint16_t header,
   words[1] = (bx & hgcal::ECOND_FRAME::BX_MASK) << hgcal::ECOND_FRAME::BX_POS |
              (l1a & hgcal::ECOND_FRAME::L1A_MASK) << hgcal::ECOND_FRAME::L1A_POS |
              (orb & hgcal::ECOND_FRAME::ORBIT_MASK) << hgcal::ECOND_FRAME::ORBIT_POS |
-             bitS << hgcal::ECOND_FRAME::BITS_POS | (rr & hgcal::ECOND_FRAME::RR_MASK) << hgcal::ECOND_FRAME::RR_POS |
-             (ehCRC & hgcal::ECOND_FRAME::EHCRC_MASK) << hgcal::ECOND_FRAME::EHCRC_POS;
+             bitS << hgcal::ECOND_FRAME::BITS_POS | (rr & hgcal::ECOND_FRAME::RR_MASK) << hgcal::ECOND_FRAME::RR_POS;
+
+  const auto crc = computeCRC8bit(words);
+  words[1] |= (crc & hgcal::ECOND_FRAME::EHCRC_MASK) << hgcal::ECOND_FRAME::EHCRC_POS;
 
   return words;
 }
@@ -160,14 +162,18 @@ uint32_t hgcal::econd::buildIdleWord(uint8_t bufStat, uint8_t err, uint8_t rr, u
 
 //
 std::vector<uint32_t> hgcal::backend::buildCaptureBlockHeader(
-    uint32_t bc, uint32_t ec, uint32_t oc, const std::vector<hgcal::backend::ECONDPacketStatus>& econd_statuses) {
+    uint32_t bunch_crossing,
+    uint32_t event_counter,
+    uint32_t orbit_counter,
+    const std::vector<hgcal::backend::ECONDPacketStatus>& econd_statuses) {
   if (econd_statuses.size() > 12)
     throw cms::Exception("HGCalEmulator") << "Invalid size for ECON-D statuses: " << econd_statuses.size() << ".";
   std::vector<uint32_t> header(2, 0);
-  header[0] = (bc & hgcal::BACKEND_FRAME::CAPTUREBLOCK_BC_MASK) << hgcal::BACKEND_FRAME::CAPTUREBLOCK_BC_POS |
-              (ec & hgcal::BACKEND_FRAME::CAPTUREBLOCK_EC_MASK) << hgcal::BACKEND_FRAME::CAPTUREBLOCK_EC_POS |
-              (oc & hgcal::BACKEND_FRAME::CAPTUREBLOCK_OC_MASK) << hgcal::BACKEND_FRAME::CAPTUREBLOCK_OC_POS |
-              (econd_statuses[11] & 0x7) << 1 | ((econd_statuses[10] >> 2) & 0x1);
+  header[0] =
+      (bunch_crossing & hgcal::BACKEND_FRAME::CAPTUREBLOCK_BC_MASK) << hgcal::BACKEND_FRAME::CAPTUREBLOCK_BC_POS |
+      (event_counter & hgcal::BACKEND_FRAME::CAPTUREBLOCK_EC_MASK) << hgcal::BACKEND_FRAME::CAPTUREBLOCK_EC_POS |
+      (orbit_counter & hgcal::BACKEND_FRAME::CAPTUREBLOCK_OC_MASK) << hgcal::BACKEND_FRAME::CAPTUREBLOCK_OC_POS |
+      (econd_statuses[11] & 0x7) << 1 | ((econd_statuses[10] >> 2) & 0x1);
   for (size_t i = 0; i < 11; i++)
     header[1] |= (econd_statuses[i] & 0x7) << i * 3;
   return header;

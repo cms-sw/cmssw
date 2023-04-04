@@ -2,8 +2,8 @@
  *
  * This is a part of HGCAL offline software.
  * Authors:
- *   Pedro Silva
- *   Laurent Forthomme
+ *   Pedro Silva, CERN
+ *   Laurent Forthomme, CERN
  *
  ****************************************************************************/
 
@@ -42,10 +42,10 @@ private:
   const bool store_emul_info_;
   const bool store_fed_header_trailer_;
 
+  const edm::EDPutTokenT<FEDRawDataCollection> fedRawToken_;
   std::unique_ptr<hgcal::econd::Emulator> emulator_;
 
   edm::Service<edm::RandomNumberGenerator> rng_;
-  edm::EDPutTokenT<FEDRawDataCollection> fedRawToken_;
   edm::EDPutTokenT<HGCalSlinkEmulatorInfo> fedEmulInfoToken_;
   hgcal::HGCalFrameGenerator frame_gen_;
 };
@@ -58,17 +58,21 @@ HGCalSlinkEmulator::HGCalSlinkEmulator(const edm::ParameterSet& iConfig)
       frame_gen_(iConfig) {
   // figure out which emulator is to be used
   const auto& emul_type = iConfig.getParameter<std::string>("emulatorType");
-  if (emul_type == "empty")
-    emulator_ = std::make_unique<hgcal::econd::EmptyEmulator>(frame_gen_.econdParams());
-  else if (emul_type == "trivial")
-    emulator_ = std::make_unique<hgcal::econd::TrivialEmulator>(frame_gen_.econdParams());
+  if (frame_gen_.econdParams().empty())
+    throw cms::Exception("HGCalSlinkEmulator")
+        << "No ECON-D parameters were retrieved from the configuration. Please add at least one.";
+  const auto& econd_params = frame_gen_.econdParams().begin()->second;
+  if (emul_type == "trivial")
+    emulator_ = std::make_unique<hgcal::econd::TrivialEmulator>(econd_params);
   else if (emul_type == "hgcmodule")
     emulator_ = std::make_unique<hgcal::econd::HGCalModuleTreeReader>(
-        frame_gen_.econdParams(),
+        econd_params,
         iConfig.getUntrackedParameter<std::string>("treeName"),
         iConfig.getUntrackedParameter<std::vector<std::string>>("inputs"));
   else
     throw cms::Exception("HGCalSlinkEmulator") << "Invalid emulator type chosen: '" << emul_type << "'.";
+
+  frame_gen_.setEmulator(*emulator_);
 
   // ensure the random number generator service is present in configuration
   if (!rng_.isAvailable())
@@ -83,13 +87,10 @@ HGCalSlinkEmulator::HGCalSlinkEmulator(const edm::ParameterSet& iConfig)
 }
 
 void HGCalSlinkEmulator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  const auto reader_evt = emulator_->next();
-  const auto event_id = std::get<0>(reader_evt.first), bx_id = std::get<1>(reader_evt.first);
-
   frame_gen_.setRandomEngine(rng_->getEngine(iEvent.streamID()));
 
   // build the S-link payload
-  auto slink_event = frame_gen_.produceSlinkEvent(fed_id_, reader_evt);
+  auto slink_event = frame_gen_.produceSlinkEvent(fed_id_);
   const auto slink_event_size = slink_event.size() * sizeof(slink_event.at(0));
 
   // compute the total S-link payload size
@@ -104,6 +105,8 @@ void HGCalSlinkEmulator::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   auto* ptr = fed_data.data();
 
   if (store_fed_header_trailer_) {
+    const auto& last_event = frame_gen_.lastECONDEmulatedInput();
+    const auto event_id = std::get<0>(last_event.first), bx_id = std::get<1>(last_event.first);
     int trg_type = 0;
     // compose 2*32-bit FED header word
     FEDHeader::set(ptr, trg_type, event_id, bx_id, fed_id_);
@@ -147,15 +150,13 @@ void HGCalSlinkEmulator::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 void HGCalSlinkEmulator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   auto desc = hgcal::HGCalFrameGenerator::description();
   desc.ifValue(
-          edm::ParameterDescription<std::string>("emulatorType", "empty", true),
-          // empty payload emulator
-          "empty" >> edm::EmptyGroupDescription() or
-              // trivial emulator
-              "trivial" >> edm::EmptyGroupDescription() or
+          edm::ParameterDescription<std::string>("emulatorType", "trivial", true),
+          // trivial emulator
+          "trivial" >> edm::EmptyGroupDescription() or
               // test beam tree content
               "hgcmodule" >> (edm::ParameterDescription<std::string>("treeName", "hgcroc_rawdata/eventdata", false) and
                               edm::ParameterDescription<std::vector<std::string>>("inputs", {}, false)))
-      ->setComment("emulator mode (empty, trivial, or hgcmodule)");
+      ->setComment("emulator mode (trivial, or hgcmodule)");
   desc.add<unsigned int>("fedId", 0)->setComment("FED number delivering the emulated frames");
   desc.add<bool>("fedHeaderTrailer", false)->setComment("also add FED header/trailer info");
   desc.add<bool>("storeEmulatorInfo", false)

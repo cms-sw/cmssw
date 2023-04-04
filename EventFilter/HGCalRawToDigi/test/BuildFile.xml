@@ -3,5 +3,12 @@
   <use name="FWCore/MessageLogger"/>
   <use name="EventFilter/HGCalRawToDigi"/>
 </bin>
-<test name="emul_emptyECOND" command="cmsRun ${LOCALTOP}/src/EventFilter/HGCalRawToDigi/test/emulation_and_unpacking_cfg.py mode=empty"/>
-<test name="emul_trivialECOND" command="cmsRun ${LOCALTOP}/src/EventFilter/HGCalRawToDigi/test/emulation_and_unpacking_cfg.py mode=trivial activeECONDs=0,1,2"/>
+<test name="emul_emptyECOND" command="cmsRun ${LOCALTOP}/src/EventFilter/HGCalRawToDigi/test/emulation_and_unpacking_cfg.py activeECONDs=0 numERxsPerECOND=0 numChannelsPerERx=0"/>
+<test name="emul_3ECONDs" command="cmsRun ${LOCALTOP}/src/EventFilter/HGCalRawToDigi/test/emulation_and_unpacking_cfg.py activeECONDs=0,1,2"/>
+<test name="emul_allECONDs_1passthrough" command="cmsRun ${LOCALTOP}/src/EventFilter/HGCalRawToDigi/test/emulation_and_unpacking_cfg.py activeECONDs=0,1,2,3,4,5,6 ECONDsInPassthrough=0"/>
+<test name="emul_allECONDs_1characteris" command="cmsRun ${LOCALTOP}/src/EventFilter/HGCalRawToDigi/test/emulation_and_unpacking_cfg.py activeECONDs=0,1,2,3,4,5,6 ECONDsInCharacterisation=0"/>
+<test name="emul_allECONDs_1passthrough_20cb" command="cmsRun ${LOCALTOP}/src/EventFilter/HGCalRawToDigi/test/emulation_and_unpacking_cfg.py activeECONDs=0,1,2,3,4,5,6 ECONDsInPassthrough=0 numCaptureBlocks=20"/>
+<test name="emul_rndECONDs" command="cmsRun ${LOCALTOP}/src/EventFilter/HGCalRawToDigi/test/emulation_and_unpacking_cfg.py randomActiveECOND=1"/>
+<test name="emul_10ECONDs" command="cmsRun ${LOCALTOP}/src/EventFilter/HGCalRawToDigi/test/emulation_and_unpacking_cfg.py numECONDs=10"/>
+<test name="emul_100ECONDs" command="cmsRun ${LOCALTOP}/src/EventFilter/HGCalRawToDigi/test/emulation_and_unpacking_cfg.py numECONDs=100"/>
+<test name="emul_1000ECONDs" command="cmsRun ${LOCALTOP}/src/EventFilter/HGCalRawToDigi/test/emulation_and_unpacking_cfg.py numECONDs=1000"/>

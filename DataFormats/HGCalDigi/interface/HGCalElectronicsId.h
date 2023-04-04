@@ -55,7 +55,7 @@ public:
   uint8_t econdeRx() const;
   uint8_t halfrocChannel() const;
 
-  void print(std::ostream& out = std::cout) {
+  void print(std::ostream& out = std::cout) const {
     out << "Raw=0x" << std::hex << raw() << std::dec << std::endl
         << "\tFED-ID: " << (uint32_t)fedId() << " Capture Block: " << (uint32_t)captureBlock()
         << " ECON-D idx: " << (uint32_t)econdIdx() << " eRx: " << (uint32_t)econdeRx()

@@ -85,7 +85,7 @@ public:
      @short the 10-bit TOT word is decompressed back to 12 bit word
      In case truncation occurred the word is shifted by 2 bit
    */
-  uint16_t decompressToT(uint16_t totraw) {
+  uint16_t decompressToT(uint16_t totraw) const {
     uint16_t totout(totraw & 0x1ff);
     if (totraw & 0x200) {
       totout = ((totraw & 0x1ff) << 3);
@@ -97,26 +97,26 @@ public:
   /**
      @short getters
   */
-  uint32_t operator()() { return value_; }
-  uint32_t raw() { return value_; }
-  bool tc() { return flag2(); }
-  bool tp() { return flag1(); }
-  uint16_t tctp() { return (tc() << 1) | tp(); }
-  uint16_t adc(bool charMode = false) { return charMode ? packet3() : (tc() ? 0 : packet2()); }
-  uint16_t adcm1(bool charMode = false) { return charMode ? 0 : packet3(); }
-  uint16_t tot(bool charMode = false) {
+  uint32_t operator()() const { return value_; }
+  uint32_t raw() const { return value_; }
+  bool tc() const { return flag2(); }
+  bool tp() const { return flag1(); }
+  uint16_t tctp() const { return (tc() << 1) | tp(); }
+  uint16_t adc(bool charMode = false) const { return charMode ? packet3() : (tc() ? 0 : packet2()); }
+  uint16_t adcm1(bool charMode = false) const { return charMode ? 0 : packet3(); }
+  uint16_t tot(bool charMode = false) const {
     uint16_t tot12b(decompressToT(packet2()));
     return charMode || tc() ? tot12b : 0;
   }
-  uint16_t rawtot(bool charMode = false) { return charMode || tc() ? packet2() : 0; }
-  uint16_t toa() { return packet1(); }
+  uint16_t rawtot(bool charMode = false) const { return charMode || tc() ? packet2() : 0; }
+  uint16_t toa() const { return packet1(); }
   bool flag2() const { return readPacket(kFlagMask, kFlag2Shift); }
   bool flag1() const { return readPacket(kFlagMask, kFlag1Shift); }
   uint16_t packet3() const { return readPacket(kPacketMask, kPacket3Shift); }
   uint16_t packet2() const { return readPacket(kPacketMask, kPacket2Shift); }
   uint16_t packet1() const { return readPacket(kPacketMask, kPacket1Shift); }
 
-  void print(std::ostream& out = std::cout) {
+  void print(std::ostream& out = std::cout) const {
     out << "Raw=0x" << std::hex << raw() << std::dec << std::endl
         << "\tf2: " << flag2() << " f1: " << flag1() << " p3: " << packet3() << " p2: " << packet2()
         << " p1: " << packet1() << std::endl

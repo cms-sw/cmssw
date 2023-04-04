@@ -1,8 +1,16 @@
+/****************************************************************************
+ *
+ * This is a part of HGCAL offline software.
+ * Authors:
+ *   Pedro Silva, CERN
+ *   Laurent Forthomme, CERN
+ *
+ ****************************************************************************/
+
 #ifndef EventFilter_HGCalRawToDigi_HGCalModuleTreeReader_h
 #define EventFilter_HGCalRawToDigi_HGCalModuleTreeReader_h
 
 #include "EventFilter/HGCalRawToDigi/interface/HGCalECONDEmulator.h"
-#include "TChain.h"
 
 namespace hgcal::econd {
   /// Read out a the relevant raw data produced by a module to memory and returns ECON-D frames on request
@@ -18,14 +26,13 @@ namespace hgcal::econd {
 
     /// Input tree collections
     struct HGCModuleTreeEvent {
-      UInt_t event, chip;
-      Int_t half, bxcounter, eventcounter, orbitcounter, trigtime, trigwidth;
+      unsigned int event, chip;
+      int half, bxcounter, eventcounter, orbitcounter, trigtime, trigwidth;
       std::vector<unsigned int>* daqdata{0};
     };
     ECONDInput next() override;
 
   private:
-    TChain chain_;
     ECONDInputColl data_;
     ECONDInputColl::const_iterator it_data_;
   };

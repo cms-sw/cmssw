@@ -2,6 +2,9 @@
 #define EventFilter_HGCalRawToDigi_HGCalRawDataDefinitions_h
 
 namespace hgcal {
+  namespace econd {
+    enum ToTStatus { ZeroSuppressed = 0x0, noZeroSuppressed_TOASuppressed = 0x1, invalid = 0x2, AutomaticFull = 0x3 };
+  }
   enum ECOND_FRAME {
     HEADER_POS = 23,
     HEADER_MASK = 0x1ff,
