@@ -15,7 +15,7 @@ from Configuration.Eras.Era_Run3_2023_cff import Run3_2023
 
 from Configuration.DataProcessing.Impl.pp import pp
 
-class ppEra_Run3(pp):
+class ppEra_Run3_2023(pp):
     def __init__(self):
         pp.__init__(self)
         self.recoSeq=''
