@@ -83,6 +83,7 @@ process.dtc = cms.Path(process.TrackerDTCProducer)
 
 process.load("L1Trigger.TrackFindingTracklet.L1HybridEmulationTracks_cff")
 process.load("L1Trigger.L1TTrackMatch.l1tTrackSelectionProducer_cfi")
+process.load("L1Trigger.L1TTrackMatch.l1tTrackVertexAssociationProducer_cfi")
 process.load("L1Trigger.L1TTrackMatch.l1tTrackJets_cfi")
 process.load("L1Trigger.L1TTrackMatch.l1tGTTInputProducer_cfi")
 process.load("L1Trigger.L1TTrackMatch.l1tTrackJetsEmulation_cfi")
@@ -97,30 +98,19 @@ process.load('L1Trigger.VertexFinder.l1tVertexProducer_cfi')
 ############################################################
 # Primary vertex
 ############################################################
-process.l1tVertexFinder = process.l1tVertexProducer.clone()
 process.pPV = cms.Path(process.l1tVertexFinder)
-process.l1tVertexFinderEmulator = process.l1tVertexProducer.clone()
-process.l1tVertexFinderEmulator.VertexReconstruction.Algorithm = "fastHistoEmulation"
-process.l1tVertexFinderEmulator.l1TracksInputTag = cms.InputTag("l1tGTTInputProducer","Level1TTTracksConverted")
-process.l1tVertexFinderEmulator.VertexReconstruction.VxMinTrackPt = cms.double(0.0)
 process.pPVemu = cms.Path(process.l1tVertexFinderEmulator)
-
-process.l1tTrackFastJets.L1PrimaryVertexTag = cms.InputTag("l1tVertexFinder", "l1vertices")
-process.l1tTrackFastJetsExtended.L1PrimaryVertexTag = cms.InputTag("l1tVertexFinder", "l1vertices")
-process.l1tTrackJets.L1PVertexInputTag = cms.InputTag("l1tVertexFinderEmulator","l1verticesEmulation")
-process.l1tTrackJetsExtended.L1PVertexInputTag = cms.InputTag("l1tVertexFinderEmulator","l1verticesEmulation")
-process.l1tTrackerEtMiss.L1VertexInputTag = cms.InputTag("l1tVertexFinder", "l1vertices")
-process.l1tTrackerHTMiss.L1VertexInputTag = cms.InputTag("l1tVertexFinder", "l1vertices")
-process.l1tTrackerEtMissExtended.L1VertexInputTag = cms.InputTag("l1tVertexFinder", "l1vertices")
-process.l1tTrackerHTMissExtended.L1VertexInputTag = cms.InputTag("l1tVertexFinder", "l1vertices")
-process.l1tTrackerEmuEtMiss.L1VertexInputTag = cms.InputTag("l1tVertexFinderEmulator", "l1verticesEmulation")
-
 
 # HYBRID: prompt tracking
 if (L1TRKALGO == 'HYBRID'):
     process.TTTracksEmu = cms.Path(process.L1THybridTracks)
     process.TTTracksEmuWithTruth = cms.Path(process.L1THybridTracksWithAssociators)
-    process.pL1TrackSelection = cms.Path(process.l1tTrackSelectionProducer)
+    process.pL1TrackSelection = cms.Path(process.l1tTrackSelectionProducer *
+                                         process.l1tTrackSelectionProducerForJets *
+                                         process.l1tTrackSelectionProducerForEtMiss)
+    process.pL1TrackVertexAssociation = cms.Path(process.l1tTrackVertexAssociationProducer*
+                                                 process.l1tTrackVertexAssociationProducerForJets*
+                                                 process.l1tTrackVertexAssociationProducerForEtMiss)
     process.pL1TrackJets = cms.Path(process.l1tTrackJets)
     process.pL1TrackFastJets=cms.Path(process.l1tTrackFastJets)
     process.pL1GTTInput = cms.Path(process.l1tGTTInputProducer)
@@ -135,7 +125,13 @@ if (L1TRKALGO == 'HYBRID'):
 elif (L1TRKALGO == 'HYBRID_DISPLACED'):
     process.TTTracksEmu = cms.Path(process.L1TExtendedHybridTracks)
     process.TTTracksEmuWithTruth = cms.Path(process.L1TExtendedHybridTracksWithAssociators)
-    process.pL1TrackSelection = cms.Path(process.l1tTrackSelectionProducerExtended)
+    process.pL1TrackSelection = cms.Path(process.l1tTrackSelectionProducer *
+                                         process.l1tTrackSelectionProducerExtended *
+                                         process.l1tTrackSelectionProducerExtendedForJets *
+                                         process.l1tTrackSelectionProducerExtendedForEtMiss)
+    process.pL1TrackVertexAssociation = cms.Path(process.l1tTrackVertexAssociationProducerExtended *
+                                                 process.l1tTrackVertexAssociationProducerExtendedForJets *
+                                                 process.l1tTrackVertexAssociationProducerExtendedForEtMiss)
     process.pL1TrackJets = cms.Path(process.l1tTrackJetsExtended)
     process.pL1TrackFastJets = cms.Path(process.l1tTrackFastJetsExtended)
     process.pL1GTTInput = cms.Path(process.l1tGTTInputProducerExtended)
@@ -149,7 +145,12 @@ elif (L1TRKALGO == 'HYBRID_DISPLACED'):
 elif (L1TRKALGO == 'HYBRID_PROMPTANDDISP'):
     process.TTTracksEmu = cms.Path(process.L1TPromptExtendedHybridTracks)
     process.TTTracksEmuWithTruth = cms.Path(process.L1TPromptExtendedHybridTracksWithAssociators)
-    process.pL1TrackSelection = cms.Path(process.l1tTrackSelectionProducer*process.l1tTrackSelectionProducerExtended)
+    process.pL1TrackSelection = cms.Path(process.l1tTrackSelectionProducer * process.l1tTrackSelectionProducerExtended *
+                                         process.l1tTrackSelectionProducerForJets * process.l1tTrackSelectionProducerExtendedForJets *
+                                         process.l1tTrackSelectionProducerForEtMiss * process.l1tTrackSelectionProducerExtendedForEtMiss)
+    process.pL1TrackVertexAssociation = cms.Path(process.l1tTrackVertexAssociationProducer * process.l1tTrackVertexAssociationProducerExtended *
+                                                 process.l1tTrackVertexAssociationProducerForJets * process.l1tTrackVertexAssociationProducerExtendedForJets *
+                                                 process.l1tTrackVertexAssociationProducerForEtMiss * process.l1tTrackVertexAssociationProducerExtendedForEtMiss)
     process.pL1TrackJets = cms.Path(process.l1tTrackJets*process.l1tTrackJetsExtended)
     process.pL1TrackFastJets = cms.Path(process.l1tTrackFastJets*process.l1tTrackFastJetsExtended)
     process.pL1GTTInput = cms.Path(process.l1tGTTInputProducer*process.l1tGTTInputProducerExtended)
@@ -193,8 +194,34 @@ process.L1TrackNtuple = cms.EDAnalyzer('L1TrackObjectNtupleMaker',
         L1TrackExtendedGTTInputTag = cms.InputTag("l1tGTTInputProducerExtended","Level1TTTracksExtendedConverted"),                              # TTTracks, extended, GTT converted
         L1TrackSelectedInputTag = cms.InputTag("l1tTrackSelectionProducer", "Level1TTTracksSelected"),                                           # TTTracks, prompt, selected
         L1TrackSelectedEmulationInputTag = cms.InputTag("l1tTrackSelectionProducer", "Level1TTTracksSelectedEmulation"),                         # TTTracks, prompt, emulation, selected
-        L1TrackExtendedSelectedInputTag = cms.InputTag("l1tTrackSelectionProducerExtended", "Level1TTTracksExtendedSelected"),                   # TTTracks, extended, selected
-        L1TrackExtendedSelectedEmulationInputTag = cms.InputTag("l1tTrackSelectionProducerExtended", "Level1TTTracksExtendedSelectedEmulation"), # TTTracks, extended, emulation, selected
+        L1TrackSelectedAssociatedInputTag = cms.InputTag("l1tTrackVertexAssociationProducer", "Level1TTTracksSelectedAssociated"),                                           # TTTracks, prompt, selected, associated
+        L1TrackSelectedAssociatedEmulationInputTag = cms.InputTag("l1tTrackVertexAssociationProducer", "Level1TTTracksSelectedAssociatedEmulation"),                         # TTTracks, prompt, emulation, selected, associated
+                                       
+        L1TrackSelectedForJetsInputTag = cms.InputTag("l1tTrackSelectionProducerForJets", "Level1TTTracksSelected"),                                           # TTTracks, prompt, selected
+        L1TrackSelectedEmulationForJetsInputTag = cms.InputTag("l1tTrackSelectionProducerForJets", "Level1TTTracksSelectedEmulation"),                         # TTTracks, prompt, emulation, selected
+        L1TrackSelectedAssociatedForJetsInputTag = cms.InputTag("l1tTrackVertexAssociationProducerForJets", "Level1TTTracksSelectedAssociated"),                                           # TTTracks, prompt, selected, associated
+        L1TrackSelectedAssociatedEmulationForJetsInputTag = cms.InputTag("l1tTrackVertexAssociationProducerForJets", "Level1TTTracksSelectedAssociatedEmulation"),                         # TTTracks, prompt, emulation, selected, associated
+                                       
+        L1TrackSelectedForEtMissInputTag = cms.InputTag("l1tTrackSelectionProducerForEtMiss", "Level1TTTracksSelected"),                                           # TTTracks, prompt, selected
+        L1TrackSelectedEmulationForEtMissInputTag = cms.InputTag("l1tTrackSelectionProducerForEtMiss", "Level1TTTracksSelectedEmulation"),                         # TTTracks, prompt, emulation, selected
+        L1TrackSelectedAssociatedForEtMissInputTag = cms.InputTag("l1tTrackVertexAssociationProducerForEtMiss", "Level1TTTracksSelectedAssociated"),                                           # TTTracks, prompt, selected, associated
+        L1TrackSelectedAssociatedEmulationForEtMissInputTag = cms.InputTag("l1tTrackVertexAssociationProducerForEtMiss", "Level1TTTracksSelectedAssociatedEmulation"),                         # TTTracks, prompt, emulation, selected, associated
+
+        L1TrackExtendedSelectedInputTag = cms.InputTag("l1tTrackSelectionProducerExtended", "Level1TTTracksExtendedSelected"),                                           # TTTracks, extended, selected
+        L1TrackExtendedSelectedEmulationInputTag = cms.InputTag("l1tTrackSelectionProducerExtended", "Level1TTTracksExtendedSelectedEmulation"),                         # TTTracks, extended, emulation, selected
+        L1TrackExtendedSelectedAssociatedInputTag = cms.InputTag("l1tTrackVertexAssociationProducerExtended", "Level1TTTracksExtendedSelectedAssociated"),                                           # TTTracks, extended, selected, associated
+        L1TrackExtendedSelectedAssociatedEmulationInputTag = cms.InputTag("l1tTrackVertexAssociationProducerExtended", "Level1TTTracksExtendedSelectedAssociatedEmulation"),                         # TTTracks, extended, emulation, selected, associated
+                                       
+        L1TrackExtendedSelectedForJetsInputTag = cms.InputTag("l1tTrackSelectionProducerExtendedForJets", "Level1TTTracksExtendedSelected"),                                           # TTTracks, extended, selected
+        L1TrackExtendedSelectedEmulationForJetsInputTag = cms.InputTag("l1tTrackSelectionProducerExtendedForJets", "Level1TTTracksExtendedSelectedEmulation"),                         # TTTracks, extended, emulation, selected
+        L1TrackExtendedSelectedAssociatedForJetsInputTag = cms.InputTag("l1tTrackVertexAssociationProducerExtendedForJets", "Level1TTTracksExtendedSelectedAssociated"),                                           # TTTracks, extended, selected, associated
+        L1TrackExtendedSelectedAssociatedEmulationForJetsInputTag = cms.InputTag("l1tTrackVertexAssociationProducerExtendedForJets", "Level1TTTracksExtendedSelectedAssociatedEmulation"),                         # TTTracks, extended, emulation, selected, associated
+                                       
+        L1TrackExtendedSelectedForEtMissInputTag = cms.InputTag("l1tTrackSelectionProducerExtendedForEtMiss", "Level1TTTracksExtendedSelected"),                                           # TTTracks, extended, selected
+        L1TrackExtendedSelectedEmulationForEtMissInputTag = cms.InputTag("l1tTrackSelectionProducerExtendedForEtMiss", "Level1TTTracksExtendedSelectedEmulation"),                         # TTTracks, extended, emulation, selected
+        L1TrackExtendedSelectedAssociatedForEtMissInputTag = cms.InputTag("l1tTrackVertexAssociationProducerExtendedForEtMiss", "Level1TTTracksExtendedSelectedAssociated"),                                           # TTTracks, extended, selected, associated
+        L1TrackExtendedSelectedAssociatedEmulationForEtMissInputTag = cms.InputTag("l1tTrackVertexAssociationProducerExtendedForEtMiss", "Level1TTTracksExtendedSelectedAssociatedEmulation"),                         # TTTracks, extended, emulation, selected, associated
+                                                                              
         L1StubInputTag = cms.InputTag("TTStubsFromPhase2TrackerDigis","StubAccepted"),
         MCTruthClusterInputTag = cms.InputTag("TTClusterAssociatorFromPixelDigis", "ClusterAccepted"),
         MCTruthStubInputTag = cms.InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"),
@@ -238,7 +265,4 @@ process.pOut = cms.EndPath(process.out)
 # use this if cluster/stub associators not available
 # process.schedule = cms.Schedule(process.TTClusterStubTruth,process.TTTracksEmuWithTruth,process.ntuple)
 
-process.schedule = cms.Schedule(process.TTClusterStub, process.TTClusterStubTruth, process.dtc, process.TTTracksEmuWithTruth, process.pL1GTTInput, process.pPV, process.pPVemu, process.pL1TrackSelection, process.pL1TrackJets, process.pL1TrackJetsEmu,process.pL1TrackFastJets, process.pTkMET, process.pTkMETEmu, process.pTkMHT, process.pTkMHTEmulator, process.ntuple)
-
-
-
+process.schedule = cms.Schedule(process.TTClusterStub, process.TTClusterStubTruth, process.dtc, process.TTTracksEmuWithTruth, process.pL1GTTInput, process.pL1TrackSelection, process.pPV, process.pPVemu,process.pL1TrackVertexAssociation, process.pL1TrackJets, process.pL1TrackJetsEmu,process.pL1TrackFastJets, process.pTkMET, process.pTkMETEmu, process.pTkMHT, process.pTkMHTEmulator, process.ntuple)
