@@ -40,6 +40,13 @@ MtdSD::MtdSD(const std::string& name,
   if (scheme)
     setNumberingScheme(scheme);
 
+  energyCut =
+        m_p.getParameter<double>("EnergyThresholdForPersistencyInGeV") * CLHEP::GeV;  //default must be 0.5
+  energyHistoryCut =
+        m_p.getParameter<double>("EnergyThresholdForHistoryInGeV") * CLHEP::GeV;  //default must be 0.05
+
+  setCuts(energyCut, energyHistoryCut);
+
   double newTimeFactor = 1. / m_p.getParameter<double>("TimeSliceUnit");
   edm::LogVerbatim("MtdSim") << "New time factor = " << newTimeFactor;
   setTimeFactor(newTimeFactor);

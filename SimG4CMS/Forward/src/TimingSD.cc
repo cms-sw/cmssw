@@ -161,6 +161,12 @@ void TimingSD::getStepInfo(const G4Step* aStep) {
       }
       info->putInHistory();
     }
+#ifdef EDM_ML_DEBUG
+    if (info != nullptr) {
+      LogDebug("TimingSim") << "TrackInformation for ID = " << theTrack->GetTrackID();
+      info->Print();
+    }
+#endif
   }
 
   edeposit *= invgev;

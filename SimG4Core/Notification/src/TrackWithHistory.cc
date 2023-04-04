@@ -14,7 +14,7 @@
 
 G4ThreadLocal G4Allocator<TrackWithHistory>* fpTrackWithHistoryAllocator = nullptr;
 
-//#define DEBUG
+#define DEBUG
 
 TrackWithHistory::TrackWithHistory(const G4Track* g4trk) {
   trackID_ = g4trk->GetTrackID();

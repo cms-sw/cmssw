@@ -28,7 +28,7 @@
 #include "G4ThreeVector.hh"
 #include "G4SystemOfUnits.hh"
 
-//#define DebugLog
+#define DebugLog
 
 SimTrackManager::SimTrackManager() {
   idsave.reserve(1000);
