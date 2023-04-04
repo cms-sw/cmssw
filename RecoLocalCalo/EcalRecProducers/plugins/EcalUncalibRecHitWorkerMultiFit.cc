@@ -654,7 +654,16 @@ void EcalUncalibRecHitWorkerMultiFit::run(const edm::Event& evt,
                                   CCTimeShiftWrtRations_ / ecalPh1::Samp_Period;
 
         uncalibRecHit.setJitter(jitter);
-        uncalibRecHit.setJitterError(jitterError);
+        uncalibRecHit.setNonCorrectedTime(jitter, noCorrectedJitter);
+
+        float retreivedNonCorrectedTime = uncalibRecHit.nonCorrectedTime();
+        if (abs(retreivedNonCorrectedTime - noCorrectedJitter)>1) {
+        	edm::LogError("EcalUncalibRecHitError") 
+			<< "Problem with noCorrectedJitter: true value:" << noCorrectedJitter
+            << "\t received: " << retreivedNonCorrectedTime 
+			<< std::endl;
+        }//<<>>if (abs(retreivedNonCorrectedTime - noCorrectedJitter)>1)
+
 
         // consider flagging as kOutOfTime only if above noise
         float threshold, cterm, timeNconst;
