@@ -14,6 +14,8 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/GetterOfProducts.h"
+#include "FWCore/Framework/interface/ProcessMatch.h"
 
 #include <string>
 #include <iostream>
@@ -42,6 +44,7 @@ namespace edmtest {
     int failed_;
     std::string name_;
     int numbits_;
+    edm::GetterOfProducts<edm::TriggerResults> getter_;
   };
 
   class TestContextAnalyzer : public edm::global::EDAnalyzer<> {
@@ -115,7 +118,8 @@ namespace edmtest {
         failed_(),
         name_(ps.getUntrackedParameter<std::string>("name", "DEFAULT")),
         numbits_(ps.getUntrackedParameter<int>("numbits", -1)) {
-    consumesMany<edm::TriggerResults>();
+    getter_ = edm::GetterOfProducts<edm::TriggerResults>(edm::ProcessMatch("*"), this);
+    callWhenNewProductsRegistered(getter_);
   }
 
   TestResultAnalyzer::~TestResultAnalyzer() {}
@@ -123,7 +127,7 @@ namespace edmtest {
   void TestResultAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&) {
     typedef std::vector<edm::Handle<edm::TriggerResults> > Trig;
     Trig prod;
-    e.getManyByType(prod);
+    getter_.fillHandles(e, prod);
 
     if (prod.size() == 0)
       return;

@@ -15,7 +15,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
+#include "FWCore/Framework/interface/GetterOfProducts.h"
+#include "FWCore/Framework/interface/ProcessMatch.h"
 #include <cstdlib>
 #include <iostream>
 #include <string>
@@ -48,6 +49,7 @@ namespace edmtest {
     bool dumpPSetRegistry_;
     std::vector<unsigned int> expectedTriggerResultsHLT_;
     std::vector<unsigned int> expectedTriggerResultsPROD_;
+    edm::GetterOfProducts<edm::TriggerResults> getter_;
   };
 
   // -----------------------------------------------------------------
@@ -64,7 +66,8 @@ namespace edmtest {
         expectedTriggerResultsPROD_(ps.getUntrackedParameter<std::vector<unsigned int> >("expectedTriggerResultsPROD",
                                                                                          std::vector<unsigned int>())) {
     if (not expected_trigger_previous_.empty()) {
-      consumesMany<edm::TriggerResults>();
+      getter_ = edm::GetterOfProducts<edm::TriggerResults>(edm::ProcessMatch("*"), this);
+      callWhenNewProductsRegistered(getter_);
     }
     if (not expectedTriggerResultsHLT_.empty()) {
       consumes<edm::TriggerResults>(edm::InputTag("TriggerResults", "", "HLT"));
@@ -122,7 +125,7 @@ namespace edmtest {
     if (expected_trigger_previous_.size() > 0) {
       typedef std::vector<edm::Handle<edm::TriggerResults> > Trig;
       Trig prod;
-      e.getManyByType(prod);
+      getter_.fillHandles(e, prod);
 
       if (prod.size() == 0) {
         throw cms::Exception("Test Failure")
