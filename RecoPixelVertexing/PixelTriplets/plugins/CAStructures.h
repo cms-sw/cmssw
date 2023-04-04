@@ -1,5 +1,5 @@
-#ifndef CUDADataFormats_TrackerGeometry_CAStructures_h
-#define CUDADataFormats_TrackerGeometry_CAStructures_h
+#ifndef RecoPixelVertexing_PixelTriplets_CAStructures_h
+#define RecoPixelVertexing_PixelTriplets_CAStructures_h
 
 #include "HeterogeneousCore/CUDAUtilities/interface/SimpleVector.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/VecArray.h"
