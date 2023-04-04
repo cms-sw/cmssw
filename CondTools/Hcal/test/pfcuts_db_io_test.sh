@@ -1,10 +1,7 @@
-#!/bin/csh
+#!/bin/bash -ex
 
-set inputfile = `ls -1 $CMSSW_DATA_PATH/data-CondTools-Hcal/V*/CondTools/Hcal/data/hcalpfcuts.txt | tail -1`
-set inputdir = `dirname $inputfile`
-setenv CMSSW_SEARCH_PATH ${CMSSW_SEARCH_PATH}:$inputdir
-
-cat >! temp_pfcuts_to_db.py <<%
+inputfile=$(edmFileInPath CondTools/Hcal/data/hcalpfcuts.txt)
+cat << \EOF > temp_pfcuts_to_db.py
 
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
@@ -34,7 +31,7 @@ process.es_ascii = cms.ESSource("HcalTextCalibrations",
    input = cms.VPSet(
        cms.PSet(
            object = cms.string("PFCuts"),
-           file = cms.FileInPath("hcalpfcuts.txt")
+           file = cms.FileInPath("CondTools/Hcal/data/hcalpfcuts.txt")
       )
    )
 )
@@ -59,11 +56,12 @@ process.mytest = cms.EDAnalyzer("HcalPFCutsPopConAnalyzer",
     )
 )
 process.p = cms.Path(process.mytest)
-%
+EOF
+
 cmsRun temp_pfcuts_to_db.py
 rm temp_pfcuts_to_db.py
 
-cat >! temp_pfcuts_from_db.py <<%
+cat << \EOF > temp_pfcuts_from_db.py
 
 import FWCore.ParameterSet.Config as cms
 from Configuration.StandardSequences.Eras import eras
@@ -101,7 +99,8 @@ process.dumpcond = cms.EDAnalyzer("HcalDumpConditions",
     dump = cms.untracked.vstring("PFCuts")
 )
 process.p = cms.Path(process.dumpcond)
-%
+EOF
+
 cmsRun temp_pfcuts_from_db.py
 rm temp_pfcuts_from_db.py
 
