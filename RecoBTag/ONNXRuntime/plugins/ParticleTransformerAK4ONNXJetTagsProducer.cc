@@ -75,7 +75,6 @@ ParticleTransformerAK4ONNXJetTagsProducer::ParticleTransformerAK4ONNXJetTagsProd
   for (const auto& flav_name : flav_names_) {
     produces<JetTagCollection>(flav_name);
   }
-
 }
 
 ParticleTransformerAK4ONNXJetTagsProducer::~ParticleTransformerAK4ONNXJetTagsProducer() {}
@@ -84,11 +83,9 @@ void ParticleTransformerAK4ONNXJetTagsProducer::fillDescriptions(edm::Configurat
   // pfParticleTransformerAK4JetTags
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("pfParticleTransformerAK4TagInfos"));
-  desc.add<std::vector<std::string>>("input_names",
-                                     {
-                                         "input_1", "input_2", "input_3", "input_4", "input_5", "input_6"
-                                     });
-  desc.add<edm::FileInPath>("model_path", edm::FileInPath("RecoBTag/Combined/data/RobustParTAK4/PUPPI/V00/ParTAK4.onnx"));
+  desc.add<std::vector<std::string>>("input_names", {"input_1", "input_2", "input_3", "input_4", "input_5", "input_6"});
+  desc.add<edm::FileInPath>("model_path",
+                            edm::FileInPath("RecoBTag/Combined/data/RobustParTAK4/PUPPI/V00/ParTAK4.onnx"));
   desc.add<std::vector<std::string>>("output_names", {"softmax"});
   desc.add<std::vector<std::string>>(
       "flav_names", std::vector<std::string>{"probb", "probbb", "problepb", "probc", "probuds", "probg"});
@@ -116,7 +113,7 @@ void ParticleTransformerAK4ONNXJetTagsProducer::produce(edm::Event& iEvent, cons
       output_tags.emplace_back(std::make_unique<JetTagCollection>(ref2prod));
     }
     get_input_sizes(tag_infos);
-      
+
     // init data storage
     data_.clear();
     for (const auto& len : input_sizes_) {
@@ -128,14 +125,12 @@ void ParticleTransformerAK4ONNXJetTagsProducer::produce(edm::Event& iEvent, cons
       make_inputs(jet_n, taginfo);
     }
     // run prediction with dynamic batch size per event
-    input_shapes_ = {
-        {(int64_t)tag_infos->size(), (int64_t)n_cpf_, (int64_t)n_features_cpf_},
-        {(int64_t)tag_infos->size(), (int64_t)n_npf_, (int64_t)n_features_npf_},
-        {(int64_t)tag_infos->size(), (int64_t)n_sv_,  (int64_t)n_features_sv_},
-        {(int64_t)tag_infos->size(), (int64_t)n_cpf_, (int64_t)n_pairwise_features_cpf_},
-        {(int64_t)tag_infos->size(), (int64_t)n_npf_, (int64_t)n_pairwise_features_npf_},
-        {(int64_t)tag_infos->size(), (int64_t)n_sv_,  (int64_t)n_pairwise_features_sv_}
-    };  
+    input_shapes_ = {{(int64_t)tag_infos->size(), (int64_t)n_cpf_, (int64_t)n_features_cpf_},
+                     {(int64_t)tag_infos->size(), (int64_t)n_npf_, (int64_t)n_features_npf_},
+                     {(int64_t)tag_infos->size(), (int64_t)n_sv_, (int64_t)n_features_sv_},
+                     {(int64_t)tag_infos->size(), (int64_t)n_cpf_, (int64_t)n_pairwise_features_cpf_},
+                     {(int64_t)tag_infos->size(), (int64_t)n_npf_, (int64_t)n_pairwise_features_npf_},
+                     {(int64_t)tag_infos->size(), (int64_t)n_sv_, (int64_t)n_pairwise_features_sv_}};
 
     auto outputs = globalCache()->run(input_names_, data_, input_shapes_, output_names_, tag_infos->size())[0];
     assert(outputs.size() == flav_names_.size() * tag_infos->size());
@@ -162,40 +157,39 @@ void ParticleTransformerAK4ONNXJetTagsProducer::produce(edm::Event& iEvent, cons
   }
 }
 
-void ParticleTransformerAK4ONNXJetTagsProducer::get_input_sizes(edm::Handle<TagInfoCollection> tag_infos){
-    for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
-      const auto& taginfo = (*tag_infos)[jet_n];
-      const auto& features = taginfo.features();
-      unsigned int n_cpf = features.c_pf_features.size();
-      unsigned int n_npf = features.n_pf_features.size();
-      unsigned int n_vtx = features.sv_features.size();
+void ParticleTransformerAK4ONNXJetTagsProducer::get_input_sizes(edm::Handle<TagInfoCollection> tag_infos) {
+  for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
+    const auto& taginfo = (*tag_infos)[jet_n];
+    const auto& features = taginfo.features();
+    unsigned int n_cpf = features.c_pf_features.size();
+    unsigned int n_npf = features.n_pf_features.size();
+    unsigned int n_vtx = features.sv_features.size();
 
-      if (jet_n == 0){
-        n_cpf_ = std::max((unsigned int)1, n_cpf);
-        n_npf_ = std::max((unsigned int)1, n_npf);
-        n_sv_ = std::max((unsigned int)1, n_vtx);
-          }
-      else{
-        n_cpf_ = std::max(n_cpf_, n_cpf);
-        n_npf_ = std::max(n_npf_, n_npf);
-        n_sv_ = std::max(n_sv_, n_vtx);
-          }
-        }
-    n_cpf_ = std::min((unsigned int)25, n_cpf_);
-    n_npf_ = std::min((unsigned int)25, n_npf_);
-    n_sv_ = std::min((unsigned int)5, n_sv_);
-    input_sizes_ = {
-        n_cpf_  * n_features_cpf_,
-        n_npf_ * n_features_npf_,
-        n_sv_ * n_features_sv_,
-        n_cpf_ * n_pairwise_features_cpf_,
-        n_npf_ * n_pairwise_features_npf_,
-        n_sv_ * n_pairwise_features_sv_,
-        };
+    if (jet_n == 0) {
+      n_cpf_ = std::max((unsigned int)1, n_cpf);
+      n_npf_ = std::max((unsigned int)1, n_npf);
+      n_sv_ = std::max((unsigned int)1, n_vtx);
+    } else {
+      n_cpf_ = std::max(n_cpf_, n_cpf);
+      n_npf_ = std::max(n_npf_, n_npf);
+      n_sv_ = std::max(n_sv_, n_vtx);
+    }
+  }
+  n_cpf_ = std::min((unsigned int)25, n_cpf_);
+  n_npf_ = std::min((unsigned int)25, n_npf_);
+  n_sv_ = std::min((unsigned int)5, n_sv_);
+  input_sizes_ = {
+      n_cpf_ * n_features_cpf_,
+      n_npf_ * n_features_npf_,
+      n_sv_ * n_features_sv_,
+      n_cpf_ * n_pairwise_features_cpf_,
+      n_npf_ * n_pairwise_features_npf_,
+      n_sv_ * n_pairwise_features_sv_,
+  };
 }
 
-void ParticleTransformerAK4ONNXJetTagsProducer::make_inputs(
-    unsigned i_jet, const reco::ParticleTransformerAK4TagInfo& taginfo) {
+void ParticleTransformerAK4ONNXJetTagsProducer::make_inputs(unsigned i_jet,
+                                                            const reco::ParticleTransformerAK4TagInfo& taginfo) {
   const auto& features = taginfo.features();
   float* ptr = nullptr;
   const float* start = nullptr;

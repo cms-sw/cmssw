@@ -68,7 +68,7 @@ private:
   typedef std::vector<reco::ParticleTransformerAK4TagInfo> ParticleTransformerAK4TagInfoCollection;
   typedef reco::VertexCompositePtrCandidateCollection SVCollection;
   typedef reco::VertexCollection VertexCollection;
-    
+
   void beginStream(edm::StreamID) override {}
   void produce(edm::Event&, const edm::EventSetup&) override;
   void endStream() override {}
@@ -85,7 +85,7 @@ private:
   edm::EDGetTokenT<edm::Association<VertexCollection>> pvas_token_;
   edm::EDGetTokenT<edm::View<reco::Candidate>> candidateToken_;
   edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> track_builder_token_;
-/*
+  /*
   edm::ESGetToken<TrackProbabilityCalibration, BTagTrackProbability2DRcd> calib2d_token_;
   edm::ESGetToken<TrackProbabilityCalibration, BTagTrackProbability3DRcd> calib3d_token_;
 */
@@ -94,7 +94,7 @@ private:
 
   bool fallback_puppi_weight_;
   bool fallback_vertex_association_;
-/*
+  /*
   //TrackProbability
   void checkEventSetup(const edm::EventSetup& iSetup);
   std::unique_ptr<HistogramProbabilityEstimator> probabilityEstimator_;
@@ -212,12 +212,14 @@ void ParticleTransformerAK4TagInfoProducer::produce(edm::Event& iEvent, const ed
 
     // reco jet reference (use as much as possible)
     const auto& jet = jets->at(jet_n);
-    if(jet.pt() < 15.0){continue;}
+    if (jet.pt() < 15.0) {
+      continue;
+    }
     // dynamical casting to pointers, null if not possible
     const auto* pf_jet = dynamic_cast<const reco::PFJet*>(&jet);
     const auto* pat_jet = dynamic_cast<const pat::Jet*>(&jet);
     edm::RefToBase<reco::Jet> jet_ref(jets, jet_n);
-      
+
     math::XYZVector jet_dir = jet.momentum().Unit();
     GlobalVector jet_ref_track_dir(jet.px(), jet.py(), jet.pz());
 
@@ -326,14 +328,13 @@ void ParticleTransformerAK4TagInfoProducer::produce(edm::Event& iEvent, const ed
         auto& c_pf_features = features.c_pf_features.at(entry);
         // fill feature structure
         if (packed_cand) {
-           
-          if (packed_cand->hasTrackDetails()){
+          if (packed_cand->hasTrackDetails()) {
             const reco::Track& PseudoTrack = packed_cand->pseudoTrack();
             reco::TransientTrack transientTrack;
             transientTrack = track_builder->build(PseudoTrack);
             distminpfcandsv = btagbtvdeep::mindistsvpfcand(svs_unsorted, transientTrack);
           }
-          
+
           btagbtvdeep::packedCandidateToFeatures(packed_cand,
                                                  jet,
                                                  trackinfo,

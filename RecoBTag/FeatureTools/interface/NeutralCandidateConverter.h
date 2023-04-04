@@ -46,8 +46,8 @@ namespace btagbtvdeep {
 
     n_pf_features.drminsv = catch_infs_and_bound(drminpfcandsv, 0, -1. * jetR, 0, -1. * jetR);
 
-    n_pf_features.etarel = catch_infs_and_bound(std::fabs(n_pf->eta()-jet.eta()),0,-2,0,-0.5);
-    n_pf_features.phirel = catch_infs_and_bound(std::fabs(reco::deltaPhi(n_pf->phi(),jet.phi())),0,-2,0,-0.5);
+    n_pf_features.etarel = catch_infs_and_bound(std::fabs(n_pf->eta() - jet.eta()), 0, -2, 0, -0.5);
+    n_pf_features.phirel = catch_infs_and_bound(std::fabs(reco::deltaPhi(n_pf->phi(), jet.phi())), 0, -2, 0, -0.5);
     n_pf_features.pt = n_pf->pt();
     n_pf_features.eta = n_pf->eta();
     n_pf_features.phi = n_pf->phi();

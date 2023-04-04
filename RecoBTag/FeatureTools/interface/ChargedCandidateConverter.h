@@ -53,17 +53,17 @@ namespace btagbtvdeep {
     c_pf_features.drminsv = catch_infs_and_bound(drminpfcandsv, 0, -1. * jetR, 0, -1. * jetR);
     c_pf_features.distminsv = distminpfcandsv;
 
-     std::pair<float, float> drSubjetFeatures = getDRSubjetFeatures(jet, c_pf);
-     c_pf_features.drsubjet1 = drSubjetFeatures.first;
-     c_pf_features.drsubjet2 = drSubjetFeatures.second;
+    std::pair<float, float> drSubjetFeatures = getDRSubjetFeatures(jet, c_pf);
+    c_pf_features.drsubjet1 = drSubjetFeatures.first;
+    c_pf_features.drsubjet2 = drSubjetFeatures.second;
 
-     c_pf_features.pt = c_pf->pt();
-     c_pf_features.eta = c_pf->eta();
-     c_pf_features.phi = c_pf->phi();
-     c_pf_features.e = c_pf->energy();
-     c_pf_features.px = c_pf->px();
-     c_pf_features.py = c_pf->py();
-     c_pf_features.pz = c_pf->pz();
+    c_pf_features.pt = c_pf->pt();
+    c_pf_features.eta = c_pf->eta();
+    c_pf_features.phi = c_pf->phi();
+    c_pf_features.e = c_pf->energy();
+    c_pf_features.px = c_pf->px();
+    c_pf_features.py = c_pf->py();
+    c_pf_features.pz = c_pf->pz();
   }
 
   void packedCandidateToFeatures(const pat::PackedCandidate* c_pf,

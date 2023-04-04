@@ -93,7 +93,7 @@ namespace btagbtvdeep {
     }
     return mindr;
   }
-    
+
   // compute minimum distance between SVs and a candidate (from DeepNTuples, now polymorphic)
   float mindistsvpfcand(const std::vector<reco::VertexCompositePtrCandidate> &svs, const reco::TransientTrack track) {
     float mindist_ = 999.999;
@@ -143,7 +143,7 @@ namespace btagbtvdeep {
     }
     return out_dist;
   }
-    
+
   // instantiate template
   template bool sv_vertex_comparator<reco::VertexCompositePtrCandidate, reco::Vertex>(
       const reco::VertexCompositePtrCandidate &, const reco::VertexCompositePtrCandidate &, const reco::Vertex &);
