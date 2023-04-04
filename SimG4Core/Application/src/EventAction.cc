@@ -19,9 +19,7 @@ EventAction::EventAction(const edm::ParameterSet& p,
       m_SteppingVerbose(sv),
       m_stopFile(p.getParameter<std::string>("StopFile")),
       m_printRandom(p.getParameter<bool>("PrintRandomSeed")),
-      m_debug(p.getUntrackedParameter<bool>("debug", false)) {
-  m_trackManager->setCollapsePrimaryVertices(p.getParameter<bool>("CollapsePrimaryVertices"));
-}
+      m_debug(p.getUntrackedParameter<bool>("debug", false)) {}
 
 void EventAction::BeginOfEventAction(const G4Event* anEvent) {
   m_trackManager->reset();
@@ -63,8 +61,7 @@ void EventAction::EndOfEventAction(const G4Event* anEvent) {
   m_endOfEventSignal(&e);
 
   // delete transient objects
-  m_trackManager->deleteTracks();
-  m_trackManager->cleanTkCaloStateInfoMap();
+  m_trackManager->reset();
 }
 
 void EventAction::abortEvent() { m_runInterface->abortEvent(); }

@@ -16,6 +16,8 @@
 #include "CondFormats/L1TObjects/interface/L1TUtmAlgorithm.h"
 #include "CondFormats/Serialization/interface/Serializable.h"
 
+#include "tmEventSetup/esTriggerMenu.hh"
+
 #include <map>
 #include <string>
 
@@ -38,6 +40,49 @@ public:
         scale_set_name_(),
         n_modules_(),
         version(0){};
+  L1TUtmTriggerMenu(std::map<std::string, L1TUtmAlgorithm> algorithm_map,
+                    std::map<std::string, L1TUtmCondition> condition_map,
+                    std::map<std::string, L1TUtmScale> scale_map,
+                    std::string name,
+                    std::string ver_s,
+                    std::string comment,
+                    std::string datetime,
+                    std::string uuid_firmware,
+                    std::string scale_set_name,
+                    unsigned int n_modules,
+                    unsigned int ver_i)
+      : algorithm_map_(algorithm_map),
+        condition_map_(condition_map),
+        scale_map_(scale_map),
+        external_map_(),
+        token_to_condition_(),
+        name_(name),
+        version_(ver_s),
+        comment_(comment),
+        datetime_(datetime),
+        uuid_firmware_(uuid_firmware),
+        scale_set_name_(scale_set_name),
+        n_modules_(n_modules),
+        version(ver_i){};
+
+  L1TUtmTriggerMenu(const tmeventsetup::esTriggerMenu& esMenu)
+      : external_map_(),        //These are null to my best knowledge
+        token_to_condition_(),  //These are null to my best knowledge
+        name_(esMenu.getName()),
+        version_(esMenu.getVersion()),
+        comment_(esMenu.getComment()),
+        datetime_(esMenu.getDatetime()),
+        uuid_firmware_(esMenu.getFirmwareUuid()),
+        scale_set_name_(esMenu.getScaleSetName()),
+        n_modules_(esMenu.getNmodules()),
+        version(0) {
+    for (const auto& it : esMenu.getAlgorithmMap())
+      algorithm_map_.emplace(std::make_pair(it.first, L1TUtmAlgorithm(it.second)));
+    for (const auto& it : esMenu.getConditionMap())
+      condition_map_.emplace(std::make_pair(it.first, L1TUtmCondition(it.second)));
+    for (const auto& it : esMenu.getScaleMap())
+      scale_map_.emplace(std::make_pair(it.first, L1TUtmScale(it.second)));
+  };
 
   virtual ~L1TUtmTriggerMenu() = default;
 

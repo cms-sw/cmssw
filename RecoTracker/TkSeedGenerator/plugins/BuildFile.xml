@@ -26,9 +26,9 @@
 <use name="MagneticField/Records"/>
 <use name="MagneticField/UniformEngine" source_only="1"/>
 <use name="PhysicsTools/TensorFlow"/>
-<use name="RecoPixelVertexing/PixelLowPtUtilities"/>
-<use name="RecoPixelVertexing/PixelTrackFitting"/>
-<use name="RecoPixelVertexing/PixelTriplets"/>
+<use name="RecoTracker/PixelLowPtUtilities"/>
+<use name="RecoTracker/PixelTrackFitting"/>
+<use name="RecoTracker/PixelSeeding"/>
 <use name="RecoTracker/MeasurementDet"/>
 <use name="RecoTracker/Record"/>
 <use name="RecoTracker/SpecialSeedGenerators" source_only="1"/>

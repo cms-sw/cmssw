@@ -352,10 +352,21 @@ void L1TCaloLayer1::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void L1TCaloLayer1::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
+  //Description set to reflect default present in simCaloStage2Layer1Digis_cfi.py
+  //Currently redundant, but could be adjusted to provide defaults in case additional LUT
+  //checks are added and before other configurations adjust to match.
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
+  desc.add<edm::InputTag>("ecalToken", edm::InputTag("simEcalTriggerPrimitiveDigis"));
+  desc.add<edm::InputTag>("hcalToken", edm::InputTag("simHcalTriggerPrimitiveDigis"));
+  desc.add<bool>("useLSB", true);
+  desc.add<bool>("useCalib", true);
+  desc.add<bool>("useECALLUT", true);
+  desc.add<bool>("useHCALLUT", true);
+  desc.add<bool>("useHFLUT", true);
+  desc.add<bool>("verbose", false);
+  desc.add<bool>("unpackEcalMask", false);
+  desc.add<bool>("unpackHcalMask", false);
+  desc.add<int>("firmwareVersion", 1);
   descriptions.addDefault(desc);
 }
 

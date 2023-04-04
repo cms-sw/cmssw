@@ -5,16 +5,18 @@ namespace btagbtvdeep {
   void packedCandidateToFeatures(const pat::PackedCandidate* c_pf,
                                  const pat::Jet& jet,
                                  const TrackInfoBuilder& track_info,
+                                 const bool isWeightedJet,
                                  const float drminpfcandsv,
                                  const float jetR,
+                                 const float puppiw,
                                  ChargedCandidateFeatures& c_pf_features,
                                  const bool flip,
                                  const float distminpfcandsv) {
-    commonCandidateToFeatures(c_pf, jet, track_info, drminpfcandsv, jetR, c_pf_features, flip, distminpfcandsv);
+    commonCandidateToFeatures(c_pf, jet, track_info, isWeightedJet, drminpfcandsv, jetR, puppiw, c_pf_features, flip, distminpfcandsv);
 
     c_pf_features.vtx_ass = c_pf->pvAssociationQuality();
 
-    c_pf_features.puppiw = c_pf->puppiWeight();
+    c_pf_features.puppiw = puppiw;
 
     // if PackedCandidate does not have TrackDetails this gives an Exception
     // because unpackCovariance might be called for pseudoTrack/bestTrack
@@ -38,6 +40,7 @@ namespace btagbtvdeep {
   void recoCandidateToFeatures(const reco::PFCandidate* c_pf,
                                const reco::Jet& jet,
                                const TrackInfoBuilder& track_info,
+                               const bool isWeightedJet,
                                const float drminpfcandsv,
                                const float jetR,
                                const float puppiw,
@@ -46,7 +49,7 @@ namespace btagbtvdeep {
                                ChargedCandidateFeatures& c_pf_features,
                                const bool flip,
                                const float distminpfcandsv) {
-    commonCandidateToFeatures(c_pf, jet, track_info, drminpfcandsv, jetR, c_pf_features, flip, distminpfcandsv);
+    commonCandidateToFeatures(c_pf, jet, track_info, isWeightedJet, drminpfcandsv, jetR, puppiw, c_pf_features, flip, distminpfcandsv);
 
     c_pf_features.vtx_ass = vtx_ass_from_pfcand(*c_pf, pv_ass_quality, pv);
     c_pf_features.puppiw = puppiw;

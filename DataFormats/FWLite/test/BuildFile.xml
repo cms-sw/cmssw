@@ -1,10 +1,5 @@
-<environment>
-  <use name="cppunit"/>
-</environment>
-<bin name="testDataFormatsFWLiteMakeInput" file="TestRunnerDataFormatsFWLite.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash DataFormats/FWLite/test RefTest.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<use name="cppunit"/>
+<test name="testDataFormatsFWLiteMakeInput" command="RefTest.sh"/>
 
 <bin name="testDataFormatsFWLite" file="test.cppunit.cpp,format_type_name.cppunit.cpp">
   <flags PRE_TEST="testDataFormatsFWLiteMakeInput"/>
@@ -13,8 +8,6 @@
   <use name="DataFormats/TestObjects"/>
 </bin>
 
-<bin file="TestRunnerDataFormatsFWLite.cpp">
+<test name="TestRunnerDataFormatsFWLite" command="run_all_t.sh">
   <flags PRE_TEST="testDataFormatsFWLite"/>
-  <flags TEST_RUNNER_ARGS=" /bin/bash DataFormats/FWLite/test run_all_t.sh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+</test>

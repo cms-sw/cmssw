@@ -15,8 +15,10 @@ namespace btagbtvdeep {
   void commonCandidateToFeatures(const CandidateType* c_pf,
                                  const reco::Jet& jet,
                                  const TrackInfoBuilder& track_info,
+                                 const bool& isWeightedJet,
                                  const float& drminpfcandsv,
                                  const float& jetR,
+                                 const float& puppiw,
                                  ChargedCandidateFeatures& c_pf_features,
                                  const bool flip = false,
                                  const float& distminpfcandsv = 0) {
@@ -32,9 +34,15 @@ namespace btagbtvdeep {
     }
 
     c_pf_features.deltaR = reco::deltaR(*c_pf, jet);
-    c_pf_features.ptrel = catch_infs_and_bound(c_pf->pt() / jet.pt(), 0, -1, 0, -1);
-    c_pf_features.ptrel_noclip = c_pf->pt() / jet.pt();
-    c_pf_features.erel = c_pf->energy() / jet.energy();
+
+    float constituentWeight = 1.;
+    if (isWeightedJet)
+      constituentWeight = puppiw;
+
+    c_pf_features.ptrel = catch_infs_and_bound((c_pf->pt() * constituentWeight) / jet.pt(), 0, -1, 0, -1);
+    c_pf_features.ptrel_noclip = (c_pf->pt() * constituentWeight) / jet.pt();
+    c_pf_features.erel = (c_pf->energy() * constituentWeight) / jet.energy();
+
     const float etasign = jet.eta() > 0 ? 1 : -1;
     c_pf_features.etarel = etasign * (c_pf->eta() - jet.eta());
 
@@ -69,8 +77,10 @@ namespace btagbtvdeep {
   void packedCandidateToFeatures(const pat::PackedCandidate* c_pf,
                                  const pat::Jet& jet,
                                  const TrackInfoBuilder& track_info,
+                                 const bool isWeightedJet,
                                  const float drminpfcandsv,
                                  const float jetR,
+                                 const float puppiw,
                                  ChargedCandidateFeatures& c_pf_features,
                                  const bool flip = false,
                                  const float distminpfcandsv = 0);
@@ -78,6 +88,7 @@ namespace btagbtvdeep {
   void recoCandidateToFeatures(const reco::PFCandidate* c_pf,
                                const reco::Jet& jet,
                                const TrackInfoBuilder& track_info,
+                               const bool isWeightedJet,
                                const float drminpfcandsv,
                                const float jetR,
                                const float puppiw,

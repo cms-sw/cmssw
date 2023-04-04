@@ -10,6 +10,10 @@ def applyDeepBtagging(process, postfix=""):
 
     from PhysicsTools.PatAlgos.slimming.slimmedJets_cfi import slimmedJets, slimmedJetsAK8
     from RecoBTag.ONNXRuntime.pfParticleNetAK4_cff import _pfParticleNetAK4JetTagsAll as pfParticleNetAK4JetTagsAll
+    from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4PuppiCentralJetTagsAll as pfParticleNetFromMiniAODAK4PuppiCentralJetTagsAll
+    from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4PuppiForwardJetTagsAll as pfParticleNetFromMiniAODAK4PuppiForwardJetTagsAll
+    from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4CHSCentralJetTagsAll as pfParticleNetFromMiniAODAK4CHSCentralJetTagsAll
+    from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4CHSForwardJetTagsAll as pfParticleNetFromMiniAODAK4CHSForwardJetTagsAll
     from RecoBTag.ONNXRuntime.pfParticleTransformerAK4_cff import _pfParticleTransformerAK4JetTagsAll as pfParticleTransformerAK4JetTagsAll
 
     # update slimmed jets to include DeepFlavour (keep same name)
@@ -22,7 +26,10 @@ def applyDeepBtagging(process, postfix=""):
             'pfDeepFlavourJetTags:problepb',
             'pfDeepFlavourJetTags:probc',
             'pfDeepFlavourJetTags:probuds',
-            'pfDeepFlavourJetTags:probg') + pfParticleTransformerAK4JetTagsAll
+            'pfDeepFlavourJetTags:probg')
+            + pfParticleNetFromMiniAODAK4CHSCentralJetTagsAll
+            + pfParticleNetFromMiniAODAK4CHSForwardJetTagsAll
+            + pfParticleTransformerAK4JetTagsAll
     )
     updateJetCollection(
         process,
@@ -56,8 +63,12 @@ def applyDeepBtagging(process, postfix=""):
             'pfDeepFlavourJetTags:problepb',
             'pfDeepFlavourJetTags:probc',
             'pfDeepFlavourJetTags:probuds',
-            'pfDeepFlavourJetTags:probg') + pfParticleNetAK4JetTagsAll + pfParticleTransformerAK4JetTagsAll
+            'pfDeepFlavourJetTags:probg')
+            + pfParticleNetFromMiniAODAK4PuppiCentralJetTagsAll
+            + pfParticleNetFromMiniAODAK4PuppiForwardJetTagsAll
+            + pfParticleTransformerAK4JetTagsAll
     )
+  
     updateJetCollection(
         process,
         jetSource = cms.InputTag('slimmedJetsPuppiNoDeepTags'),
@@ -79,8 +90,9 @@ def applyDeepBtagging(process, postfix=""):
 
     from RecoBTag.ONNXRuntime.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsAll as pfDeepBoostedJetTagsAll
     from RecoBTag.ONNXRuntime.pfHiggsInteractionNet_cff import _pfHiggsInteractionNetTagsProbs as pfHiggsInteractionNetTagsProbs
-    from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetJetTagsAll as pfParticleNetJetTagsAll
+    from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetMassCorrelatedJetTagsAll as pfParticleNetMassCorrelatedJetTagsAll
     from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetMassRegressionOutputs
+    from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK8_cff import _pfParticleNetFromMiniAODAK8JetTagsAll as pfParticleNetFromMiniAODAK8JetTagsAll
 
     # update slimmed jets to include particle-based deep taggers (keep same name)
     # make clone for DeepTags-less slimmed AK8 jets, so output name is preserved
@@ -92,7 +104,20 @@ def applyDeepBtagging(process, postfix=""):
         'pfMassIndependentDeepDoubleCvLV2JetTags:probHcc',
         'pfMassIndependentDeepDoubleCvBV2JetTags:probHbb',
         'pfMassIndependentDeepDoubleCvBV2JetTags:probHcc',
-    ) + pfDeepBoostedJetTagsAll + pfParticleNetJetTagsAll + pfHiggsInteractionNetTagsProbs + _pfParticleNetMassRegressionOutputs)
+        #'pfParticleNetDiscriminatorsJetTags:TvsQCD',
+        #'pfParticleNetDiscriminatorsJetTags:WvsQCD',
+        #'pfParticleNetDiscriminatorsJetTags:H4qvsQCD',
+        #'pfParticleNetJetTags:probTbcq',       
+        #'pfParticleNetJetTags:probTbqq',       
+        #'pfParticleNetJetTags:probTbc',       
+        #'pfParticleNetJetTags:probTbq',       
+        #'pfParticleNetJetTags:probTbel',       
+        #'pfParticleNetJetTags:probTbmu',       
+        #'pfParticleNetJetTags:probTbta',       
+        #'pfParticleNetJetTags:probWcq',       
+        #'pfParticleNetJetTags:probWqq',       
+        #'pfParticleNetJetTags:probHqqqq',       
+    )   +  pfParticleNetMassCorrelatedJetTagsAll + pfHiggsInteractionNetTagsProbs + pfParticleNetFromMiniAODAK8JetTagsAll)
     updateJetCollection(
         process,
         jetSource = cms.InputTag('slimmedJetsAK8NoDeepTags'),

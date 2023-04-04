@@ -35,7 +35,8 @@ process.m1 = cms.EDProducer("StreamThingProducer",
 process.m2 = cms.EDProducer("NonProducer")
 
 process.a1 = cms.EDAnalyzer("StreamThingAnalyzer",
-    product_to_get = cms.string('m1')
+    product_to_get = cms.string('m1'),
+    outChecksum = cms.untracked.string('out')
 )
 
 process.out = cms.OutputModule("EventStreamFileWriter",

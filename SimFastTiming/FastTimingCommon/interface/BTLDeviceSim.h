@@ -43,8 +43,7 @@ private:
   const float LightYield_;
   const float LightCollEff_;
 
-  const float LightCollSlopeR_;
-  const float LightCollSlopeL_;
+  const float LightCollSlope_;
   const float PDE_;
   const float LCEpositionSlope_;
 };

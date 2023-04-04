@@ -13,21 +13,15 @@ if [ ! -z $1 ]; then
   fi
 fi
 
-if [ -z  $LOCAL_TEST_DIR ]; then
-LOCAL_TEST_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+if [ -z  ${SCRAM_TEST_PATH} ]; then
+SCRAM_TEST_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 fi
-echo "LOCAL_TEST_DIR = $LOCAL_TEST_DIR"
-
-if [ -z  $LOCAL_TMP_DIR ]; then
-LOCAL_TMP_DIR="/tmp"
-fi
-
-cd $LOCAL_TEST_DIR
+echo "SCRAM_TEST_PATH = ${SCRAM_TEST_PATH}"
 
 RC=0
 P=$$
 PREFIX=results_${USER}${P}
-OUTDIR=${LOCAL_TMP_DIR}/${PREFIX}
+OUTDIR=${PWD}/${PREFIX}
 
 echo "OUT_TMP_DIR = $OUTDIR"
 

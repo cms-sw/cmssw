@@ -1,4 +1,4 @@
-# cmsRun single_neutrino_cfg.py nEvents=1000
+# cmsRun single_neutrino_cfg.py nEvents=100000
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.VarParsing import VarParsing

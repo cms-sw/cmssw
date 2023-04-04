@@ -4,22 +4,25 @@ namespace btagbtvdeep {
 
   void packedCandidateToFeatures(const pat::PackedCandidate* n_pf,
                                  const pat::Jet& jet,
+                                 const bool isWeightedJet,
                                  const float drminpfcandsv,
                                  const float jetR,
+                                 const float puppiw,
                                  NeutralCandidateFeatures& n_pf_features) {
-    commonCandidateToFeatures(n_pf, jet, drminpfcandsv, jetR, n_pf_features);
+    commonCandidateToFeatures(n_pf, jet, isWeightedJet, drminpfcandsv, jetR, puppiw, n_pf_features);
 
     n_pf_features.hadFrac = n_pf->hcalFraction();
-    n_pf_features.puppiw = n_pf->puppiWeight();
+    n_pf_features.puppiw = puppiw;
   }
 
   void recoCandidateToFeatures(const reco::PFCandidate* n_pf,
                                const reco::Jet& jet,
+                               const bool isWeightedJet,
                                const float drminpfcandsv,
                                const float jetR,
                                const float puppiw,
                                NeutralCandidateFeatures& n_pf_features) {
-    commonCandidateToFeatures(n_pf, jet, drminpfcandsv, jetR, n_pf_features);
+    commonCandidateToFeatures(n_pf, jet, isWeightedJet, drminpfcandsv, jetR, puppiw, n_pf_features);
     n_pf_features.puppiw = puppiw;
 
     // need to get a value map and more stuff to do properly

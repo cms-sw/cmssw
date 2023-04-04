@@ -64,9 +64,9 @@ detachedQuadStepHitDoublets = _hitPairEDProducer.clone(
     maxElement      = 50000000,
     produceIntermediateHitDoublets = True,
 )
-from RecoPixelVertexing.PixelTriplets.caHitQuadrupletEDProducer_cfi import caHitQuadrupletEDProducer as _caHitQuadrupletEDProducer
-from RecoPixelVertexing.PixelTriplets.pixelTripletLargeTipEDProducer_cfi import pixelTripletLargeTipEDProducer as _pixelTripletLargeTipEDProducer
-from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
+from RecoTracker.PixelSeeding.caHitQuadrupletEDProducer_cfi import caHitQuadrupletEDProducer as _caHitQuadrupletEDProducer
+from RecoTracker.PixelSeeding.pixelTripletLargeTipEDProducer_cfi import pixelTripletLargeTipEDProducer as _pixelTripletLargeTipEDProducer
+from RecoTracker.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 detachedQuadStepHitQuadruplets = _caHitQuadrupletEDProducer.clone(
     doublets = 'detachedQuadStepHitDoublets',
     extraHitRPhitolerance = _pixelTripletLargeTipEDProducer.extraHitRPhitolerance,

@@ -19,7 +19,7 @@
 <use name="Geometry/CommonTopologies"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
-<use name="RecoPixelVertexing/PixelTrackFitting"/>
+<use name="RecoTracker/PixelTrackFitting"/>
 <use name="RecoTracker/TkTrackingRegions"/>
 <use name="RecoHI/HiTracking"/>
 <use name="SimDataFormats/Vertex"/>

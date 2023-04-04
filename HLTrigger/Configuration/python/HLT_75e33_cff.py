@@ -12,8 +12,8 @@ fragment.load("RecoLocalCalo/HcalRecAlgos/hcalRecAlgoESProd_cfi")
 fragment.load("RecoLocalCalo/HcalRecAlgos/hcalChannelPropertiesESProd_cfi")
 fragment.load("RecoLocalTracker/Phase2TrackerRecHits/Phase2StripCPEESProducer_cfi")
 fragment.load("RecoLocalTracker/SiPixelRecHits/PixelCPEGeneric_cfi")
-fragment.load("RecoPixelVertexing.PixelTrackFitting.pixelTrackCleanerBySharedHits_cfi")
-fragment.load("RecoPixelVertexing/PixelLowPtUtilities/ClusterShapeHitFilterESProducer_cfi")
+fragment.load("RecoTracker/PixelTrackFitting/pixelTrackCleanerBySharedHits_cfi")
+fragment.load("RecoTracker/PixelLowPtUtilities/ClusterShapeHitFilterESProducer_cfi")
 fragment.load("RecoTracker/FinalTrackSelectors/trackAlgoPriorityOrder_cfi")
 fragment.load("RecoTracker/MeasurementDet/MeasurementTrackerESProducer_cfi")
 fragment.load("RecoTracker/TkNavigation/NavigationSchoolESProducer_cfi")
@@ -55,6 +55,7 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/highPtTripletStepTra
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/muonSeededTrajectoryCleanerBySharedHits_cfi")
 
 ### Mostly comes from HLT-like configuration, not RECO-like configuration
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltOnlineBeamSpotESProducer_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPBwdElectronPropagator_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPChi2ChargeMeasurementEstimator2000_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPChi2ChargeMeasurementEstimator30_cfi")

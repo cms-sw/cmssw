@@ -154,6 +154,14 @@ jetTable = simpleCandidateFlatTableProducer.clone(
                                   float,
                                   doc="RobustParTAK4 g vs uds discriminator",
                                   precision=10),
+        btagPNetB = Var("?bDiscriminator('pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags:BvsAll')>0?bDiscriminator('pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags:BvsAll'):-1",float,precision=10,doc="ParticleNet b vs. udscg"),
+        btagPNetCvL = Var("?bDiscriminator('pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags:CvsL')>0?bDiscriminator('pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags:CvsL'):-1",float,precision=10,doc="ParticleNet c vs. udsg"),
+        btagPNetCvB = Var("?bDiscriminator('pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags:CvsB')>0?bDiscriminator('pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags:CvsB'):-1",float,precision=10,doc="ParticleNet c vs. b"),
+        btagPNetQvG = Var("?abs(eta())<2.5?bDiscriminator('pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags:QvsG'):bDiscriminator('pfParticleNetFromMiniAODAK4CHSForwardDiscriminatorsJetTags:QvsG')",float,precision=10,doc="ParticleNet q (udsbc) vs. g"),
+        btagPNetTauVJet = Var("?bDiscriminator('pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags:TauVsJet')>0?bDiscriminator('pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags:TauVsJet'):-1",float,precision=10,doc="ParticleNet tau vs. jet"),
+        PNetRegPtRawCorr = Var("?abs(eta())<2.5?bDiscriminator('pfParticleNetFromMiniAODAK4CHSCentralJetTags:ptcorr'):bDiscriminator('pfParticleNetFromMiniAODAK4CHSForwardJetTags:ptcorr')",float,precision=10,doc="ParticleNet universal flavor-aware visible pT regression (no neutrinos), correction relative to raw jet pT"),
+        PNetRegPtRawCorrNeutrino = Var("?abs(eta())<2.5?bDiscriminator('pfParticleNetFromMiniAODAK4CHSCentralJetTags:ptnu'):bDiscriminator('pfParticleNetFromMiniAODAK4CHSForwardJetTags:ptnu')",float,precision=10,doc="ParticleNet universal flavor-aware pT regression neutrino correction, relative to visible. To apply full regression, multiply raw jet pT by both PNetRegPtRawCorr and PNetRegPtRawCorrNeutrino."),
+        PNetRegPtRawRes = Var("?abs(eta())<2.5?0.5*(bDiscriminator('pfParticleNetFromMiniAODAK4CHSCentralJetTags:ptreshigh')-bDiscriminator('pfParticleNetFromMiniAODAK4CHSCentralJetTags:ptreslow')):0.5*(bDiscriminator('pfParticleNetFromMiniAODAK4CHSForwardJetTags:ptreshigh')-bDiscriminator('pfParticleNetFromMiniAODAK4CHSForwardJetTags:ptreslow'))",float,precision=10,doc="ParticleNet universal flavor-aware jet pT resolution estimator, (q84 - q16)/2"),
         puIdDisc = Var("userFloat('puIdNanoDisc')", float,doc="Pileup ID discriminant with 106X (2018) training",precision=10),
         puId = Var("userInt('puIdNanoId')", "uint8", doc="Pileup ID flags with 106X (2018) training"),
         jetId = Var("userInt('tightId')*2+4*userInt('tightIdLepVeto')", "uint8", doc="Jet ID flags bit1 is loose (always false in 2017 since it does not exist), bit2 is tight, bit3 is tightLepVeto"),
@@ -199,6 +207,19 @@ run2_nanoAOD_ANY.toModify(
     btagDeepB = Var("?(bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb'))>=0?bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb'):-1",float,doc="DeepCSV b+bb tag discriminator",precision=10),
     btagDeepCvL = Var("?bDiscriminator('pfDeepCSVJetTags:probc')>=0?bDiscriminator('pfDeepCSVJetTags:probc')/(bDiscriminator('pfDeepCSVJetTags:probc')+bDiscriminator('pfDeepCSVJetTags:probudsg')):-1", float,doc="DeepCSV c vs udsg discriminator",precision=10),
     btagDeepCvB = Var("?bDiscriminator('pfDeepCSVJetTags:probc')>=0?bDiscriminator('pfDeepCSVJetTags:probc')/(bDiscriminator('pfDeepCSVJetTags:probc')+bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb')):-1",float,doc="DeepCSV c vs b+bb discriminator",precision=10)
+)
+
+(run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
+    # New ParticleNet trainings are not available in MiniAOD until Run3 13X
+    jetTable.variables,
+    btagPNetB = None,
+    btagPNetCvL = None,
+    btagPNetCvB = None,
+    btagPNetQvG = None,
+    btagPNetTauVJet = None,
+    PNetRegPtRawCorr = None,
+    PNetRegPtRawCorrNeutrino = None,
+    PNetRegPtRawRes = None
 )
 
 bjetNN = cms.EDProducer("BJetEnergyRegressionMVA",
@@ -345,13 +366,12 @@ run2_jme_2017.toModify(
     pileupJetIdNano, algos = _chsalgos_106X_UL16APV
 )
 
-
 ##############################################################
 ## DeepInfoAK4CHS:Start
 ## - To be used in nanoAOD_customizeCommon() in nano_cff.py
 ###############################################################
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
-def nanoAOD_addDeepInfoAK4CHS(process,addDeepBTag,addDeepFlavour,addRobustParTAK4):
+def nanoAOD_addDeepInfoAK4CHS(process,addDeepBTag,addDeepFlavour,addParticleNet,addRobustParTAK4):
     _btagDiscriminators=[]
     if addDeepBTag:
         print("Updating process to run DeepCSV btag")
@@ -359,9 +379,17 @@ def nanoAOD_addDeepInfoAK4CHS(process,addDeepBTag,addDeepFlavour,addRobustParTAK
     if addDeepFlavour:
         print("Updating process to run DeepFlavour btag")
         _btagDiscriminators += ['pfDeepFlavourJetTags:probb','pfDeepFlavourJetTags:probbb','pfDeepFlavourJetTags:problepb','pfDeepFlavourJetTags:probc']
+
     if addRobustParTAK4:
         print("Updating process to run RobustParTAK4 btag")
         _btagDiscriminators += ['pfParticleTransformerAK4JetTags:probb','pfParticleTransformerAK4JetTags:probbb','pfParticleTransformerAK4JetTags:problepb','pfParticleTransformerAK4JetTags:probc']
+    if addParticleNet:
+        print("Updating process to run ParticleNetAK4")
+        from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4CHSCentralJetTagsAll as pfParticleNetFromMiniAODAK4CHSCentralJetTagsAll
+        from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4CHSForwardJetTagsAll as pfParticleNetFromMiniAODAK4CHSForwardJetTagsAll
+        _btagDiscriminators += pfParticleNetFromMiniAODAK4CHSCentralJetTagsAll
+        _btagDiscriminators += pfParticleNetFromMiniAODAK4CHSForwardJetTagsAll
+
     if len(_btagDiscriminators)==0: return process
     print("Will recalculate the following discriminators: "+", ".join(_btagDiscriminators))
     updateJetCollection(
@@ -379,6 +407,7 @@ def nanoAOD_addDeepInfoAK4CHS(process,addDeepBTag,addDeepFlavour,addRobustParTAK
 nanoAOD_addDeepInfoAK4CHS_switch = cms.PSet(
     nanoAOD_addDeepBTag_switch = cms.untracked.bool(False),
     nanoAOD_addDeepFlavourTag_switch = cms.untracked.bool(False),
+    nanoAOD_addParticleNet_switch = cms.untracked.bool(False),
     nanoAOD_addRobustParTAK4Tag_switch = cms.untracked.bool(False)
 )
 

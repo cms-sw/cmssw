@@ -27,9 +27,12 @@
   <lib name="PMTParams"/>
 </bin>
 
-<bin file="HFPhase1PMTParams_unittest.cc">
+<test name="HFPhase1PMTParams_unittest" command="testHFPhase1PMTParams.sh">
   <flags PRE_TEST = "write_HFPhase1PMTParams"/>
-  <flags TEST_RUNNER_ARGS = "/bin/bash CondTools/Hcal/test testHFPhase1PMTParams.sh"/>
+</test>
+
+<bin file="HcalPFCuts_unittest.cc">
+  <flags TEST_RUNNER_ARGS = "/bin/csh CondTools/Hcal/test pfcuts_db_io_test.csh"/>
   <use name="FWCore/Utilities"/>
 </bin>
 

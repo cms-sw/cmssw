@@ -3,6 +3,11 @@
   <use name="FWCore/Framework"/>
 </library>
 
+<library file="SignallingAnalyzer.cc" name="SignallingAnalyzer">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Framework"/>
+</library>
+
 <library file="SiteLocalConfigServiceTester.cc SiteLocalConfigServiceCatalogTester.cc" name="SiteLocalConfigUnitTestClient">
   <flags EDM_PLUGIN="1"/>
   <use name="FWCore/Services"/>
@@ -24,3 +29,4 @@
 </bin>
 
 <test name="TestResourceInformationService" command="test_resourceInformationService.sh"/>
+<test name="TestSignalMessages" command="test_signal.sh"/>
