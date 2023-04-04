@@ -11,7 +11,7 @@ import sys
 
 from Configuration.DataProcessing.Reco import Reco
 import FWCore.ParameterSet.Config as cms
-from Configuration.Eras.Era_Run3_cff import Run3
+from Configuration.Eras.Era_Run3_2023_cff import Run3_2023
 
 from Configuration.DataProcessing.Impl.pp import pp
 
