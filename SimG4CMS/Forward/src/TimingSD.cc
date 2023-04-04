@@ -261,7 +261,7 @@ void TimingSD::createNewHit(const G4Step* aStep) {
   edm::LogVerbatim("TimingSim") << "TimingSD CreateNewHit for " << GetName() << " PV " << currentPV->GetName()
                                 << " PVid = " << currentPV->GetCopyNo() << " Unit " << unitID << "\n primary "
                                 << primaryID << " Tof(ns)= " << tof << " time slice " << tSliceID
-                                << " E(GeV)= " << incidentEnergy << " trackID " << theTrack->GetTrackID() << " "
+                                << " E(MeV)= " << incidentEnergy << " trackID " << theTrack->GetTrackID() << " "
                                 << theTrack->GetDefinition()->GetParticleName() << " parentID "
                                 << theTrack->GetParentID();
 
