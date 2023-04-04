@@ -35,7 +35,6 @@ l1ct::FoldedMultififoRegionizerEmulator::FoldedMultififoRegionizerEmulator(unsig
   // now we initialize the routes: track finder
   for (unsigned int ie = 0; ie < 2; ++ie) {
     fold_.emplace_back(ie,
-#ifdef CMSSW_GIT_HASH
                        std::make_unique<l1ct::MultififoRegionizerEmulator>(
                            /*nendcaps=*/1,
                            nclocks / 2,
@@ -49,21 +48,6 @@ l1ct::FoldedMultififoRegionizerEmulator::FoldedMultififoRegionizerEmulator(unsig
                            outii,
                            pauseii,
                            useAlsoVtxCoords));
-#else
-                       std::unique_ptr<l1ct::MultififoRegionizerEmulator>(new l1ct::MultififoRegionizerEmulator(
-                           /*nendcaps=*/1,
-                           nclocks / 2,
-                           NTK_LINKS,
-                           NCALO_LINKS,
-                           ntk,
-                           ncalo,
-                           nem,
-                           nmu,
-                           streaming,
-                           outii,
-                           pauseii,
-                           useAlsoVtxCoords)));
-#endif
   }
   clocksPerFold_ = nclocks / 2;
 }

@@ -25,8 +25,8 @@ l1tPFTracksFromL1Tracks = cms.EDProducer("PFTrackProducerFromL1Tracks",
     redigitizeTrackWord = cms.bool(True),
 )
 
-pfTracksFromL1TracksExtended = pfTracksFromL1Tracks.clone(
-    L1TrackTag = cms.InputTag("TTTracksFromExtendedTrackletEmulation", "Level1TTTracks"),
+l1tPFTracksFromL1TracksExtended = l1tPFTracksFromL1Tracks.clone(
+    L1TrackTag = cms.InputTag("l1tTTTracksFromExtendedTrackletEmulation", "Level1TTTracks"),
     nParam = 5,
     qualityBits = cms.vstring( 
         "momentum.perp > 2 && getStubRefs.size >= 4 && chi2Red < 15 && POCA.x < 1.0 && POCA.x > -1.0 && POCA.y < 1.0 && POCA.y > -1.0",

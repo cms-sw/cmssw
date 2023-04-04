@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <memory>
+#include <stdexcept>
 
 #ifdef CMSSW_GIT_HASH
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -26,6 +27,23 @@ l1ct::MultififoRegionizerEmulator::MultififoRegionizerEmulator(const edm::Parame
     const auto& emSelCfg = iConfig.getParameter<edm::ParameterSet>("egInterceptMode");
     setEgInterceptMode(emSelCfg.getParameter<bool>("afterFifo"), emSelCfg);
   }
+}
+
+l1ct::MultififoRegionizerEmulator::MultififoRegionizerEmulator(const std::string& barrelSetup,
+                                                               const edm::ParameterSet& iConfig)
+    : MultififoRegionizerEmulator(parseBarrelSetup(barrelSetup),
+                                  iConfig.getParameter<uint32_t>("nHCalLinks"),
+                                  iConfig.getParameter<uint32_t>("nECalLinks"),
+                                  iConfig.getParameter<uint32_t>("nClocks"),
+                                  iConfig.getParameter<uint32_t>("nTrack"),
+                                  iConfig.getParameter<uint32_t>("nCalo"),
+                                  iConfig.getParameter<uint32_t>("nEmCalo"),
+                                  iConfig.getParameter<uint32_t>("nMu"),
+                                  /*streaming=*/false,
+                                  /*outii=*/1,
+                                  /*pauseii=*/0,
+                                  iConfig.getParameter<bool>("useAlsoVtxCoords")) {
+  debug_ = iConfig.getUntrackedParameter<bool>("debug", false);
 }
 #endif
 
@@ -240,14 +258,20 @@ l1ct::MultififoRegionizerEmulator::MultififoRegionizerEmulator(BarrelSetup barre
 
 l1ct::MultififoRegionizerEmulator::~MultififoRegionizerEmulator() {}
 
+l1ct::MultififoRegionizerEmulator::BarrelSetup l1ct::MultififoRegionizerEmulator::parseBarrelSetup(
+    const std::string& setup) {
+  if (setup == "Full54")
+    return BarrelSetup::Full54;
+  if (setup == "Full27")
+    return BarrelSetup::Full27;
+  throw std::invalid_argument("barrelSetup for CMSSW can only be Full54 or Full27");
+  return BarrelSetup::Full54;
+}
+
 void l1ct::MultififoRegionizerEmulator::setEgInterceptMode(bool afterFifo,
                                                            const l1ct::EGInputSelectorEmuConfig& interceptorConfig) {
   emInterceptMode_ = afterFifo ? interceptPostFifo : interceptPreFifo;
-#ifdef CMSSW_GIT_HASH
   interceptor_ = std::make_unique<EGInputSelectorEmulator>(interceptorConfig);
-#else
-  interceptor_.reset(new EGInputSelectorEmulator(interceptorConfig));
-#endif
 }
 
 void l1ct::MultififoRegionizerEmulator::initSectorsAndRegions(const RegionizerDecodedInputs& in,

@@ -41,8 +41,6 @@ private:
   edm::EDGetTokenT<std::vector<l1t::VertexWord>> fVtxEmu_;
 };
 
-static constexpr float track_trigger_eta_max = 2.5;
-
 L1BJetProducer::L1BJetProducer(const edm::ParameterSet& cfg, const BJetTFCache* cache)
     : jets_(consumes<edm::View<l1t::PFJet>>(cfg.getParameter<edm::InputTag>("jets"))),
       fUseRawPt_(cfg.getParameter<bool>("useRawPt")),

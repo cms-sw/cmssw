@@ -537,7 +537,9 @@ L1TLayer1TaskInputsTask = cms.Task(
 
 L1TLayer1Task = cms.Task(
      l1tLayer1Barrel,
+     l1tLayer1BarrelExtended,
      l1tLayer1HGCal,
+     l1tLayer1HGCalExtended,
      l1tLayer1HGCalNoTK,
      l1tLayer1HF,
      l1tLayer1,

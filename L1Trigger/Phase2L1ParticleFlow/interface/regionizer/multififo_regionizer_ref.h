@@ -43,11 +43,13 @@ namespace l1ct {
                                 unsigned int outii,
                                 unsigned int pauseii,
                                 bool useAlsoVtxCoords);
-
-    // note: this one will work only in CMSSW
+    // note: these ones will work only in CMSSW
     MultififoRegionizerEmulator(const edm::ParameterSet& iConfig);
+    MultififoRegionizerEmulator(const std::string& barrelSetup, const edm::ParameterSet& iConfig);
 
     ~MultififoRegionizerEmulator() override;
+
+    static BarrelSetup parseBarrelSetup(const std::string& setup);
 
     void setEgInterceptMode(bool afterFifo, const l1ct::EGInputSelectorEmuConfig& interceptorConfig);
     void initSectorsAndRegions(const RegionizerDecodedInputs& in, const std::vector<PFInputRegion>& out) override;
