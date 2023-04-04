@@ -95,8 +95,6 @@ void Phase2L1CaloPFClusterEmulator::produce(edm::Event& iEvent, const edm::Event
   float realEta[nTowerEta][nTowerPhi];
   float realPhi[nTowerEta][nTowerPhi];
   for (const l1tp2::CaloTower& i : *caloTowerCollection) {
-    //std::cout << "Phase2L1CaloPFClusterEmulator: GCT FULL tower energy " << i.ecalTowerEt()
-    //          << " at eta, phi: (" << i.towerIEta() << ", " << i.towerIPhi() << ")" << std::endl;
 
     int ieta = i.towerIEta();
     int iphi = i.towerIPhi();
@@ -166,9 +164,6 @@ void Phase2L1CaloPFClusterEmulator::produce(edm::Event& iEvent, const edm::Event
       int gctphi = tempPfclusters.GCTpfclusters[i].phi;
       float towereta = realEta[gcteta][gctphi];
       float towerphi = realPhi[gcteta][gctphi];
-      //std::cout << "Phase2L1CaloPFClusterEmulator: GCT Pfclusters energy " << tempPfclusters.GCTpfclusters[i].et
-      //          << " at ieta, iphi: (" << tempPfclusters.GCTpfclusters[i].eta << ", " << tempPfclusters.GCTpfclusters[i].phi << ")"
-      //          << " at eta, phi: (" << towereta << ", " << towerphi << ")" << std::endl;
       l1tp2::CaloPFCluster l1CaloPFCluster;
       l1CaloPFCluster.setClusterEt(tempPfclusters.GCTpfclusters[i].et);
       l1CaloPFCluster.setClusterIEta(gcteta);
