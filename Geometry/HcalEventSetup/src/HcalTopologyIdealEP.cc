@@ -24,15 +24,15 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 HcalTopologyIdealEP::HcalTopologyIdealEP(const edm::ParameterSet& conf)
     : m_hdcToken{setWhatProduced(this, &HcalTopologyIdealEP::produce).consumes<HcalDDDRecConstants>(edm::ESInputTag{})},
       m_restrictions(conf.getUntrackedParameter<std::string>("Exclude")),
       m_mergePosition(conf.getUntrackedParameter<bool>("MergePosition")) {
-#ifdef DebugLog
-  std::cout << "HcalTopologyIdealEP::HcalTopologyIdealEP with Exclude: " << m_restrictions
-            << " MergePosition: " << m_mergePosition << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "HcalTopologyIdealEP::HcalTopologyIdealEP with Exclude: " << m_restrictions
+            << " MergePosition: " << m_mergePosition;
   edm::LogInfo("HCAL") << "HcalTopologyIdealEP::HcalTopologyIdealEP";
 #endif
 }
@@ -46,15 +46,15 @@ void HcalTopologyIdealEP::fillDescriptions(edm::ConfigurationDescriptions& descr
 
 // ------------ method called to produce the data  ------------
 HcalTopologyIdealEP::ReturnType HcalTopologyIdealEP::produce(const HcalRecNumberingRecord& iRecord) {
-#ifdef DebugLog
-  std::cout << "HcalTopologyIdealEP::produce(const IdealGeometryRecord& iRecord)" << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "HcalTopologyIdealEP::produce(const IdealGeometryRecord& iRecord)";
   edm::LogInfo("HCAL") << "HcalTopologyIdealEP::produce(const HcalGeometryRecord& iRecord)";
 #endif
   const HcalDDDRecConstants& hdc = iRecord.get(m_hdcToken);
 
-#ifdef DebugLog
-  std::cout << "mode = " << hdc.getTopoMode() << ", maxDepthHB = " << hdc.getMaxDepth(0)
-            << ", maxDepthHE = " << hdc.getMaxDepth(1) << ", maxDepthHF = " << hdc.getMaxDepth(2) << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "mode = " << hdc.getTopoMode() << ", maxDepthHB = " << hdc.getMaxDepth(0)
+            << ", maxDepthHE = " << hdc.getMaxDepth(1) << ", maxDepthHF = " << hdc.getMaxDepth(2);
   edm::LogInfo("HCAL") << "mode = " << hdc.getTopoMode() << ", maxDepthHB = " << hdc.getMaxDepth(0)
                        << ", maxDepthHE = " << hdc.getMaxDepth(1) << ", maxDepthHF = " << hdc.getMaxDepth(2);
 #endif
