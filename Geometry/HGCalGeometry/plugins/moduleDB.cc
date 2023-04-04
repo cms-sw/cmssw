@@ -1,3 +1,4 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/HGCalGeometry/interface/CaloGeometryDBHGCal.h"
 #include "Geometry/CaloEventSetup/interface/CaloGeometryDBEP.h"
@@ -12,7 +13,7 @@ CaloGeometryDBEP<HGCalGeometry, CaloGeometryDBReader>::produceAligned(
   IVec ivec;
   IVec dins;
 
-  std::cout << "Reading HGCalGeometry " << calogeometryDBEPimpl::nameHGCal << "\n";
+  edm::LogVerbatim("HGCalGeom") << "Reading HGCalGeometry " << calogeometryDBEPimpl::nameHGCal;
   const auto& pG = iRecord.get(geometryToken_);
 
   tvec = pG.getTranslation();
