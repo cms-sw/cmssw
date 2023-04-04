@@ -7,6 +7,7 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "FWCore/Utilities/interface/transform.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
@@ -19,37 +20,41 @@ public:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
+  void fillTauFromJet(reco::PFTau& pfTau, const reco::JetBaseRef& jet);
   //--- configuration parameters
   edm::EDGetTokenT<pat::TauCollection> tausToken_;
   edm::EDGetTokenT<pat::JetCollection> jetsToken_;
   bool addGenJetMatch_;
   edm::EDGetTokenT<edm::Association<reco::GenJetCollection>> genJetMatchToken_;
-  const float dRMax_, jetPtMin_, jetEtaMax_;
+  const float dR2Max_, jetPtMin_, jetEtaMax_;
   const std::string pnetLabel_;
   std::vector<std::string> pnetTauScoreNames_;
   std::vector<std::string> pnetJetScoreNames_;
   std::vector<std::string> pnetLepScoreNames_;
   std::string pnetPtCorrName_;
-  const float tauScoreMin_, chargeAssignmentProbMin_;
+  const float tauScoreMin_, vsJetMin_, chargeAssignmentProbMin_;
   const bool checkTauScoreIsBest_;
+  const bool usePFLeptonsAsChargedHadrons_;
 
   const std::map<std::string, int> tagToDM_;
-  enum class tauId_pnet_idx : size_t { dm, vsjet, vse, vsmu, ptcorr, last };
-  enum class tauId_min_idx : size_t { hpsnew, last };
+  enum class tauId_pnet_idx : size_t { dm = 0, vsjet, vse, vsmu, ptcorr, last };
+  enum class tauId_min_idx : size_t { hpsnew = 0, last };
 };
 
 PATTauHybridProducer::PATTauHybridProducer(const edm::ParameterSet& cfg)
     : tausToken_(consumes<pat::TauCollection>(cfg.getParameter<edm::InputTag>("src"))),
       jetsToken_(consumes<pat::JetCollection>(cfg.getParameter<edm::InputTag>("jetSource"))),
       addGenJetMatch_(cfg.getParameter<bool>("addGenJetMatch")),
-      dRMax_(cfg.getParameter<double>("dRMax")),
+      dR2Max_(std::pow(cfg.getParameter<double>("dRMax"), 2)),
       jetPtMin_(cfg.getParameter<double>("jetPtMin")),
       jetEtaMax_(cfg.getParameter<double>("jetEtaMax")),
       pnetLabel_(cfg.getParameter<std::string>("pnetLabel")),
       pnetPtCorrName_(cfg.getParameter<std::string>("pnetPtCorrName")),
       tauScoreMin_(cfg.getParameter<double>("tauScoreMin")),
+      vsJetMin_(cfg.getParameter<double>("vsJetMin")),
       chargeAssignmentProbMin_(cfg.getParameter<double>("chargeAssignmentProbMin")),
       checkTauScoreIsBest_(cfg.getParameter<bool>("checkTauScoreIsBest")),
+      usePFLeptonsAsChargedHadrons_(cfg.getParameter<bool>("usePFLeptonsAsChargedHadrons")),
       tagToDM_({{"1h0p", 0}, {"1h1or2p", 1}, {"1h1p", 1}, {"1h2p", 2}, {"3h0p", 10}, {"3h1p", 11}}) {
   // Read the different PNet score names
   std::vector<std::string> pnetScoreNames = cfg.getParameter<std::vector<std::string>>("pnetScoreNames");
@@ -191,9 +196,9 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
       tau_idx++;
       if (matched_taus.count(tau_idx - 1) > 0)
         continue;
-      float dR = deltaR(jet, inputTau);
+      float dR2 = deltaR2(jet, inputTau);
       // select 1st found match rather than best match (both should be equivalent for reasonable dRMax)
-      if (dR < dRMax_) {
+      if (dR2 < dR2Max_) {
         matched_taus.insert(tau_idx - 1);
         pat::Tau outputTau(inputTau);
         const size_t nTauIds = inputTau.tauIDs().size();
@@ -214,6 +219,7 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
     // Accept only jets passing minimal tau-like selection, i.e. with one of the tau score being globally the best and above some threshold, and with good quality of charge assignment
     if ((checkTauScoreIsBest_ && !isTauScoreBest) || bestPnetTauScore.second < tauScoreMin_ ||
+        tauIds_pnet[(size_t)tauId_pnet_idx::vsjet].second < vsJetMin_ ||
         std::abs(0.5 - plusChargeProb) < chargeAssignmentProbMin_)
       continue;
 
@@ -225,6 +231,13 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     // and decay mode predicted by PNet
     pfTauFromJet.setDecayMode(
         static_cast<const reco::PFTau::hadronicDecayMode>(int(tauIds_pnet[(size_t)tauId_pnet_idx::dm].second)));
+    // Fill tau content using only jet consistunets within cone around leading
+    // charged particle
+    // FIXME: more sophisticated finding of tau constituents will be considered later
+    pfTauFromJet.setSignalConeSize(
+        std::clamp(3.6 / jet.correctedP4("Uncorrected").pt(), 0.08, 0.12));  // shrinking cone in function of jet-Pt
+    const edm::Ref<pat::JetCollection> jetRef(jets, jet_idx - 1);
+    fillTauFromJet(pfTauFromJet, reco::JetBaseRef(jetRef));
 
     // PATTau
     pat::Tau outputTauFromJet(pfTauFromJet);
@@ -237,7 +250,6 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     outputTauFromJet.setTauIDs(newtauIds);
     // Add genTauJet match
     if (addGenJetMatch_) {
-      const edm::Ref<pat::JetCollection> jetRef(jets, jet_idx - 1);
       reco::GenJetRef genJetTau = (*genJetMatch)[jetRef];
       if (genJetTau.isNonnull() && genJetTau.isAvailable()) {
         outputTauFromJet.setGenJet(genJetTau);
@@ -260,7 +272,7 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
         tauIds[i] = inputTau.tauIDs()[i];
       for (size_t i = 0; i < tauIds_pnet.size(); ++i) {
         tauIds[nTauIds + i] = tauIds_pnet[i];
-        tauIds[nTauIds + i].second = (i == (size_t)tauId_pnet_idx::ptcorr ? 1 : -1);
+        tauIds[nTauIds + i].second = ((i != (size_t)tauId_pnet_idx::ptcorr) ? -1 : 1);
       }
       outputTau.setTauIDs(tauIds);
       outputTaus->push_back(outputTau);
@@ -268,6 +280,109 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   }  //non-matched taus
 
   evt.put(std::move(outputTaus));
+}
+
+void PATTauHybridProducer::fillTauFromJet(reco::PFTau& pfTau, const reco::JetBaseRef& jet) {
+  // Use tools as in PFTau builders to select tau decay products and isolation candidates
+  typedef std::vector<reco::CandidatePtr> CandPtrs;
+
+  // Get the charged hadron candidates
+  CandPtrs pfChs, pfChsSig;
+  // Check if we want to include electrons and muons in "charged hadron"
+  // collection. This is the preferred behavior, as the PF lepton selections
+  // are very loose.
+  if (!usePFLeptonsAsChargedHadrons_) {
+    pfChs = reco::tau::pfCandidatesByPdgId(*jet, 211);
+  } else {
+    pfChs = reco::tau::pfChargedCands(*jet);
+  }
+  // take 1st charged candidate with charge as of tau (collection is pt-sorted)
+  if (pfTau.charge() == 0 || pfChs.size() == 1) {
+    pfTau.setleadChargedHadrCand(pfChs[0]);
+    pfTau.setleadCand(pfChs[0]);
+    pfChsSig.push_back(pfChs[0]);
+    pfChs.erase(pfChs.begin());
+  } else {
+    for (CandPtrs::iterator it = pfChs.begin(); it != pfChs.end();) {
+      if ((*it)->charge() == pfTau.charge()) {
+        pfTau.setleadChargedHadrCand(*it);
+        pfTau.setleadCand(*it);
+        pfChsSig.push_back(*it);
+        it = pfChs.erase(it);
+        break;
+      } else {
+        ++it;
+      }
+    }
+    // In case of lack of candidate with charge same as of tau use leading charged candidate
+    if (pfTau.leadChargedHadrCand().isNull() && !pfChs.empty()) {
+      pfTau.setleadChargedHadrCand(pfChs[0]);
+      pfTau.setleadCand(pfChs[0]);
+      pfChsSig.push_back(pfChs[0]);
+      pfChs.erase(pfChs.begin());
+    }
+  }
+  // if more than one charged decay product is expected add all inside signal
+  // cone around the leading track
+  const double dR2Max = std::pow(pfTau.signalConeSize(), 2);
+  if (pfTau.decayMode() >= reco::PFTau::kThreeProng0PiZero && pfTau.leadChargedHadrCand().isNonnull()) {
+    for (CandPtrs::iterator it = pfChs.begin(); it != pfChs.end();) {
+      if (deltaR2((*it)->p4(), pfTau.leadChargedHadrCand()->p4()) < dR2Max) {
+        pfChsSig.push_back(*it);
+        it = pfChs.erase(it);
+      } else {
+        ++it;
+      }
+    }
+  }
+  // Clean isolation candidates from low-pt and leptonic ones
+  for (CandPtrs::iterator it = pfChs.begin(); it != pfChs.end();) {
+    if ((*it)->pt() < 0.5 || std::abs((*it)->pdgId()) != 211) {
+      it = pfChs.erase(it);
+    } else {
+      ++it;
+    }
+  }
+  // Set charged candidates
+  pfTau.setsignalChargedHadrCands(pfChsSig);
+  pfTau.setisolationChargedHadrCands(pfChs);
+
+  // Get the gamma candidates (pi0 decay products)
+  CandPtrs pfGammas, pfGammasSig;
+  pfGammas = reco::tau::pfCandidatesByPdgId(*jet, 22);
+  // In case of lack of leading charged candidate substiute it with leading gamma candidate
+  if (pfTau.leadChargedHadrCand().isNull() && !pfGammas.empty()) {
+    pfTau.setleadChargedHadrCand(pfGammas[0]);
+    pfTau.setleadCand(pfGammas[0]);
+    pfGammasSig.push_back(pfGammas[0]);
+    pfChs.erase(pfGammas.begin());
+  }
+  // Clean gamma candidates from low-pt ones
+  for (CandPtrs::iterator it = pfGammas.begin(); it != pfGammas.end();) {
+    if ((*it)->pt() < 0.5) {
+      it = pfGammas.erase(it);
+    } else {
+      ++it;
+    }
+  }
+  // if decay mode with pi0s is expected look for signal gamma candidates
+  // within eta-phi strips around leading track
+  if (pfTau.decayMode() % 5 != 0 && pfTau.leadChargedHadrCand().isNonnull()) {
+    for (CandPtrs::iterator it = pfGammas.begin(); it != pfGammas.end();) {
+      if (std::abs((*it)->eta() - pfTau.leadChargedHadrCand()->eta()) <
+              std::clamp(0.2 * std::pow((*it)->pt(), -0.66), 0.05, 0.15) &&
+          deltaPhi((*it)->phi(), pfTau.leadChargedHadrCand()->phi()) <
+              std::clamp(0.35 * std::pow((*it)->pt(), -0.71), 0.05, 0.3)) {
+        pfGammasSig.push_back(*it);
+        it = pfGammas.erase(it);
+      } else {
+        ++it;
+      }
+    }
+  }
+  // Set gamma candidates
+  pfTau.setsignalGammaCands(pfGammasSig);
+  pfTau.setisolationGammaCands(pfGammas);
 }
 
 void PATTauHybridProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -287,12 +402,15 @@ void PATTauHybridProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
        "probuds",      "probg",        "ptcorr",       "ptreshigh",    "ptreslow",     "ptnu"});
   desc.add<std::string>("pnetPtCorrName", "ptcorr");
   desc.add<double>("tauScoreMin", -1)->setComment("Minimal value of the best tau score to built recovery tau");
+  desc.add<double>("vsJetMin", -1)->setComment("Minimal value of PNet tau-vs-jet discriminant to built recovery tau");
   desc.add<bool>("checkTauScoreIsBest", false)
       ->setComment("If true, recovery tau is built only if one of tau scores is the highest");
   desc.add<double>("chargeAssignmentProbMin", 0.2)
       ->setComment("Minimal value of charge assignment probability to built recovery tau (0,0.5)");
   desc.add<bool>("addGenJetMatch", true)->setComment("add MC genTauJet matching");
   desc.add<edm::InputTag>("genJetMatch", edm::InputTag("tauGenJetMatch"));
+  desc.add<bool>("usePFLeptonsAsChargedHadrons", true)
+      ->setComment("If true, all charged particles are used as charged hadron candidates");
 
   descriptions.addWithDefaultLabel(desc);
 }
