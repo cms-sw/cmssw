@@ -115,3 +115,30 @@ bool EcalUncalibratedRecHit::checkFlag(EcalUncalibratedRecHit::Flags flag) const
   }  // if all flags are unset, then hit is good
   return flags_ & (0x1 << flag);
 }
+
+// For CC Timing reco
+float EcalUncalibratedRecHit::nonCorrectedTime() const {
+
+  // TODO: store those values properly
+  float slope = 1.2;
+  float offset = 0.64;
+  float encoding = 796.875;
+ 
+  float encodedBits = static_cast<float>( jitterErrorBits() );
+  float nonCorrectedTime =  25.0*(slope*jitter_  - encodedBits/encoding + offset);
+  return nonCorrectedTime;
+}
+
+void EcalUncalibratedRecHit::setNonCorrectedTime(const float correctedJitter, const float nonCorrectedJitter) {
+
+  // TODO: store those values properly
+  float slope = 1.2;
+  float offset = 0.64;
+  float encoding = 796.875;
+
+  float fDiff =  slope*correctedJitter - nonCorrectedJitter + offset;
+  int bits = std::floor(fDiff*encoding + 0.5);
+  bits = ( bits < 1 ) ? 1 : ( bits > 254 ) ? 254 : bits;
+  aux_ = (~0xFF & aux_) | (static_cast<uint8_t>(bits) & 0xFF);
+}
+

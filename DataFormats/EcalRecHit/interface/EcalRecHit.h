@@ -216,6 +216,20 @@ public:
     return kGood;
   }
 
+// For CC Timing reco
+float nonCorrectedTime() const {
+
+  // TODO: store those values properly
+  float slope = 1.2;
+  float offset = 0.64;
+  float encoding = 796.875;
+
+  uint8_t jitterErrorBits = getMasked(extra_, 24, 8); 
+  float encodedBits = static_cast<float>( jitterErrorBits );
+  float nonCorrectedTime =  25.0*(slope*jitter_  - encodedBits/encoding + offset);
+  return nonCorrectedTime;
+}
+
 private:
   // from calorechit
   DetId id_;
