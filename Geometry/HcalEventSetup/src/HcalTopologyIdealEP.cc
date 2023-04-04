@@ -32,7 +32,7 @@ HcalTopologyIdealEP::HcalTopologyIdealEP(const edm::ParameterSet& conf)
       m_mergePosition(conf.getUntrackedParameter<bool>("MergePosition")) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "HcalTopologyIdealEP::HcalTopologyIdealEP with Exclude: " << m_restrictions
-            << " MergePosition: " << m_mergePosition;
+                               << " MergePosition: " << m_mergePosition;
   edm::LogInfo("HCAL") << "HcalTopologyIdealEP::HcalTopologyIdealEP";
 #endif
 }
@@ -54,7 +54,7 @@ HcalTopologyIdealEP::ReturnType HcalTopologyIdealEP::produce(const HcalRecNumber
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "mode = " << hdc.getTopoMode() << ", maxDepthHB = " << hdc.getMaxDepth(0)
-            << ", maxDepthHE = " << hdc.getMaxDepth(1) << ", maxDepthHF = " << hdc.getMaxDepth(2);
+                               << ", maxDepthHE = " << hdc.getMaxDepth(1) << ", maxDepthHF = " << hdc.getMaxDepth(2);
   edm::LogInfo("HCAL") << "mode = " << hdc.getTopoMode() << ", maxDepthHB = " << hdc.getMaxDepth(0)
                        << ", maxDepthHE = " << hdc.getMaxDepth(1) << ", maxDepthHF = " << hdc.getMaxDepth(2);
 #endif
