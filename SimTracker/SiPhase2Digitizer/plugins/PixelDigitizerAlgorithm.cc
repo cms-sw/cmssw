@@ -80,8 +80,10 @@ PixelDigitizerAlgorithm::~PixelDigitizerAlgorithm() { LogDebug("PixelDigitizerAl
 // -- Select the Hit for Digitization
 //
 bool PixelDigitizerAlgorithm::select_hit(const PSimHit& hit, double tCorr, double& sigScale) const {
-  double time = hit.tof() - tCorr;
-  return (time >= theTofLowerCut_ && time < theTofUpperCut_);
+  // in case of signal-shape emulation do not apply [TofLower,TofUpper] selection 
+  double toa = hit.tof() - tCorr;
+  return apply_timewalk_ || (toa >= theTofLowerCut_ && toa < theTofUpperCut_);
+
 }
 
 // ======================================================================
