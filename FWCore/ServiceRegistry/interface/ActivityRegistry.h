@@ -334,7 +334,7 @@ namespace edm {
     AR_WATCH_USING_METHOD_0(watchBeginProcessing)
 
     typedef signalslot::Signal<void()> EndProcessing;
-    /// signal is emitted after all work has been done processing all transitions
+    /// signal is emitted after all work has been done processing all source transitions
     EndProcessing endProcessingSignal_;
     void watchEndProcessing(EndProcessing::slot_type const& iSlot) { endProcessingSignal_.connect(iSlot); }
     AR_WATCH_USING_METHOD_0(watchEndProcessing)
