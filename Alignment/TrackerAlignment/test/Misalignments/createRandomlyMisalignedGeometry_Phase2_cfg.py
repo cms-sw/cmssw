@@ -55,23 +55,7 @@ process.trackerGeometry.applyAlignment = True
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '') # using realistic Phase 2 geom
-process.GlobalTag.toGet = cms.VPSet(
-    cms.PSet(record = cms.string("TrackerAlignmentRcd"),
-             tag = cms.string("Alignments"),
-             connect = cms.string('sqlite_file:/afs/cern.ch/user/m/musich/public/forSandra/tracker_alignment_phase2_D88130X_mcRun4_realistic_v2.db')
-         ),
-    cms.PSet(record = cms.string("TrackerAlignmentErrorExtendedRcd"),
-             tag = cms.string("AlignmentErrorsExtended"),
-             connect = cms.string('sqlite_file:/afs/cern.ch/user/m/musich/public/forSandra/tracker_alignment_phase2_D88130X_mcRun4_realistic_v2.db')
-         ),
-    cms.PSet(record = cms.string("TrackerSurfaceDeformationRcd"),
-             tag = cms.string("AlignmentSurfaceDeformations"),
-             connect = cms.string('sqlite_file:/afs/cern.ch/user/m/musich/public/forSandra/tracker_alignment_phase2_D88130X_mcRun4_realistic_v2.db')
-         )
-)
-
 print("Using global tag:", process.GlobalTag.globaltag.value())
-
 
 ###################################################################
 # This uses the object from the tag and applies the misalignment scenario on top of that object
