@@ -231,7 +231,7 @@ namespace edm {
           nSubProcesses_{0} {
       iRegistry.watchPreBeginJob(this, &Timing::preBeginJob);
       iRegistry.watchPostBeginJob(this, &Timing::postBeginJob);
-      iRegistry.preEndJobSignal_.connect([this]() {
+      iRegistry.watchPreEndJob([this]() {
         end_loop_time_ = getTime();
         end_loop_cpu_ = getCPU();
       });
@@ -250,6 +250,8 @@ namespace edm {
       if ((not summary_only_) || (checkThreshold)) {
         iRegistry.watchPreModuleEvent(this, &Timing::preModuleStream);
         iRegistry.watchPostModuleEvent(this, &Timing::postModuleEvent);
+        iRegistry.watchPreModuleEventAcquire(this, &Timing::preModuleStream);
+        iRegistry.watchPostModuleEventAcquire(this, &Timing::postModuleEvent);
       }
       if (checkThreshold) {
         iRegistry.watchPreSourceEvent(this, &Timing::preSourceEvent);
@@ -323,8 +325,8 @@ namespace edm {
           // so should check starting over again
         } while (not foundSlot);
       };
-      iRegistry.preESModuleSignal_.connect(preESModuleLambda);
-      iRegistry.preESModuleAcquireSignal_.connect(preESModuleLambda);
+      iRegistry.watchPreESModule(preESModuleLambda);
+      iRegistry.watchPreESModuleAcquire(preESModuleLambda);
 
       auto postESModuleLambda = [this](auto const& recordKey, auto const& context) {
         removeTask();
@@ -343,13 +345,13 @@ namespace edm {
           }
         }
       };
-      iRegistry.postESModuleSignal_.connect(postESModuleLambda);
-      iRegistry.postESModuleAcquireSignal_.connect(postESModuleLambda);
+      iRegistry.watchPostESModule(postESModuleLambda);
+      iRegistry.watchPostESModuleAcquire(postESModuleLambda);
 
       iRegistry.watchPostGlobalBeginRun(this, &Timing::postGlobalBeginRun);
       iRegistry.watchPostGlobalBeginLumi(this, &Timing::postGlobalBeginLumi);
 
-      iRegistry.preallocateSignal_.connect([this](service::SystemBounds const& iBounds) {
+      iRegistry.watchPreallocate([this](service::SystemBounds const& iBounds) {
         nStreams_ = iBounds.maxNumberOfStreams();
         nThreads_ = iBounds.maxNumberOfThreads();
         curr_events_time_.resize(nStreams_, 0.);
@@ -371,44 +373,46 @@ namespace edm {
     }
 
     void Timing::setTaskCallbacks(ActivityRegistry& iRegistry) {
-      iRegistry.preSourceSignal_.connect([this](auto) { addTask(); });
-      iRegistry.postSourceSignal_.connect([this](auto) { removeTask(); });
+      iRegistry.watchPreSourceEvent([this](auto) { addTask(); });
+      iRegistry.watchPostSourceEvent([this](auto) { removeTask(); });
 
-      iRegistry.preModuleEventSignal_.connect([this](auto, auto) { addTask(); });
-      iRegistry.postModuleEventSignal_.connect([this](auto, auto) { removeTask(); });
+      iRegistry.watchPreModuleEvent([this](auto, auto) { addTask(); });
+      iRegistry.watchPostModuleEvent([this](auto, auto) { removeTask(); });
+      iRegistry.watchPreModuleEventAcquire([this](auto, auto) { addTask(); });
+      iRegistry.watchPostModuleEventAcquire([this](auto, auto) { removeTask(); });
 
-      iRegistry.preSourceLumiSignal_.connect([this](auto) { addTask(); });
-      iRegistry.postSourceLumiSignal_.connect([this](auto) { removeTask(); });
+      iRegistry.watchPreSourceLumi([this](auto) { addTask(); });
+      iRegistry.watchPostSourceLumi([this](auto) { removeTask(); });
 
-      iRegistry.preSourceRunSignal_.connect([this](auto) { addTask(); });
-      iRegistry.postSourceRunSignal_.connect([this](auto) { removeTask(); });
+      iRegistry.watchPreSourceRun([this](auto) { addTask(); });
+      iRegistry.watchPostSourceRun([this](auto) { removeTask(); });
 
-      iRegistry.preEventReadFromSourceSignal_.connect([this](auto, auto) { addTask(); });
-      iRegistry.postEventReadFromSourceSignal_.connect([this](auto, auto) { removeTask(); });
+      iRegistry.watchPreEventReadFromSource([this](auto, auto) { addTask(); });
+      iRegistry.watchPostEventReadFromSource([this](auto, auto) { removeTask(); });
 
-      iRegistry.preModuleStreamBeginRunSignal_.connect([this](auto, auto) { addTask(); });
-      iRegistry.postModuleStreamBeginRunSignal_.connect([this](auto, auto) { removeTask(); });
-      iRegistry.preModuleStreamEndRunSignal_.connect([this](auto, auto) { addTask(); });
-      iRegistry.postModuleStreamEndRunSignal_.connect([this](auto, auto) { removeTask(); });
+      iRegistry.watchPreModuleStreamBeginRun([this](auto, auto) { addTask(); });
+      iRegistry.watchPostModuleStreamBeginRun([this](auto, auto) { removeTask(); });
+      iRegistry.watchPreModuleStreamEndRun([this](auto, auto) { addTask(); });
+      iRegistry.watchPostModuleStreamEndRun([this](auto, auto) { removeTask(); });
 
-      iRegistry.preModuleStreamBeginLumiSignal_.connect([this](auto, auto) { addTask(); });
-      iRegistry.postModuleStreamBeginLumiSignal_.connect([this](auto, auto) { removeTask(); });
-      iRegistry.preModuleStreamEndLumiSignal_.connect([this](auto, auto) { addTask(); });
-      iRegistry.postModuleStreamEndLumiSignal_.connect([this](auto, auto) { removeTask(); });
+      iRegistry.watchPreModuleStreamBeginLumi([this](auto, auto) { addTask(); });
+      iRegistry.watchPostModuleStreamBeginLumi([this](auto, auto) { removeTask(); });
+      iRegistry.watchPreModuleStreamEndLumi([this](auto, auto) { addTask(); });
+      iRegistry.watchPostModuleStreamEndLumi([this](auto, auto) { removeTask(); });
 
-      iRegistry.preModuleGlobalBeginRunSignal_.connect([this](auto, auto) { addTask(); });
-      iRegistry.postModuleGlobalBeginRunSignal_.connect([this](auto, auto) { removeTask(); });
-      iRegistry.preModuleGlobalEndRunSignal_.connect([this](auto, auto) { addTask(); });
-      iRegistry.postModuleGlobalEndRunSignal_.connect([this](auto, auto) { removeTask(); });
+      iRegistry.watchPreModuleGlobalBeginRun([this](auto, auto) { addTask(); });
+      iRegistry.watchPostModuleGlobalBeginRun([this](auto, auto) { removeTask(); });
+      iRegistry.watchPreModuleGlobalEndRun([this](auto, auto) { addTask(); });
+      iRegistry.watchPostModuleGlobalEndRun([this](auto, auto) { removeTask(); });
 
-      iRegistry.preModuleGlobalBeginLumiSignal_.connect([this](auto, auto) { addTask(); });
-      iRegistry.postModuleGlobalBeginLumiSignal_.connect([this](auto, auto) { removeTask(); });
-      iRegistry.preModuleGlobalEndLumiSignal_.connect([this](auto, auto) { addTask(); });
-      iRegistry.postModuleGlobalEndLumiSignal_.connect([this](auto, auto) { removeTask(); });
+      iRegistry.watchPreModuleGlobalBeginLumi([this](auto, auto) { addTask(); });
+      iRegistry.watchPostModuleGlobalBeginLumi([this](auto, auto) { removeTask(); });
+      iRegistry.watchPreModuleGlobalEndLumi([this](auto, auto) { addTask(); });
+      iRegistry.watchPostModuleGlobalEndLumi([this](auto, auto) { removeTask(); });
 
       //account for any time ESSources spend looking up new IOVs
-      iRegistry.preESSyncIOVSignal_.connect([this](auto const&) { addTask(); });
-      iRegistry.postESSyncIOVSignal_.connect([this](auto const&) { removeTask(); });
+      iRegistry.watchPreESSyncIOV([this](auto const&) { addTask(); });
+      iRegistry.watchPostESSyncIOV([this](auto const&) { removeTask(); });
     }
 
     Timing::~Timing() {}
@@ -524,7 +528,7 @@ namespace edm {
                                  << " - Total init:  " << total_initialization_time << "\n"
                                  << " - Total job:   " << total_job_time << "\n"
                                  << " - Total EventSetup: " << accumulatedEventSetupModuleTimings_.load() << "\n"
-                                 << " - Total non-task: " << total_time_without_tasks_ << "\n"
+                                 << " - Total non-module: " << total_time_without_tasks_ << "\n"
                                  << " Event Throughput: " << event_throughput << " ev/s\n"
                                  << " CPU Summary: \n"
                                  << " - Total loop:     " << total_loop_cpu << "\n"
@@ -550,7 +554,7 @@ namespace edm {
         reportData.insert(std::make_pair("TotalJobChildrenCPU", d2str(job_end_children_cpu)));
         reportData.insert(std::make_pair("TotalLoopTime", d2str(total_loop_time)));
         reportData.insert(std::make_pair("TotalEventSetupTime", d2str(accumulatedEventSetupModuleTimings_.load())));
-        reportData.insert(std::make_pair("TotalNonTaskTime", d2str(total_time_without_tasks_)));
+        reportData.insert(std::make_pair("TotalNonModuleTime", d2str(total_time_without_tasks_)));
         reportData.insert(std::make_pair("TotalLoopCPU", d2str(total_loop_cpu)));
         reportData.insert(std::make_pair("TotalInitTime", d2str(total_initialization_time)));
         reportData.insert(std::make_pair("TotalInitCPU", d2str(total_initialization_cpu)));
