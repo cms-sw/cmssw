@@ -90,6 +90,9 @@ private:
 
   bool fallback_puppi_weight_;
   bool fallback_vertex_association_;
+    
+  bool is_weighted_jet_;
+    
   const double min_jet_pt_;
   const double max_jet_eta_;
 };
@@ -108,6 +111,7 @@ ParticleTransformerAK4TagInfoProducer::ParticleTransformerAK4TagInfoProducer(con
       use_pvasq_value_map_(false),
       fallback_puppi_weight_(iConfig.getParameter<bool>("fallback_puppi_weight")),
       fallback_vertex_association_(iConfig.getParameter<bool>("fallback_vertex_association")),
+      is_weighted_jet_(iConfig.getParameter<bool>("is_weighted_jet")),
       min_jet_pt_(iConfig.getParameter<double>("min_jet_pt")),
       max_jet_eta_(iConfig.getParameter<double>("max_jet_eta")) {
   produces<ParticleTransformerAK4TagInfoCollection>();
@@ -116,6 +120,9 @@ ParticleTransformerAK4TagInfoProducer::ParticleTransformerAK4TagInfoProducer(con
   if (!puppi_value_map_tag.label().empty()) {
     puppi_value_map_token_ = consumes<edm::ValueMap<float>>(puppi_value_map_tag);
     use_puppi_value_map_ = true;
+  } else if (is_weighted_jet_) {
+    throw edm::Exception(edm::errors::Configuration,
+                         "puppi_value_map is not set but jet is weighted. Must set puppi_value_map.");
   }
 
   const auto& pvas_tag = iConfig.getParameter<edm::InputTag>("vertex_associator");
@@ -142,6 +149,7 @@ void ParticleTransformerAK4TagInfoProducer::fillDescriptions(edm::ConfigurationD
   desc.add<edm::InputTag>("vertex_associator", edm::InputTag("primaryVertexAssociation", "original"));
   desc.add<bool>("fallback_puppi_weight", false);
   desc.add<bool>("fallback_vertex_association", false);
+  desc.add<bool>("is_weighted_jet", false);
   desc.add<double>("min_jet_pt", 15.0);
   desc.add<double>("max_jet_eta", 2.5);
   descriptions.add("pfParticleTransformerAK4TagInfos", desc);
@@ -282,13 +290,34 @@ void ParticleTransformerAK4TagInfoProducer::produce(edm::Event& iEvent, const ed
       } else if (pat_jet && reco_cand) {
         reco_ptr = pat_jet->getPFConstituent(i);
       }
-      // get PUPPI weight from value map
-      float puppiw = 1.0;  // fallback value
-      if (reco_cand && use_puppi_value_map_) {
-        puppiw = (*puppi_value_map)[reco_ptr];
-      } else if (reco_cand && !fallback_puppi_weight_) {
-        throw edm::Exception(edm::errors::InvalidReference, "PUPPI value map missing")
-            << "use fallback_puppi_weight option to use " << puppiw << "as default";
+        
+      reco::CandidatePtr cand_ptr;
+      if (pat_jet) {
+        cand_ptr = pat_jet->sourceCandidatePtr(i);
+      }
+
+      //
+      // Access puppi weight from ValueMap.
+      //
+      float puppiw = 1.0;  // Set to fallback value
+
+      if (reco_cand) {
+        if (use_puppi_value_map_)
+          puppiw = (*puppi_value_map)[reco_ptr];
+        else if (!fallback_puppi_weight_) {
+          throw edm::Exception(edm::errors::InvalidReference, "PUPPI value map missing")
+              << "use fallback_puppi_weight option to use " << puppiw << " for reco_cand as default";
+        }
+      } else if (packed_cand) {
+        if (use_puppi_value_map_)
+          puppiw = (*puppi_value_map)[cand_ptr];
+        else if (!fallback_puppi_weight_) {
+          throw edm::Exception(edm::errors::InvalidReference, "PUPPI value map missing")
+              << "use fallback_puppi_weight option to use " << puppiw << " for packed_cand as default";
+        }
+      } else {
+        throw edm::Exception(edm::errors::InvalidReference)
+            << "Cannot convert to either reco::PFCandidate or pat::PackedCandidate";
       }
 
       float drminpfcandsv = btagbtvdeep::mindrsvpfcand(svs_unsorted, cand);
@@ -314,8 +343,10 @@ void ParticleTransformerAK4TagInfoProducer::produce(edm::Event& iEvent, const ed
           btagbtvdeep::packedCandidateToFeatures(packed_cand,
                                                  jet,
                                                  trackinfo,
+                                                 is_weighted_jet_,
                                                  drminpfcandsv,
                                                  static_cast<float>(jet_radius_),
+                                                 puppiw,
                                                  c_pf_features,
                                                  flip_,
                                                  distminpfcandsv);
@@ -350,6 +381,7 @@ void ParticleTransformerAK4TagInfoProducer::produce(edm::Event& iEvent, const ed
           btagbtvdeep::recoCandidateToFeatures(reco_cand,
                                                jet,
                                                trackinfo,
+                                               is_weighted_jet_,
                                                drminpfcandsv,
                                                static_cast<float>(jet_radius_),
                                                puppiw,
@@ -367,10 +399,10 @@ void ParticleTransformerAK4TagInfoProducer::produce(edm::Event& iEvent, const ed
         // fill feature structure
         if (packed_cand) {
           btagbtvdeep::packedCandidateToFeatures(
-              packed_cand, jet, drminpfcandsv, static_cast<float>(jet_radius_), n_pf_features);
+              packed_cand, jet, is_weighted_jet_, drminpfcandsv, static_cast<float>(jet_radius_), puppiw, n_pf_features);
         } else if (reco_cand) {
           btagbtvdeep::recoCandidateToFeatures(
-              reco_cand, jet, drminpfcandsv, static_cast<float>(jet_radius_), puppiw, n_pf_features);
+              reco_cand, jet, is_weighted_jet_, drminpfcandsv, static_cast<float>(jet_radius_), puppiw, n_pf_features);
         }
       }
     }
