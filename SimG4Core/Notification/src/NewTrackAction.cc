@@ -79,19 +79,8 @@ void NewTrackAction::addUserInfoToSecondary(G4Track *aTrack, const TrackInformat
 
 bool NewTrackAction::isInBTL(const G4Track *aTrack) const {
   bool out = false;
-  const G4VTouchable *touch = aTrack->GetTouchable();
-  if (touch->GetVolume()->GetLogicalVolume()->GetRegion()->GetName() != "FastTimerRegion") {
-    return out;
-  }
-  int theSize = touch->GetHistoryDepth() + 1;
-  if (theSize > 1) {
-    for (int ii = 0; ii < theSize; ii++) {
-      const G4String &vName = touch->GetVolume(ii)->GetName();
-      if (vName == "BarrelTimingLayer" || vName == "btl:BarrelTimingLayer_1") {
-        out = true;
-        break;
-      }
-    }
+  if (aTrack->GetVolume()->GetLogicalVolume()->GetRegion()->GetName() == "FastTimerRegionBTL") {
+    out = true;
   }
 
   return out;

@@ -24,7 +24,6 @@ public:
 
   uint32_t setDetUnitId(const G4Step *) override;
 
-
 private:
   double energyCut;
   double energyHistoryCut;
