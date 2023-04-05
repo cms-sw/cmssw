@@ -885,7 +885,9 @@ namespace edm {
 
     // make the services available
     ServiceRegistry::Operate operate(serviceToken_);
-
+    actReg_->beginProcessingSignal_();
+    auto endSignal = [](ActivityRegistry* iReg) { iReg->endProcessingSignal_(); };
+    std::unique_ptr<ActivityRegistry, decltype(endSignal)> guard(actReg_.get(), endSignal);
     try {
       FilesProcessor fp(fileModeNoMerge_);
 

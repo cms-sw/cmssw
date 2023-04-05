@@ -327,6 +327,18 @@ namespace edm {
     }
     AR_WATCH_USING_METHOD_1(watchPostEndProcessBlock)
 
+    typedef signalslot::Signal<void()> BeginProcessing;
+    /// signal is emitted just before the transitions from the Source will begin to be processed
+    BeginProcessing beginProcessingSignal_;
+    void watchBeginProcessing(BeginProcessing::slot_type const& iSlot) { beginProcessingSignal_.connect(iSlot); }
+    AR_WATCH_USING_METHOD_0(watchBeginProcessing)
+
+    typedef signalslot::Signal<void()> EndProcessing;
+    /// signal is emitted after all work has been done processing all transitions
+    EndProcessing endProcessingSignal_;
+    void watchEndProcessing(EndProcessing::slot_type const& iSlot) { endProcessingSignal_.connect(iSlot); }
+    AR_WATCH_USING_METHOD_0(watchEndProcessing)
+
     typedef signalslot::Signal<void(GlobalContext const&)> PreGlobalBeginRun;
     /// signal is emitted after the Run has been created by the InputSource but before any modules have seen the Run
     PreGlobalBeginRun preGlobalBeginRunSignal_;
