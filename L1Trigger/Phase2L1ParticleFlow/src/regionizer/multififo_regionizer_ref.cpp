@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <memory>
+#include <stdexcept>
 
 #ifdef CMSSW_GIT_HASH
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -11,12 +12,15 @@
 l1ct::MultififoRegionizerEmulator::MultififoRegionizerEmulator(const edm::ParameterSet& iConfig)
     : MultififoRegionizerEmulator(iConfig.getParameter<uint32_t>("nEndcaps"),
                                   iConfig.getParameter<uint32_t>("nClocks"),
+                                  iConfig.getParameter<uint32_t>("nTkLinks"),
+                                  iConfig.getParameter<uint32_t>("nCaloLinks"),
                                   iConfig.getParameter<uint32_t>("nTrack"),
                                   iConfig.getParameter<uint32_t>("nCalo"),
                                   iConfig.getParameter<uint32_t>("nEmCalo"),
                                   iConfig.getParameter<uint32_t>("nMu"),
                                   /*streaming=*/false,
                                   /*outii=*/1,
+                                  /*pauseii=*/0,
                                   iConfig.getParameter<bool>("useAlsoVtxCoords")) {
   debug_ = iConfig.getUntrackedParameter<bool>("debug", false);
   if (iConfig.existsAs<edm::ParameterSet>("egInterceptMode")) {
@@ -24,22 +28,42 @@ l1ct::MultififoRegionizerEmulator::MultififoRegionizerEmulator(const edm::Parame
     setEgInterceptMode(emSelCfg.getParameter<bool>("afterFifo"), emSelCfg);
   }
 }
+
+l1ct::MultififoRegionizerEmulator::MultififoRegionizerEmulator(const std::string& barrelSetup,
+                                                               const edm::ParameterSet& iConfig)
+    : MultififoRegionizerEmulator(parseBarrelSetup(barrelSetup),
+                                  iConfig.getParameter<uint32_t>("nHCalLinks"),
+                                  iConfig.getParameter<uint32_t>("nECalLinks"),
+                                  iConfig.getParameter<uint32_t>("nClocks"),
+                                  iConfig.getParameter<uint32_t>("nTrack"),
+                                  iConfig.getParameter<uint32_t>("nCalo"),
+                                  iConfig.getParameter<uint32_t>("nEmCalo"),
+                                  iConfig.getParameter<uint32_t>("nMu"),
+                                  /*streaming=*/false,
+                                  /*outii=*/1,
+                                  /*pauseii=*/0,
+                                  iConfig.getParameter<bool>("useAlsoVtxCoords")) {
+  debug_ = iConfig.getUntrackedParameter<bool>("debug", false);
+}
 #endif
 
 l1ct::MultififoRegionizerEmulator::MultififoRegionizerEmulator(unsigned int nendcaps,
                                                                unsigned int nclocks,
+                                                               unsigned int ntklinks,
+                                                               unsigned int ncalolinks,
                                                                unsigned int ntk,
                                                                unsigned int ncalo,
                                                                unsigned int nem,
                                                                unsigned int nmu,
                                                                bool streaming,
                                                                unsigned int outii,
+                                                               unsigned int pauseii,
                                                                bool useAlsoVtxCoords)
     : RegionizerEmulator(useAlsoVtxCoords),
       NTK_SECTORS(9),
       NCALO_SECTORS(3),
-      NTK_LINKS(2),
-      NCALO_LINKS(3),
+      NTK_LINKS(ntklinks),
+      NCALO_LINKS(ncalolinks),
       HCAL_LINKS(0),
       ECAL_LINKS(0),
       NMU_LINKS(1),
@@ -50,22 +74,22 @@ l1ct::MultififoRegionizerEmulator::MultififoRegionizerEmulator(unsigned int nend
       nem_(nem),
       nmu_(nmu),
       outii_(outii),
-      pauseii_(0),
+      pauseii_(pauseii),
       streaming_(streaming),
       emInterceptMode_(noIntercept),
       init_(false),
-      tkRegionizer_(ntk, streaming ? (ntk + outii - 1) / outii : ntk, streaming, outii, 0, useAlsoVtxCoords),
-      hadCaloRegionizer_(ncalo, streaming ? (ncalo + outii - 1) / outii : ncalo, streaming, outii, 0),
-      emCaloRegionizer_(nem, streaming ? (nem + outii - 1) / outii : nem, streaming, outii, 0),
-      muRegionizer_(nmu, streaming ? std::max(1u, (nmu + outii - 1) / outii) : nmu, streaming, outii, 0) {
+      tkRegionizer_(ntk, streaming ? (ntk + outii - 1) / outii : ntk, streaming, outii, pauseii, useAlsoVtxCoords),
+      hadCaloRegionizer_(ncalo, streaming ? (ncalo + outii - 1) / outii : ncalo, streaming, outii, pauseii),
+      emCaloRegionizer_(nem, streaming ? (nem + outii - 1) / outii : nem, streaming, outii, pauseii),
+      muRegionizer_(nmu, streaming ? std::max(1u, (nmu + outii - 1) / outii) : nmu, streaming, outii, pauseii) {
   // now we initialize the routes: track finder
   for (unsigned int ie = 0; ie < nendcaps && ntk > 0; ++ie) {
     for (unsigned int is = 0; is < NTK_SECTORS; ++is) {  // 9 tf sectors
       for (unsigned int il = 0; il < NTK_LINKS; ++il) {  // max tracks per sector per clock
         unsigned int isp = (is + 1) % NTK_SECTORS, ism = (is + NTK_SECTORS - 1) % NTK_SECTORS;
         tkRoutes_.emplace_back(is + NTK_SECTORS * ie, il, is + NTK_SECTORS * ie, il);
-        tkRoutes_.emplace_back(is + NTK_SECTORS * ie, il, isp + NTK_SECTORS * ie, il + 2);
-        tkRoutes_.emplace_back(is + NTK_SECTORS * ie, il, ism + NTK_SECTORS * ie, il + 4);
+        tkRoutes_.emplace_back(is + NTK_SECTORS * ie, il, isp + NTK_SECTORS * ie, il + NTK_LINKS);
+        tkRoutes_.emplace_back(is + NTK_SECTORS * ie, il, ism + NTK_SECTORS * ie, il + 2 * NTK_LINKS);
       }
     }
   }
@@ -234,6 +258,16 @@ l1ct::MultififoRegionizerEmulator::MultififoRegionizerEmulator(BarrelSetup barre
 
 l1ct::MultififoRegionizerEmulator::~MultififoRegionizerEmulator() {}
 
+l1ct::MultififoRegionizerEmulator::BarrelSetup l1ct::MultififoRegionizerEmulator::parseBarrelSetup(
+    const std::string& setup) {
+  if (setup == "Full54")
+    return BarrelSetup::Full54;
+  if (setup == "Full27")
+    return BarrelSetup::Full27;
+  throw std::invalid_argument("barrelSetup for CMSSW can only be Full54 or Full27");
+  return BarrelSetup::Full54;
+}
+
 void l1ct::MultififoRegionizerEmulator::setEgInterceptMode(bool afterFifo,
                                                            const l1ct::EGInputSelectorEmuConfig& interceptorConfig) {
   emInterceptMode_ = afterFifo ? interceptPostFifo : interceptPreFifo;
@@ -361,18 +395,22 @@ bool l1ct::MultififoRegionizerEmulator::step(bool newEvent,
 
 void l1ct::MultififoRegionizerEmulator::fillLinks(unsigned int iclock,
                                                   const l1ct::RegionizerDecodedInputs& in,
-                                                  std::vector<l1ct::TkObjEmu>& links) {
+                                                  std::vector<l1ct::TkObjEmu>& links,
+                                                  std::vector<bool>& valid) {
   if (ntk_ == 0)
     return;
   links.resize(NTK_SECTORS * NTK_LINKS * (nendcaps_ ? nendcaps_ : 2));
+  valid.resize(links.size());
   for (unsigned int is = 0, idx = 0; is < NTK_SECTORS * (nendcaps_ ? nendcaps_ : 2); ++is) {  // tf sectors
     const l1ct::DetectorSector<l1ct::TkObjEmu>& sec = in.track[is];
     for (unsigned int il = 0; il < NTK_LINKS; ++il, ++idx) {
       unsigned int ioffs = iclock * NTK_LINKS + il;
       if (ioffs < sec.size() && iclock < nclocks_ - 1) {
         links[idx] = sec[ioffs];
+        valid[idx] = true;
       } else {
         links[idx].clear();
+        valid[idx] = false;
       }
     }
   }
@@ -381,17 +419,21 @@ void l1ct::MultififoRegionizerEmulator::fillLinks(unsigned int iclock,
 template <typename T>
 void l1ct::MultififoRegionizerEmulator::fillCaloLinks_(unsigned int iclock,
                                                        const std::vector<DetectorSector<T>>& in,
-                                                       std::vector<T>& links) {
+                                                       std::vector<T>& links,
+                                                       std::vector<bool>& valid) {
   unsigned int NLINKS =
       (nendcaps_ ? NCALO_LINKS : (typeid(T) == typeid(l1ct::HadCaloObjEmu) ? HCAL_LINKS : ECAL_LINKS));
   links.resize(NCALO_SECTORS * (nendcaps_ ? nendcaps_ : 1) * NLINKS);
+  valid.resize(links.size());
   for (unsigned int is = 0, idx = 0; is < NCALO_SECTORS * (nendcaps_ ? nendcaps_ : 1); ++is) {
     for (unsigned int il = 0; il < NLINKS; ++il, ++idx) {
       unsigned int ioffs = iclock * NLINKS + il;
       if (ioffs < in[is].size() && iclock < nclocks_ - 1) {
         links[idx] = in[is][ioffs];
+        valid[idx] = true;
       } else {
         links[idx].clear();
+        valid[idx] = false;
       }
     }
   }
@@ -399,31 +441,37 @@ void l1ct::MultififoRegionizerEmulator::fillCaloLinks_(unsigned int iclock,
 
 void l1ct::MultififoRegionizerEmulator::fillLinks(unsigned int iclock,
                                                   const l1ct::RegionizerDecodedInputs& in,
-                                                  std::vector<l1ct::HadCaloObjEmu>& links) {
+                                                  std::vector<l1ct::HadCaloObjEmu>& links,
+                                                  std::vector<bool>& valid) {
   if (ncalo_ == 0)
     return;
-  fillCaloLinks_(iclock, in.hadcalo, links);
+  fillCaloLinks_(iclock, in.hadcalo, links, valid);
 }
 
 void l1ct::MultififoRegionizerEmulator::fillLinks(unsigned int iclock,
                                                   const l1ct::RegionizerDecodedInputs& in,
-                                                  std::vector<l1ct::EmCaloObjEmu>& links) {
+                                                  std::vector<l1ct::EmCaloObjEmu>& links,
+                                                  std::vector<bool>& valid) {
   if (nem_ == 0 || emInterceptMode_ != noIntercept)
     return;
-  fillCaloLinks_(iclock, in.emcalo, links);
+  fillCaloLinks_(iclock, in.emcalo, links, valid);
 }
 
 void l1ct::MultififoRegionizerEmulator::fillLinks(unsigned int iclock,
                                                   const l1ct::RegionizerDecodedInputs& in,
-                                                  std::vector<l1ct::MuObjEmu>& links) {
+                                                  std::vector<l1ct::MuObjEmu>& links,
+                                                  std::vector<bool>& valid) {
   if (nmu_ == 0)
     return;
   assert(NMU_LINKS == 1);
   links.resize(NMU_LINKS);
+  valid.resize(links.size());
   if (iclock < in.muon.size() && iclock < nclocks_ - 1) {
     links[0] = in.muon[iclock];
+    valid[0] = true;
   } else {
     links[0].clear();
+    valid[0] = false;
   }
 }
 
@@ -489,13 +537,17 @@ void l1ct::MultififoRegionizerEmulator::destream(int iclock,
     muRegionizer_.destream(iclock, mu_out, out.muon);
 }
 
-void l1ct::MultififoRegionizerEmulator::run(const RegionizerDecodedInputs& in, std::vector<PFInputRegion>& out) {
-  if (!init_)
-    initSectorsAndRegions(in, out);
+void l1ct::MultififoRegionizerEmulator::reset() {
   tkRegionizer_.reset();
   emCaloRegionizer_.reset();
   hadCaloRegionizer_.reset();
   muRegionizer_.reset();
+}
+
+void l1ct::MultififoRegionizerEmulator::run(const RegionizerDecodedInputs& in, std::vector<PFInputRegion>& out) {
+  if (!init_)
+    initSectorsAndRegions(in, out);
+  reset();
   std::vector<l1ct::TkObjEmu> tk_links_in, tk_out;
   std::vector<l1ct::EmCaloObjEmu> em_links_in, em_out;
   std::vector<l1ct::HadCaloObjEmu> calo_links_in, calo_out;
@@ -546,8 +598,5 @@ void l1ct::MultififoRegionizerEmulator::run(const RegionizerDecodedInputs& in, s
     }
   }
 
-  tkRegionizer_.reset();
-  emCaloRegionizer_.reset();
-  hadCaloRegionizer_.reset();
-  muRegionizer_.reset();
+  reset();
 }

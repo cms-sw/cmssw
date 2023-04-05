@@ -14,10 +14,14 @@ namespace l1t {
 namespace l1tpf {
   class corrector {
   public:
-    corrector() : is2d_(false), neta_(0), nemf_(0), emfMax_(-1) {}
-    corrector(const std::string &iFile, float emfMax = -1, bool debug = false);
-    corrector(const std::string &iFile, const std::string &directory, float emfMax = -1, bool debug = false);
-    corrector(TDirectory *src, float emfMax = -1, bool debug = false);
+    corrector() : is2d_(false), neta_(0), nemf_(0), emfMax_(-1), emulate_(false) {}
+    corrector(const std::string &iFile, float emfMax = -1, bool debug = false, bool emulate = false);
+    corrector(const std::string &iFile,
+              const std::string &directory,
+              float emfMax = -1,
+              bool debug = false,
+              bool emulate = false);
+    corrector(TDirectory *src, float emfMax = -1, bool debug = false, bool emulate = false);
     // create an empty corrector (you'll need to fill the graphs later)
     corrector(const TH1 *index, float emfMax = -1);
     ~corrector();
@@ -54,12 +58,15 @@ namespace l1tpf {
   private:
     std::unique_ptr<TH1> index_;
     std::vector<TGraph *> corrections_;
+    std::vector<TH1 *> correctionsEmulated_;
     bool is2d_;
     unsigned int neta_, nemf_;
     float emfMax_;
+    bool emulate_;
 
-    void init_(const std::string &iFile, const std::string &directory, bool debug);
+    void init_(const std::string &iFile, const std::string &directory, bool debug, bool emulate);
     void init_(TDirectory *src, bool debug);
+    void initEmulation_(TDirectory *src, bool debug);
   };
 }  // namespace l1tpf
 #endif
