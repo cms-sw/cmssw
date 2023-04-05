@@ -147,4 +147,3 @@ void TrackAssociatorParameters::fillPSetDescription(edm::ParameterSetDescription
   desc.add<edm::InputTag>("GEMHitCollectionLabel", edm::InputTag("gemRecHits"));
   desc.add<edm::InputTag>("ME0HitCollectionLabel", edm::InputTag("me0RecHits"));
 }
-
