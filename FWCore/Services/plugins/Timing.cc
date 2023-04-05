@@ -57,7 +57,7 @@ namespace edm {
 
     private:
       void preBeginJob(PathsAndConsumesOfModulesBase const&, ProcessContext const&);
-      void postBeginJob();
+      void postBeginProcessBlock(GlobalContext const&);
       void postEndJob();
 
       void preEvent(StreamContext const&);
@@ -230,7 +230,7 @@ namespace edm {
           configuredInTopLevelProcess_{false},
           nSubProcesses_{0} {
       iRegistry.watchPreBeginJob(this, &Timing::preBeginJob);
-      iRegistry.watchPostBeginJob(this, &Timing::postBeginJob);
+      iRegistry.watchPostBeginProcessBlock(this, &Timing::postBeginProcessBlock);
       iRegistry.watchPreEndJob([this]() {
         end_loop_time_ = getTime();
         end_loop_cpu_ = getCPU();
@@ -446,7 +446,7 @@ namespace edm {
       }
     }
 
-    void Timing::postBeginJob() {
+    void Timing::postBeginProcessBlock(GlobalContext const&) {
       if (!configuredInTopLevelProcess_) {
         return;
       }
