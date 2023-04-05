@@ -38,10 +38,10 @@ namespace edm {
       void stop();
 
       bool trackModule(ModuleCallingContext const& iContext) const;
-      std::unique_ptr<std::atomic<std::chrono::high_resolution_clock::rep>[]> m_timeSums;
+      std::unique_ptr<std::atomic<std::chrono::steady_clock::rep>[]> m_timeSums;
       std::vector<std::string> m_modulesToExclude;
       std::vector<unsigned int> m_excludedModuleIds;
-      std::chrono::high_resolution_clock::time_point m_time;
+      std::chrono::steady_clock::time_point m_time;
       unsigned int m_nTimeSums = 0;
       unsigned int m_nModules;
       unsigned int m_maxNModules = 0;
@@ -138,7 +138,7 @@ ConcurrentModuleTimer::ConcurrentModuleTimer(edm::ParameterSet const& iConfig, e
     if (m_trackGlobalBeginRun) {
       iReg.watchPreModuleGlobalBeginRun([this](GlobalContext const&, ModuleCallingContext const&) {
         if (not m_startedTiming) {
-          m_time = std::chrono::high_resolution_clock::now();
+          m_time = std::chrono::steady_clock::now();
           m_startedTiming = true;
         }
 
@@ -150,7 +150,7 @@ ConcurrentModuleTimer::ConcurrentModuleTimer(edm::ParameterSet const& iConfig, e
 
   iReg.watchPreallocate([this](edm::service::SystemBounds const& iBounds) {
     m_nTimeSums = iBounds.maxNumberOfThreads() + 1 + m_padding;
-    m_timeSums = std::make_unique<std::atomic<std::chrono::high_resolution_clock::rep>[]>(m_nTimeSums);
+    m_timeSums = std::make_unique<std::atomic<std::chrono::steady_clock::rep>[]>(m_nTimeSums);
     for (unsigned int i = 0; i < m_nTimeSums; ++i) {
       m_timeSums[i] = 0;
     }
@@ -158,7 +158,7 @@ ConcurrentModuleTimer::ConcurrentModuleTimer(edm::ParameterSet const& iConfig, e
 
   iReg.watchPreSourceEvent([this](StreamID) {
     if (not m_startedTiming) {
-      m_time = std::chrono::high_resolution_clock::now();
+      m_time = std::chrono::steady_clock::now();
       m_startedTiming = true;
     }
     if (not m_excludeSource) {
@@ -199,8 +199,8 @@ ConcurrentModuleTimer::~ConcurrentModuleTimer() {
 // member functions
 //
 void ConcurrentModuleTimer::start() {
-  auto const newTime = std::chrono::high_resolution_clock::now();
-  std::chrono::high_resolution_clock::time_point oldTime;
+  auto const newTime = std::chrono::steady_clock::now();
+  std::chrono::steady_clock::time_point oldTime;
   bool expected = false;
   unsigned int nModules;
   while (not m_spinLock.compare_exchange_strong(expected, true, std::memory_order_acq_rel)) {
@@ -223,8 +223,8 @@ void ConcurrentModuleTimer::start() {
 }
 
 void ConcurrentModuleTimer::stop() {
-  auto const newTime = std::chrono::high_resolution_clock::now();
-  std::chrono::high_resolution_clock::time_point oldTime;
+  auto const newTime = std::chrono::steady_clock::now();
+  std::chrono::steady_clock::time_point oldTime;
   bool expected = false;
   unsigned int nModules;
   while (not m_spinLock.compare_exchange_weak(expected, true, std::memory_order_acq_rel)) {
