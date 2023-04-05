@@ -1,3 +1,5 @@
+#define EDM_ML_DEBUG
+
 #include "SimG4Core/Application/interface/SteppingAction.h"
 
 #include "SimG4Core/Notification/interface/TrackInformation.h"
@@ -158,10 +160,27 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
       }
     }
   }
-  // check transition tracker/calo
+  // check transition tracker/btl and tracker/calo
   bool isKilled = false;
   if (sAlive == tstat || sVeryForward == tstat) {
-    if (preStep->GetPhysicalVolume() == tracker && postStep->GetPhysicalVolume() == calo) {
+    if (preStep->GetPhysicalVolume() == tracker && postStep->GetPhysicalVolume() == btl) {
+      TrackInformation* trkinfo = static_cast<TrackInformation*>(theTrack->GetUserInformation());
+      if (!trkinfo->isFromTtoBTL()) {
+        trkinfo->setFromTtoBTL();
+#ifdef DebugLog
+        LogDebug("SimG4CoreApplication") << "Setting flag for Tracker -> BTL " << trkinfo->isFromTtoBTL();
+#endif
+      }
+    } else if (preStep->GetPhysicalVolume() == btl && postStep->GetPhysicalVolume() == tracker) {
+      TrackInformation* trkinfo = static_cast<TrackInformation*>(theTrack->GetUserInformation());
+      if (!trkinfo->isFromBTLtoT()) {
+        trkinfo->setFromBTLtoT();
+#ifdef DebugLog
+        LogDebug("SimG4CoreApplication") << "Setting flag for BTL -> Tracker " << trkinfo->isFromBTLtoT();
+#endif
+      }
+    }
+    else if (preStep->GetPhysicalVolume() == tracker && postStep->GetPhysicalVolume() == calo) {
       TrackInformation* trkinfo = static_cast<TrackInformation*>(theTrack->GetUserInformation());
       if (!trkinfo->crossedBoundary()) {
         trkinfo->setCrossedBoundary(theTrack);
@@ -204,12 +223,14 @@ bool SteppingAction::initPointer() {
       tracker = pvcite;
     } else if (pvname == "CALO" || pvname == "caloBase:CALO_1") {
       calo = pvcite;
+    } else if (pvname == "BarrelTimingLayer" || pvname == "btl:BarrelTimingLayer_1") {
+      btl = pvcite;
     }
-    if (tracker && calo)
+    if (tracker && calo && btl)
       break;
   }
   edm::LogVerbatim("SimG4CoreApplication")
-      << "SteppingAction: pointer for Tracker " << tracker << " and for Calo " << calo;
+      << "SteppingAction: pointer for Tracker " << tracker << " and for Calo " << calo << " and for BTL " << btl;
 
   const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
   if (numberEkins > 0) {

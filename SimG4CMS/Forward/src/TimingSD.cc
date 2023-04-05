@@ -1,3 +1,5 @@
+#define EDM_ML_DEBUG
+
 ///////////////////////////////////////////////////////////////////////////////
 // File: TimingSD.cc
 // Date: 02.2006
@@ -26,8 +28,6 @@
 
 #include <vector>
 #include <iostream>
-
-//#define EDM_ML_DEBUG
 
 static const float invgev = 1.0 / CLHEP::GeV;
 static const double invns = 1.0 / CLHEP::nanosecond;

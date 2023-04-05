@@ -48,6 +48,7 @@ private:
 
   const G4VPhysicalVolume* tracker{nullptr};
   const G4VPhysicalVolume* calo{nullptr};
+  const G4VPhysicalVolume* btl{nullptr};
   const CMSSteppingVerbose* steppingVerbose;
   double theCriticalEnergyForVacuum;
   double theCriticalDensity;
