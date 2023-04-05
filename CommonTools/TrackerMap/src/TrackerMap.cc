@@ -559,11 +559,6 @@ TrackerMap::~TrackerMap() {
     TmPsu *psu = ipsu->second;
     delete psu;
   }
-
-  gROOT->Reset();
-
-  //for(std::vector<TColor*>::iterator col1=vc.begin();col1!=vc.end();col1++){
-  //     std::cout<<(*col1)<<std::endl;}
 }
 
 void TrackerMap::drawModule(TmModule *mod, int key, int mlay, bool print_total, std::ofstream *svgfile) {
