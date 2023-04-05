@@ -90,9 +90,9 @@ private:
 
   bool fallback_puppi_weight_;
   bool fallback_vertex_association_;
-    
+
   bool is_weighted_jet_;
-    
+
   const double min_jet_pt_;
   const double max_jet_eta_;
 };
@@ -290,7 +290,7 @@ void ParticleTransformerAK4TagInfoProducer::produce(edm::Event& iEvent, const ed
       } else if (pat_jet && reco_cand) {
         reco_ptr = pat_jet->getPFConstituent(i);
       }
-        
+
       reco::CandidatePtr cand_ptr;
       if (pat_jet) {
         cand_ptr = pat_jet->sourceCandidatePtr(i);
