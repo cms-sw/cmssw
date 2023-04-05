@@ -72,26 +72,28 @@ namespace edm {
         from iAquireMethod and iPRoduceMethod in order to do the
         registration with the EventSetup
     */
-    template <typename T, typename TReturn, typename TRecord>
+    template <typename T, typename TAcquireReturn, typename TProduceReturn, typename TRecord>
     auto setWhatAcquiredProduced(T* iThis,
-                                 void (T::*iAcquireMethod)(const TRecord&, WaitingTaskWithArenaHolder),
-                                 TReturn (T::*iProduceMethod)(const TRecord&),
+                                 TAcquireReturn (T::*iAcquireMethod)(const TRecord&, WaitingTaskWithArenaHolder),
+                                 TProduceReturn (T::*iProduceMethod)(const TRecord&, TAcquireReturn),
                                  const es::Label& iLabel = {}) {
       return setWhatAcquiredProduced(
           iThis, iAcquireMethod, iProduceMethod, eventsetup::CallbackSimpleDecorator<TRecord>(), iLabel);
     }
 
-    template <typename T, typename TReturn, typename TRecord, typename TDecorator>
+    template <typename T, typename TAcquireReturn, typename TProduceReturn, typename TRecord, typename TDecorator>
     auto setWhatAcquiredProduced(T* iThis,
-                                 void (T::*iAcquireMethod)(const TRecord&, WaitingTaskWithArenaHolder),
-                                 TReturn (T ::*iProduceMethod)(const TRecord&),
+                                 TAcquireReturn (T::*iAcquireMethod)(const TRecord&, WaitingTaskWithArenaHolder),
+                                 TProduceReturn (T ::*iProduceMethod)(const TRecord&, TAcquireReturn),
                                  const TDecorator& iDec,
                                  const es::Label& iLabel = {}) {
-      return setWhatAcquiredProducedWithLambda<TReturn, TRecord>(
+      return setWhatAcquiredProducedWithLambda<TAcquireReturn, TProduceReturn, TRecord>(
           [iThis, iAcquireMethod](TRecord const& iRecord, WaitingTaskWithArenaHolder iHolder) {
-            (iThis->*iAcquireMethod)(iRecord, std::move(iHolder));
+            return (iThis->*iAcquireMethod)(iRecord, std::move(iHolder));
           },
-          [iThis, iProduceMethod](TRecord const& iRecord) { return (iThis->*iProduceMethod)(iRecord); },
+          [iThis, iProduceMethod](TRecord const& iRecord, TAcquireReturn iAcquireReturn) {
+            return (iThis->*iProduceMethod)(iRecord, std::move(iAcquireReturn));
+          },
           createDecoratorFrom(iThis, static_cast<const TRecord*>(nullptr), iDec),
           iLabel);
     }
@@ -105,26 +107,38 @@ namespace edm {
     auto setWhatAcquiredProducedWithLambda(TAcquireFunc&& acquireFunc,
                                            TProduceFunc&& produceFunc,
                                            const es::Label& iLabel = {}) {
-      using Types = eventsetup::impl::ReturnArgumentTypes<TProduceFunc>;
-      using TReturn = typename Types::return_type;
-      using TRecord = typename Types::argument_type;
+      using AcquireTypes = eventsetup::impl::ReturnArgumentTypes<TAcquireFunc>;
+      using TAcquireReturn = typename AcquireTypes::return_type;
+      using ProduceTypes = eventsetup::impl::ReturnArgumentTypes<TProduceFunc>;
+      using TProduceReturn = typename ProduceTypes::return_type;
+      using TRecord = typename ProduceTypes::argument_type;
       using DecoratorType = eventsetup::CallbackSimpleDecorator<TRecord>;
 
-      return setWhatAcquiredProducedWithLambda<TReturn, TRecord>(
+      return setWhatAcquiredProducedWithLambda<TAcquireReturn, TProduceReturn, TRecord>(
           std::forward<TAcquireFunc>(acquireFunc), std::forward<TProduceFunc>(produceFunc), DecoratorType(), iLabel);
     }
 
     // In this template, TReturn and TRecord cannot be deduced. They must be explicitly provided when called.
     // The previous 7 functions all end up calling this one (directly or indirectly).
-    template <typename TReturn, typename TRecord, typename TAcquireFunc, typename TProduceFunc, typename TDecorator>
+    template <typename TAcquireReturn,
+              typename TProduceReturn,
+              typename TRecord,
+              typename TAcquireFunc,
+              typename TProduceFunc,
+              typename TDecorator>
     ESConsumesCollectorT<TRecord> setWhatAcquiredProducedWithLambda(TAcquireFunc&& acquireFunc,
                                                                     TProduceFunc&& produceFunc,
                                                                     TDecorator&& iDec,
                                                                     const es::Label& iLabel = {}) {
       const auto id = consumesInfoSize();
       using DecoratorType = std::decay_t<TDecorator>;
-      using CallbackType = eventsetup::
-          CallbackExternalWork<ESProducerExternalWork, TAcquireFunc, TProduceFunc, TReturn, TRecord, DecoratorType>;
+      using CallbackType = eventsetup::CallbackExternalWork<ESProducerExternalWork,
+                                                            TAcquireFunc,
+                                                            TAcquireReturn,
+                                                            TProduceFunc,
+                                                            TProduceReturn,
+                                                            TRecord,
+                                                            DecoratorType>;
       unsigned int iovIndex = 0;  // Start with 0, but later will cycle through all of them
       auto temp = std::make_shared<CallbackType>(this,
                                                  std::forward<TAcquireFunc>(acquireFunc),
@@ -134,7 +148,7 @@ namespace edm {
       auto callback =
           std::make_shared<std::pair<unsigned int, std::shared_ptr<CallbackType>>>(iovIndex, std::move(temp));
       registerProducts(std::move(callback),
-                       static_cast<const typename eventsetup::produce::product_traits<TReturn>::type*>(nullptr),
+                       static_cast<const typename eventsetup::produce::product_traits<TProduceReturn>::type*>(nullptr),
                        static_cast<const TRecord*>(nullptr),
                        iLabel);
       return ESConsumesCollectorT<TRecord>(consumesInfoPushBackNew(), id);

@@ -24,7 +24,7 @@ process.options = dict(
 
 process.emptyESSourceI = cms.ESSource("EmptyESSource",
     recordName = cms.string("ESTestRecordI"),
-    firstValid = cms.vuint32(1,100),
+    firstValid = cms.vuint32(1),
     iovIsRunNotTime = cms.bool(True)
 )
 
@@ -49,12 +49,14 @@ process.test = cms.EDAnalyzer("ConcurrentIOVAnalyzer",
                               # 9 + 5 (external work increments each of the 5 values by 1) = 14,
                               # runs are always 1, lumi ranges 1-3, 4-5, 6, 7, 8
                               # cacheIdentifier increments by 1 each time 3, 4, 5, 6, 7
-                              expectedESAcquireTestResults = cms.untracked.vint32(0, 0, 0, 14, 20, 24, 27, 30)
+                              expectedESAcquireTestResults = cms.untracked.vint32(0, 0, 0, 14, 20, 24, 27, 30),
+                              expectedUniquePtrTestValue = cms.untracked.int32(102),
+                              expectedOptionalTestValue = cms.untracked.int32(202)
 )
 
 process.emptyESSourceB = cms.ESSource("EmptyESSource",
     recordName = cms.string("ESTestRecordB"),
-    firstValid = cms.vuint32(1,2),
+    firstValid = cms.vuint32(1),
     iovIsRunNotTime = cms.bool(True)
 )
 process.esTestAnalyzerB = cms.EDAnalyzer("ESTestAnalyzerB",
