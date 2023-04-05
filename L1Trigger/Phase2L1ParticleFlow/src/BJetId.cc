@@ -6,9 +6,9 @@ BJetId::BJetId(const std::string &iInput,
                const std::string &iOutput,
                const BJetTFCache *cache,
                const std::string &iWeightFile,
-               int iNParticles) {
+               int iNParticles)
+    : sessionRef_(cache->session) {
   NNvectorVar_.clear();
-  session_ = tensorflow::createSession(cache->graphDef.get());
   fNParticles_ = iNParticles;
 
   fPt_ = std::make_unique<float[]>(fNParticles_);
@@ -23,7 +23,7 @@ BJetId::BJetId(const std::string &iInput,
   fOutput_ = iOutput;
 }
 
-BJetId::~BJetId() { tensorflow::closeSession(session_); }
+BJetId::~BJetId() {}
 void BJetId::setNNVectorVar() {
   NNvectorVar_.clear();
   for (int i0 = 0; i0 < fNParticles_; i0++) {
@@ -53,7 +53,7 @@ float BJetId::EvaluateNN() {
     input.tensor<float, 3>()(0, i, 0) = float(NNvectorVar_[i]);
   }
   std::vector<tensorflow::Tensor> outputs;
-  tensorflow::run(session_, {{fInput_, input}}, {fOutput_}, &outputs);
+  tensorflow::run(sessionRef_, {{fInput_, input}}, {fOutput_}, &outputs);
   return outputs[0].matrix<float>()(0, 0);
 }  //end EvaluateNN
 
