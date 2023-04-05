@@ -657,9 +657,9 @@ void EcalUncalibRecHitWorkerMultiFit::run(const edm::Event& evt,
         uncalibRecHit.setNonCorrectedTime(jitter, noCorrectedJitter);
 
         float retreivedNonCorrectedTime = uncalibRecHit.nonCorrectedTime();
-        if (abs(retreivedNonCorrectedTime - noCorrectedJitter)>1) {
+        if (abs(retreivedNonCorrectedTime - 25.0*noCorrectedJitter)>25.0) {
         	edm::LogError("EcalUncalibRecHitError") 
-			<< "Problem with noCorrectedJitter: true value:" << noCorrectedJitter
+			<< "Problem with noCorrectedJitter: true value:" << 25.0*noCorrectedJitter
             << "\t received: " << retreivedNonCorrectedTime 
 			<< std::endl;
         }//<<>>if (abs(retreivedNonCorrectedTime - noCorrectedJitter)>1)

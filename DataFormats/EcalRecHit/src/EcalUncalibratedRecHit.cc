@@ -119,7 +119,7 @@ bool EcalUncalibratedRecHit::checkFlag(EcalUncalibratedRecHit::Flags flag) const
 // For CC Timing reco
 float EcalUncalibratedRecHit::nonCorrectedTime() const {
 
-  // TODO: store those values properly
+  // encoding constants in clock units, return value in ns
   float slope = 1.2;
   float offset = 0.64;
   float encoding = 796.875;
@@ -131,7 +131,7 @@ float EcalUncalibratedRecHit::nonCorrectedTime() const {
 
 void EcalUncalibratedRecHit::setNonCorrectedTime(const float correctedJitter, const float nonCorrectedJitter) {
 
-  // TODO: store those values properly
+  // encoding constants in clock units
   float slope = 1.2;
   float offset = 0.64;
   float encoding = 796.875;
