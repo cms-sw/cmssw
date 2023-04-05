@@ -118,7 +118,7 @@ namespace XrdAdaptor {
     size_t m_size;
     edm::storage::IOSize m_count;
     edm::propagate_const<std::shared_ptr<XrdSiteStatistics>> m_parent;
-    std::chrono::time_point<std::chrono::high_resolution_clock> m_start;
+    std::chrono::time_point<std::chrono::steady_clock> m_start;
   };
 
 }  // namespace XrdAdaptor

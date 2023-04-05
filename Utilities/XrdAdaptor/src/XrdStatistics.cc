@@ -158,9 +158,9 @@ void XrdSiteStatistics::finishRead(XrdReadStatistics const &readStats) {
 }
 
 XrdReadStatistics::XrdReadStatistics(std::shared_ptr<XrdSiteStatistics> parent, IOSize size, size_t count)
-    : m_size(size), m_count(count), m_parent(parent), m_start(std::chrono::high_resolution_clock::now()) {}
+    : m_size(size), m_count(count), m_parent(parent), m_start(std::chrono::steady_clock::now()) {}
 
 uint64_t XrdReadStatistics::elapsedNS() const {
-  std::chrono::time_point<std::chrono::high_resolution_clock> end = std::chrono::high_resolution_clock::now();
+  std::chrono::time_point<std::chrono::steady_clock> end = std::chrono::steady_clock::now();
   return std::chrono::duration_cast<std::chrono::nanoseconds>(end - m_start).count();
 }
