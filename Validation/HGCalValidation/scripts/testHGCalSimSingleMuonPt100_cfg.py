@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun testHGCalSingleMuonPt100_cfg.py geometry=D92
 #
-#   Options for geometry D88, D92, D93, D92Shift
+#   Options for geometry D88, D92, D93, D92Shift, V18
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('geometry',
                  "D92",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D88, D92, D93, D92Shift")
+                  "geometry of operations: D88, D92, D93, D92Shift, V18")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -31,6 +31,8 @@ process = cms.Process('SingleMuonSim',Phase2C17I13M9)
 
 if (options.geometry == "D92Shift"):
     geomFile = "Geometry.HGCalCommonData.testHGCalV17ShiftReco_cff"
+elif (options.geometry == "V18"):
+    geomFile = "Geometry.HGCalCommonData.testHGCalV18Reco_cff"
 else:
     geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
 
