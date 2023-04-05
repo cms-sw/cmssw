@@ -219,7 +219,7 @@ public:
 // For CC Timing reco
 float nonCorrectedTime() const {
 
-  // TODO: store those values properly
+  // encoding constants in ns units
   float slope = 1.2;
   float offset = 16.0;
   float encoding = 31.875;
