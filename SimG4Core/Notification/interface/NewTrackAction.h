@@ -21,6 +21,8 @@ public:
 private:
   void addUserInfoToPrimary(G4Track* aTrack) const;
   void addUserInfoToSecondary(G4Track* aTrack, const TrackInformation& motherInfo, int) const;
+
+  bool isInBTL(const G4Track*) const;
 };
 
 #endif

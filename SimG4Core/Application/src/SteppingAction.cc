@@ -165,10 +165,13 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
   if (sAlive == tstat || sVeryForward == tstat) {
     if (preStep->GetPhysicalVolume() == tracker && postStep->GetPhysicalVolume() == btl) {
       TrackInformation* trkinfo = static_cast<TrackInformation*>(theTrack->GetUserInformation());
-      if (!trkinfo->isFromTtoBTL()) {
+      // store transition tracker -> BTL only for tracks entering BTL for the first time
+      if (!trkinfo->isFromTtoBTL() && !trkinfo->isFromBTLtoT()) {
         trkinfo->setFromTtoBTL();
+        trkinfo->setIdAtBTLentrance(theTrack->GetTrackID());
 #ifdef DebugLog
-        LogDebug("SimG4CoreApplication") << "Setting flag for Tracker -> BTL " << trkinfo->isFromTtoBTL();
+        LogDebug("SimG4CoreApplication") << "Setting flag for Tracker -> BTL " << trkinfo->isFromTtoBTL()
+                                         << " IdAtBTLentrance = " << trkinfo->idAtBTLentrance();
 #endif
       }
     } else if (preStep->GetPhysicalVolume() == btl && postStep->GetPhysicalVolume() == tracker) {
@@ -179,8 +182,7 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
         LogDebug("SimG4CoreApplication") << "Setting flag for BTL -> Tracker " << trkinfo->isFromBTLtoT();
 #endif
       }
-    }
-    else if (preStep->GetPhysicalVolume() == tracker && postStep->GetPhysicalVolume() == calo) {
+    } else if (preStep->GetPhysicalVolume() == tracker && postStep->GetPhysicalVolume() == calo) {
       TrackInformation* trkinfo = static_cast<TrackInformation*>(theTrack->GetUserInformation());
       if (!trkinfo->crossedBoundary()) {
         trkinfo->setCrossedBoundary(theTrack);

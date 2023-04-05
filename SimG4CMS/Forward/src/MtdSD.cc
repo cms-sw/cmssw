@@ -41,10 +41,8 @@ MtdSD::MtdSD(const std::string& name,
   if (scheme)
     setNumberingScheme(scheme);
 
-  energyCut =
-        m_p.getParameter<double>("EnergyThresholdForPersistencyInGeV") * CLHEP::GeV;  //default must be 0.5
-  energyHistoryCut =
-        m_p.getParameter<double>("EnergyThresholdForHistoryInGeV") * CLHEP::GeV;  //default must be 0.05
+  energyCut = m_p.getParameter<double>("EnergyThresholdForPersistencyInGeV") * CLHEP::GeV;     //default must be 0.5
+  energyHistoryCut = m_p.getParameter<double>("EnergyThresholdForHistoryInGeV") * CLHEP::GeV;  //default must be 0.05
 
   setCuts(energyCut, energyHistoryCut);
 

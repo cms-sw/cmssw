@@ -64,5 +64,35 @@ void NewTrackAction::addUserInfoToSecondary(G4Track *aTrack, const TrackInformat
     trkInfo->setCastorHitPID(motherInfo.getCastorHitPID());
   }
 
+  // manage ID of tracks in BTL to map them to SimTracks to be stored
+  if (flag > 0) {
+    if (isInBTL(aTrack)) {
+      if ((motherInfo.storeTrack() && motherInfo.isFromTtoBTL()) || motherInfo.isBTLdaughter()) {
+        trkInfo->setBTLdaughter();
+        trkInfo->setIdAtBTLentrance(motherInfo.idAtBTLentrance());
+      }
+    }
+  }
+
   aTrack->SetUserInformation(trkInfo);
+}
+
+bool NewTrackAction::isInBTL(const G4Track *aTrack) const {
+  bool out = false;
+  const G4VTouchable *touch = aTrack->GetTouchable();
+  if (touch->GetVolume()->GetLogicalVolume()->GetRegion()->GetName() != "FastTimerRegion") {
+    return out;
+  }
+  int theSize = touch->GetHistoryDepth() + 1;
+  if (theSize > 1) {
+    for (int ii = 0; ii < theSize; ii++) {
+      const G4String &vName = touch->GetVolume(ii)->GetName();
+      if (vName == "BarrelTimingLayer" || vName == "btl:BarrelTimingLayer_1") {
+        out = true;
+        break;
+      }
+    }
+  }
+
+  return out;
 }

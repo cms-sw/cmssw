@@ -82,12 +82,12 @@ public:
 
   // methods for MTD info management
   //
-  void setFromTtoBTL() { mtdStatus_ |= 1 << 0; } // 1st bit
-  bool isFromTtoBTL() { return (mtdStatus_ >> 0) & 1 ; }
-  void setFromBTLtoT() { mtdStatus_ |= 1 << 1; } // 2nd bit
-  bool isFromBTLtoT() { return (mtdStatus_ >> 1) & 1 ; }
-  void setBTLdaughter() { mtdStatus_ |= 1 << 2; } // 3rd bit
-  bool isBTLdaughter() { return (mtdStatus_ >> 2) & 1; }
+  inline void setFromTtoBTL() { mtdStatus_ |= 1 << 0; }  // 1st bit
+  inline bool isFromTtoBTL() const { return (mtdStatus_ >> 0) & 1; }
+  inline void setFromBTLtoT() { mtdStatus_ |= 1 << 1; }  // 2nd bit
+  inline bool isFromBTLtoT() const { return (mtdStatus_ >> 1) & 1; }
+  inline void setBTLdaughter() { mtdStatus_ |= 1 << 2; }  // 3rd bit
+  inline bool isBTLdaughter() const { return (mtdStatus_ >> 2) & 1; }
 
   int idAtBTLentrance() const { return idAtBTLentrance_; }
   void setIdAtBTLentrance(int id) { idAtBTLentrance_ = id; }
