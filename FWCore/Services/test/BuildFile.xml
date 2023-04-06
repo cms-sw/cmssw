@@ -14,11 +14,12 @@
   <use name="FWCore/Framework"/>
 </library>
 
+<test name="TestFWCoreServicesDriver_sitelocalconfig" command="test_sitelocalconfig.sh"/>
+<test name="TestFWCoreServicesDriver_zombiekiller"    command="test_zombiekiller.sh"/>
+<test name="TestFWCoreServicesDriver_cpu"             command="test_cpu.sh"/>
+
 <ifrelease name="!_ASAN_">
-  <test name="TestFWCoreServicesDriver_sitelocalconfig" command="test_sitelocalconfig.sh"/>
   <test name="TestFWCoreServicesDriver_resource"        command="test_resource.sh"/>
-  <test name="TestFWCoreServicesDriver_zombiekiller"    command="test_zombiekiller.sh"/>
-  <test name="TestFWCoreServicesDriver_cpu"             command="test_cpu.sh"/>
 </ifrelease>
 
 <bin file="test_catch2_*.cc" name="testFWCoreServicesCatch2">
