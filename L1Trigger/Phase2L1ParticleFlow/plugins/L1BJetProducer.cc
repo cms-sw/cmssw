@@ -49,15 +49,12 @@ L1BJetProducer::L1BJetProducer(const edm::ParameterSet& cfg, const BJetTFCache* 
       fMaxJets_(cfg.getParameter<int>("maxJets")),
       fNParticles_(cfg.getParameter<int>("nParticles")),
       fVtxEmu_(consumes<std::vector<l1t::VertexWord>>(cfg.getParameter<edm::InputTag>("vtx"))) {
-  std::string lNNFile = cfg.getParameter<std::string>("NNFileName");
   fBJetId_ = std::make_unique<BJetId>(
-      cfg.getParameter<std::string>("NNInput"), cfg.getParameter<std::string>("NNOutput"), cache, lNNFile, fNParticles_);
+      cfg.getParameter<std::string>("NNInput"), cfg.getParameter<std::string>("NNOutput"), cache, fNParticles_);
   produces<edm::ValueMap<float>>("L1PFBJets");
 }
 std::unique_ptr<BJetTFCache> L1BJetProducer::initializeGlobalCache(const edm::ParameterSet& cfg) {
-  tensorflow::setLogging("3");
-  std::string lNNFile = cfg.getParameter<std::string>("NNFileName");
-  edm::FileInPath fp(lNNFile);
+  edm::FileInPath fp(cfg.getParameter<edm::FileInPath>("NNFileName"));
   auto cache = std::make_unique<BJetTFCache>(fp.fullPath());
   return cache;
 }
@@ -102,7 +99,8 @@ void L1BJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("jets", edm::InputTag("scPFL1Puppi"));
   desc.add<bool>("useRawPt", true);
-  desc.add<std::string>("NNFileName", "L1Trigger/Phase2L1ParticleFlow/data/modelTT_PUP_Off_dXY_XYCut_Graph.pb");
+  desc.add<edm::FileInPath>("NNFileName",
+                            edm::FileInPath("L1Trigger/Phase2L1ParticleFlow/data/modelTT_PUP_Off_dXY_XYCut_Graph.pb"));
   desc.add<std::string>("NNInput", "input:0");
   desc.add<std::string>("NNOutput", "sequential/dense_2/Sigmoid");
   desc.add<int>("maxJets", 10);

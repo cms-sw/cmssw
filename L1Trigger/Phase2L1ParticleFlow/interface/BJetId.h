@@ -17,11 +17,7 @@ struct BJetTFCache {
 
 class BJetId {
 public:
-  BJetId(const std::string &iInput,
-         const std::string &iOutput,
-         const BJetTFCache *cache,
-         const std::string &iWeightFile,
-         int iNParticles);
+  BJetId(const std::string &iInput, const std::string &iOutput, const BJetTFCache *cache, int iNParticles);
   ~BJetId();
 
   void setNNVectorVar();
@@ -41,6 +37,6 @@ private:
   unique_ptr<float[]> fDZ_;
   unique_ptr<float[]> fDX_;
   unique_ptr<float[]> fDY_;
-  tensorflow::Session *const &sessionRef_;
+  tensorflow::Session *sessionRef_;
 };
 #endif

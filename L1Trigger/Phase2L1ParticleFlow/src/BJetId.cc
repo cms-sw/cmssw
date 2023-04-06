@@ -2,11 +2,7 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include <cmath>
 
-BJetId::BJetId(const std::string &iInput,
-               const std::string &iOutput,
-               const BJetTFCache *cache,
-               const std::string &iWeightFile,
-               int iNParticles)
+BJetId::BJetId(const std::string &iInput, const std::string &iOutput, const BJetTFCache *cache, int iNParticles)
     : sessionRef_(cache->session) {
   NNvectorVar_.clear();
   fNParticles_ = iNParticles;
