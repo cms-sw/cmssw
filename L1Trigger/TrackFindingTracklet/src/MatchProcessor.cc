@@ -742,8 +742,6 @@ bool MatchProcessor::matchCalculator(Tracklet* tracklet, const Stub* fpgastub, b
     next_tracklet = tracklet;
     // Do we have a new tracklet?
     bool newtracklet = (istep == 0 || tracklet != curr_tracklet);
-    if (istep == 0)
-      best_ideltar_disk = (1 << (fpgastub->r().nbits() - 1));  // Set to the maximum possible
     // If so, replace the "best" values with the cut tables
     if (newtracklet) {
       best_ideltaphi_disk = idrphicut;

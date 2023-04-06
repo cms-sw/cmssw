@@ -420,8 +420,6 @@ void MatchCalculator::execute(unsigned int iSector, double phioffset) {
       next_projid = projindex;
       // Do we have a new tracklet?
       bool newtracklet = (j == 0 || projindex != curr_projid);
-      if (j == 0)
-        best_ideltar_disk = (1 << (fpgastub->r().nbits() - 1));  // Set to the maximum possible
       // If so, replace the "best" values with the cut tables
       if (newtracklet) {
         best_ideltaphi_disk = idrphicut;
