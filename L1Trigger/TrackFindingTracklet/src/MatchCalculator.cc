@@ -420,12 +420,11 @@ void MatchCalculator::execute(unsigned int iSector, double phioffset) {
       next_projid = projindex;
       // Do we have a new tracklet?
       bool newtracklet = (j == 0 || projindex != curr_projid);
-      if (j == 0)
-        best_ideltar_disk = (1 << (fpgastub->r().nbits() - 1));  // Set to the maximum possible
       // If so, replace the "best" values with the cut tables
       if (newtracklet) {
         best_ideltaphi_disk = idrphicut;
-        best_ideltar_disk = idrcut;
+        // Set to the maximum possible if j==0
+        best_ideltar_disk = (j == 0)? (1 << (fpgastub->r().nbits() - 1)) : idrcut;
       }
 
       // Update the cut vales (cut table if new tracklet, otherwise current best)
