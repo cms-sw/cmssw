@@ -96,3 +96,34 @@ void MtdSD::getBaseNumber(const G4Step* aStep) {
     }
   }
 }
+
+int MtdSD::getTrackID(const G4Track* aTrack) {
+  int theID = aTrack->GetTrackID();
+  TrackInformation* trkInfo = cmsTrackInformation(aTrack);
+  const G4String& rname = aTrack->GetVolume()->GetLogicalVolume()->GetRegion()->GetName();
+  if (trkInfo != nullptr) {
+#ifdef EDM_ML_DEBUG
+    trkInfo->Print();
+#endif
+    if (rname == "FastTimerRegionSensBTL") {
+      if (trkInfo->isBTLdaughter()) {
+        theID = trkInfo->idAtBTLentrance();
+      }
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("MtdSim") << "BTL Track ID: " << trkInfo->idAtBTLentrance() << ":" << theID;
+#endif
+    } else if (rname == "FastTimerRegionSensETL") {
+      theID = trkInfo->getIDonCaloSurface();
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("MtdSim") << "ETL Track ID: " << trkInfo->getIDonCaloSurface() << ":" << theID;
+#endif
+    } else {
+      throw cms::Exception("MtdSDError") << "MtdSD called in incorrect region " << rname;
+    }
+  } else {
+#ifdef EDM_ML_DEBUG
+    edm::LogWarning("MtdSim") << "MtdSD: Problem with primaryID **** set by force to TkID **** " << theID;
+#endif
+  }
+  return theID;
+}

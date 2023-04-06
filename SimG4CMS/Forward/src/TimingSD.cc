@@ -182,7 +182,7 @@ void TimingSD::getStepInfo(const G4Step* aStep) {
   tSliceID = (int)tSlice;
 
   unitID = setDetUnitId(aStep);
-  primaryID = theTrack->GetTrackID();
+  primaryID = getTrackID(theTrack);
 }
 
 bool TimingSD::hitExists(const G4Step* aStep) {
@@ -371,3 +371,8 @@ void TimingSD::update(const BeginOfEvent* i) {
 }
 
 void TimingSD::clearHits() { slave->Initialize(); }
+
+int TimingSD::getTrackID(const G4Track* aTrack) {
+  LogDebug("TimingSim") << "primary ID: " << aTrack->GetTrackID();
+  return aTrack->GetTrackID();
+}

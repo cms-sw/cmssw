@@ -32,5 +32,9 @@ void TrackInformation::Print() const {
                                << "                    idOnCaloSurface = " << getIDonCaloSurface() << "\n"
                                << "                    caloIDChecked = " << caloIDChecked() << "\n"
                                << "                    idCaloVolume = " << idCaloVolume_ << "\n"
-                               << "                    idLastVolume = " << idLastVolume_;
+                               << "                    idLastVolume = " << idLastVolume_ << "\n"
+                               << "                    isFromTtoBTL = " << isFromTtoBTL() << "\n"
+                               << "                    isFromBTLtoT = " << isFromBTLtoT() << "\n"
+                               << "                    isBTLdaughter = " << isBTLdaughter() << "\n"
+                               << "                    idAtBTLentrance = " << idAtBTLentrance_;
 }

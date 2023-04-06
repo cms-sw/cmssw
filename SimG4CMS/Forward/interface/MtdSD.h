@@ -24,6 +24,9 @@ public:
 
   uint32_t setDetUnitId(const G4Step *) override;
 
+protected:
+  int getTrackID(const G4Track *) override;
+
 private:
   double energyCut;
   double energyHistoryCut;
