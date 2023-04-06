@@ -1163,7 +1163,7 @@ int TrackletLUT::getVMRLookup(unsigned int layerdisk, double z, double r, double
   double z0cut = settings_.z0cut();
 
   if (layerdisk < N_LAYER) {
-    double zcutL2L3 = 52.0;  //Stubs closer to IP in z will not be used for L2L3 seeds
+    double constexpr zcutL2L3 = 52.0;  //Stubs closer to IP in z will not be used for L2L3 seeds
     if (iseed == Seed::L2L3 && std::abs(z) < zcutL2L3)
       return -1;
 
