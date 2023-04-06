@@ -518,8 +518,8 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         IgnoreTrackID    = cms.bool(False),
         EminHit          = cms.double(0.0),
         CheckID          = cms.untracked.bool(True),
-        EnergyThresholdForPersistencyInGeV = cms.double(0.2),
-        EnergyThresholdForHistoryInGeV = cms.double(0.05)
+        EnergyThresholdForPersistencyInGeV = cms.double(1e9), # keep temporarily old behaviour
+        EnergyThresholdForHistoryInGeV = cms.double(1e9) # keep temporarily old behaviour)
     ),
     HGCSD = cms.PSet(
         Verbosity        = cms.untracked.int32(0),
