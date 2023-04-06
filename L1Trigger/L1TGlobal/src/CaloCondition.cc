@@ -495,6 +495,8 @@ const bool l1t::CaloCondition::checkObjectParameter(const int iCondition,
                      objPar.etaWindow1Upper,
                      objPar.etaWindow2Lower,
                      objPar.etaWindow2Upper,
+                     objPar.etaWindow3Lower,
+                     objPar.etaWindow3Upper,
                      7)) {
     LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed checkRange(eta)" << std::endl;
     return false;

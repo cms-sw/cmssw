@@ -440,6 +440,8 @@ const bool l1t::MuCondition::checkObjectParameter(const int iCondition,
                      objPar.etaWindow1Upper,
                      objPar.etaWindow2Lower,
                      objPar.etaWindow2Upper,
+                     objPar.etaWindow3Lower,
+                     objPar.etaWindow3Upper,
                      8)) {
     LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed checkRange(eta)" << std::endl;
     return false;
