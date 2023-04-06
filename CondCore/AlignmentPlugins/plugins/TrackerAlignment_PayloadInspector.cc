@@ -693,6 +693,7 @@ namespace {
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
       auto iov = tag.iovs.front();
+      const auto &tagname = PlotBase::getTag<0>().name;
       std::shared_ptr<Alignments> payload = fetchPayload(std::get<1>(iov));
       unsigned int run = std::get<0>(iov);
 
@@ -794,8 +795,8 @@ namespace {
       TLatex t1;
       t1.SetNDC();
       t1.SetTextAlign(26);
-      t1.SetTextSize(0.05);
-      t1.DrawLatex(0.5, 0.96, Form("Tracker Alignment Barycenters, IOV %i", run));
+      t1.SetTextSize(0.045);
+      t1.DrawLatex(0.5, 0.96, Form("TkAl Barycenters, Tag: #color[4]{%s}, IOV #color[4]{%i}", tagname.c_str(), run));
       t1.SetTextSize(0.025);
 
       std::string fileName(m_imageFileName);

@@ -883,6 +883,17 @@ namespace AlignmentPI {
   };
 
   /*--------------------------------------------------------------------*/
+  inline void TkAlBarycenters::init()
+  /*--------------------------------------------------------------------*/
+  {
+    // empty all maps
+    Xbarycenters.clear();
+    Ybarycenters.clear();
+    Zbarycenters.clear();
+    nmodules.clear();
+  }
+
+  /*--------------------------------------------------------------------*/
   inline GlobalPoint TkAlBarycenters::getPartitionAvg(AlignmentPI::PARTITION p)
   /*--------------------------------------------------------------------*/
   {
@@ -895,10 +906,8 @@ namespace AlignmentPI {
                                                   const std::map<AlignmentPI::coordinate, float>& GPR)
   /*--------------------------------------------------------------------*/
   {
-    // zero in the n. modules per partition...
-    for (const auto& p : PARTITIONS) {
-      nmodules[p] = 0.;
-    }
+    // clear all data members;
+    init();
 
     for (const auto& ali : input) {
       if (DetId(ali.rawId()).det() != DetId::Tracker) {
