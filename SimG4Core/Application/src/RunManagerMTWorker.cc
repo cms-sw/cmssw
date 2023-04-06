@@ -415,8 +415,7 @@ void RunManagerMTWorker::initializeUserActions() {
     m_evtManager->SetUserAction(userTrackingAction);
   }
 
-  auto userSteppingAction =
-      new SteppingAction(m_tls->trackManager.get(), m_sVerbose.get(), m_pSteppingAction, m_hasWatchers);
+  auto userSteppingAction = new SteppingAction(m_sVerbose.get(), m_pSteppingAction, m_hasWatchers);
   Connect(userSteppingAction);
   if (m_UseG4EventManager) {
     eventManager->SetUserAction(userSteppingAction);

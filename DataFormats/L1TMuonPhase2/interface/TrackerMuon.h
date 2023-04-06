@@ -32,7 +32,7 @@ namespace l1t {
     ~TrackerMuon() override;
 
     const edm::Ptr<L1TTTrackType>& trkPtr() const { return trkPtr_; }
-    const edm::Ref<l1t::RegionalMuonCandBxCollection>& muonRef() const { return muRef_; }
+    const std::vector<l1t::RegionalMuonCandRef>& muonRef() const { return muRef_; }
 
     const bool hwCharge() const { return hwCharge_; }
     const int hwZ0() const { return hwZ0_; }
@@ -41,9 +41,21 @@ namespace l1t {
     const int hwIsoSumAp() const { return hwIsoSumAp_; }
     const uint hwBeta() const { return hwBeta_; }
     void setBeta(uint beta) { hwBeta_ = beta; }
-    void setMuonRef(const edm::Ref<l1t::RegionalMuonCandBxCollection>& p) { muRef_ = p; }
+    void setMuonRef(const std::vector<l1t::RegionalMuonCandRef>& p) { muRef_ = p; }
     void setHwIsoSum(int isoSum) { hwIsoSum_ = isoSum; }
     void setHwIsoSumAp(int isoSum) { hwIsoSumAp_ = isoSum; }
+
+    // For GT, returning ap_ type
+    const Phase2L1GMT::valid_gt_t apValid() const { return Phase2L1GMT::valid_gt_t(hwPt() > 0); };
+    const Phase2L1GMT::pt_gt_t apPt() const { return Phase2L1GMT::pt_gt_t(hwPt()); };
+    const Phase2L1GMT::phi_gt_t apPhi() const { return Phase2L1GMT::phi_gt_t(hwPhi()); };
+    const Phase2L1GMT::eta_gt_t apEta() const { return Phase2L1GMT::eta_gt_t(hwEta()); };
+    const Phase2L1GMT::z0_gt_t apZ0() const { return Phase2L1GMT::z0_gt_t(hwZ0()); };
+    const Phase2L1GMT::d0_gt_t apD0() const { return Phase2L1GMT::d0_gt_t(hwD0()); };
+    const Phase2L1GMT::q_gt_t apCharge() const { return Phase2L1GMT::q_gt_t(hwCharge()); };
+    const Phase2L1GMT::qual_gt_t apQual() const { return Phase2L1GMT::qual_gt_t(hwQual()); };
+    const Phase2L1GMT::iso_gt_t apIso() const { return Phase2L1GMT::iso_gt_t(hwIso()); };
+    const Phase2L1GMT::beta_gt_t apBeta() const { return Phase2L1GMT::beta_gt_t(hwBeta()); };
 
     // For HLT
     const double phZ0() const { return Phase2L1GMT::LSBGTz0 * hwZ0(); }
@@ -76,7 +88,7 @@ namespace l1t {
     //Store the eneryg sum for isolation with ap_type
     int hwIsoSumAp_;
 
-    edm::Ref<l1t::RegionalMuonCandBxCollection> muRef_;
+    std::vector<l1t::RegionalMuonCandRef> muRef_;
     MuonStubRefVector stubs_;
   };
 }  // namespace l1t

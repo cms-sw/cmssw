@@ -1,6 +1,1 @@
-<environment>
-  <bin file="testReadWriteOnlineBSFromDB.cpp">
-    <flags TEST_RUNNER_ARGS="/bin/bash CondTools/BeamSpot/test testReadWriteOnlineBSFromDB.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-</environment>
+<test name="testReadWriteOnlineBSFromDB" command="testReadWriteOnlineBSFromDB.sh"/>

@@ -26,3 +26,4 @@
 
 <test name="test_PixelBaryCentreTool" command="pixelPositions.sh"/>
 <test name="test_ProduceSystematicMisalignment" command="testProduceAllMisalignments.sh"/>
+<test name="test_CreateRandomMisalignment" command="testCreateRandomMisalignment.sh"/>

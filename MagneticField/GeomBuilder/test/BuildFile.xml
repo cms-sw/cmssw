@@ -8,7 +8,4 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<bin file="dummyMain.cpp" name="MagneticFieldGeomBuilderTestDriver">
-  <use name="FWCore/Utilities"/>
-  <flags TEST_RUNNER_ARGS="/bin/bash MagneticField/GeomBuilder/test runTest.sh"/>
-</bin>
+<test name="MagneticFieldGeomBuilderTestDriver" command="runTest.sh"/>

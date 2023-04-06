@@ -209,8 +209,6 @@ void CondorStatusService::beginPost() {
     ss_max_lumis << maxLumis;
     updateChirp("MaxLumis", ss_max_lumis.str());
   }
-
-  m_beginJob = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
   update();
 }
 
@@ -234,6 +232,10 @@ void CondorStatusService::firstUpdate() {
   updateChirp("MaxLumis", "-1");
   updateChirp("Done", "false");
   updateChirpQuoted("Guid", edm::processGUID().toString());
+  m_beginJob = TimingServiceBase::jobStartTime();
+  if (m_beginJob == 0.) {
+    m_beginJob = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+  }
 }
 
 void CondorStatusService::secondUpdate() {

@@ -4,5 +4,6 @@
   <use name="RecoLocalTracker/SiStripClusterizer"/>
   <use name="SimTracker/TrackerHitAssociation"/>
   <use name="CalibTracker/SiStripCommon"/>
+  <use name="root"/>
   <flags EDM_PLUGIN="1"/>
 </library>

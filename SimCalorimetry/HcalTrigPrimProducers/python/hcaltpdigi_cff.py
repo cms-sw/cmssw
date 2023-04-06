@@ -4,12 +4,10 @@
 
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Modifier_run2_HCAL_2018_cff import run2_HCAL_2018
-from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
-
-from SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cfi import *
-from CalibCalorimetry.CaloTPG.CaloTPGTranscoder_cfi import *
-from CalibCalorimetry.HcalPlugins.Hcal_PCCUpdate_cff import *
+from SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cfi import simHcalTriggerPrimitiveDigis
+from CalibCalorimetry.CaloTPG.CaloTPGTranscoder_cfi import CaloTPGTranscoder
+from CalibCalorimetry.CaloTPG.tpScales_cff import tpScales
+from CalibCalorimetry.HcalPlugins.Hcal_PCCUpdate_cff import PCCUpdate
 
 HcalTPGCoderULUT = cms.ESProducer("HcalTPGCoderULUT",
     read_Ascii_LUTs = cms.bool(False),
@@ -34,8 +32,11 @@ HcalTPGCoderULUT = cms.ESProducer("HcalTPGCoderULUT",
 
 HcalTrigTowerGeometryESProducer = cms.ESProducer("HcalTrigTowerGeometryESProducer")
 
-run2_HCAL_2018.toModify(CaloTPGTranscoder, linearLUTs=cms.bool(True))
-run2_HCAL_2018.toModify(HcalTPGCoderULUT, linearLUTs=cms.bool(True))
-run3_common.toModify(HcalTPGCoderULUT, applyFixPCC=cms.bool(True))
-pp_on_AA.toModify(CaloTPGTranscoder, FG_HF_thresholds = cms.vuint32(15, 19))
-pp_on_AA.toModify(HcalTPGCoderULUT, FG_HF_thresholds = cms.vuint32(15, 19))
+from Configuration.Eras.Modifier_run2_HCAL_2018_cff import run2_HCAL_2018
+run2_HCAL_2018.toModify(HcalTPGCoderULUT, linearLUTs=True)
+
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+pp_on_AA_2018.toModify(HcalTPGCoderULUT, FG_HF_thresholds = [15, 19])
+
+from Configuration.Eras.Modifier_pp_on_PbPb_run3_cff import pp_on_PbPb_run3
+pp_on_PbPb_run3.toModify(HcalTPGCoderULUT, FG_HF_thresholds = [14, 19])

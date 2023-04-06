@@ -57,14 +57,14 @@ lowPtQuadStepHitDoublets = _hitPairEDProducer.clone(
     maxElement      = 50000000,
     produceIntermediateHitDoublets = True,
 )
-from RecoPixelVertexing.PixelTriplets.caHitQuadrupletEDProducer_cfi import caHitQuadrupletEDProducer as _caHitQuadrupletEDProducer
-from RecoPixelVertexing.PixelTriplets.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
-from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
-import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
+from RecoTracker.PixelSeeding.caHitQuadrupletEDProducer_cfi import caHitQuadrupletEDProducer as _caHitQuadrupletEDProducer
+from RecoTracker.PixelSeeding.pixelTripletHLTEDProducer_cfi import pixelTripletHLTEDProducer as _pixelTripletHLTEDProducer
+from RecoTracker.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
+import RecoTracker.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
 lowPtQuadStepHitQuadruplets = _caHitQuadrupletEDProducer.clone(
     doublets = 'lowPtQuadStepHitDoublets',
     extraHitRPhitolerance = _pixelTripletHLTEDProducer.extraHitRPhitolerance,
-    SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone(),
+    SeedComparitorPSet = RecoTracker.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor.clone(),
     maxChi2 = dict(
         pt1    = 0.7, pt2    = 2,
         value1 = 1000, value2 = 150,
@@ -114,7 +114,7 @@ trackingPhase2PU140.toReplaceWith(lowPtQuadStepTrajectoryFilterBase, _lowPtQuadS
 
 (pp_on_XeXe_2017 | pp_on_AA).toModify(lowPtQuadStepTrajectoryFilterBase, minPt=0.49)
 
-from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeTrajectoryFilter_cfi import *
+from RecoTracker.PixelLowPtUtilities.ClusterShapeTrajectoryFilter_cfi import *
 # Composite filter
 lowPtQuadStepTrajectoryFilter = _TrajectoryFilter_cff.CompositeTrajectoryFilter_block.clone(
     filters = [cms.PSet(refToPSet_ = cms.string('lowPtQuadStepTrajectoryFilterBase'))]

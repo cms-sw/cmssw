@@ -64,6 +64,7 @@
     <Parameter name="SensorSizeOffset"    value="[hfnose:SensorSizeOffset]"/>
     <Parameter name="GuardRingOffset"     value="[hfnose:GuardRingOffset]"/>
     <Parameter name="MouseBite"           value="[hfnose:MouseBite]"/>
+    <Parameter name="UseOffset"           value="0"/>
     <Parameter name="NumberOfCellsFine"   value="[hfnose:NumberOfCellsFine]"/>
     <Parameter name="NumberOfCellsCoarse" value="[hfnose:NumberOfCellsCoarse]"/>
   </SpecPar>

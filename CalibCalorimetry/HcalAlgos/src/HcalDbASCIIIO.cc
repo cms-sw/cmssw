@@ -262,6 +262,48 @@ bool getHcalSingleObject(std::istream& fInput, T* fObject) {
 }
 
 template <class T>
+bool dumpHcalDoubleFloatObject(std::ostream& fOutput, const T& fObject) {
+  char buffer[1024];
+  sprintf(buffer, "# %15s %15s %15s %15s %10s %10s %10s\n", "eta", "phi", "dep", "det", "value0", "value1", "DetId");
+  fOutput << buffer;
+  std::vector<DetId> channels = fObject.getAllChannels();
+  std::sort(channels.begin(), channels.end(), DetIdLess());
+  for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+    const float value0 = fObject.getValues(*channel)->getValue0();
+    const float value1 = fObject.getValues(*channel)->getValue1();
+    HcalDbASCIIIO::dumpId(fOutput, *channel);
+    sprintf(buffer, " %10.7f %10.7f %10X\n", value0, value1, channel->rawId());
+    fOutput << buffer;
+  }
+  return true;
+}
+
+template <class S, class T>
+bool getHcalDoubleFloatObject(std::istream& fInput, T* fObject) {
+  if (!fObject)
+    return false;  //fObject = new T;
+  char buffer[1024];
+  while (fInput.getline(buffer, 1024)) {
+    if (buffer[0] == '#')
+      continue;  //ignore comment
+    std::vector<std::string> items = splitString(std::string(buffer));
+    if (items.empty())
+      continue;  // blank line
+    if (items.size() < 6) {
+      edm::LogWarning("Format Error") << "Bad line: " << buffer
+                                      << "\n line must contain 6 items: eta, phi, depth, subdet, value0, value1"
+                                      << std::endl;
+      continue;
+    }
+    DetId id = HcalDbASCIIIO::getId(items);
+    S fCondObject(id, atof(items[4].c_str()), atof(items[5].c_str()));
+    fObject->addValues(fCondObject);
+  }
+
+  return true;
+}
+
+template <class T>
 bool dumpHcalSingleFloatObject(std::ostream& fOutput, const T& fObject) {
   char buffer[1024];
   sprintf(buffer, "# %15s %15s %15s %15s %8s %10s\n", "eta", "phi", "dep", "det", "value", "DetId");
@@ -388,6 +430,13 @@ namespace HcalDbASCIIIO {
     return getHcalObject<HcalGainWidth>(fInput, fObject);
   }
   bool dumpObject(std::ostream& fOutput, const HcalGainWidths& fObject) { return dumpHcalObject(fOutput, fObject); }
+
+  bool getObject(std::istream& fInput, HcalPFCuts* fObject) {
+    return getHcalDoubleFloatObject<HcalPFCut>(fInput, fObject);
+  }
+  bool dumpObject(std::ostream& fOutput, const HcalPFCuts& fObject) {
+    return dumpHcalDoubleFloatObject(fOutput, fObject);
+  }
 
   bool getObject(std::istream& fInput, HcalRespCorrs* fObject) {
     return getHcalSingleObject<float, HcalRespCorr>(fInput, fObject);

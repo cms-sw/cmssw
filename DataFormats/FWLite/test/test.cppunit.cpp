@@ -14,7 +14,6 @@ Test program for edm::Ref use in ROOT.
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
 #include "DataFormats/TestObjects/interface/ThingCollection.h"
 #include "DataFormats/TestObjects/interface/TrackOfThings.h"
-#include "FWCore/Utilities/interface/TestHelper.h"
 
 #include "DataFormats/FWLite/interface/ChainEvent.h"
 #include "DataFormats/FWLite/interface/EventBase.h"
@@ -22,12 +21,6 @@ Test program for edm::Ref use in ROOT.
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
-
-static char* gArgV = nullptr;
-
-extern "C" char** environ;
-
-#define CHARSTAR(x) const_cast<char*>(x)
 
 class testRefInROOT : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testRefInROOT);
@@ -576,10 +569,7 @@ void testRefInROOT::testThinning() {
 #include <cppunit/TextTestProgressListener.h>
 #include <stdexcept>
 
-int main(int argc, char* argv[]) {
-  gArgV = argv[0];
-  std::string testPath = (argc > 1) ? std::string(argv[1]) : "";
-
+int main() {
   // Create the event manager and test controller
   CppUnit::TestResult controller;
 
@@ -595,8 +585,8 @@ int main(int argc, char* argv[]) {
   CppUnit::TestRunner runner;
   runner.addTest(CppUnit::TestFactoryRegistry::getRegistry().makeTest());
   try {
-    std::cout << "Running " << testPath;
-    runner.run(controller, testPath);
+    std::cout << "Running ";
+    runner.run(controller);
 
     std::cerr << std::endl;
 

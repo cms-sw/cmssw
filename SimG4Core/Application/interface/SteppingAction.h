@@ -14,7 +14,6 @@
 #include <string>
 #include <vector>
 
-class SimTrackManager;
 class CMSSteppingVerbose;
 
 enum TrackStatus {
@@ -31,7 +30,7 @@ enum TrackStatus {
 
 class SteppingAction : public G4UserSteppingAction {
 public:
-  explicit SteppingAction(SimTrackManager*, const CMSSteppingVerbose*, const edm::ParameterSet&, bool hasW);
+  explicit SteppingAction(const CMSSteppingVerbose*, const edm::ParameterSet&, bool hasW);
   ~SteppingAction() override = default;
 
   void UserSteppingAction(const G4Step* aStep) final;
@@ -47,7 +46,6 @@ private:
   bool isLowEnergy(const G4LogicalVolume*, const G4Track*) const;
   void PrintKilledTrack(const G4Track*, const TrackStatus&) const;
 
-  SimTrackManager* trackManager_;
   const G4VPhysicalVolume* tracker{nullptr};
   const G4VPhysicalVolume* calo{nullptr};
   const CMSSteppingVerbose* steppingVerbose;

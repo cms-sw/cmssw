@@ -62,7 +62,33 @@ for plot in nanoDQM.vplots.FatJet.plots:
     _FatJet_Run2_plots.append(plot)
 _FatJet_Run2_plots.extend([
     Plot1D('btagCSVV2', 'btagCSVV2', 20, -1, 1, ' pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)'),
+    Plot1D('deepTagMD_H4qvsQCD', 'deepTagMD_H4qvsQCD', 20, 0, 1, 'Mass-decorrelated DeepBoostedJet tagger H->4q vs QCD discriminator'),
+    Plot1D('deepTagMD_HbbvsQCD', 'deepTagMD_HbbvsQCD', 20, 0, 1, 'Mass-decorrelated DeepBoostedJet tagger H->bb vs QCD discriminator'),
+    Plot1D('deepTagMD_TvsQCD', 'deepTagMD_TvsQCD', 20, 0, 1, 'Mass-decorrelated DeepBoostedJet tagger top vs QCD discriminator'),
+    Plot1D('deepTagMD_WvsQCD', 'deepTagMD_WvsQCD', 20, 0, 1, 'Mass-decorrelated DeepBoostedJet tagger W vs QCD discriminator'),
+    Plot1D('deepTagMD_ZHbbvsQCD', 'deepTagMD_ZHbbvsQCD', 20, 0, 1, 'Mass-decorrelated DeepBoostedJet tagger Z/H->bb vs QCD discriminator'),
+    Plot1D('deepTagMD_ZHccvsQCD', 'deepTagMD_ZHccvsQCD', 20, 0, 1, 'Mass-decorrelated DeepBoostedJet tagger Z/H->cc vs QCD discriminator'),
+    Plot1D('deepTagMD_ZbbvsQCD', 'deepTagMD_ZbbvsQCD', 20, 0, 1, 'Mass-decorrelated DeepBoostedJet tagger Z->bb vs QCD discriminator'),
+    Plot1D('deepTagMD_ZvsQCD', 'deepTagMD_ZvsQCD', 20, 0, 1, 'Mass-decorrelated DeepBoostedJet tagger Z vs QCD discriminator'),
+    Plot1D('deepTagMD_bbvsLight', 'deepTagMD_bbvsLight', 20, 0, 1, 'Mass-decorrelated DeepBoostedJet tagger Z/H/gluon->bb vs light flavour discriminator'),
+    Plot1D('deepTagMD_ccvsLight', 'deepTagMD_ccvsLight', 20, 0, 1, 'Mass-decorrelated DeepBoostedJet tagger Z/H/gluon->cc vs light flavour discriminator'),
+    Plot1D('deepTag_H', 'deepTag_H', 20, 0, 1, 'DeepBoostedJet tagger H(bb,cc,4q) sum'),
+    Plot1D('deepTag_QCD', 'deepTag_QCD', 20, 0, 1, 'DeepBoostedJet tagger QCD(bb,cc,b,c,others) sum'),
+    Plot1D('deepTag_QCDothers', 'deepTag_QCDothers', 20, 0, 1, 'DeepBoostedJet tagger QCDothers value'),
+    Plot1D('deepTag_TvsQCD', 'deepTag_TvsQCD', 20, 0, 1, 'DeepBoostedJet tagger top vs QCD discriminator'),
+    Plot1D('deepTag_WvsQCD', 'deepTag_WvsQCD', 20, 0, 1, 'DeepBoostedJet tagger W vs QCD discriminator'),
+    Plot1D('deepTag_ZvsQCD', 'deepTag_ZvsQCD', 20, 0, 1, 'DeepBoostedJet tagger Z vs QCD discriminator'),
+    Plot1D('particleNetLegacy_mass', 'particleNetLegacy_mass', 25, 0, 250, 'ParticleNet Legacy Run-2 mass regression'),
+    Plot1D('particleNetLegacy_Xbb', 'particleNetLegacy_Xbb', 20, 0, 1, 'ParticleNet Legacy Run-2 X->bb score'),
+    Plot1D('particleNetLegacy_Xcc', 'particleNetLegacy_Xcc', 20, 0, 1, 'ParticleNet Legacy Run-2 X->cc score'),
+    Plot1D('particleNetLegacy_Xqq', 'particleNetLegacy_Xqq', 20, 0, 1, 'ParticleNet Legacy Run-2 X->qq (uds) score'),
+    Plot1D('particleNetLegacy_QCD', 'particleNetLegacy_QCD', 20, 0, 1, 'ParticleNet Legacy Run-2 QCD score'),
 ])
+
+_FatJet_EarlyRun3_plots = cms.VPSet()
+for plot in _FatJet_Run2_plots:
+    if 'particleNet_' not in plot.name.value() and 'btagCSVV2' not in plot.name.value():
+        _FatJet_EarlyRun3_plots.append(plot)
 
 _Jet_Run2_plots = cms.VPSet()
 for plot in nanoDQM.vplots.Jet.plots:
@@ -70,6 +96,11 @@ for plot in nanoDQM.vplots.Jet.plots:
 _Jet_Run2_plots.extend([
     Plot1D('btagCSVV2', 'btagCSVV2', 20, -1, 1, ' pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)'),
 ])
+
+_Jet_EarlyRun3_plots = cms.VPSet()
+for plot in nanoDQM.vplots.Jet.plots:
+    if 'PNet' not in plot.name.value():
+        _Jet_EarlyRun3_plots.append(plot)
 
 _SubJet_Run2_plots = cms.VPSet()
 for plot in nanoDQM.vplots.SubJet.plots:
@@ -87,6 +118,14 @@ run2_nanoAOD_ANY.toModify(
 ).toModify(
     nanoDQM.vplots.SubJet,
     plots = _SubJet_Run2_plots
+)
+
+(run3_nanoAOD_122 | run3_nanoAOD_124).toModify(
+    nanoDQM.vplots.FatJet,
+    plots = _FatJet_EarlyRun3_plots
+).toModify(
+    nanoDQM.vplots.Jet,
+    plots = _Jet_EarlyRun3_plots
 )
 
 ## MC

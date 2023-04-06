@@ -4,7 +4,7 @@
 
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoLineRZ.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackBuilder.h"
+#include "RecoTracker/PixelTrackFitting/interface/PixelTrackBuilder.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"

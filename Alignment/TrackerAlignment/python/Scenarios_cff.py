@@ -3090,6 +3090,60 @@ MisalignmentScenario10Mu = MisalignmentScenarioSettings.clone(
   ),
 )
 
+MisalignmentScenario10MuPhase2 = MisalignmentScenarioSettings.clone(
+  setError = cms.bool(False),
+  scale = cms.double(0.01), # shifts in 100um
+
+  P2PXBHalfBarrels = cms.PSet(
+    DetUnits = cms.PSet(
+      dYlocal = cms.double(0.1),
+      dXlocal = cms.double(0.1),
+    ),
+  ),
+
+  P2OTBHalfBarrels = cms.PSet(
+    DetUnits = cms.PSet(
+      dYlocal = cms.double(0.1),
+      dXlocal = cms.double(0.1),
+    ),
+  ),
+
+  P2PXECEndcaps = cms.PSet(
+    DetUnits = cms.PSet(
+      dYlocal = cms.double(0.1),
+      dXlocal = cms.double(0.1),
+    ),
+  ),
+
+  P2OTECEndcaps = cms.PSet(
+    DetUnits = cms.PSet(
+      dYlocal = cms.double(0.1),
+      dXlocal = cms.double(0.1),
+    ),
+  ),
+
+)
+
+MisalignmentScenario10MuPixelPhase2 = MisalignmentScenarioSettings.clone(
+  setError = cms.bool(False),
+  scale = cms.double(0.01), # shifts in 100um
+
+  P2PXBHalfBarrels = cms.PSet(
+    DetUnits = cms.PSet(
+      dYlocal = cms.double(0.1),
+      dXlocal = cms.double(0.1),
+    ),
+  ),
+
+  P2PXECEndcaps = cms.PSet(
+    DetUnits = cms.PSet(
+      dYlocal = cms.double(0.1),
+      dXlocal = cms.double(0.1),
+    ),
+  ),
+
+)
+
 MisalignmentScenario100Mu = MisalignmentScenarioSettings.clone(
   setError = cms.bool(False),
   scale = cms.double(0.01), # shifts in 100um

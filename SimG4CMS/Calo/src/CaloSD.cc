@@ -28,7 +28,7 @@
 #include <memory>
 #include <sstream>
 
-// #define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 CaloSD::CaloSD(const std::string& name,
                const SensitiveDetectorCatalog& clg,
@@ -544,7 +544,7 @@ unsigned int CaloSD::findBoundaryCrossingParent(const G4Track* track, bool markA
     TrackWithHistory* parentTrack = m_trackManager->getTrackByID(parentID, true);
     if (parentTrack->crossedBoundary()) {
       if (markAsSaveable)
-        parentTrack->save();
+        parentTrack->setToBeSaved();
       decayChain.push_back(parentID);
       // Record this boundary crossing parent for all traversed ancestors
       for (auto ancestorID : decayChain)
@@ -623,7 +623,7 @@ CaloG4Hit* CaloSD::createNewHit(const G4Step* aStep, const G4Track* theTrack) {
       if (trkh != nullptr) {
         etrack = sqrt(trkh->momentum().Mag2());
         if (etrack >= energyCut) {
-          trkh->save();
+          trkh->setToBeSaved();
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("CaloSim") << "CaloSD: set save the track " << currentID.trackID() << " with Hit";
 #endif
@@ -701,19 +701,14 @@ void CaloSD::update(const EndOfTrack* trk) {
   if (trkI)
     lastTrackID = trkI->getIDonCaloSurface();
   if (id == lastTrackID) {
-    const TrackContainer* trksForThisEvent = m_trackManager->trackContainer();
-    if (trksForThisEvent != nullptr) {
-      int it = (int)(trksForThisEvent->size()) - 1;
-      if (it >= 0) {
-        TrackWithHistory* trkH = (*trksForThisEvent)[it];
-        if (trkH->trackID() == (unsigned int)(id))
-          tkMap[id] = trkH;
+    auto trksForThisEvent = m_trackManager->trackContainer();
+    if (!trksForThisEvent->empty()) {
+      TrackWithHistory* trkH = trksForThisEvent->back();
+      if (trkH->trackID() == (unsigned int)(id)) {
+        tkMap[id] = trkH;
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("CaloSim") << "CaloSD: get track " << it << " from Container of size "
+        edm::LogVerbatim("CaloSim") << "CaloSD: get track " << id << " from Container of size "
                                     << trksForThisEvent->size() << " with ID " << trkH->trackID();
-      } else {
-        edm::LogVerbatim("CaloSim") << "CaloSD: get track " << it << " from Container of size "
-                                    << trksForThisEvent->size() << " with no ID";
 #endif
       }
     }

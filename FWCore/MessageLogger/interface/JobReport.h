@@ -356,6 +356,11 @@ namespace edm {
     void reportError(std::string const& shortDesc, std::string const& longDesc, int const& exitCode);
 
     ///
+    /// Report a unix signal sent to early terminate the job
+    ///
+    void reportShutdownSignal();
+
+    ///
     /// Report Skipped File
     ///
     /// Report that a file has been skipped due to it not being
@@ -430,6 +435,7 @@ namespace edm {
     void temporarilyCloseXML();
     edm::propagate_const<std::unique_ptr<JobReportImpl>> impl_;
     std::mutex write_mutex;
+    bool errorLogged_ = false;
   };
 
   std::ostream& operator<<(std::ostream& os, JobReport::InputFile const& f);

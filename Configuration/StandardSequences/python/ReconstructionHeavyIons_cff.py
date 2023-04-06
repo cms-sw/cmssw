@@ -8,7 +8,7 @@ from RecoVertex.BeamSpotProducer.BeamSpot_cfi import *
 from RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi import *
 from RecoLocalTracker.Configuration.RecoLocalTrackerHeavyIons_cff import *
 from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import *
-from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
+from RecoTracker.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
 
 # Ecal
 from RecoLocalCalo.Configuration.ecalLocalRecoSequence_cff import *
@@ -33,7 +33,7 @@ from RecoLocalCalo.Castor.Castor_cff import *
 from RecoHI.HiEgammaAlgos.HiElectronSequence_cff import *
 #--------------------------------------------------------------------------
 
-from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
+from RecoTracker.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
 siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(
     src = 'siPixelClustersPreSplitting'
     )

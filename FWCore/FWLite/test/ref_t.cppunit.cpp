@@ -62,13 +62,6 @@ using ROOT's "Draw" interface.
 #include "DataFormats/TestObjects/interface/OtherThingCollection.h"
 #include "DataFormats/TestObjects/interface/TrackOfThings.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
-#include "FWCore/Utilities/interface/TestHelper.h"
-
-static char* gArgV = nullptr;
-
-extern "C" char** environ;
-
-#define CHARSTAR(x) const_cast<char*>(x)
 
 class testRefInROOT : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testRefInROOT);
@@ -93,14 +86,6 @@ public:
     if (!sWasRun_) {
       gSystem->Load("libFWCoreFWLite.so");
       FWLiteEnabler::enable();
-
-      char* argv[] = {
-          CHARSTAR("testFWCoreFWLite"), CHARSTAR("/bin/bash"), CHARSTAR("FWCore/FWLite/test"), CHARSTAR("RefTest.sh")};
-      argv[0] = gArgV;
-      if (0 != ptomaine(sizeof(argv) / sizeof(const char*), argv, environ)) {
-        std::cerr << "could not run script needed to make test files\n";
-        ::exit(-1);
-      }
       sWasRun_ = true;
     }
   }
@@ -494,10 +479,7 @@ void testRefInROOT::testThinning() {
 #include <cppunit/TextTestProgressListener.h>
 #include <stdexcept>
 
-int main(int argc, char* argv[]) {
-  gArgV = argv[0];
-  std::string testPath = (argc > 1) ? std::string(argv[1]) : "";
-
+int main() {
   // Create the event manager and test controller
   CppUnit::TestResult controller;
 
@@ -513,8 +495,8 @@ int main(int argc, char* argv[]) {
   CppUnit::TestRunner runner;
   runner.addTest(CppUnit::TestFactoryRegistry::getRegistry().makeTest());
   try {
-    std::cout << "Running " << testPath;
-    runner.run(controller, testPath);
+    std::cout << "Running ";
+    runner.run(controller);
 
     std::cerr << std::endl;
 
