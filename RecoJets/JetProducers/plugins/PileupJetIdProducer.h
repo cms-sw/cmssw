@@ -62,6 +62,8 @@ public:
   bool residualsFromTxt() const { return residualsFromTxt_; }
   edm::FileInPath const& residualsTxt() const { return residualsTxt_; }
   bool usePuppi() const { return usePuppi_; }
+  bool applyConstituentWeight() const { return applyConstituentWeight_; }
+  bool applybuggy() const {return applybuggy_; }
 
 private:
   std::vector<PileupJetIdAlgo::AlgoGBRForestsAndConstants> vAlgoGBRForestsAndConstants_;
@@ -74,6 +76,8 @@ private:
   bool residualsFromTxt_;
   edm::FileInPath residualsTxt_;
   bool usePuppi_;
+  bool applyConstituentWeight_;
+  bool applybuggy_;
 };
 
 class PileupJetIdProducer : public edm::stream::EDProducer<edm::GlobalCache<GBRForestsAndConstants>> {
@@ -99,6 +103,8 @@ private:
   std::unique_ptr<FactorizedJetCorrector> jecCor_;
   std::vector<JetCorrectorParameters> jetCorPars_;
 
+  edm::ValueMap<float> constituentWeights_;
+  edm::EDGetTokenT<edm::ValueMap<float>> input_constituent_weights_token_;
   edm::EDGetTokenT<edm::View<reco::Jet>> input_jet_token_;
   edm::EDGetTokenT<reco::VertexCollection> input_vertex_token_;
   edm::EDGetTokenT<edm::ValueMap<StoredPileupJetIdentifier>> input_vm_pujetid_token_;

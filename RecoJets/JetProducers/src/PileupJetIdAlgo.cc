@@ -263,7 +263,11 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
                                                         const reco::Vertex* vtx,
                                                         const reco::VertexCollection& allvtx,
                                                         double rho,
-                                                        bool usePuppi) {
+                                                        bool usePuppi,
+                                                        edm::ValueMap<float>& constituentWeights,
+                                                        bool applyConstituentWeight,
+                                                        bool applybuggy) {
+
   // initialize all variables to 0
   resetVariables();
 
@@ -315,6 +319,10 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
   covMatrix = 0.;
   float jetPt = jet->pt() / jec;  // use uncorrected pt for shape variables
   float sumPt = 0., sumPt2 = 0., sumTkPt = 0., sumPtCh = 0, sumPtNe = 0;
+
+  float sumW2(0.0);
+  float sum_deta(0.0), sum_dphi(0.0);
+  float ave_deta(0.0), ave_dphi(0.0);
   float multNeut = 0.0;
   setPtEtaPhi(
       *jet, internalId_.jetPt_, internalId_.jetEta_, internalId_.jetPhi_);  // use corrected pt for jet kinematics
@@ -323,8 +331,20 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
   internalId_.rho_ = rho;
 
   float dRmin(1000);
-
-  for (unsigned i = 0; i < jet->numberOfSourceCandidatePtrs(); ++i) {
+  float LeadcandWeight = 1.0;
+  float SecondcandWeight = 1.0;
+  float LeadNeutcandWeight = 1.0;
+  float LeadEmcandWeight = 1.0;
+  float LeadChcandWeight = 1.0;
+  float TrailcandWeight = 1.0;
+  unsigned nCandPtrs(0);
+  if (applybuggy) {
+    nCandPtrs = jet->numberOfDaughters();
+  }
+  else { 
+    nCandPtrs = jet->numberOfSourceCandidatePtrs();
+  }
+  for (unsigned i = 0; i < nCandPtrs; ++i) {
     reco::CandidatePtr pfJetConstituent = jet->sourceCandidatePtr(i);
 
     const reco::Candidate* icand = pfJetConstituent.get();
@@ -335,9 +355,18 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
       isPacked = false;
     }
     float candPuppiWeight = 1.0;
-    if (usePuppi && isPacked)
+    float candWeight = 1.0;
+    if (applybuggy && usePuppi && isPacked) {
       candPuppiWeight = lPack->puppiWeight();
-    float candPt = (icand->pt()) * candPuppiWeight;
+    }
+    else if (!applybuggy && applyConstituentWeight) { 
+      candWeight = constituentWeights[jet->sourceCandidatePtr(i)];
+    }
+    float candPt = 0.0;
+    if (applybuggy)    
+      candPt = (icand->pt()) * candPuppiWeight;
+    else
+      candPt = (icand->pt()) * candWeight;
     float candPtFrac = candPt / jetPt;
     float candDr = reco::deltaR(*icand, *jet);
     float candDeta = icand->eta() - jet->eta();
@@ -349,13 +378,29 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
       dRmin = candDr;
 
     // // all particles
-    if (lLead == nullptr || candPt > lLead->pt()) {
-      lSecond = lLead;
-      lLead = icand;
-    } else if ((lSecond == nullptr || candPt > lSecond->pt()) && (candPt < lLead->pt())) {
-      lSecond = icand;
+    if (applybuggy) {
+      if (lLead == nullptr || candPt > lLead->pt()) {
+        lSecond = lLead;
+        lLead = icand;
+      } else if ((lSecond == nullptr || candPt > lSecond->pt()) && (candPt < lLead->pt())) {
+        lSecond = icand;
+      }
     }
-
+    else {
+      if (lLead == nullptr || candPt > (lLead->pt())*LeadcandWeight) {
+        lSecond = lLead;
+        SecondcandWeight = LeadcandWeight;
+        lLead = icand;
+        if (applyConstituentWeight) {
+          LeadcandWeight = constituentWeights[jet->sourceCandidatePtr(i)];
+        }
+      } else if ((lSecond == nullptr || candPt > (lSecond->pt())*SecondcandWeight) && (candPt < (lLead->pt())*LeadcandWeight)) {
+        lSecond = icand;
+        if (applyConstituentWeight) {
+          SecondcandWeight = constituentWeights[jet->sourceCandidatePtr(i)];
+        }
+      }
+    }
     // // average shapes
     internalId_.dRMean_ += candPtDr;
     internalId_.dR2Mean_ += candPtDr * candPtDr;
@@ -375,8 +420,18 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
 
     // neutrals
     if (abs(icand->pdgId()) == 130) {
-      if (lLeadNeut == nullptr || candPt > lLeadNeut->pt()) {
-        lLeadNeut = icand;
+      if (applybuggy) {
+        if (lLeadNeut == nullptr || candPt > lLeadNeut->pt()) {
+          lLeadNeut = icand;
+        }
+      }
+      else {
+        if (lLeadNeut == nullptr || candPt > (lLeadNeut->pt())*LeadNeutcandWeight) {
+          lLeadNeut = icand;
+          if (applyConstituentWeight) {
+            LeadNeutcandWeight = constituentWeights[jet->sourceCandidatePtr(i)];
+          }
+        }
       }
       internalId_.dRMeanNeut_ += candPtDr;
       fracNeut.push_back(candPtFrac);
@@ -385,55 +440,109 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
       }
       internalId_.ptDNe_ += candPt * candPt;
       sumPtNe += candPt;
-      multNeut += candPuppiWeight;
+      if (applybuggy)
+        multNeut += candPuppiWeight;
+      else
+        multNeut += candWeight;
     }
     // EM candidated
     if (icand->pdgId() == 22) {
-      if (lLeadEm == nullptr || candPt > lLeadEm->pt()) {
-        lLeadEm = icand;
+      if (applybuggy) {
+        if (lLeadEm == nullptr || candPt > lLeadEm->pt()) {
+          lLeadEm = icand;
+        }
+        internalId_.dRMeanEm_ += candPtDr;
+        fracEm.push_back(candPtFrac);
+        if (icone < ncones) {
+          *coneEmFracs[icone] += candPt;
+        }
+        internalId_.ptDNe_ += candPt * candPt;
+        sumPtNe += candPt;
+        multNeut += candPuppiWeight;
       }
-      internalId_.dRMeanEm_ += candPtDr;
-      fracEm.push_back(candPtFrac);
-      if (icone < ncones) {
-        *coneEmFracs[icone] += candPt;
-      }
-      internalId_.ptDNe_ += candPt * candPt;
-      sumPtNe += candPt;
-      multNeut += candPuppiWeight;
-    }
-    if ((abs(icand->pdgId()) == 1) || (abs(icand->pdgId()) == 2))
-      multNeut += candPuppiWeight;
-
-    // Charged  particles
-    if (icand->charge() != 0) {
-      if (lLeadCh == nullptr || candPt > lLeadCh->pt()) {
-        lLeadCh = icand;
-
-        const reco::Track* pfTrk = icand->bestTrack();
-        if (lPF && std::abs(icand->pdgId()) == 13 && pfTrk == nullptr) {
-          reco::MuonRef lmuRef = lPF->muonRef();
-          if (lmuRef.isNonnull()) {
-            const reco::Muon& lmu = *lmuRef.get();
-            pfTrk = lmu.bestTrack();
-            edm::LogWarning("BadMuon")
-                << "Found a PFCandidate muon without a trackRef: falling back to Muon::bestTrack ";
+      else {
+        if (lLeadEm == nullptr || candPt > (lLeadEm->pt())*LeadEmcandWeight) {
+          lLeadEm = icand;
+          if (applyConstituentWeight) {
+            LeadEmcandWeight = constituentWeights[jet->sourceCandidatePtr(i)];
           }
         }
-        if (pfTrk == nullptr) {  //protection against empty pointers for the miniAOD case
-          //To handle the electron case
-          if (isPacked) {
-            internalId_.d0_ = std::abs(lPack->dxy(vtx->position()));
-            internalId_.dZ_ = std::abs(lPack->dz(vtx->position()));
-          } else if (lPF != nullptr) {
-            pfTrk = (lPF->trackRef().get() == nullptr) ? lPF->gsfTrackRef().get() : lPF->trackRef().get();
+        internalId_.dRMeanEm_ += candPtDr;
+        fracEm.push_back(candPtFrac);
+        if (icone < ncones) {
+          *coneEmFracs[icone] += candPt;
+        }
+        internalId_.ptDNe_ += candPt * candPt;
+        sumPtNe += candPt;
+        multNeut += candWeight;
+      }
+    }
+    if (abs(icand->pdgId()) == 1 || abs(icand->pdgId()) == 2) {
+      if (applybuggy) 
+        multNeut += candPuppiWeight;
+      else
+        multNeut += candWeight;
+    }
+    // Charged  particles
+    if (icand->charge() != 0) {
+      if ((applybuggy) && (lLeadCh == nullptr || candPt > lLeadCh->pt())) {
+          lLeadCh = icand;
+        
+          const reco::Track* pfTrk = icand->bestTrack();
+          if (lPF && std::abs(icand->pdgId()) == 13 && pfTrk == nullptr) {
+            reco::MuonRef lmuRef = lPF->muonRef();
+            if (lmuRef.isNonnull()) {
+              const reco::Muon& lmu = *lmuRef.get();
+              pfTrk = lmu.bestTrack();
+              edm::LogWarning("BadMuon")
+                  << "Found a PFCandidate muon without a trackRef: falling back to Muon::bestTrack ";
+            }
+          }
+          if (pfTrk == nullptr) {  //protection against empty pointers for the miniAOD case
+            //To handle the electron case
+            if (isPacked) {
+              internalId_.d0_ = std::abs(lPack->dxy(vtx->position()));
+              internalId_.dZ_ = std::abs(lPack->dz(vtx->position()));
+            } else if (lPF != nullptr) {
+              pfTrk = (lPF->trackRef().get() == nullptr) ? lPF->gsfTrackRef().get() : lPF->trackRef().get();
+              internalId_.d0_ = std::abs(pfTrk->dxy(vtx->position()));
+              internalId_.dZ_ = std::abs(pfTrk->dz(vtx->position()));
+            }
+          } else {
             internalId_.d0_ = std::abs(pfTrk->dxy(vtx->position()));
             internalId_.dZ_ = std::abs(pfTrk->dz(vtx->position()));
           }
-        } else {
-          internalId_.d0_ = std::abs(pfTrk->dxy(vtx->position()));
-          internalId_.dZ_ = std::abs(pfTrk->dz(vtx->position()));
         }
-      }
+      else if ((!applybuggy) && (lLeadCh == nullptr || candPt > (lLeadCh->pt()) * LeadChcandWeight)) {
+          lLeadCh = icand;
+          if (applyConstituentWeight) {
+            LeadChcandWeight = constituentWeights[jet->sourceCandidatePtr(i)];
+          }       
+          const reco::Track* pfTrk = icand->bestTrack();
+          if (lPF && std::abs(icand->pdgId()) == 13 && pfTrk == nullptr) {
+            reco::MuonRef lmuRef = lPF->muonRef();
+            if (lmuRef.isNonnull()) {
+              const reco::Muon& lmu = *lmuRef.get();
+              pfTrk = lmu.bestTrack();
+              edm::LogWarning("BadMuon")
+                  << "Found a PFCandidate muon without a trackRef: falling back to Muon::bestTrack ";
+            }
+          }
+          if (pfTrk == nullptr) {  //protection against empty pointers for the miniAOD case
+            //To handle the electron case
+            if (isPacked) {
+              internalId_.d0_ = std::abs(lPack->dxy(vtx->position()));
+              internalId_.dZ_ = std::abs(lPack->dz(vtx->position()));
+            } else if (lPF != nullptr) {
+              pfTrk = (lPF->trackRef().get() == nullptr) ? lPF->gsfTrackRef().get() : lPF->trackRef().get();
+              internalId_.d0_ = std::abs(pfTrk->dxy(vtx->position()));
+              internalId_.dZ_ = std::abs(pfTrk->dz(vtx->position()));
+            }
+          } else {
+            internalId_.d0_ = std::abs(pfTrk->dxy(vtx->position()));
+            internalId_.dZ_ = std::abs(pfTrk->dz(vtx->position()));
+          }
+        }
       internalId_.dRMeanCh_ += candPtDr;
       internalId_.ptDCh_ += candPt * candPt;
       fracCh.push_back(candPtFrac);
@@ -525,26 +634,92 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
     }
 
     // trailing candidate
-    if (lTrail == nullptr || candPt < lTrail->pt()) {
+    if ((applybuggy) && (lTrail == nullptr || candPt < lTrail->pt())) {
       lTrail = icand;
+    }
+    else if ((!applybuggy) && (lTrail == nullptr || candPt < (lTrail->pt())*TrailcandWeight)){
+      lTrail = icand;
+      if (applyConstituentWeight) {
+        TrailcandWeight = constituentWeights[jet->sourceCandidatePtr(i)];
+      }
+    }
+
+  // average for pull variavble
+    if (!applybuggy) {
+      float weight2 = candPt * candPt;
+      sumW2 += weight2;
+      float deta = icand->eta() - jet->eta();
+      float dphi = reco::deltaPhi(*icand, *jet);
+      sum_deta += deta * weight2;
+      sum_dphi += dphi * weight2;
+      if (sumW2 > 0) {
+        ave_deta = sum_deta / sumW2;
+        ave_dphi = sum_dphi / sumW2;
+      }
     }
   }
 
+
   // // Finalize all variables
   assert(!(lLead == nullptr));
+  if (applybuggy) {
+    if (lSecond == nullptr) {
+      lSecond = lTrail;
+    }
+    if (lLeadNeut == nullptr) {
+      lLeadNeut = lTrail;
+    }
+    if (lLeadEm == nullptr) {
+      lLeadEm = lTrail;
+    }
+    if (lLeadCh == nullptr) {
+      lLeadCh = lTrail;
+    }
+  }
+  else {
+    internalId_.leadPt_ = (lLead->pt())*LeadcandWeight;
+    internalId_.leadEta_ = lLead->eta();
+    internalId_.leadPhi_ = lLead->phi();
 
-  if (lSecond == nullptr) {
-    lSecond = lTrail;
+    if (lSecond != nullptr){
+      internalId_.secondPt_ = (lSecond->pt())*SecondcandWeight;
+      internalId_.secondEta_ = lSecond->eta();
+      internalId_.secondPhi_ = lSecond->phi();
+    } else { 
+      internalId_.secondPt_ = 0.0;
+      internalId_.secondEta_ = large_val;
+      internalId_.secondPhi_ = large_val;
+    }
+    if (lLeadNeut != nullptr){
+      internalId_.leadNeutPt_ = (lLeadNeut->pt())*LeadNeutcandWeight;
+      internalId_.leadNeutEta_ = lLeadNeut->eta();
+      internalId_.leadNeutPhi_ = lLeadNeut->phi();
+    } else {
+      internalId_.leadNeutPt_ = 0.0;
+      internalId_.leadNeutEta_ = large_val;
+      internalId_.leadNeutPhi_ = large_val;
+    }
+    if (lLeadEm != nullptr){
+      internalId_.leadEmPt_ = (lLeadEm->pt())*LeadEmcandWeight;
+      internalId_.leadEmEta_ = lLeadEm->eta();
+      internalId_.leadEmPhi_ = lLeadEm->phi();
+    } else {
+      internalId_.leadEmPt_ = 0.0;
+      internalId_.leadEmEta_ = large_val;
+      internalId_.leadEmPhi_ = large_val;
+    }
+    if (lLeadCh != nullptr){
+      internalId_.leadChPt_ = (lLeadCh->pt())*LeadChcandWeight;
+      internalId_.leadChEta_ = lLeadCh->eta();
+      internalId_.leadChPhi_ = lLeadCh->phi();
+    } else {
+      internalId_.leadChPt_ = 0.0;
+      internalId_.leadChEta_ = large_val;
+      internalId_.leadChPhi_ = large_val;
+    }
   }
-  if (lLeadNeut == nullptr) {
-    lLeadNeut = lTrail;
-  }
-  if (lLeadEm == nullptr) {
-    lLeadEm = lTrail;
-  }
-  if (lLeadCh == nullptr) {
-    lLeadCh = lTrail;
-  }
+
+
 
   if (patjet != nullptr) {  // to enable running on MiniAOD slimmedJets
     internalId_.nCharged_ = patjet->chargedMultiplicity();
@@ -553,7 +728,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
     internalId_.neuEMfrac_ = patjet->neutralEmEnergy() / jet->energy();
     internalId_.chgHadrfrac_ = patjet->chargedHadronEnergy() / jet->energy();
     internalId_.neuHadrfrac_ = patjet->neutralHadronEnergy() / jet->energy();
-    if (usePuppi)
+    if (usePuppi || applyConstituentWeight)
       internalId_.nNeutrals_ = multNeut;
   } else {
     internalId_.nCharged_ = pfjet->chargedMultiplicity();
@@ -566,52 +741,72 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
   internalId_.nParticles_ = jet->nConstituents();
 
   ///////////////////////pull variable///////////////////////////////////
-  float sumW2(0.0);
-  float sum_deta(0.0), sum_dphi(0.0);
-  float ave_deta(0.0), ave_dphi(0.0);
-  for (size_t j = 0; j < jet->numberOfDaughters(); j++) {
-    const auto& part = jet->daughterPtr(j);
-    if (!(part.isAvailable() && part.isNonnull())) {
-      continue;
-    }
 
-    float partPuppiWeight = 1.0;
-    if (usePuppi) {
-      const pat::PackedCandidate* partpack = dynamic_cast<const pat::PackedCandidate*>(part.get());
-      if (partpack != nullptr)
-        partPuppiWeight = partpack->puppiWeight();
-    }
+  if (applybuggy) {
+//    float sumW2(0.0);
+//    float sum_deta(0.0), sum_dphi(0.0);
+//    float ave_deta(0.0), ave_dphi(0.0);
+    for (size_t j = 0; j < jet->numberOfDaughters(); j++) {
+      const auto& part = jet->daughterPtr(j);
+      if (!(part.isAvailable() && part.isNonnull())) {
+        continue;
+      }
 
-    float weight = (part->pt()) * partPuppiWeight;
-    float weight2 = weight * weight;
-    sumW2 += weight2;
-    float deta = part->eta() - jet->eta();
-    float dphi = reco::deltaPhi(*part, *jet);
-    sum_deta += deta * weight2;
-    sum_dphi += dphi * weight2;
-    if (sumW2 > 0) {
-      ave_deta = sum_deta / sumW2;
-      ave_dphi = sum_dphi / sumW2;
+      float partPuppiWeight = 1.0;
+      if (usePuppi) {
+        const pat::PackedCandidate* partpack = dynamic_cast<const pat::PackedCandidate*>(part.get());
+        if (partpack != nullptr) {
+          partPuppiWeight = partpack->puppiWeight();
+        }
+      }
+
+      float weight = (part->pt()) * partPuppiWeight;
+      float weight2 = weight * weight;
+      sumW2 += weight2;
+      float deta = part->eta() - jet->eta();
+      float dphi = reco::deltaPhi(*part, *jet);
+      sum_deta += deta * weight2;
+      sum_dphi += dphi * weight2;
+      if (sumW2 > 0) {
+        ave_deta = sum_deta / sumW2;
+        ave_dphi = sum_dphi / sumW2;
+      }
     }
   }
-
   float ddetaR_sum(0.0), ddphiR_sum(0.0), pull_tmp(0.0);
-  for (size_t i = 0; i < jet->numberOfDaughters(); i++) {
+  
+  for (size_t i = 0; i < nCandPtrs; i++) {
     const auto& part = jet->daughterPtr(i);
-    if (!(part.isAvailable() && part.isNonnull())) {
-      continue;
-    }
+    const reco::CandidatePtr temp_pfJetConsituent = jet->sourceCandidatePtr(i);
+    const reco::Candidate* fix_part = temp_pfJetConsituent.get();
+    float deta(0.0);
+    float dphi(0.0);
+    float weight(0.0);
+    if (applybuggy) {
+      if (!(part.isAvailable() && part.isNonnull())) {
+        continue;
+      }
 
-    float partPuppiWeight = 1.0;
-    if (usePuppi) {
-      const pat::PackedCandidate* partpack = dynamic_cast<const pat::PackedCandidate*>(part.get());
-      if (partpack != nullptr)
-        partPuppiWeight = partpack->puppiWeight();
-    }
+      float partPuppiWeight = 1.0;
+      if (usePuppi) {
+        const pat::PackedCandidate* partpack = dynamic_cast<const pat::PackedCandidate*>(part.get());
+        if (partpack != nullptr)
+          partPuppiWeight = partpack->puppiWeight();
+      }
 
-    float weight = partPuppiWeight * (part->pt()) * partPuppiWeight * (part->pt());
-    float deta = part->eta() - jet->eta();
-    float dphi = reco::deltaPhi(*part, *jet);
+      weight = partPuppiWeight * (part->pt()) * partPuppiWeight * (part->pt());
+      deta = part->eta() - jet->eta();
+      dphi = reco::deltaPhi(*part, *jet);
+    } 
+    else {
+      float candWeight = 1.0;
+      if (applyConstituentWeight) {
+        candWeight = constituentWeights[jet->sourceCandidatePtr(i)];
+      }
+      weight = candWeight * (part->pt()) * candWeight * (part->pt());
+      deta = fix_part->eta() - jet->eta();
+      dphi = reco::deltaPhi(*fix_part, *jet);
+    }
     float ddeta, ddphi, ddR;
     ddeta = deta - ave_deta;
     ddphi = dphi - ave_dphi;
@@ -626,13 +821,13 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
   }
   internalId_.pull_ = pull_tmp;
   ///////////////////////////////////////////////////////////////////////
-
-  setPtEtaPhi(*lLead, internalId_.leadPt_, internalId_.leadEta_, internalId_.leadPhi_);
-  setPtEtaPhi(*lSecond, internalId_.secondPt_, internalId_.secondEta_, internalId_.secondPhi_);
-  setPtEtaPhi(*lLeadNeut, internalId_.leadNeutPt_, internalId_.leadNeutEta_, internalId_.leadNeutPhi_);
-  setPtEtaPhi(*lLeadEm, internalId_.leadEmPt_, internalId_.leadEmEta_, internalId_.leadEmPhi_);
-  setPtEtaPhi(*lLeadCh, internalId_.leadChPt_, internalId_.leadChEta_, internalId_.leadChPhi_);
-
+  if (applybuggy) {
+    setPtEtaPhi(*lLead, internalId_.leadPt_, internalId_.leadEta_, internalId_.leadPhi_);
+    setPtEtaPhi(*lSecond, internalId_.secondPt_, internalId_.secondEta_, internalId_.secondPhi_);
+    setPtEtaPhi(*lLeadNeut, internalId_.leadNeutPt_, internalId_.leadNeutEta_, internalId_.leadNeutPhi_);
+    setPtEtaPhi(*lLeadEm, internalId_.leadEmPt_, internalId_.leadEmEta_, internalId_.leadEmPhi_);
+    setPtEtaPhi(*lLeadCh, internalId_.leadChPt_, internalId_.leadChEta_, internalId_.leadChPhi_);
+  }
   std::sort(frac.begin(), frac.end(), std::greater<float>());
   std::sort(fracCh.begin(), fracCh.end(), std::greater<float>());
   std::sort(fracEm.begin(), fracEm.end(), std::greater<float>());
@@ -697,9 +892,18 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
   internalId_.sumPt_ = sumPt;
   internalId_.sumChPt_ = sumPtCh;
   internalId_.sumNePt_ = sumPtNe;
-
-  internalId_.jetR_ = lLead->pt() / sumPt;
-  internalId_.jetRchg_ = lLeadCh->pt() / sumPt;
+  if (applybuggy) {
+    internalId_.jetR_ = lLead->pt() / sumPt;
+    internalId_.jetRchg_ = lLeadCh->pt() / sumPt;
+  }
+  else {
+    internalId_.jetR_ = (lLead->pt())*LeadcandWeight / sumPt;
+    if (lLeadCh != nullptr) {
+      internalId_.jetRchg_ = (lLeadCh->pt())*LeadChcandWeight / sumPt;
+    } else { 
+      internalId_.jetRchg_ = 0; 
+    }
+  }
   internalId_.dRMatch_ = dRmin;
 
   if (sumTkPt != 0.) {
