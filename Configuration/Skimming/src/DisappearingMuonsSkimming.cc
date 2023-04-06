@@ -21,27 +21,17 @@
 
 // user include files
 #include "Configuration/Skimming/interface/DisappearingMuonsSkimming.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "FWCore/Common/interface/TriggerNames.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/one/EDFilter.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
 DisappearingMuonsSkimming::DisappearingMuonsSkimming(const edm::ParameterSet& iConfig)
     : recoMuonToken_(consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("recoMuons"))),
@@ -267,7 +257,7 @@ bool DisappearingMuonsSkimming::filter(edm::Event& iEvent, const edm::EventSetup
 
 bool DisappearingMuonsSkimming::passTriggers(const edm::Event& iEvent,
                                              const edm::TriggerResults& triggerResults,
-                                             std::vector<std::string> m_muonPathsToPass) {
+                                             const std::vector<std::string>& m_muonPathsToPass) {
   bool passTriggers = false;
   const edm::TriggerNames& trigNames = iEvent.triggerNames(triggerResults);
   for (size_t i = 0; i < trigNames.size(); ++i) {
@@ -355,7 +345,7 @@ double DisappearingMuonsSkimming::getTrackIsolation(const reco::TrackRef& tkToMa
 
 double DisappearingMuonsSkimming::getECALIsolation(const edm::Event& iEvent,
                                                    const edm::EventSetup& iSetup,
-                                                   const reco::TransientTrack track) {
+                                                   const reco::TransientTrack& track) {
   edm::Handle<EcalRecHitCollection> rechitsEE;
   iEvent.getByToken(reducedEndcapRecHitCollectionToken_, rechitsEE);
 
