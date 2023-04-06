@@ -53,7 +53,7 @@ private:
 
   bool passTriggers(const edm::Event& iEvent,
                     const edm::TriggerResults& results,
-                    std::vector<std::string> m_muonPathsToPass);
+                    const std::vector<std::string>& m_muonPathsToPass);
 
   bool findTrackInVertices(const reco::TrackRef& tkToMatch,
                            const reco::VertexCollection& vertices,
@@ -61,7 +61,7 @@ private:
                            unsigned int& trackIndex);
 
   double getTrackIsolation(const reco::TrackRef& tkToMatch, const reco::VertexCollection& vertices);
-  double getECALIsolation(const edm::Event&, const edm::EventSetup&, const reco::TransientTrack track);
+  double getECALIsolation(const edm::Event&, const edm::EventSetup&, const reco::TransientTrack& track);
 
   // ----------member data ---------------------------
   const edm::EDGetTokenT<reco::MuonCollection> recoMuonToken_;
