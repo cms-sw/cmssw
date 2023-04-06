@@ -171,7 +171,7 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks_, unsigned int iSe
 
       if (inputtracklets_.empty())
         continue;
-      unsigned int numStublists = inputstublists_.size();
+      const unsigned int numStublists = inputstublists_.size();
 
       if (settings_.inventStubs()) {
         for (unsigned int itrk = 0; itrk < numStublists; itrk++) {
