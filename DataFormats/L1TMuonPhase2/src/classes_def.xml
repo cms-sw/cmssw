@@ -10,6 +10,7 @@
 
  <class name="l1t::TrackerMuon" ClassVersion="4">
    <version ClassVersion="4" checksum="3437073036"/>
+   <version ClassVersion="3" checksum="2397458791"/>
  </class>
  <class name="std::vector<l1t::TrackerMuon>"/>
  <class name="edm::Wrapper<std::vector<l1t::TrackerMuon > >"/>
