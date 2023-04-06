@@ -1073,7 +1073,7 @@ bool HGCalWaferMask::goodTypeMode(
 }
 
 std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
-    int part, int ori, int zside, double delX, double delY, double xpos, double ypos) {
+    int part, int ori, int zside, double waferSize, double offset, double xpos, double ypos) {
   // Good for V15 and V16 versions
   std::vector<std::pair<double, double> > xy;
   int orient = getRotation(-zside, part, ori);
@@ -1103,22 +1103,134 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
 	Depending on the wafer type and orientation index, the corners
 	are chosen in the variable *np*
   */
-  double dx[24] = {HGCalTypes::c00 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c00 * delX,
+  double delX = 0.5 * waferSize;
+  double delY = delX / sin_60_;
+  double dx[48] = {HGCalTypes::c00 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c00 * delX,
                    -HGCalTypes::c10 * delX, -HGCalTypes::c10 * delX, HGCalTypes::c50 * delX,  HGCalTypes::c10 * delX,
                    HGCalTypes::c50 * delX,  -HGCalTypes::c50 * delX, -HGCalTypes::c10 * delX, -HGCalTypes::c50 * delX,
                    HGCalTypes::c22 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c77 * delX,  -HGCalTypes::c22 * delX,
                    -HGCalTypes::c10 * delX, -HGCalTypes::c77 * delX, HGCalTypes::c22 * delX,  -HGCalTypes::c77 * delX,
+                   -HGCalTypes::c10 * delX, -HGCalTypes::c22 * delX, HGCalTypes::c77 * delX,  HGCalTypes::c10 * delX,
+                   HGCalTypes::c50 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c50 * delX,  -HGCalTypes::c50 * delX,
+                   -HGCalTypes::c10 * delX, -HGCalTypes::c50 * delX, HGCalTypes::c50 * delX,  HGCalTypes::c10 * delX,
+                   HGCalTypes::c50 * delX,  -HGCalTypes::c50 * delX, -HGCalTypes::c10 * delX, -HGCalTypes::c50 * delX,
+                   HGCalTypes::c22 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c77 * delX,  -HGCalTypes::c22 * delX,
+                   -HGCalTypes::c10 * delX, -HGCalTypes::c77 * delX, HGCalTypes::c22 * delX,  -HGCalTypes::c77 * delX,
                    -HGCalTypes::c10 * delX, -HGCalTypes::c22 * delX, HGCalTypes::c77 * delX,  HGCalTypes::c10 * delX};
-  double dy[24] = {-HGCalTypes::c10 * delY, -HGCalTypes::c50 * delY, HGCalTypes::c50 * delY,  HGCalTypes::c10 * delY,
+  double dy[48] = {-HGCalTypes::c10 * delY, -HGCalTypes::c50 * delY, HGCalTypes::c50 * delY,  HGCalTypes::c10 * delY,
                    HGCalTypes::c50 * delY,  -HGCalTypes::c50 * delY, -HGCalTypes::c75 * delY, HGCalTypes::c00 * delY,
                    HGCalTypes::c75 * delY,  HGCalTypes::c75 * delY,  HGCalTypes::c00 * delY,  -HGCalTypes::c75 * delY,
                    -HGCalTypes::c88 * delY, -HGCalTypes::c27 * delY, HGCalTypes::c61 * delY,  HGCalTypes::c88 * delY,
                    HGCalTypes::c27 * delY,  -HGCalTypes::c61 * delY, HGCalTypes::c88 * delY,  HGCalTypes::c61 * delY,
+                   -HGCalTypes::c27 * delY, -HGCalTypes::c88 * delY, -HGCalTypes::c61 * delY, HGCalTypes::c27 * delY,
+                   -HGCalTypes::c75 * delY, HGCalTypes::c00 * delY,  -HGCalTypes::c75 * delY, HGCalTypes::c00 * delY,
+                   HGCalTypes::c75 * delY,  HGCalTypes::c75 * delY,  HGCalTypes::c00 * delY,  -HGCalTypes::c75 * delY,
+                   HGCalTypes::c75 * delY,  HGCalTypes::c75 * delY,  HGCalTypes::c00 * delY,  -HGCalTypes::c75 * delY,
+                   -HGCalTypes::c88 * delY, -HGCalTypes::c27 * delY, HGCalTypes::c61 * delY,  HGCalTypes::c88 * delY,
+                   HGCalTypes::c27 * delY,  -HGCalTypes::c61 * delY, HGCalTypes::c88 * delY,  HGCalTypes::c61 * delY,
                    -HGCalTypes::c27 * delY, -HGCalTypes::c88 * delY, -HGCalTypes::c61 * delY, HGCalTypes::c27 * delY};
+
+  double offsetx[48] = {0.0,
+                        -offset,
+                        -offset,
+                        0.0,
+                        offset,
+                        offset,
+                        -offset * cos_60_,
+                        -offset,
+                        -offset * cos_60_,
+                        offset * cos_60_,
+                        offset,
+                        offset * cos_60_,
+                        -offset * cos_60_,
+                        -offset,
+                        -offset * cos_60_,
+                        offset * cos_60_,
+                        offset,
+                        offset * cos_60_,
+                        -offset * cos_60_,
+                        offset * cos_60_,
+                        offset,
+                        offset * cos_60_,
+                        -offset * cos_60_,
+                        -offset,
+                        0.0,
+                        -offset,
+                        -offset,
+                        0.0,
+                        offset,
+                        offset,
+                        0.0,
+                        offset,
+                        offset,
+                        0.0,
+                        -offset,
+                        -offset,
+                        0.0,
+                        -offset,
+                        -offset,
+                        0.0,
+                        offset,
+                        offset,
+                        0.0,
+                        offset,
+                        offset,
+                        0.0,
+                        -offset,
+                        -offset};
+  double offsety[48] = {offset / sin_60_,
+                        offset / tan_60_,
+                        -offset / tan_60_,
+                        -offset / sin_60_,
+                        -offset / tan_60_,
+                        offset / tan_60_,
+                        offset * sin_60_,
+                        0.0,
+                        -offset * sin_60_,
+                        -offset * sin_60_,
+                        0.0,
+                        offset * sin_60_,
+                        offset * sin_60_,
+                        0.0,
+                        -offset * sin_60_,
+                        -offset * sin_60_,
+                        0.0,
+                        offset * sin_60_,
+                        -offset * sin_60_,
+                        -offset * sin_60_,
+                        0.0,
+                        offset * sin_60_,
+                        offset * sin_60_,
+                        0.0,
+                        offset / sin_60_,
+                        offset / tan_60_,
+                        -offset / tan_60_,
+                        -offset / sin_60_,
+                        -offset / tan_60_,
+                        -offset / sin_60_,
+                        -offset / tan_60_,
+                        offset / tan_60_,
+                        offset / sin_60_,
+                        offset / tan_60_,
+                        -offset / tan_60_,
+                        offset / tan_60_,
+                        offset / sin_60_,
+                        offset / tan_60_,
+                        -offset / tan_60_,
+                        -offset / sin_60_,
+                        -offset / tan_60_,
+                        offset / tan_60_,
+                        -offset / sin_60_,
+                        -offset / tan_60_,
+                        offset / tan_60_,
+                        offset / sin_60_,
+                        offset / tan_60_,
+                        -offset / tan_60_};
+
   if (part == HGCalTypes::WaferFull) {
     int np[7] = {0, 1, 2, 3, 4, 5, 0};
     for (int k = 0; k < 7; ++k)
-      xy.push_back(std::make_pair((xpos + dx[np[k]]), (ypos + dy[np[k]])));
+      xy.push_back(std::make_pair((xpos + dx[np[k]] + offsetx[np[k]]), (ypos + dy[np[k]] + offsety[np[k]])));
   } else if (part == HGCalTypes::WaferFive) {
     int np[6][6] = {{0, 2, 3, 4, 5, 0},
                     {1, 3, 4, 5, 0, 1},
@@ -1127,43 +1239,47 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
                     {4, 0, 1, 2, 3, 4},
                     {5, 1, 2, 3, 4, 5}};
     for (int k = 0; k < 6; ++k) {
-      xy.push_back(std::make_pair((xpos + dx[np[orient][k]]), (ypos + dy[np[orient][k]])));
+      xy.push_back(std::make_pair((xpos + dx[np[orient][k]] + offsetx[np[orient][k]]),
+                                  (ypos + dy[np[orient][k]] + offsety[np[orient][k]])));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] << ":"
-                                    << dy[np[orient][k]];
+      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] + offsetx[np[orient][k]]
+                                    << ":" << dy[np[orient][k]] + offsety[np[orient][k]];
 #endif
     }
   } else if (part == HGCalTypes::WaferHalf) {
     int np[6][5] = {
         {0, 3, 4, 5, 0}, {1, 4, 5, 0, 1}, {2, 5, 0, 1, 2}, {3, 0, 1, 2, 3}, {4, 1, 2, 3, 4}, {5, 2, 3, 4, 5}};
     for (int k = 0; k < 5; ++k) {
-      xy.push_back(std::make_pair((xpos + dx[np[orient][k]]), (ypos + dy[np[orient][k]])));
+      xy.push_back(std::make_pair((xpos + dx[np[orient][k]] + offsetx[np[orient][k]]),
+                                  (ypos + dy[np[orient][k]] + offsety[np[orient][k]])));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] << ":"
-                                    << dy[np[orient][k]];
+      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] + offsetx[np[orient][k]]
+                                    << ":" << dy[np[orient][k]] + offsety[np[orient][k]];
 #endif
     }
   } else if (part == HGCalTypes::WaferThree) {
     int np[6][4] = {{0, 4, 5, 0}, {1, 5, 0, 1}, {2, 0, 1, 2}, {3, 1, 2, 3}, {4, 2, 3, 4}, {5, 3, 4, 5}};
     for (int k = 0; k < 4; ++k) {
-      xy.push_back(std::make_pair((xpos + dx[np[orient][k]]), (ypos + dy[np[orient][k]])));
+      xy.push_back(std::make_pair((xpos + dx[np[orient][k]] + offsetx[np[orient][k]]),
+                                  (ypos + dy[np[orient][k]] + offsety[np[orient][k]])));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] << ":"
-                                    << dy[np[orient][k]];
+      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] + offsetx[np[orient][k]]
+                                    << ":" << dy[np[orient][k]] + offsety[np[orient][k]];
 #endif
     }
   } else if (part == HGCalTypes::WaferChopTwo) {
-    int np[6][7] = {{6, 8, 3, 4, 5, 0, 6},
-                    {7, 9, 4, 5, 0, 1, 7},
-                    {8, 10, 5, 0, 1, 2, 8},
-                    {9, 11, 0, 1, 2, 3, 9},
-                    {10, 6, 1, 2, 3, 4, 10},
-                    {11, 7, 2, 3, 4, 5, 11}};
+    int np[6][7] = {{24, 32, 3, 4, 5, 0, 24},
+                    {25, 33, 4, 5, 0, 1, 25},
+                    {26, 34, 5, 0, 1, 2, 26},
+                    {27, 35, 0, 1, 2, 3, 27},
+                    {28, 30, 1, 2, 3, 4, 28},
+                    {29, 31, 2, 3, 4, 5, 29}};
     for (int k = 0; k < 7; ++k) {
-      xy.push_back(std::make_pair((xpos + dx[np[orient][k]]), (ypos + dy[np[orient][k]])));
+      xy.push_back(std::make_pair((xpos + dx[np[orient][k]] + offsetx[np[orient][k]]),
+                                  (ypos + dy[np[orient][k]] + offsety[np[orient][k]])));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] << ":"
-                                    << dy[np[orient][k]];
+      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] + offsetx[np[orient][k]]
+                                    << ":" << dy[np[orient][k]] + offsety[np[orient][k]];
 #endif
     }
   } else if (part == HGCalTypes::WaferSemi) {
@@ -1174,24 +1290,26 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
                     {10, 7, 2, 3, 4, 10},
                     {11, 8, 3, 4, 5, 11}};
     for (int k = 0; k < 6; ++k) {
-      xy.push_back(std::make_pair((xpos + dx[np[orient][k]]), (ypos + dy[np[orient][k]])));
+      xy.push_back(std::make_pair((xpos + dx[np[orient][k]] + offsetx[np[orient][k]]),
+                                  (ypos + dy[np[orient][k]] + offsety[np[orient][k]])));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] << ":"
-                                    << dy[np[orient][k]];
+      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] + offsetx[np[orient][k]]
+                                    << ":" << dy[np[orient][k]] + offsety[np[orient][k]];
 #endif
     }
   } else if (part == HGCalTypes::WaferChopTwoM) {
-    int np[6][7] = {{12, 18, 3, 4, 5, 0, 12},
-                    {13, 19, 4, 5, 0, 1, 13},
-                    {14, 20, 5, 0, 1, 2, 14},
-                    {15, 21, 0, 1, 2, 3, 15},
-                    {16, 22, 1, 2, 3, 4, 16},
-                    {17, 23, 2, 3, 4, 5, 17}};
+    int np[6][7] = {{36, 42, 3, 4, 5, 0, 36},
+                    {37, 43, 4, 5, 0, 1, 37},
+                    {38, 44, 5, 0, 1, 2, 38},
+                    {39, 45, 0, 1, 2, 3, 39},
+                    {40, 46, 1, 2, 3, 4, 40},
+                    {41, 47, 2, 3, 4, 5, 41}};
     for (int k = 0; k < 7; ++k) {
-      xy.push_back(std::make_pair((xpos + dx[np[orient][k]]), (ypos + dy[np[orient][k]])));
+      xy.push_back(std::make_pair((xpos + dx[np[orient][k]] + offsetx[np[orient][k]]),
+                                  (ypos + dy[np[orient][k]] + offsety[np[orient][k]])));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] << ":"
-                                    << dy[np[orient][k]];
+      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] + offsetx[np[orient][k]]
+                                    << ":" << dy[np[orient][k]] + offsety[np[orient][k]];
 #endif
     }
   } else if (part == HGCalTypes::WaferSemi2) {
@@ -1202,10 +1320,11 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
                     {16, 23, 2, 3, 4, 16},
                     {17, 18, 3, 4, 5, 17}};
     for (int k = 0; k < 6; ++k) {
-      xy.push_back(std::make_pair((xpos + dx[np[orient][k]]), (ypos + dy[np[orient][k]])));
+      xy.push_back(std::make_pair((xpos + dx[np[orient][k]] + offsetx[np[orient][k]]),
+                                  (ypos + dy[np[orient][k]] + offsety[np[orient][k]])));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] << ":"
-                                    << dy[np[orient][k]];
+      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] + offsetx[np[orient][k]]
+                                    << ":" << dy[np[orient][k]] + offsety[np[orient][k]];
 #endif
     }
   } else if (part == HGCalTypes::WaferFive2) {
@@ -1216,24 +1335,26 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
                     {20, 13, 2, 3, 4, 20},
                     {21, 14, 3, 4, 5, 21}};
     for (int k = 0; k < 6; ++k) {
-      xy.push_back(std::make_pair((xpos + dx[np[orient][k]]), (ypos + dy[np[orient][k]])));
+      xy.push_back(std::make_pair((xpos + dx[np[orient][k]] + offsetx[np[orient][k]]),
+                                  (ypos + dy[np[orient][k]] + offsety[np[orient][k]])));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] << ":"
-                                    << dy[np[orient][k]];
+      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] + offsetx[np[orient][k]]
+                                    << ":" << dy[np[orient][k]] + offsety[np[orient][k]];
 #endif
     }
   } else if (part == HGCalTypes::WaferHalf2) {
-    int np[6][5] = {{21, 15, 4, 5, 21},
-                    {22, 16, 5, 0, 22},
-                    {23, 17, 0, 1, 23},
-                    {18, 12, 1, 2, 18},
-                    {19, 13, 2, 3, 19},
-                    {20, 14, 3, 4, 20}};
+    int np[6][5] = {{45, 39, 4, 5, 45},
+                    {46, 40, 5, 0, 46},
+                    {47, 41, 0, 1, 47},
+                    {42, 36, 1, 2, 42},
+                    {43, 37, 2, 3, 43},
+                    {44, 38, 3, 4, 44}};
     for (int k = 0; k < 5; ++k) {
-      xy.push_back(std::make_pair((xpos + dx[np[orient][k]]), (ypos + dy[np[orient][k]])));
+      xy.push_back(std::make_pair((xpos + dx[np[orient][k]] + offsetx[np[orient][k]]),
+                                  (ypos + dy[np[orient][k]] + offsety[np[orient][k]])));
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] << ":"
-                                    << dy[np[orient][k]];
+      edm::LogVerbatim("HGCalGeom") << k << ":" << np[orient][k] << ":" << dx[np[orient][k]] + offsetx[np[orient][k]]
+                                    << ":" << dy[np[orient][k]] + offsety[np[orient][k]];
 #endif
     }
   }
@@ -1260,7 +1381,6 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
     the circumference of a full wafer.
     Numbering the points along the edges of a hexagonal wafer, starting from
     the bottom corner:
-
                                    3
                                15     18
                              9           8
@@ -1274,33 +1394,48 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
                             11           6
                                21     12
                                    0
-
 	Depending on the wafer type and placement index, the corners
 	are chosen in the variable *np*
         The points 24-35 are the same as points 12-23 with different offset
   */
   double delX = 0.5 * waferSize;
   double delY = delX / sin_60_;
-  double dx[36] = {HGCalTypes::c00 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c00 * delX,
-                   -HGCalTypes::c10 * delX, -HGCalTypes::c10 * delX, HGCalTypes::c50 * delX,  HGCalTypes::c10 * delX,
-                   HGCalTypes::c50 * delX,  -HGCalTypes::c50 * delX, -HGCalTypes::c10 * delX, -HGCalTypes::c50 * delX,
-                   HGCalTypes::c22 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c77 * delX,  -HGCalTypes::c22 * delX,
-                   -HGCalTypes::c10 * delX, -HGCalTypes::c77 * delX, HGCalTypes::c22 * delX,  -HGCalTypes::c77 * delX,
-                   -HGCalTypes::c10 * delX, -HGCalTypes::c22 * delX, HGCalTypes::c77 * delX,  HGCalTypes::c10 * delX,
-                   HGCalTypes::c22 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c77 * delX,  -HGCalTypes::c22 * delX,
-                   -HGCalTypes::c10 * delX, -HGCalTypes::c77 * delX, HGCalTypes::c22 * delX,  -HGCalTypes::c77 * delX,
-                   -HGCalTypes::c10 * delX, -HGCalTypes::c22 * delX, HGCalTypes::c77 * delX,  HGCalTypes::c10 * delX};
-  double dy[36] = {-HGCalTypes::c10 * delY, -HGCalTypes::c50 * delY, HGCalTypes::c50 * delY,  HGCalTypes::c10 * delY,
-                   HGCalTypes::c50 * delY,  -HGCalTypes::c50 * delY, -HGCalTypes::c75 * delY, HGCalTypes::c00 * delY,
-                   HGCalTypes::c75 * delY,  HGCalTypes::c75 * delY,  HGCalTypes::c00 * delY,  -HGCalTypes::c75 * delY,
-                   -HGCalTypes::c88 * delY, -HGCalTypes::c27 * delY, HGCalTypes::c61 * delY,  HGCalTypes::c88 * delY,
-                   HGCalTypes::c27 * delY,  -HGCalTypes::c61 * delY, HGCalTypes::c88 * delY,  HGCalTypes::c61 * delY,
-                   -HGCalTypes::c27 * delY, -HGCalTypes::c88 * delY, -HGCalTypes::c61 * delY, HGCalTypes::c27 * delY,
-                   -HGCalTypes::c88 * delY, -HGCalTypes::c27 * delY, HGCalTypes::c61 * delY,  HGCalTypes::c88 * delY,
-                   HGCalTypes::c27 * delY,  -HGCalTypes::c61 * delY, HGCalTypes::c88 * delY,  HGCalTypes::c61 * delY,
-                   -HGCalTypes::c27 * delY, -HGCalTypes::c88 * delY, -HGCalTypes::c61 * delY, HGCalTypes::c27 * delY};
+  double dx[60] = {
+      HGCalTypes::c00 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c00 * delX,
+      -HGCalTypes::c10 * delX, -HGCalTypes::c10 * delX, HGCalTypes::c50 * delX,  HGCalTypes::c10 * delX,
+      HGCalTypes::c50 * delX,  -HGCalTypes::c50 * delX, -HGCalTypes::c10 * delX, -HGCalTypes::c50 * delX,
+      HGCalTypes::c22 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c77 * delX,  -HGCalTypes::c22 * delX,
+      -HGCalTypes::c10 * delX, -HGCalTypes::c77 * delX, HGCalTypes::c22 * delX,  -HGCalTypes::c77 * delX,
+      -HGCalTypes::c10 * delX, -HGCalTypes::c22 * delX, HGCalTypes::c77 * delX,  HGCalTypes::c10 * delX,
+      HGCalTypes::c22 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c77 * delX,  -HGCalTypes::c22 * delX,
+      -HGCalTypes::c10 * delX, -HGCalTypes::c77 * delX, HGCalTypes::c22 * delX,  -HGCalTypes::c77 * delX,
+      -HGCalTypes::c10 * delX, -HGCalTypes::c22 * delX, HGCalTypes::c77 * delX,  HGCalTypes::c10 * delX,
+      HGCalTypes::c00 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c00 * delX,
+      -HGCalTypes::c10 * delX, -HGCalTypes::c10 * delX, HGCalTypes::c00 * delX,  HGCalTypes::c10 * delX,
+      HGCalTypes::c10 * delX,  HGCalTypes::c00 * delX,  -HGCalTypes::c10 * delX, -HGCalTypes::c10 * delX,
+      HGCalTypes::c00 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c10 * delX,  HGCalTypes::c00 * delX,
+      -HGCalTypes::c10 * delX, -HGCalTypes::c10 * delX, HGCalTypes::c00 * delX,  HGCalTypes::c10 * delX,
+      HGCalTypes::c10 * delX,  HGCalTypes::c00 * delX,  -HGCalTypes::c10 * delX, -HGCalTypes::c10 * delX,
+  };
+  double dy[60] = {
+      -HGCalTypes::c10 * delY, -HGCalTypes::c50 * delY, HGCalTypes::c50 * delY,  HGCalTypes::c10 * delY,
+      HGCalTypes::c50 * delY,  -HGCalTypes::c50 * delY, -HGCalTypes::c75 * delY, HGCalTypes::c00 * delY,
+      HGCalTypes::c75 * delY,  HGCalTypes::c75 * delY,  HGCalTypes::c00 * delY,  -HGCalTypes::c75 * delY,
+      -HGCalTypes::c88 * delY, -HGCalTypes::c27 * delY, HGCalTypes::c61 * delY,  HGCalTypes::c88 * delY,
+      HGCalTypes::c27 * delY,  -HGCalTypes::c61 * delY, HGCalTypes::c88 * delY,  HGCalTypes::c61 * delY,
+      -HGCalTypes::c27 * delY, -HGCalTypes::c88 * delY, -HGCalTypes::c61 * delY, HGCalTypes::c27 * delY,
+      -HGCalTypes::c88 * delY, -HGCalTypes::c27 * delY, HGCalTypes::c61 * delY,  HGCalTypes::c88 * delY,
+      HGCalTypes::c27 * delY,  -HGCalTypes::c61 * delY, HGCalTypes::c88 * delY,  HGCalTypes::c61 * delY,
+      -HGCalTypes::c27 * delY, -HGCalTypes::c88 * delY, -HGCalTypes::c61 * delY, HGCalTypes::c27 * delY,
+      -HGCalTypes::c10 * delY, -HGCalTypes::c50 * delY, HGCalTypes::c50 * delY,  HGCalTypes::c10 * delY,
+      HGCalTypes::c50 * delY,  -HGCalTypes::c50 * delY, -HGCalTypes::c10 * delY, -HGCalTypes::c50 * delY,
+      HGCalTypes::c50 * delY,  HGCalTypes::c10 * delY,  HGCalTypes::c50 * delY,  -HGCalTypes::c50 * delY,
+      -HGCalTypes::c10 * delY, -HGCalTypes::c50 * delY, HGCalTypes::c50 * delY,  HGCalTypes::c10 * delY,
+      HGCalTypes::c50 * delY,  -HGCalTypes::c50 * delY, -HGCalTypes::c10 * delY, -HGCalTypes::c50 * delY,
+      HGCalTypes::c50 * delY,  HGCalTypes::c10 * delY,  HGCalTypes::c50 * delY,  -HGCalTypes::c50 * delY,
+  };
 
-  double offsetx[36] = {0.0,
+  double offsetx[60] = {0.0,
                         -offset,
                         -offset,
                         0.0,
@@ -1335,8 +1470,32 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
                         offset,
                         0.0,
                         -offset,
-                        -offset};
-  double offsety[36] = {offset / sin_60_,
+                        -offset,
+                        -offset,
+                        -offset / cos_60_,
+                        -offset,
+                        offset,
+                        offset / cos_60_,
+                        offset,
+                        offset,
+                        -offset,
+                        -offset / cos_60_,
+                        -offset,
+                        offset,
+                        offset / cos_60_,
+                        -offset * cos_60_,
+                        -offset,
+                        -offset * cos_60_,
+                        offset * cos_60_,
+                        offset,
+                        offset * cos_60_,
+                        offset * cos_60_,
+                        -offset * cos_60_,
+                        -offset,
+                        -offset * cos_60_,
+                        offset * cos_60_,
+                        offset};
+  double offsety[60] = {offset / sin_60_,
                         offset / tan_60_,
                         -offset / tan_60_,
                         -offset / sin_60_,
@@ -1371,7 +1530,31 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
                         offset / tan_60_,
                         offset / sin_60_,
                         offset / tan_60_,
-                        -offset / tan_60_};
+                        -offset / tan_60_,
+                        offset * tan_60_,
+                        0,
+                        -offset * tan_60_,
+                        -offset * tan_60_,
+                        0,
+                        offset * tan_60_,
+                        offset * tan_60_,
+                        offset * tan_60_,
+                        0,
+                        -offset * tan_60_,
+                        -offset * tan_60_,
+                        0,
+                        offset * sin_60_,
+                        0,
+                        -offset * sin_60_,
+                        -offset * sin_60_,
+                        0,
+                        offset * sin_60_,
+                        offset * sin_60_,
+                        offset * sin_60_,
+                        0,
+                        -offset * sin_60_,
+                        -offset * sin_60_,
+                        0};
 
   if (part == HGCalTypes::WaferFull) {
     int np[7] = {0, 1, 2, 3, 4, 5, 0};
@@ -1462,18 +1645,18 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
 #endif
     }
   } else if (part == HGCalTypes::WaferLDFive) {
-    int np[12][6] = {{0, 1, 2, 3, 5, 0},
-                     {1, 2, 3, 4, 0, 1},
-                     {2, 3, 4, 5, 1, 2},
-                     {3, 4, 5, 0, 2, 3},
-                     {4, 5, 0, 1, 3, 4},
-                     {5, 0, 1, 2, 4, 5},
-                     {0, 1, 3, 4, 5, 0},
-                     {5, 0, 2, 3, 4, 5},
-                     {4, 5, 1, 2, 3, 4},
-                     {3, 4, 0, 1, 2, 3},
-                     {2, 3, 5, 0, 1, 2},
-                     {1, 2, 4, 5, 0, 1}};
+    int np[12][6] = {{0, 1, 2, 57, 53, 0},
+                     {1, 2, 3, 58, 48, 1},
+                     {2, 3, 4, 59, 49, 2},
+                     {3, 4, 5, 54, 50, 3},
+                     {4, 5, 0, 55, 51, 4},
+                     {5, 0, 1, 56, 52, 5},
+                     {0, 1, 3, 58, 53, 0},
+                     {5, 0, 2, 57, 52, 5},
+                     {4, 5, 1, 56, 51, 4},
+                     {3, 4, 0, 55, 50, 3},
+                     {2, 3, 5, 54, 49, 2},
+                     {1, 2, 4, 59, 48, 1}};
     for (int k = 0; k < 6; ++k) {
       xy.push_back(std::make_pair((xpos + dx[np[place][k]] + offsetx[np[place][k]]),
                                   (ypos + dy[np[place][k]] + offsety[np[place][k]])));
@@ -1483,18 +1666,18 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
 #endif
     }
   } else if (part == HGCalTypes::WaferLDThree) {
-    int np[12][4] = {{5, 3, 4, 5},
-                     {0, 4, 5, 0},
-                     {1, 5, 0, 1},
-                     {2, 0, 1, 2},
-                     {3, 1, 2, 3},
-                     {4, 2, 3, 4},
-                     {1, 2, 3, 1},
-                     {0, 1, 2, 0},
-                     {5, 0, 1, 5},
-                     {4, 5, 0, 4},
-                     {3, 4, 5, 3},
-                     {2, 3, 4, 2}};
+    int np[12][4] = {{41, 45, 4, 41},
+                     {36, 46, 5, 36},
+                     {37, 47, 0, 37},
+                     {38, 42, 1, 38},
+                     {39, 43, 2, 39},
+                     {40, 44, 3, 40},
+                     {43, 2, 39, 43},
+                     {42, 1, 38, 42},
+                     {47, 0, 37, 47},
+                     {46, 5, 36, 46},
+                     {45, 4, 41, 45},
+                     {44, 3, 40, 44}};
     for (int k = 0; k < 4; ++k) {
       xy.push_back(std::make_pair((xpos + dx[np[place][k]] + offsetx[np[place][k]]),
                                   (ypos + dy[np[place][k]] + offsety[np[place][k]])));
