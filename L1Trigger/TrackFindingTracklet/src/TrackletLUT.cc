@@ -816,7 +816,7 @@ void TrackletLUT::initProjectionBend(double k_phider,
         double stripPitch = (rproj < settings_.rcrit()) ? settings_.stripPitch(true) : settings_.stripPitch(false);
         double bendproj = bendstrip(rproj, rinv, stripPitch, settings_.sensorSpacing2S());
 
-        static double maxbend = (1 << NRINVBITS) - 1;
+        constexpr double maxbend = (1 << NRINVBITS) - 1;
 
         int ibendproj = 2.0 * bendproj + 0.5 * maxbend;
         if (ibendproj < 0)
