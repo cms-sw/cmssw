@@ -98,7 +98,7 @@ std::array<double, 2> TrackletLUT::getTanRange(const std::vector<const tt::Senso
     double rmin = sm->r() - term * std::abs(sm->sinTilt());
     double rmax = sm->r() + term * std::abs(sm->sinTilt());
 
-    double zmin = std::abs(sm->z()) - term * sm->pitchCol() * sm->cosTilt();
+    double zmin = std::abs(sm->z()) - term * sm->cosTilt();
     double zmax = std::abs(sm->z()) + term * sm->cosTilt();
 
     double mod_tan_max = tan_theta(rmin, zmax, z0, true);  //(r, z, z0, bool z0_max), z0_max measures from +/- z0
