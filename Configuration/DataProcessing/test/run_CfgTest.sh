@@ -62,7 +62,7 @@ declare -a arr=("ppEra_Run3")
 for scenario in "${arr[@]}"
 do
      runTest "${LOCAL_TEST_DIR}/RunPromptReco.py --scenario $scenario --reco --aod --miniaod --nanoaod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever  --alcareco TkAlMinBias+SiStripCalMinBias"
-     runTest "${LOCAL_TEST_DIR}/RunPromptReco.py --scenario $scenario --reco --aod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever --alcareco TkAlMinBias+SiStripCalMinBias --PhysicsSkim=@Muon"
+     runTest "${LOCAL_TEST_DIR}/RunPromptReco.py --scenario $scenario --reco --aod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever --alcareco TkAlMinBias+SiStripCalMinBias --PhysicsSkim=@Muon0"
 done
 
 
