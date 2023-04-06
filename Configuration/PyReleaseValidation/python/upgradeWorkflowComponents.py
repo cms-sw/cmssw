@@ -1756,6 +1756,34 @@ upgradeWFs['ParkingBPH'] = UpgradeWorkflow_ParkingBPH(
     offset = 0.8,
 )
 
+## Wf to add Heavy Flavor DQM to whichever DQM is already there
+class UpgradeWorkflow_HeavyFlavor(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        self.__frags = ["B0","Psi2S","Bu","Bd","Xi","Bs"]
+        thisStep = stepDict[step][k]["-s"]
+        if "Reco" in step:
+            if "DQM:" in thisStep:
+                #print(thisStep.replace("DQM:","DQM:@heavyFlavor+"))
+                stepDict[stepName][k] = merge([{'-s': thisStep.replace("DQM:","DQM:@heavyFlavor+")}, stepDict[step][k]])
+                #print(k)
+            elif "DQM" in thisStep:
+                stepDict[stepName][k] = merge([{'-s': thisStep.replace("DQM","DQM:@heavyFlavor")}, stepDict[step][k]])
+            else:
+                stepDict[stepName][k] = merge([{'-s': thisStep + ",DQM:@heavyFlavor"}, stepDict[step][k]])
+                
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return any(frag in fragment for frag in self.__frags)
+
+upgradeWFs['HeavyFlavor'] = UpgradeWorkflow_HeavyFlavor(
+    steps = [
+        'Reco',
+        'RecoNano'
+    ],
+    PU = [],
+    suffix = '_HeavyFlavor',
+    offset = 0.81,
+)
+
 class UpgradeWorkflow_JMENano(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'Nano' in step:

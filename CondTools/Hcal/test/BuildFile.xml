@@ -31,10 +31,7 @@
   <flags PRE_TEST = "write_HFPhase1PMTParams"/>
 </test>
 
-<bin file="HcalPFCuts_unittest.cc">
-  <flags TEST_RUNNER_ARGS = "/bin/csh CondTools/Hcal/test pfcuts_db_io_test.csh"/>
-  <use name="FWCore/Utilities"/>
-</bin>
+<test name="HcalPFCuts_unittest" command="pfcuts_db_io_test.sh"/>
 
 <library file="HcalConditionsTest.cc" name="testCondToolsConTHcal">
  <flags EDM_PLUGIN="1"/>
