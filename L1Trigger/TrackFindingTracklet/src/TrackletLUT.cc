@@ -94,11 +94,12 @@ std::array<double, 2> TrackletLUT::getTanRange(const std::vector<const tt::Senso
   double z0 = settings_.z0cut();
 
   for (auto sm : sensorModules) {
-    double rmin = sm->r() - (sm->numColumns() / 2 - 0.5) * sm->pitchCol() * std::abs(sm->sinTilt());
-    double rmax = sm->r() + (sm->numColumns() / 2 - 0.5) * sm->pitchCol() * std::abs(sm->sinTilt());
+    const double term = (sm->numColumns() / 2 - 0.5) * sm->pitchCol();
+    double rmin = sm->r() - term * std::abs(sm->sinTilt());
+    double rmax = sm->r() + term * std::abs(sm->sinTilt());
 
-    double zmin = std::abs(sm->z()) - (sm->numColumns() / 2 - 0.5) * sm->pitchCol() * sm->cosTilt();
-    double zmax = std::abs(sm->z()) + (sm->numColumns() / 2 - 0.5) * sm->pitchCol() * sm->cosTilt();
+    double zmin = std::abs(sm->z()) - term * sm->pitchCol() * sm->cosTilt();
+    double zmax = std::abs(sm->z()) + term * sm->cosTilt();
 
     double mod_tan_max = tan_theta(rmin, zmax, z0, true);  //(r, z, z0, bool z0_max), z0_max measures from +/- z0
     double mod_tan_min = tan_theta(rmax, zmin, z0, false);
