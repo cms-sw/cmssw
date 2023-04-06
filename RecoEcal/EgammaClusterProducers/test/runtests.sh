@@ -15,4 +15,4 @@ if ! apptainer-check.sh; then
 	exit 0
 fi
 
-cmsRun ${LOCAL_TEST_DIR}/DRNTest_cfg.py || die 'Failure using cmsRun' $?
+cmsRun ${SCRAM_TEST_PATH}/DRNTest_cfg.py || die 'Failure using cmsRun' $?

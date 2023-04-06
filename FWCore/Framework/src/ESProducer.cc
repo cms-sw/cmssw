@@ -10,47 +10,16 @@
 // Created:     Sat Apr 16 10:19:37 EDT 2005
 //
 
-// system include files
-
-// user include files
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESRecordsToProxyIndices.h"
 #include "FWCore/Framework/interface/SharedResourcesRegistry.h"
-//
-// constants, enums and typedefs
-//
+
 namespace edm {
-  //
-  // static data member definitions
-  //
 
-  //
-  // constructors and destructor
-  //
   ESProducer::ESProducer() : consumesInfos_{}, acquirer_{{{std::make_shared<SerialTaskQueue>()}}} {}
-
-  // ESProducer::ESProducer(const ESProducer& rhs)
-  // {
-  //    // do actual copying here;
-  // }
 
   ESProducer::~ESProducer() noexcept(false) {}
 
-  //
-  // assignment operators
-  //
-  // const ESProducer& ESProducer::operator=(const ESProducer& rhs)
-  // {
-  //   //An exception safe implementation is
-  //   ESProducer temp(rhs);
-  //   swap(rhs);
-  //
-  //   return *this;
-  // }
-
-  //
-  // member functions
-  //
   void ESProducer::updateLookup(eventsetup::ESRecordsToProxyIndices const& iProxyToIndices) {
     if (sharedResourceNames_) {
       auto instance = SharedResourcesRegistry::instance();
@@ -127,11 +96,4 @@ namespace edm {
     // by all modules in the job
   }
 
-  //
-  // const member functions
-  //
-
-  //
-  // static member functions
-  //
 }  // namespace edm

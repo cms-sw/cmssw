@@ -52,6 +52,7 @@ The offsets currently in use are:
 * 0.601: HLT as separate step
 * 0.7: trackingMkFit modifier
 * 0.8: BPH Parking (Run-2)
+* 0.81: Running also HeavyFlavor DQM
 * 0.9: Vector hits
 * 0.12: Neutron background
 * 0.13: MLPF algorithm
@@ -84,3 +85,4 @@ The offsets currently in use are:
 * 0.9001: Sonic Triton
 * 0.278: Weighted Vertexing in Blocks
 * 0.279: Weighted Vertexing in Blocks and tracking only wf
+

@@ -20,8 +20,7 @@ BTLDeviceSim::BTLDeviceSim(const edm::ParameterSet& pset, edm::ConsumesCollector
       bxTime_(pset.getParameter<double>("bxTime")),
       LightYield_(pset.getParameter<double>("LightYield")),
       LightCollEff_(pset.getParameter<double>("LightCollectionEff")),
-      LightCollSlopeR_(pset.getParameter<double>("LightCollectionSlopeR")),
-      LightCollSlopeL_(pset.getParameter<double>("LightCollectionSlopeL")),
+      LightCollSlope_(pset.getParameter<double>("LightCollectionSlope")),
       PDE_(pset.getParameter<double>("PhotonDetectionEff")),
       LCEpositionSlope_(pset.getParameter<double>("LCEpositionSlope")) {}
 
@@ -88,8 +87,8 @@ void BTLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
     double distR = 0.5 * topo.pitch().first - convertMmToCm(hit.localPosition().x());
     double distL = 0.5 * topo.pitch().first + convertMmToCm(hit.localPosition().x());
 
-    double tR = std::get<2>(hitRef) + LightCollSlopeR_ * distR;
-    double tL = std::get<2>(hitRef) + LightCollSlopeL_ * distL;
+    double tR = std::get<2>(hitRef) + LightCollSlope_ * distR;
+    double tL = std::get<2>(hitRef) + LightCollSlope_ * distL;
 
     // --- Accumulate in 15 buckets of 25ns (9 pre-samples, 1 in-time, 5 post-samples)
     const int iBXR = std::floor(tR / bxTime_) + mtd_digitizer::kInTimeBX;

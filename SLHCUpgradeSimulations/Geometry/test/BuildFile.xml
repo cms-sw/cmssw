@@ -40,14 +40,8 @@
     <use name="RecoTracker/TransientTrackingRecHit"/>
   </library>
 
-  <bin name="testPhase2PixelNtuple" file="testPhase2PixelNtuple.cpp">
-    <flags TEST_RUNNER_ARGS="/bin/bash SLHCUpgradeSimulations/Geometry/test phase2_digi_reco_pixelntuple.sh "/>
-    <use name="FWCore/Utilities"/>
-  </bin>
+  <test name="testPhase2PixelNtuple" command="phase2_digi_reco_pixelntuple.sh"/>
 
-  <bin name="testPhase2SkimmedGeometry" file="testPhase2SkimmedGeometry.cpp">
-    <flags TEST_RUNNER_ARGS="/bin/bash SLHCUpgradeSimulations/Geometry/test phase2_skimmed_geometry.sh "/>
-    <use name="FWCore/Utilities"/>
-  </bin>
+  <test name="testPhase2SkimmedGeometry" command="phase2_skimmed_geometry.sh"/>
 
 </environment>

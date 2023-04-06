@@ -851,6 +851,9 @@ namespace edm {
     // Look for a shutdown signal
     if (shutdown_flag.load(std::memory_order_acquire)) {
       returnValue = true;
+      edm::LogSystem("ShutdownSignal") << "an external signal was sent to shutdown the job early.";
+      edm::Service<edm::JobReport> jr;
+      jr->reportShutdownSignal();
       returnCode = epSignal;
     }
     return returnValue;

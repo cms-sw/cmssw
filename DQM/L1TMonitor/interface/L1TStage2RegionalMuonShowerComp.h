@@ -23,12 +23,22 @@ protected:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
-  enum variables { BXRANGEGOOD = 1, BXRANGEBAD, NSHOWERGOOD, NSHOWERBAD, SHOWERALL, SHOWERGOOD, NOMINALBAD, TIGHTBAD };
-  enum ratioVariables { RBXRANGE = 1, RNSHOWER, RSHOWER, RNOMINAL, RTIGHT };
+  enum variables {
+    BXRANGEGOOD = 1,
+    BXRANGEBAD,
+    NSHOWERGOOD,
+    NSHOWERBAD,
+    SHOWERALL,
+    SHOWERGOOD,
+    NOMINALBAD,
+    TIGHTBAD,
+    LOOSEBAD
+  };
+  enum ratioVariables { RBXRANGE = 1, RNSHOWER, RSHOWER, RNOMINAL, RTIGHT, RLOOSE };
   enum tfs { EMTFNEGBIN = 1, EMTFPOSBIN };
-  int numSummaryBins_{TIGHTBAD};
-  int numErrBins_{RTIGHT};
-  bool incBin_[RTIGHT + 1];
+  int numSummaryBins_{LOOSEBAD};
+  int numErrBins_{RLOOSE};
+  bool incBin_[RLOOSE + 1];
 
   edm::EDGetTokenT<l1t::RegionalMuonShowerBxCollection> showerToken1_;
   edm::EDGetTokenT<l1t::RegionalMuonShowerBxCollection> showerToken2_;
@@ -55,6 +65,7 @@ private:
   MonitorElement* showerColl2ShowerTypeVsBX_;
   MonitorElement* showerColl2ProcessorVsBX_;
 
+  static constexpr unsigned IDX_LOOSE_SHOWER{3};
   static constexpr unsigned IDX_TIGHT_SHOWER{2};
   static constexpr unsigned IDX_NOMINAL_SHOWER{1};
 };

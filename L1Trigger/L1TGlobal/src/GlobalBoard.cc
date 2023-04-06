@@ -14,7 +14,8 @@
  * \author: E. Fontanesi                 - extended for three-body correlation conditions
  *
  * \author: E. Fontanesi, E. Yigitbasi, A. Loeliger (original implementation by S. Dildick, 2021)   
- *                                       - fix for the muon shower triggers
+ *                                       - fix for the muon shower triggers and check on all BXs
+ * \author: E. Fontanesi                 - added 2Loose HMT for 2023 Run 3
  *
  * $Date$
  * $Revision$
@@ -379,41 +380,52 @@ void l1t::GlobalBoard::receiveMuonShowerObjectData(const edm::Event& iEvent,
                                      << "\nrequested in configuration, but not found in the event.\n";
       }
     } else {
-      // Loop over Muon Showers in this bx
-      int nObj = 0;
-      for (auto mu = muonData->begin(0); mu != muonData->end(0); ++mu) {
-        if (nObj < nrL1MuShower) {
-          /* NOTE: here the single object is split up into 4 separate MuonShower objects 
-	     similarly to the description in the UTM library, where the conditions are four different objects.
-           */
+      // Loop over bx in muon data
+      for (int i = muonData->getFirstBX(); i <= muonData->getLastBX(); ++i) {
+        // Prevent from pushing back bx that is outside of allowed range
+        if (i < m_bxFirst_ || i > m_bxLast_)
+          continue;
 
-          std::shared_ptr<l1t::MuonShower> musOneNominalInTime =
-              std::make_shared<l1t::MuonShower>(false, false, false, false, false, false);
-          std::shared_ptr<l1t::MuonShower> musOneTightInTime =
-              std::make_shared<l1t::MuonShower>(false, false, false, false, false, false);
-          std::shared_ptr<l1t::MuonShower> musOutOfTime0 =
-              std::make_shared<l1t::MuonShower>(false, false, false, false, false, false);
-          std::shared_ptr<l1t::MuonShower> musOutOfTime1 =
-              std::make_shared<l1t::MuonShower>(false, false, false, false, false, false);
+        // Loop over Muon Showers in this bx
+        int nObj = 0;
+        for (std::vector<l1t::MuonShower>::const_iterator mu = muonData->begin(i); mu != muonData->end(i); ++mu) {
+          if (nObj < nrL1MuShower) {
+            /* NOTE: here the single object is split up into 5 separate MuonShower objects 
+	       similarly to the description in the UTM library, where the conditions are four different objects.
+	    */
 
-          musOneNominalInTime->setOneNominalInTime(mu->isOneNominalInTime());
-          musOneTightInTime->setOneTightInTime(mu->isOneTightInTime());
-          musOutOfTime0->setMusOutOfTime0(mu->musOutOfTime0());
-          musOutOfTime1->setMusOutOfTime1(mu->musOutOfTime1());
+            std::shared_ptr<l1t::MuonShower> musOneNominalInTime =
+                std::make_shared<l1t::MuonShower>(false, false, false, false, false, false);
+            std::shared_ptr<l1t::MuonShower> musOneTightInTime =
+                std::make_shared<l1t::MuonShower>(false, false, false, false, false, false);
+            std::shared_ptr<l1t::MuonShower> musTwoLooseDiffSectorsInTime =
+                std::make_shared<l1t::MuonShower>(false, false, false, false, false, false);
+            std::shared_ptr<l1t::MuonShower> musOutOfTime0 =
+                std::make_shared<l1t::MuonShower>(false, false, false, false, false, false);
+            std::shared_ptr<l1t::MuonShower> musOutOfTime1 =
+                std::make_shared<l1t::MuonShower>(false, false, false, false, false, false);
 
-          (*m_candL1MuShower).push_back(0, musOneNominalInTime);
-          (*m_candL1MuShower).push_back(0, musOneTightInTime);
-          (*m_candL1MuShower).push_back(0, musOutOfTime0);
-          (*m_candL1MuShower).push_back(0, musOutOfTime1);
+            musOneNominalInTime->setOneNominalInTime(mu->isOneNominalInTime());
+            musOneTightInTime->setOneTightInTime(mu->isOneTightInTime());
+            musTwoLooseDiffSectorsInTime->setTwoLooseDiffSectorsInTime(mu->isTwoLooseDiffSectorsInTime());
+            musOutOfTime0->setMusOutOfTime0(mu->musOutOfTime0());
+            musOutOfTime1->setMusOutOfTime1(mu->musOutOfTime1());
 
-        } else {
-          edm::LogWarning("L1TGlobal") << " Too many Muon Showers (" << nObj
-                                       << ") for uGT Configuration maxMuShower =" << nrL1MuShower;
-        }
-        nObj++;
-      }  //end loop over muon showers in bx
-    }    //end if over valid muon shower data
-  }      //end if ReceiveMuonShower data
+            (*m_candL1MuShower).push_back(i, musOneNominalInTime);
+            (*m_candL1MuShower).push_back(i, musOneTightInTime);
+            (*m_candL1MuShower).push_back(i, musTwoLooseDiffSectorsInTime);
+            (*m_candL1MuShower).push_back(i, musOutOfTime0);
+            (*m_candL1MuShower).push_back(i, musOutOfTime1);
+
+          } else {
+            edm::LogWarning("L1TGlobal") << " Too many Muon Showers (" << nObj
+                                         << ") for uGT Configuration maxMuShower =" << nrL1MuShower;
+          }
+          nObj++;
+        }  //end loop over muon showers in bx
+      }    //end loop over bx
+    }      //end if over valid muon shower data
+  }        //end if ReceiveMuonShower data
 }
 
 // receive data from Global External Conditions

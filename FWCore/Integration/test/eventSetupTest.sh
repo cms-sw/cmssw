@@ -46,3 +46,7 @@ cmsRun --parameter-set ${LOCAL_TEST_DIR}/testConcurrentIOVsAndRuns_cfg.py || die
 
 echo testConcurrentIOVsAndRunsRead_cfg.py
 cmsRun --parameter-set ${LOCAL_TEST_DIR}/testConcurrentIOVsAndRunsRead_cfg.py || die 'Failed in testConcurrentIOVsAndRunsRead_cfg.py' $?
+
+echo testESProducerUsingAcquire_cfg.py
+cmsRun ${LOCAL_TEST_DIR}/testESProducerUsingAcquire_cfg.py || die 'Failed in testESProducerUsingAcquire_cfg.py' $?
+

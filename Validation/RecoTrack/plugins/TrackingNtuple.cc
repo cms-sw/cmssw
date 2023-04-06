@@ -48,7 +48,7 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "RecoPixelVertexing/PixelTrackFitting/interface/RZLine.h"
+#include "RecoTracker/PixelTrackFitting/interface/RZLine.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "TrackingTools/TrajectoryState/interface/PerigeeConversions.h"
 

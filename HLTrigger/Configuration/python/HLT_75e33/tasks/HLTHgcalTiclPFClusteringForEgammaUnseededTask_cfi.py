@@ -5,7 +5,6 @@ from ..modules.HGCalUncalibRecHit_cfi import *
 from ..modules.filteredLayerClustersCLUE3DHigh_cfi import *
 from ..modules.hgcalDigis_cfi import *
 from ..modules.hgcalLayerClusters_cfi import *
-from ..modules.particleFlowClusterHGCalFromTICLHAD_cfi import *
 from ..modules.particleFlowClusterHGCalFromTICLUnseeded_cfi import *
 from ..modules.particleFlowRecHitHGC_cfi import *
 from ..modules.particleFlowSuperClusterHGCalFromTICLUnseeded_cfi import *
@@ -21,7 +20,6 @@ HLTHgcalTiclPFClusteringForEgammaUnseededTask = cms.Task(
     filteredLayerClustersCLUE3DHigh,
     hgcalDigis,
     hgcalLayerClusters,
-    particleFlowClusterHGCalFromTICLHAD,
     particleFlowClusterHGCalFromTICLUnseeded,
     particleFlowRecHitHGC,
     particleFlowSuperClusterHGCalFromTICLUnseeded,

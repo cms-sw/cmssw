@@ -56,6 +56,7 @@ void L1TStage2MuonShowerComp::bookHistograms(DQMStore::IBooker& ibooker, const e
   summary_->setBinLabel(SHOWERGOOD, "# matching showers", 1);
   summary_->setBinLabel(NOMINALBAD, "nominal shower mismatch", 1);
   summary_->setBinLabel(TIGHTBAD, "tight shower mismatch", 1);
+  summary_->setBinLabel(LOOSEBAD, "loose shower mismatch", 1);
 
   errorSummaryNum_ = ibooker.book1D("errorSummaryNum",
                                     summaryTitle_.c_str(),
@@ -67,6 +68,7 @@ void L1TStage2MuonShowerComp::bookHistograms(DQMStore::IBooker& ibooker, const e
   errorSummaryNum_->setBinLabel(RSHOWER, "mismatching showers", 1);
   errorSummaryNum_->setBinLabel(RNOMINAL, "nominal shower mismatch", 1);
   errorSummaryNum_->setBinLabel(RTIGHT, "tight shower mismatch", 1);
+  errorSummaryNum_->setBinLabel(RLOOSE, "loose shower mismatch", 1);
 
   // Change the label for those bins that will be ignored
   for (int i = 1; i <= errorSummaryNum_->getNbinsX(); i++) {
@@ -100,13 +102,14 @@ void L1TStage2MuonShowerComp::bookHistograms(DQMStore::IBooker& ibooker, const e
                                               7,
                                               -3.5,
                                               3.5,
-                                              2,
+                                              3,
                                               1,
-                                              3);
+                                              4);
   showerColl1ShowerTypeVsBX_->setAxisTitle("BX", 1);
   showerColl1ShowerTypeVsBX_->setAxisTitle("Shower type", 2);
-  showerColl1ShowerTypeVsBX_->setBinLabel(IDX_TIGHT_SHOWER, "Tight", 2);
-  showerColl1ShowerTypeVsBX_->setBinLabel(IDX_NOMINAL_SHOWER, "Nominal", 2);
+  showerColl1ShowerTypeVsBX_->setBinLabel(IDX_LOOSE_SHOWER, "TwoLoose", 2);
+  showerColl1ShowerTypeVsBX_->setBinLabel(IDX_TIGHT_SHOWER, "OneTight", 2);
+  showerColl1ShowerTypeVsBX_->setBinLabel(IDX_NOMINAL_SHOWER, "OneNominal", 2);
 
   showerColl2BxRange_ =
       ibooker.book1D("showerBxRangeColl2", (showerColl2Title_ + " mismatching BX range").c_str(), 11, -5.5, 5.5);
@@ -119,13 +122,14 @@ void L1TStage2MuonShowerComp::bookHistograms(DQMStore::IBooker& ibooker, const e
                                               7,
                                               -3.5,
                                               3.5,
-                                              2,
+                                              3,
                                               1,
-                                              3);
+                                              4);
   showerColl2ShowerTypeVsBX_->setAxisTitle("BX", 1);
   showerColl2ShowerTypeVsBX_->setAxisTitle("Shower type", 2);
-  showerColl2ShowerTypeVsBX_->setBinLabel(IDX_TIGHT_SHOWER, "Tight", 2);
-  showerColl2ShowerTypeVsBX_->setBinLabel(IDX_NOMINAL_SHOWER, "Nominal", 2);
+  showerColl2ShowerTypeVsBX_->setBinLabel(IDX_LOOSE_SHOWER, "TwoLoose", 2);
+  showerColl2ShowerTypeVsBX_->setBinLabel(IDX_TIGHT_SHOWER, "OneTight", 2);
+  showerColl2ShowerTypeVsBX_->setBinLabel(IDX_NOMINAL_SHOWER, "OneNominal", 2);
 }
 
 void L1TStage2MuonShowerComp::analyze(const edm::Event& e, const edm::EventSetup& c) {
@@ -184,6 +188,9 @@ void L1TStage2MuonShowerComp::analyze(const edm::Event& e, const edm::EventSetup
           if (showerIt1->isOneTightInTime()) {
             showerColl1ShowerTypeVsBX_->Fill(IDX_TIGHT_SHOWER, iBx);
           }
+          if (showerIt1->isTwoLooseDiffSectorsInTime()) {
+            showerColl1ShowerTypeVsBX_->Fill(IDX_LOOSE_SHOWER, iBx);
+          }
         }
       } else {
         showerIt2 = showerBxColl2->begin(iBx) + showerBxColl1->size(iBx);
@@ -193,6 +200,9 @@ void L1TStage2MuonShowerComp::analyze(const edm::Event& e, const edm::EventSetup
           }
           if (showerIt2->isOneTightInTime()) {
             showerColl2ShowerTypeVsBX_->Fill(IDX_TIGHT_SHOWER, iBx);
+          }
+          if (showerIt2->isTwoLooseDiffSectorsInTime()) {
+            showerColl2ShowerTypeVsBX_->Fill(IDX_LOOSE_SHOWER, iBx);
           }
         }
       }
@@ -238,12 +248,18 @@ void L1TStage2MuonShowerComp::analyze(const edm::Event& e, const edm::EventSetup
         if (showerIt1->isOneTightInTime()) {
           showerColl1ShowerTypeVsBX_->Fill(IDX_TIGHT_SHOWER, iBx);
         }
+        if (showerIt1->isTwoLooseDiffSectorsInTime()) {
+          showerColl1ShowerTypeVsBX_->Fill(IDX_LOOSE_SHOWER, iBx);
+        }
 
         if (showerIt2->isOneNominalInTime()) {
           showerColl2ShowerTypeVsBX_->Fill(IDX_NOMINAL_SHOWER, iBx);
         }
         if (showerIt2->isOneTightInTime()) {
           showerColl2ShowerTypeVsBX_->Fill(IDX_TIGHT_SHOWER, iBx);
+        }
+        if (showerIt2->isTwoLooseDiffSectorsInTime()) {
+          showerColl2ShowerTypeVsBX_->Fill(IDX_LOOSE_SHOWER, iBx);
         }
       } else {
         summary_->Fill(SHOWERGOOD);

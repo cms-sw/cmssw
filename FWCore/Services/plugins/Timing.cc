@@ -293,7 +293,7 @@ namespace edm {
         iRegistry.watchPostSourceConstruction(this, &Timing::postModule);
       }
 
-      iRegistry.preESModuleSignal_.connect([this](auto const& recordKey, auto const& context) {
+      auto preESModuleLambda = [this](auto const& recordKey, auto const& context) {
         //find available slot
         auto startTime = getTime();
         bool foundSlot = false;
@@ -311,8 +311,11 @@ namespace edm {
           //if foundSlot == false then other threads stole the slots before this thread
           // so should check starting over again
         } while (not foundSlot);
-      });
-      iRegistry.postESModuleSignal_.connect([this](auto const& recordKey, auto const& context) {
+      };
+      iRegistry.preESModuleSignal_.connect(preESModuleLambda);
+      iRegistry.preESModuleAcquireSignal_.connect(preESModuleLambda);
+
+      auto postESModuleLambda = [this](auto const& recordKey, auto const& context) {
         auto stopTime = getTime();
         for (size_t i = 0; i < eventSetupModuleStartTimes_.size(); ++i) {
           auto const& info = eventSetupModuleCallInfo_[i];
@@ -327,7 +330,10 @@ namespace edm {
             break;
           }
         }
-      });
+      };
+      iRegistry.postESModuleSignal_.connect(postESModuleLambda);
+      iRegistry.postESModuleAcquireSignal_.connect(postESModuleLambda);
+
       iRegistry.watchPostGlobalBeginRun(this, &Timing::postGlobalBeginRun);
       iRegistry.watchPostGlobalBeginLumi(this, &Timing::postGlobalBeginLumi);
 

@@ -67,7 +67,8 @@
   </ioread>
 
 
-  <class name="pat::Muon"  ClassVersion="29">
+  <class name="pat::Muon"  ClassVersion="30">
+   <version ClassVersion="30" checksum="3276039509"/>
    <version ClassVersion="29" checksum="4221614933"/>
    <version ClassVersion="28" checksum="282262684"/>
    <version ClassVersion="27" checksum="3473399161"/>
@@ -333,7 +334,8 @@
   <class name="pat::PackedCandidate::PackedCovariance" ClassVersion="3">
    <version ClassVersion="3" checksum="3320406063"/>
   </class>
-  <class name="pat::PackedCandidate" ClassVersion="34">
+  <class name="pat::PackedCandidate" ClassVersion="35">
+   <version ClassVersion="35" checksum="2065846728"/>
    <version ClassVersion="34" checksum="3953181632"/>
    <version ClassVersion="33" checksum="1092680546"/>
    <version ClassVersion="32" checksum="926869123"/>

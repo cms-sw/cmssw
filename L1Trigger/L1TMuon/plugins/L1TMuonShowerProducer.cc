@@ -82,7 +82,7 @@ void L1TMuonShowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
       if (shower.isOneTightInTime()) {
         isOneTightInTime = true;
       }
-      // two loos in different sectors
+      // two loose in different sectors
       if (shower.isOneLooseInTime()) {
         if (foundOneLoose) {
           isTwoLooseDifferentSectorsInTime = true;
