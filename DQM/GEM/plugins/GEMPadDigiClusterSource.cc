@@ -207,6 +207,11 @@ int GEMPadDigiClusterSource::ProcessWithMEMap3WithChamber(BookingHelper& bh, ME4
 
   return 0;
 }
+// sort first column
+bool sortcol(const vector<int>& v1, const vector<int>& v2)
+{
+    return v1[0] < v2[0];
+}
 
 void GEMPadDigiClusterSource::analyze(edm::Event const& event, edm::EventSetup const& eventSetup) {
   edm::Handle<GEMPadDigiClusterCollection> gemPadDigiClusters;
@@ -230,10 +235,10 @@ void GEMPadDigiClusterSource::analyze(edm::Event const& event, edm::EventSetup c
         // ignore data clusters in BX's other than BX0
        // if (usegemPadDigiClustersOnlyInBX0_ and cluster->bx() != 0)
        //   continue;
-       /* std::cout << "Cluster front: " << cluster->pads().front() << " , Cluster size:  "<< cluster->pads().size() 
+        std::cout << "Cluster front: " << cluster->pads().front() << " , Cluster size:  "<< cluster->pads().size() 
         << " , Cluster BX: " <<  cluster->bx() << " , Cluster station: " << ((*it).first).station()
         << " , Cluster chamber: " << ((*it).first).chamber() << " , Cluster layer: " << ((*it).first).layer()
-        << " , Cluster eta: " << ((*it).first).roll()<< std::endl;*/
+        << " , Cluster eta: " << ((*it).first).roll()<< std::endl;
         
         ME4IdsKey key4Ch{((*it).first).region(), ((*it).first).station(), ((*it).first).layer(), ((*it).first).chamber()};
         ME4IdsKey key4EtaCh{((*it).first).region(), ((*it).first).station(),((*it).first).roll(),((*it).first).chamber()};
@@ -243,43 +248,52 @@ void GEMPadDigiClusterSource::analyze(edm::Event const& event, edm::EventSetup c
         for (auto pad=cluster->pads().front(); pad < (cluster->pads().front() + cluster->pads().size()); pad++  ) {
           mapPadDigiOccPerCh_.Fill(key4Ch, pad , ((*it).first).roll());
           mapPadBxPerCh_.Fill(key4Ch, pad + (192 * (8 - ((*it).first).roll())), cluster->bx());
-          //std::cout << "pad:"<< pad << "  BX:"<< cluster->bx() <<"  chamber:"<< ((*it).first).chamber() << "  layer:"<< ((*it).first).layer()<<std::endl;  
+          std::cout << "pad: "<< pad << "  BX: "<< cluster->bx() <<"  chamber: "<< ((*it).first).chamber() << "  layer: "<< ((*it).first).layer()<<" Eta: "<< ((*it).first).roll()<<std::endl;  
         if(cl_bx.empty()){
           cl_bx.push_back({pad,cluster->bx()});
-        }else if(//pad == cl_bx.back() + 1 && 
-          ((*it).first).chamber()== startChamber &&
-          ((*it).first).station()== startStation &&
-          ((*it).first).region() == startRegion &&
-          ((*it).first).layer() == startLayer &&
-          ((*it).first).roll() == startEta
-          ){
-             for(unsigned i = 0;i < cl_bx.size();i++){
-              
+        }else if((pad - cl_bx[0].front()== -1 || pad - cl_bx[cl_bx.size() - 1].front()==1) &&
+                 ((*it).first).chamber()== startChamber &&
+                 ((*it).first).station()== startStation &&
+                 ((*it).first).region() == startRegion &&
+                 ((*it).first).layer() == startLayer &&
+                 ((*it).first).roll() == startEta ) {
+                 cl_bx.push_back({pad,cluster->bx()});
+                 sort(cl_bx.begin(), cl_bx.end(), sortcol);
+        }else {
                
-              if(abs(pad - cl_bx[i][0])==1){
-                cl_bx.push_back({pad,cluster->bx()});
-              }
-             }
-          }else if(cl_bx.size()!=1){
+        
+
             int sum_bx = 0;
-            
-           // if(cl_bx.size()!=1){
+            int sum_pad = 0;
+            if(cl_bx.size() > 1){
             for(unsigned i = 0;i < cl_bx.size();i++){
               sum_bx=sum_bx + cl_bx[i][1];
+              sum_pad=sum_pad + cl_bx[i][0];
             }
             int avg_bx = floor(sum_bx/cl_bx.size());
-            int avg_pad = floor((cl_bx[0].front()+cl_bx[cl_bx.size()-1].front())/2);
+            int avg_pad = floor(sum_pad/cl_bx.size());
             for(unsigned i=0;i<cl_bx.size();i++){
              // std::cout <<  <<std::endl;
               mapPadBXDiffPerEtaCh_.Fill(key4Ch, cl_bx[i][0]- avg_pad, abs(cl_bx[i][1]-avg_bx)); 
             }
-           // }
-          }else{
-        
-            cl_bx.clear();
-            cl_bx.push_back({pad,cluster->bx()});
-          }
+                  for (unsigned i = 0; i < cl_bx.size(); i++)
+                {
+            
+                  for (unsigned j = 0; j < cl_bx[i].size(); j++)
+                {
+                   cout << cl_bx[i][j] << " ";
+                   }
+                   cout << endl;
+                  }
+
+
+
+            }
+          cl_bx.clear();
+          cl_bx.push_back({pad,cluster->bx()}); 
           
+        }
+             
         
         startChamber = ((*it).first).chamber();
         startStation = ((*it).first).station();
