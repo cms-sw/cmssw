@@ -226,7 +226,7 @@ float nonCorrectedTime() const {
 
   uint8_t jitterErrorBits = getMasked(extra_, 24, 8); 
   float encodedBits = static_cast<float>( jitterErrorBits );
-  float nonCorrectedTime = slope*time_  - encodedBits/encoding + offset;
+  float nonCorrectedTime = ( encodedBits > 1 && encodedBits < 254 ) ? (slope*time_ - encodedBits/encoding + offset) : -30.0;
   return nonCorrectedTime;
 }
 
