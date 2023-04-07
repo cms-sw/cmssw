@@ -2,6 +2,8 @@
 #include "Geometry/HGCalCommonData/interface/HGCalCell.h"
 #include <vector>
 
+//#define EDM_ML_DEBUG
+
 HGCalCell::HGCalCell(double waferSize, int32_t nFine, int32_t nCoarse) {
   ncell_[0] = nFine;
   ncell_[1] = nCoarse;
@@ -9,8 +11,10 @@ HGCalCell::HGCalCell(double waferSize, int32_t nFine, int32_t nCoarse) {
     cellX_[k] = waferSize / (3 * ncell_[k]);
     cellY_[k] = sqrt3By2_ * cellX_[k];
   }
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalCell initialized with waferSize " << waferSize << " number of cells " << nFine
                                 << ":" << nCoarse;
+#endif
 }
 
 std::pair<double, double> HGCalCell::cellUV2XY1(int32_t u, int32_t v, int32_t placementIndex, int32_t type) {
