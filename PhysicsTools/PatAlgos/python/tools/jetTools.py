@@ -671,20 +671,28 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     flip = True 
                 else:
                     flip = False
-                if not ('limmed' in jetSource.value()):
+                # use right input tags when running with RECO PF candidates, which actually
+                # depends of whether jets use "particleFlow"
+                if pfCandidates.value() == 'packedPFCandidates':
+                    puppi_value_map = setupPackedPuppi(process)
+                    vertex_associator = cms.InputTag("")
+                else:
                     puppi_value_map = cms.InputTag("puppi")
                     vertex_associator = cms.InputTag("primaryVertexAssociation","original")
-                else:
-                    puppi_value_map = cms.InputTag("")
-                    vertex_associator = cms.InputTag("")
+
+                # If this jet is a puppi jet, then set is_weighted_jet to true.
+                is_weighted_jet = False
+                if ('puppi' in jetSource.value().lower()):
+                    is_weighted_jet = True
                 addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
                                     btag.pfParticleTransformerAK4TagInfos.clone(
-                                    jets = jetSource,
-                                    vertices=pvSource,
-                                    secondary_vertices=svUsed,
-                                    puppi_value_map = puppi_value_map,
-                                    vertex_associator = vertex_associator,
-                                    flip = flip),
+                                      jets = jetSource,
+                                      vertices=pvSource,
+                                      secondary_vertices=svUsed,
+                                      puppi_value_map = puppi_value_map,
+                                      vertex_associator = vertex_associator,
+                                      is_weighted_jet = is_weighted_jet,
+                                      flip = flip),
                                     process, task)
             
             if btagInfo == 'pfDeepDoubleXTagInfos':

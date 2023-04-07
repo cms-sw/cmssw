@@ -379,16 +379,16 @@ def nanoAOD_addDeepInfoAK4CHS(process,addDeepBTag,addDeepFlavour,addParticleNet,
     if addDeepFlavour:
         print("Updating process to run DeepFlavour btag")
         _btagDiscriminators += ['pfDeepFlavourJetTags:probb','pfDeepFlavourJetTags:probbb','pfDeepFlavourJetTags:problepb','pfDeepFlavourJetTags:probc']
-
-    if addRobustParTAK4:
-        print("Updating process to run RobustParTAK4 btag")
-        _btagDiscriminators += ['pfParticleTransformerAK4JetTags:probb','pfParticleTransformerAK4JetTags:probbb','pfParticleTransformerAK4JetTags:problepb','pfParticleTransformerAK4JetTags:probc']
     if addParticleNet:
         print("Updating process to run ParticleNetAK4")
         from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4CHSCentralJetTagsAll as pfParticleNetFromMiniAODAK4CHSCentralJetTagsAll
         from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4CHSForwardJetTagsAll as pfParticleNetFromMiniAODAK4CHSForwardJetTagsAll
         _btagDiscriminators += pfParticleNetFromMiniAODAK4CHSCentralJetTagsAll
         _btagDiscriminators += pfParticleNetFromMiniAODAK4CHSForwardJetTagsAll
+    if addRobustParTAK4:
+        print("Updating process to run RobustParTAK4")
+        from RecoBTag.ONNXRuntime.pfParticleTransformerAK4_cff import _pfParticleTransformerAK4JetTagsAll as pfParticleTransformerAK4JetTagsAll
+        _btagDiscriminators += pfParticleTransformerAK4JetTagsAll
 
     if len(_btagDiscriminators)==0: return process
     print("Will recalculate the following discriminators: "+", ".join(_btagDiscriminators))

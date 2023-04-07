@@ -23,3 +23,7 @@ _pfParticleTransformerAK4JetTagsAll = _pfParticleTransformerAK4JetTagsProbs + _p
 pfParticleTransformerAK4Task = cms.Task(puppi, primaryVertexAssociation,
                              pfParticleTransformerAK4TagInfos, pfParticleTransformerAK4JetTags,
                              pfParticleTransformerAK4DiscriminatorsJetTags)
+# run from MiniAOD instead
+pfParticleTransformerAK4FromMiniAODTask = cms.Task(pfParticleTransformerAK4TagInfos,
+                             pfParticleTransformerAK4JetTags,
+                             pfParticleTransformerAK4DiscriminatorsJetTags)

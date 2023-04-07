@@ -141,7 +141,7 @@ jetPuppiTable.variables.pt.precision=10
 ## - To be used in nanoAOD_customizeCommon() in nano_cff.py
 ###############################################################
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
-def nanoAOD_addDeepInfoAK4(process,addParticleNet):
+def nanoAOD_addDeepInfoAK4(process,addParticleNet,addRobustParTAK4):
     _btagDiscriminators=[]
     if addParticleNet:
         print("Updating process to run ParticleNetAK4")
@@ -149,6 +149,10 @@ def nanoAOD_addDeepInfoAK4(process,addParticleNet):
         from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4CHSForwardJetTagsAll as pfParticleNetFromMiniAODAK4CHSForwardJetTagsAll
         _btagDiscriminators += pfParticleNetFromMiniAODAK4CHSCentralJetTagsAll
         _btagDiscriminators += pfParticleNetFromMiniAODAK4CHSForwardJetTagsAll
+    if addRobustParTAK4:
+        print("Updating process to run RobustParTAK4")
+        from RecoBTag.ONNXRuntime.pfParticleTransformerAK4_cff import _pfParticleTransformerAK4JetTagsAll as pfParticleTransformerAK4JetTagsAll
+        _btagDiscriminators += pfParticleTransformerAK4JetTagsAll
     if len(_btagDiscriminators)==0: return process
     print("Will recalculate the following discriminators: "+", ".join(_btagDiscriminators))
     updateJetCollection(
@@ -164,7 +168,8 @@ def nanoAOD_addDeepInfoAK4(process,addParticleNet):
     return process
 
 nanoAOD_addDeepInfoAK4_switch = cms.PSet(
-    nanoAOD_addParticleNet_switch = cms.untracked.bool(False)
+    nanoAOD_addParticleNet_switch = cms.untracked.bool(False),
+    nanoAOD_addRobustParTAK4Tag_switch = cms.untracked.bool(False)
 )
 
 ################################################
