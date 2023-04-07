@@ -10,7 +10,7 @@
  *
  */
 
-#include "DPGAnalysis/MuonTools/src/MuNtupleUtils.h"
+#include "DPGAnalysis/MuonTools/interface/MuNtupleUtils.h"
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"

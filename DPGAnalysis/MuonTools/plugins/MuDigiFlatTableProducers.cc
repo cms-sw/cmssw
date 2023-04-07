@@ -7,7 +7,7 @@
  *
  */
 
-#include "DPGAnalysis/MuonTools/src/MuDigiBaseProducer.h"
+#include "DPGAnalysis/MuonTools/interface/MuDigiBaseProducer.h"
 
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 using CSCWireDigiFlatTableProducer = MuDigiBaseProducer<CSCDetId, CSCWireDigi>;

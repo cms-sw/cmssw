@@ -7,7 +7,7 @@
  *
  */
 
-#include "DPGAnalysis/MuonTools/src/MuBaseFlatTableProducer.h"
+#include "DPGAnalysis/MuonTools/interface/MuBaseFlatTableProducer.h"
 
 MuBaseFlatTableProducer::MuBaseFlatTableProducer(const edm::ParameterSet &config)
     : m_name{config.getParameter<std::string>("name")} {}

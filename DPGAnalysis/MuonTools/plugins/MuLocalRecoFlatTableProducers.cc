@@ -7,7 +7,7 @@
  *
  */
 
-#include "DPGAnalysis/MuonTools/src/MuLocalRecoBaseProducer.h"
+#include "DPGAnalysis/MuonTools/interface/MuLocalRecoBaseProducer.h"
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"

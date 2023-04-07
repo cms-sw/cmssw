@@ -5,7 +5,7 @@
  * \author L. Giuducci - INFN (BO)
 */
 
-#include "DPGAnalysis/MuonTools/src/MuNtupleUtils.h"
+#include "DPGAnalysis/MuonTools/interface/MuNtupleUtils.h"
 
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhDigi.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTPhDigi.h"

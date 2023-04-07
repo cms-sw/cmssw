@@ -7,11 +7,42 @@
  *
  */
 
-#include "DPGAnalysis/MuonTools/plugins/MuDTTPGThetaFlatTableProducer.h"
+#include "DPGAnalysis/MuonTools/interface/MuBaseFlatTableProducer.h"
 #include "FWCore/ParameterSet/interface/allowedValues.h"
 
 #include <iostream>
 #include <vector>
+
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
+
+class MuDTTPGThetaFlatTableProducer : public MuBaseFlatTableProducer {
+public:
+  enum class TriggerTag { TM_IN = 0, BMTF_IN };
+
+  /// Constructor
+  MuDTTPGThetaFlatTableProducer(const edm::ParameterSet&);
+
+  /// Fill descriptors
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
+
+protected:
+  /// Fill tree branches for a given events
+  void fillTable(edm::Event&) final;
+
+private:
+  /// Enum to activate "flavour-by-flavour"
+  /// changes in the filling logic
+  TriggerTag m_tag;
+
+  /// The trigger-primitive token
+  nano_mu::EDTokenHandle<L1MuDTChambThContainer> m_token;
+
+  /// Helper function translating config parameter into TriggerTag
+  TriggerTag getTag(const edm::ParameterSet&);
+};
 
 MuDTTPGThetaFlatTableProducer::MuDTTPGThetaFlatTableProducer(const edm::ParameterSet& config)
     : MuBaseFlatTableProducer{config}, m_tag{getTag(config)}, m_token{config, consumesCollector(), "src"} {
