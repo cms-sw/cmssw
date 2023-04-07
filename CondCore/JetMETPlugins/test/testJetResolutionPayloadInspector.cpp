@@ -32,39 +32,55 @@ int main(int argc, char** argv) {
   cond::Time_t start = static_cast<unsigned long long>(1);
   cond::Time_t end = static_cast<unsigned long long>(1);
 
-  std::cout << "## Jet Pt Resolution Histograms" << std::endl;
+  edm::LogWarning("JER_PI") << "## Jet Pt Resolution Histograms" << std::endl;
 
   JME::JetResolutionVsEta histo1;
   histo1.process(connectionString, PI::mk_input(tag_pt, start, end));
-  std::cout << histo1.data() << std::endl;
+  edm::LogWarning("JER_PI") << histo1.data() << std::endl;
 
   JME::JetResolutionVsPt histo2;
   histo2.process(connectionString, PI::mk_input(tag_pt, start, end));
-  std::cout << histo2.data() << std::endl;
+  edm::LogWarning("JER_PI") << histo2.data() << std::endl;
 
-  std::cout << "## Jet Eta Resolution Histograms" << std::endl;
+  edm::LogWarning("JER_PI") << "## Jet Eta Resolution Histograms" << std::endl;
 
   JME::JetResolutionVsEta histo3;
   histo3.process(connectionString, PI::mk_input(tag_eta, start, end));
-  std::cout << histo3.data() << std::endl;
+  edm::LogWarning("JER_PI") << histo3.data() << std::endl;
 
   JME::JetResolutionVsPt histo4;
   histo4.process(connectionString, PI::mk_input(tag_eta, start, end));
-  std::cout << histo4.data() << std::endl;
+  edm::LogWarning("JER_PI") << histo4.data() << std::endl;
 
-  std::cout << "## Jet SF Histograms" << std::endl;
+  edm::LogWarning("JER_PI") << "## Jet SF vs. Eta Histograms" << std::endl;
 
   JME::JetScaleFactorVsEtaNORM histo5;
   histo5.process(connectionString, PI::mk_input(tag_sf, start, end));
-  std::cout << histo5.data() << std::endl;
+  edm::LogWarning("JER_PI") << histo5.data() << std::endl;
 
   JME::JetScaleFactorVsEtaDOWN histo6;
   histo6.process(connectionString, PI::mk_input(tag_sf, start, end));
-  std::cout << histo6.data() << std::endl;
+  edm::LogWarning("JER_PI") << histo6.data() << std::endl;
 
   JME::JetScaleFactorVsEtaUP histo7;
   histo7.process(connectionString, PI::mk_input(tag_sf, start, end));
-  std::cout << histo7.data() << std::endl;
+  edm::LogWarning("JER_PI") << histo7.data() << std::endl;
+
+  tag_sf = "JR_Autumn18_V7_MC_SF_AK4PF";
+
+  edm::LogWarning("JER_PI") << "## Jet SF vs. Pt Histograms" << std::endl;
+
+  JME::JetScaleFactorVsPtNORM histo8;
+  histo8.process(connectionString, PI::mk_input(tag_sf, start, end));
+  edm::LogWarning("JER_PI") << histo8.data() << std::endl;
+
+  JME::JetScaleFactorVsPtDOWN histo9;
+  histo9.process(connectionString, PI::mk_input(tag_sf, start, end));
+  edm::LogWarning("JER_PI") << histo9.data() << std::endl;
+
+  JME::JetScaleFactorVsPtUP histo10;
+  histo10.process(connectionString, PI::mk_input(tag_sf, start, end));
+  edm::LogWarning("JER_PI") << histo10.data() << std::endl;
 
   Py_Finalize();
 }
