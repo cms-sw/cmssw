@@ -1086,6 +1086,7 @@
 ++++ finished: processing event : stream = 0 run = 1 lumi = 1 event = 4 time = 20000001
 ++++ queuing: EventSetup synchronization run: 1 lumi: 2 event: 0
 ++++ pre: EventSetup synchronizing run: 1 lumi: 2 event: 0
+++++ post: EventSetup synchronizing run: 1 lumi: 2 event: 0
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 1 time = 20000001
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 1 time = 20000001
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 1 time = 0
@@ -1196,7 +1197,6 @@
 ++++++ starting: write lumi for module: label = 'out' id = 24
 ++++++ finished: write lumi for module: label = 'out' id = 24
 ++++ finished: global write lumi: run = 1 lumi = 1 time = 1
-++++ post: EventSetup synchronizing run: 1 lumi: 2 event: 0
 ++++ starting: source lumi
 ++++ finished: source lumi
 ++++ starting: global begin lumi: run = 1 lumi = 2 time = 25000001
@@ -1919,6 +1919,7 @@
 ++++ finished: processing event : stream = 0 run = 1 lumi = 2 event = 8 time = 40000001
 ++++ queuing: EventSetup synchronization run: 1 lumi: 3 event: 0
 ++++ pre: EventSetup synchronizing run: 1 lumi: 3 event: 0
+++++ post: EventSetup synchronizing run: 1 lumi: 3 event: 0
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 2 time = 40000001
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 2 time = 40000001
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 2 time = 0
@@ -2029,7 +2030,6 @@
 ++++++ starting: write lumi for module: label = 'out' id = 24
 ++++++ finished: write lumi for module: label = 'out' id = 24
 ++++ finished: global write lumi: run = 1 lumi = 2 time = 25000001
-++++ post: EventSetup synchronizing run: 1 lumi: 3 event: 0
 ++++ starting: source lumi
 ++++ finished: source lumi
 ++++ starting: global begin lumi: run = 1 lumi = 3 time = 45000001
@@ -2440,6 +2440,7 @@
 ++++ finished: processing event : stream = 0 run = 1 lumi = 3 event = 10 time = 50000001
 ++++ queuing: EventSetup synchronization run: 1 lumi: 4294967295 event: 18446744073709551615
 ++++ pre: EventSetup synchronizing run: 1 lumi: 4294967295 event: 18446744073709551615
+++++ post: EventSetup synchronizing run: 1 lumi: 4294967295 event: 18446744073709551615
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 3 time = 50000001
 ++++ finished: end lumi: stream = 0 run = 1 lumi = 3 time = 50000001
 ++++ starting: end lumi: stream = 0 run = 1 lumi = 3 time = 0
@@ -2550,7 +2551,6 @@
 ++++++ starting: write lumi for module: label = 'out' id = 24
 ++++++ finished: write lumi for module: label = 'out' id = 24
 ++++ finished: global write lumi: run = 1 lumi = 3 time = 45000001
-++++ post: EventSetup synchronizing run: 1 lumi: 4294967295 event: 18446744073709551615
 ++++ queuing: EventSetup synchronization run: 2 lumi: 0 event: 0
 ++++ pre: EventSetup synchronizing run: 2 lumi: 0 event: 0
 ++++ post: EventSetup synchronizing run: 2 lumi: 0 event: 0
@@ -2744,6 +2744,7 @@
 ++++ finished: global begin run 2 : time = 55000001
 ++++ queuing: EventSetup synchronization run: 2 lumi: 1 event: 0
 ++++ pre: EventSetup synchronizing run: 2 lumi: 1 event: 0
+++++ post: EventSetup synchronizing run: 2 lumi: 1 event: 0
 ++++ starting: begin run: stream = 0 run = 2 time = 55000001
 ++++ finished: begin run: stream = 0 run = 2 time = 55000001
 ++++ starting: begin run: stream = 0 run = 2 time = 55000001
@@ -2762,7 +2763,6 @@
 ++++ finished: begin run: stream = 0 run = 2 time = 55000001
 ++++ starting: begin run: stream = 0 run = 2 time = 55000001
 ++++ finished: begin run: stream = 0 run = 2 time = 55000001
-++++ post: EventSetup synchronizing run: 2 lumi: 1 event: 0
 ++++ starting: source lumi
 ++++ finished: source lumi
 ++++ starting: global begin lumi: run = 2 lumi = 1 time = 55000001
@@ -3485,6 +3485,7 @@
 ++++ finished: processing event : stream = 0 run = 2 lumi = 1 event = 4 time = 70000001
 ++++ queuing: EventSetup synchronization run: 2 lumi: 2 event: 0
 ++++ pre: EventSetup synchronizing run: 2 lumi: 2 event: 0
+++++ post: EventSetup synchronizing run: 2 lumi: 2 event: 0
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 1 time = 70000001
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 1 time = 70000001
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 1 time = 0
@@ -3595,7 +3596,6 @@
 ++++++ starting: write lumi for module: label = 'out' id = 24
 ++++++ finished: write lumi for module: label = 'out' id = 24
 ++++ finished: global write lumi: run = 2 lumi = 1 time = 55000001
-++++ post: EventSetup synchronizing run: 2 lumi: 2 event: 0
 ++++ starting: source lumi
 ++++ finished: source lumi
 ++++ starting: global begin lumi: run = 2 lumi = 2 time = 75000001
@@ -4318,6 +4318,7 @@
 ++++ finished: processing event : stream = 0 run = 2 lumi = 2 event = 8 time = 90000001
 ++++ queuing: EventSetup synchronization run: 2 lumi: 3 event: 0
 ++++ pre: EventSetup synchronizing run: 2 lumi: 3 event: 0
+++++ post: EventSetup synchronizing run: 2 lumi: 3 event: 0
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 2 time = 90000001
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 2 time = 90000001
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 2 time = 0
@@ -4428,7 +4429,6 @@
 ++++++ starting: write lumi for module: label = 'out' id = 24
 ++++++ finished: write lumi for module: label = 'out' id = 24
 ++++ finished: global write lumi: run = 2 lumi = 2 time = 75000001
-++++ post: EventSetup synchronizing run: 2 lumi: 3 event: 0
 ++++ starting: source lumi
 ++++ finished: source lumi
 ++++ starting: global begin lumi: run = 2 lumi = 3 time = 95000001
@@ -4839,6 +4839,7 @@
 ++++ finished: processing event : stream = 0 run = 2 lumi = 3 event = 10 time = 100000001
 ++++ queuing: EventSetup synchronization run: 2 lumi: 4294967295 event: 18446744073709551615
 ++++ pre: EventSetup synchronizing run: 2 lumi: 4294967295 event: 18446744073709551615
+++++ post: EventSetup synchronizing run: 2 lumi: 4294967295 event: 18446744073709551615
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 3 time = 100000001
 ++++ finished: end lumi: stream = 0 run = 2 lumi = 3 time = 100000001
 ++++ starting: end lumi: stream = 0 run = 2 lumi = 3 time = 0
@@ -4949,7 +4950,6 @@
 ++++++ starting: write lumi for module: label = 'out' id = 24
 ++++++ finished: write lumi for module: label = 'out' id = 24
 ++++ finished: global write lumi: run = 2 lumi = 3 time = 95000001
-++++ post: EventSetup synchronizing run: 2 lumi: 4294967295 event: 18446744073709551615
 ++++ queuing: EventSetup synchronization run: 3 lumi: 0 event: 0
 ++++ pre: EventSetup synchronizing run: 3 lumi: 0 event: 0
 ++++ post: EventSetup synchronizing run: 3 lumi: 0 event: 0
@@ -5143,6 +5143,7 @@
 ++++ finished: global begin run 3 : time = 105000001
 ++++ queuing: EventSetup synchronization run: 3 lumi: 1 event: 0
 ++++ pre: EventSetup synchronizing run: 3 lumi: 1 event: 0
+++++ post: EventSetup synchronizing run: 3 lumi: 1 event: 0
 ++++ starting: begin run: stream = 0 run = 3 time = 105000001
 ++++ finished: begin run: stream = 0 run = 3 time = 105000001
 ++++ starting: begin run: stream = 0 run = 3 time = 105000001
@@ -5161,7 +5162,6 @@
 ++++ finished: begin run: stream = 0 run = 3 time = 105000001
 ++++ starting: begin run: stream = 0 run = 3 time = 105000001
 ++++ finished: begin run: stream = 0 run = 3 time = 105000001
-++++ post: EventSetup synchronizing run: 3 lumi: 1 event: 0
 ++++ starting: source lumi
 ++++ finished: source lumi
 ++++ starting: global begin lumi: run = 3 lumi = 1 time = 105000001
@@ -5884,6 +5884,7 @@
 ++++ finished: processing event : stream = 0 run = 3 lumi = 1 event = 4 time = 120000001
 ++++ queuing: EventSetup synchronization run: 3 lumi: 2 event: 0
 ++++ pre: EventSetup synchronizing run: 3 lumi: 2 event: 0
+++++ post: EventSetup synchronizing run: 3 lumi: 2 event: 0
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 1 time = 120000001
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 1 time = 120000001
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 1 time = 0
@@ -5994,7 +5995,6 @@
 ++++++ starting: write lumi for module: label = 'out' id = 24
 ++++++ finished: write lumi for module: label = 'out' id = 24
 ++++ finished: global write lumi: run = 3 lumi = 1 time = 105000001
-++++ post: EventSetup synchronizing run: 3 lumi: 2 event: 0
 ++++ starting: source lumi
 ++++ finished: source lumi
 ++++ starting: global begin lumi: run = 3 lumi = 2 time = 125000001
@@ -6717,6 +6717,7 @@
 ++++ finished: processing event : stream = 0 run = 3 lumi = 2 event = 8 time = 140000001
 ++++ queuing: EventSetup synchronization run: 3 lumi: 3 event: 0
 ++++ pre: EventSetup synchronizing run: 3 lumi: 3 event: 0
+++++ post: EventSetup synchronizing run: 3 lumi: 3 event: 0
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 2 time = 140000001
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 2 time = 140000001
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 2 time = 0
@@ -6827,7 +6828,6 @@
 ++++++ starting: write lumi for module: label = 'out' id = 24
 ++++++ finished: write lumi for module: label = 'out' id = 24
 ++++ finished: global write lumi: run = 3 lumi = 2 time = 125000001
-++++ post: EventSetup synchronizing run: 3 lumi: 3 event: 0
 ++++ starting: source lumi
 ++++ finished: source lumi
 ++++ starting: global begin lumi: run = 3 lumi = 3 time = 145000001
@@ -7238,6 +7238,7 @@
 ++++ finished: processing event : stream = 0 run = 3 lumi = 3 event = 10 time = 150000001
 ++++ queuing: EventSetup synchronization run: 3 lumi: 4294967295 event: 18446744073709551615
 ++++ pre: EventSetup synchronizing run: 3 lumi: 4294967295 event: 18446744073709551615
+++++ post: EventSetup synchronizing run: 3 lumi: 4294967295 event: 18446744073709551615
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 3 time = 150000001
 ++++ finished: end lumi: stream = 0 run = 3 lumi = 3 time = 150000001
 ++++ starting: end lumi: stream = 0 run = 3 lumi = 3 time = 0
@@ -7348,7 +7349,6 @@
 ++++++ starting: write lumi for module: label = 'out' id = 24
 ++++++ finished: write lumi for module: label = 'out' id = 24
 ++++ finished: global write lumi: run = 3 lumi = 3 time = 145000001
-++++ post: EventSetup synchronizing run: 3 lumi: 4294967295 event: 18446744073709551615
 ++++ starting: end run: stream = 0 run = 3 time = 150000001
 ++++ finished: end run: stream = 0 run = 3 time = 150000001
 ++++ starting: end run: stream = 0 run = 3 time = 0

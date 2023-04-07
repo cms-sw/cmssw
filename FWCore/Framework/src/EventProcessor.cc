@@ -885,7 +885,9 @@ namespace edm {
 
     // make the services available
     ServiceRegistry::Operate operate(serviceToken_);
-
+    actReg_->beginProcessingSignal_();
+    auto endSignal = [](ActivityRegistry* iReg) { iReg->endProcessingSignal_(); };
+    std::unique_ptr<ActivityRegistry, decltype(endSignal)> guard(actReg_.get(), endSignal);
     try {
       FilesProcessor fp(fileModeNoMerge_);
 
@@ -1179,7 +1181,7 @@ namespace edm {
 
     auto status = std::make_shared<RunProcessingStatus>(preallocations_.numberOfStreams(), iHolder);
 
-    chain::first([this, &status, &iSync](auto nextTask) {
+    chain::first([this, &status, iSync](auto nextTask) {
       espController_->runOrQueueEventSetupForInstanceAsync(iSync,
                                                            nextTask,
                                                            status->endIOVWaitingTasks(),
@@ -1188,7 +1190,7 @@ namespace edm {
                                                            actReg_.get(),
                                                            serviceToken_,
                                                            forceESCacheClearOnNewRun_);
-    }) | chain::then([this, status, iSync](std::exception_ptr const* iException, auto nextTask) {
+    }) | chain::then([this, status](std::exception_ptr const* iException, auto nextTask) {
       CMS_SA_ALLOW try {
         if (iException) {
           WaitingTaskHolder copyHolder(nextTask);
@@ -1196,7 +1198,6 @@ namespace edm {
           // Finish handling the exception in the task pushed to runQueue_
         }
         ServiceRegistry::Operate operate(serviceToken_);
-        actReg_->postESSyncIOVSignal_.emit(iSync);
 
         runQueue_->pushAndPause(
             *nextTask.group(),
@@ -1434,17 +1435,12 @@ namespace edm {
                                                            queueWhichWaitsForIOVsToFinish_,
                                                            actReg_.get(),
                                                            serviceToken_);
-    }) | chain::then([this, iRunStatus, ts](std::exception_ptr const* iException, auto nextTask) {
+    }) | chain::then([this, iRunStatus](std::exception_ptr const* iException, auto nextTask) {
       if (iException) {
         iRunStatus->setEndingEventSetupSucceeded(false);
         handleEndRunExceptions(*iException, nextTask);
       }
       ServiceRegistry::Operate operate(serviceToken_);
-      CMS_SA_ALLOW try { actReg_->postESSyncIOVSignal_.emit(ts); } catch (...) {
-        WaitingTaskHolder copyHolder(nextTask);
-        copyHolder.doneWaiting(std::current_exception());
-      }
-
       streamQueuesInserter_.push(*nextTask.group(), [this, nextTask]() mutable {
         for (unsigned int i = 0; i < preallocations_.numberOfStreams(); ++i) {
           CMS_SA_ALLOW try {
@@ -1639,16 +1635,13 @@ namespace edm {
                                                            queueWhichWaitsForIOVsToFinish_,
                                                            actReg_.get(),
                                                            serviceToken_);
-    }) | chain::then([this, status, iRunStatus, iSync](std::exception_ptr const* iException, auto nextTask) {
+    }) | chain::then([this, status, iRunStatus](std::exception_ptr const* iException, auto nextTask) {
       CMS_SA_ALLOW try {
         //the call to doneWaiting will cause the count to decrement
         if (iException) {
           WaitingTaskHolder copyHolder(nextTask);
           copyHolder.doneWaiting(*iException);
         }
-
-        ServiceRegistry::Operate operate(serviceToken_);
-        actReg_->postESSyncIOVSignal_.emit(iSync);
 
         lumiQueue_->pushAndPause(
             *nextTask.group(),
