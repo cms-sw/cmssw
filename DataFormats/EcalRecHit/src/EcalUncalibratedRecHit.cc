@@ -119,13 +119,13 @@ bool EcalUncalibratedRecHit::checkFlag(EcalUncalibratedRecHit::Flags flag) const
 // For CC Timing reco
 float EcalUncalibratedRecHit::nonCorrectedTime() const {
 
-  // encoding constants in clock units, return value in ns
+  // units, return value in ns
   float slope = 1.2;
   float offset = 0.64;
   float encoding = 796.875;
  
   float encodedBits = static_cast<float>( jitterErrorBits() );
-  float nonCorrectedTime =  25.0*(slope*jitter_  - encodedBits/encoding + offset);
+  float nonCorrectedTime =  ( encodedBits > 1 && encodedBits < 254 ) ? 25.0*(slope*jitter_  - encodedBits/encoding + offset) : -30.0;
   return nonCorrectedTime;
 }
 
