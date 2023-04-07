@@ -26,8 +26,6 @@
 #include "Geometry/HGCalTBCommonData/interface/HGCalTBParameters.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-#define EDM_ML_DEBUG
-
 class HGCalTBNumberingInitialization : public edm::ESProducer {
 public:
   HGCalTBNumberingInitialization(const edm::ParameterSet&);
