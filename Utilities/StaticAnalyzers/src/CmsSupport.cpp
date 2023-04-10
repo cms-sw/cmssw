@@ -148,7 +148,9 @@ bool clangcms::support::isSafeClassName(const std::string &cname) {
                                                  "class TVirtualMutex",
                                                  "boost::(anonymous namespace)::extents",
                                                  "(anonymous namespace)::_1",
-                                                 "(anonymous namespace)::_2"};
+                                                 "(anonymous namespace)::_2",
+                                                 "struct PyModuleDef",
+                                                 "::pybind11::class module_::module_def"};
 
   for (auto &name : names)
     if (cname.substr(0, name.length()) == name)
