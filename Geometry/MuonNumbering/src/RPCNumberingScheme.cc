@@ -104,8 +104,10 @@ int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const 
 
           plane_id = 2;
           // }
-
-          //          std::cout<<" KONTROLA w RPCNumberingScheme: eta_id: "<<eta_id<<", plane_tag: "<<plane_tag<<", plane_id: "<<plane_id<<std::endl;
+#ifdef EDM_ML_DEBUG
+          edm::LogVerbatim("MuonNumbering") << " KONTROLA w RPCNumberingScheme: eta_id: " << eta_id
+                                            << ", plane_tag: " << plane_tag << ", plane_id: " << plane_id;
+#endif
         } else if (plane_tag == 4) {
           //          if(copyno == 1) {
           // if(eta_id == 4 || eta_id == 8) {
@@ -113,7 +115,10 @@ int RPCNumberingScheme::baseNumberToUnitNumber(const MuonBaseNumber& num) const 
           //} else {
           plane_id = 6;
           //}
-          //          std::cout<<" KONTROLA w RPCNumberingScheme: eta_id: "<<eta_id<<", plane_tag: "<<plane_tag<<", plane_id: "<<plane_id<<std::endl;
+#ifdef EDM_ML_DEBUG
+          edm::LogVerbatim("MuonNumbering") << " KONTROLA w RPCNumberingScheme: eta_id: " << eta_id
+                                            << ", plane_tag: " << plane_tag << ", plane_id: " << plane_id;
+#endif
         } else if (plane_tag == 5) {
           plane_id = 3;
         } else {
