@@ -12,6 +12,8 @@
 
 #include "DQM/EcalCommon/interface/MESetNonObject.h"
 
+#include <string>
+
 using namespace cms::Ort;
 
 namespace ecaldqm {
@@ -164,14 +166,15 @@ namespace ecaldqm {
 
     Ort::AllocatorWithDefaultOptions allocator;
 
-    const char* inputName = session.GetInputName(0, allocator);
+    // Strings returned by session.GetInputNameAllocated are temporary, need to copy them before they are deallocated
+    std::string inputName{session.GetInputNameAllocated(0, allocator).get()};
 
     Ort::TypeInfo inputTypeInfo = session.GetInputTypeInfo(0);
     auto inputTensorInfo = inputTypeInfo.GetTensorTypeAndShapeInfo();
 
     std::vector<int64_t> inputDims = inputTensorInfo.GetShape();
 
-    const char* outputName = session.GetOutputName(0, allocator);
+    std::string outputName{session.GetOutputNameAllocated(0, allocator).get()};
 
     Ort::TypeInfo outputTypeInfo = session.GetOutputTypeInfo(0);
     auto outputTensorInfo = outputTypeInfo.GetTensorTypeAndShapeInfo();
@@ -181,8 +184,8 @@ namespace ecaldqm {
     size_t TensorSize = nEtaTowersPad * nPhiTowers;
     std::vector<float> ebRecoOccMap1dPad(TensorSize);  //To store the output reconstructed occupancy
 
-    std::vector<const char*> inputNames{inputName};
-    std::vector<const char*> outputNames{outputName};
+    std::vector<const char*> inputNames{inputName.c_str()};
+    std::vector<const char*> outputNames{outputName.c_str()};
     std::vector<Ort::Value> inputTensors;
     std::vector<Ort::Value> outputTensors;
 
