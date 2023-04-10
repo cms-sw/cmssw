@@ -52,7 +52,9 @@ bool L1TCaloParamsOnlineProd::readCaloLayer1OnlineSettings(l1t::CaloParamsHelper
       //"layer1ECalScalePhiBins",
       //"layer1HCalScalePhiBins",
       //"layer1HFScalePhiBins",
-      //"layer1SecondStageLUT"
+      //"layer1SecondStageLUT",
+      //"layer1HCalFBLUTUpper",
+      //"layer1HCalFBLUTLower"
   };
   for (const auto param : expectedParams) {
     if (conf.find(param) == conf.end()) {
@@ -78,6 +80,10 @@ bool L1TCaloParamsOnlineProd::readCaloLayer1OnlineSettings(l1t::CaloParamsHelper
     paramsHelper.setLayer1HFScalePhiBins(conf["layer1HFScalePhiBins"].getVector<unsigned int>());
   if (conf.find("layer1SecondStageLUT") != conf.end())
     paramsHelper.setLayer1SecondStageLUT(conf["layer1SecondStageLUT"].getVector<unsigned int>());
+  if (conf.find("layer1HCalFBLUTUpper") != conf.end())
+    paramsHelper.setLayer1HCalFBLUTUpper(conf["layer1HCalFBLUTUpper"].getVector<unsigned int>());
+  if (conf.find("layer1HCalFBLUTLower") != conf.end())
+    paramsHelper.setLayer1HCalFBLUTLower(conf["layer1HCalFBLUTLower"].getVector<unsigned int>());
 
   return true;
 }

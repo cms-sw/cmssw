@@ -81,6 +81,7 @@ private:
   std::vector<std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> > ecalLUT;
   std::vector<std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> > hcalLUT;
   std::vector<std::array<std::array<uint32_t, nEtBins>, nHfEtaBins> > hfLUT;
+  std::vector<unsigned long long int> hcalFBLUT;
 
   std::vector<unsigned int> ePhiMap;
   std::vector<unsigned int> hPhiMap;
@@ -93,6 +94,7 @@ private:
   bool useECALLUT;
   bool useHCALLUT;
   bool useHFLUT;
+  bool useHCALFBLUT;
   bool verbose;
   bool unpackHcalMask;
   bool unpackEcalMask;
@@ -128,7 +130,8 @@ L1TCaloLayer1::L1TCaloLayer1(const edm::ParameterSet& iConfig)
       useECALLUT(iConfig.getParameter<bool>("useECALLUT")),
       useHCALLUT(iConfig.getParameter<bool>("useHCALLUT")),
       useHFLUT(iConfig.getParameter<bool>("useHFLUT")),
-      verbose(iConfig.getParameter<bool>("verbose")),
+      useHCALFBLUT(iConfig.getParameter<bool>("useHCALFBLUT")),
+      verbose(iConfig.getUntrackedParameter<bool>("verbose")),
       unpackHcalMask(iConfig.getParameter<bool>("unpackHcalMask")),
       unpackEcalMask(iConfig.getParameter<bool>("unpackEcalMask")),
       fwVersion(iConfig.getParameter<int>("firmwareVersion")) {
@@ -294,6 +297,7 @@ void L1TCaloLayer1::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
                               ecalLUT,
                               hcalLUT,
                               hfLUT,
+                              hcalFBLUT,
                               ePhiMap,
                               hPhiMap,
                               hfPhiMap,
@@ -302,6 +306,7 @@ void L1TCaloLayer1::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
                               useECALLUT,
                               useHCALLUT,
                               useHFLUT,
+                              useHCALFBLUT,
                               fwVersion)) {
     LOG_ERROR << "L1TCaloLayer1::beginRun: failed to fetch LUTS - using unity" << std::endl;
     std::array<std::array<std::array<uint32_t, nEtBins>, nCalSideBins>, nCalEtaBins> eCalLayer1EtaSideEtArray;
@@ -363,7 +368,8 @@ void L1TCaloLayer1::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<bool>("useECALLUT", true);
   desc.add<bool>("useHCALLUT", true);
   desc.add<bool>("useHFLUT", true);
-  desc.add<bool>("verbose", false);
+  desc.add<bool>("useHCALFBLUT", false);
+  desc.addUntracked<bool>("verbose", false);
   desc.add<bool>("unpackEcalMask", false);
   desc.add<bool>("unpackHcalMask", false);
   desc.add<int>("firmwareVersion", 1);
