@@ -139,9 +139,9 @@ nanoDQMIO_perLSoutput = cms.PSet(
     "SiStrip/MechanicalView/MainDiagonal Position",
     "SiStrip/MechanicalView/NumberOfClustersInPixel",
     "SiStrip/MechanicalView/NumberOfClustersInStrip",
-    "Tracking/TrackParameters/GeneralProperties/Chi2oNDF_lumiFlag_GenTk",  #non existing
-    "Tracking/TrackParameters/GeneralProperties/NumberOfRecHitsPerTrack_lumiFlag_GenTk", #non existing
-    "Tracking/TrackParameters/GeneralProperties/NumberOfTracks_lumiFlag_GenTk", #non existing
+    "Tracking/TrackParameters/generalTracks/LSanalysis/Chi2oNDF_lumiFlag_GenTk",  
+    "Tracking/TrackParameters/generalTracks/LSanalysis/NumberOfRecHitsPerTrack_lumiFlag_GenTk", 
+    "Tracking/TrackParameters/generalTracks/LSanalysis/NumberOfTracks_lumiFlag_GenTk", 
     "Tracking/TrackParameters/highPurityTracks/pt_1/GeneralProperties/SIPDxyToPV_GenTk",
     "Tracking/TrackParameters/highPurityTracks/pt_1/GeneralProperties/SIPDzToPV_GenTk",
     "Tracking/TrackParameters/highPurityTracks/pt_1/GeneralProperties/SIP3DToPV_GenTk",
