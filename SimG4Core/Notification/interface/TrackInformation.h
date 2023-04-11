@@ -9,6 +9,7 @@
 
 class TrackInformation : public G4VUserTrackInformation {
 public:
+  TrackInformation() {};
   ~TrackInformation() override = default;
   inline void *operator new(size_t);
   inline void operator delete(void *TrackInformation);
@@ -83,51 +84,28 @@ public:
   void Print() const override;
 
 private:
-  bool storeTrack_;
-  bool isPrimary_;
-  bool hasHits_;
-  bool isGeneratedSecondary_;
-  bool isInHistory_;
-  bool flagAncestor_;
-  int idOnCaloSurface_;
-  int idCaloVolume_;
-  int idLastVolume_;
-  bool caloIDChecked_;
-  bool crossedBoundary_;
+
+  bool storeTrack_{false};
+  bool isPrimary_{false};
+  bool hasHits_{false};
+  bool isGeneratedSecondary_{false};
+  bool isInHistory_{false};
+  bool flagAncestor_{false};
+  bool caloIDChecked_{false};
+  bool crossedBoundary_{false};
+  bool startedInFineVolume_{false};
+  bool startedInFineVolumeIsSet_{false};
+  bool hasCastorHit_{false};
+  int idOnCaloSurface_{0};
+  int idCaloVolume_{-1};
+  int idLastVolume_{-1};
+  int genParticlePID_{-1};
+  int caloSurfaceParticlePID_{0};
+  int castorHitPID_{0};
+  double genParticleP_{0.};
+  double caloSurfaceParticleP_{0.};
   math::XYZTLorentzVectorF positionAtBoundary_;
   math::XYZTLorentzVectorF momentumAtBoundary_;
-  bool startedInFineVolume_;
-  bool startedInFineVolumeIsSet_;
-
-  int genParticlePID_, caloSurfaceParticlePID_;
-  double genParticleP_, caloSurfaceParticleP_;
-
-  bool hasCastorHit_;
-  int castorHitPID_;
-
-  // Restrict construction to friends
-  TrackInformation()
-      : G4VUserTrackInformation(),
-        storeTrack_(false),
-        isPrimary_(false),
-        hasHits_(false),
-        isGeneratedSecondary_(false),
-        isInHistory_(false),
-        flagAncestor_(false),
-        idOnCaloSurface_(0),
-        idCaloVolume_(-1),
-        idLastVolume_(-1),
-        caloIDChecked_(false),
-        crossedBoundary_(false),
-        startedInFineVolume_(false),
-        startedInFineVolumeIsSet_(false),
-        genParticlePID_(-1),
-        caloSurfaceParticlePID_(0),
-        genParticleP_(0),
-        caloSurfaceParticleP_(0),
-        hasCastorHit_(false),
-        castorHitPID_(0) {}
-  friend class NewTrackAction;
 };
 
 extern G4ThreadLocal G4Allocator<TrackInformation> *fpTrackInformationAllocator;

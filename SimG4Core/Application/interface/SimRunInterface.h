@@ -12,7 +12,7 @@ class RunAction;
 class EventAction;
 class TrackingAction;
 class SteppingAction;
-class G4SimEvent;
+class TmpSimEvent;
 
 class SimRunInterface {
 public:
@@ -40,7 +40,7 @@ public:
 
   void abortRun(bool softAbort);
 
-  G4SimEvent* simEvent();
+  TmpSimEvent* simEvent();
 
 private:
   RunManagerMT* m_runManagerMT;

@@ -507,9 +507,9 @@ void RunManagerMTWorker::terminateRun() {
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::terminateRun done for thread " << id;
 }
 
-G4SimEvent* RunManagerMTWorker::produce(const edm::Event& inpevt,
-                                        const edm::EventSetup& es,
-                                        RunManagerMT& runManagerMaster) {
+TmpSimEvent* RunManagerMTWorker::produce(const edm::Event& inpevt,
+                                         const edm::EventSetup& es,
+                                         RunManagerMT& runManagerMaster) {
   // The initialization and begin/end run is a bit convoluted due to
   // - Geant4 deals per-thread
   // - OscarMTProducer deals per-stream

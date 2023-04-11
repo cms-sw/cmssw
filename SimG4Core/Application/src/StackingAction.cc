@@ -1,6 +1,6 @@
 #include "SimG4Core/Application/interface/StackingAction.h"
 #include "SimG4Core/Application/interface/TrackingAction.h"
-#include "SimG4Core/Notification/interface/NewTrackAction.h"
+#include "SimG4Core/Notification/interface/MCTruthUtil.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
 
@@ -76,7 +76,6 @@ StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterS
   }
 
   initPointer();
-  newTA = new NewTrackAction();
 
   edm::LogVerbatim("SimG4CoreApplication")
       << "StackingAction initiated with"
@@ -156,8 +155,6 @@ StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterS
                    ->GetSolid();
 }
 
-StackingAction::~StackingAction() { delete newTA; }
-
 G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrack) {
   // G4 interface part
   G4ClassificationOfNewTrack classification = fUrgent;
@@ -184,7 +181,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
     } else if (worldSolid->Inside(aTrack->GetPosition()) == kOutside) {
       classification = fKill;
     } else {
-      newTA->primary(track);
+      MCTruthUtil::primary(track);
     }
   } else {
     // secondary
@@ -203,7 +200,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
         classification = fKill;
       } else {
         const G4Track* mother = trackAction->geant4Track();
-        newTA->secondary(track, *mother, 0);
+	MCTruthUtil::secondary(track, *mother, 0);
       }
 
     } else if (isItOutOfTimeWindow(reg, time)) {
@@ -358,7 +355,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
             }
           }
           if (classification != fKill) {
-            newTA->secondary(track, *mother, flag);
+	    MCTruthUtil::secondary(track, *mother, flag);
           }
           LogDebug("SimG4CoreApplication")
               << "StackingAction:Classify Track " << aTrack->GetTrackID() << " Parent " << aTrack->GetParentID()
@@ -453,9 +450,9 @@ bool StackingAction::isThisRegion(const G4Region* reg, std::vector<const G4Regio
 
 int StackingAction::isItPrimaryDecayProductOrConversion(const int stype, const G4Track& mother) const {
   int flag = 0;
-  const TrackInformation& motherInfo(extractor(mother));
+  auto motherInfo = static_cast<const TrackInformation*>(mother.GetUserInformation());
   // Check whether mother is a primary
-  if (motherInfo.isPrimary()) {
+  if (motherInfo->isPrimary()) {
     if (stype == fDecay) {
       flag = 1;
     } else if (stype == fGammaConversion) {
@@ -466,17 +463,17 @@ int StackingAction::isItPrimaryDecayProductOrConversion(const int stype, const G
 }
 
 bool StackingAction::rrApplicable(const G4Track* aTrack, const G4Track& mother) const {
-  const TrackInformation& motherInfo(extractor(mother));
+  auto motherInfo = static_cast<const TrackInformation*>(mother.GetUserInformation());
 
   // Check whether mother is gamma, e+, e-
-  const int genID = motherInfo.genParticlePID();
+  const int genID = motherInfo->genParticlePID();
   return (22 != genID && 11 != std::abs(genID));
 }
 
 int StackingAction::isItFromPrimary(const G4Track& mother, int flagIn) const {
   int flag = flagIn;
   if (flag != 1) {
-    const TrackInformation* ptr = static_cast<TrackInformation*>(mother.GetUserInformation());
+    auto ptr = static_cast<const TrackInformation*>(mother.GetUserInformation());
     if (ptr->isPrimary()) {
       flag = 3;
     }

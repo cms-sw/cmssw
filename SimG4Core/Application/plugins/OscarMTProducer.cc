@@ -21,9 +21,9 @@
 #include "SimG4Core/Application/interface/OscarMTMasterThread.h"
 #include "SimG4Core/Application/interface/RunManagerMT.h"
 #include "SimG4Core/Application/interface/RunManagerMTWorker.h"
-#include "SimG4Core/Notification/interface/G4SimEvent.h"
-#include "SimG4Core/Notification/interface/G4SimVertex.h"
-#include "SimG4Core/Notification/interface/G4SimTrack.h"
+#include "SimG4Core/Notification/interface/TmpSimEvent.h"
+#include "SimG4Core/Notification/interface/TmpSimVertex.h"
+#include "SimG4Core/Notification/interface/TmpSimTrack.h"
 
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
@@ -277,7 +277,7 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   auto& sTk = m_runManagerWorker->sensTkDetectors();
   auto& sCalo = m_runManagerWorker->sensCaloDetectors();
 
-  G4SimEvent* evt = nullptr;
+  TmpSimEvent* evt = nullptr;
   auto token = edm::ServiceRegistry::instance().presentToken();
   m_handoff.runAndWait([this, &e, &es, &evt, token, engine]() {
     edm::ServiceRegistry::Operate guard{token};
