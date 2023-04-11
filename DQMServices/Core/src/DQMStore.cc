@@ -102,10 +102,8 @@ namespace dqm::implementation {
 
       bool pathInList = false;
       if (not store_->MEsToSave_.empty()) {
-        for (std::vector<std::string>::const_iterator ipath = store_->MEsToSave_.begin();
-             ipath != store_->MEsToSave_.end();
-             ++ipath) {
-          if (fullpath == (*ipath)) {
+        for (auto& thepath : store_->MEsToSave_) {
+          if (fullpath == thepath) {
             medata.key_.scope_ = MonitorElementData::Scope::LUMI;
             pathInList = true;
             break;
