@@ -176,8 +176,9 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
 #endif
       } else {
         trkinfo->setBTLlooper();
+        trkinfo->setIdAtBTLentrance(theTrack->GetTrackID());
 #ifdef DebugLog
-        LogDebug("SimG4CoreApplication") << "Setting flag for BTL looper " << trkinfo->isFromTtoBTL();
+        LogDebug("SimG4CoreApplication") << "Setting flag for BTL looper " << trkinfo->isBTLlooper();
         trkinfo->Print();
 #endif
       }
