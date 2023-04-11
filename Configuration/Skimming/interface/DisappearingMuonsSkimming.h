@@ -22,20 +22,22 @@
 #include <memory>
 
 // user include filter
-#include "FWCore/Utilities/interface/EDGetToken.h"
-#include "FWCore/Framework/interface/one/EDFilter.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
 //
 // class declaration
@@ -48,28 +50,28 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void beginJob() override;
   bool filter(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
+
   bool passTriggers(const edm::Event& iEvent,
-                    edm::EDGetToken m_trigResultsToken,
+                    const edm::TriggerResults& results,
                     std::vector<std::string> m_muonPathsToPass);
-  double getTrackIsolation(const edm::Event&,
-                           edm::Handle<reco::VertexCollection> vtxHandle,
-                           std::vector<reco::Track>::const_iterator& iTrack);
+
+  bool findTrackInVertices(const reco::TrackRef& tkToMatch,
+                           const reco::VertexCollection& vertices,
+                           unsigned int& vtxIndex,
+                           unsigned int& trackIndex);
+
+  double getTrackIsolation(const reco::TrackRef& tkToMatch, const reco::VertexCollection& vertices);
   double getECALIsolation(const edm::Event&, const edm::EventSetup&, const reco::TransientTrack track);
 
   // ----------member data ---------------------------
-
-  const edm::EDGetToken recoMuonToken_;
-  const edm::EDGetToken standaloneMuonToken_;
-  const edm::EDGetTokenT<std::vector<reco::Track>> trackCollectionToken_;
-  const edm::EDGetTokenT<std::vector<reco::Vertex>> primaryVerticesToken_;
+  const edm::EDGetTokenT<reco::MuonCollection> recoMuonToken_;
+  const edm::EDGetTokenT<reco::TrackCollection> standaloneMuonToken_;
+  const edm::EDGetTokenT<reco::TrackCollection> trackCollectionToken_;
+  const edm::EDGetTokenT<reco::VertexCollection> primaryVerticesToken_;
   const edm::EDGetTokenT<EcalRecHitCollection> reducedEndcapRecHitCollectionToken_;
   const edm::EDGetTokenT<EcalRecHitCollection> reducedBarrelRecHitCollectionToken_;
   const edm::EDGetTokenT<edm::TriggerResults> trigResultsToken_;
-  const edm::EDGetToken genParticleToken_;
-  const edm::EDGetToken genInfoToken_;
   const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> transientTrackToken_;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
   const std::vector<std::string> muonPathsToPass_;
