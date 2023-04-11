@@ -56,7 +56,7 @@ TEST_CASE("Standard checks of " ALPAKA_TYPE_ALIAS_NAME(alpakaTestAtomicPair), s_
         auto c_d = make_device_buffer<AtomicPairCounter>(queue);
         alpaka::memset(queue, c_d, 0);
 
-        std::cout << "size " << sizeof(AtomicPairCounter) << std::endl;
+        std::cout << "- size " << sizeof(AtomicPairCounter) << std::endl;
 
         constexpr uint32_t N = 20000;
         constexpr uint32_t M = N * 6;
@@ -103,11 +103,8 @@ TEST_CASE("Standard checks of " ALPAKA_TYPE_ALIAS_NAME(alpakaTestAtomicPair), s_
             REQUIRE(k < NUM_VALUES);
 
             for (; ib < ie; ++ib)
-            {
               REQUIRE(m_h.data()[ib] == k);
-              std::cout << ib << " - " << m_h.data()[ib] << " - " << k << std::endl;
-
-            }
+          
         }
 
     }
