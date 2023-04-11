@@ -292,7 +292,7 @@ bool DisappearingMuonsSkimming::findTrackInVertices(const reco::TrackRef& tkToMa
 
     std::vector<unsigned int> thePVkeys;
     thePVkeys.reserve(vtx.tracksSize());
-    for (unsigned int i=0; i<vtx.tracksSize(); i++){
+    for (unsigned int i = 0; i < vtx.tracksSize(); i++) {
       thePVkeys.push_back(vtx.trackRefAt(i).key());
     }
 
