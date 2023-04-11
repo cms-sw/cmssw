@@ -1232,10 +1232,7 @@ bool l1t::TriggerMenuParser::parseMuon(L1TUtmCondition condMu, unsigned int chip
         } break;
 
         case esCutType::Index: {
-          tfMuonIndexWindows.push_back({
-            cut.getMinimum().index,
-            cut.getMaximum().index
-          });
+          tfMuonIndexWindows.push_back({cut.getMinimum().index, cut.getMaximum().index});
         } break;
 
         default:
@@ -1391,7 +1388,7 @@ bool l1t::TriggerMenuParser::parseMuonCorr(const L1TUtmObject* corrMu, unsigned 
   int lowerThresholdInd = 0;
   int upperIndexInd = -1;
   int lowerIndexInd = 0;
-  // Up to five eta cuts can be implemented: at the moment three eta cuts are used only for muons (upt seeds for Run 3)                                             
+  // Up to five eta cuts can be implemented: at the moment three eta cuts are used only for muons (upt seeds for Run 3)
   int cntEta = 0;
   unsigned int etaWindow1Lower = -1, etaWindow1Upper = -1;
   unsigned int etaWindow2Lower = -1, etaWindow2Upper = -1;
@@ -1484,10 +1481,7 @@ bool l1t::TriggerMenuParser::parseMuonCorr(const L1TUtmObject* corrMu, unsigned 
       } break;
 
       case esCutType::Index: {
-        tfMuonIndexWindows.push_back({
-          cut.getMinimum().index,
-          cut.getMaximum().index
-        });
+        tfMuonIndexWindows.push_back({cut.getMinimum().index, cut.getMaximum().index});
       } break;
 
       default:
@@ -1797,7 +1791,7 @@ bool l1t::TriggerMenuParser::parseCalo(L1TUtmCondition condCalo, unsigned int ch
     int lowerThresholdInd = 0;
     int upperIndexInd = -1;
     int lowerIndexInd = 0;
-    // Up to five eta cuts can be implemented: at the moment three eta cuts are used only for muons (upt seeds for Run 3)       
+    // Up to five eta cuts can be implemented: at the moment three eta cuts are used only for muons (upt seeds for Run 3)
     int cntEta = 0;
     unsigned int etaWindow1Lower = -1, etaWindow1Upper = -1;
     unsigned int etaWindow2Lower = -1, etaWindow2Upper = -1;
@@ -2042,7 +2036,7 @@ bool l1t::TriggerMenuParser::parseCaloCorr(const L1TUtmObject* corrCalo, unsigne
   int lowerThresholdInd = 0;
   int upperIndexInd = -1;
   int lowerIndexInd = 0;
-  // Up to five eta cuts can be implemented: at the moment three eta cuts are used only for muons (upt seeds for Run 3)                                             
+  // Up to five eta cuts can be implemented: at the moment three eta cuts are used only for muons (upt seeds for Run 3)
   int cntEta = 0;
   unsigned int etaWindow1Lower = -1, etaWindow1Upper = -1;
   unsigned int etaWindow2Lower = -1, etaWindow2Upper = -1;
