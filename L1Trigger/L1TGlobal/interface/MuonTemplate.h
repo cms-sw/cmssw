@@ -51,6 +51,11 @@ public:
   MuonTemplate& operator=(const MuonTemplate&);
 
 public:
+  struct Window {
+    unsigned int lower;
+    unsigned int upper;
+  };
+
   // typedef for a single object template
   struct ObjectParameter {
     unsigned int unconstrainedPtHigh;
@@ -84,6 +89,8 @@ public:
     unsigned int phiWindow1Upper;
     unsigned int phiWindow2Lower;
     unsigned int phiWindow2Upper;
+
+    std::vector<Window> tfMuonIndexWindows;
   };
 
   // typedef for correlation parameters

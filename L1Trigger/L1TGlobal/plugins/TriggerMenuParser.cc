@@ -1150,6 +1150,8 @@ bool l1t::TriggerMenuParser::parseMuon(L1TUtmCondition condMu, unsigned int chip
     int charge = -1;               //default value is to ignore unless specified
     int qualityLUT = 0xFFFF;       //default is to ignore unless specified.
 
+    std::vector<MuonTemplate::Window> tfMuonIndexWindows;
+
     const std::vector<L1TUtmCut>& cuts = object.getCuts();
     for (size_t kk = 0; kk < cuts.size(); kk++) {
       const L1TUtmCut& cut = cuts.at(kk);
@@ -1228,6 +1230,14 @@ bool l1t::TriggerMenuParser::parseMuon(L1TUtmCondition condMu, unsigned int chip
           isolationLUT = l1tstr2int(cut.getData());
 
         } break;
+
+        case esCutType::Index: {
+          tfMuonIndexWindows.push_back({
+            cut.getMinimum().index,
+            cut.getMaximum().index
+          });
+        } break;
+
         default:
           break;
       }  //end switch
@@ -1267,6 +1277,8 @@ bool l1t::TriggerMenuParser::parseMuon(L1TUtmCondition condMu, unsigned int chip
     objParameter[cnt].charge = charge;
     objParameter[cnt].qualityLUT = qualityLUT;
     objParameter[cnt].isolationLUT = isolationLUT;
+
+    objParameter[cnt].tfMuonIndexWindows = tfMuonIndexWindows;
 
     cnt++;
   }  //end loop over objects
@@ -1390,6 +1402,8 @@ bool l1t::TriggerMenuParser::parseMuonCorr(const L1TUtmObject* corrMu, unsigned 
   int charge = -1;          //defaut is to ignore unless specified
   int qualityLUT = 0xFFFF;  //default is to ignore unless specified.
 
+  std::vector<MuonTemplate::Window> tfMuonIndexWindows;
+
   const std::vector<L1TUtmCut>& cuts = corrMu->getCuts();
   for (size_t kk = 0; kk < cuts.size(); kk++) {
     const L1TUtmCut& cut = cuts.at(kk);
@@ -1468,6 +1482,14 @@ bool l1t::TriggerMenuParser::parseMuonCorr(const L1TUtmObject* corrMu, unsigned 
         isolationLUT = l1tstr2int(cut.getData());
 
       } break;
+
+      case esCutType::Index: {
+        tfMuonIndexWindows.push_back({
+          cut.getMinimum().index,
+          cut.getMaximum().index
+        });
+      } break;
+
       default:
         break;
     }  //end switch
@@ -1507,6 +1529,8 @@ bool l1t::TriggerMenuParser::parseMuonCorr(const L1TUtmObject* corrMu, unsigned 
   objParameter[0].charge = charge;
   objParameter[0].qualityLUT = qualityLUT;
   objParameter[0].isolationLUT = isolationLUT;
+
+  objParameter[0].tfMuonIndexWindows = tfMuonIndexWindows;
 
   // object types - all muons
   std::vector<GlobalObject> objType(nrObj, gtMu);

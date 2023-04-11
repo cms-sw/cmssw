@@ -489,6 +489,12 @@ const bool l1t::MuCondition::checkObjectParameter(const int iCondition,
     return false;
   }
 
+  // check muon TF index
+  if (!checkRangeTfMuonIndex(cand.tfMuonIndex(), objPar.tfMuonIndexWindows)) {
+    LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed checkRange(tfMuonIndex)" << std::endl;
+    return false;
+  }
+
   // A number of values is required to trigger (at least one).
   // "Don't care" means that all values are allowed.
   // Qual = 000 means then NO MUON (GTL module)
