@@ -100,8 +100,8 @@ namespace dqm::implementation {
       medata.key_.path_ = path;
       medata.key_.kind_ = kind;
 
-      bool pathInList = false;
       if (not store_->MEsToSave_.empty()) {
+         bool pathInList = false;
         for (auto& thepath : store_->MEsToSave_) {
           if (fullpath == thepath) {
             medata.key_.scope_ = MonitorElementData::Scope::LUMI;
