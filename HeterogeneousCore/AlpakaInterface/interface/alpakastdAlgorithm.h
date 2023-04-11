@@ -1,5 +1,5 @@
-#ifndef AlpakaCore_alpakastdAlgorithm_h
-#define AlpakaCore_alpakastdAlgorithm_h
+#ifndef HeterogeneousCore_AlpakaInterface_interface_alpakastdAlgorithm_h
+#define HeterogeneousCore_AlpakaInterface_interface_alpakastdAlgorithm_h
 
 #include <algorithm>
 #include <functional>
@@ -32,4 +32,4 @@ namespace alpaka_std {
 
 }  // namespace alpaka_std
 
-#endif  // AlpakaCore_alpakastdAlgorithm_h
+#endif  // HeterogeneousCore_AlpakaInterface_interface_alpakastdAlgorithm_h

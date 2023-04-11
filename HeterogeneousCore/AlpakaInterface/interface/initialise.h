@@ -1,5 +1,5 @@
-#ifndef AlpakaCore_initialise_h
-#define AlpakaCore_initialise_h
+#ifndef HeterogeneousCore_AlpakaInterface_interface_initialise_h
+#define HeterogeneousCore_AlpakaInterface_interface_initialise_h
 
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
@@ -24,4 +24,4 @@ namespace cms::alpakatools {
 
 }  // namespace cms::alpakatools
 
-#endif  // AlpakaCore_initialise_h
+#endif  // HeterogeneousCore_AlpakaInterface_interface_initialise_h

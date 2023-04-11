@@ -1,5 +1,5 @@
-#ifndef AlpakaCore_prefixScan_h
-#define AlpakaCore_prefixScan_h
+#ifndef HeterogeneousCore_AlpakaInterface_interface_prefixScan_h
+#define HeterogeneousCore_AlpakaInterface_interface_prefixScan_h
 
 #include <algorithm>
 #include <cstdint>
@@ -225,4 +225,4 @@ namespace cms {
   }  // namespace alpakatools
 }  // namespace cms
 
-#endif  // AlpakaCore_prefixScan_h
+#endif  // HeterogeneousCore_AlpakaInterface_interface_prefixScan_h

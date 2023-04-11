@@ -1,5 +1,5 @@
-#ifndef AlpakaCore_AtomicPairCounter_h
-#define AlpakaCore_AtomicPairCounter_h
+#ifndef HeterogeneousCore_AlpakaInterface_interface_AlpakaServiceFwd_h
+#define HeterogeneousCore_AlpakaInterface_interface_AlpakaServiceFwd_h
 
 #include <cstdint>
 
@@ -50,4 +50,4 @@ namespace cms::alpakatools {
 
 }  // namespace cms::alpakatools
 
-#endif  // AlpakaCore_AtomicPairCounter_h
+#endif  // HeterogeneousCore_AlpakaInterface_interface_AlpakaServiceFwd_h

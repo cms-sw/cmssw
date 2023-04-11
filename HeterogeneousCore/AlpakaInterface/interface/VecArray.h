@@ -1,5 +1,5 @@
-#ifndef AlpakaCore_VecArray_h
-#define AlpakaCore_VecArray_h
+#ifndef HeterogeneousCore_AlpakaInterface_interface_VecArray_h
+#define HeterogeneousCore_AlpakaInterface_interface_VecArray_h
 
 //
 // Author: Felice Pantaleo, CERN
@@ -104,4 +104,4 @@ namespace cms::alpakatools {
 
 }  // namespace cms::alpakatools
 
-#endif  // AlpakaCore_VecArray_h
+#endif  // HeterogeneousCore_AlpakaInterface_interface_VecArray_h

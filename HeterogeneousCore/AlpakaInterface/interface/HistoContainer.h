@@ -1,5 +1,5 @@
-#ifndef AlpakaCore_HistoContainer_h
-#define AlpakaCore_HistoContainer_h
+#ifndef HeterogeneousCore_AlpakaInterface_interface_HistoContainer_h
+#define HeterogeneousCore_AlpakaInterface_interface_HistoContainer_h
 
 #include <alpaka/alpaka.hpp>
 #include <algorithm>
@@ -300,4 +300,4 @@ namespace cms {
 
   }  // namespace alpakatools
 }  // namespace cms
-#endif  // AlpakaCore_HistoContainer_h
+#endif  // HeterogeneousCore_AlpakaInterface_interface_HistoContainer_h
