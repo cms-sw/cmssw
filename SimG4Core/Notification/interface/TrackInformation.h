@@ -88,6 +88,8 @@ public:
   inline bool isFromBTLtoT() const { return (mtdStatus_ >> 1) & 1; }
   inline void setBTLdaughter() { mtdStatus_ |= 1 << 2; }  // 3rd bit
   inline bool isBTLdaughter() const { return (mtdStatus_ >> 2) & 1; }
+  inline void setBTLlooper() { mtdStatus_ |= 1 << 3; }  // 4th bit
+  inline bool isBTLlooper() const { return (mtdStatus_ >> 3) & 1; }
 
   int idAtBTLentrance() const { return idAtBTLentrance_; }
   void setIdAtBTLentrance(int id) { idAtBTLentrance_ = id; }

@@ -174,6 +174,12 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
         LogDebug("SimG4CoreApplication") << "Setting flag for Tracker -> BTL " << trkinfo->isFromTtoBTL()
                                          << " IdAtBTLentrance = " << trkinfo->idAtBTLentrance();
 #endif
+      } else {
+        trkinfo->setBTLlooper();
+#ifdef DebugLog
+        LogDebug("SimG4CoreApplication") << "Setting flag for BTL looper " << trkinfo->isFromTtoBTL();
+        trkinfo->Print();
+#endif
       }
     } else if (preStep->GetPhysicalVolume() == btl && postStep->GetPhysicalVolume() == tracker) {
       // store transition BTL -> tracker

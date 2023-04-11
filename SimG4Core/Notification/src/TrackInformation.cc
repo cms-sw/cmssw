@@ -36,5 +36,6 @@ void TrackInformation::Print() const {
                                << "                    isFromTtoBTL = " << isFromTtoBTL() << "\n"
                                << "                    isFromBTLtoT = " << isFromBTLtoT() << "\n"
                                << "                    isBTLdaughter = " << isBTLdaughter() << "\n"
+                               << "                    isBTLlooper = " << isBTLlooper() << "\n"
                                << "                    idAtBTLentrance = " << idAtBTLentrance_;
 }
