@@ -1,5 +1,5 @@
-#ifndef MatchedHitRZCorrectionFromBending_H
-#define MatchedHitRZCorrectionFromBending_H
+#ifndef RecoTracker_PixelSeeding_plugins_MatchedHitRZCorrectionFromBending_h
+#define RecoTracker_PixelSeeding_plugins_MatchedHitRZCorrectionFromBending_h
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
@@ -44,4 +44,4 @@ private:
   FixupFn rFixup, zFixup;
 };
 
-#endif  // MatchedHitRZCorrectionFromBending_H
+#endif  // RecoTracker_PixelSeeding_plugins_MatchedHitRZCorrectionFromBending_h

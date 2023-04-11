@@ -1,5 +1,5 @@
-#ifndef PixelVertexFinding_PVCluster_h
-#define PixelVertexFinding_PVCluster_h
+#ifndef RecoTracker_PixelVertexFinding_PVCluster_h
+#define RecoTracker_PixelVertexFinding_PVCluster_h
 /** \class PVCluster PVCluster.h RecoTracker/PixelVertexFinding/PVCluster.h 
  * A simple collection of tracks that represents a physical clustering
  * of charged particles, ie a vertex, in one dimension.  This

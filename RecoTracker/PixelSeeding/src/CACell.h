@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelTriplets_src_CACell_h
-#define RecoPixelVertexing_PixelTriplets_src_CACell_h
+#ifndef RecoTracker_PixelSeeding_src_CACell_h
+#define RecoTracker_PixelSeeding_src_CACell_h
 
 #include <array>
 #include <cmath>
@@ -288,4 +288,4 @@ private:
   const float theInnerZ;
 };
 
-#endif  // RecoPixelVertexing_PixelTriplets_src_CACell_h
+#endif  // RecoTracker_PixelSeeding_src_CACell_h

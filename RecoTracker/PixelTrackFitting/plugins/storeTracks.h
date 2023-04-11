@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexingPixelTrackFittingStoreTracks_H
-#define RecoPixelVertexingPixelTrackFittingStoreTracks_H
+#ifndef RecoTracker_PixelTrackFitting_plugins_storeTracks_h
+#define RecoTracker_PixelTrackFitting_plugins_storeTracks_h
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"

@@ -1,5 +1,5 @@
-#ifndef TrackFitter_H
-#define TrackFitter_H
+#ifndef RecoTracker_PixelLowPtUtilities_TrackFitter_h
+#define RecoTracker_PixelLowPtUtilities_TrackFitter_h
 
 #include "RecoTracker/PixelTrackFitting/interface/PixelFitterBase.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"

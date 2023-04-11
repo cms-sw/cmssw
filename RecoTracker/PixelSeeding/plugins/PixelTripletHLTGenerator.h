@@ -1,5 +1,5 @@
-#ifndef PixelTripletHLTGenerator_H
-#define PixelTripletHLTGenerator_H
+#ifndef RecoTracker_PixelSeeding_plugins_PixelTripletHLTGenerator_h
+#define RecoTracker_PixelSeeding_plugins_PixelTripletHLTGenerator_h
 
 /** A HitTripletGenerator from HitPairGenerator and vector of
     Layers. The HitPairGenerator provides a set of hit pairs.

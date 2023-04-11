@@ -1,5 +1,5 @@
-#ifndef _Cluster1DMerger_H_
-#define _Cluster1DMerger_H_
+#ifndef RecoTracker_PixelVertexFinding_Cluster1DMerger_h
+#define RecoTracker_PixelVertexFinding_Cluster1DMerger_h
 
 #include "CommonTools/Clustering1D/interface/Cluster1D.h"
 #include "CommonTools/Clustering1D/interface/WeightEstimator.h"

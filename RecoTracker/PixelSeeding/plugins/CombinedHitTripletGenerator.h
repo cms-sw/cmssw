@@ -1,5 +1,5 @@
-#ifndef CombinedHitTripletGenerator_H
-#define CombinedHitTripletGenerator_H
+#ifndef RecoTracker_PixelSeeding_plugins_CombinedHitTripletGenerator_h
+#define RecoTracker_PixelSeeding_plugins_CombinedHitTripletGenerator_h
 
 /** A HitTripletGenerator consisting of a set of 
  *  triplet generators of type HitTripletGeneratorFromPairAndLayers

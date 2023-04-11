@@ -1,5 +1,5 @@
-#ifndef _ClusterShapeTrackFilter_h_
-#define _ClusterShapeTrackFilter_h_
+#ifndef RecoTracker_PixelLowPtUtilities_ClusterShapeTrackFilter_h
+#define RecoTracker_PixelLowPtUtilities_ClusterShapeTrackFilter_h
 
 #include "RecoTracker/PixelTrackFitting/interface/PixelTrackFilterBase.h"
 

@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelTriplets_interface_CACut_h
-#define RecoPixelVertexing_PixelTriplets_interface_CACut_h
+#ifndef RecoTracker_PixelSeeding_CACut_h
+#define RecoTracker_PixelSeeding_CACut_h
 // -*- C++ -*-
 // //
 // // Package:    RecoTracker/PixelSeeding

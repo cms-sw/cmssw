@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelTriplets_IntermediateHitTriplets_h
-#define RecoPixelVertexing_PixelTriplets_IntermediateHitTriplets_h
+#ifndef RecoTracker_PixelSeeding_IntermediateHitTriplets_h
+#define RecoTracker_PixelSeeding_IntermediateHitTriplets_h
 
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
 #include "RecoTracker/TkHitPairs/interface/IntermediateHitDoublets.h"

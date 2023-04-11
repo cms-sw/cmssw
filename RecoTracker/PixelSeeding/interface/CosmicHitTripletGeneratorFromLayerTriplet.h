@@ -1,5 +1,5 @@
-#ifndef CosmicHitTripletGeneratorFromLayerTriplet_h
-#define CosmicHitTripletGeneratorFromLayerTriplet_h
+#ifndef RecoTracker_PixelSeeding_CosmicHitTripletGeneratorFromLayerTriplet_h
+#define RecoTracker_PixelSeeding_CosmicHitTripletGeneratorFromLayerTriplet_h
 
 #include "RecoTracker/PixelSeeding/interface/OrderedHitTriplets.h"
 #include "RecoTracker/TkHitPairs/interface/LayerWithHits.h"

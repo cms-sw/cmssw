@@ -1,5 +1,5 @@
-#ifndef PixelTrackFitting_TracksWithHits_H
-#define PixelTrackFitting_TracksWithHits_H
+#ifndef RecoTracker_PixelTrackFitting_TracksWithHits_h
+#define RecoTracker_PixelTrackFitting_TracksWithHits_h
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"

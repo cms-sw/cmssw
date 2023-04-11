@@ -1,5 +1,5 @@
-#ifndef CosmicLayerTriplets_H
-#define CosmicLayerTriplets_H
+#ifndef RecoTracker_PixelSeeding_CosmicLayerTriplets_h
+#define RecoTracker_PixelSeeding_CosmicLayerTriplets_h
 
 /** \class CosmicLayerTriplets
  * find all (resonable) pairs of pixel layers

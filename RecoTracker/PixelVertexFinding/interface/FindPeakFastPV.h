@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_FindPeakFastPV_h
-#define RecoPixelVertexing_FindPeakFastPV_h
+#ifndef RecoTracker_PixelVertexFinding_FindPeakFastPV_h
+#define RecoTracker_PixelVertexFinding_FindPeakFastPV_h
 /** \class FindPeakFastPV FindPeakFastPV.h RecoTracker/PixelVertexFinding/FindPeakFastPV.h 
  * Given *zProjections* and *zWeights* find the peak of width *m_zClusterWidth*. 
  * Use only values with *zWeights*>*m_weightCut*. 

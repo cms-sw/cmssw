@@ -1,5 +1,5 @@
-#ifndef ThirdHitRZPrediction_H
-#define ThirdHitRZPrediction_H
+#ifndef RecoTracker_PixelSeeding_ThirdHitRZPrediction_h
+#define RecoTracker_PixelSeeding_ThirdHitRZPrediction_h
 
 /** predicts a range in r-z for the position of third hit.
  *  the predicted reange is defined by the template argument, which

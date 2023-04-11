@@ -1,5 +1,5 @@
-#ifndef PixelTrackFitting_PixelTrackErrorParam_H
-#define PixelTrackFitting_PixelTrackErrorParam_H
+#ifndef RecoTracker_PixelTrackFitting_PixelTrackErrorParam_h
+#define RecoTracker_PixelTrackFitting_PixelTrackErrorParam_h
 #include <cmath>
 
 class PixelTrackErrorParam {

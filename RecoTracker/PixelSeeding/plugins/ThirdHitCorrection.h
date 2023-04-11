@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelTriplets_ThirdHitCorrection_H
-#define RecoPixelVertexing_PixelTriplets_ThirdHitCorrection_H
+#ifndef RecoTracker_PixelSeeding_plugins_ThirdHitCorrection_h
+#define RecoTracker_PixelSeeding_plugins_ThirdHitCorrection_h
 
 #include "RecoTracker/TkMSParametrization/interface/LongitudinalBendingCorrection.h"
 #include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisation.h"

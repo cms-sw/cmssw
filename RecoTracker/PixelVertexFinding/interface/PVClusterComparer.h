@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PVClusterComparer_h
-#define RecoPixelVertexing_PVClusterComparer_h
+#ifndef RecoTracker_PixelVertexFinding_PVClusterComparer_h
+#define RecoTracker_PixelVertexFinding_PVClusterComparer_h
 /** \class PVClusterComparer PVClusterComparer.h
  * RecoTracker/PixelVertexFinding/PVClusterComparer.h  
  * This helper class is used to sort the collection of vertexes by

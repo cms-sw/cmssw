@@ -1,5 +1,5 @@
-#ifndef _TripletFilter_h_
-#define _TripletFilter_h_
+#ifndef RecoTracker_PixelLowPtUtilities_TripletFilter_h
+#define RecoTracker_PixelLowPtUtilities_TripletFilter_h
 
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"

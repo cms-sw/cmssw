@@ -1,5 +1,5 @@
-#ifndef ConformalMappingFit_H
-#define ConformalMappingFit_H
+#ifndef RecoTracker_PixelTrackFitting_src_ConformalMappingFit_h
+#define RecoTracker_PixelTrackFitting_src_ConformalMappingFit_h
 
 #include "DataFormats/GeometryVector/interface/Basic2DVector.h"
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"

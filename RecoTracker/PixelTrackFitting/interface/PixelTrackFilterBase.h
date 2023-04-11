@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelTrackFitting_PixelTrackFilterBase_H
-#define RecoPixelVertexing_PixelTrackFitting_PixelTrackFilterBase_H
+#ifndef RecoTracker_PixelTrackFitting_PixelTrackFilterBase_h
+#define RecoTracker_PixelTrackFitting_PixelTrackFilterBase_h
 
 namespace reco {
   class Track;

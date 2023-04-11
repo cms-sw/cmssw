@@ -1,5 +1,5 @@
-#ifndef OrderedHitTriplets_H
-#define OrderedHitTriplets_H
+#ifndef RecoTracker_PixelSeeding_OrderedHitTriplets_h
+#define RecoTracker_PixelSeeding_OrderedHitTriplets_h
 
 #include <vector>
 #include "RecoTracker/PixelSeeding/interface/OrderedHitTriplet.h"

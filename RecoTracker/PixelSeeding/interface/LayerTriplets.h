@@ -1,5 +1,5 @@
-#ifndef LayerTriplets_H
-#define LayerTriplets_H
+#ifndef RecoTracker_PixelSeeding_LayerTriplets_h
+#define RecoTracker_PixelSeeding_LayerTriplets_h
 
 /** A class grouping pixel layers in pairs and associating a vector
     of layers to each layer pair. The layer pair is used to generate

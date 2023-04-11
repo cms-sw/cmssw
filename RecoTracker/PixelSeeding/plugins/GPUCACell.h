@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelTriplets_plugins_GPUCACellT_h
-#define RecoPixelVertexing_PixelTriplets_plugins_GPUCACellT_h
+#ifndef RecoTracker_PixelSeeding_plugins_GPUCACell_h
+#define RecoTracker_PixelSeeding_plugins_GPUCACell_h
 
 //
 // Author: Felice Pantaleo, CERN
@@ -387,4 +387,4 @@ private:
   hindex_type theFishboneId;
 };
 
-#endif  // RecoPixelVertexing_PixelTriplets_plugins_GPUCACellT_h
+#endif  // RecoTracker_PixelSeeding_plugins_GPUCACell_h

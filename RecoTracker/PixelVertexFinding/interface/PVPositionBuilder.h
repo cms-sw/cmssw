@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PVPositionBuilder_h
-#define RecoPixelVertexing_PVPositionBuilder_h
+#ifndef RecoTracker_PixelVertexFinding_PVPositionBuilder_h
+#define RecoTracker_PixelVertexFinding_PVPositionBuilder_h
 /** \class PVPositionBuilder PVPositionBuilder.h RecoTracker/PixelVertexFinding/PVPositionBuilder.h 
  * This helper class calculates the average Z position of a collection of
  * tracks.  You have the option of calculating the straight average,

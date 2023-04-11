@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelTrackFitting_interface_BrokenLine_h
-#define RecoPixelVertexing_PixelTrackFitting_interface_BrokenLine_h
+#ifndef RecoTracker_PixelTrackFitting_BrokenLine_h
+#define RecoTracker_PixelTrackFitting_BrokenLine_h
 
 #include <Eigen/Eigenvalues>
 
@@ -616,4 +616,4 @@ namespace brokenline {
 
 }  // namespace brokenline
 
-#endif  // RecoPixelVertexing_PixelTrackFitting_interface_BrokenLine_h
+#endif  // RecoTracker_PixelTrackFitting_BrokenLine_h

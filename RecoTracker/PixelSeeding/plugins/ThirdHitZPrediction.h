@@ -1,5 +1,5 @@
-#ifndef ThirdHitZPrediction_H
-#define ThirdHitZPrediction_H
+#ifndef RecoTracker_PixelSeeding_plugins_ThirdHitZPrediction_h
+#define RecoTracker_PixelSeeding_plugins_ThirdHitZPrediction_h
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"

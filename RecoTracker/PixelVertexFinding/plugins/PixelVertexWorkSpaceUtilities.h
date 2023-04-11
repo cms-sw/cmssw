@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelVertexFinding_PixelVertexWorkSpace_h
-#define RecoPixelVertexing_PixelVertexFinding_PixelVertexWorkSpace_h
+#ifndef RecoTracker_PixelVertexFinding_plugins_PixelVertexWorkSpaceUtilities_h
+#define RecoTracker_PixelVertexFinding_plugins_PixelVertexWorkSpaceUtilities_h
 
 #include <cuda_runtime.h>
 #include "DataFormats/SoATemplate/interface/SoALayout.h"

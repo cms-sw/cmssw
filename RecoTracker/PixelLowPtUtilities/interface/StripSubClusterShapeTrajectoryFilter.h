@@ -1,5 +1,5 @@
-#ifndef _StripSubClusterShapeTrajectoryFilter_h_
-#define _StripSubClusterShapeTrajectoryFilter_h_
+#ifndef RecoTracker_PixelLowPtUtilities_StripSubClusterShapeTrajectoryFilter_h
+#define RecoTracker_PixelLowPtUtilities_StripSubClusterShapeTrajectoryFilter_h
 
 #include <vector>
 #include <unordered_map>

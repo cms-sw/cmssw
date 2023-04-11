@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelTrackFitting_interface_FitResult_h
-#define RecoPixelVertexing_PixelTrackFitting_interface_FitResult_h
+#ifndef RecoTracker_PixelTrackFitting_FitResult_h
+#define RecoTracker_PixelTrackFitting_FitResult_h
 
 #include <cmath>
 #include <cstdint>

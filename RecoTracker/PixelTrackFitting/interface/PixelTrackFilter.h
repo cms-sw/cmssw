@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelTrackFitting_PixelTrackFilter_H
-#define RecoPixelVertexing_PixelTrackFitting_PixelTrackFilter_H
+#ifndef RecoTracker_PixelTrackFitting_PixelTrackFilter_h
+#define RecoTracker_PixelTrackFitting_PixelTrackFilter_h
 
 #include "RecoTracker/PixelTrackFitting/interface/PixelTrackFilterBase.h"
 

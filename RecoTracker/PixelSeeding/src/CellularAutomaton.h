@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelTriplets_src_CellularAutomaton_h
-#define RecoPixelVertexing_PixelTriplets_src_CellularAutomaton_h
+#ifndef RecoTracker_PixelSeeding_src_CellularAutomaton_h
+#define RecoTracker_PixelSeeding_src_CellularAutomaton_h
 
 #include <array>
 
@@ -37,4 +37,4 @@ private:
   std::vector<std::vector<CACell*> > theNtuplets;
 };
 
-#endif  // RecoPixelVertexing_PixelTriplets_src_CellularAutomaton_h
+#endif  // RecoTracker_PixelSeeding_src_CellularAutomaton_h

@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelTrackFitting_interface_PixelNtupletsFitter_h
-#define RecoPixelVertexing_PixelTrackFitting_interface_PixelNtupletsFitter_h
+#ifndef RecoTracker_PixelTrackFitting_PixelNtupletsFitter_h
+#define RecoTracker_PixelTrackFitting_PixelNtupletsFitter_h
 
 #include <vector>
 
@@ -22,4 +22,4 @@ private:
   bool useRiemannFit_;
 };
 
-#endif  // RecoPixelVertexing_PixelTrackFitting_interface_PixelNtupletsFitter_h
+#endif  // RecoTracker_PixelTrackFitting_PixelNtupletsFitter_h

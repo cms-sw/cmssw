@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelTriplets_plugins_CAHitNtupletGeneratorKernels_h
-#define RecoPixelVertexing_PixelTriplets_plugins_CAHitNtupletGeneratorKernels_h
+#ifndef RecoTracker_PixelSeeding_plugins_CAHitNtupletGeneratorKernels_h
+#define RecoTracker_PixelSeeding_plugins_CAHitNtupletGeneratorKernels_h
 
 // #define GPU_DEBUG
 
@@ -336,4 +336,4 @@ public:
   static void printCounters(Counters const* counters);
 };
 
-#endif  // RecoPixelVertexing_PixelTriplets_plugins_CAHitNtupletGeneratorKernels_h
+#endif  // RecoTracker_PixelSeeding_plugins_CAHitNtupletGeneratorKernels_h

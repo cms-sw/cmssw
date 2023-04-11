@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelTrackFitting_interface_RiemannFit_h
-#define RecoPixelVertexing_PixelTrackFitting_interface_RiemannFit_h
+#ifndef RecoTracker_PixelTrackFitting_RiemannFit_h
+#define RecoTracker_PixelTrackFitting_RiemannFit_h
 
 #include "RecoTracker/PixelTrackFitting/interface/FitUtils.h"
 
@@ -1005,4 +1005,4 @@ namespace riemannFit {
 
 }  // namespace riemannFit
 
-#endif  // RecoPixelVertexing_PixelTrackFitting_interface_RiemannFit_h
+#endif  // RecoTracker_PixelTrackFitting_RiemannFit_h

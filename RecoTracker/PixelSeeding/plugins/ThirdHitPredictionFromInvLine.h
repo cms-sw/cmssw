@@ -1,5 +1,5 @@
-#ifndef ThirdHitPredictionFromInvLine_H
-#define ThirdHitPredictionFromInvLine_H
+#ifndef RecoTracker_PixelSeeding_plugins_ThirdHitPredictionFromInvLine_h
+#define RecoTracker_PixelSeeding_plugins_ThirdHitPredictionFromInvLine_h
 #include "DataFormats/GeometryVector/interface/Basic2DVector.h"
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 #include "DataFormats/GeometrySurface/interface/TkRotation.h"

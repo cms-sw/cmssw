@@ -1,5 +1,5 @@
-#ifndef _DivisiveClusterizer1D_H_
-#define _DivisiveClusterizer1D_H_
+#ifndef RecoTracker_PixelVertexFinding_DivisiveClusterizer1D_h
+#define RecoTracker_PixelVertexFinding_DivisiveClusterizer1D_h
 
 #include "CommonTools/Clustering1D/interface/Clusterizer1D.h"
 //#include "CommonTools/Clustering1D/interface/Cluster1DMerger.h"

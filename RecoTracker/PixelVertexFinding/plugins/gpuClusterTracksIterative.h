@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelVertexFinding_plugins_gpuClusterTracksIterative_h
-#define RecoPixelVertexing_PixelVertexFinding_plugins_gpuClusterTracksIterative_h
+#ifndef RecoTracker_PixelVertexFinding_plugins_gpuClusterTracksIterative_h
+#define RecoTracker_PixelVertexFinding_plugins_gpuClusterTracksIterative_h
 
 #include <algorithm>
 #include <cmath>
@@ -211,4 +211,4 @@ namespace gpuVertexFinder {
 
 }  // namespace gpuVertexFinder
 
-#endif  // RecoPixelVertexing_PixelVertexFinding_plugins_gpuClusterTracksIterative_h
+#endif  // RecoTracker_PixelVertexFinding_plugins_gpuClusterTracksIterative_h

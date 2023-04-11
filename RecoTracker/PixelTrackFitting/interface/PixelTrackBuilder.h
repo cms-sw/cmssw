@@ -1,5 +1,5 @@
-#ifndef PixelTrackBuilder_H
-#define PixelTrackBuilder_H
+#ifndef RecoTracker_PixelTrackFitting_PixelTrackBuilder_h
+#define RecoTracker_PixelTrackFitting_PixelTrackBuilder_h
 
 #include <vector>
 #include <string>

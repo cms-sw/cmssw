@@ -1,5 +1,5 @@
-#ifndef _ClusterShape_h_
-#define _ClusterShape_h_
+#ifndef RecoTracker_PixelLowPtUtilities_ClusterShape_h
+#define RecoTracker_PixelLowPtUtilities_ClusterShape_h
 
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
