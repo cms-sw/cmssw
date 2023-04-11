@@ -15,14 +15,14 @@ public:
       : id_(iid), ipart_(ipart), ip_(ip), ie_(ie), ivert_(iv), igenpart_(ig), parentMomentum_(ipmom) {}
 
   TmpSimTrack(int iid,
-             int ipart,
-             const math::XYZVectorD& ip,
-             double ie,
-             int iv,
-             int ig,
-             const math::XYZVectorD& ipmom,
-             const math::XYZVectorD& tkpos,
-             const math::XYZTLorentzVectorD& tkmom)
+              int ipart,
+              const math::XYZVectorD& ip,
+              double ie,
+              int iv,
+              int ig,
+              const math::XYZVectorD& ipmom,
+              const math::XYZVectorD& tkpos,
+              const math::XYZTLorentzVectorD& tkmom)
       : id_(iid),
         ipart_(ipart),
         ip_(ip),

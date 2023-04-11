@@ -9,7 +9,7 @@
 
 class TrackInformation : public G4VUserTrackInformation {
 public:
-  TrackInformation() {};
+  TrackInformation(){};
   ~TrackInformation() override = default;
   inline void *operator new(size_t);
   inline void operator delete(void *TrackInformation);
@@ -84,7 +84,6 @@ public:
   void Print() const override;
 
 private:
-
   bool storeTrack_{false};
   bool isPrimary_{false};
   bool hasHits_{false};

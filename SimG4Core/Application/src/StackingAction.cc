@@ -200,7 +200,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
         classification = fKill;
       } else {
         const G4Track* mother = trackAction->geant4Track();
-	MCTruthUtil::secondary(track, *mother, 0);
+        MCTruthUtil::secondary(track, *mother, 0);
       }
 
     } else if (isItOutOfTimeWindow(reg, time)) {
@@ -355,7 +355,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
             }
           }
           if (classification != fKill) {
-	    MCTruthUtil::secondary(track, *mother, flag);
+            MCTruthUtil::secondary(track, *mother, flag);
           }
           LogDebug("SimG4CoreApplication")
               << "StackingAction:Classify Track " << aTrack->GetTrackID() << " Parent " << aTrack->GetParentID()

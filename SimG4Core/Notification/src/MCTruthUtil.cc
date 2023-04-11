@@ -18,9 +18,8 @@ void MCTruthUtil::primary(G4Track *aTrack) {
 void MCTruthUtil::secondary(G4Track *aTrack, const G4Track &mother, int flag) {
   auto motherInfo = static_cast<const TrackInformation *>(mother.GetUserInformation());
   auto trkInfo = new TrackInformation();
-  LogDebug("SimG4CoreApplication") 
-      << "NewTrackAction called for " << aTrack->GetTrackID() << " mother "
-      << motherInfo->isPrimary() << " flag " << flag;
+  LogDebug("SimG4CoreApplication") << "NewTrackAction called for " << aTrack->GetTrackID() << " mother "
+                                   << motherInfo->isPrimary() << " flag " << flag;
 
   // Take care of cascade decays
   if (flag == 1) {
