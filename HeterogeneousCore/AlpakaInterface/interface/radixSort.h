@@ -245,36 +245,6 @@ namespace cms::alpakatools {
     radixSortImpl<TAcc, I, NS>(acc, (I const*)(a), ind, ind2, size, reorderFloat<TAcc, I>);
   }
 
-  /* Not needed
-template <typename T, int NS = sizeof(T)>
-ALPAKA_FN_ACC ALPAKA_FN_INLINE __attribute__((always_inline)) void radixSortMulti(T const* v,
-                                               uint16_t* index,
-                                               uint32_t const* offsets,
-                                               uint16_t* workspace) {
-
-  extern __shared__ uint16_t ws[];
-
-  auto a = v + offsets[blockIdx.x];
-  auto ind = index + offsets[blockIdx.x];
-  auto ind2 = nullptr == workspace ? ws : workspace + offsets[blockIdx.x];
-  auto size = offsets[blockIdx.x + 1] - offsets[blockIdx.x];
-  assert(offsets[blockIdx.x + 1] >= offsets[blockIdx.x]);
-  if (size > 0)
-    radixSort<T, NS>(a, ind, ind2, size);
-}
-
-    template <typename T, int NS = sizeof(T)>
-    __global__ void __launch_bounds__(256, 4)
-        radixSortMultiWrapper(T const* v, uint16_t* index, uint32_t const* offsets, uint16_t* workspace) {
-      radixSortMulti<T, NS>(v, index, offsets, workspace);
-    }
-
-    template <typename T, int NS = sizeof(T)>
-    __global__ void radixSortMultiWrapper2(T const* v, uint16_t* index, uint32_t const* offsets, uint16_t* workspace) {
-      radixSortMulti<T, NS>(v, index, offsets, workspace);
-    }
-*/
-
 }  // namespace cms::alpakatools
 
 #endif  // HeterogeneousCore_AlpakaInterface_interface_radixSort_h
