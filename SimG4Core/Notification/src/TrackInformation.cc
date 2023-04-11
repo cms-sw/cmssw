@@ -1,4 +1,4 @@
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

@@ -1,4 +1,4 @@
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 #include "SimG4Core/Application/interface/TrackingAction.h"
 

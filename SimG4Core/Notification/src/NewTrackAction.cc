@@ -1,4 +1,4 @@
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 #include "SimG4Core/Notification/interface/NewTrackAction.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
@@ -84,7 +84,7 @@ void NewTrackAction::addUserInfoToSecondary(G4Track *aTrack, const TrackInformat
 bool NewTrackAction::isInBTL(const G4Track *aTrack) const {
   bool out = false;
   G4String tName(aTrack->GetVolume()->GetLogicalVolume()->GetRegion()->GetName());
-  if ( tName == "FastTimerRegionBTL" || tName == "FastTimerRegionSensBTL" ) {
+  if (tName == "FastTimerRegionBTL" || tName == "FastTimerRegionSensBTL") {
     out = true;
   }
 

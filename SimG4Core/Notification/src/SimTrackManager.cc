@@ -1,4 +1,4 @@
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 // -*- C++ -*-
 //
@@ -30,7 +30,7 @@
 #include "G4ThreeVector.hh"
 #include "G4SystemOfUnits.hh"
 
-#define DebugLog
+//#define DebugLog
 
 SimTrackManager::SimTrackManager() {
   idsave.reserve(1000);
