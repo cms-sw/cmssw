@@ -154,20 +154,19 @@ void go(const DevHost& host, const Device& device, Queue& queue) {
 }
 
 int main() {
-
   auto const& devices = cms::alpakatools::devices<Platform>();
-    if (devices.empty()) {
-      std::cout << "No devices available on the platform " << EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE)
-                << ", the test will be skipped.\n";
-      return 0;
-    }
-  
+  if (devices.empty()) {
+    std::cout << "No devices available on the platform " << EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE)
+              << ", the test will be skipped.\n";
+    return 0;
+  }
+
   auto const& host = cms::alpakatools::host();
 
   // run the test on each device
   for (auto const& device : devices) {
     std::cout << "Test One Histo Container on " << alpaka::getName(device) << '\n';
-    
+
     auto queue = Queue(device);
 
     go<int16_t>(host, device, queue);

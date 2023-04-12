@@ -83,7 +83,7 @@ int go(const DevHost& host, const Device& device, Queue& queue) {
 
     alpaka::wait(queue);
 
-    std::cout << "Calling fillManyFromVector - " <<  h->size() << std::endl;
+    std::cout << "Calling fillManyFromVector - " << h->size() << std::endl;
     fillManyFromVector<Acc1D>(h_d.data(), nParts, v_d.data(), offsets_d.data(), offsets[10], 256, queue);
 
     alpaka::memcpy(queue, h, h_d);
@@ -94,7 +94,7 @@ int go(const DevHost& host, const Device& device, Queue& queue) {
     // {
     //   std::cout << offsets[i] <<" - "<< h->size() << std::endl;
     // }
-    
+
     assert(0 == h->off[0]);
     assert(offsets[10] == h->size());
 
@@ -175,7 +175,6 @@ int go(const DevHost& host, const Device& device, Queue& queue) {
 
 TEST_CASE("Standard checks of " ALPAKA_TYPE_ALIAS_NAME(alpakaTestHistoContainer), s_tag) {
   SECTION("HistoContainerKernel") {
-    
     // get the list of devices on the current platform
     auto const& devices = cms::alpakatools::devices<Platform>();
     auto const& host = cms::alpakatools::host();
@@ -189,9 +188,8 @@ TEST_CASE("Standard checks of " ALPAKA_TYPE_ALIAS_NAME(alpakaTestHistoContainer)
       std::cout << "Test Histo Container on " << alpaka::getName(device) << '\n';
       auto queue = Queue(device);
 
-      REQUIRE(go<int16_t>(host, device, queue)==0);
-      REQUIRE(go<int8_t>(host, device, queue)==0);
+      REQUIRE(go<int16_t>(host, device, queue) == 0);
+      REQUIRE(go<int8_t>(host, device, queue) == 0);
     }
-
   }
 }
