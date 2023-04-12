@@ -566,7 +566,7 @@ def nanoAOD_refineFastSim_bTagDeepFlav(process):
 
         src = cms.InputTag("linkedObjects","jets"),
 
-        weightFile=cms.FileInPath("PhysicsTools/NanoAOD/data/btagDeepFlavRefineNN_CHS.onnx"),#local hack for backporting: cp /cvmfs/cms.cern.ch/slc7_amd64_gcc11/cms/data-PhysicsTools-NanoAOD/V01-03-00/PhysicsTools/NanoAOD/data/btagDeepFlavRefineNN_CHS.onnx PhysicsTools/NanoAOD/data/btagDeepFlavRefineNN_CHS.onnx # cp /nfs/dust/cms/user/wolfmor/Refinement/TrainingOutput/regression_model_20221127_opset11.onnx PhysicsTools/NanoAOD/data/btagDeepFlavRefineNN_CHS.onnx 
+        weightFile=cms.FileInPath("PhysicsTools/NanoAOD/data/btagDeepFlavRefineNN_CHS.onnx"), 
         name = cms.string("btagDeepFlavRefineNN"),
 
         isClassifier = cms.bool(False),
