@@ -32,18 +32,18 @@ std::string testVisibleDevices::pyScript() const { return "createconstantgraph.p
 void testVisibleDevices::test() {
   std::string pbFile = dataPath_ + "/constantgraph.pb";
   tensorflow::Backend backend = tensorflow::Backend::cpu;
+  tensorflow::Options options{backend};
 
   // load the graph
-  tensorflow::setLogging();
   tensorflow::GraphDef* graphDef = tensorflow::loadGraphDef(pbFile);
   CPPUNIT_ASSERT(graphDef != nullptr);
 
   // create a new session and add the graphDef
-  tensorflow::Session* session = tensorflow::createSession(graphDef, backend);
+  tensorflow::Session* session = tensorflow::createSession(graphDef, options);
   CPPUNIT_ASSERT(session != nullptr);
 
   // check for exception
-  CPPUNIT_ASSERT_THROW(tensorflow::createSession(nullptr, backend), cms::Exception);
+  CPPUNIT_ASSERT_THROW(tensorflow::createSession(nullptr, options), cms::Exception);
 
   std::vector<tensorflow::DeviceAttributes> response;
   tensorflow::Status status = session->ListDevices(&response);

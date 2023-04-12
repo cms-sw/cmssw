@@ -51,10 +51,12 @@ process.add_(cms.Service('CUDAService'))
 
   std::cout << "Testing CUDA backend" << std::endl;
   tensorflow::Backend backend = tensorflow::Backend::cuda;
+  tensorflow::Options options{backend};
 
   // initialize the TBB threadpool
   int nThreads = 4;
   tensorflow::TBBThreadPool::instance(nThreads);
+  options.setThreading(nThreads);
 
   // load the graph
   std::string pbFile = dataPath_ + "/constantgraph.pb";
@@ -63,7 +65,7 @@ process.add_(cms.Service('CUDAService'))
   CPPUNIT_ASSERT(graphDef != nullptr);
 
   // create a new session and add the graphDef
-  tensorflow::Session* session = tensorflow::createSession(graphDef, backend);
+  tensorflow::Session* session = tensorflow::createSession(graphDef, options);
   CPPUNIT_ASSERT(session != nullptr);
 
   // prepare inputs
@@ -90,7 +92,7 @@ process.add_(cms.Service('CUDAService'))
   CPPUNIT_ASSERT(outputs[0].matrix<float>()(0, 0) == 46.);
 
   // tensorflow defaut pool using a new session
-  tensorflow::Session* session2 = tensorflow::createSession(graphDef, backend, nThreads);
+  tensorflow::Session* session2 = tensorflow::createSession(graphDef, options);
   CPPUNIT_ASSERT(session != nullptr);
   outputs.clear();
   tensorflow::run(session2, {{"input", input}, {"scale", scale}}, {"output"}, &outputs, "tensorflow");

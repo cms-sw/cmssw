@@ -30,11 +30,10 @@ void testSessionCache::test() {
 
   std::cout << "Testing CPU backend" << std::endl;
   tensorflow::Backend backend = tensorflow::Backend::cpu;
-
-  tensorflow::setLogging();
+  tensorflow::Options options{backend};
 
   // load the graph and the session
-  tensorflow::SessionCache cache(pbFile, backend);
+  tensorflow::SessionCache cache(pbFile, options);
   CPPUNIT_ASSERT(cache.graph.load() != nullptr);
   CPPUNIT_ASSERT(cache.session.load() != nullptr);
 
