@@ -627,8 +627,12 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
 
   if (parameters.preselectMuonTracks) {
     std::set<DetId> muonIdsInRegionOccupied;
-    std::set_intersection(muonIdsInRegion.begin(), muonIdsInRegion.end(), occupancy.begin(), occupancy.end(), std::inserter(muonIdsInRegionOccupied, muonIdsInRegionOccupied.begin()));
-    if (muonIdsInRegionOccupied.size() < 1)
+    std::set_intersection(muonIdsInRegion.begin(),
+                          muonIdsInRegion.end(),
+                          occupancy.begin(),
+                          occupancy.end(),
+                          std::inserter(muonIdsInRegionOccupied, muonIdsInRegionOccupied.begin()));
+    if (muonIdsInRegionOccupied.empty())
       return;
   }
 
@@ -727,7 +731,6 @@ void TrackDetectorAssociator::fillMuon(const edm::Event& iEvent,
   // Get the chambers segments/hits in the events
   std::set<DetId> occupancy_set;
   if (parameters.preselectMuonTracks) {
-
     edm::Handle<RPCRecHitCollection> rpcRecHits;
     iEvent.getByToken(parameters.rpcHitsToken, rpcRecHits);
     if (!rpcRecHits.isValid())
@@ -766,8 +769,9 @@ void TrackDetectorAssociator::fillMuon(const edm::Event& iEvent,
         occupancy_set.insert(me0RecHit.geographicalId());
       }
     }
-    if (occupancy_set.size() < 1) {
-      LogTrace("TrackAssociator") << "No segments or hits were found in the event: aborting track extrapolation" << std::endl;
+    if (occupancy_set.empty()) {
+      LogTrace("TrackAssociator") << "No segments or hits were found in the event: aborting track extrapolation"
+                                  << std::endl;
       return;
     }
   }
