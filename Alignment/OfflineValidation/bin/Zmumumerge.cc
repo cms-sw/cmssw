@@ -221,13 +221,13 @@ void Draw_TH1D_forMultiRootFiles(const vector<TString>& file_names,
   for (auto const& filename : file_names | boost::adaptors::indexed(0)) {
     file_input[filename.index()] = TFile::Open(filename.value());
     th1d_input[filename.index()] = (TH1D*)file_input[filename.index()]->Get(th1d_name);
+    th1d_input[filename.index()]->SetTitle("");
   }
 
   TCanvas* c = new TCanvas();
   TLegend* lg = new TLegend(0.2, 0.7, 0.5, 0.95);
   c->cd();
   gStyle->SetOptStat(0);
-  th1d_input[0]->SetTitle("");
 
   for (auto const& labelname : label_names | boost::adaptors::indexed(0)) {
     th1d_input[labelname.index()]->SetMarkerColor(colors[labelname.index()]);

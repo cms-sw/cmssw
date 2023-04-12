@@ -208,27 +208,28 @@ def switchClusterizerParameters(da):
 ####################################################################
 # Configure the PVValidation Analyzer module
 ####################################################################
-process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
-                                      TrackCollectionTag = cms.InputTag("FinalTrackRefitter"),
-                                      VertexCollectionTag = cms.InputTag(config["validation"].get("vertexcollection", "offlinePrimaryVertices")),
-                                      Debug = cms.bool(False),
-                                      storeNtuple = cms.bool(False),
-                                      useTracksFromRecoVtx = cms.bool(False),
-                                      isLightNtuple = cms.bool(True),
-                                      askFirstLayerHit = cms.bool(False),
-                                      forceBeamSpot = cms.untracked.bool(config["validation"].get("forceBeamSpot", False)),
-                                      probePt  = cms.untracked.double(config["validation"].get("ptCut", 3)),
-                                      probeEta  = cms.untracked.double(config["validation"].get("etaCut", 2.5)),
-                                      minPt  = cms.untracked.double(config["validation"].get("minPt", 1.)),
-                                      maxPt  = cms.untracked.double(config["validation"].get("maxPt", 30.)),
-                                      doBPix   = cms.untracked.bool(config["validation"].get("doBPix", True)),
-                                      doFPix   = cms.untracked.bool(config["validation"].get("doFPix", True)),
-                                      numberOfBins = cms.untracked.int32(config["validation"].get("numberOfBins", 48)),
-                                      runControl = cms.untracked.bool(config["validation"].get("runControl", False)),
-                                      runControlNumber = cms.untracked.vuint32(runboundary),
-                                      TkFilterParameters = FilteringParams,
-                                      TkClusParameters = switchClusterizerParameters(isDA)
-                                      )
+from Alignment.OfflineValidation.primaryVertexValidation_cfi import primaryVertexValidation  as _primaryVertexValidation
+process.PVValidation = _primaryVertexValidation.clone(
+    TrackCollectionTag = "FinalTrackRefitter",
+    VertexCollectionTag = config["validation"].get("vertexcollection", "offlinePrimaryVertices"),
+    Debug = False,
+    storeNtuple = False,
+    useTracksFromRecoVtx = False,
+    isLightNtuple = True,
+    askFirstLayerHit = False,
+    forceBeamSpot = config["validation"].get("forceBeamSpot", False),
+    probePt = config["validation"].get("ptCut", 3),
+    probeEta  = config["validation"].get("etaCut", 2.5),
+    minPt  = config["validation"].get("minPt", 1.),
+    maxPt  = config["validation"].get("maxPt", 30.),
+    doBPix = config["validation"].get("doBPix", True),
+    doFPix = config["validation"].get("doFPix", True),
+    numberOfBins = config["validation"].get("numberOfBins", 48),
+    runControl = config["validation"].get("runControl", False),
+    runControlNumber = [runboundary],
+    TkFilterParameters = FilteringParams,
+    TkClusParameters = switchClusterizerParameters(isDA)
+)
 
 ####################################################################
 # Output file

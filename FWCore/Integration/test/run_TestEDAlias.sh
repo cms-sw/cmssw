@@ -4,7 +4,7 @@ test=testEDAlias
 
 function die { echo Failure $1: status $2 ; exit $2 ; }
 
-pushd ${LOCAL_TMP_DIR}
+LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
 
   echo "*************************************************"
   echo "EDAlias consumer in a Task"
@@ -33,7 +33,5 @@ pushd ${LOCAL_TMP_DIR}
   cmsRun ${LOCAL_TEST_DIR}/${test}ManyModulesAmbiguous_cfg.py includeAliasToBar=0 || die "cmsRun ${test}ManyModulesAmbiguous_cfg.py includeAliasToBar=0" $?
   cmsRun ${LOCAL_TEST_DIR}/${test}ManyModulesAmbiguous_cfg.py consumerGets=0 || die "cmsRun ${test}ManyModulesAmbiguous_cfg.py consumerGets=0" $?
   cmsRun ${LOCAL_TEST_DIR}/${test}ManyModulesAmbiguous_cfg.py explicitProcessName=1 && die "cmsRun ${test}ManyModulesAmbiguous_cfg.py explicitProcessName=1" 1
-
-popd
 
 exit 0

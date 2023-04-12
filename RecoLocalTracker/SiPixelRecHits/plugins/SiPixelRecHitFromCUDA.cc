@@ -33,7 +33,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   using HMSstorage = HostProduct<uint32_t[]>;
-  using HitsOnGPU = TrackingRecHitSoADevice<TrackerTraits>;
+  using HitsOnDevice = TrackingRecHitSoADevice<TrackerTraits>;
 
 private:
   void acquire(edm::Event const& iEvent,
@@ -42,9 +42,9 @@ private:
   void produce(edm::Event& iEvent, edm::EventSetup const& iSetup) override;
 
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
-  const edm::EDGetTokenT<cms::cuda::Product<HitsOnGPU>> hitsToken_;   // CUDA hits
-  const edm::EDGetTokenT<SiPixelClusterCollectionNew> clusterToken_;  // legacy clusters
-  const edm::EDPutTokenT<SiPixelRecHitCollection> rechitsPutToken_;   // legacy rechits
+  const edm::EDGetTokenT<cms::cuda::Product<HitsOnDevice>> hitsToken_;  // CUDA hits
+  const edm::EDGetTokenT<SiPixelClusterCollectionNew> clusterToken_;    // legacy clusters
+  const edm::EDPutTokenT<SiPixelRecHitCollection> rechitsPutToken_;     // legacy rechits
   const edm::EDPutTokenT<HMSstorage> hostPutToken_;
 
   uint32_t nHits_;
@@ -55,7 +55,7 @@ private:
 template <typename TrackerTraits>
 SiPixelRecHitFromCUDAT<TrackerTraits>::SiPixelRecHitFromCUDAT(const edm::ParameterSet& iConfig)
     : geomToken_(esConsumes()),
-      hitsToken_(consumes<cms::cuda::Product<HitsOnGPU>>(iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"))),
+      hitsToken_(consumes<cms::cuda::Product<HitsOnDevice>>(iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"))),
       clusterToken_(consumes<SiPixelClusterCollectionNew>(iConfig.getParameter<edm::InputTag>("src"))),
       rechitsPutToken_(produces<SiPixelRecHitCollection>()),
       hostPutToken_(produces<HMSstorage>()) {}
@@ -73,7 +73,7 @@ template <typename TrackerTraits>
 void SiPixelRecHitFromCUDAT<TrackerTraits>::acquire(edm::Event const& iEvent,
                                                     edm::EventSetup const& iSetup,
                                                     edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
-  cms::cuda::Product<HitsOnGPU> const& inputDataWrapped = iEvent.get(hitsToken_);
+  cms::cuda::Product<HitsOnDevice> const& inputDataWrapped = iEvent.get(hitsToken_);
 
   cms::cuda::ScopedContextAcquire ctx{inputDataWrapped, std::move(waitingTaskHolder)};
 
@@ -192,9 +192,6 @@ void SiPixelRecHitFromCUDAT<TrackerTraits>::produce(edm::Event& iEvent, edm::Eve
 
   iEvent.emplace(rechitsPutToken_, std::move(output));
 }
-
-using SiPixelRecHitFromCUDA = SiPixelRecHitFromCUDAT<pixelTopology::Phase1>;
-DEFINE_FWK_MODULE(SiPixelRecHitFromCUDA);
 
 using SiPixelRecHitFromCUDAPhase1 = SiPixelRecHitFromCUDAT<pixelTopology::Phase1>;
 DEFINE_FWK_MODULE(SiPixelRecHitFromCUDAPhase1);

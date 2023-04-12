@@ -22,8 +22,7 @@ public:
 
   using AverageGeometry = typename hitSoA::AverageGeometry;
   using ParamsOnGPU = typename hitSoA::ParamsOnGPU;
-  using PhiBinnerStorageType = typename hitSoA::PhiBinnerStorageType;
-  using PhiBinner = typename hitSoA::PhiBinner;
+
   // Constructor which specifies the SoA size
   explicit TrackingRecHitSoADevice(uint32_t nHits,
                                    int32_t offsetBPIX2,
@@ -31,11 +30,7 @@ public:
                                    uint32_t const* hitsModuleStart,
                                    cudaStream_t stream)
       : cms::cuda::PortableDeviceCollection<TrackingRecHitLayout<TrackerTraits>>(nHits, stream),
-        nHits_(nHits),
-        cpeParams_(cpeParams),
-        hitsModuleStart_(hitsModuleStart),
         offsetBPIX2_(offsetBPIX2) {
-    phiBinner_ = &(view().phiBinner());
     cudaCheck(cudaMemcpyAsync(&(view().nHits()), &nHits, sizeof(uint32_t), cudaMemcpyDefault, stream));
     // hitsModuleStart is on Device
     cudaCheck(cudaMemcpyAsync(view().hitsModuleStart().data(),
@@ -50,12 +45,13 @@ public:
     cudaCheck(cudaMemcpyAsync(&(view().cpeParams()), cpeParams, int(sizeof(ParamsOnGPU)), cudaMemcpyDefault, stream));
   }
 
-  uint32_t nHits() const { return nHits_; }  //go to size of view
-
   cms::cuda::host::unique_ptr<float[]> localCoordToHostAsync(cudaStream_t stream) const {
     auto ret = cms::cuda::make_host_unique<float[]>(4 * nHits(), stream);
     size_t rowSize = sizeof(float) * nHits();
-    cudaCheck(cudaMemcpyAsync(ret.get(), view().xLocal(), rowSize * 4, cudaMemcpyDefault, stream));
+
+    size_t srcPitch = ptrdiff_t(view().yLocal()) - ptrdiff_t(view().xLocal());
+    cudaCheck(
+        cudaMemcpy2DAsync(ret.get(), rowSize, view().xLocal(), srcPitch, rowSize, 4, cudaMemcpyDeviceToHost, stream));
 
     return ret;
   }  //move to utilities
@@ -70,21 +66,12 @@ public:
     return ret;
   }
 
-  auto phiBinnerStorage() { return phiBinnerStorage_; }
-  auto hitsModuleStart() const { return hitsModuleStart_; }
-  uint32_t offsetBPIX2() const { return offsetBPIX2_; }
-  auto phiBinner() { return phiBinner_; }
-
+  uint32_t nHits() const { return view().metadata().size(); }
+  uint32_t offsetBPIX2() const {
+    return offsetBPIX2_;
+  }  //offsetBPIX2 is used on host functions so is useful to have it also stored in the class and not only in the layout
 private:
-  uint32_t nHits_;  //Needed for the host SoA size
-
-  //TODO: this is used not that much from the hits (only once in BrokenLineFit), would make sens to remove it from this class.
-  ParamsOnGPU const* cpeParams_;
-  uint32_t const* hitsModuleStart_;
-  uint32_t offsetBPIX2_;
-
-  PhiBinnerStorageType* phiBinnerStorage_;
-  PhiBinner* phiBinner_;
+  uint32_t offsetBPIX2_ = 0;
 };
 
 //Classes definition for Phase1/Phase2, to make the classes_def lighter. Not actually used in the code.

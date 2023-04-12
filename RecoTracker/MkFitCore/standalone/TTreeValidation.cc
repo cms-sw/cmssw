@@ -1067,22 +1067,23 @@ namespace mkfit {
     auto& seedtracks = ev.seedTracks_;
     auto& candtracks = ev.candidateTracks_;
     auto& fittracks = ev.fitTracks_;
+    auto score_calc = IterationConfig::get_track_scorer("default");
 
     // first compute score...
     for (auto& seedtrack : seedtracks) {
-      seedtrack.setScore(getScoreCand(seedtrack));
+      seedtrack.setScore(getScoreCand(score_calc, seedtrack));
     }
 
     // ...then use map to set seed type to for build/fit tracks and compute scores
     for (const auto& candToSeedPair : candToSeedMapDumbCMSSW_) {
       auto& candtrack = candtracks[candToSeedPair.first];
 
-      candtrack.setScore(getScoreCand(candtrack));
+      candtrack.setScore(getScoreCand(score_calc, candtrack));
     }
     for (const auto& fitToSeedPair : fitToSeedMapDumbCMSSW_) {
       auto& fittrack = fittracks[fitToSeedPair.first];
 
-      fittrack.setScore(getScoreCand(fittrack));
+      fittrack.setScore(getScoreCand(score_calc, fittrack));
     }
   }
 

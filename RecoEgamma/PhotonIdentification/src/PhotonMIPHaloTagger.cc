@@ -122,7 +122,6 @@ std::vector<double> PhotonMIPHaloTagger::GetMipTrailFit(const reco::Photon* phot
   int iphicell = 0;
   int kArray = 0;
 
-  double energy_total = 0.;
   int delt_ieta = 0;
   int delt_iphi = 0;
 
@@ -154,7 +153,6 @@ std::vector<double> PhotonMIPHaloTagger::GetMipTrailFit(const reco::Photon* phot
         ieta_cell.push_back(delt_ieta);
         iphi_cell.push_back(delt_iphi);
         energy_cell.push_back(it->energy());
-        energy_total += it->energy();
         kArray++;
       }
 

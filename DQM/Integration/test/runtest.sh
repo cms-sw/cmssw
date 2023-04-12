@@ -12,7 +12,7 @@ if [[ -z ${LOCAL_TEST_DIR} ]]; then
 fi
 
 if [[ -z ${CLIENTS_DIR} ]]; then
-    CLIENTS_DIR=$LOCAL_TEST_DIR/src/DQM/Integration/python/clients
+    CLIENTS_DIR=${CMSSW_BASE}/src/DQM/Integration/python/clients
 fi
 
 mkdir -p $LOCAL_TEST_DIR/upload

@@ -61,30 +61,45 @@ void L1TMuonShowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     Showers that arrive out-of-time are also under consideration, but are not
     going be to enabled at startup Run-3. So all showers should be in-time.
    */
-  bool isOneNominalInTime = false;
-  bool isTwoLooseInTime = false;
-  bool isOneTightInTime = false;
+  bool isOneNominalInTime{false};
+  bool isTwoLooseInTime{false};
+  bool isOneTightInTime{false};
+  bool isTwoLooseDifferentSectorsInTime{false};
 
+  bool foundOneLoose{false};
   for (size_t i = 0; i < emtfShowers->size(0); ++i) {
     auto shower = emtfShowers->at(0, i);
     if (shower.isValid()) {
       // nominal
-      if (shower.isOneNominalInTime())
+      if (shower.isOneNominalInTime()) {
         isOneNominalInTime = true;
+      }
       // two loose
-      if (shower.isTwoLooseInTime())
+      if (shower.isTwoLooseInTime()) {
         isTwoLooseInTime = true;
+      }
       // tight
-      if (shower.isOneTightInTime())
+      if (shower.isOneTightInTime()) {
         isOneTightInTime = true;
+      }
+      // two loose in different sectors
+      if (shower.isOneLooseInTime()) {
+        if (foundOneLoose) {
+          isTwoLooseDifferentSectorsInTime = true;
+        } else {
+          foundOneLoose = true;
+        }
+      }
     }
   }
 
   // Check for at least one nominal shower
-  const bool acceptCondition(isOneNominalInTime or isTwoLooseInTime or isOneTightInTime);
+  const bool acceptCondition{isOneNominalInTime or isTwoLooseInTime or isOneTightInTime or
+                             isTwoLooseDifferentSectorsInTime};
 
   if (acceptCondition) {
-    MuonShower outShower(isOneNominalInTime, false, isTwoLooseInTime, false, isOneTightInTime, false);
+    MuonShower outShower(
+        isOneNominalInTime, false, isTwoLooseInTime, false, isOneTightInTime, false, isTwoLooseDifferentSectorsInTime);
     outShowers->push_back(0, outShower);
   }
   iEvent.put(std::move(outShowers));

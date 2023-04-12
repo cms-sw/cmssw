@@ -6,6 +6,10 @@ process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('CondCore.CondDB.CondDB_cfi')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
+process.load('FWCore.MessageLogger.MessageLogger_cfi')
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.CaloGeom=dict()
+
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['run1_mc']
 

@@ -43,10 +43,8 @@ private:
 };
 
 HGCalTBNumberingInitialization::HGCalTBNumberingInitialization(const edm::ParameterSet& iConfig) {
-  name_ = iConfig.getUntrackedParameter<std::string>("Name");
-#ifdef EDM_ML_DEBUG
+  name_ = iConfig.getUntrackedParameter<std::string>("name");
   edm::LogVerbatim("HGCalGeom") << "HGCalTBNumberingInitialization for " << name_;
-#endif
   auto cc = setWhatProduced(this, name_);
   hgParToken_ = cc.consumes<HGCalTBParameters>(edm::ESInputTag{"", name_});
 }

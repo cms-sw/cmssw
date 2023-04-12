@@ -9,11 +9,11 @@ namespace mkfit {
 
 #define COMPUTE_CHI2_ARGS                                                                                    \
   const MPlexLS &, const MPlexLV &, const MPlexQI &, const MPlexHS &, const MPlexHV &, MPlexQF &, MPlexLV &, \
-      const int, const PropagationFlags, const bool
+      MPlexQI &, const int, const PropagationFlags, const bool
 
 #define UPDATE_PARAM_ARGS                                                                                         \
-  const MPlexLS &, const MPlexLV &, MPlexQI &, const MPlexHS &, const MPlexHV &, MPlexLS &, MPlexLV &, const int, \
-      const PropagationFlags, const bool
+  const MPlexLS &, const MPlexLV &, MPlexQI &, const MPlexHS &, const MPlexHV &, MPlexLS &, MPlexLV &, MPlexQI &, \
+      const int, const PropagationFlags, const bool
 
   class FindingFoos {
   public:

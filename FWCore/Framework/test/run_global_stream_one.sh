@@ -3,7 +3,7 @@
 # Pass in name and status
 function die { echo $1: status $2 ; echo === Log file === ; cat ${3:-/dev/null} ; echo === End log file === ; exit $2; }
 
-pushd ${LOCAL_TMP_DIR}
+LOCAL_TEST_DIR="${CMSSW_BASE}/src/FWCore/Framework/test"
 
 F1=${LOCAL_TEST_DIR}/test_global_modules_cfg.py
 F2=${LOCAL_TEST_DIR}/test_stream_modules_cfg.py
@@ -36,5 +36,3 @@ cat log_test_limited_concurrent_module | tail -n 3 | grep -v ' 0 ' | grep -v 'e-
 
 echo cmsRun modules_2_concurrent_lumis_cfg.py
 (cmsRun ${LOCAL_TEST_DIR}/modules_2_concurrent_lumis_cfg.py ) &> log_modules_2_concurrent_lumis || die "cmsRun modules_2_concurrent_lumis_cfg.py" $? log_modules_2_concurrent_lumis
-
-popd

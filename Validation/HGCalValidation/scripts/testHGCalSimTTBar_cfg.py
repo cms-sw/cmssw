@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun testHGCalTTBar_cfg.py geometry=D92
 #
-#   Options for geometry D88, D92, D93
+#   Options for geometry D88, D92, D93, D92Shift, V18
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('geometry',
                  "D92",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D88, D92, D93")
+                  "geometry of operations: D88, D92, D93, D92Shift, V18")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -29,7 +29,12 @@ print(options)
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 process = cms.Process('TTBarSim',Phase2C17I13M9)
 
-geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+if (options.geometry == "D92Shift"):
+    geomFile = "Geometry.HGCalCommonData.testHGCalV17ShiftReco_cff"
+elif (options.geometry == "V18"):
+    geomFile = "Geometry.HGCalCommonData.testHGCalV18Reco_cff"
+else:
+    geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
 globalTag = "auto:phase2_realistic_T21"
 outFile = "file:step1" + options.geometry + "tt.root"
 
@@ -66,7 +71,7 @@ process.maxEvents = cms.untracked.PSet(
 process.MessageLogger.cerr.FwkReport.reportEvery = 1
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.HGCalError=dict()
-    process.MessageLogger.HGCSim=dict()
+#   process.MessageLogger.HGCSim=dict()
 #   process.MessageLogger.HGCalSim=dict()
 
 # Input source

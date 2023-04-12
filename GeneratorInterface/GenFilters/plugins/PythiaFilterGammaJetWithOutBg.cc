@@ -149,9 +149,6 @@ bool PythiaFilterGammaJetWithOutBg::filter(edm::StreamID, edm::Event& iEvent, co
     }
 
     double etPhoton = 0;
-    double etPhotonCharged = 0;
-    double etCone = 0;
-    double etConeCharged = 0;
     double ptMaxHadron = 0;
 
     for (HepMC::GenEvent::particle_const_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end();
@@ -167,14 +164,6 @@ bool PythiaFilterGammaJetWithOutBg::filter(edm::StreamID, edm::Event& iEvent, co
         continue;
       double pt = (*p)->momentum().perp();
 
-      ParticleDataTable const& pdt = iSetup.getData(particleDataTableToken_);
-
-      int charge3 = ((pdt.particle((*p)->pdg_id()))->ID().threeCharge());
-
-      etCone += pt;
-      if (charge3 && pt < 2)
-        etConeCharged += pt;
-
       //select particles matching a crystal array centered on photon
       if (inEB) {
         if (std::abs(eta - etaPhoton) > deltaEB || std::abs(deltaPhi(phi, phiPhoton)) > deltaEB)
@@ -184,8 +173,6 @@ bool PythiaFilterGammaJetWithOutBg::filter(edm::StreamID, edm::Event& iEvent, co
         continue;
 
       etPhoton += pt;
-      if (charge3 && pt < 2)
-        etPhotonCharged += pt;
       if (apid > 100 && apid != 310 && pt > ptMaxHadron)
         ptMaxHadron = pt;
     }

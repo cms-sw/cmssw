@@ -5,7 +5,7 @@
     targetClass="cudatest::TestHostCollection"
     version="[1-]"
     source="portabletest::TestSoA layout_;"
-    target="buffer_"
+    target="buffer_,layout_,view_"
     embed="false">
   <![CDATA[
     cudatest::TestHostCollection::ROOTReadStreamer(newObj, onfile.layout_);

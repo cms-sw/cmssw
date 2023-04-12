@@ -13,6 +13,7 @@ process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag("l1tCaloLayer1SpyDigis
 process.simCaloStage2Layer1Digis.useECALLUT = cms.bool(False)
 process.simCaloStage2Layer1Digis.useHCALLUT = cms.bool(False)
 process.simCaloStage2Layer1Digis.useHFLUT = cms.bool(False)
+process.simCaloStage2Layer1Digis.useHCALFBLUT = cms.bool(False),
 process.simCaloStage2Layer1Digis.useLSB = cms.bool(False)
 process.simCaloStage2Layer1Digis.verbose = cms.bool(True)
 

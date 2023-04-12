@@ -10,6 +10,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
 #include "Utilities/General/interface/ClassName.h"
+#include "DataFormats/L1Trigger/interface/BXVector.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
@@ -347,6 +348,78 @@ protected:
   typedef ValueMapVariable<T, int, int16_t> Int16ExtVar;
   typedef ValueMapVariable<T, int, uint16_t> UInt16ExtVar;
   std::vector<std::unique_ptr<ExtVariable<T>>> extvars_;
+};
+
+template <typename T>
+class BXVectorSimpleFlatTableProducer : public SimpleFlatTableProducerBase<T, BXVector<T>> {
+public:
+  BXVectorSimpleFlatTableProducer(edm::ParameterSet const &params)
+      : SimpleFlatTableProducerBase<T, BXVector<T>>(params),
+        maxLen_(params.existsAs<unsigned int>("maxLen") ? params.getParameter<unsigned int>("maxLen")
+                                                        : std::numeric_limits<unsigned int>::max()),
+        cut_(params.getParameter<std::string>("cut"), true),
+        minBX_(params.getParameter<int>("minBX")),
+        maxBX_(params.getParameter<int>("maxBX")),
+        alwaysWriteBXValue_(params.getParameter<bool>("alwaysWriteBXValue")),
+        bxVarName_("bx") {
+    edm::ParameterSet const &varsPSet = params.getParameter<edm::ParameterSet>("variables");
+    auto varNames = varsPSet.getParameterNamesForType<edm::ParameterSet>();
+    if (std::find(varNames.begin(), varNames.end(), bxVarName_) != varNames.end()) {
+      throw cms::Exception("Configuration",
+                           "BXVectorSimpleFlatTableProducer already defines the " + bxVarName_ +
+                               "internally and thus you should not specify it yourself");
+    }
+  }
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+    edm::ParameterSetDescription desc = SimpleFlatTableProducerBase<T, BXVector<T>>::baseDescriptions();
+    desc.add<std::string>("cut", "")->setComment(
+        "selection on the main input collection (but selection can not be bx based)");
+    desc.addOptional<unsigned int>("maxLen")->setComment(
+        "define the maximum length of the input collection to put in the branch");
+    desc.add<int>("minBX", -2)->setComment("min bx (inclusive) to include");
+    desc.add<int>("maxBX", 2)->setComment("max bx (inclusive) to include");
+    desc.add<bool>("alwaysWriteBXValue", true)
+        ->setComment("always write the bx number (event  when only one bx can be present, ie minBX==maxBX)");
+    descriptions.addWithDefaultLabel(desc);
+  }
+
+  std::unique_ptr<nanoaod::FlatTable> fillTable(const edm::Event &iEvent,
+                                                const edm::Handle<BXVector<T>> &prod) const override {
+    std::vector<const T *> selObjs;
+    std::vector<int> selObjBXs;
+
+    if (prod.isValid() || !(this->skipNonExistingSrc_)) {
+      const int minBX = std::max(minBX_, prod->getFirstBX());
+      const int maxBX = std::min(maxBX_, prod->getLastBX());
+      for (int bx = minBX; bx <= maxBX; bx++) {
+        for (size_t objNr = 0, nrObjs = prod->size(bx); objNr < nrObjs; ++objNr) {
+          const auto &obj = prod->at(bx, objNr);
+          if (cut_(obj)) {
+            selObjs.push_back(&obj);
+            selObjBXs.push_back(bx);
+          }
+          if (selObjs.size() >= maxLen_)
+            break;
+        }
+      }
+    }
+    auto out = std::make_unique<nanoaod::FlatTable>(selObjs.size(), this->name_, false, this->extension_);
+    for (const auto &var : this->vars_)
+      var->fill(selObjs, *out);
+    if (alwaysWriteBXValue_ || minBX_ != maxBX_) {
+      out->template addColumn<int16_t>(bxVarName_, selObjBXs, "BX of the L1 candidate");
+    }
+    return out;
+  }
+
+protected:
+  const unsigned int maxLen_;
+  const StringCutObjectSelector<T> cut_;
+  const int minBX_;
+  const int maxBX_;
+  const bool alwaysWriteBXValue_;
+  const std::string bxVarName_;
 };
 
 template <typename T>

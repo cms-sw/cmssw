@@ -34,8 +34,3 @@
 <use name="g4hepemstatic"/>
 <flags DROP_DEP="geant4core"/>
 <flags DROP_DEP="g4hepemcore"/>
-<ifrelease name="!_LTO_">
-  <!-- Disable LTO in BigLibs, as it seems to clash with debugging symbols with gcc 4.9.X -->
-  <flags REM_BIGOBJ_CXXFLAGS="-flto"/>
-  <flags BIGOBJ_CXXFLAGS="-fno-lto"/>
-</ifrelease>

@@ -30,7 +30,6 @@ def miniAOD_customizeCommon(process):
     process.patMuons.puppiNoLeptonsIsolationPhotons        = cms.InputTag("muonPUPPINoLeptonsIsolation","gamma-DR040-ThresholdVeto000-ConeVeto001")
 
     process.patMuons.computeMiniIso = True
-    process.patMuons.computeMuonMVA = True
     process.patMuons.computeMuonIDMVA = True
     process.patMuons.computeSoftMuonMVA = True
 
@@ -41,8 +40,7 @@ def miniAOD_customizeCommon(process):
     run2_muon_2016.toModify( process.patMuons, effectiveAreaVec = [0.0735,0.0619,0.0465,0.0433,0.0577])
     run2_muon_2017.toModify( process.patMuons, effectiveAreaVec = [0.0566, 0.0562, 0.0363, 0.0119, 0.0064])
     run2_muon_2018.toModify( process.patMuons, effectiveAreaVec = [0.0566, 0.0562, 0.0363, 0.0119, 0.0064])
-    run2_muon_2016.toModify( process.patMuons, mvaTrainingFile = "RecoMuon/MuonIdentification/data/mu_2016_BDTG.weights.xml")
-
+    
     process.patMuons.computePuppiCombinedIso = True
     #
     # disable embedding of electron and photon associated objects already stored by the ReducedEGProducer
@@ -241,7 +239,7 @@ def miniAOD_customizeCommon(process):
 
     ## Quark Gluon Likelihood
     process.load('RecoJets.JetProducers.QGTagger_cfi')
-    task.add(process.QGTaggerTask)
+    task.add(process.QGTagger)
 
     process.patJets.userData.userFloats.src += [ 'QGTagger:qgLikelihood', ]
 
@@ -388,8 +386,8 @@ def miniAOD_customizeCommon(process):
         toKeep = ['deepTau2017v2p1','deepTau2018v2p5']
     )
     from Configuration.Eras.Modifier_phase2_common_cff import phase2_common #Phase2 Tau MVA
-    phase2_common.toModify(tauIdEmbedder.toKeep, func=lambda t:t.append('newDMPhase2v1')) #Phase2 Tau isolation MVA
-    phase2_common.toModify(tauIdEmbedder.toKeep, func=lambda t:t.append('againstElePhase2v1')) #Phase2 Tau anti-e MVA
+    _tauIds_phase2 = ['deepTau2026v2p5']
+    phase2_common.toModify(tauIdEmbedder.toKeep, func=lambda t:t.extend(_tauIds_phase2))
     tauIdEmbedder.runTauID()
     addToProcessAndTask(_noUpdatedTauName, process.slimmedTaus.clone(),process,task)
     delattr(process, 'slimmedTaus')

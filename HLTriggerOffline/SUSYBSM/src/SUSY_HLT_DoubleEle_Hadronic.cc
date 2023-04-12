@@ -194,7 +194,6 @@ void SUSY_HLT_DoubleEle_Hadronic::analyze(edm::Event const &e, edm::EventSetup c
       offlineCounter++;
     }
 
-    float caloHT = 0.0;
     float pfHT = 0.0;
     for (reco::PFJetCollection::const_iterator i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end();
          ++i_pfjet) {
@@ -211,7 +210,6 @@ void SUSY_HLT_DoubleEle_Hadronic::analyze(edm::Event const &e, edm::EventSetup c
         continue;
       if (fabs(i_calojet->eta()) > etaThrJet_)
         continue;
-      caloHT += i_calojet->pt();
     }
 
     if (hasFiredAuxiliaryForElectronLeg && ElectronCollection->size() > 1) {

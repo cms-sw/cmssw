@@ -1,0 +1,170 @@
+--------------------------------------------------
+Run             = 1
+LuminosityBlock = 291048
+Event           = 29104772
+
+  Product Label: "hltScoutingCaloPacker" (type: "vector<ScoutingCaloJet>"), size = 14
+
+    Object #0
+      btagDiscriminator = -20.0
+      emEnergyInEB = 239.46920776367188
+      emEnergyInEE = 0.0
+      emEnergyInHF = 0.0
+      eta = 0.19732625782489777
+      hadEnergyInHB = 4.694222450256348
+      hadEnergyInHE = 0.0
+      hadEnergyInHF = 0.0
+      jetArea = 0.5026548504829407
+      m = 13.72571849822998
+      maxEInEmTowers = 221.2417755126953
+      maxEInHadTowers = 1.1859394311904907
+      mvaDiscriminator = 0.8697163462638855
+      phi = -2.93450927734375
+      pt = 239.10707092285156
+      towersArea = 0.12147484719753265
+
+  Product Label: "hltScoutingEgammaPacker" (type: "vector<ScoutingElectron>"), size = 6
+
+    Object #0
+      charge = 1
+      d0 = -0.03971549868583679
+      dEtaIn = 8.61436128616333e-05
+      dPhiIn = 0.0005463957786560059
+      dz = -2.0579769611358643
+      ecalIso = 5.6464996337890625
+      eta = -0.22388292849063873
+      hOverE = 0.0
+      hcalIso = 0.0
+      m = -4.42200598627096e-06
+      missingHits = 0
+      ooEMOop = 0.0010115106124430895
+      phi = 0.19714701175689697
+      pt = 225.0137176513672
+      sigmaIetaIeta = 0.009137610904872417
+      trackIso = 0.0
+
+  Product Label: "hltScoutingMuonPackerCalo" (type: "vector<ScoutingMuon>"), size = 1
+
+    Object #0
+      charge = 1
+      chi2 = 33.93075942993164
+      dxy = -0.025435244664549828
+      dxyError = 0.0014315954176709056
+      dz = 5.874882698059082
+      dzError = 0.002003241330385208
+      ecalIso = -1.0
+      eta = -0.3469981849193573
+      hcalIso = -1.0
+      isGlobalMuon = True
+      isTrackerMuon = False
+      m = 0.0
+      nMatchedStations = 4
+      nTrackerLayersWithMeasurement = 14
+      nValidMuonHits = 34
+      nValidPixelHits = 4
+      nValidStripHits = 15
+      ndof = 18.0
+      phi = -2.360595464706421
+      pt = 9.477605819702148
+      trackIso = 0.0
+      trk_dsz = 5.5381083488464355
+      trk_dszError = 0.0018884065793827176
+      trk_eta = -0.3469981849193573
+      trk_lambda = -0.34023720026016235
+      trk_lambdaError = 0.0002624643384478986
+      trk_phi = -2.360595464706421
+      trk_phiError = 0.0002613998076412827
+      trk_pt = 9.477605819702148
+      trk_qoverp = 0.09946347028017044
+      trk_qoverpError = 0.0008352764998562634
+      type = 2
+      vtxIndx = {}
+
+  Product Label: "hltScoutingPFPacker" (type: "vector<ScoutingPFJet>"), size = 15
+
+    Object #0
+      HFEMEnergy = 0.0
+      HFEMMultiplicity = 0
+      HFHadronEnergy = 0.0
+      HFHadronMultiplicity = 0
+      HOEnergy = 0.0
+      chargedHadronEnergy = 5.21009635925293
+      chargedHadronMultiplicity = 6
+      constituents = { 1252, 1225, 1148, 1147, 103, 313, 364, 337, 86, 1206 }
+      csv = -20.0
+      electronEnergy = 0.0
+      electronMultiplicity = 0
+      eta = 0.15360045433044434
+      jetArea = 0.5026548504829407
+      m = 17.293928146362305
+      muonEnergy = 0.0
+      muonMultiplicity = 0
+      mvaDiscriminator = 0.0
+      neutralHadronEnergy = 4.073654651641846
+      neutralHadronMultiplicity = 2
+      phi = -2.9331908226013184
+      photonEnergy = 236.12876892089844
+      photonMultiplicity = 12
+      pt = 241.9427032470703
+
+  Product Label: "hltScoutingPFPacker" (type: "vector<ScoutingParticle>"), size = 1336
+
+    Object #0
+      eta = 2.6104886531829834
+      m = 0.0
+      pdgId = 22
+      phi = -0.648145854473114
+      pt = 0.9936956763267517
+      vertex = 0
+
+  Product Label: "hltScoutingEgammaPacker" (type: "vector<ScoutingPhoton>"), size = 2
+
+    Object #0
+      ecalIso = 3.121485948562622
+      eta = -1.1164329051971436
+      hOverE = 0.0
+      hcalIso = 3.9732704162597656
+      m = -1.6858739115832577e-07
+      phi = 2.536961078643799
+      pt = 7.608181953430176
+      sigmaIetaIeta = 0.011486247181892395
+
+  Product Label: "hltScoutingTrackPacker" (type: "vector<ScoutingTrack>"), size = 78
+
+    Object #0
+      tk_charge = -1
+      tk_chi2 = 32.697689056396484
+      tk_dsz = 5.522921562194824
+      tk_dsz_Error = 0.009875157848000526
+      tk_dxy = -0.025069741532206535
+      tk_dxy_Error = 0.015570130199193954
+      tk_dz = 5.897363185882568
+      tk_dz_Error = 0.0105446707457304
+      tk_eta = 0.36618342995643616
+      tk_lambda = 0.35826390981674194
+      tk_lambda_Error = 0.0020103193819522858
+      tk_nTrackerLayersWithMeasurement = 4
+      tk_nValidPixelHits = 4
+      tk_nValidStripHits = 0
+      tk_ndof = 3.0
+      tk_phi = -2.915278196334839
+      tk_phi_Error = 0.00473041320219636
+      tk_pt = 0.9674832224845886
+      tk_qoverp = -0.9679827094078064
+      tk_qoverp_Error = 0.061383962631225586
+
+  Product Label: "hltScoutingPrimaryVertexPacker:primaryVtx" (type: "vector<ScoutingVertex>"), size = 25
+
+    Object #0
+      chi2 = 0.0
+      isValidVtx = True
+      ndof = 1
+      tracksSize = 30
+      x = 0.010730049572885036
+      xError = 0.0
+      y = 0.041916027665138245
+      yError = 0.0
+      z = 5.910659313201904
+      zError = 0.005083281081169844
+--------------------------------------------------
+Events processed = 1

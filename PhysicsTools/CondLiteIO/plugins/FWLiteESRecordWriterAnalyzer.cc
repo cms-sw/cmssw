@@ -126,8 +126,7 @@ namespace edm {
         ESProxyIndex iProxyIndex,
         bool iTransientAccessOnly,
         ComponentDescription const*& oDesc,
-        std::shared_ptr<ESHandleExceptionFactory>& whyFailedFactory,
-        EventSetupImpl const* iEventSetupImpl) const {
+        std::shared_ptr<ESHandleExceptionFactory>& whyFailedFactory) const {
       DataKey const* dataKey = nullptr;
 
       if (iProxyIndex.value() == std::numeric_limits<int>::max()) {
@@ -182,7 +181,7 @@ namespace edm {
       ComponentDescription const* desc = nullptr;
       std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
 
-      impl_->getImplementation(pValue, proxyIndex, false, desc, whyFailedFactory, eventSetupImpl_);
+      impl_->getImplementation(pValue, proxyIndex, false, desc, whyFailedFactory);
 
       if UNLIKELY (not value.m_data) {
         std::rethrow_exception(whyFailedFactory->make());

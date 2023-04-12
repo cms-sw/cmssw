@@ -43,7 +43,7 @@ namespace testTrackingRecHitSoA {
     fill<TrackerTraits><<<10, 100, 0, stream>>>(hits.view());
 
     cudaCheck(cudaDeviceSynchronize());
-    cms::cuda::fillManyFromVector(hits.phiBinner(),
+    cms::cuda::fillManyFromVector(&(hits.view().phiBinner()),
                                   10,
                                   hits.view().iphi(),
                                   hits.view().hitsLayerStart().data(),

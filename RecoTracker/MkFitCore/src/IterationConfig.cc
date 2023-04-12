@@ -38,12 +38,11 @@ namespace mkfit {
 
   ITCONF_DEFINE_TYPE_NON_INTRUSIVE(mkfit::SteeringParams,
                                    /* std::vector<LayerControl> */ m_layer_plan,
+                                   /* std::string */ m_track_scorer_name,
                                    /* int */ m_region,
                                    /* int */ m_fwd_search_pickup,
                                    /* int */ m_bkw_fit_last,
-                                   /* int */ m_bkw_search_pickup
-
-  )
+                                   /* int */ m_bkw_search_pickup)
 
   ITCONF_DEFINE_TYPE_NON_INTRUSIVE(mkfit::IterationLayerConfig,
                                    /* int */ m_layer,
@@ -51,18 +50,8 @@ namespace mkfit {
                                    /* float */ m_select_max_dphi,
                                    /* float */ m_select_min_dq,
                                    /* float */ m_select_max_dq,
-                                   /* float */ c_dp_sf,
-                                   /* float */ c_dp_0,
-                                   /* float */ c_dp_1,
-                                   /* float */ c_dp_2,
-                                   /* float */ c_dq_sf,
-                                   /* float */ c_dq_0,
-                                   /* float */ c_dq_1,
-                                   /* float */ c_dq_2,
-                                   /* float */ c_c2_sf,
-                                   /* float */ c_c2_0,
-                                   /* float */ c_c2_1,
-                                   /* float */ c_c2_2)
+                                   /* std::vector<float> */ m_winpars_fwd,
+                                   /* std::vector<float> */ m_winpars_bkw)
 
   ITCONF_DEFINE_TYPE_NON_INTRUSIVE(mkfit::IterationParams,
                                    /* int */ nlayers_per_seed,
@@ -84,6 +73,7 @@ namespace mkfit {
                                    /* std::string */ m_pre_bkfit_filter_name,
                                    /* std::string */ m_post_bkfit_filter_name,
                                    /* std::string */ m_duplicate_cleaner_name,
+                                   /* std::string */ m_default_track_scorer_name,
                                    /* bool */ m_requires_seed_hit_sorting,
                                    /* bool */ m_backward_search,
                                    /* bool */ m_backward_drop_seed_hits,
@@ -117,10 +107,11 @@ namespace mkfit {
 
   namespace {
     struct FuncCatalog {
-      std::map<std::string, IterationConfig::clean_seeds_func> seed_cleaners;
-      std::map<std::string, IterationConfig::partition_seeds_func> seed_partitioners;
-      std::map<std::string, IterationConfig::filter_candidates_func> candidate_filters;
-      std::map<std::string, IterationConfig::clean_duplicates_func> duplicate_cleaners;
+      std::map<std::string, clean_seeds_func> seed_cleaners;
+      std::map<std::string, partition_seeds_func> seed_partitioners;
+      std::map<std::string, filter_candidates_func> candidate_filters;
+      std::map<std::string, clean_duplicates_func> duplicate_cleaners;
+      std::map<std::string, track_score_func> track_scorers;
 
       std::mutex catalog_mutex;
     };
@@ -151,6 +142,10 @@ namespace mkfit {
     GET_FC;
     fc.duplicate_cleaners.insert({name, func});
   }
+  void IterationConfig::register_track_scorer(const std::string &name, track_score_func func) {
+    GET_FC;
+    fc.track_scorers.insert({name, func});
+  }
 
   namespace {
     template <class T>
@@ -168,21 +163,25 @@ namespace mkfit {
     }
   }  // namespace
 
-  IterationConfig::clean_seeds_func IterationConfig::get_seed_cleaner(const std::string &name) {
+  clean_seeds_func IterationConfig::get_seed_cleaner(const std::string &name) {
     GET_FC;
     return resolve_func_name(fc.seed_cleaners, name, __func__);
   }
-  IterationConfig::partition_seeds_func IterationConfig::get_seed_partitioner(const std::string &name) {
+  partition_seeds_func IterationConfig::get_seed_partitioner(const std::string &name) {
     GET_FC;
     return resolve_func_name(fc.seed_partitioners, name, __func__);
   }
-  IterationConfig::filter_candidates_func IterationConfig::get_candidate_filter(const std::string &name) {
+  filter_candidates_func IterationConfig::get_candidate_filter(const std::string &name) {
     GET_FC;
     return resolve_func_name(fc.candidate_filters, name, __func__);
   }
-  IterationConfig::clean_duplicates_func IterationConfig::get_duplicate_cleaner(const std::string &name) {
+  clean_duplicates_func IterationConfig::get_duplicate_cleaner(const std::string &name) {
     GET_FC;
     return resolve_func_name(fc.duplicate_cleaners, name, __func__);
+  }
+  track_score_func IterationConfig::get_track_scorer(const std::string &name) {
+    GET_FC;
+    return resolve_func_name(fc.track_scorers, name, __func__);
   }
 
 #undef GET_FC
@@ -210,7 +209,12 @@ namespace mkfit {
     dprintf(" Set duplicate_cleaner for '%s' %s\n",
             m_duplicate_cleaner_name.c_str(),
             m_duplicate_cleaner ? "SET" : "NOT SET");
-    ;
+
+    m_default_track_scorer = get_track_scorer(m_default_track_scorer_name);
+    for (auto &sp : m_steering_params) {
+      sp.m_track_scorer =
+          sp.m_track_scorer_name.empty() ? m_default_track_scorer : get_track_scorer(sp.m_track_scorer_name);
+    }
   }
 
   // ============================================================================

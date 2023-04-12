@@ -20,10 +20,9 @@ hltDisappTrk = _hltHighLevel.hltHighLevel.clone(
       "HLT_Ele*_WPLoose_Gsf_v*",
       "HLT_IsoMu*_v*",
       "HLT_MediumChargedIsoPFTau*HighPtRelaxedIso_Trk50_eta2p1_v*",
-      "HLT_VBF_DoubleMediumChargedIsoPFTauHPS20_Trk1_eta2p1_v*",
-      "HLT_DoubleMediumDeepTauIsoPFTauHPS*_L2NN_eta2p1_v*",
-      "HLT_DoubleMediumChargedIsoPFTauHPS*_Trk1_eta2p1_v*",
-      "HLT_VBF_DoubleMediumDeepTauPFTauHPS20_eta2p1_v*"
+      "HLT_VBF_DoubleMediumDeepTauPFTauHPS20_eta2p1_v*",
+      "HLT_DoubleMediumDeepTauPFTauHPS*_L2NN_eta2p1_*",
+      "HLT_LooseDeepTauPFTauHPS*_L2NN_eta2p1_v*"
    ]
 )
 

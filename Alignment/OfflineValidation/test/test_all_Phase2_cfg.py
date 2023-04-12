@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 import sys
 from enum import Enum
-from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultMC_TTBarPUPhase2RECO
+from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultMC_MinBiasPUPhase2RECO
 
 class RefitType(Enum):
      STANDARD = 1
@@ -12,7 +12,7 @@ isMC = True
 allFromGT = True
 applyBows = True
 applyExtraConditions = True
-theRefitter = RefitType.STANDARD
+theRefitter = RefitType.COMMON
 _theTrackCollection = "generalTracks" #"ALCARECOTkAlMinBias" unfortunately not yet
 
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
@@ -27,13 +27,13 @@ process.options.numberOfThreads = 8
 # Event source and run selection
 ###################################################################
 process.source = cms.Source("PoolSource",
-                            fileNames = filesDefaultMC_TTBarPUPhase2RECO,
+                            fileNames = filesDefaultMC_MinBiasPUPhase2RECO,
                             duplicateCheckMode = cms.untracked.string('checkAllFilesOpened')
                             )
 
 runboundary = 1
 process.source.firstRun = cms.untracked.uint32(int(runboundary))
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 ###################################################################
 # JSON Filtering
@@ -59,7 +59,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
     threshold = cms.untracked.string("INFO"),
     default   = cms.untracked.PSet(limit = cms.untracked.int32(0)),                       
     FwkReport = cms.untracked.PSet(limit = cms.untracked.int32(-1),
-                                   reportEvery = cms.untracked.int32(1000)
+                                   reportEvery = cms.untracked.int32(1)
                                    ),                                                      
     PrimaryVertexValidation = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
     SplitVertexResolution   = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
@@ -193,7 +193,7 @@ if(theRefitter == RefitType.COMMON):
      # Load and Configure Common Track Selection and refitting sequence
      ####################################################################
      import Alignment.CommonAlignment.tools.trackselectionRefitting as trackselRefit
-     process.seqTrackselRefit = trackselRefit.getSequence(process, 'ALCARECOTkAlMinBias',
+     process.seqTrackselRefit = trackselRefit.getSequence(process, _theTrackCollection ,
                                                           isPVValidation=True, 
                                                           TTRHBuilder='WithAngleAndTemplate',
                                                           usePixelQualityFlag=True,
@@ -296,6 +296,11 @@ process.PVValidation = cms.EDAnalyzer("PrimaryVertexValidation",
                                       )
 
 ####################################################################
+# Needed to avoid dependency from Phase-0 strip conditions
+####################################################################
+#process.TrackerTrackHitFilter.isPhase2 = cms.bool(True)
+
+####################################################################
 # Path
 ####################################################################
 process.p = cms.Path(process.goodvertexSkim*
@@ -348,10 +353,10 @@ process.PrimaryVertexResolution = cms.EDAnalyzer('SplitVertexResolution',
                                                  runControl = cms.untracked.bool(True),
                                                  runControlNumber = cms.untracked.vuint32(int(runboundary))
                                                  )
+#process.Tracer = cms.Service("Tracer")
 
 process.p2 = cms.Path(process.HLTFilter                               +
                       process.seqTrackselRefit                        +
                       process.offlinePrimaryVerticesFromRefittedTrks  +
                       process.PrimaryVertexResolution                 +
-                      process.myanalysis
-                      )
+                      process.myanalysis)

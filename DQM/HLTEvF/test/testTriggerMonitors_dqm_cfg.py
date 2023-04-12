@@ -11,7 +11,7 @@ options.setDefault('inputFiles', [
 ])
 options.setDefault('maxEvents', 200)
 options.setType('outputFile', options.varType.string)
-options.setDefault('outputFile', 'DQMIO.root')
+options.setDefault('outputFile', 'testTriggerMonitors_DQMIO.root')
 options.parseArguments()
 
 # Process

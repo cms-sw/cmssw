@@ -39,6 +39,8 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
+  bool isGoodPair(TLorentzVector const& v1, TLorentzVector const& v2) const;
+
   TLorentzVector approxMomAtVtx(const MagneticField& magField,
                                 const GlobalPoint& xvert,
                                 const reco::SuperClusterRef sc,

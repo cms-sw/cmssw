@@ -6492,9 +6492,11 @@ c-----------------------------------------------------------------------
       parameter(mxclu=10000)
       real am(mxclu)
       character cen*6,cvol*6
+c     the code needs am to be kept between calls
+      save am
+      data am /mxclu*0/
 
       if(iii.eq.0)then
-
       am(nrclu)=amt
 
       return
@@ -6769,12 +6771,8 @@ c-----------------------------------------------------------------------
       parameter(mxclu=10000)
       integer ku(mxclu),kd(mxclu),ks(mxclu)
       character cfl*3,cen*6,cvol*6
-c... initialize
-      do i=1,nrclu
-         ku(i)=0.0
-         kd(i)=0.0
-         ks(i)=0.0
-      enddo
+      save ku,kd,ks
+      data ku/mxclu*0/,kd/mxclu*0/,ks/mxclu*0/
 
       if(iii.eq.0)then
       

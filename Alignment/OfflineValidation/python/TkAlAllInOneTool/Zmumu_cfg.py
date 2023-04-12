@@ -128,51 +128,49 @@ if "conditions" in config["alignment"]:
 ###################################################################
 # The Di Muon Mass Validation module
 ###################################################################
-process.DiMuonMassValidation = cms.EDAnalyzer('DiMuonValidation',
-                                              TkTag = cms.string ('TrackRefitter'),
-                                              # mu mu mass
-                                              Pair_mass_min = cms.double(80.),
-                                              Pair_mass_max = cms.double(120.),
-                                              Pair_mass_nbins = cms.int32(80),
-                                              Pair_etaminpos = cms.double(-1),
-                                              Pair_etamaxpos = cms.double(1),
-                                              Pair_etaminneg = cms.double(-1),
-                                              Pair_etamaxneg = cms.double(1),
-
-                                              # cosTheta CS
-                                              Variable_CosThetaCS_xmin = cms.double(-1.),
-                                              Variable_CosThetaCS_xmax = cms.double(1.),
-                                              Variable_CosThetaCS_nbins = cms.int32(20),
-                                              # DeltaEta
-                                              Variable_DeltaEta_xmin = cms.double(-4.8),
-                                              Variable_DeltaEta_xmax = cms.double(4.8),
-                                              Variable_DeltaEta_nbins = cms.int32(20),
-                                              # EtaMinus
-                                              Variable_EtaMinus_xmin = cms.double(-2.4),
-                                              Variable_EtaMinus_xmax = cms.double(2.4),
-                                              Variable_EtaMinus_nbins = cms.int32(12),
-                                              # EtaPlus
-                                              Variable_EtaPlus_xmin = cms.double(-2.4),
-                                              Variable_EtaPlus_xmax = cms.double(2.4),
-                                              Variable_EtaPlus_nbins = cms.int32(12),
-                                              # Phi CS
-                                              Variable_PhiCS_xmin = cms.double(-math.pi/2.),
-                                              Variable_PhiCS_xmax = cms.double(math.pi/2.),
-                                              Variable_PhiCS_nbins = cms.int32(20),
-                                              # Phi Minus
-                                              Variable_PhiMinus_xmin = cms.double(-math.pi),
-                                              Variable_PhiMinus_xmax = cms.double(math.pi),
-                                              Variable_PhiMinus_nbins = cms.int32(16),
-                                              # Phi Plus
-                                              Variable_PhiPlus_xmin = cms.double(-math.pi),
-                                              Variable_PhiPlus_xmax = cms.double(math.pi),
-                                              Variable_PhiPlus_nbins = cms.int32(16),
-                                              # mu mu pT
-                                              Variable_PairPt_xmin = cms.double(0.),
-                                              Variable_PairPt_xmax = cms.double(100.),
-                                              Variable_PairPt_nbins= cms.int32(100)),
-                                              #
-
+from Alignment.OfflineValidation.diMuonValidation_cfi.py import diMuonValidation as _diMuonValidation
+process.DiMuonMassValidation = _diMuonValidation.clone(
+    TkTag = 'TrackRefitter',
+    # mu mu mass
+    Pair_mass_min   = 80.,
+    Pair_mass_max   = 120.,
+    Pair_mass_nbins = 80,
+    Pair_etaminpos  = -1,
+    Pair_etamaxpos  = 1,
+    Pair_etaminneg  = -1,
+    Pair_etamaxneg  = 1,
+    # cosTheta CS
+    Variable_CosThetaCS_xmin  = -1.,
+    Variable_CosThetaCS_xmax  =  1.,
+    Variable_CosThetaCS_nbins = 20,
+    # DeltaEta
+    Variable_DeltaEta_xmin  = -4.8,
+    Variable_DeltaEta_xmax  = 4.8,
+    Variable_DeltaEta_nbins = 20,
+    # EtaMinus
+    Variable_EtaMinus_xmin  = -2.4,
+    Variable_EtaMinus_xmax  =  2.4,
+    Variable_EtaMinus_nbins = 12,
+    # EtaPlus
+    Variable_EtaPlus_xmin  = -2.4,
+    Variable_EtaPlus_xmax  =  2.4,
+    Variable_EtaPlus_nbins = 12,
+    # Phi CS
+    Variable_PhiCS_xmin  = -math.pi/2.,
+    Variable_PhiCS_xmax  =  math.pi/2.,
+    Variable_PhiCS_nbins = 20,
+    # Phi Minus
+    Variable_PhiMinus_xmin  = -math.pi,
+    Variable_PhiMinus_xmax  =  math.pi,
+    Variable_PhiMinus_nbins = 16,
+    # Phi Plus
+    Variable_PhiPlus_xmin  = -math.pi,
+    Variable_PhiPlus_xmax  =  math.pi,
+    Variable_PhiPlus_nbins = 16,
+    # mu mu pT
+    Variable_PairPt_xmin  = 0.,
+    Variable_PairPt_xmax  = 100.,
+    Variable_PairPt_nbins = 100)
 
 ###################################################################
 # Define sequences depending on validation mode

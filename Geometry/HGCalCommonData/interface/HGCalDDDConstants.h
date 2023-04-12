@@ -40,6 +40,11 @@ public:
   std::pair<int, int> assignCell(float x, float y, int lay, int subSec, bool reco) const;
   std::array<int, 5> assignCellHex(float x, float y, int zside, int lay, bool reco, bool extend, bool debug) const;
   std::array<int, 3> assignCellTrap(float x, float y, float z, int lay, bool reco) const;
+  bool cassetteShiftScintillator(int layer, int iphi) const;
+  bool cassetteShiftSilicon(int layer, int waferU, int waferV) const;
+  int cassetteTile(int iphi) const {
+    return (HGCalTileIndex::tileCassette(iphi, hgpar_->phiOffset_, hgpar_->nphiCassette_, hgpar_->cassettes_));
+  }
   std::pair<double, double> cellEtaPhiTrap(int type, int irad) const;
   bool cellInLayer(int waferU, int waferV, int cellU, int cellV, int lay, int zside, bool reco) const;
   double cellSizeHex(int type) const;
@@ -66,6 +71,7 @@ public:
   std::vector<HGCalParameters::hgtrap> getModules() const;
   inline const HGCalParameters* getParameter() const { return hgpar_; }
   int getPhiBins(int lay) const;
+  std::pair<double, double> getRangeR(int, bool reco) const;
   std::pair<int, int> getREtaRange(int lay) const;
   inline const std::vector<double>& getRadiusLayer(int layer) const {
     return hgpar_->radiusLayer_[(tileTrapezoid() ? hgpar_->scintType(layer) : 0)];
@@ -125,6 +131,8 @@ public:
   int tileCount(int layer, int ring) const;
   bool tileExist(int zside, int layer, int ring, int phi) const;
   HGCalParameters::tileInfo tileInfo(int zside, int layer, int ring) const;
+  bool tilePhiEdge(double phi, int layer, int iphi) const;
+  bool tileRingEdge(double rho, int layer, int ring) const;
   std::pair<int, int> tileRings(int layer) const;
   inline int tileSiPM(int sipm) const { return ((sipm > 0) ? HGCalTypes::SiPMSmall : HGCalTypes::SiPMLarge); }
   bool tileTrapezoid() const {
@@ -163,6 +171,9 @@ public:
     return ((mode_ == HGCalGeometryMode::Hexagon8File) || (mode_ == HGCalGeometryMode::Hexagon8Module) ||
             (mode_ == HGCalGeometryMode::Hexagon8Cassette));
   }
+  inline bool waferHexagon8Module() const {
+    return ((mode_ == HGCalGeometryMode::Hexagon8Module) || (mode_ == HGCalGeometryMode::Hexagon8Cassette));
+  }
   bool waferInLayer(int wafer, int lay, bool reco) const;
   bool waferFullInLayer(int wafer, int lay, bool reco) const;
   inline int waferCount(const int type) const { return ((type == 0) ? waferMax_[2] : waferMax_[3]); }
@@ -174,8 +185,8 @@ public:
   std::pair<double, double> waferPosition(int lay, int waferU, int waferV, bool reco, bool debug) const;
   inline unsigned int waferFileSize() const { return hgpar_->waferInfoMap_.size(); }
   int waferFileIndex(unsigned int kk) const;
-  std::tuple<int, int, int> waferFileInfo(unsigned int kk) const;
-  std::tuple<int, int, int> waferFileInfoFromIndex(int kk) const;
+  std::tuple<int, int, int, int> waferFileInfo(unsigned int kk) const;
+  std::tuple<int, int, int, int> waferFileInfoFromIndex(int kk) const;
   inline bool waferFileInfoExist(int kk) const {
     return (hgpar_->waferInfoMap_.find(kk) != hgpar_->waferInfoMap_.end());
   }
@@ -232,12 +243,13 @@ private:
   std::unique_ptr<HGCalCell> hgcell_;
   std::unique_ptr<HGCalCellUV> hgcellUV_;
   HGCalGeomTools geomTools_;
-  const double k_horizontalShift = 1.0;
-  const float dPhiMin = 0.02;
+  constexpr static double k_horizontalShift = 1.0;
+  constexpr static float dPhiMin = 0.02;
   typedef std::array<std::vector<int32_t>, 2> Simrecovecs;
   typedef std::array<int, 3> HGCWaferParam;
   const HGCalParameters* hgpar_;
   constexpr static double tan30deg_ = 0.5773502693;
+  constexpr static double tol_ = 0.001;
   const double sqrt3_;
   const HGCalGeometryMode::GeometryMode mode_;
   const bool fullAndPart_;

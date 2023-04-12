@@ -47,12 +47,6 @@
 #include "DataFormats/Common/interface/TriggerResults.h"  // Classes needed to print trigger results
 #include "FWCore/Common/interface/TriggerNames.h"
 
-// ROOT includes
-#include "TRandom.h"
-#include "TTree.h"
-#include "TString.h"
-#include "TMath.h"
-
 //
 // class declaration
 //
@@ -307,9 +301,8 @@ void JetHTAnalyzer::beginJob() {
   mon.addHistogram(new TH1F("dzerr", ";d_{z} error;tracks", 100, 0., 200));
   mon.addHistogram(new TProfile("dxyErrVsPt", ";track p_{T};d_{xy} error", 100, 0., 200, 0., 100.));
   mon.addHistogram(new TProfile("dzErrVsPt", ";track p_{T};d_{z} error", 100, 0., 200, 0., 100.));
-  mon.addHistogram(
-      new TProfile("dxyErrVsPhi", ";track #varphi;d_{xy} error", 100, -TMath::Pi(), TMath::Pi(), 0., 100.));
-  mon.addHistogram(new TProfile("dzErrVsPhi", ";track #varphi;d_{z} error", 100, -TMath::Pi(), TMath::Pi(), 0., 100.));
+  mon.addHistogram(new TProfile("dxyErrVsPhi", ";track #varphi;d_{xy} error", 100, -M_PI, M_PI, 0., 100.));
+  mon.addHistogram(new TProfile("dzErrVsPhi", ";track #varphi;d_{z} error", 100, -M_PI, M_PI, 0., 100.));
   mon.addHistogram(new TProfile("dxyErrVsEta", ";track #eta;d_{xy} error", 100, -2.5, 2.5, 0., 100.));
   mon.addHistogram(new TProfile("dzErrVsEta", ";track #eta;d_{z} error", 100, -2.5, 2.5, 0., 100.));
 
@@ -331,11 +324,11 @@ void JetHTAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<edm::InputTag>("vtxCollection", edm::InputTag("offlinePrimaryVerticesFromRefittedTrks"));
   desc.add<edm::InputTag>("triggerResults", edm::InputTag("TriggerResults", "", "HLT"));
   desc.add<edm::InputTag>("trackCollection", edm::InputTag("TrackRefitter"));
-  desc.add<int>("printTriggerTable", false);
-  desc.add<double>("minVertexNdf", 10.);
-  desc.add<double>("minVertexMeanWeight", 0.5);
-  desc.add<std::vector<double>>("profilePtBorders", {3, 5, 10, 20, 50, 100});
-  desc.add<std::vector<double>>("iovList", {0, 500000});
+  desc.addUntracked<int>("printTriggerTable", false);
+  desc.addUntracked<double>("minVertexNdf", 10.);
+  desc.addUntracked<double>("minVertexMeanWeight", 0.5);
+  desc.addUntracked<std::vector<double>>("profilePtBorders", {3, 5, 10, 20, 50, 100});
+  desc.addUntracked<std::vector<int>>("iovList", {0, 500000});
   descriptions.addWithDefaultLabel(desc);
 }
 

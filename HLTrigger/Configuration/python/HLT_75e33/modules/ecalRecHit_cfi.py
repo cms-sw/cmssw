@@ -44,10 +44,10 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
     ),
     dbStatusToBeExcludedEB = cms.vint32(14, 78, 142),
     dbStatusToBeExcludedEE = cms.vint32(14, 78, 142),
-    ebDetIdToBeRecovered = cms.InputTag("ecalDetIdToBeRecovered","ebDetId"),
-    ebFEToBeRecovered = cms.InputTag("ecalDetIdToBeRecovered","ebFE"),
-    eeDetIdToBeRecovered = cms.InputTag("ecalDetIdToBeRecovered","eeDetId"),
-    eeFEToBeRecovered = cms.InputTag("ecalDetIdToBeRecovered","eeFE"),
+    ebDetIdToBeRecovered = cms.InputTag("hltEcalDetIdToBeRecovered","ebDetId"),
+    ebFEToBeRecovered = cms.InputTag("hltEcalDetIdToBeRecovered","ebFE"),
+    eeDetIdToBeRecovered = cms.InputTag("hltEcalDetIdToBeRecovered","eeDetId"),
+    eeFEToBeRecovered = cms.InputTag("hltEcalDetIdToBeRecovered","eeFE"),
     flagsMapDBReco = cms.PSet(
         kDead = cms.vstring('kNoDataNoTP'),
         kGood = cms.vstring(
@@ -82,5 +82,5 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
     singleChannelRecoveryThreshold = cms.double(0.7),
     skipTimeCalib = cms.bool(False),
     sum8ChannelRecoveryThreshold = cms.double(0.0),
-    triggerPrimitiveDigiCollection = cms.InputTag("ecalDigis","EcalTriggerPrimitives")
+    triggerPrimitiveDigiCollection = cms.InputTag("hltEcalDigis","EcalTriggerPrimitives")
 )

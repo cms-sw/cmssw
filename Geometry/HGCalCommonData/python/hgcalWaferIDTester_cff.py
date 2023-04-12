@@ -6,3 +6,14 @@ hgcalWaferIDTesterEE = hgcalWaferIDTesterHEF.clone(
     nameSense = "HGCalEESensitive",
     fileName = "cellIDEE.txt"
 )
+
+hgcalWaferIDShiftTesterEE = hgcalWaferIDTesterHEF.clone(
+    nameSense = "HGCalEESensitive",
+    fileName = "cellShift.txt",
+    shift = 1
+)
+
+hgcalWaferIDShiftTesterHEF = hgcalWaferIDTesterHEF.clone(
+    fileName = "cellShift.txt",
+    shift = 1
+)

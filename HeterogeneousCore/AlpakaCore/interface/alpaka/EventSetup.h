@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESGetToken.h"
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESDeviceProductType.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::device {
@@ -21,6 +22,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::device {
   public:
     EventSetup(edm::EventSetup const& iSetup, Device const& dev) : setup_(iSetup), device_(dev) {}
 
+    // To be able to interact with non-Alpaka helper code that needs
+    // to access edm::EventSetup
+    operator edm::EventSetup const &() const { return setup_; }
+
     // getData()
 
     template <typename T, typename R>
@@ -31,7 +36,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::device {
     template <typename T, typename R>
     T const& getData(device::ESGetToken<T, R> const& iToken) const {
       auto const& product = setup_.getData(iToken.underlyingToken());
-      return product.get(device_);
+      if constexpr (detail::useESProductDirectly<T>) {
+        return product;
+      } else {
+        return product.get(device_);
+      }
     }
 
     // getHandle()
@@ -44,10 +53,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::device {
     template <typename T, typename R>
     edm::ESHandle<T> getHandle(device::ESGetToken<T, R> const& iToken) const {
       auto handle = setup_.getHandle(iToken.underlyingToken());
-      if (not handle) {
-        return edm::ESHandle<T>(handle.whyFailedFactory());
+      if constexpr (detail::useESProductDirectly<T>) {
+        return handle;
+      } else {
+        if (not handle) {
+          return edm::ESHandle<T>(handle.whyFailedFactory());
+        }
+        return edm::ESHandle<T>(&handle->get(device_), handle.description());
       }
-      return edm::ESHandle<T>(&handle->get(device_), handle.description());
     }
 
     // getTransientHandle() is intentionally omitted for now. It makes

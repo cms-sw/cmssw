@@ -5,6 +5,8 @@
 #include <stdexcept>
 #include <utility>
 
+#include <alpaka/alpaka.hpp>
+
 #include "DataFormats/Portable/interface/Product.h"
 #include "FWCore/Concurrency/interface/WaitingTaskWithArenaHolder.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -99,7 +101,7 @@ namespace cms::alpakatools {
       ScopedContextHolderHelper(edm::WaitingTaskWithArenaHolder waitingTaskHolder)
           : waitingTaskHolder_{std::move(waitingTaskHolder)} {}
 
-      template <typename F, typename TQueue, typename = std::enable_if_t<cms::alpakatools::is_queue_v<TQueue>>>
+      template <typename F, typename TQueue, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
       void pushNextTask(F&& f, ContextState<TQueue> const* state) {
         replaceWaitingTaskHolder(edm::WaitingTaskWithArenaHolder{edm::make_waiting_task_with_holder(
             std::move(waitingTaskHolder_), [state, func = std::forward<F>(f)](edm::WaitingTaskWithArenaHolder h) {
@@ -111,7 +113,7 @@ namespace cms::alpakatools {
         waitingTaskHolder_ = std::move(waitingTaskHolder);
       }
 
-      template <typename TQueue, typename = std::enable_if_t<cms::alpakatools::is_queue_v<TQueue>>>
+      template <typename TQueue, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
       void enqueueCallback(TQueue& queue) {
         alpaka::enqueue(queue, alpaka::HostOnlyTask([holder = std::move(waitingTaskHolder_)]() {
                           // The functor is required to be const, but the original waitingTaskHolder_

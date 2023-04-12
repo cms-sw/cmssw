@@ -221,7 +221,8 @@ namespace pat {
           normalizedChi2_(iOther.normalizedChi2_),
           covarianceVersion_(iOther.covarianceVersion_),
           covarianceSchema_(iOther.covarianceSchema_),
-          firstHit_(iOther.firstHit_) {}
+          firstHit_(iOther.firstHit_),
+          trkAlgoPacked_(iOther.trkAlgoPacked_) {}
 
     PackedCandidate(PackedCandidate &&iOther)
         : packedPt_(iOther.packedPt_),
@@ -262,7 +263,8 @@ namespace pat {
           normalizedChi2_(iOther.normalizedChi2_),
           covarianceVersion_(iOther.covarianceVersion_),
           covarianceSchema_(iOther.covarianceSchema_),
-          firstHit_(iOther.firstHit_) {}
+          firstHit_(iOther.firstHit_),
+          trkAlgoPacked_(iOther.trkAlgoPacked_) {}
 
     PackedCandidate &operator=(const PackedCandidate &iOther) {
       if (this == &iOther) {
@@ -339,6 +341,7 @@ namespace pat {
       covarianceVersion_ = iOther.covarianceVersion_;
       covarianceSchema_ = iOther.covarianceSchema_;
       firstHit_ = iOther.firstHit_;
+      trkAlgoPacked_ = iOther.trkAlgoPacked_;
       return *this;
     }
 
@@ -385,6 +388,7 @@ namespace pat {
       covarianceVersion_ = iOther.covarianceVersion_;
       covarianceSchema_ = iOther.covarianceSchema_;
       firstHit_ = iOther.firstHit_;
+      trkAlgoPacked_ = iOther.trkAlgoPacked_;
       return *this;
     }
 
@@ -837,6 +841,15 @@ namespace pat {
     /// Return first hit from HitPattern for tracks with high level details
     uint16_t firstHit() const { return firstHit_; }
 
+    /// Set/get track algo
+    void setTrkAlgo(uint8_t algo, uint8_t original) {
+      trkAlgoPacked_ = algo | ((algo == original ? 0 : original) << 8);
+    }
+    uint8_t trkAlgo() const { return trkAlgoPacked_ & 0xff; }
+    uint8_t trkOriginalAlgo() const {
+      return (trkAlgoPacked_ & 0xff00) == 0 ? trkAlgo() : ((trkAlgoPacked_ >> 8) & 0xff);
+    }
+
     void setMuonID(bool isStandAlone, bool isGlobal) {
       int16_t muonFlags = isStandAlone | (2 * isGlobal);
       qualityFlags_ = (qualityFlags_ & ~muonFlagsMask) | ((muonFlags << muonFlagsShift) & muonFlagsMask);
@@ -1110,6 +1123,9 @@ namespace pat {
 
     /// details (hit pattern) of the first hit on track
     uint16_t firstHit_;
+
+    /// track algorithm details
+    uint16_t trkAlgoPacked_ = 0;
 
     /// check overlap with another Candidate
     bool overlap(const reco::Candidate &) const override;

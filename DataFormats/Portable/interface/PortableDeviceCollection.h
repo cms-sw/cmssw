@@ -5,12 +5,13 @@
 #include <optional>
 #include <type_traits>
 
+#include <alpaka/alpaka.hpp>
+
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
 
 // generic SoA-based product in device memory
-template <typename T, typename TDev, typename = std::enable_if_t<cms::alpakatools::is_device_v<TDev>>>
+template <typename T, typename TDev, typename = std::enable_if_t<alpaka::isDevice<TDev>>>
 class PortableDeviceCollection {
   static_assert(not std::is_same_v<TDev, alpaka_common::DevHost>,
                 "Use PortableHostCollection<T> instead of PortableDeviceCollection<T, DevHost>");
@@ -32,7 +33,7 @@ public:
     assert(reinterpret_cast<uintptr_t>(buffer_->data()) % Layout::alignment == 0);
   }
 
-  template <typename TQueue, typename = std::enable_if_t<cms::alpakatools::is_queue_v<TQueue>>>
+  template <typename TQueue, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
   PortableDeviceCollection(int32_t elements, TQueue const& queue)
       : buffer_{cms::alpakatools::make_device_buffer<std::byte[]>(queue, Layout::computeDataSize(elements))},
         layout_{buffer_->data(), elements},

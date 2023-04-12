@@ -41,6 +41,15 @@ WriteBuffer::SMOwner::~SMOwner() {
   }
 }
 
+WriteBuffer::SMOwner& WriteBuffer::SMOwner::operator=(WriteBuffer::SMOwner&& other) {
+  if (sm_) {
+    boost::interprocess::shared_memory_object::remove(name_.c_str());
+  }
+  name_ = std::move(other.name_);
+  sm_ = std::move(other.sm_);
+  return *this;
+}
+
 void WriteBuffer::SMOwner::reset() { *this = SMOwner(); }
 
 WriteBuffer::~WriteBuffer() {
@@ -48,6 +57,7 @@ WriteBuffer::~WriteBuffer() {
     sm_->destroy<char>(buffer_names::kBuffer);
   }
 }
+
 //
 // member functions
 //

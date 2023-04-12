@@ -8,7 +8,6 @@
 #include <alpaka/alpaka.hpp>
 
 #include "HeterogeneousCore/AlpakaInterface/interface/ScopedContextFwd.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
 
 namespace cms::alpakatools {
 
@@ -16,7 +15,7 @@ namespace cms::alpakatools {
    * Base class for all instantiations of Product<TQueue, T> to hold the
    * non-T-dependent members.
    */
-  template <typename TQueue, typename = std::enable_if_t<cms::alpakatools::is_queue_v<TQueue>>>
+  template <typename TQueue, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
   class ProductBase {
   public:
     using Queue = TQueue;

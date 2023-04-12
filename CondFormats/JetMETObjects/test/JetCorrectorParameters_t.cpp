@@ -121,8 +121,7 @@ void testJetCorrectorParameters::destroyCorrector() {
 }
 
 void testJetCorrectorParameters::generateFiles() {
-  string path = std::getenv("CMSSW_BASE");
-  path += "/src/CondFormats/JetMETObjects/data/";
+  string path = "CondFormats/JetMETObjects/data/";
   string name1D = "testJetCorrectorParameters_1D_L1FastJet_AK4PFchs.txt";
   string name3D = "testJetCorrectorParameters_3D_L1FastJet_AK4PFchs.txt";
 

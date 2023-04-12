@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("HGCalParametersTest")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 process.load("Geometry.HGCalTBCommonData.testTB181V1XML_cfi")
-process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
+process.load("Geometry.HGCalTBCommonData.hgcalTBParametersInitialization_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if hasattr(process,'MessageLogger'):
@@ -33,7 +33,7 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
     firstRun        = cms.untracked.uint32(1)
 )
  
-process.load("Geometry.HGCalCommonData.hgcParameterTesterEE_cfi")
-process.hgcParameterTesterEE.Mode = 0
+process.load("Geometry.HGCalTBCommonData.hgcTBParameterTesterEE_cfi")
+process.hgcTBParameterTesterEE.mode = 0
  
-process.p1 = cms.Path(process.generator*process.hgcParameterTesterEE)
+process.p1 = cms.Path(process.generator*process.hgcTBParameterTesterEE)

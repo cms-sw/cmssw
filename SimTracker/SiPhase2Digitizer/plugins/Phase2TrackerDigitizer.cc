@@ -23,7 +23,6 @@
 #include "SimTracker/SiPhase2Digitizer/plugins/PSPDigitizerAlgorithm.h"
 #include "SimTracker/SiPhase2Digitizer/plugins/PixelDigitizerAlgorithm.h"
 #include "SimTracker/SiPhase2Digitizer/plugins/Pixel3DDigitizerAlgorithm.h"
-#include "SimTracker/SiPhase2Digitizer/plugins/PixelBrickedDigitizerAlgorithm.h"
 #include "SimTracker/Common/interface/DigitizerUtility.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -69,7 +68,9 @@ namespace cms {
         pSetupToken_(iC.esConsumes()),
         tTopoToken_(iC.esConsumes()),
         isOuterTrackerReadoutAnalog_(iConfig.getParameter<bool>("isOTreadoutAnalog")),
+        usePseudoPixel3DAlgo_(iConfig.getParameter<bool>("usePseudoPixel3DAlgo")),
         premixStage1_(iConfig.getParameter<bool>("premixStage1")),
+
         makeDigiSimLinks_(
             iConfig.getParameter<edm::ParameterSet>("AlgorithmCommon").getUntrackedParameter<bool>("makeDigiSimLinks")) {
     const std::string alias1("simSiPixelDigis");
@@ -91,7 +92,6 @@ namespace cms {
     }
     // creating algorithm objects and pushing them into the map
     algomap_[AlgorithmType::InnerPixel] = std::make_unique<PixelDigitizerAlgorithm>(iConfig, iC);
-    algomap_[AlgorithmType::InnerPixelBricked] = std::make_unique<PixelBrickedDigitizerAlgorithm>(iConfig, iC);
     algomap_[AlgorithmType::InnerPixel3D] = std::make_unique<Pixel3DDigitizerAlgorithm>(iConfig, iC);
     algomap_[AlgorithmType::PixelinPS] = std::make_unique<PSPDigitizerAlgorithm>(iConfig, iC);
     algomap_[AlgorithmType::StripinPS] = std::make_unique<PSSDigitizerAlgorithm>(iConfig, iC);
@@ -235,9 +235,6 @@ namespace cms {
       moduleTypeCache_.emplace(detId_raw, mType);
     }
 
-    auto detUnit = detectorUnits_.find(detId_raw);
-    const Phase2TrackerGeomDetUnit* pixdet = dynamic_cast<const Phase2TrackerGeomDetUnit*>(detUnit->second);
-    const Phase2TrackerTopology* topol = &pixdet->specificTopology();
     AlgorithmType algotype = AlgorithmType::Unknown;
     switch (mType) {
       case TrackerGeometry::ModuleType::Ph1PXB:
@@ -247,23 +244,17 @@ namespace cms {
         algotype = AlgorithmType::InnerPixel;
         break;
       case TrackerGeometry::ModuleType::Ph2PXB:
-        if (topol->isBricked())
-          algotype = AlgorithmType::InnerPixelBricked;
-        else
-          algotype = AlgorithmType::InnerPixel;
+        algotype = AlgorithmType::InnerPixel;
         break;
       case TrackerGeometry::ModuleType::Ph2PXF:
-        if (topol->isBricked())
-          algotype = AlgorithmType::InnerPixelBricked;
-        else
-          algotype = AlgorithmType::InnerPixel;
+        algotype = AlgorithmType::InnerPixel;
         break;
-      case TrackerGeometry::ModuleType::Ph2PXB3D:
-        algotype = AlgorithmType::InnerPixel3D;
-        break;
-      case TrackerGeometry::ModuleType::Ph2PXF3D:
-        algotype = AlgorithmType::InnerPixel3D;
-        break;
+      case TrackerGeometry::ModuleType::Ph2PXB3D: {
+        algotype = (usePseudoPixel3DAlgo_) ? AlgorithmType::InnerPixel : AlgorithmType::InnerPixel3D;
+      } break;
+      case TrackerGeometry::ModuleType::Ph2PXF3D: {
+        algotype = (usePseudoPixel3DAlgo_) ? AlgorithmType::InnerPixel : AlgorithmType::InnerPixel3D;
+      } break;
       case TrackerGeometry::ModuleType::Ph2PSP:
         algotype = AlgorithmType::PixelinPS;
         break;
@@ -292,8 +283,7 @@ namespace cms {
         continue;
 
       // Decide if we want analog readout for Outer Tracker.
-      if (!ot_analog && algotype != AlgorithmType::InnerPixel && algotype != AlgorithmType::InnerPixel3D &&
-          algotype != AlgorithmType::InnerPixelBricked)
+      if (!ot_analog && algotype != AlgorithmType::InnerPixel && algotype != AlgorithmType::InnerPixel3D)
         continue;
 
       std::map<int, digitizerUtility::DigiSimInfo> digi_map;
@@ -356,8 +346,7 @@ namespace cms {
       auto algotype = getAlgoType(rawId);
 
       auto fiter = algomap_.find(algotype);
-      if (fiter == algomap_.end() || algotype == AlgorithmType::InnerPixel || algotype == AlgorithmType::InnerPixel3D ||
-          algotype == AlgorithmType::InnerPixelBricked)
+      if (fiter == algomap_.end() || algotype == AlgorithmType::InnerPixel || algotype == AlgorithmType::InnerPixel3D)
         continue;
 
       std::map<int, digitizerUtility::DigiSimInfo> digi_map;

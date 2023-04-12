@@ -72,14 +72,14 @@ HGCalValidityTester::HGCalValidityTester(const edm::ParameterSet &iC)
   std::ostringstream st1;
   for (const auto &name : nameDetectors_)
     st1 << " : " << name;
-  edm::LogVerbatim("HGCalGeom") << "Test validity of cells for " << nameDetectors_.size() << " detectors" << st1.str()
-                                << " with inputs from " << fileName_;
+  edm::LogVerbatim("HGCGeom") << "Test validity of cells for " << nameDetectors_.size() << " detectors" << st1.str()
+                              << " with inputs from " << fileName_;
   if (!fileName_.empty()) {
     edm::FileInPath filetmp("Geometry/HGCalCommonData/data/" + fileName_);
     std::string fileName = filetmp.fullPath();
     std::ifstream fInput(fileName.c_str());
     if (!fInput.good()) {
-      edm::LogVerbatim("HGCalGeom") << "Cannot open file " << fileName;
+      edm::LogVerbatim("HGCGeom") << "Cannot open file " << fileName;
     } else {
       char buffer[80];
       uint32_t lines(0);
@@ -92,21 +92,24 @@ HGCalValidityTester::HGCalValidityTester(const edm::ParameterSet &iC)
           auto itr = std::find(dets.begin(), dets.end(), det);
           if (itr != dets.end()) {
             uint32_t pos = static_cast<uint32_t>(itr - dets.begin());
-            int type = std::atoi(items[1].c_str());
-            int zside = std::atoi(items[2].c_str());
-            int layer = std::atoi(items[3].c_str());
             DetId id(0);
             if ((det == DetId::HGCalEE) || (det == DetId::HGCalHSi)) {
+              int type = std::atoi(items[1].c_str());
+              int zside = std::atoi(items[2].c_str());
+              int layer = std::atoi(items[3].c_str());
               int waferU = std::atoi(items[4].c_str());
               int waferV = std::atoi(items[5].c_str());
               int cellU = std::atoi(items[6].c_str());
               int cellV = std::atoi(items[7].c_str());
               id = static_cast<DetId>(HGCSiliconDetId(det, zside, type, layer, waferU, waferV, cellU, cellV));
             } else if (det == DetId::HGCalHSc) {
-              int ring = std::atoi(items[4].c_str());
-              int iphi = std::atoi(items[5].c_str());
-              int sipm = std::atoi(items[6].c_str());
-              bool trig = (std::atoi(items[7].c_str()) > 0);
+              bool trig = (std::atoi(items[1].c_str()) > 0);
+              int type = std::atoi(items[2].c_str());
+              int zside = std::atoi(items[3].c_str());
+              int sipm = std::atoi(items[4].c_str());
+              int layer = std::atoi(items[5].c_str());
+              int ring = std::atoi(items[6].c_str());
+              int iphi = std::atoi(items[7].c_str());
               id = static_cast<DetId>(HGCScintillatorDetId(type, layer, zside * ring, iphi, trig, sipm));
             }
             if (id.rawId() != 0)
@@ -117,7 +120,7 @@ HGCalValidityTester::HGCalValidityTester(const edm::ParameterSet &iC)
       fInput.close();
     }
   }
-  edm::LogVerbatim("HGCalGeom") << "Reads " << detIds_.size() << " ID's from " << fileName_;
+  edm::LogVerbatim("HGCGeom") << "Reads " << detIds_.size() << " ID's from " << fileName_;
   for (unsigned int k = 0; k < detIds_.size(); ++k) {
     if ((detIds_[k].first).det() == DetId::HGCalHSc)
       edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << HGCScintillatorDetId(detIds_[k].first) << " from DDConstant "
@@ -143,13 +146,13 @@ void HGCalValidityTester::beginRun(edm::Run const &iRun, edm::EventSetup const &
   std::vector<DetId::Detector> dets = {DetId::HGCalEE, DetId::HGCalHSi, DetId::HGCalHSc};
   std::map<DetId::Detector, uint32_t> detMap;
   for (uint32_t i = 0; i < nameDetectors_.size(); i++) {
-    edm::LogVerbatim("HGCalValid") << "Tries to initialize HGCalGeometry and HGCalDDDConstants for " << i << ":"
-                                   << nameDetectors_[i];
+    edm::LogVerbatim("HGCGeom") << "Tries to initialize HGCalGeometry and HGCalDDDConstants for " << i << ":"
+                                << nameDetectors_[i];
     const edm::ESHandle<HGCalDDDConstants> &hgcCons = iSetup.getHandle(tok_hgcal_[i]);
     if (hgcCons.isValid()) {
       hgcCons_.push_back(hgcCons.product());
     } else {
-      edm::LogWarning("HGCalValid") << "Cannot initiate HGCalDDDConstants for " << nameDetectors_[i] << std::endl;
+      edm::LogWarning("HGCGeom") << "Cannot initiate HGCalDDDConstants for " << nameDetectors_[i] << std::endl;
     }
     auto ii = std::find(names.begin(), names.end(), nameDetectors_[i]);
     if (ii != names.end()) {
@@ -157,11 +160,11 @@ void HGCalValidityTester::beginRun(edm::Run const &iRun, edm::EventSetup const &
       detMap[dets[k]] = i;
     }
   }
-  edm::LogVerbatim("HGCalGeom") << "Loaded HGCalDDConstants for " << detMap.size() << " detectors";
+  edm::LogVerbatim("HGCGeom") << "Loaded HGCalDDConstants for " << detMap.size() << " detectors";
 
   for (auto itr = detMap.begin(); itr != detMap.end(); ++itr)
-    edm::LogVerbatim("HGCalGeom") << "[" << itr->second << "]: " << nameDetectors_[itr->second] << " for Detector "
-                                  << itr->first;
+    edm::LogVerbatim("HGCGeom") << "[" << itr->second << "]: " << nameDetectors_[itr->second] << " for Detector "
+                                << itr->first;
 
   for (unsigned int k = 0; k < detIds_.size(); ++k) {
     std::ostringstream st1;
@@ -191,10 +194,10 @@ void HGCalValidityTester::beginRun(edm::Run const &iRun, edm::EventSetup const &
     }
     double r = std::sqrt(xy.first * xy.first + xy.second * xy.second);
     double z = zside * (cons->waferZ(layer, true));
-    //  auto range = cons->getRangeR(layer, true);
+    auto range = cons->getRangeR(layer, true);
     edm::LogVerbatim("HGCalMiss") << "Hit[" << k << "] " << st1.str() << " Position (" << xy.first << ", " << xy.second
-                                  << ", " << z << ") Valid " << valid << " R "
-                                  << r;  // << " (" << range.first << ":" << range.second << ")";
+                                  << ", " << z << ") Valid " << valid << " R " << r << " (" << range.first << ":"
+                                  << range.second << ")";
   }
 }
 

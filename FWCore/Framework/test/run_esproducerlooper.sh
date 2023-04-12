@@ -3,6 +3,7 @@
 # Pass in name and status
 function die { echo $1: status $2 ;  exit $2; }
 
+LOCAL_TEST_DIR="${CMSSW_BASE}/src/FWCore/Framework/test"
 (cmsRun ${LOCAL_TEST_DIR}/test_esproducerlooper_cfg.py ) || die 'Failure using test_esproducerlooper_cfg.py' $?
 (cmsRun ${LOCAL_TEST_DIR}/test_esproducerlooper_stop_cfg.py ) || die 'Failure using test_esproducerlooper_stop_cfg.py' $?
 (cmsRun ${LOCAL_TEST_DIR}/test_esproducerlooper_override_cfg.py ) || die 'Failure using test_esproducerlooper_override_cfg.py' $?

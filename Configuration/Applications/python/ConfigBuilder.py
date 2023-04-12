@@ -72,6 +72,7 @@ defaultOptions.inputEventContent = ''
 defaultOptions.dropDescendant = False
 defaultOptions.relval = None
 defaultOptions.profile = None
+defaultOptions.heap_profile = None
 defaultOptions.isRepacked = False
 defaultOptions.restoreRNDSeeds = False
 defaultOptions.donotDropOnInput = ''
@@ -317,6 +318,50 @@ class ConfigBuilder(object):
 
         return (profilerStart,profilerInterval,profilerFormat,profilerJobFormat)
 
+    def heapProfileOptions(self):
+        """
+        addJeProfService
+        Function to add the jemalloc heap  profile service so that you can dump in the middle
+        of the run.
+        """
+        profileOpts = self._options.profile.split(':')
+        profilerStart = 1
+        profilerInterval = 100
+        profilerFormat = None
+        profilerJobFormat = None
+
+        if len(profileOpts):
+            #type, given as first argument is unused here
+            profileOpts.pop(0)
+        if len(profileOpts):
+            startEvent = profileOpts.pop(0)
+            if not startEvent.isdigit():
+                raise Exception("%s is not a number" % startEvent)
+            profilerStart = int(startEvent)
+        if len(profileOpts):
+            eventInterval = profileOpts.pop(0)
+            if not eventInterval.isdigit():
+                raise Exception("%s is not a number" % eventInterval)
+            profilerInterval = int(eventInterval)
+        if len(profileOpts):
+            profilerFormat = profileOpts.pop(0)
+
+
+        if not profilerFormat:
+            profilerFormat = "%s___%s___%%I.heap" % (
+                self._options.evt_type.replace("_cfi", ""),
+                hashlib.md5(
+                    (str(self._options.step) + str(self._options.pileup) + str(self._options.conditions) +
+                    str(self._options.datatier) + str(self._options.profileTypeLabel)).encode('utf-8')
+                ).hexdigest()
+            )
+        if not profilerJobFormat and profilerFormat.endswith(".heap"):
+            profilerJobFormat = profilerFormat.replace(".heap", "_EndOfJob.heap")
+        elif not profilerJobFormat:
+            profilerJobFormat = profilerFormat + "_EndOfJob.heap"
+
+        return (profilerStart,profilerInterval,profilerFormat,profilerJobFormat)
+
     def load(self,includeFile):
         includeFile = includeFile.replace('/','.')
         self.process.load(includeFile)
@@ -367,6 +412,15 @@ class ConfigBuilder(object):
                                                      reportToFileAtPostEvent     = cms.untracked.string("| gzip -c > %s"%(eventFormat)),
                                                      reportToFileAtPostEndJob    = cms.untracked.string("| gzip -c > %s"%(jobFormat)))
             self.addedObjects.append(("Setup IGProf Service for profiling","IgProfService"))
+
+        if self._options.heap_profile:
+            (start, interval, eventFormat, jobFormat)=self.heapProfileOptions()
+            self.process.JeProfService = cms.Service("JeProfService",
+                                                     reportFirstEvent            = cms.untracked.int32(start),
+                                                     reportEventInterval         = cms.untracked.int32(interval),
+                                                     reportToFileAtPostEvent     = cms.untracked.string("%s"%(eventFormat)),
+                                                     reportToFileAtPostEndJob    = cms.untracked.string("%s"%(jobFormat)))
+            self.addedObjects.append(("Setup JeProf Service for heap profiling","JeProfService"))
 
     def addMaxEvents(self):
         """Here we decide how many evts will be processed"""
@@ -868,7 +922,7 @@ class ConfigBuilder(object):
             if opt.count('.')>1:
                 raise Exception("more than . in the specification:"+opt)
             fileName=opt.split('.')[0]
-            if opt.count('.')==0:	rest='customise'
+            if opt.count('.')==0: rest='customise'
             else:
                 rest=opt.split('.')[1]
                 if rest=='py': rest='customise' #catch the case of --customise file.py
@@ -1723,7 +1777,7 @@ class ConfigBuilder(object):
         ''' Enrich the schedule with NANO '''
         _,_nanoSeq,_nanoCff = self.loadDefaultOrSpecifiedCFF(stepSpec,self.NANODefaultCFF,self.NANODefaultSeq)
         self.scheduleSequence(_nanoSeq,'nanoAOD_step')
-        custom = "nanoAOD_customizeData" if self._options.isData else "nanoAOD_customizeMC"
+        custom = "nanoAOD_customizeCommon"
         self._options.customisation_file.insert(0,'.'.join([_nanoCff,custom]))
         if self._options.hltProcess:
             if len(self._options.customise_commands) > 1:
@@ -1746,19 +1800,32 @@ class ConfigBuilder(object):
         ''' Enrich the schedule with skimming fragments'''
         skimConfig,sequence,_ = self.loadDefaultOrSpecifiedCFF(stepSpec,self.SKIMDefaultCFF)
 
-        skimlist=sequence.split('+')
+        stdHLTProcName = 'HLT'
+        newHLTProcName = self._options.hltProcess
+        customiseForReHLT = (newHLTProcName or (stdHLTProcName in self.stepMap)) and (newHLTProcName != stdHLTProcName)
+        if customiseForReHLT:
+            print("replacing %s process name - step SKIM:%s will use '%s'" % (stdHLTProcName, sequence, newHLTProcName))
+
         ## support @Mu+DiJet+@Electron configuration via autoSkim.py
         from Configuration.Skimming.autoSkim import autoSkim
+        skimlist = sequence.split('+')
         self.expandMapping(skimlist,autoSkim)
 
-        #print "dictionnary for skims:",skimConfig.__dict__
+        #print("dictionary for skims:", skimConfig.__dict__)
         for skim in skimConfig.__dict__:
-            skimstream = getattr(skimConfig,skim)
-            if isinstance(skimstream,cms.Path):
-            #black list the alca path so that they do not appear in the cfg
+            skimstream = getattr(skimConfig, skim)
+
+            # blacklist AlCa paths so that they do not appear in the cfg
+            if isinstance(skimstream, cms.Path):
                 self.blacklist_paths.append(skimstream)
-            if (not isinstance(skimstream,cms.FilteredStream)):
+            # if enabled, apply "hltProcess" renaming to Sequences
+            elif isinstance(skimstream, cms.Sequence):
+                if customiseForReHLT:
+                    self.renameHLTprocessInSequence(skim, proc = newHLTProcName, HLTprocess = stdHLTProcName, verbosityLevel = 0)
+
+            if not isinstance(skimstream, cms.FilteredStream):
                 continue
+
             shortname = skim.replace('SKIMStream','')
             if (sequence=="all"):
                 self.addExtraStream(skim,skimstream)
@@ -1779,11 +1846,10 @@ class ConfigBuilder(object):
                 for i in range(skimlist.count(shortname)):
                     skimlist.remove(shortname)
 
-
-
         if (skimlist.__len__()!=0 and sequence!="all"):
             print('WARNING, possible typo with SKIM:'+'+'.join(skimlist))
             raise Exception('WARNING, possible typo with SKIM:'+'+'.join(skimlist))
+
 
     def prepare_USER(self, stepSpec = None):
         ''' Enrich the schedule with a user defined sequence '''
@@ -1877,7 +1943,7 @@ class ConfigBuilder(object):
             self._verbose = verbose
             self._whitelist = whitelist
 
-        def doIt(self,pset,base):
+        def doIt(self, pset, base):
             if isinstance(pset, cms._Parameterizable):
                 for name in pset.parameters_().keys():
                     # skip whitelisted parameters
@@ -1885,17 +1951,17 @@ class ConfigBuilder(object):
                         continue
                     # if I use pset.parameters_().items() I get copies of the parameter values
                     # so I can't modify the nested pset
-                    value = getattr(pset,name)
-                    type = value.pythonTypeName()
-                    if type in ('cms.PSet', 'cms.untracked.PSet'):
+                    value = getattr(pset, name)
+                    valueType = type(value)
+                    if valueType in [cms.PSet, cms.untracked.PSet, cms.EDProducer]:
                         self.doIt(value,base+"."+name)
-                    elif type in ('cms.VPSet', 'cms.untracked.VPSet'):
+                    elif valueType in [cms.VPSet, cms.untracked.VPSet]:
                         for (i,ps) in enumerate(value): self.doIt(ps, "%s.%s[%d]"%(base,name,i) )
-                    elif type in ('cms.string', 'cms.untracked.string'):
+                    elif valueType in [cms.string, cms.untracked.string]:
                         if value.value() == self._paramSearch:
                             if self._verbose: print("set string process name %s.%s %s ==> %s"% (base, name, value, self._paramReplace))
                             setattr(pset, name,self._paramReplace)
-                    elif type in ('cms.VInputTag', 'cms.untracked.VInputTag'):
+                    elif valueType in [cms.VInputTag, cms.untracked.VInputTag]:
                         for (i,n) in enumerate(value):
                             if not isinstance(n, cms.InputTag):
                                 n=cms.InputTag(n)
@@ -1904,11 +1970,11 @@ class ConfigBuilder(object):
                                 if self._verbose:print("set process name %s.%s[%d] %s ==> %s " % (base, name, i, n, self._paramReplace))
                                 setattr(n,"processName",self._paramReplace)
                                 value[i]=n
-                    elif type in ('cms.vstring', 'cms.untracked.vstring'):
+                    elif valueType in [cms.vstring, cms.untracked.vstring]:
                         for (i,n) in enumerate(value):
                             if n==self._paramSearch:
                                 getattr(pset,name)[i]=self._paramReplace
-                    elif type in ('cms.InputTag', 'cms.untracked.InputTag'):
+                    elif valueType in [cms.InputTag, cms.untracked.InputTag]:
                         if value.processName == self._paramSearch:
                             if self._verbose: print("set process name %s.%s %s ==> %s " % (base, name, value, self._paramReplace))
                             setattr(getattr(pset, name),"processName",self._paramReplace)
@@ -1937,19 +2003,22 @@ class ConfigBuilder(object):
         self.additionalCommands.append('massSearchReplaceAnyInputTag(process.%s,"%s","%s",False,True)'%(sequence,oldT,newT))
 
     #change the process name used to address HLT results in any sequence
-    def renameHLTprocessInSequence(self,sequence,proc=None,HLTprocess='HLT'):
-        if self._options.hltProcess:
-            proc=self._options.hltProcess
-        else:
-            proc=self.process.name_()
-        if proc==HLTprocess:    return
-        # look up all module in dqm sequence
-        print("replacing %s process name - sequence %s will use '%s'" % (HLTprocess,sequence, proc))
-        getattr(self.process,sequence).visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor(HLTprocess,proc,whitelist = ("subSystemFolder",)))
+    def renameHLTprocessInSequence(self, sequence, proc=None, HLTprocess='HLT', verbosityLevel=1):
+        if proc == None:
+            proc = self._options.hltProcess if self._options.hltProcess else self.process.name_()
+        if proc == HLTprocess:
+            return
+        # look up all module in sequence
+        if verbosityLevel > 0:
+            print("replacing %s process name - sequence %s will use '%s'" % (HLTprocess, sequence, proc))
+        verboseVisit = (verbosityLevel > 1)
+        getattr(self.process,sequence).visit(
+            ConfigBuilder.MassSearchReplaceProcessNameVisitor(HLTprocess, proc, whitelist = ("subSystemFolder",), verbose = verboseVisit))
         if 'from Configuration.Applications.ConfigBuilder import ConfigBuilder' not in self.additionalCommands:
             self.additionalCommands.append('from Configuration.Applications.ConfigBuilder import ConfigBuilder')
-        self.additionalCommands.append('process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("%s", "%s", whitelist = ("subSystemFolder",)))'% (sequence,HLTprocess, proc))
-
+        self.additionalCommands.append(
+            'process.%s.visit(ConfigBuilder.MassSearchReplaceProcessNameVisitor("%s", "%s", whitelist = ("subSystemFolder",), verbose = %s))'
+            % (sequence, HLTprocess, proc, verboseVisit))
 
     def expandMapping(self,seqList,mapping,index=None):
         maxLevel=30
@@ -2004,7 +2073,7 @@ class ConfigBuilder(object):
 
         pathName='dqmofflineOnPAT_step'
         for (i,_sequence) in enumerate(postSequenceList):
-	    #Fix needed to avoid duplication of sequences not defined in autoDQM or without a PostDQM
+            #Fix needed to avoid duplication of sequences not defined in autoDQM or without a PostDQM
             if (sequenceList[i]==postSequenceList[i]):
                       continue
             if (i!=0):
@@ -2046,6 +2115,10 @@ class ConfigBuilder(object):
             if isinstance(harvestingstream,cms.Sequence):
                 setattr(self.process,name+"_step",cms.Path(harvestingstream))
                 self.schedule.append(getattr(self.process,name+"_step"))
+
+        # # NOTE: the "hltProcess" option currently does nothing in the HARVEST step
+        # if self._options.hltProcess or ('HLT' in self.stepMap):
+        #     pass
 
         self.scheduleSequence('DQMSaver','dqmsave_step')
         return

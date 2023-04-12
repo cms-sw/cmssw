@@ -656,7 +656,7 @@ const CaloCellGeometry* HGCalGeometry::getGeometryRawPtr(uint32_t index) const {
     const CaloCellGeometry* cell(&m_cellVec2[index]);
     return (nullptr == cell->param() ? nullptr : cell);
   } else {
-    if (m_cellVec2.size() < index)
+    if (m_cellVec.size() < index)
       return nullptr;
     const CaloCellGeometry* cell(&m_cellVec[index]);
     return (nullptr == cell->param() ? nullptr : cell);

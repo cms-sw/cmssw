@@ -4,10 +4,11 @@
 #include <memory>
 #include <utility>
 
+#include <alpaka/alpaka.hpp>
+
 #include "DataFormats/Portable/interface/ProductBase.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/ScopedContextFwd.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
 
 namespace edm {
   template <typename T>
@@ -30,7 +31,7 @@ namespace cms::alpakatools {
      * it. Here is a somewhat natural place. If the overhead is too much, we
      * can use them only where synchronization between queues is needed.
      */
-  template <typename TQueue, typename T, typename = std::enable_if_t<cms::alpakatools::is_queue_v<TQueue>>>
+  template <typename TQueue, typename T, typename = std::enable_if_t<alpaka::isQueue<TQueue>>>
   class Product : public ProductBase<TQueue> {
   public:
     using Queue = TQueue;

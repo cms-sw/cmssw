@@ -36,6 +36,15 @@ getPayloadData.py \
 
 getPayloadData.py \
     --plugin pluginSiPixelDynamicInefficiency_PayloadInspector \
+    --plot plot_SiPixelDynamicInefficiencyPUParametrization \
+    --tag SiPixelDynamicInefficiency_PhaseI_v9 \
+    --time_type Run \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
+    --db Prod \
+    --test;
+
+getPayloadData.py \
+    --plugin pluginSiPixelDynamicInefficiency_PayloadInspector \
     --plot plot_SiPixelBPixIneffROCfromDynIneffMap \
     --tag SiPixelDynamicInefficiency_PhaseI_v9 \
     --time_type Run \

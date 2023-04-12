@@ -127,7 +127,7 @@ double HFFibre::zShift(const G4ThreeVector& point, int depth, int fromEndAbs) co
   double zFibre = 0;
   int ieta = 0;
   double length = 250 * CLHEP::cm;
-  double hR = sqrt((point.x()) * (point.x()) + (point.y()) * (point.y()));
+  double hR = std::sqrt((point.x()) * (point.x()) + (point.y()) * (point.y()));
 
   // Defines the Radius bin by radial subdivision
   if (fromEndAbs >= 0) {

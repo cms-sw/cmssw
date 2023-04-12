@@ -19,15 +19,12 @@
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <string>
+#include <utility>
 
-using namespace std;
 using namespace geant_units;
 using namespace geant_units::operators;
 
-#include <string>
-#include <utility>
-
-using namespace std;
+//#define EDM_ML_DEBUG
 
 DTGeometryBuilderFromDDD::DTGeometryBuilderFromDDD() {}
 
@@ -36,9 +33,9 @@ DTGeometryBuilderFromDDD::~DTGeometryBuilderFromDDD() {}
 void DTGeometryBuilderFromDDD::build(DTGeometry& theGeometry,
                                      const DDCompactView* cview,
                                      const MuonGeometryConstants& muonConstants) {
-  //  cout << "DTGeometryBuilderFromDDD::build" << endl;
-  //   static const string t0 = "DTGeometryBuilderFromDDD::build";
-  //   TimeMe timer(t0,true);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("DTGeometry") << "DTGeometryBuilderFromDDD::build";
+#endif
 
   std::string attribute = "MuStructure";
   std::string value = "MuonBarrelDT";
@@ -63,12 +60,12 @@ void DTGeometryBuilderFromDDD::buildGeometry(DTGeometry& theGeometry,
     ChamCounter++;
     DDValue val("Type");
     const DDsvalues_type params(fv.mergedSpecifics());
-    string type;
+    std::string type;
     if (DDfetch(&params, val))
       type = val.strings()[0];
     // FIXME
     val = DDValue("FEPos");
-    string FEPos;
+    std::string FEPos;
     if (DDfetch(&params, val))
       FEPos = val.strings()[0];
     DTChamber* chamber = buildChamber(fv, type, muonConstants);
@@ -104,7 +101,7 @@ void DTGeometryBuilderFromDDD::buildGeometry(DTGeometry& theGeometry,
 }
 
 DTChamber* DTGeometryBuilderFromDDD::buildChamber(DDFilteredView& fv,
-                                                  const string& type,
+                                                  const std::string& type,
                                                   const MuonGeometryConstants& muonConstants) const {
   MuonGeometryNumbering mdddnum(muonConstants);
   DTNumberingScheme dtnum(muonConstants);
@@ -113,7 +110,7 @@ DTChamber* DTGeometryBuilderFromDDD::buildChamber(DDFilteredView& fv,
 
   // Chamber specific parameter (size)
   // FIXME: some trouble for boolean solids?
-  vector<double> par = extractParameters(fv);
+  std::vector<double> par = extractParameters(fv);
 
   ///SL the definition of length, width, thickness depends on the local reference frame of the Det
   // width is along local X. r-phi  dimension - different in different chambers
@@ -140,7 +137,7 @@ DTSuperLayer* DTGeometryBuilderFromDDD::buildSuperLayer(DDFilteredView& fv,
   DTSuperLayerId slId(rawid);
 
   // Slayer specific parameter (size)
-  vector<double> par = extractParameters(fv);
+  std::vector<double> par = extractParameters(fv);
 
   edm::LogVerbatim("DTGeometryBuilder") << "(2) detId: " << rawid << " par[0]: " << par[0] << " par[1]: " << par[1]
                                         << " par[2]: " << par[2];
@@ -172,7 +169,7 @@ DTLayer* DTGeometryBuilderFromDDD::buildLayer(DDFilteredView& fv,
   DTLayerId layId(rawid);
 
   // Layer specific parameter (size)
-  vector<double> par = extractParameters(fv);
+  std::vector<double> par = extractParameters(fv);
   // width -- r-phi  dimension - different in different chambers
   // length -- z      dimension - constant 126.8 cm
   // thickness -- radial thickness - almost constant about 20 cm
@@ -208,8 +205,8 @@ DTLayer* DTGeometryBuilderFromDDD::buildLayer(DDFilteredView& fv,
   return layer;
 }
 
-vector<double> DTGeometryBuilderFromDDD::extractParameters(DDFilteredView& fv) const {
-  vector<double> par;
+std::vector<double> DTGeometryBuilderFromDDD::extractParameters(DDFilteredView& fv) const {
+  std::vector<double> par;
   if (fv.logicalPart().solid().shape() != DDSolidShape::ddbox) {
     DDBooleanSolid bs(fv.logicalPart().solid());
     DDSolid A = bs.solidA();
@@ -230,19 +227,19 @@ DTGeometryBuilderFromDDD::RCPPlane DTGeometryBuilderFromDDD::plane(const DDFilte
 
   const Surface::PositionType posResult(
       float(convertMmToCm(trans.x())), float(convertMmToCm(trans.y())), float(convertMmToCm(trans.z())));
-  LogTrace("DTGeometryBuilderFromDDD") << "DTGeometryBuilderFromDDD::plane "
-                                       << " posResult: " << posResult << std::endl;
+  LogTrace("DTGeometryBuilderFromDDD") << "DTGeometryBuilderFromDDD::plane  posResult: " << posResult;
   // now the rotation
   //     'active' and 'passive' rotations are inverse to each other
   const DDRotationMatrix& rotation = fv.rotation();  //REMOVED .Inverse();
   DD3Vector x, y, z;
   rotation.GetComponents(x, y, z);
-  //   std::cout << "INVERSE rotation by its own operator: "<< fv.rotation() << std::endl;
-  //   std::cout << "INVERSE rotation manually: "
-  // 	    << x.X() << ", " << x.Y() << ", " << x.Z() << std::endl
-  // 	    << y.X() << ", " << y.Y() << ", " << y.Z() << std::endl
-  // 	    << z.X() << ", " << z.Y() << ", " << z.Z() << std::endl;
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("DTGeometry") << "INVERSE rotation by its own operator: " << fv.rotation();
+  edm::LogVerbatim("DTGeometry") << "INVERSE rotation manually: " << x.X() << ", " << x.Y() << ", " << x.Z()
+                                 << std::endl
+                                 << y.X() << ", " << y.Y() << ", " << y.Z() << std::endl
+                                 << z.X() << ", " << z.Y() << ", " << z.Z();
+#endif
   Surface::RotationType rotResult(float(x.X()),
                                   float(x.Y()),
                                   float(x.Z()),
@@ -252,14 +249,6 @@ DTGeometryBuilderFromDDD::RCPPlane DTGeometryBuilderFromDDD::plane(const DDFilte
                                   float(z.X()),
                                   float(z.Y()),
                                   float(z.Z()));
-
-  //   std::cout << "rotation by its own operator: "<< tmp << std::endl;
-  //   DD3Vector tx, ty,tz;
-  //   tmp.GetComponents(tx, ty, tz);
-  //   std::cout << "rotation manually: "
-  // 	    << tx.X() << ", " << tx.Y() << ", " << tx.Z() << std::endl
-  // 	    << ty.X() << ", " << ty.Y() << ", " << ty.Z() << std::endl
-  // 	    << tz.X() << ", " << tz.Y() << ", " << tz.Z() << std::endl;
 
   return RCPPlane(new Plane(posResult, rotResult, bounds));
 }

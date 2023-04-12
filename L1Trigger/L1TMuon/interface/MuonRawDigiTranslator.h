@@ -14,11 +14,11 @@ namespace l1t {
                          uint32_t raw_data_00_31,
                          uint32_t raw_data_32_63,
                          int fed,
-                         unsigned int fw,
+                         int fw,
                          int muInBx);
-    static void fillMuon(Muon& mu, uint32_t raw_data_spare, uint64_t dataword, int fed, unsigned int fw, int muInBx);
-    static void fillIntermediateMuon(Muon& mu, uint32_t raw_data_00_31, uint32_t raw_data_32_63, unsigned int fw);
-    static bool showerFired(uint32_t shower_word, int fedId, unsigned int fwId);
+    static void fillMuon(Muon& mu, uint32_t raw_data_spare, uint64_t dataword, int fed, int fw, int muInBx);
+    static void fillIntermediateMuon(Muon& mu, uint32_t raw_data_00_31, uint32_t raw_data_32_63, int fw);
+    static bool showerFired(uint32_t shower_word, int fedId, int fwId);
     static void generatePackedMuonDataWords(const Muon& mu,
                                             uint32_t& raw_data_spare,
                                             uint32_t& raw_data_00_31,
@@ -28,7 +28,9 @@ namespace l1t {
                                             int muInBx);
     static void generate64bitDataWord(
         const Muon& mu, uint32_t& raw_data_spare, uint64_t& dataword, int fedId, int fwId, int muInBx);
-    static std::array<uint32_t, 4> getPackedShowerDataWords(const MuonShower& shower, int fedId, unsigned int fwId);
+    static std::array<std::array<uint32_t, 4>, 2> getPackedShowerDataWords(const MuonShower& shower,
+                                                                           int fedId,
+                                                                           int fwId);
     static int calcHwEta(const uint32_t& raw, unsigned absEtaShift, unsigned etaSignShift);
 
     static constexpr unsigned ptMask_ = 0x1FF;
@@ -59,6 +61,18 @@ namespace l1t {
     static constexpr unsigned etaMu1SignShift_ = 21;  // For Run-3
     static constexpr unsigned absEtaMu2Shift_ = 22;   // For Run-3
     static constexpr unsigned etaMu2SignShift_ = 30;  // For Run-3
+    static constexpr int kUgmtFedId = 1402;
+    static constexpr int kUgtFedId = 1404;
+    static constexpr int kUgmtFwVersionUntil2016 = 0x4010000;
+    static constexpr int kUgtFwVersionUntil2016 = 0x10A6;
+    static constexpr int kUgmtFwVersionUntil2017 = 0x6000000;
+    static constexpr int kUgtFwVersionUntil2017 = 0x1120;
+    static constexpr int kUgmtFwVersionRun3Start = 0x6000001;
+    static constexpr int kUgtFwVersionUntilRun3Start = 0x1130;
+    static constexpr int kUgmtFwVersionFirstWithShowers = 0x7000000;
+    static constexpr int kUgtFwVersionFirstWithShowers = 0x113B;
+    static constexpr int kUgmtFwVersionShowersFrom2023 = 0x8000000;
+    static constexpr int kUgtFwVersionShowersFrom2023 = 0x1150;
 
   private:
     static void fillMuonStableQuantities(Muon& mu, uint32_t raw_data_00_31, uint32_t raw_data_32_63);

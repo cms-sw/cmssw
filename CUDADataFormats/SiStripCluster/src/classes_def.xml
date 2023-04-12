@@ -1,0 +1,6 @@
+<lcgdict>
+  <class name="cms::cuda::Product<SiStripClustersCUDADevice>" persistent="false"/>
+  <class name="edm::Wrapper<cms::cuda::Product<SiStripClustersCUDADevice>>" persistent="false"/>
+  <class name="SiStripClustersCUDAHost" persistent="false"/>
+  <class name="edm::Wrapper<SiStripClustersCUDAHost>" persistent="false"/>
+</lcgdict>

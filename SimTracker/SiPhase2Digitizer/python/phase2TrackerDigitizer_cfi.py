@@ -13,8 +13,8 @@ PixelDigitizerAlgorithmCommon = cms.PSet(
     NoiseInElectrons = cms.double(0.0),
     Phase2ReadoutMode = cms.int32(3), # Flag to decide Readout Mode :Digital(0) or Analog (linear TDR (-1), dual slope with slope parameters (+1,+2,+3,+4) with threshold subtraction
     AdcFullScale = cms.int32(15),
-    TofUpperCut = cms.double(12.5),
-    TofLowerCut = cms.double(-12.5),
+    TofUpperCut = cms.double(20.),
+    TofLowerCut = cms.double(-5.),
     AddNoisyPixels = cms.bool(False),
     Alpha2Order = cms.bool(True),			#D.B.: second order effect, does not switch off magnetic field as described
     AddNoise = cms.bool(False),
@@ -75,6 +75,7 @@ phase2TrackerDigitizer = cms.PSet(
     GeometryType = cms.string('idealForDigi'),
     isOTreadoutAnalog = cms.bool(False),#set this to true if you want analog readout for OT
 # Common for Algos
+    usePseudoPixel3DAlgo = cms.bool(False),
     premixStage1 = cms.bool(False),
     AlgorithmCommon = cms.PSet(
       DeltaProductionCut = cms.double(0.03),
@@ -93,8 +94,6 @@ phase2TrackerDigitizer = cms.PSet(
         NPColumnGap = cms.double(46.0),
         UseReweighting = cms.bool(False),  # will be True for realistic simulations
     ),
-#Pixel-Bricked Digitizer Algorithm
-    PixelBrickedDigitizerAlgorithm   = PixelDigitizerAlgorithmCommon.clone(),
 #Pixel in PS Module
     PSPDigitizerAlgorithm = cms.PSet(
       ElectronPerAdc = cms.double(135.0),

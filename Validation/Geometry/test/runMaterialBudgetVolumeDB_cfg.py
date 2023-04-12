@@ -1,15 +1,51 @@
+###############################################################################
+# Way to use this:
+#   cmsRun runMaterialBudgetVolumeDB_cfg.py type=DDD
+#
+#   Options for type DDD, DD4hep
+#
+###############################################################################
+import FWCore.ParameterSet.Config as cms
+import os, sys, imp, re
+import FWCore.ParameterSet.VarParsing as VarParsing
+
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('type',
+                 "DDD",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: DDD, DD4hep")
+### get and parse the command line arguments
+options.parseArguments()
+
+print(options)
+
+####################################################################
+# Use the options
+
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Run3_cff import Run3
-process = cms.Process('PROD',Run3)
-#from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
-#process = cms.Process('PROD',Run3_dd4hep)
+if (options.type == "DDD"):
+    from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
+    process = cms.Process('PROD',Run3_DDD)
+    fileName = "matbdgRun3dddDB.root"
+else:
+    from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
+    process = cms.Process('PROD',Run3_dd4hep)
+    fileName = "matbdgRun3ddhepDB.root"
+
+print("Root file Name:     ", fileName)
+
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.GeometrySimDB_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2022_realistic', '')
-#process.GlobalTag = GlobalTag(process.GlobalTag, '120X_mcRun3_2021_realistic_dd4hep_v1', '')
+if (options.type == "DDD"):
+    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2022_realistic', '')
+else:
+    process.GlobalTag = GlobalTag(process.GlobalTag, '120X_mcRun3_2021_realistic_dd4hep_v1', '')
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
@@ -35,8 +71,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('matbdgRun3dddDB.root')
-#   fileName = cms.string('matbdgRun3dd4hepDB.root')
+    fileName = cms.string(fileName)
 )
 
 process.g4SimHits.UseMagneticField = False

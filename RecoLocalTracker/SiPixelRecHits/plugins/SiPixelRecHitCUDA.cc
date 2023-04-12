@@ -94,9 +94,6 @@ void SiPixelRecHitCUDAT<TrackerTraits>::produce(edm::StreamID streamID,
               gpuAlgo_.makeHitsAsync(digis, clusters, bs, fcpe->getGPUProductAsync(ctx.stream()), ctx.stream()));
 }
 
-using SiPixelRecHitCUDA = SiPixelRecHitCUDAT<pixelTopology::Phase1>;
-DEFINE_FWK_MODULE(SiPixelRecHitCUDA);
-
 using SiPixelRecHitCUDAPhase1 = SiPixelRecHitCUDAT<pixelTopology::Phase1>;
 DEFINE_FWK_MODULE(SiPixelRecHitCUDAPhase1);
 

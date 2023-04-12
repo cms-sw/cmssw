@@ -39,7 +39,7 @@ class AlCaIsoTracksProducerFilter
     : public edm::stream::EDFilter<edm::GlobalCache<alCaIsoTracksProducerFilter::Counters> > {
 public:
   explicit AlCaIsoTracksProducerFilter(edm::ParameterSet const&, const alCaIsoTracksProducerFilter::Counters* count);
-  ~AlCaIsoTracksProducerFilter() override;
+  ~AlCaIsoTracksProducerFilter() override = default;
 
   static std::unique_ptr<alCaIsoTracksProducerFilter::Counters> initializeGlobalCache(edm::ParameterSet const& iConfig) {
     return std::make_unique<alCaIsoTracksProducerFilter::Counters>();
@@ -78,8 +78,6 @@ AlCaIsoTracksProducerFilter::AlCaIsoTracksProducerFilter(const edm::ParameterSet
     edm::LogVerbatim("HcalIsoTrack") << "Trigger[" << k << "] " << trigNames_[k] << std::endl;
   }
 }
-
-AlCaIsoTracksProducerFilter::~AlCaIsoTracksProducerFilter() {}
 
 bool AlCaIsoTracksProducerFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetup) {
   ++nAll_;

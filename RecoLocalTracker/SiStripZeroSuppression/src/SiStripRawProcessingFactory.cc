@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripRawProcessingAlgorithms.h"
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripPedestalsSubtractor.h"
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripFedZeroSuppression.h"
@@ -86,4 +87,18 @@ std::unique_ptr<SiStripAPVRestorer> SiStripRawProcessingFactory::create_Restorer
   } else {
     return std::unique_ptr<SiStripAPVRestorer>(new SiStripAPVRestorer(conf, iC));
   }
+}
+
+void SiStripRawProcessingFactory::fillDescriptions(edm::ParameterSetDescription& algorithms) {
+  algorithms.add<std::string>("CommonModeNoiseSubtractionMode", "Median");
+  algorithms.add("useCMMeanMap", false);
+  algorithms.add("TruncateInSuppressor", true);
+  algorithms.add("doAPVRestore", false);
+  algorithms.add("SiStripFedZeroSuppressionMode", 4U);
+  algorithms.add("PedestalSubtractionFedMode", true);
+  algorithms.add("Use10bitsTruncation", false);
+  algorithms.add("Percentile", 25.0);
+  algorithms.add("CutToAvoidSignal", 2.0);
+  algorithms.add("Iterations", 3);
+  SiStripAPVRestorer::fillDescriptions(algorithms);
 }

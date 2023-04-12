@@ -7,9 +7,9 @@ STATUS=$?
 echo "xrdfs command status = "$STATUS
 if [ $STATUS -eq 0 ]; then
     echo "Using file ${DQMFILE}. Running in ${LOCAL_TEST_DIR}."
-    xrdcp root://cms-xrd-global.cern.ch/${REMOTE}${DQMFILE} ${LOCAL_TEST_DIR}
-    (makeTrackValidationPlots.py ${LOCAL_TEST_DIR}/${DQMFILE}) || die 'failed running makeTrackValidationPlots.py $DQMFILE' $?
-    rm -fr ${LOCAL_TEST_DIR}/${DQMFILE}
+    xrdcp root://cms-xrd-global.cern.ch/${REMOTE}${DQMFILE} .
+    (makeTrackValidationPlots.py ./${DQMFILE}) || die 'failed running makeTrackValidationPlots.py $DQMFILE' $?
+    rm -fr ./${DQMFILE}
 else 
   die "SKIPPING test, file ${DQMFILE} not found" 0
 fi

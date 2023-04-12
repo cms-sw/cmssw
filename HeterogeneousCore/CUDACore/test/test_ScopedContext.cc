@@ -1,6 +1,7 @@
 #include "catch.hpp"
 
 #include "CUDADataFormats/Common/interface/Product.h"
+#include "FWCore/Concurrency/interface/FinalWaitingTask.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -15,6 +16,9 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/ScopedSetDevice.h"
 
 #include "test_ScopedContextKernels.h"
+
+#include "oneapi/tbb/task_arena.h"
+#include "oneapi/tbb/task_group.h"
 
 namespace cms::cudatest {
   class TestScopedContext {
@@ -71,20 +75,27 @@ TEST_CASE("Use of cms::cuda::ScopedContext", "[CUDACore]") {
     }
 
     SECTION("Storing state in cms::cuda::ContextState") {
-      cms::cuda::ContextState ctxstate;
-      {  // acquire
-        std::unique_ptr<cms::cuda::Product<int>> dataPtr = ctx.wrap(10);
-        const auto& data = *dataPtr;
-        tbb::task_group group;
-        edm::WaitingTaskWithArenaHolder dummy{group, edm::make_waiting_task([](std::exception_ptr const* iPtr) {})};
-        cms::cuda::ScopedContextAcquire ctx2{data, std::move(dummy), ctxstate};
-      }
+      oneapi::tbb::task_arena arena(1);
+      arena.execute([&ctx]() {
+        cms::cuda::ContextState ctxstate;
+        {  // acquire
+          std::unique_ptr<cms::cuda::Product<int>> dataPtr = ctx.wrap(10);
+          const auto& data = *dataPtr;
+          oneapi::tbb::task_group group;
+          edm::FinalWaitingTask waitTask{group};
+          {
+            edm::WaitingTaskWithArenaHolder dummy{group, &waitTask};
+            cms::cuda::ScopedContextAcquire ctx2{data, dummy, ctxstate};
+          }
+          waitTask.wait();
+        }
 
-      {  // produce
-        cms::cuda::ScopedContextProduce ctx2{ctxstate};
-        REQUIRE(cms::cuda::currentDevice() == ctx.device());
-        REQUIRE(ctx2.stream() == ctx.stream());
-      }
+        {  // produce
+          cms::cuda::ScopedContextProduce ctx2{ctxstate};
+          REQUIRE(cms::cuda::currentDevice() == ctx.device());
+          REQUIRE(ctx2.stream() == ctx.stream());
+        }
+      });
     }
 
     SECTION("Joining multiple CUDA streams") {

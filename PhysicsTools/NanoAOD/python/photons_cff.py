@@ -228,6 +228,7 @@ photonTable = simpleCandidateFlatTableProducer.clone(
         mvaID_Fall17V2 = Var("userFloat('mvaID_Fall17V2')",float,doc="MVA ID score, Fall17V2",precision=10),
         mvaID_Fall17V2_WP90 = Var("userInt('mvaID_Fall17V2_WP90')",bool,doc="MVA ID WP90, Fall17V2"),
         mvaID_Fall17V2_WP80 = Var("userInt('mvaID_Fall17V2_WP80')",bool,doc="MVA ID WP80, Fall17V2"),
+        trkSumPtHollowConeDR03 = Var("trkSumPtHollowConeDR03()",float,doc="Sum of track pT in a hollow cone of outer radius, inner radius", precision=8),
         pfPhoIso03 = Var("photonIso()",float,doc="PF absolute isolation dR=0.3, photon component (uncorrected)"),
         pfChargedIsoPFPV = Var("chargedHadronPFPVIso()",float,doc="PF absolute isolation dR=0.3, charged component (PF PV only)"),
         pfChargedIsoWorstVtx = Var("chargedHadronWorstVtxIso()",float,doc="PF absolute isolation dR=0.3, charged component (Vertex with largest isolation)"),

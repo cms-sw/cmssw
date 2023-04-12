@@ -2,12 +2,14 @@
 <DDDefinition>
 
 <ConstantsSection label="hgcal.xml" eval="true">
-  <Constant name="WaferSize"             value="166.4408*mm"/>
+  <Constant name="WaferSize"             value="167.4408*mm"/>
   <Constant name="WaferThickness"        value="0.30*mm"/>
   <Constant name="WaferThicknessFine"    value="0.30*mm"/>
   <Constant name="WaferThicknessCoarse1" value="0.20*mm"/>
   <Constant name="WaferThicknessCoarse2" value="0.30*mm"/>
-  <Constant name="SensorSeparation"      value="1.00*mm"/>
+  <Constant name="SensorSeparation"      value="0.10*mm"/>
+  <Constant name="SensorSizeOffset"      value="0.87*mm"/>
+  <Constant name="GuardRingOffset"       value="0.90*mm"/>
   <Constant name="MouseBite"             value="5.00*mm"/>
   <Constant name="ModuleThicknessEE"     value="9.325*mm"/>
   <Constant name="ModuleThicknessHE"     value="8.70*mm"/>

@@ -75,7 +75,7 @@ namespace l1t {
         uint32_t mu1_lsw{0};
         uint32_t mu2_lsw{0};
         auto mu{objMap.at(bx).mus.begin()};  // Need to get the first muon of that bx from the object map
-        std::array<uint32_t, 4> showerWords{
+        std::array<std::array<uint32_t, 4>, 2> const showerWords{
             MuonRawDigiTranslator::getPackedShowerDataWords(objMap.at(bx).shower, fedId_, fwId_)};
         // Slightly convoluted logic to account for the Run-3 muon readout record:
         // To make space for displacement information we moved the raw
@@ -99,8 +99,9 @@ namespace l1t {
             mu1_shared_word = mu2_shared_word;
             mu1_lsw = mu2_lsw;
             mu1_msw = mu2_msw;
-            mu1_msw |= showerWords.at(muCtr / 2);  // Shower bits are added only to the first muon of the link.
+            mu1_msw |= showerWords.at(0).at(muCtr / 2);
           } else {
+            mu2_msw |= showerWords.at(1).at(muCtr / 2 - 1);
             payloadMap[blkId].push_back(mu1_shared_word | mu2_shared_word);
             payloadMap[blkId].push_back(mu1_lsw);
             payloadMap[blkId].push_back(mu1_msw);

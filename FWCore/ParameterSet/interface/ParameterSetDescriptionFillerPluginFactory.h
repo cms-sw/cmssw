@@ -30,11 +30,13 @@ namespace edm {
   typedef edmplugin::PluginFactory<ParameterSetDescriptionFillerBase*(void)> ParameterSetDescriptionFillerPluginFactory;
 }
 
-#define DEFINE_FWK_PSET_DESC_FILLER(type)                                                                         \
+#define DEFINE_FWK_PSET_DESC_FILLER_IMPL(type, name, postfix)                                                     \
   static const edm::ParameterSetDescriptionFillerPluginFactory::PMaker<edm::ParameterSetDescriptionFiller<type> > \
-      EDM_PLUGIN_SYM(s_filler, __LINE__)(#type)
+      EDM_PLUGIN_SYM(s_filler##postfix, __LINE__)(name)
 //NOTE: Can't do the below since this appears on the same line as another factory and w'ed have two variables with the same name
 //DEFINE_EDM_PLUGIN (edm::ParameterSetDescriptionFillerPluginFactory,type,#type)
+
+#define DEFINE_FWK_PSET_DESC_FILLER(type) DEFINE_FWK_PSET_DESC_FILLER_IMPL(type, #type, _0)
 
 // Define another analogous macro to handle the special case of services.
 
@@ -42,13 +44,15 @@ namespace edm {
   static const edm::ParameterSetDescriptionFillerPluginFactory::PMaker<edm::DescriptionFillerForServices<serviceType> > \
       EDM_PLUGIN_SYM(s_filler, __LINE__)(#pluginName)
 
-#define DEFINE_DESC_FILLER_FOR_ESSOURCES(type)                                                                    \
+#define DEFINE_DESC_FILLER_FOR_ESSOURCES_IMPL(type, name)                                                         \
   static const edm::ParameterSetDescriptionFillerPluginFactory::PMaker<edm::DescriptionFillerForESSources<type> > \
-      EDM_PLUGIN_SYM(s_filler, __LINE__)(#type)
+      EDM_PLUGIN_SYM(s_filler, __LINE__)(name)
+#define DEFINE_DESC_FILLER_FOR_ESSOURCES(type) DEFINE_DESC_FILLER_FOR_ESSOURCES_IMPL(type, #type)
 
-#define DEFINE_DESC_FILLER_FOR_ESPRODUCERS(type)                                                                    \
+#define DEFINE_DESC_FILLER_FOR_ESPRODUCERS_IMPL(type, name, postfix)                                                \
   static const edm::ParameterSetDescriptionFillerPluginFactory::PMaker<edm::DescriptionFillerForESProducers<type> > \
-      EDM_PLUGIN_SYM(s_filler, __LINE__)(#type)
+      EDM_PLUGIN_SYM(s_filler##postfix, __LINE__)(name)
+#define DEFINE_DESC_FILLER_FOR_ESPRODUCERS(type) DEFINE_DESC_FILLER_FOR_ESPRODUCERS_IMPL(type, #type, _0)
 
 #define DEFINE_DESC_FILLER_FOR_EDLOOPERS(type)                                                                    \
   static const edm::ParameterSetDescriptionFillerPluginFactory::PMaker<edm::DescriptionFillerForEDLoopers<type> > \

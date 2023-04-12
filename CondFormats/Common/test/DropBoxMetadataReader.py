@@ -45,6 +45,7 @@ process.myReader = cms.EDAnalyzer("ProduceDropBoxMetadata",
                                     "SiPixelQualityFromDbRcd_stuckTBM",
                                     "SiPixelQualityFromDbRcd_other",
                                     "SiPixelLorentzAngleRcd",
+                                    "SiPixelLorentzAngleRcdMCS",                                      
                                     "CTPPSRPAlignmentCorrectionsDataRcd",
                                     "PPSTimingCalibrationRcd_HPTDC",
                                     "PPSTimingCalibrationRcd_SAMPIC"

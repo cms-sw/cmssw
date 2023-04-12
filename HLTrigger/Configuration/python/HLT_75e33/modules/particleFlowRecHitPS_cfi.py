@@ -17,6 +17,6 @@ particleFlowRecHitPS = cms.EDProducer("PFRecHitProducer",
                 topologicalCleaning = cms.bool(True)
             )
         ),
-        src = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES")
+        src = cms.InputTag("hltEcalPreshowerRecHit","EcalRecHitsES")
     ))
 )

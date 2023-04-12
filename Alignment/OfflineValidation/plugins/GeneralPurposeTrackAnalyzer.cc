@@ -995,8 +995,8 @@ private:
     edm::LogPrint("GeneralPurposeTrackAnalyzer") << "n. tracks: " << itrks << std::endl;
     edm::LogPrint("GeneralPurposeTrackAnalyzer") << "*******************************" << std::endl;
 
-    int nFiringTriggers = triggerMap_.size();
-    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "firing triggers: " << nFiringTriggers << std::endl;
+    int nFiringTriggers = !triggerMap_.empty() ? triggerMap_.size() : 1;
+    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "firing triggers: " << triggerMap_.size() << std::endl;
     edm::LogPrint("GeneralPurposeTrackAnalyzer") << "*******************************" << std::endl;
 
     tksByTrigger_ =
@@ -1028,6 +1028,15 @@ private:
     }
 
     int nRuns = conditionsMap_.size();
+    if (nRuns < 1) {
+      edm::LogPrint("GeneralPurposeTrackAnalyzer") << "*******************************"
+                                                   << "\n"
+                                                   << " no run was processed! "
+                                                   << "\n"
+                                                   << "*******************************";
+
+      return;
+    }
 
     std::vector<int> theRuns_;
     for (const auto &it : conditionsMap_) {
@@ -1037,11 +1046,12 @@ private:
     sort(theRuns_.begin(), theRuns_.end());
     int runRange = theRuns_.back() - theRuns_.front() + 1;
 
-    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "*******************************" << std::endl;
-    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "first run: " << theRuns_.front() << std::endl;
-    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "last run:  " << theRuns_.back() << std::endl;
-    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "considered runs: " << nRuns << std::endl;
-    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "*******************************" << std::endl;
+    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "*******************************"
+                                                 << "\n"
+                                                 << "first run: " << theRuns_.front() << "\n"
+                                                 << "last run:  " << theRuns_.back() << "\n"
+                                                 << "considered runs: " << nRuns << "\n"
+                                                 << "*******************************";
 
     modeByRun_ = book<TH1D>("modeByRun",
                             "Strip APV mode by run number;;APV mode (-1=deco,+1=peak)",
@@ -1054,6 +1064,8 @@ private:
                              runRange,
                              theRuns_.front() - 0.5,
                              theRuns_.back() + 0.5);
+
+    edm::LogPrint("") << __PRETTY_FUNCTION__ << " line: " << __LINE__ << std::endl;
 
     for (const auto &the_r : theRuns_) {
       if (conditionsMap_.find(the_r)->second.first != 0) {

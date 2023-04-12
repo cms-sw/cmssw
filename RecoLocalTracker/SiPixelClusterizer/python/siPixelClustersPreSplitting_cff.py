@@ -24,10 +24,10 @@ run3_common.toModify(siPixelClustersPreSplittingCUDA,
                      clusterThreshold_layer1 = 4000)
 
 # convert the pixel digis (except errors) and clusters to the legacy format
-from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoA_cfi import siPixelDigisClustersFromSoA as _siPixelDigisClustersFromSoA
+from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoAPhase1_cfi import siPixelDigisClustersFromSoAPhase1 as _siPixelDigisClustersFromSoAPhase1
 from RecoLocalTracker.SiPixelClusterizer.siPixelDigisClustersFromSoAPhase2_cfi import siPixelDigisClustersFromSoAPhase2 as _siPixelDigisClustersFromSoAPhase2
 
-siPixelDigisClustersPreSplitting = _siPixelDigisClustersFromSoA.clone()
+siPixelDigisClustersPreSplitting = _siPixelDigisClustersFromSoAPhase1.clone()
 
 run3_common.toModify(siPixelDigisClustersPreSplitting,
                      clusterThreshold_layer1 = 4000)

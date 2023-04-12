@@ -43,12 +43,12 @@ HGCalSD::HGCalSD(const std::string& name,
       useSimWt_(0),
       tan30deg_(std::tan(30.0 * CLHEP::deg)) {
   numberingScheme_.reset(nullptr);
+  guardRing_.reset(nullptr);
   mouseBite_.reset(nullptr);
 
   edm::ParameterSet m_HGC = p.getParameter<edm::ParameterSet>("HGCSD");
   eminHit_ = m_HGC.getParameter<double>("EminHit") * CLHEP::MeV;
   fiducialCut_ = m_HGC.getParameter<bool>("FiducialCut");
-  distanceFromEdge_ = m_HGC.getParameter<double>("DistanceFromEdge");
   storeAllG4Hits_ = m_HGC.getParameter<bool>("StoreAllG4Hits");
   rejectMB_ = m_HGC.getParameter<bool>("RejectMouseBite");
   waferRot_ = m_HGC.getParameter<bool>("RotatedWafer");
@@ -56,6 +56,7 @@ HGCalSD::HGCalSD(const std::string& name,
   angles_ = m_HGC.getUntrackedParameter<std::vector<double>>("WaferAngles");
   missingFile_ = m_HGC.getUntrackedParameter<std::string>("MissingWaferFile");
   checkID_ = m_HGC.getUntrackedParameter<bool>("CheckID");
+  verbose_ = m_HGC.getUntrackedParameter<int>("Verbosity");
 
   if (storeAllG4Hits_) {
     setUseMap(false);
@@ -137,43 +138,24 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
   float globalZ = touch->GetTranslation(0).z();
   int iz(globalZ > 0 ? 1 : -1);
 
-  int layer(0), module(-1), cell(-1);
-  if ((geom_mode_ == HGCalGeometryMode::Hexagon8Module) || (geom_mode_ == HGCalGeometryMode::Hexagon8Cassette)) {
-    if (useSimWt_ > 0) {
-      layer = touch->GetReplicaNumber(2);
-      module = touch->GetReplicaNumber(1);
-    } else if (touch->GetHistoryDepth() > levelT2_) {
-      layer = touch->GetReplicaNumber(4);
-      module = touch->GetReplicaNumber(3);
-      cell = touch->GetReplicaNumber(1);
-    } else {
-      layer = touch->GetReplicaNumber(3);
-      module = touch->GetReplicaNumber(2);
-    }
-#ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCSim") << "DepthsTop: " << touch->GetHistoryDepth() << ":" << levelT1_ << ":" << levelT2_ << ":"
-                               << useSimWt_ << " name " << touch->GetVolume(0)->GetName() << " layer:module:cell "
-                               << layer << ":" << module << ":" << cell;
-    printDetectorLevels(touch);
-#endif
-  } else if ((touch->GetHistoryDepth() == levelT1_) || (touch->GetHistoryDepth() == levelT2_)) {
-    layer = touch->GetReplicaNumber(0);
-#ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCSim") << "DepthsTop: " << touch->GetHistoryDepth() << ":" << levelT1_ << ":" << levelT2_
-                               << " name " << touch->GetVolume(0)->GetName() << " layer:module:cell " << layer << ":"
-                               << module << ":" << cell;
-#endif
+  int layer(0), moduleLev(-1), cell(-1);
+  if (useSimWt_ > 0) {
+    layer = touch->GetReplicaNumber(2);
+    moduleLev = 1;
+  } else if (touch->GetHistoryDepth() > levelT2_) {
+    layer = touch->GetReplicaNumber(4);
+    cell = touch->GetReplicaNumber(1);
+    moduleLev = 3;
   } else {
     layer = touch->GetReplicaNumber(3);
-    module = touch->GetReplicaNumber(2);
-    cell = touch->GetReplicaNumber(1);
-#ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCSim") << "DepthsInside: " << touch->GetHistoryDepth() << " name "
-                               << touch->GetVolume(0)->GetName() << " layer:module:cell " << layer << ":" << module
-                               << ":" << cell;
-#endif
+    moduleLev = 2;
   }
+  int module = touch->GetReplicaNumber(moduleLev);
 #ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCSim") << "DepthsTop: " << touch->GetHistoryDepth() << ":" << levelT1_ << ":" << levelT2_ << ":"
+                             << useSimWt_ << " name " << touch->GetVolume(0)->GetName() << " layer:module:cell "
+                             << layer << ":" << moduleLev << ":" << module << ":" << cell;
+  printDetectorLevels(touch);
   G4Material* mat = aStep->GetPreStepPoint()->GetMaterial();
   edm::LogVerbatim("HGCSim") << "Depths: " << touch->GetHistoryDepth() << " name " << touch->GetVolume(0)->GetName()
                              << ":" << touch->GetReplicaNumber(0) << "   " << touch->GetVolume(1)->GetName() << ":"
@@ -189,15 +171,26 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
     return 0;
 
   uint32_t id = setDetUnitId(layer, module, cell, iz, hitPoint);
-  if (rejectMB_ && id != 0) {
+  if ((rejectMB_ || fiducialCut_) && id != 0) {
     auto uv = HGCSiliconDetId(id).waferUV();
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "ID " << std::hex << id << std::dec << " " << HGCSiliconDetId(id);
 #endif
-    if (mouseBite_->exclude(hitPoint, iz, uv.first, uv.second)) {
+    G4ThreeVector local = (touch->GetHistory()->GetTransform(moduleLev).TransformPoint(hitPoint));
+    if (fiducialCut_) {
+      int layertype = hgcons_->layerType(layer);
+      int frontBack = HGCalTypes::layerFrontBack(layertype);
+      if (guardRing_->exclude(local, iz, frontBack, layer, uv.first, uv.second)) {
+        id = 0;
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("HGCSim") << "Rejected by GuardRing cutoff *****";
+#endif
+      }
+    }
+    if ((rejectMB_) && (mouseBite_->exclude(local, iz, layer, uv.first, uv.second))) {
       id = 0;
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCSim") << "Rejected by mousebite cutoff *****";
+      edm::LogVerbatim("HGCSim") << "Rejected by MouseBite cutoff *****";
 #endif
     }
   }
@@ -207,29 +200,23 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
 #endif
   if ((id != 0) && checkID_) {
     HGCSiliconDetId hid1(id);
-    auto xy = hgcons_->locateCell(hid1, false);
+    bool cshift = (hgcons_->cassetteShiftSilicon(hid1.layer(), hid1.waferU(), hid1.waferV()));
+    std::string_view pid = (cshift ? "HGCSim" : "HGCalSim");
+    bool debug = (verbose_ > 0) ? true : false;
+    auto xy = hgcons_->locateCell(hid1, debug);
     double xx = (hid1.zside() > 0) ? xy.first : -xy.first;
     double dx = xx - (hitPoint.x() / CLHEP::cm);
     double dy = xy.second - (hitPoint.y() / CLHEP::cm);
     double diff = std::sqrt(dx * dx + dy * dy);
     constexpr double tol = 2.0;
-    if (diff > tol) {
-      bool valid1 = hgcons_->isValidHex8(hid1.layer(), hid1.waferU(), hid1.waferV(), hid1.cellU(), hid1.cellV(), true);
-      int cellU(0), cellV(0), waferType(-1), waferU(0), waferV(0);
-      double wt1(0);
-      int zside = (hid1.zside() > 0) ? 1 : -1;
-      xx = zside * hitPoint.x();
-      hgcons_->waferFromPosition(
-          xx, hitPoint.y(), zside, layer, waferU, waferV, cellU, cellV, waferType, wt1, false, false);
-      HGCSiliconDetId hid2(hid1.det(), hid1.zside(), waferType, layer, waferU, waferV, cellU, cellV);
-      bool valid2 = hgcons_->isValidHex8(hid2.layer(), hid2.waferU(), hid2.waferV(), hid2.cellU(), hid2.cellV(), true);
-      auto partn = hgcons_->waferTypeRotation(hid1.layer(), hid1.waferU(), hid1.waferV(), false, false);
-      edm::LogVerbatim("HGCSim") << "CheckID " << HGCSiliconDetId(id) << " input position: ("
-                                 << hitPoint.x() / CLHEP::cm << ", " << hitPoint.y() / CLHEP::cm
-                                 << "); position from ID (" << xx << ", " << xy.second << ") distance " << diff
-                                 << " New ID|Old ID " << (hid1.rawId() == hid2.rawId()) << " Valid " << valid1 << ":"
-                                 << valid2 << " Wafer type|rotation " << partn.first << ":" << partn.second;
-    }
+    bool valid1 = hgcons_->isValidHex8(hid1.layer(), hid1.waferU(), hid1.waferV(), hid1.cellU(), hid1.cellV(), true);
+    if ((diff > tol) || (!valid1))
+      pid = "HGCalError";
+    auto partn = hgcons_->waferTypeRotation(hid1.layer(), hid1.waferU(), hid1.waferV(), false, false);
+    edm::LogVerbatim(pid) << "CheckID " << HGCSiliconDetId(id) << " input position: (" << hitPoint.x() / CLHEP::cm
+                          << ", " << hitPoint.y() / CLHEP::cm << "); position from ID (" << xx << ", " << xy.second
+                          << ") distance " << diff << " Valid " << valid1 << " Wafer type|rotation " << partn.first
+                          << ":" << partn.second << " CassetteShift " << cshift;
   }
   return id;
 }
@@ -241,18 +228,25 @@ void HGCalSD::update(const BeginOfJob* job) {
     levelT1_ = hgcons_->levelTop(0);
     levelT2_ = hgcons_->levelTop(1);
     useSimWt_ = hgcons_->getParameter()->useSimWt_;
+    int useOffset = hgcons_->getParameter()->useOffset_;
     double waferSize = hgcons_->waferSize(false);
     double mouseBite = hgcons_->mouseBite(false);
     mouseBiteCut_ = waferSize * tan30deg_ - mouseBite;
+    if (useOffset > 0) {
+      rejectMB_ = true;
+      fiducialCut_ = true;
+    }
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "HGCalSD::Initialized with mode " << geom_mode_ << " Slope cut " << slopeMin_
                                << " top Level " << levelT1_ << ":" << levelT2_ << " useSimWt " << useSimWt_ << " wafer "
-                               << waferSize << ":" << mouseBite;
+                               << waferSize << ":" << mouseBite << " useOffset " << useOffset;
 #endif
 
     numberingScheme_ = std::make_unique<HGCalNumberingScheme>(*hgcons_, mydet_, nameX_, missingFile_);
     if (rejectMB_)
       mouseBite_ = std::make_unique<HGCMouseBite>(*hgcons_, angles_, mouseBiteCut_, waferRot_);
+    if (fiducialCut_)
+      guardRing_ = std::make_unique<HGCGuardRing>(*hgcons_);
   } else {
     throw cms::Exception("Unknown", "HGCalSD") << "Cannot find HGCalDDDConstants for " << nameX_ << "\n";
   }
@@ -275,12 +269,4 @@ uint32_t HGCalSD::setDetUnitId(int layer, int module, int cell, int iz, G4ThreeV
   if (hgcons_->waferHexagon8File() || (id == 0))
     ignoreRejection();
   return id;
-}
-
-bool HGCalSD::isItinFidVolume(const G4ThreeVector& pos) {
-  if (fiducialCut_) {
-    return (hgcons_->distFromEdgeHex(pos.x(), pos.y(), pos.z()) > distanceFromEdge_);
-  } else {
-    return true;
-  }
 }

@@ -325,7 +325,7 @@ void DiMuonValidation::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<double>("Variable_PairPt_xmax", 100.);
   desc.add<int>("Variable_PairPt_nbins", 100);
 
-  descriptions.add("DiMuonValidation", desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

@@ -18,21 +18,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
    * This class demonstrates a stream EDProducer that
    * - consumes a host EDProduct
    * - consumes a device ESProduct
-   * - produces a device EDProduct (that can get transferred to host automatically)
+   * - produces a device EDProduct (that gets transferred to host automatically if needed)
+   * - optionally uses a product instance label
    */
   class TestAlpakaStreamProducer : public stream::EDProducer<> {
   public:
-    TestAlpakaStreamProducer(edm::ParameterSet const& config) : size_{config.getParameter<int32_t>("size")} {
+    TestAlpakaStreamProducer(edm::ParameterSet const& config)
+        : size_{config.getParameter<edm::ParameterSet>("size").getParameter<int32_t>(
+              EDM_STRINGIZE(ALPAKA_ACCELERATOR_NAMESPACE))} {
       getToken_ = consumes(config.getParameter<edm::InputTag>("source"));
-      esToken_ = esConsumes();
-      devicePutToken_ = produces();
+      esToken_ = esConsumes(config.getParameter<edm::ESInputTag>("eventSetupSource"));
+      devicePutToken_ = produces(config.getParameter<std::string>("productInstanceName"));
     }
 
     void produce(device::Event& iEvent, device::EventSetup const& iSetup) override {
       [[maybe_unused]] auto inpData = iEvent.getHandle(getToken_);
       [[maybe_unused]] auto const& esData = iSetup.getData(esToken_);
 
-      auto deviceProduct = std::make_unique<portabletest::TestDeviceCollection>(size_, alpaka::getDev(iEvent.queue()));
+      auto deviceProduct = std::make_unique<portabletest::TestDeviceCollection>(size_, iEvent.queue());
 
       // run the algorithm, potentially asynchronously
       algo_.fill(iEvent.queue(), *deviceProduct);
@@ -43,7 +46,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
       desc.add<edm::InputTag>("source");
-      desc.add<int32_t>("size");
+      desc.add("eventSetupSource", edm::ESInputTag{});
+      desc.add<std::string>("productInstanceName", "");
+
+      edm::ParameterSetDescription psetSize;
+      psetSize.add<int32_t>("alpaka_serial_sync");
+      psetSize.add<int32_t>("alpaka_cuda_async");
+      desc.add("size", psetSize);
+
       descriptions.addWithDefaultLabel(desc);
     }
 
@@ -59,5 +69,5 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
-#include "HeterogeneousCore/AlpakaCore/interface/MakerMacros.h"
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"
 DEFINE_FWK_ALPAKA_MODULE(TestAlpakaStreamProducer);

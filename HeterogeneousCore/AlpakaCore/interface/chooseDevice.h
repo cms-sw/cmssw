@@ -1,6 +1,8 @@
 #ifndef HeterogeneousCore_AlpakaCore_interface_chooseDevice_h
 #define HeterogeneousCore_AlpakaCore_interface_chooseDevice_h
 
+#include <alpaka/alpaka.hpp>
+
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
@@ -10,7 +12,7 @@
 
 namespace cms::alpakatools {
 
-  template <typename TPlatform, typename = std::enable_if_t<is_platform_v<TPlatform>>>
+  template <typename TPlatform, typename = std::enable_if_t<alpaka::isPlatform<TPlatform>>>
   alpaka::Dev<TPlatform> const& chooseDevice(edm::StreamID id) {
     edm::Service<ALPAKA_TYPE_ALIAS(AlpakaService)> service;
     if (not service->enabled()) {

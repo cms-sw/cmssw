@@ -28,10 +28,11 @@
 #include "CondCore/AlignmentPlugins/interface/AlignmentPayloadInspectorHelper.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
+#include <boost/range/adaptor/indexed.hpp>
+#include <iomanip>  // std::setprecision
+#include <iostream>
 #include <memory>
 #include <sstream>
-#include <iostream>
-#include <iomanip>  // std::setprecision
 
 // include ROOT
 #include "TH2F.h"
@@ -154,7 +155,8 @@ namespace {
       }
 
       // fill all the histograms together
-      std::vector<int> boundaries;
+      std::map<int, AlignmentPI::partitions> boundaries;
+      boundaries.insert({0, AlignmentPI::BPix});  // always start with BPix, not filled in the loop
       AlignmentPI::fillComparisonHistograms(boundaries, ref_ali, target_ali, diffs);
 
       unsigned int subpad{1};
@@ -216,25 +218,32 @@ namespace {
       for (const auto &coord : coords) {
         auto s_coord = AlignmentPI::getStringFromCoordinate(coord);
         canvas.cd(subpad + 1);
-
-        unsigned int i = 0;
-        for (const auto &line : boundaries) {
-          l[subpad][i] = TLine(diffs[coord]->GetBinLowEdge(line),
-                               canvas.cd(subpad + 1)->GetUymin(),
-                               diffs[coord]->GetBinLowEdge(line),
-                               canvas.cd(subpad + 1)->GetUymax() * 0.84);
-          l[subpad][i].SetLineWidth(1);
-          l[subpad][i].SetLineStyle(9);
-          l[subpad][i].SetLineColor(2);
-          l[subpad][i].Draw("same");
-          i++;
+        for (const auto &line : boundaries | boost::adaptors::indexed(0)) {
+          const auto &index = line.index();
+          const auto value = line.value();
+          l[subpad][index] = TLine(diffs[coord]->GetBinLowEdge(value.first),
+                                   canvas.cd(subpad + 1)->GetUymin(),
+                                   diffs[coord]->GetBinLowEdge(value.first),
+                                   canvas.cd(subpad + 1)->GetUymax() * 0.84);
+          l[subpad][index].SetLineWidth(1);
+          l[subpad][index].SetLineStyle(9);
+          l[subpad][index].SetLineColor(2);
+          l[subpad][index].Draw("same");
         }
 
-        const auto &theX_ = {0.2, 0.24, 0.31, 0.4, 0.55, 0.8};
-        for (unsigned int j = 1; j <= 7; j++) {
-          auto thePart = static_cast<AlignmentPI::partitions>(j);
+        const bool ph2 = (ref_ali.size() > AlignmentPI::phase1size);
+        for (const auto &elem : boundaries | boost::adaptors::indexed(0)) {
+          const auto &lm = canvas.cd(subpad + 1)->GetLeftMargin();
+          const auto &rm = 1 - canvas.cd(subpad + 1)->GetRightMargin();
+          const auto &frac = float(elem.value().first) / ref_ali.size();
+
+          LogDebug("TrackerAlignmentCompareAll")
+              << __PRETTY_FUNCTION__ << " left margin:  " << lm << " right margin: " << rm << " fraction: " << frac;
+
+          float theX_ = lm + (rm - lm) * frac + (elem.index() > 0 ? 0.025 : 0.01);
+
           tSubdet[subpad].DrawLatex(
-              theX_.begin()[j - 1], 0.20, Form("%s", (AlignmentPI::getStringFromPart(thePart)).c_str()));
+              theX_, 0.23, Form("%s", AlignmentPI::getStringFromPart(elem.value().second, /*is phase2?*/ ph2).c_str()));
         }
 
         auto ltx = TLatex();
@@ -342,7 +351,8 @@ namespace {
                                  ref_ali.size() - 0.5);
 
       // fill the histograms
-      std::vector<int> boundaries;
+      std::map<int, AlignmentPI::partitions> boundaries;
+      boundaries.insert({0, AlignmentPI::BPix});  // always start with BPix, not filled in the loop
       AlignmentPI::fillComparisonHistogram(coord, boundaries, ref_ali, target_ali, compare);
 
       canvas.cd();
@@ -369,17 +379,17 @@ namespace {
       canvas.cd();
 
       TLine l[boundaries.size()];
-      unsigned int i = 0;
-      for (const auto &line : boundaries) {
-        l[i] = TLine(compare->GetBinLowEdge(line),
-                     canvas.cd()->GetUymin(),
-                     compare->GetBinLowEdge(line),
-                     canvas.cd()->GetUymax());
-        l[i].SetLineWidth(1);
-        l[i].SetLineStyle(9);
-        l[i].SetLineColor(2);
-        l[i].Draw("same");
-        i++;
+      for (const auto &line : boundaries | boost::adaptors::indexed(0)) {
+        const auto &index = line.index();
+        const auto value = line.value();
+        l[index] = TLine(compare->GetBinLowEdge(value.first),
+                         canvas.cd()->GetUymin(),
+                         compare->GetBinLowEdge(value.first),
+                         canvas.cd()->GetUymax());
+        l[index].SetLineWidth(1);
+        l[index].SetLineStyle(9);
+        l[index].SetLineColor(2);
+        l[index].Draw("same");
       }
 
       TLatex tSubdet;
@@ -387,13 +397,13 @@ namespace {
       tSubdet.SetTextAlign(21);
       tSubdet.SetTextSize(0.027);
       tSubdet.SetTextAngle(90);
-      for (unsigned int j = 1; j <= 6; j++) {
-        auto thePart = static_cast<AlignmentPI::partitions>(j);
+
+      for (const auto &elem : boundaries) {
         tSubdet.SetTextColor(kRed);
-        auto myPair = (j > 1) ? AlignmentPI::calculatePosition(gPad, compare->GetBinLowEdge(boundaries[j - 2]))
-                              : AlignmentPI::calculatePosition(gPad, compare->GetBinLowEdge(0));
-        float theX_ = myPair.first + 0.025;
-        tSubdet.DrawLatex(theX_, 0.20, Form("%s", (AlignmentPI::getStringFromPart(thePart)).c_str()));
+        auto myPair = AlignmentPI::calculatePosition(gPad, compare->GetBinLowEdge(elem.first));
+        float theX_ = elem.first != 0 ? myPair.first + 0.025 : myPair.first + 0.01;
+        const bool isPhase2 = (ref_ali.size() > AlignmentPI::phase1size);
+        tSubdet.DrawLatex(theX_, 0.20, Form("%s", AlignmentPI::getStringFromPart(elem.second, isPhase2).c_str()));
       }
 
       TLegend legend = TLegend(0.17, 0.86, 0.95, 0.94);
@@ -532,27 +542,36 @@ namespace {
 
         diffs[coord] = std::make_unique<TH1F>(Form("hDiff_%s", s_coord.c_str()),
                                               Form(";#Delta%s %s;n. of modules", s_coord.c_str(), unit.c_str()),
-                                              1000,
-                                              -500.,
-                                              500.);
+                                              1001,
+                                              -500.5,
+                                              500.5);
       }
 
       // fill the comparison histograms
-      std::vector<int> boundaries{};
+      std::map<int, AlignmentPI::partitions> boundaries;
       AlignmentPI::fillComparisonHistograms(boundaries, ref_ali, target_ali, diffs, true, q);
 
       int c_index = 1;
 
-      auto legend = std::make_unique<TLegend>(0.14, 0.93, 0.55, 0.98);
-      legend->AddEntry(
-          diffs[AlignmentPI::t_x].get(),
-          ("#DeltaIOV: " + std::to_string(std::get<0>(lastiov)) + "-" + std::to_string(std::get<0>(firstiov))).c_str(),
-          "L");
-      legend->SetTextSize(0.03);
+      //TLegend (Double_t x1, Double_t y1, Double_t x2, Double_t y2, const char *header="", Option_t *option="brNDC")
+      auto legend = std::make_unique<TLegend>(0.14, 0.88, 0.96, 0.99);
+      if (this->m_plotAnnotations.ntags == 2) {
+        legend->SetHeader("#bf{Two Tags Comparison}", "C");  // option "C" allows to center the header
+        legend->AddEntry(
+            diffs[AlignmentPI::t_x].get(),
+            ("#splitline{" + tagname1 + " : " + firstIOVsince + "}{" + tagname2 + " : " + lastIOVsince + "}").c_str(),
+            "PL");
+      } else {
+        legend->SetHeader(("tag: #bf{" + tagname1 + "}").c_str(), "C");  // option "C" allows to center the header
+        legend->AddEntry(diffs[AlignmentPI::t_x].get(),
+                         ("#splitline{IOV since: " + firstIOVsince + "}{IOV since: " + lastIOVsince + "}").c_str(),
+                         "PL");
+      }
+      legend->SetTextSize(0.025);
 
       for (const auto &coord : coords) {
         canvas.cd(c_index)->SetLogy();
-        canvas.cd(c_index)->SetTopMargin(0.02);
+        canvas.cd(c_index)->SetTopMargin(0.01);
         canvas.cd(c_index)->SetBottomMargin(0.15);
         canvas.cd(c_index)->SetLeftMargin(0.14);
         canvas.cd(c_index)->SetRightMargin(0.04);
@@ -567,6 +586,7 @@ namespace {
         int i_max = diffs[coord]->FindLastBinAbove(0.);
         int i_min = diffs[coord]->FindFirstBinAbove(0.);
         diffs[coord]->GetXaxis()->SetRange(std::max(1, i_min - 10), std::min(i_max + 10, diffs[coord]->GetNbinsX()));
+        diffs[coord]->SetMaximum(diffs[coord]->GetMaximum() * 5);
         diffs[coord]->Draw("HIST");
         AlignmentPI::makeNiceStats(diffs[coord].get(), q, kBlack);
 
@@ -673,6 +693,7 @@ namespace {
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
       auto iov = tag.iovs.front();
+      const auto &tagname = PlotBase::getTag<0>().name;
       std::shared_ptr<Alignments> payload = fetchPayload(std::get<1>(iov));
       unsigned int run = std::get<0>(iov);
 
@@ -774,8 +795,8 @@ namespace {
       TLatex t1;
       t1.SetNDC();
       t1.SetTextAlign(26);
-      t1.SetTextSize(0.05);
-      t1.DrawLatex(0.5, 0.96, Form("Tracker Alignment Barycenters, IOV %i", run));
+      t1.SetTextSize(0.045);
+      t1.DrawLatex(0.5, 0.96, Form("TkAl Barycenters, Tag: #color[4]{%s}, IOV #color[4]{%i}", tagname.c_str(), run));
       t1.SetTextSize(0.025);
 
       std::string fileName(m_imageFileName);

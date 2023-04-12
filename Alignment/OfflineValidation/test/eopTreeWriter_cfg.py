@@ -124,6 +124,13 @@ process.TrackRefitter.NavigationSchool = ''
 ####################################################################
 # configure tree writer
 ####################################################################
+
+# uncomment following block in case it is run over the HcalCalIsoTrk AlCaReco
+# TrackAssociatorParameterBlock.TrackAssociatorParameters.EBRecHitCollectionLabel = cms.InputTag("IsoProd", "IsoTrackEcalRecHitCollection")
+# TrackAssociatorParameterBlock.TrackAssociatorParameters.EERecHitCollectionLabel = cms.InputTag("IsoProd", "IsoTrackEcalRecHitCollection")
+# TrackAssociatorParameterBlock.TrackAssociatorParameters.HBHERecHitCollectionLabel = cms.InputTag("IsoProd", "IsoTrackHBHERecHitCollection")
+# TrackAssociatorParameterBlock.TrackAssociatorParameters.HORecHitCollectionLabel = cms.InputTag("IsoProd", "IsoTrackHORecHitCollection")
+
 TrackAssociatorParameterBlock.TrackAssociatorParameters.EERecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE")
 TrackAssociatorParameterBlock.TrackAssociatorParameters.EBRecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB")
 TrackAssociatorParameterBlock.TrackAssociatorParameters.HBHERecHitCollectionLabel = cms.InputTag("hbhereco")

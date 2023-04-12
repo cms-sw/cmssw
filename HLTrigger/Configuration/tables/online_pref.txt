@@ -182,11 +182,12 @@ DQM_HIPixelReconstruction_v* # CMSHLT-2287, CMSHLT-2343, CMSHLT-2403
 
 PhysicsCommissioningOutput
 PhysicsDispJetBTagMuEGTauOutput # CMSHLT-2431
-PhysicsEGammaOutput
-PhysicsForwardOutput
-PhysicsJetMETOutput             # CMSHLT-2431
-PhysicsMuonOutput               # CMSHLT-2431
-PhysicsTracksOutput
+PhysicsEGamma0Output            # CMSHLT-2596
+PhysicsEGamma1Output            # CMSHLT-2596
+PhysicsJetMET0Output            # CMSHLT-2431, CMSHLT-2596
+PhysicsJetMET1Output            # CMSHLT-2431, CMSHLT-2596
+PhysicsMuon0Output              # CMSHLT-2431, CMSHLT-2596
+PhysicsMuon1Output              # CMSHLT-2431, CMSHLT-2596
 
 PhysicsHIZeroBias1Output
 PhysicsHIZeroBias2Output

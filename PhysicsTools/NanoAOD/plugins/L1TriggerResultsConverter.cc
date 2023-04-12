@@ -125,16 +125,17 @@ void L1TriggerResultsConverter::beginRun(edm::Run const&, edm::EventSetup const&
 // ------------ method called to produce the data  ------------
 
 void L1TriggerResultsConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
   const std::vector<bool>* wordp = nullptr;
   bool unprefireable_bit = false;
   if (!legacyL1_) {
     const auto& resultsProd = iEvent.get(token_);
-    wordp = &resultsProd.at(0, 0).getAlgoDecisionFinal();
+    if (not resultsProd.isEmpty(0)) {
+      wordp = &resultsProd.at(0, 0).getAlgoDecisionFinal();
+    }
     if (store_unprefireable_bit_) {
       auto handleExtResults = iEvent.getHandle(token_ext_);
       if (handleExtResults.isValid()) {
-        if (handleExtResults->size() != 0) {
+        if (not handleExtResults->isEmpty(0)) {
           unprefireable_bit = handleExtResults->at(0, 0).getExternalDecision(GlobalExtBlk::maxExternalConditions - 1);
         }
       } else {
@@ -146,17 +147,17 @@ void L1TriggerResultsConverter::produce(edm::Event& iEvent, const edm::EventSetu
     const auto& resultsProd = iEvent.get(tokenLegacy_);
     wordp = &resultsProd.decisionWord();
   }
-  HLTGlobalStatus l1bitsAsHLTStatus(names_.size());
+  edm::HLTGlobalStatus l1bitsAsHLTStatus(names_.size());
   unsigned indices_size = indices_.size();
   for (size_t nidx = 0; nidx < indices_size; nidx++) {
-    unsigned int index = indices_[nidx];
-    bool result = wordp->at(index);
-    if (!mask_.empty())
-      result &= (mask_[index] != 0);
-    l1bitsAsHLTStatus[nidx] = HLTPathStatus(result ? edm::hlt::Pass : edm::hlt::Fail);
+    unsigned int const index = indices_[nidx];
+    bool result = wordp ? wordp->at(index) : false;
+    if (not mask_.empty())
+      result &= (mask_.at(index) != 0);
+    l1bitsAsHLTStatus[nidx] = edm::HLTPathStatus(result ? edm::hlt::Pass : edm::hlt::Fail);
   }
   if (store_unprefireable_bit_)
-    l1bitsAsHLTStatus[indices_size] = HLTPathStatus(unprefireable_bit ? edm::hlt::Pass : edm::hlt::Fail);
+    l1bitsAsHLTStatus[indices_size] = edm::HLTPathStatus(unprefireable_bit ? edm::hlt::Pass : edm::hlt::Fail);
   //mimic HLT trigger bits for L1
   auto out = std::make_unique<edm::TriggerResults>(l1bitsAsHLTStatus, names_);
   iEvent.put(std::move(out));

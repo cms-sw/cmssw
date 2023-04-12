@@ -14,5 +14,5 @@ pixelVertices = cms.EDProducer("PixelVertexProducer",
     WtAverage = cms.bool(True),
     ZOffset = cms.double(5.0),
     ZSeparation = cms.double(0.005),
-    beamSpot = cms.InputTag("offlineBeamSpot")
+    beamSpot = cms.InputTag("hltOnlineBeamSpot")
 )

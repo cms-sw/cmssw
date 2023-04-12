@@ -76,6 +76,7 @@ private:
   mutable const DDCompactView *m_pDD;
   mutable const cms::DDCompactView *m_pDD4hep;
 
+  int m_verbose;
   bool m_firstRun;
   bool m_pUseMagneticField;
   bool m_pUseSensitiveDetectors;

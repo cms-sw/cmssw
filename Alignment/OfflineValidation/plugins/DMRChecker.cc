@@ -1395,8 +1395,8 @@ private:
     edm::LogPrint("DMRChecker") << "n. tracks: " << itrks << std::endl;
     edm::LogPrint("DMRChecker") << "*******************************" << std::endl;
 
-    int nFiringTriggers = triggerMap_.size();
-    edm::LogPrint("DMRChecker") << "firing triggers: " << nFiringTriggers << std::endl;
+    int nFiringTriggers = !triggerMap_.empty() ? triggerMap_.size() : 1;
+    edm::LogPrint("DMRChecker") << "firing triggers: " << triggerMap_.size() << std::endl;
     edm::LogPrint("DMRChecker") << "*******************************" << std::endl;
 
     tksByTrigger_ =

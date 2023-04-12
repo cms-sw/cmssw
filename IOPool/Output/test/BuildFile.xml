@@ -1,7 +1,1 @@
-<environment>
-  <bin file="TestPoolOutput.cpp">
-    <flags TEST_RUNNER_ARGS=" /bin/bash IOPool/Output/test TestPoolOutput.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-</environment>
+<test name="TestPoolOutput" command="TestPoolOutput.sh"/>

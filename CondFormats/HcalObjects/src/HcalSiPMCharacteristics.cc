@@ -77,6 +77,7 @@ int HcalSiPMCharacteristics::getPixels(int type) const {
 std::vector<float> HcalSiPMCharacteristics::getNonLinearities(int type) const {
   const HcalSiPMCharacteristics::PrecisionItem* item = findByType(type);
   std::vector<float> pars;
+  pars.reserve(3);
   if (item) {
     pars.push_back(item->parLin1_);
     pars.push_back(item->parLin2_);

@@ -2,7 +2,6 @@
 <use name="DataFormats/ForwardDetId"/>
 <use name="DetectorDescription/Core"/>
 <use name="DetectorDescription/DDCMS"/>
-<use name="FWCore/ParameterSet"/>
 <use name="Geometry/HGCalCommonData"/>
 <use name="dd4hep"/>
 <export>

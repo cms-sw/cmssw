@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from Geometry.HGCalCommonData.hgcalEEParametersInitialize_cfi import *
+from Geometry.HGCalCommonData.hgcalEEParametersInitialization_cfi import *
 
 hfnoseParametersInitialize = hgcalEEParametersInitialize.clone(
     name  = "HGCalHFNoseSensitive",
@@ -10,4 +10,3 @@ hfnoseParametersInitialize = hgcalEEParametersInitialize.clone(
     nameT = "HFNose",
     nameX = "HGCalHFNoseSensitive"
 )
-

@@ -11,6 +11,9 @@ process.MessageLogger = cms.Service("MessageLogger",
     cerr = cms.untracked.PSet(
         enable = cms.untracked.bool(False)
     ),
+    EcalGeom = cms.untracked.PSet(
+        enable = cms.untracked.bool(True)
+    ),
     cout = cms.untracked.PSet(
         enable = cms.untracked.bool(True),
         enableStatistics = cms.untracked.bool(True),

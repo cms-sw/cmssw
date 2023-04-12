@@ -20,24 +20,61 @@
 
 constexpr std::array<unsigned char, 4> FRDFileHeader_id{{0x52, 0x41, 0x57, 0x5f}};
 constexpr std::array<unsigned char, 4> FRDFileVersion_1{{0x30, 0x30, 0x30, 0x31}};
+constexpr std::array<unsigned char, 4> FRDFileVersion_2{{0x30, 0x30, 0x30, 0x32}};
 
-struct FRDFileHeader_v1 {
-  FRDFileHeader_v1() = default;
+struct FRDFileHeaderIdentifier {
+  FRDFileHeaderIdentifier(const std::array<uint8_t, 4>& id, const std::array<uint8_t, 4>& version)
+      : id_(id), version_(version) {}
 
-  FRDFileHeader_v1(uint16_t eventCount, uint32_t lumiSection, uint64_t fileSize)
-      : id_{FRDFileHeader_id},
-        version_{FRDFileVersion_1},
-        headerSize_(sizeof(FRDFileHeader_v1)),
+  std::array<uint8_t, 4> id_;
+  std::array<uint8_t, 4> version_;
+};
+
+struct FRDFileHeaderContent_v1 {
+  FRDFileHeaderContent_v1(uint16_t eventCount, uint32_t lumiSection, uint64_t fileSize)
+      : headerSize_(sizeof(FRDFileHeaderContent_v1) + sizeof(FRDFileHeaderIdentifier)),
         eventCount_(eventCount),
         lumiSection_(lumiSection),
         fileSize_(fileSize) {}
 
-  std::array<uint8_t, 4> id_;
-  std::array<uint8_t, 4> version_;
   uint16_t headerSize_;
   uint16_t eventCount_;
   uint32_t lumiSection_;
   uint64_t fileSize_;
+};
+
+struct FRDFileHeader_v1 {
+  FRDFileHeader_v1(uint16_t eventCount, uint32_t lumiSection, uint64_t fileSize)
+      : id_(FRDFileHeader_id, FRDFileVersion_1), c_(eventCount, lumiSection, fileSize) {}
+
+  FRDFileHeaderIdentifier id_;
+  FRDFileHeaderContent_v1 c_;
+};
+
+struct FRDFileHeaderContent_v2 {
+  FRDFileHeaderContent_v2(
+      uint16_t dataType, uint16_t eventCount, uint32_t runNumber, uint32_t lumiSection, uint64_t fileSize)
+      : headerSize_(sizeof(FRDFileHeaderContent_v2) + sizeof(FRDFileHeaderIdentifier)),
+        dataType_(dataType),
+        eventCount_(eventCount),
+        runNumber_(runNumber),
+        lumiSection_(lumiSection),
+        fileSize_(fileSize) {}
+
+  uint16_t headerSize_;
+  uint16_t dataType_;
+  uint32_t eventCount_;
+  uint32_t runNumber_;
+  uint32_t lumiSection_;
+  uint64_t fileSize_;
+};
+
+struct FRDFileHeader_v2 {
+  FRDFileHeader_v2(uint16_t dataType, uint16_t eventCount, uint32_t runNumber, uint32_t lumiSection, uint64_t fileSize)
+      : id_(FRDFileHeader_id, FRDFileVersion_2), c_(dataType, eventCount, runNumber, lumiSection, fileSize) {}
+
+  FRDFileHeaderIdentifier id_;
+  FRDFileHeaderContent_v2 c_;
 };
 
 inline uint16_t getFRDFileHeaderVersion(const std::array<uint8_t, 4>& id, const std::array<uint8_t, 4>& version) {

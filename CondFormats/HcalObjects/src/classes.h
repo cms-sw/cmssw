@@ -17,6 +17,9 @@ namespace CondFormats_HcalObjects {
     HcalGainWidths mygwidths();
     std::vector<HcalGainWidth> mygwidthsVec;
 
+    HcalPFCuts mypfcuts();
+    std::vector<HcalPFCut> mypfcutVec;
+
     HcalQIEData myqie();
     std::vector<HcalQIECoder> myqievec;
 

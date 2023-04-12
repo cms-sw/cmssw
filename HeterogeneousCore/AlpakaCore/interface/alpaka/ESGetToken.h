@@ -2,7 +2,7 @@
 #define HeterogeneousCore_AlpakaCore_interface_alpaka_ESGetToken_h
 
 #include "FWCore/Utilities/interface/ESGetToken.h"
-#include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESDeviceProduct.h"
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/ESDeviceProductType.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE::device {
@@ -32,7 +32,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::device {
 
     auto const& underlyingToken() const { return token_; }
 
-    edm::ESGetToken<ESDeviceProduct<ESProduct>, ESRecord> token_;
+    using ProductType = typename detail::ESDeviceProductType<ESProduct>::type;
+    edm::ESGetToken<ProductType, ESRecord> token_;
   };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::device
 

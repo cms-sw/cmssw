@@ -12,10 +12,4 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<environment>
-  <bin file="testCalibTrackerSiStripESProducersByHand.cpp">
-    <flags TEST_RUNNER_ARGS=" /bin/bash CalibTracker/SiStripESProducers/test/python testBadComponents_byHand.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-</environment>
+<test name="testCalibTrackerSiStripESProducersByHand" command="python/testBadComponents_byHand.sh"/>

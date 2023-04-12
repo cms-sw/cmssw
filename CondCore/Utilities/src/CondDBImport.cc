@@ -184,6 +184,7 @@ namespace cond {
         IMPORT_PAYLOAD_CASE(HcalLutMetadata)
         IMPORT_PAYLOAD_CASE(HcalMCParams)
         IMPORT_PAYLOAD_CASE(HcalPFCorrs)
+        IMPORT_PAYLOAD_CASE(HcalPFCuts)
         IMPORT_PAYLOAD_CASE(HcalPedestalWidths)
         IMPORT_PAYLOAD_CASE(HcalPedestals)
         IMPORT_PAYLOAD_CASE(HcalQIEData)

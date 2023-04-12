@@ -81,6 +81,7 @@ getPayloadData.py \
     --db Prod \
     --test ;
 
+mv *.png $W_DIR/results_alignments/TrackerAlignmentBarycenters.png
 
 # add examples of Pixel barycenter comparison
 #*************************************************************************#
@@ -93,6 +94,8 @@ getPayloadData.py \
     --db Prod \
     --test ;
 
+mv *.png $W_DIR/results_alignments/PixelBarycentersCompare.png
+
 getPayloadData.py \
     --plugin pluginTrackerAlignment_PayloadInspector \
     --plot plot_PixelBarycentersCompareTwoTags \
@@ -103,6 +106,8 @@ getPayloadData.py \
     --iovstwo '{"start_iov": "1", "end_iov": "1"}' \
     --db Prod \
     --test ;
+
+mv *.png $W_DIR/results_alignments/PixelBarycentersCompareTwoTags.png
 
 # add examples of full 6 coordinate comparisons
 #*************************************************************************#
@@ -116,3 +121,5 @@ getPayloadData.py \
     --iovstwo '{"start_iov": "358156", "end_iov": "358156"}' \
     --db Prod \
     --test ;
+
+mv *.png $W_DIR/results_alignments/TrackerAlignmentComparatorTwoTags.png

@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <!--
 ============= XML GENERATION METADATA HEADER =============
-tkLayout revision: sensor-comp-3449-2fde603
+tkLayout revision: dev-3560-e849841
 tkLayout developed by https://github.com/tkLayout/tkLayout/graphs/contributors .
-Adinda De Wit (adewit on lxplus729.cern.ch) responsible for cross-check of the automatically-generated description below.
-generation date: 2021-03-16.10:13:17
-note: see OT800_IT702_2021_03_16.cfg for full config files
+Adinda De Wit (adewit on lxplus708.cern.ch) responsible for cross-check of the automatically-generated description below.
+generation date: 2023-02-09.15:13:16
+note: see OT800_IT704_2023_02_09.cfg for full config files
 =========== END XML GENERATION METADATA HEADER ===========
 -->
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
@@ -872,7 +872,7 @@ note: see OT800_IT702_2021_03_16.cfg for full config files
 <rMaterial name="tracker:tkLayout_StainlessSteel_fake1000factor"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="servicecompositeR71Z43" density="0.163887*g/cm3" method="mixture by weight">
+<CompositeMaterial name="servicecompositeR71Z44" density="0.163887*g/cm3" method="mixture by weight">
 <MaterialFraction fraction="0.326128">
 <rMaterial name="tracker:tkLayout_Al"/>
 </MaterialFraction>
@@ -898,7 +898,7 @@ note: see OT800_IT702_2021_03_16.cfg for full config files
 <rMaterial name="tracker:tkLayout_StainlessSteel_fake1000factor"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="servicecompositeR71Z87" density="0.182752*g/cm3" method="mixture by weight">
+<CompositeMaterial name="servicecompositeR71Z88" density="0.182752*g/cm3" method="mixture by weight">
 <MaterialFraction fraction="0.292464">
 <rMaterial name="tracker:tkLayout_Al"/>
 </MaterialFraction>
@@ -924,7 +924,7 @@ note: see OT800_IT702_2021_03_16.cfg for full config files
 <rMaterial name="tracker:tkLayout_StainlessSteel_fake1000factor"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="servicecompositeR71Z131" density="0.201616*g/cm3" method="mixture by weight">
+<CompositeMaterial name="servicecompositeR71Z133" density="0.201616*g/cm3" method="mixture by weight">
 <MaterialFraction fraction="0.2651">
 <rMaterial name="tracker:tkLayout_Al"/>
 </MaterialFraction>
@@ -950,7 +950,7 @@ note: see OT800_IT702_2021_03_16.cfg for full config files
 <rMaterial name="tracker:tkLayout_StainlessSteel_fake1000factor"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="servicecompositeR71Z175" density="0.22048*g/cm3" method="mixture by weight">
+<CompositeMaterial name="servicecompositeR71Z178" density="0.22048*g/cm3" method="mixture by weight">
 <MaterialFraction fraction="0.242418">
 <rMaterial name="tracker:tkLayout_Al"/>
 </MaterialFraction>
@@ -976,7 +976,7 @@ note: see OT800_IT702_2021_03_16.cfg for full config files
 <rMaterial name="tracker:tkLayout_StainlessSteel_fake1000factor"/>
 </MaterialFraction>
 </CompositeMaterial>
-<CompositeMaterial name="servicecompositeR71Z201" density="0.239344*g/cm3" method="mixture by weight">
+<CompositeMaterial name="servicecompositeR71Z203" density="0.239344*g/cm3" method="mixture by weight">
 <MaterialFraction fraction="0.223312">
 <rMaterial name="tracker:tkLayout_Al"/>
 </MaterialFraction>
@@ -5682,6 +5682,10 @@ note: see OT800_IT702_2021_03_16.cfg for full config files
 <rSolid name="pixel:ITDisc12"/>
 <rMaterial name="materials:Air"/>
 </LogicalPart>
+<LogicalPart name="serviceR278Z2736" category="unspecified">
+<rSolid name="pixel:serviceR278Z2736"/>
+<rMaterial name="pixel:servicecompositeR278Z2736"/>
+</LogicalPart>
 <LogicalPart name="serviceR176Z1535" category="unspecified">
 <rSolid name="pixel:serviceR176Z1535"/>
 <rMaterial name="pixel:servicecompositeR176Z1535"/>
@@ -5709,10 +5713,6 @@ note: see OT800_IT702_2021_03_16.cfg for full config files
 <LogicalPart name="serviceR278Z2169" category="unspecified">
 <rSolid name="pixel:serviceR278Z2169"/>
 <rMaterial name="pixel:servicecompositeR278Z2169"/>
-</LogicalPart>
-<LogicalPart name="serviceR278Z2736" category="unspecified">
-<rSolid name="pixel:serviceR278Z2736"/>
-<rMaterial name="pixel:servicecompositeR278Z2736"/>
 </LogicalPart>
 <LogicalPart name="serviceR282Z2745" category="unspecified">
 <rSolid name="pixel:serviceR282Z2745"/>
@@ -5794,25 +5794,25 @@ note: see OT800_IT702_2021_03_16.cfg for full config files
 <rSolid name="pixel:serviceR71Z10"/>
 <rMaterial name="pixel:servicecompositeR71Z10"/>
 </LogicalPart>
-<LogicalPart name="serviceR71Z43" category="unspecified">
-<rSolid name="pixel:serviceR71Z43"/>
-<rMaterial name="pixel:servicecompositeR71Z43"/>
+<LogicalPart name="serviceR71Z44" category="unspecified">
+<rSolid name="pixel:serviceR71Z44"/>
+<rMaterial name="pixel:servicecompositeR71Z44"/>
 </LogicalPart>
-<LogicalPart name="serviceR71Z87" category="unspecified">
-<rSolid name="pixel:serviceR71Z87"/>
-<rMaterial name="pixel:servicecompositeR71Z87"/>
+<LogicalPart name="serviceR71Z88" category="unspecified">
+<rSolid name="pixel:serviceR71Z88"/>
+<rMaterial name="pixel:servicecompositeR71Z88"/>
 </LogicalPart>
-<LogicalPart name="serviceR71Z131" category="unspecified">
-<rSolid name="pixel:serviceR71Z131"/>
-<rMaterial name="pixel:servicecompositeR71Z131"/>
+<LogicalPart name="serviceR71Z133" category="unspecified">
+<rSolid name="pixel:serviceR71Z133"/>
+<rMaterial name="pixel:servicecompositeR71Z133"/>
 </LogicalPart>
-<LogicalPart name="serviceR71Z175" category="unspecified">
-<rSolid name="pixel:serviceR71Z175"/>
-<rMaterial name="pixel:servicecompositeR71Z175"/>
+<LogicalPart name="serviceR71Z178" category="unspecified">
+<rSolid name="pixel:serviceR71Z178"/>
+<rMaterial name="pixel:servicecompositeR71Z178"/>
 </LogicalPart>
-<LogicalPart name="serviceR71Z201" category="unspecified">
-<rSolid name="pixel:serviceR71Z201"/>
-<rMaterial name="pixel:servicecompositeR71Z201"/>
+<LogicalPart name="serviceR71Z203" category="unspecified">
+<rSolid name="pixel:serviceR71Z203"/>
+<rMaterial name="pixel:servicecompositeR71Z203"/>
 </LogicalPart>
 <LogicalPart name="serviceR115Z208" category="unspecified">
 <rSolid name="pixel:serviceR115Z208"/>
@@ -6489,9 +6489,9 @@ note: see OT800_IT702_2021_03_16.cfg for full config files
 <Box name="ITLayer2R5BModuleDeadAreaLeft" dx="0.25*mm" dy="21.725*mm" dz="0.075*mm"/>
 <Box name="ITLayer2R5BModuleDeadAreaFront" dx="8.9*mm" dy="0.25*mm" dz="0.075*mm"/>
 <Box name="ITLayer2R5BModuleDeadAreaBack" dx="8.9*mm" dy="0.25*mm" dz="0.075*mm"/>
-<Box name="ITLayer2RodFlipped" dx="0.585*mm" dy="9.41*mm" dz="198.435*mm"/>
-<Box name="ITLayer2RodUnflipped" dx="0.585*mm" dy="9.41*mm" dz="198.435*mm"/>
-<Tubs name="ITLayer2" rMin="58.405*mm" rMax="70.317*mm" dz="198.445*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+<Box name="ITLayer2RodFlipped" dx="0.585*mm" dy="9.41*mm" dz="201.235*mm"/>
+<Box name="ITLayer2RodUnflipped" dx="0.585*mm" dy="9.41*mm" dz="201.235*mm"/>
+<Tubs name="ITLayer2" rMin="58.405*mm" rMax="70.317*mm" dz="201.245*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Box name="ITLayer3R1BModule" dx="17.925*mm" dy="22.225*mm" dz="0.575*mm"/>
 <Box name="ITLayer3R1BModuleInnerPixelwafer" dx="16.925*mm" dy="21.725*mm" dz="0.075*mm"/>
 <Box name="ITLayer3R1BModuleInnerPixelActive" dx="16.925*mm" dy="21.725*mm" dz="0.075*mm"/>
@@ -7180,11 +7180,11 @@ note: see OT800_IT702_2021_03_16.cfg for full config files
 <Tubs name="serviceR40Z201" rMin="40.724*mm" rMax="42.724*mm" dz="3.9005*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="serviceR71Z208" rMin="71.895*mm" rMax="115.653*mm" dz="1*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="serviceR71Z10" rMin="71.895*mm" rMax="73.895*mm" dz="10.7625*mm" startPhi="0*deg" deltaPhi="360*deg"/>
-<Tubs name="serviceR71Z43" rMin="71.895*mm" rMax="73.895*mm" dz="21.975*mm" startPhi="0*deg" deltaPhi="360*deg"/>
-<Tubs name="serviceR71Z87" rMin="71.895*mm" rMax="73.895*mm" dz="21.975*mm" startPhi="0*deg" deltaPhi="360*deg"/>
-<Tubs name="serviceR71Z131" rMin="71.895*mm" rMax="73.895*mm" dz="21.975*mm" startPhi="0*deg" deltaPhi="360*deg"/>
-<Tubs name="serviceR71Z175" rMin="71.895*mm" rMax="73.895*mm" dz="21.9745*mm" startPhi="0*deg" deltaPhi="360*deg"/>
-<Tubs name="serviceR71Z201" rMin="71.895*mm" rMax="73.895*mm" dz="3.9005*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+<Tubs name="serviceR71Z44" rMin="71.895*mm" rMax="73.895*mm" dz="22.325*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+<Tubs name="serviceR71Z88" rMin="71.895*mm" rMax="73.895*mm" dz="22.325*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+<Tubs name="serviceR71Z133" rMin="71.895*mm" rMax="73.895*mm" dz="22.325*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+<Tubs name="serviceR71Z178" rMin="71.895*mm" rMax="73.895*mm" dz="22.325*mm" startPhi="0*deg" deltaPhi="360*deg"/>
+<Tubs name="serviceR71Z203" rMin="71.895*mm" rMax="73.895*mm" dz="2.5*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="serviceR115Z208" rMin="115.753*mm" rMax="157.33*mm" dz="1*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="serviceR115Z10" rMin="115.753*mm" rMax="117.753*mm" dz="10.7625*mm" startPhi="0*deg" deltaPhi="360*deg"/>
 <Tubs name="serviceR115Z44" rMin="115.753*mm" rMax="117.753*mm" dz="22.325*mm" startPhi="0*deg" deltaPhi="360*deg"/>
@@ -7821,13 +7821,13 @@ note: see OT800_IT702_2021_03_16.cfg for full config files
 <rParent name="pixel:ITLayer2RodFlipped"/>
 <rChild name="pixel:ITLayer2R2BModule"/>
 <rRotation name="pixel:INNERTRACKERRODTOFLIPPEDMODULE"/>
-<Translation x="0*mm" y="0*mm" z="44.05*mm"/>
+<Translation x="0*mm" y="0*mm" z="44.75*mm"/>
 </PosPart>
 <PosPart copyNumber="2">
 <rParent name="pixel:ITLayer2RodFlipped"/>
 <rChild name="pixel:ITLayer2R2BModule"/>
 <rRotation name="pixel:INNERTRACKERRODTOFLIPPEDMODULE"/>
-<Translation x="0*mm" y="0*mm" z="-44.05*mm"/>
+<Translation x="0*mm" y="0*mm" z="-44.75*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
 <rParent name="pixel:ITLayer2R2BModule"/>
@@ -7871,13 +7871,13 @@ note: see OT800_IT702_2021_03_16.cfg for full config files
 <rParent name="pixel:ITLayer2RodFlipped"/>
 <rChild name="pixel:ITLayer2R3BModule"/>
 <rRotation name="pixel:INNERTRACKERRODTOFLIPPEDMODULE"/>
-<Translation x="0*mm" y="0*mm" z="88.1*mm"/>
+<Translation x="0*mm" y="0*mm" z="89.5*mm"/>
 </PosPart>
 <PosPart copyNumber="2">
 <rParent name="pixel:ITLayer2RodFlipped"/>
 <rChild name="pixel:ITLayer2R3BModule"/>
 <rRotation name="pixel:INNERTRACKERRODTOFLIPPEDMODULE"/>
-<Translation x="0*mm" y="0*mm" z="-88.1*mm"/>
+<Translation x="0*mm" y="0*mm" z="-89.5*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
 <rParent name="pixel:ITLayer2R3BModule"/>
@@ -7921,13 +7921,13 @@ note: see OT800_IT702_2021_03_16.cfg for full config files
 <rParent name="pixel:ITLayer2RodFlipped"/>
 <rChild name="pixel:ITLayer2R4BModule"/>
 <rRotation name="pixel:INNERTRACKERRODTOFLIPPEDMODULE"/>
-<Translation x="0*mm" y="0*mm" z="132.15*mm"/>
+<Translation x="0*mm" y="0*mm" z="134.25*mm"/>
 </PosPart>
 <PosPart copyNumber="2">
 <rParent name="pixel:ITLayer2RodFlipped"/>
 <rChild name="pixel:ITLayer2R4BModule"/>
 <rRotation name="pixel:INNERTRACKERRODTOFLIPPEDMODULE"/>
-<Translation x="0*mm" y="0*mm" z="-132.15*mm"/>
+<Translation x="0*mm" y="0*mm" z="-134.25*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
 <rParent name="pixel:ITLayer2R4BModule"/>
@@ -7971,13 +7971,13 @@ note: see OT800_IT702_2021_03_16.cfg for full config files
 <rParent name="pixel:ITLayer2RodFlipped"/>
 <rChild name="pixel:ITLayer2R5BModule"/>
 <rRotation name="pixel:INNERTRACKERRODTOFLIPPEDMODULE"/>
-<Translation x="0*mm" y="0*mm" z="176.2*mm"/>
+<Translation x="0*mm" y="0*mm" z="179*mm"/>
 </PosPart>
 <PosPart copyNumber="2">
 <rParent name="pixel:ITLayer2RodFlipped"/>
 <rChild name="pixel:ITLayer2R5BModule"/>
 <rRotation name="pixel:INNERTRACKERRODTOFLIPPEDMODULE"/>
-<Translation x="0*mm" y="0*mm" z="-176.2*mm"/>
+<Translation x="0*mm" y="0*mm" z="-179*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
 <rParent name="pixel:ITLayer2R5BModule"/>
@@ -8027,49 +8027,49 @@ note: see OT800_IT702_2021_03_16.cfg for full config files
 <rParent name="pixel:ITLayer2RodUnflipped"/>
 <rChild name="pixel:ITLayer2R2BModule"/>
 <rRotation name="pixel:INNERTRACKERRODTOMODULE"/>
-<Translation x="0*mm" y="0*mm" z="44.05*mm"/>
+<Translation x="0*mm" y="0*mm" z="44.75*mm"/>
 </PosPart>
 <PosPart copyNumber="2">
 <rParent name="pixel:ITLayer2RodUnflipped"/>
 <rChild name="pixel:ITLayer2R2BModule"/>
 <rRotation name="pixel:INNERTRACKERRODTOMODULE"/>
-<Translation x="0*mm" y="0*mm" z="-44.05*mm"/>
+<Translation x="0*mm" y="0*mm" z="-44.75*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
 <rParent name="pixel:ITLayer2RodUnflipped"/>
 <rChild name="pixel:ITLayer2R3BModule"/>
 <rRotation name="pixel:INNERTRACKERRODTOMODULE"/>
-<Translation x="0*mm" y="0*mm" z="88.1*mm"/>
+<Translation x="0*mm" y="0*mm" z="89.5*mm"/>
 </PosPart>
 <PosPart copyNumber="2">
 <rParent name="pixel:ITLayer2RodUnflipped"/>
 <rChild name="pixel:ITLayer2R3BModule"/>
 <rRotation name="pixel:INNERTRACKERRODTOMODULE"/>
-<Translation x="0*mm" y="0*mm" z="-88.1*mm"/>
+<Translation x="0*mm" y="0*mm" z="-89.5*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
 <rParent name="pixel:ITLayer2RodUnflipped"/>
 <rChild name="pixel:ITLayer2R4BModule"/>
 <rRotation name="pixel:INNERTRACKERRODTOMODULE"/>
-<Translation x="0*mm" y="0*mm" z="132.15*mm"/>
+<Translation x="0*mm" y="0*mm" z="134.25*mm"/>
 </PosPart>
 <PosPart copyNumber="2">
 <rParent name="pixel:ITLayer2RodUnflipped"/>
 <rChild name="pixel:ITLayer2R4BModule"/>
 <rRotation name="pixel:INNERTRACKERRODTOMODULE"/>
-<Translation x="0*mm" y="0*mm" z="-132.15*mm"/>
+<Translation x="0*mm" y="0*mm" z="-134.25*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
 <rParent name="pixel:ITLayer2RodUnflipped"/>
 <rChild name="pixel:ITLayer2R5BModule"/>
 <rRotation name="pixel:INNERTRACKERRODTOMODULE"/>
-<Translation x="0*mm" y="0*mm" z="176.2*mm"/>
+<Translation x="0*mm" y="0*mm" z="179*mm"/>
 </PosPart>
 <PosPart copyNumber="2">
 <rParent name="pixel:ITLayer2RodUnflipped"/>
 <rChild name="pixel:ITLayer2R5BModule"/>
 <rRotation name="pixel:INNERTRACKERRODTOMODULE"/>
-<Translation x="0*mm" y="0*mm" z="-176.2*mm"/>
+<Translation x="0*mm" y="0*mm" z="-179*mm"/>
 </PosPart>
 <PosPart copyNumber="23">
 <rParent name="pixel:ITLayer2"/>
@@ -11013,6 +11013,11 @@ note: see OT800_IT702_2021_03_16.cfg for full config files
 </PosPart>
 <PosPart copyNumber="1">
 <rParent name="pixfwd:Phase2PixelEndcap"/>
+<rChild name="pixel:serviceR278Z2736"/>
+<Translation x="0*mm" y="0*mm" z="2445.01*mm"/>
+</PosPart>
+<PosPart copyNumber="1">
+<rParent name="pixfwd:Phase2PixelEndcap"/>
 <rChild name="pixel:serviceR176Z1535"/>
 <Translation x="0*mm" y="0*mm" z="1244.24*mm"/>
 </PosPart>
@@ -11045,11 +11050,6 @@ note: see OT800_IT702_2021_03_16.cfg for full config files
 <rParent name="pixfwd:Phase2PixelEndcap"/>
 <rChild name="pixel:serviceR278Z2169"/>
 <Translation x="0*mm" y="0*mm" z="1878.45*mm"/>
-</PosPart>
-<PosPart copyNumber="1">
-<rParent name="pixfwd:Phase2PixelEndcap"/>
-<rChild name="pixel:serviceR278Z2736"/>
-<Translation x="0*mm" y="0*mm" z="2445.01*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
 <rParent name="pixfwd:Phase2PixelEndcap"/>
@@ -11213,58 +11213,58 @@ note: see OT800_IT702_2021_03_16.cfg for full config files
 </PosPart>
 <PosPart copyNumber="1">
 <rParent name="pixbar:Phase2PixelBarrel"/>
-<rChild name="pixel:serviceR71Z43"/>
-<Translation x="0*mm" y="0*mm" z="43.7*mm"/>
+<rChild name="pixel:serviceR71Z44"/>
+<Translation x="0*mm" y="0*mm" z="44.05*mm"/>
 </PosPart>
 <PosPart copyNumber="2">
 <rParent name="pixbar:Phase2PixelBarrel"/>
-<rChild name="pixel:serviceR71Z43"/>
+<rChild name="pixel:serviceR71Z44"/>
 <rRotation name="pixel:Y180"/>
-<Translation x="0*mm" y="0*mm" z="-43.7*mm"/>
+<Translation x="0*mm" y="0*mm" z="-44.05*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
 <rParent name="pixbar:Phase2PixelBarrel"/>
-<rChild name="pixel:serviceR71Z87"/>
-<Translation x="0*mm" y="0*mm" z="87.75*mm"/>
+<rChild name="pixel:serviceR71Z88"/>
+<Translation x="0*mm" y="0*mm" z="88.8*mm"/>
 </PosPart>
 <PosPart copyNumber="2">
 <rParent name="pixbar:Phase2PixelBarrel"/>
-<rChild name="pixel:serviceR71Z87"/>
+<rChild name="pixel:serviceR71Z88"/>
 <rRotation name="pixel:Y180"/>
-<Translation x="0*mm" y="0*mm" z="-87.75*mm"/>
+<Translation x="0*mm" y="0*mm" z="-88.8*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
 <rParent name="pixbar:Phase2PixelBarrel"/>
-<rChild name="pixel:serviceR71Z131"/>
-<Translation x="0*mm" y="0*mm" z="131.8*mm"/>
+<rChild name="pixel:serviceR71Z133"/>
+<Translation x="0*mm" y="0*mm" z="133.55*mm"/>
 </PosPart>
 <PosPart copyNumber="2">
 <rParent name="pixbar:Phase2PixelBarrel"/>
-<rChild name="pixel:serviceR71Z131"/>
+<rChild name="pixel:serviceR71Z133"/>
 <rRotation name="pixel:Y180"/>
-<Translation x="0*mm" y="0*mm" z="-131.8*mm"/>
+<Translation x="0*mm" y="0*mm" z="-133.55*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
 <rParent name="pixbar:Phase2PixelBarrel"/>
-<rChild name="pixel:serviceR71Z175"/>
-<Translation x="0*mm" y="0*mm" z="175.85*mm"/>
+<rChild name="pixel:serviceR71Z178"/>
+<Translation x="0*mm" y="0*mm" z="178.3*mm"/>
 </PosPart>
 <PosPart copyNumber="2">
 <rParent name="pixbar:Phase2PixelBarrel"/>
-<rChild name="pixel:serviceR71Z175"/>
+<rChild name="pixel:serviceR71Z178"/>
 <rRotation name="pixel:Y180"/>
-<Translation x="0*mm" y="0*mm" z="-175.85*mm"/>
+<Translation x="0*mm" y="0*mm" z="-178.3*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
 <rParent name="pixbar:Phase2PixelBarrel"/>
-<rChild name="pixel:serviceR71Z201"/>
-<Translation x="0*mm" y="0*mm" z="201.825*mm"/>
+<rChild name="pixel:serviceR71Z203"/>
+<Translation x="0*mm" y="0*mm" z="203.225*mm"/>
 </PosPart>
 <PosPart copyNumber="2">
 <rParent name="pixbar:Phase2PixelBarrel"/>
-<rChild name="pixel:serviceR71Z201"/>
+<rChild name="pixel:serviceR71Z203"/>
 <rRotation name="pixel:Y180"/>
-<Translation x="0*mm" y="0*mm" z="-201.825*mm"/>
+<Translation x="0*mm" y="0*mm" z="-203.225*mm"/>
 </PosPart>
 <PosPart copyNumber="1">
 <rParent name="pixbar:Phase2PixelBarrel"/>
