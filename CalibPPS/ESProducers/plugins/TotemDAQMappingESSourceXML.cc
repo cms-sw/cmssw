@@ -339,6 +339,7 @@ string TotemDAQMappingESSourceXML::CompleteFileName(const string &fn) {
 }
 
 //----------------------------------------------------------------------------------------------------
+static inline std::string to_string(const XMLCh *ch) { return XERCES_CPP_NAMESPACE_QUALIFIER XMLString::transcode(ch); }
 
 edm::ESProducts<std::unique_ptr<TotemDAQMapping>, std::unique_ptr<TotemAnalysisMask>>
 TotemDAQMappingESSourceXML::produce(const TotemReadoutRcd &) {
@@ -347,19 +348,26 @@ TotemDAQMappingESSourceXML::produce(const TotemReadoutRcd &) {
   auto mapping = std::make_unique<TotemDAQMapping>();
   auto mask = std::make_unique<TotemAnalysisMask>();
 
-  // initialize Xerces
-  cms::concurrency::xercesInitialize();
+  try {
+    // initialize Xerces
+    cms::concurrency::xercesInitialize();
 
-  // load mapping files
-  for (const auto &fn : configuration[currentBlock].mappingFileNames)
-    ParseXML(pMapping, CompleteFileName(fn), mapping, mask);
+    // load mapping files
+    for (const auto &fn : configuration[currentBlock].mappingFileNames)
+      ParseXML(pMapping, CompleteFileName(fn), mapping, mask);
 
-  // load mask files
-  for (const auto &fn : configuration[currentBlock].maskFileNames)
-    ParseXML(pMask, CompleteFileName(fn), mapping, mask);
+    // load mask files
+    for (const auto &fn : configuration[currentBlock].maskFileNames)
+      ParseXML(pMask, CompleteFileName(fn), mapping, mask);
 
-  // release Xerces
-  cms::concurrency::xercesTerminate();
+    // release Xerces
+    cms::concurrency::xercesTerminate();
+  } catch (const XMLException &e) {
+    throw cms::Exception("XMLDocument") << "cms::concurrency::xercesInitialize failed because of "
+                                        << to_string(e.getMessage()) << std::endl;
+  } catch (const SAXException &e) {
+    throw cms::Exception("XMLDocument") << "XML parser reported: " << to_string(e.getMessage()) << "." << std::endl;
+  }
 
   // commit the products
   return edm::es::products(std::move(mapping), std::move(mask));
