@@ -21,10 +21,6 @@
 namespace cms::Ort {
 
   typedef std::vector<std::vector<float>> FloatArrays;
-
-  enum class Backend {
-    cpu,
-    };
     
   class ONNXRuntime {
   public:
@@ -33,7 +29,6 @@ namespace cms::Ort {
     ONNXRuntime& operator=(const ONNXRuntime&) = delete;
     ~ONNXRuntime();
     
-    static ::Ort::SessionOptions defaultSessionOptions(Backend backend = Backend::cpu);
     // Run inference and get outputs
     // input_names: list of the names of the input nodes.
     // input_values: list of input arrays for each input node. The order of `input_values` must match `input_names`.
