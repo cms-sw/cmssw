@@ -71,7 +71,7 @@ void GEMPadDigiClusterSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Ru
   //mapPadDiffPerEtaCh_=MEMap4Inf(this, "occ", "Pad Digi Difference", 81,  -40 - 0.5, 40 + 0.5, "Pad Digi Difference");
   
   
-  mapPadBXDiffPerEtaCh_=MEMap4Inf(this,"delta_pad","Pad difference over time difference",31,  -15- 0.5, 15 + 0.5, 10,  - 0.5, 10 + 0.5, "Delta Pads","Delta BX");
+  mapPadBXDiffPerEtaCh_=MEMap4Inf(this,"delta_pad","Pad difference vs time difference",19,  -8- 0.5, 8 + 0.5, 13,  -6 - 0.5, 6 + 0.5, "Delta Pads","Delta BX");
   
   mapPadDigiOccPerCh_ = MEMap4Inf(this, "occ", "Pad Digi Occupancy", 1, -0.5, 1.5, 1, 0.5, 1.5, "Pads", "iEta");
   mapPadBxPerCh_ = MEMap4Inf(this, "bx", "GEM Pads Hits in Time", 1536, 0.5, 1536.5, 15, -0.5, 15 - 0.5, "Pads", "Time Bins");
@@ -229,6 +229,7 @@ void GEMPadDigiClusterSource::analyze(edm::Event const& event, edm::EventSetup c
   for (auto it = gemPadDigiClusters->begin(); it != gemPadDigiClusters->end(); it++) {
     auto range = gemPadDigiClusters->get((*it).first);
     //const int type = ((*it).first).station() - 1;
+    
     for (auto cluster = range.first; cluster != range.second; cluster++) {
       if (cluster->isValid()) {
 
@@ -239,59 +240,62 @@ void GEMPadDigiClusterSource::analyze(edm::Event const& event, edm::EventSetup c
         << " , Cluster BX: " <<  cluster->bx() << " , Cluster station: " << ((*it).first).station()
         << " , Cluster chamber: " << ((*it).first).chamber() << " , Cluster layer: " << ((*it).first).layer()
         << " , Cluster eta: " << ((*it).first).roll()<< std::endl;
-        
         ME4IdsKey key4Ch{((*it).first).region(), ((*it).first).station(), ((*it).first).layer(), ((*it).first).chamber()};
         ME4IdsKey key4EtaCh{((*it).first).region(), ((*it).first).station(),((*it).first).roll(),((*it).first).chamber()};
-
         ME3IdsKey key3Ch{((*it).first).region(), ((*it).first).station(),((*it).first).chamber()};  
 
         for (auto pad=cluster->pads().front(); pad < (cluster->pads().front() + cluster->pads().size()); pad++  ) {
           mapPadDigiOccPerCh_.Fill(key4Ch, pad , ((*it).first).roll());
           mapPadBxPerCh_.Fill(key4Ch, pad + (192 * (8 - ((*it).first).roll())), cluster->bx());
-          std::cout << "pad: "<< pad << "  BX: "<< cluster->bx() <<"  chamber: "<< ((*it).first).chamber() << "  layer: "<< ((*it).first).layer()<<" Eta: "<< ((*it).first).roll()<<std::endl;  
+         std::cout << "pad: "<< pad << "  BX: "<< cluster->bx() <<"  chamber: "<< ((*it).first).chamber() << "  layer: "<< ((*it).first).layer()<<" Eta: "<< ((*it).first).roll()<<std::endl;  
+        for (unsigned i = 0; i < cl_bx.size(); i++) {
+                for (unsigned j = 0; j < cl_bx[i].size(); j++){
+                        cout << cl_bx[i][j] << " "<<"and ";
+                                                  }
+                    cout << endl;
+                      } 
         if(cl_bx.empty()){
           cl_bx.push_back({pad,cluster->bx()});
-        }else if((pad - cl_bx[0].front()== -1 || pad - cl_bx[cl_bx.size() - 1].front()==1) &&
+           for (unsigned i = 0; i < cl_bx.size(); i++) {
+                for (unsigned j = 0; j < cl_bx[i].size(); j++){
+                        cout << cl_bx[i][j] << " "<<" or ";
+                                                  }
+                    cout << endl;
+                      } 
+        }else {
+          if((pad - cl_bx[0].front()== -1 || pad - cl_bx[cl_bx.size() - 1].front()==1) &&
                  ((*it).first).chamber()== startChamber &&
                  ((*it).first).station()== startStation &&
                  ((*it).first).region() == startRegion &&
                  ((*it).first).layer() == startLayer &&
                  ((*it).first).roll() == startEta ) {
                  cl_bx.push_back({pad,cluster->bx()});
+                  for (unsigned i = 0; i < cl_bx.size(); i++) {
+                for (unsigned j = 0; j < cl_bx[i].size(); j++){
+                        cout << cl_bx[i][j] << " "<<"new list ";
+                                                  }
+                    cout << endl;
+                      }      
                  sort(cl_bx.begin(), cl_bx.end(), sortcol);
-        }else {
-               
-        
-
-            int sum_bx = 0;
-            int sum_pad = 0;
-            if(cl_bx.size() > 1){
-            for(unsigned i = 0;i < cl_bx.size();i++){
-              sum_bx=sum_bx + cl_bx[i][1];
-              sum_pad=sum_pad + cl_bx[i][0];
-            }
-            int avg_bx = floor(sum_bx/cl_bx.size());
-            int avg_pad = floor(sum_pad/cl_bx.size());
+          }else {
+             for (unsigned i = 0; i < cl_bx.size(); i++) {
+                for (unsigned j = 0; j < cl_bx[i].size(); j++){
+                        cout << cl_bx[i][j] << " ";
+                                                  }
+                    cout << endl;
+                      } 
+           /*int avg_bx = cl_bx[floor((cl_bx.size()-1)/2)].front();
+            int avg_pad = cl_bx[floor((cl_bx.size()-1)/2)].back();
             for(unsigned i=0;i<cl_bx.size();i++){
              // std::cout <<  <<std::endl;
-              mapPadBXDiffPerEtaCh_.Fill(key4Ch, cl_bx[i][0]- avg_pad, abs(cl_bx[i][1]-avg_bx)); 
-            }
-                  for (unsigned i = 0; i < cl_bx.size(); i++)
-                {
+              mapPadBXDiffPerEtaCh_.Fill(key4Ch, cl_bx[i][0]- avg_pad, cl_bx[i][1]-avg_bx); 
+            }*/
+                
+            cl_bx.clear();
+            cl_bx.push_back({pad,cluster->bx()}); 
             
-                  for (unsigned j = 0; j < cl_bx[i].size(); j++)
-                {
-                   cout << cl_bx[i][j] << " ";
-                   }
-                   cout << endl;
-                  }
-
-
-
-            }
-          cl_bx.clear();
-          cl_bx.push_back({pad,cluster->bx()}); 
           
+        }
         }
              
         
@@ -303,6 +307,7 @@ void GEMPadDigiClusterSource::analyze(edm::Event const& event, edm::EventSetup c
         
         }
         
+      
 
 
         for (auto it2 = gemPadDigiClusters->begin(); it2 != gemPadDigiClusters->end(); it2++) {
@@ -355,8 +360,25 @@ void GEMPadDigiClusterSource::analyze(edm::Event const& event, edm::EventSetup c
       }
     }
 
+
   
-  }
+}
+if(gemPadDigiClusters->begin() != gemPadDigiClusters->end()){
+  auto it = gemPadDigiClusters->begin();
+  ME4IdsKey key4Ch{((*it).first).region(), ((*it).first).station(), ((*it).first).layer(), ((*it).first).chamber()};
+ /* for (unsigned i = 0; i < cl_bx.size(); i++){
+            for (unsigned j = 0; j < cl_bx[i].size(); j++){
+        cout << cl_bx[i][j] << " ";
+                   }
+      cout << endl;
+                  }*/
+  int avg_bx = cl_bx[floor((cl_bx.size()-1)/2)].front();
+  int avg_pad = cl_bx[floor((cl_bx.size()-1)/2)].back();
+  for(unsigned i=0;i<cl_bx.size();i++){
+             // std::cout <<  <<std::endl;
+    mapPadBXDiffPerEtaCh_.Fill(key4Ch, cl_bx[i][0]- avg_pad, cl_bx[i][1]-avg_bx); 
+    }
+}
 }
 /*
   std::map<ME3IdsKey, Int_t> total_digi_layer;
