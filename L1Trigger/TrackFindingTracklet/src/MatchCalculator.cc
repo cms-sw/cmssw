@@ -426,10 +426,6 @@ void MatchCalculator::execute(unsigned int iSector, double phioffset) {
         best_ideltar_disk = idrcut;
       }
 
-      // Update the cut vales (cut table if new tracklet, otherwise current best)
-      idrphicut = newtracklet ? idrphicut : best_ideltaphi_disk;
-      idrcut = newtracklet ? idrcut : best_ideltar_disk;
-
       double drphicut = idrphicut * settings_.kphi() * settings_.kr();
       double drcut = idrcut * settings_.krprojshiftdisk();
 
