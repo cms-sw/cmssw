@@ -47,6 +47,9 @@ namespace edm {
   namespace service {
     class Timing : public TimingServiceBase {
     public:
+      using time_point = std::chrono::steady_clock::time_point;
+      using double_seconds = std::chrono::duration<double, std::ratio<1, 1>>;
+
       Timing(ParameterSet const&, ActivityRegistry&);
       ~Timing() override;
 
@@ -62,7 +65,9 @@ namespace edm {
 
       void preEvent(StreamContext const&);
       void postEvent(StreamContext const&);
-      void lastPostEvent(double curr_event_time, unsigned int index, StreamContext const& iStream);
+      void lastPostEvent(std::chrono::steady_clock::duration curr_event_time,
+                         unsigned int index,
+                         StreamContext const& iStream);
 
       void postModuleEvent(StreamContext const&, ModuleCallingContext const&);
 
@@ -97,20 +102,20 @@ namespace edm {
       inline void removeTask() { runningTasksChanged(false); }
       void runningTasksChanged(bool iMoreTasks);
 
-      double curr_job_time_;               // seconds
+      time_point curr_job_time_;
       double curr_job_cpu_;                // seconds
       std::atomic<double> extra_job_cpu_;  //seconds
                                            //use last run time for determining end of processing
-      std::atomic<double> end_loop_time_;
+      std::atomic<time_point> end_loop_time_;
       std::atomic<double> end_loop_cpu_;
-      std::vector<double> curr_events_time_;  // seconds
+      std::vector<time_point> curr_events_time_;
       bool summary_only_;
       bool report_summary_;
       double threshold_;
 
       std::atomic<bool> updating_task_info_ = false;
       CMS_THREAD_GUARD(updating_task_info_) unsigned int num_running_tasks_ = 0;
-      CMS_THREAD_GUARD(updating_task_info_) double last_task_change_time_ = 0;
+      CMS_THREAD_GUARD(updating_task_info_) time_point last_task_change_time_ = time_point();
       CMS_THREAD_GUARD(updating_task_info_) double total_time_without_tasks_ = 0;
       //
       // Min Max and total event times for each Stream.
@@ -124,9 +129,9 @@ namespace edm {
       unsigned int nStreams_;
       unsigned int nThreads_;
 
-      std::vector<std::unique_ptr<std::atomic<double>>> eventSetupModuleStartTimes_;
+      std::vector<std::unique_ptr<std::atomic<time_point>>> eventSetupModuleStartTimes_;
       std::vector<std::pair<uintptr_t, eventsetup::EventSetupRecordKey>> eventSetupModuleCallInfo_;
-      std::atomic<double> accumulatedEventSetupModuleTimings_ = 0.;
+      std::atomic<double> accumulatedEventSetupModuleTimings_ = 0.;  //seconds
 
       std::vector<std::unique_ptr<std::atomic<unsigned int>>> countSubProcessesPreEvent_;
       std::vector<std::unique_ptr<std::atomic<unsigned int>>> countSubProcessesPostEvent_;
@@ -152,12 +157,7 @@ namespace edm {
       return t.str();
     }
 
-    static double getTime() {
-      struct timeval t;
-      if (gettimeofday(&t, nullptr) < 0)
-        throw cms::Exception("SysCallFailed", "Failed call to gettimeofday");
-      return static_cast<double>(t.tv_sec) + (static_cast<double>(t.tv_usec) * 1E-6);
-    }
+    static std::chrono::steady_clock::time_point getTime() { return std::chrono::steady_clock::now(); }
 
     static double getChildrenCPU() {
       struct rusage usage;
@@ -190,18 +190,18 @@ namespace edm {
     //NOTE: We use a per thread stack for module times since unscheduled
     // exectuion or tbb task spawning can cause a module to run on the
     // same thread as an already running module
-    static std::vector<double>& moduleTimeStack() {
-      static thread_local std::vector<double> s_stack;
+    static std::vector<std::chrono::steady_clock::time_point>& moduleTimeStack() {
+      static thread_local std::vector<std::chrono::steady_clock::time_point> s_stack;
       return s_stack;
     }
 
     static double popStack() {
       auto& modStack = moduleTimeStack();
       assert(!modStack.empty());
-      double curr_module_time = modStack.back();
+      auto curr_module_time = modStack.back();
       modStack.pop_back();
-      double t = getTime() - curr_module_time;
-      return t;
+      std::chrono::duration<double, std::ratio<1, 1>> t = getTime() - curr_module_time;
+      return t.count();
     }
 
     static void pushStack(bool configuredInTopLevelProcess) {
@@ -213,10 +213,10 @@ namespace edm {
     }
 
     Timing::Timing(ParameterSet const& iPS, ActivityRegistry& iRegistry)
-        : curr_job_time_(0.),
+        : curr_job_time_(),
           curr_job_cpu_(0.),
           extra_job_cpu_(0.0),
-          end_loop_time_(0.0),
+          end_loop_time_(),
           end_loop_cpu_(0.0),
           curr_events_time_(),
           summary_only_(iPS.getUntrackedParameter<bool>("summaryOnly")),
@@ -313,7 +313,7 @@ namespace edm {
         do {
           for (size_t i = 0; i < eventSetupModuleStartTimes_.size(); ++i) {
             auto& slot = *eventSetupModuleStartTimes_[i];
-            double expect = 0.;
+            std::chrono::steady_clock::time_point expect;
             if (slot.compare_exchange_strong(expect, startTime)) {
               foundSlot = true;
               eventSetupModuleCallInfo_[i].first = uintptr_t(context.componentDescription());
@@ -334,12 +334,12 @@ namespace edm {
         for (size_t i = 0; i < eventSetupModuleStartTimes_.size(); ++i) {
           auto const& info = eventSetupModuleCallInfo_[i];
           if (info.first == uintptr_t(context.componentDescription()) and info.second == recordKey) {
-            auto startTime = eventSetupModuleStartTimes_[i]->exchange(0.);
+            auto startTime = eventSetupModuleStartTimes_[i]->exchange(std::chrono::steady_clock::time_point());
             auto expect = accumulatedEventSetupModuleTimings_.load();
-            auto timeDiff = stopTime - startTime;
-            auto accumulatedTime = expect + timeDiff;
+            double_seconds timeDiff = stopTime - startTime;
+            auto accumulatedTime = expect + timeDiff.count();
             while (not accumulatedEventSetupModuleTimings_.compare_exchange_strong(expect, accumulatedTime)) {
-              accumulatedTime = expect + timeDiff;
+              accumulatedTime = expect + timeDiff.count();
             }
             break;
           }
@@ -354,13 +354,13 @@ namespace edm {
       iRegistry.watchPreallocate([this](service::SystemBounds const& iBounds) {
         nStreams_ = iBounds.maxNumberOfStreams();
         nThreads_ = iBounds.maxNumberOfThreads();
-        curr_events_time_.resize(nStreams_, 0.);
+        curr_events_time_.resize(nStreams_, time_point());
         sum_events_time_.resize(nStreams_, 0.);
         max_events_time_.resize(nStreams_, 0.);
         min_events_time_.resize(nStreams_, 1.E6);
         eventSetupModuleStartTimes_.reserve(nThreads_);
         for (unsigned int i = 0; i < nThreads_; ++i) {
-          eventSetupModuleStartTimes_.emplace_back(std::make_unique<std::atomic<double>>(0.));
+          eventSetupModuleStartTimes_.emplace_back(std::make_unique<std::atomic<time_point>>());
         }
         eventSetupModuleCallInfo_.resize(nThreads_);
 
@@ -455,13 +455,16 @@ namespace edm {
       last_task_change_time_ = curr_job_time_;
 
       if (not summary_only_) {
-        LogImportant("TimeReport") << "TimeReport> Report activated"
-                                   << "\n"
-                                   << "TimeReport> Report columns headings for events: "
-                                   << "eventnum runnum timetaken\n"
-                                   << "TimeReport> Report columns headings for modules: "
-                                   << "eventnum runnum modulelabel modulename timetakeni\n"
-                                   << "TimeReport> JobTime=" << curr_job_time_ << " JobCPU=" << curr_job_cpu_ << "\n";
+        LogImportant("TimeReport")
+            << "TimeReport> Report activated"
+            << "\n"
+            << "TimeReport> Report columns headings for events: "
+            << "eventnum runnum timetaken\n"
+            << "TimeReport> Report columns headings for modules: "
+            << "eventnum runnum modulelabel modulename timetaken\n"
+            << "TimeReport> JobTime="
+            << std::chrono::time_point_cast<std::chrono::seconds>(curr_job_time_).time_since_epoch().count()
+            << " JobCPU=" << curr_job_cpu_ << "\n";
       }
     }
 
@@ -475,30 +478,30 @@ namespace edm {
         return;
       }
 
-      const double job_end_time = getTime();
+      const auto job_end_time = getTime();
       const double job_end_cpu = getCPU();
-      double total_job_time = job_end_time - jobStartTime();
+      auto total_job_time = double_seconds(job_end_time - jobStartTime()).count();
 
       double total_job_cpu = job_end_cpu + extra_job_cpu_;
 
       const double job_end_children_cpu = getChildrenCPU();
 
-      const double total_initialization_time = curr_job_time_ - jobStartTime();
+      const double total_initialization_time = double_seconds(curr_job_time_ - jobStartTime()).count();
       const double total_initialization_cpu = curr_job_cpu_;
 
-      if (0.0 == jobStartTime()) {
+      if (time_point() == jobStartTime()) {
         //did not capture beginning time
-        total_job_time = job_end_time - curr_job_time_;
+        total_job_time = double_seconds(job_end_time - curr_job_time_).count();
         total_job_cpu = job_end_cpu + extra_job_cpu_ - curr_job_cpu_;
       }
 
       double min_event_time = *(std::min_element(min_events_time_.begin(), min_events_time_.end()));
       double max_event_time = *(std::max_element(max_events_time_.begin(), max_events_time_.end()));
 
-      auto total_loop_time = end_loop_time_ - curr_job_time_;
+      auto total_loop_time = double_seconds(end_loop_time_.load() - curr_job_time_).count();
       auto total_loop_cpu = end_loop_cpu_ + extra_job_cpu_ - curr_job_cpu_;
 
-      if (end_loop_time_ == 0.0) {
+      if (end_loop_time_.load() == time_point()) {
         total_loop_time = 0.0;
         total_loop_cpu = 0.0;
       }
@@ -603,17 +606,20 @@ namespace edm {
       }
     }
 
-    void Timing::lastPostEvent(double curr_event_time, unsigned int index, StreamContext const& iStream) {
-      sum_events_time_[index] += curr_event_time;
+    void Timing::lastPostEvent(std::chrono::steady_clock::duration curr_event_time,
+                               unsigned int index,
+                               StreamContext const& iStream) {
+      double curr_event_time_d = double_seconds(curr_event_time).count();
+      sum_events_time_[index] += curr_event_time_d;
 
       if (not summary_only_) {
         auto const& eventID = iStream.eventID();
-        LogPrint("TimeEvent") << "TimeEvent> " << eventID.event() << " " << eventID.run() << " " << curr_event_time;
+        LogPrint("TimeEvent") << "TimeEvent> " << eventID.event() << " " << eventID.run() << " " << curr_event_time_d;
       }
-      if (curr_event_time > max_events_time_[index])
-        max_events_time_[index] = curr_event_time;
-      if (curr_event_time < min_events_time_[index])
-        min_events_time_[index] = curr_event_time;
+      if (curr_event_time_d > max_events_time_[index])
+        max_events_time_[index] = curr_event_time_d;
+      if (curr_event_time_d < min_events_time_[index])
+        min_events_time_[index] = curr_event_time_d;
       ++total_event_count_;
     }
 
@@ -701,7 +707,8 @@ namespace edm {
         expected = false;
       }
       auto previousNumberOfTasks = iMoreTasks ? num_running_tasks_++ : num_running_tasks_--;
-      total_time_without_tasks_ += (nThreads_ - previousNumberOfTasks) * (presentTime - last_task_change_time_);
+      total_time_without_tasks_ +=
+          (nThreads_ - previousNumberOfTasks) * double_seconds(presentTime - last_task_change_time_).count();
       last_task_change_time_ = presentTime;
       updating_task_info_ = false;
     }
