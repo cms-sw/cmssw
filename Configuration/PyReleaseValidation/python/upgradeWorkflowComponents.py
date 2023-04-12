@@ -2120,6 +2120,45 @@ upgradeWFs['Run3FSMBMixing'] = UpgradeWorkflow_Run3FSMBMixing(
     offset = 0.303,
 )
 
+class UpgradeWorkflow_thresHB(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if '2023' in stepDict[step][k]['--conditions'] and 'Fast' not in stepDict[step][k]['--era']:
+                stepDict[stepName][k] = merge([{'--era': 'Run3_2023'}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return ('2023' in key) and ('FS' not in key)
+upgradeWFs['thresHB'] = UpgradeWorkflow_thresHB(
+    steps = [
+        'GenSim',
+        'GenSimHLBeamSpot',
+        'GenSimHLBeamSpot14',
+        'Digi',
+        'DigiTrigger',
+        'Reco',
+        'RecoGlobal',
+        'RecoNano',
+        'HARVEST',
+        'HARVESTGlobal',
+        'HARVESTNano',
+        'ALCA',
+    ],
+    PU = [
+        'GenSim',
+        'GenSimHLBeamSpot',
+        'GenSimHLBeamSpot14',
+        'Digi',
+        'DigiTrigger',
+        'Reco',
+        'RecoGlobal',
+        'RecoNano',
+        'HARVEST',
+        'HARVESTGlobal',
+        'HARVESTNano',
+        'ALCA',
+    ],
+    suffix = '_thresHB',
+    offset = 0.0404,
+)
+
 class UpgradeWorkflow_DD4hep(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'Run3' in stepDict[step][k]['--era'] and 'Fast' not in stepDict[step][k]['--era']:
@@ -2314,7 +2353,7 @@ upgradeProperties[2017] = {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2023_realistic',
         'HLTmenu': '@relval2023',
-        'Era' : 'Run3_2023',
+        'Era' : 'Run3',
         'BeamSpot': 'Realistic25ns13p6TeVEarly2022Collision',
         'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
     },
