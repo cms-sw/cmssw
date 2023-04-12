@@ -91,6 +91,8 @@ void LeptonInJetProducer<T>::produce(edm::StreamID streamID, edm::Event &iEvent,
       fastjet::PseudoJet p(d->px(), d->py(), d->pz(), d->energy());
       lClusterParticles.emplace_back(p);
     }
+    ele_pfmatch_index = -1;
+    mu_pfmatch_index = -1;
 
     // match to leading and closest electron or muon
     double dRmin(0.8), dRele(999), dRmu(999), dRtmp(999);
