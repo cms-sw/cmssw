@@ -7,9 +7,9 @@
 #include <cstdint>
 #include <type_traits>
 
-#include "HeterogeneousCore/AlpakaUtilities/interface/AtomicPairCounter.h"
-#include "HeterogeneousCore/AlpakaUtilities/interface/alpakastdAlgorithm.h"
-#include "HeterogeneousCore/AlpakaUtilities/interface/prefixScan.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/AtomicPairCounter.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/alpakastdAlgorithm.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/prefixScan.h"
 
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"

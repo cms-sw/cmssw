@@ -18,3 +18,30 @@
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <flags ALPAKA_BACKENDS="1"/>
 </bin>
+
+<bin name="alpakaTestHistoContainer" file="alpaka/testHistoContainer.dev.cc">
+  <use name="alpaka"/>
+  <use name="catch2"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
+
+<bin name="alpakaTestPrefixScan" file="alpaka/testPrefixScan.dev.cc">
+  <use name="alpaka"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <flags ALPAKA_BACKENDS="1"/> 
+  <!-- TODO have to understand why this test for serial does not work -->
+</bin>
+
+<bin name="alpakaTestOneHistoContainer" file="alpaka/testOneHistoContainer.dev.cc">
+  <use name="alpaka"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <flags ALPAKA_BACKENDS="1"/>
+  <!-- TODO have to understand why this test for serial does not work -->
+</bin>
+
+<bin name="alpakaTestOneToManyAssoc" file="alpaka/testOneToManyAssoc.dev.cc">
+  <use name="alpaka"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
