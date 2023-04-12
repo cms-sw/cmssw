@@ -53,7 +53,7 @@ namespace edm {
       void firstUpdate();
       void secondUpdate();
       void lastUpdate();
-      void updateImpl(time_t secsSinceLastUpdate);
+      void updateImpl(std::chrono::steady_clock::duration sinceLastUpdate);
 
       void preSourceConstruction(ModuleDescription const &md, int maxEvents, int maxLumis, int maxSecondsUntilRampdown);
       void eventPost(StreamContext const &iContext);
@@ -66,13 +66,14 @@ namespace edm {
 
       bool m_debug;
       std::atomic_flag m_shouldUpdate;
-      time_t m_beginJob = 0;
-      time_t m_updateInterval = m_defaultUpdateInterval;
+      std::chrono::steady_clock::time_point m_beginJob;
+      std::chrono::steady_clock::duration m_updateInterval =
+          std::chrono::duration_cast<std::chrono::steady_clock::duration>(m_defaultUpdateInterval);
       float m_emaInterval = m_defaultEmaInterval;
       float m_rate = 0;
       static constexpr float m_defaultEmaInterval = 15 * 60;  // Time in seconds to average EMA over for event rate.
-      static constexpr unsigned int m_defaultUpdateInterval = 3 * 60;
-      std::atomic<time_t> m_lastUpdate;
+      static constexpr std::chrono::minutes m_defaultUpdateInterval = std::chrono::minutes(3);
+      std::atomic<std::chrono::steady_clock::time_point> m_lastUpdate;
       std::atomic<std::uint_least64_t> m_events;
       std::atomic<std::uint_least64_t> m_lumis;
       std::atomic<std::uint_least64_t> m_runs;
@@ -90,12 +91,12 @@ namespace edm {
 
 using namespace edm::service;
 
-const unsigned int CondorStatusService::m_defaultUpdateInterval;
+constexpr std::chrono::minutes CondorStatusService::m_defaultUpdateInterval;
 constexpr float CondorStatusService::m_defaultEmaInterval;
 
 CondorStatusService::CondorStatusService(ParameterSet const &pset, edm::ActivityRegistry &ar)
     : m_debug(pset.getUntrackedParameter("debug", false)),
-      m_lastUpdate(0),
+      m_lastUpdate(),
       m_events(0),
       m_lumis(0),
       m_runs(0),
@@ -119,7 +120,7 @@ CondorStatusService::CondorStatusService(ParameterSet const &pset, edm::Activity
   ar.watchPostEndJob(this, &CondorStatusService::endPost);
 
   if (pset.exists("updateIntervalSeconds")) {
-    m_updateInterval = pset.getUntrackedParameter<unsigned int>("updateIntervalSeconds");
+    m_updateInterval = std::chrono::seconds(pset.getUntrackedParameter<unsigned int>("updateIntervalSeconds"));
   }
   if (pset.exists("EMAInterval")) {
     m_emaInterval = pset.getUntrackedParameter<double>("EMAInterval");
@@ -226,15 +227,15 @@ void CondorStatusService::firstUpdate() {
   // Note we always update all our statistics to 0 / false / -1
   // This allows us to overwrite the activities of a previous cmsRun process
   // within this HTCondor job.
-  updateImpl(0);
+  updateImpl(std::chrono::steady_clock::duration());
   updateChirp("MaxFiles", "-1");
   updateChirp("MaxEvents", "-1");
   updateChirp("MaxLumis", "-1");
   updateChirp("Done", "false");
   updateChirpQuoted("Guid", edm::processGUID().toString());
   m_beginJob = TimingServiceBase::jobStartTime();
-  if (m_beginJob == 0.) {
-    m_beginJob = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+  if (m_beginJob == decltype(m_beginJob)()) {
+    m_beginJob = std::chrono::steady_clock::now();
   }
 }
 
@@ -251,8 +252,8 @@ void CondorStatusService::secondUpdate() {
 }
 
 void CondorStatusService::lastUpdate() {
-  time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-  updateImpl(now - m_lastUpdate);
+  auto now = std::chrono::steady_clock::now();
+  updateImpl(now - m_lastUpdate.load());
   updateChirp("Done", "true");
   edm::Service<edm::ResourceInformation> resourceInformationService;
   if (!resourceInformationService.isAvailable()) {
@@ -261,12 +262,12 @@ void CondorStatusService::lastUpdate() {
 }
 
 void CondorStatusService::update() {
-  time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+  auto now = std::chrono::steady_clock::now();
   if ((now - m_lastUpdate.load(std::memory_order_relaxed)) > m_updateInterval) {
     if (!m_shouldUpdate.test_and_set(std::memory_order_acquire)) {
       // Caught exception is rethrown
       CMS_SA_ALLOW try {
-        time_t sinceLastUpdate = now - m_lastUpdate;
+        auto sinceLastUpdate = now - m_lastUpdate.load();
         m_lastUpdate = now;
         updateImpl(sinceLastUpdate);
         m_shouldUpdate.clear(std::memory_order_release);
@@ -278,16 +279,17 @@ void CondorStatusService::update() {
   }
 }
 
-void CondorStatusService::updateImpl(time_t sinceLastUpdate) {
-  time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-  time_t jobTime = now - m_beginJob;
+void CondorStatusService::updateImpl(std::chrono::steady_clock::duration sinceLastUpdate) {
+  auto now = std::chrono::steady_clock::now();
+  auto jobTime = std::chrono::duration<double, std::ratio<1, 1>>(now - m_beginJob).count();
+  auto secsSinceLastUpdate = std::chrono::duration_cast<std::chrono::seconds>(sinceLastUpdate).count();
 
   edm::Service<edm::TimingServiceBase> timingsvc;
   if (timingsvc.isAvailable()) {
     updateChirp("TotalCPU", timingsvc->getTotalCPU());
   }
 
-  updateChirp("LastUpdate", now);
+  updateChirp("LastUpdate", std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()));
 
   if (!m_events || (m_events > m_lastEventCount)) {
     updateChirp("Events", m_events);
@@ -299,11 +301,11 @@ void CondorStatusService::updateImpl(time_t sinceLastUpdate) {
 
   updateChirp("Files", m_files);
 
-  float ema_coeff = 1 - std::exp(-static_cast<float>(sinceLastUpdate) /
+  float ema_coeff = 1 - std::exp(-static_cast<float>(secsSinceLastUpdate) /
                                  std::max(std::min(m_emaInterval, static_cast<float>(jobTime)), 1.0f));
-  if (sinceLastUpdate > 0) {
+  if (secsSinceLastUpdate > 0) {
     updateChirp("Elapsed", jobTime);
-    m_rate = ema_coeff * static_cast<float>(m_events - m_lastEventCount) / static_cast<float>(sinceLastUpdate) +
+    m_rate = ema_coeff * static_cast<float>(m_events - m_lastEventCount) / static_cast<float>(secsSinceLastUpdate) +
              (1.0 - ema_coeff) * m_rate;
     m_lastEventCount = m_events;
     updateChirp("EventRate", m_rate);
@@ -426,7 +428,8 @@ bool CondorStatusService::updateChirpImpl(const std::string &key_suffix, const s
 void CondorStatusService::fillDescriptions(ConfigurationDescriptions &descriptions) {
   ParameterSetDescription desc;
   desc.setComment("Service to update HTCondor with the current CMSSW status.");
-  desc.addOptionalUntracked<unsigned int>("updateIntervalSeconds", m_defaultUpdateInterval)
+  desc.addOptionalUntracked<unsigned int>(
+          "updateIntervalSeconds", std::chrono::duration_cast<std::chrono::seconds>(m_defaultUpdateInterval).count())
       ->setComment("Interval, in seconds, for HTCondor updates");
   desc.addOptionalUntracked<bool>("debug", false)->setComment("Enable debugging of this service");
   desc.addOptionalUntracked<double>("EMAInterval", m_defaultEmaInterval)
