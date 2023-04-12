@@ -844,7 +844,8 @@ void TagProbeFitter::saveFitPlot(RooWorkspace* w) {
   // plot the Fit Results
   canvas.cd(4);
   frames.push_back(mass->frame(Name("Fit Results"), Title("Fit Results")));
-  pdf.paramOn(frames.back(), RooFit::Label(""), RooFit::Format("NELU", AutoPrecision(0)), RooFit::Layout(0.1, 0.9, 0.9));
+  pdf.paramOn(
+      frames.back(), RooFit::Label(""), RooFit::Format("NELU", AutoPrecision(0)), RooFit::Layout(0.1, 0.9, 0.9));
   // draw only the parameter box not the whole frame
   frames.back()->findObject(Form("%s_paramBox", pdf.GetName()))->Draw();
   //save and clean up
