@@ -53,34 +53,6 @@
 // class declaration
 //
 
-class BaseMVACache {
-public:
-  BaseMVACache(const std::string& model_path, const std::string& backend, const bool disableONNXGraphOpt) {
-    if (backend == "TF") {
-      graph_.reset(tensorflow::loadGraphDef(model_path));
-      tf_session_ = tensorflow::createSession(graph_.get());
-    } else if (backend == "ONNX") {
-      if (disableONNXGraphOpt) {
-        Ort::SessionOptions sess_opts;
-        sess_opts = cms::Ort::ONNXRuntime::defaultSessionOptions();
-        sess_opts.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_DISABLE_ALL);
-        ort_ = std::make_unique<cms::Ort::ONNXRuntime>(model_path, &sess_opts);
-      } else {
-        ort_ = std::make_unique<cms::Ort::ONNXRuntime>(model_path);
-      }
-    }
-  }
-  ~BaseMVACache() { tensorflow::closeSession(tf_session_); }
-
-  tensorflow::Session* getTFSession() const { return tf_session_; }
-  const cms::Ort::ONNXRuntime& getONNXSession() const { return *ort_; }
-
-private:
-  std::shared_ptr<tensorflow::GraphDef> graph_;
-  tensorflow::Session* tf_session_ = nullptr;
-  std::unique_ptr<cms::Ort::ONNXRuntime> ort_;
-};
-
 template <typename T>
 class BaseMVAValueMapProducer : public edm::stream::EDProducer<> {
 public:
