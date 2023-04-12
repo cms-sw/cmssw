@@ -291,12 +291,15 @@ inline p2eg::GCTintTowers_t p2eg::getFullTowers(const p2eg::GCTinternal_t& GCTin
 /*
  * Fill CMSSW collections and correlator outputs, using GCTinternal.
  */
-inline void p2eg::writeGCTToCMSSWAndCorrelatorOutputs(
+inline void p2eg::writeToCorrelatorAndGTOutputs(
     const p2eg::GCTinternal_t& GCTinternal,
     p2eg::GCTtoCorr_t& GCTtoCorrOutput,
     std::unique_ptr<l1tp2::CaloCrystalClusterCollection> const& gctClustersOutput,
     std::unique_ptr<l1tp2::CaloTowerCollection> const& gctTowersOutput,
     std::unique_ptr<l1t::EGammaBxCollection> const& gctEGammas,
+    std::unique_ptr<l1tp2::DigitizedClusterCorrelatorCollection> const& gctDigitizedClustersCorrelator,
+    std::unique_ptr<l1tp2::DigitizedTowerCorrelatorCollection> const& gctDigitizedTowersCorrelator,
+    std::unique_ptr<l1tp2::DigitizedClusterGTCollection> const& gctDigitizedClustersGT,
     int nGCTCard,
     int fiberStart,
     int fiberEnd,
@@ -308,7 +311,10 @@ inline void p2eg::writeGCTToCMSSWAndCorrelatorOutputs(
       // First do CMSSW cluster outputs
       p2eg::GCTcluster_t thisCluster = GCTinternal.GCTCorrfiber[i].GCTclusters[k];
       if (thisCluster.etFloat() > 0.0) {
+        // Make l1tp2::CaloCrystalCluster
         gctClustersOutput->push_back(thisCluster.createCaloCrystalCluster());
+
+        // Make l1t::EGamma
         int bx = 0;
         l1t::EGamma thisEGamma = thisCluster.createL1TEGamma();
         gctEGammas->push_back(bx, thisEGamma);
@@ -319,6 +325,18 @@ inline void p2eg::writeGCTToCMSSWAndCorrelatorOutputs(
       GCTtoCorrOutput.GCTCorrfiber[i - corrFiberIndexOffset].GCTclusters[k] = thisCluster;
       GCTtoCorrOutput.GCTCorrfiber[i - corrFiberIndexOffset].GCTclusters[k].towPhi =
           (thisCluster.towPhi - corrTowPhiOffset);
+
+      // Make l1tp2::DigitizedClusterCorrelator. The function needs corrTowPhiOffset to know the towPhi in the card excluding the overlap region.
+      // The correlator clusters don't need to know the fiber offset.
+      if (thisCluster.etFloat() > 0.0) {
+        gctDigitizedClustersCorrelator->push_back(thisCluster.createDigitizedClusterCorrelator(corrTowPhiOffset));
+      }
+
+      // Make l1tp2::DigitizedClusterGT.
+      if (thisCluster.etFloat() > 0.0) {
+        bool isValid = true;
+        gctDigitizedClustersGT->push_back(thisCluster.createDigitizedClusterGT(isValid));
+      }
     }
 
     // Next do tower outputs
@@ -330,6 +348,11 @@ inline void p2eg::writeGCTToCMSSWAndCorrelatorOutputs(
 
       // Then the towers to the correlator. Note the same corrFiberIndexOffset as was done for the clusters
       GCTtoCorrOutput.GCTCorrfiber[i - corrFiberIndexOffset].GCTtowers[k] = thisTower;
+
+      // For the collection, the three arguments are (1) the GCT card, (2) the fiber index in the GCT card (excluding the overlap region), and (3) the tower index in the fiber
+      l1tp2::DigitizedTowerCorrelator thisDigitizedTowerCorrelator =
+          thisTower.createDigitizedTowerCorrelator(nGCTCard, i - corrFiberIndexOffset, k);
+      gctDigitizedTowersCorrelator->push_back(thisDigitizedTowerCorrelator);
     }
   }
 }
@@ -341,14 +364,18 @@ inline void p2eg::writeGCTToCMSSWAndCorrelatorOutputs(
  * gctTowers is the CMSSW-style output collection of towers.
  */
 
-inline void p2eg::algo_top(const p2eg::GCTcard_t& GCTcard,
-                           p2eg::GCTtoCorr_t& GCTtoCorr,
-                           unsigned int nGCTCard,
-                           std::unique_ptr<l1tp2::CaloCrystalClusterCollection> const& gctClusters,
-                           std::unique_ptr<l1tp2::CaloTowerCollection> const& gctTowers,
-                           std::unique_ptr<l1tp2::CaloTowerCollection> const& gctFullTowers,
-                           std::unique_ptr<l1t::EGammaBxCollection> const& gctEGammas,
-                           l1tp2::ParametricCalibration calib_) {
+inline void p2eg::algo_top(
+    const p2eg::GCTcard_t& GCTcard,
+    p2eg::GCTtoCorr_t& GCTtoCorr,
+    unsigned int nGCTCard,
+    std::unique_ptr<l1tp2::CaloCrystalClusterCollection> const& gctClusters,
+    std::unique_ptr<l1tp2::CaloTowerCollection> const& gctTowers,
+    std::unique_ptr<l1tp2::CaloTowerCollection> const& gctFullTowers,
+    std::unique_ptr<l1t::EGammaBxCollection> const& gctEGammas,
+    std::unique_ptr<l1tp2::DigitizedClusterCorrelatorCollection> const& gctDigitizedClustersCorrelator,
+    std::unique_ptr<l1tp2::DigitizedTowerCorrelatorCollection> const& gctDigitizedTowersCorrelator,
+    std::unique_ptr<l1tp2::DigitizedClusterGTCollection> const& gctDigitizedClustersGT,
+    l1tp2::ParametricCalibration calib_) {
   //-------------------------//
   // Initialize the GCT area
   //-------------------------//
@@ -386,27 +413,33 @@ inline void p2eg::algo_top(const p2eg::GCTcard_t& GCTcard,
   int correlatorTowPhiOffset = 4;
 
   // Positive eta
-  p2eg::writeGCTToCMSSWAndCorrelatorOutputs(GCTinternal,
-                                            GCTtoCorr,
-                                            gctClusters,
-                                            gctTowers,
-                                            gctEGammas,
-                                            nGCTCard,
-                                            posEtaFiberStart,
-                                            posEtaFiberEnd,
-                                            posEtaCorrelatorFiberIndexOffset,
-                                            correlatorTowPhiOffset);
+  p2eg::writeToCorrelatorAndGTOutputs(GCTinternal,
+                                      GCTtoCorr,
+                                      gctClusters,
+                                      gctTowers,
+                                      gctEGammas,
+                                      gctDigitizedClustersCorrelator,
+                                      gctDigitizedTowersCorrelator,
+                                      gctDigitizedClustersGT,
+                                      nGCTCard,
+                                      posEtaFiberStart,
+                                      posEtaFiberEnd,
+                                      posEtaCorrelatorFiberIndexOffset,
+                                      correlatorTowPhiOffset);
   // Negative eta
-  p2eg::writeGCTToCMSSWAndCorrelatorOutputs(GCTinternal,
-                                            GCTtoCorr,
-                                            gctClusters,
-                                            gctTowers,
-                                            gctEGammas,
-                                            nGCTCard,
-                                            negEtaFiberStart,
-                                            negEtaFiberEnd,
-                                            negEtaCorrelatorFiberIndexOffset,
-                                            correlatorTowPhiOffset);
+  p2eg::writeToCorrelatorAndGTOutputs(GCTinternal,
+                                      GCTtoCorr,
+                                      gctClusters,
+                                      gctTowers,
+                                      gctEGammas,
+                                      gctDigitizedClustersCorrelator,
+                                      gctDigitizedTowersCorrelator,
+                                      gctDigitizedClustersGT,
+                                      nGCTCard,
+                                      negEtaFiberStart,
+                                      negEtaFiberEnd,
+                                      negEtaCorrelatorFiberIndexOffset,
+                                      correlatorTowPhiOffset);
 
   //-----------------------------------------------------------------------------------------------------------------------//
   // CMSSW outputs for GCT Full Towers (clusters + towers) output for PFClusters.

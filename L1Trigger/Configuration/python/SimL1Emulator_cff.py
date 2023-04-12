@@ -88,9 +88,11 @@ _phase2_siml1emulator.add(L1THGCalTriggerPrimitivesTask)
 
 # Barrel and EndCap EGamma
 # ########################################################################
-
 from L1Trigger.L1CaloTrigger.l1tEGammaCrystalsEmulatorProducer_cfi import *
 _phase2_siml1emulator.add(l1tEGammaClusterEmuProducer)
+
+from L1Trigger.L1CaloTrigger.l1tPhase2L1CaloEGammaEmulator_cfi import *
+_phase2_siml1emulator.add(l1tPhase2L1CaloEGammaEmulator)
 
 # Barrel and EndCap CaloJet/HT
 # ########################################################################

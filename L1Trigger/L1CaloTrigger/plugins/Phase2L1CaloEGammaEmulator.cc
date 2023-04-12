@@ -37,6 +37,10 @@
 // Output tower collection
 #include "DataFormats/L1TCalorimeterPhase2/interface/CaloCrystalCluster.h"
 #include "DataFormats/L1TCalorimeterPhase2/interface/CaloTower.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedClusterCorrelator.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedTowerCorrelator.h"
+#include "DataFormats/L1TCalorimeterPhase2/interface/DigitizedClusterGT.h"
+
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 
@@ -90,6 +94,9 @@ Phase2L1CaloEGammaEmulator::Phase2L1CaloEGammaEmulator(const edm::ParameterSet& 
   produces<l1tp2::CaloTowerCollection>("GCT");
   produces<l1tp2::CaloTowerCollection>("GCTFullTowers");
   produces<BXVector<l1t::EGamma>>("GCTEGammas");
+  produces<l1tp2::DigitizedClusterCorrelatorCollection>("GCTDigitizedClusterToCorrelator");
+  produces<l1tp2::DigitizedTowerCorrelatorCollection>("GCTDigitizedTowerToCorrelator");
+  produces<l1tp2::DigitizedClusterGTCollection>("GCTDigitizedClusterToGT");
 }
 
 Phase2L1CaloEGammaEmulator::~Phase2L1CaloEGammaEmulator() {}
@@ -549,6 +556,7 @@ void Phase2L1CaloEGammaEmulator::produce(edm::Event& iEvent, const edm::EventSet
         c.is_looseTkss = c0.getIsLooseTkss();
         c.is_iso = c0.getIsIso();
         c.is_looseTkiso = c0.getIsLooseTkIso();
+        c.brems = c0.getBrems();
         c.nGCTCard = gcc;  // store gct card index as well
         unsigned int iIdxInGCT = i % p2eg::N_RCTCARDS_PHI;
         unsigned int iLinkC = iCluster % p2eg::N_RCTGCT_FIBERS;
@@ -597,20 +605,35 @@ void Phase2L1CaloEGammaEmulator::produce(edm::Event& iEvent, const edm::EventSet
   auto L1GCTTowers = std::make_unique<l1tp2::CaloTowerCollection>();
   auto L1GCTFullTowers = std::make_unique<l1tp2::CaloTowerCollection>();
   auto L1GCTEGammas = std::make_unique<l1t::EGammaBxCollection>();
+  auto L1DigitizedClusterCorrelator = std::make_unique<l1tp2::DigitizedClusterCorrelatorCollection>();
+  auto L1DigitizedTowerCorrelator = std::make_unique<l1tp2::DigitizedTowerCorrelatorCollection>();
+  auto L1DigitizedClusterGT = std::make_unique<l1tp2::DigitizedClusterGTCollection>();
 
   //----------------------------------------------------
   // Apply the GCT firmware code to each GCT card
   //----------------------------------------------------
 
   for (unsigned int gcc = 0; gcc < p2eg::N_GCTCARDS; gcc++) {
-    p2eg::algo_top(
-        gctCards[gcc], gctToCorr[gcc], gcc, L1GCTClusters, L1GCTTowers, L1GCTFullTowers, L1GCTEGammas, calib_);
+    p2eg::algo_top(gctCards[gcc],
+                   gctToCorr[gcc],
+                   gcc,
+                   L1GCTClusters,
+                   L1GCTTowers,
+                   L1GCTFullTowers,
+                   L1GCTEGammas,
+                   L1DigitizedClusterCorrelator,
+                   L1DigitizedTowerCorrelator,
+                   L1DigitizedClusterGT,
+                   calib_);
   }
 
   iEvent.put(std::move(L1GCTClusters), "GCT");
   iEvent.put(std::move(L1GCTTowers), "GCT");
   iEvent.put(std::move(L1GCTFullTowers), "GCTFullTowers");
   iEvent.put(std::move(L1GCTEGammas), "GCTEGammas");
+  iEvent.put(std::move(L1DigitizedClusterCorrelator), "GCTDigitizedClusterToCorrelator");
+  iEvent.put(std::move(L1DigitizedTowerCorrelator), "GCTDigitizedTowerToCorrelator");
+  iEvent.put(std::move(L1DigitizedClusterGT), "GCTDigitizedClusterToGT");
 }
 
 //////////////////////////////////////////////////////////////////////////
