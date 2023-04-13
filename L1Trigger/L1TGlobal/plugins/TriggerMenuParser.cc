@@ -1849,7 +1849,8 @@ bool l1t::TriggerMenuParser::parseCalo(L1TUtmCondition condCalo, unsigned int ch
       oss << "\n      Calo ET high thresholds (hex) for calo object " << caloObjType << " " << cnt << " = " << std::hex
           << objParameter[cnt].etLowThreshold << " - " << objParameter[cnt].etHighThreshold;
       for (const auto& window : objParameter[cnt].etaWindows) {
-        oss << "\n      etaWindow Lower / Upper for calo object " << cnt << " = 0x" << window.lower << " / 0x" << window.upper;
+        oss << "\n      etaWindow Lower / Upper for calo object " << cnt << " = 0x" << window.lower << " / 0x"
+            << window.upper;
       }
       oss << "\n      phiWindow Lower / Upper for calo object " << cnt << " = 0x" << objParameter[cnt].phiWindow1Lower
           << " / 0x" << objParameter[cnt].phiWindow1Upper << "\n      phiWindowVeto Lower / Upper for calo object "
@@ -2075,7 +2076,8 @@ bool l1t::TriggerMenuParser::parseCaloCorr(const L1TUtmObject* corrCalo, unsigne
     oss << "\n      Calo ET high threshold (hex) for calo object " << caloObjType << " "
         << " = " << std::hex << objParameter[0].etLowThreshold << " - " << objParameter[0].etHighThreshold;
     for (const auto& window : objParameter[0].etaWindows) {
-      oss << "\n      etaWindow Lower / Upper for calo object " << " = 0x" << window.lower << " / 0x" << window.upper;
+      oss << "\n      etaWindow Lower / Upper for calo object "
+          << " = 0x" << window.lower << " / 0x" << window.upper;
     }
     oss << "\n      phiWindow Lower / Upper for calo object "
         << " = 0x" << objParameter[0].phiWindow1Lower << " / 0x" << objParameter[0].phiWindow1Upper
