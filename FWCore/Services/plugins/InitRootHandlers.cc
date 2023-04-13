@@ -132,6 +132,7 @@ namespace edm {
       bool resetErrHandler_;
       bool loadAllDictionaries_;
       bool autoLibraryLoader_;
+      bool autoClassParser_;
       bool interactiveDebug_;
       std::shared_ptr<const void> sigBusHandler_;
       std::shared_ptr<const void> sigSegvHandler_;
@@ -771,6 +772,7 @@ namespace edm {
           resetErrHandler_(pset.getUntrackedParameter<bool>("ResetRootErrHandler")),
           loadAllDictionaries_(pset.getUntrackedParameter<bool>("LoadAllDictionaries")),
           autoLibraryLoader_(loadAllDictionaries_ or pset.getUntrackedParameter<bool>("AutoLibraryLoader")),
+          autoClassParser_(pset.getUntrackedParameter<bool>("AutoClassParser")),
           interactiveDebug_(pset.getUntrackedParameter<bool>("InteractiveDebug")) {
       stackTracePause_ = pset.getUntrackedParameter<int>("StackTracePauseTime");
 
@@ -835,6 +837,9 @@ namespace edm {
       if (autoLibraryLoader_) {
         gInterpreter->SetClassAutoloading(1);
       }
+
+      // Enable/disable automatic parsing of headers
+      gInterpreter->SetClassAutoparsing(autoClassParser_);
 
       // Set ROOT parameters.
       TTree::SetMaxTreeSize(kMaxLong64);
@@ -902,6 +907,10 @@ namespace edm {
               "If True, ROOT messages (e.g. errors, warnings) are handled by this service, rather than by ROOT.");
       desc.addUntracked<bool>("AutoLibraryLoader", true)
           ->setComment("If True, enables automatic loading of data dictionaries.");
+      desc.addUntracked<bool>("AutoClassParser", true)
+          ->setComment(
+              "If True, enables automatic parsing of class headers for dictionaries when pre-built dictionaries are "
+              "missing.");
       desc.addUntracked<bool>("LoadAllDictionaries", false)->setComment("If True, loads all ROOT dictionaries.");
       desc.addUntracked<bool>("EnableIMT", true)->setComment("If True, calls ROOT::EnableImplicitMT().");
       desc.addUntracked<bool>("AbortOnSignal", true)
