@@ -52,7 +52,7 @@ hgcalLayerClustersEE = cms.EDProducer('HGCalLayerClusterProducer',
       noise_MIP = cms.double(0.01)
     ),
     use2x2 = cms.bool(True),
-    type = cms.string('CLUE')
+    type = cms.string('SiCLUE')
   
   ),
   detector = cms.string('all'),
@@ -113,7 +113,7 @@ hgcalLayerClustersHSi = cms.EDProducer('HGCalLayerClusterProducer',
       noise_MIP = cms.double(0.01)
     ),
     use2x2 = cms.bool(True),
-    type = cms.string('CLUE')
+    type = cms.string('SiCLUE')
   
   ),
   detector = cms.string('all'),
@@ -174,7 +174,7 @@ hgcalLayerClustersHSci = cms.EDProducer('HGCalLayerClusterProducer',
       noise_MIP = cms.double(0.01)
     ),
     use2x2 = cms.bool(True),
-    type = cms.string('CLUE')
+    type = cms.string('SciCLUE')
   
   ),
   detector = cms.string('all'),
@@ -239,5 +239,4 @@ hgcalLayerClustersHSci = cms.EDProducer('HGCalLayerClusterProducer',
 #     timeClname = cms.string('timeLayerCluster'),
 #     timeOffset = cms.double(5)
 # )
-
 

@@ -52,7 +52,7 @@ hgcalLayerClustersEEL1Seeded = cms.EDProducer('HGCalLayerClusterProducer',
       noise_MIP = cms.double(0.01)
     ),
     use2x2 = cms.bool(True),
-    type = cms.string('CLUE')
+    type = cms.string('SiCLUE')
   
   ),
   detector = cms.string('all'),
@@ -113,7 +113,7 @@ hgcalLayerClustersHSiL1Seeded = cms.EDProducer('HGCalLayerClusterProducer',
       noise_MIP = cms.double(0.01)
     ),
     use2x2 = cms.bool(True),
-    type = cms.string('CLUE')
+    type = cms.string('SiCLUE')
   
   ),
   detector = cms.string('all'),
@@ -174,7 +174,7 @@ hgcalLayerClustersHSciL1Seeded = cms.EDProducer('HGCalLayerClusterProducer',
       noise_MIP = cms.double(0.01)
     ),
     use2x2 = cms.bool(True),
-    type = cms.string('CLUE')
+    type = cms.string('SciCLUE')
   
   ),
   detector = cms.string('all'),

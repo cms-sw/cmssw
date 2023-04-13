@@ -22,7 +22,8 @@ hgcalLayerClustersEE = hgcalLayerClusters_.clone(
         fcPerEle = fC_per_ele,
         #Extending noises as fcPerMip, see comment above.
         noises = HGCAL_noises.values.value() + HGCAL_noises.values.value(),
-        noiseMip = hgchebackDigitizer.digiCfg.noise.value()
+        noiseMip = hgchebackDigitizer.digiCfg.noise.value(),
+        type = cms.string('SiCLUE')
     )
 )
 
@@ -40,7 +41,8 @@ hgcalLayerClustersHSi = hgcalLayerClusters_.clone(
         fcPerEle = fC_per_ele,
         #Extending noises as fcPerMip, see comment above.
         noises = HGCAL_noises.values.value() + HGCAL_noises.values.value(),
-        noiseMip = hgchebackDigitizer.digiCfg.noise.value()
+        noiseMip = hgchebackDigitizer.digiCfg.noise.value(),
+        type = cms.string('SiCLUE')
     )
 )
 
@@ -58,7 +60,8 @@ hgcalLayerClustersHSci = hgcalLayerClusters_.clone(
         fcPerEle = fC_per_ele,
         #Extending noises as fcPerMip, see comment above.
         noises = HGCAL_noises.values.value() + HGCAL_noises.values.value(),
-        noiseMip = hgchebackDigitizer.digiCfg.noise.value()
+        noiseMip = hgchebackDigitizer.digiCfg.noise.value(),
+        type = cms.string('SciCLUE')
     )
 )
 
@@ -73,6 +76,7 @@ hgcalLayerClustersHFNose = hgcalLayerClusters_.clone(
         thicknessCorrection = HGCalRecHit.thicknessNoseCorrection.value(),
         fcPerEle = fC_per_ele,
         noises = HGCAL_noises.values.value(),
-        noiseMip = hgchebackDigitizer.digiCfg.noise.value()
+        noiseMip = hgchebackDigitizer.digiCfg.noise.value(),
+        type = cms.string('SciCLUE')
     )
 )

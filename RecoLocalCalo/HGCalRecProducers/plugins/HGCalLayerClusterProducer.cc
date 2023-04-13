@@ -104,7 +104,7 @@ void HGCalLayerClusterProducer::fillDescriptions(edm::ConfigurationDescriptions&
   // hgcalLayerClusters
   edm::ParameterSetDescription desc;
   edm::ParameterSetDescription pluginDesc;
-  pluginDesc.addNode(edm::PluginDescription<HGCalLayerClusterAlgoFactory>("type", "CLUE", true));
+  pluginDesc.addNode(edm::PluginDescription<HGCalLayerClusterAlgoFactory>("type", "SiCLUE", true));
 
   desc.add<edm::ParameterSetDescription>("plugin", pluginDesc);
   desc.add<std::string>("detector", "EE")
@@ -133,7 +133,6 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
     for (auto const& it : *hits)
       hitmap[it.detid().rawId()] = &(it);
   }
-
   algo->makeClusters();
   *clusters = algo->getClusters(false);
   auto clusterHandle = evt.put(std::move(clusters));
