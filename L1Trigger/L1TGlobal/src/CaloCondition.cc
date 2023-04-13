@@ -490,14 +490,7 @@ const bool l1t::CaloCondition::checkObjectParameter(const int iCondition,
   }
 
   // check eta
-  if (!checkRangeEta(cand.hwEta(),
-                     objPar.etaWindow1Lower,
-                     objPar.etaWindow1Upper,
-                     objPar.etaWindow2Lower,
-                     objPar.etaWindow2Upper,
-                     objPar.etaWindow3Lower,
-                     objPar.etaWindow3Upper,
-                     7)) {
+  if (!checkRangeEta(cand.hwEta(), objPar.etaWindows, 7)) {
     LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed checkRange(eta)" << std::endl;
     return false;
   }

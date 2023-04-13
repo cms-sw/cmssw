@@ -101,12 +101,17 @@ void MuonTemplate::print(std::ostream& myCout) const {
     myCout << "    phiWindow1Upper   =" << std::hex << m_objectParameter[i].phiWindow1Upper << std::endl;
     myCout << "    phiWindow2Lower   =" << std::hex << m_objectParameter[i].phiWindow2Lower << std::endl;
     myCout << "    phiWindow2Upper   =" << std::hex << m_objectParameter[i].phiWindow2Upper << std::endl;
-    myCout << "    etaWindow1Lower   =" << std::hex << m_objectParameter[i].etaWindow1Lower << std::endl;
-    myCout << "    etaWindow1Upper   =" << std::hex << m_objectParameter[i].etaWindow1Upper << std::endl;
-    myCout << "    etaWindow2Lower   =" << std::hex << m_objectParameter[i].etaWindow2Lower << std::endl;
-    myCout << "    etaWindow2Upper   =" << std::hex << m_objectParameter[i].etaWindow2Upper << std::endl;
-    myCout << "    etaWindow3Lower   =" << std::hex << m_objectParameter[i].etaWindow3Lower << std::endl;
-    myCout << "    etaWindow3Upper   =" << std::hex << m_objectParameter[i].etaWindow3Upper << std::endl;
+
+    size_t etaWindowIndex = 1;
+    for (const auto& window : m_objectParameter[i].etaWindows) {
+      //myCout << "    etaWindows[" << etaWindowIndex << "].lower =" << std::hex << window.lower << std::endl;
+      //myCout << "    etaWindows[" << etaWindowIndex << "].upper =" << std::hex << window.upper << std::endl;
+      std::cout << " # MUON TEMPLATE:    etaWindows[" << etaWindowIndex << "].lower =" << std::hex << window.lower
+                << std::endl;
+      std::cout << " # MUON TEMPLATE:    etaWindows[" << etaWindowIndex << "].upper =" << std::hex << window.upper
+                << std::endl;
+      ++etaWindowIndex;
+    }
   }
 
   if (wsc()) {
