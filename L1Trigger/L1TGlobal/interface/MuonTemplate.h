@@ -11,8 +11,12 @@
  *    <TODO: enter implementation details>
  *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
- *          Vladimir Rekovic - extend for indexing
- *
+ *          
+ * \new features: Vladimir Rekovic
+ *                - extend for indexing
+ * \new features: Bernhard Arnold, Elisa Fontanesi                                                   
+ *                - added etaWindows for the checkRangeEta function: it allows to use up to five eta cuts in L1 algorithms 
+ *                - extended for muon track finder index feature (used for Run 3 muon monitoring seeds)                   
  * $Date$
  * $Revision$
  *
@@ -78,12 +82,7 @@ public:
 
     int charge;
 
-    unsigned int etaWindow1Lower;
-    unsigned int etaWindow1Upper;
-    unsigned int etaWindow2Lower;
-    unsigned int etaWindow2Upper;
-    unsigned int etaWindow3Lower;
-    unsigned int etaWindow3Upper;
+    std::vector<Window> etaWindows;
 
     unsigned int phiWindow1Lower;
     unsigned int phiWindow1Upper;
