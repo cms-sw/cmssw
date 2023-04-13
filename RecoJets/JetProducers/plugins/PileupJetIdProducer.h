@@ -63,7 +63,7 @@ public:
   edm::FileInPath const& residualsTxt() const { return residualsTxt_; }
   bool usePuppi() const { return usePuppi_; }
   bool applyConstituentWeight() const { return applyConstituentWeight_; }
-  bool applybuggy() const {return applybuggy_; }
+  bool useBugFix() const {return useBugFix_; }
 
 private:
   std::vector<PileupJetIdAlgo::AlgoGBRForestsAndConstants> vAlgoGBRForestsAndConstants_;
@@ -77,7 +77,7 @@ private:
   edm::FileInPath residualsTxt_;
   bool usePuppi_;
   bool applyConstituentWeight_;
-  bool applybuggy_;
+  bool useBugFix_;
 };
 
 class PileupJetIdProducer : public edm::stream::EDProducer<edm::GlobalCache<GBRForestsAndConstants>> {

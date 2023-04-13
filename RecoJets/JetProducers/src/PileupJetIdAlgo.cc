@@ -266,7 +266,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
                                                         bool usePuppi,
                                                         edm::ValueMap<float>& constituentWeights,
                                                         bool applyConstituentWeight,
-                                                        bool applybuggy) {
+                                                        bool useBugFix) {
 
   // initialize all variables to 0
   resetVariables();
@@ -338,7 +338,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
   float LeadChcandWeight = 1.0;
   float TrailcandWeight = 1.0;
   unsigned nCandPtrs(0);
-  if (applybuggy) {
+  if (!useBugFix) {
     nCandPtrs = jet->numberOfDaughters();
   }
   else { 
@@ -356,14 +356,14 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
     }
     float candPuppiWeight = 1.0;
     float candWeight = 1.0;
-    if (applybuggy && usePuppi && isPacked) {
+    if (!useBugFix && usePuppi && isPacked) {
       candPuppiWeight = lPack->puppiWeight();
     }
-    else if (!applybuggy && applyConstituentWeight) { 
+    else if (useBugFix && applyConstituentWeight) { 
       candWeight = constituentWeights[jet->sourceCandidatePtr(i)];
     }
     float candPt = 0.0;
-    if (applybuggy)    
+    if (!useBugFix)    
       candPt = (icand->pt()) * candPuppiWeight;
     else
       candPt = (icand->pt()) * candWeight;
@@ -378,7 +378,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
       dRmin = candDr;
 
     // // all particles
-    if (applybuggy) {
+    if (!useBugFix) {
       if (lLead == nullptr || candPt > lLead->pt()) {
         lSecond = lLead;
         lLead = icand;
@@ -420,7 +420,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
 
     // neutrals
     if (abs(icand->pdgId()) == 130) {
-      if (applybuggy) {
+      if (!useBugFix) {
         if (lLeadNeut == nullptr || candPt > lLeadNeut->pt()) {
           lLeadNeut = icand;
         }
@@ -440,14 +440,14 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
       }
       internalId_.ptDNe_ += candPt * candPt;
       sumPtNe += candPt;
-      if (applybuggy)
+      if (!useBugFix)
         multNeut += candPuppiWeight;
       else
         multNeut += candWeight;
     }
     // EM candidated
     if (icand->pdgId() == 22) {
-      if (applybuggy) {
+      if (!useBugFix) {
         if (lLeadEm == nullptr || candPt > lLeadEm->pt()) {
           lLeadEm = icand;
         }
@@ -478,14 +478,14 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
       }
     }
     if (abs(icand->pdgId()) == 1 || abs(icand->pdgId()) == 2) {
-      if (applybuggy) 
+      if (!useBugFix) 
         multNeut += candPuppiWeight;
       else
         multNeut += candWeight;
     }
     // Charged  particles
     if (icand->charge() != 0) {
-      if ((applybuggy) && (lLeadCh == nullptr || candPt > lLeadCh->pt())) {
+      if ((!useBugFix) && (lLeadCh == nullptr || candPt > lLeadCh->pt())) {
           lLeadCh = icand;
         
           const reco::Track* pfTrk = icand->bestTrack();
@@ -513,7 +513,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
             internalId_.dZ_ = std::abs(pfTrk->dz(vtx->position()));
           }
         }
-      else if ((!applybuggy) && (lLeadCh == nullptr || candPt > (lLeadCh->pt()) * LeadChcandWeight)) {
+      else if ((useBugFix) && (lLeadCh == nullptr || candPt > (lLeadCh->pt()) * LeadChcandWeight)) {
           lLeadCh = icand;
           if (applyConstituentWeight) {
             LeadChcandWeight = constituentWeights[jet->sourceCandidatePtr(i)];
@@ -634,10 +634,10 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
     }
 
     // trailing candidate
-    if ((applybuggy) && (lTrail == nullptr || candPt < lTrail->pt())) {
+    if ((!useBugFix) && (lTrail == nullptr || candPt < lTrail->pt())) {
       lTrail = icand;
     }
-    else if ((!applybuggy) && (lTrail == nullptr || candPt < (lTrail->pt())*TrailcandWeight)){
+    else if ((useBugFix) && (lTrail == nullptr || candPt < (lTrail->pt())*TrailcandWeight)){
       lTrail = icand;
       if (applyConstituentWeight) {
         TrailcandWeight = constituentWeights[jet->sourceCandidatePtr(i)];
@@ -645,7 +645,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
     }
 
   // average for pull variavble
-    if (!applybuggy) {
+    if (useBugFix) {
       float weight2 = candPt * candPt;
       sumW2 += weight2;
       float deta = icand->eta() - jet->eta();
@@ -662,7 +662,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
 
   // // Finalize all variables
   assert(!(lLead == nullptr));
-  if (applybuggy) {
+  if (!useBugFix) {
     if (lSecond == nullptr) {
       lSecond = lTrail;
     }
@@ -742,7 +742,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
 
   ///////////////////////pull variable///////////////////////////////////
 
-  if (applybuggy) {
+  if (!useBugFix) {
 //    float sumW2(0.0);
 //    float sum_deta(0.0), sum_dphi(0.0);
 //    float ave_deta(0.0), ave_dphi(0.0);
@@ -782,7 +782,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
     float deta(0.0);
     float dphi(0.0);
     float weight(0.0);
-    if (applybuggy) {
+    if (!useBugFix) {
       if (!(part.isAvailable() && part.isNonnull())) {
         continue;
       }
@@ -821,7 +821,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
   }
   internalId_.pull_ = pull_tmp;
   ///////////////////////////////////////////////////////////////////////
-  if (applybuggy) {
+  if (!useBugFix) {
     setPtEtaPhi(*lLead, internalId_.leadPt_, internalId_.leadEta_, internalId_.leadPhi_);
     setPtEtaPhi(*lSecond, internalId_.secondPt_, internalId_.secondEta_, internalId_.secondPhi_);
     setPtEtaPhi(*lLeadNeut, internalId_.leadNeutPt_, internalId_.leadNeutEta_, internalId_.leadNeutPhi_);
@@ -892,7 +892,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
   internalId_.sumPt_ = sumPt;
   internalId_.sumChPt_ = sumPtCh;
   internalId_.sumNePt_ = sumPtNe;
-  if (applybuggy) {
+  if (!useBugFix) {
     internalId_.jetR_ = lLead->pt() / sumPt;
     internalId_.jetRchg_ = lLeadCh->pt() / sumPt;
   }

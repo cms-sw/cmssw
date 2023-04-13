@@ -29,7 +29,7 @@ GBRForestsAndConstants::GBRForestsAndConstants(edm::ParameterSet const& iConfig)
       residualsFromTxt_(iConfig.getParameter<bool>("residualsFromTxt")),
       usePuppi_(iConfig.getParameter<bool>("usePuppi")),
       applyConstituentWeight_(false),
-      applybuggy_(iConfig.getParameter<bool>("applybuggy")) {
+      useBugFix_(iConfig.getParameter<bool>("useBugFix")) {
   if (residualsFromTxt_) {
     residualsTxt_ = iConfig.getParameter<edm::FileInPath>("residualsTxt");
   }
@@ -183,7 +183,7 @@ void PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     PileupJetIdentifier puIdentifier;
     if (gc->produceJetIds()) {
       // Compute the input variables
-      puIdentifier = ialgo->computeIdVariables(theJet, jec, &(*vtx), *vertexes, rho, gc->usePuppi(), constituentWeights, gc->applyConstituentWeight(), gc->applybuggy());
+      puIdentifier = ialgo->computeIdVariables(theJet, jec, &(*vtx), *vertexes, rho, gc->usePuppi(), constituentWeights, gc->applyConstituentWeight(), gc->useBugFix());
 
       ids.push_back(puIdentifier);
     } else {

@@ -274,7 +274,7 @@ def AddPileUpJetIDVars(proc, jetName="", jetSrc="", jetTableName="", jetTaskName
       applyJec  = False,
       usePuppi = True if "PUPPI" in jetName.upper() else False,
       srcConstituentWeights = "packedPFCandidatespuppi" if "PUPPI" in jetName.upper() else "",
-      applybuggy = False
+      useBugFix = False
     )
   )
   getattr(proc,jetTaskName).add(getattr(proc, puJetIdVarsCalculator))
