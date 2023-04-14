@@ -119,6 +119,12 @@ _pnet2023 = cms.PSet(
     rawPNetVSmu = Var("?isTauIDAvailable('byPNetVSmuraw')?tauID('byPNetVSmuraw'):-1", float, doc="raw output of ParticleNetVsMu discriminator (PNet 2023)", precision=10),
     rawPNetVSjet = Var("?isTauIDAvailable('byPNetVSjetraw')?tauID('byPNetVSjetraw'):-1", float, doc="raw output of ParticleNetVsJet discriminator (PNet 2023)", precision=10),
     ptCorrPNet = Var("?isTauIDAvailable('byPNetPtCorr')?tauID('byPNetPtCorr'):1", float, doc="pt correction (PNet 2023)", precision=10),
+    qConfPNet = Var("?isTauIDAvailable('byPNetQConf')?tauID('byPNetQConf'):0", float, doc="signed charge confidence (PNet 2023)", precision=10),
+    probDM0PNet = Var("?isTauIDAvailable('byPNetProb1h0pi0')?tauID('byPNetProb1h0pi0'):-1", float, doc="normalised probablity of decayMode 0, 1h+0pi0 (PNet 2023)", precision=10),
+    probDM1PNet = Var("?isTauIDAvailable('byPNetProb1h1pi0')?tauID('byPNetProb1h1pi0'):-1", float, doc="normalised probablity of decayMode 1, 1h+1pi0 (PNet 2023)", precision=10),
+    probDM2PNet = Var("?isTauIDAvailable('byPNetProb1h2pi0')?tauID('byPNetProb1h2pi0'):-1", float, doc="normalised probablity of decayMode 2, 1h+2pi0 (PNet 2023)", precision=10),
+    probDM10PNet = Var("?isTauIDAvailable('byPNetProb3h0pi0')?tauID('byPNetProb3h0pi0'):-1", float, doc="normalised probablity of decayMode 10, 3h+0pi0 (PNet 2023)", precision=10),
+    probDM11PNet = Var("?isTauIDAvailable('byPNetProb3h1pi0')?tauID('byPNetProb3h1pi0'):-1", float, doc="normalised probablity of decayMode 11, 3h+1pi0 (PNet 2023)", precision=10),
 )
 
 _variablesMiniV2 = cms.PSet(

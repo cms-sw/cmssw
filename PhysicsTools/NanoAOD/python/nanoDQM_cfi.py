@@ -827,6 +827,12 @@ nanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('rawIso', 'rawIso', 20, 0, 200, 'combined isolation (deltaBeta corrections)'),
                 Plot1D('rawIsodR03', 'rawIsodR03', 20, 0, 200, 'combined isolation (deltaBeta corrections, dR=0.3)'),
                 Plot1D('ptCorrPNet', 'ptCorrPNet', 20, 0, 2, 'pt correction (PNet 2023)'),
+                Plot1D('qConfPNet', 'qConfPNet', 20, -0.5, 0.5, 'signed charge confidence (PNet 2023)'),
+                Plot1D('probDM0PNet', 'probDM0PNet', 20, 0, 1, 'normalised probablity of decayMode 0, 1h+0pi0 (PNet 2023)'),
+                Plot1D('probDM1PNet', 'probDM1PNet', 20, 0, 1, 'normalised probablity of decayMode 1, 1h+1pi0 (PNet 2023)'),
+                Plot1D('probDM2PNet', 'probDM2PNet', 20, 0, 1, 'normalised probablity of decayMode 2, 1h+2pi0 (PNet 2023)'),
+                Plot1D('probDM10PNet', 'probDM10PNet', 20, 0, 1, 'normalised probablity of decayMode 10, 3h+0pi0 (PNet 2023)'),
+                Plot1D('probDM11PNet', 'probDM11PNet', 20, 0, 1, 'normalised probablity of decayMode 11, 3h+1pi0 (PNet 2023)'),
             )
         ),
         TkMET = cms.PSet(
