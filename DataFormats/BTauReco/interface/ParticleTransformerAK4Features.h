@@ -11,6 +11,7 @@ namespace btagbtvdeep {
 
   class ParticleTransformerAK4Features {
   public:
+    bool is_filled = true;
     std::vector<SecondaryVertexFeatures> sv_features;
 
     std::vector<NeutralCandidateFeatures> n_pf_features;

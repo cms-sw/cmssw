@@ -12,6 +12,7 @@
 #include "DataFormats/BTauReco/interface/JetTag.h"
 
 #include "DataFormats/BTauReco/interface/ParticleTransformerAK4TagInfo.h"
+#include "DataFormats/BTauReco/interface/ParticleTransformerAK4Features.h"
 
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 
@@ -33,8 +34,8 @@ private:
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-  void make_inputs(unsigned i_jet, const reco::ParticleTransformerAK4TagInfo& taginfo);
-  void get_input_sizes(edm::Handle<TagInfoCollection> tag_infos);
+  void make_inputs(btagbtvdeep::ParticleTransformerAK4Features features);
+  void get_input_sizes(const reco::FeaturesTagInfo<btagbtvdeep::ParticleTransformerAK4Features> taginfo);
 
   const edm::EDGetTokenT<TagInfoCollection> src_;
   std::vector<std::string> flav_names_;
@@ -104,50 +105,41 @@ void ParticleTransformerAK4ONNXJetTagsProducer::produce(edm::Event& iEvent, cons
   edm::Handle<TagInfoCollection> tag_infos;
   iEvent.getByToken(src_, tag_infos);
 
+  // initialize output collection
   std::vector<std::unique_ptr<JetTagCollection>> output_tags;
   if (!tag_infos->empty()) {
-    // initialize output collection
     auto jet_ref = tag_infos->begin()->jet();
     auto ref2prod = edm::makeRefToBaseProdFrom(jet_ref, iEvent);
     for (std::size_t i = 0; i < flav_names_.size(); i++) {
       output_tags.emplace_back(std::make_unique<JetTagCollection>(ref2prod));
     }
-    get_input_sizes(tag_infos);
-
-    // init data storage
-    data_.clear();
-    for (const auto& len : input_sizes_) {
-      data_.emplace_back(tag_infos->size() * len, 0);
-    }
-    // convert inputs
-    for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
-      const auto& taginfo = (*tag_infos)[jet_n];
-      make_inputs(jet_n, taginfo);
-    }
-    // run prediction with dynamic batch size per event
-    input_shapes_ = {{(int64_t)tag_infos->size(), (int64_t)n_cpf_, (int64_t)n_features_cpf_},
-                     {(int64_t)tag_infos->size(), (int64_t)n_npf_, (int64_t)n_features_npf_},
-                     {(int64_t)tag_infos->size(), (int64_t)n_sv_, (int64_t)n_features_sv_},
-                     {(int64_t)tag_infos->size(), (int64_t)n_cpf_, (int64_t)n_pairwise_features_cpf_},
-                     {(int64_t)tag_infos->size(), (int64_t)n_npf_, (int64_t)n_pairwise_features_npf_},
-                     {(int64_t)tag_infos->size(), (int64_t)n_sv_, (int64_t)n_pairwise_features_sv_}};
-
-    auto outputs = globalCache()->run(input_names_, data_, input_shapes_, output_names_, tag_infos->size())[0];
-    assert(outputs.size() == flav_names_.size() * tag_infos->size());
-
-    // get the outputs
-    unsigned i_output = 0;
-    for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
-      const auto& jet_ref = tag_infos->at(jet_n).jet();
-      for (std::size_t flav_n = 0; flav_n < flav_names_.size(); flav_n++) {
-        (*(output_tags[flav_n]))[jet_ref] = outputs[i_output];
-        ++i_output;
-      }
-    }
   } else {
-    // create empty output collection
     for (std::size_t i = 0; i < flav_names_.size(); i++) {
       output_tags.emplace_back(std::make_unique<JetTagCollection>());
+    }
+  }
+
+  for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
+    const auto& taginfo = (*tag_infos)[jet_n];
+    std::vector<float> outputs(flav_names_.size(), -1.0);
+    if (taginfo.features().is_filled) {
+      get_input_sizes(taginfo);
+
+      // run prediction with dynamic batch size per event
+      input_shapes_ = {{(int64_t)1, (int64_t)n_cpf_, (int64_t)n_features_cpf_},
+                       {(int64_t)1, (int64_t)n_npf_, (int64_t)n_features_npf_},
+                       {(int64_t)1, (int64_t)n_sv_, (int64_t)n_features_sv_},
+                       {(int64_t)1, (int64_t)n_cpf_, (int64_t)n_pairwise_features_cpf_},
+                       {(int64_t)1, (int64_t)n_npf_, (int64_t)n_pairwise_features_npf_},
+                       {(int64_t)1, (int64_t)n_sv_, (int64_t)n_pairwise_features_sv_}};
+
+      outputs = globalCache()->run(input_names_, data_, input_shapes_, output_names_, 1)[0];
+      assert(outputs.size() == flav_names_.size());
+    }
+
+    const auto& jet_ref = tag_infos->at(jet_n).jet();
+    for (std::size_t flav_n = 0; flav_n < flav_names_.size(); flav_n++) {
+      (*(output_tags[flav_n]))[jet_ref] = outputs[flav_n];
     }
   }
 
@@ -157,24 +149,18 @@ void ParticleTransformerAK4ONNXJetTagsProducer::produce(edm::Event& iEvent, cons
   }
 }
 
-void ParticleTransformerAK4ONNXJetTagsProducer::get_input_sizes(edm::Handle<TagInfoCollection> tag_infos) {
-  for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
-    const auto& taginfo = (*tag_infos)[jet_n];
-    const auto& features = taginfo.features();
-    unsigned int n_cpf = features.c_pf_features.size();
-    unsigned int n_npf = features.n_pf_features.size();
-    unsigned int n_vtx = features.sv_features.size();
+void ParticleTransformerAK4ONNXJetTagsProducer::get_input_sizes(
+    const reco::FeaturesTagInfo<btagbtvdeep::ParticleTransformerAK4Features> taginfo) {
+  const auto& features = taginfo.features();
 
-    if (jet_n == 0) {
-      n_cpf_ = std::max((unsigned int)1, n_cpf);
-      n_npf_ = std::max((unsigned int)1, n_npf);
-      n_sv_ = std::max((unsigned int)1, n_vtx);
-    } else {
-      n_cpf_ = std::max(n_cpf_, n_cpf);
-      n_npf_ = std::max(n_npf_, n_npf);
-      n_sv_ = std::max(n_sv_, n_vtx);
-    }
-  }
+  unsigned int n_cpf = features.c_pf_features.size();
+  unsigned int n_npf = features.n_pf_features.size();
+  unsigned int n_vtx = features.sv_features.size();
+
+  n_cpf_ = std::max((unsigned int)1, n_cpf);
+  n_npf_ = std::max((unsigned int)1, n_npf);
+  n_sv_ = std::max((unsigned int)1, n_vtx);
+
   n_cpf_ = std::min((unsigned int)25, n_cpf_);
   n_npf_ = std::min((unsigned int)25, n_npf_);
   n_sv_ = std::min((unsigned int)5, n_sv_);
@@ -186,18 +172,22 @@ void ParticleTransformerAK4ONNXJetTagsProducer::get_input_sizes(edm::Handle<TagI
       n_npf_ * n_pairwise_features_npf_,
       n_sv_ * n_pairwise_features_sv_,
   };
+  // init data storage
+  data_.clear();
+  for (const auto& len : input_sizes_) {
+    data_.emplace_back(1 * len, 0);
+  }
+
+  make_inputs(features);
 }
 
-void ParticleTransformerAK4ONNXJetTagsProducer::make_inputs(unsigned i_jet,
-                                                            const reco::ParticleTransformerAK4TagInfo& taginfo) {
-  const auto& features = taginfo.features();
+void ParticleTransformerAK4ONNXJetTagsProducer::make_inputs(btagbtvdeep::ParticleTransformerAK4Features features) {
   float* ptr = nullptr;
   const float* start = nullptr;
   unsigned offset = 0;
 
   // c_pf candidates
   auto max_c_pf_n = std::min(features.c_pf_features.size(), (std::size_t)n_cpf_);
-  offset = i_jet * input_sizes_[kChargedCandidates];
   for (std::size_t c_pf_n = 0; c_pf_n < max_c_pf_n; c_pf_n++) {
     const auto& c_pf_features = features.c_pf_features.at(c_pf_n);
     ptr = &data_[kChargedCandidates][offset + c_pf_n * n_features_cpf_];
@@ -214,7 +204,6 @@ void ParticleTransformerAK4ONNXJetTagsProducer::make_inputs(unsigned i_jet,
     *(++ptr) = c_pf_features.btagPf_trackJetDistVal;
     *(++ptr) = c_pf_features.ptrel;
     *(++ptr) = c_pf_features.drminsv;
-    //*(++ptr) = c_pf_features.distminsv; // later during Run 3 after feature engineering
     *(++ptr) = c_pf_features.vtx_ass;
     *(++ptr) = c_pf_features.puppiw;
     *(++ptr) = c_pf_features.chi2;
@@ -224,7 +213,6 @@ void ParticleTransformerAK4ONNXJetTagsProducer::make_inputs(unsigned i_jet,
 
   // n_pf candidates
   auto max_n_pf_n = std::min(features.n_pf_features.size(), (std::size_t)n_npf_);
-  offset = i_jet * input_sizes_[kNeutralCandidates];
   for (std::size_t n_pf_n = 0; n_pf_n < max_n_pf_n; n_pf_n++) {
     const auto& n_pf_features = features.n_pf_features.at(n_pf_n);
     ptr = &data_[kNeutralCandidates][offset + n_pf_n * n_features_npf_];
@@ -242,7 +230,6 @@ void ParticleTransformerAK4ONNXJetTagsProducer::make_inputs(unsigned i_jet,
 
   // sv candidates
   auto max_sv_n = std::min(features.sv_features.size(), (std::size_t)n_sv_);
-  offset = i_jet * input_sizes_[kVertices];
   for (std::size_t sv_n = 0; sv_n < max_sv_n; sv_n++) {
     const auto& sv_features = features.sv_features.at(sv_n);
     ptr = &data_[kVertices][offset + sv_n * n_features_sv_];
@@ -266,7 +253,6 @@ void ParticleTransformerAK4ONNXJetTagsProducer::make_inputs(unsigned i_jet,
 
   // cpf pairwise features (4-vectors)
   auto max_cpf_n = std::min(features.c_pf_features.size(), (std::size_t)n_cpf_);
-  offset = i_jet * input_sizes_[kChargedCandidates4Vec];
   for (std::size_t cpf_n = 0; cpf_n < max_cpf_n; cpf_n++) {
     const auto& cpf_pairwise_features = features.c_pf_features.at(cpf_n);
     ptr = &data_[kChargedCandidates4Vec][offset + cpf_n * n_pairwise_features_cpf_];
@@ -281,7 +267,6 @@ void ParticleTransformerAK4ONNXJetTagsProducer::make_inputs(unsigned i_jet,
 
   // npf pairwise features (4-vectors)
   auto max_npf_n = std::min(features.n_pf_features.size(), (std::size_t)n_npf_);
-  offset = i_jet * input_sizes_[kNeutralCandidates4Vec];
   for (std::size_t npf_n = 0; npf_n < max_npf_n; npf_n++) {
     const auto& npf_pairwise_features = features.n_pf_features.at(npf_n);
     ptr = &data_[kNeutralCandidates4Vec][offset + npf_n * n_pairwise_features_npf_];
@@ -296,7 +281,6 @@ void ParticleTransformerAK4ONNXJetTagsProducer::make_inputs(unsigned i_jet,
 
   // sv pairwise features (4-vectors)
   auto max_sv_N = std::min(features.sv_features.size(), (std::size_t)n_sv_);
-  offset = i_jet * input_sizes_[kVertices4Vec];
   for (std::size_t sv_N = 0; sv_N < max_sv_N; sv_N++) {
     const auto& sv_pairwise_features = features.sv_features.at(sv_N);
     ptr = &data_[kVertices4Vec][offset + sv_N * n_pairwise_features_sv_];
