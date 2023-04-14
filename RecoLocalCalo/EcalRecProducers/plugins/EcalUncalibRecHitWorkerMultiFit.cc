@@ -232,8 +232,8 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
     CCtargetTimePrecision_ = ps.getParameter<double>("crossCorrelationTargetTimePrecision");
     CCtargetTimePrecisionForDelayedPulses_ =
         ps.getParameter<double>("crossCorrelationTargetTimePrecisionForDelayedPulses");
-    CCminTimeToBeLateMin_ = ps.getParameter<double>("crossCorrelationMinTimeToBeLateMin") / ecalPh1::Samp_Period;
-    CCminTimeToBeLateMax_ = ps.getParameter<double>("crossCorrelationMinTimeToBeLateMax") / ecalPh1::Samp_Period;
+    CCminTimeToBeLateMin_ = ps.getParameter<double>("crossCorrelationMinTimeToBeLateMin") / ecalcctiming::clockToNS;
+    CCminTimeToBeLateMax_ = ps.getParameter<double>("crossCorrelationMinTimeToBeLateMax") / ecalcctiming::clockToNS;
     CCTimeShiftWrtRations_ = ps.getParameter<double>("crossCorrelationTimeShiftWrtRations");
     computeCC_ = std::make_unique<EcalUncalibRecHitTimingCCAlgo>(startTime, stopTime);
   } else if (timeAlgoName != "None")
@@ -641,7 +641,7 @@ void EcalUncalibRecHitWorkerMultiFit::run(const edm::Event& evt,
         float jitter =
             computeCC_->computeTimeCC(
                 *itdg, amplitudes, aped, aGain, fullpulse, uncalibRecHit, jitterError, CCtargetTimePrecision_, true) +
-            CCTimeShiftWrtRations_ / ecalPh1::Samp_Period;
+            CCTimeShiftWrtRations_ / ecalcctiming::clockToNS;
         float noCorrectedJitter = computeCC_->computeTimeCC(*itdg,
                                                             amplitudes,
                                                             aped,
@@ -651,17 +651,17 @@ void EcalUncalibRecHitWorkerMultiFit::run(const edm::Event& evt,
                                                             jitterError,
                                                             CCtargetTimePrecisionForDelayedPulses_,
                                                             false) +
-                                  CCTimeShiftWrtRations_ / ecalPh1::Samp_Period;
+                                  CCTimeShiftWrtRations_ / ecalcctiming::clockToNS;
 
         uncalibRecHit.setJitter(jitter);
         uncalibRecHit.setNonCorrectedTime(jitter, noCorrectedJitter);
 
         float retreivedNonCorrectedTime = uncalibRecHit.nonCorrectedTime();
-        if ( retreivedNonCorrectedTime > -29.0 && std::abs( retreivedNonCorrectedTime - 25.0*noCorrectedJitter ) > 16.0 ) {
-        	edm::LogError("EcalUncalibRecHitError") << "Problem with noCorrectedJitter: true value:" << 25.0*noCorrectedJitter 
+		float noCorrectedTime = ecalcctiming::clockToNS*noCorrectedJitter;
+        if ( retreivedNonCorrectedTime > -29.0 && std::abs( retreivedNonCorrectedTime - noCorrectedTime ) > 0.05 ) {
+        	edm::LogError("EcalUncalibRecHitError") << "Problem with noCorrectedJitter: true value:" << noCorrectedTime 
 			<< "\t received: " << retreivedNonCorrectedTime << std::endl;
-        }//<<>>if (abs(retreivedNonCorrectedTime - noCorrectedJitter)>1)
-
+        }//<<>>if (abs(retreivedNonCorrectedTime - noCorrectedJitter)>1);
 
         // consider flagging as kOutOfTime only if above noise
         float threshold, cterm, timeNconst;
@@ -701,7 +701,7 @@ void EcalUncalibRecHitWorkerMultiFit::run(const edm::Event& evt,
           }
         }
         if (uncalibRecHit.amplitude() > threshold) {
-          float correctedTime = noCorrectedJitter * ecalPh1::Samp_Period + itimeconst + offsetTime;
+          float correctedTime = noCorrectedJitter * ecalcctiming::clockToNS + itimeconst + offsetTime;
           float sigmaped = pedRMSVec[0];  // approx for lower gains
           float nterm = timeNconst * sigmaped / uncalibRecHit.amplitude();
           float sigmat = std::sqrt(nterm * nterm + cterm * cterm);
