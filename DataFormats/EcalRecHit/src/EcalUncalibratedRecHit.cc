@@ -118,18 +118,16 @@ bool EcalUncalibratedRecHit::checkFlag(EcalUncalibratedRecHit::Flags flag) const
 
 // For CC Timing reco
 float EcalUncalibratedRecHit::nonCorrectedTime() const {
-
-  float encBits = static_cast<float>( jitterErrorBits() );
-  float decJitter = ecalcctiming::nonCorrectedSlope*jitter_ + ecalcctiming::encodingOffest - encBits/ecalcctiming::encodingValue;
-  float nonCorrectedTime = ( encBits > 1 && encBits < 254 ) ? ecalcctiming::clockToNS*decJitter : -30.0;
+  float encBits = static_cast<float>(jitterErrorBits());
+  float decJitter =
+      ecalcctiming::nonCorrectedSlope * jitter_ + ecalcctiming::encodingOffest - encBits / ecalcctiming::encodingValue;
+  float nonCorrectedTime = (encBits > 1 && encBits < 254) ? ecalcctiming::clockToNS * decJitter : -30.0;
   return nonCorrectedTime;
 }
 
 void EcalUncalibratedRecHit::setNonCorrectedTime(const float correctedJitter, const float nonCorrectedJitter) {
-
-  float fDiff =  ecalcctiming::nonCorrectedSlope*correctedJitter - nonCorrectedJitter + ecalcctiming::encodingOffest ;
-  int encBits = std::floor((fDiff*ecalcctiming::encodingValue) + 0.5);
-  int bits = ( encBits < 1 ) ? 1 : ( encBits > 254 ) ? 254 : encBits;
+  float fDiff = ecalcctiming::nonCorrectedSlope * correctedJitter - nonCorrectedJitter + ecalcctiming::encodingOffest;
+  int encBits = std::floor((fDiff * ecalcctiming::encodingValue) + 0.5);
+  int bits = (encBits < 1) ? 1 : (encBits > 254) ? 254 : encBits;
   aux_ = (~0xFF & aux_) | (static_cast<uint8_t>(bits) & 0xFF);
 }
-
