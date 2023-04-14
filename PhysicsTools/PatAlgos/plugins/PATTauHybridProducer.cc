@@ -37,7 +37,7 @@ private:
   const bool usePFLeptonsAsChargedHadrons_;
 
   const std::map<std::string, int> tagToDM_;
-  enum class tauId_pnet_idx : size_t { dm = 0, vsjet, vse, vsmu, ptcorr, last };
+  enum class tauId_pnet_idx : size_t { dm = 0, vsjet, vse, vsmu, ptcorr, qconf, pdm0, pdm1, pdm2, pdm10, pdm11, last };
   enum class tauId_min_idx : size_t { hpsnew = 0, last };
 };
 
@@ -113,6 +113,12 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   tauIds_pnet[(size_t)tauId_pnet_idx::vse] = std::make_pair("byPNetVSeraw", -1);
   tauIds_pnet[(size_t)tauId_pnet_idx::vsmu] = std::make_pair("byPNetVSmuraw", -1);
   tauIds_pnet[(size_t)tauId_pnet_idx::ptcorr] = std::make_pair("byPNetPtCorr", 1);
+  tauIds_pnet[(size_t)tauId_pnet_idx::qconf] = std::make_pair("byPNetQConf", 0);
+  tauIds_pnet[(size_t)tauId_pnet_idx::pdm0] = std::make_pair("byPNetProb1h0pi0", -1);
+  tauIds_pnet[(size_t)tauId_pnet_idx::pdm1] = std::make_pair("byPNetProb1h1pi0", -1);
+  tauIds_pnet[(size_t)tauId_pnet_idx::pdm2] = std::make_pair("byPNetProb1h2pi0", -1);
+  tauIds_pnet[(size_t)tauId_pnet_idx::pdm10] = std::make_pair("byPNetProb3h0pi0", -1);
+  tauIds_pnet[(size_t)tauId_pnet_idx::pdm11] = std::make_pair("byPNetProb3h1pi0", -1);
 
   std::set<unsigned int> matched_taus;
   size_t jet_idx = 0;
@@ -128,6 +134,7 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     // Analyse PNet scores
     std::pair<std::string, float> bestPnetTauScore("probtauundef", -1);
     float sumOfPnetTauScores = 0;
+    std::vector<float> tauPerDMScores(5);
     float plusChargeProb = 0;
     for (const auto& scoreName : pnetTauScoreNames_) {
       float score = jet.bDiscriminator(pnetLabel_ + ":" + scoreName);
@@ -138,6 +145,18 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
         bestPnetTauScore.second = score;
         bestPnetTauScore.first = scoreName;
       }
+      if (scoreName.find("1h0p") != std::string::npos)
+        tauPerDMScores[0] += score;
+      else if (scoreName.find("1h1") !=
+               std::string::
+                   npos)  //Note: final "p" in "1p" ommited to enble matching also with "1h1or2p" from early trainings
+        tauPerDMScores[1] += score;
+      else if (scoreName.find("1h2p") != std::string::npos)
+        tauPerDMScores[2] += score;
+      else if (scoreName.find("3h0p") != std::string::npos)
+        tauPerDMScores[3] += score;
+      else if (scoreName.find("3h1p") != std::string::npos)
+        tauPerDMScores[4] += score;
     }
     if (sumOfPnetTauScores > 0)
       plusChargeProb /= sumOfPnetTauScores;
@@ -190,6 +209,16 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     float ptcorr = jet.bDiscriminator(pnetLabel_ + ":" + pnetPtCorrName_);
     if (ptcorr > -1000.)  // -1000. is default for not found discriminantor
       tauIds_pnet[(size_t)tauId_pnet_idx::ptcorr].second = ptcorr;
+
+    // PNet charge confidence
+    tauIds_pnet[(size_t)tauId_pnet_idx::qconf].second = (plusChargeProb - 0.5);
+
+    // PNet per decay mode normalised score
+    tauIds_pnet[(size_t)tauId_pnet_idx::pdm0].second = tauPerDMScores[0] / sumOfPnetTauScores;
+    tauIds_pnet[(size_t)tauId_pnet_idx::pdm1].second = tauPerDMScores[1] / sumOfPnetTauScores;
+    tauIds_pnet[(size_t)tauId_pnet_idx::pdm2].second = tauPerDMScores[2] / sumOfPnetTauScores;
+    tauIds_pnet[(size_t)tauId_pnet_idx::pdm10].second = tauPerDMScores[3] / sumOfPnetTauScores;
+    tauIds_pnet[(size_t)tauId_pnet_idx::pdm11].second = tauPerDMScores[4] / sumOfPnetTauScores;
 
     // Search for matching tau
     for (const auto& inputTau : *inputTaus) {
@@ -272,7 +301,8 @@ void PATTauHybridProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
         tauIds[i] = inputTau.tauIDs()[i];
       for (size_t i = 0; i < tauIds_pnet.size(); ++i) {
         tauIds[nTauIds + i] = tauIds_pnet[i];
-        tauIds[nTauIds + i].second = ((i != (size_t)tauId_pnet_idx::ptcorr) ? -1 : 1);
+        tauIds[nTauIds + i].second =
+            (i != (size_t)tauId_pnet_idx::ptcorr ? (i != (size_t)tauId_pnet_idx::qconf ? -1 : 0) : 1);
       }
       outputTau.setTauIDs(tauIds);
       outputTaus->push_back(outputTau);
