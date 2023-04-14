@@ -95,6 +95,8 @@ process.PoolDBESSource = cms.ESSource("PoolDBESSource",
     ))
 )
 
+process.es_prefer = cms.ESPrefer("PoolDBESSource","")
+
 process.dumpcond = cms.EDAnalyzer("HcalDumpConditions",
     dump = cms.untracked.vstring("PFCuts")
 )
