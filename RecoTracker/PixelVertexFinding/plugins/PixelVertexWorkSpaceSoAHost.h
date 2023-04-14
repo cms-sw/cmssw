@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelVertexFinding_PixelVertexWorkSpaceSoAHost_h
-#define RecoPixelVertexing_PixelVertexFinding_PixelVertexWorkSpaceSoAHost_h
+#ifndef RecoTracker_PixelVertexFinding_plugins_PixelVertexWorkSpaceSoAHost_h
+#define RecoTracker_PixelVertexFinding_plugins_PixelVertexWorkSpaceSoAHost_h
 
 #include "CUDADataFormats/Common/interface/PortableHostCollection.h"
 #include "CUDADataFormats/Vertex/interface/ZVertexUtilities.h"

@@ -1,5 +1,5 @@
-#ifndef _ThirdHitPrediction_h_
-#define _ThirdHitPrediction_h_
+#ifndef RecoTracker_PixelLowPtUtilities_ThirdHitPrediction_h
+#define RecoTracker_PixelLowPtUtilities_ThirdHitPrediction_h
 
 /** predicts a range in r-z for the position of third hit.
  *  the predicted reange is defined by stright line extrapolation/interpolation

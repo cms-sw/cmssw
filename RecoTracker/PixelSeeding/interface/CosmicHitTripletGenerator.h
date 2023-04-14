@@ -1,5 +1,5 @@
-#ifndef CosmicHitTripletGenerator_H
-#define CosmicHitTripletGenerator_H
+#ifndef RecoTracker_PixelSeeding_CosmicHitTripletGenerator_h
+#define RecoTracker_PixelSeeding_CosmicHitTripletGenerator_h
 
 #include <vector>
 #include "RecoTracker/PixelSeeding/interface/OrderedHitTriplets.h"

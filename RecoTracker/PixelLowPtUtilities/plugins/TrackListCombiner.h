@@ -1,5 +1,5 @@
-#ifndef TrackListCombiner_H
-#define TrackListCombiner_H
+#ifndef RecoTracker_PixelLowPtUtilities_plugins_TrackListCombiner_h
+#define RecoTracker_PixelLowPtUtilities_plugins_TrackListCombiner_h
 
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

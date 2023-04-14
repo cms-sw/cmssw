@@ -1,5 +1,5 @@
-#ifndef OrderedHitTriplet_H
-#define OrderedHitTriplet_H
+#ifndef RecoTracker_PixelSeeding_OrderedHitTriplet_h
+#define RecoTracker_PixelSeeding_OrderedHitTriplet_h
 
 /** \class OrderedHitTriplet 
  * Associate 3 RecHits into hit triplet of InnerHit,MiddleHit,OuterHit

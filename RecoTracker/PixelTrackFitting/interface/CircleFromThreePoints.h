@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelTrackFitting_interface_CircleFromThreePoints_h
-#define RecoPixelVertexing_PixelTrackFitting_interface_CircleFromThreePoints_h
+#ifndef RecoTracker_PixelTrackFitting_CircleFromThreePoints_h
+#define RecoTracker_PixelTrackFitting_CircleFromThreePoints_h
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/Basic2DVector.h"
@@ -56,4 +56,4 @@ private:
   void init(const Vector2D& b, const Vector2D& c, const Vector2D& offset, double precision);
 };
 
-#endif  // RecoPixelVertexing_PixelTrackFitting_interface_CircleFromThreePoints_h
+#endif  // RecoTracker_PixelTrackFitting_CircleFromThreePoints_h

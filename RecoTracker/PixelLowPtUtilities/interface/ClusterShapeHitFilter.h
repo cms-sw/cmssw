@@ -1,5 +1,5 @@
-#ifndef _ClusterShapeHitFilter_h_
-#define _ClusterShapeHitFilter_h_
+#ifndef RecoTracker_PixelLowPtUtilities_ClusterShapeHitFilter_h
+#define RecoTracker_PixelLowPtUtilities_ClusterShapeHitFilter_h
 
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 

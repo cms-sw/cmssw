@@ -1,5 +1,5 @@
-#ifndef PixelFitterByConformalMappingAndLine_H
-#define PixelFitterByConformalMappingAndLine_H
+#ifndef RecoTracker_PixelTrackFitting_PixelFitterByConformalMappingAndLine_h
+#define RecoTracker_PixelTrackFitting_PixelFitterByConformalMappingAndLine_h
 
 #include "RecoTracker/PixelTrackFitting/interface/PixelFitterBase.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"

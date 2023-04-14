@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelTriplets_HitTripletEDProducerT_H
-#define RecoPixelVertexing_PixelTriplets_HitTripletEDProducerT_H
+#ifndef RecoTracker_PixelSeeding_HitTripletEDProducerT_h
+#define RecoTracker_PixelSeeding_HitTripletEDProducerT_h
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"

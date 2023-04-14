@@ -1,5 +1,5 @@
-#ifndef PixelTripletNoTipGenerator_H
-#define PixelTripletNoTipGenerator_H
+#ifndef RecoTracker_PixelSeeding_plugins_PixelTripletNoTipGenerator_h
+#define RecoTracker_PixelSeeding_plugins_PixelTripletNoTipGenerator_h
 
 #include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"

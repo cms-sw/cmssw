@@ -1,5 +1,5 @@
-#ifndef _PixelTripletLowPtGenerator_h_
-#define _PixelTripletLowPtGenerator_h_
+#ifndef RecoTracker_PixelLowPtUtilities_PixelTripletLowPtGenerator_h
+#define RecoTracker_PixelLowPtUtilities_PixelTripletLowPtGenerator_h
 
 /** A HitTripletGenerator from HitPairGenerator and vector of
     Layers. The HitPairGenerator provides a set of hit pairs.

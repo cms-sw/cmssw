@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelTriplets_plugins_CAHitNtupletGeneratorOnGPU_h
-#define RecoPixelVertexing_PixelTriplets_plugins_CAHitNtupletGeneratorOnGPU_h
+#ifndef RecoTracker_PixelSeeding_plugins_CAHitNtupletGeneratorOnGPU_h
+#define RecoTracker_PixelSeeding_plugins_CAHitNtupletGeneratorOnGPU_h
 
 #include <cuda_runtime.h>
 
@@ -79,4 +79,4 @@ private:
   Counters* m_counters = nullptr;
 };
 
-#endif  // RecoPixelVertexing_PixelTriplets_plugins_CAHitNtupletGeneratorOnGPU_h
+#endif  // RecoTracker_PixelSeeding_plugins_CAHitNtupletGeneratorOnGPU_h

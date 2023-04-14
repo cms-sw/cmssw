@@ -1,5 +1,5 @@
-#ifndef PixelVertexProducerClusters_H
-#define PixelVertexProducerClusters_H
+#ifndef RecoTracker_PixelLowPtUtilities_plugins_PixelVertexProducerClusters_h
+#define RecoTracker_PixelLowPtUtilities_plugins_PixelVertexProducerClusters_h
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"

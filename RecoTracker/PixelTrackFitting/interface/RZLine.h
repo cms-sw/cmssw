@@ -1,5 +1,5 @@
-#ifndef PixelTrackFitting_RZLine_H
-#define PixelTrackFitting_RZLine_H
+#ifndef RecoTracker_PixelTrackFitting_RZLine_h
+#define RecoTracker_PixelTrackFitting_RZLine_h
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"

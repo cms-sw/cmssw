@@ -1,5 +1,5 @@
-#ifndef _ClusterShapeTrajectoryFilter_h_
-#define _ClusterShapeTrajectoryFilter_h_
+#ifndef RecoTracker_PixelLowPtUtilities_ClusterShapeTrajectoryFilter_h
+#define RecoTracker_PixelLowPtUtilities_ClusterShapeTrajectoryFilter_h
 
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"

@@ -1,5 +1,5 @@
-#ifndef _Cluster1DCleaner_H_
-#define _Cluster1DCleaner_H_
+#ifndef RecoTracker_PixelVertexFinding_Cluster1DCleaner_h
+#define RecoTracker_PixelVertexFinding_Cluster1DCleaner_h
 
 #include "CommonTools/Clustering1D/interface/Cluster1D.h"
 

@@ -1,5 +1,5 @@
-#ifndef ThirdHitPredictionFromInvParabola_H
-#define ThirdHitPredictionFromInvParabola_H
+#ifndef RecoTracker_PixelSeeding_plugins_ThirdHitPredictionFromInvParabola_h
+#define RecoTracker_PixelSeeding_plugins_ThirdHitPredictionFromInvParabola_h
 
 /** Check phi compatibility of a hit with a track
     constrained by a hit pair and TrackingRegion kinematical constraints.

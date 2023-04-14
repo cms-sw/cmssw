@@ -1,5 +1,5 @@
-#ifndef PixelTrackFitting_PixelTrackCleaner_H
-#define PixelTrackFitting_PixelTrackCleaner_H
+#ifndef RecoTracker_PixelTrackFitting_PixelTrackCleaner_h
+#define RecoTracker_PixelTrackFitting_PixelTrackCleaner_h
 
 /**
 class PixelTrackCleaner:

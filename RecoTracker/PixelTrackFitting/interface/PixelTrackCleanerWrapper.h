@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelTrackFitting_PixelTrackCleanerWrapper_H
-#define RecoPixelVertexing_PixelTrackFitting_PixelTrackCleanerWrapper_H
+#ifndef RecoTracker_PixelTrackFitting_PixelTrackCleanerWrapper_h
+#define RecoTracker_PixelTrackFitting_PixelTrackCleanerWrapper_h
 
 #include "RecoTracker/PixelTrackFitting/interface/PixelTrackCleaner.h"
 #include "RecoTracker/PixelTrackFitting/interface/TracksWithHits.h"

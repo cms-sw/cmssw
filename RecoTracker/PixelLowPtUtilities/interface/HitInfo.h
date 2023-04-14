@@ -1,5 +1,5 @@
-#ifndef _HitInfo_h_
-#define _HitInfo_h_
+#ifndef RecoTracker_PixelLowPtUtilities_HitInfo_h
+#define RecoTracker_PixelLowPtUtilities_HitInfo_h
 
 class DetId;
 class TrackingRecHit;

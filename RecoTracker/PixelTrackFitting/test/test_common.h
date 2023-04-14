@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing__PixelTrackFitting__test_common_h
-#define RecoPixelVertexing__PixelTrackFitting__test_common_h
+#ifndef RecoTracker_PixelTrackFitting_test_test_common_h
+#define RecoTracker_PixelTrackFitting_test_test_common_h
 
 #include <algorithm>
 #include <cassert>

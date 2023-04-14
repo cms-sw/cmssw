@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelTrackFitting_PixelTrackReconstruction_H
-#define RecoPixelVertexing_PixelTrackFitting_PixelTrackReconstruction_H
+#ifndef RecoTracker_PixelTrackFitting_PixelTrackReconstruction_h
+#define RecoTracker_PixelTrackFitting_PixelTrackReconstruction_h
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"

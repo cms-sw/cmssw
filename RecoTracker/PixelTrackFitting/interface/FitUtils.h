@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelTrackFitting_interface_FitUtils_h
-#define RecoPixelVertexing_PixelTrackFitting_interface_FitUtils_h
+#ifndef RecoTracker_PixelTrackFitting_FitUtils_h
+#define RecoTracker_PixelTrackFitting_FitUtils_h
 
 #include "DataFormats/Math/interface/choleskyInversion.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
@@ -240,4 +240,4 @@ namespace riemannFit {
 
 }  // namespace riemannFit
 
-#endif  // RecoPixelVertexing_PixelTrackFitting_interface_FitUtils_h
+#endif  // RecoTracker_PixelTrackFitting_FitUtils_h

@@ -1,5 +1,5 @@
-#ifndef PixelTrackFitting_PixelTrackCleanerBySharedHits_H
-#define PixelTrackFitting_PixelTrackCleanerBySharedHits_H
+#ifndef RecoTracker_PixelTrackFitting_PixelTrackCleanerBySharedHits_h
+#define RecoTracker_PixelTrackFitting_PixelTrackCleanerBySharedHits_h
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

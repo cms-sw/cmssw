@@ -1,5 +1,5 @@
-#ifndef ThirdHitPredictionFromCircle_H
-#define ThirdHitPredictionFromCircle_H
+#ifndef RecoTracker_PixelSeeding_ThirdHitPredictionFromCircle_h
+#define RecoTracker_PixelSeeding_ThirdHitPredictionFromCircle_h
 
 #include "DataFormats/GeometryVector/interface/Basic2DVector.h"
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"

@@ -1,5 +1,5 @@
-#ifndef PixelFitterByHelixProjections_H
-#define PixelFitterByHelixProjections_H
+#ifndef RecoTracker_PixelTrackFitting_PixelFitterByHelixProjections_h
+#define RecoTracker_PixelTrackFitting_PixelFitterByHelixProjections_h
 
 #include "RecoTracker/PixelTrackFitting/interface/PixelFitterBase.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"

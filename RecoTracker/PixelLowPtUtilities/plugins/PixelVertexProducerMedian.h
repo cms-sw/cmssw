@@ -1,5 +1,5 @@
-#ifndef PixelVertexProducerMedian_H
-#define PixelVertexProducerMedian_H
+#ifndef RecoTracker_PixelLowPtUtilities_plugins_PixelVertexProducerMedian_h
+#define RecoTracker_PixelLowPtUtilities_plugins_PixelVertexProducerMedian_h
 
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

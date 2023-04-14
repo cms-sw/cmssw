@@ -1,5 +1,5 @@
-#ifndef HitTripletGenerator_H
-#define HitTripletGenerator_H
+#ifndef RecoTracker_PixelSeeding_HitTripletGenerator_h
+#define RecoTracker_PixelSeeding_HitTripletGenerator_h
 
 /** abstract interface for generators of hit triplets pairs
  *  compatible with a TrackingRegion.

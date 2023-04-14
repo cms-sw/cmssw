@@ -1,5 +1,5 @@
-#ifndef _LowPtClusterShapeSeedComparitor_h_
-#define _LowPtClusterShapeSeedComparitor_h_
+#ifndef RecoTracker_PixelLowPtUtilities_LowPtClusterShapeSeedComparitor_h
+#define RecoTracker_PixelLowPtUtilities_LowPtClusterShapeSeedComparitor_h
 
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
 #include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"

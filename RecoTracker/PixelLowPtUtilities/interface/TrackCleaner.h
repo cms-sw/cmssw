@@ -1,5 +1,5 @@
-#ifndef _TrackCleaner_h_
-#define _TrackCleaner_h_
+#ifndef RecoTracker_PixelLowPtUtilities_TrackCleaner_h
+#define RecoTracker_PixelLowPtUtilities_TrackCleaner_h
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

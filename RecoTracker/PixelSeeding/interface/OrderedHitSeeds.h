@@ -1,5 +1,5 @@
-#ifndef OrderedHitSeeds_H
-#define OrderedHitSeeds_H
+#ifndef RecoTracker_PixelSeeding_OrderedHitSeeds_h
+#define RecoTracker_PixelSeeding_OrderedHitSeeds_h
 
 #include <vector>
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"

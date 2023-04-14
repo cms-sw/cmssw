@@ -1,5 +1,5 @@
-#ifndef RECOPIXELVERTEXING_PIXELTRIPLETS_CAHITQUADRUPLETGENERATOR_H
-#define RECOPIXELVERTEXING_PIXELTRIPLETS_CAHITQUADRUPLETGENERATOR_H
+#ifndef RecoTracker_PixelSeeding_CAHitQuadrupletGenerator_h
+#define RecoTracker_PixelSeeding_CAHitQuadrupletGenerator_h
 
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitorFactory.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"

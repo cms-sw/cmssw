@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelTriplets_plugins_HelixFitOnGPU_h
-#define RecoPixelVertexing_PixelTriplets_plugins_HelixFitOnGPU_h
+#ifndef RecoTracker_PixelSeeding_plugins_HelixFitOnGPU_h
+#define RecoTracker_PixelSeeding_plugins_HelixFitOnGPU_h
 
 #include "CUDADataFormats/Track/interface/PixelTrackUtilities.h"
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHitsUtilities.h"
@@ -81,4 +81,4 @@ private:
   const bool fitNas4_;
 };
 
-#endif  // RecoPixelVertexing_PixelTriplets_plugins_HelixFitOnGPU_h
+#endif  // RecoTracker_PixelSeeding_plugins_HelixFitOnGPU_h

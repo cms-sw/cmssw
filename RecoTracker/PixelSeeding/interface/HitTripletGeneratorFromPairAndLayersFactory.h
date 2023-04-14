@@ -1,5 +1,5 @@
-#ifndef PixelTriplets_HitTripletGeneratorFromPairAndLayersFactory_H
-#define PixelTriplets_HitTripletGeneratorFromPairAndLayersFactory_H
+#ifndef RecoTracker_PixelSeeding_HitTripletGeneratorFromPairAndLayersFactory_h
+#define RecoTracker_PixelSeeding_HitTripletGeneratorFromPairAndLayersFactory_h
 
 #include "RecoTracker/PixelSeeding/interface/HitTripletGeneratorFromPairAndLayers.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"

@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_PixelTriplets_interface_CAGraph_h
-#define RecoPixelVertexing_PixelTriplets_interface_CAGraph_h
+#ifndef RecoTracker_PixelSeeding_CAGraph_h
+#define RecoTracker_PixelSeeding_CAGraph_h
 
 #include <array>
 #include <string>
@@ -61,4 +61,4 @@ struct CAGraph {
   std::vector<int> theRootLayers;
 };
 
-#endif  // RecoPixelVertexing_PixelTriplets_interface_CAGraph_h
+#endif  // RecoTracker_PixelSeeding_CAGraph_h

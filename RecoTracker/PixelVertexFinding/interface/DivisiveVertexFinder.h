@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexing_DivisiveVertexFinder_h
-#define RecoPixelVertexing_DivisiveVertexFinder_h
+#ifndef RecoTracker_PixelVertexFinding_DivisiveVertexFinder_h
+#define RecoTracker_PixelVertexFinding_DivisiveVertexFinder_h
 /** \class DivisiveVertexFinder DivisiveVertexFinder.h RecoTracker/PixelVertexFinding/interface/DivisiveVertexFinder.h 
 
  Description: Fits a primary vertex in 1D (z) using the "divisive method"

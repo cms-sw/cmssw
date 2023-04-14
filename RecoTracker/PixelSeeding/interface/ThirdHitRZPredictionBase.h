@@ -1,5 +1,5 @@
-#ifndef ThirdHitRZPredictionBase_H
-#define ThirdHitRZPredictionBase_H
+#ifndef RecoTracker_PixelSeeding_ThirdHitRZPredictionBase_h
+#define RecoTracker_PixelSeeding_ThirdHitRZPredictionBase_h
 
 /** predicts a range in r-z for the position of third hit.
  *  The is the base class with common code, the actual implementation

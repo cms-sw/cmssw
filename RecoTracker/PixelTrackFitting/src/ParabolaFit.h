@@ -1,5 +1,5 @@
-#ifndef ParabolaFit_H
-#define ParabolaFit_H
+#ifndef RecoTracker_PixelTrackFitting_src_ParabolaFit_h
+#define RecoTracker_PixelTrackFitting_src_ParabolaFit_h
 
 #include <vector>
 

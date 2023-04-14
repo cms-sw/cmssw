@@ -1,5 +1,5 @@
-#ifndef RecoPixelVertexingPixelTripletsCircleEq_H
-#define RecoPixelVertexingPixelTripletsCircleEq_H
+#ifndef RecoTracker_PixelSeeding_CircleEq_h
+#define RecoTracker_PixelSeeding_CircleEq_h
 /**
 | 1) circle is parameterized as:                                              |
 |    C*[(X-Xp)**2+(Y-Yp)**2] - 2*alpha*(X-Xp) - 2*beta*(Y-Yp) = 0             |

@@ -1,5 +1,5 @@
-#ifndef KFBasedPixelFitter_H
-#define KFBasedPixelFitter_H
+#ifndef RecoTracker_PixelTrackFitting_KFBasedPixelFitter_h
+#define RecoTracker_PixelTrackFitting_KFBasedPixelFitter_h
 
 #include "RecoTracker/PixelTrackFitting/interface/PixelFitterBase.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
