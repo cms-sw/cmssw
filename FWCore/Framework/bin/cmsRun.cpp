@@ -292,12 +292,15 @@ int main(int argc, char* argv[]) {
       {
         if(not setNThreadsOnCommandLine) {
           std::shared_ptr<edm::ParameterSet> pset = processDesc->getProcessPSet();
-          if(pset->existsAs<edm::ParameterSet>("options",false)) {
+          // Note: it is important to not check the type or trackedness in
+          // exists() call to ensure that the getUntrackedParameter() calls
+          // will fail if the parameters have an incorrect type
+          if(pset->exists("options")) {
             auto const& ops = pset->getUntrackedParameterSet("options");
-            if(ops.existsAs<unsigned int>("numberOfThreads",false)) {
+            if(ops.exists("numberOfThreads")) {
               unsigned int nThreads = ops.getUntrackedParameter<unsigned int>("numberOfThreads");
               unsigned int stackSize=kDefaultSizeOfStackForThreadsInKB;
-              if(ops.existsAs<unsigned int>("sizeOfStackForThreadsInKB",false)) {
+              if(ops.exists("sizeOfStackForThreadsInKB")) {
                 stackSize = ops.getUntrackedParameter<unsigned int>("sizeOfStackForThreadsInKB");
               }
               const auto nThreadsUsed = setNThreads(nThreads,stackSize,tsiPtr);
@@ -312,7 +315,7 @@ int main(int argc, char* argv[]) {
           //inject it into the top level ParameterSet
           edm::ParameterSet newOp;
           std::shared_ptr<edm::ParameterSet> pset = processDesc->getProcessPSet();
-          if(pset->existsAs<edm::ParameterSet>("options",false)) {
+          if(pset->exists("options")) {
             newOp = pset->getUntrackedParameterSet("options");
           }
           newOp.addUntrackedParameter<unsigned int>("numberOfThreads",nThreadsOnCommandLine);

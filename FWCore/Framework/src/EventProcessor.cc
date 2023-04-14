@@ -417,7 +417,7 @@ namespace edm {
     forceESCacheClearOnNewRun_ = optionsPset.getUntrackedParameter<bool>("forceEventSetupCacheClearOnNewRun", false);
     //threading
     unsigned int nThreads=1;
-    if(optionsPset.existsAs<unsigned int>("numberOfThreads",false)) {
+    if(optionsPset.exists("numberOfThreads")) {
       nThreads = optionsPset.getUntrackedParameter<unsigned int>("numberOfThreads");
       if(nThreads == 0) {
         nThreads = 1;
@@ -427,7 +427,7 @@ namespace edm {
     unsigned int nStreams =nThreads;
      */
     unsigned int nStreams =1;
-    if(optionsPset.existsAs<unsigned int>("numberOfStreams",false)) {
+    if(optionsPset.exists("numberOfStreams")) {
       nStreams = optionsPset.getUntrackedParameter<unsigned int>("numberOfStreams");
       if(nStreams==0) {
         nStreams = nThreads;
