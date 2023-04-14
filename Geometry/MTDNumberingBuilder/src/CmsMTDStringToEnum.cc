@@ -4,6 +4,8 @@ const CmsMTDStringToEnum::Impl CmsMTDStringToEnum::m_impl;
 
 CmsMTDStringToEnum::Impl::Impl() {
   map_.emplace("FastTimerRegion", GeometricTimingDet::MTD);
+  map_.emplace("FastTimerRegionBTL", GeometricTimingDet::MTD);
+  map_.emplace("FastTimerRegionETL", GeometricTimingDet::MTD);
   map_.emplace("BarrelTimingLayer", GeometricTimingDet::BTL);
   map_.emplace("Layer1", GeometricTimingDet::BTLLayer);
   map_.emplace("Layer1Timing", GeometricTimingDet::BTLLayer);

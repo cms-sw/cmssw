@@ -80,6 +80,20 @@ public:
   }
   int getCastorHitPID() const { return castorHitPID_; }
 
+  // methods for MTD info management
+  //
+  inline void setFromTtoBTL() { mtdStatus_ |= 1 << 0; }  // 1st bit
+  inline bool isFromTtoBTL() const { return (mtdStatus_ >> 0) & 1; }
+  inline void setFromBTLtoT() { mtdStatus_ |= 1 << 1; }  // 2nd bit
+  inline bool isFromBTLtoT() const { return (mtdStatus_ >> 1) & 1; }
+  inline void setBTLdaughter() { mtdStatus_ |= 1 << 2; }  // 3rd bit
+  inline bool isBTLdaughter() const { return (mtdStatus_ >> 2) & 1; }
+  inline void setBTLlooper() { mtdStatus_ |= 1 << 3; }  // 4th bit
+  inline bool isBTLlooper() const { return (mtdStatus_ >> 3) & 1; }
+
+  int idAtBTLentrance() const { return idAtBTLentrance_; }
+  void setIdAtBTLentrance(int id) { idAtBTLentrance_ = id; }
+
   void Print() const override;
 
 private:
@@ -105,6 +119,9 @@ private:
   bool hasCastorHit_;
   int castorHitPID_;
 
+  uint8_t mtdStatus_;
+  int idAtBTLentrance_;
+
   // Restrict construction to friends
   TrackInformation()
       : G4VUserTrackInformation(),
@@ -126,7 +143,9 @@ private:
         genParticleP_(0),
         caloSurfaceParticleP_(0),
         hasCastorHit_(false),
-        castorHitPID_(0) {}
+        castorHitPID_(0),
+        mtdStatus_(0),
+        idAtBTLentrance_(0) {}
   friend class NewTrackAction;
 };
 

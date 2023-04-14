@@ -1,3 +1,4 @@
+//#define EDM_ML_DEBUG
 
 #include "SimG4Core/Notification/interface/NewTrackAction.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
@@ -51,6 +52,8 @@ void NewTrackAction::addUserInfoToSecondary(G4Track *aTrack, const TrackInformat
                                 motherInfo.getIDLastVolume(),
                                 aTrack->GetDefinition()->GetPDGEncoding(),
                                 aTrack->GetMomentum().mag());
+    LogDebug("SimG4CoreApplication") << "NewTrackAction: Id on calo surface " << trkInfo->getIDonCaloSurface()
+                                     << " to be stored " << trkInfo->storeTrack();
   } else {
     // transfer calo ID from mother (to be checked in TrackingAction)
     trkInfo->setIDonCaloSurface(motherInfo.getIDonCaloSurface(),
@@ -58,11 +61,32 @@ void NewTrackAction::addUserInfoToSecondary(G4Track *aTrack, const TrackInformat
                                 motherInfo.getIDLastVolume(),
                                 motherInfo.caloSurfaceParticlePID(),
                                 motherInfo.caloSurfaceParticleP());
+    LogDebug("SimG4CoreApplication") << "NewTrackAction: Id on calo surface " << trkInfo->getIDonCaloSurface();
   }
 
   if (motherInfo.hasCastorHit()) {
     trkInfo->setCastorHitPID(motherInfo.getCastorHitPID());
   }
 
+  // manage ID of tracks in BTL to map them to SimTracks to be stored
+  if (isInBTL(aTrack)) {
+    if ((motherInfo.storeTrack() && motherInfo.isFromTtoBTL()) || motherInfo.isBTLdaughter()) {
+      trkInfo->setBTLdaughter();
+      trkInfo->setIdAtBTLentrance(motherInfo.idAtBTLentrance());
+      LogDebug("SimG4CoreApplication") << "NewTrackAction: secondary in BTL " << trkInfo->isBTLdaughter()
+                                       << " from mother ID " << trkInfo->idAtBTLentrance();
+    }
+  }
+
   aTrack->SetUserInformation(trkInfo);
+}
+
+bool NewTrackAction::isInBTL(const G4Track *aTrack) const {
+  bool out = false;
+  G4String tName(aTrack->GetVolume()->GetLogicalVolume()->GetRegion()->GetName());
+  if (tName == "FastTimerRegionBTL" || tName == "FastTimerRegionSensBTL") {
+    out = true;
+  }
+
+  return out;
 }

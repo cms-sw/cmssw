@@ -1,3 +1,5 @@
+//#define EDM_ML_DEBUG
+
 // -*- C++ -*-
 //
 // Package:     Application
@@ -120,7 +122,7 @@ void SimTrackManager::storeTracks(G4SimEvent* simEvent) {
 void SimTrackManager::reallyStoreTracks(G4SimEvent* simEvent) {
   // loop over the (now ordered) vector and really save the tracks
 #ifdef DebugLog
-  edm::LogVerbatim("SimTrackManager") << "reallyStoreTracks() NtracksWithHistory= " << m_trackContainer->size();
+  edm::LogVerbatim("SimTrackManager") << "reallyStoreTracks() NtracksWithHistory= " << m_trackContainer.size();
 #endif
 
   int nn = m_endPoints.size();
@@ -301,7 +303,7 @@ void SimTrackManager::cleanTracksWithHistory() {
   std::stable_sort(idsave.begin(), idsave.end());
 
 #ifdef DebugLog
-  LogDebug("SimTrackManager") << " SimTrackManager::cleanTracksWithHistory knows " << m_trksForThisEvent->size()
+  LogDebug("SimTrackManager") << " SimTrackManager::cleanTracksWithHistory knows " << m_trackContainer.size()
                               << " tracks with history before branching";
   for (unsigned int it = 0; it < m_trackContainer.size(); it++) {
     LogDebug("SimTrackManager") << " 1 - Track in position " << it << " G4 track number "
