@@ -426,3 +426,8 @@
 <test name="testFWCoreFrameworkConditionalTask_testView_testAlias_aliasWithStar" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_conditionaltasks_cfg.py -- --testView --testAlias --aliasWithStar"/>
 <test name="testFWCoreFrameworkConditionalTask_testConsumesMany" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_conditionaltasks_cfg.py -- --testConsumesMany"/>
 <test name="testFWCoreFrameworkModuleSynchLumiBoundary" command="run_module_synch_lumiboundary.sh"/>
+
+<test name="testFWCoreFrameworkOptionsNumberOfThreadsType" command="cmsRun ${LOCALTOP}/src/FWCore/Framework/test/test_wrongOptionsType_cfg.py -- --name=numberOfThreads --value='cms.untracked.uint32(1)'"/>
+<test name="testFWCoreFrameworkWrongOptionsNumberOfThreadsType" command="run_wrongOptionsType.sh numberOfThreads 'cms.untracked.int32(1)'"/>
+<test name="testFWCoreFrameworkWrongOptionsNumberOfStreamsType" command="run_wrongOptionsType.sh numberOfStreams 'cms.untracked.int32(1)'"/>
+<test name="testFWCoreFrameworkWrongOptionssizeOfStackForThreadsInKBType" command="run_wrongOptionsType.sh sizeOfStackForThreadsInKB 'cms.untracked.int32(1024)'"/>
