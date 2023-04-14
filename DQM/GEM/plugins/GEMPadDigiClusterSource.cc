@@ -71,8 +71,9 @@ void GEMPadDigiClusterSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Ru
   //mapPadDiffPerEtaCh_=MEMap4Inf(this, "occ", "Pad Digi Difference", 81,  -40 - 0.5, 40 + 0.5, "Pad Digi Difference");
   
   
-  mapPadBXDiffPerEtaCh_=MEMap4Inf(this,"delta_pad","Pad difference vs time difference",19,  -8- 0.5, 8 + 0.5, 13,  -6 - 0.5, 6 + 0.5, "Delta Pads","Delta BX");
-  
+  mapPadBXDiffPerEtaCh_=MEMap4Inf(this,"delta_pad","Pad difference vs time difference",17,  -8- 0.5, 8 + 0.5, 15,  -7 - 0.5, 7 + 0.5, "Delta Pads","Delta BX");
+  mapBXMidPerCh_= MEMap4Inf(this, "bx", "Median of Pad Bunch Crossing", 16 , -0.5, 15.5, "Bunch crossing");
+
   mapPadDigiOccPerCh_ = MEMap4Inf(this, "occ", "Pad Digi Occupancy", 1, -0.5, 1.5, 1, 0.5, 1.5, "Pads", "iEta");
   mapPadBxPerCh_ = MEMap4Inf(this, "bx", "GEM Pads Hits in Time", 1536, 0.5, 1536.5, 15, -0.5, 15 - 0.5, "Pads", "Time Bins");
   mapPadCLSPerCh_= MEMap4Inf(this, "cls", "Cluster size of Pad Digi", nCLSMax_, 0.5, nCLSMax_ + 0.5, 1, 0.5, 1.5, "Cluster size", "iEta");
@@ -205,6 +206,9 @@ int GEMPadDigiClusterSource::ProcessWithMEMap3WithChamber(BookingHelper& bh, ME4
   mapPadBXDiffPerEtaCh_.bookND(bh,key);
   bh.getBooker()->setCurrentFolder(strFolderMain_);
 
+  bh.getBooker()->setCurrentFolder(strFolderMain_+"/BX_median" + getNameDirLayer(key3));
+  mapBXMidPerCh_.bookND(bh,key);
+  bh.getBooker()->setCurrentFolder(strFolderMain_);
   return 0;
 }
 // sort first column
@@ -220,6 +224,10 @@ void GEMPadDigiClusterSource::analyze(edm::Event const& event, edm::EventSetup c
   event.getByToken(lumiScalers_, lumiScalers);
 
   std::vector<std::vector<int>> cl_bx;
+  
+  std::vector<std::vector<int>> pad_bx_diff;
+  std::vector<std::vector<int>> bx_cluster;
+
   //std::vector<uint16_t> cl;
   int startChamber = 0;
   int startStation = 0;
@@ -236,10 +244,10 @@ void GEMPadDigiClusterSource::analyze(edm::Event const& event, edm::EventSetup c
         // ignore data clusters in BX's other than BX0
        // if (usegemPadDigiClustersOnlyInBX0_ and cluster->bx() != 0)
        //   continue;
-        std::cout << "Cluster front: " << cluster->pads().front() << " , Cluster size:  "<< cluster->pads().size() 
+      /*  std::cout << "Cluster front: " << cluster->pads().front() << " , Cluster size:  "<< cluster->pads().size() 
         << " , Cluster BX: " <<  cluster->bx() << " , Cluster station: " << ((*it).first).station()
         << " , Cluster chamber: " << ((*it).first).chamber() << " , Cluster layer: " << ((*it).first).layer()
-        << " , Cluster eta: " << ((*it).first).roll()<< std::endl;
+        << " , Cluster eta: " << ((*it).first).roll()<< std::endl;*/
         ME4IdsKey key4Ch{((*it).first).region(), ((*it).first).station(), ((*it).first).layer(), ((*it).first).chamber()};
         ME4IdsKey key4EtaCh{((*it).first).region(), ((*it).first).station(),((*it).first).roll(),((*it).first).chamber()};
         ME3IdsKey key3Ch{((*it).first).region(), ((*it).first).station(),((*it).first).chamber()};  
@@ -247,55 +255,39 @@ void GEMPadDigiClusterSource::analyze(edm::Event const& event, edm::EventSetup c
         for (auto pad=cluster->pads().front(); pad < (cluster->pads().front() + cluster->pads().size()); pad++  ) {
           mapPadDigiOccPerCh_.Fill(key4Ch, pad , ((*it).first).roll());
           mapPadBxPerCh_.Fill(key4Ch, pad + (192 * (8 - ((*it).first).roll())), cluster->bx());
-         std::cout << "pad: "<< pad << "  BX: "<< cluster->bx() <<"  chamber: "<< ((*it).first).chamber() << "  layer: "<< ((*it).first).layer()<<" Eta: "<< ((*it).first).roll()<<std::endl;  
-        for (unsigned i = 0; i < cl_bx.size(); i++) {
-                for (unsigned j = 0; j < cl_bx[i].size(); j++){
-                        cout << cl_bx[i][j] << " "<<"and ";
-                                                  }
-                    cout << endl;
-                      } 
+      //   std::cout << "pad: "<< pad << "  BX: "<< cluster->bx() <<"  chamber: "<< ((*it).first).chamber() << "  layer: "<< ((*it).first).layer()<<" Eta: "<< ((*it).first).roll()<<std::endl;  
+      
         if(cl_bx.empty()){
           cl_bx.push_back({pad,cluster->bx()});
-           for (unsigned i = 0; i < cl_bx.size(); i++) {
-                for (unsigned j = 0; j < cl_bx[i].size(); j++){
-                        cout << cl_bx[i][j] << " "<<" or ";
-                                                  }
-                    cout << endl;
-                      } 
+       
         }else {
           if((pad - cl_bx[0].front()== -1 || pad - cl_bx[cl_bx.size() - 1].front()==1) &&
-                 ((*it).first).chamber()== startChamber &&
-                 ((*it).first).station()== startStation &&
-                 ((*it).first).region() == startRegion &&
-                 ((*it).first).layer() == startLayer &&
-                 ((*it).first).roll() == startEta ) {
-                 cl_bx.push_back({pad,cluster->bx()});
-                  for (unsigned i = 0; i < cl_bx.size(); i++) {
-                for (unsigned j = 0; j < cl_bx[i].size(); j++){
-                        cout << cl_bx[i][j] << " "<<"new list ";
-                                                  }
-                    cout << endl;
-                      }      
-                 sort(cl_bx.begin(), cl_bx.end(), sortcol);
-          }else {
-             for (unsigned i = 0; i < cl_bx.size(); i++) {
-                for (unsigned j = 0; j < cl_bx[i].size(); j++){
-                        cout << cl_bx[i][j] << " ";
-                                                  }
-                    cout << endl;
-                      } 
-           /*int avg_bx = cl_bx[floor((cl_bx.size()-1)/2)].front();
-            int avg_pad = cl_bx[floor((cl_bx.size()-1)/2)].back();
+             ((*it).first).chamber()== startChamber &&
+             ((*it).first).station()== startStation &&
+             ((*it).first).region() == startRegion &&
+             ((*it).first).layer() == startLayer &&
+             ((*it).first).roll() == startEta ) {
+             cl_bx.push_back({pad,cluster->bx()});
+             sort(cl_bx.begin(), cl_bx.end(), sortcol);
+          } else {
+            
+            int avg_pad = cl_bx[floor((cl_bx.size()-1)/2)].front();
+            int avg_bx = cl_bx[floor((cl_bx.size()-1)/2)].back();
             for(unsigned i=0;i<cl_bx.size();i++){
              // std::cout <<  <<std::endl;
-              mapPadBXDiffPerEtaCh_.Fill(key4Ch, cl_bx[i][0]- avg_pad, cl_bx[i][1]-avg_bx); 
-            }*/
-                
+              pad_bx_diff.push_back({cl_bx[i][0]- avg_pad, cl_bx[i][1]-avg_bx,((*it).first).region(), ((*it).first).station(), ((*it).first).layer(), ((*it).first).chamber()});
+               
+            }
+            if(cl_bx.size()==1){
+              bx_cluster.push_back({cl_bx[0][1],((*it).first).region(), ((*it).first).station(), ((*it).first).layer(), ((*it).first).chamber()});
+            }else if(cl_bx.size()==2){
+              bx_cluster.push_back({ min(cl_bx[0][1],cl_bx[1][1]),((*it).first).region(), ((*it).first).station(), ((*it).first).layer(), ((*it).first).chamber()});
+            }else if(cl_bx.size()>2){
+              bx_cluster.push_back({cl_bx[floor((cl_bx.size()-1)/2)].back(),((*it).first).region(), ((*it).first).station(), ((*it).first).layer(), ((*it).first).chamber()});
+            }
             cl_bx.clear();
-            cl_bx.push_back({pad,cluster->bx()}); 
-            
-          
-        }
+            cl_bx.push_back({pad,cluster->bx()});     
+         }
         }
              
         
@@ -358,27 +350,42 @@ void GEMPadDigiClusterSource::analyze(edm::Event const& event, edm::EventSetup c
         //std::cout << "Cluster Size:"<< cluster->pads().size() << "  Eta:"<< ((*it).first).roll()  <<std::endl;
         
       }
-    }
-
-
-  
+    }  
 }
-if(gemPadDigiClusters->begin() != gemPadDigiClusters->end()){
-  auto it = gemPadDigiClusters->begin();
-  ME4IdsKey key4Ch{((*it).first).region(), ((*it).first).station(), ((*it).first).layer(), ((*it).first).chamber()};
- /* for (unsigned i = 0; i < cl_bx.size(); i++){
-            for (unsigned j = 0; j < cl_bx[i].size(); j++){
-        cout << cl_bx[i][j] << " ";
+  if(gemPadDigiClusters->begin() != gemPadDigiClusters->end()){
+    auto it = gemPadDigiClusters->begin();
+
+    int avg_pad = cl_bx[floor((cl_bx.size()-1)/2)].front();
+    int avg_bx = cl_bx[floor((cl_bx.size()-1)/2)].back();
+    for(unsigned i=0;i<cl_bx.size();i++){
+            
+      pad_bx_diff.push_back({cl_bx[i][0]- avg_pad, cl_bx[i][1]-avg_bx,((*it).first).region(), ((*it).first).station(), ((*it).first).layer(), ((*it).first).chamber()});
+    
+      }
+    if(cl_bx.size()==1){
+      bx_cluster.push_back({cl_bx[0][1],((*it).first).region(), ((*it).first).station(), ((*it).first).layer(), ((*it).first).chamber()});
+    }else if(cl_bx.size()==2){
+      bx_cluster.push_back({min(cl_bx[0][1],cl_bx[1][1]),((*it).first).region(), ((*it).first).station(), ((*it).first).layer(), ((*it).first).chamber()});
+    }else if(cl_bx.size()>2){
+      bx_cluster.push_back({cl_bx[floor((cl_bx.size()-1)/2)].back(),((*it).first).region(), ((*it).first).station(), ((*it).first).layer(), ((*it).first).chamber()});
+    }  
+  }
+  //std::cout << pad_bx_diff.size() <<std::endl;
+  for(unsigned i=0;i<pad_bx_diff.size();i++){
+    ME4IdsKey key4Ch{pad_bx_diff[i][2], pad_bx_diff[i][3],pad_bx_diff[i][4], pad_bx_diff[i][5]};
+    mapPadBXDiffPerEtaCh_.Fill(key4Ch, pad_bx_diff[i][0], pad_bx_diff[i][1]); 
+  }
+
+  for(unsigned i=0;i<bx_cluster.size();i++){
+    ME4IdsKey key4Ch{bx_cluster[i][1], bx_cluster[i][2],bx_cluster[i][3], bx_cluster[i][4]};
+    mapBXMidPerCh_.Fill(key4Ch, bx_cluster[i][0]); 
+  }
+ /* for (unsigned i = 0; i < pad_bx_diff.size(); i++){
+            for (unsigned j = 0; j < pad_bx_diff[i].size(); j++){
+        cout << pad_bx_diff[i][j] << " ";
                    }
       cout << endl;
                   }*/
-  int avg_bx = cl_bx[floor((cl_bx.size()-1)/2)].front();
-  int avg_pad = cl_bx[floor((cl_bx.size()-1)/2)].back();
-  for(unsigned i=0;i<cl_bx.size();i++){
-             // std::cout <<  <<std::endl;
-    mapPadBXDiffPerEtaCh_.Fill(key4Ch, cl_bx[i][0]- avg_pad, cl_bx[i][1]-avg_bx); 
-    }
-}
 }
 /*
   std::map<ME3IdsKey, Int_t> total_digi_layer;

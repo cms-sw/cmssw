@@ -73,6 +73,7 @@ private:
   MEMap4Inf mapPadBxPerCh_ ;
   MEMap4Inf mapPadCLSPerCh_;
   MEMap4Inf mapPadDiffPerEtaCh_;
+  MEMap4Inf mapBXMidPerCh_;
   std::string strFolderMain_;
 
   Int_t nBXMin_, nBXMax_;
