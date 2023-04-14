@@ -4,14 +4,14 @@
 
 #include "FWCore/Utilities/interface/HostDeviceConstant.h"
 
-// constants used to encode difference between corrected cc time and noncorrected cc time 
+// constants used to encode difference between corrected cc time and noncorrected cc time
 // into a uInt8 value to be stored in the 8 bits set aside for the jitter error ( previously unused )
 namespace ecalcctiming {
-	static constexpr const float clockToNS = 25.0;				// Convert clock units to ns
-    static constexpr const float nonCorrectedSlope = 1.2;	    // estimates nonCorreted time from corrected time
-    static constexpr const float encodingOffest = 0.32;			// offsets difference in time using clock units
-    static constexpr const float encodingValue = 398.4375;		// encodes time difference into 0 - 255 int range
-} // namespace ecalcctiming
+  static constexpr const float clockToNS = 25.0;          // Convert clock units to ns
+  static constexpr const float nonCorrectedSlope = 1.2;   // estimates nonCorreted time from corrected time
+  static constexpr const float encodingOffest = 0.32;     // offsets difference in time using clock units
+  static constexpr const float encodingValue = 398.4375;  // encodes time difference into 0 - 255 int range
+}  // namespace ecalcctiming
 
 // The HOST_DEVICE_CONSTANTs can not reside in the classes directly, which is
 // why they are defined in a namespace and constant pointers to them are used in the classes
