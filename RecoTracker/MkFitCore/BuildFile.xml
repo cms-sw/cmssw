@@ -1,8 +1,8 @@
 <use name="rootsmatrix"/>
 <use name="json"/>
 <use name="tbb"/>
+<use name="ofast-flag"/>
 <flags CXXFLAGS="-fopenmp-simd"/>
-<flags CXXFLAGS="-ffast-math"/>
 <flags ADD_SUBDIR="1"/>
 <export>
   <lib name="RecoTrackerMkFitCore"/>
