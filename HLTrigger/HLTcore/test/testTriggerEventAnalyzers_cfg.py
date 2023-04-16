@@ -6,7 +6,7 @@ options = VarParsing.VarParsing('analysis')
 options.register('logLevel', 'WARNING', options.multiplicity.singleton, options.varType.string, 'value of MessageLogger.cerr.threshold')
 options.register('globalTag', '125X_mcRun3_2022_realistic_v3', options.multiplicity.singleton, options.varType.string, 'name of GlobalTag')
 options.setDefault('inputFiles', [
-  '/store/relval/CMSSW_12_6_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/125X_mcRun3_2022_realistic_v3-v1/2580000/2d96539c-b321-401f-b7b2-51884a5d421f.root',
+  '/store/mc/CMSSW_13_0_0_pre2/RelValWToLNu_14TeV/GEN-SIM-DIGI-RAW/125X_mcRun3_2022_realistic_v5-v2/80000/155dc2cf-2b77-4797-883c-c22d6c065d59.root',
 ])
 options.setDefault('maxEvents', 10)
 options.parseArguments()
