@@ -9,6 +9,12 @@
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "FWCore/Utilities/interface/CMSUnrollLoop.h"
 
+/* 
+FIXME: this version of prefix scan is not fully updated 
+w.r.t. to the CUDA one, that uses a single kernel. 
+See: https://github.com/cms-sw/cmssw/blob/dca2f3286ff7aa67b6e4021c17698ec31a400e47/HeterogeneousCore/CUDAUtilities/interface/prefixScan.h
+*/
+
 namespace cms {
   namespace alpakatools {
 
@@ -224,5 +230,23 @@ namespace cms {
 
   }  // namespace alpakatools
 }  // namespace cms
+
+// declare the amount of block shared memory used by the multiBlockPrefixScanSecondStep kernel
+namespace alpaka::trait {
+  template <typename TAcc, typename T>
+  struct BlockSharedMemDynSizeBytes<cms::alpakatools::multiBlockPrefixScanSecondStep<T>, TAcc> {
+    template <typename TVec>
+    ALPAKA_FN_HOST_ACC static std::size_t getBlockSharedMemDynSizeBytes(
+        cms::alpakatools::multiBlockPrefixScanSecondStep<T> const& /* kernel */,
+        TVec const& /* blockThreadExtent */,
+        TVec const& /* threadElemExtent */,
+        T const* /* ci */,
+        T* /* co */,
+        int32_t /* size */,
+        int32_t numBlocks) {
+      return sizeof(T) * numBlocks;
+    }
+  };
+}
 
 #endif  // HeterogeneousCore_AlpakaInterface_interface_prefixScan_h

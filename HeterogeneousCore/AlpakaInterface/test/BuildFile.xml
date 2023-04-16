@@ -30,14 +30,12 @@
   <use name="alpaka"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <flags ALPAKA_BACKENDS="1"/> 
-  <!-- TODO have to understand why this test for serial does not work -->
 </bin>
 
 <bin name="alpakaTestOneHistoContainer" file="alpaka/testOneHistoContainer.dev.cc">
   <use name="alpaka"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>
   <flags ALPAKA_BACKENDS="1"/>
-  <!-- TODO have to understand why this test for serial does not work -->
 </bin>
 
 <bin name="alpakaTestOneToManyAssoc" file="alpaka/testOneToManyAssoc.dev.cc">
