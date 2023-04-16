@@ -1,5 +1,5 @@
-#ifndef HeterogeneousCore_AlpakaUtilities_interface_SimpleVector_h
-#define HeterogeneousCore_AlpakaUtilities_interface_SimpleVector_h
+#ifndef HeterogeneousCore_AlpakaInterface_interface_SimpleVector_h
+#define HeterogeneousCore_AlpakaInterface_interface_SimpleVector_h
 
 //  author: Felice Pantaleo, CERN, 2018
 //  alpaka integration in cmssw: Adriano Di Florio, 2022
