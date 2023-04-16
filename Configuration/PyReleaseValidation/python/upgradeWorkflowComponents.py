@@ -704,11 +704,14 @@ upgradeWFs['photonDRN'].step3 = {
 }
 
 
-# Patatrack workflows:
+# Patatrack workflows (NoPU):
 #   - 2018 conditions, TTbar
-#   - 2018 conditions, Z->mumu,
-#   - 2021 conditions, TTbar
-#   - 2021 conditions, Z->mumu,
+#   - 2018 conditions, Z->mumu
+#   - 2022 conditions (labelled "2021"), TTbar
+#   - 2022 conditions (labelled "2021"), Z->mumu
+#   - 2023 conditions, TTbar
+#   - 2023 conditions, Z->mumu
+#   - 2026D88 conditions, TTbar
 class PatatrackWorkflow(UpgradeWorkflow):
     def __init__(self, digi = {}, reco = {}, harvest = {}, **kwargs):
         # adapt the parameters for the UpgradeWorkflow init method
@@ -743,8 +746,10 @@ class PatatrackWorkflow(UpgradeWorkflow):
         selected = [
             ('2018' in key and fragment == "TTbar_13"),
             ('2021' in key and fragment == "TTbar_14TeV" and 'FS' not in key),
+            ('2023' in key and fragment == "TTbar_14TeV" and 'FS' not in key),
             ('2018' in key and fragment == "ZMM_13"),
             ('2021' in key and fragment == "ZMM_14" and 'FS' not in key),
+            ('2023' in key and fragment == "ZMM_14" and 'FS' not in key),
             ('2026D88' in key and fragment == "TTbar_14TeV" and "PixelOnly" in self.suffix)
         ]
         result = any(selected) and hasHarvest
