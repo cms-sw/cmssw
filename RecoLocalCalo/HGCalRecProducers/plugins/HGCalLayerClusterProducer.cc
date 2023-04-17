@@ -57,47 +57,74 @@ public:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  edm::EDGetTokenT<HGCRecHitCollection> hits_token;
+  edm::EDGetTokenT<HGCRecHitCollection> hits_token_;
 
-  reco::CaloCluster::AlgoId algoId;
+  reco::CaloCluster::AlgoId algoId_;
 
-  std::unique_ptr<HGCalClusteringAlgoBase> algo;
-  std::string detector;
+  std::unique_ptr<HGCalClusteringAlgoBase> algo_;
+  std::string detector_;
 
-  std::string timeClname;
-  unsigned int nHitsTime;
+  std::string timeClname_;
+  unsigned int hitsTime_;
+
+  // for calculate position
+  std::vector<double> thresholdW0_;
+  double positionDeltaRho2_;
 
   /**
    * @brief Sets algoId accordingly to the detector type
   */
   void setAlgoId();
+
+  /**
+   * @brief Counts position for all points in the cluster
+   * 
+   * @param[in] hitmap hitmap to find correct RecHit
+   * @param[in] hitsAndFraction all hits in the cluster
+   * @return counted position
+  */
+  math::XYZPoint countPosition(std::unordered_map<uint32_t, const HGCRecHit*> &hitmap, 
+                               const std::vector<std::pair<DetId, float> >& hitsAndFractions);
+
+  /**
+   * @brief Counts time for all points in the cluster
+   * 
+   * @param[in] hitmap hitmap to find correct RecHit only for silicon (not for BH-HSci)
+   * @param[in] hitsAndFraction all hits in the cluster
+   * @return counted time
+  */                            
+  std::pair<float, float> countTime(std::unordered_map<uint32_t, const HGCRecHit*> &hitmap,
+                                    const std::vector<std::pair<DetId, float> >& hitsAndFractions,
+                                    size_t sizeCluster);
 };
 
 DEFINE_FWK_MODULE(HGCalLayerClusterProducer);
 
 HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet& ps)
-    : algoId(reco::CaloCluster::undefined),
-      detector(ps.getParameter<std::string>("detector")),  // one of EE, FH, BH, HFNose
-      timeClname(ps.getParameter<std::string>("timeClname")),
-      nHitsTime(ps.getParameter<unsigned int>("nHitsTime")) {
+    : algoId_(reco::CaloCluster::undefined),
+      detector_(ps.getParameter<std::string>("detector")),  // one of EE, FH, BH, HFNose
+      timeClname_(ps.getParameter<std::string>("timeClname")),
+      hitsTime_(ps.getParameter<unsigned int>("nHitsTime")) {
 
   setAlgoId(); //sets algo id according to detector type
-  hits_token = consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("recHits"));
+  hits_token_ = consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("recHits"));
 
   auto pluginPSet = ps.getParameter<edm::ParameterSet>("plugin");
-  if (detector == "HFNose") {
-    algo = HGCalLayerClusterAlgoFactory::get()->create("HFNoseCLUE", pluginPSet, consumesCollector());
-    algo->setAlgoId(algoId, true);
+  if (detector_ == "HFNose") {
+    algo_ = HGCalLayerClusterAlgoFactory::get()->create("HFNoseCLUE", pluginPSet, consumesCollector());
+    algo_->setAlgoId(algoId_, true);
   } else {
-    algo = HGCalLayerClusterAlgoFactory::get()->create(
+    algo_ = HGCalLayerClusterAlgoFactory::get()->create(
         pluginPSet.getParameter<std::string>("type"), pluginPSet, consumesCollector());
-    algo->setAlgoId(algoId);
+    algo_->setAlgoId(algoId_);
   }
+  thresholdW0_ = pluginPSet.getParameter<std::vector<double>>("thresholdW0");
+  positionDeltaRho2_ = pluginPSet.getParameter<double>("positionDeltaRho2");
 
   produces<std::vector<float>>("InitialLayerClustersMask");
   produces<std::vector<reco::BasicCluster>>();
   //time for layer clusters
-  produces<edm::ValueMap<std::pair<float, float>>>(timeClname);
+  produces<edm::ValueMap<std::pair<float, float>>>(timeClname_);
 }
 
 void HGCalLayerClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -115,51 +142,75 @@ void HGCalLayerClusterProducer::fillDescriptions(edm::ConfigurationDescriptions&
   descriptions.add("hgcalLayerClusters", desc);
 }
 
-void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
-  edm::Handle<HGCRecHitCollection> hits;
+math::XYZPoint HGCalLayerClusterProducer::countPosition(std::unordered_map<uint32_t, const HGCRecHit*> &hitmap, 
+                                                        const std::vector<std::pair<DetId, float> >& hitsAndFractions){
+  float total_weight = 0.f; 
+  float maxEnergyValue = 0.f;
+  DetId maxEnergyIndex;
+  float x = 0.f;
+  float y = 0.f;
 
-  std::unique_ptr<std::vector<reco::BasicCluster>> clusters(new std::vector<reco::BasicCluster>);
-
-  algo->getEventSetup(es);
-
-  //make a map detid-rechit
-  // NB for the moment just host EE and FH hits
-  // timing in digi for BH not implemented for now
-  std::unordered_map<uint32_t, const HGCRecHit*> hitmap;
-
-  evt.getByToken(hits_token, hits);
-  algo->populate(*hits);
-  if (detector != "BH") {
-    for (auto const& it : *hits)
-      hitmap[it.detid().rawId()] = &(it);
+  for (auto const& hit : hitsAndFractions) {
+    //time is computed wrt  0-25ns + offset and set to -1 if no time
+    const HGCRecHit* rechit = hitmap[hit.first];
+    total_weight += rechit->energy(); 
+    if (rechit->energy() > maxEnergyValue) {
+      maxEnergyValue = rechit->energy();
+      maxEnergyIndex = rechit->detid();
+    }
   }
-  algo->makeClusters();
-  *clusters = algo->getClusters(false);
-  auto clusterHandle = evt.put(std::move(clusters));
+  float total_weight_log = 0.f;
+  hgcal::RecHitTools rhtools = algo_->getRecHits();
+  auto thick = rhtools.getSiThickIndex(maxEnergyIndex);
+  for (auto const& hit : hitsAndFractions) {
+    //time is computed wrt  0-25ns + offset and set to -1 if no time
+    const HGCRecHit* rechit = hitmap[hit.first];
 
-  edm::PtrVector<reco::BasicCluster> clusterPtrs;
+    const GlobalPoint position(rhtools.getPosition(rechit->detid()));
 
-  std::vector<std::pair<float, float>> times;
-  times.reserve(clusterHandle->size());
+    if (thick != -1){ //silicon
+      const GlobalPoint positionMaxEnergy(rhtools.getPosition(maxEnergyIndex));
+      //for silicon only just use 1+6 cells = 1.3cm for all thicknesses
+      const float d1 = position.x() - positionMaxEnergy.x();
+      const float d2 = position.y() - positionMaxEnergy.y();
+      if ((d1 * d1 + d2 * d2) > positionDeltaRho2_)
+        continue;
+      
+      float Wi = std::max(thresholdW0_[thick]  + std::log(rechit->energy() / total_weight), 0.);
+      x += position.x() * Wi;
+      y += position.y() * Wi;
+      total_weight_log += Wi;
+    }
+    else{ //scintillator
+      x += position.x() * rechit->energy();
+      y += position.y() * rechit->energy();
+    }
+  }
+  if(thick != -1){
+    total_weight = total_weight_log;
+  }
+  if (total_weight != 0.) {
+    float inv_tot_weight = 1.f / total_weight;
+    return math::XYZPoint(x * inv_tot_weight, y * inv_tot_weight, rhtools.getPosition(maxEnergyIndex).z());
+  } else{
+    return math::XYZPoint(0.f, 0.f, 0.f);
+  }
+}
 
-  for (unsigned i = 0; i < clusterHandle->size(); ++i) {
-    edm::Ptr<reco::BasicCluster> ptr(clusterHandle, i);
-    clusterPtrs.push_back(ptr);
+std::pair<float, float> HGCalLayerClusterProducer::countTime(std::unordered_map<uint32_t, const HGCRecHit*> &hitmap,
+                                                            const std::vector<std::pair<DetId, float> >& hitsAndFractions,
+                                                            size_t sizeCluster){
+  std::pair<float, float> timeCl(-99., -1.);
 
-    std::pair<float, float> timeCl(-99., -1.);
-
-    const reco::CaloCluster& sCl = (*clusterHandle)[i];
-    if (sCl.size() >= nHitsTime) {
+  if (sizeCluster >= hitsTime_) {
       std::vector<float> timeClhits;
       std::vector<float> timeErrorClhits;
 
-      for (auto const& hit : sCl.hitsAndFractions()) {
-        auto finder = hitmap.find(hit.first);
-        if (finder == hitmap.end())
-          continue;
+      for (auto const& hit : hitsAndFractions) {
 
         //time is computed wrt  0-25ns + offset and set to -1 if no time
-        const HGCRecHit* rechit = finder->second;
+        const HGCRecHit* rechit = hitmap[hit.first];
+
         float rhTimeE = rechit->timeError();
         //check on timeError to exclude scintillator
         if (rhTimeE < 0.)
@@ -168,11 +219,50 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
         timeErrorClhits.push_back(1. / (rhTimeE * rhTimeE));
       }
       hgcalsimclustertime::ComputeClusterTime timeEstimator;
-      timeCl = timeEstimator.fixSizeHighestDensity(timeClhits, timeErrorClhits, nHitsTime);
-    }
-    times.push_back(timeCl);
+      timeCl = timeEstimator.fixSizeHighestDensity(timeClhits, timeErrorClhits, hitsTime_);
   }
-  if (detector == "HFNose"){
+  return timeCl;
+
+}
+void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
+  edm::Handle<HGCRecHitCollection> hits;
+
+  std::unique_ptr<std::vector<reco::BasicCluster>> clusters(new std::vector<reco::BasicCluster>);
+
+  algo_->getEventSetup(es);
+
+  //make a map detid-rechit
+  // NB for the moment just host EE and FH hits
+  // timing in digi for BH not implemented for now
+  std::unordered_map<uint32_t, const HGCRecHit*> hitmap;
+
+  evt.getByToken(hits_token_, hits);
+  algo_->populate(*hits);
+  for (auto const& it : *hits){
+    hitmap[it.detid().rawId()] = &(it);
+  }
+  
+  algo_->makeClusters();
+  *clusters = algo_->getClusters(false); 
+
+  std::vector<std::pair<float, float>> times;
+  times.reserve(clusters->size());
+
+  for (unsigned i = 0; i < clusters->size(); ++i) {
+    const reco::CaloCluster& sCl = (*clusters)[i];
+    (*clusters)[i].setPosition(countPosition(hitmap, sCl.hitsAndFractions()));
+    if (detector_ != "BH"){
+      times.push_back(countTime(hitmap, sCl.hitsAndFractions(), sCl.size() ));
+    }
+    else{
+      times.push_back(std::pair<float, float> (-99., -1.));
+    }
+  }
+
+  auto clusterHandle = evt.put(std::move(clusters));
+
+
+  if (detector_ == "HFNose"){
     std::unique_ptr<std::vector<float>> layerClustersMask(new std::vector<float>);
     layerClustersMask->resize(clusterHandle->size(), 1.0);
     evt.put(std::move(layerClustersMask), "InitialLayerClustersMask");
@@ -182,19 +272,18 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
   edm::ValueMap<std::pair<float, float>>::Filler filler(*timeCl);
   filler.insert(clusterHandle, times.begin(), times.end());
   filler.fill();
-  evt.put(std::move(timeCl), timeClname);
+  evt.put(std::move(timeCl), timeClname_);
 
-  algo->reset();
+  algo_->reset();
 }
 
-// todo or we can make a map but I dont think it is necessary
 void HGCalLayerClusterProducer::setAlgoId(){
-    if (detector == "HFNose") {
-      algoId = reco::CaloCluster::hfnose;
-    }  else if (detector == "EE") {
-      algoId = reco::CaloCluster::hgcal_em;
+    if (detector_ == "HFNose") {
+      algoId_ = reco::CaloCluster::hfnose;
+    }  else if (detector_ == "EE") {
+      algoId_ = reco::CaloCluster::hgcal_em;
     } else { //for FH or BH
-     algoId = reco::CaloCluster::hgcal_had;
+     algoId_ = reco::CaloCluster::hgcal_had;
     }
 }
 #endif  //__RecoLocalCalo_HGCRecProducers_HGCalLayerClusterProducer_H__
