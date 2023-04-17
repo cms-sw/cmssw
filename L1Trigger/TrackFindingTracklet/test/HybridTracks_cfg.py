@@ -32,7 +32,7 @@ process.load('L1Trigger.TrackTrigger.TrackTrigger_cff')
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 Source_Files = cms.untracked.vstring(
-"/store/relval/CMSSW_12_6_0_pre4/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_125X_mcRun4_realistic_v2_2026D88PU200-v1/2590000/00b3d04b-4c7b-4506-8d82-9538fb21ee19.root"
+"/store/mc/CMSSW_12_6_0/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_125X_mcRun4_realistic_v5_2026D88PU200RV183v2-v1/30000/0959f326-3f52-48d8-9fcf-65fc41de4e27.root"
 )
 process.source = cms.Source("PoolSource", fileNames = Source_Files)
 
