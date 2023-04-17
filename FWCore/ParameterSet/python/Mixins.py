@@ -85,6 +85,11 @@ class _ParameterTypeBase(object):
         self._isFrozen = True
     def isCompatibleCMSType(self,aType):
         return isinstance(self,aType)
+    def _returnTypeWithValue(self, valueWithType):
+        if isinstance(valueWithType, type(self)):
+            return valueWithType
+        raise TypeError("Attempted to assign type {from_} to type {to}".format(from_ = str(type(valueWithType)), to = str(type(self))) )
+
  
 class _SimpleParameterTypeBase(_ParameterTypeBase):
     """base class for parameter classes which only hold a single value"""
@@ -277,7 +282,7 @@ class _Parameterizable(object):
         else:
             # handle the case where users just replace with a value, a = 12, rather than a = cms.int32(12)
             if isinstance(value,_ParameterTypeBase):
-                self.__dict__[name] = value
+                self.__dict__[name] = self.__dict__[name]._returnTypeWithValue(value)
             else:
                 self.__dict__[name].setValue(value)
             self._isModified = True
@@ -938,5 +943,19 @@ if __name__ == "__main__":
             self.assertEqual(reg.getSpecialImports(), ["import foo"])
             reg.registerUse("a")
             self.assertEqual(reg.getSpecialImports(), ["import bar", "import foo"])
+        def testInvalidTypeChange(self):
+            class __Test(_TypedParameterizable):
+                pass
+            class __TestTypeA(_SimpleParameterTypeBase):
+                def _isValid(self,value):
+                    return True
+            class __TestTypeB(_SimpleParameterTypeBase):
+                def _isValid(self,value):
+                    return True
+                pass
+            a = __Test("MyType",
+                       t=__TestTypeA(1))
+            self.assertRaises(TypeError, lambda : setattr(a,'t',__TestTypeB(2)))
+
 
     unittest.main()

@@ -45,6 +45,20 @@ class _ProxyParameter(_ParameterTypeBase):
         if not _ParameterTypeBase.isTracked(self):
             v = untracked(v)
         self.__dict__["_ProxyParameter__value"] = v
+    def _returnTypeWithValue(self, valueWithType):
+        if isinstance(valueWithType, type(self)):
+            return valueWithType
+        if isinstance(self.__type, type):
+            if isinstance(valueWithType, self.__type):
+                self.__dict__["_ProxyParameter__value"] = valueWithType
+                return self
+            else:
+                raise TypeError("type {bad} does not match {expected}".format(bad=str(type(valueWithType)), expected = str(self.__type)))
+        v = self.__type._setValueWithType(valueWithType)
+        if not _ParameterTypeBase.isTracked(self):
+            v = untracked(v)
+        self.__dict__["_ProxyParameter__value"] = v
+        return self
     def __getattr__(self, name):
         v =self.__dict__.get('_ProxyParameter__value', None)
         if name == '_ProxyParameter__value':
@@ -163,7 +177,7 @@ class _AllowedParameterTypes(object):
         for t in self.__types:
             if isinstance(valueWithType, t):
                 return valueWithType
-        raise TypeError("type {bad} is not one of 'allowed' types {types}".format(bad=str(type(valueWithType)), types = ",".join( (str(t) for t in self__types))) )
+        raise TypeError("type {bad} is not one of 'allowed' types {types}".format(bad=str(type(valueWithType)), types = ",".join( (str(t) for t in self.__types))) )
             
 
 
@@ -1945,6 +1959,8 @@ if __name__ == "__main__":
             p1.foo = dict(a=5)
             self.assertEqual(p1.dumpPython(),'cms.PSet(\n    foo = cms.PSet(\n        a = cms.int32(5)\n    ),\n    allowAnyLabel_=cms.required.PSetTemplate(\n        a = cms.required.int32\n    )\n)')
             self.assertEqual(p1.foo.a.value(), 5)
+            p1 = PSet(anInt = required.int32)
+            self.assertRaises(TypeError, lambda : setattr(p1,'anInt', uint32(2)))
 
         def testOptional(self):
             p1 = PSet(anInt = optional.int32)
@@ -1996,6 +2012,9 @@ if __name__ == "__main__":
             p1.foo = dict(a=5)
             self.assertEqual(p1.dumpPython(),'cms.PSet(\n    foo = cms.PSet(\n        a = cms.int32(5)\n    ),\n    allowAnyLabel_=cms.optional.PSetTemplate(\n        a = cms.optional.int32\n    )\n)')
             self.assertEqual(p1.foo.a.value(), 5)
+            #check wrong type failure
+            p1 = PSet(anInt = optional.int32)
+            self.assertRaises(TypeError, lambda : setattr(p1,'anInt', uint32(2)))
 
 
         def testAllowed(self):
@@ -2062,6 +2081,10 @@ if __name__ == "__main__":
             self.assertEqual(p3.aValue.value(), -42)
             p3 = PSet(aValue=optional.untracked.allowed(int32,uint32))
             self.assertRaises(RuntimeError, lambda: setattr(p3, "aValue", 42))
+
+            p1 = PSet(aValue = required.allowed(int32, string))
+            self.assertRaises(TypeError, lambda : setattr(p1,'aValue', uint32(2)))
+
 
         def testVPSet(self):
             p1 = VPSet(PSet(anInt = int32(1)), PSet(anInt=int32(2)))
