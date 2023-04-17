@@ -218,12 +218,16 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
     auto partn = hgcons_->waferTypeRotation(hid1.layer(), hid1.waferU(), hid1.waferV(), false, false);
     int indx = HGCalWaferIndex::waferIndex(layer, hid1.waferU(), hid1.waferV());
     double phi = std::atan2(hitPoint.y(), hitPoint.x());
-    edm::LogVerbatim(pid) << "CheckID " << HGCSiliconDetId(id) << " Layer:Module:Cell:ModuleLev " << layer << ":" << module << ":" << cell << ":" << moduleLev << " SimWt:history " << useSimWt_ << ":" << touch->GetHistoryDepth() << ":" << levelT1_ << ":" << levelT2_<< " input position: (" << hitPoint.x() / CLHEP::cm
-                          << ", " << hitPoint.y() / CLHEP::cm << ":" << convertRadToDeg(phi) << "); position from ID (" << xx << ", " << xy.second
-                          << ") distance " << dx << ":" << dy << ":" << diff << " Valid " << valid1 << " Wafer type|rotation " << partn.first
-                          << ":" << partn.second << " Part:Orient:Cassette " << std::get<1>(hgcons_->waferFileInfo(indx)) << ":"
-			  << std::get<2>(hgcons_->waferFileInfo(indx)) << ":" << std::get<3>(hgcons_->waferFileInfo(indx)) << " CassetteShift " << cshift;
-    xy = hgcons_->locateCell(hid1,true);
+    edm::LogVerbatim(pid) << "CheckID " << HGCSiliconDetId(id) << " Layer:Module:Cell:ModuleLev " << layer << ":"
+                          << module << ":" << cell << ":" << moduleLev << " SimWt:history " << useSimWt_ << ":"
+                          << touch->GetHistoryDepth() << ":" << levelT1_ << ":" << levelT2_ << " input position: ("
+                          << hitPoint.x() / CLHEP::cm << ", " << hitPoint.y() / CLHEP::cm << ":" << convertRadToDeg(phi)
+                          << "); position from ID (" << xx << ", " << xy.second << ") distance " << dx << ":" << dy
+                          << ":" << diff << " Valid " << valid1 << " Wafer type|rotation " << partn.first << ":"
+                          << partn.second << " Part:Orient:Cassette " << std::get<1>(hgcons_->waferFileInfo(indx))
+                          << ":" << std::get<2>(hgcons_->waferFileInfo(indx)) << ":"
+                          << std::get<3>(hgcons_->waferFileInfo(indx)) << " CassetteShift " << cshift;
+    xy = hgcons_->locateCell(hid1, true);
     printDetectorLevels(touch);
   }
   return id;

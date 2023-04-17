@@ -759,8 +759,8 @@ std::pair<float, float> HGCalDDDConstants::localToGlobal8(
       edm::LogVerbatim("HGCalGeom") << "Cassette " << (ktr->second).cassette << " Shift " << (invert * cshift.first)
                                     << ":" << cshift.second;
     if (!reco) {
-      x += ((HGCalParameters::k_ScaleToDDD) * invert * cshift.first);
-      y += ((HGCalParameters::k_ScaleToDDD) * cshift.second);
+      x += ((HGCalParameters::k_ScaleToDDD)*invert * cshift.first);
+      y += ((HGCalParameters::k_ScaleToDDD)*cshift.second);
     } else {
       x += (invert * cshift.first);
       y += cshift.second;
@@ -868,8 +868,8 @@ std::pair<float, float> HGCalDDDConstants::locateCell(
         edm::LogVerbatim("HGCalGeom") << "Cassette " << (ktr->second).cassette << " Shift " << (invert * cshift.first)
                                       << ":" << cshift.second;
       if (!reco) {
-        x += ((HGCalParameters::k_ScaleToDDD) * invert * cshift.first);
-        y += ((HGCalParameters::k_ScaleToDDD) * cshift.second);
+        x += ((HGCalParameters::k_ScaleToDDD)*invert * cshift.first);
+        y += ((HGCalParameters::k_ScaleToDDD)*cshift.second);
       } else {
         x += (invert * cshift.first);
         y += cshift.second;
@@ -1465,7 +1465,7 @@ void HGCalDDDConstants::waferFromPosition(const double x,
       int indx = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
       auto ktr = hgpar_->waferInfoMap_.find(indx);
       if (ktr != hgpar_->waferInfoMap_.end()) {
-	int invert = ((layerType(layer) == HGCalTypes::WaferCenter) && (zside > 0)) ? 1 : -1;
+        int invert = ((layerType(layer) == HGCalTypes::WaferCenter) && (zside > 0)) ? 1 : -1;
         auto cshift = hgcassette_.getShift(layer, zside, (ktr->second).cassette);
         if (debug)
           edm::LogVerbatim("HGCalGeom") << "Cassette " << (ktr->second).cassette << " Shift " << (invert * cshift.first)

@@ -218,7 +218,8 @@ uint32_t HGCScintSD::setDetUnitId(const G4Step* aStep) {
   }
   if ((id != 0) && checkID_) {
     HGCScintillatorDetId hid1(id);
-    std::string_view pid = ((hgcons_->cassetteShiftScintillator(hid1.zside(), hid1.layer(), hid1.iphi())) ? "HGCSim" : "HGCalSim");
+    std::string_view pid =
+        ((hgcons_->cassetteShiftScintillator(hid1.zside(), hid1.layer(), hid1.iphi())) ? "HGCSim" : "HGCalSim");
     bool debug = (verbose_ > 0) ? true : false;
     auto xy = hgcons_->locateCell(HGCScintillatorDetId(id), debug);
     double dx = xy.first - (hitPoint.x() / CLHEP::cm);
