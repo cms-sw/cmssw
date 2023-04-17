@@ -61,6 +61,25 @@ class _ProxyParameter(_ParameterTypeBase):
             if not name.startswith('_'):
                  raise AttributeError("%r object has no attribute %r" % (self.__class__.__name__, name))
             return object.__setattr__(self, name, value)
+    #support container like behavior
+    def __iter__(self):
+        v =self.__dict__.get('_ProxyParameter__value', None)
+        if v is not None:
+            return v.__iter__()
+        else:
+            raise TypeError("'_OptionalParameter' object is not iterable")
+    def __setitem__(self, key, value):
+        v =self.__dict__.get('_ProxyParameter__value', None)
+        if v is not None:
+            return v.__setitem__(key,value)
+        else:
+            raise TypeError("'_OptionalParameter' object does not support item assignment")
+    def __getitem__(self, key):
+        v =self.__dict__.get('_ProxyParameter__value', None)
+        if v is not None:
+            return v.__getitem__(key)
+        else:
+            raise TypeError("'_OptionalParameter' object is not subscriptable")
     def __bool__(self):
         v = self.__dict__.get('_ProxyParameter__value',None)
         return _builtin_bool(v)
@@ -140,6 +159,13 @@ class _AllowedParameterTypes(object):
         if chosenType is None:
             raise RuntimeError("Cannot convert "+str(value)+" to 'allowed' type")
         return chosenType(value)
+    def _setValueWithType(self, valueWithType):
+        for t in self.__types:
+            if isinstance(valueWithType, t):
+                return valueWithType
+        raise TypeError("type {bad} is not one of 'allowed' types {types}".format(bad=str(type(valueWithType)), types = ",".join( (str(t) for t in self__types))) )
+            
+
 
 class _PSetTemplate(object):
     def __init__(self, *args, **kargs):
