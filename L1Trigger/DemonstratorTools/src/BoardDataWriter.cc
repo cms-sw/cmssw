@@ -58,9 +58,7 @@ namespace l1t::demo {
                                    const std::map<std::string, ChannelSpec>& channelSpecs)
       : BoardDataWriter(format, path, framesPerBX, tmux, maxFramesPerFile, mergeMaps(channelMap, channelSpecs)) {}
 
-  void BoardDataWriter::setBoardDataFileID(const std::string& aId) {
-    boardDataFileID_ = aId;
-  }
+  void BoardDataWriter::setBoardDataFileID(const std::string& aId) { boardDataFileID_ = aId; }
 
   void BoardDataWriter::addEvent(const EventData& eventData) {
     // Check that data is supplied for each channel
