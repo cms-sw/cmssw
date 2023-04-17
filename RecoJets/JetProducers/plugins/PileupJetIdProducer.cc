@@ -30,6 +30,7 @@ GBRForestsAndConstants::GBRForestsAndConstants(edm::ParameterSet const& iConfig)
       usePuppi_(iConfig.getParameter<bool>("usePuppi")),
       applyConstituentWeight_(false),
       useBugFix_(iConfig.getParameter<bool>("useBugFix")) {
+
   if (residualsFromTxt_) {
     residualsTxt_ = iConfig.getParameter<edm::FileInPath>("residualsTxt");
   }
@@ -42,11 +43,11 @@ GBRForestsAndConstants::GBRForestsAndConstants(edm::ParameterSet const& iConfig)
   if (!runMvas_) {
     assert(algos.size() == 1);
   }
+
   edm::InputTag srcConstituentWeights = iConfig.getParameter<edm::InputTag>("srcConstituentWeights");
   if (!srcConstituentWeights.label().empty()){
     applyConstituentWeight_ = true;
   }
-
 }
 
 // ------------------------------------------------------------------------------------------
@@ -95,6 +96,12 @@ void PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     constituentWeights = iEvent.get(input_constituent_weights_token_);
   }
 
+
+  // Constituent weight (e.g PUPPI) Value Map
+  edm::ValueMap<float> constituentWeights;
+  if (!input_constituent_weights_token_.isUninitialized()) {
+    constituentWeights = iEvent.get(input_constituent_weights_token_);
+  }
 
   // input variables
   Handle<ValueMap<StoredPileupJetIdentifier>> vmap;

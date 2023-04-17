@@ -28,8 +28,13 @@ public:
   PileupJetIdAlgo(AlgoGBRForestsAndConstants const* cache);
   ~PileupJetIdAlgo();
 
-  PileupJetIdentifier computeIdVariables(
-      const reco::Jet* jet, float jec, const reco::Vertex*, const reco::VertexCollection&, double rho, bool usePuppi, edm::ValueMap<float>& constituentWeights, bool applyConstituentWeight, bool useBugFix);
+  PileupJetIdentifier computeIdVariables(const reco::Jet* jet,
+                                         float jec,
+                                         const reco::Vertex*,
+                                         const reco::VertexCollection&,
+                                         double rho,
+                                         edm::ValueMap<float>& constituentWeights,
+                                         bool applyConstituentWeight);
 
   void set(const PileupJetIdentifier&);
   float getMVAval(const std::vector<std::string>&, const std::unique_ptr<const GBRForest>&);
