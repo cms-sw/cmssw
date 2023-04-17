@@ -272,7 +272,9 @@ def AddPileUpJetIDVars(proc, jetName="", jetSrc="", jetTableName="", jetTaskName
       vertexes  = "offlineSlimmedPrimaryVertices",
       inputIsCorrected = True,
       applyJec  = False,
-      srcConstituentWeights = "packedPFCandidatespuppi" if "PUPPI" in jetName.upper() else ""
+      usePuppi = True if "PUPPI" in jetName.upper() else False,
+      srcConstituentWeights = "packedPFCandidatespuppi" if "PUPPI" in jetName.upper() else "",
+      useBugFix = False
     )
   )
   getattr(proc,jetTaskName).add(getattr(proc, puJetIdVarsCalculator))

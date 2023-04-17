@@ -61,7 +61,10 @@ public:
   std::string const& jec() const { return jec_; }
   bool residualsFromTxt() const { return residualsFromTxt_; }
   edm::FileInPath const& residualsTxt() const { return residualsTxt_; }
+  bool usePuppi() const { return usePuppi_; }
   bool applyConstituentWeight() const { return applyConstituentWeight_; }
+  bool useBugFix() const {return useBugFix_; }
+
 
 private:
   std::vector<PileupJetIdAlgo::AlgoGBRForestsAndConstants> vAlgoGBRForestsAndConstants_;
@@ -73,7 +76,9 @@ private:
   std::string jec_;
   bool residualsFromTxt_;
   edm::FileInPath residualsTxt_;
+  bool usePuppi_;
   bool applyConstituentWeight_;
+  bool useBugFix_;
 };
 
 class PileupJetIdProducer : public edm::stream::EDProducer<edm::GlobalCache<GBRForestsAndConstants>> {

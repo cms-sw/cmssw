@@ -82,6 +82,7 @@ private:
   bool fUseExistingWeights;
   bool fApplyPhotonProtectionForExistingWeights;
   bool fClonePackedCands;
+  bool fuseBugFix;
   int fVtxNdofCut;
   double fVtxZCut;
   bool fUsePUProxyValue;
@@ -106,6 +107,7 @@ PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
   fDZCutForChargedFromPUVtxs = iConfig.getParameter<double>("DeltaZCutForChargedFromPUVtxs");
   fUseExistingWeights = iConfig.getParameter<bool>("useExistingWeights");
   fApplyPhotonProtectionForExistingWeights = iConfig.getParameter<bool>("applyPhotonProtectionForExistingWeights");
+  fuseBugFix = iConfig.getParameter<bool>("useBugFix");
   fClonePackedCands = iConfig.getParameter<bool>("clonePackedCands");
   fVtxNdofCut = iConfig.getParameter<int>("vtxNdofCut");
   fVtxZCut = iConfig.getParameter<double>("vtxZCut");
@@ -365,6 +367,11 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
           curpupweight = lPack->puppiWeight();
         }
       }
+      // Protect high pT photons (important for gamma to hadronic recoil balance)
+      if ((fPtMaxPhotons > 0) && (lPack->pdgId() == 22) && (std::abs(lPack->eta()) < fEtaMaxPhotons) &&
+          (lPack->pt() > fPtMaxPhotons) && fuseBugFix)
+        curpupweight = 1;
+
       // Optional: Protect high pT photons (important for gamma to hadronic recoil balance) for existing weights.
       if (fApplyPhotonProtectionForExistingWeights && (fPtMaxPhotons > 0) && (lPack->pdgId() == 22) &&
           (std::abs(lPack->eta()) < fEtaMaxPhotons) && (lPack->pt() > fPtMaxPhotons))
@@ -514,6 +521,7 @@ void PuppiProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<double>("DeltaZCutForChargedFromPUVtxs", 0.2);
   desc.add<bool>("useExistingWeights", false);
   desc.add<bool>("applyPhotonProtectionForExistingWeights", false);
+  desc.add<bool>("useBugFix",false);
   desc.add<bool>("clonePackedCands", false);
   desc.add<int>("vtxNdofCut", 4);
   desc.add<double>("vtxZCut", 24);
