@@ -422,9 +422,9 @@ class Process(object):
         if not name.replace('_','').isalnum():
             raise ValueError('The label '+name+' contains forbiden characters')
 
-        if name == 'options':
+        if name == 'options' and hasattr(self,name):
             value = self.__updateOptions(value)
-        if name == 'maxEvents':
+        if name == 'maxEvents' and hasattr(self,name):
             value = self.__updateMaxEvents(value)
 
         # private variable exempt from all this
