@@ -53,7 +53,7 @@ namespace mkfit {
                                  int end);
 
     void inputTracksForFit(const std::vector<Track>& tracks, int beg, int end);
-    void fitTracksWithInterSlurp(const std::vector<HitVec>& layersohits, int N_proc);
+    void fitTracksWithInterSlurp(const std::vector<HitVec>& layersohits, const PropagationFlags &pflags, int N_proc);
 
     void outputTracks(std::vector<Track>& tracks, int beg, int end, int iCP) const;
 

@@ -1,4 +1,5 @@
 #include "FWCore/Utilities/interface/CMSUnrollLoop.h"
+#include "RecoTracker/MkFitCore/interface/PropagationConfig.h"
 
 #include "MaterialEffects.h"
 #include "PropagationMPlex.h"
@@ -477,7 +478,7 @@ namespace mkfit {
                                 MPlexLL& errorProp,
                                 MPlexQI& outFailFlag,
                                 const int N_proc,
-                                const PropagationFlags pflags) {
+                                const PropagationFlags &pflags) {
     errorProp.setVal(0.f);
     outFailFlag.setVal(0.f);
 
@@ -492,7 +493,7 @@ namespace mkfit {
                               MPlexLV& outPar,
                               MPlexQI& outFailFlag,
                               const int N_proc,
-                              const PropagationFlags pflags,
+                              const PropagationFlags &pflags,
                               const MPlexQI* noMatEffPtr) {
     // bool debug = true;
 
@@ -533,6 +534,10 @@ namespace mkfit {
       MPlexQF hitsRl;
       MPlexQF hitsXi;
       MPlexQF propSign;
+
+      // const TrackerInfo &tinfo = *pflags.tracker_info;
+      // Use TrackerInfo for material access ...
+
 #pragma omp simd
       for (int n = 0; n < NN; ++n) {
         if (n >= N_proc || (outFailFlag(n, 0, 0) || (noMatEffPtr && noMatEffPtr->constAt(n, 0, 0)))) {
@@ -599,7 +604,7 @@ namespace mkfit {
                               MPlexLV& outPar,
                               MPlexQI& outFailFlag,
                               const int N_proc,
-                              const PropagationFlags pflags,
+                              const PropagationFlags &pflags,
                               const MPlexQI* noMatEffPtr) {
     // debug = true;
 
@@ -636,6 +641,9 @@ namespace mkfit {
       MPlexQF hitsRl;
       MPlexQF hitsXi;
       MPlexQF propSign;
+
+      // const TrackerInfo &tinfo = *pflags.tracker_info;
+      // Use TrackerInfo for material access ...
 #pragma omp simd
       for (int n = 0; n < NN; ++n) {
         if (n >= N_proc || (noMatEffPtr && noMatEffPtr->constAt(n, 0, 0))) {
@@ -712,7 +720,7 @@ namespace mkfit {
                 MPlexLL& errorProp,
                 MPlexQI& outFailFlag,
                 const int N_proc,
-                const PropagationFlags pflags) {
+                const PropagationFlags &pflags) {
     errorProp.setVal(0.f);
 
 #pragma omp simd
