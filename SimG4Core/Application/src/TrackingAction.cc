@@ -41,7 +41,7 @@ void TrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
   trkInfo_ = static_cast<TrackInformation*>(aTrack->GetUserInformation());
 
   // Always save primaries
-  // Decays from primaries are marked as primaries (see NewTrackAction), but are not saved by
+  // Decays from primaries are marked as primaries, but are not saved by
   // default. The primary is the earliest ancestor, and it must be saved.
   if (trkInfo_->isPrimary()) {
     trackManager_->cleanTracksWithHistory();
