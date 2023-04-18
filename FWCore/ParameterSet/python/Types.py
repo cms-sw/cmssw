@@ -40,6 +40,8 @@ class _ProxyParameter(_ParameterTypeBase):
         super(_ProxyParameter,self).__init__()
         self.__dict__["_ProxyParameter__type"] = type
         self.__dict__["_ProxyParameter__value"] = None
+        if hasattr(self.__type,"_default") and self.__type._default is not None:
+            self.setValue(self.__type._default)
     def setValue(self, value):
         v = self.__type(value)
         if not _ParameterTypeBase.isTracked(self):
@@ -81,19 +83,19 @@ class _ProxyParameter(_ParameterTypeBase):
         if v is not None:
             return v.__iter__()
         else:
-            raise TypeError("'_OptionalParameter' object is not iterable")
+            raise TypeError("'_ProxyParameter' object is not iterable")
     def __setitem__(self, key, value):
         v =self.__dict__.get('_ProxyParameter__value', None)
         if v is not None:
             return v.__setitem__(key,value)
         else:
-            raise TypeError("'_OptionalParameter' object does not support item assignment")
+            raise TypeError("'_ProxyParameter' object does not support item assignment")
     def __getitem__(self, key):
         v =self.__dict__.get('_ProxyParameter__value', None)
         if v is not None:
             return v.__getitem__(key)
         else:
-            raise TypeError("'_OptionalParameter' object is not subscriptable")
+            raise TypeError("'_ProxyParameter' object is not subscriptable")
     def __bool__(self):
         v = self.__dict__.get('_ProxyParameter__value',None)
         return _builtin_bool(v)
@@ -151,14 +153,13 @@ class _ObsoleteParameter(_OptionalParameter):
         return 'obsolete'
 
 class _AllowedParameterTypes(object):
-    def __init__(self, *args):
+    def __init__(self, *args, **kargs):
         self.__dict__['_AllowedParameterTypes__types'] = args
-        self.__dict__['_AllowedParameterTypes__value'] = None
+        self.__dict__['_default'] = None
         self.__dict__['__name__'] = self.dumpPython()
+        if len(kargs):
+            self.__dict__['_default'] = self._setValueWithType(kargs['default'])
     def dumpPython(self, options=PrintOptions()):
-        v =self.__dict__.get('_ProxyParameter__value',None)
-        if v is not None:
-            return v.dumpPython(options)
         specialImportRegistry.registerUse(self)
         return "allowed("+','.join( ("cms."+t.__name__ for t in self.__types))+')'
     def __call__(self,value):
@@ -210,10 +211,10 @@ class _ProxyParameterFactory(object):
                 def __init__(self, untracked, type):
                     self.untracked = untracked
                     self.type = type
-                def __call__(self, *args):
+                def __call__(self, *args, **kargs):
                     if self.untracked:
-                        return untracked(self.type(_AllowedParameterTypes(*args)))
-                    return self.type(_AllowedParameterTypes(*args))
+                        return untracked(self.type(_AllowedParameterTypes(*args, **kargs)))
+                    return self.type(_AllowedParameterTypes(*args, **kargs))
             
             return _AllowedWrapper(self.__isUntracked, self.__type)
         if name == 'PSetTemplate':
@@ -969,8 +970,8 @@ class vint32(_ValidatingParameterListBase):
     def __init__(self,*arg,**args):
         super(vint32,self).__init__(*arg,**args)
 
-    @staticmethod
-    def _itemIsValid(item):
+    @classmethod
+    def _itemIsValid(cls,item):
         return int32._isValid(item)
     @staticmethod
     def _valueFromString(value):
@@ -983,8 +984,8 @@ class vint32(_ValidatingParameterListBase):
 class vuint32(_ValidatingParameterListBase):
     def __init__(self,*arg,**args):
         super(vuint32,self).__init__(*arg,**args)
-    @staticmethod
-    def _itemIsValid(item):
+    @classmethod
+    def _itemIsValid(cls,item):
         return uint32._isValid(item)
     @staticmethod
     def _valueFromString(value):
@@ -997,8 +998,8 @@ class vuint32(_ValidatingParameterListBase):
 class vint64(_ValidatingParameterListBase):
     def __init__(self,*arg,**args):
         super(vint64,self).__init__(*arg,**args)
-    @staticmethod
-    def _itemIsValid(item):
+    @classmethod
+    def _itemIsValid(cls,item):
         return int64._isValid(item)
     @staticmethod
     def _valueFromString(value):
@@ -1011,8 +1012,8 @@ class vint64(_ValidatingParameterListBase):
 class vuint64(_ValidatingParameterListBase):
     def __init__(self,*arg,**args):
         super(vuint64,self).__init__(*arg,**args)
-    @staticmethod
-    def _itemIsValid(item):
+    @classmethod
+    def _itemIsValid(cls,item):
         return uint64._isValid(item)
     @staticmethod
     def _valueFromString(value):
@@ -1025,8 +1026,8 @@ class vuint64(_ValidatingParameterListBase):
 class vdouble(_ValidatingParameterListBase):
     def __init__(self,*arg,**args):
         super(vdouble,self).__init__(*arg,**args)
-    @staticmethod
-    def _itemIsValid(item):
+    @classmethod
+    def _itemIsValid(cls,item):
         return double._isValid(item)
     @staticmethod
     def _valueFromString(value):
@@ -1042,8 +1043,8 @@ class vdouble(_ValidatingParameterListBase):
 class vbool(_ValidatingParameterListBase):
     def __init__(self,*arg,**args):
         super(vbool,self).__init__(*arg,**args)
-    @staticmethod
-    def _itemIsValid(item):
+    @classmethod
+    def _itemIsValid(cls,item):
         return bool._isValid(item)
     @staticmethod
     def _valueFromString(value):
@@ -1057,8 +1058,8 @@ class vstring(_ValidatingParameterListBase):
     def __init__(self,*arg,**args):
         super(vstring,self).__init__(*arg,**args)
         self._nPerLine = 1
-    @staticmethod
-    def _itemIsValid(item):
+    @classmethod
+    def _itemIsValid(cls,item):
         return string._isValid(item)
     def configValueForItem(self,item,options):
         return string.formatValueForConfig(item)
@@ -1071,8 +1072,8 @@ class vstring(_ValidatingParameterListBase):
 class VLuminosityBlockID(_ValidatingParameterListBase):
     def __init__(self,*arg,**args):
         super(VLuminosityBlockID,self).__init__(*arg,**args)
-    @staticmethod
-    def _itemIsValid(item):
+    @classmethod
+    def _itemIsValid(cls,item):
         return LuminosityBlockID._isValid(item)
     def configValueForItem(self,item,options):
         return LuminosityBlockID.formatValueForConfig(item)
@@ -1099,8 +1100,8 @@ class VInputTag(_ValidatingParameterListBase):
             except TypeError:
                 pass
         super(VInputTag,self).__init__((InputTag._stringFromArgument(x) for x in arg),**args)
-    @staticmethod
-    def _itemIsValid(item):
+    @classmethod
+    def _itemIsValid(cls,item):
         return InputTag._isValid(item)
     def configValueForItem(self,item,options):
         # we tolerate strings as members
@@ -1136,8 +1137,8 @@ class VESInputTag(_ValidatingParameterListBase):
             except TypeError:
                 pass
         super(VESInputTag,self).__init__((ESInputTag._stringFromArgument(x) for x in arg),**args)
-    @staticmethod
-    def _itemIsValid(item):
+    @classmethod
+    def _itemIsValid(cls,item):
         return ESInputTag._isValid(item)
     def configValueForItem(self,item,options):
         # we tolerate strings as members
@@ -1168,8 +1169,8 @@ class VESInputTag(_ValidatingParameterListBase):
 class VEventID(_ValidatingParameterListBase):
     def __init__(self,*arg,**args):
         super(VEventID,self).__init__(*arg,**args)
-    @staticmethod
-    def _itemIsValid(item):
+    @classmethod
+    def _itemIsValid(cls,item):
         return EventID._isValid(item)
     def configValueForItem(self,item,options):
         return EventID.formatValueForConfig(item)
@@ -1195,8 +1196,8 @@ class VEventID(_ValidatingParameterListBase):
 class VLuminosityBlockRange(_ValidatingParameterListBase):
     def __init__(self,*arg,**args):
         super(VLuminosityBlockRange,self).__init__(*arg,**args)
-    @staticmethod
-    def _itemIsValid(item):
+    @classmethod
+    def _itemIsValid(cls,item):
         return LuminosityBlockRange._isValid(item)
     def configValueForItem(self,item,options):
         return LuminosityBlockRange.formatValueForConfig(item)
@@ -1221,8 +1222,8 @@ class VLuminosityBlockRange(_ValidatingParameterListBase):
 class VEventRange(_ValidatingParameterListBase):
     def __init__(self,*arg,**args):
         super(VEventRange,self).__init__(*arg,**args)
-    @staticmethod
-    def _itemIsValid(item):
+    @classmethod
+    def _itemIsValid(cls,item):
         return EventRange._isValid(item)
     def configValueForItem(self,item,options):
         return EventRange.formatValueForConfig(item)
@@ -1248,8 +1249,8 @@ class VPSet(_ValidatingParameterListBase,_ConfigureComponent,_Labelable):
     def __init__(self,*arg,**args):
         super(VPSet,self).__init__(*arg,**args)
         self._nPerLine = 1
-    @staticmethod
-    def _itemIsValid(item):
+    @classmethod
+    def _itemIsValid(cls,item):
         return isinstance(item, PSet) and PSet._isValid(item)
     def configValueForItem(self,item, options):
         return PSet.configValue(item, options)
@@ -2032,6 +2033,14 @@ if __name__ == "__main__":
             self.assertTrue(p1.aValue.isCompatibleCMSType(string))
             self.assertFalse(p1.aValue.isCompatibleCMSType(uint32))
 
+            p1 = PSet(aValue = required.allowed(int32, string, default=int32(3)))
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aValue = cms.int32(3)\n)')
+            p1.aValue = "foo"
+            self.assertEqual(p1.dumpPython(),"cms.PSet(\n    aValue = cms.string('foo')\n)")
+            
+            p1 = PSet(aValue = required.untracked.allowed(int32, string, default=int32(3)))
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aValue = cms.untracked.int32(3)\n)')
+
             p1 = PSet(aValue = required.untracked.allowed(int32, string))
             self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aValue = cms.required.untracked.allowed(cms.int32,cms.string)\n)')
             p1.aValue = 1
@@ -2085,7 +2094,11 @@ if __name__ == "__main__":
             p1 = PSet(aValue = required.allowed(int32, string))
             self.assertRaises(TypeError, lambda : setattr(p1,'aValue', uint32(2)))
 
+            p1 = PSet(aValue = required.allowed(InputTag, VInputTag, default=InputTag("blah")))
+            p1.aValue.setValue("foo")
+            self.assertEqual(p1.aValue.value(), "foo")
 
+            
         def testVPSet(self):
             p1 = VPSet(PSet(anInt = int32(1)), PSet(anInt=int32(2)))
             self.assertEqual(len(p1),2)

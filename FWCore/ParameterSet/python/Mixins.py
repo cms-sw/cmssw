@@ -584,7 +584,7 @@ class _ValidatingListBase(list):
         super(_ValidatingListBase,self).__init__(arg)
         if 0 != len(args):
             raise SyntaxError("named arguments ("+','.join([x for x in args])+") passsed to "+str(type(self)))
-        if not self._isValid(iter(self)):
+        if not type(self)._isValid(iter(self)):
             raise TypeError("wrong types ("+','.join([str(type(value)) for value in iter(self)])+
                             ") added to "+str(type(self)))
     def __setitem__(self,key,value):
@@ -595,12 +595,13 @@ class _ValidatingListBase(list):
             if not self._itemIsValid(value):
                 raise TypeError("can not insert the type "+str(type(value))+" in container "+self._labelIfAny())
         super(_ValidatingListBase,self).__setitem__(key,value)
-    def _isValid(self,seq):
+    @classmethod
+    def _isValid(cls,seq):
         # see if strings get reinterpreted as lists
         if isinstance(seq, str):
             return False
         for item in seq:
-            if not self._itemIsValid(item):
+            if not cls._itemIsValid(item):
                 return False
         return True
     def _itemFromArgument(self, x):
@@ -758,7 +759,8 @@ if __name__ == "__main__":
 
     import unittest
     class TestList(_ValidatingParameterListBase):
-        def _itemIsValid(self,item):
+        @classmethod
+        def _itemIsValid(cls,item):
             return True
     class testMixins(unittest.TestCase):
         def testListConstruction(self):
