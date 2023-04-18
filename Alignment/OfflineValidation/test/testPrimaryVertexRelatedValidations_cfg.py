@@ -376,10 +376,33 @@ process.HLTFilter = triggerResultsFilter.clone(
 ###################################################################
 # The analysis module
 ###################################################################
-process.myanalysis = cms.EDAnalyzer("GeneralPurposeTrackAnalyzer",
-                                    TkTag  = cms.InputTag('FinalTrackRefitter'),
-                                    isCosmics = cms.bool(False)
-                                    )
+process.trackanalysis = cms.EDAnalyzer("GeneralPurposeTrackAnalyzer",
+                                       TkTag  = cms.InputTag('FinalTrackRefitter'),
+                                       isCosmics = cms.bool(False))
+
+process.vertexanalysis = cms.EDAnalyzer('GeneralPurposeVertexAnalyzer',
+                                        ndof = cms.int32(4),
+                                        vertexLabel = cms.InputTag('offlinePrimaryVerticesFromRefittedTrks'),
+                                        beamSpotLabel = cms.InputTag('offlineBeamSpot'),
+                                        Xpos = cms.double(0.1),
+                                        Ypos = cms.double(0),
+                                        TkSizeBin = cms.int32(100),
+                                        TkSizeMin = cms.double(499.5),
+                                        TkSizeMax = cms.double(-0.5),
+                                        DxyBin = cms.int32(100),
+                                        DxyMin = cms.double(5000),
+                                        DxyMax = cms.double(-5000),
+                                        DzBin = cms.int32(100),
+                                        DzMin = cms.double(-2000),
+                                        DzMax = cms.double(2000),
+                                        PhiBin = cms.int32(32),
+                                        PhiBin2D = cms.int32(12),
+                                        PhiMin = cms.double(-3.1415926535897931),
+                                        PhiMax = cms.double(3.1415926535897931),
+                                        EtaBin = cms.int32(26),
+                                        EtaBin2D = cms.int32(8),
+                                        EtaMin = cms.double(-2.7),
+                                        EtaMax = cms.double(2.7))
 
 ###################################################################
 # The PV resolution module
@@ -398,5 +421,6 @@ process.p2 = cms.Path(process.HLTFilter                               +
                       process.seqTrackselRefit                        +
                       process.offlinePrimaryVerticesFromRefittedTrks  +
                       process.PrimaryVertexResolution                 +
-                      process.myanalysis
+                      process.trackanalysis                           +
+                      process.vertexanalysis
                       )
