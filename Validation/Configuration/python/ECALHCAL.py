@@ -24,7 +24,7 @@ def customise(process):
 
     # use directly the generator output, no Hector
 
-    process.g4SimHits.Generator.HepMCProductLabel = cms.string('generatorSmeared')
+    process.g4SimHits.Generator.HepMCProductLabel = 'generatorSmeared'
 
     # modify the content
 
