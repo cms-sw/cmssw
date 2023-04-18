@@ -22,7 +22,7 @@
 
 // forward declarations
 
-class G4SimEvent;
+class TmpSimEvent;
 class G4Track;
 
 class SimTrackManager {
@@ -41,7 +41,7 @@ public:
 
   const std::vector<TrackWithHistory*>* trackContainer() const { return &m_trackContainer; }
 
-  void storeTracks(G4SimEvent* simEvent);
+  void storeTracks(TmpSimEvent* simEvent);
 
   void reset();
   void deleteTracks();
@@ -93,9 +93,9 @@ public:
 
 private:
   void saveTrackAndItsBranch(TrackWithHistory*);
-  int getOrCreateVertex(TrackWithHistory*, int, G4SimEvent* simEvent);
+  int getOrCreateVertex(TrackWithHistory*, int, TmpSimEvent* simEvent);
   void cleanVertexMap();
-  void reallyStoreTracks(G4SimEvent* simEvent);
+  void reallyStoreTracks(TmpSimEvent* simEvent);
   void fillMotherList();
   int idSavedTrack(int) const;
   void ReportException(unsigned int id) const;
