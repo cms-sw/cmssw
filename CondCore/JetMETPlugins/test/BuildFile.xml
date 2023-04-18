@@ -4,4 +4,6 @@
   <use   name="CondFormats/JetMETObjects"/>
 <bin file="testJetResolutionPayloadInspector.cpp" name="testJetResolutionPayloadInspector">
 </bin>
+<bin file="testJetCorrectorPayloadInspector.cpp" name="testJetCorrectorPayloadInspector">
+</bin>
 
