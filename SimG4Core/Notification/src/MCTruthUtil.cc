@@ -18,7 +18,7 @@ void MCTruthUtil::primary(G4Track *aTrack) {
 void MCTruthUtil::secondary(G4Track *aTrack, const G4Track &mother, int flag) {
   auto motherInfo = static_cast<const TrackInformation *>(mother.GetUserInformation());
   auto trkInfo = new TrackInformation();
-  LogDebug("SimG4CoreApplication") << "NewTrackAction called for " << aTrack->GetTrackID() << " mother "
+  LogDebug("SimG4CoreApplication") << "MCTruthUtil called for " << aTrack->GetTrackID() << " mother "
                                    << motherInfo->isPrimary() << " flag " << flag;
 
   // Take care of cascade decays
@@ -55,4 +55,13 @@ void MCTruthUtil::secondary(G4Track *aTrack, const G4Track &mother, int flag) {
   }
 
   aTrack->SetUserInformation(trkInfo);
+}
+
+bool MCTruthUtil::isInBTL(const G4Track *aTrack) {
+  bool out = false;
+  G4String tName(aTrack->GetVolume()->GetLogicalVolume()->GetRegion()->GetName());
+  if (tName == "FastTimerRegionBTL" || tName == "FastTimerRegionSensBTL") {
+    out = true;
+  }
+  return out;
 }
