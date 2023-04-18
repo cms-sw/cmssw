@@ -31,7 +31,6 @@
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 
 #include "storeTracks.h"
-#include "CUDADataFormats/Common/interface/HostProduct.h"
 
 #include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousHost.h"
 #include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousDevice.h"
