@@ -2,7 +2,6 @@
 #define DataFormats_L1TCalorimeterPhase2_DigitizedClusterGT_h
 
 #include <ap_int.h>
-#include <bitset>
 #include <vector>
 
 namespace l1tp2 {
@@ -19,8 +18,8 @@ namespace l1tp2 {
     static constexpr unsigned int n_bits_pt = 16;            // 12 bits allocated for pt
     static constexpr unsigned int n_bits_unused_start = 44;  // unused bits start at bit number 44
 
-    float LSB_ETA = (M_PI / (std::pow(2, n_bits_eta_pi) - 1));
-    float LSB_PHI = (M_PI / (std::pow(2, n_bits_phi_pi) - 1));
+    float LSB_ETA = (M_PI / std::pow(2, n_bits_eta_pi));
+    float LSB_PHI = (M_PI / std::pow(2, n_bits_phi_pi));
 
     // Private member functions to perform digitization
     ap_uint<1> digitizeIsValid(bool isValid) { return (ap_uint<1>)isValid; }
@@ -34,21 +33,15 @@ namespace l1tp2 {
       return (ap_uint<16>)(pt_f / LSB_PT);
     }
 
-    // Use sign-magnitude convention
-    ap_uint<13> digitizePhi(float phi_f) {
-      ap_uint<1> sign = (phi_f >= 0) ? 0 : 1;
-      float phiMag_f = std::abs(phi_f);
-      ap_uint<12> phiMag_digitized = (phiMag_f / LSB_PHI);
-      ap_uint<13> phi_digitized = ((ap_uint<13>)sign) | ((ap_uint<13>)phiMag_digitized << 1);
+    // Use two's complements representation
+    ap_int<13> digitizePhi(float phi_f) {
+      ap_int<13> phi_digitized = (phi_f / LSB_PHI);
       return phi_digitized;
     }
 
-    // Use sign-magnitude convention
-    ap_uint<14> digitizeEta(float eta_f) {
-      ap_uint<1> sign = (eta_f >= 0) ? 0 : 1;
-      float etaMag_f = std::abs(eta_f);
-      ap_uint<13> etaMag_digitized = (etaMag_f / LSB_ETA);
-      ap_uint<14> eta_digitized = ((ap_uint<14>)sign) | ((ap_uint<14>)etaMag_digitized << 1);
+    // Use two's complements representation
+    ap_int<14> digitizeEta(float eta_f) {
+      ap_int<14> eta_digitized = (eta_f / LSB_ETA);
       return eta_digitized;
     }
 
@@ -58,7 +51,7 @@ namespace l1tp2 {
     DigitizedClusterGT(ap_uint<64> data) { clusterData = data; }
 
     // Constructor from digitized inputs
-    DigitizedClusterGT(ap_uint<1> isValid, ap_uint<16> pt, ap_uint<13> phi, ap_uint<14> eta, bool fullyDigitizedInputs) {
+    DigitizedClusterGT(ap_uint<1> isValid, ap_uint<16> pt, ap_int<13> phi, ap_int<14> eta, bool fullyDigitizedInputs) {
       (void)fullyDigitizedInputs;
       clusterData =
           ((ap_uint<64>)isValid) | (((ap_uint<64>)pt) << 1) | (((ap_uint<64>)phi) << 17) | (((ap_uint<64>)eta) << 30);
@@ -66,8 +59,17 @@ namespace l1tp2 {
 
     // Constructor from float inputs that will perform digitization
     DigitizedClusterGT(bool isValid, float pt_f, float phi_f, float eta_f) {
-      clusterData = (((ap_uint<64>)digitizeIsValid(isValid)) | ((ap_uint<64>)digitizePt(pt_f) << 1) |
-                     ((ap_uint<64>)digitizePhi(phi_f) << 17) | ((ap_uint<64>)digitizeEta(eta_f) << 30));
+      // N.b.: For eta/phi, after shifting the bits to the correct place and casting to ap_uint<64>,
+      // we have an additional bit mask
+      // e.g. 0x3FFE0000 for phi. This mask is all zero's except for 1 in the phi bits (bits 17 through 29):
+      // bit mask = 0x3FFE0000 = 0b111111111111100000000000000000
+      // Applying the "and" of this bitmask, avoids bogus 1's in the case where phi is negative
+
+      clusterData = ((ap_uint<64>)digitizeIsValid(isValid)) | ((ap_uint<64>)digitizePt(pt_f) << 1) |
+                    (((ap_uint<64>)digitizePhi(phi_f) << 17) &
+                     0x3FFE0000) |  // 0x3FFE0000 is all zero's except the phi bits (bits 17 through 29)
+                    (((ap_uint<64>)digitizeEta(eta_f) << 30) &
+                     0xFFFC0000000);  // 0xFFFC0000000 is all zero's except the eta bits (bits 30 through 32)
     }
 
     ap_uint<64> data() const { return clusterData; }
@@ -77,26 +79,16 @@ namespace l1tp2 {
     float phiLSB() const { return LSB_PHI; }
     float etaLSB() const { return LSB_ETA; }
     ap_uint<1> isValid() const { return (clusterData & 0x1); }
-    ap_uint<16> pt() const { return ((clusterData >> 1) & 0xFFFF); }    // 16 1's = 0xFFFF
-    ap_uint<13> phi() const { return ((clusterData >> 17) & 0x1FFF); }  // (thirteen 1's)= 0x1FFF
-    ap_uint<12> phiMagnitude() const {
-      return ((clusterData >> 18) & 0xFFF);
-    }  // skip the LSB of the phi, and (twelve 1's)= 0xFFF
-    ap_uint<1> phiSign() const { return ((clusterData >> 17) & 0x1); }  // get the LSB of the phi
-    ap_uint<14> eta() const { return ((clusterData >> 30) & 0x3FFF); }  // (fourteen 1's) = 0x3FFF
-    ap_uint<13> etaMagnitude() const {
-      return ((clusterData >> 31) & 0x1FFF);
-    }  // skip the LSB of the eta, and (thirteen 1's) = 0x1FFF
-    ap_uint<1> etaSign() const { return ((clusterData >> 30) & 0x1); }  // get the LSB of the eta
+    ap_uint<16> pt() const { return ((clusterData >> 1) & 0xFFFF); }   // 16 1's = 0xFFFF
+    ap_int<13> phi() const { return ((clusterData >> 17) & 0x1FFF); }  // (thirteen 1's)= 0x1FFF
+    ap_int<14> eta() const { return ((clusterData >> 30) & 0x3FFF); }  // (fourteen 1's) = 0x3FFF
 
     float ptFloat() const { return (pt() * ptLSB()); }
     float realPhi() const {  // convert from signed int to float
-      float sign = (phiSign() == 0) ? +1 : -1;
-      return (sign * phiMagnitude() * phiLSB());
+      return (phi() * phiLSB());
     }
     float realEta() const {  // convert from signed int to float
-      float sign = (etaSign() == 0) ? +1 : -1;
-      return (sign * etaMagnitude() * etaLSB());
+      return (eta() * etaLSB());
     }
     const int unusedBitsStart() const { return n_bits_unused_start; }  // unused bits start at bit 44
 

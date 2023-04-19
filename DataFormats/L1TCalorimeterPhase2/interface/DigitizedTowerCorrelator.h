@@ -2,7 +2,6 @@
 #define DataFormats_L1TCalorimeterPhase2_DigitizedTowerCorrelator_h
 
 #include <ap_int.h>
-#include <bitset>
 #include <vector>
 
 namespace l1tp2 {
