@@ -72,7 +72,7 @@ void GEMPadDigiClusterSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Ru
   
   
   mapPadBXDiffPerEtaCh_=MEMap4Inf(this,"delta_pad","Pad difference vs time difference",17,  -8- 0.5, 8 + 0.5, 15,  -7 - 0.5, 7 + 0.5, "Delta Pads","Delta BX");
-  mapBXMidPerCh_= MEMap4Inf(this, "bx", "Median of Pad Bunch Crossing", 16 , -0.5, 15.5, "Bunch crossing");
+  mapBXMidPerCh_= MEMap4Inf(this, "bx", "Median of Pad Bunch Crossing", 14 , -0.5, 13.5, "Bunch crossing");
 
   mapPadDigiOccPerCh_ = MEMap4Inf(this, "occ", "Pad Digi Occupancy", 1, -0.5, 1.5, 1, 0.5, 1.5, "Pads", "iEta");
   mapPadBxPerCh_ = MEMap4Inf(this, "bx", "GEM Pads Hits in Time", 1536, 0.5, 1536.5, 15, -0.5, 15 - 0.5, "Pads", "Time Bins");
@@ -256,7 +256,9 @@ void GEMPadDigiClusterSource::analyze(edm::Event const& event, edm::EventSetup c
           mapPadDigiOccPerCh_.Fill(key4Ch, pad , ((*it).first).roll());
           mapPadBxPerCh_.Fill(key4Ch, pad + (192 * (8 - ((*it).first).roll())), cluster->bx());
       //   std::cout << "pad: "<< pad << "  BX: "<< cluster->bx() <<"  chamber: "<< ((*it).first).chamber() << "  layer: "<< ((*it).first).layer()<<" Eta: "<< ((*it).first).roll()<<std::endl;  
-      
+        //Build a new cluster
+        //Find the median of pad and bx for each cluster
+        //Calculate the differnce for each pad and bx
         if(cl_bx.empty()){
           cl_bx.push_back({pad,cluster->bx()});
        
@@ -278,6 +280,9 @@ void GEMPadDigiClusterSource::analyze(edm::Event const& event, edm::EventSetup c
               pad_bx_diff.push_back({cl_bx[i][0]- avg_pad, cl_bx[i][1]-avg_bx,((*it).first).region(), ((*it).first).station(), ((*it).first).layer(), ((*it).first).chamber()});
                
             }
+            //If the size of cluster is 1, push back bx
+            //If size is 2, push back the smaller one
+            //If size is 3 or more, push back the bx of median pad.
             if(cl_bx.size()==1){
               bx_cluster.push_back({cl_bx[0][1],((*it).first).region(), ((*it).first).station(), ((*it).first).layer(), ((*it).first).chamber()});
             }else if(cl_bx.size()==2){
@@ -320,6 +325,7 @@ void GEMPadDigiClusterSource::analyze(edm::Event const& event, edm::EventSetup c
                 //  }
               
             //  }
+             //Plot the pad differnce and bx difference for closed pads per chamber.
               if (((*it).first).chamber()==((*it2).first).chamber() && ((*it).first).station()==((*it2).first).station() && ((*it).first).region()==((*it2).first).region() && ((*it).first).layer()==1 &&((*it2).first).layer()==2 ){
                     
                 for (auto pad=cluster->pads().front(); pad < (cluster->pads().front() + cluster->pads().size()); pad++  ) {
@@ -344,14 +350,15 @@ void GEMPadDigiClusterSource::analyze(edm::Event const& event, edm::EventSetup c
             }
           }
         }
+        //Plot the size of clusters for each chamber and layer 
         Int_t nCLS = cluster->pads().size();
         Int_t nCLSCutOff = std::min(nCLS, nCLSMax_); 
         mapPadCLSPerCh_.Fill(key4Ch, nCLSCutOff, ((*it).first).roll() );
-        //std::cout << "Cluster Size:"<< cluster->pads().size() << "  Eta:"<< ((*it).first).roll()  <<std::endl;
         
       }
     }  
 }
+// add the final cluster to vector 
   if(gemPadDigiClusters->begin() != gemPadDigiClusters->end()){
     auto it = gemPadDigiClusters->begin();
 
@@ -371,11 +378,13 @@ void GEMPadDigiClusterSource::analyze(edm::Event const& event, edm::EventSetup c
     }  
   }
   //std::cout << pad_bx_diff.size() <<std::endl;
+  //Fill histgram of the Pad difference vs Bx difference per chamber per layer.
   for(unsigned i=0;i<pad_bx_diff.size();i++){
     ME4IdsKey key4Ch{pad_bx_diff[i][2], pad_bx_diff[i][3],pad_bx_diff[i][4], pad_bx_diff[i][5]};
     mapPadBXDiffPerEtaCh_.Fill(key4Ch, pad_bx_diff[i][0], pad_bx_diff[i][1]); 
   }
-
+  //Fill the histrgram of bx per chamber per layer.
+  
   for(unsigned i=0;i<bx_cluster.size();i++){
     ME4IdsKey key4Ch{bx_cluster[i][1], bx_cluster[i][2],bx_cluster[i][3], bx_cluster[i][4]};
     mapBXMidPerCh_.Fill(key4Ch, bx_cluster[i][0]); 
