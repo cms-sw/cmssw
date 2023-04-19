@@ -91,20 +91,17 @@ void MuonTemplate::print(std::ostream& myCout) const {
     myCout << "    qualityLUT        = " << std::hex << m_objectParameter[i].qualityLUT << std::endl;
     myCout << "    isolationLUT      = " << std::hex << m_objectParameter[i].isolationLUT << std::endl;
     myCout << "    impactParameterLUT= " << std::hex << m_objectParameter[i].impactParameterLUT << std::endl;
-    //       myCout << "    etaRange          = "
-    //       << std::hex << m_objectParameter[i].etaRange << std::endl;
-    //       myCout << "    phiHigh           = "
-    //       << std::hex << m_objectParameter[i].phiHigh << std::endl;
-    //       myCout << "    phiLow            = "
-    //        << std::hex << m_objectParameter[i].phiLow << std::endl;
     myCout << "    phiWindow1Lower   =" << std::hex << m_objectParameter[i].phiWindow1Lower << std::endl;
     myCout << "    phiWindow1Upper   =" << std::hex << m_objectParameter[i].phiWindow1Upper << std::endl;
     myCout << "    phiWindow2Lower   =" << std::hex << m_objectParameter[i].phiWindow2Lower << std::endl;
     myCout << "    phiWindow2Upper   =" << std::hex << m_objectParameter[i].phiWindow2Upper << std::endl;
-    myCout << "    etaWindow1Lower   =" << std::hex << m_objectParameter[i].etaWindow1Lower << std::endl;
-    myCout << "    etaWindow1Upper   =" << std::hex << m_objectParameter[i].etaWindow1Upper << std::endl;
-    myCout << "    etaWindow2Lower   =" << std::hex << m_objectParameter[i].etaWindow2Lower << std::endl;
-    myCout << "    etaWindow2Upper   =" << std::hex << m_objectParameter[i].etaWindow2Upper << std::endl;
+
+    size_t etaWindowIndex = 1;
+    for (const auto& window : m_objectParameter[i].etaWindows) {
+      myCout << "    etaWindows[" << etaWindowIndex << "].lower =" << std::hex << window.lower << std::endl;
+      myCout << "    etaWindows[" << etaWindowIndex << "].upper =" << std::hex << window.upper << std::endl;
+      ++etaWindowIndex;
+    }
   }
 
   if (wsc()) {
