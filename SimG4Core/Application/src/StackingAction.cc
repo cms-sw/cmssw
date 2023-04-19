@@ -415,7 +415,8 @@ void StackingAction::initPointer() {
     if (savePDandCinTracker &&
         (rname == "BeamPipe" || rname == "BeamPipeVacuum" || rname == "TrackerPixelSensRegion" ||
          rname == "TrackerPixelDeadRegion" || rname == "TrackerDeadRegion" || rname == "TrackerSensRegion" ||
-         rname == "FastTimerRegion" || rname == "FastTimerRegionSensBTL" || rname == "FastTimerRegionSensETL")) {
+         rname == "FastTimerRegionBTL" || rname == "FastTimerRegionETL" || rname == "FastTimerRegionSensBTL" ||
+         rname == "FastTimerRegionSensETL")) {
       trackerRegions.push_back(reg);
     }
     if (savePDandCinCalo && (rname == "HcalRegion" || rname == "EcalRegion" || rname == "PreshowerSensRegion" ||
