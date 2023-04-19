@@ -3,6 +3,7 @@
 // Description: Sensitive Detector class for High Granularity Calorimeter
 ///////////////////////////////////////////////////////////////////////////////
 
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DataFormats/Math/interface/FastMath.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "SimG4CMS/Calo/interface/HGCalSD.h"
@@ -24,6 +25,8 @@
 #include <memory>
 
 //#define EDM_ML_DEBUG
+
+using namespace angle_units::operators;
 
 HGCalSD::HGCalSD(const std::string& name,
                  const HGCalDDDConstants* hgc,
@@ -200,7 +203,7 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
 #endif
   if ((id != 0) && checkID_) {
     HGCSiliconDetId hid1(id);
-    bool cshift = (hgcons_->cassetteShiftSilicon(hid1.layer(), hid1.waferU(), hid1.waferV()));
+    bool cshift = (hgcons_->cassetteShiftSilicon(hid1.zside(), hid1.layer(), hid1.waferU(), hid1.waferV()));
     std::string_view pid = (cshift ? "HGCSim" : "HGCalSim");
     bool debug = (verbose_ > 0) ? true : false;
     auto xy = hgcons_->locateCell(hid1, debug);
@@ -213,10 +216,19 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
     if ((diff > tol) || (!valid1))
       pid = "HGCalError";
     auto partn = hgcons_->waferTypeRotation(hid1.layer(), hid1.waferU(), hid1.waferV(), false, false);
-    edm::LogVerbatim(pid) << "CheckID " << HGCSiliconDetId(id) << " input position: (" << hitPoint.x() / CLHEP::cm
-                          << ", " << hitPoint.y() / CLHEP::cm << "); position from ID (" << xx << ", " << xy.second
-                          << ") distance " << diff << " Valid " << valid1 << " Wafer type|rotation " << partn.first
-                          << ":" << partn.second << " CassetteShift " << cshift;
+    int indx = HGCalWaferIndex::waferIndex(layer, hid1.waferU(), hid1.waferV());
+    double phi = std::atan2(hitPoint.y(), hitPoint.x());
+    edm::LogVerbatim(pid) << "CheckID " << HGCSiliconDetId(id) << " Layer:Module:Cell:ModuleLev " << layer << ":"
+                          << module << ":" << cell << ":" << moduleLev << " SimWt:history " << useSimWt_ << ":"
+                          << touch->GetHistoryDepth() << ":" << levelT1_ << ":" << levelT2_ << " input position: ("
+                          << hitPoint.x() / CLHEP::cm << ", " << hitPoint.y() / CLHEP::cm << ":" << convertRadToDeg(phi)
+                          << "); position from ID (" << xx << ", " << xy.second << ") distance " << dx << ":" << dy
+                          << ":" << diff << " Valid " << valid1 << " Wafer type|rotation " << partn.first << ":"
+                          << partn.second << " Part:Orient:Cassette " << std::get<1>(hgcons_->waferFileInfo(indx))
+                          << ":" << std::get<2>(hgcons_->waferFileInfo(indx)) << ":"
+                          << std::get<3>(hgcons_->waferFileInfo(indx)) << " CassetteShift " << cshift;
+    xy = hgcons_->locateCell(hid1, true);
+    printDetectorLevels(touch);
   }
   return id;
 }

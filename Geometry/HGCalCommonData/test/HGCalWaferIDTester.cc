@@ -147,7 +147,7 @@ void HGCalWaferIDTester::analyze(const edm::Event& iEvent, const edm::EventSetup
       int indx = HGCalWaferIndex::waferIndex(layer, detIds_[k].waferU(), detIds_[k].waferV());
       st1 << " Part:Orient:Cassette:Shift " << std::get<1>(hgdc.waferFileInfo(indx)) << ":"
           << std::get<2>(hgdc.waferFileInfo(indx)) << ":" << std::get<3>(hgdc.waferFileInfo(indx)) << ":"
-          << hgdc.cassetteShiftSilicon(layer, detIds_[k].waferU(), detIds_[k].waferV());
+          << hgdc.cassetteShiftSilicon(zside, layer, detIds_[k].waferU(), detIds_[k].waferV());
       double xx = (zside < 0) ? -posXY_[k].first : posXY_[k].first;
       double yy = posXY_[k].second;
       hgdc.waferFromPosition(xx, yy, zside, layer, waferU, waferV, cellU, cellV, waferType, wt, false, debug);
@@ -159,7 +159,7 @@ void HGCalWaferIDTester::analyze(const edm::Event& iEvent, const edm::EventSetup
       indx = HGCalWaferIndex::waferIndex(layer, id.waferU(), id.waferV());
       st1 << " Part:Orient:Cassette:Shift " << std::get<1>(hgdc.waferFileInfo(indx)) << ":"
           << std::get<2>(hgdc.waferFileInfo(indx)) << ":" << std::get<3>(hgdc.waferFileInfo(indx)) << ":"
-          << hgdc.cassetteShiftSilicon(layer, id.waferU(), id.waferV());
+          << hgdc.cassetteShiftSilicon(zside, layer, id.waferU(), id.waferV());
       auto xy = hgdc.locateCell(id, true);
       double xx0 = (id.zside() > 0) ? xy.first : -xy.first;
       double yy0 = xy.second;
