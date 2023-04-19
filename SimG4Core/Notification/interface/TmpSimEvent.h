@@ -1,8 +1,8 @@
-#ifndef SimG4Core_G4SimEvent_H
-#define SimG4Core_G4SimEvent_H
+#ifndef SimG4Core_TmpSimEvent_H
+#define SimG4Core_TmpSimEvent_H
 
-#include "SimG4Core/Notification/interface/G4SimTrack.h"
-#include "SimG4Core/Notification/interface/G4SimVertex.h"
+#include "SimG4Core/Notification/interface/TmpSimTrack.h"
+#include "SimG4Core/Notification/interface/TmpSimVertex.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
@@ -11,10 +11,10 @@
 
 #include <vector>
 
-class G4SimEvent {
+class TmpSimEvent {
 public:
-  G4SimEvent();
-  virtual ~G4SimEvent();
+  TmpSimEvent();
+  virtual ~TmpSimEvent();
   void load(edm::SimTrackContainer& c) const;
   void load(edm::SimVertexContainer& c) const;
   unsigned int nTracks() const { return g4tracks_.size(); }
@@ -30,8 +30,8 @@ public:
   const int nparam() const { return nparam_; }
   void param(const std::vector<float>& p) { param_ = p; }
   const std::vector<float>& param() const { return param_; }
-  void add(G4SimTrack* t) { g4tracks_.push_back(t); }
-  void add(G4SimVertex* v) { g4vertices_.push_back(v); }
+  void add(TmpSimTrack* t) { g4tracks_.push_back(t); }
+  void add(TmpSimVertex* v) { g4vertices_.push_back(v); }
   void clear();
 
 private:
@@ -40,8 +40,8 @@ private:
   math::XYZTLorentzVectorD collisionPoint_{math::XYZTLorentzVectorD(0., 0., 0., 0.)};
   int nparam_{0};
   std::vector<float> param_;
-  std::vector<G4SimTrack*> g4tracks_;
-  std::vector<G4SimVertex*> g4vertices_;
+  std::vector<TmpSimTrack*> g4tracks_;
+  std::vector<TmpSimVertex*> g4vertices_;
 };
 
 #endif

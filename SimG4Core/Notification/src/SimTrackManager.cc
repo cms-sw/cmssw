@@ -1,5 +1,3 @@
-//#define EDM_ML_DEBUG
-
 // -*- C++ -*-
 //
 // Package:     Application
@@ -17,9 +15,9 @@
 
 // user include files
 #include "SimG4Core/Notification/interface/SimTrackManager.h"
-#include "SimG4Core/Notification/interface/G4SimTrack.h"
-#include "SimG4Core/Notification/interface/G4SimVertex.h"
-#include "SimG4Core/Notification/interface/G4SimEvent.h"
+#include "SimG4Core/Notification/interface/TmpSimTrack.h"
+#include "SimG4Core/Notification/interface/TmpSimVertex.h"
+#include "SimG4Core/Notification/interface/TmpSimEvent.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -101,7 +99,7 @@ void SimTrackManager::saveTrackAndItsBranch(TrackWithHistory* trkWHist) {
   }
 }
 
-void SimTrackManager::storeTracks(G4SimEvent* simEvent) {
+void SimTrackManager::storeTracks(TmpSimEvent* simEvent) {
   cleanTracksWithHistory();
 
   // fill the map with the final mother-daughter relationship
@@ -119,10 +117,10 @@ void SimTrackManager::storeTracks(G4SimEvent* simEvent) {
   reallyStoreTracks(simEvent);
 }
 
-void SimTrackManager::reallyStoreTracks(G4SimEvent* simEvent) {
+void SimTrackManager::reallyStoreTracks(TmpSimEvent* simEvent) {
   // loop over the (now ordered) vector and really save the tracks
 #ifdef DebugLog
-  edm::LogVerbatim("SimTrackManager") << "reallyStoreTracks() NtracksWithHistory= " << m_trackContainer.size();
+  edm::LogVerbatim("SimTrackManager") << "reallyStoreTracks() NtracksWithHistory= " << m_trackContainer->size();
 #endif
 
   int nn = m_endPoints.size();
@@ -161,14 +159,14 @@ void SimTrackManager::reallyStoreTracks(G4SimEvent* simEvent) {
       }
     }
 
-    G4SimTrack* g4simtrack =
-        new G4SimTrack(id, trkH->particleID(), trkH->momentum(), trkH->totalEnergy(), ivertex, ig, pm, spos, smom);
+    TmpSimTrack* g4simtrack =
+        new TmpSimTrack(id, trkH->particleID(), trkH->momentum(), trkH->totalEnergy(), ivertex, ig, pm, spos, smom);
     g4simtrack->copyCrossedBoundaryVars(trkH);
     simEvent->add(g4simtrack);
   }
 }
 
-int SimTrackManager::getOrCreateVertex(TrackWithHistory* trkH, int iParentID, G4SimEvent* simEvent) {
+int SimTrackManager::getOrCreateVertex(TrackWithHistory* trkH, int iParentID, TmpSimEvent* simEvent) {
   int parent = -1;
   for (auto& trk : m_trackContainer) {
     int id = trk->trackID();
@@ -193,7 +191,7 @@ int SimTrackManager::getOrCreateVertex(TrackWithHistory* trkH, int iParentID, G4
   if (nullptr != pr) {
     ptype = pr->GetProcessSubType();
   }
-  simEvent->add(new G4SimVertex(trkH->vertexPosition(), trkH->globalTime(), parent, ptype));
+  simEvent->add(new TmpSimVertex(trkH->vertexPosition(), trkH->globalTime(), parent, ptype));
   m_vertexMap[parent].push_back(VertexPosition(m_nVertices, trkH->vertexPosition()));
   ++m_nVertices;
   return (m_nVertices - 1);
@@ -303,7 +301,7 @@ void SimTrackManager::cleanTracksWithHistory() {
   std::stable_sort(idsave.begin(), idsave.end());
 
 #ifdef DebugLog
-  LogDebug("SimTrackManager") << " SimTrackManager::cleanTracksWithHistory knows " << m_trackContainer.size()
+  LogDebug("SimTrackManager") << " SimTrackManager::cleanTracksWithHistory knows " << m_trksForThisEvent->size()
                               << " tracks with history before branching";
   for (unsigned int it = 0; it < m_trackContainer.size(); it++) {
     LogDebug("SimTrackManager") << " 1 - Track in position " << it << " G4 track number "

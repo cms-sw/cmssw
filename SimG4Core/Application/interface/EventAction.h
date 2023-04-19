@@ -3,7 +3,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "SimG4Core/Notification/interface/G4SimEvent.h"
 #include "SimG4Core/Notification/interface/SimTrackManager.h"
 #include "SimG4Core/Notification/interface/TrackWithHistory.h"
 #include "SimG4Core/Notification/interface/TrackContainer.h"

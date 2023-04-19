@@ -1,15 +1,15 @@
-#ifndef SimG4Core_G4SimVertex_H
-#define SimG4Core_G4SimVertex_H
+#ifndef SimG4Core_TmpSimVertex_H
+#define SimG4Core_TmpSimVertex_H
 
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include <cmath>
 
-class G4SimVertex {
+class TmpSimVertex {
 public:
-  G4SimVertex(const math::XYZVectorD& ip, double it, int iv, unsigned int typ = 0)
+  TmpSimVertex(const math::XYZVectorD& ip, double it, int iv, unsigned int typ = 0)
       : ilv_(ip), itime_(it), itrack_(iv), procType_(typ) {}
-  ~G4SimVertex() = default;
+  ~TmpSimVertex() = default;
   /// index of the parent (-1 if no parent)
   const math::XYZVectorD& vertexPosition() const { return ilv_; }
   double vertexGlobalTime() const { return itime_; }

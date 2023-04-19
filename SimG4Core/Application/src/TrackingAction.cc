@@ -1,8 +1,5 @@
-//#define EDM_ML_DEBUG
-
 #include "SimG4Core/Application/interface/TrackingAction.h"
 
-#include "SimG4Core/Notification/interface/NewTrackAction.h"
 #include "SimG4Core/Notification/interface/CurrentG4Track.h"
 #include "SimG4Core/Notification/interface/BeginOfTrack.h"
 #include "SimG4Core/Notification/interface/EndOfTrack.h"
@@ -16,6 +13,8 @@
 #include "G4UImanager.hh"
 #include "G4TrackingManager.hh"
 #include "G4SystemOfUnits.hh"
+
+//#define EDM_ML_DEBUG
 
 TrackingAction::TrackingAction(SimTrackManager* stm, CMSSteppingVerbose* sv, const edm::ParameterSet& p)
     : trackManager_(stm),
@@ -42,7 +41,7 @@ void TrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
   trkInfo_ = static_cast<TrackInformation*>(aTrack->GetUserInformation());
 
   // Always save primaries
-  // Decays from primaries are marked as primaries (see NewTrackAction), but are not saved by
+  // Decays from primaries are marked as primaries, but are not saved by
   // default. The primary is the earliest ancestor, and it must be saved.
   if (trkInfo_->isPrimary()) {
     trackManager_->cleanTracksWithHistory();

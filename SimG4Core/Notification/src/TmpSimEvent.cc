@@ -1,4 +1,4 @@
-#include "SimG4Core/Notification/interface/G4SimEvent.h"
+#include "SimG4Core/Notification/interface/TmpSimEvent.h"
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
 #include "G4SystemOfUnits.hh"
@@ -8,14 +8,14 @@ public:
   bool operator()(const SimTrack& a, const SimTrack& b) { return a.trackId() < b.trackId(); }
 };
 
-G4SimEvent::G4SimEvent() {
+TmpSimEvent::TmpSimEvent() {
   g4vertices_.reserve(2000);
   g4tracks_.reserve(4000);
 }
 
-G4SimEvent::~G4SimEvent() { clear(); }
+TmpSimEvent::~TmpSimEvent() { clear(); }
 
-void G4SimEvent::clear() {
+void TmpSimEvent::clear() {
   for (auto& ptr : g4tracks_) {
     delete ptr;
   }
@@ -26,7 +26,7 @@ void G4SimEvent::clear() {
   g4vertices_.clear();
 }
 
-void G4SimEvent::load(edm::SimTrackContainer& c) const {
+void TmpSimEvent::load(edm::SimTrackContainer& c) const {
   const double invgev = 1.0 / CLHEP::GeV;
   for (auto& trk : g4tracks_) {
     int ip = trk->part();
@@ -37,7 +37,7 @@ void G4SimEvent::load(edm::SimTrackContainer& c) const {
     int id = trk->id();
     // ip = particle ID as PDG
     // pp = 4-momentum in GeV
-    // iv = corresponding G4SimVertex index
+    // iv = corresponding TmpSimVertex index
     // ig = corresponding GenParticle index
     SimTrack t = SimTrack(ip, p, iv, ig, trk->trackerSurfacePosition(), trk->trackerSurfaceMomentum());
     t.setTrackId(id);
@@ -49,11 +49,11 @@ void G4SimEvent::load(edm::SimTrackContainer& c) const {
   std::stable_sort(c.begin(), c.end(), IdSort());
 }
 
-void G4SimEvent::load(edm::SimVertexContainer& c) const {
+void TmpSimEvent::load(edm::SimVertexContainer& c) const {
   const double invcm = 1.0 / CLHEP::cm;
   // index of the vertex is needed to make SimVertex object
   for (unsigned int i = 0; i < g4vertices_.size(); ++i) {
-    G4SimVertex* vtx = g4vertices_[i];
+    TmpSimVertex* vtx = g4vertices_[i];
     auto pos = vtx->vertexPosition();
     math::XYZVectorD v3(pos.x() * invcm, pos.y() * invcm, pos.z() * invcm);
     float t = vtx->vertexGlobalTime() / CLHEP::second;

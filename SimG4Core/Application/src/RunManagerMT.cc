@@ -14,7 +14,6 @@
 
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 
-#include "SimG4Core/Notification/interface/G4SimEvent.h"
 #include "SimG4Core/Notification/interface/SimTrackManager.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/CurrentG4Track.h"

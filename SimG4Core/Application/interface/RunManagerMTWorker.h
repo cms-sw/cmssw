@@ -9,7 +9,7 @@
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "SimG4Core/Notification/interface/G4SimEvent.h"
+#include "SimG4Core/Notification/interface/TmpSimEvent.h"
 
 #include <memory>
 #include <unordered_map>
@@ -54,7 +54,7 @@ public:
   void beginRun(const edm::EventSetup&);
   void endRun();
 
-  G4SimEvent* produce(const edm::Event& inpevt, const edm::EventSetup& es, RunManagerMT& runManagerMaster);
+  TmpSimEvent* produce(const edm::Event& inpevt, const edm::EventSetup& es, RunManagerMT& runManagerMaster);
 
   void abortEvent();
   void abortRun(bool softAbort = false);
@@ -71,7 +71,7 @@ public:
 
   void initializeG4(RunManagerMT* runManagerMaster, const edm::EventSetup& es);
 
-  inline G4SimEvent* simEvent() { return &m_simEvent; }
+  inline TmpSimEvent* simEvent() { return &m_simEvent; }
   inline int getThreadIndex() const { return m_thread_index; }
 
 private:
@@ -116,7 +116,7 @@ private:
   TLSData* m_tls{nullptr};
 
   CustomUIsession* m_UIsession{nullptr};
-  G4SimEvent m_simEvent;
+  TmpSimEvent m_simEvent;
   std::unique_ptr<CMSSimEventManager> m_evtManager;
   std::unique_ptr<CMSSteppingVerbose> m_sVerbose;
   std::unordered_map<std::string, std::unique_ptr<SensitiveDetectorMakerBase>> m_sdMakers;
