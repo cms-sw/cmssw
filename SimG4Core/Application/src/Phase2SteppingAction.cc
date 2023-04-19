@@ -56,7 +56,8 @@ Phase2SteppingAction::Phase2SteppingAction(const CMSSteppingVerbose* sv, const e
     edm::LogVerbatim("SimG4CoreApplication")
         << "Phase2SteppingAction: Number of DeadRegions where all trackes are killed " << ndeadRegions;
     for (unsigned int i = 0; i < ndeadRegions; ++i) {
-      edm::LogVerbatim("SimG4CoreApplication") << "Phase2SteppingAction: DeadRegion " << i << ".  " << deadRegionNames[i];
+      edm::LogVerbatim("SimG4CoreApplication")
+          << "Phase2SteppingAction: DeadRegion " << i << ".  " << deadRegionNames[i];
     }
   }
   numberEkins = ekinNames.size();
@@ -69,8 +70,8 @@ Phase2SteppingAction::Phase2SteppingAction(const CMSSteppingVerbose* sv, const e
     edm::LogVerbatim("SimG4CoreApplication")
         << "Phase2SteppingAction::Kill following " << numberPart << " particles in " << numberEkins << " volumes";
     for (unsigned int i = 0; i < numberPart; ++i) {
-      edm::LogVerbatim("SimG4CoreApplication")
-          << "Phase2SteppingAction::Particle " << i << " " << ekinParticles[i] << "  Threshold = " << ekinMins[i] << " MeV";
+      edm::LogVerbatim("SimG4CoreApplication") << "Phase2SteppingAction::Particle " << i << " " << ekinParticles[i]
+                                               << "  Threshold = " << ekinMins[i] << " MeV";
       ekinMins[i] *= CLHEP::MeV;
     }
     for (unsigned int i = 0; i < numberEkins; ++i) {
@@ -93,10 +94,8 @@ void Phase2SteppingAction::UserSteppingAction(const G4Step* aStep) {
     if (nWarnings < 2) {
       ++nWarnings;
       edm::LogWarning("SimG4CoreApplication")
-          << "Phase2SteppingAction::UserPhase2SteppingAction: Track #"
-          << theTrack->GetTrackID() << " "
-          << theTrack->GetDefinition()->GetParticleName() << " Ekin(MeV)= "
-          << theTrack->GetKineticEnergy() / MeV;
+          << "Phase2SteppingAction::UserPhase2SteppingAction: Track #" << theTrack->GetTrackID() << " "
+          << theTrack->GetDefinition()->GetParticleName() << " Ekin(MeV)= " << theTrack->GetKineticEnergy() / MeV;
     }
     theTrack->SetKineticEnergy(0.0);
   }
@@ -117,12 +116,9 @@ void Phase2SteppingAction::UserSteppingAction(const G4Step* aStep) {
     if (nWarnings < 5) {
       ++nWarnings;
       edm::LogWarning("SimG4CoreApplication")
-          << "Track #" << theTrack->GetTrackID() << " " 
-          << theTrack->GetDefinition()->GetParticleName()
-          << " E(MeV)= " << preStep->GetKineticEnergy() / MeV
-          << " Nstep= " << theTrack->GetCurrentStepNumber()
-          << " is killed due to limit on number of steps;/n  PV: "
-          << preStep->GetPhysicalVolume()->GetName() << " at "
+          << "Track #" << theTrack->GetTrackID() << " " << theTrack->GetDefinition()->GetParticleName()
+          << " E(MeV)= " << preStep->GetKineticEnergy() / MeV << " Nstep= " << theTrack->GetCurrentStepNumber()
+          << " is killed due to limit on number of steps;/n  PV: " << preStep->GetPhysicalVolume()->GetName() << " at "
           << theTrack->GetPosition() << " StepLen(mm)= " << aStep->GetStepLength();
     }
   }
@@ -158,8 +154,7 @@ void Phase2SteppingAction::UserSteppingAction(const G4Step* aStep) {
     // kill low-energy in vacuum
     if (sAlive == tstat && killBeamPipe) {
       if (theTrack->GetKineticEnergy() < theCriticalEnergyForVacuum &&
-          theTrack->GetDefinition()->GetPDGCharge() != 0.0 &&
-          lv->GetMaterial()->GetDensity() <= theCriticalDensity) {
+          theTrack->GetDefinition()->GetPDGCharge() != 0.0 && lv->GetMaterial()->GetDensity() <= theCriticalDensity) {
         tstat = sLowEnergyInVacuum;
       }
     }
@@ -175,16 +170,14 @@ void Phase2SteppingAction::UserSteppingAction(const G4Step* aStep) {
         trkinfo->setFromTtoBTL();
         trkinfo->setIdAtBTLentrance(theTrack->GetTrackID());
 #ifdef DebugLog
-        LogDebug("SimG4CoreApplication")
-            << "Setting flag for Tracker -> BTL " << trkinfo->isFromTtoBTL()
-            << " IdAtBTLentrance = " << trkinfo->idAtBTLentrance();
+        LogDebug("SimG4CoreApplication") << "Setting flag for Tracker -> BTL " << trkinfo->isFromTtoBTL()
+                                         << " IdAtBTLentrance = " << trkinfo->idAtBTLentrance();
 #endif
       } else {
         trkinfo->setBTLlooper();
         trkinfo->setIdAtBTLentrance(theTrack->GetTrackID());
 #ifdef DebugLog
-        LogDebug("SimG4CoreApplication")
-            << "Setting flag for BTL looper " << trkinfo->isBTLlooper();
+        LogDebug("SimG4CoreApplication") << "Setting flag for BTL looper " << trkinfo->isBTLlooper();
         trkinfo->Print();
 #endif
       }
@@ -194,8 +187,7 @@ void Phase2SteppingAction::UserSteppingAction(const G4Step* aStep) {
       if (!trkinfo->isFromBTLtoT()) {
         trkinfo->setFromBTLtoT();
 #ifdef DebugLog
-        LogDebug("SimG4CoreApplication")
-            << "Setting flag for BTL -> Tracker " << trkinfo->isFromBTLtoT();
+        LogDebug("SimG4CoreApplication") << "Setting flag for BTL -> Tracker " << trkinfo->isFromBTLtoT();
 #endif
       }
     } else if (preStep->GetPhysicalVolume() == tracker && postStep->GetPhysicalVolume() == calo) {
@@ -249,8 +241,7 @@ bool Phase2SteppingAction::initPointer() {
       break;
   }
   edm::LogVerbatim("SimG4CoreApplication")
-      << "Phase2SteppingAction: pointer for Tracker " << tracker << " and for Calo "
-      << calo << " and for BTL " << btl;
+      << "Phase2SteppingAction: pointer for Tracker " << tracker << " and for Calo " << calo << " and for BTL " << btl;
 
   const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
   if (numberEkins > 0) {
@@ -265,8 +256,7 @@ bool Phase2SteppingAction::initPointer() {
       }
     }
     for (unsigned int i = 0; i < numberEkins; ++i) {
-      edm::LogVerbatim("SimG4CoreApplication")
-          << ekinVolumes[i]->GetName() << " with pointer " << ekinVolumes[i];
+      edm::LogVerbatim("SimG4CoreApplication") << ekinVolumes[i]->GetName() << " with pointer " << ekinVolumes[i];
     }
   }
 
@@ -277,9 +267,8 @@ bool Phase2SteppingAction::initPointer() {
       const G4ParticleDefinition* part = theParticleTable->FindParticle(ekinParticles[i]);
       if (nullptr != part)
         ekinPDG[i] = part->GetPDGEncoding();
-      edm::LogVerbatim("SimG4CoreApplication") 
-          << "Particle " << ekinParticles[i] << " with PDG code " << ekinPDG[i]
-          << " and KE cut off " << ekinMins[i] / MeV << " MeV";
+      edm::LogVerbatim("SimG4CoreApplication") << "Particle " << ekinParticles[i] << " with PDG code " << ekinPDG[i]
+                                               << " and KE cut off " << ekinMins[i] / MeV << " MeV";
     }
   }
 
