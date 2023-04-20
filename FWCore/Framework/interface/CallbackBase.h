@@ -81,15 +81,23 @@ namespace edm {
       CallbackBase(CallbackBase&&) = delete;
       CallbackBase& operator=(CallbackBase&&) = delete;
 
+      template <typename ProduceFunctor>  // ProduceFunctor executes TProduceFunc
       WaitingTaskHolder makeProduceTask(oneapi::tbb::task_group* group,
                                         ServiceWeakToken const& serviceToken,
                                         EventSetupRecordImpl const* record,
                                         EventSetupImpl const* eventSetupImpl,
-                                        bool emitPostPrefetchingSignal) {
+                                        bool emitPostPrefetchingSignal,
+                                        ProduceFunctor&& produceFunctor) {
         return WaitingTaskHolder(
             *group,
-            make_waiting_task([this, group, serviceToken, record, eventSetupImpl, emitPostPrefetchingSignal](
-                                  std::exception_ptr const* iException) {
+            make_waiting_task([this,
+                               group,
+                               serviceToken,
+                               record,
+                               eventSetupImpl,
+                               emitPostPrefetchingSignal,
+                               produceFunctor =
+                                   std::forward<ProduceFunctor>(produceFunctor)](std::exception_ptr const* iException) {
               std::exception_ptr excptr;
               if (iException) {
                 excptr = *iException;
@@ -112,39 +120,42 @@ namespace edm {
                 return;
               }
 
-              producer_->queue().push(*group, [this, serviceToken, record, eventSetupImpl]() {
-                callingContext_.setState(ESModuleCallingContext::State::kRunning);
-                std::exception_ptr exceptPtr;
-                try {
-                  convertException::wrap([this, &serviceToken, &record, &eventSetupImpl] {
-                    ESModuleCallingContext const& context = callingContext_;
-                    auto proxies = getTokenIndices();
-                    if (postMayGetProxies_) {
-                      proxies = &((*postMayGetProxies_).front());
+              producer_->queue().push(
+                  *group, [this, serviceToken, record, eventSetupImpl, produceFunctor = std::move(produceFunctor)]() {
+                    callingContext_.setState(ESModuleCallingContext::State::kRunning);
+                    std::exception_ptr exceptPtr;
+                    try {
+                      convertException::wrap([this, &serviceToken, &record, &eventSetupImpl, &produceFunctor] {
+                        ESModuleCallingContext const& context = callingContext_;
+                        auto proxies = getTokenIndices();
+                        if (postMayGetProxies_) {
+                          proxies = &((*postMayGetProxies_).front());
+                        }
+                        TRecord rec;
+                        ESParentContext pc{&context};
+                        rec.setImpl(record, transitionID(), proxies, eventSetupImpl, &pc);
+                        ServiceRegistry::Operate operate(serviceToken.lock());
+                        record->activityRegistry()->preESModuleSignal_.emit(record->key(), context);
+                        struct EndGuard {
+                          EndGuard(EventSetupRecordImpl const* iRecord, ESModuleCallingContext const& iContext)
+                              : record_{iRecord}, context_{iContext} {}
+                          ~EndGuard() {
+                            record_->activityRegistry()->postESModuleSignal_.emit(record_->key(), context_);
+                          }
+                          EventSetupRecordImpl const* record_;
+                          ESModuleCallingContext const& context_;
+                        };
+                        EndGuard guard(record, context);
+                        decorator_.pre(rec);
+                        storeReturnedValues(produceFunctor(rec));
+                        decorator_.post(rec);
+                      });
+                    } catch (cms::Exception& iException) {
+                      exceptionContext(iException, callingContext_);
+                      exceptPtr = std::current_exception();
                     }
-                    TRecord rec;
-                    ESParentContext pc{&context};
-                    rec.setImpl(record, transitionID(), proxies, eventSetupImpl, &pc);
-                    ServiceRegistry::Operate operate(serviceToken.lock());
-                    record->activityRegistry()->preESModuleSignal_.emit(record->key(), context);
-                    struct EndGuard {
-                      EndGuard(EventSetupRecordImpl const* iRecord, ESModuleCallingContext const& iContext)
-                          : record_{iRecord}, context_{iContext} {}
-                      ~EndGuard() { record_->activityRegistry()->postESModuleSignal_.emit(record_->key(), context_); }
-                      EventSetupRecordImpl const* record_;
-                      ESModuleCallingContext const& context_;
-                    };
-                    EndGuard guard(record, context);
-                    decorator_.pre(rec);
-                    storeReturnedValues((*produceFunction_)(rec));
-                    decorator_.post(rec);
+                    taskList_.doneWaiting(exceptPtr);
                   });
-                } catch (cms::Exception& iException) {
-                  exceptionContext(iException, callingContext_);
-                  exceptPtr = std::current_exception();
-                }
-                taskList_.doneWaiting(exceptPtr);
-              });
             }));
       }
 

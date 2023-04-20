@@ -46,16 +46,40 @@ namespace edm {
 
   namespace eventsetup {
 
-    template <typename T,             //producer's type
-              typename TAcquireFunc,  //acquire functor type
-              typename TProduceFunc,  //produce functor type
-              typename TReturn,       //return type of the producer's method
-              typename TRecord,       //the record passed in as an argument
-              typename TDecorator     //allows customization using pre/post calls
+    namespace impl {
+      template <typename U>
+      struct AcquireCacheType {
+        using type = std::optional<U>;
+        static U& value(type& val) { return val.value(); }
+      };
+      template <typename U>
+      struct AcquireCacheType<std::optional<U>> {
+        using type = std::optional<U>;
+        static std::optional<U>& value(type& val) { return val; }
+      };
+      template <typename U>
+      struct AcquireCacheType<std::unique_ptr<U>> {
+        using type = std::unique_ptr<U>;
+        static std::unique_ptr<U>& value(type& val) { return val; }
+      };
+      template <typename U>
+      struct AcquireCacheType<std::shared_ptr<U>> {
+        using type = std::shared_ptr<U>;
+        static std::shared_ptr<U>& value(type& val) { return val; }
+      };
+    }  // namespace impl
+
+    template <typename T,               //producer's type
+              typename TAcquireFunc,    //acquire functor type
+              typename TAcquireReturn,  //return type of the acquire method
+              typename TProduceFunc,    //produce functor type
+              typename TProduceReturn,  //return type of the produce method
+              typename TRecord,         //the record passed in as an argument
+              typename TDecorator       //allows customization using pre/post calls
               = CallbackSimpleDecorator<TRecord>>
-    class CallbackExternalWork : public CallbackBase<T, TProduceFunc, TReturn, TRecord, TDecorator> {
+    class CallbackExternalWork : public CallbackBase<T, TProduceFunc, TProduceReturn, TRecord, TDecorator> {
     public:
-      using Base = CallbackBase<T, TProduceFunc, TReturn, TRecord, TDecorator>;
+      using Base = CallbackBase<T, TProduceFunc, TProduceReturn, TRecord, TDecorator>;
 
       CallbackExternalWork(T* iProd,
                            TAcquireFunc iAcquireFunc,
@@ -81,8 +105,14 @@ namespace edm {
         return Base::prefetchAsyncImpl(
             [this](auto&& group, auto&& token, auto&& record, auto&& es) {
               constexpr bool emitPostPrefetchingSignal = false;
+              auto produceFunctor = [this](TRecord const& record) {
+                auto returnValue = (*Base::produceFunction())(
+                    record, std::move(impl::AcquireCacheType<TAcquireReturn>::value(acquireCache_)));
+                acquireCache_.reset();
+                return returnValue;
+              };
               WaitingTaskHolder produceTask =
-                  Base::makeProduceTask(group, token, record, es, emitPostPrefetchingSignal);
+                  Base::makeProduceTask(group, token, record, es, emitPostPrefetchingSignal, std::move(produceFunctor));
 
               WaitingTaskWithArenaHolder waitingTaskWithArenaHolder =
                   makeExceptionHandlerTask(std::move(produceTask), group);
@@ -161,7 +191,7 @@ namespace edm {
                               ESModuleCallingContext const& context_;
                             };
                             EndGuard guard(record, context);
-                            (*acquireFunction_)(rec, holder);
+                            acquireCache_ = (*acquireFunction_)(rec, holder);
                           });
                         } catch (cms::Exception& iException) {
                           iException.addContext("Running acquire");
@@ -194,6 +224,7 @@ namespace edm {
       }
 
       std::shared_ptr<TAcquireFunc> acquireFunction_;
+      typename impl::AcquireCacheType<TAcquireReturn>::type acquireCache_;
     };
   }  // namespace eventsetup
 }  // namespace edm
