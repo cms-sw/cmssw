@@ -821,6 +821,11 @@ def customiseMerging(process, changeProcessname=True, reselect=False):
     process.muons.FillShoweringInfo = cms.bool(False)
     process.muons.FillCosmicsIdMap = cms.bool(False)
 
+    process.displacedMuons.FillDetectorBasedIsolation = cms.bool(False)
+    process.displacedMuons.FillSelectorMaps = cms.bool(False)
+    process.displacedMuons.FillShoweringInfo = cms.bool(False)
+    process.displacedMuons.FillCosmicsIdMap = cms.bool(False)
+
     # seed configuration needed for seedmerger
     #process.load(
     #    "RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeedsParameters_cff"
