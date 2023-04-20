@@ -156,6 +156,7 @@ def getSequence(process, collection,
                 "minimumHits": 10,
                 })
     elif collection in ("ALCARECOTkAlCosmicsCTF0T",
+                        "ALCARECOTkAlCosmicsCosmicTF0T",
                         "ALCARECOTkAlCosmicsInCollisions"):
         isCosmics = True
         options["TrackSelector"]["HighPurity"] = {} # drop high purity cut
