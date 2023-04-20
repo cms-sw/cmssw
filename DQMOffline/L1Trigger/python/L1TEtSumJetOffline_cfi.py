@@ -79,7 +79,7 @@ completeSelection = 'et > 30 && (' + ' || '.join([centralJetSelection, withinTra
 
 goodPFJetsForL1T = cms.EDFilter(
     "PFJetSelector",
-    src=cms.InputTag("ak4PFJetsCHS"),
+    src=cms.InputTag("ak4PFJetsPuppi"),
     cut=cms.string(completeSelection),
     filter=cms.bool(True),
 )
