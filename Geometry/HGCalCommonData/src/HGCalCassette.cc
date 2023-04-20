@@ -30,9 +30,9 @@ std::pair<double, double> HGCalCassette::getShift(int layer, int zside, int cass
   int loc = 2 * (cassette_ * (layer - 1) + locc);
   std::pair<double, double> xy = std::make_pair(-zside * shifts_[loc], shifts_[loc + 1]);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "HGCalCassette::getShift: Layer " << layer << " zside " << zside << " type " << typeHE_ << " cassette "
-                                << cassette << " Loc " << locc << ":" << loc << " shift " << xy.first << ":"
-                                << xy.second;
+  edm::LogVerbatim("HGCalGeom") << "HGCalCassette::getShift: Layer " << layer << " zside " << zside << " type "
+                                << typeHE_ << " cassette " << cassette << " Loc " << locc << ":" << loc << " shift "
+                                << xy.first << ":" << xy.second;
 #endif
   return xy;
 }

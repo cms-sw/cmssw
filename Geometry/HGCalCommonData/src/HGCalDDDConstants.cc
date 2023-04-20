@@ -194,7 +194,8 @@ std::array<int, 3> HGCalDDDConstants::assignCellTrap(float x, float y, float z, 
     auto cshift = hgcassette_.getShift(layer, -1, cassette);
 #ifdef EDM_ML_DEBUG
     std::ostringstream st1;
-    st1 << "Cassette " << cassette << " Shift " << cshift.first << ":" << cshift.second << " Original " << xx << ":" << yy;
+    st1 << "Cassette " << cassette << " Shift " << cshift.first << ":" << cshift.second << " Original " << xx << ":"
+        << yy;
 #endif
     xx += (zside * cshift.first);
     yy -= cshift.second;
@@ -759,7 +760,8 @@ std::pair<float, float> HGCalDDDConstants::localToGlobal8(
     auto cshift = hgcassette_.getShift(lay, -1, (ktr->second).cassette);
     std::ostringstream st1;
     if (debug)
-      st1 << "Cassette " << (ktr->second).cassette << " Shift " << cshift.first << ":" << cshift.second << " Original " << x << ":" << y;
+      st1 << "Cassette " << (ktr->second).cassette << " Shift " << cshift.first << ":" << cshift.second << " Original "
+          << x << ":" << y;
     if (!reco) {
       x -= ((HGCalParameters::k_ScaleToDDD)*zside * cshift.first);
       y += ((HGCalParameters::k_ScaleToDDD)*cshift.second);
@@ -871,7 +873,8 @@ std::pair<float, float> HGCalDDDConstants::locateCell(
       auto cshift = hgcassette_.getShift(lay, -1, (ktr->second).cassette);
       std::ostringstream st1;
       if (debug)
-        st1 << "Cassette " << (ktr->second).cassette << " Shift " << cshift.first << ":" << cshift.second << " Original " << x << ":" << y;
+        st1 << "Cassette " << (ktr->second).cassette << " Shift " << cshift.first << ":" << cshift.second
+            << " Original " << x << ":" << y;
       if (!reco) {
         x -= ((HGCalParameters::k_ScaleToDDD)*cshift.first);
         y += ((HGCalParameters::k_ScaleToDDD)*cshift.second);
@@ -880,7 +883,7 @@ std::pair<float, float> HGCalDDDConstants::locateCell(
         y += cshift.second;
       }
       if (debug) {
-	st1 << " Final " << x << ":" << y;
+        st1 << " Final " << x << ":" << y;
         edm::LogVerbatim("HGCalGeom") << st1.str();
       }
     }
@@ -946,11 +949,12 @@ std::pair<float, float> HGCalDDDConstants::locateCellTrap(
       auto cshift = hgcassette_.getShift(lay, -1, cassette);
       std::ostringstream st1;
       if (debug)
-        st1 << "Cassette " << cassette << " Shift " << cshift.first << ":" << cshift.second << " Original " << x << ":" << y;
+        st1 << "Cassette " << cassette << " Shift " << cshift.first << ":" << cshift.second << " Original " << x << ":"
+            << y;
       x -= cshift.first;
       y += cshift.second;
       if (debug) {
-	st1 << " Final " << x << ":" << y;
+        st1 << " Final " << x << ":" << y;
         edm::LogVerbatim("HGCalGeom") << st1.str();
       }
     }
@@ -1479,7 +1483,8 @@ void HGCalDDDConstants::waferFromPosition(const double x,
       if (ktr != hgpar_->waferInfoMap_.end()) {
         auto cshift = hgcassette_.getShift(layer, -1, (ktr->second).cassette);
         if (debug)
-          edm::LogVerbatim("HGCalGeom") << "Cassette " << (ktr->second).cassette << " Shift " << cshift.first << ":" << cshift.second;
+          edm::LogVerbatim("HGCalGeom") << "Cassette " << (ktr->second).cassette << " Shift " << cshift.first << ":"
+                                        << cshift.second;
         dx0 = -cshift.first;
         dy0 = cshift.second;
       }

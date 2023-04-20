@@ -220,11 +220,12 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
     edm::LogVerbatim(pid) << "CheckID " << HGCSiliconDetId(id) << " Layer:Module:Cell:ModuleLev " << layer << ":"
                           << module << ":" << cell << ":" << moduleLev << " SimWt:history " << useSimWt_ << ":"
                           << touch->GetHistoryDepth() << ":" << levelT1_ << ":" << levelT2_ << " input position: ("
-                          << hitPoint.x() / CLHEP::cm << ", " << hitPoint.y() / CLHEP::cm << ":" << convertRadToDeg(std::atan2(hitPoint.y(), hitPoint.x()))
-                          << "); position from ID (" << xx << ", " << xy.second << ") distance " << dx << ":" << dy
-                          << ":" << std::sqrt(diff) << " Valid " << valid1 << " Wafer type|rotation " << partn.first << ":"
-                          << partn.second << " Part:Orient:Cassette " << std::get<1>(hgcons_->waferFileInfo(indx))
-                          << ":" << std::get<2>(hgcons_->waferFileInfo(indx)) << ":"
+                          << hitPoint.x() / CLHEP::cm << ", " << hitPoint.y() / CLHEP::cm << ":"
+                          << convertRadToDeg(std::atan2(hitPoint.y(), hitPoint.x())) << "); position from ID (" << xx
+                          << ", " << xy.second << ") distance " << dx << ":" << dy << ":" << std::sqrt(diff)
+                          << " Valid " << valid1 << " Wafer type|rotation " << partn.first << ":" << partn.second
+                          << " Part:Orient:Cassette " << std::get<1>(hgcons_->waferFileInfo(indx)) << ":"
+                          << std::get<2>(hgcons_->waferFileInfo(indx)) << ":"
                           << std::get<3>(hgcons_->waferFileInfo(indx)) << " CassetteShift " << cshift;
     if ((diff > tol) || (!valid1)) {
       printDetectorLevels(touch);
