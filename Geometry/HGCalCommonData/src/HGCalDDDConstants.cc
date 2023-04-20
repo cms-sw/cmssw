@@ -189,6 +189,13 @@ std::array<int, 3> HGCalDDDConstants::assignCellTrap(float x, float y, float z, 
   int ll = layer - hgpar_->firstLayer_;
   xx -= hgpar_->xLayerHex_[ll];
   yy -= hgpar_->yLayerHex_[ll];
+  double phi = (((yy == 0.0) && (xx == 0.0)) ? 0. : std::atan2(yy, xx));
+  if (phi < 0)
+    phi += (2.0 * M_PI);
+  if (indx.second != 0)
+    iphi = (1 + static_cast<int>(phi / indx.second)) % hgpar_->scintCells(layer);
+  if (iphi == 0)
+    iphi = hgpar_->scintCells(layer);
   if (mode_ == HGCalGeometryMode::TrapezoidCassette) {
     int cassette = HGCalTileIndex::tileCassette(iphi, hgpar_->phiOffset_, hgpar_->nphiCassette_, hgpar_->cassettes_);
     auto cshift = hgcassette_.getShift(layer, -1, cassette);
@@ -200,17 +207,10 @@ std::array<int, 3> HGCalDDDConstants::assignCellTrap(float x, float y, float z, 
     xx += (zside * cshift.first);
     yy -= cshift.second;
 #ifdef EDM_ML_DEBUG
-    st1 << " Shifted " << x << ":" << y;
+    st1 << " Shifted " << xx << ":" << yy;
     edm::LogVerbatim("HGCalGeomT") << st1.str();
 #endif
   }
-  double phi = (((yy == 0.0) && (xx == 0.0)) ? 0. : std::atan2(yy, xx));
-  if (phi < 0)
-    phi += (2.0 * M_PI);
-  if (indx.second != 0)
-    iphi = (1 + static_cast<int>(phi / indx.second)) % hgpar_->scintCells(layer);
-  if (iphi == 0)
-    iphi = hgpar_->scintCells(layer);
   type = hgpar_->scintType(layer);
   double r = std::sqrt(xx * xx + yy * yy);
   auto ir = std::lower_bound(hgpar_->radiusLayer_[type].begin(), hgpar_->radiusLayer_[type].end(), r);
