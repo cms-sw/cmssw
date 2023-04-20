@@ -102,6 +102,11 @@ to_bemanipulate.append(
         module_name="muons1stStep", manipulator_name="Muon", steps=["SIM", "MERGE"]
     )
 )
+to_bemanipulate.append(
+    module_manipulate(
+        module_name="displacedMuons1stStep", manipulator_name="Muon", steps=["SIM", "MERGE"]
+    )
+)
 # to_bemanipulate.append(module_manipulate(module_name = 'gedGsfElectronsTmp', manipulator_name = "GsfElectron", steps = ["SIM", "MERGE"]))
 # to_bemanipulate.append(module_manipulate(module_name = 'gedPhotonsTmp', manipulator_name = "Photon", steps = ["SIM", "MERGE"]))
 to_bemanipulate.append(
