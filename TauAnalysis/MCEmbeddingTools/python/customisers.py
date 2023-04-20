@@ -70,6 +70,13 @@ to_bemanipulate.append(
 )
 to_bemanipulate.append(
     module_manipulate(
+        module_name="lowPtGsfEleGsfTracks",
+        manipulator_name="GsfTrack",
+        steps=["SIM", "MERGE"],
+    )
+)
+to_bemanipulate.append(
+    module_manipulate(
         module_name="conversionStepTracks",
         manipulator_name="Track",
         steps=["SIM", "MERGE"],
@@ -86,13 +93,6 @@ to_bemanipulate.append(
     module_manipulate(
         module_name="ckfOutInTracksFromConversions",
         manipulator_name="Track",
-        steps=["SIM", "MERGE"],
-    )
-)
-to_bemanipulate.append(
-    module_manipulate(
-        module_name="lowPtGsfEleGsfTracks",
-        manipulator_name="GsfTrack",
         steps=["SIM", "MERGE"],
     )
 )
@@ -159,13 +159,6 @@ to_bemanipulate.append(
     module_manipulate(
         module_name="ecalDrivenElectronSeeds",
         manipulator_name="EcalDrivenElectronSeed",
-        steps=["SIM", "MERGE"],
-    )
-)
-to_bemanipulate.append(
-    module_manipulate(
-        module_name="lowPtGsfElectronSeeds",
-        manipulator_name="LowPtGsfElectronSeed",
         steps=["SIM", "MERGE"],
     )
 )
