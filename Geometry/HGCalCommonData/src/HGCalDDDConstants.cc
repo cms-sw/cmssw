@@ -191,14 +191,17 @@ std::array<int, 3> HGCalDDDConstants::assignCellTrap(float x, float y, float z, 
   yy -= hgpar_->yLayerHex_[ll];
   if (mode_ == HGCalGeometryMode::TrapezoidCassette) {
     int cassette = HGCalTileIndex::tileCassette(iphi, hgpar_->phiOffset_, hgpar_->nphiCassette_, hgpar_->cassettes_);
-    auto cshift = hgcassette_.getShift(layer, zside, cassette);
-    int invert = ((layerType(layer) == HGCalTypes::WaferCenter) && (zside > 0)) ? 1 : -1;
+    auto cshift = hgcassette_.getShift(layer, -1, cassette);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeomT") << "Cassette " << cassette << " Shift " << (invert * -cshift.first) << ":"
-                                   << cshift.second;
+    std::ostringstream st1;
+    st1 << "Cassette " << cassette << " Shift " << cshift.first << ":" << cshift.second << " Original " << xx << ":" << yy;
 #endif
-    xx -= (invert * cshift.first);
+    xx += (zside * cshift.first);
     yy -= cshift.second;
+#ifdef EDM_ML_DEBUG
+    st1 << " Shifted " << x << ":" << y;
+    edm::LogVerbatim("HGCalGeomT") << st1.str();
+#endif
   }
   double phi = (((yy == 0.0) && (xx == 0.0)) ? 0. : std::atan2(yy, xx));
   if (phi < 0)
@@ -753,17 +756,20 @@ std::pair<float, float> HGCalDDDConstants::localToGlobal8(
   int indx = HGCalWaferIndex::waferIndex(lay, waferU, waferV);
   auto ktr = hgpar_->waferInfoMap_.find(indx);
   if ((mode_ == HGCalGeometryMode::Hexagon8Cassette) && (ktr != hgpar_->waferInfoMap_.end())) {
-    int invert = ((layerType(lay) == HGCalTypes::WaferCenter) && (zside > 0)) ? 1 : -1;
-    auto cshift = hgcassette_.getShift(lay, zside, (ktr->second).cassette);
+    auto cshift = hgcassette_.getShift(lay, -1, (ktr->second).cassette);
+    std::ostringstream st1;
     if (debug)
-      edm::LogVerbatim("HGCalGeom") << "Cassette " << (ktr->second).cassette << " Shift " << (invert * cshift.first)
-                                    << ":" << cshift.second;
+      st1 << "Cassette " << (ktr->second).cassette << " Shift " << cshift.first << ":" << cshift.second << " Original " << x << ":" << y;
     if (!reco) {
-      x += ((HGCalParameters::k_ScaleToDDD)*invert * cshift.first);
+      x -= ((HGCalParameters::k_ScaleToDDD)*zside * cshift.first);
       y += ((HGCalParameters::k_ScaleToDDD)*cshift.second);
     } else {
-      x += (invert * cshift.first);
+      x -= (zside * cshift.first);
       y += cshift.second;
+    }
+    if (debug) {
+      st1 << " Final " << x << ":" << y;
+      edm::LogVerbatim("HGCalGeom") << st1.str();
     }
   }
   if (debug)
@@ -862,17 +868,20 @@ std::pair<float, float> HGCalDDDConstants::locateCell(
     x += xy.first;
     y += xy.second;
     if ((mode_ == HGCalGeometryMode::Hexagon8Cassette) && (ktr != hgpar_->waferInfoMap_.end())) {
-      int invert = ((layerType(lay) == HGCalTypes::WaferCenter) && (zside > 0)) ? 1 : -1;
-      auto cshift = hgcassette_.getShift(lay, zside, (ktr->second).cassette);
+      auto cshift = hgcassette_.getShift(lay, -1, (ktr->second).cassette);
+      std::ostringstream st1;
       if (debug)
-        edm::LogVerbatim("HGCalGeom") << "Cassette " << (ktr->second).cassette << " Shift " << (invert * cshift.first)
-                                      << ":" << cshift.second;
+        st1 << "Cassette " << (ktr->second).cassette << " Shift " << cshift.first << ":" << cshift.second << " Original " << x << ":" << y;
       if (!reco) {
-        x += ((HGCalParameters::k_ScaleToDDD)*invert * cshift.first);
+        x -= ((HGCalParameters::k_ScaleToDDD)*cshift.first);
         y += ((HGCalParameters::k_ScaleToDDD)*cshift.second);
       } else {
-        x += (invert * cshift.first);
+        x -= cshift.first;
         y += cshift.second;
+      }
+      if (debug) {
+	st1 << " Final " << x << ":" << y;
+        edm::LogVerbatim("HGCalGeom") << st1.str();
       }
     }
     if (debug)
@@ -930,18 +939,21 @@ std::pair<float, float> HGCalDDDConstants::locateCellTrap(
     int ll = lay - hgpar_->firstLayer_;
     x += hgpar_->xLayerHex_[ll];
     y += hgpar_->yLayerHex_[ll];
-    if (mode_ == HGCalGeometryMode::TrapezoidCassette) {
-      int cassette = HGCalTileIndex::tileCassette(iphi, hgpar_->phiOffset_, hgpar_->nphiCassette_, hgpar_->cassettes_);
-      int invert = ((layerType(lay) == HGCalTypes::WaferCenter) && (zside > 0)) ? 1 : -1;
-      auto cshift = hgcassette_.getShift(lay, zside, cassette);
-      if (debug)
-        edm::LogVerbatim("HGCalGeom") << "Cassette " << cassette << " Shift " << (invert * cshift.first) << ":"
-                                      << cshift.second;
-      x += (invert * cshift.first);
-      y += cshift.second;
-    }
     if (irad < 0)
       x = -x;
+    if (mode_ == HGCalGeometryMode::TrapezoidCassette) {
+      int cassette = HGCalTileIndex::tileCassette(iphi, hgpar_->phiOffset_, hgpar_->nphiCassette_, hgpar_->cassettes_);
+      auto cshift = hgcassette_.getShift(lay, -1, cassette);
+      std::ostringstream st1;
+      if (debug)
+        st1 << "Cassette " << cassette << " Shift " << cshift.first << ":" << cshift.second << " Original " << x << ":" << y;
+      x -= cshift.first;
+      y += cshift.second;
+      if (debug) {
+	st1 << " Final " << x << ":" << y;
+        edm::LogVerbatim("HGCalGeom") << st1.str();
+      }
+    }
   }
   if (!reco) {
     x *= HGCalParameters::k_ScaleToDDD;
@@ -1465,12 +1477,10 @@ void HGCalDDDConstants::waferFromPosition(const double x,
       int indx = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
       auto ktr = hgpar_->waferInfoMap_.find(indx);
       if (ktr != hgpar_->waferInfoMap_.end()) {
-        int invert = ((layerType(layer) == HGCalTypes::WaferCenter) && (zside > 0)) ? 1 : -1;
-        auto cshift = hgcassette_.getShift(layer, zside, (ktr->second).cassette);
+        auto cshift = hgcassette_.getShift(layer, -1, (ktr->second).cassette);
         if (debug)
-          edm::LogVerbatim("HGCalGeom") << "Cassette " << (ktr->second).cassette << " Shift " << (invert * cshift.first)
-                                        << ":" << cshift.second;
-        dx0 = (invert * cshift.first);
+          edm::LogVerbatim("HGCalGeom") << "Cassette " << (ktr->second).cassette << " Shift " << cshift.first << ":" << cshift.second;
+        dx0 = -cshift.first;
         dy0 = cshift.second;
       }
     }
