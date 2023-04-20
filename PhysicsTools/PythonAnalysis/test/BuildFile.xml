@@ -15,9 +15,9 @@
 <test name="testhep_ml" command="testTheano.sh testhep_ml.py"/>
 <test name="testCorrectionlib" command="test_correctionlib.py"/>
 <test name="testTorch" command="test_torch.py cpu"/>
-<iftool name="cuda">
-<test name="testTorchGPU" command="test_torch.py cuda:0"/>
-</iftool>
+<test name="testTorchGPU" command="test_torch.py cuda:0">
+  <use name="cuda"/>
+</test>
 
 <bin name="test_PyMVA" file="test_PyMVA.cpp">
   <use name="rootpymva"/>
