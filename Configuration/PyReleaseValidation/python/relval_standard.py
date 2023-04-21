@@ -494,6 +494,11 @@ workflows[140.067] = ['',['RunEGamma2022D','HLTDR3_2023','RECONANORUN3_reHLT','H
 workflows[140.068] = ['',['RunTau2022D','HLTDR3_2023','RECONANORUN3_reHLT','HARVESTRUN3']]
 workflows[140.069] = ['',['RunMuonEG2022D','HLTDR3_2023','RECONANORUN3_reHLT','HARVESTRUN3']]
 
+### run3-2023 (2022 data) - Pixel-only (triplets), ECAL-only and HCAL-only
+workflows[140.065505] = ['Run3-2023_JetMET2022D_RecoPixelOnlyTripletsCPU',['RunJetMET2022D','HLTDR3_2023','RECODR3_reHLT_Patatrack_PixelOnlyTripletsCPU','HARVESTRUN3_pixelTrackingOnly']]
+workflows[140.065511] = ['Run3-2023_JetMET2022D_RecoECALOnlyCPU',['RunJetMET2022D','HLTDR3_2023','RECODR3_reHLT_ECALOnlyCPU','HARVESTRUN3_ECALOnly']]
+workflows[140.065521] = ['Run3-2023_JetMET2022D_RecoHCALOnlyCPU',['RunJetMET2022D','HLTDR3_2023','RECODR3_reHLT_HCALOnlyCPU','HARVESTRUN3_HCALOnly']]
+
 ### run3 (2023) skims ###
 workflows[140.104] = ['',['RunZeroBias2022D','HLTDR3_2023','RECONANORUN3_reHLT','SKIMZEROBIASRUN3_reHLT']]
 workflows[140.105] = ['',['RunBTagMu2022D','HLTDR3_2023','RECONANORUN3_reHLT','SKIMBTAGMURUN3_reHLT']]
