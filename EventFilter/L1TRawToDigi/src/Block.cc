@@ -212,6 +212,7 @@ namespace l1t {
     calo_bxid_ = *data_ & 0xfff;
     capId_ = 0;
     six_hcal_feature_bits_ = (*data_ >> 15) & 0x1;
+    slot7_card_ = (*data_ >> 14) & 0x1;
     if (bx_per_l1a_ > 1) {
       edm::LogInfo("L1T") << "CTP7 block with multiple bunch crossings:" << bx_per_l1a_;
     }
@@ -226,8 +227,9 @@ namespace l1t {
     // CTP7 header contains number of BX in payload and the bunch crossing ID
     // Not sure how to map to generic BlockHeader variables, so just packing
     // it all in flags variable
-    unsigned blockFlags = ((bx_per_l1a_ & 0xf) << 16) | (calo_bxid_ & 0xfff) | ((six_hcal_feature_bits_ & 0x1) << 15);
-    unsigned blockSize = (192 + (int)six_hcal_feature_bits_ * 28) * (int)bx_per_l1a_;
+    unsigned blockFlags = ((bx_per_l1a_ & 0xf) << 16) | (calo_bxid_ & 0xfff) | ((six_hcal_feature_bits_ & 0x1) << 15) |
+                          ((slot7_card_ & 0x1) << 14);
+    unsigned blockSize = (slot7_card_ == 1) ? 6 : ((192 + (int)six_hcal_feature_bits_ * 28) * (int)bx_per_l1a_);
     return BlockHeader(blockId, blockSize, capId_, blockFlags, CTP7);
   }
 

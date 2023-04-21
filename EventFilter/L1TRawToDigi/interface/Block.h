@@ -186,6 +186,7 @@ namespace l1t {
     unsigned bx_per_l1a_;
     unsigned calo_bxid_;
     unsigned six_hcal_feature_bits_;
+    unsigned slot7_card_;
     amc::Header amcHeader_;
   };
 }  // namespace l1t

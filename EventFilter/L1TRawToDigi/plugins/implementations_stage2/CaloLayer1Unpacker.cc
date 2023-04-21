@@ -25,51 +25,58 @@ namespace l1t {
       //      std::cout << " N_BX calculated " << N_BX << std::endl;
 
       int HCALFB = (block.header().getFlags() >> 15) & 0x1;
+      int slot7card = (block.header().getFlags() >> 14) & 0x1;
 
-      if (N_BX == 1) {
-        if (HCALFB == 0) {
-          UCTCTP7RawData ctp7Data(ptr);
-          makeECalTPGs(ctp7_phi, ctp7Data, res->getEcalDigis());
-          makeHCalTPGs(ctp7_phi, ctp7Data, res->getHcalDigis());
-          makeHFTPGs(ctp7_phi, ctp7Data, res->getHcalDigis());
-          makeRegions(ctp7_phi, ctp7Data, res->getRegions());
-        }
-        if (HCALFB == 1) {
-          UCTCTP7RawData_HCALFB ctp7Data_HCALFB(ptr);
-          makeECalTPGs_HCALFB(ctp7_phi, ctp7Data_HCALFB, res->getEcalDigis());
-          makeHCalTPGs_HCALFB(ctp7_phi, ctp7Data_HCALFB, res->getHcalDigis());
-          makeHFTPGs_HCALFB(ctp7_phi, ctp7Data_HCALFB, res->getHcalDigis());
-          makeRegions_HCALFB(ctp7_phi, ctp7Data_HCALFB, res->getRegions());
-        }
-      } else if (N_BX == 5) {
-        if (HCALFB == 0) {
-          UCTCTP7RawData5BX ctp7Data5BX(ptr);
-          // BX_n = 0, 1, 2, 3, 4, where 2 is nominal
-          makeECalTPGs5BX(ctp7_phi, ctp7Data5BX, res->getEcalDigis(), 2);
-          makeHCalTPGs5BX(ctp7_phi, ctp7Data5BX, res->getHcalDigis(), 2);
-          makeHFTPGs5BX(ctp7_phi, ctp7Data5BX, res->getHcalDigis(), 2);
-          makeRegions5BX(ctp7_phi, ctp7Data5BX, res->getRegions(), 2);
-          for (int i = 0; i < 5; i++) {
-            makeECalTPGs5BX(ctp7_phi, ctp7Data5BX, res->getEcalDigisBx(i), i);
+      if (slot7card == 0) {
+        if (N_BX == 1) {
+          if (HCALFB == 0) {
+            UCTCTP7RawData ctp7Data(ptr);
+            makeECalTPGs(ctp7_phi, ctp7Data, res->getEcalDigis());
+            makeHCalTPGs(ctp7_phi, ctp7Data, res->getHcalDigis());
+            makeHFTPGs(ctp7_phi, ctp7Data, res->getHcalDigis());
+            makeRegions(ctp7_phi, ctp7Data, res->getRegions());
           }
-        }
-        if (HCALFB == 1) {
-          UCTCTP7RawData5BX_HCALFB ctp7Data5BX_HCALFB(ptr);
-          // BX_n = 0, 1, 2, 3, 4, where 2 is nominal
-          makeECalTPGs5BX_HCALFB(ctp7_phi, ctp7Data5BX_HCALFB, res->getEcalDigis(), 2);
-          makeHCalTPGs5BX_HCALFB(ctp7_phi, ctp7Data5BX_HCALFB, res->getHcalDigis(), 2);
-          makeHFTPGs5BX_HCALFB(ctp7_phi, ctp7Data5BX_HCALFB, res->getHcalDigis(), 2);
-          makeRegions5BX_HCALFB(ctp7_phi, ctp7Data5BX_HCALFB, res->getRegions(), 2);
-          for (int i = 0; i < 5; i++) {
-            makeECalTPGs5BX_HCALFB(ctp7_phi, ctp7Data5BX_HCALFB, res->getEcalDigisBx(i), i);
+          if (HCALFB == 1) {
+            UCTCTP7RawData_HCALFB ctp7Data_HCALFB(ptr);
+            makeECalTPGs_HCALFB(ctp7_phi, ctp7Data_HCALFB, res->getEcalDigis());
+            makeHCalTPGs_HCALFB(ctp7_phi, ctp7Data_HCALFB, res->getHcalDigis());
+            makeHFTPGs_HCALFB(ctp7_phi, ctp7Data_HCALFB, res->getHcalDigis());
+            makeRegions_HCALFB(ctp7_phi, ctp7Data_HCALFB, res->getRegions());
           }
+        } else if (N_BX == 5) {
+          if (HCALFB == 0) {
+            UCTCTP7RawData5BX ctp7Data5BX(ptr);
+            // BX_n = 0, 1, 2, 3, 4, where 2 is nominal
+            makeECalTPGs5BX(ctp7_phi, ctp7Data5BX, res->getEcalDigis(), 2);
+            makeHCalTPGs5BX(ctp7_phi, ctp7Data5BX, res->getHcalDigis(), 2);
+            makeHFTPGs5BX(ctp7_phi, ctp7Data5BX, res->getHcalDigis(), 2);
+            makeRegions5BX(ctp7_phi, ctp7Data5BX, res->getRegions(), 2);
+            for (int i = 0; i < 5; i++) {
+              makeECalTPGs5BX(ctp7_phi, ctp7Data5BX, res->getEcalDigisBx(i), i);
+            }
+          }
+          if (HCALFB == 1) {
+            UCTCTP7RawData5BX_HCALFB ctp7Data5BX_HCALFB(ptr);
+            // BX_n = 0, 1, 2, 3, 4, where 2 is nominal
+            makeECalTPGs5BX_HCALFB(ctp7_phi, ctp7Data5BX_HCALFB, res->getEcalDigis(), 2);
+            makeHCalTPGs5BX_HCALFB(ctp7_phi, ctp7Data5BX_HCALFB, res->getHcalDigis(), 2);
+            makeHFTPGs5BX_HCALFB(ctp7_phi, ctp7Data5BX_HCALFB, res->getHcalDigis(), 2);
+            makeRegions5BX_HCALFB(ctp7_phi, ctp7Data5BX_HCALFB, res->getRegions(), 2);
+            for (int i = 0; i < 5; i++) {
+              makeECalTPGs5BX_HCALFB(ctp7_phi, ctp7Data5BX_HCALFB, res->getEcalDigisBx(i), i);
+            }
+          }
+        } else {
+          LogError("CaloLayer1Unpacker") << "Number of BXs to unpack is not 1 or 5, stop here !!! " << N_BX
+                                         << std::endl;
+          return false;
         }
+        return true;
       } else {
-        LogError("CaloLayer1Unpacker") << "Number of BXs to unpack is not 1 or 5, stop here !!! " << N_BX << std::endl;
-        return false;
+        // slot-7 card payload data have 6 32-bit words only
+        // we read from FED raw data collection for DQM directly
+        return true;
       }
-
-      return true;
     }
 
     void CaloLayer1Unpacker::makeECalTPGs(uint32_t lPhi,
