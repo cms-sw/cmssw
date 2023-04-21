@@ -1,0 +1,13 @@
+.vscode/
+CRAB/
+InputFiles/
+Jobs/
+LogFiles/
+OutputFiles/
+automation/automation_control/
+automation/automation_jenkins/  
+automation/crab_*
+*crab.log*
+*.root
+crab_mobrzut*
+.__afs108D
