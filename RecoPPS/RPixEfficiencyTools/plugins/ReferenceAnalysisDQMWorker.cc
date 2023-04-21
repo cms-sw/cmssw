@@ -99,27 +99,26 @@ private:
   int minNumberOfPlanesForEfficiency_;
   int minNumberOfPlanesForTrack_;
   int maxNumberOfPlanesForTrack_ = 6;
-  int minTracksPerEvent;
-  int maxTracksPerEvent;
-  std::string producerTag;
+  int minTracksPerEvent_;
+  int maxTracksPerEvent_;
 
-  int binGroupingX = 1;
-  int binGroupingY = 1;
+  int binGroupingX_ = 1;
+  int binGroupingY_ = 1;
 
-  int mapXbins = 200 / binGroupingX;
-  float mapXmin;
-  float mapXmax;
-  int mapYbins = 240 / binGroupingY;
-  float mapYmin = -16.;
-  float mapYmax = 8.;
+  int mapXbins_ = 200 / binGroupingX_;
+  float mapXmin_;
+  float mapXmax_;
+  int mapYbins_ = 240 / binGroupingY_;
+  float mapYmin_ = -16.;
+  float mapYmax_ = 8.;
 
-  double xiBins = 44;
-  double xiMin = 0;
-  double xiMax = 0.22;
+  double xiBins_ = 44;
+  double xiMin_ = 0;
+  double xiMax_ = 0.22;
 
-  double angleBins = 100;
-  double angleMin = -0.03;
-  double angleMax = 0.03;
+  double angleBins_ = 100;
+  double angleMin_ = -0.03;
+  double angleMax_ = 0.03;
 
   bool useMultiRPEfficiency_ = false;
   // Use interPot efficiency map instead of InterpotEfficiency
@@ -133,7 +132,7 @@ private:
 
   std::vector<uint32_t> listOfPlanes_;
 
-  std::map<CTPPSPixelDetId, int> binAlignmentParameters = {{CTPPSPixelDetId(0, 0, 3), 0},
+  std::map<CTPPSPixelDetId, int> binAlignmentParameters_ = {{CTPPSPixelDetId(0, 0, 3), 0},
                                                            {CTPPSPixelDetId(0, 2, 3), 0},
                                                            {CTPPSPixelDetId(1, 0, 3), 0},
                                                            {CTPPSPixelDetId(1, 2, 3), 0}};
@@ -143,8 +142,8 @@ private:
 
   std::map<CTPPSPixelDetId, MonitorElement *> h2RefinedTrackEfficiency_;
   std::map<CTPPSPixelDetId, MonitorElement *> h2TrackHitDistribution_;
-  std::map<CTPPSPixelDetId, MonitorElement *> h2RefinedTrackEfficiency_rotated;
-  std::map<CTPPSPixelDetId, MonitorElement *> h2TrackHitDistribution_rotated;
+  std::map<CTPPSPixelDetId, MonitorElement *> h2RefinedTrackEfficiency_rotated_;
+  std::map<CTPPSPixelDetId, MonitorElement *> h2TrackHitDistribution_rotated_;
 
   std::map<CTPPSPixelDetId, MonitorElement *> h1Xi_;
   std::map<CTPPSPixelDetId, MonitorElement *> h1EfficiencyVsXi_;
@@ -167,8 +166,8 @@ private:
   std::map<std::pair<int, int>, double> fiducialYLow_;
   std::map<std::pair<int, int>, double> fiducialYHigh_;
 
-  double detectorTiltAngle;
-  double detectorRotationAngle;
+  double detectorTiltAngle_;
+  double detectorRotationAngle_;
 
   edm::EDGetTokenT<reco::ForwardProtonCollection> singleRPprotonsToken_;
   edm::EDGetTokenT<reco::ForwardProtonCollection> multiRPprotonsToken_;
@@ -176,23 +175,18 @@ private:
 
 ReferenceAnalysisDQMWorker::ReferenceAnalysisDQMWorker(const edm::ParameterSet &iConfig)
     : geomEsToken_(esConsumes<edm::Transition::BeginRun>()) {
-  producerTag = iConfig.getUntrackedParameter<std::string>("producerTag");
-
-  pixelLocalTrackToken_ =
-      consumes<edm::DetSetVector<CTPPSPixelLocalTrack>>(edm::InputTag("ctppsPixelLocalTracks", "", producerTag));
-
-  singleRPprotonsToken_ =
-      consumes<reco::ForwardProtonCollection>(edm::InputTag("ctppsProtons", "singleRP", producerTag));
-  multiRPprotonsToken_ = consumes<reco::ForwardProtonCollection>(edm::InputTag("ctppsProtons", "multiRP", producerTag));
+  pixelLocalTrackToken_ = consumes<edm::DetSetVector<CTPPSPixelLocalTrack>>(iConfig.getUntrackedParameter<edm::InputTag>("tagPixelLocalTracks"));
+  singleRPprotonsToken_ = consumes<reco::ForwardProtonCollection>(iConfig.getUntrackedParameter<edm::InputTag>("tagProtonsSingleRP"));
+  multiRPprotonsToken_ = consumes<reco::ForwardProtonCollection>(iConfig.getUntrackedParameter<edm::InputTag>("tagProtonsMultiRP"));
 
   efficiencyFileName_ = iConfig.getUntrackedParameter<std::string>("efficiencyFileName");
   outputFileName_ = iConfig.getUntrackedParameter<std::string>("outputFileName");
   minNumberOfPlanesForEfficiency_ = iConfig.getParameter<int>("minNumberOfPlanesForEfficiency");
   minNumberOfPlanesForTrack_ = iConfig.getParameter<int>("minNumberOfPlanesForTrack");
-  minTracksPerEvent = iConfig.getParameter<int>("minTracksPerEvent");
-  maxTracksPerEvent = iConfig.getParameter<int>("maxTracksPerEvent");
-  binGroupingX = iConfig.getUntrackedParameter<int>("binGroupingX");
-  binGroupingY = iConfig.getUntrackedParameter<int>("binGroupingY");
+  minTracksPerEvent_ = iConfig.getParameter<int>("minTracksPerEvent");
+  maxTracksPerEvent_ = iConfig.getParameter<int>("maxTracksPerEvent");
+  binGroupingX_ = iConfig.getUntrackedParameter<int>("binGroupingX");
+  binGroupingY_ = iConfig.getUntrackedParameter<int>("binGroupingY");
 
   useMultiRPEfficiency_ = iConfig.getUntrackedParameter<bool>("useMultiRPEfficiency");
   useInterpotEfficiency_ = iConfig.getUntrackedParameter<bool>("useInterPotEfficiency");
@@ -226,10 +220,10 @@ ReferenceAnalysisDQMWorker::ReferenceAnalysisDQMWorker(const edm::ParameterSet &
       {std::pair<int, int>(1, 0), fiducialYHighVector_.at(2)},
       {std::pair<int, int>(1, 2), fiducialYHighVector_.at(3)},
   };
-  detectorTiltAngle = iConfig.getUntrackedParameter<double>("detectorTiltAngle");
-  mapXmin = 0. * TMath::Cos(detectorTiltAngle / 180. * TMath::Pi());
-  mapXmax = 30. * TMath::Cos(detectorTiltAngle / 180. * TMath::Pi());
-  detectorRotationAngle = iConfig.getUntrackedParameter<double>("detectorRotationAngle");
+  detectorTiltAngle_ = iConfig.getUntrackedParameter<double>("detectorTiltAngle");
+  mapXmin_ = 0. * TMath::Cos(detectorTiltAngle_ / 180. * TMath::Pi());
+  mapXmax_ = 30. * TMath::Cos(detectorTiltAngle_ / 180. * TMath::Pi());
+  detectorRotationAngle_ = iConfig.getUntrackedParameter<double>("detectorRotationAngle");
 }
 
 ReferenceAnalysisDQMWorker::~ReferenceAnalysisDQMWorker() {}
@@ -276,56 +270,56 @@ void ReferenceAnalysisDQMWorker::bookHistograms(DQMStore::IBooker &ibooker,
       h2TrackHitDistribution_[detId] =
           ibooker.book2DD(Form("h2TrackHitDistribution_arm%i_st%i_rp%i", arm, station, rp),
                           Form("h2TrackHitDistribution_arm%i_st%i_rp%i;x (mm);y (mm)", arm, station, rp),
-                          mapXbins,
-                          mapXmin,
-                          mapXmax,
-                          mapYbins,
-                          mapYmin,
-                          mapYmax);
+                          mapXbins_,
+                          mapXmin_,
+                          mapXmax_,
+                          mapYbins_,
+                          mapYmin_,
+                          mapYmax_);
 
       ibooker.book2DD(Form("h2RefinedTrackEfficiency_arm%i_st%i_rp%i", arm, station, rp),
                       Form("h2RefinedTrackEfficiency_arm%i_st%i_rp%i;x (mm);y (mm)", arm, station, rp),
-                      mapXbins,
-                      mapXmin,
-                      mapXmax,
-                      mapYbins,
-                      mapYmin,
-                      mapYmax);
+                      mapXbins_,
+                      mapXmin_,
+                      mapXmax_,
+                      mapYbins_,
+                      mapYmin_,
+                      mapYmax_);
 
       h2RefinedTrackEfficiency_[detId] =
           ibooker.book2DD(Form("h2RefinedTrackEfficiencyBuffer_arm%i_st%i_rp%i", arm, station, rp),
                           Form("h2RefinedTrackEfficiencyBuffer_arm%i_st%i_rp%i;x (mm);y (mm)", arm, station, rp),
-                          mapXbins,
-                          mapXmin,
-                          mapXmax,
-                          mapYbins,
-                          mapYmin,
-                          mapYmax);
+                          mapXbins_,
+                          mapXmin_,
+                          mapXmax_,
+                          mapYbins_,
+                          mapYmin_,
+                          mapYmax_);
 
       if (station == 0) {
-        h2TrackHitDistribution_rotated[detId] =
+        h2TrackHitDistribution_rotated_[detId] =
             ibooker.book2DD(Form("h2TrackHitDistribution_rotated_arm%i_st%i_rp%i", arm, station, rp),
                             Form("h2TrackHitDistribution_rotated_arm%i_st%i_rp%i;x (mm);y (mm)", arm, station, rp),
-                            mapXbins,
-                            mapXmin,
-                            mapXmax,
-                            mapYbins,
-                            mapYmin,
-                            mapYmax);
+                            mapXbins_,
+                            mapXmin_,
+                            mapXmax_,
+                            mapYbins_,
+                            mapYmin_,
+                            mapYmax_);
 
-        h2RefinedTrackEfficiency_rotated[detId] =
+        h2RefinedTrackEfficiency_rotated_[detId] =
             ibooker.book2DD(Form("h2RefinedTrackEfficiencyBuffer_rotated_arm%i_st%i_rp%i", arm, station, rp),
                             Form("h2RefinedTrackEfficiencyBuffer_rotated_arm%i_st%i_rp%i;x "
                                  "(mm);y (mm)",
                                  arm,
                                  station,
                                  rp),
-                            mapXbins,
-                            mapXmin,
-                            mapXmax,
-                            mapYbins,
-                            mapYmin,
-                            mapYmax);
+                            mapXbins_,
+                            mapXmin_,
+                            mapXmax_,
+                            mapYbins_,
+                            mapYmin_,
+                            mapYmax_);
 
         ibooker.book2DD(Form("h2RefinedTrackEfficiency_rotated_arm%i_st%i_rp%i", arm, station, rp),
                         Form("h2RefinedTrackEfficiency_rotated_arm%i_st%i_rp%i;x "
@@ -333,29 +327,29 @@ void ReferenceAnalysisDQMWorker::bookHistograms(DQMStore::IBooker &ibooker,
                              arm,
                              station,
                              rp),
-                        mapXbins,
-                        mapXmin,
-                        mapXmax,
-                        mapYbins,
-                        mapYmin,
-                        mapYmax);
+                        mapXbins_,
+                        mapXmin_,
+                        mapXmax_,
+                        mapYbins_,
+                        mapYmin_,
+                        mapYmax_);
       }
 
       h1Xi_[detId] = ibooker.book1DD(Form("h1Xi_arm%i_st%i_rp%i", arm, station, rp),
                                      Form("h1Xi_arm%i_st%i_rp%i;#xi", arm, station, rp),
-                                     xiBins,
-                                     xiMin,
-                                     xiMax);
+                                     xiBins_,
+                                     xiMin_,
+                                     xiMax_);
       h1Tx_[detId] = ibooker.book1DD(Form("h1Tx_arm%i_st%i_rp%i", arm, station, rp),
                                      Form("h1Tx_arm%i_st%i_rp%i;Tx", arm, station, rp),
-                                     angleBins,
-                                     angleMin,
-                                     angleMax);
+                                     angleBins_,
+                                     angleMin_,
+                                     angleMax_);
       h1Ty_[detId] = ibooker.book1DD(Form("h1Ty_arm%i_st%i_rp%i", arm, station, rp),
                                      Form("h1Ty_arm%i_st%i_rp%i;Ty", arm, station, rp),
-                                     angleBins,
-                                     angleMin,
-                                     angleMax);
+                                     angleBins_,
+                                     angleMin_,
+                                     angleMax_);
       h1RecoMethod_[detId] = ibooker.book1DD(Form("h1RecoMethod_arm%i_st%i_rp%i", arm, station, rp),
                                              Form("h1RecoMethod_arm%i_st%i_rp%i", arm, station, rp),
                                              3,
@@ -364,39 +358,39 @@ void ReferenceAnalysisDQMWorker::bookHistograms(DQMStore::IBooker &ibooker,
       h1EfficiencyVsXi_[detId] =
           ibooker.book1DD(Form("h1EfficiencyVsXi_arm%i_st%i_rp%i", arm, station, rp),
                           Form("h1EfficiencyVsXi_arm%i_st%i_rp%i;#xi;Efficiency", arm, station, rp),
-                          xiBins,
-                          xiMin,
-                          xiMax);
+                          xiBins_,
+                          xiMin_,
+                          xiMax_);
 
       ibooker.book1DD(Form("h1EfficiencyVsXiFinal_arm%i_st%i_rp%i", arm, station, rp),
                       Form("h1EfficiencyVsXiFinal_arm%i_st%i_rp%i;#xi;Efficiency", arm, station, rp),
-                      xiBins,
-                      xiMin,
-                      xiMax);
+                      xiBins_,
+                      xiMin_,
+                      xiMax_);
 
       h1EfficiencyVsTx_[detId] = ibooker.book1DD(Form("h1EfficiencyVsTx_arm%i_st%i_rp%i", arm, station, rp),
                                                  Form("h1EfficiencyVsTx_arm%i_st%i_rp%i;Tx", arm, station, rp),
-                                                 angleBins,
-                                                 angleMin,
-                                                 angleMax);
+                                                 angleBins_,
+                                                 angleMin_,
+                                                 angleMax_);
 
       ibooker.book1DD(Form("h1EfficiencyVsTxFinal_arm%i_st%i_rp%i", arm, station, rp),
                       Form("h1EfficiencyVsTxFinal_arm%i_st%i_rp%i;Tx", arm, station, rp),
-                      angleBins,
-                      angleMin,
-                      angleMax);
+                      angleBins_,
+                      angleMin_,
+                      angleMax_);
 
       h1EfficiencyVsTy_[detId] = ibooker.book1DD(Form("h1EfficiencyVsTy_arm%i_st%i_rp%i", arm, station, rp),
                                                  Form("h1EfficiencyVsTy_arm%i_st%i_rp%i;Ty", arm, station, rp),
-                                                 angleBins,
-                                                 angleMin,
-                                                 angleMax);
+                                                 angleBins_,
+                                                 angleMin_,
+                                                 angleMax_);
 
       ibooker.book1DD(Form("h1EfficiencyVsTyFinal_arm%i_st%i_rp%i", arm, station, rp),
                       Form("h1EfficiencyVsTyFinal_arm%i_st%i_rp%i;Ty", arm, station, rp),
-                      angleBins,
-                      angleMin,
-                      angleMax);
+                      angleBins_,
+                      angleMin_,
+                      angleMax_);
 
       h1Efficiency_[detId] = ibooker.book1DD(Form("h1Efficiency_arm%i_st%i_rp%i", arm, station, rp),
                                              Form("h1Efficiency_arm%i_st%i_rp%i;Ty", arm, station, rp),
@@ -406,12 +400,12 @@ void ReferenceAnalysisDQMWorker::bookHistograms(DQMStore::IBooker &ibooker,
       h2ProtonHitDistribution_[detId] =
           ibooker.book2DD(Form("h2ProtonHitDistribution_arm%i_st%i_rp%i", arm, station, rp),
                           Form("h2ProtonHitDistribution_arm%i_st%i_rp%i;x (mm);y (mm)", arm, station, rp),
-                          mapXbins,
-                          mapXmin,
-                          mapXmax,
-                          mapYbins,
-                          mapYmin,
-                          mapYmax);
+                          mapXbins_,
+                          mapXmin_,
+                          mapXmax_,
+                          mapYbins_,
+                          mapYmin_,
+                          mapYmax_);
     }
   }
   listOfPlanes_.assign(planesSet.begin(), planesSet.end());
@@ -428,16 +422,16 @@ void ReferenceAnalysisDQMWorker::analyze(const edm::Event &iEvent, const edm::Ev
   iEvent.getByToken(pixelLocalTrackToken_, pixelLocalTracks);
 
   for (const auto &rpPixeltrack : *pixelLocalTracks) {
-    if ((uint32_t)minTracksPerEvent > rpPixeltrack.size() || rpPixeltrack.size() > (uint32_t)maxTracksPerEvent)
+    if ((uint32_t)minTracksPerEvent_ > rpPixeltrack.size() || rpPixeltrack.size() > (uint32_t)maxTracksPerEvent_)
       continue;
     CTPPSPixelDetId rpId = CTPPSPixelDetId(rpPixeltrack.detId());
     uint32_t arm = rpId.arm();
     uint32_t station = rpId.station();
 
     // Shift Xmin and Xmax to align bins with sensor edge
-    double binSize = (mapXmax - mapXmin) / mapXbins;
-    mapXmin += binAlignmentParameters[rpId] * binSize / 150.;
-    mapXmax += binAlignmentParameters[rpId] * binSize / 150.;
+    double binSize = (mapXmax_ - mapXmin_) / mapXbins_;
+    mapXmin_ += binAlignmentParameters_[rpId] * binSize / 150.;
+    mapXmax_ += binAlignmentParameters_[rpId] * binSize / 150.;
 
     for (const auto &pixeltrack : rpPixeltrack) {
       if (Cut(pixeltrack, arm, station) || !pixeltrack.isValid())
@@ -448,16 +442,16 @@ void ReferenceAnalysisDQMWorker::analyze(const edm::Event &iEvent, const edm::Ev
       float pixelX0_rotated = 0;
       float pixelY0_rotated = 0;
       if (station == 0) {
-        pixelX0_rotated = pixeltrack.x0() * TMath::Cos((detectorRotationAngle / 180.) * TMath::Pi()) -
-                          pixeltrack.y0() * TMath::Sin((detectorRotationAngle / 180.) * TMath::Pi());
-        pixelY0_rotated = pixeltrack.x0() * TMath::Sin((detectorRotationAngle / 180.) * TMath::Pi()) +
-                          pixeltrack.y0() * TMath::Cos((detectorRotationAngle / 180.) * TMath::Pi());
+        pixelX0_rotated = pixeltrack.x0() * TMath::Cos((detectorRotationAngle_ / 180.) * TMath::Pi()) -
+                          pixeltrack.y0() * TMath::Sin((detectorRotationAngle_ / 180.) * TMath::Pi());
+        pixelY0_rotated = pixeltrack.x0() * TMath::Sin((detectorRotationAngle_ / 180.) * TMath::Pi()) +
+                          pixeltrack.y0() * TMath::Cos((detectorRotationAngle_ / 180.) * TMath::Pi());
       }
 
       edm::DetSetVector<CTPPSPixelFittedRecHit> fittedHits = pixeltrack.hits();
       h2TrackHitDistribution_[rpId]->Fill(pixelX0, pixelY0);
       if (station == 0)
-        h2TrackHitDistribution_rotated[rpId]->Fill(pixelX0_rotated, pixelY0_rotated);
+        h2TrackHitDistribution_rotated_[rpId]->Fill(pixelX0_rotated, pixelY0_rotated);
       std::map<uint32_t, float> planeEfficiency;
       for (const auto &planeHits : fittedHits) {
         CTPPSPixelDetId planeId = CTPPSPixelDetId(planeHits.detId());
@@ -483,7 +477,7 @@ void ReferenceAnalysisDQMWorker::analyze(const edm::Event &iEvent, const edm::Ev
       float efficiency = probabilityCalculation(planeEfficiency);
       h2RefinedTrackEfficiency_[rpId]->Fill(pixelX0, pixelY0, efficiency);
       if (station == 0)
-        h2RefinedTrackEfficiency_rotated[rpId]->Fill(pixelX0_rotated, pixelY0_rotated, efficiency);
+        h2RefinedTrackEfficiency_rotated_[rpId]->Fill(pixelX0_rotated, pixelY0_rotated, efficiency);
       if (debug_)
         std::cout << "Track passing through: (" << pixelX0 << "," << pixelY0 << ")\n Efficiency: " << efficiency
                   << std::endl;
@@ -566,10 +560,10 @@ bool ReferenceAnalysisDQMWorker::Cut(CTPPSPixelLocalTrack track, int arm, int st
   float pixelX0_rotated = 0;
   float pixelY0_rotated = 0;
   if (station == 0) {
-    pixelX0_rotated = x * TMath::Cos((detectorRotationAngle / 180.) * TMath::Pi()) -
-                      y * TMath::Sin((detectorRotationAngle / 180.) * TMath::Pi());
-    pixelY0_rotated = x * TMath::Sin((detectorRotationAngle / 180.) * TMath::Pi()) +
-                      y * TMath::Cos((detectorRotationAngle / 180.) * TMath::Pi());
+    pixelX0_rotated = x * TMath::Cos((detectorRotationAngle_ / 180.) * TMath::Pi()) -
+                      y * TMath::Sin((detectorRotationAngle_ / 180.) * TMath::Pi());
+    pixelY0_rotated = x * TMath::Sin((detectorRotationAngle_ / 180.) * TMath::Pi()) +
+                      y * TMath::Cos((detectorRotationAngle_ / 180.) * TMath::Pi());
     x = pixelX0_rotated;
     y = pixelY0_rotated;
   }

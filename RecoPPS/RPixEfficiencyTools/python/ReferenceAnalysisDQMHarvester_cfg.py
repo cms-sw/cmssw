@@ -1,3 +1,5 @@
+import os
+
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 import FWCore.ParameterSet.VarParsing as VarParsing
@@ -7,7 +9,7 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 
 #SETUP PROCESS
-process = cms.Process("DQMHarvesterProcess", eras.Run2_2018,eras.run2_miniAOD_devel)
+process = cms.Process("ReferenceAnalysisDQMHarvester", eras.Run3)
 
 
 #SPECIFY INPUT PARAMETERS
@@ -16,14 +18,14 @@ process.options = cms.untracked.PSet(
     FailPath = cms.untracked.vstring('Type Mismatch')
     )
 options = VarParsing.VarParsing()
-options.register('inputFileName', # parameter name 
-                '', # default value - empty means no default value
+options.register('inputFileNames', # parameter name 
+                'outputReferenceAnalysisDQMWorker.root', # default value - empty means no default value
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.string,
                 "input ROOT file name (file created by DQMWorker)")
 
 options.register('outputDirectoryPath',
-                './OutputFiles/',
+                '.',
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.string,
                 "directory in which the output ROOT file will be saved")
@@ -62,30 +64,41 @@ process.MessageLogger.statistics = cms.untracked.vstring()
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load("DQM.Integration.config.environment_cfi")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
-process.load("Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi")
+process.load("Geometry.VeryForwardGeometry.geometryRPFromDB_cfi")
 
 #SETUP GLOBAL TAG
-process.GlobalTag = GlobalTag(process.GlobalTag, '123X_dataRun2_v4')
+gt_from_env = os.getenv('EFFICIENCY_GT')
+gt = gt_from_env
+if gt == None:
+    gt = 'auto:run3_data_prompt'
 
+print('Using GT:',gt)
+process.GlobalTag = GlobalTag(process.GlobalTag, gt)
 
 #PREPARE SOURCE
+file_names_list = options.inputFileNames.split(",")
+input_files = ""
+for file_name in file_names_list:
+    input_files+="file:"+file_name+"\n"
+
+print('Input files:\n',input_files,sep='')
 process.source = cms.Source("DQMRootSource",
-    fileNames = cms.untracked.vstring("file:"+options.inputFileName),
+    fileNames = cms.untracked.vstring(input_files),
 )
 
 #SETUP HARVESTER
-process.harvester = DQMEDHarvester('ReferenceAnalysisDQMHarvester',
-    
-)
+process.harvester = DQMEDHarvester('ReferenceAnalysisDQMHarvester')
 
 
 #CONFIGURE DQM Saver
-process.dqmEnv.subSystemFolder = "CalibPPS"
+process.dqmEnv.subSystemFolder = "RolCalPPS"
 process.dqmSaver.convention = 'Offline'
-process.dqmSaver.workflow = "/CalibPPS/AlignmentGlobal/CMSSW_11_3_0_pre4" #TODO CalibPPS/AlignmentGlobal' is inherited from somewhere else - replace it
+process.dqmSaver.workflow = "/RolCalPPS/tracking-efficiency/"+os.getenv('CMSSW_VERSION')
 process.dqmSaver.saveByRun = -1
 process.dqmSaver.saveAtJobEnd = True
 process.dqmSaver.forceRunNumber = 999999
+
+print('Saving output in directory:',options.outputDirectoryPath)
 process.dqmSaver.dirName = options.outputDirectoryPath # todo confirm if this works
 
 #SCHEDULE JOB

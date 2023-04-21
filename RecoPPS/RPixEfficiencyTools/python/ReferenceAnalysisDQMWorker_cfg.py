@@ -1,5 +1,8 @@
+import os
+
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+from Configuration.StandardSequences.Eras import eras
 from Configuration.AlCa.GlobalTag import GlobalTag
 import FWCore.ParameterSet.VarParsing as VarParsing
 
@@ -12,7 +15,7 @@ fiducialYLow = [-99.,-99.,-99.,-99.]
 fiducialYHigh = [99.,99.,99.,99.]
 
 #SETUP PROCESS
-process = cms.Process("Demo")
+process = cms.Process("ReferenceAnalysisDQMWorker", eras.Run3)
 
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True),
@@ -20,17 +23,17 @@ process.options = cms.untracked.PSet(
     )
 options = VarParsing.VarParsing ()
 options.register('outputFileName',
-                '',
+                'outputReferenceAnalysisDQMWorker.root',
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.string,
                 "output ROOT file name")
 options.register('efficiencyFileName',
-                '',
+                'DQM_V0001_R000999999__testCampaign__testWorkflow__testDataPeriod.root',
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.string,
                 "efficiency ROOT file name - output of the EfficiencyTool_2018")
 options.register('sourceFileList',
-                '',
+                '../test/testData_366186.dat',
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.string,
                 "source file list name")
@@ -58,8 +61,9 @@ inputFiles = cms.untracked.vstring( *fileList)
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("DQM.Integration.config.environment_cfi")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load("Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi")
+process.load("Geometry.VeryForwardGeometry.geometryRPFromDB_cfi")
 
+#SETUP LOGGER
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),
     cout = cms.untracked.PSet( 
@@ -77,12 +81,13 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(10000000)
         ),
         threshold = cms.untracked.string('INFO')
-        ),
+    ),
     categories = cms.untracked.vstring(
         "FwkReport"
-        ),
+    ),
 )
 
+#CONFIGURE PROCESS
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) ) 
 
 if options.useJsonFile == True:
@@ -95,24 +100,34 @@ if options.useJsonFile == True:
     print(jsonFileName)
     process.source.lumisToProcess = LumiList.LumiList(filename = jsonFileName).getVLuminosityBlockRange()
 
-
-runNumber=options.runNumber
-
 #SETUP GLOBAL TAG
-process.GlobalTag = GlobalTag(process.GlobalTag, '123X_dataRun2_v4')
+gt_from_env = os.getenv('EFFICIENCY_GT')
+gt = gt_from_env
+if gt == None:
+    gt = 'auto:run3_data_prompt'
 
+print('Using GT:',gt)
+process.GlobalTag = GlobalTag(process.GlobalTag, gt)
 
 #SETUP INPUT
 process.source = cms.Source("PoolSource",
     fileNames = inputFiles
 )
 
-#SETUP OUTPUT
-process.dqmOutput = cms.OutputModule("DQMRootOutputModule",
-    fileName = cms.untracked.string(options.outputFileName)
-)
+#SETUP TAG FLEXIBILITY
+trackTag = 'ctppsPixelLocalTracks'
+protonTag = 'ctppsProtons'
+tagSuffix = 'AlCaRecoProducer' # only if using ALCAPPS datasets, otherwise it should be ''
+trackTag += tagSuffix
+protonTag += tagSuffix
+print('Using track InputTag:',trackTag)
+print('Using proton InputTag:',protonTag)
+print('Using efficiency file:',options.efficiencyFileName)
 
 process.worker = DQMEDAnalyzer('ReferenceAnalysisDQMWorker',
+    tagPixelLocalTracks=cms.untracked.InputTag(trackTag),
+    tagProtonsSingleRP=cms.untracked.InputTag(protonTag, "singleRP"),
+    tagProtonsMultiRP=cms.untracked.InputTag(protonTag, "multiRP"),
     outputFileName=cms.untracked.string(options.outputFileName),
     efficiencyFileName=cms.untracked.string(options.efficiencyFileName),
     minNumberOfPlanesForEfficiency=cms.int32(3),
@@ -125,12 +140,17 @@ process.worker = DQMEDAnalyzer('ReferenceAnalysisDQMWorker',
     fiducialXHigh=cms.untracked.vdouble(fiducialXHigh),
     fiducialYLow=cms.untracked.vdouble(fiducialYLow),
     fiducialYHigh=cms.untracked.vdouble(fiducialYHigh),
-    producerTag=cms.untracked.string("CTPPSTestProtonReconstruction"),
     detectorTiltAngle=cms.untracked.double(18.4),
     detectorRotationAngle=cms.untracked.double(-8),
     useMultiRPEfficiency=cms.untracked.bool(False),
     useMultiRPProtons=cms.untracked.bool(False),
     useInterPotEfficiency=cms.untracked.bool(False)
+)
+
+#SETUP OUTPUT
+print('Output will be saved in',options.outputFileName)
+process.dqmOutput = cms.OutputModule("DQMRootOutputModule",
+    fileName = cms.untracked.string(options.outputFileName)
 )
 
 #SCHEDULE JOB
@@ -146,4 +166,3 @@ process.schedule = cms.Schedule(
     process.path,
     process.end_path
 )
-

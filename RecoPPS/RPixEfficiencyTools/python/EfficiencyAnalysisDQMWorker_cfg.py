@@ -1,3 +1,5 @@
+import os
+
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 from Configuration.StandardSequences.Eras import eras
@@ -5,30 +7,30 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 
-#GLOBAL CONSTANT VARIABLES
+# GLOBAL CONSTANT VARIABLES
 # fiducial variables restrict the area to analyze 
-# - the current parameters cover the whole possible area
+# the current parameters cover the whole possible area
 fiducialXLow = [0,0,0,0]
 fiducialYLow = [-99.,-99.,-99.,-99.]
 fiducialYHigh = [99.,99.,99.,99.]
 
 #SETUP PROCESS
-process = cms.Process("DQMWorkerProcess", eras.Run2_2018,eras.run2_miniAOD_devel)
+process = cms.Process("EfficiencyAnalysisDQMWorker", eras.Run3)
 
 
 #SETUP PARAMETERS
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(False),
+    wantSummary = cms.untracked.bool(True),
     FailPath = cms.untracked.vstring('Type Mismatch') # not crashing on this exception type
     )
 options = VarParsing.VarParsing ()
 options.register('outputFileName',
-                '',
+                'outputEfficiencyAnalysisDQMWorker.root',
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.string,
                 "output ROOT file name")
 options.register('sourceFileList',
-                '',
+                '../test/testData_366186.dat',
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.string,
                 "source file list name")
@@ -57,7 +59,7 @@ options.register('injectionSchemeFileName',
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.bool,
                 "Injection scheme file name")
-options.register('suplementaryPlots',
+options.register('supplementaryPlots',
                 False,
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.bool,
@@ -66,43 +68,35 @@ options.register('suplementaryPlots',
 
 #INTERPOT
 options.register('maxTracksInTagPot',
-                '',
+                99,
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.int,
                 "Maximum pixel tracks in tag RP")
 options.register('minTracksInTagPot',
-                '',
+                0,
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.int,
                 "Minimum pixel tracks in tag RP")
 options.register('maxTracksInProbePot',
-                '',
+                99,
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.int,
                 "Maximum pixel tracks in probe RP")
 options.register('minTracksInProbePot',
-                '',
+                0,
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.int,
                 "Mainimum pixel tracks in probe RP")
 options.register('maxChi2Prob',
-                '',
+                0.999999,
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.float,
                 "Maximum chi2 probability of the track")
 options.register('recoInfo',
-                '',
+                -1,
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.int,
                 "CTPPSpixelLocalTrackReconstructionInfo proton variable - -1 for no selection")
-options.maxChi2Prob = 0.999999
-options.maxTracksInTagPot = 99
-options.minTracksInTagPot = 0
-options.maxTracksInProbePot = 99
-options.minTracksInProbePot = 0
-options.recoInfo = -1
-
-
 
 options.parseArguments()
 
@@ -110,18 +104,9 @@ options.parseArguments()
 #PROCESS PARAMETERS
 if options.sourceFileList != '':
     import FWCore.Utilities.FileUtils as FileUtils
+    print('Taking input from:',options.sourceFileList)
     fileList = FileUtils.loadListFromFile (options.sourceFileList) 
     inputFiles = cms.untracked.vstring( *fileList)
-
-if options.useJsonFile == True:
-    print("Using JSON file...")
-    import FWCore.PythonUtilities.LumiList as LumiList
-    if options.jsonFileName == '':
-        jsonFileName = 'test/JSONFiles/Run'+str(options.runNumber)+'.json'
-    else:
-        jsonFileName = options.jsonFileName
-    print(jsonFileName)
-    process.source.lumisToProcess = LumiList.LumiList(filename = jsonFileName).getVLuminosityBlockRange()
 
 # runToScheme = {}
 # with open("./data/RunToScheme2018.csv") as runToSchemeFile:
@@ -144,9 +129,9 @@ injectionSchemeFileName = ''
 
 #LOAD NECCESSARY DEPENDENCIES
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load("DQM.Integration.config.environment_cfi")
-process.load("Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi")
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load("Geometry.VeryForwardGeometry.geometryRPFromDB_cfi")
 
 #SETUP LOGGER
 process.MessageLogger = cms.Service("MessageLogger",
@@ -166,20 +151,34 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(10000000)
         ),
         threshold = cms.untracked.string('INFO')
-        ),
+    ),
     categories = cms.untracked.vstring(
         "FwkReport"
-        ),
+    ),
 )
-process.MessageLogger.statistics = cms.untracked.vstring()
 
 
 #CONFIGURE PROCESS
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
+if options.useJsonFile == True:
+    print("Using JSON file...")
+    import FWCore.PythonUtilities.LumiList as LumiList
+    if options.jsonFileName == '':
+        jsonFileName = 'test/JSONFiles/Run'+str(options.runNumber)+'.json'
+    else:
+        jsonFileName = options.jsonFileName
+    print(jsonFileName)
+    process.source.lumisToProcess = LumiList.LumiList(filename = jsonFileName).getVLuminosityBlockRange()
 
 #SETUP GLOBAL TAG
-process.GlobalTag = GlobalTag(process.GlobalTag, '123X_dataRun2_v4')
+gt_from_env = os.getenv('EFFICIENCY_GT')
+gt = gt_from_env
+if gt == None:
+    gt = 'auto:run3_data_prompt'
+
+print('Using GT:',gt)
+process.GlobalTag = GlobalTag(process.GlobalTag, gt)
 
 
 #SETUP INPUT
@@ -187,9 +186,18 @@ process.source = cms.Source("PoolSource",
     fileNames = inputFiles
 )
 
+#SETUP TAG FLEXIBILITY
+trackTag = 'ctppsPixelLocalTracks'
+protonTag = 'ctppsProtons'
+tagSuffix = 'AlCaRecoProducer' # only if using ALCAPPS datasets, otherwise it should be ''
+trackTag += tagSuffix
+protonTag += tagSuffix
+print('Using track InputTag:',trackTag)
+print('Using proton InputTag:',protonTag)
 
 #SETUP WORKER
 process.worker = DQMEDAnalyzer('EfficiencyTool_2018DQMWorker',
+    tagPixelLocalTracks=cms.untracked.InputTag(trackTag),
     minNumberOfPlanesForEfficiency=cms.int32(3),
     minNumberOfPlanesForTrack=cms.int32(3),
     maxNumberOfPlanesForTrack=cms.int32(6),
@@ -197,7 +205,7 @@ process.worker = DQMEDAnalyzer('EfficiencyTool_2018DQMWorker',
                                                                     #(disables filling of TGraph, reducing the output file size)
     minTracksPerEvent=cms.int32(0),
     maxTracksPerEvent=cms.int32(99),
-    supplementaryPlots=cms.bool(options.suplementaryPlots),
+    supplementaryPlots=cms.bool(options.supplementaryPlots),
     bunchSelection=cms.untracked.string(options.bunchSelection),
     bunchListFileName=cms.untracked.string(injectionSchemeFileName),
     binGroupingX=cms.untracked.int32(1),
@@ -205,15 +213,12 @@ process.worker = DQMEDAnalyzer('EfficiencyTool_2018DQMWorker',
     fiducialXLow=cms.untracked.vdouble(fiducialXLow),
     fiducialYLow=cms.untracked.vdouble(fiducialYLow),
     fiducialYHigh=cms.untracked.vdouble(fiducialYHigh),
-    # producerTag=cms.untracked.string("CTPPSTestProtonReconstruction"),
-    producerTag=cms.untracked.string(""), #TODO: should deal with different producer tags  
-    # ex.  "ctppsPixelLocalTracks"     ""           "RECO" (phisics dataset)
-    # ex. "ctppsPixelLocalTracksAlCaRecoProducer"   ""                "ALCARECO"  (alcaPPS)
-
-    detectorTiltAngle=cms.untracked.double(18.4),
+    detectorTiltAngle=cms.untracked.double(20),
     detectorRotationAngle=cms.untracked.double(-8),
 
     #FOR INTERPORT EFFICIENCY
+    tagProtonsSingleRP=cms.untracked.InputTag(protonTag, "singleRP"),
+    tagProtonsMultiRP=cms.untracked.InputTag(protonTag, "multiRP"),
     maxChi2Prob=cms.untracked.double(options.maxChi2Prob),
     maxTracksInProbePot=cms.untracked.int32(options.maxTracksInProbePot),    
     minTracksInProbePot=cms.untracked.int32(options.minTracksInProbePot),    
@@ -223,12 +228,11 @@ process.worker = DQMEDAnalyzer('EfficiencyTool_2018DQMWorker',
     debug=cms.untracked.bool(True),
 )
 
-
 #SETUP OUTPUT
+print('Output will be saved in',options.outputFileName)
 process.dqmOutput = cms.OutputModule("DQMRootOutputModule",
     fileName = cms.untracked.string(options.outputFileName)
 )
-
 
 #SCHEDULE JOB
 process.path = cms.Path(
