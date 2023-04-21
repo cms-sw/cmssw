@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoLocalCalo.HGCalRecProducers.hgcalLayerClusters_cfi import hgcalLayerClusters as hgcalLayerClusters_
+from RecoLocalCalo.HGCalRecProducers.hgcalMergeLayerClusters_cfi import hgcalMergeLayerClusters as hgcalMergeLayerClusters_
 
 from RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi import HGCalRecHit
 
@@ -80,3 +81,7 @@ hgcalLayerClustersHFNose = hgcalLayerClusters_.clone(
         type = cms.string('SciCLUE')
     )
 )
+
+hgcalMergeLayerClusters = hgcalMergeLayerClusters_.clone(
+)
+

@@ -42,7 +42,7 @@ ticlHADStepTask = cms.Task(ticlSeedingGlobal
 
 filteredLayerClustersHFNoseHAD = filteredLayerClustersHAD.clone(
     min_cluster_size = 2, # inclusive
-    algo_number = [9],
+    algo_number = [9], # reco::CaloCluster::hfnose
     iteration_label = "HADn",
     LayerClusters = 'hgcalLayerClustersHFNose',
     LayerClustersInputMask = "ticlTrackstersHFNoseTrk"

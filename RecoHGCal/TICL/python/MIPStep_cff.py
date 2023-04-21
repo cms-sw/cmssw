@@ -38,7 +38,7 @@ filteredLayerClustersHFNoseMIP = filteredLayerClustersMIP.clone(
     LayerClusters = 'hgcalLayerClustersHFNose',
     LayerClustersInputMask = "hgcalLayerClustersHFNose:InitialLayerClustersMask",
     iteration_label = "MIPn",
-    algo_number = [9]
+    algo_number = [9] # reco::CaloCluster::hfnose
 )
 
 ticlTrackstersHFNoseMIP = ticlTrackstersMIP.clone(

@@ -46,7 +46,7 @@ filteredLayerClustersHFNoseTrk = filteredLayerClustersTrk.clone(
     LayerClusters = 'hgcalLayerClustersHFNose',
     LayerClustersInputMask = 'ticlTrackstersHFNoseEM',
     min_cluster_size = 2, # inclusive
-    algo_number = [9],
+    algo_number = [9], # reco::CaloCluster::hfnose
     iteration_label = "Trkn"
 )
 

@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 filteredLayerClustersEM = cms.EDProducer("FilteredLayerClustersProducer",
     LayerClusters = cms.InputTag("hgcalMergeLayerClusters"),
     LayerClustersInputMask = cms.InputTag("ticlTrackstersTrkEM"),
-    # algo_number = cms.int32(8),
     algo_number = cms.vint32(6,7),
     clusterFilter = cms.string('ClusterFilterByAlgoAndSizeAndLayerRange'),
     iteration_label = cms.string('EM'),

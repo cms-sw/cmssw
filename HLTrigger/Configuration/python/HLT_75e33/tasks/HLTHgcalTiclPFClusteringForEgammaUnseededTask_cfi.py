@@ -13,7 +13,7 @@ from ..modules.particleFlowSuperClusterHGCalFromTICLUnseeded_cfi import *
 from ..modules.ticlLayerTileProducer_cfi import *
 from ..modules.ticlSeedingGlobal_cfi import *
 from ..modules.ticlTrackstersCLUE3DHigh_cfi import *
-from RecoLocalCalo.HGCalRecProducers.hgcalMergeLayerClusters_cfi import hgcalMergeLayerClusters
+from ..modules.hgcalMergeLayerClusters_cfi import hgcalMergeLayerClusters
 
 
 HLTHgcalTiclPFClusteringForEgammaUnseededTask = cms.Task(

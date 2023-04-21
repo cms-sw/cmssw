@@ -124,7 +124,7 @@ from ..modules.trackerClusterCheck_cfi import *
 from ..sequences.HLTBeginSequence_cfi import *
 from ..sequences.HLTEndSequence_cfi import *
 
-from RecoLocalCalo.HGCalRecProducers.hgcalMergeLayerClusters_cfi import hgcalMergeLayerClusters
+from ..modules.hgcalMergeLayerClusters_cfi import hgcalMergeLayerClusters
 
 HLT_IsoMu24_FromL1TkMuon = cms.Path(
     HLTBeginSequence +

@@ -61,17 +61,17 @@ TEST_CASE("Check the correct behaviour of searchBoxEtaPhi", "searchBoxEtaPhi") {
   std::cout << "Testing a Tile with " << etaBins << " eta bins with binwidth: " << eta_bin_width << std::endl;
 
   std::cout << "-M_PI bin: " << t.mPiPhiBin << " M_PI bin: " << t.pPiPhiBin << std::endl;
-  std::cout << "Filling positive eta value: " << eta << " at bin: " << t.getBin(eta) << std::endl;
-  std::cout << "Filling negative eta value: " << eta_neg << " at bin: " << t.getBin(eta_neg) << std::endl;
-  std::cout << "Filling phi value: " << phi_transition_left << " at left-pi bin: " << t.get2Bin(phi_transition_left)
+  std::cout << "Filling positive eta value: " << eta << " at bin: " << t.getDim1Bin(eta) << std::endl;
+  std::cout << "Filling negative eta value: " << eta_neg << " at bin: " << t.getDim1Bin(eta_neg) << std::endl;
+  std::cout << "Filling phi value: " << phi_transition_left << " at left-pi bin: " << t.getDim2Bin(phi_transition_left)
             << std::endl;
   std::cout << "Filling phi value: " << phi_transition_right
-            << " at right-pi bin: " << t.get2Bin(phi_transition_right) << std::endl;
+            << " at right-pi bin: " << t.getDim2Bin(phi_transition_right) << std::endl;
   std::cout << "Filling phi value: " << phi_transition_right2
-            << " at right-pi bin: " << t.get2Bin(phi_transition_right2) << std::endl;
+            << " at right-pi bin: " << t.getDim2Bin(phi_transition_right2) << std::endl;
 
   SECTION("Phi bins from positive and negative pi") {
-    REQUIRE(t.get2Bin(phi_transition_right2) == t.get2Bin(phi_transition_right3));
+    REQUIRE(t.getDim2Bin(phi_transition_right2) == t.getDim2Bin(phi_transition_right3));
   }
 
   SECTION("Symmetric case around pi") {
