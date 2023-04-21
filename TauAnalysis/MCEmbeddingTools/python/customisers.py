@@ -317,6 +317,7 @@ def keepCleaned(dataTier):
         "keep *_firstStepPrimaryVertices_*_" + dataTier,
         "keep *_offlineBeamSpot_*_" + dataTier,
         "keep *_l1extraParticles_*_" + dataTier,
+        "keep TrajectorySeeds_*_*_*",
         # "keep recoPFClusters_*_*_*",
         # "keep recoPFRecHits_*_*_*"
     )
@@ -457,6 +458,7 @@ def keepSimulated(process, processname="SIMembedding"):
     ret_vstring.append("keep recoMuons_muonsFromCosmics1Leg_*_*")
     ret_vstring.append("keep *_muonDTDigis_*_*")
     ret_vstring.append("keep *_muonCSCDigis_*_*")
+    ret_vstring.append("keep TrajectorySeeds_*_*_*")
     # for those two steps, the output has to be modified
     # to keep the information from the cleaning step in the output file
     if processname == "SIMembeddingpreHLT" or processname == "SIMembeddingHLT":
