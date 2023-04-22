@@ -54,7 +54,7 @@ private:
 
   std::unique_ptr<TotemT2Segmentation> segm_;
 
-  static constexpr double HPTDC_BIN_WIDTH_NS_ = 25. / 1024;
+  static constexpr double T2_BIN_WIDTH_NS_ = 25. / 4;
   MonitorElement* HPTDCErrorFlags_2D_ = nullptr;
 
   const unsigned int nbinsx_, nbinsy_;
@@ -273,8 +273,8 @@ void TotemT2DQMSource::fillErrorFlagsHistogram(const TotemT2Digi& digi) {
 
 void TotemT2DQMSource::fillEdges(const TotemT2Digi& digi, const TotemT2DetId& detid) {
   const TotemT2DetId secId(detid.armId());
-  sectorPlots_[secId].leadingEdge->Fill(HPTDC_BIN_WIDTH_NS_ * digi.leadingEdge());
-  sectorPlots_[secId].trailingEdge->Fill(HPTDC_BIN_WIDTH_NS_ * digi.trailingEdge());
+  sectorPlots_[secId].leadingEdge->Fill(T2_BIN_WIDTH_NS_ * digi.leadingEdge());
+  sectorPlots_[secId].trailingEdge->Fill(T2_BIN_WIDTH_NS_ * digi.trailingEdge());
 }
 
 void TotemT2DQMSource::fillToT(const TotemT2RecHit& rechit, const TotemT2DetId& detid) {
