@@ -31,7 +31,6 @@ FlatRandomEThetaGunProducer::FlatRandomEThetaGunProducer(const edm::ParameterSet
 
   produces<HepMCProduct>("unsmeared");
   produces<GenEventInfoProduct>();
-
 }
 
 FlatRandomEThetaGunProducer::~FlatRandomEThetaGunProducer() {}
