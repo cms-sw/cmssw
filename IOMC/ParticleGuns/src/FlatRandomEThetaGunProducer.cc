@@ -32,16 +32,13 @@ FlatRandomEThetaGunProducer::FlatRandomEThetaGunProducer(const edm::ParameterSet
   produces<HepMCProduct>("unsmeared");
   produces<GenEventInfoProduct>();
 
-  //  edm::LogInfo("FlatThetaGun") << "Internal FlatRandomEThetaGun is initialzed"
-  //			       << "\nIt is going to generate "
-  //			       << remainingEvents() << " events";
 }
 
 FlatRandomEThetaGunProducer::~FlatRandomEThetaGunProducer() {}
 
 void FlatRandomEThetaGunProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   if (fVerbosity > 0) {
-    LogDebug("FlatThetaGun") << "FlatRandomEThetaGunProducer : Begin New Event Generation";
+    edm::LogVerbatim("FlatThetaGun") << "FlatRandomEThetaGunProducer : Begin New Event Generation";
   }
 
   edm::Service<edm::RandomNumberGenerator> rng;
@@ -112,6 +109,6 @@ void FlatRandomEThetaGunProducer::produce(edm::Event& e, const edm::EventSetup& 
   e.put(std::move(genEventInfo));
 
   if (fVerbosity > 0) {
-    LogDebug("FlatThetaGun") << "FlatRandomEThetaGunProducer : Event Generation Done";
+    edm::LogVerbatim("FlatThetaGun") << "FlatRandomEThetaGunProducer : Event Generation Done";
   }
 }
