@@ -4,26 +4,11 @@
 #include "DataFormats/OnlineMetaData/interface/CTPPSRecord.h"
 #include "DataFormats/OnlineMetaData/interface/OnlineMetaDataRaw.h"
 
-const CTPPSRecord::RomanPotNames CTPPSRecord::romanPotNames_ = {{"RP_45_210_FR_BT",
-                                                                 "RP_45_210_FR_HR",
-                                                                 "RP_45_210_FR_TP",
-                                                                 "RP_45_220_C1",
-                                                                 "RP_45_220_FR_BT",
-                                                                 "RP_45_220_FR_HR",
-                                                                 "RP_45_220_FR_TP",
-                                                                 "RP_45_220_NR_BT",
-                                                                 "RP_45_220_NR_HR",
-                                                                 "RP_45_220_NR_TP",
-                                                                 "RP_56_210_FR_BT",
-                                                                 "RP_56_210_FR_HR",
-                                                                 "RP_56_210_FR_TP",
-                                                                 "RP_56_220_C1",
-                                                                 "RP_56_220_FR_BT",
-                                                                 "RP_56_220_FR_HR",
-                                                                 "RP_56_220_FR_TP",
-                                                                 "RP_56_220_NR_BT",
-                                                                 "RP_56_220_NR_HR",
-                                                                 "RP_56_220_NR_TP"}};
+const CTPPSRecord::RomanPotNames CTPPSRecord::romanPotNames_ = {
+    {"RP_45_210_FR_BT", "RP_45_210_FR_HR", "RP_45_210_FR_TP", "RP_45_220_C1",    "RP_45_220_FR_BT",
+     "RP_45_220_FR_HR", "RP_45_220_FR_TP", "RP_45_220_NR_BT", "RP_45_220_NR_HR", "RP_45_220_NR_TP",
+     "RP_56_210_FR_BT", "RP_56_210_FR_HR", "RP_56_210_FR_TP", "RP_56_220_C1",    "RP_56_220_FR_BT",
+     "RP_56_220_FR_HR", "RP_56_220_FR_TP", "RP_56_220_NR_BT", "RP_56_220_NR_HR", "RP_56_220_NR_TP"}};
 
 const std::array<std::string, 4> CTPPSRecord::statusNames_ = {{"unused", "bad", "warning", "ok"}};
 
