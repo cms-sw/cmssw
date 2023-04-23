@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_13_0_0/HIon --full --data --type HIon --unprescale --process HLTHIon --globaltag auto:run3_hlt_HIon --input file:RelVal_Raw_HIon_DATA.root
 
-# /dev/CMSSW_13_0_0/HIon/V66 (CMSSW_13_0_1)
+# /dev/CMSSW_13_0_0/HIon/V78 (CMSSW_13_0_1)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ process = cms.Process( "HLTHIon" )
 process.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_13_0_0/HIon/V66')
+  tableName = cms.string('/dev/CMSSW_13_0_0/HIon/V78')
 )
 
 process.transferSystem = cms.PSet( 
@@ -4407,9 +4407,6 @@ process.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
     PrintL1Menu = cms.untracked.bool( False ),
     TriggerMenuLuminosity = cms.string( "startup" )
 )
-process.hltScalersRawToDigi = cms.EDProducer( "ScalersRawToDigi",
-    scalersInputTag = cms.InputTag( "rawDataCollector" )
-)
 process.hltOnlineMetaDataDigis = cms.EDProducer( "OnlineMetaDataRawToDigi",
     onlineMetaDataInputLabel = cms.InputTag( "rawDataCollector" )
 )
@@ -4418,7 +4415,7 @@ process.hltOnlineBeamSpot = cms.EDProducer( "BeamSpotOnlineProducer",
     maxZ = cms.double( 40.0 ),
     setSigmaZ = cms.double( 0.0 ),
     beamMode = cms.untracked.uint32( 11 ),
-    src = cms.InputTag( "hltScalersRawToDigi" ),
+    src = cms.InputTag( "" ),
     gtEvmLabel = cms.InputTag( "" ),
     maxRadius = cms.double( 2.0 ),
     useTransientRecord = cms.bool( True )
@@ -4459,7 +4456,7 @@ process.hltPreAlCaLumiPixelsCountsRandom = cms.EDFilter( "HLTPrescaler",
 process.hltPixelTrackerHVOn = cms.EDFilter( "DetectorStateFilter",
     DebugOn = cms.untracked.bool( False ),
     DetectorType = cms.untracked.string( "pixel" ),
-    DcsStatusLabel = cms.untracked.InputTag( "hltScalersRawToDigi" ),
+    DcsStatusLabel = cms.untracked.InputTag( "" ),
     DCSRecordLabel = cms.untracked.InputTag( "hltOnlineMetaDataDigis" )
 )
 process.hltOnlineBeamSpotToGPU = cms.EDProducer( "BeamSpotToCUDA",
@@ -24897,17 +24894,11 @@ process.hltOutputALCAP0 = cms.OutputModule( "PoolOutputModule",
     ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_AlCaP0' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltAlCaEtaEBRechitsToDigisLowPU_*_*',
       'keep *_hltAlCaEtaEBRechitsToDigis_*_*',
-      'keep *_hltAlCaEtaEERechitsToDigisLowPU_*_*',
       'keep *_hltAlCaEtaEERechitsToDigis_*_*',
-      'keep *_hltAlCaEtaRecHitsFilterEEonlyRegionalLowPU_etaEcalRecHitsES_*',
       'keep *_hltAlCaEtaRecHitsFilterEEonlyRegional_etaEcalRecHitsES_*',
-      'keep *_hltAlCaPi0EBRechitsToDigisLowPU_*_*',
       'keep *_hltAlCaPi0EBRechitsToDigis_*_*',
-      'keep *_hltAlCaPi0EERechitsToDigisLowPU_*_*',
       'keep *_hltAlCaPi0EERechitsToDigis_*_*',
-      'keep *_hltAlCaPi0RecHitsFilterEEonlyRegionalLowPU_pi0EcalRecHitsES_*',
       'keep *_hltAlCaPi0RecHitsFilterEEonlyRegional_pi0EcalRecHitsES_*',
       'keep *_hltGtStage2Digis_*_*',
       'keep edmTriggerResults_*_*_*' )
@@ -25366,7 +25357,7 @@ process.HLTPreshowerTask = cms.ConditionalTask( process.hltEcalPreshowerDigis , 
 process.HLTDoFullUnpackingEgammaEcalTask = cms.ConditionalTask( process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask , process.HLTPreshowerTask )
 
 process.HLTL1UnpackerSequence = cms.Sequence( process.hltGtStage2Digis + process.hltGtStage2ObjectMap )
-process.HLTBeamSpot = cms.Sequence( process.hltScalersRawToDigi + process.hltOnlineMetaDataDigis + process.hltOnlineBeamSpot )
+process.HLTBeamSpot = cms.Sequence( process.hltOnlineMetaDataDigis + process.hltOnlineBeamSpot )
 process.HLTBeginSequence = cms.Sequence( process.hltTriggerType + process.HLTL1UnpackerSequence + process.HLTBeamSpot )
 process.HLTEndSequence = cms.Sequence( process.hltBoolEnd )
 process.HLTBeginSequenceCalibration = cms.Sequence( process.hltCalibrationEventsFilter + process.hltGtStage2Digis )
@@ -25757,7 +25748,7 @@ process.HLT_HIUPC_ZDC1nXOR_MBHF2AND_PixelTrackMultiplicity40_v3 = cms.Path( proc
 process.HLT_HIUPC_ZeroBias_MinPixelCluster400_MaxPixelCluster10000_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sZeroBias + process.hltPreHIUPCZeroBiasMinPixelCluster400MaxPixelCluster10000 + process.HLTDoSiStripZeroSuppression + process.HLTDoLocalPixelSequencePPOnAA + process.hltPixelCountFilter400 + ~process.hltPixelCountFilter10000 + process.HLTDoLocalStripSequencePPOnAA + process.HLTDoHIStripZeroSuppressionAndRawPrimeRepacker + process.HLTEndSequence )
 process.HLT_HIUPC_ZeroBias_SinglePixelTrackLowPt_MaxPixelCluster400_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sZeroBias + process.hltPreHIUPCZeroBiasSinglePixelTrackLowPtMaxPixelCluster400 + process.HLTDoSiStripZeroSuppression + process.HLTDoLocalPixelSequencePPOnAA + ~process.hltPixelCountFilter400 + process.HLTDoLocalStripSequencePPOnAA + process.HLTRecopixelvertexingSequenceLowPtForUPCPbPb2022 + process.hltPixelCandsLowPtForUPCPPOnAA + process.hltSinglePixelTrackLowPtForUPC + process.HLTDoHIStripZeroSuppressionAndRawPrimeRepacker + process.HLTEndSequence )
 process.HLT_HIUPC_ZeroBias_SinglePixelTrack_MaxPixelTrack_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sZeroBias + process.hltPreHIUPCZeroBiasSinglePixelTrackMaxPixelTrack + process.HLTDoSiStripZeroSuppression + process.HLTDoLocalPixelSequencePPOnAA + ~process.hltPixelCountFilterMax + process.HLTDoLocalStripSequencePPOnAA + process.HLTRecopixelvertexingSequenceForUPCPbPb2018 + process.hltPixelCandsForUPCPPOnAA + process.hltSinglePixelTrackForUPC + ~process.hltMaxPixelTrackForUPC + process.HLTDoHIStripZeroSuppressionAndRawPrimeRepacker + process.HLTEndSequence )
-process.HLTriggerFinalPath = cms.Path( process.hltGtStage2Digis + process.hltScalersRawToDigi + process.hltFEDSelectorTCDS + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW + process.hltBoolFalse )
+process.HLTriggerFinalPath = cms.Path( process.hltGtStage2Digis + process.hltFEDSelectorTCDS + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW + process.hltBoolFalse )
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltGtStage2Digis + process.hltPreHLTAnalyzerEndpath + process.hltL1TGlobalSummary + process.hltTrigReport )
 process.ALCALumiPixelsCountsExpressOutput = cms.FinalPath( process.hltOutputALCALumiPixelsCountsExpress )
 process.ALCALumiPixelsCountsPromptOutput = cms.FinalPath( process.hltOutputALCALumiPixelsCountsPrompt )
