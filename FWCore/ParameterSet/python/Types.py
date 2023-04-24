@@ -47,7 +47,7 @@ class _ProxyParameter(_ParameterTypeBase):
         if not _ParameterTypeBase.isTracked(self):
             v = untracked(v)
         self.__dict__["_ProxyParameter__value"] = v
-    def _returnTypeWithValue(self, valueWithType):
+    def _checkAndReturnValueWithType(self, valueWithType):
         if isinstance(valueWithType, type(self)):
             return valueWithType
         if isinstance(self.__type, type):
@@ -153,12 +153,12 @@ class _ObsoleteParameter(_OptionalParameter):
         return 'obsolete'
 
 class _AllowedParameterTypes(object):
-    def __init__(self, *args, **kargs):
+    def __init__(self, *args, default=None):
         self.__dict__['_AllowedParameterTypes__types'] = args
         self.__dict__['_default'] = None
         self.__dict__['__name__'] = self.dumpPython()
-        if len(kargs):
-            self.__dict__['_default'] = self._setValueWithType(kargs['default'])
+        if default is not None:
+            self.__dict__['_default'] = self._setValueWithType(default)
     def dumpPython(self, options=PrintOptions()):
         specialImportRegistry.registerUse(self)
         return "allowed("+','.join( ("cms."+t.__name__ for t in self.__types))+')'
@@ -1961,7 +1961,7 @@ if __name__ == "__main__":
             self.assertEqual(p1.dumpPython(),'cms.PSet(\n    foo = cms.PSet(\n        a = cms.int32(5)\n    ),\n    allowAnyLabel_=cms.required.PSetTemplate(\n        a = cms.required.int32\n    )\n)')
             self.assertEqual(p1.foo.a.value(), 5)
             p1 = PSet(anInt = required.int32)
-            self.assertRaises(TypeError, lambda : setattr(p1,'anInt', uint32(2)))
+            self.assertRaises(TypeError, setattr, p1,'anInt', uint32(2))
 
         def testOptional(self):
             p1 = PSet(anInt = optional.int32)

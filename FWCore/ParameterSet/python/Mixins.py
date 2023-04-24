@@ -85,7 +85,7 @@ class _ParameterTypeBase(object):
         self._isFrozen = True
     def isCompatibleCMSType(self,aType):
         return isinstance(self,aType)
-    def _returnTypeWithValue(self, valueWithType):
+    def _checkAndReturnValueWithType(self, valueWithType):
         if isinstance(valueWithType, type(self)):
             return valueWithType
         raise TypeError("Attempted to assign type {from_} to type {to}".format(from_ = str(type(valueWithType)), to = str(type(self))) )
@@ -282,7 +282,7 @@ class _Parameterizable(object):
         else:
             # handle the case where users just replace with a value, a = 12, rather than a = cms.int32(12)
             if isinstance(value,_ParameterTypeBase):
-                self.__dict__[name] = self.__dict__[name]._returnTypeWithValue(value)
+                self.__dict__[name] = self.__dict__[name]._checkAndReturnValueWithType(value)
             else:
                 self.__dict__[name].setValue(value)
             self._isModified = True
