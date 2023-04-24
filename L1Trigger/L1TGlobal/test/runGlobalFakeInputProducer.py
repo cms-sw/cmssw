@@ -79,11 +79,11 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
     fileNames = cms.untracked.vstring(
-        # TTbar CMSSW_12X samples
-        "/store/relval/CMSSW_12_3_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/122X_mcRun3_2021_realistic_v5-v1/2580000/04b2f8e0-57d6-449c-aa9f-a416c9926f31.root",
-        "/store/relval/CMSSW_12_3_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/122X_mcRun3_2021_realistic_v5-v1/2580000/12bfbbc7-60fe-44c9-8f04-daa8c7b61406.root",
-        "/store/relval/CMSSW_12_3_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/122X_mcRun3_2021_realistic_v5-v1/2580000/198e5a8c-8f06-4688-ae0d-5cc51b1eef46.root",
-        "/store/relval/CMSSW_12_3_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/122X_mcRun3_2021_realistic_v5-v1/2580000/2e6c92bb-4997-4232-8475-04a668d8d163.root",
+        # TTbar CMSSW_13X samples
+        "/store/relval/CMSSW_13_0_0/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/130X_mcRun3_2022_realistic_v2-v1/00000/03acba5e-3c92-48ac-8a9f-f1a64e366586.root",
+        "/store/relval/CMSSW_13_0_0/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/130X_mcRun3_2022_realistic_v2-v1/00000/0d7ef730-93b6-4802-940c-6e671e273ed9.root",
+        "/store/relval/CMSSW_13_0_0/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/130X_mcRun3_2022_realistic_v2-v1/00000/1c2f6a11-ab8f-4aaf-89f2-745435227846.root",
+        "/store/relval/CMSSW_13_0_0/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/130X_mcRun3_2022_realistic_v2-v1/00000/2bd89da6-765e-42dd-bbdc-5a2d343d3086.root"
 	),
     skipEvents = cms.untracked.uint32(skip)
     )
@@ -204,7 +204,7 @@ process.load('L1Trigger.L1TGlobal.GlobalParameters_cff')
 
 process.load("L1Trigger.L1TGlobal.TriggerMenu_cff")
 
-xmlMenu="L1Menu_Collisions2022_v1_1_0.xml"
+xmlMenu="L1Menu_Collisions2023_v1_0_1.xml"
 process.TriggerMenu.L1TriggerMenuFile = cms.string(xmlMenu)
 process.ESPreferL1TXML = cms.ESPrefer("L1TUtmTriggerMenuESProducer","TriggerMenu")
 
@@ -227,6 +227,7 @@ process.load('L1Trigger.L1TGlobal.simGtStage2Digis_cfi')
 process.simGtStage2Digis.PrescaleSet = cms.uint32(1)
 process.simGtStage2Digis.ExtInputTag = cms.InputTag("simGtExtFakeProd")
 process.simGtStage2Digis.MuonInputTag = cms.InputTag("gtInput")
+process.simGtStage2Digis.MuonShowerInputTag = cms.InputTag("gtStage2Digis", "MuonShower")
 process.simGtStage2Digis.EGammaInputTag = cms.InputTag("gtInput")
 process.simGtStage2Digis.TauInputTag = cms.InputTag("gtInput")
 process.simGtStage2Digis.JetInputTag = cms.InputTag("gtInput")
@@ -284,6 +285,7 @@ process.gtStage2Raw.TauInputTag = cms.InputTag("gtInput")
 process.gtStage2Raw.JetInputTag = cms.InputTag("gtInput")
 process.gtStage2Raw.EtSumInputTag = cms.InputTag("gtInput")
 process.gtStage2Raw.MuonInputTag = cms.InputTag("gtInput")
+process.gtStage2Raw.MuonShowerInputTag = cms.InputTag("gtInput")
 
 process.load('EventFilter.L1TRawToDigi.gtStage2Digis_cfi')
 process.newGtStage2Digis = process.gtStage2Digis.clone()
@@ -300,7 +302,8 @@ process.dumpRaw = cms.EDAnalyzer(
 
 process.newDumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
                 egInputTag    = cms.InputTag("newGtStage2Digis","EGamma"),
-		muInputTag    = cms.InputTag("newGtStage2Digis","Muon"),
+                muInputTag    = cms.InputTag("newGtStage2Digis","Muon"),
+                muShowerInputTag    = cms.InputTag("newGtStage2Digis","MuonShower"),
 		tauInputTag   = cms.InputTag("newGtStage2Digis","Tau"),
 		jetInputTag   = cms.InputTag("newGtStage2Digis","Jet"),
 		etsumInputTag = cms.InputTag("newGtStage2Digis","EtSum"),
