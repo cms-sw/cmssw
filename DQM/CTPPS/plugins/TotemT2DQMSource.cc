@@ -82,9 +82,18 @@ private:
     PlanePlots() = default;
     PlanePlots(DQMStore::IBooker& ibooker, unsigned int id, unsigned int nbinsx, unsigned int nbinsy);
   };
+  struct ChannelPlots {
+    MonitorElement* leadingEdgeCh = nullptr;
+    MonitorElement* trailingEdgeCh = nullptr;
+    MonitorElement* timeOverTresholdCh = nullptr;
+
+    ChannelPlots() = default;
+    ChannelPlots(DQMStore::IBooker& ibooker, unsigned int id, unsigned int windowsNum);
+  };
 
   std::unordered_map<unsigned int, SectorPlots> sectorPlots_;
   std::unordered_map<unsigned int, PlanePlots> planePlots_;
+  std::unordered_map<unsigned int, ChannelPlots> channelPlots_;
 };
 
 TotemT2DQMSource::SectorPlots::SectorPlots(
@@ -145,6 +154,23 @@ TotemT2DQMSource::PlanePlots::PlanePlots(DQMStore::IBooker& ibooker,
                                        double(nbinsy) - 0.5);
 }
 
+TotemT2DQMSource::ChannelPlots::ChannelPlots(DQMStore::IBooker& ibooker,
+                                         unsigned int id,
+                                         unsigned int windowsNum) {
+  std::string title, path;
+  TotemT2DetId(id).channelName(title, TotemT2DetId::nFull);
+  TotemT2DetId(id).channelName(path, TotemT2DetId::nPath);
+  ibooker.setCurrentFolder(path);
+
+  leadingEdgeCh = ibooker.book1D(
+      "leading edge", title + " leading edge (DIGIs); leading edge (ns)", 25 * windowsNum, 0, 25 * windowsNum);
+  trailingEdgeCh = ibooker.book1D(
+      "trailing edge", title + " trailing edge (DIGIs); trailing edge (ns)", 25 * windowsNum, 0, 25 * windowsNum);
+
+  timeOverTresholdCh = ibooker.book1D(
+      "time over threshold", title + " time over threshold (rechit);time over threshold (ns)", 250, -25, 100);
+}
+
 TotemT2DQMSource::TotemT2DQMSource(const edm::ParameterSet& iConfig)
     : geometryToken_(esConsumes<TotemGeometry, TotemGeometryRcd, edm::Transition::BeginRun>()),
       digiToken_(consumes<edmNew::DetSetVector<TotemT2Digi>>(iConfig.getParameter<edm::InputTag>("digisTag"))),
@@ -166,6 +192,11 @@ void TotemT2DQMSource::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
       const TotemT2DetId detid(arm, pl, 0);
       const TotemT2DetId planeId(detid.planeId());
       planePlots_[planeId] = PlanePlots(ibooker, planeId, nbinsx_, nbinsy_);
+      for (unsigned int ch = 0; ch <= TotemT2DetId::maxChannel; ++ch) {
+        const TotemT2DetId detidCh(arm, pl, ch);
+//        const TotemT2DetId channelId(detidCh.rawId() & (~ TotemT2DetId::lowMaskChannel));
+        channelPlots_[detidCh] = ChannelPlots(ibooker, detidCh, windowsNum_);
+      }
     }
     const TotemT2DetId detid(arm, 0, 0);
     const TotemT2DetId secId(detid.armId());
@@ -275,11 +306,14 @@ void TotemT2DQMSource::fillEdges(const TotemT2Digi& digi, const TotemT2DetId& de
   const TotemT2DetId secId(detid.armId());
   sectorPlots_[secId].leadingEdge->Fill(T2_BIN_WIDTH_NS_ * digi.leadingEdge());
   sectorPlots_[secId].trailingEdge->Fill(T2_BIN_WIDTH_NS_ * digi.trailingEdge());
+  channelPlots_[detid].leadingEdgeCh->Fill(T2_BIN_WIDTH_NS_ * digi.leadingEdge());
+  channelPlots_[detid].trailingEdgeCh->Fill(T2_BIN_WIDTH_NS_ * digi.trailingEdge());
 }
 
 void TotemT2DQMSource::fillToT(const TotemT2RecHit& rechit, const TotemT2DetId& detid) {
   const TotemT2DetId secId(detid.armId());
   sectorPlots_[secId].timeOverTreshold->Fill(rechit.toT());
+  channelPlots_[detid].timeOverTresholdCh->Fill(rechit.toT());
 }
 
 DEFINE_FWK_MODULE(TotemT2DQMSource);
