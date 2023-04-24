@@ -1,9 +1,6 @@
 #ifndef SimG4Core_PhysicsLists_CMSHepEmTrackingManager_h
 #define SimG4Core_PhysicsLists_CMSHepEmTrackingManager_h
 
-#include "G4Version.hh"
-#if G4VERSION_NUMBER >= 1100
-
 #include "G4HepEmTrackingManager.hh"
 
 class CMSHepEmTrackingManager final : public G4HepEmTrackingManager {
@@ -20,7 +17,5 @@ public:
 private:
   G4double fHighEnergyLimit;
 };
-
-#endif
 
 #endif

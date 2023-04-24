@@ -1,9 +1,6 @@
 #ifndef SimG4Core_PhysicsLists_CMSEmStandardPhysicsTrackingManager_h
 #define SimG4Core_PhysicsLists_CMSEmStandardPhysicsTrackingManager_h
 
-#include "G4Version.hh"
-#if G4VERSION_NUMBER >= 1100
-
 #include "G4VTrackingManager.hh"
 #include "globals.hh"
 #include "G4MscStepLimitType.hh"
@@ -63,7 +60,5 @@ private:
 
   static CMSEmStandardPhysicsTrackingManager *masterTrackingManager;
 };
-
-#endif
 
 #endif
