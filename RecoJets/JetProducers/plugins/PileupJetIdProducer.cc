@@ -91,12 +91,7 @@ void PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   Handle<View<Jet>> jetHandle;
   iEvent.getByToken(input_jet_token_, jetHandle);
   const View<Jet>& jets = *jetHandle;
-  edm::ValueMap<float> constituentWeights;
-  if (!input_constituent_weights_token_.isUninitialized()) {
-    constituentWeights = iEvent.get(input_constituent_weights_token_);
-  }
-
-
+    
   // Constituent weight (e.g PUPPI) Value Map
   edm::ValueMap<float> constituentWeights;
   if (!input_constituent_weights_token_.isUninitialized()) {
