@@ -86,7 +86,8 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
       php.minTileSize_ = 0;
       php.waferMaskMode_ = static_cast<int>(getDDDValue("WaferMaskMode", sv));
       php.waferZSide_ = static_cast<int>(getDDDValue("WaferZside", sv));
-      if ((php.mode_ == HGCalGeometryMode::Hexagon8Module) || (php.mode_ == HGCalGeometryMode::Hexagon8Cassette) || (php.mode_ == HGCalGeometryMode::Hexagon8CalibCell)) {
+      if ((php.mode_ == HGCalGeometryMode::Hexagon8Module) || (php.mode_ == HGCalGeometryMode::Hexagon8Cassette) ||
+          (php.mode_ == HGCalGeometryMode::Hexagon8CalibCell)) {
         php.useSimWt_ = static_cast<int>(getDDDValue("UseSimWt", sv));
         php.layerRotation_ = getDDDValue("LayerRotation", sv);
       }
@@ -175,7 +176,8 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
       php.defineFull_ = true;
       // Load wafer positions
       geom->loadWaferHexagon8(php);
-    } else if ((php.mode_ == HGCalGeometryMode::Hexagon8Module) || (php.mode_ == HGCalGeometryMode::Hexagon8Cassette) || (php.mode_ == HGCalGeometryMode::Hexagon8CalibCell)) {
+    } else if ((php.mode_ == HGCalGeometryMode::Hexagon8Module) || (php.mode_ == HGCalGeometryMode::Hexagon8Cassette) ||
+               (php.mode_ == HGCalGeometryMode::Hexagon8CalibCell)) {
       // Load the SpecPars
       geom->loadSpecParsHexagon8(fv, php);
       // Load Geometry parameters
@@ -269,7 +271,8 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
                                   << HGCalGeometryMode::Hexagon8File << ":" << HGCalGeometryMode::Hexagon8Module << ":"
                                   << HGCalGeometryMode::Trapezoid << ":" << HGCalGeometryMode::TrapezoidFile << ":"
                                   << HGCalGeometryMode::TrapezoidModule << ":" << HGCalGeometryMode::Hexagon8Cassette
-                                  << ":" << HGCalGeometryMode::TrapezoidCassette << ":" << HGCalGeometryMode::Hexagon8CalibCell;
+                                  << ":" << HGCalGeometryMode::TrapezoidCassette << ":"
+                                  << HGCalGeometryMode::Hexagon8CalibCell;
 #endif
     php.levelZSide_ = 3;        // Default level for ZSide
     php.detectorType_ = 0;      // These two parameters are
@@ -307,7 +310,8 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
       php.waferMaskMode_ = static_cast<int>(tempD[0]);
       tempD = fv.get<std::vector<double> >(name, "WaferZside");
       php.waferZSide_ = static_cast<int>(tempD[0]);
-      if ((php.mode_ == HGCalGeometryMode::Hexagon8Module) || (php.mode_ == HGCalGeometryMode::Hexagon8Cassette) || (php.mode_ == HGCalGeometryMode::Hexagon8CalibCell)) {
+      if ((php.mode_ == HGCalGeometryMode::Hexagon8Module) || (php.mode_ == HGCalGeometryMode::Hexagon8Cassette) ||
+          (php.mode_ == HGCalGeometryMode::Hexagon8CalibCell)) {
         tempD = fv.get<std::vector<double> >(name, "LayerRotation");
         php.layerRotation_ = tempD[0];
         tempD = fv.get<std::vector<double> >(name, "UseSimWt");
@@ -403,7 +407,8 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
       php.defineFull_ = true;
       // Load wafer positions
       geom->loadWaferHexagon8(php);
-    } else if ((php.mode_ == HGCalGeometryMode::Hexagon8Module) || (php.mode_ == HGCalGeometryMode::Hexagon8Cassette) || (php.mode_ == HGCalGeometryMode::Hexagon8CalibCell)) {
+    } else if ((php.mode_ == HGCalGeometryMode::Hexagon8Module) || (php.mode_ == HGCalGeometryMode::Hexagon8Cassette) ||
+               (php.mode_ == HGCalGeometryMode::Hexagon8CalibCell)) {
       // Load the SpecPars
       geom->loadSpecParsHexagon8(fv, vmap, php, name);
       // Load Geometry parameters
