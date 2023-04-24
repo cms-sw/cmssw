@@ -15,6 +15,7 @@ HGCalStringToEnumParser<HGCalGeometryMode::GeometryMode>::HGCalStringToEnumParse
   enumMap["HGCalGeometryMode::TrapezoidModule"] = HGCalGeometryMode::TrapezoidModule;
   enumMap["HGCalGeometryMode::Hexagon8Cassette"] = HGCalGeometryMode::Hexagon8Cassette;
   enumMap["HGCalGeometryMode::TrapezoidCassette"] = HGCalGeometryMode::TrapezoidCassette;
+  enumMap["HGCalGeometryMode::Hexagon8CalibCell"] = HGCalGeometryMode::Hexagon8CalibCell;
 }
 
 template <>

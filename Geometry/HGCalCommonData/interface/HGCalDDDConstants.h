@@ -165,14 +165,14 @@ public:
   inline bool waferHexagon8() const {
     return ((mode_ == HGCalGeometryMode::Hexagon8) || (mode_ == HGCalGeometryMode::Hexagon8Full) ||
             (mode_ == HGCalGeometryMode::Hexagon8File) || (mode_ == HGCalGeometryMode::Hexagon8Module) ||
-            (mode_ == HGCalGeometryMode::Hexagon8Cassette));
+            (mode_ == HGCalGeometryMode::Hexagon8Cassette) || (mode_ == HGCalGeometryMode::Hexagon8CalibCell));
   }
   inline bool waferHexagon8File() const {
     return ((mode_ == HGCalGeometryMode::Hexagon8File) || (mode_ == HGCalGeometryMode::Hexagon8Module) ||
-            (mode_ == HGCalGeometryMode::Hexagon8Cassette));
+            (mode_ == HGCalGeometryMode::Hexagon8Cassette) || (mode_ == HGCalGeometryMode::Hexagon8CalibCell));
   }
   inline bool waferHexagon8Module() const {
-    return ((mode_ == HGCalGeometryMode::Hexagon8Module) || (mode_ == HGCalGeometryMode::Hexagon8Cassette));
+    return ((mode_ == HGCalGeometryMode::Hexagon8Module) || (mode_ == HGCalGeometryMode::Hexagon8Cassette) || (mode_ == HGCalGeometryMode::Hexagon8CalibCell));
   }
   bool waferInLayer(int wafer, int lay, bool reco) const;
   bool waferFullInLayer(int wafer, int lay, bool reco) const;
