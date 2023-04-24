@@ -396,13 +396,15 @@ struct HGCalMixRotatedLayer {
         double phi2 = (forFireworks_ == 1) ? (dphi * (fimax - fimin + 1)) : (dphi * fimax);
         auto cshift = cassette_.getShift(layer + 1, 1, cassette);
 #ifdef EDM_ML_DEBUG
+        int cassette0 = HGCalCassette::cassetteType(2, 1, cassette);  //
         edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: Layer " << copy << ":" << (layer + 1) << " iR "
                                       << std::get<1>(HGCalTileIndex::tileUnpack(tileIndex_[ti])) << ":"
                                       << std::get<2>(HGCalTileIndex::tileUnpack(tileIndex_[ti])) << " R "
                                       << cms::convert2mm(r1) << ":" << cms::convert2mm(r2) << " Thick "
                                       << cms::convert2mm((2.0 * hthickl)) << " phi " << fimin << ":" << fimax << ":"
                                       << convertRadToDeg(phi1) << ":" << convertRadToDeg(phi2) << " cassette "
-                                      << cassette << " Shift " << cshift.first << ":" << cshift.second;
+                                      << cassette << ":" << cassett0 << " Shift " << cshift.first << ":"
+                                      << cshift.second;
 #endif
         std::string name = namesTop_[ii] + "L" + std::to_string(copy) + "F" + std::to_string(k);
         ++k;

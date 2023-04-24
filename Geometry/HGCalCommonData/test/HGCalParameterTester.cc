@@ -134,8 +134,8 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     edm::LogVerbatim("HGCalGeom") << "UseSimWt: " << phgp->useSimWt_;
     edm::LogVerbatim("HGCalGeom") << "Wafer Parameters: " << phgp->waferSize_ << ":" << phgp->waferR_ << ":"
                                   << phgp->waferThick_ << ":" << phgp->sensorSeparation_ << ":"
-                                  << phgp->sensorSizeOffset_ << ":" << phgp->guardRingOffset_ << ":"
-                                  << phgp->mouseBite_;
+                                  << phgp->sensorSizeOffset_ << ":" << phgp->guardRingOffset_ << ":" << phgp->mouseBite_
+                                  << ":" << phgp->useOffset_;
     myPrint("waferThickness", phgp->waferThickness_, 10);
     edm::LogVerbatim("HGCalGeom") << "nCells_: " << phgp->nCellsFine_ << ":" << phgp->nCellsCoarse_;
     edm::LogVerbatim("HGCalGeom") << "nSectors_: " << phgp->nSectors_;
@@ -145,6 +145,7 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     edm::LogVerbatim("HGCalGeom") << "mode_: " << phgp->mode_;
     edm::LogVerbatim("HGCalGeom") << "cassettes_: " << phgp->cassettes_;
 
+    edm::LogVerbatim("HGCalGeom") << "waferUVMax: " << phgp->waferUVMax_;
     myPrint("waferUVMaxLayer", phgp->waferUVMaxLayer_, 20);
     myPrint("CellThickness", phgp->cellThickness_, 10);
     myPrint("radius100to200", phgp->radius100to200_, 10);
