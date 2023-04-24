@@ -20,7 +20,7 @@ class G4GammaGeneralProcess;
 class CMSEmStandardPhysicsTrackingManager : public G4VTrackingManager {
 public:
   CMSEmStandardPhysicsTrackingManager(const edm::ParameterSet &p);
-  ~CMSEmStandardPhysicsTrackingManager();
+  ~CMSEmStandardPhysicsTrackingManager() override;
 
   void BuildPhysicsTable(const G4ParticleDefinition &) override;
 

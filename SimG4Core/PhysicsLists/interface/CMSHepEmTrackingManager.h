@@ -6,7 +6,7 @@
 class CMSHepEmTrackingManager final : public G4HepEmTrackingManager {
 public:
   CMSHepEmTrackingManager(G4double highEnergyLimit);
-  ~CMSHepEmTrackingManager();
+  ~CMSHepEmTrackingManager() override;
 
   void BuildPhysicsTable(const G4ParticleDefinition &) override;
 
