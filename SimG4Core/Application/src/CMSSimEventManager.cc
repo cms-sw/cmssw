@@ -107,6 +107,4 @@ void CMSSimEventManager::SetUserAction(TrackingAction* ptr) {
   m_defTrackManager->SetUserAction((G4UserTrackingAction*)ptr);
 }
 
-void CMSSimEventManager::SetUserAction(G4UserSteppingAction* ptr) {
-  m_defTrackManager->SetUserAction(ptr);
-}
+void CMSSimEventManager::SetUserAction(G4UserSteppingAction* ptr) { m_defTrackManager->SetUserAction(ptr); }

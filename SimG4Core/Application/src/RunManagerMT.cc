@@ -250,7 +250,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
 
   // G4Region dump file name
   auto regionFile = m_p.getUntrackedParameter<std::string>("FileNameRegions", "");
-  runForPhase2();  
+  runForPhase2();
 
   // Geometry checks
   if (m_check || !regionFile.empty()) {
@@ -361,11 +361,9 @@ void RunManagerMT::setupVoxels() {
 
 void RunManagerMT::runForPhase2() {
   const G4RegionStore* regStore = G4RegionStore::GetInstance();
-  for(auto & r : *regStore) {
+  for (auto& r : *regStore) {
     const G4String& name = r->GetName();
-    if(name == "HGCalRegion" ||
-       name == "FastTimerRegionETL" ||
-       name == "FastTimerRegionBTL") {
+    if (name == "HGCalRegion" || name == "FastTimerRegionETL" || name == "FastTimerRegionBTL") {
       m_isPhase2 = true;
       break;
     }

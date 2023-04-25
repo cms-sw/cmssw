@@ -420,7 +420,7 @@ void RunManagerMTWorker::initializeUserActions() {
 
   // different stepping actions for Run2,3 and Phase2
   G4UserSteppingAction* userSteppingAction;
-  if(m_isPhase2) {
+  if (m_isPhase2) {
     auto ptr = new Phase2SteppingAction(m_sVerbose.get(), m_pSteppingAction, m_hasWatchers);
     Connect(ptr);
     userSteppingAction = (G4UserSteppingAction*)ptr;
