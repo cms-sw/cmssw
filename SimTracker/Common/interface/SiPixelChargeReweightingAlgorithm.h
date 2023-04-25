@@ -389,6 +389,7 @@ inline int SiPixelChargeReweightingAlgorithm::PixelTempRewgt2D(int id_in, int id
   int i, j, k, l, kclose;
   int nclusx, nclusy, success;
   float xsize, ysize, q50i, q100i, q50r, q10r, xhit2D, yhit2D, dist2, dmin2;
+  float qscalei, rqscale;
   float xy_in[BXM2][BYM2], xy_rewgt[BXM2][BYM2], xy_clust[TXSIZE][TYSIZE];
   int denx_clust[TXSIZE][TYSIZE], deny_clust[TXSIZE][TYSIZE];
   int goodWeightsUsed, nearbyWeightsUsed, noWeightsUsed;
@@ -453,6 +454,9 @@ inline int SiPixelChargeReweightingAlgorithm::PixelTempRewgt2D(int id_in, int id
   //q50i = 0;
   q100i = 2.f * q50i;
 
+  // save input charge scale (14/4/2023)
+  qscalei = templ2D.qscale();
+
   // Check that the cluster container is a 13x21 matrix
 
   if (cluster.num_dimensions() != 2) {
@@ -495,6 +499,9 @@ inline int SiPixelChargeReweightingAlgorithm::PixelTempRewgt2D(int id_in, int id
 
   q50r = templ2D.s50();
   q10r = 0.2f * q50r;
+
+  // calculate ratio of charge scaling factors (14/4/2023)
+  rqscale = qscalei/templ2D.qscale();
 
   // Find all non-zero denominator pixels in the input template and generate "inside" weights
 
@@ -590,7 +597,15 @@ inline int SiPixelChargeReweightingAlgorithm::PixelTempRewgt2D(int id_in, int id
       }
     }
   }
-
+  
+  // final rescaling by the ratio of charge scaling factors (14/4/2023)  
+  // put this here to avoid changing the threshold tests above and to be vectorizable 
+  for (i = 0; i < TYSIZE; ++i) {
+    for (j = 0; j < TXSIZE; ++j) {
+       cluster[j][i] *= rqscale;
+    }
+  }
+  
   return success;
 }  // PixelTempRewgt2D
 
