@@ -6,6 +6,7 @@
 #include "SimG4Core/Application/interface/StackingAction.h"
 #include "SimG4Core/Application/interface/TrackingAction.h"
 #include "SimG4Core/Application/interface/SteppingAction.h"
+#include "SimG4Core/Application/interface/Phase2SteppingAction.h"
 #include "SimG4Core/Application/interface/CMSSimEventManager.h"
 #include "SimG4Core/Application/interface/CustomUIsessionThreadPrefix.h"
 #include "SimG4Core/Application/interface/CustomUIsessionToFile.h"
@@ -56,6 +57,7 @@
 #include "G4Field.hh"
 #include "G4FieldManager.hh"
 #include "G4ScoringManager.hh"
+#include "G4UserSteppingAction.hh"
 
 #include <atomic>
 #include <memory>
@@ -340,6 +342,7 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
 
   // Set the physics list for the worker, share from master
   PhysicsList* physicsList = runManagerMaster->physicsListForWorker();
+  m_isPhase2 = runManagerMaster->isPhase2();
 
   edm::LogVerbatim("SimG4CoreApplication")
       << "RunManagerMTWorker::InitializeG4: start initialisation of PhysicsList for the thread " << thisID;
@@ -415,8 +418,17 @@ void RunManagerMTWorker::initializeUserActions() {
     m_evtManager->SetUserAction(userTrackingAction);
   }
 
-  auto userSteppingAction = new SteppingAction(m_sVerbose.get(), m_pSteppingAction, m_hasWatchers);
-  Connect(userSteppingAction);
+  // different stepping actions for Run2,3 and Phase2
+  G4UserSteppingAction* userSteppingAction;
+  if(m_isPhase2) {
+    auto ptr = new Phase2SteppingAction(m_sVerbose.get(), m_pSteppingAction, m_hasWatchers);
+    Connect(ptr);
+    userSteppingAction = (G4UserSteppingAction*)ptr;
+  } else {
+    auto ptr = new SteppingAction(m_sVerbose.get(), m_pSteppingAction, m_hasWatchers);
+    Connect(ptr);
+    userSteppingAction = (G4UserSteppingAction*)ptr;
+  }
   if (m_UseG4EventManager) {
     eventManager->SetUserAction(userSteppingAction);
   } else {
@@ -447,6 +459,10 @@ void RunManagerMTWorker::Connect(TrackingAction* trackingAction) {
 }
 
 void RunManagerMTWorker::Connect(SteppingAction* steppingAction) {
+  steppingAction->m_g4StepSignal.connect(m_tls->registry->g4StepSignal_);
+}
+
+void RunManagerMTWorker::Connect(Phase2SteppingAction* steppingAction) {
   steppingAction->m_g4StepSignal.connect(m_tls->registry->g4StepSignal_);
 }
 

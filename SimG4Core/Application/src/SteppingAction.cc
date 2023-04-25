@@ -158,39 +158,10 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
       }
     }
   }
-  // check transition tracker/btl and tracker/calo
+  // check transition tracker/calo
   bool isKilled = false;
   if (sAlive == tstat || sVeryForward == tstat) {
-    // store TrackInformation about transition from one envelope to another
-    if (preStep->GetPhysicalVolume() == tracker && postStep->GetPhysicalVolume() == btl) {
-      // store transition tracker -> BTL only for tracks entering BTL for the first time
-      TrackInformation* trkinfo = static_cast<TrackInformation*>(theTrack->GetUserInformation());
-      if (!trkinfo->isFromTtoBTL() && !trkinfo->isFromBTLtoT()) {
-        trkinfo->setFromTtoBTL();
-        trkinfo->setIdAtBTLentrance(theTrack->GetTrackID());
-#ifdef DebugLog
-        LogDebug("SimG4CoreApplication") << "Setting flag for Tracker -> BTL " << trkinfo->isFromTtoBTL()
-                                         << " IdAtBTLentrance = " << trkinfo->idAtBTLentrance();
-#endif
-      } else {
-        trkinfo->setBTLlooper();
-        trkinfo->setIdAtBTLentrance(theTrack->GetTrackID());
-#ifdef DebugLog
-        LogDebug("SimG4CoreApplication") << "Setting flag for BTL looper " << trkinfo->isBTLlooper();
-        trkinfo->Print();
-#endif
-      }
-    } else if (preStep->GetPhysicalVolume() == btl && postStep->GetPhysicalVolume() == tracker) {
-      // store transition BTL -> tracker
-      TrackInformation* trkinfo = static_cast<TrackInformation*>(theTrack->GetUserInformation());
-      if (!trkinfo->isFromBTLtoT()) {
-        trkinfo->setFromBTLtoT();
-#ifdef DebugLog
-        LogDebug("SimG4CoreApplication") << "Setting flag for BTL -> Tracker " << trkinfo->isFromBTLtoT();
-#endif
-      }
-    } else if (preStep->GetPhysicalVolume() == tracker && postStep->GetPhysicalVolume() == calo) {
-      // store transition tracker -> calo
+    if (preStep->GetPhysicalVolume() == tracker && postStep->GetPhysicalVolume() == calo) {
       TrackInformation* trkinfo = static_cast<TrackInformation*>(theTrack->GetUserInformation());
       if (!trkinfo->crossedBoundary()) {
         trkinfo->setCrossedBoundary(theTrack);
@@ -233,14 +204,12 @@ bool SteppingAction::initPointer() {
       tracker = pvcite;
     } else if (pvname == "CALO" || pvname == "caloBase:CALO_1") {
       calo = pvcite;
-    } else if (pvname == "BarrelTimingLayer" || pvname == "btl:BarrelTimingLayer_1") {
-      btl = pvcite;
     }
-    if (tracker && calo && btl)
+    if (tracker && calo)
       break;
   }
   edm::LogVerbatim("SimG4CoreApplication")
-      << "SteppingAction: pointer for Tracker " << tracker << " and for Calo " << calo << " and for BTL " << btl;
+      << "SteppingAction: pointer for Tracker " << tracker << " and for Calo " << calo;
 
   const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
   if (numberEkins > 0) {

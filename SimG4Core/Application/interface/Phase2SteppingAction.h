@@ -3,6 +3,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
+#include "SimG4Core/Application/interface/SteppingTrackStatus.h"
 
 #include "G4LogicalVolume.hh"
 #include "G4Region.hh"
@@ -15,18 +16,6 @@
 #include <vector>
 
 class CMSSteppingVerbose;
-
-enum TrackStatus {
-  sAlive = 0,
-  sKilledByProcess = 1,
-  sDeadRegion = 2,
-  sOutOfTime = 3,
-  sLowEnergy = 4,
-  sLowEnergyInVacuum = 5,
-  sEnergyDepNaN = 6,
-  sVeryForward = 7,
-  sNumberOfSteps = 8
-};
 
 class Phase2SteppingAction : public G4UserSteppingAction {
 public:
