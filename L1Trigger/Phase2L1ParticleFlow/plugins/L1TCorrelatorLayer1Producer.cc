@@ -21,6 +21,7 @@
 
 #include "L1Trigger/Phase2L1ParticleFlow/interface/l1-converters/tkinput_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/l1-converters/muonGmtToL1ct_ref.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/l1-converters/hgcalinput_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/regionizer_base_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/multififo_regionizer_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/buffered_folded_multififo_regionizer_ref.h"
@@ -68,6 +69,7 @@ private:
   l1ct::Event event_;
   std::unique_ptr<l1ct::TrackInputEmulator> trackInput_;
   std::unique_ptr<l1ct::GMTMuonDecoderEmulator> muonInput_;
+  std::unique_ptr<l1ct::HgcalClusterDecoderEmulator> hgcalInput_;
   std::unique_ptr<l1ct::RegionizerEmulator> regionizer_;
   std::unique_ptr<l1ct::PFAlgoEmulatorBase> l1pfalgo_;
   std::unique_ptr<l1ct::LinPuppiEmulator> l1pualgo_;
@@ -109,6 +111,38 @@ private:
   void addDecodedEmCalo(l1ct::DetectorSector<l1ct::EmCaloObjEmu> &sec, const l1t::PFCluster &t);
 
   void addRawHgcalCluster(l1ct::DetectorSector<ap_uint<256>> &sec, const l1t::PFCluster &c);
+
+  template <class T>
+  void rawHgcalClusterEncode(ap_uint<256> &cwrd, const l1ct::DetectorSector<T> &sec, const l1t::PFCluster &c) const {
+    cwrd = 0;
+    ap_ufixed<14, 12, AP_RND_CONV, AP_SAT> w_pt = c.pt();
+    ap_uint<14> w_empt = round(c.emEt() / 0.25);
+    constexpr float ETAPHI_LSB = M_PI / 720;
+    ap_int<9> w_eta = round(sec.region.localEta(c.eta()) / ETAPHI_LSB);
+    ap_int<9> w_phi = round(sec.region.localPhi(c.phi()) / ETAPHI_LSB);
+    ap_uint<10> w_qual = c.hwQual();
+    // NOTE: this is an arbitrary choice to keep the rounding consistent with the "addDecodedHadCalo" one
+    ap_uint<13> w_srrtot = round(c.sigmaRR() * l1ct::Scales::SRRTOT_SCALE / l1ct::Scales::SRRTOT_LSB);
+    ap_uint<12> w_meanz = round(c.absZBarycenter());
+    // NOTE: the calibration can actually make hoe become negative....we add a small protection for now
+    // We use ap_ufixed to handle saturation and rounding
+    ap_ufixed<10, 5, AP_RND_CONV, AP_SAT> w_hoe = c.hOverE();
+
+    cwrd(13, 0) = w_pt.range();
+    cwrd(27, 14) = w_empt;
+    cwrd(72, 64) = w_eta;
+    cwrd(81, 73) = w_phi;
+    cwrd(115, 106) = w_qual;
+
+    // FIXME: we add the variables use by composite-ID. The definitin will have to be reviewd once the
+    // hgc format is better defined. For now we use
+    // hwMeanZ = word 1 bits 30-19
+    // hwSrrTot = word 3 bits 21 - 9
+    // hoe = word 1 bits 63-52 (currently spare in the interface)
+    cwrd(213, 201) = w_srrtot;
+    cwrd(94, 83) = w_meanz;
+    cwrd(127, 116) = w_hoe.range();
+  }
 
   // fetching outputs
   std::unique_ptr<l1t::PFCandidateCollection> fetchHadCalo() const;
@@ -201,6 +235,13 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
         iConfig.getParameter<edm::ParameterSet>("muonInputConversionParameters"));
   } else if (muInAlgo != "Ideal")
     throw cms::Exception("Configuration", "Unsupported muonInputConversionAlgo");
+
+  const std::string &hgcalInAlgo = iConfig.getParameter<std::string>("hgcalInputConversionAlgo");
+  if (hgcalInAlgo == "Emulator") {
+    hgcalInput_ = std::make_unique<l1ct::HgcalClusterDecoderEmulator>(
+        iConfig.getParameter<edm::ParameterSet>("hgcalInputConversionParameters"));
+  } else if (hgcalInAlgo != "Ideal")
+    throw cms::Exception("Configuration", "Unsupported hgcalInputConversionAlgo");
 
   const std::string &regalgo = iConfig.getParameter<std::string>("regionizerAlgo");
   if (regalgo == "Ideal") {
@@ -688,49 +729,28 @@ void L1TCorrelatorLayer1Producer::addDecodedMuon(l1ct::DetectorSector<l1ct::MuOb
 void L1TCorrelatorLayer1Producer::addDecodedHadCalo(l1ct::DetectorSector<l1ct::HadCaloObjEmu> &sec,
                                                     const l1t::PFCluster &c) {
   l1ct::HadCaloObjEmu calo;
-  calo.hwPt = l1ct::Scales::makePtFromFloat(c.pt());
-  calo.hwEta = l1ct::Scales::makeGlbEta(c.eta()) -
-               sec.region.hwEtaCenter;  // important to enforce that the region boundary is on a discrete value
-  calo.hwPhi = l1ct::Scales::makePhi(sec.region.localPhi(c.phi()));
-  calo.hwEmPt = l1ct::Scales::makePtFromFloat(c.emEt());
-  calo.hwEmID = c.hwEmID();
-  calo.hwSrrTot = l1ct::Scales::makeSrrTot(c.sigmaRR());
-  calo.hwMeanZ = c.absZBarycenter() < 320. ? l1ct::meanz_t(0) : l1ct::Scales::makeMeanZ(c.absZBarycenter());
-  calo.hwHoe = l1ct::Scales::makeHoe(c.hOverE());
+  ap_uint<256> word = 0;
+  rawHgcalClusterEncode(word, sec, c);
+  if (hgcalInput_) {
+    calo = hgcalInput_->decode(word);
+  } else {
+    calo.hwPt = l1ct::Scales::makePtFromFloat(c.pt());
+    calo.hwEta = l1ct::Scales::makeGlbEta(c.eta()) -
+                 sec.region.hwEtaCenter;  // important to enforce that the region boundary is on a discrete value
+    calo.hwPhi = l1ct::Scales::makePhi(sec.region.localPhi(c.phi()));
+    calo.hwEmPt = l1ct::Scales::makePtFromFloat(c.emEt());
+    calo.hwEmID = c.hwEmID();
+    calo.hwSrrTot = l1ct::Scales::makeSrrTot(c.sigmaRR());
+    calo.hwMeanZ = c.absZBarycenter() < 320. ? l1ct::meanz_t(0) : l1ct::Scales::makeMeanZ(c.absZBarycenter());
+    calo.hwHoe = l1ct::Scales::makeHoe(c.hOverE());
+  }
   calo.src = &c;
   sec.obj.push_back(calo);
 }
 
 void L1TCorrelatorLayer1Producer::addRawHgcalCluster(l1ct::DetectorSector<ap_uint<256>> &sec, const l1t::PFCluster &c) {
   ap_uint<256> cwrd = 0;
-  ap_ufixed<14, 12, AP_RND_CONV, AP_SAT> w_pt = c.pt();
-  ap_uint<14> w_empt = round(c.emEt() / 0.25);
-  constexpr float ETAPHI_LSB = M_PI / 720;
-  ap_int<9> w_eta = round(sec.region.localEta(c.eta()) / ETAPHI_LSB);
-  ap_int<9> w_phi = round(sec.region.localPhi(c.phi()) / ETAPHI_LSB);
-  ap_uint<10> w_qual = c.hwQual();
-  // NOTE: this is an arbitrary choice to keep the rounding consistent with the "addDecodedHadCalo" one
-  ap_uint<13> w_srrtot = round(c.sigmaRR() * l1ct::Scales::SRRTOT_SCALE / l1ct::Scales::SRRTOT_LSB);
-  ap_uint<12> w_meanz = round(c.absZBarycenter());
-  // NOTE: the calibration can actually make hoe become negative....we add a small protection for now
-  // We use ap_ufixed to handle saturation and rounding
-  ap_ufixed<10, 5, AP_RND_CONV, AP_SAT> w_hoe = c.hOverE();
-
-  cwrd(13, 0) = w_pt.range();
-  cwrd(27, 14) = w_empt;
-  cwrd(72, 64) = w_eta;
-  cwrd(81, 73) = w_phi;
-  cwrd(115, 106) = w_qual;
-
-  // FIXME: we add the variables use by composite-ID. The definitin will have to be reviewd once the
-  // hgc format is better defined. For now we use
-  // hwMeanZ = word 1 bits 30-19
-  // hwSrrTot = word 3 bits 21 - 9
-  // hoe = word 1 bits 63-52 (currently spare in the interface)
-  cwrd(213, 201) = w_srrtot;
-  cwrd(94, 83) = w_meanz;
-  cwrd(127, 116) = w_hoe.range();
-
+  rawHgcalClusterEncode(cwrd, sec, c);
   sec.obj.push_back(cwrd);
 }
 
