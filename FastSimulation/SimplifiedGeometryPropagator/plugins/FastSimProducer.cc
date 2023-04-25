@@ -287,7 +287,8 @@ void FastSimProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (!particle->isStable() && particle->remainingProperLifeTimeC() < 1E-10) {
         LogDebug(MESSAGECATEGORY) << "Decaying particle...";
         std::vector<std::unique_ptr<fastsim::Particle> > secondaries;
-        decayer_.decay(*particle, secondaries, _randomEngine->theEngine());
+        if (useFastSimsDecayer) 
+            decayer_.decay(*particle, secondaries, _randomEngine->theEngine());
         LogDebug(MESSAGECATEGORY) << "   decay has " << secondaries.size() << " products";
         particleManager.addSecondaries(particle->position(), particle->simTrackIndex(), secondaries);
         continue;
@@ -499,7 +500,8 @@ FSimTrack FastSimProducer::createFSimTrack(fastsim::Particle* particle,
   if (!particle->isStable() && particle->remainingProperLifeTimeC() < 1E-10) {
     LogDebug(MESSAGECATEGORY) << "Decaying particle...";
     std::vector<std::unique_ptr<fastsim::Particle> > secondaries;
-    decayer_.decay(*particle, secondaries, _randomEngine->theEngine());
+    if (useFastSimsDecayer) 
+        decayer_.decay(*particle, secondaries, _randomEngine->theEngine());
     LogDebug(MESSAGECATEGORY) << "   decay has " << secondaries.size() << " products";
     particleManager->addSecondaries(particle->position(), particle->simTrackIndex(), secondaries);
   }
