@@ -56,7 +56,9 @@ HGCScintSD::HGCScintSD(const std::string& name,
   birk2_ = m_HGC.getParameter<double>("BirkC2");
   birk3_ = m_HGC.getParameter<double>("BirkC3");
   storeAllG4Hits_ = m_HGC.getParameter<bool>("StoreAllG4Hits");
+  checkID_ = m_HGC.getUntrackedParameter<bool>("CheckID");
   fileName_ = m_HGC.getUntrackedParameter<std::string>("TileFileName");
+  verbose_ = m_HGC.getUntrackedParameter<int>("Verbosity");
 
   if (storeAllG4Hits_) {
     setUseMap(false);
@@ -213,6 +215,23 @@ uint32_t HGCScintSD::setDetUnitId(const G4Step* aStep) {
                                << " is rejected by fiducilal volume cut";
 #endif
     id = 0;
+  }
+  if ((id != 0) && checkID_) {
+    HGCScintillatorDetId hid1(id);
+    std::string_view pid = ((hgcons_->cassetteShiftScintillator(hid1.layer(), hid1.iphi())) ? "HGCSim" : "HGCalSim");
+    bool debug = (verbose_ > 0) ? true : false;
+    auto xy = hgcons_->locateCell(HGCScintillatorDetId(id), debug);
+    double dx = xy.first - (hitPoint.x() / CLHEP::cm);
+    double dy = xy.second - (hitPoint.y() / CLHEP::cm);
+    double diff = std::sqrt(dx * dx + dy * dy);
+    constexpr double tol = 10.0;
+    bool valid = hgcons_->isValidTrap(hid1.zside(), hid1.layer(), hid1.ring(), hid1.iphi());
+    if ((diff > tol) || (!valid))
+      pid = "HGCalError";
+    edm::LogVerbatim(pid) << "CheckID " << HGCScintillatorDetId(id) << " input position: (" << hitPoint.x() / CLHEP::cm
+                          << ", " << hitPoint.y() / CLHEP::cm << "); position from ID (" << xy.first << ", "
+                          << xy.second << ") distance " << diff << " Valid " << valid
+                          << " Rho = " << hitPoint.perp() / CLHEP::cm;
   }
   return id;
 }

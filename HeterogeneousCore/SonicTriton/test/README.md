@@ -9,7 +9,7 @@ First, the relevant data for the image classification networks should be downloa
 ```
 
 A local Triton server will be launched automatically when the tests run.
-The local server will use Singularity with CPU by default; if a local Nvidia GPU is available, it will be used instead.
+The local server will use Apptainer with CPU by default; if a local Nvidia GPU is available, it will be used instead.
 (This behavior can also be controlled manually using the "device" argument to [tritonTest_cfg.py](./tritonTest_cfg.py).)
 
 ## Test commands

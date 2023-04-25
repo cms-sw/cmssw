@@ -24,6 +24,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -63,8 +64,7 @@
 
 #include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
-#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
+#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
@@ -186,7 +186,6 @@ private:
 
   const std::string photonCollName_;       // label for the photon collection
   const std::string pfJetCollName_;        // label for the PF jet collection
-  const std::string pfJetCorrName_;        // label for the PF jet correction service
   const std::string genJetCollName_;       // label for the genjet collection
   const std::string genParticleCollName_;  // label for the genparticle collection
   const std::string genEventInfoName_;     // label for the generator event info collection
@@ -235,6 +234,7 @@ private:
   edm::EDGetTokenT<reco::PFMETCollection> tok_PFMET_;
   edm::EDGetTokenT<reco::PFMETCollection> tok_PFType1MET_;
   edm::EDGetTokenT<edm::TriggerResults> tok_TrigRes_;
+  edm::EDGetTokenT<reco::JetCorrector> jetCorrectorToken_;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
 
   // root file/histograms
@@ -494,7 +494,6 @@ GammaJetAnalysis::GammaJetAnalysis(const edm::ParameterSet& iConfig)
       pfMETColl(iConfig.getParameter<edm::InputTag>("PFMETColl")),
       photonCollName_(iConfig.getParameter<std::string>("photonCollName")),
       pfJetCollName_(iConfig.getParameter<std::string>("pfJetCollName")),
-      pfJetCorrName_(iConfig.getParameter<std::string>("pfJetCorrName")),
       genJetCollName_(iConfig.getParameter<std::string>("genJetCollName")),
       genParticleCollName_(iConfig.getParameter<std::string>("genParticleCollName")),
       genEventInfoName_(iConfig.getParameter<std::string>("genEventInfoName")),
@@ -518,6 +517,7 @@ GammaJetAnalysis::GammaJetAnalysis(const edm::ParameterSet& iConfig)
       doGenJets_(iConfig.getParameter<bool>("doGenJets")),
       workOnAOD_(iConfig.getParameter<int>("workOnAOD")),
       ignoreHLT_(iConfig.getUntrackedParameter<bool>("ignoreHLT", false)),
+      jetCorrectorToken_(consumes<reco::JetCorrector>(iConfig.getParameter<edm::InputTag>("JetCorrections"))),
       tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       hltPrescaleProvider_(iConfig, consumesCollector(), *this) {
   usesResource(TFileService::kSharedResource);
@@ -1056,8 +1056,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     HERE("get corrector");
 
-    // Get jet corrections
-    const JetCorrector* correctorPF = JetCorrector::getJetCorrector(pfJetCorrName_, evSetup);
+    reco::JetCorrector const& correctorPF = iEvent.get(jetCorrectorToken_);
 
     // sort jets by corrected et
     std::set<PFJetCorretPair, PFJetCorretPairComp> pfjetcorretpairset;
@@ -1066,7 +1065,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       // do not let the jet to be close to the tag photon
       if (deltaR(photon_tag, jet) < 0.5)
         continue;
-      double jec = correctorPF->correction(*it, iEvent, evSetup);
+      double jec = correctorPF.correction(*it);
       pfjetcorretpairset.insert(PFJetCorretPair(jet, jec));
     }
 
@@ -1130,7 +1129,6 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
       HERE("fill PF jet");
 
-      int types = 0;
       int ntypes = 0;
 
       /////////////////////////////////////////////
@@ -1386,7 +1384,6 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
           float HFEM_E = 0;
           int HFHAD_n_ = 0;
           int HFEM_n_ = 0;
-          int HF_type_ = 0;
           int maxElement = (*it)->elementsInBlocks().size();
           if (debug_ > 1)
             edm::LogVerbatim("GammaJetAnalysis") << "maxElement=" << maxElement;
@@ -1403,7 +1400,6 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
             for (unsigned iEle = 0; iEle < elements.size(); iEle++) {
               if (elements[iEle].index() == (*it)->elementsInBlocks()[e].second) {
                 if (elements[iEle].type() == reco::PFBlockElement::HCAL) {  // Element is HB or HE
-                  HF_type_ |= 0x1;
                   // Get cluster and hits
                   reco::PFClusterRef clusterref = elements[iEle].clusterRef();
                   reco::PFCluster cluster = *clusterref;
@@ -1494,10 +1490,8 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                   }                                                               // Loop over hits
                 }                                                                 // Test if element is from HCAL
                 else if (elements[iEle].type() == reco::PFBlockElement::HFHAD) {  // Element is HF
-                  types |= 0x2;
                   ntypes++;
                   HFHAD_n_++;
-                  HF_type_ |= 0x2;
 
                   ////	h_etaHFHAD_->Fill((*it)->eta());
 
@@ -1548,10 +1542,8 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                     }
                   }
                 } else if (elements[iEle].type() == reco::PFBlockElement::HFEM) {  // Element is HF
-                  types |= 0x4;
                   ntypes++;
                   HFEM_n_++;
-                  HF_type_ |= 0x4;
 
                   for (edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>::const_iterator ith =
                            hfreco->begin();
@@ -1600,9 +1592,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                     }
                   }
                 } else if (elements[iEle].type() == reco::PFBlockElement::HO) {  // Element is HO
-                  types |= 0x8;
                   ntypes++;
-                  HF_type_ |= 0x8;
                   reco::PFClusterRef clusterref = elements[iEle].clusterRef();
                   reco::PFCluster cluster = *clusterref;
                   double cluster_dR = deltaR(ppfjet_eta_, ppfjet_phi_, cluster.eta(), cluster.phi());

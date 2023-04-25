@@ -731,10 +731,12 @@ void CaloSD::update(const ::EndOfEvent*) {
   double eHAD(0.0);
   double eEM2(0.0);
   double eHAD2(0.0);
+#ifdef EDM_ML_DEBUG
   double tt(0.0);
   double zloc(0.0);
   double zglob(0.0);
   double ee(0.0);
+#endif
   int hc_entries = theHC->entries();
   for (int i = 0; i < hc_entries; ++i) {
     if (!saveHit((*theHC)[i])) {
@@ -747,10 +749,12 @@ void CaloSD::update(const ::EndOfEvent*) {
     x = (*theHC)[i]->getHadr();
     eHAD += x;
     eHAD2 += x * x;
+#ifdef EDM_ML_DEBUG
     tt += (*theHC)[i]->getTimeSlice();
     ee += (*theHC)[i]->getIncidentEnergy();
     zglob += std::abs((*theHC)[i]->getEntry().z());
     zloc += std::abs((*theHC)[i]->getEntryLocal().z());
+#endif
   }
 
   double norm = (count > 0) ? 1.0 / count : 0.0;
@@ -760,12 +764,11 @@ void CaloSD::update(const ::EndOfEvent*) {
   eHAD2 *= norm;
   eEM2 = std::sqrt(eEM2 - eEM * eEM);
   eHAD2 = std::sqrt(eHAD2 - eHAD * eHAD);
+#ifdef EDM_ML_DEBUG
   tt *= norm;
   ee *= norm;
   zglob *= norm;
   zloc *= norm;
-
-#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CaloSim") << "CaloSD: " << GetName() << " store " << count << " hits; " << wrong
                               << " track IDs not given properly and " << totalHits - count
                               << " hits not passing cuts\n EmeanEM= " << eEM << " ErmsEM= " << eEM2

@@ -63,6 +63,7 @@
 CMSEmStandardPhysicsXS::CMSEmStandardPhysicsXS(G4int ver, const edm::ParameterSet& p)
     : G4VPhysicsConstructor("CMSEmStandard_emn") {
   SetVerboseLevel(ver);
+  // EM parameters specific for this EM physics configuration
   G4EmParameters* param = G4EmParameters::Instance();
   param->SetDefaults();
   param->SetVerbose(ver);
@@ -91,8 +92,6 @@ CMSEmStandardPhysicsXS::CMSEmStandardPhysicsXS(G4int ver, const edm::ParameterSe
   param->SetLowestElectronEnergy(tcut);
   param->SetLowestMuHadEnergy(tcut);
 }
-
-CMSEmStandardPhysicsXS::~CMSEmStandardPhysicsXS() {}
 
 void CMSEmStandardPhysicsXS::ConstructParticle() {
   // minimal set of particles for EM physics

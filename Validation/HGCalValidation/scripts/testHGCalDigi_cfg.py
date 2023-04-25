@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun testHGCalDigi_cfg.py geometry=D92 type=mu noise=none threshold=none
 #
-#   Options for geometry D88, D92, D93
+#   Options for geometry D88, D92, D93, D92Shift
 #               type mu, tt
 #               noise none, ok
 #               threshold none, ok
@@ -19,7 +19,7 @@ options.register('geometry',
                  "D92",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D88, D92, D93")
+                  "geometry of operations: D88, D92, D93, D92Shift")
 options.register('type',
                  "mu",
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -46,7 +46,10 @@ print(options)
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 process = cms.Process('Digi',Phase2C17I13M9)
 
-geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
+if (options.geometry == "D92Shift"):
+    geomFile = "Geometry.HGCalCommonData.testHGCalV17ShiftReco_cff"
+else:
+    geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
 globalTag = "auto:phase2_realistic_T21"
 inFile = "file:step1" + options.geometry + options.type + ".root"
 outFile = "file:step2" + options.geometry + options.type + ".root"

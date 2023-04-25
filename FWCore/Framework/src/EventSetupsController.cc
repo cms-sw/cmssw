@@ -39,7 +39,8 @@ namespace edm {
   namespace eventsetup {
 
     EventSetupsController::EventSetupsController() {}
-    EventSetupsController::EventSetupsController(ModuleTypeResolverBase const* resolver) : typeResolver_(resolver) {}
+    EventSetupsController::EventSetupsController(ModuleTypeResolverMaker const* resolverMaker)
+        : typeResolverMaker_(resolverMaker) {}
 
     void EventSetupsController::endIOVsAsync(edm::WaitingTaskHolder iEndTask) {
       for (auto& eventSetupRecordIOVQueue : eventSetupRecordIOVQueues_) {
@@ -61,7 +62,7 @@ namespace edm {
       // Construct the ESProducers and ESSources
       // shared_ptrs to them are temporarily stored in this
       // EventSetupsController and in the EventSetupProvider
-      fillEventSetupProvider(typeResolver_, *this, *returnValue, iPSet);
+      fillEventSetupProvider(typeResolverMaker_, *this, *returnValue, iPSet);
 
       numberOfConcurrentIOVs_.readConfigurationParameters(eventSetupPset, maxConcurrentIOVs, dumpOptions);
 
@@ -430,7 +431,7 @@ namespace edm {
         for (auto precedingESProvider = providers_.begin(); precedingESProvider != esProvider; ++precedingESProvider) {
           (*esProvider)
               ->checkESProducerSharing(
-                  typeResolver_, **precedingESProvider, sharingCheckDone, referencedESProducers, *this);
+                  typeResolverMaker_, **precedingESProvider, sharingCheckDone, referencedESProducers, *this);
         }
 
         (*esProvider)->resetRecordToProxyPointers();

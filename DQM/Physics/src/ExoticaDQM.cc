@@ -3,7 +3,6 @@
 using namespace edm;
 using namespace std;
 using namespace reco;
-using namespace trigger;
 
 typedef vector<string> vstring;
 
@@ -17,9 +16,6 @@ ExoticaDQM::ExoticaDQM(const edm::ParameterSet& ps) {
   typedef std::vector<edm::InputTag> vtag;
 
   // Get parameters from configuration file
-  // Trigger
-  TriggerToken_ = consumes<TriggerResults>(ps.getParameter<edm::InputTag>("TriggerResults"));
-  HltPaths_ = ps.getParameter<vector<string> >("HltPaths");
   //
   VertexToken_ = consumes<reco::VertexCollection>(ps.getParameter<InputTag>("vertexCollection"));
   //
@@ -327,11 +323,6 @@ void ExoticaDQM::bookHistograms(DQMStore::IBooker& bei, edm::Run const&, edm::Ev
 void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // objects
 
-  //Trigger
-  bool ValidTriggers = iEvent.getByToken(TriggerToken_, TriggerResults_);
-  if (!ValidTriggers)
-    return;
-
   // Vertices
   bool ValidVertices = iEvent.getByToken(VertexToken_, VertexCollection_);
   if (!ValidVertices)
@@ -377,24 +368,6 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
   // JetCorrector
   bool ValidJetCorrector = iEvent.getByToken(JetCorrectorToken_, JetCorrector_);
-
-  //Trigger
-
-  int N_Triggers = TriggerResults_->size();
-  int N_GoodTriggerPaths = HltPaths_.size();
-  bool triggered_event = false;
-  const edm::TriggerNames& trigName = iEvent.triggerNames(*TriggerResults_);
-  for (int i_Trig = 0; i_Trig < N_Triggers; ++i_Trig) {
-    if (TriggerResults_.product()->accept(i_Trig)) {
-      for (int n = 0; n < N_GoodTriggerPaths; n++) {
-        if (trigName.triggerName(i_Trig).find(HltPaths_[n]) != std::string::npos) {
-          triggered_event = true;
-        }
-      }
-    }
-  }
-  if (triggered_event == false)
-    return;
 
   for (int i = 0; i < 2; i++) {
     //Jets

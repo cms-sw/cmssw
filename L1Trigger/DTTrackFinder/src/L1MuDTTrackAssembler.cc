@@ -270,71 +270,71 @@ void L1MuDTTrackAssembler::run() {
 
   // Main equations (68)
 
-  m_thePriorityTable1[67] = (b_adr12_8[0] & b_adr13_8[0] & b_adr23_8[0] & n_1234_888.any());
-  m_thePriorityTable1[66] = (b_adr12_8[0] & b_adr13_8[1] & b_adr23_8[1] & n_1234_889.any());
-  m_thePriorityTable1[65] = (b_adr12_8[0] & b_adr13_8[2] & b_adr23_8[2] & n_1234_880.any());
-  m_thePriorityTable1[64] = (b_adr12_8[0] & b_adr13_8[3] & b_adr23_8[3] & n_1234_881.any());
-  m_thePriorityTable1[63] = (b_adr12_8[1] & b_adr13_8[0] & b_adr23_9[0] & n_1234_898.any());
-  m_thePriorityTable1[62] = (b_adr12_8[1] & b_adr13_8[1] & b_adr23_9[1] & n_1234_899.any());
-  m_thePriorityTable1[61] = (b_adr12_8[1] & b_adr13_8[2] & b_adr23_9[2] & n_1234_890.any());
-  m_thePriorityTable1[60] = (b_adr12_8[1] & b_adr13_8[3] & b_adr23_9[3] & n_1234_891.any());
-  m_thePriorityTable1[59] = (b_adr12_8[2] & b_adr13_8[2] & b_adr23_0[2] & n_1234_800.any());
-  m_thePriorityTable1[58] = (b_adr12_8[2] & b_adr13_8[3] & b_adr23_0[3] & n_1234_801.any());
-  m_thePriorityTable1[57] = (b_adr12_8[3] & b_adr13_8[2] & b_adr23_1[2] & n_1234_810.any());
-  m_thePriorityTable1[56] = (b_adr12_8[3] & b_adr13_8[3] & b_adr23_1[3] & n_1234_811.any());
+  m_thePriorityTable1[67] = (b_adr12_8[0] && b_adr13_8[0] && b_adr23_8[0] && n_1234_888.any());
+  m_thePriorityTable1[66] = (b_adr12_8[0] && b_adr13_8[1] && b_adr23_8[1] && n_1234_889.any());
+  m_thePriorityTable1[65] = (b_adr12_8[0] && b_adr13_8[2] && b_adr23_8[2] && n_1234_880.any());
+  m_thePriorityTable1[64] = (b_adr12_8[0] && b_adr13_8[3] && b_adr23_8[3] && n_1234_881.any());
+  m_thePriorityTable1[63] = (b_adr12_8[1] && b_adr13_8[0] && b_adr23_9[0] && n_1234_898.any());
+  m_thePriorityTable1[62] = (b_adr12_8[1] && b_adr13_8[1] && b_adr23_9[1] && n_1234_899.any());
+  m_thePriorityTable1[61] = (b_adr12_8[1] && b_adr13_8[2] && b_adr23_9[2] && n_1234_890.any());
+  m_thePriorityTable1[60] = (b_adr12_8[1] && b_adr13_8[3] && b_adr23_9[3] && n_1234_891.any());
+  m_thePriorityTable1[59] = (b_adr12_8[2] && b_adr13_8[2] && b_adr23_0[2] && n_1234_800.any());
+  m_thePriorityTable1[58] = (b_adr12_8[2] && b_adr13_8[3] && b_adr23_0[3] && n_1234_801.any());
+  m_thePriorityTable1[57] = (b_adr12_8[3] && b_adr13_8[2] && b_adr23_1[2] && n_1234_810.any());
+  m_thePriorityTable1[56] = (b_adr12_8[3] && b_adr13_8[3] && b_adr23_1[3] && n_1234_811.any());
 
-  m_thePriorityTable1[55] = (b_adr12_9[0] & b_adr13_9[0] & b_adr23_8[0] & n_1234_988.any());
-  m_thePriorityTable1[54] = (b_adr12_9[0] & b_adr13_9[1] & b_adr23_8[1] & n_1234_989.any());
-  m_thePriorityTable1[53] = (b_adr12_9[0] & b_adr13_9[2] & b_adr23_8[2] & n_1234_980.any());
-  m_thePriorityTable1[52] = (b_adr12_9[0] & b_adr13_9[3] & b_adr23_8[3] & n_1234_981.any());
-  m_thePriorityTable1[51] = (b_adr12_9[1] & b_adr13_9[0] & b_adr23_9[0] & n_1234_998.any());
-  m_thePriorityTable1[50] = (b_adr12_9[1] & b_adr13_9[1] & b_adr23_9[1] & n_1234_999.any());
-  m_thePriorityTable1[49] = (b_adr12_9[1] & b_adr13_9[2] & b_adr23_9[2] & n_1234_990.any());
-  m_thePriorityTable1[48] = (b_adr12_9[1] & b_adr13_9[3] & b_adr23_9[3] & n_1234_991.any());
-  m_thePriorityTable1[47] = (b_adr12_9[2] & b_adr13_9[2] & b_adr23_0[2] & n_1234_900.any());
-  m_thePriorityTable1[46] = (b_adr12_9[2] & b_adr13_9[3] & b_adr23_0[3] & n_1234_901.any());
-  m_thePriorityTable1[45] = (b_adr12_9[3] & b_adr13_9[2] & b_adr23_1[2] & n_1234_910.any());
-  m_thePriorityTable1[44] = (b_adr12_9[3] & b_adr13_9[3] & b_adr23_1[3] & n_1234_911.any());
+  m_thePriorityTable1[55] = (b_adr12_9[0] && b_adr13_9[0] && b_adr23_8[0] && n_1234_988.any());
+  m_thePriorityTable1[54] = (b_adr12_9[0] && b_adr13_9[1] && b_adr23_8[1] && n_1234_989.any());
+  m_thePriorityTable1[53] = (b_adr12_9[0] && b_adr13_9[2] && b_adr23_8[2] && n_1234_980.any());
+  m_thePriorityTable1[52] = (b_adr12_9[0] && b_adr13_9[3] && b_adr23_8[3] && n_1234_981.any());
+  m_thePriorityTable1[51] = (b_adr12_9[1] && b_adr13_9[0] && b_adr23_9[0] && n_1234_998.any());
+  m_thePriorityTable1[50] = (b_adr12_9[1] && b_adr13_9[1] && b_adr23_9[1] && n_1234_999.any());
+  m_thePriorityTable1[49] = (b_adr12_9[1] && b_adr13_9[2] && b_adr23_9[2] && n_1234_990.any());
+  m_thePriorityTable1[48] = (b_adr12_9[1] && b_adr13_9[3] && b_adr23_9[3] && n_1234_991.any());
+  m_thePriorityTable1[47] = (b_adr12_9[2] && b_adr13_9[2] && b_adr23_0[2] && n_1234_900.any());
+  m_thePriorityTable1[46] = (b_adr12_9[2] && b_adr13_9[3] && b_adr23_0[3] && n_1234_901.any());
+  m_thePriorityTable1[45] = (b_adr12_9[3] && b_adr13_9[2] && b_adr23_1[2] && n_1234_910.any());
+  m_thePriorityTable1[44] = (b_adr12_9[3] && b_adr13_9[3] && b_adr23_1[3] && n_1234_911.any());
 
-  m_thePriorityTable1[43] = (b_adr12_8[0] & n_123_88.any());
-  m_thePriorityTable1[42] = (b_adr12_8[1] & n_123_89.any());
-  m_thePriorityTable1[41] = (b_adr12_8[2] & n_123_80.any());
-  m_thePriorityTable1[40] = (b_adr12_8[3] & n_123_81.any());
+  m_thePriorityTable1[43] = (b_adr12_8[0] && n_123_88.any());
+  m_thePriorityTable1[42] = (b_adr12_8[1] && n_123_89.any());
+  m_thePriorityTable1[41] = (b_adr12_8[2] && n_123_80.any());
+  m_thePriorityTable1[40] = (b_adr12_8[3] && n_123_81.any());
 
-  m_thePriorityTable1[39] = (b_adr12_9[0] & n_123_98.any());
-  m_thePriorityTable1[38] = (b_adr12_9[1] & n_123_99.any());
-  m_thePriorityTable1[37] = (b_adr12_9[2] & n_123_90.any());
-  m_thePriorityTable1[36] = (b_adr12_9[3] & n_123_91.any());
+  m_thePriorityTable1[39] = (b_adr12_9[0] && n_123_98.any());
+  m_thePriorityTable1[38] = (b_adr12_9[1] && n_123_99.any());
+  m_thePriorityTable1[37] = (b_adr12_9[2] && n_123_90.any());
+  m_thePriorityTable1[36] = (b_adr12_9[3] && n_123_91.any());
 
-  m_thePriorityTable1[35] = (b_adr12_8[0] & n_124_88.any());
-  m_thePriorityTable1[34] = (b_adr12_8[1] & n_124_89.any());
-  m_thePriorityTable1[33] = (b_adr12_8[2] & n_124_80.any());
-  m_thePriorityTable1[32] = (b_adr12_8[3] & n_124_81.any());
+  m_thePriorityTable1[35] = (b_adr12_8[0] && n_124_88.any());
+  m_thePriorityTable1[34] = (b_adr12_8[1] && n_124_89.any());
+  m_thePriorityTable1[33] = (b_adr12_8[2] && n_124_80.any());
+  m_thePriorityTable1[32] = (b_adr12_8[3] && n_124_81.any());
 
-  m_thePriorityTable1[31] = (b_adr12_9[0] & n_124_98.any());
-  m_thePriorityTable1[30] = (b_adr12_9[1] & n_124_99.any());
-  m_thePriorityTable1[29] = (b_adr12_9[2] & n_124_90.any());
-  m_thePriorityTable1[28] = (b_adr12_9[3] & n_124_91.any());
+  m_thePriorityTable1[31] = (b_adr12_9[0] && n_124_98.any());
+  m_thePriorityTable1[30] = (b_adr12_9[1] && n_124_99.any());
+  m_thePriorityTable1[29] = (b_adr12_9[2] && n_124_90.any());
+  m_thePriorityTable1[28] = (b_adr12_9[3] && n_124_91.any());
 
-  m_thePriorityTable1[27] = (b_adr13_8[0] & n_134_88.any());
-  m_thePriorityTable1[26] = (b_adr13_8[1] & n_134_89.any());
-  m_thePriorityTable1[25] = (b_adr13_8[2] & n_134_80.any());
-  m_thePriorityTable1[24] = (b_adr13_8[3] & n_134_81.any());
+  m_thePriorityTable1[27] = (b_adr13_8[0] && n_134_88.any());
+  m_thePriorityTable1[26] = (b_adr13_8[1] && n_134_89.any());
+  m_thePriorityTable1[25] = (b_adr13_8[2] && n_134_80.any());
+  m_thePriorityTable1[24] = (b_adr13_8[3] && n_134_81.any());
 
-  m_thePriorityTable1[23] = (b_adr13_9[0] & n_134_98.any());
-  m_thePriorityTable1[22] = (b_adr13_9[1] & n_134_99.any());
-  m_thePriorityTable1[21] = (b_adr13_9[2] & n_134_90.any());
-  m_thePriorityTable1[20] = (b_adr13_9[3] & n_134_91.any());
+  m_thePriorityTable1[23] = (b_adr13_9[0] && n_134_98.any());
+  m_thePriorityTable1[22] = (b_adr13_9[1] && n_134_99.any());
+  m_thePriorityTable1[21] = (b_adr13_9[2] && n_134_90.any());
+  m_thePriorityTable1[20] = (b_adr13_9[3] && n_134_91.any());
 
-  m_thePriorityTable1[19] = (b_adr23_8[0] & n_234_88.any());
-  m_thePriorityTable1[18] = (b_adr23_8[1] & n_234_89.any());
-  m_thePriorityTable1[17] = (b_adr23_8[2] & n_234_80.any());
-  m_thePriorityTable1[16] = (b_adr23_8[3] & n_234_81.any());
+  m_thePriorityTable1[19] = (b_adr23_8[0] && n_234_88.any());
+  m_thePriorityTable1[18] = (b_adr23_8[1] && n_234_89.any());
+  m_thePriorityTable1[17] = (b_adr23_8[2] && n_234_80.any());
+  m_thePriorityTable1[16] = (b_adr23_8[3] && n_234_81.any());
 
-  m_thePriorityTable1[15] = (b_adr23_9[0] & n_234_98.any());
-  m_thePriorityTable1[14] = (b_adr23_9[1] & n_234_99.any());
-  m_thePriorityTable1[13] = (b_adr23_9[2] & n_234_90.any());
-  m_thePriorityTable1[12] = (b_adr23_9[3] & n_234_91.any());
+  m_thePriorityTable1[15] = (b_adr23_9[0] && n_234_98.any());
+  m_thePriorityTable1[14] = (b_adr23_9[1] && n_234_99.any());
+  m_thePriorityTable1[13] = (b_adr23_9[2] && n_234_90.any());
+  m_thePriorityTable1[12] = (b_adr23_9[3] && n_234_91.any());
 
   m_thePriorityTable1[11] = n_12_8.any();
   m_thePriorityTable1[10] = n_12_9.any();

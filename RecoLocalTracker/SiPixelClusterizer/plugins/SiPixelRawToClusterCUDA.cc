@@ -32,8 +32,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
+#include "HeterogeneousCore/CUDAServices/interface/CUDAInterface.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
 // local includes
@@ -272,9 +273,15 @@ void SiPixelRawToClusterCUDA::produce(edm::Event& iEvent, const edm::EventSetup&
   cms::cuda::ScopedContextProduce ctx{ctxState_};
 
   if (nDigis_ == 0) {
-    // default construct collections and place them in event
-    ctx.emplace(iEvent, digiPutToken_, SiPixelDigisCUDA{});
-    ctx.emplace(iEvent, clusterPutToken_, SiPixelClustersCUDA{});
+    // Cannot use the default constructor here, as it would not allocate memory.
+    // In the case of no digis, clusters_d are not being instantiated, but are
+    // still used downstream to initialize TrackingRecHitSoADevice. If there
+    // are no valid pointers to clusters' Collection columns, instantiation
+    // of TrackingRecHits fail. Example: workflow 11604.0
+    SiPixelDigisCUDA digis_d = SiPixelDigisCUDA(nDigis_, ctx.stream());
+    SiPixelClustersCUDA clusters_d = SiPixelClustersCUDA(pixelTopology::Phase1::numberOfModules, ctx.stream());
+    ctx.emplace(iEvent, digiPutToken_, std::move(digis_d));
+    ctx.emplace(iEvent, clusterPutToken_, std::move(clusters_d));
     if (includeErrors_) {
       ctx.emplace(iEvent, digiErrorPutToken_, SiPixelDigiErrorsCUDA{});
     }

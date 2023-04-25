@@ -1,24 +1,11 @@
-
-#include "DQMServices/Core/interface/DQMStore.h"
-
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-
-#include "FWCore/Common/interface/TriggerNames.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
-#include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMOffline/Trigger/interface/HLTDQMTagAndProbeEff.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include <vector>
-#include <string>
 
 template <typename TagType, typename TagCollType, typename ProbeType = TagType, typename ProbeCollType = TagCollType>
 class HLTTagAndProbeOfflineSource : public DQMEDAnalyzer {
@@ -34,13 +21,13 @@ public:
   void bookHistograms(DQMStore::IBooker&, edm::Run const& run, edm::EventSetup const& c) override;
 
 private:
-  std::vector<HLTDQMTagAndProbeEff<TagType, TagCollType, ProbeType, ProbeCollType> > tagAndProbeEffs_;
+  std::vector<HLTDQMTagAndProbeEff<TagType, TagCollType, ProbeType, ProbeCollType>> tagAndProbeEffs_;
 };
 
 template <typename TagType, typename TagCollType, typename ProbeType, typename ProbeCollType>
 HLTTagAndProbeOfflineSource<TagType, TagCollType, ProbeType, ProbeCollType>::HLTTagAndProbeOfflineSource(
     const edm::ParameterSet& config) {
-  auto histCollConfigs = config.getParameter<std::vector<edm::ParameterSet> >("tagAndProbeCollections");
+  auto histCollConfigs = config.getParameter<std::vector<edm::ParameterSet>>("tagAndProbeCollections");
   for (auto& histCollConfig : histCollConfigs) {
     tagAndProbeEffs_.emplace_back(
         HLTDQMTagAndProbeEff<TagType, TagCollType, ProbeType, ProbeCollType>(histCollConfig, consumesCollector()));
@@ -51,16 +38,10 @@ template <typename TagType, typename TagCollType, typename ProbeType, typename P
 void HLTTagAndProbeOfflineSource<TagType, TagCollType, ProbeType, ProbeCollType>::fillDescriptions(
     edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("objs", edm::InputTag(""));
   desc.addVPSet("tagAndProbeCollections",
                 HLTDQMTagAndProbeEff<TagType, TagCollType, ProbeType, ProbeCollType>::makePSetDescription(),
-                std::vector<edm::ParameterSet>());
-
-  // addDefault must be used here instead of add unless this function is specialized
-  // for different sets of template parameter types. Each specialization would need
-  // a different module label. Otherwise the generated cfi filenames will conflict
-  // for the different plugins.
-  descriptions.addDefault(desc);
+                {});
+  descriptions.addWithDefaultLabel(desc);
 }
 
 template <typename TagType, typename TagCollType, typename ProbeType, typename ProbeCollType>

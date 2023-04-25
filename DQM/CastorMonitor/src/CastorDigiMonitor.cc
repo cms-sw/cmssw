@@ -224,7 +224,6 @@ void CastorDigiMonitor::processEvent(edm::Event const &event,
 
     int capid1 = digi.sample(0).capid();
     hdigisize->Fill(digi.size());
-    double sum = 0.;
     int err = 0, err2 = 0;
     for (int i = 0; i < digi.size(); i++) {
       int capid = digi.sample(i).capid();
@@ -239,7 +238,6 @@ void CastorDigiMonitor::processEvent(edm::Event const &event,
       h2QmeantsvsCh->Fill(ind, i, LedMonAdc2fc[rawd]);
       float q = LedMonAdc2fc[rawd];
       Ecell[module][sector] = q;
-      sum += q;  //     sum += LedMonAdc2fc[rawd];
       QrmsTS[ind][i] += (q * q);
       QmeanTS[ind][i] += q;
       if (err != 0 && fVerbosity > 0)

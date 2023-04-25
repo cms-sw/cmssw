@@ -528,6 +528,18 @@ namespace edmtest {
                 return TokenValue{produces<IntProduct>(pset.getParameter<std::string>("instance")),
                                   pset.getParameter<int>("value")};
               })},
+          transientTokenValues_{vector_transform(
+              p.getParameter<std::vector<edm::ParameterSet>>("transientValues"),
+              [this](edm::ParameterSet const& pset) {
+                auto const& branchAlias = pset.getParameter<std::string>("branchAlias");
+                if (not branchAlias.empty()) {
+                  return TransientTokenValue{produces<TransientIntProduct>(pset.getParameter<std::string>("instance"))
+                                                 .setBranchAlias(branchAlias),
+                                             pset.getParameter<int>("value")};
+                }
+                return TransientTokenValue{produces<TransientIntProduct>(pset.getParameter<std::string>("instance")),
+                                           pset.getParameter<int>("value")};
+              })},
           throw_{p.getUntrackedParameter<bool>("throw")} {
       tokenValues_.push_back(TokenValue{produces<IntProduct>(), p.getParameter<int>("ivalue")});
     }
@@ -543,6 +555,7 @@ namespace edmtest {
         pset.add<int>("value");
         pset.add<std::string>("branchAlias", "");
         desc.addVPSet("values", pset, std::vector<edm::ParameterSet>{});
+        desc.addVPSet("transientValues", pset, std::vector<edm::ParameterSet>{});
       }
 
       descriptions.addDefault(desc);
@@ -556,6 +569,13 @@ namespace edmtest {
       int value;
     };
     std::vector<TokenValue> tokenValues_;
+
+    struct TransientTokenValue {
+      edm::EDPutTokenT<TransientIntProduct> token;
+      int value;
+    };
+    std::vector<TransientTokenValue> transientTokenValues_;
+
     bool throw_;
   };
 
@@ -566,6 +586,9 @@ namespace edmtest {
 
     // EventSetup is not used.
     for (auto const& tv : tokenValues_) {
+      e.emplace(tv.token, tv.value);
+    }
+    for (auto const& tv : transientTokenValues_) {
       e.emplace(tv.token, tv.value);
     }
   }
@@ -939,6 +962,50 @@ namespace edmtest {
   };
 }  // namespace edmtest
 
+namespace edm::test {
+  namespace other {
+    class IntProducer : public edm::global::EDProducer<> {
+    public:
+      explicit IntProducer(edm::ParameterSet const& p)
+          : token_{produces()}, value_(p.getParameter<int>("valueOther")) {}
+      void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const final { e.emplace(token_, value_); }
+
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+        edm::ParameterSetDescription desc;
+        desc.add<int>("valueOther");
+        desc.add<int>("valueCpu");
+        desc.addUntracked<std::string>("variant", "");
+
+        descriptions.addWithDefaultLabel(desc);
+      }
+
+    private:
+      edm::EDPutTokenT<edmtest::IntProduct> token_;
+      int value_;
+    };
+  }  // namespace other
+  namespace cpu {
+    class IntProducer : public edm::global::EDProducer<> {
+    public:
+      explicit IntProducer(edm::ParameterSet const& p) : token_{produces()}, value_(p.getParameter<int>("valueCpu")) {}
+      void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const final { e.emplace(token_, value_); }
+
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+        edm::ParameterSetDescription desc;
+        desc.add<int>("valueOther");
+        desc.add<int>("valueCpu");
+        desc.addUntracked<std::string>("variant", "");
+
+        descriptions.addWithDefaultLabel(desc);
+      }
+
+    private:
+      edm::EDPutTokenT<edmtest::IntProduct> token_;
+      int value_;
+    };
+  }  // namespace cpu
+}  // namespace edm::test
+
 using edmtest::AddAllIntsProducer;
 using edmtest::AddIntsProducer;
 using edmtest::BusyWaitIntLimitedProducer;
@@ -984,3 +1051,5 @@ DEFINE_FWK_MODULE(IntProducerBeginProcessBlock);
 DEFINE_FWK_MODULE(IntProducerEndProcessBlock);
 DEFINE_FWK_MODULE(TransientIntProducerEndProcessBlock);
 DEFINE_FWK_MODULE(edmtest::MustRunIntProducer);
+DEFINE_FWK_MODULE(edm::test::other::IntProducer);
+DEFINE_FWK_MODULE(edm::test::cpu::IntProducer);

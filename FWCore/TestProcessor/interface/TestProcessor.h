@@ -62,6 +62,7 @@ namespace edm {
   class ThinnedAssociationsHelper;
   class ExceptionToActionTable;
   class HistoryAppender;
+  class ModuleTypeResolverMaker;
 
   namespace eventsetup {
     class EventSetupProvider;
@@ -335,6 +336,7 @@ This simulates a problem happening early in the job which causes processing not 
       std::shared_ptr<ProcessBlockHelper> processBlockHelper_;
       std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
       ServiceToken serviceToken_;
+      std::unique_ptr<ModuleTypeResolverMaker const> moduleTypeResolverMaker_;
       std::unique_ptr<eventsetup::EventSetupsController> espController_;
       std::shared_ptr<eventsetup::EventSetupProvider> esp_;
       std::shared_ptr<EventSetupTestHelper> esHelper_;

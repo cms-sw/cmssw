@@ -149,6 +149,8 @@
 
   <test name="TestIntegrationProcessAccelerator" command="run_TestProcessAccelerator.sh"/>
 
+  <test name="TestFWCoreIntegrationModuleTypeResolver" command="run_TestModuleTypeResolver.sh"/>
+
   <test name="CatchStdExceptiontest" command="CatchStdExceptiontest.sh"/>
 
   <test name="CatchCmsExceptiontest" command="CatchCmsExceptiontest.sh"/>
@@ -158,16 +160,11 @@
     <use name="FWCore/Utilities"/>
   </bin>
 
-  <bin file="ProcessConfiguration_t.cpp">
-    <use name="FWCore/ParameterSet"/>
-    <use name="DataFormats/Provenance"/>
-  </bin>
-
-  <bin file="ProcessHistory_t.cpp">
+  <bin file="ProcessConfiguration_t.cpp,ProcessHistory_t.cpp" name="TestIntegrationDataFormatsProvenance">
     <use name="FWCore/ParameterSet"/>
     <use name="DataFormats/Provenance"/>
     <use name="FWCore/Version"/>
-    <use name="FWCore/Utilities"/>
+    <use name="catch2"/>
   </bin>
 
   <bin file="SwitchProducer_t.cpp">
@@ -198,253 +195,6 @@
     <use name="fmt"/>
   </bin>
 
-  <library file="TestPSetAnalyzer.cc" name="TestPSetAnalyzer">
-    <flags EDM_PLUGIN="1"/>
-    <use name="DataFormats/Provenance"/>
-    <use name="FWCore/ParameterSet"/>
-    <use name="FWCore/Framework"/>
-  </library>
-
-  <library file="ThingProducer.cc,ThingAlgorithm.cc,TrackOfThingsProducer.cc,ThinningThingProducer.cc,SlimmingThingProducer.cc,ThinningTestAnalyzer.cc,ThinnedRefFromTestAnalyzer.cc,DetSetVectorThingProducer.cc,TrackOfDSVThingsProducer.cc,ThinningDSVThingProducer.cc,SlimmingDSVThingProducer.cc,ThinningDSVTestAnalyzer.cc,WhatsIt.cc,GadgetRcd.cc,AssociationMapProducer.cc,AssociationMapAnalyzer.cc,MissingDictionaryTestProducer.cc,ExistingDictionaryTestModules.cc,ThingAnalyzer.cc, TableTestModules.cc, AcquireIntProducer.cc, AcquireIntFilter.cc, AcquireIntStreamProducer.cc, AcquireIntStreamFilter.cc, TestGlobalOutput.cc, TestLimitedOutput.cc, TestOneOutput.cc, PluginUsingProducer.cc,SwitchProducerProvenanceAnalyzer.cc,ProducerUsingCollector.cc,ExceptionThrowingProducer.cc" name="SomeTestModules">
-    <flags EDM_PLUGIN="1"/>
-    <lib name="FWCoreIntegrationWaitingServer"/>
-    <use name="FWCore/Framework"/>
-    <use name="DataFormats/TestObjects"/>
-  </library>
-
-  <library file="ProducerWithPSetDesc.cc" name="TestProducerWithPSetDesc">
-    <flags EDM_PLUGIN="1"/>
-    <use name="FWCore/Framework"/>
-    <use name="FWCore/ParameterSet"/>
-    <use name="DataFormats/Provenance"/>
-    <use name="FWCore/Utilities"/>
-  </library>
-
-  <library file="HistProducer.cc" name="TestHistProducer">
-    <flags EDM_PLUGIN="1"/>
-    <use name="FWCore/Framework"/>
-    <use name="root"/>
-  </library>
-
-  <library file="TestHistoryKeeping.cc" name="TestHistoryKeeping">
-    <flags EDM_PLUGIN="1"/>
-    <use name="DataFormats/Provenance"/>
-    <use name="FWCore/Framework"/>
-    <use name="FWCore/ParameterSet"/>
-  </library>
-
-  <library file="ThrowingSource.cc, DelayedReaderThrowingSource.cc" name="ThrowingSource">
-    <flags EDM_PLUGIN="1"/>
-    <use name="FWCore/Framework"/>
-    <use name="FWCore/ParameterSet"/>
-    <use name="FWCore/Sources"/>
-  </library>
-
-  <library file="ThingSource.cc,ThingAlgorithm.cc" name="TestThingSource">
-    <flags EDM_PLUGIN="1"/>
-    <use name="FWCore/Sources"/>
-  </library>
-
-  <library file="ThingExtSource.cc,ThingAlgorithm.cc" name="TestThingExtSource">
-    <flags EDM_PLUGIN="1"/>
-    <use name="FWCore/Sources"/>
-  </library>
-
-  <library file="PutOrMergeTestSource.cc" name="PutOrMergeTestSource">
-    <flags EDM_PLUGIN="1"/>
-    <use name="FWCore/Sources"/>
-    <use name="DataFormats/TestObjects"/>
-  </library>
-
-  <library file="OtherThingProducer.cc,OtherThingAlgorithm.cc" name="TestOtherThingProducer">
-    <flags EDM_PLUGIN="1"/>
-    <use name="DataFormats/Common"/>
-    <use name="FWCore/Framework"/>
-  </library>
-
-  <library file="ThingWithMergeProducer.cc" name="TestThingWithMergeProducer">
-    <flags EDM_PLUGIN="1"/>
-    <use name="DataFormats/Common"/>
-    <use name="DataFormats/TestObjects"/>
-    <use name="FWCore/Framework"/>
-  </library>
-
-  <library file="PathAnalyzer.cc" name="FWCoreIntegrationPathAnalyzer">
-    <flags EDM_PLUGIN="1"/>
-    <use name="FWCore/Framework"/>
-  </library>
-
-  <library file="ValueExample.cc" name="FWCoreIntegrationValueExample">
-    <use name="FWCore/ParameterSet"/>
-  </library>
-
-  <library file="ValueExamplePlugin.cc" name="FWCoreIntegrationValueExamplePlugin">
-    <flags EDM_PLUGIN="1"/>
-    <lib name="FWCoreIntegrationValueExample"/>
-    <use name="FWCore/ParameterSet"/>
-    <use name="FWCore/ServiceRegistry"/>
-  </library>
-
-  <library file="UseValueExampleAnalyzer.cc" name="UseValueExampleAnalyzer">
-    <lib name="FWCoreIntegrationValueExample"/>
-    <flags EDM_PLUGIN="1"/>
-    <use name="FWCore/ParameterSet"/>
-    <use name="FWCore/Framework"/>
-  </library>
-
-  <library file="WaitingServer.cc" name="FWCoreIntegrationWaitingServer">
-    <use name="FWCore/Concurrency"/>
-  </library>
-
-  <library file="WaitingService.cc" name="FWCoreIntegrationWaitingService">
-    <flags EDM_PLUGIN="1"/>
-    <lib name="FWCoreIntegrationWaitingServer"/>
-    <use name="FWCore/Concurrency"/>
-    <use name="FWCore/ParameterSet"/>
-    <use name="FWCore/ServiceRegistry"/>
-  </library>
-
-  <library file="PathsAndConsumesOfModulesTestService.cc" name="FWCoreIntegrationPathsAndConsumesOfModulesTestService">
-    <flags EDM_PLUGIN="1"/>
-    <use name="DataFormats/Provenance"/>
-    <use name="FWCore/ParameterSet"/>
-    <use name="FWCore/ServiceRegistry"/>
-  </library>
-
-  <library file="OtherThingAnalyzer.cc,OtherThingRefComparer.cc" name="TestOtherThingAnalyzer">
-    <flags EDM_PLUGIN="1"/>
-    <use name="DataFormats/Common"/>
-    <use name="FWCore/Framework"/>
-    <use name="FWCore/MessageLogger"/>
-  </library>
-
-  <library file="ProdigalAnalyzer.cc" name="TestProdigalAnalyzer">
-    <flags EDM_PLUGIN="1"/>
-    <use name="DataFormats/Common"/>
-    <use name="FWCore/Framework"/>
-    <use name="FWCore/MessageLogger"/>
-  </library>
-
-  <library file="TestFindProduct.cc,ManyProductProducer.cc,TestParentage.cc" name="FWCoreIntegrationTestFindProduct">
-    <flags EDM_PLUGIN="1"/>
-    <use name="FWCore/Framework"/>
-    <use name="FWCore/ParameterSet"/>
-    <use name="DataFormats/Common"/>
-  </library>
-
-  <library file="ViewAnalyzer.cc" name="TestViewAnalyzer">
-    <flags EDM_PLUGIN="1"/>
-    <use name="DataFormats/Common"/>
-    <use name="DataFormats/TestObjects"/>
-    <use name="FWCore/Framework"/>
-  </library>
-
-  <library file="HierarchicalEDProducer.cc" name="HierarchicalEDProducer">
-    <flags EDM_PLUGIN="1"/>
-    <use name="FWCore/ParameterSet"/>
-    <use name="FWCore/Framework"/>
-  </library>
-
-  <library file="ConcurrentIOVESSource.cc,ConcurrentIOVESProducer.cc,ConcurrentIOVAnalyzer.cc,GadgetRcd.cc,IOVTestInfo.cc,RunLumiESAnalyzer.cc,RunLumiESSource.cc,TestESSource.cc,TestESConcurrentSource.cc" name="ConcurrentIOVESSource">
-    <flags EDM_PLUGIN="1"/>
-    <use name="FWCore/Integration"/>
-    <use name="FWCore/Framework"/>
-  </library>
-
-  <library file="WhatsItESProducer.cc,WhatsIt.cc,Doodad.cc,GadgetRcd.cc" name="WhatsItESProducer">
-    <flags EDM_PLUGIN="1"/>
-    <use name="FWCore/Framework"/>
-  </library>
-
-  <library file="DoodadESProducer.cc,Doodad.cc,GadgetRcd.cc,DoodadEDLooper.cc" name="DoodadESProducer">
-    <flags EDM_PLUGIN="1"/>
-    <use name="FWCore/Framework"/>
-  </library>
-
-  <library file="DoodadESSource.cc, Doodad.cc,GadgetRcd.cc" name="DoodadESSource">
-    <flags EDM_PLUGIN="1"/>
-    <use name="FWCore/Framework"/>
-  </library>
-
-  <library file="WhatsItAnalyzer.cc,WhatsIt.cc,GadgetRcd.cc" name="WhatsItAnalyzer">
-    <flags EDM_PLUGIN="1"/>
-    <use name="FWCore/Framework"/>
-  </library>
-
-  <library file="TestGetterOfProducts.cc" name="TestGetterOfProducts">
-    <flags EDM_PLUGIN="1"/>
-    <use name="DataFormats/TestObjects"/>
-    <use name="FWCore/Framework"/>
-    <use name="FWCore/ParameterSet"/>
-  </library>
-
-  <library file="TestDescriptionComments.cc" name="TestDescriptionComments">
-    <flags EDM_PLUGIN="1"/>
-    <use name="FWCore/Framework"/>
-    <use name="FWCore/ParameterSet"/>
-  </library>
-
-  <library file="WhatsItWatcherAnalyzer.cc,WhatsIt.cc,GadgetRcd.cc" name="WhatsItWatcherAnalyzer">
-    <flags EDM_PLUGIN="1"/>
-    <use name="FWCore/Framework"/>
-  </library>
-
-  <library file="ESTestProducers.cc,ESTestAnalyzers.cc" name="ESTestModules">
-    <flags EDM_PLUGIN="1"/>
-    <use name="DataFormats/Provenance"/>
-    <use name="FWCore/Framework"/>
-    <use name="FWCore/Integration"/>
-    <use name="FWCore/MessageLogger"/>
-    <use name="FWCore/ParameterSet"/>
-  </library>
-
-  <library file="IntSource.cc" name="IntSource">
-    <flags EDM_PLUGIN="1"/>
-    <use name="FWCore/Framework"/>
-    <use name="FWCore/ParameterSet"/>
-    <use name="FWCore/Sources"/>
-    <use name="DataFormats/TestObjects"/>
-  </library>
-
-  <library file="TestInterProcessProd.cc" name="TestInterProcessProd">
-    <flags EDM_PLUGIN="1"/>
-    <use name="FWCore/Framework"/>
-    <use name="FWCore/ParameterSet"/>
-    <use name="FWCore/Sources"/>
-    <use name="FWCore/SharedMemory"/>
-    <use name="boost"/>
-  </library>
-
-  <library file="RandomIntProducer.cc" name="RandomIntProducer">
-    <flags EDM_PLUGIN="1"/>
-    <use name="FWCore/ParameterSet"/>
-    <use name="FWCore/Framework"/>
-    <use name="FWCore/Utilities"/>
-    <use name="DataFormats/TestObjects"/>
-    <use name="clhep"/>
-  </library>
-
-  <library file="TestInterProcessRandomProd.cc" name="TestInterProcessRandomProd">
-    <flags EDM_PLUGIN="1"/>
-    <use name="FWCore/Framework"/>
-    <use name="FWCore/ParameterSet"/>
-    <use name="FWCore/Sources"/>
-    <use name="FWCore/SharedMemory"/>
-    <use name="boost"/>
-    <use name="clhep"/>
-  </library>
-  <library file="TestServicesOnNonFrameworkThreadsAnalyzer.cc" name = "TestServicesOnNonFrameworkThreadsAnalyzer">
-    <flags EDM_PLUGIN="1"/>
-    <use name="FWCore/Framework"/>
-    <use name="FWCore/ParameterSet"/>
-    <use name="FWCore/MessageLogger"/>
-    <use name="clhep"/>
-  </library>
-  <library file="TransformIntProducer.cc, TransformIntStreamProducer.cc, TransformAsyncIntProducer.cc, TransformAsyncIntStreamProducer.cc" name = "FWCoreIntegrationTransformIntProducer">
-    <flags EDM_PLUGIN="1"/>
-    <use name="FWCore/Framework"/>
-    <use name="FWCore/ParameterSet"/>
-  </library>
   <test name="testFWCoreIntegrationTransform" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py"/>
   <test name="testFWCoreIntegrationTransform_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --async_"/>
   <test name="testFWCoreIntegrationTransform_onPath" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --onPath"/>
@@ -459,6 +209,13 @@
   <test name="testFWCoreIntegrationTransform_stream_onPath_async" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --stream --onPath --async_"/>
   <test name="testFWCoreIntegrationTransform_noPut" command="! cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --noPut"/>
   <test name="testFWCoreIntegrationTransform_noPut_async" command="! cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --noPut --async_"/>
+
+  <test name="testFWCoreIntegrationTransform_exception" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --exception 2>&amp;1 | fgrep 'exception for testing purposes'"/>
+  <test name="testFWCoreIntegrationTransform_async_exception" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --async --exception 2>&amp;1 | fgrep 'exception for testing purposes'"/>
+  <test name="testFWCoreIntegrationTransform_onPath_exception" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --onPath --exception 2>&amp;1 | fgrep 'exception for testing purposes'"/>
+  <test name="testFWCoreIntegrationTransform_onPath_async_exception" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/transformTest_cfg.py -- --onPath --async --exception 2>&amp;1 | fgrep 'exception for testing purposes'"/>
+
+
 
 
   <test name="TestFWCoreIntegrationModuleThread" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/moduleThread_test_cfg.py"/>
@@ -576,12 +333,6 @@
   </test>
   <test name="TestIntegrationFinalPath" command="test_finalpath.sh"/>
 
-  <library file="TestGetByLabelAnalyzer.cc" name ="TestGetByLabelAnalyzer">
-    <flags EDM_PLUGIN="1"/>
-    <use name="FWCore/Framework"/>
-    <use name="FWCore/ParameterSet"/>
-    <use name="FWCore/MessageLogger"/>
-  </library>
   <test name="TestIntegrationGetByLabel" command="run_TestGetByLabel.sh"/>
 
 </environment>

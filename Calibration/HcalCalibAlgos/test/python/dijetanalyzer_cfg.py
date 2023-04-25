@@ -1,6 +1,20 @@
+# WARNING:
+# I tried running this configuration when I upgraded it as part of the CMSSW migration
+# to use reco::JetCorrector instead of the deprecated ::JetCorrector (November 2022).
+# I hit errors with the input files not existing. Python will parse the configuration
+# and it visually looks OK to me (but I am not a JetCorrector expert...).
+# Whoever tries this next should be aware the JetCorrectors were never successfully
+# tested in this configuration and there may be other problems that have been there for a
+# long time... I did not try to fix problems unrelated to JetCorrections.
+# At the very least this will need new input files.
+
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('DIJETANALYSIS')
+
+process.TFileService = cms.Service("TFileService",
+                                   fileName = cms.string("dijetanalyzer.root")
+                                   )
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
@@ -13,7 +27,7 @@ process.GlobalTag.globaltag=autoCond['run1_mc']
 
 #load the response corrections calculator
 process.load('Calibration.HcalCalibAlgos.diJetAnalyzer_cfi')
-process.load('JetMETCorrections.Configuration.JetCorrectionProducers_cff')
+process.load('JetMETCorrections.Configuration.CorrectedJetProducers_cff')
 
 # run over files
 
@@ -43,4 +57,4 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 #process.Timing = cms.Service('Timing')
 
 #process.p = cms.Path(process.pfNoPileUpSequence+process.PF2PAT+process.ak5PFJetsCHS+process.calcrespcorrdijets)
-process.p = cms.Path(process.diJetAnalyzer)
+process.p = cms.Path(process.diJetAnalyzer, process.ak4PFCHSL1FastL2L3CorrectorTask)

@@ -149,8 +149,8 @@ void CTPPSPixelLocalTrackProducer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<double>("roadRadius", 1.0)->setComment("radius of pattern search window");
   desc.add<int>("minRoadSize", 3)->setComment("minimum number of points in a pattern");
   desc.add<int>("maxRoadSize", 20)->setComment("maximum number of points in a pattern");
-  //parameter for bad pot reconstruction patch 45-220-fr 2022
-  desc.add<double>("roadRadiusBadPot", 0.5)->setComment("radius of pattern search window for bad Pot");
+  //parameter for 2-plane-pot reconstruction patch in run 3
+  desc.add<double>("roadRadiusBadPot", 0.5)->setComment("radius of pattern search window for 2 plane pot");
 
   descriptions.add("ctppsPixelLocalTracks", desc);
 }
@@ -170,30 +170,62 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event &iEvent, const edm::EventS
   geometryWatcher_.check(iSetup);
 
   // get mask
-  bool isBadPot_45_220 = false;
+
+  // 2 planes pot flag vector 0=45-220, 1=45-210, 2=56-210, 3=56-220
+  bool is2PlanePotV[4] = {false};
+
   if (!recHits->empty()) {
     const auto &mask = iSetup.getData(tokenCTPPSPixelAnalysisMask_);
 
-    // Read Mask checking if 45-220-far is masked as bad and needs special treatment
+    // Read Mask checking if 4 planes are masked and pot needs special treatment
     std::map<uint32_t, CTPPSPixelROCAnalysisMask> const &maschera = mask.analysisMask;
 
-    bool mask_45_220[6][6] = {{false}};
+    // vector of masked rocs
+    bool maskV[4][6][6] = {{{false}}};
+
     for (auto const &det : maschera) {
       CTPPSPixelDetId detId(det.first);
       unsigned int rocNum = (det.first & rocMask) >> rocOffset;
       if (rocNum > 5 || detId.plane() > 5)
         throw cms::Exception("InvalidRocOrPlaneNumber") << "roc number from mask: " << rocNum;
 
-      if (detId.arm() == 0 && detId.station() == 2 && detId.rp() == 3) {  // pot 45-220-far
-        if (det.second.maskedPixels.size() == rocSizeInPixels) {          // roc fully masked
-          mask_45_220[detId.plane()][rocNum] = true;
+      if (detId.arm() == 0 && detId.rp() == 3) {
+        if (detId.station() == 2) {                                                                // pot 45-220-far
+          if (det.second.maskedPixels.size() == rocSizeInPixels || det.second.fullMask == true) {  // roc fully masked
+            maskV[0][detId.plane()][rocNum] = true;
+          }
+        } else if (detId.station() == 0) {                                                         // pot 45-210-far
+          if (det.second.maskedPixels.size() == rocSizeInPixels || det.second.fullMask == true) {  // roc fully masked
+            maskV[1][detId.plane()][rocNum] = true;
+          }
+        }
+      } else if (detId.arm() == 1 && detId.rp() == 3) {
+        if (detId.station() == 0) {                                                                // pot 56-210-far
+          if (det.second.maskedPixels.size() == rocSizeInPixels || det.second.fullMask == true) {  // roc fully masked
+            maskV[2][detId.plane()][rocNum] = true;
+          }
+        } else if (detId.station() == 2) {                                                         // pot 56-220-far
+          if (det.second.maskedPixels.size() == rocSizeInPixels || det.second.fullMask == true) {  // roc fully masked
+            maskV[3][detId.plane()][rocNum] = true;
+          }
         }
       }
     }
+    // search for specific pattern that requires special reconstruction (use of two plane tracks)
 
-    // search for specific pattern that requires special reconstruction (isBadPot)
-    isBadPot_45_220 = mask_45_220[1][4] && mask_45_220[1][5] && mask_45_220[2][4] && mask_45_220[2][5] &&
-                      mask_45_220[3][4] && mask_45_220[3][5] && mask_45_220[4][4] && mask_45_220[4][5];
+    for (unsigned int i = 0; i < 4; i++) {
+      unsigned int numberOfMaskedPlanes = 0;
+      for (unsigned int j = 0; j < 6; j++) {
+        if (maskV[i][j][0] && maskV[i][j][1] && maskV[i][j][4] && maskV[i][j][5])
+          numberOfMaskedPlanes++;
+      }
+      if (numberOfMaskedPlanes == 4)
+        is2PlanePotV[i] = true;  // search for exactly 4 planes fully masked
+      edm::LogInfo("CTPPSPixelLocalTrackProducer") << " Masked planes in Pot #" << i << " = " << numberOfMaskedPlanes;
+      if (is2PlanePotV[i])
+        edm::LogInfo("CTPPSPixelLocalTrackProducer")
+            << " Enabling 2 plane track reconstruction for pot #" << i << " (0=45-220, 1=45-210, 2=56-210, 3=56-220) ";
+    }
   }
   std::vector<CTPPSPixelDetId> listOfPotWithHighOccupancyPlanes;
   std::map<CTPPSPixelDetId, uint32_t> mapHitPerPot;
@@ -215,7 +247,7 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event &iEvent, const edm::EventS
     if (maxHitPerPlane_ >= 0 && hitOnPlane > (uint32_t)maxHitPerPlane_) {
       if (verbosity_ > 2)
         edm::LogInfo("CTPPSPixelLocalTrackProducer")
-            << " ---> To many hits in the plane, pot will be excluded from tracking cleared";
+            << " ---> Too many hits in the plane, pot will be excluded from tracking cleared";
       listOfPotWithHighOccupancyPlanes.push_back(tmpRomanPotId);
     }
   }
@@ -240,7 +272,7 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event &iEvent, const edm::EventS
   patternFinder_->clear();
   patternFinder_->setHits(&recHitVector);
   patternFinder_->setGeometry(&geometry);
-  patternFinder_->findPattern(isBadPot_45_220);
+  patternFinder_->findPattern(is2PlanePotV);
   std::vector<RPixDetPatternFinder::Road> patternVector = patternFinder_->getPatterns();
 
   //loop on all the patterns

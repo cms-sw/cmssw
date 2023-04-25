@@ -1,10 +1,10 @@
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/ResourceInformation.h"
 #include "FWCore/Utilities/interface/TimingServiceBase.h"
-#include "FWCore/Utilities/interface/CPUServiceBase.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -51,6 +51,7 @@ namespace edm {
       bool updateChirpImpl(std::string const &key, std::string const &value);
       inline void update();
       void firstUpdate();
+      void secondUpdate();
       void lastUpdate();
       void updateImpl(time_t secsSinceLastUpdate);
 
@@ -81,6 +82,7 @@ namespace edm {
 
       std::uint_least64_t m_lastEventCount = 0;
     };
+    inline bool isProcessWideService(CondorStatusService const *) { return true; }
 
   }  // namespace service
 
@@ -148,6 +150,7 @@ void CondorStatusService::filePost(std::string const & /*lfn*/) {
 }
 
 void CondorStatusService::beginPre(PathsAndConsumesOfModulesBase const &, ProcessContext const &processContext) {
+  secondUpdate();
   if (!m_processParameterSetID.isValid()) {
     m_processParameterSetID = processContext.parameterSetID();
   }
@@ -231,13 +234,17 @@ void CondorStatusService::firstUpdate() {
   updateChirp("MaxLumis", "-1");
   updateChirp("Done", "false");
   updateChirpQuoted("Guid", edm::processGUID().toString());
+}
 
-  edm::Service<edm::CPUServiceBase> cpusvc;
-  std::string models;
-  double avgSpeed;
-  if (cpusvc.isAvailable() && cpusvc->cpuInfo(models, avgSpeed)) {
-    updateChirpQuoted("CPUModels", models);
-    updateChirp("CPUSpeed", avgSpeed);
+void CondorStatusService::secondUpdate() {
+  edm::Service<edm::ResourceInformation> resourceInformationService;
+  if (resourceInformationService.isAvailable()) {
+    std::string models = resourceInformationService->cpuModelsFormatted();
+    double avgSpeed = resourceInformationService->cpuAverageSpeed();
+    if (!models.empty()) {
+      updateChirpQuoted("CPUModels", models);
+      updateChirp("CPUSpeed", avgSpeed);
+    }
   }
 }
 
@@ -245,9 +252,9 @@ void CondorStatusService::lastUpdate() {
   time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
   updateImpl(now - m_lastUpdate);
   updateChirp("Done", "true");
-  edm::Service<edm::CPUServiceBase> cpusvc;
-  if (!cpusvc.isAvailable()) {
-    std::cout << "At post, CPU service is NOT available.\n";
+  edm::Service<edm::ResourceInformation> resourceInformationService;
+  if (!resourceInformationService.isAvailable()) {
+    edm::LogWarning("CondorStatusService") << "At post, ResourceInformationService is NOT available.\n";
   }
 }
 
@@ -427,6 +434,8 @@ void CondorStatusService::fillDescriptions(ConfigurationDescriptions &descriptio
   desc.addOptionalUntracked<bool>("enable", true)->setComment("Enable this service");
   descriptions.add("CondorStatusService", desc);
 }
+
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
 typedef edm::serviceregistry::AllArgsMaker<edm::service::CondorStatusService> CondorStatusServiceMaker;
 DEFINE_FWK_SERVICE_MAKER(CondorStatusService, CondorStatusServiceMaker);

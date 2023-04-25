@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
 
+#include "FWCore/Utilities/interface/ESInputTag.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 namespace {
@@ -129,14 +130,6 @@ namespace edm {
          << "must be used in the function associated with the ESConsumesCollector\n"
          << "returned by the setWhatProduced function.";
       throw ex;
-    }
-
-    void EventSetupRecord::throwCalledGetWithoutToken(const char* iTypeName, const char* iLabel) {
-      throw cms::Exception("MustUseESGetToken")
-          << "Called EventSetupRecord::get without using a ESGetToken.\n While requesting data type:" << iTypeName
-          << " label:'" << iLabel << "'\n"
-          << "See https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideHowToGetDataFromES\n"
-          << "for instructions how to migrate the calling code";
     }
 
   }  // namespace eventsetup

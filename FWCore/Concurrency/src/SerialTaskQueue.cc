@@ -12,7 +12,7 @@
 //
 
 // system include files
-#include "oneapi/tbb/task.h"
+#include "oneapi/tbb/task_group.h"
 
 // user include files
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
@@ -30,11 +30,8 @@ SerialTaskQueue::~SerialTaskQueue() {
   bool isTaskChosen = m_taskChosen;
   if ((not isEmpty and not isPaused()) or isTaskChosen) {
     oneapi::tbb::task_group g;
-    g.run([&g, this]() {
-      oneapi::tbb::task::suspend([&g, this](oneapi::tbb::task::suspend_point tag) {
-        push(g, [tag]() { oneapi::tbb::task::resume(tag); });
-      });  //suspend
-    });    //group run
+    tbb::task_handle last{g.defer([]() {})};
+    push(g, [&g, &last]() { g.run(std::move(last)); });
     g.wait();
   }
 }

@@ -30,9 +30,6 @@ and query the component for its allowed ParameterSetDescription.
 #include <string>
 
 namespace edm {
-  class EDProducer;
-  class EDFilter;
-  class EDAnalyzer;
 
   namespace one {
     class EDProducerBase;
@@ -104,9 +101,6 @@ namespace edm {
     static const std::string kExtendedBaseForLimitedEDFilter;
     static const std::string kExtendedBaseForLimitedOutputModule;
 
-    static const std::string& extendedBaseType(EDAnalyzer const*) { return kExtendedBaseForEDAnalyzer; }
-    static const std::string& extendedBaseType(EDProducer const*) { return kExtendedBaseForEDProducer; }
-    static const std::string& extendedBaseType(EDFilter const*) { return kExtendedBaseForEDFilter; }
     static const std::string& extendedBaseType(one::EDAnalyzerBase const*) { return kExtendedBaseForOneEDAnalyzer; }
     static const std::string& extendedBaseType(one::EDProducerBase const*) { return kExtendedBaseForOneEDProducer; }
     static const std::string& extendedBaseType(one::EDFilterBase const*) { return kExtendedBaseForOneEDFilter; }

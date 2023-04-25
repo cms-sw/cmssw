@@ -8,6 +8,7 @@
 #include "DataFormats/PatCandidates/interface/UserData.h"
 
 #include "DataFormats/PatCandidates/interface/Vertexing.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"

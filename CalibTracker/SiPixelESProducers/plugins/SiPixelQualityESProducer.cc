@@ -36,6 +36,8 @@
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 using namespace edm;
 
@@ -47,6 +49,8 @@ public:
   std::unique_ptr<SiPixelQuality> produce(const SiPixelQualityRcd& iRecord);
   std::unique_ptr<SiPixelQuality> produceWithLabel(const SiPixelQualityRcd& iRecord);
   std::unique_ptr<SiPixelQuality> produceWithLabelRawToDigi(const SiPixelQualityRcd& iRecord);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
@@ -78,17 +82,14 @@ SiPixelQualityESProducer::SiPixelQualityESProducer(const edm::ParameterSet& conf
     : defaultTokens_(setWhatProduced(this), "") {
   edm::LogInfo("SiPixelQualityESProducer::SiPixelQualityESProducer");
 
-  auto label =
-      conf_.exists("siPixelQualityLabel") ? conf_.getParameter<std::string>("siPixelQualityLabel") : std::string{};
+  auto label = conf_.getParameter<std::string>("siPixelQualityLabel");
 
   if (label == "forDigitizer") {
     labelTokens_ =
         Tokens(setWhatProduced(this, &SiPixelQualityESProducer::produceWithLabel, edm::es::Label(label)), label);
   }
 
-  label = conf_.exists("siPixelQualityLabel_RawToDigi")
-              ? conf_.getParameter<std::string>("siPixelQualityLabel_RawToDigi")
-              : std::string{};
+  label = conf_.getParameter<std::string>("siPixelQualityLabel_RawToDigi");
 
   if (label == "forRawToDigi") {
     labelTokens_RawToDigi_ = Tokens(
@@ -139,6 +140,33 @@ void SiPixelQualityESProducer::setIntervalFor(const edm::eventsetup::EventSetupR
                                               edm::ValidityInterval& oValidity) {
   edm::ValidityInterval infinity(iosv.beginOfTime(), iosv.endOfTime());
   oValidity = infinity;
+}
+
+void SiPixelQualityESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("siPixelQualityLabel", "");
+  desc.add<std::string>("siPixelQualityLabel_RawToDigi", "");
+  {
+    edm::ParameterSetDescription desc_ps;
+    desc_ps.add<std::string>("record", "SiPixelQualityFromDbRcd");
+    desc_ps.add<std::string>("tag", "");
+    std::vector<edm::ParameterSet> default_ps;
+    default_ps.reserve(2);
+    {
+      edm::ParameterSet temp;
+      temp.addParameter<std::string>("record", "SiPixelQualityFromDbRcd");
+      temp.addParameter<std::string>("tag", "");
+      default_ps.push_back(temp);
+    }
+    {
+      edm::ParameterSet temp;
+      temp.addParameter<std::string>("record", "SiPixelDetVOffRcd");
+      temp.addParameter<std::string>("tag", "");
+      default_ps.push_back(temp);
+    }
+    desc.addVPSet("ListOfRecordToMerge", desc_ps, default_ps);
+  }
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(SiPixelQualityESProducer);

@@ -93,13 +93,14 @@ HcalGPUComparisonTask::HcalGPUComparisonTask(edm::ParameterSet const& ps)
 /* virtual */ void HcalGPUComparisonTask::_resetMonitors(hcaldqm::UpdateFreq uf) { DQTask::_resetMonitors(uf); }
 
 /* virtual */ void HcalGPUComparisonTask::_process(edm::Event const& e, edm::EventSetup const&) {
-  edm::Handle<HBHERecHitCollection> chbhe_ref;
-  edm::Handle<HBHERecHitCollection> chbhe_target;
+  auto const chbhe_ref = e.getHandle(tokHBHE_ref_);
+  auto const chbhe_target = e.getHandle(tokHBHE_target_);
 
-  if (!(e.getByToken(tokHBHE_ref_, chbhe_ref)))
-    _logger.dqmthrow("The CPU HBHERecHitCollection \"" + tagHBHE_ref_.encode() + "\" is not available");
-  if (!(e.getByToken(tokHBHE_target_, chbhe_target)))
-    _logger.dqmthrow("The GPU HBHERecHitCollection \"" + tagHBHE_target_.encode() + "\" is not available");
+  if (not(chbhe_ref.isValid() and chbhe_target.isValid())) {
+    edm::LogWarning("HcalGPUComparisonTask")
+        << "Either CPU or GPU RecHit Collection is unavailable, will not fill this event.";
+    return;
+  }
 
   auto lumiCache = luminosityBlockCache(e.getLuminosityBlock().index());
   _currentLS = lumiCache->currentLS;
@@ -115,7 +116,8 @@ HcalGPUComparisonTask::HcalGPUComparisonTask(edm::ParameterSet const& ps)
     if (mRecHitEnergy.find(did) == mRecHitEnergy.end())
       mRecHitEnergy.insert(std::make_pair(did, energy));
     else
-      edm::LogError("HcalDQM|RechitTask") << "Duplicate Rechit from the same HcalDetId";
+      edm::LogError("HcalGPUComparisonTask") << "Duplicate Rechit from the same HcalDetId";
+    ;
   }
 
   for (HBHERecHitCollection::const_iterator it = chbhe_target->begin(); it != chbhe_target->end(); ++it) {
@@ -140,11 +142,19 @@ HcalGPUComparisonTask::HcalGPUComparisonTask(edm::ParameterSet const& ps)
       }
 
       mRecHitEnergy.erase(did);
-    } else
-      edm::LogError("HcalDQM|RechitTask") << "GPU Rechit id not found in CPU Rechit id collection";
+    } else {
+      if (energy > 2.)
+        edm::LogError("HcalGPUComparisonTask")
+            << "Energetic GPU Rechit exist, but not reconstructed by CPU. DetId = " << did;
+    }
   }
-  if (!mRecHitEnergy.empty())
-    edm::LogError("HcalDQM|RechitTask") << "CPU Rechit id not found in GPU Rechit id collection";
+  if (!mRecHitEnergy.empty()) {
+    for (auto const& rhpair : mRecHitEnergy) {
+      if (rhpair.second > 2.)
+        edm::LogError("HcalGPUComparisonTask")
+            << "Energetic CPU Rechit exist, but not reconstructed by GPU. DetId = " << rhpair.first;
+    }
+  }
 }
 
 std::shared_ptr<hcaldqm::Cache> HcalGPUComparisonTask::globalBeginLuminosityBlock(edm::LuminosityBlock const& lb,

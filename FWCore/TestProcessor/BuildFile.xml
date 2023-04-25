@@ -1,13 +1,14 @@
-<use name="FWCore/Framework"/>
-<use name="FWCore/ParameterSetReader"/>
+<use name="boost"/>
+<use name="tbb"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/Provenance"/>
 <use name="FWCore/Concurrency"/>
+<use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
+<use name="FWCore/ParameterSetReader"/>
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/Utilities"/>
-<use name="boost"/>
 <export>
   <lib name="1"/>
 </export>

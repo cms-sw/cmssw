@@ -1,7 +1,4 @@
-<use name="CommonTools/UtilAlgos"/>
 <use name="L1Trigger/TrackTrigger"/>
-<use name="L1Trigger/TrackerDTC"/>
-<use name="SimTracker/TrackTriggerAssociation"/>
 <export>
     <lib name="1"/>
 </export>

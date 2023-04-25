@@ -36,6 +36,7 @@ namespace mkfit {
                               const MPlexQF& msRad,
                               MPlexLS& outErr,
                               MPlexLV& outPar,
+                              MPlexQI& outFailFlag,
                               const int N_proc,
                               const PropagationFlags pflags,
                               const MPlexQI* noMatEffPtr = nullptr);
@@ -45,6 +46,7 @@ namespace mkfit {
                                        const MPlexQF& msRad,
                                        MPlexLV& outPar,
                                        MPlexLL& errorProp,
+                                       MPlexQI& outFailFlag,
                                        const int N_proc);
 
   void helixAtRFromIterativeCCS(const MPlexLV& inPar,
@@ -62,6 +64,7 @@ namespace mkfit {
                               const MPlexQF& msZ,
                               MPlexLS& outErr,
                               MPlexLV& outPar,
+                              MPlexQI& outFailFlag,
                               const int N_proc,
                               const PropagationFlags pflags,
                               const MPlexQI* noMatEffPtr = nullptr);
@@ -71,6 +74,7 @@ namespace mkfit {
                 const MPlexQF& msZ,
                 MPlexLV& outPar,
                 MPlexLL& errorProp,
+                MPlexQI& outFailFlag,
                 const int N_proc,
                 const PropagationFlags pflags);
 

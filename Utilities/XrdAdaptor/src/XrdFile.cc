@@ -335,8 +335,8 @@ IOSize XrdFile::readv(IOPosBuffer *into, IOSize n) {
     assert(last_idx < idx);
     last_idx = idx;
   }
-  std::chrono::time_point<std::chrono::high_resolution_clock> start, end;
-  start = std::chrono::high_resolution_clock::now();
+  std::chrono::time_point<std::chrono::steady_clock> start, end;
+  start = std::chrono::steady_clock::now();
 
   // If there are multiple readv calls, wait until all return until looking
   // at the results of any.  This guarantees that all readv's have finished
@@ -384,7 +384,7 @@ IOSize XrdFile::readv(IOPosBuffer *into, IOSize n) {
     }
     final_result += result;
   }
-  end = std::chrono::high_resolution_clock::now();
+  end = std::chrono::steady_clock::now();
 
   edm::LogVerbatim("XrdAdaptorInternal")
       << "[" << m_op_count.fetch_add(1) << "] Time for readv: "

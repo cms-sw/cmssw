@@ -39,14 +39,14 @@ namespace {
 
 WorkerChannel::WorkerChannel(std::string const& iName, const std::string& iUniqueID)
     : managed_shm_{open_only, iName.c_str()},
-      mutex_{open_or_create, unique_name(channel_names::kMutex, iUniqueID).c_str()},
-      cndFromController_{open_or_create, unique_name(channel_names::kConditionFromMain, iUniqueID).c_str()},
+      mutex_{open_only, unique_name(channel_names::kMutex, iUniqueID).c_str()},
+      cndFromController_{open_only, unique_name(channel_names::kConditionFromMain, iUniqueID).c_str()},
       stop_{managed_shm_.find<bool>(channel_names::kStop).first},
       transitionType_{managed_shm_.find<edm::Transition>(channel_names::kTransitionType).first},
       transitionID_{managed_shm_.find<unsigned long long>(channel_names::kTransitionID).first},
       toWorkerBufferInfo_{managed_shm_.find<BufferInfo>(channel_names::kToWorkerBufferInfo).first},
       fromWorkerBufferInfo_{managed_shm_.find<BufferInfo>(channel_names::kFromWorkerBufferInfo).first},
-      cndToController_{open_or_create, unique_name(channel_names::kConditionToMain, iUniqueID).c_str()},
+      cndToController_{open_only, unique_name(channel_names::kConditionToMain, iUniqueID).c_str()},
       keepEvent_{managed_shm_.find<bool>(channel_names::kKeepEvent).first},
       lock_{mutex_} {
   assert(stop_);

@@ -179,6 +179,9 @@ namespace l1t {
         // FW version is computed as (Year - 2000)*2^9 + Month*2^5 + Day (see Block.cc and EMTFBlockTrailers.cc)
         bool useNNBits_ = getAlgoVersion() >= 11098;   // FW versions >= 26.10.2021
         bool useHMTBits_ = getAlgoVersion() >= 11306;  // FW versions >= 10.01.2022
+        bool reducedDAQWindow =
+            (getAlgoVersion() >=
+             11656);  // Firmware from 08.12.22 which is used as a flag for new reduced readout window - EY 01.03.23
 
         static constexpr int nominalShower_ = 1;
         static constexpr int tightShower_ = 3;
@@ -260,7 +263,10 @@ namespace l1t {
         SP_.set_me2_delay(GetHexBits(SP2b, 3, 5));
         SP_.set_me3_delay(GetHexBits(SP2b, 6, 8));
         SP_.set_me4_delay(GetHexBits(SP2b, 9, 11));
-        SP_.set_tbin(GetHexBits(SP2b, 12, 14));
+        if (reducedDAQWindow)  // reduced DAQ window is used only after run3 DAQ format
+          SP_.set_tbin(GetHexBits(SP2b, 12, 14) + 1);
+        else
+          SP_.set_tbin(GetHexBits(SP2b, 12, 14));
 
         if (useNNBits_) {
           SP_.set_pt_dxy_GMT(GetHexBits(SP2c, 0, 7));

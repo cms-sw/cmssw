@@ -135,7 +135,7 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(const std::vector<SimTr
       //std::cout << " (*iEleTk)->trackId() " << (*iEleTk).trackId() << " (*iEleTk)->vertIndex() "<< (*iEleTk).vertIndex()  << " (*iSimTk).vertIndex() "  <<  (*iSimTk).vertIndex() << " (*iSimTk).type() " <<   (*iSimTk).type() << " (*iSimTk).trackId() " << (*iSimTk).trackId() << std::endl;
 
       int vertexId1 = (*iSimTk).vertIndex();
-      SimVertex vertex1 = theSimVertices[vertexId1];
+      const SimVertex& vertex1 = theSimVertices[vertexId1];
       int vertexId2 = trLast.vertIndex();
       //SimVertex vertex2 = theSimVertices[vertexId2];
 

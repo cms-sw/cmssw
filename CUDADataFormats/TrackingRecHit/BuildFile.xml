@@ -3,6 +3,7 @@
 <use name="CUDADataFormats/Common"/>
 <use name="CUDADataFormats/SiPixelCluster"/>
 <use name="DataFormats/Common"/>
+<use name="DataFormats/SoATemplate" source_only="1"/>
 <use name="Geometry/CommonTopologies" source_only="1"/>
 <use name="HeterogeneousCore/CUDAUtilities"/>
 <export>

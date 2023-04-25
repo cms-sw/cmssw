@@ -299,9 +299,12 @@ std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY1(
       double ycell = (v + u - 2 * ncell_[type] + 1) * cellY;
       if ((yprime - sqrt3_ * xprime) > (ycell - sqrt3_ * xcell)) {
         u += -1;
+        if ((v - u) >= ncell_[1])
+          --v;
       } else {
         u += -1;
         v += -1;
+        v = std::max(v, 0);
       }
     }
   } else if (partial == HGCalTypes::WaferHDBottom) {

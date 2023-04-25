@@ -521,14 +521,12 @@ void DTSegmentUpdator::rejectBadHits(DTChamberRecSegment2D* phiSeg) const {
   float Sx = 0.;
   float Sy = 0.;
   float Sx2 = 0.;
-  float Sy2 = 0.;
   float Sxy = 0.;
 
   for (size_t i = 0; i < N; ++i) {
     Sx += x.at(i);
     Sy += y.at(i);
     Sx2 += x.at(i) * x.at(i);
-    Sy2 += y.at(i) * y.at(i);
     Sxy += x.at(i) * y.at(i);
   }
 
@@ -567,7 +565,7 @@ void DTSegmentUpdator::rejectBadHits(DTChamberRecSegment2D* phiSeg) const {
     float normResidual = mean_residual > 0 ? std::abs(residuals[i]) / mean_residual : 0;
     ++i;
     if (normResidual < 1.5) {
-      DTRecHit1D newHit1D = (*hit);
+      const DTRecHit1D& newHit1D = (*hit);
       updatedRecHits.push_back(newHit1D);
       if (debug)
         cout << " accepted " << i << "th hit"

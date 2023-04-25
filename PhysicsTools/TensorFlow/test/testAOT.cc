@@ -1,6 +1,5 @@
 /*
  * TensorFlow AOT test
- * Based on TensorFlow 2.1.
  * For more info, see https://gitlab.cern.ch/mrieger/CMSSW-DNN.
  *
  * Author: Marcel Rieger

@@ -67,7 +67,7 @@ void DTSegment4DT0Corrector::produce(Event& event, const EventSetup& setup) {
 
     // Loop over the rechits of this ChamberId
     for (DTRecSegment4DCollection::const_iterator segment4D = range.first; segment4D != range.second; ++segment4D) {
-      DTRecSegment4D tmpseg = *segment4D;
+      const DTRecSegment4D& tmpseg = *segment4D;
 
       DTRecSegment4D* newSeg = tmpseg.clone();
 

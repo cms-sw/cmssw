@@ -48,6 +48,25 @@ offlinePrimaryVertices = cms.EDProducer(
                                         
 )
 
+from Configuration.ProcessModifiers.weightedVertexing_cff import weightedVertexing
+weightedVertexing.toModify(offlinePrimaryVertices,
+                           vertexCollections = cms.VPSet(
+                           [cms.PSet(label=cms.string(""),
+                                     algorithm=cms.string("WeightedMeanFitter"),
+                                     chi2cutoff = cms.double(2.5),
+                                     minNdof=cms.double(0.0),
+                                     useBeamConstraint = cms.bool(False),
+                                     maxDistanceToBeam = cms.double(1.0)
+                           ),
+                           cms.PSet(label=cms.string("WithBS"),
+                                     algorithm = cms.string('WeightedMeanFitter'),
+                                     minNdof=cms.double(0.0),
+                                     chi2cutoff = cms.double(2.5),
+                                     useBeamConstraint = cms.bool(True),
+                                     maxDistanceToBeam = cms.double(1.0)
+                                     )
+                           ]
+                           ))
 # This customization is needed in the trackingLowPU era to be able to
 # produce vertices also in the cases in which the pixel detector is
 # not included in data-taking, like it was the case for "Quiet Beam"

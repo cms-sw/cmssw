@@ -34,7 +34,6 @@ namespace pixelCPEforGPU {
     float thePitchX;
     float thePitchY;
 
-    bool isPhase2;
     uint16_t maxModuleStride;
     uint8_t numberOfLaddersInBarrel;
   };
@@ -71,15 +70,21 @@ namespace pixelCPEforGPU {
     Frame frame;
   };
 
-  using pixelTopology::AverageGeometry;
-
-  struct LayerGeometry {
-    uint32_t layerStart[phase2PixelTopology::numberOfLayers + 1];
-    uint8_t layer[phase2PixelTopology::layerIndexSize];
+  template <typename TrackerTopology>
+  struct LayerGeometryT {
+    uint32_t layerStart[TrackerTopology::numberOfLayers + 1];
+    uint8_t layer[pixelTopology::layerIndexSize<TrackerTopology>];
     uint16_t maxModuleStride;
   };
 
-  struct ParamsOnGPU {
+  // using LayerGeometry = LayerGeometryT<pixelTopology::Phase1>;
+  // using LayerGeometryPhase2 = LayerGeometryT<pixelTopology::Phase2>;
+
+  template <typename TrackerTopology>
+  struct ParamsOnGPUT {
+    using LayerGeometry = LayerGeometryT<TrackerTopology>;
+    using AverageGeometry = pixelTopology::AverageGeometryT<TrackerTopology>;
+
     CommonParams const* m_commonParams;
     DetParams const* m_detParams;
     LayerGeometry const* m_layerGeometry;
@@ -202,10 +207,12 @@ namespace pixelCPEforGPU {
     return 0.5f * (qdiff / qsum) * w_eff;
   }
 
+  template <typename TrackerTraits>
   constexpr inline void position(CommonParams const& __restrict__ comParams,
                                  DetParams const& __restrict__ detParams,
                                  ClusParams& cp,
                                  uint32_t ic) {
+    constexpr int maxSize = TrackerTraits::maxSizeCluster;
     //--- Upper Right corner of Lower Left pixel -- in measurement frame
     uint16_t llx = cp.minRow[ic] + 1;
     uint16_t lly = cp.minCol[ic] + 1;
@@ -215,56 +222,52 @@ namespace pixelCPEforGPU {
     uint16_t ury = cp.maxCol[ic];
 
     uint16_t llxl = llx, llyl = lly, urxl = urx, uryl = ury;
-    if (!comParams.isPhase2)  //only in Phase1
-    {
-      llxl = phase1PixelTopology::localX(llx);
-      llyl = phase1PixelTopology::localY(lly);
-      urxl = phase1PixelTopology::localX(urx);
-      uryl = phase1PixelTopology::localY(ury);
-    }
+
+    llxl = TrackerTraits::localX(llx);
+    llyl = TrackerTraits::localY(lly);
+    urxl = TrackerTraits::localX(urx);
+    uryl = TrackerTraits::localY(ury);
 
     auto mx = llxl + urxl;
     auto my = llyl + uryl;
 
-    auto xsize = int(urxl) + 2 - int(llxl);
-    auto ysize = int(uryl) + 2 - int(llyl);
+    int xsize = int(urxl) + 2 - int(llxl);
+    int ysize = int(uryl) + 2 - int(llyl);
     assert(xsize >= 0);  // 0 if bixpix...
     assert(ysize >= 0);
 
-    if (!comParams.isPhase2)  //Phase 1 big pixels
-    {
-      if (phase1PixelTopology::isBigPixX(cp.minRow[ic]))
-        ++xsize;
-      if (phase1PixelTopology::isBigPixX(cp.maxRow[ic]))
-        ++xsize;
-      if (phase1PixelTopology::isBigPixY(cp.minCol[ic]))
-        ++ysize;
-      if (phase1PixelTopology::isBigPixY(cp.maxCol[ic]))
-        ++ysize;
-    }
+    if (TrackerTraits::isBigPixX(cp.minRow[ic]))
+      ++xsize;
+    if (TrackerTraits::isBigPixX(cp.maxRow[ic]))
+      ++xsize;
+    if (TrackerTraits::isBigPixY(cp.minCol[ic]))
+      ++ysize;
+    if (TrackerTraits::isBigPixY(cp.maxCol[ic]))
+      ++ysize;
 
     int unbalanceX = 8.f * std::abs(float(cp.q_f_X[ic] - cp.q_l_X[ic])) / float(cp.q_f_X[ic] + cp.q_l_X[ic]);
     int unbalanceY = 8.f * std::abs(float(cp.q_f_Y[ic] - cp.q_l_Y[ic])) / float(cp.q_f_Y[ic] + cp.q_l_Y[ic]);
+
     xsize = 8 * xsize - unbalanceX;
     ysize = 8 * ysize - unbalanceY;
 
-    cp.xsize[ic] = std::min(xsize, comParams.isPhase2 ? 2047 : 1023);
-    cp.ysize[ic] = std::min(ysize, comParams.isPhase2 ? 2047 : 1023);
+    cp.xsize[ic] = std::min(xsize, maxSize);
+    cp.ysize[ic] = std::min(ysize, maxSize);
 
-    if (cp.minRow[ic] == 0 || cp.maxRow[ic] == phase1PixelTopology::lastRowInModule)
+    if (cp.minRow[ic] == 0 || cp.maxRow[ic] == uint32_t(detParams.nRows - 1))
       cp.xsize[ic] = -cp.xsize[ic];
-    if (cp.minCol[ic] == 0 || cp.maxCol[ic] == phase1PixelTopology::lastColInModule)
+
+    if (cp.minCol[ic] == 0 || cp.maxCol[ic] == uint32_t(detParams.nCols - 1))
       cp.ysize[ic] = -cp.ysize[ic];
 
     // apply the lorentz offset correction
     float xoff = 0.5f * float(detParams.nRows) * comParams.thePitchX;
     float yoff = 0.5f * float(detParams.nCols) * comParams.thePitchY;
 
-    if (!comParams.isPhase2)  //correction for bigpixels for phase1
-    {
-      xoff = xoff + comParams.thePitchX;
-      yoff = yoff + 8.0f * comParams.thePitchY;
-    }
+    //correction for bigpixels for phase1
+    xoff = xoff + TrackerTraits::bigPixXCorrection * comParams.thePitchX;
+    yoff = yoff + TrackerTraits::bigPixYCorrection * comParams.thePitchY;
+
     // apply the lorentz offset correction
     auto xPos = detParams.shiftX + (comParams.thePitchX * 0.5f * float(mx)) - xoff;
     auto yPos = detParams.shiftY + (comParams.thePitchY * 0.5f * float(my)) - yoff;
@@ -284,8 +287,8 @@ namespace pixelCPEforGPU {
                             thickness,
                             cotalpha,
                             comParams.thePitchX,
-                            comParams.isPhase2 ? false : phase1PixelTopology::isBigPixX(cp.minRow[ic]),
-                            comParams.isPhase2 ? false : phase1PixelTopology::isBigPixX(cp.maxRow[ic]));
+                            TrackerTraits::isBigPixX(cp.minRow[ic]),
+                            TrackerTraits::isBigPixX(cp.maxRow[ic]));
 
     auto ycorr = correction(cp.maxCol[ic] - cp.minCol[ic],
                             cp.q_f_Y[ic],
@@ -296,13 +299,14 @@ namespace pixelCPEforGPU {
                             thickness,
                             cotbeta,
                             comParams.thePitchY,
-                            comParams.isPhase2 ? false : phase1PixelTopology::isBigPixY(cp.minCol[ic]),
-                            comParams.isPhase2 ? false : phase1PixelTopology::isBigPixY(cp.maxCol[ic]));
+                            TrackerTraits::isBigPixY(cp.minCol[ic]),
+                            TrackerTraits::isBigPixY(cp.maxCol[ic]));
 
     cp.xpos[ic] = xPos + xcorr;
     cp.ypos[ic] = yPos + ycorr;
   }
 
+  template <typename TrackerTraits>
   constexpr inline void errorFromSize(CommonParams const& __restrict__ comParams,
                                       DetParams const& __restrict__ detParams,
                                       ClusParams& cp,
@@ -312,17 +316,14 @@ namespace pixelCPEforGPU {
     cp.yerr[ic] = 0.0085;
 
     // FIXME these are errors form Run1
+    float xerr_barrel_l1_def = TrackerTraits::xerr_barrel_l1_def;
+    float yerr_barrel_l1_def = TrackerTraits::yerr_barrel_l1_def;
+    float xerr_barrel_ln_def = TrackerTraits::xerr_barrel_ln_def;
+    float yerr_barrel_ln_def = TrackerTraits::yerr_barrel_ln_def;
+    float xerr_endcap_def = TrackerTraits::xerr_endcap_def;
+    float yerr_endcap_def = TrackerTraits::yerr_endcap_def;
 
-    bool isPhase2 = comParams.isPhase2;
-    // FIXME these are errors form Run1
-    float xerr_barrel_l1_def = isPhase2 ? 0.00035 : 0.00200;  // 0.01030;
-    float yerr_barrel_l1_def = isPhase2 ? 0.00125 : 0.00210;
-    float xerr_barrel_ln_def = isPhase2 ? 0.00035 : 0.00200;  // 0.01030;
-    float yerr_barrel_ln_def = isPhase2 ? 0.00125 : 0.00210;
-    float xerr_endcap_def = isPhase2 ? 0.00060 : 0.0020;
-    float yerr_endcap_def = isPhase2 ? 0.00180 : 0.00210;
-
-    constexpr float xerr_barrel_l1[] = {0.00115, 0.00120, 0.00088};
+    constexpr float xerr_barrel_l1[] = {0.00115, 0.00120, 0.00088};  //TODO MOVE THESE SOMEWHERE ELSE
     constexpr float yerr_barrel_l1[] = {
         0.00375, 0.00230, 0.00250, 0.00250, 0.00230, 0.00230, 0.00210, 0.00210, 0.00240};
     constexpr float xerr_barrel_ln[] = {0.00115, 0.00120, 0.00088};
@@ -339,52 +340,31 @@ namespace pixelCPEforGPU {
     bool isEdgeY = cp.ysize[ic] < 1;
 
     // is one and big?
-    bool isBig1X = isPhase2 ? false : ((0 == sx) && phase1PixelTopology::isBigPixX(cp.minRow[ic]));
-    bool isBig1Y = isPhase2 ? false : ((0 == sy) && phase1PixelTopology::isBigPixY(cp.minCol[ic]));
+    bool isBig1X = ((0 == sx) && TrackerTraits::isBigPixX(cp.minRow[ic]));
+    bool isBig1Y = ((0 == sy) && TrackerTraits::isBigPixY(cp.minCol[ic]));
 
-    if (!isPhase2) {
-      if (!isEdgeX && !isBig1X) {
-        if (not detParams.isBarrel) {
-          cp.xerr[ic] = sx < std::size(xerr_endcap) ? xerr_endcap[sx] : xerr_endcap_def;
-        } else if (detParams.layer == 1) {
-          cp.xerr[ic] = sx < std::size(xerr_barrel_l1) ? xerr_barrel_l1[sx] : xerr_barrel_l1_def;
-        } else {
-          cp.xerr[ic] = sx < std::size(xerr_barrel_ln) ? xerr_barrel_ln[sx] : xerr_barrel_ln_def;
-        }
+    if (!isEdgeX && !isBig1X) {
+      if (not detParams.isBarrel) {
+        cp.xerr[ic] = sx < std::size(xerr_endcap) ? xerr_endcap[sx] : xerr_endcap_def;
+      } else if (detParams.layer == 1) {
+        cp.xerr[ic] = sx < std::size(xerr_barrel_l1) ? xerr_barrel_l1[sx] : xerr_barrel_l1_def;
+      } else {
+        cp.xerr[ic] = sx < std::size(xerr_barrel_ln) ? xerr_barrel_ln[sx] : xerr_barrel_ln_def;
       }
+    }
 
-      if (!isEdgeY && !isBig1Y) {
-        if (not detParams.isBarrel) {
-          cp.yerr[ic] = sy < std::size(yerr_endcap) ? yerr_endcap[sy] : yerr_endcap_def;
-        } else if (detParams.layer == 1) {
-          cp.yerr[ic] = sy < std::size(yerr_barrel_l1) ? yerr_barrel_l1[sy] : yerr_barrel_l1_def;
-        } else {
-          cp.yerr[ic] = sy < std::size(yerr_barrel_ln) ? yerr_barrel_ln[sy] : yerr_barrel_ln_def;
-        }
-      }
-    } else {
-      if (!isEdgeX) {
-        if (not detParams.isBarrel) {
-          cp.xerr[ic] = sx < std::size(xerr_endcap) ? xerr_endcap[sx] : xerr_endcap_def;
-        } else if (detParams.layer == 1) {
-          cp.xerr[ic] = sx < std::size(xerr_barrel_l1) ? xerr_barrel_l1[sx] : xerr_barrel_l1_def;
-        } else {
-          cp.xerr[ic] = sx < std::size(xerr_barrel_ln) ? xerr_barrel_ln[sx] : xerr_barrel_ln_def;
-        }
-      }
-
-      if (!isEdgeY) {
-        if (not detParams.isBarrel) {
-          cp.yerr[ic] = sy < std::size(yerr_endcap) ? yerr_endcap[sy] : yerr_endcap_def;
-        } else if (detParams.layer == 1) {
-          cp.yerr[ic] = sy < std::size(yerr_barrel_l1) ? yerr_barrel_l1[sy] : yerr_barrel_l1_def;
-        } else {
-          cp.yerr[ic] = sy < std::size(yerr_barrel_ln) ? yerr_barrel_ln[sy] : yerr_barrel_ln_def;
-        }
+    if (!isEdgeY && !isBig1Y) {
+      if (not detParams.isBarrel) {
+        cp.yerr[ic] = sy < std::size(yerr_endcap) ? yerr_endcap[sy] : yerr_endcap_def;
+      } else if (detParams.layer == 1) {
+        cp.yerr[ic] = sy < std::size(yerr_barrel_l1) ? yerr_barrel_l1[sy] : yerr_barrel_l1_def;
+      } else {
+        cp.yerr[ic] = sy < std::size(yerr_barrel_ln) ? yerr_barrel_ln[sy] : yerr_barrel_ln_def;
       }
     }
   }
 
+  template <typename TrackerTraits>
   constexpr inline void errorFromDB(CommonParams const& __restrict__ comParams,
                                     DetParams const& __restrict__ detParams,
                                     ClusParams& cp,
@@ -402,8 +382,8 @@ namespace pixelCPEforGPU {
     // is one and big?
     bool isOneX = (0 == sx);
     bool isOneY = (0 == sy);
-    bool isBigX = comParams.isPhase2 ? false : phase1PixelTopology::isBigPixX(cp.minRow[ic]);
-    bool isBigY = comParams.isPhase2 ? false : phase1PixelTopology::isBigPixY(cp.minCol[ic]);
+    bool isBigX = TrackerTraits::isBigPixX(cp.minRow[ic]);
+    bool isBigY = TrackerTraits::isBigPixY(cp.minCol[ic]);
 
     auto ch = cp.charge[ic];
     auto bin = 0;
@@ -421,14 +401,14 @@ namespace pixelCPEforGPU {
     cp.status[ic].isOneY = isOneY;
     cp.status[ic].isBigY = (isOneY & isBigY) | isEdgeY;
 
-    auto xoff = -float(phase1PixelTopology::xOffset) * comParams.thePitchX;
+    auto xoff = -float(TrackerTraits::xOffset) * comParams.thePitchX;
     int low_value = 0;
     int high_value = CPEFastParametrisation::kNumErrorBins - 1;
     int bin_value = float(CPEFastParametrisation::kNumErrorBins) * (cp.xpos[ic] + xoff) / (2 * xoff);
     // return estimated bin value truncated to [0, 15]
     int jx = std::clamp(bin_value, low_value, high_value);
 
-    auto toCM = [](uint8_t x) { return float(x) * 1.e-4; };
+    auto toCM = [](uint8_t x) { return float(x) * 1.e-4f; };
 
     if (not isEdgeX) {
       cp.xerr[ic] = isOneX ? toCM(isBigX ? detParams.sx2 : detParams.sigmax1[jx])
@@ -439,6 +419,15 @@ namespace pixelCPEforGPU {
     if (not isEdgeY) {
       cp.yerr[ic] = isOneY ? toCM(isBigY ? detParams.sy2 : detParams.sy1) : detParams.yfact[bin] * toCM(ey);
     }
+  }
+
+  //for Phase2 -> fallback to error from size
+  template <>
+  constexpr inline void errorFromDB<pixelTopology::Phase2>(CommonParams const& __restrict__ comParams,
+                                                           DetParams const& __restrict__ detParams,
+                                                           ClusParams& cp,
+                                                           uint32_t ic) {
+    errorFromSize<pixelTopology::Phase2>(comParams, detParams, cp, ic);
   }
 
 }  // namespace pixelCPEforGPU

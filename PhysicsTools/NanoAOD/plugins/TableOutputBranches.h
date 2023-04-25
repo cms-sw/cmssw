@@ -30,7 +30,8 @@ private:
   bool m_singleton = false;
   enum { IsMain = 0, IsExtension = 1, DontKnowYetIfMainOrExtension = 2 } m_extension;
   std::string m_doc;
-  UInt_t m_counter;
+  typedef Int_t CounterType;
+  CounterType m_counter;
   struct NamedBranchPtr {
     std::string name, title, rootTypeCode;
     TBranch *branch;
@@ -41,11 +42,13 @@ private:
         : name(aname), title(atitle), rootTypeCode(rootType), branch(branchptr) {}
   };
   TBranch *m_counterBranch = nullptr;
-  std::vector<NamedBranchPtr> m_floatBranches;
-  std::vector<NamedBranchPtr> m_intBranches;
   std::vector<NamedBranchPtr> m_int8Branches;
   std::vector<NamedBranchPtr> m_uint8Branches;
+  std::vector<NamedBranchPtr> m_int16Branches;
+  std::vector<NamedBranchPtr> m_uint16Branches;
+  std::vector<NamedBranchPtr> m_int32Branches;
   std::vector<NamedBranchPtr> m_uint32Branches;
+  std::vector<NamedBranchPtr> m_floatBranches;
   std::vector<NamedBranchPtr> m_doubleBranches;
   bool m_branchesBooked;
 

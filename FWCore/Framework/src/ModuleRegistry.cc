@@ -24,7 +24,7 @@ namespace edm {
       signalslot::Signal<void(ModuleDescription const&)>& iPost) {
     auto modItr = labelToModule_.find(moduleLabel);
     if (modItr == labelToModule_.end()) {
-      auto modPtr = Factory::get()->makeModule(p, typeResolver_.get(), iPre, iPost);
+      auto modPtr = Factory::get()->makeModule(p, typeResolverMaker_, iPre, iPost);
 
       // Transfer ownership of worker to the registry
       labelToModule_[moduleLabel] = modPtr;

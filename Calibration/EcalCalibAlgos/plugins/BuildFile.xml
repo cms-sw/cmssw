@@ -8,6 +8,5 @@
 <use name="Geometry/CaloGeometry"/>
 <use name="Calibration/Tools"/>
 <use name="PhysicsTools/NanoAOD"/>
-<use name="Utilities/General"/>
 <use name="Calibration/EcalCalibAlgos"/>
 <flags EDM_PLUGIN="1"/>

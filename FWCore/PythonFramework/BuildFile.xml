@@ -1,13 +1,14 @@
-<use name="FWCore/Framework"/>
-<use name="FWCore/PythonParameterSet"/>
+<use name="boost"/>
+<use name="py3-pybind11"/>
+<use name="tbb"/>
 <use name="FWCore/Concurrency"/>
+<use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/PluginManager"/>
+<use name="FWCore/PythonParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/Utilities"/>
-<use name="boost"/>
-<use name="py3-pybind11"/>
 <export>
   <lib name="1"/>
 </export>

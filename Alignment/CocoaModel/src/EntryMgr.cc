@@ -114,8 +114,8 @@ EntryData* EntryMgr::findEntryByLongName(const ALIstring& optoName, const ALIstr
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 EntryData* EntryMgr::findEntry(const std::vector<ALIstring>& wl) {
   EntryData* data = nullptr;
-  ALIstring optoName = wl[2];
-  ALIstring entryName = wl[3];
+  const ALIstring& optoName = wl[2];
+  const ALIstring& entryName = wl[3];
   data = findEntryByLongName(optoName, entryName);
 
   return data;

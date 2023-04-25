@@ -153,7 +153,7 @@ int main(int argc, char *argv[]) {
   //	TFile *hfile1= new TFile("LEDtest.root", "READ");
   //  TFile *hfile1 = new TFile("Global_346445.root", "READ");
 
-  TFile *hfile1 = new TFile("Global_346511.root", "READ");
+  TFile *hfile1 = new TFile("Global_362365.root", "READ");
   //          TH1D *hist1(nullptr);
   //            hist1 = (TH1D *)dir->FindObjectAny("h_mapDepth1_HE");
 
@@ -169,8 +169,8 @@ int main(int argc, char *argv[]) {
 
   //
 
-  //    TCanvas *c1 = new TCanvas("c1", "Hcal4test", 200, 10, 700, 900);
-  TCanvas *c1 = new TCanvas("c1", "Hcal4test", 1000, 500);
+  TCanvas *c1 = new TCanvas("c1", "Hcal4test", 200, 10, 700, 900);
+  //  TCanvas *c1 = new TCanvas("c1", "Hcal4test", 1000, 500);
 
   hfile1->ls();
   TDirectory *dir = (TDirectory *)hfile1->FindObjectAny(dirnm.c_str());

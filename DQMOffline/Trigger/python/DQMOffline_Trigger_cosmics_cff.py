@@ -33,7 +33,7 @@ import FWCore.ParameterSet.Config as cms
 #onlineHLTSource = cms.Sequence(EcalPi0Mon*EcalPhiSymMon*hltMonMuBits*dqmEnvHLTOnline)
 
 # HLT Offline -----------------------------------
-from DQMOffline.Trigger.hltFiltersDQMonitor_cfi import *
+from DQMOffline.Trigger.dqmHLTFiltersDQMonitor_cfi import *
 
 # EGamma
 from DQMOffline.Trigger.EgHLTOfflineSource_cfi import *
@@ -51,8 +51,9 @@ import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvHLT= DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone(
     subSystemFolder = 'HLT'
 )
+
 offlineHLTSource = cms.Sequence(
-    hltFiltersDQMonitor *
+    dqmHLTFiltersDQMonitor *
     egHLTOffDQMSource *
     hltMuonOfflineAnalyzers *
     HLTTauDQMOffline *
@@ -60,5 +61,5 @@ offlineHLTSource = cms.Sequence(
     dqmEnvHLT
 )
 
-#triggerCosmicOfflineDQMSource =  cms.Sequence(onlineHLTSource*offlineHLTSource)
-triggerCosmicOfflineDQMSource =  cms.Sequence(offlineHLTSource)
+#triggerCosmicOfflineDQMSource = cms.Sequence(onlineHLTSource*offlineHLTSource)
+triggerCosmicOfflineDQMSource = cms.Sequence(offlineHLTSource)

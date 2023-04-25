@@ -1,10 +1,11 @@
 #include "RiemannFitOnGPU.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 
-void HelixFitOnGPU::launchRiemannKernels(HitsView const *hv,
-                                         uint32_t nhits,
-                                         uint32_t maxNumberOfTuples,
-                                         cudaStream_t stream) {
+template <typename TrackerTraits>
+void HelixFitOnGPU<TrackerTraits>::launchRiemannKernels(const TrackingRecHitSoAConstView<TrackerTraits> &hv,
+                                                        uint32_t nhits,
+                                                        uint32_t maxNumberOfTuples,
+                                                        cudaStream_t stream) {
   assert(tuples_);
 
   auto blockSize = 64;
@@ -23,109 +24,112 @@ void HelixFitOnGPU::launchRiemannKernels(HitsView const *hv,
 
   for (uint32_t offset = 0; offset < maxNumberOfTuples; offset += maxNumberOfConcurrentFits_) {
     // triplets
-    kernel_FastFit<3><<<numberOfBlocks, blockSize, 0, stream>>>(
+    kernel_FastFit<3, TrackerTraits><<<numberOfBlocks, blockSize, 0, stream>>>(
         tuples_, tupleMultiplicity_, 3, hv, hitsGPU.get(), hits_geGPU.get(), fast_fit_resultsGPU.get(), offset);
     cudaCheck(cudaGetLastError());
 
-    kernel_CircleFit<3><<<numberOfBlocks, blockSize, 0, stream>>>(tupleMultiplicity_,
-                                                                  3,
-                                                                  bField_,
-                                                                  hitsGPU.get(),
-                                                                  hits_geGPU.get(),
-                                                                  fast_fit_resultsGPU.get(),
-                                                                  circle_fit_resultsGPU_,
-                                                                  offset);
+    kernel_CircleFit<3, TrackerTraits><<<numberOfBlocks, blockSize, 0, stream>>>(tupleMultiplicity_,
+                                                                                 3,
+                                                                                 bField_,
+                                                                                 hitsGPU.get(),
+                                                                                 hits_geGPU.get(),
+                                                                                 fast_fit_resultsGPU.get(),
+                                                                                 circle_fit_resultsGPU_,
+                                                                                 offset);
     cudaCheck(cudaGetLastError());
 
-    kernel_LineFit<3><<<numberOfBlocks, blockSize, 0, stream>>>(tupleMultiplicity_,
-                                                                3,
-                                                                bField_,
-                                                                outputSoa_,
-                                                                hitsGPU.get(),
-                                                                hits_geGPU.get(),
-                                                                fast_fit_resultsGPU.get(),
-                                                                circle_fit_resultsGPU_,
-                                                                offset);
+    kernel_LineFit<3, TrackerTraits><<<numberOfBlocks, blockSize, 0, stream>>>(tupleMultiplicity_,
+                                                                               3,
+                                                                               bField_,
+                                                                               outputSoa_,
+                                                                               hitsGPU.get(),
+                                                                               hits_geGPU.get(),
+                                                                               fast_fit_resultsGPU.get(),
+                                                                               circle_fit_resultsGPU_,
+                                                                               offset);
     cudaCheck(cudaGetLastError());
 
     // quads
-    kernel_FastFit<4><<<numberOfBlocks / 4, blockSize, 0, stream>>>(
+    kernel_FastFit<4, TrackerTraits><<<numberOfBlocks / 4, blockSize, 0, stream>>>(
         tuples_, tupleMultiplicity_, 4, hv, hitsGPU.get(), hits_geGPU.get(), fast_fit_resultsGPU.get(), offset);
     cudaCheck(cudaGetLastError());
 
-    kernel_CircleFit<4><<<numberOfBlocks / 4, blockSize, 0, stream>>>(tupleMultiplicity_,
-                                                                      4,
-                                                                      bField_,
-                                                                      hitsGPU.get(),
-                                                                      hits_geGPU.get(),
-                                                                      fast_fit_resultsGPU.get(),
-                                                                      circle_fit_resultsGPU_,
-                                                                      offset);
+    kernel_CircleFit<4, TrackerTraits><<<numberOfBlocks / 4, blockSize, 0, stream>>>(tupleMultiplicity_,
+                                                                                     4,
+                                                                                     bField_,
+                                                                                     hitsGPU.get(),
+                                                                                     hits_geGPU.get(),
+                                                                                     fast_fit_resultsGPU.get(),
+                                                                                     circle_fit_resultsGPU_,
+                                                                                     offset);
     cudaCheck(cudaGetLastError());
 
-    kernel_LineFit<4><<<numberOfBlocks / 4, blockSize, 0, stream>>>(tupleMultiplicity_,
-                                                                    4,
-                                                                    bField_,
-                                                                    outputSoa_,
-                                                                    hitsGPU.get(),
-                                                                    hits_geGPU.get(),
-                                                                    fast_fit_resultsGPU.get(),
-                                                                    circle_fit_resultsGPU_,
-                                                                    offset);
+    kernel_LineFit<4, TrackerTraits><<<numberOfBlocks / 4, blockSize, 0, stream>>>(tupleMultiplicity_,
+                                                                                   4,
+                                                                                   bField_,
+                                                                                   outputSoa_,
+                                                                                   hitsGPU.get(),
+                                                                                   hits_geGPU.get(),
+                                                                                   fast_fit_resultsGPU.get(),
+                                                                                   circle_fit_resultsGPU_,
+                                                                                   offset);
     cudaCheck(cudaGetLastError());
 
     if (fitNas4_) {
       // penta
-      kernel_FastFit<4><<<numberOfBlocks / 4, blockSize, 0, stream>>>(
+      kernel_FastFit<4, TrackerTraits><<<numberOfBlocks / 4, blockSize, 0, stream>>>(
           tuples_, tupleMultiplicity_, 5, hv, hitsGPU.get(), hits_geGPU.get(), fast_fit_resultsGPU.get(), offset);
       cudaCheck(cudaGetLastError());
 
-      kernel_CircleFit<4><<<numberOfBlocks / 4, blockSize, 0, stream>>>(tupleMultiplicity_,
-                                                                        5,
-                                                                        bField_,
-                                                                        hitsGPU.get(),
-                                                                        hits_geGPU.get(),
-                                                                        fast_fit_resultsGPU.get(),
-                                                                        circle_fit_resultsGPU_,
-                                                                        offset);
+      kernel_CircleFit<4, TrackerTraits><<<numberOfBlocks / 4, blockSize, 0, stream>>>(tupleMultiplicity_,
+                                                                                       5,
+                                                                                       bField_,
+                                                                                       hitsGPU.get(),
+                                                                                       hits_geGPU.get(),
+                                                                                       fast_fit_resultsGPU.get(),
+                                                                                       circle_fit_resultsGPU_,
+                                                                                       offset);
       cudaCheck(cudaGetLastError());
 
-      kernel_LineFit<4><<<numberOfBlocks / 4, blockSize, 0, stream>>>(tupleMultiplicity_,
-                                                                      5,
-                                                                      bField_,
-                                                                      outputSoa_,
-                                                                      hitsGPU.get(),
-                                                                      hits_geGPU.get(),
-                                                                      fast_fit_resultsGPU.get(),
-                                                                      circle_fit_resultsGPU_,
-                                                                      offset);
+      kernel_LineFit<4, TrackerTraits><<<numberOfBlocks / 4, blockSize, 0, stream>>>(tupleMultiplicity_,
+                                                                                     5,
+                                                                                     bField_,
+                                                                                     outputSoa_,
+                                                                                     hitsGPU.get(),
+                                                                                     hits_geGPU.get(),
+                                                                                     fast_fit_resultsGPU.get(),
+                                                                                     circle_fit_resultsGPU_,
+                                                                                     offset);
       cudaCheck(cudaGetLastError());
     } else {
       // penta all 5
-      kernel_FastFit<5><<<numberOfBlocks / 4, blockSize, 0, stream>>>(
+      kernel_FastFit<5, TrackerTraits><<<numberOfBlocks / 4, blockSize, 0, stream>>>(
           tuples_, tupleMultiplicity_, 5, hv, hitsGPU.get(), hits_geGPU.get(), fast_fit_resultsGPU.get(), offset);
       cudaCheck(cudaGetLastError());
 
-      kernel_CircleFit<5><<<numberOfBlocks / 4, blockSize, 0, stream>>>(tupleMultiplicity_,
-                                                                        5,
-                                                                        bField_,
-                                                                        hitsGPU.get(),
-                                                                        hits_geGPU.get(),
-                                                                        fast_fit_resultsGPU.get(),
-                                                                        circle_fit_resultsGPU_,
-                                                                        offset);
+      kernel_CircleFit<5, TrackerTraits><<<numberOfBlocks / 4, blockSize, 0, stream>>>(tupleMultiplicity_,
+                                                                                       5,
+                                                                                       bField_,
+                                                                                       hitsGPU.get(),
+                                                                                       hits_geGPU.get(),
+                                                                                       fast_fit_resultsGPU.get(),
+                                                                                       circle_fit_resultsGPU_,
+                                                                                       offset);
       cudaCheck(cudaGetLastError());
 
-      kernel_LineFit<5><<<numberOfBlocks / 4, blockSize, 0, stream>>>(tupleMultiplicity_,
-                                                                      5,
-                                                                      bField_,
-                                                                      outputSoa_,
-                                                                      hitsGPU.get(),
-                                                                      hits_geGPU.get(),
-                                                                      fast_fit_resultsGPU.get(),
-                                                                      circle_fit_resultsGPU_,
-                                                                      offset);
+      kernel_LineFit<5, TrackerTraits><<<numberOfBlocks / 4, blockSize, 0, stream>>>(tupleMultiplicity_,
+                                                                                     5,
+                                                                                     bField_,
+                                                                                     outputSoa_,
+                                                                                     hitsGPU.get(),
+                                                                                     hits_geGPU.get(),
+                                                                                     fast_fit_resultsGPU.get(),
+                                                                                     circle_fit_resultsGPU_,
+                                                                                     offset);
       cudaCheck(cudaGetLastError());
     }
   }
 }
+
+template class HelixFitOnGPU<pixelTopology::Phase1>;
+template class HelixFitOnGPU<pixelTopology::Phase2>;

@@ -1,16 +1,16 @@
 <iftool name="cuda">
   <use name="cuda"/>
+  <use name="tbb"/>
   <use name="DataFormats/Common"/>
   <use name="DataFormats/Provenance"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/ServiceRegistry"/>
   <use name="FWCore/Utilities"/>
-  <use name="HeterogeneousCore/CUDAServices"/>
   <use name="HLTrigger/Timer"/>
-
-  <library file="*.cc" name="HeterogeneousCoreCUDAServicesPlugins">
+  <use name="HeterogeneousCore/CUDAServices"/>
+  <use name="HeterogeneousCore/CUDAUtilities"/>
+  <library file="CUDAMonitoringService.cc CUDAService.cc NVProfilerService.cc" name="HeterogeneousCoreCUDAServicesPlugins">
     <flags EDM_PLUGIN="1"/>
   </library>
-
 </iftool>

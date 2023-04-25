@@ -12,76 +12,98 @@
 #include <sstream>
 
 //#define EDM_ML_DEBUG
+HFFibre::Params::Params(double iFractionOfSpeedOfLightInFibre,
+                        const HcalDDDSimConstants* hcons,
+                        const HcalSimulationParameters* hps)
+    : fractionOfSpeedOfLightInFibre_{iFractionOfSpeedOfLightInFibre},
+      gParHF_{hcons->getGparHF()},
+      rTableHF_{hcons->getRTableHF()},
+      shortFibreLength_{hps->shortFiberLength_},
+      longFibreLength_{hps->longFiberLength_},
+      attenuationLength_{hps->attenuationLength_},
+      lambdaLimits_{{static_cast<double>(hps->lambdaLimits_[0]), static_cast<double>(hps->lambdaLimits_[1])}} {}
 
-HFFibre::HFFibre(const std::string& name,
-                 const HcalDDDSimConstants* hcons,
-                 const HcalSimulationParameters* hps,
-                 edm::ParameterSet const& p)
-    : hcalConstant_(hcons), hcalsimpar_(hps) {
-  edm::ParameterSet m_HF =
-      (p.getParameter<edm::ParameterSet>("HFShower")).getParameter<edm::ParameterSet>("HFShowerBlock");
-  cFibre = c_light * (m_HF.getParameter<double>("CFibre"));
-  edm::LogVerbatim("HFShower") << "HFFibre:: Speed of light in fibre " << cFibre / (CLHEP::m / CLHEP::ns) << " m/ns";
+HFFibre::HFFibre(const HcalDDDSimConstants* hcons, const HcalSimulationParameters* hps, edm::ParameterSet const& p)
+    : HFFibre(Params(p.getParameter<edm::ParameterSet>("HFShower")
+                         .getParameter<edm::ParameterSet>("HFShowerBlock")
+                         .getParameter<double>("CFibre"),
+                     hcons,
+                     hps)) {}
+
+HFFibre::HFFibre(Params iP)
+    : cFibre_(c_light * iP.fractionOfSpeedOfLightInFibre_),
+      gpar_(std::move(iP.gParHF_)),
+      radius_(std::move(iP.rTableHF_)),
+      shortFL_(std::move(iP.shortFibreLength_)),
+      longFL_(std::move(iP.longFibreLength_)),
+      attL_(std::move(iP.attenuationLength_)),
+      lambLim_(iP.lambdaLimits_) {
+  edm::LogVerbatim("HFShower") << "HFFibre:: Speed of light in fibre " << cFibre_ / (CLHEP::m / CLHEP::ns) << " m/ns";
   // Attenuation length
-  attL = hcalsimpar_->attenuationLength_;
-  nBinAtt = static_cast<int>(attL.size());
-  std::stringstream ss1;
-  for (int it = 0; it < nBinAtt; it++) {
-    if (it / 10 * 10 == it) {
-      ss1 << "\n";
+  nBinAtt_ = static_cast<int>(attL_.size());
+
+  edm::LogVerbatim("HFShower").log([&](auto& logger) {
+    logger << "HFFibre: " << nBinAtt_ << " attL(1/cm): ";
+    for (int it = 0; it < nBinAtt_; it++) {
+      if (it / 10 * 10 == it) {
+        logger << "\n";
+      }
+      logger << "  " << attL_[it] * CLHEP::cm;
     }
-    ss1 << "  " << attL[it] * CLHEP::cm;
-  }
-  edm::LogVerbatim("HFShower") << "HFFibre: " << nBinAtt << " attL(1/cm): " << ss1.str();
-  // Limits on Lambda
-  std::vector<int> nvec = hcalsimpar_->lambdaLimits_;
-  lambLim[0] = nvec[0];
-  lambLim[1] = nvec[1];
-  edm::LogVerbatim("HFShower") << "HFFibre: Limits on lambda " << lambLim[0] << " and " << lambLim[1];
+  });
+  edm::LogVerbatim("HFShower") << "HFFibre: Limits on lambda " << lambLim_[0] << " and " << lambLim_[1];
   // Fibre Lengths
-  longFL = hcalsimpar_->longFiberLength_;
-  std::stringstream ss2;
-  for (unsigned int it = 0; it < longFL.size(); it++) {
-    if (it / 10 * 10 == it) {
-      ss2 << "\n";
+  edm::LogVerbatim("HFShower").log([&](auto& logger) {
+    logger << "HFFibre: " << longFL_.size() << " Long Fibre Length(cm):";
+    for (unsigned int it = 0; it < longFL_.size(); it++) {
+      if (it / 10 * 10 == it) {
+        logger << "\n";
+      }
+      logger << "  " << longFL_[it] / CLHEP::cm;
     }
-    ss2 << "  " << longFL[it] / CLHEP::cm;
-  }
-  edm::LogVerbatim("HFShower") << "HFFibre: " << longFL.size() << " Long Fibre Length(cm):" << ss2.str();
-  shortFL = hcalsimpar_->shortFiberLength_;
-  std::stringstream ss3;
-  for (unsigned int it = 0; it < shortFL.size(); it++) {
-    if (it / 10 * 10 == it) {
-      ss3 << "\n";
+  });
+  edm::LogVerbatim("HFShower").log([&](auto& logger) {
+    logger << "HFFibre: " << shortFL_.size() << " Short Fibre Length(cm):";
+    for (unsigned int it = 0; it < shortFL_.size(); it++) {
+      if (it / 10 * 10 == it) {
+        logger << "\n";
+      }
+      logger << "  " << shortFL_[it] / CLHEP::cm;
     }
-    ss3 << "  " << shortFL[it] / CLHEP::cm;
-  }
-  edm::LogVerbatim("HFShower") << "HFFibre: " << shortFL.size() << " Short Fibre Length(cm):" << ss3.str();
-
+  });
   // Now geometry parameters
-  gpar = hcalConstant_->getGparHF();
-  radius = hcalConstant_->getRTableHF();
 
-  nBinR = static_cast<int>(radius.size());
-  std::stringstream sss;
-  for (int i = 0; i < nBinR; ++i) {
-    if (i / 10 * 10 == i) {
-      sss << "\n";
+  nBinR_ = static_cast<int>(radius_.size());
+  edm::LogVerbatim("HFShower").log([&](auto& logger) {
+    logger << "HFFibre: " << radius_.size() << " rTable(cm):";
+    for (int i = 0; i < nBinR_; ++i) {
+      if (i / 10 * 10 == i) {
+        logger << "\n";
+      }
+      logger << "  " << radius_[i] / CLHEP::cm;
     }
-    sss << "  " << radius[i] / CLHEP::cm;
-  }
-  edm::LogVerbatim("HFShower") << "HFFibre: " << radius.size() << " rTable(cm):" << sss.str();
+  });
+
+  edm::LogVerbatim("HFShower").log([&](auto& logger) {
+    logger << "HFFibre: " << gpar_.size() << " gParHF:";
+    for (std::size_t i = 0; i < gpar_.size(); ++i) {
+      if (i / 10 * 10 == i) {
+        logger << "\n";
+      }
+      logger << "  " << gpar_[i];
+    }
+  });
 }
 
-double HFFibre::attLength(double lambda) {
-  int i = int(nBinAtt * (lambda - lambLim[0]) / (lambLim[1] - lambLim[0]));
+double HFFibre::attLength(double lambda) const {
+  int i = int(nBinAtt_ * (lambda - lambLim_[0]) / (lambLim_[1] - lambLim_[0]));
 
   int j = i;
-  if (i >= nBinAtt)
-    j = nBinAtt - 1;
+  if (i >= nBinAtt_)
+    j = nBinAtt_ - 1;
   else if (i < 0)
     j = 0;
-  double att = attL[j];
+  double att = attL_[j];
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << "HFFibre::attLength for Lambda " << lambda << " index " << i << " " << j
                                << " Att. Length " << att;
@@ -89,9 +111,9 @@ double HFFibre::attLength(double lambda) {
   return att;
 }
 
-double HFFibre::tShift(const G4ThreeVector& point, int depth, int fromEndAbs) {
+double HFFibre::tShift(const G4ThreeVector& point, int depth, int fromEndAbs) const {
   double zFibre = zShift(point, depth, fromEndAbs);
-  double time = zFibre / cFibre;
+  double time = zFibre / cFibre_;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << "HFFibre::tShift for point " << point << " ( depth = " << depth
                                << ", traversed length = " << zFibre / CLHEP::cm << " cm) = " << time / CLHEP::ns
@@ -100,7 +122,7 @@ double HFFibre::tShift(const G4ThreeVector& point, int depth, int fromEndAbs) {
   return time;
 }
 
-double HFFibre::zShift(const G4ThreeVector& point, int depth, int fromEndAbs) {  // point is z-local
+double HFFibre::zShift(const G4ThreeVector& point, int depth, int fromEndAbs) const {  // point is z-local
 
   double zFibre = 0;
   int ieta = 0;
@@ -109,26 +131,26 @@ double HFFibre::zShift(const G4ThreeVector& point, int depth, int fromEndAbs) { 
 
   // Defines the Radius bin by radial subdivision
   if (fromEndAbs >= 0) {
-    for (int i = nBinR - 1; i > 0; --i)
-      if (hR < radius[i])
-        ieta = nBinR - i - 1;
+    for (int i = nBinR_ - 1; i > 0; --i)
+      if (hR < radius_[i])
+        ieta = nBinR_ - i - 1;
   }
 
   // Defines the full length of the fibre
   if (depth == 2) {
-    if (static_cast<int>(shortFL.size()) > ieta)
-      length = shortFL[ieta] + gpar[0];
+    if (static_cast<int>(shortFL_.size()) > ieta)
+      length = shortFL_[ieta] + gpar_[0];
   } else {
-    if (static_cast<int>(longFL.size()) > ieta)
-      length = longFL[ieta];
+    if (static_cast<int>(longFL_.size()) > ieta)
+      length = longFL_[ieta];
   }
   zFibre = length;  // from beginning of abs (full length)
 
   if (fromEndAbs > 0) {
-    zFibre -= gpar[1];  // length from end of HF
+    zFibre -= gpar_[1];  // length from end of HF
   } else {
-    double zz = 0.5 * gpar[1] + point.z();  // depth of point of photon emission (from beginning of HF)
-    zFibre -= zz;                           // length of fiber from point of photon emission
+    double zz = 0.5 * gpar_[1] + point.z();  // depth of point of photon emission (from beginning of HF)
+    zFibre -= zz;                            // length of fiber from point of photon emission
   }
 
 #ifdef EDM_ML_DEBUG

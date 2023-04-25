@@ -28,7 +28,8 @@ public:
   };
 
   GEMVFATStatus() {}
-  GEMVFATStatus(const GEMAMC& amc, const GEMOptoHybrid& oh, const GEMVFAT& vfat, bool readMultiBX) {
+  GEMVFATStatus(const GEMAMC& amc, const GEMOptoHybrid& oh, const GEMVFAT& vfat, int chamberType, bool readMultiBX)
+      : chamberType_(chamberType) {
     Errors error{0};
     Warnings warn{0};
 
@@ -64,8 +65,10 @@ public:
   bool isBad() const { return errors_ != 0; }
   uint8_t errors() const { return errors_; }
   uint8_t warnings() const { return warnings_; }
+  int chamberType() const { return chamberType_; }
 
 private:
+  int chamberType_;
   uint16_t vfatPosition_;
   uint8_t errors_;
   uint8_t warnings_;

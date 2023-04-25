@@ -361,15 +361,13 @@ void EcalMatacqAnalyzer::endJob() {
   // loop over the entries of the tree
   TChain* fChain = (TChain*)tree;
   Long64_t nentries = fChain->GetEntriesFast();
-  Long64_t nbytes = 0, nb = 0;
 
   for (Long64_t jentry = 0; jentry < nentries; jentry++) {
     // load the event
     Long64_t ientry = fChain->LoadTree(jentry);
     if (ientry < 0)
       break;
-    nb = fChain->GetEntry(jentry);
-    nbytes += nb;
+    fChain->GetEntry(jentry);
 
     status = 0;
     peak = -1;

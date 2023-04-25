@@ -7,13 +7,12 @@
 #include <alpaka/alpaka.hpp>
 
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
-#include "HeterogeneousCore/AlpakaInterface/interface/traits.h"
 
 namespace cms::alpakatools {
 
   namespace detail {
 
-    template <typename TPlatform, typename = std::enable_if_t<is_platform_v<TPlatform>>>
+    template <typename TPlatform, typename = std::enable_if_t<alpaka::isPlatform<TPlatform>>>
     inline std::vector<alpaka::Dev<TPlatform>> enumerate_devices() {
       using Platform = TPlatform;
       using Device = alpaka::Dev<Platform>;
@@ -32,7 +31,7 @@ namespace cms::alpakatools {
   }  // namespace detail
 
   // return the alpaka accelerator devices for the given platform
-  template <typename TPlatform, typename = std::enable_if_t<is_platform_v<TPlatform>>>
+  template <typename TPlatform, typename = std::enable_if_t<alpaka::isPlatform<TPlatform>>>
   inline std::vector<alpaka::Dev<TPlatform>> const& devices() {
     static const auto devices = detail::enumerate_devices<TPlatform>();
     return devices;

@@ -1,12 +1,13 @@
-<use name="FWCore/MessageLogger"/>
-<use name="FWCore/ServiceRegistry"/>
-<use name="FWCore/Framework"/>
-<use name="FWCore/Sources"/>
-<use name="DataFormats/FEDRawData"/>
-<use name="DataFormats/TCDS"/>
-<use name="IOPool/Streamer"/>
 <use name="curl"/>
 <use name="stdcxx-fs"/>
+<use name="tbb"/>
+<use name="DataFormats/FEDRawData"/>
+<use name="DataFormats/TCDS"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Sources"/>
+<use name="IOPool/Streamer"/>
 <export>
   <lib name="1"/>
 </export>

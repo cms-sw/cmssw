@@ -1,7 +1,8 @@
+<use name="tbb"/>
 <use name="tensorflow-cc"/>
 <use name="FWCore/Framework"/>
-<use name="FWCore/Utilities"/>
 <use name="FWCore/MessageLogger"/>
+<use name="FWCore/Utilities"/>
 <export>
   <lib name="1"/>
 </export>

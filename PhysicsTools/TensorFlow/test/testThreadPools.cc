@@ -1,6 +1,5 @@
 /*
  * Tests for running inference using custom thread pools.
- * Based on TensorFlow 2.1.
  * For more info, see https://gitlab.cern.ch/mrieger/CMSSW-DNN.
  *
  * Author: Marcel Rieger

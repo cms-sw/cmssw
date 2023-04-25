@@ -42,64 +42,50 @@
 // February, 2018: Implement cluster charge reweighting (P. Schuetze, with code from A. Hazi)
 #include <iostream>
 #include <iomanip>
-
-#include "SimGeneral/NoiseGenerators/interface/GaussianTailNoiseGenerator.h"
-
-#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
-#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimTracker/Common/interface/SiG4UniversalFluctuation.h"
-#include "SimTracker/SiPixelDigitizer/plugins/SiPixelDigitizerAlgorithm.h"
-#include "SimTracker/SiPixelDigitizer/plugins/SiPixelChargeReweightingAlgorithm.h"
-
 #include <gsl/gsl_sf_erf.h>
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "CLHEP/Random/RandGaussQ.h"
+
 #include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandGeneral.h"
-
-//#include "PixelIndices.h"
+#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationOfflineSimService.h"
+#include "CondFormats/SiPixelObjects/interface/CablingPathToDetUnit.h"
+#include "CondFormats/SiPixelObjects/interface/GlobalPixel.h"
+#include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
+#include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
+#include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
+#include "CondFormats/SiPixelObjects/interface/PixelIndices.h"
+#include "CondFormats/SiPixelObjects/interface/PixelROC.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixel2DTemplateDBObject.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelDynamicInefficiency.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFEDChannelContainer.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFrameReverter.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelQualityProbabilities.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "CalibTracker/SiPixelESProducers/interface/SiPixelGainCalibrationOfflineSimService.h"
-
-// Accessing dead pixel modules from the DB:
-#include "DataFormats/DetId/interface/DetId.h"
-
-#include "CondFormats/SiPixelObjects/interface/GlobalPixel.h"
-
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFedCabling.h"
-#include "CondFormats/SiPixelObjects/interface/PixelIndices.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
-#include "CondFormats/SiPixelObjects/interface/PixelROC.h"
-#include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
-#include "CondFormats/SiPixelObjects/interface/CablingPathToDetUnit.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelDynamicInefficiency.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelFEDChannelContainer.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixelQualityProbabilities.h"
-#include "CondFormats/SiPixelObjects/interface/SiPixel2DTemplateDBObject.h"
-
-#include "CondFormats/SiPixelObjects/interface/SiPixelFrameReverter.h"
-#include "CondFormats/SiPixelObjects/interface/PixelFEDCabling.h"
-#include "CondFormats/SiPixelObjects/interface/PixelFEDLink.h"
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
-
-// Geometry
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-
-#include "CondFormats/SiPixelObjects/interface/PixelROC.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimGeneral/NoiseGenerators/interface/GaussianTailNoiseGenerator.h"
+#include "SimTracker/Common/interface/SiG4UniversalFluctuation.h"
+#include "SimTracker/Common/interface/SiPixelChargeReweightingAlgorithm.h"
+#include "SimTracker/SiPixelDigitizer/plugins/SiPixelDigitizerAlgorithm.h"
 
 using namespace edm;
 using namespace sipixelobjects;
@@ -1468,8 +1454,8 @@ void SiPixelDigitizerAlgorithm::induce_signal(std::vector<PSimHit>::const_iterat
     int IPixLeftDownY = int(floor(mp.y()));
 
 #ifdef TP_DEBUG
-    emd::LogDebug("Pixel Digitizer") << " left-down " << PointLeftDown << " " << mp.x() << " " << mp.y() << " "
-                                     << IPixLeftDownX << " " << IPixLeftDownY;
+    LogDebug("Pixel Digitizer") << " left-down " << PointLeftDown << " " << mp.x() << " " << mp.y() << " "
+                                << IPixLeftDownX << " " << IPixLeftDownY;
 #endif
 
     // Check detector limits to correct for pixels outside range.
@@ -1578,7 +1564,7 @@ void SiPixelDigitizerAlgorithm::induce_signal(std::vector<PSimHit>::const_iterat
   if (UseReweighting) {
     if (hit.processType() == 0) {
       ReferenceIndex4CR = hitIndex;
-      reweighted = TheNewSiPixelChargeReweightingAlgorithmClass->hitSignalReweight(
+      reweighted = TheNewSiPixelChargeReweightingAlgorithmClass->hitSignalReweight<digitizerUtility::Amplitude>(
           hit, hit_signal, hitIndex, ReferenceIndex4CR, tofBin, topol, detID, theSignal, hit.processType(), makeDSLinks);
     } else {
       std::vector<PSimHit>::const_iterator crSimHit = inputBegin;
@@ -1601,16 +1587,17 @@ void SiPixelDigitizerAlgorithm::induce_signal(std::vector<PSimHit>::const_iterat
         }
       }
 
-      reweighted = TheNewSiPixelChargeReweightingAlgorithmClass->hitSignalReweight((*crSimHit),
-                                                                                   hit_signal,
-                                                                                   hitIndex,
-                                                                                   ReferenceIndex4CR,
-                                                                                   tofBin,
-                                                                                   topol,
-                                                                                   detID,
-                                                                                   theSignal,
-                                                                                   hit.processType(),
-                                                                                   makeDSLinks);
+      reweighted = TheNewSiPixelChargeReweightingAlgorithmClass->hitSignalReweight<digitizerUtility::Amplitude>(
+          (*crSimHit),
+          hit_signal,
+          hitIndex,
+          ReferenceIndex4CR,
+          tofBin,
+          topol,
+          detID,
+          theSignal,
+          hit.processType(),
+          makeDSLinks);
     }
   }
   if (!reweighted) {
@@ -1641,8 +1628,9 @@ void SiPixelDigitizerAlgorithm::induce_signal(std::vector<PSimHit>::const_iterat
           }
         }
       }
-      theSignal[chan] += (makeDSLinks ? Amplitude((*im).second, &hit, hitIndex, ReferenceIndex4CR, tofBin, (*im).second)
-                                      : Amplitude((*im).second, (*im).second));
+      theSignal[chan] += (makeDSLinks ? digitizerUtility::Amplitude(
+                                            (*im).second, &hit, hitIndex, ReferenceIndex4CR, tofBin, (*im).second)
+                                      : digitizerUtility::Amplitude((*im).second, (*im).second));
 
 #ifdef TP_DEBUG
       std::pair<int, int> ip = PixelDigi::channelToPixel(chan);
@@ -1835,10 +1823,10 @@ void SiPixelDigitizerAlgorithm::add_noise(const PixelGeomDetUnit* pixdet,
       // Noise from full readout:
       float noise = CLHEP::RandGaussQ::shoot(engine, 0., theReadoutNoise);
 
-      if (((*i).second + Amplitude(noise + noise_ChargeVCALSmearing, -1.)) < 0.) {
+      if (((*i).second + digitizerUtility::Amplitude(noise + noise_ChargeVCALSmearing, -1.)) < 0.) {
         (*i).second.set(0);
       } else {
-        (*i).second += Amplitude(noise + noise_ChargeVCALSmearing, -1.);
+        (*i).second += digitizerUtility::Amplitude(noise + noise_ChargeVCALSmearing, -1.);
       }
 
     }  // End if addChargeVCalSmearing
@@ -1847,10 +1835,10 @@ void SiPixelDigitizerAlgorithm::add_noise(const PixelGeomDetUnit* pixdet,
       // Use here the FULL readout noise, including TBM,ALT,AOH,OPT-REC.
       float noise = CLHEP::RandGaussQ::shoot(engine, 0., theReadoutNoise);
 
-      if (((*i).second + Amplitude(noise, -1.)) < 0.) {
+      if (((*i).second + digitizerUtility::Amplitude(noise, -1.)) < 0.) {
         (*i).second.set(0);
       } else {
-        (*i).second += Amplitude(noise, -1.);
+        (*i).second += digitizerUtility::Amplitude(noise, -1.);
       }
     }  // end if only Noise from full readout
   }
@@ -1901,7 +1889,7 @@ void SiPixelDigitizerAlgorithm::add_noise(const PixelGeomDetUnit* pixdet,
     if (theSignal[chan] == 0) {
       //      float noise = float( (*mapI).second );
       int noise = int((*mapI).second);
-      theSignal[chan] = Amplitude(noise, -1.);
+      theSignal[chan] = digitizerUtility::Amplitude(noise, -1.);
     }
   }
 }
@@ -2569,7 +2557,7 @@ void SiPixelDigitizerAlgorithm::lateSignalReweight(const PixelGeomDetUnit* pixde
   for (loopTempSH = newClass_Sim_extra.begin(); loopTempSH != newClass_Sim_extra.end(); ++loopTempSH) {
     signal_map_type theDigiSignal;
     PixelSimHitExtraInfo TheNewInfo = *loopTempSH;
-    reweighted = TheNewSiPixelChargeReweightingAlgorithmClass->lateSignalReweight(
+    reweighted = TheNewSiPixelChargeReweightingAlgorithmClass->lateSignalReweight<digitizerUtility::Amplitude>(
         pixdet, digis, TheNewInfo, theDigiSignal, tTopo, engine);
     if (!reweighted) {
       // loop on the non-reweighthed digis associated to the considered SimHit
@@ -2579,7 +2567,7 @@ void SiPixelDigitizerAlgorithm::lateSignalReweight(const PixelGeomDetUnit* pixde
         // check if that digi is related to the SimHit
         if (loopTempSH->isInTheList(chan)) {
           float corresponding_charge = loopDigi->adc();
-          theDigiSignal[chan] += Amplitude(corresponding_charge, corresponding_charge);
+          theDigiSignal[chan] += digitizerUtility::Amplitude(corresponding_charge, corresponding_charge);
         }
       }
     }

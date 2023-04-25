@@ -91,6 +91,7 @@ namespace evf {
     std::string getMergedDatChecksumFilePath(const unsigned int ls, std::string const& stream) const;
     std::string getOpenInitFilePath(std::string const& stream) const;
     std::string getInitFilePath(std::string const& stream) const;
+    std::string getInitTempFilePath(std::string const& stream) const;
     std::string getOpenProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const;
     std::string getProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const;
     std::string getMergedProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const;
@@ -120,6 +121,7 @@ namespace evf {
     void unlockInitLock();
     void setFMS(evf::FastMonitoringService* fms) { fms_ = fms; }
     bool isSingleStreamThread() { return nStreams_ == 1 && nThreads_ == 1; }
+    unsigned int numConcurrentLumis() const { return nConcurrentLumis_; }
     void lockFULocal();
     void unlockFULocal();
     void lockFULocal2();
@@ -185,6 +187,7 @@ namespace evf {
     std::string getStreamMergeType(std::string const& stream, MergeType defaultType);
     static struct flock make_flock(short type, short whence, off_t start, off_t len, pid_t pid);
     bool inputThrottled();
+    bool lumisectionDiscarded(unsigned int ls);
 
   private:
     bool bumpFile(unsigned int& ls,
@@ -263,6 +266,7 @@ namespace evf {
 
     unsigned int nStreams_ = 0;
     unsigned int nThreads_ = 0;
+    unsigned int nConcurrentLumis_ = 0;
 
     bool readEolsDefinition_ = true;
     unsigned int eolsNFilesIndex_ = 1;
@@ -286,6 +290,7 @@ namespace evf {
     std::unique_ptr<boost::asio::ip::tcp::socket> socket_;
 
     std::string input_throttled_file_;
+    std::string discard_ls_filestem_;
   };
 }  // namespace evf
 

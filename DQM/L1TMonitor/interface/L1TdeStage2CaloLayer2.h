@@ -210,11 +210,11 @@ private:
     SUMMISMATCH     // no. events failed due to a sum mismatch
   };
 
-  enum jetVars { NJETS = 1, JETGOOD, JETPOSOFF, JETETOFF };
+  enum jetVars { NJETS = 1, JETGOOD, JETPOSOFF, JETETOFF, JETQUALOFF };
 
-  enum egVars { NEGS = 1, EGGOOD, EGPOSOFF, EGETOFF, NISOEGS, ISOEGGOOD, ISOEGPOSOFF, ISOEGETOFF };
+  enum egVars { NEGS = 1, EGGOOD, EGPOSOFF, EGETOFF, NISOEGS, ISOEGGOOD, ISOEGPOSOFF, ISOEGETOFF, EGISOOFF };
 
-  enum tauVars { NTAUS = 1, TAUGOOD, TAUPOSOFF, TAUETOFF, NISOTAUS, ISOTAUGOOD, ISOTAUPOSOFF, ISOTAUETOFF };
+  enum tauVars { NTAUS = 1, TAUGOOD, TAUPOSOFF, TAUETOFF, NISOTAUS, ISOTAUGOOD, ISOTAUPOSOFF, ISOTAUETOFF, TAUISOOFF };
 
   enum sumVars {
     NSUMS = 1,
@@ -249,9 +249,11 @@ private:
   MonitorElement* jetEtData;
   MonitorElement* jetEtaData;
   MonitorElement* jetPhiData;
+  MonitorElement* jetQualData;
   MonitorElement* jetEtEmul;
   MonitorElement* jetEtaEmul;
   MonitorElement* jetPhiEmul;
+  MonitorElement* jetQualEmul;
   MonitorElement* jet2DEtaPhiData;  // This histogram will be filled only if enable2DComp is true
   MonitorElement* jet2DEtaPhiEmul;  // This histogram will be filled only if enable2DComp is true
 
@@ -259,9 +261,11 @@ private:
   MonitorElement* egEtData;
   MonitorElement* egEtaData;
   MonitorElement* egPhiData;
+  MonitorElement* egIsoData;
   MonitorElement* egEtEmul;
   MonitorElement* egEtaEmul;
   MonitorElement* egPhiEmul;
+  MonitorElement* egIsoEmul;
   MonitorElement* eg2DEtaPhiData;  // This histogram will be filled only if enable2DComp is true
   MonitorElement* eg2DEtaPhiEmul;  // This histogram will be filled only if enable2DComp is true
 
@@ -279,9 +283,11 @@ private:
   MonitorElement* tauEtData;
   MonitorElement* tauEtaData;
   MonitorElement* tauPhiData;
+  MonitorElement* tauIsoData;
   MonitorElement* tauEtEmul;
   MonitorElement* tauEtaEmul;
   MonitorElement* tauPhiEmul;
+  MonitorElement* tauIsoEmul;
   MonitorElement* tau2DEtaPhiData;  // This histogram will be filled only if enable2DComp is true
   MonitorElement* tau2DEtaPhiEmul;  // This histogram will be filled only if enable2DComp is true
 

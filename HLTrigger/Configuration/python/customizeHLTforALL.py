@@ -50,22 +50,9 @@ def customizeHLTforAll(process, menuType = "GRun", _customInfo = None):
         if _inputFile != "":
             if hasattr(process,'source'):
                 process.source.fileNames = cms.untracked.vstring( _inputFile )
-                    
-        if _realData:
-# Real-Data customisation
-            if menuType == "HIon":
-#               fix "Unrunnable schedule" exception
-                from HLTrigger.Configuration.CustomConfigs import MassReplaceInputTag
-                process = MassReplaceInputTag(process,"rawDataRepacker","rawDataCollector") #,"rawDataRepacker::@skipCurrentProcess")
-        else:
-# Monte-Carlo customisation
+
+        if not _realData:
             from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
             process = customizeHLTforMC(process)
-            if menuType == "HIon":
-                from HLTrigger.Configuration.CustomConfigs import MassReplaceInputTag
-                process = MassReplaceInputTag(process,"rawDataRepacker","rawDataCollector")
-
-    else:
-        pass
 
     return process

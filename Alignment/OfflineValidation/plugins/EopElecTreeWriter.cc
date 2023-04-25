@@ -371,7 +371,7 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
     edm::LogError("EopElecTreeWriter") << "Error: no primary vertex found!";
     return;
   }
-  reco::Vertex vert = vertex.front();
+  const reco::Vertex& vert = vertex.front();
   h_nEventsWithVertex->Fill(0.5);
 
   // getting calorimeter geometry

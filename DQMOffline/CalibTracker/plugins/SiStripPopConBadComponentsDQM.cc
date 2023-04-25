@@ -92,8 +92,6 @@ void SiStripPopConBadComponentsHandlerFromDQM::dqmEndJob(DQMStore::IBooker&, DQM
 
   const std::vector<std::string> subdet_folder = {"TIB", "TOB", "TEC/side_1", "TEC/side_2", "TID/side_1", "TID/side_2"};
 
-  int nDetsTotal = 0;
-  int nDetsWithErrorTotal = 0;
   for (const auto& im : subdet_folder) {
     const std::string dname = mechanicalview_dir + "/" + im;
     getter.cd();
@@ -103,14 +101,11 @@ void SiStripPopConBadComponentsHandlerFromDQM::dqmEndJob(DQMStore::IBooker&, DQM
 
     std::vector<std::string> module_folders;
     getModuleFolderList(getter, dname, module_folders);
-    int nDets = module_folders.size();
 
-    int nDetsWithError = 0;
     const std::string bad_module_folder = dname + "/" + "BadModuleList";
     getter.cd();
     if (getter.dirExists(bad_module_folder)) {
       for (const MonitorElement* me : getter.getContents(bad_module_folder)) {
-        nDetsWithError++;
         std::cout << me->getName() << " " << me->getIntValue() << std::endl;
         uint32_t detId = std::stoul(me->getName());
         short flag = me->getIntValue();
@@ -140,8 +135,6 @@ void SiStripPopConBadComponentsHandlerFromDQM::dqmEndJob(DQMStore::IBooker&, DQM
         }
       }
     }
-    nDetsTotal += nDets;
-    nDetsWithErrorTotal += nDetsWithError;
   }
   getter.cd();
 }

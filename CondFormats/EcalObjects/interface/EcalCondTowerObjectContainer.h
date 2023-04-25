@@ -75,7 +75,7 @@ public:
 
   inline Item &operator[](uint32_t rawId) {
     DetId id(rawId);
-    return ((id.subdetId() == EcalBarrel) | (id.subdetId() == EcalTriggerTower)) ? eb_[rawId] : ee_[rawId];
+    return ((id.subdetId() == EcalBarrel) || (id.subdetId() == EcalTriggerTower)) ? eb_[rawId] : ee_[rawId];
   }
 
   inline Item operator[](uint32_t rawId) const {

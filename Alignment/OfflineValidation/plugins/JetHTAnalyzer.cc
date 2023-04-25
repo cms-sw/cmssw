@@ -47,27 +47,15 @@
 #include "DataFormats/Common/interface/TriggerResults.h"  // Classes needed to print trigger results
 #include "FWCore/Common/interface/TriggerNames.h"
 
-// ROOT includes
-#include "TRandom.h"
-#include "TTree.h"
-#include "TString.h"
-#include "TMath.h"
-
 //
 // class declaration
 //
-
-// If the analyzer does not use TFileService, please remove
-// the template argument to the base class so the class inherits
-// from  edm::one::EDAnalyzer<>
-// This will improve performance in multithreaded jobs.
-
 using reco::TrackCollection;
 
 class JetHTAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit JetHTAnalyzer(const edm::ParameterSet&);
-  ~JetHTAnalyzer() override;
+  ~JetHTAnalyzer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   static bool mysorter(reco::Track i, reco::Track j) { return (i.pt() > j.pt()); }
@@ -78,23 +66,23 @@ private:
   void endJob() override;
 
   // ----------member data ---------------------------
+  const edm::InputTag pvsTag_;
+  const edm::EDGetTokenT<reco::VertexCollection> pvsToken_;
 
-  edm::InputTag pvsTag_;
-  edm::EDGetTokenT<reco::VertexCollection> pvsToken_;
+  const edm::InputTag tracksTag_;
+  const edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
 
-  edm::InputTag tracksTag_;
-  edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
+  const edm::InputTag triggerTag_;
+  const edm::EDGetTokenT<edm::TriggerResults> triggerToken_;
 
-  edm::InputTag triggerTag_;
-  edm::EDGetTokenT<edm::TriggerResults> triggerToken_;
+  const int printTriggerTable_;
+  const double minVtxNdf_;
+  const double minVtxWgt_;
 
-  int printTriggerTable_;
-  double minVtxNdf_;
-  double minVtxWgt_;
+  const std::vector<double> profilePtBorders_;
+  const std::vector<int> iovList_;
 
-  std::vector<double> profilePtBorders_;
-  std::vector<int> iovList_;
-
+  // output histograms
   edm::Service<TFileService> outfile_;
   TH1F* h_ntrks;
   TH1F* h_probePt;
@@ -106,6 +94,9 @@ private:
   TH1F* h_probeDzErr;
 
   SmartSelectionMonitor mon;
+
+  // for the conversions
+  static constexpr double cmToum = 10000;
 };
 
 //
@@ -128,19 +119,12 @@ JetHTAnalyzer::JetHTAnalyzer(const edm::ParameterSet& iConfig)
 }
 
 //
-// Default destructor
-//
-JetHTAnalyzer::~JetHTAnalyzer() = default;
-
-//
 // member functions
 //
 
 // ------------ method called for each event  ------------
 void JetHTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
-
-  const double cmToum = 10000;
 
   const auto& vertices = iEvent.get(pvsToken_);
   const reco::VertexCollection& pvtx = vertices;
@@ -175,7 +159,7 @@ void JetHTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   int counter = 0;
   for (reco::VertexCollection::const_iterator pvIt = pvtx.begin(); pvIt != pvtx.end(); pvIt++) {
-    reco::Vertex iPV = *pvIt;
+    const reco::Vertex& iPV = *pvIt;
     counter++;
 
     if (iPV.isFake())
@@ -317,9 +301,8 @@ void JetHTAnalyzer::beginJob() {
   mon.addHistogram(new TH1F("dzerr", ";d_{z} error;tracks", 100, 0., 200));
   mon.addHistogram(new TProfile("dxyErrVsPt", ";track p_{T};d_{xy} error", 100, 0., 200, 0., 100.));
   mon.addHistogram(new TProfile("dzErrVsPt", ";track p_{T};d_{z} error", 100, 0., 200, 0., 100.));
-  mon.addHistogram(
-      new TProfile("dxyErrVsPhi", ";track #varphi;d_{xy} error", 100, -TMath::Pi(), TMath::Pi(), 0., 100.));
-  mon.addHistogram(new TProfile("dzErrVsPhi", ";track #varphi;d_{z} error", 100, -TMath::Pi(), TMath::Pi(), 0., 100.));
+  mon.addHistogram(new TProfile("dxyErrVsPhi", ";track #varphi;d_{xy} error", 100, -M_PI, M_PI, 0., 100.));
+  mon.addHistogram(new TProfile("dzErrVsPhi", ";track #varphi;d_{z} error", 100, -M_PI, M_PI, 0., 100.));
   mon.addHistogram(new TProfile("dxyErrVsEta", ";track #eta;d_{xy} error", 100, -2.5, 2.5, 0., 100.));
   mon.addHistogram(new TProfile("dzErrVsEta", ";track #eta;d_{z} error", 100, -2.5, 2.5, 0., 100.));
 
@@ -341,7 +324,12 @@ void JetHTAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<edm::InputTag>("vtxCollection", edm::InputTag("offlinePrimaryVerticesFromRefittedTrks"));
   desc.add<edm::InputTag>("triggerResults", edm::InputTag("TriggerResults", "", "HLT"));
   desc.add<edm::InputTag>("trackCollection", edm::InputTag("TrackRefitter"));
-  descriptions.add("JetHTAnalyzer", desc);
+  desc.addUntracked<int>("printTriggerTable", false);
+  desc.addUntracked<double>("minVertexNdf", 10.);
+  desc.addUntracked<double>("minVertexMeanWeight", 0.5);
+  desc.addUntracked<std::vector<double>>("profilePtBorders", {3, 5, 10, 20, 50, 100});
+  desc.addUntracked<std::vector<int>>("iovList", {0, 500000});
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in

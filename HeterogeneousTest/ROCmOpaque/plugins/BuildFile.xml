@@ -1,0 +1,12 @@
+<iftool name="rocm">
+  <library file="*.cc" name="HeterogeneousTestROCmOpaquePlugins">
+    <use name="rocm"/>
+    <use name="FWCore/Framework"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/ServiceRegistry"/>
+    <use name="HeterogeneousCore/ROCmServices"/>
+    <use name="HeterogeneousCore/ROCmUtilities"/>
+    <use name="HeterogeneousTest/ROCmOpaque"/>
+    <flags EDM_PLUGIN="1"/>
+  </library>
+</iftool>

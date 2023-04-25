@@ -14,28 +14,39 @@
 
 #include <vector>
 #include <string>
+#include <array>
 
 class HFFibre {
 public:
   //Constructor and Destructor
-  HFFibre(const std::string& name,
-          const HcalDDDSimConstants* hcons,
-          const HcalSimulationParameters* hps,
-          edm::ParameterSet const& p);
-  ~HFFibre() = default;
+  HFFibre(const HcalDDDSimConstants* hcons, const HcalSimulationParameters* hps, edm::ParameterSet const& p);
 
-  double attLength(double lambda);
-  double tShift(const G4ThreeVector& point, int depth, int fromEndAbs = 0);
-  double zShift(const G4ThreeVector& point, int depth, int fromEndAbs = 0);
+  double attLength(double lambda) const;
+  double tShift(const G4ThreeVector& point, int depth, int fromEndAbs = 0) const;
+  double zShift(const G4ThreeVector& point, int depth, int fromEndAbs = 0) const;
+
+  struct Params {
+    Params() = default;
+    Params(double iFractionOfSpeedOfLightInFibre,
+           const HcalDDDSimConstants* hcons,
+           const HcalSimulationParameters* hps);
+    double fractionOfSpeedOfLightInFibre_;
+    std::vector<double> gParHF_;
+    std::vector<double> rTableHF_;
+    std::vector<double> shortFibreLength_;
+    std::vector<double> longFibreLength_;
+    std::vector<double> attenuationLength_;
+    std::array<double, 2> lambdaLimits_;
+  };
+
+  HFFibre(Params iP);
 
 private:
-  const HcalDDDSimConstants* hcalConstant_;
-  const HcalSimulationParameters* hcalsimpar_;
-  double cFibre;
-  std::vector<double> gpar, radius;
-  std::vector<double> shortFL, longFL;
-  std::vector<double> attL;
-  int nBinR, nBinAtt;
-  double lambLim[2];
+  double cFibre_;
+  std::vector<double> gpar_, radius_;
+  std::vector<double> shortFL_, longFL_;
+  std::vector<double> attL_;
+  int nBinR_, nBinAtt_;
+  std::array<double, 2> lambLim_;
 };
 #endif

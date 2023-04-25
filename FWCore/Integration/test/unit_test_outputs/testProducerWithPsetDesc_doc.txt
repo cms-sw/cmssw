@@ -1,4 +1,4 @@
-1  ProducerWithPSetDesc  (global::EDProducer)  "pluginTestProducerWithPSetDesc.so"
+1  ProducerWithPSetDesc  (global::EDProducer)  "pluginFWCoreIntegrationTestPSet.so"
 
 This plugin has 4 PSet descriptions. The description used to validate a 
 configuration is selected by matching the module labels. If none match, then 
@@ -433,7 +433,7 @@ generated for each configuration with a module label.
 
     fileInPath
                         type: FileInPath 
-                        default: 'FWCore/Integration/test/ProducerWithPSetDesc.cc'
+                        default: 'FWCore/Integration/plugins/ProducerWithPSetDesc.cc'
 
     Empty group description
 

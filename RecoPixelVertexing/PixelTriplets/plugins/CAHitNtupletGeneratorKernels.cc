@@ -8,207 +8,210 @@ namespace {
   std::mutex lock_stat;
 }  // namespace
 
-template <>
-void CAHitNtupletGeneratorKernelsCPU::printCounters(Counters const *counters) {
-  kernel_printCounters(counters);
+template <typename TrackerTraits>
+void CAHitNtupletGeneratorKernelsCPU<TrackerTraits>::printCounters(Counters const *counters) {
+  caHitNtupletGeneratorKernels::kernel_printCounters(counters);
 }
 
-template <>
-void CAHitNtupletGeneratorKernelsCPU::buildDoublets(HitsOnCPU const &hh, cudaStream_t stream) {
+template <typename TrackerTraits>
+void CAHitNtupletGeneratorKernelsCPU<TrackerTraits>::buildDoublets(const HitsConstView &hh,
+                                                                   int32_t offsetBPIX2,
+                                                                   cudaStream_t stream) {
+  using namespace gpuPixelDoublets;
+
+  using GPUCACell = GPUCACellT<TrackerTraits>;
+  using OuterHitOfCell = typename GPUCACell::OuterHitOfCell;
+  using CellNeighbors = typename GPUCACell::CellNeighbors;
+  using CellTracks = typename GPUCACell::CellTracks;
+  using OuterHitOfCellContainer = typename GPUCACell::OuterHitOfCellContainer;
+
   auto nhits = hh.nHits();
 
 #ifdef NTUPLE_DEBUG
-  std::cout << "building Doublets out of " << nhits << " Hits. BPIX2 offset is " << hh.offsetBPIX2() << std::endl;
+  std::cout << "building Doublets out of " << nhits << " Hits. BPIX2 offset is " << offsetBPIX2 << std::endl;
 #endif
 
   // use "nhits" to heuristically dimension the workspace
 
   // no need to use the Traits allocations, since we know this is being compiled for the CPU
-  //device_isOuterHitOfCell_ = Traits::template make_unique<GPUCACell::OuterHitOfCell[]>(std::max(1U, nhits), stream);
-  device_isOuterHitOfCell_ = std::make_unique<GPUCACell::OuterHitOfCellContainer[]>(std::max(1U, nhits));
-  assert(device_isOuterHitOfCell_.get());
-  isOuterHitOfCell_ = GPUCACell::OuterHitOfCell{device_isOuterHitOfCell_.get(), hh.offsetBPIX2()};
+  //this->device_isOuterHitOfCell_ = Traits::template make_unique<GPUCACell::OuterHitOfCell[]>(std::max(1U, nhits), stream);
+  this->device_isOuterHitOfCell_ = std::make_unique<OuterHitOfCellContainer[]>(std::max(1U, nhits));
+  assert(this->device_isOuterHitOfCell_.get());
+  this->isOuterHitOfCell_ = OuterHitOfCell{this->device_isOuterHitOfCell_.get(), offsetBPIX2};
 
-  auto cellStorageSize = caConstants::maxNumOfActiveDoublets * sizeof(GPUCACell::CellNeighbors) +
-                         caConstants::maxNumOfActiveDoublets * sizeof(GPUCACell::CellTracks);
+  auto cellStorageSize = TrackerTraits::maxNumOfActiveDoublets * sizeof(CellNeighbors) +
+                         TrackerTraits::maxNumOfActiveDoublets * sizeof(CellTracks);
   // no need to use the Traits allocations, since we know this is being compiled for the CPU
   //cellStorage_ = Traits::template make_unique<unsigned char[]>(cellStorageSize, stream);
-  cellStorage_ = std::make_unique<unsigned char[]>(cellStorageSize);
-  device_theCellNeighborsContainer_ = (GPUCACell::CellNeighbors *)cellStorage_.get();
-  device_theCellTracksContainer_ = (GPUCACell::CellTracks *)(cellStorage_.get() + caConstants::maxNumOfActiveDoublets *
-                                                                                      sizeof(GPUCACell::CellNeighbors));
+  this->cellStorage_ = std::make_unique<unsigned char[]>(cellStorageSize);
+  this->device_theCellNeighborsContainer_ = (CellNeighbors *)this->cellStorage_.get();
+  this->device_theCellTracksContainer_ =
+      (CellTracks *)(this->cellStorage_.get() + TrackerTraits::maxNumOfActiveDoublets * sizeof(CellNeighbors));
 
-  gpuPixelDoublets::initDoublets(isOuterHitOfCell_,
-                                 nhits,
-                                 device_theCellNeighbors_.get(),
-                                 device_theCellNeighborsContainer_,
-                                 device_theCellTracks_.get(),
-                                 device_theCellTracksContainer_);
+  initDoublets<TrackerTraits>(this->isOuterHitOfCell_,
+                              nhits,
+                              this->device_theCellNeighbors_.get(),
+                              this->device_theCellNeighborsContainer_,
+                              this->device_theCellTracks_.get(),
+                              this->device_theCellTracksContainer_);
 
   // no need to use the Traits allocations, since we know this is being compiled for the CPU
-  //device_theCells_ = Traits::template make_unique<GPUCACell[]>(params_.maxNumberOfDoublets_, stream);
-  device_theCells_ = std::make_unique<GPUCACell[]>(params_.maxNumberOfDoublets_);
+  //this->device_theCells_ = Traits::template make_unique<GPUCACell[]>(this->params_.cellCuts_.maxNumberOfDoublets_, stream);
+  this->device_theCells_ = std::make_unique<GPUCACell[]>(this->params_.cellCuts_.maxNumberOfDoublets_);
   if (0 == nhits)
     return;  // protect against empty events
 
   // take all layer pairs into account
-  auto nActualPairs = gpuPixelDoublets::nPairs;
-  if (not params_.includeJumpingForwardDoublets_) {
-    // exclude forward "jumping" layer pairs
-    nActualPairs = gpuPixelDoublets::nPairsForTriplets;
-  }
-  if (params_.minHitsPerNtuplet_ > 3) {
-    // for quadruplets, exclude all "jumping" layer pairs
-    nActualPairs = gpuPixelDoublets::nPairsForQuadruplets;
-  }
+  auto nActualPairs = this->params_.nPairs();
 
-  assert(nActualPairs <= gpuPixelDoublets::nPairs);
-  gpuPixelDoublets::getDoubletsFromHisto(device_theCells_.get(),
-                                         device_nCells_,
-                                         device_theCellNeighbors_.get(),
-                                         device_theCellTracks_.get(),
-                                         hh.view(),
-                                         isOuterHitOfCell_,
-                                         nActualPairs,
-                                         params_.idealConditions_,
-                                         params_.doClusterCut_,
-                                         params_.doZ0Cut_,
-                                         params_.doPtCut_,
-                                         params_.maxNumberOfDoublets_);
+  assert(nActualPairs <= TrackerTraits::nPairs);
+
+  getDoubletsFromHisto<TrackerTraits>(this->device_theCells_.get(),
+                                      this->device_nCells_,
+                                      this->device_theCellNeighbors_.get(),
+                                      this->device_theCellTracks_.get(),
+                                      hh,
+                                      this->isOuterHitOfCell_,
+                                      nActualPairs,
+                                      this->params_.cellCuts_);
 }
 
-template <>
-void CAHitNtupletGeneratorKernelsCPU::launchKernels(HitsOnCPU const &hh, TkSoA *tracks_d, cudaStream_t cudaStream) {
-  auto *tuples_d = &tracks_d->hitIndices;
-  auto *detId_d = &tracks_d->detIndices;
-  auto *quality_d = tracks_d->qualityData();
-
-  assert(tuples_d && quality_d);
+template <typename TrackerTraits>
+void CAHitNtupletGeneratorKernelsCPU<TrackerTraits>::launchKernels(const HitsConstView &hh,
+                                                                   TkSoAView &tracks_view,
+                                                                   cudaStream_t cudaStream) {
+  using namespace caHitNtupletGeneratorKernels;
 
   // zero tuples
-  cms::cuda::launchZero(tuples_d, cudaStream);
+  cms::cuda::launchZero(&tracks_view.hitIndices(), cudaStream);
 
-  auto nhits = hh.nHits();
+  uint32_t nhits = hh.metadata().size();
 
-  // std::cout << "N hits " << nhits << std::endl;
-  // if (nhits<2) std::cout << "too few hits " << nhits << std::endl;
+#ifdef NTUPLE_DEBUG
+  std::cout << "start tuple building. N hits " << nhits << std::endl;
+  if (nhits < 2)
+    std::cout << "too few hits " << nhits << std::endl;
+#endif
 
   //
   // applying conbinatoric cleaning such as fishbone at this stage is too expensive
   //
 
-  kernel_connect(device_hitTuple_apc_,
-                 device_hitToTuple_apc_,  // needed only to be reset, ready for next kernel
-                 hh.view(),
-                 device_theCells_.get(),
-                 device_nCells_,
-                 device_theCellNeighbors_.get(),
-                 isOuterHitOfCell_,
-                 params_.hardCurvCut_,
-                 params_.ptmin_,
-                 params_.CAThetaCutBarrel_,
-                 params_.CAThetaCutForward_,
-                 params_.dcaCutInnerTriplet_,
-                 params_.dcaCutOuterTriplet_);
+  kernel_connect<TrackerTraits>(this->device_hitTuple_apc_,
+                                this->device_hitToTuple_apc_,  // needed only to be reset, ready for next kernel
+                                hh,
+                                this->device_theCells_.get(),
+                                this->device_nCells_,
+                                this->device_theCellNeighbors_.get(),
+                                this->isOuterHitOfCell_,
+                                this->params_.caParams_);
 
-  if (nhits > 1 && params_.earlyFishbone_) {
-    gpuPixelDoublets::fishbone(hh.view(), device_theCells_.get(), device_nCells_, isOuterHitOfCell_, nhits, false);
+  if (nhits > 1 && this->params_.earlyFishbone_) {
+    gpuPixelDoublets::fishbone<TrackerTraits>(
+        hh, this->device_theCells_.get(), this->device_nCells_, this->isOuterHitOfCell_, nhits, false);
   }
 
-  kernel_find_ntuplets(hh.view(),
-                       device_theCells_.get(),
-                       device_nCells_,
-                       device_theCellTracks_.get(),
-                       tuples_d,
-                       device_hitTuple_apc_,
-                       quality_d,
-                       params_.minHitsPerNtuplet_);
-  if (params_.doStats_)
-    kernel_mark_used(device_theCells_.get(), device_nCells_);
+  kernel_find_ntuplets<TrackerTraits>(hh,
+                                      tracks_view,
+                                      this->device_theCells_.get(),
+                                      this->device_nCells_,
+                                      this->device_theCellTracks_.get(),
+                                      this->device_hitTuple_apc_,
+                                      this->params_.caParams_);
+  if (this->params_.doStats_)
+    kernel_mark_used(this->device_theCells_.get(), this->device_nCells_);
 
-  cms::cuda::finalizeBulk(device_hitTuple_apc_, tuples_d);
+  cms::cuda::finalizeBulk(this->device_hitTuple_apc_, &tracks_view.hitIndices());
 
-  kernel_fillHitDetIndices(tuples_d, hh.view(), detId_d);
-  kernel_fillNLayers(tracks_d, device_hitTuple_apc_);
+  kernel_fillHitDetIndices<TrackerTraits>(tracks_view, hh);
+  kernel_fillNLayers<TrackerTraits>(tracks_view, this->device_hitTuple_apc_);
 
   // remove duplicates (tracks that share a doublet)
-  kernel_earlyDuplicateRemover(device_theCells_.get(), device_nCells_, tracks_d, quality_d, params_.dupPassThrough_);
+  kernel_earlyDuplicateRemover<TrackerTraits>(
+      this->device_theCells_.get(), this->device_nCells_, tracks_view, this->params_.dupPassThrough_);
 
-  kernel_countMultiplicity(tuples_d, quality_d, device_tupleMultiplicity_.get());
-  cms::cuda::launchFinalize(device_tupleMultiplicity_.get(), cudaStream);
-  kernel_fillMultiplicity(tuples_d, quality_d, device_tupleMultiplicity_.get());
+  kernel_countMultiplicity<TrackerTraits>(tracks_view, this->device_tupleMultiplicity_.get());
+  cms::cuda::launchFinalize(this->device_tupleMultiplicity_.get(), cudaStream);
+  kernel_fillMultiplicity<TrackerTraits>(tracks_view, this->device_tupleMultiplicity_.get());
 
-  if (nhits > 1 && params_.lateFishbone_) {
-    gpuPixelDoublets::fishbone(hh.view(), device_theCells_.get(), device_nCells_, isOuterHitOfCell_, nhits, true);
+  if (nhits > 1 && this->params_.lateFishbone_) {
+    gpuPixelDoublets::fishbone<TrackerTraits>(
+        hh, this->device_theCells_.get(), this->device_nCells_, this->isOuterHitOfCell_, nhits, true);
   }
 }
 
-template <>
-void CAHitNtupletGeneratorKernelsCPU::classifyTuples(HitsOnCPU const &hh, TkSoA *tracks_d, cudaStream_t cudaStream) {
-  int32_t nhits = hh.nHits();
+template <typename TrackerTraits>
+void CAHitNtupletGeneratorKernelsCPU<TrackerTraits>::classifyTuples(const HitsConstView &hh,
+                                                                    TkSoAView &tracks_view,
+                                                                    cudaStream_t cudaStream) {
+  using namespace caHitNtupletGeneratorKernels;
 
-  auto const *tuples_d = &tracks_d->hitIndices;
-  auto *quality_d = tracks_d->qualityData();
+  int32_t nhits = hh.metadata().size();
 
   // classify tracks based on kinematics
-  kernel_classifyTracks(tuples_d, tracks_d, params_.cuts_, quality_d);
-
-  if (params_.lateFishbone_) {
+  kernel_classifyTracks<TrackerTraits>(tracks_view, this->params_.qualityCuts_);
+  if (this->params_.lateFishbone_) {
     // apply fishbone cleaning to good tracks
-    kernel_fishboneCleaner(device_theCells_.get(), device_nCells_, quality_d);
+    kernel_fishboneCleaner<TrackerTraits>(this->device_theCells_.get(), this->device_nCells_, tracks_view);
   }
 
   // remove duplicates (tracks that share a doublet)
-  kernel_fastDuplicateRemover(device_theCells_.get(), device_nCells_, tracks_d, params_.dupPassThrough_);
+  kernel_fastDuplicateRemover<TrackerTraits>(
+      this->device_theCells_.get(), this->device_nCells_, tracks_view, this->params_.dupPassThrough_);
 
   // fill hit->track "map"
-  if (params_.doSharedHitCut_ || params_.doStats_) {
-    kernel_countHitInTracks(tuples_d, quality_d, device_hitToTuple_.get());
-    cms::cuda::launchFinalize(hitToTupleView_, cudaStream);
-    kernel_fillHitInTracks(tuples_d, quality_d, device_hitToTuple_.get());
+  if (this->params_.doSharedHitCut_ || this->params_.doStats_) {
+    kernel_countHitInTracks<TrackerTraits>(tracks_view, this->device_hitToTuple_.get());
+    cms::cuda::launchFinalize(this->hitToTupleView_, cudaStream);
+    kernel_fillHitInTracks<TrackerTraits>(tracks_view, this->device_hitToTuple_.get());
   }
 
   // remove duplicates (tracks that share at least one hit)
-  if (params_.doSharedHitCut_) {
-    kernel_rejectDuplicate(
-        tracks_d, quality_d, params_.minHitsForSharingCut_, params_.dupPassThrough_, device_hitToTuple_.get());
+  if (this->params_.doSharedHitCut_) {
+    kernel_rejectDuplicate<TrackerTraits>(tracks_view,
+                                          this->params_.minHitsForSharingCut_,
+                                          this->params_.dupPassThrough_,
+                                          this->device_hitToTuple_.get());
 
-    kernel_sharedHitCleaner(hh.view(),
-                            tracks_d,
-                            quality_d,
-                            params_.minHitsForSharingCut_,
-                            params_.dupPassThrough_,
-                            device_hitToTuple_.get());
-    if (params_.useSimpleTripletCleaner_) {
-      kernel_simpleTripletCleaner(
-          tracks_d, quality_d, params_.minHitsForSharingCut_, params_.dupPassThrough_, device_hitToTuple_.get());
+    kernel_sharedHitCleaner<TrackerTraits>(hh,
+                                           tracks_view,
+                                           this->params_.minHitsForSharingCut_,
+                                           this->params_.dupPassThrough_,
+                                           this->device_hitToTuple_.get());
+    if (this->params_.useSimpleTripletCleaner_) {
+      kernel_simpleTripletCleaner<TrackerTraits>(tracks_view,
+                                                 this->params_.minHitsForSharingCut_,
+                                                 this->params_.dupPassThrough_,
+                                                 this->device_hitToTuple_.get());
     } else {
-      kernel_tripletCleaner(
-          tracks_d, quality_d, params_.minHitsForSharingCut_, params_.dupPassThrough_, device_hitToTuple_.get());
+      kernel_tripletCleaner<TrackerTraits>(tracks_view,
+                                           this->params_.minHitsForSharingCut_,
+                                           this->params_.dupPassThrough_,
+                                           this->device_hitToTuple_.get());
     }
   }
 
-  if (params_.doStats_) {
+  if (this->params_.doStats_) {
     std::lock_guard guard(lock_stat);
-    kernel_checkOverflows(tuples_d,
-                          device_tupleMultiplicity_.get(),
-                          device_hitToTuple_.get(),
-                          device_hitTuple_apc_,
-                          device_theCells_.get(),
-                          device_nCells_,
-                          device_theCellNeighbors_.get(),
-                          device_theCellTracks_.get(),
-                          isOuterHitOfCell_,
-                          nhits,
-                          params_.maxNumberOfDoublets_,
-                          counters_);
+    kernel_checkOverflows<TrackerTraits>(tracks_view,
+                                         this->device_tupleMultiplicity_.get(),
+                                         this->device_hitToTuple_.get(),
+                                         this->device_hitTuple_apc_,
+                                         this->device_theCells_.get(),
+                                         this->device_nCells_,
+                                         this->device_theCellNeighbors_.get(),
+                                         this->device_theCellTracks_.get(),
+                                         this->isOuterHitOfCell_,
+                                         nhits,
+                                         this->params_.cellCuts_.maxNumberOfDoublets_,
+                                         this->counters_);
   }
 
-  if (params_.doStats_) {
+  if (this->params_.doStats_) {
     // counters (add flag???)
     std::lock_guard guard(lock_stat);
-    kernel_doStatsForHitInTracks(device_hitToTuple_.get(), counters_);
-    kernel_doStatsForTracks(tuples_d, quality_d, counters_);
+    kernel_doStatsForHitInTracks<TrackerTraits>(this->device_hitToTuple_.get(), this->counters_);
+    kernel_doStatsForTracks<TrackerTraits>(tracks_view, this->counters_);
   }
 
 #ifdef DUMP_GPU_TK_TUPLES
@@ -217,7 +220,10 @@ void CAHitNtupletGeneratorKernelsCPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
   {
     std::lock_guard<std::mutex> guard(lock);
     ++iev;
-    kernel_print_found_ntuplets(hh.view(), tuples_d, tracks_d, quality_d, device_hitToTuple_.get(), 0, 1000000, iev);
+    kernel_print_found_ntuplets<TrackerTraits>(hh, tracks_view, this->device_hitToTuple_.get(), 0, 1000000, iev);
   }
 #endif
 }
+
+template class CAHitNtupletGeneratorKernelsCPU<pixelTopology::Phase1>;
+template class CAHitNtupletGeneratorKernelsCPU<pixelTopology::Phase2>;

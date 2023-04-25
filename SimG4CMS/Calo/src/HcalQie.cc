@@ -279,8 +279,8 @@ std::vector<int> HcalQie::getCode(int nht, const std::vector<CaloHit>& hitbuf, C
                               << nht << " hits";
   for (int i = 0; i < numOfBuckets; i++)
     edm::LogVerbatim("HcalSim") << "HcalQie: Code[" << i << "] = " << work[i];
-#endif
   double etot = 0, esum = 0, photons = 0;
+#endif
   if (nht > 0) {
     // Sort the hits
     std::vector<const CaloHit*> hits(nht);
@@ -304,9 +304,9 @@ std::vector<int> HcalQie::getCode(int nht, const std::vector<CaloHit>& hitbuf, C
       double avpe = ehit / eDepPerPE;
       CLHEP::RandPoissonQ randPoissonQ(*engine, avpe);
       double photo = randPoissonQ.fire();
+#ifdef EDM_ML_DEBUG
       etot += ehit;
       photons += photo;
-#ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HcalSim") << "HcalQie::getCode: Hit " << kk << ":" << kk + jump << " Energy deposit " << ehit
                                   << " Time " << jitter << " Average and true no of PE " << avpe << " " << photo;
 #endif
@@ -342,7 +342,9 @@ std::vector<int> HcalQie::getCode(int nht, const std::vector<CaloHit>& hitbuf, C
   std::vector<int> temp(numOfBuckets, 0);
   for (int i = 0; i < numOfBuckets; i++) {
     temp[i] = getCode(work[i]);
+#ifdef EDM_ML_DEBUG
     esum += work[i];
+#endif
   }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalSim") << "HcalQie::getCode: Input " << etot << " GeV; Photons " << photons << ";  Output "

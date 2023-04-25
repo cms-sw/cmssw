@@ -113,6 +113,7 @@ namespace edm {
   class GlobalSchedule;
   struct TriggerTimingReport;
   class ModuleRegistry;
+  class ModuleTypeResolverMaker;
   class ThinnedAssociationsHelper;
   class SubProcessParentageHelper;
   class TriggerResultInserter;
@@ -135,7 +136,8 @@ namespace edm {
              std::shared_ptr<ActivityRegistry> areg,
              std::shared_ptr<ProcessConfiguration const> processConfiguration,
              PreallocationConfiguration const& config,
-             ProcessContext const* processContext);
+             ProcessContext const* processContext,
+             ModuleTypeResolverMaker const* resolverMaker);
     void finishSetup(ParameterSet& proc_pset,
                      service::TriggerNamesService const& tns,
                      ProductRegistry& preg,

@@ -29,6 +29,7 @@ namespace edm {
   class StreamID;
   class StreamContext;
   class ModuleRegistry;
+  class ModuleTypeResolverMaker;
   class PreallocationConfiguration;
   namespace eventsetup {
     class ESRecordsToProxyIndices;
@@ -37,7 +38,9 @@ namespace edm {
   public:
     typedef std::vector<Worker*> AllWorkers;
 
-    WorkerManager(std::shared_ptr<ActivityRegistry> actReg, ExceptionToActionTable const& actions);
+    WorkerManager(std::shared_ptr<ActivityRegistry> actReg,
+                  ExceptionToActionTable const& actions,
+                  ModuleTypeResolverMaker const* typeResolverMaker);
     WorkerManager(WorkerManager&&) = default;
 
     WorkerManager(std::shared_ptr<ModuleRegistry> modReg,

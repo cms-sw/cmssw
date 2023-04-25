@@ -19,58 +19,120 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 
 //#define EDM_ML_DEBUG
+namespace {
+  HFShowerLibrary::Params paramsFrom(edm::ParameterSet const& hfShower,
+                                     edm::ParameterSet const& hfShowerLibrary,
+                                     double iDeltaPhi) {
+    HFShowerLibrary::Params params;
+
+    params.dphi_ = iDeltaPhi;
+
+    params.probMax_ = hfShower.getParameter<double>("ProbMax");
+    params.equalizeTimeShift_ = hfShower.getParameter<bool>("EqualizeTimeShift");
+
+    params.backProb_ = hfShowerLibrary.getParameter<double>("BackProbability");
+    params.verbose_ = hfShowerLibrary.getUntrackedParameter<bool>("Verbosity", false);
+    params.applyFidCut_ = hfShowerLibrary.getParameter<bool>("ApplyFiducialCut");
+
+    return params;
+  }
+
+  HFShowerLibrary::FileParams fileParamsFrom(edm::ParameterSet const& hfShowerLibrary) {
+    HFShowerLibrary::FileParams params;
+
+    edm::FileInPath fp = hfShowerLibrary.getParameter<edm::FileInPath>("FileName");
+    params.fileName_ = fp.fullPath();
+    if (params.fileName_.find('.') == 0)
+      params.fileName_.erase(0, 2);
+
+    std::string emName = hfShowerLibrary.getParameter<std::string>("TreeEMID");
+    std::string hadName = hfShowerLibrary.getParameter<std::string>("TreeHadID");
+    std::string branchEvInfo = hfShowerLibrary.getUntrackedParameter<std::string>(
+        "BranchEvt", "HFShowerLibraryEventInfos_hfshowerlib_HFShowerLibraryEventInfo");
+    std::string branchPre =
+        hfShowerLibrary.getUntrackedParameter<std::string>("BranchPre", "HFShowerPhotons_hfshowerlib_");
+    std::string branchPost = hfShowerLibrary.getUntrackedParameter<std::string>("BranchPost", "_R.obj");
+    params.fileVersion_ = hfShowerLibrary.getParameter<int>("FileVersion");
+
+    params.emBranchName_ = branchPre + emName + branchPost;
+    params.hadBranchName_ = branchPre + hadName + branchPost;
+
+    if (not branchEvInfo.empty()) {
+      params.branchEvInfo_ = branchEvInfo + branchPost;
+    }
+
+    params.cacheBranches_ = hfShowerLibrary.getUntrackedParameter<bool>("cacheBranches", false);
+    return params;
+  }
+}  // namespace
+
+HFShowerLibrary::HFShowerLibrary(const HcalDDDSimConstants* hcons,
+                                 const HcalSimulationParameters* hps,
+                                 edm::ParameterSet const& hfShower,
+                                 edm::ParameterSet const& hfShowerLibrary)
+    : HFShowerLibrary(paramsFrom(hfShower, hfShowerLibrary, hcons->getPhiTableHF().front()),
+                      fileParamsFrom(hfShowerLibrary),
+                      HFFibre::Params(hfShower.getParameter<double>("CFibre"), hcons, hps)) {}
 
 HFShowerLibrary::HFShowerLibrary(const std::string& name,
                                  const HcalDDDSimConstants* hcons,
                                  const HcalSimulationParameters* hps,
                                  edm::ParameterSet const& p)
-    : hcalConstant_(hcons), hf(nullptr), emBranch(nullptr), hadBranch(nullptr), npe(0) {
-  edm::ParameterSet m_HF =
-      (p.getParameter<edm::ParameterSet>("HFShower")).getParameter<edm::ParameterSet>("HFShowerBlock");
-  probMax = m_HF.getParameter<double>("ProbMax");
-  equalizeTimeShift_ = m_HF.getParameter<bool>("EqualizeTimeShift");
+    : HFShowerLibrary(
+          hcons,
+          hps,
+          p.getParameter<edm::ParameterSet>("HFShower").getParameter<edm::ParameterSet>("HFShowerBlock"),
+          p.getParameter<edm::ParameterSet>("HFShowerLibrary").getParameter<edm::ParameterSet>("HFLibraryFileBlock")) {}
 
-  edm::ParameterSet m_HS =
-      (p.getParameter<edm::ParameterSet>("HFShowerLibrary")).getParameter<edm::ParameterSet>("HFLibraryFileBlock");
-  edm::FileInPath fp = m_HS.getParameter<edm::FileInPath>("FileName");
-  std::string pTreeName = fp.fullPath();
-  backProb = m_HS.getParameter<double>("BackProbability");
-  std::string emName = m_HS.getParameter<std::string>("TreeEMID");
-  std::string hadName = m_HS.getParameter<std::string>("TreeHadID");
-  std::string branchEvInfo = m_HS.getUntrackedParameter<std::string>(
-      "BranchEvt", "HFShowerLibraryEventInfos_hfshowerlib_HFShowerLibraryEventInfo");
-  std::string branchPre = m_HS.getUntrackedParameter<std::string>("BranchPre", "HFShowerPhotons_hfshowerlib_");
-  std::string branchPost = m_HS.getUntrackedParameter<std::string>("BranchPost", "_R.obj");
-  verbose = m_HS.getUntrackedParameter<bool>("Verbosity", false);
-  applyFidCut = m_HS.getParameter<bool>("ApplyFiducialCut");
-  fileVersion_ = m_HS.getParameter<int>("FileVersion");
+HFShowerLibrary::HFShowerLibrary(const Params& iParams, const FileParams& iFileParams, HFFibre::Params iFibreParams)
+    : fibre_(iFibreParams),
+      hf_(),
+      emBranch_(),
+      hadBranch_(),
+      verbose_(iParams.verbose_),
+      applyFidCut_(iParams.applyFidCut_),
+      equalizeTimeShift_(iParams.equalizeTimeShift_),
+      probMax_(iParams.probMax_),
+      backProb_(iParams.backProb_),
+      dphi_(iParams.dphi_),
+      rMin_(iFibreParams.rTableHF_.front()),
+      rMax_(iFibreParams.rTableHF_.back()),
+      gpar_(iFibreParams.gParHF_) {
+  std::string pTreeName = iFileParams.fileName_;
 
-  if (pTreeName.find('.') == 0)
-    pTreeName.erase(0, 2);
   const char* nTree = pTreeName.c_str();
-  hf = TFile::Open(nTree);
-
-  if (!hf->IsOpen()) {
+  {
+    //It is not safe to open a Tfile in one thread and close in another without adding the following:
+    TDirectory::TContext context;
+    hf_ = std::unique_ptr<TFile>(TFile::Open(nTree));
+  }
+  if (!hf_->IsOpen()) {
     edm::LogError("HFShower") << "HFShowerLibrary: opening " << nTree << " failed";
     throw cms::Exception("Unknown", "HFShowerLibrary") << "Opening of " << pTreeName << " fails\n";
   } else {
     edm::LogVerbatim("HFShower") << "HFShowerLibrary: opening " << nTree << " successfully";
   }
 
-  newForm = (branchEvInfo.empty());
+  auto fileFormat = FileFormat::kOld;
+  const int fileVersion = iFileParams.fileVersion_;
+
+  auto newForm = iFileParams.branchEvInfo_.empty();
   TTree* event(nullptr);
-  if (newForm)
-    event = (TTree*)hf->Get("HFSimHits");
-  else
-    event = (TTree*)hf->Get("Events");
+  if (newForm) {
+    fileFormat = FileFormat::kNew;
+    event = (TTree*)hf_->Get("HFSimHits");
+  } else {
+    event = (TTree*)hf_->Get("Events");
+  }
+  VersionInfo versionInfo;
   if (event) {
     TBranch* evtInfo(nullptr);
     if (!newForm) {
-      std::string info = branchEvInfo + branchPost;
+      std::string info = iFileParams.branchEvInfo_;
       evtInfo = event->GetBranch(info.c_str());
     }
     if (evtInfo || newForm) {
-      loadEventInfo(evtInfo);
+      versionInfo = loadEventInfo(evtInfo, fileVersion);
     } else {
       edm::LogError("HFShower") << "HFShowerLibrary: HFShowerLibrayEventInfo"
                                 << " Branch does not exist in Event";
@@ -82,61 +144,59 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name,
     throw cms::Exception("Unknown", "HFShowerLibrary") << "Events tree absent\n";
   }
 
-  std::stringstream ss;
-  ss << "HFShowerLibrary: Library " << libVers << " ListVersion " << listVersion << " File version " << fileVersion_
-     << " Events Total " << totEvents << " and " << evtPerBin << " per bin\n";
-  ss << "HFShowerLibrary: Energies (GeV) with " << nMomBin << " bins\n";
-  for (int i = 0; i < nMomBin; ++i) {
-    if (i / 10 * 10 == i && i > 0) {
-      ss << "\n";
+  edm::LogVerbatim("HFShower").log([&](auto& logger) {
+    logger << "HFShowerLibrary: Library " << versionInfo.libVers_ << " ListVersion " << versionInfo.listVersion_
+           << " File version " << fileVersion << " Events Total " << totEvents_ << " and " << evtPerBin_
+           << " per bin\n";
+    logger << "HFShowerLibrary: Energies (GeV) with " << nMomBin_ << " bins\n";
+    for (int i = 0; i < nMomBin_; ++i) {
+      if (i / 10 * 10 == i && i > 0) {
+        logger << "\n";
+      }
+      logger << "  " << pmom_[i] / CLHEP::GeV;
     }
-    ss << "  " << pmom[i] / CLHEP::GeV;
-  }
-  edm::LogVerbatim("HFShower") << ss.str();
+  });
 
-  std::string nameBr = branchPre + emName + branchPost;
-  emBranch = event->GetBranch(nameBr.c_str());
-  if (verbose)
+  std::string nameBr = iFileParams.emBranchName_;
+  auto emBranch = event->GetBranch(nameBr.c_str());
+  if (verbose_)
     emBranch->Print();
-  nameBr = branchPre + hadName + branchPost;
-  hadBranch = event->GetBranch(nameBr.c_str());
-  if (verbose)
+  nameBr = iFileParams.hadBranchName_;
+  auto hadBranch = event->GetBranch(nameBr.c_str());
+  if (verbose_)
     hadBranch->Print();
 
-  v3version = false;
   if (emBranch->GetClassName() == std::string("vector<float>")) {
-    v3version = true;
+    assert(fileFormat == FileFormat::kNew);
+    fileFormat = FileFormat::kNewV3;
   }
+  emBranch_ = BranchReader(emBranch, fileFormat, 0, iFileParams.cacheBranches_ ? totEvents_ : 0);
+  size_t offset = 0;
+  if (fileFormat == FileFormat::kNewV3 or (fileFormat == FileFormat::kNew and fileVersion < 2)) {
+    //NOTE: for this format, the hadBranch is all empty up to
+    // totEvents_ (which is more like 1/2*GenEntries())
+    offset = totEvents_;
+  }
+  hadBranch_ = BranchReader(hadBranch, fileFormat, offset, iFileParams.cacheBranches_ ? totEvents_ : 0);
 
-  edm::LogVerbatim("HFShower") << " HFShowerLibrary:Branch " << emName << " has " << emBranch->GetEntries()
-                               << " entries and Branch " << hadName << " has " << hadBranch->GetEntries()
+  edm::LogVerbatim("HFShower") << " HFShowerLibrary:Branch " << iFileParams.emBranchName_ << " has "
+                               << emBranch->GetEntries() << " entries and Branch " << iFileParams.hadBranchName_
+                               << " has " << hadBranch->GetEntries()
                                << " entries\n HFShowerLibrary::No packing information - Assume x, y, z are not in "
                                   "packed form\n Maximum probability cut off "
-                               << probMax << "  Back propagation of light probability " << backProb
+                               << probMax_ << "  Back propagation of light probability " << backProb_
                                << " Flag for equalizing Time Shift for different eta " << equalizeTimeShift_;
 
-  fibre_ = std::make_unique<HFFibre>(name, hcalConstant_, hps, p);
-  photo = std::make_unique<HFShowerPhotonCollection>();
-
-  //Radius (minimum and maximum)
-  std::vector<double> rTable = hcalConstant_->getRTableHF();
-  rMin = rTable[0];
-  rMax = rTable[rTable.size() - 1];
-
-  //Delta phi
-  std::vector<double> phibin = hcalConstant_->getPhiTableHF();
-  dphi = phibin[0];
-
-  edm::LogVerbatim("HFShower") << "HFShowerLibrary: rMIN " << rMin / CLHEP::cm << " cm and rMax " << rMax / CLHEP::cm
-                               << " (Half) Phi Width of wedge " << dphi / CLHEP::deg;
-
-  //Special Geometry parameters
-  gpar = hcalConstant_->getGparHF();
+  edm::LogVerbatim("HFShower") << "HFShowerLibrary: rMIN " << rMin_ / CLHEP::cm << " cm and rMax " << rMax_ / CLHEP::cm
+                               << " (Half) Phi Width of wedge " << dphi_ / CLHEP::deg;
+  if (iFileParams.cacheBranches_) {
+    hf_.reset();
+  }
 }
 
 HFShowerLibrary::~HFShowerLibrary() {
-  if (hf)
-    hf->Close();
+  if (hf_)
+    hf_->Close();
 }
 
 std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(const G4Step* aStep,
@@ -161,7 +221,7 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(const G4Step* aStep,
 #ifdef EDM_ML_DEBUG
   G4String partType = track->GetDefinition()->GetParticleName();
   const G4ThreeVector localPos = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
-  double zoff = localPos.z() + 0.5 * gpar[1];
+  double zoff = localPos.z() + 0.5 * gpar_[1];
 
   edm::LogVerbatim("HFShower") << "HFShowerLibrary::getHits " << partType << " of energy "
                                << track->GetKineticEnergy() / CLHEP::GeV << " GeV weight= " << weight
@@ -214,32 +274,36 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector&
   double ctheta = cos(momDir.theta());
   double stheta = sin(momDir.theta());
 
+  HFShowerPhotonCollection pe;
   if (isEM) {
-    if (pin < pmom[nMomBin - 1]) {
-      interpolate(0, pin);
+    if (pin < pmom_[nMomBin_ - 1]) {
+      pe = interpolate(0, pin);
     } else {
-      extrapolate(0, pin);
+      pe = extrapolate(0, pin);
     }
   } else {
-    if (pin < pmom[nMomBin - 1]) {
-      interpolate(1, pin);
+    if (pin < pmom_[nMomBin_ - 1]) {
+      pe = interpolate(1, pin);
     } else {
-      extrapolate(1, pin);
+      pe = extrapolate(1, pin);
     }
   }
 
-  int nHit = 0;
+  std::size_t nHit = 0;
   HFShowerLibrary::Hit oneHit;
-  for (int i = 0; i < npe; ++i) {
-    double zv = std::abs(pe[i].z());  // abs local z
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HFShower") << "HFShowerLibrary: Hit " << i << " " << pe[i] << " zv " << zv;
+  int i = 0;
 #endif
-    if (zv <= gpar[1] && pe[i].lambda() > 0 && (pe[i].z() >= 0 || (zv > gpar[0] && (!onlyLong)))) {
+  for (auto const& photon : pe) {
+    double zv = std::abs(photon.z());  // abs local z
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HFShower") << "HFShowerLibrary: Hit " << i++ << " " << photon << " zv " << zv;
+#endif
+    if (zv <= gpar_[1] && photon.lambda() > 0 && (photon.z() >= 0 || (zv > gpar_[0] && (!onlyLong)))) {
       int depth = 1;
       if (onlyLong) {
       } else if (!backward) {  // fully valid only for "front" particles
-        if (pe[i].z() < 0)
+        if (photon.z() < 0)
           depth = 2;                 // with "front"-simulated shower lib.
       } else {                       // for "backward" particles - almost equal
         double r = G4UniformRand();  // share between L and S fibers
@@ -249,27 +313,27 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector&
 
       // Updated coordinate transformation from local
       //  back to global using two Euler angles: phi and theta
-      double pex = pe[i].x();
-      double pey = pe[i].y();
+      double pex = photon.x();
+      double pey = photon.y();
 
       double xx = pex * ctheta * cphi - pey * sphi + zv * stheta * cphi;
       double yy = pex * ctheta * sphi + pey * cphi + zv * stheta * sphi;
       double zz = -pex * stheta + zv * ctheta;
 
       G4ThreeVector pos = hitPoint + G4ThreeVector(xx, yy, zz);
-      zv = std::abs(pos.z()) - gpar[4] - 0.5 * gpar[1];
+      zv = std::abs(pos.z()) - gpar_[4] - 0.5 * gpar_[1];
       G4ThreeVector lpos = G4ThreeVector(pos.x(), pos.y(), zv);
 
-      zv = fibre_->zShift(lpos, depth, 0);  // distance to PMT !
+      zv = fibre_.zShift(lpos, depth, 0);  // distance to PMT !
 
       double r = pos.perp();
-      double p = fibre_->attLength(pe[i].lambda());
+      double p = fibre_.attLength(photon.lambda());
       double fi = pos.phi();
       if (fi < 0)
         fi += CLHEP::twopi;
-      int isect = int(fi / dphi) + 1;
+      int isect = int(fi / dphi_) + 1;
       isect = (isect + 1) / 2;
-      double dfi = ((isect * 2 - 1) * dphi - fi);
+      double dfi = ((isect * 2 - 1) * dphi_ - fi);
       if (dfi < 0)
         dfi = -dfi;
       double dfir = r * sin(dfi);
@@ -282,30 +346,31 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector&
       double r1 = G4UniformRand();
       double r2 = G4UniformRand();
       double r3 = backward ? G4UniformRand() : -9999.;
-      if (!applyFidCut)
-        dfir += gpar[5];
+      if (!applyFidCut_)
+        dfir += gpar_[5];
 
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HFShower") << "HFShowerLibrary: rLimits " << rInside(r) << " attenuation " << r1 << ":"
-                                   << exp(-p * zv) << " r2 " << r2 << " r3 " << r3 << " rDfi " << gpar[5] << " zz "
-                                   << zz << " zLim " << gpar[4] << ":" << gpar[4] + gpar[1] << "\n"
+                                   << exp(-p * zv) << " r2 " << r2 << " r3 " << r3 << " rDfi " << gpar_[5] << " zz "
+                                   << zz << " zLim " << gpar_[4] << ":" << gpar_[4] + gpar_[1] << "\n"
                                    << "  rInside(r) :" << rInside(r) << "  r1 <= exp(-p*zv) :" << (r1 <= exp(-p * zv))
-                                   << "  r2 <= probMax :" << (r2 <= probMax * weight)
-                                   << "  r3 <= backProb :" << (r3 <= backProb)
-                                   << "  dfir > gpar[5] :" << (dfir > gpar[5]) << "  zz >= gpar[4] :" << (zz >= gpar[4])
-                                   << "  zz <= gpar[4]+gpar[1] :" << (zz <= gpar[4] + gpar[1]);
+                                   << "  r2 <= probMax :" << (r2 <= probMax_ * weight)
+                                   << "  r3 <= backProb :" << (r3 <= backProb_)
+                                   << "  dfir > gpar[5] :" << (dfir > gpar_[5])
+                                   << "  zz >= gpar[4] :" << (zz >= gpar_[4])
+                                   << "  zz <= gpar[4]+gpar[1] :" << (zz <= gpar_[4] + gpar_[1]);
 #endif
-      if (rInside(r) && r1 <= exp(-p * zv) && r2 <= probMax * weight && dfir > gpar[5] && zz >= gpar[4] &&
-          zz <= gpar[4] + gpar[1] && r3 <= backProb && (depth != 2 || zz >= gpar[4] + gpar[0])) {
-        double tdiff = (equalizeTimeShift_) ? (fibre_->tShift(lpos, depth, -1)) : (fibre_->tShift(lpos, depth, 1));
+      if (rInside(r) && r1 <= exp(-p * zv) && r2 <= probMax_ * weight && dfir > gpar_[5] && zz >= gpar_[4] &&
+          zz <= gpar_[4] + gpar_[1] && r3 <= backProb_ && (depth != 2 || zz >= gpar_[4] + gpar_[0])) {
+        double tdiff = (equalizeTimeShift_) ? (fibre_.tShift(lpos, depth, -1)) : (fibre_.tShift(lpos, depth, 1));
         oneHit.position = pos;
         oneHit.depth = depth;
-        oneHit.time = (tSlice + (pe[i].t()) + tdiff);
+        oneHit.time = (tSlice + (photon.t()) + tdiff);
         hit.push_back(oneHit);
 
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HFShower") << "HFShowerLibrary: Final Hit " << nHit << " position " << (hit[nHit].position)
-                                     << " Depth " << (hit[nHit].depth) << " Time " << tSlice << ":" << pe[i].t() << ":"
+                                     << " Depth " << (hit[nHit].depth) << " Time " << tSlice << ":" << photon.t() << ":"
                                      << tdiff << ":" << (hit[nHit].time);
 #endif
         ++nHit;
@@ -314,18 +379,18 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector&
       else
         edm::LogVerbatim("HFShower") << "HFShowerLibrary: REJECTED !!!";
 #endif
-      if (onlyLong && zz >= gpar[4] + gpar[0] && zz <= gpar[4] + gpar[1]) {
+      if (onlyLong && zz >= gpar_[4] + gpar_[0] && zz <= gpar_[4] + gpar_[1]) {
         r1 = G4UniformRand();
         r2 = G4UniformRand();
-        if (rInside(r) && r1 <= exp(-p * zv) && r2 <= probMax && dfir > gpar[5]) {
-          double tdiff = (equalizeTimeShift_) ? (fibre_->tShift(lpos, 2, -1)) : (fibre_->tShift(lpos, 2, 1));
+        if (rInside(r) && r1 <= exp(-p * zv) && r2 <= probMax_ && dfir > gpar_[5]) {
+          double tdiff = (equalizeTimeShift_) ? (fibre_.tShift(lpos, 2, -1)) : (fibre_.tShift(lpos, 2, 1));
           oneHit.position = pos;
           oneHit.depth = 2;
-          oneHit.time = (tSlice + (pe[i].t()) + tdiff);
+          oneHit.time = (tSlice + (photon.t()) + tdiff);
           hit.push_back(oneHit);
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HFShower") << "HFShowerLibrary: Final Hit " << nHit << " position " << (hit[nHit].position)
-                                       << " Depth " << (hit[nHit].depth) << " Time " << tSlice << ":" << pe[i].t()
+                                       << " Depth " << (hit[nHit].depth) << " Time " << tSlice << ":" << photon.t()
                                        << ":" << tdiff << ":" << (hit[nHit].time);
 #endif
           ++nHit;
@@ -335,77 +400,149 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector&
   }
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HFShower") << "HFShowerLibrary: Total Hits " << nHit << " out of " << npe << " PE";
+  edm::LogVerbatim("HFShower") << "HFShowerLibrary: Total Hits " << nHit << " out of " << pe.size() << " PE";
 #endif
-  if (nHit > npe && !onlyLong) {
-    edm::LogWarning("HFShower") << "HFShowerLibrary: Hit buffer " << npe << " smaller than " << nHit << " Hits";
+  if (nHit > pe.size() && !onlyLong) {
+    edm::LogWarning("HFShower") << "HFShowerLibrary: Hit buffer " << pe.size() << " smaller than " << nHit << " Hits";
   }
   return hit;
 }
 
-bool HFShowerLibrary::rInside(double r) { return (r >= rMin && r <= rMax); }
+bool HFShowerLibrary::rInside(double r) const { return (r >= rMin_ && r <= rMax_); }
 
-void HFShowerLibrary::getRecord(int type, int record) {
+HFShowerLibrary::BranchCache::BranchCache(HFShowerLibrary::BranchReader& iReader, size_t maxRecordsToCache) {
+  auto nRecords = iReader.numberOfRecords();
+  if (nRecords > maxRecordsToCache) {
+    nRecords = maxRecordsToCache;
+  }
+  offsets_.reserve(nRecords + 1);
+
+  //first pass is to figure out how much space will be needed
+  size_t nPhotons = 0;
+  for (size_t r = 0; r < nRecords; ++r) {
+    auto shower = iReader.getRecord(r + 1);
+    nPhotons += shower.size();
+  }
+
+  photons_.reserve(nPhotons);
+
+  size_t offset = 0;
+  for (size_t r = 0; r < nRecords; ++r) {
+    offsets_.emplace_back(offset);
+    auto shower = iReader.getRecord(r + 1);
+    offset += shower.size();
+    std::copy(shower.begin(), shower.end(), std::back_inserter(photons_));
+  }
+  offsets_.emplace_back(offset);
+  photons_.shrink_to_fit();
+}
+
+void HFShowerLibrary::BranchReader::doCaching(size_t maxRecordsToCache) {
+  cache_ = makeCache(*this, maxRecordsToCache, branch_->GetDirectory()->GetFile()->GetName(), branch_->GetName());
+}
+
+std::shared_ptr<HFShowerLibrary::BranchCache const> HFShowerLibrary::BranchReader::makeCache(
+    BranchReader& iReader, size_t maxRecordsToCache, std::string const& iFileName, std::string const& iBranchName) {
+  //This allows sharing of the same cached data across the different modules (e.g. the per stream instances of OscarMTProducer
+  CMS_SA_ALLOW static std::mutex s_mutex;
+  std::lock_guard<std::mutex> guard(s_mutex);
+  CMS_SA_ALLOW static std::map<std::pair<std::string, std::string>, std::weak_ptr<BranchCache>> s_map;
+  auto v = s_map[{iFileName, iBranchName}].lock();
+  if (v) {
+    return v;
+  }
+  v = std::make_shared<BranchCache>(iReader, maxRecordsToCache);
+  s_map[{iFileName, iBranchName}] = v;
+  return v;
+}
+
+HFShowerPhotonCollection HFShowerLibrary::BranchCache::getRecord(int iRecord) const {
+  assert(iRecord > 0);
+  assert(static_cast<size_t>(iRecord + 1) < offsets_.size());
+
+  auto start = offsets_[iRecord - 1];
+  auto end = offsets_[iRecord];
+
+  return HFShowerPhotonCollection(photons_.begin() + start, photons_.begin() + end);
+}
+
+HFShowerPhotonCollection HFShowerLibrary::BranchReader::getRecordOldForm(TBranch* iBranch, int iEntry) {
+  HFShowerPhotonCollection photo;
+  iBranch->SetAddress(&photo);
+  iBranch->GetEntry(iEntry);
+  return photo;
+}
+HFShowerPhotonCollection HFShowerLibrary::BranchReader::getRecordNewForm(TBranch* iBranch, int iEntry) {
+  HFShowerPhotonCollection photo;
+
+  auto temp = std::make_unique<HFShowerPhotonCollection>();
+  iBranch->SetAddress(&temp);
+  iBranch->GetEntry(iEntry);
+  photo = std::move(*temp);
+
+  return photo;
+}
+HFShowerPhotonCollection HFShowerLibrary::BranchReader::getRecordNewFormV3(TBranch* iBranch, int iEntry) {
+  HFShowerPhotonCollection photo;
+
+  std::vector<float> t;
+  std::vector<float>* tp = &t;
+  iBranch->SetAddress(&tp);
+  iBranch->GetEntry(iEntry);
+  unsigned int tSize = t.size() / 5;
+  photo.reserve(tSize);
+  for (unsigned int i = 0; i < tSize; i++) {
+    photo.emplace_back(t[i], t[1 * tSize + i], t[2 * tSize + i], t[3 * tSize + i], t[4 * tSize + i]);
+  }
+
+  return photo;
+}
+
+HFShowerPhotonCollection HFShowerLibrary::BranchReader::getRecord(int record) const {
+  if (cache_) {
+    return cache_->getRecord(record);
+  }
   int nrc = record - 1;
-  photon.clear();
-  photo->clear();
-  if (type > 0) {
-    if (newForm) {
-      if (!v3version) {
-        hadBranch->SetAddress(&photo);
-        int position = (fileVersion_ >= 2) ? nrc : (nrc + totEvents);
-        hadBranch->GetEntry(position);
-      } else {
-        std::vector<float> t;
-        std::vector<float>* tp = &t;
-        hadBranch->SetAddress(&tp);
-        hadBranch->GetEntry(nrc + totEvents);
-        unsigned int tSize = t.size() / 5;
-        photo->reserve(tSize);
-        for (unsigned int i = 0; i < tSize; i++) {
-          photo->push_back(
-              HFShowerPhoton(t[i], t[1 * tSize + i], t[2 * tSize + i], t[3 * tSize + i], t[4 * tSize + i]));
-        }
-      }
-    } else {
-      hadBranch->SetAddress(&photon);
-      hadBranch->GetEntry(nrc);
+  HFShowerPhotonCollection photo;
+
+  switch (format_) {
+    case FileFormat::kNew: {
+      photo = getRecordNewForm(branch_, nrc + offset_);
+      break;
     }
-  } else {
-    if (newForm) {
-      if (!v3version) {
-        emBranch->SetAddress(&photo);
-        emBranch->GetEntry(nrc);
-      } else {
-        std::vector<float> t;
-        std::vector<float>* tp = &t;
-        emBranch->SetAddress(&tp);
-        emBranch->GetEntry(nrc);
-        unsigned int tSize = t.size() / 5;
-        photo->reserve(tSize);
-        for (unsigned int i = 0; i < tSize; i++) {
-          photo->push_back(
-              HFShowerPhoton(t[i], t[1 * tSize + i], t[2 * tSize + i], t[3 * tSize + i], t[4 * tSize + i]));
-        }
-      }
-    } else {
-      emBranch->SetAddress(&photon);
-      emBranch->GetEntry(nrc);
+    case FileFormat::kNewV3: {
+      photo = getRecordNewFormV3(branch_, nrc + offset_);
+      break;
+    }
+    case FileFormat::kOld: {
+      photo = getRecordOldForm(branch_, nrc);
+      break;
     }
   }
+  return photo;
+}
+
+size_t HFShowerLibrary::BranchReader::numberOfRecords() const { return branch_->GetEntries() - offset_; }
+
+HFShowerPhotonCollection HFShowerLibrary::getRecord(int type, int record) const {
+  HFShowerPhotonCollection photo;
+  if (type > 0) {
+    photo = hadBranch_.getRecord(record);
+  } else {
+    photo = emBranch_.getRecord(record);
+  }
 #ifdef EDM_ML_DEBUG
-  int nPhoton = (newForm) ? photo->size() : photon.size();
+  int nPhoton = photo.size();
   edm::LogVerbatim("HFShower") << "HFShowerLibrary::getRecord: Record " << record << " of type " << type << " with "
                                << nPhoton << " photons";
   for (int j = 0; j < nPhoton; j++)
-    if (newForm)
-      edm::LogVerbatim("HFShower") << "Photon " << j << " " << photo->at(j);
-    else
-      edm::LogVerbatim("HFShower") << "Photon " << j << " " << photon[j];
+    edm::LogVerbatim("HFShower") << "Photon " << j << " " << photo[j];
 #endif
+  return photo;
 }
 
-void HFShowerLibrary::loadEventInfo(TBranch* branch) {
+HFShowerLibrary::VersionInfo HFShowerLibrary::loadEventInfo(TBranch* branch, int fileVersion) {
+  VersionInfo versionInfo;
   if (branch) {
     std::vector<HFShowerLibraryEventInfo> eventInfoCollection;
     branch->SetAddress(&eventInfoCollection);
@@ -413,59 +550,61 @@ void HFShowerLibrary::loadEventInfo(TBranch* branch) {
     edm::LogVerbatim("HFShower") << "HFShowerLibrary::loadEventInfo loads EventInfo Collection of size "
                                  << eventInfoCollection.size() << " records";
 
-    totEvents = eventInfoCollection[0].totalEvents();
-    nMomBin = eventInfoCollection[0].numberOfBins();
-    evtPerBin = eventInfoCollection[0].eventsPerBin();
-    libVers = eventInfoCollection[0].showerLibraryVersion();
-    listVersion = eventInfoCollection[0].physListVersion();
-    pmom = eventInfoCollection[0].energyBins();
+    totEvents_ = eventInfoCollection[0].totalEvents();
+    nMomBin_ = eventInfoCollection[0].numberOfBins();
+    evtPerBin_ = eventInfoCollection[0].eventsPerBin();
+    versionInfo.libVers_ = eventInfoCollection[0].showerLibraryVersion();
+    versionInfo.listVersion_ = eventInfoCollection[0].physListVersion();
+    pmom_ = eventInfoCollection[0].energyBins();
   } else {
     edm::LogVerbatim("HFShower") << "HFShowerLibrary::loadEventInfo loads EventInfo from hardwired"
                                  << " numbers";
 
-    nMomBin = 16;
-    evtPerBin = (fileVersion_ == 0) ? 5000 : 10000;
-    totEvents = nMomBin * evtPerBin;
-    libVers = (fileVersion_ == 0) ? 1.1 : 1.2;
-    listVersion = 3.6;
-    pmom = {2, 3, 5, 7, 10, 15, 20, 30, 50, 75, 100, 150, 250, 350, 500, 1000};
+    nMomBin_ = 16;
+    evtPerBin_ = (fileVersion == 0) ? 5000 : 10000;
+    totEvents_ = nMomBin_ * evtPerBin_;
+    versionInfo.libVers_ = (fileVersion == 0) ? 1.1 : 1.2;
+    versionInfo.listVersion_ = 3.6;
+    pmom_ = {2, 3, 5, 7, 10, 15, 20, 30, 50, 75, 100, 150, 250, 350, 500, 1000};
   }
-  for (int i = 0; i < nMomBin; i++)
-    pmom[i] *= CLHEP::GeV;
+  for (int i = 0; i < nMomBin_; i++)
+    pmom_[i] *= CLHEP::GeV;
+  return versionInfo;
 }
 
-void HFShowerLibrary::interpolate(int type, double pin) {
+HFShowerPhotonCollection HFShowerLibrary::interpolate(int type, double pin) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << "HFShowerLibrary:: Interpolate for Energy " << pin / CLHEP::GeV << " GeV with "
-                               << nMomBin << " momentum bins and " << evtPerBin << " entries/bin -- total "
-                               << totEvents;
+                               << nMomBin_ << " momentum bins and " << evtPerBin_ << " entries/bin -- total "
+                               << totEvents_;
 #endif
   int irc[2] = {0, 0};
   double w = 0.;
   double r = G4UniformRand();
 
-  if (pin < pmom[0]) {
-    w = pin / pmom[0];
-    irc[1] = int(evtPerBin * r) + 1;
+  if (pin < pmom_[0]) {
+    w = pin / pmom_[0];
+    irc[1] = int(evtPerBin_ * r) + 1;
     irc[0] = 0;
   } else {
-    for (int j = 0; j < nMomBin - 1; j++) {
-      if (pin >= pmom[j] && pin < pmom[j + 1]) {
-        w = (pin - pmom[j]) / (pmom[j + 1] - pmom[j]);
-        if (j == nMomBin - 2) {
-          irc[1] = int(evtPerBin * 0.5 * r);
+    for (int j = 0; j < nMomBin_ - 1; j++) {
+      if (pin >= pmom_[j] && pin < pmom_[j + 1]) {
+        w = (pin - pmom_[j]) / (pmom_[j + 1] - pmom_[j]);
+        if (j == nMomBin_ - 2) {
+          irc[1] = int(evtPerBin_ * 0.5 * r);
         } else {
-          irc[1] = int(evtPerBin * r);
+          irc[1] = int(evtPerBin_ * r);
         }
-        irc[1] += (j + 1) * evtPerBin + 1;
+        irc[1] += (j + 1) * evtPerBin_ + 1;
         r = G4UniformRand();
-        irc[0] = int(evtPerBin * r) + 1 + j * evtPerBin;
+        irc[0] = int(evtPerBin_ * r) + 1 + j * evtPerBin_;
         if (irc[0] < 0) {
           edm::LogWarning("HFShower") << "HFShowerLibrary:: Illegal irc[0] = " << irc[0] << " now set to 0";
           irc[0] = 0;
-        } else if (irc[0] > totEvents) {
-          edm::LogWarning("HFShower") << "HFShowerLibrary:: Illegal irc[0] = " << irc[0] << " now set to " << totEvents;
-          irc[0] = totEvents;
+        } else if (irc[0] > totEvents_) {
+          edm::LogWarning("HFShower") << "HFShowerLibrary:: Illegal irc[0] = " << irc[0] << " now set to "
+                                      << totEvents_;
+          irc[0] = totEvents_;
         }
       }
     }
@@ -473,66 +612,68 @@ void HFShowerLibrary::interpolate(int type, double pin) {
   if (irc[1] < 1) {
     edm::LogWarning("HFShower") << "HFShowerLibrary:: Illegal irc[1] = " << irc[1] << " now set to 1";
     irc[1] = 1;
-  } else if (irc[1] > totEvents) {
-    edm::LogWarning("HFShower") << "HFShowerLibrary:: Illegal irc[1] = " << irc[1] << " now set to " << totEvents;
-    irc[1] = totEvents;
+  } else if (irc[1] > totEvents_) {
+    edm::LogWarning("HFShower") << "HFShowerLibrary:: Illegal irc[1] = " << irc[1] << " now set to " << totEvents_;
+    irc[1] = totEvents_;
   }
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << "HFShowerLibrary:: Select records " << irc[0] << " and " << irc[1] << " with weights "
                                << 1 - w << " and " << w;
 #endif
-  pe.clear();
-  npe = 0;
-  int npold = 0;
+  HFShowerPhotonCollection pe;
+
+  std::size_t npold = 0;
   for (int ir = 0; ir < 2; ir++) {
     if (irc[ir] > 0) {
-      getRecord(type, irc[ir]);
-      int nPhoton = (newForm) ? photo->size() : photon.size();
+      auto photons = getRecord(type, irc[ir]);
+      int nPhoton = photons.size();
       npold += nPhoton;
-      for (int j = 0; j < nPhoton; j++) {
+      pe.reserve(pe.size() + nPhoton);
+      for (auto const& photon : photons) {
         r = G4UniformRand();
         if ((ir == 0 && r > w) || (ir > 0 && r < w)) {
-          storePhoton(j);
+          storePhoton(photon, pe);
         }
       }
     }
   }
 
-  if ((npe > npold || (npold == 0 && irc[0] > 0)) && !(npe == 0 && npold == 0))
+  if ((pe.size() > npold || (npold == 0 && irc[0] > 0)) && !(pe.empty() && npold == 0))
     edm::LogWarning("HFShower") << "HFShowerLibrary: Interpolation Warning =="
                                 << " records " << irc[0] << " and " << irc[1] << " gives a buffer of " << npold
-                                << " photons and fills " << npe << " *****";
+                                << " photons and fills " << pe.size() << " *****";
 #ifdef EDM_ML_DEBUG
   else
     edm::LogVerbatim("HFShower") << "HFShowerLibrary: Interpolation == records " << irc[0] << " and " << irc[1]
-                                 << " gives a buffer of " << npold << " photons and fills " << npe << " PE";
-  for (int j = 0; j < npe; j++)
+                                 << " gives a buffer of " << npold << " photons and fills " << pe.size() << " PE";
+  for (std::size_t j = 0; j < pe.size(); j++)
     edm::LogVerbatim("HFShower") << "Photon " << j << " " << pe[j];
 #endif
+  return pe;
 }
 
-void HFShowerLibrary::extrapolate(int type, double pin) {
-  int nrec = int(pin / pmom[nMomBin - 1]);
-  double w = (pin - pmom[nMomBin - 1] * nrec) / pmom[nMomBin - 1];
+HFShowerPhotonCollection HFShowerLibrary::extrapolate(int type, double pin) {
+  int nrec = int(pin / pmom_[nMomBin_ - 1]);
+  double w = (pin - pmom_[nMomBin_ - 1] * nrec) / pmom_[nMomBin_ - 1];
   nrec++;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << "HFShowerLibrary:: Extrapolate for Energy " << pin / CLHEP::GeV << " GeV with "
-                               << nMomBin << " momentum bins and " << evtPerBin << " entries/bin -- "
-                               << "total " << totEvents << " using " << nrec << " records";
+                               << nMomBin_ << " momentum bins and " << evtPerBin_ << " entries/bin -- "
+                               << "total " << totEvents_ << " using " << nrec << " records";
 #endif
   std::vector<int> irc(nrec);
 
   for (int ir = 0; ir < nrec; ir++) {
     double r = G4UniformRand();
-    irc[ir] = int(evtPerBin * 0.5 * r) + (nMomBin - 1) * evtPerBin + 1;
+    irc[ir] = int(evtPerBin_ * 0.5 * r) + (nMomBin_ - 1) * evtPerBin_ + 1;
     if (irc[ir] < 1) {
       edm::LogWarning("HFShower") << "HFShowerLibrary:: Illegal irc[" << ir << "] = " << irc[ir] << " now set to 1";
       irc[ir] = 1;
-    } else if (irc[ir] > totEvents) {
+    } else if (irc[ir] > totEvents_) {
       edm::LogWarning("HFShower") << "HFShowerLibrary:: Illegal irc[" << ir << "] = " << irc[ir] << " now set to "
-                                  << totEvents;
-      irc[ir] = totEvents;
+                                  << totEvents_;
+      irc[ir] = totEvents_;
 #ifdef EDM_ML_DEBUG
     } else {
       edm::LogVerbatim("HFShower") << "HFShowerLibrary::Extrapolation use irc[" << ir << "] = " << irc[ir];
@@ -540,18 +681,18 @@ void HFShowerLibrary::extrapolate(int type, double pin) {
     }
   }
 
-  pe.clear();
-  npe = 0;
-  int npold = 0;
+  HFShowerPhotonCollection pe;
+  std::size_t npold = 0;
   for (int ir = 0; ir < nrec; ir++) {
     if (irc[ir] > 0) {
-      getRecord(type, irc[ir]);
-      int nPhoton = (newForm) ? photo->size() : photon.size();
+      auto const photons = getRecord(type, irc[ir]);
+      int nPhoton = photons.size();
       npold += nPhoton;
-      for (int j = 0; j < nPhoton; j++) {
+      pe.reserve(pe.size() + nPhoton);
+      for (auto const& photon : photons) {
         double r = G4UniformRand();
         if (ir != nrec - 1 || r < w) {
-          storePhoton(j);
+          storePhoton(photon, pe);
         }
       }
 #ifdef EDM_ML_DEBUG
@@ -563,27 +704,25 @@ void HFShowerLibrary::extrapolate(int type, double pin) {
   edm::LogVerbatim("HFShower") << "HFShowerLibrary:: uses " << npold << " photons";
 #endif
 
-  if (npe > npold || npold == 0)
+  if (pe.size() > npold || npold == 0)
     edm::LogWarning("HFShower") << "HFShowerLibrary: Extrapolation Warning == " << nrec << " records " << irc[0] << ", "
-                                << irc[1] << ", ... gives a buffer of " << npold << " photons and fills " << npe
+                                << irc[1] << ", ... gives a buffer of " << npold << " photons and fills " << pe.size()
                                 << " *****";
 #ifdef EDM_ML_DEBUG
   else
     edm::LogVerbatim("HFShower") << "HFShowerLibrary: Extrapolation == " << nrec << " records " << irc[0] << ", "
-                                 << irc[1] << ", ... gives a buffer of " << npold << " photons and fills " << npe
+                                 << irc[1] << ", ... gives a buffer of " << npold << " photons and fills " << pe.size()
                                  << " PE";
-  for (int j = 0; j < npe; j++)
+  for (std::size_t j = 0; j < pe.size(); j++)
     edm::LogVerbatim("HFShower") << "Photon " << j << " " << pe[j];
 #endif
+  return pe;
 }
 
-void HFShowerLibrary::storePhoton(int j) {
-  if (newForm)
-    pe.push_back(photo->at(j));
-  else
-    pe.push_back(photon[j]);
-  npe++;
+void HFShowerLibrary::storePhoton(HFShowerPhoton const& iPhoton, HFShowerPhotonCollection& iPhotons) const {
+  iPhotons.push_back(iPhoton);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HFShower") << "HFShowerLibrary: storePhoton " << j << " npe " << npe << " " << pe[npe - 1];
+  edm::LogVerbatim("HFShower") << "HFShowerLibrary: storePhoton " << iPhoton << " npe " << iPhotons.size() << " "
+                               << iPhotons.back();
 #endif
 }

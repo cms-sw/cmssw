@@ -3,6 +3,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/stream/SynchronizingEDProducer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+#include "HeterogeneousCore/AlpakaTest/interface/TestHostOnlyHelperClass.h"
 
 #include "TestHelperClass.h"
 
@@ -13,6 +14,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
    *   - consumes a device EDProduct
    *   - consumes a host ESProduct
    *   - consumes a device ESProduct
+   * - uses a non-Alpaka-aware helper class (need to use edm::ConsumesCollector), that
+   *   - consumes a host EDProduct
+   *   - consumes a host ESProduct
    * - consumes a device ESProduct
    * - produces a host EDProduct
    * - synchronizes in a non-blocking way with the ExternalWork module
@@ -21,10 +25,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class TestAlpakaStreamSynchronizingProducer : public stream::SynchronizingEDProducer<> {
   public:
     TestAlpakaStreamSynchronizingProducer(edm::ParameterSet const& iConfig)
-        : esTokenDevice_(esConsumes()), putToken_{produces()}, helper_{iConfig, consumesCollector()} {}
+        : esTokenDevice_(esConsumes()),
+          putToken_{produces()},
+          helper_{iConfig, consumesCollector()},
+          hostHelper_{iConfig, consumesCollector()},
+          expectedInt_{iConfig.getParameter<int>("expectedInt")} {}
 
     void acquire(device::Event const& iEvent, device::EventSetup const& iSetup) override {
       [[maybe_unused]] auto const& esData = iSetup.getData(esTokenDevice_);
+
+      int const value = hostHelper_.run(iEvent, iSetup);
+      if (value != expectedInt_) {
+        throw cms::Exception("Assert") << "Expected value " << expectedInt_ << ", but got " << value;
+      }
 
       helper_.makeAsync(iEvent, iSetup);
     }
@@ -35,7 +48,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
-      desc.add<edm::InputTag>("source");
+      TestHelperClass::fillPSetDescription(desc);
+      cms::alpakatest::TestHostOnlyHelperClass::fillPSetDescription(desc);
+      desc.add<int>("expectedInt");
       descriptions.addWithDefaultLabel(desc);
     }
 
@@ -44,9 +59,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const edm::EDPutTokenT<portabletest::TestHostCollection> putToken_;
 
     TestHelperClass helper_;
+    cms::alpakatest::TestHostOnlyHelperClass const hostHelper_;
+    int const expectedInt_;
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
-#include "HeterogeneousCore/AlpakaCore/interface/MakerMacros.h"
+#include "HeterogeneousCore/AlpakaCore/interface/alpaka/MakerMacros.h"
 DEFINE_FWK_ALPAKA_MODULE(TestAlpakaStreamSynchronizingProducer);

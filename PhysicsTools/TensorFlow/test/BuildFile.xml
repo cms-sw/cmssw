@@ -16,6 +16,18 @@
   <use name="PhysicsTools/TensorFlow"/>
 </bin>
 
+<bin name="testTFConstSession" file="testRunner.cpp,testConstSession.cc">
+  <use name="boost_filesystem"/>
+  <use name="cppunit"/>
+  <use name="PhysicsTools/TensorFlow"/>
+</bin>
+
+<bin name="testTFSessionCache" file="testRunner.cpp,testSessionCache.cc">
+  <use name="boost_filesystem"/>
+  <use name="cppunit"/>
+  <use name="PhysicsTools/TensorFlow"/>
+</bin>
+
 <bin name="testTFThreadPools" file="testRunner.cpp,testThreadPools.cc">
   <use name="boost_filesystem"/>
   <use name="cppunit"/>

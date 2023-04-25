@@ -92,6 +92,9 @@ public:
   ClusterRef upperCluster() const { return theUpperCluster.cluster_phase2OT(); }
   OmniClusterRef const lowerClusterRef() const { return theLowerCluster; }
   OmniClusterRef const upperClusterRef() const { return theUpperCluster; }
+  // Non const variants needed for cluster re-keying
+  OmniClusterRef& lowerClusterRef() { return theLowerCluster; }
+  OmniClusterRef& upperClusterRef() { return theUpperCluster; }
 
   //FIXME::to update with a proper CPE maybe...
   Global3DPoint lowerGlobalPos() const;

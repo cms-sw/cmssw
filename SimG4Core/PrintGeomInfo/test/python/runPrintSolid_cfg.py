@@ -1,12 +1,39 @@
+###############################################################################
+# Way to use this:
+#   cmsRun runPrintSolid_cfg.py type=DDD
+#
+#   Options for type DDD, DD4hep
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
+import os, sys, imp, re
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
-process = cms.Process('G4PrintGeometry',Run3_DDD)
-process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('type',
+                 "DDD",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "type of operations: DDD, DD4hep")
 
-#from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
-#process = cms.Process('G4PrintGeometry',Run3_dd4hep)
-#process.load('Configuration.Geometry.GeometryDD4hepExtended2021Reco_cff')
+### get and parse the command line arguments
+options.parseArguments()
+
+print(options)
+
+#####p###############################################################
+# Use the options
+
+if (options.type == "DDD"):
+    from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
+    process = cms.Process('G4PrintGeometry',Run3_DDD)
+    process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
+else:
+    from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
+    process = cms.Process('G4PrintGeometry',Run3_dd4hep)
+    process.load('Configuration.Geometry.GeometryDD4hepExtended2021Reco_cff')
 
 process.load('SimGeneral.HepPDTESSource.pdt_cfi')
 

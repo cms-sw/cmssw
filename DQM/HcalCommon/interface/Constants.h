@@ -289,28 +289,33 @@ namespace hcaldqm {
     /*
  *	Orbit Gap Operations enum
  */
+    uint8_t const EVENTTYPE_PHYSICS = 0;
     uint8_t const EVENTTYPE_PEDESTAL = 1;
+    uint8_t const EVENTTYPE_HFRADDAM = 13;
     uint8_t const EVENTTYPE_LASER = 14;
     uint8_t const EVENTTYPE_LED = 15;
     enum OrbitGapType {
       tNull = 0,
-      tPedestal = 1,
-      tLED = 2,
-      tHFRaddam = 3,
-      tHBHEHPD = 4,
-      tHO = 5,
-      tHF = 6,
-      tZDC = 7,
-      tHEPMega = 8,
-      tHEMMega = 9,
-      tHBPMega = 10,
-      tHBMMega = 11,
-      tSomething = 12,
-      tCRF = 13,
-      tCalib = 14,
-      tSafe = 15,
-      tUnknown = 16,
-      nOrbitGapType = 17
+      tPhysics = 1,
+      tPedestal = 2,
+      tLED = 3,
+      tHFRaddam = 4,
+      tHBHEHPD = 5,
+      tHO = 6,
+      tHF = 7,
+      tZDC = 8,
+      tHEPMega = 9,
+      tHEMMega = 10,
+      tHBPMega = 11,
+      tHBMMega = 12,
+      tSomething = 13,
+      tCRF = 14,
+      tCalib = 15,
+      tSafe = 16,
+      tSiPMPMT = 17,
+      tMegatile = 18,
+      tUnknown = 19,
+      nOrbitGapType = 20,
     };
   }  // namespace constants
 }  // namespace hcaldqm

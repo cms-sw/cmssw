@@ -172,7 +172,6 @@ void L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   CaloTowerBxCollection towersColl;
   L1CaloRegionCollection rgnCollection;
 
-  uint32_t expectedTotalET = 0;
   if (!layer1->clearEvent()) {
     LOG_ERROR << "UCT: Failed to clear event" << std::endl;
     return;
@@ -190,7 +189,6 @@ void L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       LOG_ERROR << "UCT: Failed loading an ECAL tower" << std::endl;
       return;
     }
-    expectedTotalET += et;
   }
 
   if (hcalTPs.isValid()) {
@@ -230,7 +228,6 @@ void L1TCaloLayer1::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
             LOG_ERROR << "UCT: Failed loading an HCAL tower" << std::endl;
             return;
           }
-          expectedTotalET += et;
         } else {
           LOG_ERROR << "Illegal Tower: caloEta = " << caloEta << "; caloPhi =" << caloPhi << "; et = " << et
                     << std::endl;

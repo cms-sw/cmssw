@@ -6,17 +6,32 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h"
-#include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDASOAView.h"
+#include "CUDADataFormats/Common/interface/PortableDeviceCollection.h"
+#include "DataFormats/SoATemplate/interface/SoALayout.h"
 
-class SiPixelDigisCUDA {
+GENERATE_SOA_LAYOUT(SiPixelDigisSoALayout,
+                    SOA_COLUMN(int32_t, clus),
+                    SOA_COLUMN(uint32_t, pdigi),
+                    SOA_COLUMN(uint32_t, rawIdArr),
+                    SOA_COLUMN(uint16_t, adc),
+                    SOA_COLUMN(uint16_t, xx),
+                    SOA_COLUMN(uint16_t, yy),
+                    SOA_COLUMN(uint16_t, moduleId))
+
+using SiPixelDigisCUDASOA = SiPixelDigisSoALayout<>;
+using SiPixelDigisCUDASOAView = SiPixelDigisCUDASOA::View;
+using SiPixelDigisCUDASOAConstView = SiPixelDigisCUDASOA::ConstView;
+
+// TODO: The class is created via inheritance of the PortableDeviceCollection.
+// This is generally discouraged, and should be done via composition.
+// See: https://github.com/cms-sw/cmssw/pull/40465#discussion_r1067364306
+class SiPixelDigisCUDA : public cms::cuda::PortableDeviceCollection<SiPixelDigisSoALayout<>> {
 public:
-  using StoreType = uint16_t;
   SiPixelDigisCUDA() = default;
-  explicit SiPixelDigisCUDA(size_t maxFedWords, cudaStream_t stream);
+  explicit SiPixelDigisCUDA(size_t maxFedWords, cudaStream_t stream)
+      : PortableDeviceCollection<SiPixelDigisSoALayout<>>(maxFedWords + 1, stream) {}
   ~SiPixelDigisCUDA() = default;
 
-  SiPixelDigisCUDA(const SiPixelDigisCUDA &) = delete;
-  SiPixelDigisCUDA &operator=(const SiPixelDigisCUDA &) = delete;
   SiPixelDigisCUDA(SiPixelDigisCUDA &&) = default;
   SiPixelDigisCUDA &operator=(SiPixelDigisCUDA &&) = default;
 
@@ -28,17 +43,7 @@ public:
   uint32_t nModules() const { return nModules_h; }
   uint32_t nDigis() const { return nDigis_h; }
 
-  cms::cuda::host::unique_ptr<StoreType[]> copyAllToHostAsync(cudaStream_t stream) const;
-
-  SiPixelDigisCUDASOAView view() { return m_view; }
-  SiPixelDigisCUDASOAView const view() const { return m_view; }
-
 private:
-  // These are consumed by downstream device code
-  cms::cuda::device::unique_ptr<StoreType[]> m_store;
-
-  SiPixelDigisCUDASOAView m_view;
-
   uint32_t nModules_h = 0;
   uint32_t nDigis_h = 0;
 };

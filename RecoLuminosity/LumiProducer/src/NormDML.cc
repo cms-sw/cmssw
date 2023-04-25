@@ -153,7 +153,7 @@ void lumi::NormDML::parseAfterglows(const std::string& afterglowStr, std::map<un
   unsigned int threshold;
   for (tokenizer::iterator tok_iter = tokens.begin(); tok_iter != tokens.end(); ++tok_iter) {
     if (counter % 2 == 0) {
-      std::string valStr = *(tok_iter);
+      const std::string& valStr = *(tok_iter);
       float val = 0.;
       std::stringstream strStream(valStr);
       strStream >> val;

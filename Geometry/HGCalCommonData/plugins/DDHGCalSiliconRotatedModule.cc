@@ -419,9 +419,18 @@ void DDHGCalSiliconRotatedModule::positionSensitive(const DDLogicalPart& glog, i
     int orien = HGCalProperty::waferOrient(waferProperty_[k]);
     int cassette = HGCalProperty::waferCassette(waferProperty_[k]);
     int place = HGCalCell::cellPlacementIndex(1, layertype, orien);
-    auto cshift = cassette_.getShift(layer + 1, 1, cassette);
-    double xpos = xyoff.first + cshift.first + nc * delx;
+    auto cshift = cassette_.getShift(layer + 1, -1, cassette);
+    double xpos = xyoff.first - cshift.first + nc * delx;
     double ypos = xyoff.second + cshift.second + nr * dy;
+#ifdef EDM_ML_DEBUG
+    double xorig = xyoff.first + nc * delx;
+    double yorig = xyoff.second + nr * dy;
+    double angle = std::atan2(yorig, xorig);
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedLayer::Wafer: layer " << layer + 1 << " cassette "
+                                  << cassette << " Shift " << cshift.first << ":" << cshift.second << " Original "
+                                  << xorig << ":" << yorig << ":" << convertRadToDeg(angle) << " Final " << xpos << ":"
+                                  << ypos;
+#endif
     std::string wafer;
     int i(999);
     if (part == HGCalTypes::WaferFull) {

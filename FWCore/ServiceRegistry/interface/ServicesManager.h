@@ -126,9 +126,9 @@ namespace edm {
       // ---------- member functions ---------------------------
       ///returns false if put fails because a service of this type already exists
       template <typename T>
-      bool put(std::shared_ptr<ServiceWrapper<T>> iPtr) {
+      bool put(std::shared_ptr<ServiceWrapper<T>> iPtr, bool iOverride = false) {
         Type2Service::const_iterator itFound = type2Service_.find(TypeIDBase(typeid(T)));
-        if (itFound != type2Service_.end()) {
+        if (itFound != type2Service_.end() and not iOverride) {
           return false;
         }
         type2Service_[TypeIDBase(typeid(T))] = iPtr;

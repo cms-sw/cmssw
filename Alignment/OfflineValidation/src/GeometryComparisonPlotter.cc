@@ -12,7 +12,7 @@
 // NOTE: look for "TO DO" as a keyword to now what should be upgraded in later versions....
 
 // modes
-#define TALKATIVE  // get some comments while processing
+//#define TALKATIVE  // get some comments while processing
 //#define DEBUG     // get a lot of comments while processing + canvases -> resource-consuming!
 
 // MACROS

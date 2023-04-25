@@ -12,19 +12,19 @@ pushd ${LOCAL_TMP_DIR}
 
   echo "*************************************************"
   echo "SwitchProducer in a Task"
-  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}Task_cfg.py || die "cmsRun ${test}Task_cfg.py 1" $?
+  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}Task_cfg.py || die "cmsRun ${test}Task_cfg.py" $?
 
   echo "*************************************************"
   echo "SwitchProducer in a Task, case test2 disabled"
-  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}Task_cfg.py disableTest2 || die "cmsRun ${test}Task_cfg.py 2" $?
+  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}Task_cfg.py -- --disableTest2 || die "cmsRun ${test}Task_cfg.py -- --disableTest2" $?
 
   echo "*************************************************"
   echo "SwitchProducer in a Task, SwitchProducers have same labels as products in input file"
-  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}TaskInput_cfg.py || die "cmsRun ${test}TaskInput_cfg.py 1" $?
+  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}Task_cfg.py -- --input|| die "cmsRun ${test}Task_cfg.py -- --input" $?
 
   echo "*************************************************"
   echo "SwitchProducer in a Task, SwitchProducers have same labels as products in input file, case test2 disabled"
-  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}TaskInput_cfg.py disableTest2 || die "cmsRun ${test}TaskInput_cfg.py 2" $?
+  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}Task_cfg.py -- --input --disableTest2 || die "cmsRun ${test}TaskInput_cfg.py -- --input --disableTest2" $?
 
   echo "*************************************************"
   echo "Merge outputs (Task)"
@@ -43,11 +43,11 @@ pushd ${LOCAL_TMP_DIR}
 
   echo "*************************************************"
   echo "SwitchProducer in a ConditionalTask"
-  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}ConditionalTask_cfg.py || die "cmsRun ${test}ConditionalTask_cfg.py 1" $?
+  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}Task_cfg.py -- --conditionalTask || die "cmsRun ${test}Task_cfg.py -- --conditionalTask" $?
 
   echo "*************************************************"
   echo "SwitchProducer in a ConditionalTask, case test2 disabled"
-  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}ConditionalTask_cfg.py disableTest2 || die "cmsRun ${test}ConditionalTask_cfg.py 2" $?
+  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}Task_cfg.py -- --conditionalTask --disableTest2 || die "cmsRun ${test}Task_cfg.py -- --conditionalTask --disableTest2" $?
 
   echo "*************************************************"
   echo "Merge outputs (ConditionalTask)"

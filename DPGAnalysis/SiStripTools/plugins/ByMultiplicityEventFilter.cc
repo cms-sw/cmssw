@@ -37,7 +37,7 @@
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-#include "DPGAnalysis/SiStripTools/interface/Multiplicities.h"
+#include "MultiplicityAlgorithms.h"
 
 //
 // class declaration
@@ -55,7 +55,7 @@ private:
   // ----------member data ---------------------------
 
   T m_multiplicities;
-  StringCutObjectSelector<T> m_selector;
+  StringCutObjectSelector<typename T::value_t> m_selector;
   bool m_taggedMode, m_forcedValue;
 };
 
@@ -97,9 +97,9 @@ template <class T>
 bool ByMultiplicityEventFilter<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  m_multiplicities.getEvent(iEvent, iSetup);
+  auto mult = m_multiplicities.getEvent(iEvent, iSetup);
 
-  bool value = m_selector(m_multiplicities);
+  bool value = m_selector(mult);
   iEvent.put(std::make_unique<bool>(value));
 
   if (m_taggedMode)
@@ -114,6 +114,7 @@ typedef ByMultiplicityEventFilter<SingleMultiplicity<edmNew::DetSetVector<SiStri
 typedef ByMultiplicityEventFilter<SingleMultiplicity<edmNew::DetSetVector<SiPixelCluster> > > BySiPixelClusterMultiplicityEventFilter;
 typedef ByMultiplicityEventFilter<MultiplicityPair<edmNew::DetSetVector<SiPixelCluster>,edmNew::DetSetVector<SiStripCluster> > > BySiPixelClusterVsSiStripClusterMultiplicityEventFilter;
 */
+using namespace sistriptools::algorithm;
 typedef ByMultiplicityEventFilter<SingleSiStripDigiMultiplicity> BySiStripDigiMultiplicityEventFilter;
 typedef ByMultiplicityEventFilter<SingleSiStripClusterMultiplicity> BySiStripClusterMultiplicityEventFilter;
 typedef ByMultiplicityEventFilter<SingleSiPixelClusterMultiplicity> BySiPixelClusterMultiplicityEventFilter;

@@ -81,7 +81,7 @@ std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(const std::vector<SimTrack>
       continue;
 
     int vertexId = (*iSimTk).vertIndex();
-    SimVertex vertex = theSimVertices[vertexId];
+    const SimVertex& vertex = theSimVertices[vertexId];
 
     std::cout << " Particle type " << (*iSimTk).type() << " Sim Track ID " << (*iSimTk).trackId() << " momentum "
               << (*iSimTk).momentum() << " vertex position " << vertex.position() << std::endl;
@@ -131,7 +131,7 @@ std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(const std::vector<SimTrack>
     std::cout << " mcPhotons.size " << mcPhotons.size() << std::endl;
     for (std::vector<PhotonMCTruth>::iterator iPho = mcPhotons.begin(); iPho != mcPhotons.end(); ++iPho) {
       int phoVtxIndex = (*iPho).vertexInd();
-      SimVertex phoVtx = theSimVertices[phoVtxIndex];
+      const SimVertex& phoVtx = theSimVertices[phoVtxIndex];
       unsigned int phoParentInd = phoVtx.parentIndex();
       std::cout << " photon parent vertex index " << phoParentInd << std::endl;
 

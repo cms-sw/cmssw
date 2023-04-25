@@ -34,7 +34,7 @@ namespace edm {
   class EventSetupRecordIntervalFinder;
   class ParameterSet;
   class IOVSyncValue;
-  class ModuleTypeResolverBase;
+  class ModuleTypeResolverMaker;
   class ServiceToken;
   class WaitingTaskHolder;
   class WaitingTaskList;
@@ -82,7 +82,7 @@ namespace edm {
     class EventSetupsController {
     public:
       EventSetupsController();
-      explicit EventSetupsController(ModuleTypeResolverBase const* resolver);
+      explicit EventSetupsController(ModuleTypeResolverMaker const* resolverMaker);
 
       EventSetupsController(EventSetupsController const&) = delete;
       EventSetupsController const& operator=(EventSetupsController const&) = delete;
@@ -201,7 +201,7 @@ namespace edm {
       std::multimap<ParameterSetID, ESProducerInfo> esproducers_;
       std::multimap<ParameterSetID, ESSourceInfo> essources_;
 
-      ModuleTypeResolverBase const* typeResolver_ = nullptr;
+      ModuleTypeResolverMaker const* typeResolverMaker_ = nullptr;
 
       bool hasNonconcurrentFinder_ = false;
       bool mustFinishConfiguration_ = true;

@@ -46,6 +46,7 @@ private:
   std::vector<std::string> layerNames_;          // Names of the layers
   std::vector<std::string> materials_;           // Materials of the layers
   std::vector<double> layerThick_;               // Thickness of layers
+  std::vector<double> layerSizeOff_;             // Size offset of layers
   std::vector<int> layerType_;                   // Layer types
   std::vector<int> layers_;                      // Number of layers in a section
   std::string senseName_;                        // Name of the sensitive layer
@@ -86,12 +87,14 @@ void DDHGCalWaferPartialRotated::initialize(const DDNumericArguments& nArgs,
   layerNames_ = vsArgs["LayerNames"];
   materials_ = vsArgs["LayerMaterials"];
   layerThick_ = vArgs["LayerThickness"];
+  layerSizeOff_ = vArgs["LayerSizeOffset"];
   layerType_ = dbl_to_int(vArgs["LayerTypes"]);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferPartialRotated: " << layerNames_.size() << " types of volumes";
   for (unsigned int i = 0; i < layerNames_.size(); ++i)
     edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << layerNames_[i] << " of thickness " << layerThick_[i]
-                                  << " filled with " << materials_[i] << " type " << layerType_[i];
+                                  << " size offset " << layerSizeOff_[i] << " filled with " << materials_[i] << " type "
+                                  << layerType_[i];
 #endif
   layers_ = dbl_to_int(vArgs["Layers"]);
 #ifdef EDM_ML_DEBUG
@@ -116,9 +119,6 @@ void DDHGCalWaferPartialRotated::execute(DDCompactView& cpv) {
 #endif
 
   static constexpr double tol = 0.00001;
-  static const double sqrt3 = std::sqrt(3.0);
-  double r = 0.5 * waferSize_;
-  double R = 2.0 * r / sqrt3;
   std::string parentName = parent().name().name();
 
   // Loop over all types
@@ -127,7 +127,7 @@ void DDHGCalWaferPartialRotated::execute(DDCompactView& cpv) {
       // First the mother
       std::string mother = parentName + placementIndexTags_[m] + waferTag_ + tags_[k];
       std::vector<std::pair<double, double> > wxy =
-          HGCalWaferMask::waferXY(partialTypes_[k], placementIndex_[m], r, R, 0.0, 0.0);
+          HGCalWaferMask::waferXY(partialTypes_[k], placementIndex_[m], waferSize_, 0.0, 0.0, 0.0);
       std::vector<double> xM, yM;
       for (unsigned int i = 0; i < (wxy.size() - 1); ++i) {
         xM.emplace_back(wxy[i].first);
@@ -150,20 +150,21 @@ void DDHGCalWaferPartialRotated::execute(DDCompactView& cpv) {
 #endif
 
       // Then the layers
-      wxy = HGCalWaferMask::waferXY(partialTypes_[k], placementIndex_[m], r, R, 0.0, 0.0);
-      std::vector<double> xL, yL;
-      for (unsigned int i = 0; i < (wxy.size() - 1); ++i) {
-        xL.emplace_back(wxy[i].first);
-        yL.emplace_back(wxy[i].second);
-      }
       std::vector<DDLogicalPart> glogs(materials_.size());
       std::vector<int> copyNumber(materials_.size(), 1);
       double zi(-0.5 * thick_), thickTot(0.0);
       for (unsigned int l = 0; l < layers_.size(); l++) {
         unsigned int i = layers_[l];
+        wxy = HGCalWaferMask::waferXY(partialTypes_[k], placementIndex_[m], waferSize_, layerSizeOff_[i], 0.0, 0.0);
+        std::vector<double> xL, yL;
+        for (unsigned int i0 = 0; i0 < (wxy.size() - 1); ++i0) {
+          xL.emplace_back(wxy[i0].first);
+          yL.emplace_back(wxy[i0].second);
+        }
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferPartialRotated:Layer " << l << ":" << i << " T " << layerThick_[i]
-                                      << " Copy " << copyNumber[i];
+                                      << " Size offset " << layerSizeOff_[i] << " Copy " << copyNumber[i]
+                                      << " Partial type " << partialTypes_[k];
 #endif
         DDRotation rot;
         if (copyNumber[i] == 1) {

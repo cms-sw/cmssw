@@ -106,9 +106,6 @@ void DDHGCalWaferP::initialize(const DDNumericArguments& nArgs,
 
 void DDHGCalWaferP::execute(DDCompactView& cpv) {
   static constexpr double tol = 0.00001;
-  static const double sqrt3 = std::sqrt(3.0);
-  double r = 0.5 * waferSize_;
-  double R = 2.0 * r / sqrt3;
   std::string parentName = parent().name().name();
 
   // Loop over all types
@@ -116,7 +113,7 @@ void DDHGCalWaferP::execute(DDCompactView& cpv) {
     // First the mother
     std::string mother = parentName + tags_[k];
     std::vector<std::pair<double, double> > wxy =
-        HGCalWaferMask::waferXY(partialTypes_[k], orientations_[k], 1, r, R, 0.0, 0.0);
+        HGCalWaferMask::waferXY(partialTypes_[k], orientations_[k], 1, waferSize_, 0.0, 0.0, 0.0);
     std::vector<double> xM, yM;
     for (unsigned int i = 0; i < (wxy.size() - 1); ++i) {
       xM.emplace_back(wxy[i].first);
@@ -139,7 +136,7 @@ void DDHGCalWaferP::execute(DDCompactView& cpv) {
 #endif
 
     // Then the layers
-    wxy = HGCalWaferMask::waferXY(partialTypes_[k], orientations_[k], 1, r, R, 0.0, 0.0);
+    wxy = HGCalWaferMask::waferXY(partialTypes_[k], orientations_[k], 1, waferSize_, 0.0, 0.0, 0.0);
     std::vector<double> xL, yL;
     for (unsigned int i = 0; i < (wxy.size() - 1); ++i) {
       xL.emplace_back(wxy[i].first);

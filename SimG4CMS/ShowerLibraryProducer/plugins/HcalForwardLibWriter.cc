@@ -90,10 +90,8 @@ void HcalForwardLibWriter::analyze(const edm::Event& iEvent, const edm::EventSet
     theTree->SetBranchAddress("primZ", &primZ);  // added
     int nentries = int(theTree->GetEntries());
     int ngood = 0;
-    int nbytes = 0;
     // cycle over showers ====================================================
     for (int iev = 0; iev < nentries; iev++) {
-      nbytes += theTree->GetEntry(iev);
       if (primZ < 990.)
         continue;  // exclude showers with interactions in front of HF (1m of air)
       ngood++;

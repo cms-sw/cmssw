@@ -10,6 +10,8 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 
+//#define GPU_DEBUG
+
 namespace gpuClustering {
 
   // Phase-1 pixel modules
@@ -65,14 +67,15 @@ namespace gpuClustering {
   __device__ uint32_t gMaxHit = 0;
 #endif
 
-  template <bool isPhase2>
+  template <typename TrackerTraits>
   __global__ void countModules(uint16_t const* __restrict__ id,
                                uint32_t* __restrict__ moduleStart,
                                int32_t* __restrict__ clusterId,
                                int numElements) {
     int first = blockDim.x * blockIdx.x + threadIdx.x;
-    [[maybe_unused]] constexpr int nMaxModules =
-        isPhase2 ? phase2PixelTopology::numberOfModules : phase1PixelTopology::numberOfModules;
+
+    [[maybe_unused]] constexpr int nMaxModules = TrackerTraits::numberOfModules;
+
     assert(nMaxModules < maxNumModules);
     for (int i = first; i < numElements; i += gridDim.x * blockDim.x) {
       clusterId[i] = i;
@@ -89,7 +92,7 @@ namespace gpuClustering {
     }
   }
 
-  template <bool isPhase2>
+  template <typename TrackerTraits>
   __global__ void findClus(uint32_t* __restrict__ rawIdArr,
                            uint16_t* __restrict__ id,                 // module id of each pixel
                            uint16_t const* __restrict__ x,            // local coordinates of each pixel
@@ -101,6 +104,7 @@ namespace gpuClustering {
                            int numElements) {
     // status is only used for Phase-1, but it cannot be declared conditionally only if isPhase2 is false;
     // to minimize the impact on Phase-2 reconstruction it is declared with a very small size.
+    constexpr bool isPhase2 = std::is_base_of<pixelTopology::Phase2, TrackerTraits>::value;
     constexpr const uint32_t pixelStatusSize = isPhase2 ? 1 : pixelStatus::size;
     __shared__ uint32_t status[pixelStatusSize];  // packed words array used to store the PixelStatus of each pixel
     __shared__ int msize;
@@ -108,14 +112,12 @@ namespace gpuClustering {
     auto firstModule = blockIdx.x;
     auto endModule = moduleStart[0];
 
-    [[maybe_unused]] constexpr int nMaxModules =
-        isPhase2 ? phase2PixelTopology::numberOfModules : phase1PixelTopology::numberOfModules;
-    assert(nMaxModules < maxNumModules);
+    assert(TrackerTraits::numberOfModules < maxNumModules);
 
     for (auto module = firstModule; module < endModule; module += gridDim.x) {
       auto firstPixel = moduleStart[1 + module];
       auto thisModuleId = id[firstPixel];
-      assert(thisModuleId < nMaxModules);
+      assert(thisModuleId < TrackerTraits::numberOfModules);
 
 #ifdef GPU_DEBUG
       if (thisModuleId % 100 == 1)
@@ -141,9 +143,10 @@ namespace gpuClustering {
 
       //init hist  (ymax=416 < 512 : 9bits)
       //6000 max pixels required for HI operations with no measurable impact on pp performance
-      constexpr uint32_t maxPixInModule = 6000;
-      constexpr auto nbins = isPhase2 ? 1024 : phase1PixelTopology::numColsInModule + 2;  //2+2;
-      constexpr auto nbits = isPhase2 ? 10 : 9;                                           //2+2;
+      constexpr uint32_t maxPixInModule = TrackerTraits::maxPixInModule;
+      constexpr auto nbins = TrackerTraits::clusterBinning;
+      constexpr auto nbits = TrackerTraits::clusterBits;
+
       using Hist = cms::cuda::HistoContainer<uint16_t, nbins, maxPixInModule, nbits, uint16_t>;
       __shared__ Hist hist;
       __shared__ typename Hist::Counter ws[32];

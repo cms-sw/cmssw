@@ -490,7 +490,7 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup, const EventI
   const auto tracksPerTraj = theTrajectoryFactory->tracksPerTrajectory();
   for (auto iRefTraj = trajectories.cbegin(), iRefTrajE = trajectories.cend(); iRefTraj != iRefTrajE;
        ++iRefTraj, ++refTrajCount) {
-    RefTrajColl::value_type refTrajPtr = *iRefTraj;
+    const RefTrajColl::value_type &refTrajPtr = *iRefTraj;
     if (theMonitor)
       theMonitor->fillRefTrajectory(refTrajPtr);
 

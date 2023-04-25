@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // Package:     Services
-// Class  :     CPU
+// Class  :     edm::service::CPU
 //
 // Implementation:
 //
@@ -9,12 +9,14 @@
 // CPU.cc: v 1.0 2009/01/08 11:31:07
 
 #include "FWCore/MessageLogger/interface/JobReport.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/CPUServiceBase.h"
+#include "FWCore/Utilities/interface/ResourceInformation.h"
 
 #include "cpu_features/cpu_features_macros.h"
 
@@ -28,14 +30,14 @@
 #include "cpu_features/cpuinfo_ppc.h"
 #endif
 
-#include <iostream>
-#include <sys/time.h>
-#include <sys/resource.h>
-#include <cstdio>
+#include <cstdlib>
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <map>
 #include <set>
+#include <utility>
+#include <vector>
 #include <fmt/format.h>
 
 #ifdef __linux__
@@ -44,25 +46,25 @@
 #endif
 
 namespace edm {
+  using CPUInfoType = std::vector<std::pair<std::string, std::string>>;
 
   namespace service {
     class CPU : public CPUServiceBase {
     public:
       CPU(ParameterSet const &, ActivityRegistry &);
-      ~CPU() override;
+      ~CPU() override = default;
 
       static void fillDescriptions(ConfigurationDescriptions &descriptions);
 
-      bool cpuInfo(std::string &models, double &avgSpeed) override;
-
     private:
       const bool reportCPUProperties_;
+      const bool disableJobReportOutput_;
 
-      bool cpuInfoImpl(std::string &models, double &avgSpeed, Service<JobReport> *reportSvc);
-      bool parseCPUInfo(std::vector<std::pair<std::string, std::string>> &info);
-      std::string getModels(const std::vector<std::pair<std::string, std::string>> &info);
-      std::string getModelFromCPUFeatures();
-      double getAverageSpeed(const std::vector<std::pair<std::string, std::string>> &info);
+      bool parseCPUInfo(CPUInfoType &info) const;
+      std::vector<std::string> getModels(const CPUInfoType &info) const;
+      std::string formatModels(const std::vector<std::string> &models) const;
+      std::string getModelFromCPUFeatures() const;
+      double getAverageSpeed(const CPUInfoType &info) const;
       void postEndJob();
     };
 
@@ -74,20 +76,6 @@ namespace edm {
   namespace service {
     namespace {
 
-      std::string i2str(int i) {
-        std::ostringstream t;
-        t << i;
-        return t.str();
-      }
-
-      std::string d2str(double d) {
-        std::ostringstream t;
-        t << d;
-        return t.str();
-      }
-
-      double str2d(std::string s) { return atof(s.c_str()); }
-
       void trim(std::string &s, const std::string &drop = " \t") {
         std::string::size_type p = s.find_last_not_of(drop);
         if (p != std::string::npos) {
@@ -96,26 +84,10 @@ namespace edm {
         s = s.erase(0, s.find_first_not_of(drop));
       }
 
-      std::string eraseExtraSpaces(std::string s) {
-        bool founded = false;
-        std::string aux;
-        for (std::string::const_iterator iter = s.begin(); iter != s.end(); iter++) {
-          if (founded) {
-            if (*iter == ' ')
-              founded = true;
-            else {
-              aux += " ";
-              aux += *iter;
-              founded = false;
-            }
-          } else {
-            if (*iter == ' ')
-              founded = true;
-            else
-              aux += *iter;
-          }
-        }
-        return aux;
+      void compressWhitespace(std::string &s) {
+        auto last =
+            std::unique(s.begin(), s.end(), [](const auto a, const auto b) { return std::isspace(a) && a == b; });
+        s.erase(last, s.end());
       }
 
       // Determine the CPU set size; if this can be successfully determined, then this
@@ -150,28 +122,41 @@ namespace edm {
     }  // namespace
 
     CPU::CPU(const ParameterSet &iPS, ActivityRegistry &iRegistry)
-        : reportCPUProperties_(iPS.getUntrackedParameter<bool>("reportCPUProperties")) {
+        : reportCPUProperties_(iPS.getUntrackedParameter<bool>("reportCPUProperties")),
+          disableJobReportOutput_(iPS.getUntrackedParameter<bool>("disableJobReportOutput")) {
+      edm::Service<edm::ResourceInformation> resourceInformationService;
+      if (resourceInformationService.isAvailable()) {
+        CPUInfoType info;
+        if (parseCPUInfo(info)) {
+          const auto models{getModels(info)};
+          resourceInformationService->setCPUModels(models);
+          resourceInformationService->setCpuModelsFormatted(formatModels(models));
+          resourceInformationService->setCpuAverageSpeed(getAverageSpeed(info));
+        }
+      }
       iRegistry.watchPostEndJob(this, &CPU::postEndJob);
     }
-
-    CPU::~CPU() {}
 
     void CPU::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
       edm::ParameterSetDescription desc;
       desc.addUntracked<bool>("reportCPUProperties", false);
+      desc.addUntracked<bool>("disableJobReportOutput", false);
       descriptions.add("CPU", desc);
     }
 
     void CPU::postEndJob() {
+      if (disableJobReportOutput_) {
+        return;
+      }
+
       Service<JobReport> reportSvc;
 
-      std::vector<std::pair<std::string, std::string>> info;
+      CPUInfoType info;
       if (!parseCPUInfo(info)) {
         return;
       }
 
-      std::string models = getModels(info);
-      double avgSpeed = getAverageSpeed(info);
+      const auto models{formatModels(getModels(info))};
       unsigned totalNumberCPUs = 0;
       std::map<std::string, std::string> currentCoreProperties;
       std::string currentCore;
@@ -197,26 +182,17 @@ namespace edm {
       }
 
       std::map<std::string, std::string> reportCPUProperties{
-          {"totalCPUs", i2str(totalNumberCPUs)}, {"averageCoreSpeed", d2str(avgSpeed)}, {"CPUModels", models}};
+          {"totalCPUs", std::to_string(totalNumberCPUs)},
+          {"averageCoreSpeed", std::to_string(getAverageSpeed(info))},
+          {"CPUModels", models}};
       unsigned set_size = -1;
       if (getCpuSetSize(set_size)) {
-        reportCPUProperties.insert(std::make_pair("cpusetCount", i2str(set_size)));
+        reportCPUProperties.insert(std::make_pair("cpusetCount", std::to_string(set_size)));
       }
       reportSvc->reportPerformanceSummary("SystemCPU", reportCPUProperties);
     }
 
-    bool CPU::cpuInfo(std::string &models, double &avgSpeed) {
-      std::vector<std::pair<std::string, std::string>> info;
-      if (!parseCPUInfo(info)) {
-        return false;
-      }
-
-      models = getModels(info);
-      avgSpeed = getAverageSpeed(info);
-      return true;
-    }
-
-    bool CPU::parseCPUInfo(std::vector<std::pair<std::string, std::string>> &info) {
+    bool CPU::parseCPUInfo(CPUInfoType &info) const {
       info.clear();
       std::ifstream fcpuinfo("/proc/cpuinfo");
       if (!fcpuinfo.is_open()) {
@@ -254,14 +230,14 @@ namespace edm {
         }
 
         if (property == "model name") {
-          value = eraseExtraSpaces(value);
+          compressWhitespace(value);
         }
         info.emplace_back(property, value);
       }
       return true;
     }
 
-    std::string CPU::getModelFromCPUFeatures() {
+    std::string CPU::getModelFromCPUFeatures() const {
       using namespace cpu_features;
 
       std::string model;
@@ -281,13 +257,23 @@ namespace edm {
       return model;
     }
 
-    std::string CPU::getModels(const std::vector<std::pair<std::string, std::string>> &info) {
-      std::set<std::string> models;
+    std::vector<std::string> CPU::getModels(const CPUInfoType &info) const {
+      std::set<std::string> modelSet;
       for (const auto &entry : info) {
         if (entry.first == "model name") {
-          models.insert(entry.second);
+          modelSet.insert(entry.second);
         }
       }
+      std::vector<std::string> modelsVector(modelSet.begin(), modelSet.end());
+      // If "model name" isn't present in /proc/cpuinfo, see what we can get
+      // from cpu_features
+      if (modelsVector.empty()) {
+        modelsVector.emplace_back(getModelFromCPUFeatures());
+      }
+      return modelsVector;
+    }
+
+    std::string CPU::formatModels(const std::vector<std::string> &models) const {
       std::stringstream ss;
       int model = 0;
       for (const auto &modelname : models) {
@@ -296,20 +282,19 @@ namespace edm {
         }
         ss << modelname;
       }
-      // If "model name" isn't present in /proc/cpuinfo, see what we can get
-      // from cpu_features
-      if (0 == model) {
-        return getModelFromCPUFeatures();
-      }
       return ss.str();
     }
 
-    double CPU::getAverageSpeed(const std::vector<std::pair<std::string, std::string>> &info) {
+    double CPU::getAverageSpeed(const CPUInfoType &info) const {
       double averageCoreSpeed = 0.0;
       unsigned coreCount = 0;
       for (const auto &entry : info) {
         if (entry.first == "cpu MHz") {
-          averageCoreSpeed += str2d(entry.second);
+          try {
+            averageCoreSpeed += std::stod(entry.second);
+          } catch (const std::logic_error &e) {
+            LogWarning("CPU::getAverageSpeed") << "stod(" << entry.second << ") conversion error: " << e.what();
+          }
           coreCount++;
         }
       }
@@ -324,5 +309,5 @@ namespace edm {
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
 using edm::service::CPU;
-typedef edm::serviceregistry::AllArgsMaker<edm::CPUServiceBase, CPU> CPUMaker;
+using CPUMaker = edm::serviceregistry::AllArgsMaker<edm::CPUServiceBase, CPU>;
 DEFINE_FWK_SERVICE_MAKER(CPU, CPUMaker);

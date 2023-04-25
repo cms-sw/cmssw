@@ -14,8 +14,10 @@ static const std::string kProducerType("EDProducer");
 namespace edm {
   // -----------------------------
 
-  WorkerManager::WorkerManager(std::shared_ptr<ActivityRegistry> areg, ExceptionToActionTable const& actions)
-      : workerReg_(areg),
+  WorkerManager::WorkerManager(std::shared_ptr<ActivityRegistry> areg,
+                               ExceptionToActionTable const& actions,
+                               ModuleTypeResolverMaker const* typeResolverMaker)
+      : workerReg_(areg, typeResolverMaker),
         actionTable_(&actions),
         allWorkers_(),
         unscheduled_(*areg),

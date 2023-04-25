@@ -10,6 +10,7 @@ namespace helper {
         selHits_(new TrackingRecHitCollection),
         selStripClusters_(new edmNew::DetSetVector<SiStripCluster>),
         selPixelClusters_(new edmNew::DetSetVector<SiPixelCluster>),
+        selPhase2OTClusters_(new edmNew::DetSetVector<Phase2TrackerCluster1D>),
         rTracks_(),
         rTrackExtras_(),
         rHits_(),
@@ -62,6 +63,7 @@ namespace helper {
     evt.put(std::move(selHits_));
     evt.put(std::move(selStripClusters_));
     evt.put(std::move(selPixelClusters_));
+    evt.put(std::move(selPhase2OTClusters_));
     return h;
   }
 

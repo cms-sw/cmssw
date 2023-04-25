@@ -99,6 +99,7 @@ if __name__ == '__main__':
                      12434.0, #2023 ttbar
                      20834.0, #2026D88 ttbar (2022 new baseline)
                      20834.75, #2026D88 ttbar with HLT75e33
+                     20834.76, #2026D88 ttbar with HLT75e33 in the same step as DIGI+L1
                      #20834.911, #2026D88 ttbar DD4hep XML
                      21034.999, #2026D88 ttbar premixing stage1+stage2, PU50
                      20896.0, #CE_E_Front_120um D88
@@ -456,6 +457,8 @@ if __name__ == '__main__':
         opt.overWrite=eval(opt.overWrite)
     if opt.interactive:
         import cmd
+        from colorama import Fore, Style
+        from os import isatty
 
         class TheMatrix(cmd.Cmd):
             intro = "Welcome to the Matrix (? for help)"
@@ -485,6 +488,12 @@ if __name__ == '__main__':
             def default(self, inp):
                 if inp == 'x' or inp == 'q':
                     return self.do_exit(inp)
+                else:
+                    is_pipe = not isatty(sys.stdin.fileno())
+                    print(Fore.RED + "Error: " + Fore.RESET + "unrecognized command.")
+                    # Quit only if given a piped command.
+                    if is_pipe:
+                      sys.exit(1)
 
             def help_predefined(self):
                 print("\n".join(["predefined [predef1 [...]]\n",
@@ -508,7 +517,7 @@ if __name__ == '__main__':
                         else:
                             print("Unknown Set: %s" % w)
                 else:
-                    print(predefinedSet.keys())
+                    print("[ " + Fore.RED + ", ".join([str(k) for k in predefinedSet.keys()]) + Fore.RESET + " ]")
 
             def help_showWorkflow(self):
                 print("\n".join(["showWorkflow [workflow1 [...]]\n",
@@ -525,7 +534,8 @@ if __name__ == '__main__':
                 if arg == '':
                     print("Available workflows:")
                     for k in self.matrices_.keys():
-                        print(k)
+                        print(Fore.RED + Style.BRIGHT + k)
+                    print(Style.RESET_ALL)
                 else:
                     selected = arg.split()
                     for k in selected:
@@ -533,9 +543,9 @@ if __name__ == '__main__':
                             print("Unknown workflow %s: skipping" % k)
                         else:
                             for wfl in self.matrices_[k].workFlows:
-                                wfName, stepNames = wfl.nameId.split('+',1)
-                                print("%s %s %s" % (wfl.numId, wfName, stepNames))
-                            print("%s contains %d workflows" % (k, len(self.matrices_[k].workFlows)))
+                                print("%s %s" % (Fore.BLUE + str(wfl.numId) + Fore.RESET,
+                                                              Fore.GREEN + wfl.nameId + Fore.RESET))
+                            print("%s contains %d workflows" % (Fore.RED + k + Fore.RESET, len(self.matrices_[k].workFlows)))
 
             def help_searchInWorkflow(self):
                 print("\n".join(["searchInWorkflow wfl_name search_regexp\n",
@@ -565,11 +575,12 @@ if __name__ == '__main__':
                     return
                 counter = 0
                 for wfl in self.matrices_[args[0]].workFlows:
-                    wfName, stepNames = wfl.nameId.split('+',1)
-                    if re.match(pattern, wfName) or re.match(pattern, stepNames):
-                        print("%s %s %s" % (wfl.numId, wfName, stepNames))
-                        counter += 1
-                print("Found %d compatible workflows inside %s" % (counter, args[0]))
+                    if re.match(pattern, wfl.nameId):
+                      print("%s %s" % (Fore.BLUE + str(wfl.numId) + Fore.RESET,
+                                       Fore.GREEN + wfl.nameId + Fore.RESET))
+                      counter +=1
+                print("Found %s compatible workflows inside %s" % (Fore.RED + str(counter) + Fore.RESET,
+                                                                   Fore.YELLOW + str(args[0])) + Fore.RESET)
 
             def help_search(self):
                 print("\n".join(["search search_regexp\n",
@@ -594,19 +605,19 @@ if __name__ == '__main__':
                     print("dumpWorkflowId [wfl-id1 [...]]")
                     return
 
-                fmt   = "[%d]: %s\n"
+                fmt   = "[%s]: %s\n"
                 maxLen = 100
                 for wflid in wflids:
                     dump = True
                     for key, mrd in self.matrices_.items():
                         for wfl in mrd.workFlows:
                             if wfl.numId == float(wflid):
-                                wfName, stepNames = wfl.nameId.split('+',1)
                                 if dump:
                                     dump = False
-                                    print(wfl.numId, stepNames)
+                                    print(Fore.GREEN + str(wfl.numId) + Fore.RESET + " " + Fore.YELLOW + wfl.nameId + Fore.RESET)
                                     for i,s in enumerate(wfl.cmds):
-                                        print(fmt % (i+1, (str(s)+' ')))
+                                        print(fmt % (Fore.RED + str(i+1) + Fore.RESET,
+                                          (str(s)+' ')))
                                     print("\nWorkflow found in %s." % key)
                                 else:
                                     print("Workflow also found in %s." % key)

@@ -1,9 +1,7 @@
 #include <cuda_runtime.h>
+#include <Eigen/Core>  // needed here by soa layout
 
 #include "CUDADataFormats/Common/interface/Product.h"
-#include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
-#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DHeterogeneous.h"
-#include "CUDADataFormats/Vertex/interface/ZVertexHeterogeneous.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -20,66 +18,84 @@
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
 
-class PixelTrackDumpCUDA : public edm::global::EDAnalyzer<> {
+#include "CUDADataFormats/Vertex/interface/ZVertexSoAHeterogeneousHost.h"
+#include "CUDADataFormats/Vertex/interface/ZVertexSoAHeterogeneousDevice.h"
+
+#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousDevice.h"
+#include "CUDADataFormats/Track/interface/TrackSoAHeterogeneousHost.h"
+
+template <typename TrackerTraits>
+class PixelTrackDumpCUDAT : public edm::global::EDAnalyzer<> {
 public:
-  explicit PixelTrackDumpCUDA(const edm::ParameterSet& iConfig);
-  ~PixelTrackDumpCUDA() override = default;
+  using TrackSoAHost = TrackSoAHeterogeneousHost<TrackerTraits>;
+  using TrackSoADevice = TrackSoAHeterogeneousDevice<TrackerTraits>;
+
+  using VertexSoAHost = ZVertexSoAHost;
+  using VertexSoADevice = ZVertexSoADevice;
+
+  explicit PixelTrackDumpCUDAT(const edm::ParameterSet& iConfig);
+  ~PixelTrackDumpCUDAT() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void analyze(edm::StreamID streamID, edm::Event const& iEvent, const edm::EventSetup& iSetup) const override;
   const bool m_onGPU;
-  edm::EDGetTokenT<cms::cuda::Product<PixelTrackHeterogeneous>> tokenGPUTrack_;
-  edm::EDGetTokenT<cms::cuda::Product<ZVertexHeterogeneous>> tokenGPUVertex_;
-  edm::EDGetTokenT<PixelTrackHeterogeneous> tokenSoATrack_;
-  edm::EDGetTokenT<ZVertexHeterogeneous> tokenSoAVertex_;
+  edm::EDGetTokenT<cms::cuda::Product<TrackSoADevice>> tokenGPUTrack_;
+  edm::EDGetTokenT<cms::cuda::Product<VertexSoADevice>> tokenGPUVertex_;
+  edm::EDGetTokenT<TrackSoAHost> tokenSoATrack_;
+  edm::EDGetTokenT<VertexSoAHost> tokenSoAVertex_;
 };
 
-PixelTrackDumpCUDA::PixelTrackDumpCUDA(const edm::ParameterSet& iConfig)
+template <typename TrackerTraits>
+PixelTrackDumpCUDAT<TrackerTraits>::PixelTrackDumpCUDAT(const edm::ParameterSet& iConfig)
     : m_onGPU(iConfig.getParameter<bool>("onGPU")) {
   if (m_onGPU) {
-    tokenGPUTrack_ =
-        consumes<cms::cuda::Product<PixelTrackHeterogeneous>>(iConfig.getParameter<edm::InputTag>("pixelTrackSrc"));
-    tokenGPUVertex_ =
-        consumes<cms::cuda::Product<ZVertexHeterogeneous>>(iConfig.getParameter<edm::InputTag>("pixelVertexSrc"));
+    tokenGPUTrack_ = consumes(iConfig.getParameter<edm::InputTag>("pixelTrackSrc"));
+    tokenGPUVertex_ = consumes(iConfig.getParameter<edm::InputTag>("pixelVertexSrc"));
   } else {
-    tokenSoATrack_ = consumes<PixelTrackHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelTrackSrc"));
-    tokenSoAVertex_ = consumes<ZVertexHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelVertexSrc"));
+    tokenSoATrack_ = consumes(iConfig.getParameter<edm::InputTag>("pixelTrackSrc"));
+    tokenSoAVertex_ = consumes(iConfig.getParameter<edm::InputTag>("pixelVertexSrc"));
   }
 }
 
-void PixelTrackDumpCUDA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+template <typename TrackerTraits>
+void PixelTrackDumpCUDAT<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
   desc.add<bool>("onGPU", true);
   desc.add<edm::InputTag>("pixelTrackSrc", edm::InputTag("pixelTracksCUDA"));
   desc.add<edm::InputTag>("pixelVertexSrc", edm::InputTag("pixelVerticesCUDA"));
-  descriptions.add("pixelTrackDumpCUDA", desc);
+  descriptions.addWithDefaultLabel(desc);
 }
 
-void PixelTrackDumpCUDA::analyze(edm::StreamID streamID,
-                                 edm::Event const& iEvent,
-                                 const edm::EventSetup& iSetup) const {
+template <typename TrackerTraits>
+void PixelTrackDumpCUDAT<TrackerTraits>::analyze(edm::StreamID streamID,
+                                                 edm::Event const& iEvent,
+                                                 const edm::EventSetup& iSetup) const {
   if (m_onGPU) {
     auto const& hTracks = iEvent.get(tokenGPUTrack_);
     cms::cuda::ScopedContextProduce ctx{hTracks};
 
     auto const& tracks = ctx.get(hTracks);
-    auto const* tsoa = tracks.get();
-    assert(tsoa);
+    auto const* tsoa = &tracks;
+    assert(tsoa->buffer());
 
     auto const& vertices = ctx.get(iEvent.get(tokenGPUVertex_));
-    auto const* vsoa = vertices.get();
-    assert(vsoa);
+    auto const* vsoa = &vertices;
+    assert(vsoa->buffer());
 
   } else {
-    auto const* tsoa = iEvent.get(tokenSoATrack_).get();
-    assert(tsoa);
+    auto const& tsoa = iEvent.get(tokenSoATrack_);
+    assert(tsoa.buffer());
 
-    auto const* vsoa = iEvent.get(tokenSoAVertex_).get();
-    assert(vsoa);
+    auto const& vsoa = iEvent.get(tokenSoAVertex_);
+    assert(vsoa.buffer());
   }
 }
 
-DEFINE_FWK_MODULE(PixelTrackDumpCUDA);
+using PixelTrackDumpCUDAPhase1 = PixelTrackDumpCUDAT<pixelTopology::Phase1>;
+DEFINE_FWK_MODULE(PixelTrackDumpCUDAPhase1);
+
+using PixelTrackDumpCUDAPhase2 = PixelTrackDumpCUDAT<pixelTopology::Phase2>;
+DEFINE_FWK_MODULE(PixelTrackDumpCUDAPhase2);

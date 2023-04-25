@@ -261,7 +261,7 @@ void AlCaHBHEMuonFilter::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<std::string>("ProcessName", "HLT");
   desc.add<edm::InputTag>("TriggerResultLabel", edm::InputTag("TriggerResults", "", "HLT"));
   desc.add<edm::InputTag>("MuonLabel", edm::InputTag("muons"));
-  desc.add<double>("MinimumMuonP", 10.0);
+  desc.add<double>("MinimumMuonP", 5.0);
   desc.add<std::vector<std::string> >("Triggers", triggers);
   desc.add<bool>("PFCut", true);
   desc.add<double>("PFIsolationCut", 0.12);

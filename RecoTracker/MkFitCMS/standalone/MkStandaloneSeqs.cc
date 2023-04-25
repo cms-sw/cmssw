@@ -3,6 +3,7 @@
 
 #include "RecoTracker/MkFitCore/interface/HitStructures.h"
 #include "RecoTracker/MkFitCore/standalone/Event.h"
+#include "RecoTracker/MkFitCore/interface/IterationConfig.h"
 
 #include "RecoTracker/MkFitCore/src/Debug.h"
 
@@ -138,7 +139,7 @@ namespace mkfit {
       const auto label = tkcand.label();
       TrackExtra extra(label);
 
-      // track_print(tkcand, "XXX");
+      // track_print(event, tkcand, "quality_process -> track_print:");
 
       // access temp seed trk and set matching seed hits
       const auto &seed = event->seedTracks_[itrack];
@@ -186,11 +187,6 @@ namespace mkfit {
         // grep "FOUND_LABEL" | sort -n -k 8,8 -k 2,2
         // printf("FOUND_LABEL %6d  pT_mc= %8.2f eta_mc= %8.2f event= %d\n", label, pTmc, etamc, event->evtID());
       }
-
-#ifdef SELECT_SEED_LABEL
-      if (label == SELECT_SEED_LABEL)
-        track_print(tkcand, "MkBuilder::quality_process SELECT_SEED_LABEL:");
-#endif
 
       float pTcmssw = 0.f, etacmssw = 0.f, phicmssw = 0.f;
       int nfoundcmssw = -1;
@@ -396,8 +392,9 @@ namespace mkfit {
     }
 
     void score_tracks(TrackVec &tracks) {
+      auto score_func = IterationConfig::get_track_scorer("default");
       for (auto &track : tracks) {
-        track.setScore(getScoreCand(track));
+        track.setScore(getScoreCand(score_func, track));
       }
     }
 

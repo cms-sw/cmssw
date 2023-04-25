@@ -8,14 +8,13 @@ from Configuration.Geometry.GeometryExtended2026D93_cff import *
 # tracker
 from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *
 from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
-from Geometry.TrackerGeometryBuilder.TrackerAdditionalParametersPerDet_cfi import *
 from Geometry.TrackerGeometryBuilder.trackerParameters_cff import *
 from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *
 from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *
 trackerGeometry.applyAlignment = False
 
 # calo
-from Geometry.CaloEventSetup.HGCalV9Topology_cfi import *
+from Geometry.CaloEventSetup.HGCalTopology_cfi import *
 from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *
 from Geometry.CaloEventSetup.CaloTopology_cfi import *
 from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *

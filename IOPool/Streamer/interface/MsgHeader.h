@@ -27,7 +27,8 @@ struct Header {
     ERROR_EVENT = 14,
     FILE_CLOSE_REQUEST = 15,
     SPARE1 = 16,
-    SPARE2 = 17
+    SPARE2 = 17,
+    PADDING = 255  //reserved for padding
   };
 };
 

@@ -187,7 +187,9 @@ namespace edm {
                 branchKey.moduleLabel() == prod.second.switchAliasModuleLabel() and
                 branchKey.productInstanceName() == prod.second.productInstanceName()) {
               prod.second.setSwitchAliasForBranch(desc);
-              it->second.chosenBranches.push_back(prod.first);  // with moduleLabel of the Switch
+              if (!prod.second.transient()) {
+                it->second.chosenBranches.push_back(prod.first);  // with moduleLabel of the Switch
+              }
               found = true;
             }
           }
@@ -233,7 +235,7 @@ namespace edm {
         }
       };
 
-      // Check that non-chosen cases declare exactly the same branches
+      // Check that non-chosen cases declare exactly the same non-transient branches
       // Also set the alias-for branches to transient
       std::vector<bool> foundBranches;
       for (auto const& switchItem : switchMap) {
@@ -246,6 +248,32 @@ namespace edm {
           for (auto& nonConstItem : preg.productListUpdator()) {
             auto const& item = nonConstItem;
             if (item.first.moduleLabel() == caseLabel and item.first.processName() == processName) {
+              // Check that products which are not transient in the dictionary are consistent between
+              // all the cases of a SwitchProducer.
+              if (!item.second.transient()) {
+                auto range = std::equal_range(chosenBranches.begin(),
+                                              chosenBranches.end(),
+                                              BranchKey(item.first.friendlyClassName(),
+                                                        switchLabel,
+                                                        item.first.productInstanceName(),
+                                                        item.first.processName()));
+                if (range.first == range.second) {
+                  Exception ex(errors::Configuration);
+                  ex << "SwitchProducer " << switchLabel << " has a case " << caseLabel << " with a product "
+                     << item.first << " that is not produced by the chosen case "
+                     << proc_pset.getParameter<edm::ParameterSet>(switchLabel)
+                            .getUntrackedParameter<std::string>("@chosen_case")
+                     << " and that product is not transient. "
+                     << "If the intention is to produce only a subset of the non-transient products listed below, each "
+                        "case with more non-transient products needs to be replaced with an EDAlias to only the "
+                        "necessary products, and the EDProducer itself needs to be moved to a Task.\n\n";
+                  addProductsToException(caseLabels, ex);
+                  throw ex;
+                }
+                assert(std::distance(range.first, range.second) == 1);
+                foundBranches[std::distance(chosenBranches.begin(), range.first)] = true;
+              }
+
               // Set the alias-for branch as transient so it gets fully ignored in output.
               // I tried first to implicitly drop all branches with
               // '@' in ProductSelector, but that gave problems on
@@ -255,27 +283,6 @@ namespace edm {
               // detection logic in RootFile says that the
               // SwitchProducer branches are not alias branches)
               nonConstItem.second.setTransient(true);
-
-              auto range = std::equal_range(chosenBranches.begin(),
-                                            chosenBranches.end(),
-                                            BranchKey(item.first.friendlyClassName(),
-                                                      switchLabel,
-                                                      item.first.productInstanceName(),
-                                                      item.first.processName()));
-              if (range.first == range.second) {
-                Exception ex(errors::Configuration);
-                ex << "SwitchProducer " << switchLabel << " has a case " << caseLabel << " with a product "
-                   << item.first << " that is not produced by the chosen case "
-                   << proc_pset.getParameter<edm::ParameterSet>(switchLabel)
-                          .getUntrackedParameter<std::string>("@chosen_case")
-                   << ". If the intention is to produce only a subset of the products listed below, each case with "
-                      "more products needs to be replaced with an EDAlias to only the necessary products, and the "
-                      "EDProducer itself needs to be moved to a Task.\n\n";
-                addProductsToException(caseLabels, ex);
-                throw ex;
-              }
-              assert(std::distance(range.first, range.second) == 1);
-              foundBranches[std::distance(chosenBranches.begin(), range.first)] = true;
 
               // Check that there are no BranchAliases for any of the cases
               auto const& bd = item.second;
@@ -299,10 +306,10 @@ namespace edm {
               Exception ex(errors::Configuration);
               ex << "SwitchProducer " << switchLabel << " has a case " << caseLabel
                  << " that does not produce a product " << chosenBranches[i] << " that is produced by the chosen case "
-                 << chosenLabel
-                 << ". If the intention is to produce only a subset of the products listed below, each case with more "
-                    "products needs to be replaced with an EDAlias to only the necessary products, and the "
-                    "EDProducer itself needs to be moved to a Task.\n\n";
+                 << chosenLabel << " and that product is not transient. "
+                 << "If the intention is to produce only a subset of the non-transient products listed below, each "
+                    "case with more non-transient products needs to be replaced with an EDAlias to only the "
+                    "necessary products, and the EDProducer itself needs to be moved to a Task.\n\n";
               addProductsToException(caseLabels, ex);
               throw ex;
             }
@@ -483,12 +490,13 @@ namespace edm {
                      std::shared_ptr<ActivityRegistry> areg,
                      std::shared_ptr<ProcessConfiguration const> processConfiguration,
                      PreallocationConfiguration const& prealloc,
-                     ProcessContext const* processContext)
+                     ProcessContext const* processContext,
+                     ModuleTypeResolverMaker const* resolverMaker)
       :  //Only create a resultsInserter if there is a trigger path
         resultsInserter_{tns.getTrigPaths().empty()
                              ? std::shared_ptr<TriggerResultInserter>{}
                              : makeInserter(proc_pset, prealloc, preg, actions, areg, processConfiguration)},
-        moduleRegistry_(new ModuleRegistry()),
+        moduleRegistry_(std::make_shared<ModuleRegistry>(resolverMaker)),
         all_output_communicators_(),
         preallocConfig_(prealloc),
         pathNames_(&tns.getTrigPaths()),

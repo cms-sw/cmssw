@@ -91,7 +91,10 @@ trackingLowPU.toReplaceWith(pixelTracksTask, _pixelTracksTask_lowPU)
 # "Patatrack" pixel ntuplets, fishbone cleaning, Broken Line fit, and density-based vertex reconstruction
 from Configuration.ProcessModifiers.pixelNtupletFit_cff import pixelNtupletFit
 
-from RecoPixelVertexing.PixelTriplets.pixelTracksCUDA_cfi import pixelTracksCUDA as _pixelTracksCUDA
+from RecoPixelVertexing.PixelTriplets.caHitNtupletCUDAPhase1_cfi import caHitNtupletCUDAPhase1 as _pixelTracksCUDA
+from RecoPixelVertexing.PixelTriplets.caHitNtupletCUDAPhase2_cfi import caHitNtupletCUDAPhase2 as _pixelTracksCUDAPhase2
+
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 
 # SwitchProducer providing the pixel tracks in SoA format on the CPU
 pixelTracksSoA = SwitchProducerCUDA(
@@ -102,24 +105,30 @@ pixelTracksSoA = SwitchProducerCUDA(
         onGPU = False
     )
 )
+
 # use quality cuts tuned for Run 2 ideal conditions for all Run 3 workflows
 run3_common.toModify(pixelTracksSoA.cpu,
     idealConditions = True
 )
 
 # convert the pixel tracks from SoA to legacy format
-from RecoPixelVertexing.PixelTrackFitting.pixelTrackProducerFromSoA_cfi import pixelTrackProducerFromSoA as _pixelTrackProducerFromSoA
-(pixelNtupletFit & ~phase2_tracker).toReplaceWith(pixelTracks, _pixelTrackProducerFromSoA.clone(
+from RecoPixelVertexing.PixelTrackFitting.pixelTrackProducerFromSoAPhase1_cfi import pixelTrackProducerFromSoAPhase1 as _pixelTrackProducerFromSoA
+from RecoPixelVertexing.PixelTrackFitting.pixelTrackProducerFromSoAPhase2_cfi import pixelTrackProducerFromSoAPhase2 as _pixelTrackProducerFromSoAPhase2
+
+pixelNtupletFit.toReplaceWith(pixelTracks, _pixelTrackProducerFromSoA.clone(
     pixelRecHitLegacySrc = "siPixelRecHitsPreSplitting",
 ))
 
-(pixelNtupletFit & ~phase2_tracker).toReplaceWith(pixelTracksTask, cms.Task(
+(pixelNtupletFit & phase2_tracker).toReplaceWith(pixelTracks, _pixelTrackProducerFromSoAPhase2.clone(
+    pixelRecHitLegacySrc = "siPixelRecHitsPreSplitting",
+))
+
+pixelNtupletFit.toReplaceWith(pixelTracksTask, cms.Task(
     # build the pixel ntuplets and the pixel tracks in SoA format on the GPU
     pixelTracksSoA,
     # convert the pixel tracks from SoA to legacy format
     pixelTracks
 ))
-
 
 # "Patatrack" sequence running on GPU (or CPU if not available)
 from Configuration.ProcessModifiers.gpu_cff import gpu
@@ -128,23 +137,37 @@ from Configuration.ProcessModifiers.gpu_cff import gpu
 pixelTracksCUDA = _pixelTracksCUDA.clone(
     pixelRecHitSrc = "siPixelRecHitsPreSplittingCUDA",
     idealConditions = False,
-    onGPU = True
+    onGPU = True,
 )
+
 # use quality cuts tuned for Run 2 ideal conditions for all Run 3 workflows
 run3_common.toModify(pixelTracksCUDA,
     idealConditions = True
 )
 
 # SwitchProducer providing the pixel tracks in SoA format on the CPU
-from RecoPixelVertexing.PixelTrackFitting.pixelTracksSoA_cfi import pixelTracksSoA as _pixelTracksSoA
+from RecoPixelVertexing.PixelTrackFitting.pixelTrackSoAFromCUDAPhase1_cfi import pixelTrackSoAFromCUDAPhase1 as _pixelTracksSoA
+from RecoPixelVertexing.PixelTrackFitting.pixelTrackSoAFromCUDAPhase2_cfi import pixelTrackSoAFromCUDAPhase2 as _pixelTracksSoAPhase2
+
 gpu.toModify(pixelTracksSoA,
     # transfer the pixel tracks in SoA format to the host
     cuda = _pixelTracksSoA.clone()
 )
 
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+(gpu & phase2_tracker).toModify(pixelTracksSoA,cuda = _pixelTracksSoAPhase2.clone(
+))
 
-(pixelNtupletFit & gpu & ~phase2_tracker).toReplaceWith(pixelTracksTask, cms.Task(
+phase2_tracker.toModify(pixelTracksSoA,cpu = _pixelTracksCUDAPhase2.clone(
+    pixelRecHitSrc = "siPixelRecHitsPreSplittingSoA",
+    onGPU = False
+))
+
+phase2_tracker.toReplaceWith(pixelTracksCUDA,_pixelTracksCUDAPhase2.clone(
+    pixelRecHitSrc = "siPixelRecHitsPreSplittingCUDA",
+    onGPU = True,
+))
+
+(pixelNtupletFit & gpu).toReplaceWith(pixelTracksTask, cms.Task(
     # build the pixel ntuplets and pixel tracks in SoA format on the GPU
     pixelTracksCUDA,
     # transfer the pixel tracks in SoA format to the CPU, and convert them to legacy format

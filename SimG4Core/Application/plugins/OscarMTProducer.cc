@@ -61,9 +61,15 @@ public:
 private:
   omt::ThreadHandoff m_handoff;
   std::unique_ptr<RunManagerMTWorker> m_runManagerWorker;
-  const OscarMTMasterThread* m_masterThread = nullptr;
+  const OscarMTMasterThread* m_masterThread;
+  const edm::ParameterSetID m_psetID;
   int m_verbose;
+  CMS_SA_ALLOW static const OscarMTMasterThread* s_masterThread;
+  CMS_SA_ALLOW static edm::ParameterSetID s_psetID;
 };
+
+const OscarMTMasterThread* OscarMTProducer::s_masterThread = nullptr;
+edm::ParameterSetID OscarMTProducer::s_psetID{};
 
 namespace edm {
   class StreamID;
@@ -101,7 +107,7 @@ namespace {
 }  // namespace
 
 OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMasterThread* ms)
-    : m_handoff{p.getUntrackedParameter<int>("workerThreadStackSize", 10 * 1024 * 1024)} {
+    : m_handoff{p.getUntrackedParameter<int>("workerThreadStackSize", 10 * 1024 * 1024)}, m_psetID{p.id()} {
   m_verbose = p.getParameter<int>("EventVerbose");
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
@@ -112,7 +118,8 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMaster
     StaticRandomEngineSetUnset random(nullptr);
     m_runManagerWorker = std::make_unique<RunManagerMTWorker>(p, consumesCollector());
   });
-  m_masterThread = ms;
+  m_masterThread = ms ? ms : s_masterThread;
+  assert(m_masterThread);
   m_masterThread->callConsumes(consumesCollector());
 
   // List of produced containers
@@ -191,8 +198,13 @@ std::unique_ptr<OscarMTMasterThread> OscarMTProducer::initializeGlobalCache(cons
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::initializeGlobalCache";
-
-  return std::make_unique<OscarMTMasterThread>(iConfig);
+  if (nullptr == s_masterThread) {
+    auto ret = std::make_unique<OscarMTMasterThread>(iConfig);
+    s_masterThread = ret.get();
+    s_psetID = iConfig.id();
+    return ret;
+  }
+  return {};
 }
 
 std::shared_ptr<int> OscarMTProducer::globalBeginRun(const edm::Run&,
@@ -201,22 +213,34 @@ std::shared_ptr<int> OscarMTProducer::globalBeginRun(const edm::Run&,
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::globalBeginRun";
-  masterThread->beginRun(iSetup);
+  if (masterThread) {
+    masterThread->beginRun(iSetup);
+  }
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::globalBeginRun done";
   return std::shared_ptr<int>();
 }
 
 void OscarMTProducer::globalEndRun(const edm::Run&, const edm::EventSetup&, const RunContext* iContext) {
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::globalEndRun";
-  iContext->global()->endRun();
+  if (nullptr != iContext->global()) {
+    iContext->global()->endRun();
+  }
 }
 
 void OscarMTProducer::globalEndJob(OscarMTMasterThread* masterThread) {
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::globalEndJob";
-  masterThread->stopThread();
+  if (masterThread) {
+    masterThread->stopThread();
+  }
 }
 
 void OscarMTProducer::beginRun(const edm::Run&, const edm::EventSetup& es) {
+  if (s_psetID != m_psetID) {
+    throw cms::Exception("DiffOscarMTProducers")
+        << "At least two different OscarMTProducer instances have been"
+           "loaded into the job and they have different configurations.\n"
+           " All OscarMTProducers in a job must have exactly the same configuration.";
+  }
   int id = m_runManagerWorker->getThreadIndex();
   edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::beginRun threadID=" << id;
   auto token = edm::ServiceRegistry::instance().presentToken();
@@ -258,7 +282,7 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   m_handoff.runAndWait([this, &e, &es, &evt, token, engine]() {
     edm::ServiceRegistry::Operate guard{token};
     StaticRandomEngineSetUnset random(engine);
-    evt = m_runManagerWorker->produce(e, es, globalCache()->runManagerMaster());
+    evt = m_runManagerWorker->produce(e, es, m_masterThread->runManagerMaster());
   });
 
   std::unique_ptr<edm::SimTrackContainer> p1(new edm::SimTrackContainer);

@@ -4,6 +4,7 @@ l1t::RegionalMuonShower::RegionalMuonShower(bool oneNominalInTime,
                                             bool oneNominalOutOfTime,
                                             bool twoLooseInTime,
                                             bool twoLooseOutOfTime,
+                                            bool oneLooseInTime,
                                             bool oneTightInTime,
                                             bool oneTightOutOfTime)
     : isOneNominalInTime_(oneNominalInTime),
@@ -12,8 +13,10 @@ l1t::RegionalMuonShower::RegionalMuonShower(bool oneNominalInTime,
       isOneTightOutOfTime_(oneTightOutOfTime),
       isTwoLooseInTime_(twoLooseInTime),
       isTwoLooseOutOfTime_(twoLooseOutOfTime),
+      isOneLooseInTime_(oneLooseInTime),
       link_(0),
-      processor_(0) {}
+      processor_(0),
+      trackFinder_(l1t::tftype::bmtf) {}
 
 l1t::RegionalMuonShower::~RegionalMuonShower() {}
 
@@ -40,10 +43,10 @@ void l1t::RegionalMuonShower::setTFIdentifiers(int processor, tftype trackFinder
 }
 
 bool l1t::RegionalMuonShower::isValid() const {
-  return (isOneNominalInTime_ or isTwoLooseInTime_ or isOneTightInTime_);
+  return (isOneNominalInTime_ or isTwoLooseInTime_ or isOneTightInTime_ or isOneLooseInTime_);
 }
 
 bool l1t::RegionalMuonShower::operator==(const l1t::RegionalMuonShower& rhs) const {
   return (isTwoLooseInTime_ == rhs.isTwoLooseInTime() and isOneNominalInTime_ == rhs.isOneNominalInTime() and
-          isOneTightInTime_ == rhs.isOneTightInTime());
+          isOneTightInTime_ == rhs.isOneTightInTime() and isOneLooseInTime_ == rhs.isOneLooseInTime());
 }

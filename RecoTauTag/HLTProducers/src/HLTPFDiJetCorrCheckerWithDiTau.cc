@@ -1,10 +1,13 @@
 /** Description: Check correlation between PFJet pairs and filtered PFTau pairs and store the PFJet pairs.
 For (j1, j2, t1, t2) where j1, j2 from the PFJet collection and t1, t2 from the filtered PFTau collection,
-the module checks if there is no overlap (within dRmin) between j1, j2, t1, t2, i.e. they are 4 different objects.
+the module checks if there is no overlap (within dRmin) between j1, j2, t1, t2, i.e. there are 4 different objects.
 In addition, the module imposes the following cuts:
 * mjjMin: the min invariant mass cut on (j1, j2)
 * extraTauPtCut: the leading tau pt cut on (t1, t2) (under the assumption t1, t2 are products of a subleading pt filter with minN = 2)
 The module stores j1, j2 of any (j1, j2, t1, t2) that satisfies the conditions above. */
+
+/* Extended for the case of j1, j2, t1 (no t2, i.e. there are only 3 different objects)
+ */
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -68,22 +71,27 @@ void HLTPFDiJetCorrCheckerWithDiTau::produce(edm::StreamID iSId, edm::Event& iEv
 
   std::set<unsigned int> indices;
 
-  if (pfJets.size() > 1 && taus.size() > 1) {
-    for (unsigned int iJet1 = 0; iJet1 < pfJets.size(); iJet1++) {
-      for (unsigned int iJet2 = iJet1 + 1; iJet2 < pfJets.size(); iJet2++) {
-        bool correctComb = false;
-        const reco::PFJet& myPFJet1 = pfJets[iJet1];
-        const reco::PFJet& myPFJet2 = pfJets[iJet2];
+  for (unsigned int iJet1 = 0; iJet1 < pfJets.size(); iJet1++) {
+    for (unsigned int iJet2 = iJet1 + 1; iJet2 < pfJets.size(); iJet2++) {
+      bool correctComb = false;
+      const reco::PFJet& myPFJet1 = pfJets[iJet1];
+      const reco::PFJet& myPFJet2 = pfJets[iJet2];
 
-        if ((myPFJet1.p4() + myPFJet2.p4()).M() < mjjMin_)
+      if ((myPFJet1.p4() + myPFJet2.p4()).M() < mjjMin_)
+        continue;
+
+      for (unsigned int iTau1 = 0; iTau1 < taus.size(); iTau1++) {
+        if (reco::deltaR2(taus[iTau1]->p4(), myPFJet1.p4()) < dRmin2_)
+          continue;
+        if (reco::deltaR2(taus[iTau1]->p4(), myPFJet2.p4()) < dRmin2_)
           continue;
 
-        for (unsigned int iTau1 = 0; iTau1 < taus.size(); iTau1++) {
-          if (reco::deltaR2(taus[iTau1]->p4(), myPFJet1.p4()) < dRmin2_)
-            continue;
-          if (reco::deltaR2(taus[iTau1]->p4(), myPFJet2.p4()) < dRmin2_)
+        if (taus.size() == 1) {
+          if (taus[iTau1]->pt() < extraTauPtCut_)
             continue;
 
+          correctComb = true;
+        } else {
           for (unsigned int iTau2 = iTau1 + 1; iTau2 < taus.size(); iTau2++) {
             if (taus[iTau1]->pt() < extraTauPtCut_ && taus[iTau2]->pt() < extraTauPtCut_)
               continue;
@@ -96,14 +104,14 @@ void HLTPFDiJetCorrCheckerWithDiTau::produce(edm::StreamID iSId, edm::Event& iEv
             correctComb = true;
             break;
           }
-          if (correctComb)
-            break;
         }
+        if (correctComb)
+          break;
+      }
 
-        if (correctComb) {
-          indices.insert(iJet1);
-          indices.insert(iJet2);
-        }
+      if (correctComb) {
+        indices.insert(iJet1);
+        indices.insert(iJet2);
       }
     }
 
@@ -134,3 +142,5 @@ void HLTPFDiJetCorrCheckerWithDiTau::fillDescriptions(edm::ConfigurationDescript
 //
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(HLTPFDiJetCorrCheckerWithDiTau);
+using HLTDiPFJetPlusTausCandidatePFJetProducer = HLTPFDiJetCorrCheckerWithDiTau;
+DEFINE_FWK_MODULE(HLTDiPFJetPlusTausCandidatePFJetProducer);

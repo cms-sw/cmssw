@@ -31,7 +31,7 @@ namespace edm {
   namespace eventsetup {
 
     static const ComponentDescription* dummyDescription() {
-      static ComponentDescription s_desc;
+      static const ComponentDescription s_desc;
       return &s_desc;
     }
 

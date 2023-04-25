@@ -36,6 +36,7 @@ namespace edm {
   class LuminosityBlockPrincipal;
   class LumiTransitionInfo;
   class MergeableRunProductMetadata;
+  class ModuleTypeResolverMaker;
   class ParameterSet;
   class Principal;
   class ProcessBlockTransitionInfo;
@@ -63,7 +64,8 @@ namespace edm {
                ServiceToken const& token,
                serviceregistry::ServiceLegacy iLegacy,
                PreallocationConfiguration const& preallocConfig,
-               ProcessContext const* parentProcessContext);
+               ProcessContext const* parentProcessContext,
+               ModuleTypeResolverMaker const* typeResolverMaker);
 
     ~SubProcess() override;
 

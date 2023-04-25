@@ -55,6 +55,8 @@ HGCalSD::HGCalSD(const std::string& name,
   cornerMinMask_ = m_HGC.getParameter<int>("CornerMinMask");
   angles_ = m_HGC.getUntrackedParameter<std::vector<double>>("WaferAngles");
   missingFile_ = m_HGC.getUntrackedParameter<std::string>("MissingWaferFile");
+  checkID_ = m_HGC.getUntrackedParameter<bool>("CheckID");
+  verbose_ = m_HGC.getUntrackedParameter<int>("Verbosity");
 
   if (storeAllG4Hits_) {
     setUseMap(false);
@@ -204,6 +206,26 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
   if (id != 0)
     edm::LogVerbatim("HGCSim") << HGCSiliconDetId(id);
 #endif
+  if ((id != 0) && checkID_) {
+    HGCSiliconDetId hid1(id);
+    bool cshift = (hgcons_->cassetteShiftSilicon(hid1.layer(), hid1.waferU(), hid1.waferV()));
+    std::string_view pid = (cshift ? "HGCSim" : "HGCalSim");
+    bool debug = (verbose_ > 0) ? true : false;
+    auto xy = hgcons_->locateCell(hid1, debug);
+    double xx = (hid1.zside() > 0) ? xy.first : -xy.first;
+    double dx = xx - (hitPoint.x() / CLHEP::cm);
+    double dy = xy.second - (hitPoint.y() / CLHEP::cm);
+    double diff = std::sqrt(dx * dx + dy * dy);
+    constexpr double tol = 2.0;
+    bool valid1 = hgcons_->isValidHex8(hid1.layer(), hid1.waferU(), hid1.waferV(), hid1.cellU(), hid1.cellV(), true);
+    if ((diff > tol) || (!valid1))
+      pid = "HGCalError";
+    auto partn = hgcons_->waferTypeRotation(hid1.layer(), hid1.waferU(), hid1.waferV(), false, false);
+    edm::LogVerbatim(pid) << "CheckID " << HGCSiliconDetId(id) << " input position: (" << hitPoint.x() / CLHEP::cm
+                          << ", " << hitPoint.y() / CLHEP::cm << "); position from ID (" << xx << ", " << xy.second
+                          << ") distance " << diff << " Valid " << valid1 << " Wafer type|rotation " << partn.first
+                          << ":" << partn.second << " CassetteShift " << cshift;
+  }
   return id;
 }
 

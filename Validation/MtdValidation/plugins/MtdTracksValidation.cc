@@ -490,7 +490,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     }
 
     const reco::TrackRef mtdTrackref = reco::TrackRef(iEvent.getHandle(RecTrackToken_), trackAssoc[trackref]);
-    const reco::Track track = *mtdTrackref;
+    const reco::Track& track = *mtdTrackref;
 
     bool isBTL = false;
     bool twoETLdiscs = false;

@@ -4,10 +4,18 @@
    <version ClassVersion="3" checksum="2026905296"/>
    </class>
 
+   <class name="HGCROCChannelDataFrame<HGCalElectronicsId>" ClassVersion="3">
+   <version ClassVersion="3" checksum="2054618736"/>
+   </class>
+
    <class name="std::vector<HGCROCChannelDataFrame<HGCalDetId> >"/>
+   <class name="std::vector<HGCROCChannelDataFrame<HGCalElectronicsId> >"/>
 
    <class name="edm::SortedCollection<HGCROCChannelDataFrame<HGCalDetId>, edm::StrictWeakOrdering<HGCROCChannelDataFrame<HGCalDetId> > >"/>
    <class name="edm::Wrapper<edm::SortedCollection<HGCROCChannelDataFrame<HGCalDetId>, edm::StrictWeakOrdering<HGCROCChannelDataFrame<HGCalDetId> > > >" />
+
+   <class name="edm::SortedCollection<HGCROCChannelDataFrame<HGCalElectronicsId>, edm::StrictWeakOrdering<HGCROCChannelDataFrame<HGCalElectronicsId> > >"/>
+   <class name="edm::Wrapper<edm::SortedCollection<HGCROCChannelDataFrame<HGCalElectronicsId>, edm::StrictWeakOrdering<HGCROCChannelDataFrame<HGCalElectronicsId> > > >" />
 
    <class name="PHGCSimAccumulator"/>
    <class name="PHGCSimAccumulator::DetIdSize"/>

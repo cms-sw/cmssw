@@ -20,6 +20,7 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Utilities"/>
 <use name="Geometry/Records"/>
+<use name="JetMETCorrections/JetCorrector"/>
 <use name="JetMETCorrections/Objects"/>
 <use name="HLTrigger/HLTcore"/>
 <use name="Calibration/IsolatedParticles"/>

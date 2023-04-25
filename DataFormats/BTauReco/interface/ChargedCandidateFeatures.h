@@ -37,6 +37,15 @@ namespace btagbtvdeep {
     float quality;
 
     float drminsv;
+    float distminsv;
+
+    float pt;
+    float px;
+    float py;
+    float pz;
+    float eta;
+    float phi;
+    float e;
   };
 
 }  // namespace btagbtvdeep

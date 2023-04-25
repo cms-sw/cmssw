@@ -59,6 +59,7 @@ The offsets currently in use are:
 * 0.17: Run-3 deep core seeding for JetCore iteration
 * 0.19: ECAL SuperClustering with DeepSC algorithm
 * 0.21: Production-like sequence
+* 0.21X1 : Production-like sequence with classical mixing PU=X (X=10,20,30,40,50,60,70,80,90,100,120,140,160,180)
 * 0.24: 0 Tesla (Run-2, Run-3)
 * 0.31: Photon energy corrections with DRN architecture
 * 0.61: ECAL `phase2_ecal_devel` era, on CPU
@@ -81,3 +82,5 @@ The offsets currently in use are:
 * 0.302: FastSim Run-3 trackingOnly validation
 * 0.303: FastSim Run-3 MB for mixing
 * 0.9001: Sonic Triton
+* 0.278: Weighted Vertexing in Blocks
+* 0.279: Weighted Vertexing in Blocks and tracking only wf

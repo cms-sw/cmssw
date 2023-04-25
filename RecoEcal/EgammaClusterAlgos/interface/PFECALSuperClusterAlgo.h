@@ -61,8 +61,7 @@
   \date July 2012
 */
 
-typedef std::shared_ptr<CalibratedPFCluster> CalibratedClusterPtr;
-typedef std::vector<CalibratedClusterPtr> CalibratedClusterPtrVector;
+typedef std::vector<CalibratedPFCluster> CalibratedPFClusterVector;
 
 class PFECALSuperClusterAlgo {
 public:
@@ -142,19 +141,19 @@ private:
   const EcalMustacheSCParameters* mustacheSCParams_;
   const EcalSCDynamicDPhiParameters* scDynamicDPhiParams_;
 
-  CalibratedClusterPtrVector _clustersEB;
-  CalibratedClusterPtrVector _clustersEE;
+  CalibratedPFClusterVector _clustersEB;
+  CalibratedPFClusterVector _clustersEE;
   std::unique_ptr<reco::SuperClusterCollection> superClustersEB_;
   std::unique_ptr<reco::SuperClusterCollection> superClustersEE_;
   const reco::PFCluster::EEtoPSAssociation* EEtoPS_;
   std::shared_ptr<PFEnergyCalibration> _pfEnergyCalibration;
   clustering_type _clustype;
   energy_weight _eweight;
-  void buildAllSuperClusters(CalibratedClusterPtrVector&, double seedthresh);
-  void buildAllSuperClustersMustacheOrBox(CalibratedClusterPtrVector&, double seedthresh);
-  void buildAllSuperClustersDeepSC(CalibratedClusterPtrVector&, double seedthresh);
-  void buildSuperClusterMustacheOrBox(CalibratedClusterPtr&, CalibratedClusterPtrVector&);
-  void finalizeSuperCluster(CalibratedClusterPtr& seed, CalibratedClusterPtrVector& clustered, bool isEE);
+  void buildAllSuperClusters(CalibratedPFClusterVector&, double seedthresh);
+  void buildAllSuperClustersMustacheOrBox(CalibratedPFClusterVector&, double seedthresh);
+  void buildAllSuperClustersDeepSC(CalibratedPFClusterVector&, double seedthresh);
+  void buildSuperClusterMustacheOrBox(CalibratedPFCluster&, CalibratedPFClusterVector&);
+  void finalizeSuperCluster(CalibratedPFCluster& seed, CalibratedPFClusterVector& clustered, bool isEE);
 
   bool verbose_;
 

@@ -15,6 +15,7 @@
 class NewTrackAction;
 class TrackingAction;
 class CMSSteppingVerbose;
+class G4VProcess;
 
 class StackingAction : public G4UserStackingAction {
 public:
@@ -30,7 +31,7 @@ public:
 private:
   void initPointer();
 
-  int isItPrimaryDecayProductOrConversion(const G4Track*, const G4Track&) const;
+  int isItPrimaryDecayProductOrConversion(const int subtype, const G4Track&) const;
 
   int isItFromPrimary(const G4Track&, int) const;
 
@@ -46,7 +47,8 @@ private:
   bool savePDandCinTracker, savePDandCinCalo;
   bool savePDandCinMuon, saveFirstSecondary;
   bool savePDandCinAll;
-  bool killInCalo, killInCaloEfH;
+  bool killInCalo{false};
+  bool killInCaloEfH{false};
   bool killHeavy, trackNeutrino, killDeltaRay;
   bool killExtra;
   bool killGamma;
@@ -71,16 +73,17 @@ private:
   G4VSolid* worldSolid;
   const TrackingAction* trackAction;
   const CMSSteppingVerbose* steppingVerbose;
+  const G4VProcess* m_Compton{nullptr};
   NewTrackAction* newTA;
   TrackInformationExtractor extractor;
 
   // Russian roulette regions
-  const G4Region* regionEcal;
-  const G4Region* regionHcal;
-  const G4Region* regionMuonIron;
-  const G4Region* regionPreShower;
-  const G4Region* regionCastor;
-  const G4Region* regionWorld;
+  const G4Region* regionEcal{nullptr};
+  const G4Region* regionHcal{nullptr};
+  const G4Region* regionMuonIron{nullptr};
+  const G4Region* regionPreShower{nullptr};
+  const G4Region* regionCastor{nullptr};
+  const G4Region* regionWorld{nullptr};
 
   // Russian roulette energy limits
   double gRusRoEnerLim;
@@ -100,8 +103,8 @@ private:
   double gRusRoWorld;
   double nRusRoWorld;
   // flags
-  bool gRRactive;
-  bool nRRactive;
+  bool gRRactive{false};
+  bool nRRactive{false};
 };
 
 #endif

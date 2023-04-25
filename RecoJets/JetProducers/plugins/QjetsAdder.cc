@@ -19,7 +19,7 @@ void QjetsAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   QjetsVolatility.reserve(jets->size());
 
   for (typename edm::View<reco::Jet>::const_iterator jetIt = jets->begin(); jetIt != jets->end(); ++jetIt) {
-    reco::Jet newCand(*jetIt);
+    const reco::Jet& newCand(*jetIt);
 
     if (newCand.pt() < cutoff_) {
       QjetsVolatility.push_back(-1);

@@ -1,6 +1,5 @@
 /*
  * TensorFlow interface helpers.
- * Based on TensorFlow C++ API 2.1.
  * For more info, see https://gitlab.cern.ch/mrieger/CMSSW-DNN.
  *
  * Author: Marcel Rieger
@@ -100,6 +99,9 @@ namespace tensorflow {
   // closes a session, calls its destructor, resets the pointer, and returns true on success
   bool closeSession(Session*& session);
 
+  // version of the function above that accepts a const session
+  bool closeSession(const Session*& session);
+
   // run the session with inputs and outputNames, store output tensors, and control the underlying
   // thread pool using threadPoolOptions
   // used for thread scheduling with custom thread pool options
@@ -110,6 +112,17 @@ namespace tensorflow {
            std::vector<Tensor>* outputs,
            const thread::ThreadPoolOptions& threadPoolOptions);
 
+  // version of the function above that accepts a const session
+  inline void run(const Session* session,
+                  const NamedTensorList& inputs,
+                  const std::vector<std::string>& outputNames,
+                  std::vector<Tensor>* outputs,
+                  const thread::ThreadPoolOptions& threadPoolOptions) {
+    // TF takes a non-const session in the run call which is, however, thread-safe and logically
+    // const, thus const_cast is consistent
+    run(const_cast<Session*>(session), inputs, outputNames, outputs, threadPoolOptions);
+  }
+
   // run the session with inputs and outputNames, store output tensors, and control the underlying
   // thread pool
   // throws a cms exception when not successful
@@ -118,6 +131,17 @@ namespace tensorflow {
            const std::vector<std::string>& outputNames,
            std::vector<Tensor>* outputs,
            thread::ThreadPoolInterface* threadPool);
+
+  // version of the function above that accepts a const session
+  inline void run(const Session* session,
+                  const NamedTensorList& inputs,
+                  const std::vector<std::string>& outputNames,
+                  std::vector<Tensor>* outputs,
+                  thread::ThreadPoolInterface* threadPool) {
+    // TF takes a non-const session in the run call which is, however, thread-safe and logically
+    // const, thus const_cast is consistent
+    run(const_cast<Session*>(session), inputs, outputNames, outputs, threadPool);
+  }
 
   // run the session with inputs and outputNames, store output tensors, and control the underlying
   // thread pool using a threadPoolName ("no_threads", "tbb", or "tensorflow")
@@ -128,6 +152,17 @@ namespace tensorflow {
            std::vector<Tensor>* outputs,
            const std::string& threadPoolName = "no_threads");
 
+  // version of the function above that accepts a const session
+  inline void run(const Session* session,
+                  const NamedTensorList& inputs,
+                  const std::vector<std::string>& outputNames,
+                  std::vector<Tensor>* outputs,
+                  const std::string& threadPoolName = "no_threads") {
+    // TF takes a non-const session in the run call which is, however, thread-safe and logically
+    // const, thus const_cast is consistent
+    run(const_cast<Session*>(session), inputs, outputNames, outputs, threadPoolName);
+  }
+
   // run the session without inputs but only outputNames, store output tensors, and control the
   // underlying thread pool using a threadPoolName ("no_threads", "tbb", or "tensorflow")
   // throws a cms exception when not successful
@@ -135,6 +170,49 @@ namespace tensorflow {
            const std::vector<std::string>& outputNames,
            std::vector<Tensor>* outputs,
            const std::string& threadPoolName = "no_threads");
+
+  // version of the function above that accepts a const session
+  inline void run(const Session* session,
+                  const std::vector<std::string>& outputNames,
+                  std::vector<Tensor>* outputs,
+                  const std::string& threadPoolName = "no_threads") {
+    // TF takes a non-const session in the run call which is, however, thread-safe and logically
+    // const, thus const_cast is consistent
+    run(const_cast<Session*>(session), outputNames, outputs, threadPoolName);
+  }
+
+  // struct that can be used in edm::stream modules for caching a graph and a session instance,
+  // both made atomic for cases where access is required from multiple threads
+  struct SessionCache {
+    std::atomic<GraphDef*> graph;
+    std::atomic<Session*> session;
+
+    // constructor
+    SessionCache() {}
+
+    // initializing constructor, forwarding all arguments to createSession
+    template <typename... Args>
+    SessionCache(const std::string& graphPath, Args&&... sessionArgs) {
+      createSession(graphPath, std::forward<Args>(sessionArgs)...);
+    }
+
+    // destructor
+    ~SessionCache() { closeSession(); }
+
+    // create the internal graph representation from graphPath and the session object, forwarding
+    // all additional arguments to the central tensorflow::createSession
+    template <typename... Args>
+    void createSession(const std::string& graphPath, Args&&... sessionArgs) {
+      graph.store(loadGraphDef(graphPath));
+      session.store(tensorflow::createSession(graph.load(), std::forward<Args>(sessionArgs)...));
+    }
+
+    // return a pointer to the const session
+    inline const Session* getSession() const { return session.load(); }
+
+    // closes and removes the session as well as the graph, and sets the atomic members to nullptr's
+    void closeSession();
+  };
 
 }  // namespace tensorflow
 

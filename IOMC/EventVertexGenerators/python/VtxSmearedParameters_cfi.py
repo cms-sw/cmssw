@@ -812,6 +812,37 @@ Realistic25ns13p6TeVEarly2022CollisionVtxSmearingParameters = cms.PSet(
     Z0 = cms.double(1.298155)
 )
 
+# BS parameters extracted from run 360459, Fill 8274:
+# X0         =  0.1742 [cm]
+# Y0         = -0.1831 [cm]
+# Z0         = -0.2531 [cm]
+# sigmaZ0    =  3.4019  [cm]
+# BeamWidthX = 0.0007519 [cm]
+# BeamWidthY = 0.0008636 [cm]
+#
+# set SigmaZ0 = 3.4 [cm]
+# set BeamWidthX = BeamWidthY = 8.0 [um]
+# set beta* = 30 cm
+# energy = 13.6 TeV
+# From LHC calculator, emittance is 4.276-8 cm
+# https://lpc.web.cern.ch/lumiCalc.html
+#
+# BPIX absolute position:
+# X =  0.0714025 cm
+# Y = -0.166338  cm
+# Z = -0.354856  cm
+Realistic25ns13p6TeVEOY2022CollisionVtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(30.0),
+    Emittance = cms.double(4.276e-8),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(3.4),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.1027975),
+    Y0 = cms.double(-0.016762),
+    Z0 = cms.double(0.101756)
+)
+
 # Test HF offset
 ShiftedCollision2015VtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
@@ -981,6 +1012,19 @@ Nominal2022PbPbCollisionVtxSmearingParameters = cms.PSet(
     X0 = cms.double(0.100629),
     Y0 = cms.double(-0.014995),
     Z0 = cms.double(1.298155)
+)
+
+# From 2022 PbPb test data 362294
+Realistic2022PbPbCollisionVtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(50),
+    Emittance = cms.double(3.36e-08),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(5.01265),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.1017599),
+    Y0 = cms.double(-0.015602),
+    Z0 = cms.double(0.131175)
 )
 
 # Parameters for HL-LHC operation at 13TeV

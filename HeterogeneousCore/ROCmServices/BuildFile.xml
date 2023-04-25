@@ -1,0 +1,5 @@
+<use name="FWCore/ServiceRegistry"/>
+<use name="HeterogeneousCore/ROCmUtilities" source_only="true"/>
+<export>
+  <lib name="1"/>
+</export>

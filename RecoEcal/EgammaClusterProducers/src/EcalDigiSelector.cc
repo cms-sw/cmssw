@@ -105,7 +105,7 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es) {
   bool meet_single_thresh = false;
   //Loop over barrel superclusters, and apply threshold
   for (int loop = 0; loop < int(BarrelSuperClusters.size()); loop++) {
-    SuperCluster clus1 = BarrelSuperClusters[loop];
+    const SuperCluster& clus1 = BarrelSuperClusters[loop];
     float eta1 = clus1.eta();
     float energy1 = clus1.energy();
     float theta1 = 2 * atan(exp(-1. * eta1));
@@ -119,7 +119,7 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es) {
 
   //Loop over endcap superclusters, and apply threshold
   for (int loop = 0; loop < int(EndcapSuperClusters.size()); loop++) {
-    SuperCluster clus1 = EndcapSuperClusters[loop];
+    const SuperCluster& clus1 = EndcapSuperClusters[loop];
     float eta1 = clus1.eta();
     float energy1 = clus1.energy();
     float theta1 = 2 * atan(exp(-1. * eta1));

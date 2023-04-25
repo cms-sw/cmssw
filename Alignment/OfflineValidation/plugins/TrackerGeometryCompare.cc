@@ -58,7 +58,6 @@ TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg)
       topoToken_(esConsumes()),
       geomDetToken_(esConsumes()),
       ptpToken_(esConsumes()),
-      ptitpToken_(esConsumes()),
       pixQualityToken_(esConsumes()),
       stripQualityToken_(esConsumes()),
       referenceTracker(nullptr),
@@ -201,6 +200,28 @@ TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg)
     m_h1_[histname2.str()] = subDir_PXF.make<TH1D>(
         (histname2.str()).c_str(), (histname2.str()).c_str(), m_nBins_, m_rangeLow_, m_rangeHigh_);
   }
+}
+
+void TrackerGeometryCompare::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.setComment("Validates alignment payloads by comparing positions of tracker modules positiona and orientations");
+  desc.addUntracked<std::vector<std::string> >("levels", {});
+  desc.addUntracked<bool>("fromDD4hep", false);
+  desc.addUntracked<bool>("writeToDB", false);
+  desc.addUntracked<std::string>("moduleList", "moduleList.txt");
+  desc.addUntracked<std::string>("inputROOTFile1", "IDEAL");
+  desc.addUntracked<std::string>("inputROOTFile2", "idealtracker2.root");
+  desc.addUntracked<std::string>("treeNameAlign", "alignTree");
+  desc.addUntracked<std::string>("treeNameDeform", "alignTreeDeformations");
+  desc.addUntracked<std::string>("outputFile", "output.root");
+  desc.addUntracked<std::string>("surfDir", ".");
+  desc.addUntracked<std::string>("weightBy", "DetUnit");
+  desc.addUntracked<std::string>("setCommonTrackerSystem", "NONE");
+  desc.addUntracked<bool>("detIdFlag", false);
+  desc.addUntracked<std::string>("detIdFlagFile", "blah.txt");
+  desc.addUntracked<bool>("weightById", false);
+  desc.addUntracked<std::string>("weightByIdFile", "blah2.txt");
+  descriptions.addWithDefaultLabel(desc);
 }
 
 void TrackerGeometryCompare::beginJob() { firstEvent_ = true; }
@@ -370,11 +391,10 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup) {
 
   const GeometricDet* theGeometricDet = &iSetup.getData(geomDetToken_);
   const PTrackerParameters* ptp = &iSetup.getData(ptpToken_);
-  const PTrackerAdditionalParametersPerDet* ptitp = &iSetup.getData(ptitpToken_);
   TrackerGeomBuilderFromGeometricDet trackerBuilder;
 
   //reference tracker
-  TrackerGeometry* theRefTracker = trackerBuilder.build(theGeometricDet, ptitp, *ptp, tTopo);
+  TrackerGeometry* theRefTracker = trackerBuilder.build(theGeometricDet, *ptp, tTopo);
   if (inputFilename1_ != "IDEAL") {
     GeometryAligner aligner1;
     aligner1.applyAlignments<TrackerGeometry>(
@@ -414,7 +434,7 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup) {
   }
 
   //currernt tracker
-  TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet, ptitp, *ptp, tTopo);
+  TrackerGeometry* theCurTracker = trackerBuilder.build(&*theGeometricDet, *ptp, tTopo);
   if (inputFilename2_ != "IDEAL") {
     GeometryAligner aligner2;
     aligner2.applyAlignments<TrackerGeometry>(

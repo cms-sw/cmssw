@@ -73,7 +73,7 @@ namespace cms {
     using vstring = std::vector<std::string>;
 
     // constants of different algorithm types
-    enum class AlgorithmType { InnerPixel, InnerPixelBricked, InnerPixel3D, PixelinPS, StripinPS, TwoStrip, Unknown };
+    enum class AlgorithmType { InnerPixel, InnerPixel3D, PixelinPS, StripinPS, TwoStrip, Unknown };
     AlgorithmType getAlgoType(uint32_t idet);
 
     void accumulatePixelHits(edm::Handle<std::vector<PSimHit> >, size_t globalSimHitIndex, const uint32_t tofBin);

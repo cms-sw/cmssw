@@ -10,7 +10,8 @@ autoHLT = {
   'relval2016' : 'Fake2',
   'relval2017' : 'Fake2',
   'relval2018' : 'Fake2',
-  'relval2022' : 'GRun',
+  'relval2022' : '2022v15',
+  'relval2023' : '2023v10',
   'relval2026' : '75e33',
   'test'       : 'GRun',
 }

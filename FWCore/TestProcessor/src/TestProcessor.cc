@@ -33,6 +33,7 @@
 #include "FWCore/Framework/interface/ProductPutterBase.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/ensureAvailableAccelerators.h"
+#include "FWCore/Framework/interface/makeModuleTypeResolverMaker.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
@@ -84,7 +85,6 @@ namespace edm {
     TestProcessor::TestProcessor(Config const& iConfig, ServiceToken iToken)
         : globalControl_(oneapi::tbb::global_control::max_allowed_parallelism, 1),
           arena_(1),
-          espController_(std::make_unique<eventsetup::EventSetupsController>()),
           historyAppender_(std::make_unique<HistoryAppender>()),
           moduleRegistry_(std::make_shared<ModuleRegistry>()) {
       //Setup various singletons
@@ -93,6 +93,8 @@ namespace edm {
       ProcessDescImpl desc(iConfig.pythonConfiguration());
 
       auto psetPtr = desc.parameterSet();
+      moduleTypeResolverMaker_ = makeModuleTypeResolverMaker(*psetPtr);
+      espController_ = std::make_unique<eventsetup::EventSetupsController>(moduleTypeResolverMaker_.get());
 
       validateTopLevelParameterSets(psetPtr.get());
 
@@ -168,7 +170,8 @@ namespace edm {
 
       processBlockHelper_ = std::make_shared<ProcessBlockHelper>();
 
-      schedule_ = items.initSchedule(*psetPtr, false, preallocations_, &processContext_, *processBlockHelper_);
+      schedule_ = items.initSchedule(
+          *psetPtr, false, preallocations_, &processContext_, moduleTypeResolverMaker_.get(), *processBlockHelper_);
       // set the data members
       act_table_ = std::move(items.act_table_);
       actReg_ = items.actReg_;

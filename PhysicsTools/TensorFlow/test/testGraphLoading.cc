@@ -1,6 +1,5 @@
 /*
  * Tests for loading graphs via the converted protobuf files.
- * Based on TensorFlow 2.1.
  * For more info, see https://gitlab.cern.ch/mrieger/CMSSW-DNN.
  *
  * Author: Marcel Rieger
@@ -75,5 +74,6 @@ void testGraphLoading::checkAll() {
 
   // cleanup
   CPPUNIT_ASSERT(tensorflow::closeSession(session));
+  CPPUNIT_ASSERT(session == nullptr);
   delete graphDef;
 }

@@ -38,6 +38,7 @@
   <class name="edm::reftobase::Holder<reco::Candidate, reco::PFCandidateRef>"/>
   <class name="edm::reftobase::RefHolder<reco::PFCandidateRef>"/>
   <class name="reco::PFCandidatePtr"/>
+  <class name="edm::AtomicPtrCache<reco::PFCandidatePtr>"/>
   <class name="std::vector<reco::PFCandidatePtr>"/>
   <class name="edm::Wrapper<edm::ValueMap<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > >"/>
   <class name="edm::ValueMap<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > >"/>

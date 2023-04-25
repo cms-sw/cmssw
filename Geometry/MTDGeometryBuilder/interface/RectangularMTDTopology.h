@@ -136,7 +136,7 @@ public:
   bool isItEdgePixelInY(int iybin) const override { return ((iybin == 0) | (iybin == (m_ncols - 1))); }
 
   bool isItEdgePixel(int ixbin, int iybin) const override {
-    return (isItEdgePixelInX(ixbin) | isItEdgePixelInY(iybin));
+    return (isItEdgePixelInX(ixbin) || isItEdgePixelInY(iybin));
   }
 
   //-------------------------------------------------------------
@@ -170,7 +170,6 @@ public:
   float gapyInterpadFrac() const { return m_GAPyInterpadFrac; }
   float gapxBorderFrac() const { return m_GAPxBorderFrac; }
   float gapyBorderFrac() const { return m_GAPyBorderFrac; }
-  bool isBricked() const override { return false; }
 
 private:
   float m_pitchx;
