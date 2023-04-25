@@ -14,8 +14,6 @@
 #include "G4SystemOfUnits.hh"
 #include "G4Threading.hh"
 
-#include "G4Version.hh"
-
 CMSHadronPhysicsFTFP_BERT::CMSHadronPhysicsFTFP_BERT(G4int)
     : CMSHadronPhysicsFTFP_BERT(3 * CLHEP::GeV, 6 * CLHEP::GeV, 12 * CLHEP::GeV, 3 * CLHEP::GeV, 6 * CLHEP::GeV) {}
 
@@ -41,7 +39,6 @@ void CMSHadronPhysicsFTFP_BERT::ConstructProcess() {
 }
 
 void CMSHadronPhysicsFTFP_BERT::Neutron() {
-#if G4VERSION_NUMBER >= 1100
   G4bool useNGeneral = G4HadronicParameters::Instance()->EnableNeutronGeneralProcess();
   if (useNGeneral) {
     auto theFTFP = new G4TheoFSGenerator("FTFP");
@@ -61,7 +58,6 @@ void CMSHadronPhysicsFTFP_BERT::Neutron() {
     G4HadProcesses::BuildNeutronInelasticAndCapture(ni);
     return;
   }
-#endif
 
   G4HadronPhysicsFTFP_BERT::Neutron();
 }
