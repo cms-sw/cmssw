@@ -23,6 +23,8 @@
   <Constant name="NPhiBinBH"             value="288"/>
   <Constant name="FirstMixedLayer"       value="8"/>
   <Constant name="LayerRotation"         value="-30*deg"/>
+  <Constant name="CalibCellRHD"          value="2.04*mm"/>
+  <Constant name="CalibCellRLD"          value="3.05*mm"/>
   <Constant name="rad100200P0"           value="-1.60163E-06"/>
   <Constant name="rad100200P1"           value="2.50640E-03"/>
   <Constant name="rad100200P2"           value="-1.46943E+00"/>

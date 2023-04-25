@@ -196,6 +196,12 @@ public:
   int nphiCassette_;
   int phiOffset_;
   std::vector<double> cassetteShift_;
+  double calibCellRHD_;
+  std::vector<int> calibCellFullHD_;
+  std::vector<int> calibCellPartHD_;
+  double calibCellRLD_;
+  std::vector<int> calibCellFullLD_;
+  std::vector<int> calibCellPartLD_;
 
   COND_SERIALIZABLE;
 

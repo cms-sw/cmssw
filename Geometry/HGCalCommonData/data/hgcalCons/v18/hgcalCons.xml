@@ -18,13 +18,27 @@
     0, 6, 0, 6, 0, 6, 0,
     2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1
   </Vector>
+  <Vector name="CalibCellRadius" type="numeric" nEntries="2">
+    [hgcal:CalibCellRHD], [hgcal:CalibCellRLD]</Vector>
+  <Vector name="CalibCellFullHD" type="numeric" nEntries="12">
+    203, 209, 514, 902, 908, 1114, 1321, 1404, 1512, 1921, 2010, 2118
+  </Vector>
+  <Vector name="CalibCellPartHD" type="numeric" nEntries="12">
+    202, 208, 615, 802, 807, 1115, 1221, 1505, 1612, 1821, 2111, 2117
+  </Vector>
+  <Vector name="CalibCellFullLD" type="numeric" nEntries="6">
+    104, 509, 603, 1104, 1114, 1210
+  </Vector>
+  <Vector name="CalibCellPartLD" type="numeric" nEntries="6">
+    103, 508, 704, 1014, 1110, 1205
+  </Vector>
 </ConstantsSection>
 
 <SpecParSection label="hgcalCons.xml" eval="true">
   <SpecPar name="HGCalEELayer">
     <PartSelector path="//HGCalEELayer.*"/>    
     <Parameter name="Volume" value="HGCalEELayer" eval="false"/>
-    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8Cassette" eval="false"/>
+    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8CalibCell" eval="false"/>
     <Parameter name="LevelZSide"          value="3"/>
     <Parameter name="LevelTop"            value="9"/>
     <Parameter name="LevelTop"            value="12"/>
@@ -88,7 +102,7 @@
   <SpecPar name="HGCalHESiliconLayer">
     <PartSelector path="//HGCalHESiliconLayer.*"/>
     <Parameter name="Volume" value="HGCalHESiliconLayer" eval="false"/>
-    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8Cassette" eval="false"/>
+    <Parameter name="GeometryMode" value="HGCalGeometryMode::Hexagon8CalibCell" eval="false"/>
     <Parameter name="LevelZSide"          value="3"/>
     <Parameter name="LevelTop"            value="9"/>
     <Parameter name="LevelTop"            value="12"/>
