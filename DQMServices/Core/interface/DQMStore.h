@@ -751,6 +751,8 @@ namespace dqm {
       void printTrace(std::string const& message);
       // print a log message if ME matches trackME_.
       void debugTrackME(const char* message, MonitorElement* me_local, MonitorElement* me_global) const;
+      // accesor to keep MEsToSave_ private
+      const auto& getMEsToSave() const { return MEsToSave_; }
 
     private:
       // MEComparison is a name-only comparison on MEs and Paths, allowing
@@ -792,14 +794,12 @@ namespace dqm {
 
       // Book MEs by lumi by default whenever possible.
       bool doSaveByLumi_;
+      // Book MEs by lumi from list in DQMServices/Core/python/DQMStore_cfi.py
+      std::vector<std::string> MEsToSave_;  //just if perLS is ON
 
       // if non-empty, debugTrackME calls will log some information whenever a
       // ME path contains this string.
       std::string trackME_;
-
-    public:
-      // Book MEs by lumi from list in DQMServices/Core/python/DQMStore_cfi.py
-      std::vector<std::string> MEsToSave_;  //just if perLS is ON
     };
   }  // namespace implementation
 
