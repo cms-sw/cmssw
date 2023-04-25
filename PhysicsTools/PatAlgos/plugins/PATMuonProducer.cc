@@ -309,8 +309,6 @@ void pat::PATMuonProducer::readIsolationLabels(const edm::ParameterSet& iConfig,
       for (; it != ed; ++it, ++key) {
         labels.push_back(std::make_pair(pat::IsolationKeys(key), *it));
       }
-      tokens = edm::vector_transform(
-          labels, [this](IsolationLabel const& label) { return consumes<edm::ValueMap<T>>(label.second); });
     }
   }
   tokens = edm::vector_transform(labels, [this](pat::PATMuonProducer::IsolationLabel const& label) {
