@@ -1,3 +1,6 @@
+// Authors: Olivie Franklova - olivie.abigail.franklova@cern.ch
+// Date: 03/2023
+// @file create layer clusters
 #ifndef __RecoLocalCalo_HGCRecProducers_HGCalLayerClusterProducer_H__
 #define __RecoLocalCalo_HGCRecProducers_HGCalLayerClusterProducer_H__
 
@@ -83,7 +86,7 @@ private:
    * @param[in] hitsAndFraction all hits in the cluster
    * @return counted position
   */
-  math::XYZPoint countPosition(std::unordered_map<uint32_t, const HGCRecHit*> &hitmap, 
+  math::XYZPoint calculatePosition(std::unordered_map<uint32_t, const HGCRecHit*> &hitmap, 
                                const std::vector<std::pair<DetId, float> >& hitsAndFractions);
 
   /**
@@ -93,7 +96,7 @@ private:
    * @param[in] hitsAndFraction all hits in the cluster
    * @return counted time
   */                            
-  std::pair<float, float> countTime(std::unordered_map<uint32_t, const HGCRecHit*> &hitmap,
+  std::pair<float, float> calculateTime(std::unordered_map<uint32_t, const HGCRecHit*> &hitmap,
                                     const std::vector<std::pair<DetId, float> >& hitsAndFractions,
                                     size_t sizeCluster);
 };
@@ -142,7 +145,7 @@ void HGCalLayerClusterProducer::fillDescriptions(edm::ConfigurationDescriptions&
   descriptions.add("hgcalLayerClusters", desc);
 }
 
-math::XYZPoint HGCalLayerClusterProducer::countPosition(std::unordered_map<uint32_t, const HGCRecHit*> &hitmap, 
+math::XYZPoint HGCalLayerClusterProducer::calculatePosition(std::unordered_map<uint32_t, const HGCRecHit*> &hitmap, 
                                                         const std::vector<std::pair<DetId, float> >& hitsAndFractions){
   float total_weight = 0.f; 
   float maxEnergyValue = 0.f;
@@ -160,8 +163,9 @@ math::XYZPoint HGCalLayerClusterProducer::countPosition(std::unordered_map<uint3
     }
   }
   float total_weight_log = 0.f;
-  hgcal::RecHitTools rhtools = algo_->getRecHits();
+  hgcal::RecHitTools rhtools = algo_->getRHTools();
   auto thick = rhtools.getSiThickIndex(maxEnergyIndex);
+  const GlobalPoint positionMaxEnergy(rhtools.getPosition(maxEnergyIndex));
   for (auto const& hit : hitsAndFractions) {
     //time is computed wrt  0-25ns + offset and set to -1 if no time
     const HGCRecHit* rechit = hitmap[hit.first];
@@ -169,7 +173,6 @@ math::XYZPoint HGCalLayerClusterProducer::countPosition(std::unordered_map<uint3
     const GlobalPoint position(rhtools.getPosition(rechit->detid()));
 
     if (thick != -1){ //silicon
-      const GlobalPoint positionMaxEnergy(rhtools.getPosition(maxEnergyIndex));
       //for silicon only just use 1+6 cells = 1.3cm for all thicknesses
       const float d1 = position.x() - positionMaxEnergy.x();
       const float d2 = position.y() - positionMaxEnergy.y();
@@ -191,13 +194,13 @@ math::XYZPoint HGCalLayerClusterProducer::countPosition(std::unordered_map<uint3
   }
   if (total_weight != 0.) {
     float inv_tot_weight = 1.f / total_weight;
-    return math::XYZPoint(x * inv_tot_weight, y * inv_tot_weight, rhtools.getPosition(maxEnergyIndex).z());
+    return math::XYZPoint(x * inv_tot_weight, y * inv_tot_weight, positionMaxEnergy.z());
   } else{
     return math::XYZPoint(0.f, 0.f, 0.f);
   }
 }
 
-std::pair<float, float> HGCalLayerClusterProducer::countTime(std::unordered_map<uint32_t, const HGCRecHit*> &hitmap,
+std::pair<float, float> HGCalLayerClusterProducer::calculateTime(std::unordered_map<uint32_t, const HGCRecHit*> &hitmap,
                                                             const std::vector<std::pair<DetId, float> >& hitsAndFractions,
                                                             size_t sizeCluster){
   std::pair<float, float> timeCl(-99., -1.);
@@ -250,9 +253,9 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
 
   for (unsigned i = 0; i < clusters->size(); ++i) {
     const reco::CaloCluster& sCl = (*clusters)[i];
-    (*clusters)[i].setPosition(countPosition(hitmap, sCl.hitsAndFractions()));
+    (*clusters)[i].setPosition(calculatePosition(hitmap, sCl.hitsAndFractions()));
     if (detector_ != "BH"){
-      times.push_back(countTime(hitmap, sCl.hitsAndFractions(), sCl.size() ));
+      times.push_back(calculateTime(hitmap, sCl.hitsAndFractions(), sCl.size() ));
     }
     else{
       times.push_back(std::pair<float, float> (-99., -1.));

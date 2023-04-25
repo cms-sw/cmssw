@@ -218,10 +218,9 @@ private:
     void prepareDataStructures(const unsigned int layerId);
     void calculateLocalDensity(const TILE& lt,
                                const unsigned int layerId,
-                               float delta_c,
-                               float delta_r);  // return max density
-    void calculateDistanceToHigher(const TILE& lt, const unsigned int layerId, float delta_c, float delta_r);
-    int findAndAssignClusters(const unsigned int layerId, float delta_c, float delta_r);
+                               float delta);  // return max density
+    void calculateDistanceToHigher(const TILE& lt, const unsigned int layerId, float delta);
+    int findAndAssignClusters(const unsigned int layerId, float delta);
     void setDensity(const unsigned int layerId);
 
 

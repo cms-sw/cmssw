@@ -76,7 +76,7 @@ public:
     isNose_ = isNose;
   }
 
-  hgcal::RecHitTools getRecHits(){
+  hgcal::RecHitTools getRHTools(){
     return rhtools_;
   }
 
