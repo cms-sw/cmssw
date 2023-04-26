@@ -13,7 +13,6 @@
 
 #include "DataFormats/L1Trigger/interface/VertexWord.h"
 
-#include "DataFormats/Math/interface/deltaR.h"
 #include <cmath>
 #include <vector>
 
@@ -22,7 +21,7 @@ using namespace l1t;
 class L1BJetProducer : public edm::stream::EDProducer<edm::GlobalCache<BJetTFCache>> {
 public:
   explicit L1BJetProducer(const edm::ParameterSet&, const BJetTFCache*);
-  ~L1BJetProducer() override;
+  ~L1BJetProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   static std::unique_ptr<BJetTFCache> initializeGlobalCache(const edm::ParameterSet&);
@@ -110,7 +109,6 @@ void L1BJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<edm::InputTag>("vtx", edm::InputTag("L1VertexFinderEmulator", "l1verticesEmulation"));
   descriptions.add("L1BJetProducer", desc);
 }
-L1BJetProducer::~L1BJetProducer() {}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(L1BJetProducer);

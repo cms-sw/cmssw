@@ -6,7 +6,6 @@
 #include <vector>
 #include <memory>
 
-#include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/L1TParticleFlow/interface/datatypes.h"
 #include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
 #include "DataFormats/L1TParticleFlow/interface/egamma.h"

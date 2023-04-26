@@ -6,9 +6,9 @@ l1tSCPFL1PF            = l1tSeedConePFJetProducer.clone(L1PFObjects = 'l1tLayer1
 l1tSCPFL1Puppi         = l1tSeedConePFJetProducer.clone()
 l1tSCPFL1PuppiEmulator = l1tSeedConePFJetEmulatorProducer.clone(L1PFObjects = 'l1tLayer2Deregionizer:Puppi')
 l1tSCPFL1PuppiCorrectedEmulator = l1tSeedConePFJetEmulatorProducer.clone(L1PFObjects = 'l1tLayer2Deregionizer:Puppi',
-                                                                     doCorrections = cms.bool(True),
-                                                                     correctorFile = cms.string("L1Trigger/Phase2L1ParticleFlow/data/jecs/jecs_20220308.root"),
-                                                                     correctorDir = cms.string('L1PuppiSC4EmuJets'))
+                                                                     doCorrections = True,
+                                                                     correctorFile = "L1Trigger/Phase2L1ParticleFlow/data/jecs/jecs_20220308.root",
+                                                                     correctorDir = "L1PuppiSC4EmuJets")
 
 _correctedJets = cms.EDProducer("L1TCorrectedPFJetProducer", 
     jets = cms.InputTag("_tag_"),
@@ -34,9 +34,9 @@ L1TPFJetsTask = cms.Task(
 l1tSCPFL1PuppiExtended         = l1tSeedConePFJetProducer.clone(L1PFObjects = 'l1tLayer1Extended:Puppi')
 l1tSCPFL1PuppiExtendedEmulator = l1tSeedConePFJetEmulatorProducer.clone(L1PFObjects = 'l1tLayer2DeregionizerExtended:Puppi')
 l1tSCPFL1PuppiExtendedCorrectedEmulator = l1tSeedConePFJetEmulatorProducer.clone(L1PFObjects = 'l1tLayer2DeregionizerExtended:Puppi',
-                                                                     doCorrections = cms.bool(True),
-                                                                     correctorFile = cms.string("L1Trigger/Phase2L1ParticleFlow/data/jecs/jecs_20220308.root"),
-                                                                     correctorDir = cms.string('L1PuppiSC4EmuJets'))
+                                                                     doCorrections = True,
+                                                                     correctorFile = "L1Trigger/Phase2L1ParticleFlow/data/jecs/jecs_20220308.root",
+                                                                     correctorDir = "L1PuppiSC4EmuJets")
 
 L1TPFJetsTask = cms.Task(
     l1tLayer2Deregionizer, l1tSCPFL1PF, l1tSCPFL1Puppi, l1tSCPFL1PuppiEmulator, l1tSCPFL1PuppiCorrectedEmulator, l1tSCPFL1PuppiCorrectedEmulatorMHT

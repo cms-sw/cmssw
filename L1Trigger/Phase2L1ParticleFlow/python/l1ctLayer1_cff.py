@@ -290,7 +290,7 @@ l1tLayer1HGCal = cms.EDProducer("L1TCorrelatorLayer1Producer",
     writeRawHgcalCluster = cms.untracked.bool(True)
 )
 
-l1tLayer1HGCalExtended = l1tLayer1HGCal.clone(tracks = cms.InputTag('l1tPFTracksFromL1TracksExtended'))
+l1tLayer1HGCalExtended = l1tLayer1HGCal.clone(tracks = ('l1tPFTracksFromL1TracksExtended'))
 
 l1tLayer1HGCalNoTK = cms.EDProducer("L1TCorrelatorLayer1Producer",
     tracks = cms.InputTag(''),
@@ -476,12 +476,8 @@ l1tLayer1 = cms.EDProducer("L1TPFCandMultiMerger",
 
 
 l1tLayer1Extended = l1tLayer1.clone(
-    pfProducers = cms.VInputTag(
-        cms.InputTag("l1tLayer1BarrelExtended"),
-        cms.InputTag("l1tLayer1HGCalExtended"),
-        cms.InputTag("l1tLayer1HGCalNoTK"),
-        cms.InputTag("l1tLayer1HF")
-    )
+    pfProducers = [ ("l1tLayer1BarrelExtended"), ("l1tLayer1HGCalExtended"), 
+        ("l1tLayer1HGCalNoTK"),("l1tLayer1HF")]
 )
 
 l1tLayer1EG = cms.EDProducer(

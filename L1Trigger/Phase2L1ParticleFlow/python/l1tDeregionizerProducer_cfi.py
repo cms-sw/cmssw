@@ -25,7 +25,7 @@ hgcalConfig_ = cms.PSet(
 )
 
 hgcalPosConfig = hgcalConfig_.clone(
-    outputBoard = cms.int32(4)
+    outputBoard = 4
 )
 hgcalNegConfig = hgcalConfig_.clone(
     outputRegions = [54 + i for i in range(9)]
