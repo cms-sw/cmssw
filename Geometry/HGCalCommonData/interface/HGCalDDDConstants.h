@@ -40,9 +40,10 @@ public:
   std::pair<int, int> assignCell(float x, float y, int lay, int subSec, bool reco) const;
   std::array<int, 5> assignCellHex(float x, float y, int zside, int lay, bool reco, bool extend, bool debug) const;
   std::array<int, 3> assignCellTrap(float x, float y, float z, int lay, bool reco) const;
-  bool cassetteMode() const {return ((mode_ == HGCalGeometryMode::Hexagon8Cassette) || 
-				     (mode_ == HGCalGeometryMode::TrapezoidCassette) || 
-				     (mode_ == HGCalGeometryMode::Hexagon8CalibCell)); }
+  bool cassetteMode() const {
+    return ((mode_ == HGCalGeometryMode::Hexagon8Cassette) || (mode_ == HGCalGeometryMode::TrapezoidCassette) ||
+            (mode_ == HGCalGeometryMode::Hexagon8CalibCell));
+  }
   bool cassetteShiftScintillator(int zside, int layer, int iphi) const;
   bool cassetteShiftSilicon(int zside, int layer, int waferU, int waferV) const;
   int cassetteTile(int iphi) const {

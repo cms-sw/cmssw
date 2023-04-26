@@ -12,7 +12,7 @@ public:
   HGCalCalibrationCell(const HGCalDDDConstants* cons);
   HGCalCalibrationCell() {}
 
-  int findCell(int zside, int layer, int waferU, int waferV, int cellUV, const std::pair<double, double> & xy) const;
+  int findCell(int zside, int layer, int waferU, int waferV, int cellUV, const std::pair<double, double>& xy) const;
 
 private:
   const HGCalDDDConstants* cons_;

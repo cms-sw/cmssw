@@ -1986,8 +1986,8 @@ bool HGCalDDDConstants::isValidCell8(int lay, int waferU, int waferV, int cellU,
   bool result(false);
   auto partn = waferTypeRotation(lay, waferU, waferV, false, false);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "waferHexagon8 " << waferHexagon8File() << ":" << mode_ << ":"
-                                << cassetteMode() << " part " << partn.first << ":" << partn.second;
+  edm::LogVerbatim("HGCalGeom") << "waferHexagon8 " << waferHexagon8File() << ":" << mode_ << ":" << cassetteMode()
+                                << " part " << partn.first << ":" << partn.second;
 #endif
   if (cassetteMode()) {
     result = HGCalWaferMask::goodCell(cellU, cellV, partn.first);
