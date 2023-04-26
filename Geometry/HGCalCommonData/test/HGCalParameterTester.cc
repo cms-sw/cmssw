@@ -161,6 +161,13 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     for (unsigned int k = 0; k < phgp->layerRotV_.size(); ++k)
       edm::LogVerbatim("HGCalGeom") << "Element[" << k << "] " << phgp->layerRotV_[k].first << ":"
                                     << phgp->layerRotV_[k].second;
+    edm::LogVerbatim("HGCalGeom") << "CalibCellRadiusHD " << phgp->calibCellRHD_;
+    myPrint("CalibCellFullHD", phgp->calibCellFullHD_, 12);
+    myPrint("CalibCellPartHD", phgp->calibCellPartHD_, 12);
+    edm::LogVerbatim("HGCalGeom") << "CalibCellRadiusHD " << phgp->calibCellRLD_;
+    myPrint("CalibCellFullLD", phgp->calibCellFullLD_, 12);
+    myPrint("CalibCellPartLD", phgp->calibCellPartLD_, 12);
+
     myPrint("slopeMin", phgp->slopeMin_, 10);
     myPrint("zFrontMin", phgp->zFrontMin_, 10);
     myPrint("rMinFront", phgp->rMinFront_, 10);
