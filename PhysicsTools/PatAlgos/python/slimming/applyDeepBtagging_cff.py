@@ -10,6 +10,7 @@ def applyDeepBtagging(process, postfix=""):
 
     from PhysicsTools.PatAlgos.slimming.slimmedJets_cfi import slimmedJets, slimmedJetsAK8
     from RecoBTag.ONNXRuntime.pfParticleNetAK4_cff import _pfParticleNetAK4JetTagsAll as pfParticleNetAK4JetTagsAll
+    from RecoBTag.ONNXRuntime.pfParticleTransformerAK4_cff import _pfParticleTransformerAK4JetTagsAll as pfParticleTransformerAK4JetTagsAll
 
     # update slimmed jets to include DeepFlavour (keep same name)
     # make clone for DeepFlavour-less slimmed jets, so output name is preserved
@@ -22,6 +23,7 @@ def applyDeepBtagging(process, postfix=""):
             'pfDeepFlavourJetTags:probc',
             'pfDeepFlavourJetTags:probuds',
             'pfDeepFlavourJetTags:probg')
+            + pfParticleTransformerAK4JetTagsAll
     )
     updateJetCollection(
         process,
@@ -56,6 +58,7 @@ def applyDeepBtagging(process, postfix=""):
             'pfDeepFlavourJetTags:probc',
             'pfDeepFlavourJetTags:probuds',
             'pfDeepFlavourJetTags:probg') + pfParticleNetAK4JetTagsAll
+            + pfParticleTransformerAK4JetTagsAll
     )
     updateJetCollection(
         process,

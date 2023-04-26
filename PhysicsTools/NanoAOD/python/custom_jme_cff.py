@@ -25,7 +25,8 @@ bTagDeepJet  = [
   'pfDeepFlavourJetTags:probc','pfDeepFlavourJetTags:probuds','pfDeepFlavourJetTags:probg'
 ]
 from RecoBTag.ONNXRuntime.pfParticleNetAK4_cff import _pfParticleNetAK4JetTagsAll
-bTagDiscriminatorsForAK4 = cms.PSet(foo = cms.vstring(bTagDeepCSV+bTagDeepJet+_pfParticleNetAK4JetTagsAll))
+from RecoBTag.ONNXRuntime.pfParticleTransformerAK4_cff import _pfParticleTransformerAK4JetTagsAll
+bTagDiscriminatorsForAK4 = cms.PSet(foo = cms.vstring(bTagDeepJet+_pfParticleNetAK4JetTagsAll+_pfParticleTransformerAK4JetTagsAll))
 run2_nanoAOD_ANY.toModify(
   bTagDiscriminatorsForAK4,
   foo = bTagCSVV2+bTagDeepCSV+bTagDeepJet+_pfParticleNetAK4JetTagsAll
@@ -179,6 +180,15 @@ DEEPJETVARS = cms.PSet(
   btagDeepFlavCvL = Var("?(pt>=15)&&(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probuds')+bDiscriminator('pfDeepFlavourJetTags:probg'))>0?bDiscriminator('pfDeepFlavourJetTags:probc')/(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probuds')+bDiscriminator('pfDeepFlavourJetTags:probg')):-1",float,doc="DeepJet c vs uds+g discriminator",precision=10),
   btagDeepFlavCvB = Var("?(pt>=15)&&(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probb')+bDiscriminator('pfDeepFlavourJetTags:probbb')+bDiscriminator('pfDeepFlavourJetTags:problepb'))>0?bDiscriminator('pfDeepFlavourJetTags:probc')/(bDiscriminator('pfDeepFlavourJetTags:probc')+bDiscriminator('pfDeepFlavourJetTags:probb')+bDiscriminator('pfDeepFlavourJetTags:probbb')+bDiscriminator('pfDeepFlavourJetTags:problepb')):-1",float,doc="DeepJet c vs b+bb+lepb discriminator",precision=10),
   btagDeepFlavQG  = Var("?(pt>=15)&&(bDiscriminator('pfDeepFlavourJetTags:probg')+bDiscriminator('pfDeepFlavourJetTags:probuds'))>0?bDiscriminator('pfDeepFlavourJetTags:probg')/(bDiscriminator('pfDeepFlavourJetTags:probg')+bDiscriminator('pfDeepFlavourJetTags:probuds')):-1",float,doc="DeepJet g vs uds discriminator",precision=10),
+)
+ROBUSTPARTAK4VARS = cms.PSet(
+  btagRobustParTAK4B   = Var("?(pt>=15)?bDiscriminator('pfParticleTransformerAK4Tags:probb')+bDiscriminator('pfDeepFlavourJetTags:probbb')+bDiscriminator('pfDeepFlavourJetTags:problepb'):-1",float,doc="DeepJet b+bb+lepb tag discriminator",precision=10),
+  btagRobustParTAK4C   = Var("?(pt>=15)?bDiscriminator('pfParticleTransformerAK4Tags:probc'):-1",float,doc="DeepFlavour charm tag raw score",precision=10),
+  btagRobustParTAK4G   = Var("?(pt>=15)?bDiscriminator('pfParticleTransformerAK4Tags:probg'):-1",float,doc="DeepFlavour gluon tag raw score",precision=10),
+  btagRobustParTAK4UDS = Var("?(pt>=15)?bDiscriminator('pfParticleTransformerAK4Tags:probuds'):-1",float,doc="DeepFlavour uds tag raw score",precision=10),
+  btagRobustParTAK4CvL = Var("?(pt>=15)&&(bDiscriminator('pfParticleTransformerAK4JetTags:probc')+bDiscriminator('pfParticleTransformerAK4JetTags:probuds')+bDiscriminator('pfParticleTransformerAK4JetTags:probg'))>0?bDiscriminator('pfParticleTransformerAK4JetTags:probc')/(bDiscriminator('pfParticleTransformerAK4JetTags:probc')+bDiscriminator('pfParticleTransformerAK4JetTags:probuds')+bDiscriminator('pfParticleTransformerAK4JetTags:probg')):-1",float,doc="DeepJet c vs uds+g discriminator",precision=10),
+  btagRobustParTAK4CvB = Var("?(pt>=15)&&(bDiscriminator('pfParticleTransformerAK4JetTags:probc')+bDiscriminator('pfParticleTransformerAK4JetTags:probb')+bDiscriminator('pfParticleTransformerAK4JetTags:probbb')+bDiscriminator('pfParticleTransformerAK4JetTags:problepb'))>0?bDiscriminator('pfParticleTransformerAK4JetTags:probc')/(bDiscriminator('pfParticleTransformerAK4JetTags:probc')+bDiscriminator('pfParticleTransformerAK4JetTags:probb')+bDiscriminator('pfParticleTransformerAK4JetTags:probbb')+bDiscriminator('pfParticleTransformerAK4JetTags:problepb')):-1",float,doc="DeepJet c vs b+bb+lepb discriminator",precision=10),
+  btagRobustParTAK4QG  = Var("?(pt>=15)&&(bDiscriminator('pfParticleTransformerAK4JetTags:probg')+bDiscriminator('pfParticleTransformerAK4JetTags:probuds'))>0?bDiscriminator('pfParticleTransformerAK4JetTags:probg')/(bDiscriminator('pfParticleTransformerAK4JetTags:probg')+bDiscriminator('pfParticleTransformerAK4JetTags:probuds')):-1",float,doc="DeepJet g vs uds discriminator",precision=10),
 )
 PARTICLENETAK4VARS = cms.PSet(
   particleNetAK4_B = Var("?(pt>=15)?bDiscriminator('pfParticleNetAK4DiscriminatorsJetTags:BvsAll'):-1",float,doc="ParticleNetAK4 tagger b vs all (udsg, c) discriminator",precision=10),
@@ -370,16 +380,16 @@ def AddBTaggingScores(proc, jetTableName=""):
   Store b-tagging scores from various algortihm
   """
 
-  getattr(proc, jetTableName).variables.btagDeepB       = BTAGVARS.btagDeepB
-  getattr(proc, jetTableName).variables.btagDeepCvL     = BTAGVARS.btagDeepCvL
-  getattr(proc, jetTableName).variables.btagDeepCvB     = BTAGVARS.btagDeepCvB
   getattr(proc, jetTableName).variables.btagDeepFlavB   = DEEPJETVARS.btagDeepFlavB
   getattr(proc, jetTableName).variables.btagDeepFlavCvL = DEEPJETVARS.btagDeepFlavCvL
   getattr(proc, jetTableName).variables.btagDeepFlavCvB = DEEPJETVARS.btagDeepFlavCvB
 
   run2_nanoAOD_ANY.toModify(
     getattr(proc, jetTableName).variables,
-    btagCSVV2 = Var("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')",float,doc=" pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)",precision=10)
+    btagCSVV2 = Var("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')",float,doc=" pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)",precision=10),
+    btagDeepB = Var("?(bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb'))>=0?bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb'):-1",float,doc="DeepCSV b+bb tag discriminator",precision=10),
+    btagDeepCvL = Var("?bDiscriminator('pfDeepCSVJetTags:probc')>=0?bDiscriminator('pfDeepCSVJetTags:probc')/(bDiscriminator('pfDeepCSVJetTags:probc')+bDiscriminator('pfDeepCSVJetTags:probudsg')):-1", float,doc="DeepCSV c vs udsg discriminator",precision=10),
+    btagDeepCvB = Var("?bDiscriminator('pfDeepCSVJetTags:probc')>=0?bDiscriminator('pfDeepCSVJetTags:probc')/(bDiscriminator('pfDeepCSVJetTags:probc')+bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb')):-1",float,doc="DeepCSV c vs b+bb discriminator",precision=10)
   )
 
   return proc
@@ -392,6 +402,17 @@ def AddDeepJetGluonLQuarkScores(proc, jetTableName=""):
   getattr(proc, jetTableName).variables.btagDeepFlavG   = DEEPJETVARS.btagDeepFlavG
   getattr(proc, jetTableName).variables.btagDeepFlavUDS = DEEPJETVARS.btagDeepFlavUDS
   getattr(proc, jetTableName).variables.btagDeepFlavQG  = DEEPJETVARS.btagDeepFlavQG
+
+  return proc
+
+def AddRobustParTAK4Scores(proc, jetTableName=""):
+  """
+  Store RobustParTAK4 scores in jetTable
+  """
+
+  getattr(proc, jetTableName).variables.btagRobustParTAK4B = ROBUSTPARTAK4VARS.btagRobustParTAK4B
+  getattr(proc, jetTableName).variables.btagRobustParTAK4CvL = ROBUSTPARTAK4VARS.btagRobustParTAK4CvL
+  getattr(proc, jetTableName).variables.btagRobustParTAK4CvB = ROBUSTPARTAK4VARS.btagRobustParTAK4CvB
 
   return proc
 
@@ -689,12 +710,6 @@ def ReclusterAK4PuppiJets(proc, recoJA, runOnMC):
                           calculateQGLVars=True
                         )
   #
-  # Save standard b-tagging and c-tagging variables
-  #
-  proc.jetPuppiTable.variables.btagDeepB   = BTAGVARS.btagDeepB
-  proc.jetPuppiTable.variables.btagDeepCvL = BTAGVARS.btagDeepCvL
-  proc.jetPuppiTable.variables.btagDeepCvB = BTAGVARS.btagDeepCvB
-  #
   # Save DeepJet b-tagging and c-tagging variables
   #
   proc.jetPuppiTable.variables.btagDeepFlavB   = DEEPJETVARS.btagDeepFlavB
@@ -706,6 +721,12 @@ def ReclusterAK4PuppiJets(proc, recoJA, runOnMC):
   proc.jetPuppiTable.variables.btagDeepFlavG   = DEEPJETVARS.btagDeepFlavG
   proc.jetPuppiTable.variables.btagDeepFlavUDS = DEEPJETVARS.btagDeepFlavUDS
   proc.jetPuppiTable.variables.btagDeepFlavQG  = DEEPJETVARS.btagDeepFlavQG
+  #
+  # Save RobustParTAK4 b-tagging and c-tagging variables
+  #
+  proc.jetPuppiTable.variables.btagRobustParTAK4B   = ROBUSTPARTAK4VARS.btagRobustParTAK4B
+  proc.jetPuppiTable.variables.btagRobustParTAK4CvL = ROBUSTPARTAK4VARS.btagRobustParTAK4CvL
+  proc.jetPuppiTable.variables.btagRobustParTAK4CvB = ROBUSTPARTAK4VARS.btagRobustParTAK4CvB
   #
   # Add ParticleNetAK4 scores
   #
@@ -880,6 +901,12 @@ def ReclusterAK4CHSJets(proc, recoJA, runOnMC):
   proc.jetTable.variables.btagDeepFlavG   = DEEPJETVARS.btagDeepFlavG
   proc.jetTable.variables.btagDeepFlavUDS = DEEPJETVARS.btagDeepFlavUDS
   proc.jetTable.variables.btagDeepFlavQG  = DEEPJETVARS.btagDeepFlavQG
+  #
+  # Save RobustParTAK4 b-tagging and c-tagging variables
+  #
+  proc.jetTable.variables.btagRobustParTAK4B   = ROBUSTPARTAK4VARS.btagRobustParTAK4B
+  proc.jetTable.variables.btagRobustParTAK4CvL = ROBUSTPARTAK4VARS.btagRobustParTAK4CvL
+  proc.jetTable.variables.btagRobustParTAK4CvB = ROBUSTPARTAK4VARS.btagRobustParTAK4CvB
   #
   # Add ParticleNetAK4 scores
   #
