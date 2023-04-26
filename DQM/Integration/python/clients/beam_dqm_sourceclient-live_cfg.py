@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 BSOnlineRecordName = 'BeamSpotOnlineLegacyObjectsRcd'
 BSOnlineTag = 'BeamSpotOnlineLegacy'
 BSOnlineJobName = 'BeamSpotOnlineLegacy'
-BSOnlineOmsServiceUrl = 'http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'
+BSOnlineOmsServiceUrl = 'http://cmsoms-eventing.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'
 useLockRecords = True
 
 import sys

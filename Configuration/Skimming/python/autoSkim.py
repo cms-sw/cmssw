@@ -1,10 +1,15 @@
 autoSkim = {
+
+ # Skim 2023
  'BTagMu' : 'LogError+LogErrorMonitor',
- 'DisplacedJet' : 'EXODisplacedJet+EXODelayedJet+EXODTCluster+EXOCSCCluster+LogError+LogErrorMonitor',
- 'JetMET' : 'JetHTJetPlusHOFilter+EXOHighMET+EXODelayedJetMET+EXODisappTrk+LogError+LogErrorMonitor',
- 'EGamma':'ZElectron+WElectron+EXOMONOPOLE+EXODisappTrk+LogError+LogErrorMonitor',
+ 'DisplacedJet' : 'EXODisplacedJet+EXODelayedJet+EXODTCluster+EXOLLPJetHCAL+LogError+LogErrorMonitor',
+ 'JetMET0' : 'JetHTJetPlusHOFilter+EXOHighMET+EXODelayedJetMET+EXODisappTrk+LogError+LogErrorMonitor',
+ 'JetMET1' : 'JetHTJetPlusHOFilter+EXOHighMET+EXODelayedJetMET+EXODisappTrk+LogError+LogErrorMonitor',
+ 'EGamma0':'ZElectron+WElectron+EXOMONOPOLE+EXODisappTrk+LogError+LogErrorMonitor',
+ 'EGamma1':'ZElectron+WElectron+EXOMONOPOLE+EXODisappTrk+LogError+LogErrorMonitor',
  'Tau' : 'EXODisappTrk+LogError+LogErrorMonitor',
- 'Muon' : 'ZMu+EXODisappTrk+LogError+LogErrorMonitor',
+ 'Muon0' : 'ZMu+EXODisappTrk+EXOCSCCluster+EXODisappMuon+LogError+LogErrorMonitor',
+ 'Muon1' : 'ZMu+EXODisappTrk+EXOCSCCluster+EXODisappMuon+LogError+LogErrorMonitor',
  'MuonEG' : 'TopMuEG+LogError+LogErrorMonitor',
  'NoBPTX' : 'EXONoBPTXSkim+LogError+LogErrorMonitor',
  'HcalNZS' : 'LogError+LogErrorMonitor',
@@ -12,6 +17,17 @@ autoSkim = {
  'ZeroBias' : 'LogError+LogErrorMonitor',
  'Commissioning' : 'EcalActivity+LogError+LogErrorMonitor',
  'Cosmics':'CosmicSP+CosmicTP+LogError+LogErrorMonitor',
+
+ # These should be uncommented when 2022 data reprocessing
+ # Dedicated skim for 2022
+ #'JetMET' : 'JetHTJetPlusHOFilter+EXOHighMET+EXODelayedJetMET+EXODisappTrk+LogError+LogErrorMonitor',
+ #'EGamma':'ZElectron+WElectron+EXOMONOPOLE+EXODisappTrk+LogError+LogErrorMonitor',
+ #'Muon' : 'ZMu+EXODisappTrk+EXODisappMuon+LogError+LogErrorMonitor',
+ #'DisplacedJet' : 'EXODisplacedJet+EXODelayedJet+EXODTCluster+EXOCSCCluster+EXOLLPJetHCAL+LogError+LogErrorMonitor',
+ #'JetHT' : 'JetHTJetPlusHOFilter+LogError+LogErrorMonitor',
+ #'MET' : 'EXOHighMET+EXODelayedJetMET+EXODisappTrk+LogError+LogErrorMonitor',
+ #'SingleMuon' : 'ZMu+EXODisappTrk+EXODisappMuon+LogError+LogErrorMonitor',
+ #'DoubleMuon' : 'LogError+LogErrorMonitor',
 
  # Used in unit test scenario ppEra_Run2_2018
  'SingleMuon': 'LogError+LogErrorMonitor',

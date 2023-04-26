@@ -60,6 +60,7 @@ void L1TStage2RegionalMuonShowerComp::bookHistograms(DQMStore::IBooker& ibooker,
   summary_->setBinLabel(SHOWERGOOD, "# matching showers", 1);
   summary_->setBinLabel(NOMINALBAD, "nominal shower mismatch", 1);
   summary_->setBinLabel(TIGHTBAD, "tight shower mismatch", 1);
+  summary_->setBinLabel(LOOSEBAD, "loose shower mismatch", 1);
 
   errorSummaryNum_ = ibooker.book1D("errorSummaryNum",
                                     summaryTitle_.c_str(),
@@ -71,6 +72,7 @@ void L1TStage2RegionalMuonShowerComp::bookHistograms(DQMStore::IBooker& ibooker,
   errorSummaryNum_->setBinLabel(RSHOWER, "mismatching showers", 1);
   errorSummaryNum_->setBinLabel(RNOMINAL, "nominal shower mismatch", 1);
   errorSummaryNum_->setBinLabel(RTIGHT, "tight shower mismatch", 1);
+  errorSummaryNum_->setBinLabel(RLOOSE, "loose shower mismatch", 1);
 
   // Change the label for those bins that will be ignored
   for (int i = 1; i <= errorSummaryNum_->getNbinsX(); i++) {
@@ -105,9 +107,9 @@ void L1TStage2RegionalMuonShowerComp::bookHistograms(DQMStore::IBooker& ibooker,
                      12,
                      1,
                      13,
-                     2,
+                     3,
                      1,
-                     3);
+                     4);
   showerColl1ShowerTypeVsProcessor_->setAxisTitle("Processor", 1);
   showerColl1ShowerTypeVsProcessor_->setBinLabel(12, "+6", 1);
   showerColl1ShowerTypeVsProcessor_->setBinLabel(11, "+5", 1);
@@ -122,20 +124,22 @@ void L1TStage2RegionalMuonShowerComp::bookHistograms(DQMStore::IBooker& ibooker,
   showerColl1ShowerTypeVsProcessor_->setBinLabel(2, "-2", 1);
   showerColl1ShowerTypeVsProcessor_->setBinLabel(1, "-1", 1);
   showerColl1ShowerTypeVsProcessor_->setAxisTitle("Shower type", 2);
-  showerColl1ShowerTypeVsProcessor_->setBinLabel(IDX_TIGHT_SHOWER, "Tight", 2);
-  showerColl1ShowerTypeVsProcessor_->setBinLabel(IDX_NOMINAL_SHOWER, "Nominal", 2);
+  showerColl1ShowerTypeVsProcessor_->setBinLabel(IDX_LOOSE_SHOWER, "OneLoose", 2);
+  showerColl1ShowerTypeVsProcessor_->setBinLabel(IDX_TIGHT_SHOWER, "OneTight", 2);
+  showerColl1ShowerTypeVsProcessor_->setBinLabel(IDX_NOMINAL_SHOWER, "OneNominal", 2);
   showerColl1ShowerTypeVsBX_ = ibooker.book2D("showerColl1ShowerTypeVsBX",
                                               showerColl1Title_ + " mismatching shower type occupancy per BX",
                                               7,
                                               -3.5,
                                               3.5,
-                                              2,
+                                              3,
                                               1,
-                                              3);
+                                              4);
   showerColl1ShowerTypeVsBX_->setAxisTitle("BX", 1);
   showerColl1ShowerTypeVsBX_->setAxisTitle("Shower type", 2);
-  showerColl1ShowerTypeVsBX_->setBinLabel(IDX_TIGHT_SHOWER, "Tight", 2);
-  showerColl1ShowerTypeVsBX_->setBinLabel(IDX_NOMINAL_SHOWER, "Nominal", 2);
+  showerColl1ShowerTypeVsBX_->setBinLabel(IDX_LOOSE_SHOWER, "OneLoose", 2);
+  showerColl1ShowerTypeVsBX_->setBinLabel(IDX_TIGHT_SHOWER, "OneTight", 2);
+  showerColl1ShowerTypeVsBX_->setBinLabel(IDX_NOMINAL_SHOWER, "OneNominal", 2);
   showerColl1ProcessorVsBX_ = ibooker.book2D("showerColl1ProcessorVsBX",
                                              showerColl1Title_ + " mismatching shower BX occupancy per sector",
                                              7,
@@ -171,9 +175,9 @@ void L1TStage2RegionalMuonShowerComp::bookHistograms(DQMStore::IBooker& ibooker,
                      12,
                      1,
                      13,
-                     2,
+                     3,
                      1,
-                     3);
+                     4);
   showerColl2ShowerTypeVsProcessor_->setAxisTitle("Processor", 1);
   showerColl2ShowerTypeVsProcessor_->setBinLabel(12, "+6", 1);
   showerColl2ShowerTypeVsProcessor_->setBinLabel(11, "+5", 1);
@@ -188,20 +192,22 @@ void L1TStage2RegionalMuonShowerComp::bookHistograms(DQMStore::IBooker& ibooker,
   showerColl2ShowerTypeVsProcessor_->setBinLabel(2, "-2", 1);
   showerColl2ShowerTypeVsProcessor_->setBinLabel(1, "-1", 1);
   showerColl2ShowerTypeVsProcessor_->setAxisTitle("Shower type", 2);
-  showerColl2ShowerTypeVsProcessor_->setBinLabel(IDX_TIGHT_SHOWER, "Tight", 2);
-  showerColl2ShowerTypeVsProcessor_->setBinLabel(IDX_NOMINAL_SHOWER, "Nominal", 2);
+  showerColl2ShowerTypeVsProcessor_->setBinLabel(IDX_LOOSE_SHOWER, "OneLoose", 2);
+  showerColl2ShowerTypeVsProcessor_->setBinLabel(IDX_TIGHT_SHOWER, "OneTight", 2);
+  showerColl2ShowerTypeVsProcessor_->setBinLabel(IDX_NOMINAL_SHOWER, "OneNominal", 2);
   showerColl2ShowerTypeVsBX_ = ibooker.book2D("showerColl2ShowerTypeVsBX",
                                               showerColl2Title_ + " mismatching shower type occupancy per BX",
                                               7,
                                               -3.5,
                                               3.5,
-                                              2,
+                                              3,
                                               1,
-                                              3);
+                                              4);
   showerColl2ShowerTypeVsBX_->setAxisTitle("BX", 1);
   showerColl2ShowerTypeVsBX_->setAxisTitle("Shower type", 2);
-  showerColl2ShowerTypeVsBX_->setBinLabel(IDX_TIGHT_SHOWER, "Tight", 2);
-  showerColl2ShowerTypeVsBX_->setBinLabel(IDX_NOMINAL_SHOWER, "Nominal", 2);
+  showerColl2ShowerTypeVsBX_->setBinLabel(IDX_TIGHT_SHOWER, "OneLoose", 2);
+  showerColl2ShowerTypeVsBX_->setBinLabel(IDX_TIGHT_SHOWER, "OneTight", 2);
+  showerColl2ShowerTypeVsBX_->setBinLabel(IDX_NOMINAL_SHOWER, "OneNominal", 2);
   showerColl2ProcessorVsBX_ = ibooker.book2D("showerColl2ProcessorVsBX",
                                              showerColl2Title_ + " mismatching shower BX occupancy per sector",
                                              7,
@@ -287,6 +293,12 @@ void L1TStage2RegionalMuonShowerComp::analyze(const edm::Event& e, const edm::Ev
                 showerIt1->processor() + 1 + (showerIt1->trackFinderType() == l1t::tftype::emtf_pos ? 6 : 0));
             showerColl1ShowerTypeVsBX_->Fill(IDX_TIGHT_SHOWER, iBx);
           }
+          if (showerIt1->isOneLooseInTime()) {
+            showerColl1ShowerTypeVsProcessor_->Fill(
+                IDX_LOOSE_SHOWER,
+                showerIt1->processor() + 1 + (showerIt1->trackFinderType() == l1t::tftype::emtf_pos ? 6 : 0));
+            showerColl1ShowerTypeVsBX_->Fill(IDX_LOOSE_SHOWER, iBx);
+          }
           showerColl1ProcessorVsBX_->Fill(
               showerIt1->processor() + 1 + (showerIt1->trackFinderType() == l1t::tftype::emtf_pos ? 6 : 0), iBx);
         }
@@ -304,6 +316,12 @@ void L1TStage2RegionalMuonShowerComp::analyze(const edm::Event& e, const edm::Ev
                 IDX_TIGHT_SHOWER,
                 showerIt2->processor() + 1 + (showerIt2->trackFinderType() == l1t::tftype::emtf_pos ? 6 : 0));
             showerColl2ShowerTypeVsBX_->Fill(IDX_TIGHT_SHOWER, iBx);
+          }
+          if (showerIt2->isOneLooseInTime()) {
+            showerColl2ShowerTypeVsProcessor_->Fill(
+                IDX_LOOSE_SHOWER,
+                showerIt2->processor() + 1 + (showerIt2->trackFinderType() == l1t::tftype::emtf_pos ? 6 : 0));
+            showerColl2ShowerTypeVsBX_->Fill(IDX_LOOSE_SHOWER, iBx);
           }
           showerColl2ProcessorVsBX_->Fill(
               showerIt2->processor() + 1 + (showerIt2->trackFinderType() == l1t::tftype::emtf_pos ? 6 : 0), iBx);
@@ -339,6 +357,14 @@ void L1TStage2RegionalMuonShowerComp::analyze(const edm::Event& e, const edm::Ev
           errorSummaryNum_->Fill(RTIGHT);
         }
       }
+      if (showerIt1->isOneLooseInTime() != showerIt2->isOneLooseInTime()) {
+        showerMismatch = true;
+        summary_->Fill(LOOSEBAD);
+        if (incBin_[RLOOSE]) {
+          showerSelMismatch = true;
+          errorSummaryNum_->Fill(RLOOSE);
+        }
+      }
       if (incBin_[RSHOWER] && showerSelMismatch) {
         errorSummaryNum_->Fill(RSHOWER);
       }
@@ -356,6 +382,12 @@ void L1TStage2RegionalMuonShowerComp::analyze(const edm::Event& e, const edm::Ev
               showerIt1->processor() + 1 + (showerIt1->trackFinderType() == l1t::tftype::emtf_pos ? 6 : 0));
           showerColl1ShowerTypeVsBX_->Fill(IDX_TIGHT_SHOWER, iBx);
         }
+        if (showerIt1->isOneLooseInTime()) {
+          showerColl1ShowerTypeVsProcessor_->Fill(
+              IDX_LOOSE_SHOWER,
+              showerIt1->processor() + 1 + (showerIt1->trackFinderType() == l1t::tftype::emtf_pos ? 6 : 0));
+          showerColl1ShowerTypeVsBX_->Fill(IDX_LOOSE_SHOWER, iBx);
+        }
         showerColl1ProcessorVsBX_->Fill(
             showerIt1->processor() + 1 + (showerIt1->trackFinderType() == l1t::tftype::emtf_pos ? 6 : 0), iBx);
 
@@ -370,6 +402,12 @@ void L1TStage2RegionalMuonShowerComp::analyze(const edm::Event& e, const edm::Ev
               IDX_TIGHT_SHOWER,
               showerIt2->processor() + 1 + (showerIt2->trackFinderType() == l1t::tftype::emtf_pos ? 6 : 0));
           showerColl2ShowerTypeVsBX_->Fill(IDX_TIGHT_SHOWER, iBx);
+        }
+        if (showerIt2->isOneLooseInTime()) {
+          showerColl2ShowerTypeVsProcessor_->Fill(
+              IDX_LOOSE_SHOWER,
+              showerIt2->processor() + 1 + (showerIt2->trackFinderType() == l1t::tftype::emtf_pos ? 6 : 0));
+          showerColl2ShowerTypeVsBX_->Fill(IDX_LOOSE_SHOWER, iBx);
         }
         showerColl2ProcessorVsBX_->Fill(
             showerIt2->processor() + 1 + (showerIt2->trackFinderType() == l1t::tftype::emtf_pos ? 6 : 0), iBx);

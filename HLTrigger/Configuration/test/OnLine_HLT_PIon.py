@@ -1,6 +1,6 @@
 # hltGetConfiguration /dev/CMSSW_13_0_0/PIon --full --data --type PIon --unprescale --process HLTPIon --globaltag auto:run3_hlt_PIon --input file:RelVal_Raw_PIon_DATA.root
 
-# /dev/CMSSW_13_0_0/PIon/V66 (CMSSW_13_0_1)
+# /dev/CMSSW_13_0_0/PIon/V78 (CMSSW_13_0_1)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ process = cms.Process( "HLTPIon" )
 process.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_13_0_0/PIon/V66')
+  tableName = cms.string('/dev/CMSSW_13_0_0/PIon/V78')
 )
 
 process.transferSystem = cms.PSet( 
@@ -3996,9 +3996,6 @@ process.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
     PrintL1Menu = cms.untracked.bool( False ),
     TriggerMenuLuminosity = cms.string( "startup" )
 )
-process.hltScalersRawToDigi = cms.EDProducer( "ScalersRawToDigi",
-    scalersInputTag = cms.InputTag( "rawDataCollector" )
-)
 process.hltOnlineMetaDataDigis = cms.EDProducer( "OnlineMetaDataRawToDigi",
     onlineMetaDataInputLabel = cms.InputTag( "rawDataCollector" )
 )
@@ -4007,7 +4004,7 @@ process.hltOnlineBeamSpot = cms.EDProducer( "BeamSpotOnlineProducer",
     maxZ = cms.double( 40.0 ),
     setSigmaZ = cms.double( 0.0 ),
     beamMode = cms.untracked.uint32( 11 ),
-    src = cms.InputTag( "hltScalersRawToDigi" ),
+    src = cms.InputTag( "" ),
     gtEvmLabel = cms.InputTag( "" ),
     maxRadius = cms.double( 2.0 ),
     useTransientRecord = cms.bool( True )
@@ -4184,7 +4181,7 @@ process.hltOutputPhysicsCommissioning = cms.OutputModule( "PoolOutputModule",
 )
 
 process.HLTL1UnpackerSequence = cms.Sequence( process.hltGtStage2Digis + process.hltGtStage2ObjectMap )
-process.HLTBeamSpot = cms.Sequence( process.hltScalersRawToDigi + process.hltOnlineMetaDataDigis + process.hltOnlineBeamSpot )
+process.HLTBeamSpot = cms.Sequence( process.hltOnlineMetaDataDigis + process.hltOnlineBeamSpot )
 process.HLTBeginSequenceL1Fat = cms.Sequence( process.hltTriggerType + process.hltL1EventNumberL1Fat + process.HLTL1UnpackerSequence + process.HLTBeamSpot )
 process.HLTEndSequence = cms.Sequence( process.hltBoolEnd )
 process.HLTBeginSequenceRandom = cms.Sequence( process.hltRandomEventsFilter + process.hltGtStage2Digis )
@@ -4197,7 +4194,7 @@ process.Status_OnGPU = cms.Path( process.statusOnGPU + process.statusOnGPUFilter
 process.HLT_Physics_v8 = cms.Path( process.HLTBeginSequenceL1Fat + process.hltPrePhysics + process.HLTEndSequence )
 process.HLT_Random_v3 = cms.Path( process.HLTBeginSequenceRandom + process.hltPreRandom + process.HLTEndSequence )
 process.HLT_ZeroBias_v7 = cms.Path( process.HLTBeginSequence + process.hltL1sZeroBias + process.hltPreZeroBias + process.HLTEndSequence )
-process.HLTriggerFinalPath = cms.Path( process.hltGtStage2Digis + process.hltScalersRawToDigi + process.hltFEDSelectorTCDS + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW + process.hltBoolFalse )
+process.HLTriggerFinalPath = cms.Path( process.hltGtStage2Digis + process.hltFEDSelectorTCDS + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW + process.hltBoolFalse )
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltGtStage2Digis + process.hltPreHLTAnalyzerEndpath + process.hltL1TGlobalSummary + process.hltTrigReport )
 
 # load the DQMStore and DQMRootOutputModule

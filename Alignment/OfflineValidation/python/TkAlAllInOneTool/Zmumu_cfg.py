@@ -128,17 +128,17 @@ if "conditions" in config["alignment"]:
 ###################################################################
 # The Di Muon Mass Validation module
 ###################################################################
-from Alignment.OfflineValidation.diMuonValidation_cfi.py import diMuonValidation as _diMuonValidation
+from Alignment.OfflineValidation.diMuonValidation_cfi import diMuonValidation as _diMuonValidation
 process.DiMuonMassValidation = _diMuonValidation.clone(
     TkTag = 'TrackRefitter',
     # mu mu mass
     Pair_mass_min   = 80.,
     Pair_mass_max   = 120.,
     Pair_mass_nbins = 80,
-    Pair_etaminpos  = -1,
-    Pair_etamaxpos  = 1,
-    Pair_etaminneg  = -1,
-    Pair_etamaxneg  = 1,
+    Pair_etaminpos  = -2.4,
+    Pair_etamaxpos  = 2.4,
+    Pair_etaminneg  = -2.4,
+    Pair_etamaxneg  = 2.4,
     # cosTheta CS
     Variable_CosThetaCS_xmin  = -1.,
     Variable_CosThetaCS_xmax  =  1.,

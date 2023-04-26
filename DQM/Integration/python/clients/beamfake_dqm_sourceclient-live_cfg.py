@@ -7,7 +7,7 @@ import time
 BSOnlineRecordName = 'BeamSpotOnlineLegacyObjectsRcd'
 BSOnlineTag = 'BeamSpotOnlineFakeLegacy'
 BSOnlineJobName = 'BeamSpotOnlineFakeLegacy'
-BSOnlineOmsServiceUrl = 'http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'
+BSOnlineOmsServiceUrl = 'http://cmsoms-eventing.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'
 useLockRecords = True
 import sys
 if 'runkey=hi_run' in sys.argv:

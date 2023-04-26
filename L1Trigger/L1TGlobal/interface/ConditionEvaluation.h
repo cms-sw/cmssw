@@ -11,8 +11,12 @@
  *    <TODO: enter implementation details>
  *
  * \author: Vasile Mihai Ghete   - HEPHY Vienna
- *          Vladimir Rekovic - extend for indexing
  *
+ * \new features: Vladimir Rekovic                                                          
+ *                - extend for indexing
+ * \new features: Bernhard Arnold, Elisa Fontanesi                                                          
+ *                - extended for muon track finder index feature (used for Run 3 muon monitoring seeds)             
+ *                - checkRangeEta function allows to use up to five eta cuts in L1 algorithms 
  *
  */
 
@@ -93,7 +97,7 @@ namespace l1t {
 
     /// check if a value is greater than a threshold or
     /// greater-or-equal depending on the value of the condGEqValue flag
-    /// Added by Rick Cavanaugh for Displaced Muons:
+    /// Added for Displaced Muons:
     ///       Above checkThreshold fails when value overflows or threshold window is invalid
     ///       Below checkUnconstrainedPt allows value to overflow and only evaluates cut if threshold window is valid
     template <class Type1, class Type2>
@@ -110,16 +114,15 @@ namespace l1t {
     template <class Type1>
     const bool checkBit(const Type1& mask, const unsigned int bitNumber) const;
 
-    /// check if a value is in a given range and outside of a veto range
+    /// check if a value is in a given eta range and outside of a veto range
+    ///        Up to five eta cuts are allowed in L1 algorithms.
+    ///        Three eta cuts are used for the DoubleMu seeds with upt requirement implemented for Run 3 (2023)
     template <class Type1>
     const bool checkRangeEta(const unsigned int bitNumber,
-                             const Type1& W1beginR,
-                             const Type1& W1endR,
-                             const Type1& W2beginR,
-                             const Type1& W2endR,
+                             const std::vector<Type1>& windows,
                              const unsigned int nEtaBits) const;
 
-    /// check if a value is in a given range and outside of a veto range
+    /// check if a value is in a given phi range and outside of a veto range
     template <class Type1>
     const bool checkRangePhi(const unsigned int bitNumber,
                              const Type1& W1beginR,
@@ -127,7 +130,7 @@ namespace l1t {
                              const Type1& W2beginR,
                              const Type1& W2endR) const;
 
-    /// check if a value is in a given range
+    /// check if a value is in a given deltaEta range
     template <class Type1>
     const bool checkRangeDeltaEta(const unsigned int obj1Eta,
                                   const unsigned int obj2Eta,
@@ -135,12 +138,16 @@ namespace l1t {
                                   const Type1& upperR,
                                   const unsigned int nEtaBits) const;
 
-    /// check if a value is in a given range
+    /// check if a value is in a given deltaPhi range
     template <class Type1>
     const bool checkRangeDeltaPhi(const unsigned int obj1Phi,
                                   const unsigned int obj2Phi,
                                   const Type1& lowerR,
                                   const Type1& upperR) const;
+
+    /// check if a value is in a given muon track finder index range
+    template <class Type1>
+    const bool checkRangeTfMuonIndex(const unsigned int bitNumber, const std::vector<Type1>& windows) const;
 
   protected:
     /// maximum number of objects received for the evaluation of the condition
@@ -197,7 +204,7 @@ namespace l1t {
 
   // check if a value is greater than a threshold or
   // greater-or-equal depending on the value of the condGEqValue flag
-  /// Added by Rick Cavanaugh for Displaced Muons:
+  /// Added for Displaced Muons:
   ///       Above checkThreshold fails when value overflows or threshold window is invalid
   ///       Below checkUnconstrainedPt allows value to overflow and only evaluates cut if threshold window is valid
   template <class Type1, class Type2>
@@ -228,7 +235,7 @@ namespace l1t {
       return true;
   }
 
-  // check if a index in a given range
+  // check if a index in a given index range
   template <class Type1>
   const bool ConditionEvaluation::checkIndex(const Type1& indexLo,
                                              const Type1& indexHi,
@@ -237,7 +244,7 @@ namespace l1t {
                            << "\n\t indexLo = " << indexLo << "\n\t indexHi = " << indexHi << "\n\t index = " << index
                            << std::endl;
 
-    // set condtion to false if indexLo > indexHi
+    // set condition to false if indexLo > indexHi
     if (indexLo > indexHi) {
       return false;
     }
@@ -274,89 +281,60 @@ namespace l1t {
     return (mask & oneBit);
   }
 
-  /// check if a value is in a given range and outside of a veto range
+  /// check if a value is in a given eta range and outside of a veto range
+  ///        Up to five eta cuts are allowed in L1 algorithms.
+  ///        Three eta cuts are used for the DoubleMu seeds with upt requirement implemented for Run 3 (2023)
   template <class Type1>
   const bool ConditionEvaluation::checkRangeEta(const unsigned int bitNumber,
-                                                const Type1& W1beginR,
-                                                const Type1& W1endR,
-                                                const Type1& W2beginR,
-                                                const Type1& W2endR,
+                                                const std::vector<Type1>& windows,
                                                 const unsigned int nEtaBits) const {
-    // set condtion to true if beginR==endR = default -1
-    if (W1beginR == W1endR && W1beginR == (Type1)-1) {
+    if (windows.empty()) {
       return true;
     }
 
-    unsigned int W1diff1 = W1endR - W1beginR;
-    unsigned int W1diff2 = bitNumber - W1beginR;
-    unsigned int W1diff3 = W1endR - bitNumber;
+    for (const auto& window : windows) {
+      const unsigned int diff1 = window.upper - window.lower;
+      const unsigned int diff2 = bitNumber - window.lower;
+      const unsigned int diff3 = window.upper - bitNumber;
 
-    bool W1cond1 = ((W1diff1 >> nEtaBits) & 1) ? false : true;
-    bool W1cond2 = ((W1diff2 >> nEtaBits) & 1) ? false : true;
-    bool W1cond3 = ((W1diff3 >> nEtaBits) & 1) ? false : true;
+      const bool cond1 = ((diff1 >> nEtaBits) & 1) ? false : true;
+      const bool cond2 = ((diff2 >> nEtaBits) & 1) ? false : true;
+      const bool cond3 = ((diff3 >> nEtaBits) & 1) ? false : true;
 
-    // check if value is in range
-    // for begin <= end takes [begin, end]
-    // for begin >= end takes [begin, end] over zero angle!
-    bool passWindow1 = false;
-    if (W1cond1 && (W1cond2 && W1cond3))
-      passWindow1 = true;
-    else if (!W1cond1 && (W1cond2 || W1cond3))
-      passWindow1 = true;
-    else {
-      passWindow1 = false;
+      // check if value is in range
+      // for begin <= end takes [begin, end]
+      // for begin >= end takes [begin, end] over zero angle!
+      bool passWindow = false;
+      if (cond1 && (cond2 && cond3))
+        passWindow = true;
+      else if (!cond1 && (cond2 || cond3))
+        passWindow = true;
+      else
+        passWindow = false;
+
+      LogDebug("l1t|Global") << "\n l1t::ConditionEvaluation"
+                             << "\n\t bitNumber = " << bitNumber << "\n\t window.lower = " << window.lower
+                             << "\n\t window.upper = " << window.upper << "\n\t diff1 = " << diff1
+                             << "\n\t cond1 = " << cond1 << "\n\t diff2 = " << diff2 << "\n\t cond2 = " << cond2
+                             << "\n\t diff3 = " << diff3 << "\n\t cond3 = " << cond3
+                             << "\n\t passWindow = " << passWindow << std::endl;
+
+      if (passWindow) {
+        return true;
+      }
     }
 
-    LogDebug("l1t|Global") << "\n l1t::ConditionEvaluation"
-                           << "\n\t bitNumber = " << bitNumber << "\n\t W1beginR = " << W1beginR
-                           << "\n\t W1endR   = " << W1endR << "\n\t W1diff1 = " << W1diff1
-                           << "\n\t W1cond1 = " << W1cond1 << "\n\t W1diff2 = " << W1diff2
-                           << "\n\t W1cond2 = " << W1cond2 << "\n\t W1diff3 = " << W1diff3
-                           << "\n\t W1cond3 = " << W1cond3 << "\n\t passWindow1 = " << passWindow1 << std::endl;
-
-    if (W2beginR == W2endR && W2beginR == (Type1)-1) {
-      return passWindow1;
-    }
-
-    unsigned int W2diff1 = W2endR - W2beginR;
-    unsigned int W2diff2 = bitNumber - W2beginR;
-    unsigned int W2diff3 = W2endR - bitNumber;
-
-    bool W2cond1 = ((W2diff1 >> nEtaBits) & 1) ? false : true;
-    bool W2cond2 = ((W2diff2 >> nEtaBits) & 1) ? false : true;
-    bool W2cond3 = ((W2diff3 >> nEtaBits) & 1) ? false : true;
-
-    bool passWindow2 = false;
-    if (W2cond1 && (W2cond2 && W2cond3))
-      passWindow2 = true;
-    else if (!W2cond1 && (W2cond2 || W2cond3))
-      passWindow2 = true;
-    else {
-      passWindow2 = false;
-    }
-
-    LogDebug("l1t|Global") << "\n\t W2beginR = " << W2beginR << "\n\t W2endR   = " << W2endR
-                           << "\n\t W2diff1 = " << W2diff1 << "\n\t W2cond1 = " << W2cond1
-                           << "\n\t W2diff2 = " << W2diff2 << "\n\t W2cond2 = " << W2cond2
-                           << "\n\t W2diff3 = " << W2diff3 << "\n\t W2cond3 = " << W2cond3
-                           << "\n\t passWindow2 = " << passWindow2
-                           << "\n\t pass W1 || W2 = " << (passWindow1 || passWindow2) << std::endl;
-
-    if (passWindow1 || passWindow2) {
-      return true;
-    } else {
-      return false;
-    }
+    return false;
   }
 
-  /// check if a value is in a given range and outside of a veto range
+  /// check if a value is in a given phi range and outside of a veto range
   template <class Type1>
   const bool ConditionEvaluation::checkRangePhi(const unsigned int bitNumber,
                                                 const Type1& W1beginR,
                                                 const Type1& W1endR,
                                                 const Type1& W2beginR,
                                                 const Type1& W2endR) const {
-    // set condtion to true if beginR==endR = default -1
+    // set condition to true if beginR==endR = default -1
     if (W1beginR == W1endR && W1beginR == (Type1)-1) {
       return true;
     }
@@ -425,7 +403,7 @@ namespace l1t {
                                                      const Type1& lowerR,
                                                      const Type1& upperR,
                                                      const unsigned int nEtaBits) const {
-    /*   // set condtion to true if beginR==endR = default -1 */
+    /*   // set condition to true if beginR==endR = default -1 */
     /*   if( beginR==endR && beginR==-1 ){ */
     /*     return true; */
     /*   } */
@@ -502,6 +480,25 @@ namespace l1t {
     else {
       return false;
     }
+  }
+
+  template <class Type1>
+  const bool ConditionEvaluation::checkRangeTfMuonIndex(const unsigned int value,
+                                                        const std::vector<Type1>& windows) const {
+    if (windows.empty()) {
+      return true;
+    }
+
+    for (const auto& window : windows) {
+      if ((window.lower <= value) and (value <= window.upper)) {
+        return true;
+        LogDebug("l1t|Global") << "\n l1t::ConditionEvaluation"
+                               << "\n\t window.lower = " << window.lower << "\n\t window.upper = " << window.upper
+                               << "Passed TfMuonIndex window" << std::endl;
+      }
+    }
+
+    return false;
   }
 
 }  // namespace l1t

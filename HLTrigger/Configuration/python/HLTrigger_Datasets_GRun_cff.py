@@ -879,7 +879,6 @@ streamPhysicsEGamma0_datasetEGamma0_selector.triggerConditions = cms.vstring(
     'HLT_Ele32_WPTight_Gsf_L1DoubleEG_v12',
     'HLT_Ele32_WPTight_Gsf_v18',
     'HLT_Ele35_WPTight_Gsf_v12',
-    'HLT_Ele36_WPTight_noEoP_missHitL_trkChi2L_Gsf_v1',
     'HLT_Ele38_WPTight_Gsf_v12',
     'HLT_Ele40_WPTight_Gsf_v12',
     'HLT_Ele50_CaloIdVT_GsfTrkIdT_AK8PFJet220_SoftDropMass40_PFAK8ParticleNetBB0p35_v3',
@@ -982,7 +981,6 @@ streamPhysicsEGamma1_datasetEGamma1_selector.triggerConditions = cms.vstring(
     'HLT_Ele32_WPTight_Gsf_L1DoubleEG_v12',
     'HLT_Ele32_WPTight_Gsf_v18',
     'HLT_Ele35_WPTight_Gsf_v12',
-    'HLT_Ele36_WPTight_noEoP_missHitL_trkChi2L_Gsf_v1',
     'HLT_Ele38_WPTight_Gsf_v12',
     'HLT_Ele40_WPTight_Gsf_v12',
     'HLT_Ele50_CaloIdVT_GsfTrkIdT_AK8PFJet220_SoftDropMass40_PFAK8ParticleNetBB0p35_v3',
@@ -1215,7 +1213,6 @@ streamPhysicsJetMET0_datasetJetMET0_selector.triggerConditions = cms.vstring(
     'HLT_QuadPFJet70_50_40_30_v4',
     'HLT_QuadPFJet70_50_40_35_PNet2BTagMean0p65_v4',
     'HLT_QuadPFJet70_50_45_35_PNet2BTagMean0p65_v4',
-    'HLT_SingleJet30_Mu12_SinglePFJet40_v14',
     'HLT_TripleJet110_35_35_Mjj650_PFMET110_v12',
     'HLT_TripleJet110_35_35_Mjj650_PFMET120_v12',
     'HLT_TripleJet110_35_35_Mjj650_PFMET130_v12'
@@ -1400,7 +1397,6 @@ streamPhysicsJetMET1_datasetJetMET1_selector.triggerConditions = cms.vstring(
     'HLT_QuadPFJet70_50_40_30_v4',
     'HLT_QuadPFJet70_50_40_35_PNet2BTagMean0p65_v4',
     'HLT_QuadPFJet70_50_45_35_PNet2BTagMean0p65_v4',
-    'HLT_SingleJet30_Mu12_SinglePFJet40_v14',
     'HLT_TripleJet110_35_35_Mjj650_PFMET110_v12',
     'HLT_TripleJet110_35_35_Mjj650_PFMET120_v12',
     'HLT_TripleJet110_35_35_Mjj650_PFMET130_v12'
@@ -1684,9 +1680,10 @@ streamPhysicsScoutingPFMonitor_datasetScoutingPFMonitor_selector.hltResults = cm
 streamPhysicsScoutingPFMonitor_datasetScoutingPFMonitor_selector.l1tResults = cms.InputTag('')
 streamPhysicsScoutingPFMonitor_datasetScoutingPFMonitor_selector.throw      = cms.bool(False)
 streamPhysicsScoutingPFMonitor_datasetScoutingPFMonitor_selector.triggerConditions = cms.vstring(
-    'DST_Run3L1DoubleEG16EG12_PFScoutingPixelTracking_v19',
-    'DST_Run3L1SingleEG30_PFScoutingPixelTracking_v19',
-    'DST_Run3_PFScoutingPixelTracking_v19',
+    'DST_Run3_DoubleMu3_PFScoutingPixelTracking_v19',
+    'DST_Run3_EG16_EG12_PFScoutingPixelTracking_v19',
+    'DST_Run3_EG30_PFScoutingPixelTracking_v19',
+    'DST_Run3_JetHT_PFScoutingPixelTracking_v19',
     'HLT_Ele115_CaloIdVT_GsfTrkIdT_v18',
     'HLT_Ele35_WPTight_Gsf_v12',
     'HLT_IsoMu27_v19',

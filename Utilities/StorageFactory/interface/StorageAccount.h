@@ -99,7 +99,7 @@ namespace edm::storage {
 
     protected:
       Counter& m_counter;
-      std::chrono::time_point<std::chrono::high_resolution_clock> m_start;
+      std::chrono::time_point<std::chrono::steady_clock> m_start;
     };
 
     class StorageClassToken {

@@ -4,6 +4,8 @@ _thresholdsHB = cms.vdouble(0.8, 0.8, 0.8, 0.8)
 _thresholdsHE = cms.vdouble(0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8)
 _thresholdsHBphase1 = cms.vdouble(0.1, 0.2, 0.3, 0.3)
 _thresholdsHEphase1 = cms.vdouble(0.1, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2)
+#updated HB RecHit threshold for 2023
+_thresholdsHBphase1_2023 = cms.vdouble(0.4, 0.3, 0.3, 0.3)
 
 particleFlowRecHitHBHE = cms.EDProducer("PFRecHitProducer",
     navigator = cms.PSet(
@@ -52,6 +54,11 @@ from Configuration.ProcessModifiers.run2_HECollapse_2018_cff import run2_HEColla
 from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
 run3_HB.toModify(particleFlowRecHitHBHE,
     producers = {0 : dict(qualityTests = {0 : dict(cuts = {0 : dict(threshold = _thresholdsHBphase1) } ) } ) },
+)
+
+from Configuration.Eras.Modifier_run3_egamma_2023_cff import run3_egamma_2023
+run3_egamma_2023.toModify(particleFlowRecHitHBHE,
+    producers = {0 : dict(qualityTests = {0 : dict(cuts = {0 : dict(threshold = _thresholdsHBphase1_2023) } ) } ) },
 )
 
 # HCALonly WF

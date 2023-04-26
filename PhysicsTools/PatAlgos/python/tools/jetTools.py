@@ -7,6 +7,11 @@ from PhysicsTools.PatAlgos.tools.helpers import *
 from PhysicsTools.PatAlgos.recoLayer0.bTagging_cff import *
 import sys
 from FWCore.ParameterSet.MassReplace import MassSearchReplaceAnyInputTagVisitor
+from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import pfParticleNetFromMiniAODAK4PuppiCentralTagInfos,pfParticleNetFromMiniAODAK4PuppiCentralJetTags,pfParticleNetFromMiniAODAK4PuppiCentralDiscriminatorsJetTags
+from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import pfParticleNetFromMiniAODAK4PuppiForwardTagInfos,pfParticleNetFromMiniAODAK4PuppiForwardJetTags,pfParticleNetFromMiniAODAK4PuppiForwardDiscriminatorsJetTags
+from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import pfParticleNetFromMiniAODAK4CHSCentralTagInfos,pfParticleNetFromMiniAODAK4CHSCentralJetTags,pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags
+from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import pfParticleNetFromMiniAODAK4CHSForwardTagInfos,pfParticleNetFromMiniAODAK4CHSForwardJetTags,pfParticleNetFromMiniAODAK4CHSForwardDiscriminatorsJetTags
+from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK8_cff import pfParticleNetFromMiniAODAK8TagInfos,pfParticleNetFromMiniAODAK8JetTags,pfParticleNetFromMiniAODAK8DiscriminatorsJetTags
 
 ## dictionary with supported jet clustering algorithms
 supportedJetAlgos = {
@@ -811,15 +816,80 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
             acceptedTagInfos.append(btagInfo)
         elif hasattr(toptag, btagInfo) :
             acceptedTagInfos.append(btagInfo)
+        elif btagInfo == 'pfParticleNetFromMiniAODAK4PuppiCentralTagInfos':
+            # ParticleNetFromMiniAOD cannot be run on RECO inputs, so need a workaround
+            if pfCandidates.value() != 'packedPFCandidates':
+                raise ValueError("Invalid pfCandidates collection: %s." % pfCandidates.value())
+            addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                pfParticleNetFromMiniAODAK4PuppiCentralTagInfos.clone(
+                                  jets = jetSource,
+                                  vertices = pvSource,
+                                  secondary_vertices = svSource,
+                                  pf_candidates = pfCandidates,
+                                  ),
+                                process, task)
+            acceptedTagInfos.append(btagInfo)
+        elif btagInfo == 'pfParticleNetFromMiniAODAK4PuppiForwardTagInfos':
+            # ParticleNetFromMiniAOD cannot be run on RECO inputs, so need a workaround
+            if pfCandidates.value() != 'packedPFCandidates':
+                raise ValueError("Invalid pfCandidates collection: %s." % pfCandidates.value())
+            addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                pfParticleNetFromMiniAODAK4PuppiForwardTagInfos.clone(
+                                  jets = jetSource,
+                                  vertices = pvSource,
+                                  secondary_vertices = svSource,
+                                  pf_candidates = pfCandidates,
+                                  ),
+                                process, task)
+            acceptedTagInfos.append(btagInfo)
+        elif btagInfo == 'pfParticleNetFromMiniAODAK4CHSCentralTagInfos':
+            # ParticleNetFromMiniAOD cannot be run on RECO inputs, so need a workaround
+            if pfCandidates.value() != 'packedPFCandidates':
+                raise ValueError("Invalid pfCandidates collection: %s." % pfCandidates.value())
+            addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                pfParticleNetFromMiniAODAK4CHSCentralTagInfos.clone(
+                                  jets = jetSource,
+                                  vertices = pvSource,
+                                  secondary_vertices = svSource,
+                                  pf_candidates = pfCandidates,
+                                  ),
+                                process, task)
+            acceptedTagInfos.append(btagInfo)
+        elif btagInfo == 'pfParticleNetFromMiniAODAK4CHSForwardTagInfos':
+            # ParticleNetFromMiniAOD cannot be run on RECO inputs, so need a workaround
+            if pfCandidates.value() != 'packedPFCandidates':
+                raise ValueError("Invalid pfCandidates collection: %s." % pfCandidates.value())
+            addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                pfParticleNetFromMiniAODAK4CHSForwardTagInfos.clone(
+                                  jets = jetSource,
+                                  vertices = pvSource,
+                                  secondary_vertices = svSource,
+                                  pf_candidates = pfCandidates,
+                                  ),
+                                process, task)
+            acceptedTagInfos.append(btagInfo)
+        elif btagInfo == 'pfParticleNetFromMiniAODAK8TagInfos':
+            # ParticleNetFromMiniAOD cannot be run on RECO inputs, so need a workaround
+            if pfCandidates.value() != 'packedPFCandidates':
+                raise ValueError("Invalid pfCandidates collection: %s." % pfCandidates.value())
+            addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                pfParticleNetFromMiniAODAK8TagInfos.clone(
+                                  jets = jetSource,
+                                  vertices = pvSource,
+                                  secondary_vertices = svSource,
+                                  pf_candidates = pfCandidates,
+                                  ),
+                                process, task)
+            acceptedTagInfos.append(btagInfo)
         else:
             print('  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagInfo))
-    ## setup all required btagDiscriminators
+    # setup all required btagDiscriminators
     acceptedBtagDiscriminators = list()
     for discriminator_name in btagDiscriminators :			
         btagDiscr = discriminator_name.split(':')[0] #split input tag to get the producer label
         #print discriminator_name, '-->', btagDiscr
+        newDiscr = btagPrefix+btagDiscr+labelName+postfix #new discriminator name
         if hasattr(btag,btagDiscr): 
-            newDiscr = btagPrefix+btagDiscr+labelName+postfix #new discriminator name
             if hasattr(process, newDiscr):
                 pass 
             elif hasattr(getattr(btag, btagDiscr), 'tagInfos'):
@@ -846,14 +916,75 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
             else:
                 raise ValueError('I do not know how to update %s it does not have neither "tagInfos" nor "src" attributes' % btagDiscr)
             acceptedBtagDiscriminators.append(discriminator_name)
+        elif btagDiscr=='pfParticleNetFromMiniAODAK4PuppiCentralJetTags':
+            if hasattr(process, newDiscr):
+                pass
+            addToProcessAndTask(
+                newDiscr,
+                pfParticleNetFromMiniAODAK4PuppiCentralJetTags.clone(
+                    src = cms.InputTag(btagPrefix+supportedBtagDiscr[discriminator_name][0][0]+labelName+postfix)
+                ),
+                process,
+                task
+            )
+            acceptedBtagDiscriminators.append(discriminator_name)
+        elif btagDiscr=='pfParticleNetFromMiniAODAK4PuppiForwardJetTags':
+            if hasattr(process, newDiscr):
+                pass
+            addToProcessAndTask(
+                newDiscr,
+                pfParticleNetFromMiniAODAK4PuppiForwardJetTags.clone(
+                    src = cms.InputTag(btagPrefix+supportedBtagDiscr[discriminator_name][0][0]+labelName+postfix)
+                ),
+                process,
+                task
+            )
+            acceptedBtagDiscriminators.append(discriminator_name)
+        elif btagDiscr=='pfParticleNetFromMiniAODAK4CHSCentralJetTags':
+            if hasattr(process, newDiscr):
+                pass
+            addToProcessAndTask(
+                newDiscr,
+                pfParticleNetFromMiniAODAK4CHSCentralJetTags.clone(
+                    src = cms.InputTag(btagPrefix+supportedBtagDiscr[discriminator_name][0][0]+labelName+postfix)
+                ),
+                process,
+                task
+            )
+            acceptedBtagDiscriminators.append(discriminator_name)
+        elif btagDiscr=='pfParticleNetFromMiniAODAK4CHSForwardJetTags':
+            if hasattr(process, newDiscr):
+                pass
+            addToProcessAndTask(
+                newDiscr,
+                pfParticleNetFromMiniAODAK4CHSForwardJetTags.clone(
+                    src = cms.InputTag(btagPrefix+supportedBtagDiscr[discriminator_name][0][0]+labelName+postfix)
+                ),
+                process,
+                task
+            )
+            acceptedBtagDiscriminators.append(discriminator_name)
+        elif btagDiscr=='pfParticleNetFromMiniAODAK8JetTags':
+            if hasattr(process, newDiscr):
+                pass
+            addToProcessAndTask(
+                newDiscr,
+                pfParticleNetFromMiniAODAK8JetTags.clone(
+                    src = cms.InputTag(btagPrefix+supportedBtagDiscr[discriminator_name][0][0]+labelName+postfix)
+                ),
+                process,
+                task
+            )
+            acceptedBtagDiscriminators.append(discriminator_name)
         else:
             print('  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagDiscr))
+            
     #update meta-taggers, if any
     for meta_tagger in present_meta:
         btagDiscr = meta_tagger.split(':')[0] #split input tag to get the producer label
         #print discriminator_name, '-->', btagDiscr
+        newDiscr = btagPrefix+btagDiscr+labelName+postfix #new discriminator name
         if hasattr(btag,btagDiscr): 
-            newDiscr = btagPrefix+btagDiscr+labelName+postfix #new discriminator name
             if hasattr(process, newDiscr):
                 pass 
             else:
@@ -870,7 +1001,98 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                         new_dep = btagPrefix+dependency+labelName+postfix
                     replace = MassSearchReplaceAnyInputTagVisitor(dependency, new_dep)
                     replace.doIt(getattr(process, newDiscr), newDiscr)
-            acceptedBtagDiscriminators.append(meta_tagger)            
+            acceptedBtagDiscriminators.append(meta_tagger)
+        elif btagDiscr=='pfParticleNetFromMiniAODAK4PuppiCentralDiscriminatorsJetTags':
+            if hasattr(process, newDiscr):
+                pass 
+            else:
+                addToProcessAndTask(
+                    newDiscr,
+                    pfParticleNetFromMiniAODAK4PuppiCentralDiscriminatorsJetTags.clone(),
+                    process,
+                    task
+                )
+                for dependency in supportedMetaDiscr[meta_tagger]:
+                    if ':' in dependency:
+                        new_dep = btagPrefix+dependency.split(':')[0]+labelName+postfix+':'+dependency.split(':')[1]
+                    else:
+                        new_dep = btagPrefix+dependency+labelName+postfix
+                    replace = MassSearchReplaceAnyInputTagVisitor(dependency, new_dep)
+                    replace.doIt(getattr(process, newDiscr), newDiscr)
+            acceptedBtagDiscriminators.append(meta_tagger)
+        elif btagDiscr=='pfParticleNetFromMiniAODAK4PuppiForwardDiscriminatorsJetTags':
+            if hasattr(process, newDiscr):
+                pass 
+            else:
+                addToProcessAndTask(
+                    newDiscr,
+                    pfParticleNetFromMiniAODAK4PuppiForwardDiscriminatorsJetTags.clone(),
+                    process,
+                    task
+                )
+                for dependency in supportedMetaDiscr[meta_tagger]:
+                    if ':' in dependency:
+                        new_dep = btagPrefix+dependency.split(':')[0]+labelName+postfix+':'+dependency.split(':')[1]
+                    else:
+                        new_dep = btagPrefix+dependency+labelName+postfix
+                    replace = MassSearchReplaceAnyInputTagVisitor(dependency, new_dep)
+                    replace.doIt(getattr(process, newDiscr), newDiscr)
+            acceptedBtagDiscriminators.append(meta_tagger)
+        elif btagDiscr=='pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags':
+            if hasattr(process, newDiscr):
+                pass 
+            else:
+                addToProcessAndTask(
+                    newDiscr,
+                    pfParticleNetFromMiniAODAK4CHSCentralDiscriminatorsJetTags.clone(),
+                    process,
+                    task
+                )
+                for dependency in supportedMetaDiscr[meta_tagger]:
+                    if ':' in dependency:
+                        new_dep = btagPrefix+dependency.split(':')[0]+labelName+postfix+':'+dependency.split(':')[1]
+                    else:
+                        new_dep = btagPrefix+dependency+labelName+postfix
+                    replace = MassSearchReplaceAnyInputTagVisitor(dependency, new_dep)
+                    replace.doIt(getattr(process, newDiscr), newDiscr)
+            acceptedBtagDiscriminators.append(meta_tagger)
+        elif btagDiscr=='pfParticleNetFromMiniAODAK4CHSForwardDiscriminatorsJetTags':
+            if hasattr(process, newDiscr):
+                pass 
+            else:
+                addToProcessAndTask(
+                    newDiscr,
+                    pfParticleNetFromMiniAODAK4CHSForwardDiscriminatorsJetTags.clone(),
+                    process,
+                    task
+                )
+                for dependency in supportedMetaDiscr[meta_tagger]:
+                    if ':' in dependency:
+                        new_dep = btagPrefix+dependency.split(':')[0]+labelName+postfix+':'+dependency.split(':')[1]
+                    else:
+                        new_dep = btagPrefix+dependency+labelName+postfix
+                    replace = MassSearchReplaceAnyInputTagVisitor(dependency, new_dep)
+                    replace.doIt(getattr(process, newDiscr), newDiscr)
+            acceptedBtagDiscriminators.append(meta_tagger)
+        elif btagDiscr=='pfParticleNetFromMiniAODAK8DiscriminatorsJetTags':
+            if hasattr(process, newDiscr):
+                pass 
+            else:
+                addToProcessAndTask(
+                    newDiscr,
+                    pfParticleNetFromMiniAODAK8DiscriminatorsJetTags.clone(),
+                    process,
+                    task
+                )
+                for dependency in supportedMetaDiscr[meta_tagger]:
+                    if ':' in dependency:
+                        new_dep = btagPrefix+dependency.split(':')[0]+labelName+postfix+':'+dependency.split(':')[1]
+                    else:
+                        new_dep = btagPrefix+dependency+labelName+postfix
+                    replace = MassSearchReplaceAnyInputTagVisitor(dependency, new_dep)
+                    replace.doIt(getattr(process, newDiscr), newDiscr)
+            acceptedBtagDiscriminators.append(meta_tagger)
+                        
         else:
             print('  --> %s ignored, since not available via RecoBTag.Configuration.RecoBTag_cff!'%(btagDiscr))
         
