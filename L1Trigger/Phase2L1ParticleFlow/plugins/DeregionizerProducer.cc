@@ -17,6 +17,7 @@ class DeregionizerProducer : public edm::stream::EDProducer<> {
 public:
   explicit DeregionizerProducer(const edm::ParameterSet &);
   ~DeregionizerProducer() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
   edm::ParameterSet config_;
@@ -171,6 +172,21 @@ void DeregionizerProducer::setRefs_(l1t::PFCandidate &pf, const l1ct::PuppiObjEm
     }
     pf.setMuon(match->second);
   }
+}
+
+void DeregionizerProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("RegionalPuppiCands", edm::InputTag("l1tLayer1", "PuppiRegional"));
+  desc.add<unsigned int>("nPuppiFinalBuffer", 128);
+  desc.add<unsigned int>("nPuppiPerClk", 6);
+  desc.add<unsigned int>("nPuppiFirstBuffers", 12);
+  desc.add<unsigned int>("nPuppiSecondBuffers", 32);
+  desc.add<unsigned int>("nPuppiThirdBuffers", 64);
+  desc.add<unsigned int>("nInputFramesPerBX", 9);
+  edm::ParameterSetDescription linkConfigDummyValidator;
+  linkConfigDummyValidator.setAllowAnything();
+  desc.addVPSet("linkConfigs", linkConfigDummyValidator);
+  descriptions.add("DeregionizerProducer", desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
