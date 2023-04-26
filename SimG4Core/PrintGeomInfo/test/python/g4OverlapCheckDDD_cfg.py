@@ -1,8 +1,8 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun g4OverlapCheck_cfg.py geometry=2021 tol=0.1
+#   cmsRun g4OverlapCheckDDD_cfg.py geometry=2021 tol=0.1
 #
-#   Options for geometry 2016, 2018, 2021
+#   Options for geometry 2016, 2017, 2018, 2021, 2023
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('geometry',
                  "2021",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: 2016, 2018, 2021")
+                  "geometry of operations: 2016, 2017, 2018, 2021, 2023")
 options.register('tol',
                  0.1,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -32,25 +32,27 @@ print(options)
 ####################################################################
 # Use the options
 
+baseName = "cmsDDD" + options.geometry
+geomName = "Configuration.Geometry.GeometryExtended" + options.geometry + "Reco_cff"
+
 if (options.geometry == "2016"):
     from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
     process = cms.Process('G4PrintGeometry',Run2_2016)
-    process.load('Configuration.Geometry.GeometryExtended2016Reco_cff')
-    baseName = 'cms2016'
+elif (options.geometry == "2018"):
+    from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
+    process = cms.Process('G4PrintGeometry',Run2_2017)
 elif (options.geometry == "2018"):
     from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
     process = cms.Process('G4PrintGeometry',Run2_2018)
-    process.load('Configuration.Geometry.GeometryExtended2018Reco_cff')
-    baseName = 'cms2018'
 else:
     from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
     process = cms.Process('G4PrintGeometry',Run3_DDD)
-    process.load('Configuration.Geometry.GeometryExtended2021Reco_cff')
-    baseName = 'cms2021'
 
 print("Base file Name: ", baseName)
+print("Geom file Name: ", geomName)
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load(geomName)
 
 #if hasattr(process,'MessageLogger'):
 #    process.MessageLogger.HCalGeom=dict()
