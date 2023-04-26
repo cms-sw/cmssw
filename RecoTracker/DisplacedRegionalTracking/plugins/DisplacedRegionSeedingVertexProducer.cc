@@ -69,11 +69,11 @@ DisplacedRegionSeedingVertexProducer::DisplacedRegionSeedingVertexProducer(const
       trackClustersToken_(
           consumes<edm::View<reco::VertexCompositeCandidate> >(cfg.getParameter<edm::InputTag>("trackClusters"))) {
   unsigned nThreads = cfg.getUntrackedParameter<unsigned>("nThreads");
-  tensorflow::SessionOptions sessionOptions;
-  tensorflow::setThreading(sessionOptions, nThreads);
+  tensorflow::Options options;
+  options.setThreading(nThreads);
   string pbFile = cfg.getParameter<edm::FileInPath>("graph_path").fullPath();
   auto graphDef = tensorflow::loadGraphDef(pbFile);
-  session_ = tensorflow::createSession(graphDef, sessionOptions);
+  session_ = tensorflow::createSession(graphDef, options);
 
   produces<vector<reco::Vertex> >("nearRegionsOfInterest");
   produces<vector<reco::Vertex> >("farRegionsOfInterest");
