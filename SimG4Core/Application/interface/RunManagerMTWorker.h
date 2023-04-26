@@ -35,6 +35,7 @@ class RunAction;
 class EventAction;
 class TrackingAction;
 class SteppingAction;
+class Phase2SteppingAction;
 class CMSSteppingVerbose;
 class CMSSimEventManager;
 class G4Field;
@@ -63,6 +64,7 @@ public:
   void Connect(EventAction*);
   void Connect(TrackingAction*);
   void Connect(SteppingAction*);
+  void Connect(Phase2SteppingAction*);
 
   SimTrackManager* GetSimTrackManager();
   std::vector<SensitiveTkDetector*>& sensTkDetectors();
@@ -99,6 +101,7 @@ private:
   bool m_LHCTransport{false};
   bool m_dumpMF{false};
   bool m_endOfRun{false};
+  bool m_isPhase2{false};
 
   const int m_thread_index{-1};
 

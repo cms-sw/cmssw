@@ -77,12 +77,16 @@ public:
   // need a non-const pointer. Thread-safety is handled inside Geant4.
   inline PhysicsList* physicsListForWorker() const { return m_physicsList.get(); }
 
+  inline bool isPhase2() const { return m_isPhase2; }
+
 private:
   void terminateRun();
 
   void checkVoxels();
 
   void setupVoxels();
+
+  void runForPhase2();
 
   G4MTRunManagerKernel* m_kernel;
 
@@ -100,6 +104,7 @@ private:
   bool m_StorePhysicsTables;
   bool m_RestorePhysicsTables;
   bool m_check;
+  bool m_isPhase2{false};
   edm::ParameterSet m_pPhysics;
   edm::ParameterSet m_pRunAction;
   edm::ParameterSet m_g4overlap;
