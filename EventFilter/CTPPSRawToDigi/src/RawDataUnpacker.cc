@@ -74,8 +74,11 @@ int RawDataUnpacker::processOptoRxFrame(const word *buf,
                     << ", frameSize = " << frameSize << ", fov = " << fov;
 
   if ((optoRxId >= FEDNumbering::MINTotemRPTimingVerticalFEDID &&
-       optoRxId <= FEDNumbering::MAXTotemRPTimingVerticalFEDID) |
-      (optoRxId >= FEDNumbering::MINTotemT2FEDID && optoRxId <= FEDNumbering::MAXTotemT2FEDID)) {
+       optoRxId <= FEDNumbering::MAXTotemRPTimingVerticalFEDID)) {
+    processOptoRxFrameSampic(buf, frameSize, fedInfo, fc);
+    return 0;
+  }
+  if ((optoRxId >= FEDNumbering::MINTotemT2FEDID && optoRxId <= FEDNumbering::MAXTotemT2FEDID)) {
     processOptoRxFrameSampic(buf, frameSize, fedInfo, fc);
     return 0;
   }
@@ -439,6 +442,8 @@ int RawDataUnpacker::processOptoRxFrameSampic(const word *buf,
     unsigned int fiberIdx = (*(++VFATFrameWordPtr)) & 0xF;
     unsigned int gohIdx = (*VFATFrameWordPtr >> 4) & 0xF;
     TotemFramePosition fp(0, 0, optoRxId, gohIdx, fiberIdx);
+    TotemT2FramePosition fp2a(0, 0, optoRxId, gohIdx, fiberIdx, 0);
+    TotemT2FramePosition fp2b(0, 0, optoRxId, gohIdx, fiberIdx, 1);
 
     LogDebug("RawDataUnpacker::processOptoRxFrameSampic")
         << "OptoRx: " << optoRxId << " Goh: " << gohIdx << " Idx: " << fiberIdx;
@@ -453,7 +458,16 @@ int RawDataUnpacker::processOptoRxFrameSampic(const word *buf,
     }
     // save frame to output
     frame.setPresenceFlags(1);
-    fc->Insert(fp, frame);
+    if ((optoRxId >= FEDNumbering::MINTotemT2FEDID && optoRxId <= FEDNumbering::MAXTotemT2FEDID)) {
+      if (verbosity > 0)
+        edm::LogWarning("Totem") << "T2 Frame Positions created: " << fp2a << "/" << fp2b << std::endl;
+
+      fc->Insert(
+          fp2a,
+          frame);  //Fill twice with the mapping for both payloads packed into the same frame, will match only once for each
+      fc->Insert(fp2b, frame);
+    } else
+      fc->Insert(fp, frame);
 
     LogDebug("RawDataUnpacker::processOptoRxFrameSampic") << "Trailer: " << std::hex << *VFATFrameWordPtr;
   }

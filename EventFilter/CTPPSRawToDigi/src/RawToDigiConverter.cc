@@ -25,6 +25,7 @@ using namespace edm;
 
 RawToDigiConverter::RawToDigiConverter(const edm::ParameterSet &conf)
     : verbosity(conf.getUntrackedParameter<unsigned int>("verbosity", 0)),
+      olderTotemT2FileTest(conf.getUntrackedParameter<unsigned int>("useOlderT2TestFile", 0)),
       printErrorSummary(conf.getUntrackedParameter<unsigned int>("printErrorSummary", 1)),
       printUnknownFrameSummary(conf.getUntrackedParameter<unsigned int>("printUnknownFrameSummary", 1)),
 
@@ -391,33 +392,69 @@ void RawToDigiConverter::run(const VFATFrameCollection &coll,
   // common processing - frame validation
   runCommon(coll, mapping, records);
 
+  int allT2 = 0;
+  int goodT2 = 0;
+  int foundT2 = 0;
+  const int T2shiftOld =
+      (olderTotemT2FileTest > 0 ? 8 : 0);  //Run on TOTEM T2 test file (ver 2.1) or final T2 data ver 2.2
+
   // second loop over data
   for (auto &p : records) {
     Record &record = p.second;
 
+    allT2++;
     // calculate ids
     TotemT2DetId detId(record.info->symbolicID.symbolicID);
 
     if (record.status.isOK()) {
       // update Event Counter in status
       record.status.setEC(record.frame->getEC() & 0xFF);
-
-      for (size_t frame_id = 0; frame_id < totem::nt2::vfat::num_channels_per_payload; ++frame_id)
-        if (const auto hw_id = totem::nt2::vfat::channelId(*record.frame, frame_id);
-            hw_id == record.info->hwID)  // only unpack the payload associated to this hardware ID
+      goodT2++;
+      if (verbosity > 2) {
+        LogWarning("Totem") << "RawToDigiConverter: VFAT frame number " << allT2
+                            << " is OK , mapping HW_ID (decimal) is: " << (record.info->hwID)
+                            << ", T2DetId arm/plane/channel = " << (detId) << endl;
+        LogWarning("Totem") << "HW_id_16b CH0 (dec), LE CH0, TE CH0, marker CH0, HW_id_16b CH1 (dec), LE CH1,"
+                            << " TE CH1, marker CH1 = ";
+        for (size_t y = 0; y < 2; y++) {
+          LogWarning("Totem") << ((unsigned int)totem::nt2::vfat::newChannelId(*record.frame, y)) << "/"
+                              << ((unsigned int)totem::nt2::vfat::leadingEdgeTime(*record.frame, y)) << "/"
+                              << ((unsigned int)totem::nt2::vfat::trailingEdgeTime(*record.frame, y)) << "/"
+                              << ((unsigned int)totem::nt2::vfat::channelMarker(*record.frame, y)) << "/";
+        }
+      }
+      for (size_t frame_id = 0; frame_id < totem::nt2::vfat::num_channels_per_payload; ++frame_id) {
+        if (const uint16_t hw_id = totem::nt2::vfat::newChannelId(*record.frame, frame_id) >> T2shiftOld;
+            hw_id == record.info->hwID) {  // only unpack the payload associated to this hardware ID
           // create the digi
           edmNew::DetSetVector<TotemT2Digi>::FastFiller(digi, detId)
-              .emplace_back(totem::nt2::vfat::geoId(*record.frame, frame_id),
-                            hw_id,
+              .emplace_back(hw_id,
                             totem::nt2::vfat::channelMarker(*record.frame, frame_id),
                             totem::nt2::vfat::leadingEdgeTime(*record.frame, frame_id),
                             totem::nt2::vfat::trailingEdgeTime(*record.frame, frame_id));
+          foundT2++;
+        } else {
+          if (verbosity > 2)
+            LogWarning("Totem") << "HW_ID comparison fail (CH#/Channel HwID/Mapping HwID): " << ((int)frame_id) << "/"
+                                << ((unsigned int)hw_id) << "/" << (record.info->hwID) << endl;
+        }
+      }
+    } else {
+      if (verbosity > 1)
+        LogWarning("Totem") << "Bad T2 record, is missing/IDmismatch/footprintError"
+                            << "/CRCerror/ECprogressBad/BCprogressBad: " << record.status.isMissing() << "/"
+                            << record.status.isIDMismatch() << "/" << record.status.isFootprintError() << "/"
+                            << record.status.isCRCError() << "/" << record.status.isECProgressError() << "/"
+                            << record.status.isBCProgressError() << "/" << endl;
     }
 
     // save status
     DetSet<TotemVFATStatus> &statusDetSet = status.find_or_insert(detId);
     statusDetSet.push_back(record.status);
   }
+  if (verbosity > 1)
+    LogWarning("Totem") << "RawToDigiConverter:: VFAT frames per event, total/good/matched the xml mapping"
+                        << " (T2Digi created): " << allT2 << "/" << goodT2 << "/" << foundT2 << endl;
 }
 
 void RawToDigiConverter::printSummaries() const {
