@@ -1,26 +1,31 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
+
+#include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
+#include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
+
 #include "DataFormats/TrackReco/interface/HitPattern.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TLorentzVector.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQM/TrackingMonitorSource/interface/ZtoMMEventSelector.h"
+#include "DQM/TrackingMonitorSource/interface/ZtoMMMuonTrackProducer.h"
 
 using namespace std;
 using namespace edm;
+//using namespace reco;
 
-ZtoMMEventSelector::ZtoMMEventSelector(const edm::ParameterSet& ps)
-    : verbose_(ps.getUntrackedParameter<bool>("verbose", false)),
-      muonTag_(ps.getUntrackedParameter<edm::InputTag>("muonInputTag", edm::InputTag("muons"))),
+ZtoMMMuonTrackProducer::ZtoMMMuonTrackProducer(const edm::ParameterSet& ps)
+    : muonTag_(ps.getUntrackedParameter<edm::InputTag>("muonInputTag", edm::InputTag("muons"))),
       bsTag_(ps.getUntrackedParameter<edm::InputTag>("offlineBeamSpot", edm::InputTag("offlineBeamSpot"))),
       muonToken_(consumes<reco::MuonCollection>(muonTag_)),
       bsToken_(consumes<reco::BeamSpot>(bsTag_)),
       maxEta_(ps.getUntrackedParameter<double>("maxEta", 2.4)),
       minPt_(ps.getUntrackedParameter<double>("minPt", 5)),
-      maxNormChi2_(ps.getUntrackedParameter<double>("maxNormChi2", 10)),
+      maxNormChi2_(ps.getUntrackedParameter<double>("maxNormChi2", 0)),
       maxD0_(ps.getUntrackedParameter<double>("maxD0", 0.02)),
       maxDz_(ps.getUntrackedParameter<double>("maxDz", 20.)),
       minPixelHits_(ps.getUntrackedParameter<uint32_t>("minPixelHits", 1)),
@@ -31,8 +36,15 @@ ZtoMMEventSelector::ZtoMMEventSelector(const edm::ParameterSet& ps)
       maxIso_(ps.getUntrackedParameter<double>("maxIso", 0.3)),
       minPtHighest_(ps.getUntrackedParameter<double>("minPtHighest", 24)),
       minInvMass_(ps.getUntrackedParameter<double>("minInvMass", 60)),
-      maxInvMass_(ps.getUntrackedParameter<double>("maxInvMass", 120)) {}
-bool ZtoMMEventSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetup) {
+      maxInvMass_(ps.getUntrackedParameter<double>("maxInvMass", 120)) {
+  produces<reco::TrackCollection>("");
+}
+
+ZtoMMMuonTrackProducer::~ZtoMMMuonTrackProducer() {}
+
+void ZtoMMMuonTrackProducer::produce(edm::Event& iEvent, edm::EventSetup const& iSetup) {
+  std::unique_ptr<reco::TrackCollection> outputTColl(new reco::TrackCollection());
+
   // Read Muon Collection
   edm::Handle<reco::MuonCollection> muonColl;
   iEvent.getByToken(muonToken_, muonColl);
@@ -60,24 +72,24 @@ bool ZtoMMEventSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
       if (chbyndof >= maxNormChi2_)
         continue;
 
+      reco::TrackRef tk = mu.innerTrack();
+      double trkd0 = tk->d0();
+      double trkdz = tk->dz();
       if (beamSpot.isValid()) {
-        reco::TrackRef tk = mu.innerTrack();
-        double abstrkd0 = std::abs(tk->dxy(beamSpot->position()));
-        if (abstrkd0 >= maxD0_)
+        trkd0 = -(tk->dxy(beamSpot->position()));
+        if (std::fabs(trkd0) >= maxD0_)
           continue;
-        double abstrkdz = std::abs(tk->dz(beamSpot->position()));
-        if (abstrkdz >= maxDz_)
+        trkdz = tk->dz(beamSpot->position());
+        if (std::fabs(trkdz) >= maxDz_)
           continue;
       } else {
-        edm::LogError("ZtoMMEventSelector") << "Error >> Failed to get BeamSpot for label: " << bsTag_;
+        edm::LogError("ZtoMMMuonTrackProducer") << "Error >> Failed to get BeamSpot for label: " << bsTag_;
       }
-
       const reco::HitPattern& hitp = gtk->hitPattern();
       if (hitp.numberOfValidPixelHits() < minPixelHits_)
         continue;
       if (hitp.numberOfValidStripHits() < minStripHits_)
         continue;
-
       // Hits/section in the muon chamber
       if (mu.numberOfChambers() < minChambers_)
         continue;
@@ -88,9 +100,11 @@ bool ZtoMMEventSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
       if (!muon::isGoodMuon(mu, muon::GlobalMuonPromptTight))
         continue;
 
+      //if (!muon::isMediumMuon(mu)) continue;
+
       // PF Isolation
       const reco::MuonPFIsolation& pfIso04 = mu.pfIsolationR04();
-      double absiso = pfIso04.sumChargedParticlePt +
+      double absiso = pfIso04.sumChargedHadronPt +
                       std::max(0.0, pfIso04.sumNeutralHadronEt + pfIso04.sumPhotonEt - 0.5 * pfIso04.sumPUPt);
       if (absiso / mu.pt() > maxIso_)
         continue;
@@ -98,24 +112,16 @@ bool ZtoMMEventSelector::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
       TLorentzVector lv;
       lv.SetPtEtaPhiE(mu.pt(), mu.eta(), mu.phi(), mu.energy());
       list.push_back(lv);
+
+      outputTColl->push_back(*tk);
     }
   } else {
-    edm::LogError("ZtoMMEventSelector") << "Error >> Failed to get MuonCollection for label: " << muonTag_;
-    return false;
+    edm::LogError("ZtoMMMuonTrackProducer") << "Error >> Failed to get MuonCollection for label: " << muonTag_;
   }
 
-  if (list.size() < 2)
-    return false;
-  if (list[0].Pt() < minPtHighest_)
-    return false;
-  TLorentzVector zv = list[0] + list[1];
-  double mass = zv.M();
-  if (mass < minInvMass_ || mass > maxInvMass_)
-    return false;
-
-  return true;
+  iEvent.put(std::move(outputTColl));
 }
 
 // Define this as a plug-in
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(ZtoMMEventSelector);
+DEFINE_FWK_MODULE(ZtoMMMuonTrackProducer);
