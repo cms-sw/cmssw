@@ -12,12 +12,11 @@
 
 TrajectoryStateOnSurface GsfMultiStateUpdator::update(const TrajectoryStateOnSurface& tsos,
                                                       const TrackingRecHit& aRecHit) const {
-
   if (!tsos.isValid()) {
     edm::LogError("GsfMultiStateUpdator") << "Trying to update trajectory state with invalid TSOS! ";
     return TrajectoryStateOnSurface();
   }
-  
+
   GetComponents comps(tsos);
   auto const& predictedComponents = comps();
   if (predictedComponents.empty()) {
