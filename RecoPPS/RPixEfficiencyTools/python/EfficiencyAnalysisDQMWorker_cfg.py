@@ -1,4 +1,5 @@
 import os
+import sys
 
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
@@ -23,7 +24,7 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True),
     FailPath = cms.untracked.vstring('Type Mismatch') # not crashing on this exception type
     )
-options = VarParsing.VarParsing ()
+options = VarParsing.VarParsing ('analysis')
 options.register('outputFileName',
                 'outputEfficiencyAnalysisDQMWorker.root',
                 VarParsing.VarParsing.multiplicity.singleton,
@@ -64,6 +65,11 @@ options.register('supplementaryPlots',
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.bool,
                 "should add bin shifted hitTrackDistribution")
+options.register('globalTag',
+                '',
+                VarParsing.VarParsing.multiplicity.singleton,
+                VarParsing.VarParsing.varType.string,
+                "GT to use")
 
 
 #INTERPOT
@@ -102,7 +108,11 @@ options.parseArguments()
 
 
 #PROCESS PARAMETERS
-if options.sourceFileList != '':
+
+# Prefer input from files over source
+if len(options.inputFiles) != 0:
+    inputFiles = cms.untracked.vstring(options.inputFiles)
+elif options.sourceFileList != '':
     import FWCore.Utilities.FileUtils as FileUtils
     print('Taking input from:',options.sourceFileList)
     fileList = FileUtils.loadListFromFile (options.sourceFileList) 
@@ -172,9 +182,9 @@ if options.useJsonFile == True:
     process.source.lumisToProcess = LumiList.LumiList(filename = jsonFileName).getVLuminosityBlockRange()
 
 #SETUP GLOBAL TAG
-gt_from_env = os.getenv('EFFICIENCY_GT')
-gt = gt_from_env
-if gt == None:
+if options.globalTag != '':
+    gt = options.globalTag
+else:
     gt = 'auto:run3_data_prompt'
 
 print('Using GT:',gt)
