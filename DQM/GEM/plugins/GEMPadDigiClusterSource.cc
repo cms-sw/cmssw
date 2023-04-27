@@ -67,12 +67,19 @@ void GEMPadDigiClusterSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Ru
 
   mapPadDiffPerCh_=MEMap3Inf(this, "occ", "Pad Digi Difference", 81,  -40 - 0.5, 40 + 0.5, "Pad Digi Difference");
   mapBXDiffPerCh_=MEMap3Inf(this, "bx", "BX Difference", 10,  - 0.5, 10 + 0.5, "BX Difference");
+
+  mapBXDiffMaxPerCh_=MEMap3Inf(this, "bx", "Max_BX Difference", 10,  - 0.5, 10 + 0.5, "Max_BX Difference");
+  mapBXDiffMinPerCh_=MEMap3Inf(this, "bx", "Min_BX Difference", 10,  - 0.5, 10 + 0.5, "Min_BX Difference");
+  mapBXDiffMedPerCh_=MEMap3Inf(this, "bx", "Med_BX Difference", 10,  - 0.5, 10 + 0.5, "Med_BX Difference");
+
   mapPadBXDiffPerCh_ = MEMap3Inf(this,"delta_pad_bx","Pad difference over time difference",41,  - 0.5, 40 + 0.5,10,  - 0.5, 10 + 0.5, "Delta Pads","Delta BX");
   //mapPadDiffPerEtaCh_=MEMap4Inf(this, "occ", "Pad Digi Difference", 81,  -40 - 0.5, 40 + 0.5, "Pad Digi Difference");
   
   
   mapPadBXDiffPerEtaCh_=MEMap4Inf(this,"delta_pad","Pad difference vs time difference",17,  -8- 0.5, 8 + 0.5, 15,  -7 - 0.5, 7 + 0.5, "Delta Pads","Delta BX");
   mapBXMidPerCh_= MEMap4Inf(this, "bx", "Median of Pad Bunch Crossing", 14 , -0.5, 13.5, "Bunch crossing");
+
+  mapBXCLSPerCh_ = MEMap4Inf(this, "bx", "Pad Bunch Crossing Per Cluster", 14 , -0.5, 13.5, "Bunch crossing");
 
   mapPadDigiOccPerCh_ = MEMap4Inf(this, "occ", "Pad Digi Occupancy", 1, -0.5, 1.5, 1, 0.5, 1.5, "Pads", "iEta");
   mapPadBxPerCh_ = MEMap4Inf(this, "bx", "GEM Pads Hits in Time", 1536, 0.5, 1536.5, 15, -0.5, 15 - 0.5, "Pads", "Time Bins");
@@ -162,9 +169,20 @@ int GEMPadDigiClusterSource::ProcessWithMEMap2WithChamber(BookingHelper& bh, ME3
   bh.getBooker()->setCurrentFolder(strFolderMain_ + "/BX_Difference_");
 
   mapBXDiffPerCh_.bookND(bh,key);
+  bh.getBooker()->setCurrentFolder(strFolderMain_ + "/Max_BX_Difference_");
+
+  mapBXDiffMaxPerCh_.bookND(bh,key);
+  bh.getBooker()->setCurrentFolder(strFolderMain_ + "/Min_BX_Difference_");
+
+  mapBXDiffMinPerCh_.bookND(bh,key);
+  bh.getBooker()->setCurrentFolder(strFolderMain_ + "/Med_BX_Difference_");
+
+  mapBXDiffMedPerCh_.bookND(bh,key);
   
   bh.getBooker()->setCurrentFolder(strFolderMain_ + "/Pad_BX_Difference_");
   mapPadBXDiffPerCh_.bookND(bh,key);
+  
+  
   bh.getBooker()->setCurrentFolder(strFolderMain_);
    
   return 0;
@@ -208,6 +226,9 @@ int GEMPadDigiClusterSource::ProcessWithMEMap3WithChamber(BookingHelper& bh, ME4
 
   bh.getBooker()->setCurrentFolder(strFolderMain_+"/BX_median" + getNameDirLayer(key3));
   mapBXMidPerCh_.bookND(bh,key);
+
+  bh.getBooker()->setCurrentFolder(strFolderMain_ + "/BX_cluster" + getNameDirLayer(key3));
+  mapBXCLSPerCh_ .bookND(bh,key);
   bh.getBooker()->setCurrentFolder(strFolderMain_);
   return 0;
 }
@@ -226,7 +247,12 @@ void GEMPadDigiClusterSource::analyze(edm::Event const& event, edm::EventSetup c
   std::vector<std::vector<int>> cl_bx;
   
   std::vector<std::vector<int>> pad_bx_diff;
+
   std::vector<std::vector<int>> bx_cluster;
+
+  std::vector<std::vector<int>> pad_bx_layer1;
+  std::vector<std::vector<int>> pad_bx_layer2;
+  
 
   //std::vector<uint16_t> cl;
   int startChamber = 0;
@@ -251,7 +277,8 @@ void GEMPadDigiClusterSource::analyze(edm::Event const& event, edm::EventSetup c
         ME4IdsKey key4Ch{((*it).first).region(), ((*it).first).station(), ((*it).first).layer(), ((*it).first).chamber()};
         ME4IdsKey key4EtaCh{((*it).first).region(), ((*it).first).station(),((*it).first).roll(),((*it).first).chamber()};
         ME3IdsKey key3Ch{((*it).first).region(), ((*it).first).station(),((*it).first).chamber()};  
-
+        //Plot the bx of each cluster.
+        mapBXCLSPerCh_.Fill(key4Ch,cluster->bx());
         for (auto pad=cluster->pads().front(); pad < (cluster->pads().front() + cluster->pads().size()); pad++  ) {
           mapPadDigiOccPerCh_.Fill(key4Ch, pad , ((*it).first).roll());
           mapPadBxPerCh_.Fill(key4Ch, pad + (192 * (8 - ((*it).first).roll())), cluster->bx());
@@ -261,7 +288,7 @@ void GEMPadDigiClusterSource::analyze(edm::Event const& event, edm::EventSetup c
         //Calculate the differnce for each pad and bx
         if(cl_bx.empty()){
           cl_bx.push_back({pad,cluster->bx()});
-       
+
         }else {
           if((pad - cl_bx[0].front()== -1 || pad - cl_bx[cl_bx.size() - 1].front()==1) &&
              ((*it).first).chamber()== startChamber &&
@@ -270,15 +297,30 @@ void GEMPadDigiClusterSource::analyze(edm::Event const& event, edm::EventSetup c
              ((*it).first).layer() == startLayer &&
              ((*it).first).roll() == startEta ) {
              cl_bx.push_back({pad,cluster->bx()});
+             
              sort(cl_bx.begin(), cl_bx.end(), sortcol);
           } else {
             
-            int avg_pad = cl_bx[floor((cl_bx.size()-1)/2)].front();
-            int avg_bx = cl_bx[floor((cl_bx.size()-1)/2)].back();
+            int med_pad = cl_bx[floor((cl_bx.size()-1)/2)].front();
+            int med_bx = cl_bx[floor((cl_bx.size()-1)/2)].back();
+            int max_bx = cl_bx[0][1];
+            int min_bx = cl_bx[0][1];
             for(unsigned i=0;i<cl_bx.size();i++){
              // std::cout <<  <<std::endl;
-              pad_bx_diff.push_back({cl_bx[i][0]- avg_pad, cl_bx[i][1]-avg_bx,((*it).first).region(), ((*it).first).station(), ((*it).first).layer(), ((*it).first).chamber()});
-               
+              pad_bx_diff.push_back({cl_bx[i][0]- med_pad, cl_bx[i][1]-med_bx,((*it).first).region(), ((*it).first).station(), ((*it).first).layer(), ((*it).first).chamber()});
+              if(max_bx < cl_bx[i][1]){
+                max_bx = cl_bx[i][1];
+              }
+              if(min_bx > cl_bx[i][1]){
+                min_bx = cl_bx[i][1];
+              }
+            }
+            //push_back the pad and bx information for different layers.
+            if(((*it).first).layer() == 1){
+              pad_bx_layer1.push_back({cl_bx[0][0], max_bx, min_bx, med_bx, ((*it).first).region(), ((*it).first).station(), 1, ((*it).first).chamber(), ((*it).first).roll()});
+            }  
+            if(((*it).first).layer() == 2){
+              pad_bx_layer2.push_back({cl_bx[0][0],max_bx,min_bx, med_bx,((*it).first).region(), ((*it).first).station(), 2,((*it).first).chamber(), ((*it).first).roll()});
             }
             //If the size of cluster is 1, push back bx
             //If size is 2, push back the smaller one
@@ -290,6 +332,10 @@ void GEMPadDigiClusterSource::analyze(edm::Event const& event, edm::EventSetup c
             }else if(cl_bx.size()>2){
               bx_cluster.push_back({cl_bx[floor((cl_bx.size()-1)/2)].back(),((*it).first).region(), ((*it).first).station(), ((*it).first).layer(), ((*it).first).chamber()});
             }
+
+
+
+
             cl_bx.clear();
             cl_bx.push_back({pad,cluster->bx()});     
          }
@@ -303,7 +349,7 @@ void GEMPadDigiClusterSource::analyze(edm::Event const& event, edm::EventSetup c
         startEta = ((*it).first).roll();
         
         }
-        
+       
       
 
 
@@ -362,13 +408,30 @@ void GEMPadDigiClusterSource::analyze(edm::Event const& event, edm::EventSetup c
   if(gemPadDigiClusters->begin() != gemPadDigiClusters->end()){
     auto it = gemPadDigiClusters->begin();
 
-    int avg_pad = cl_bx[floor((cl_bx.size()-1)/2)].front();
-    int avg_bx = cl_bx[floor((cl_bx.size()-1)/2)].back();
+    int med_pad = cl_bx[floor((cl_bx.size()-1)/2)].front();
+    int med_bx = cl_bx[floor((cl_bx.size()-1)/2)].back();
+    int max_bx = cl_bx[0][1];
+    int min_bx = cl_bx[0][1];
     for(unsigned i=0;i<cl_bx.size();i++){
             
-      pad_bx_diff.push_back({cl_bx[i][0]- avg_pad, cl_bx[i][1]-avg_bx,((*it).first).region(), ((*it).first).station(), ((*it).first).layer(), ((*it).first).chamber()});
-    
+      pad_bx_diff.push_back({cl_bx[i][0]- med_pad, cl_bx[i][1]-med_bx,((*it).first).region(), ((*it).first).station(), ((*it).first).layer(), ((*it).first).chamber()});
+      if(max_bx < cl_bx[i][1]){
+        max_bx = cl_bx[i][1];
       }
+      if(min_bx > cl_bx[i][1]){
+        min_bx = cl_bx[i][1];
+      }
+    }
+
+    //push_back the pad and bx information for different layers.
+    if(((*it).first).layer() == 1){
+      pad_bx_layer1.push_back({cl_bx[0][0],max_bx,min_bx, med_bx,((*it).first).region(), ((*it).first).station(), 1, ((*it).first).chamber(),((*it).first).roll()});
+    }            
+    if(((*it).first).layer() == 2){
+      pad_bx_layer2.push_back({cl_bx[0][0],max_bx,min_bx, med_bx,((*it).first).region(), ((*it).first).station(), 2, ((*it).first).chamber(),((*it).first).roll()});
+      }
+
+
     if(cl_bx.size()==1){
       bx_cluster.push_back({cl_bx[0][1],((*it).first).region(), ((*it).first).station(), ((*it).first).layer(), ((*it).first).chamber()});
     }else if(cl_bx.size()==2){
@@ -388,6 +451,20 @@ void GEMPadDigiClusterSource::analyze(edm::Event const& event, edm::EventSetup c
   for(unsigned i=0;i<bx_cluster.size();i++){
     ME4IdsKey key4Ch{bx_cluster[i][1], bx_cluster[i][2],bx_cluster[i][3], bx_cluster[i][4]};
     mapBXMidPerCh_.Fill(key4Ch, bx_cluster[i][0]); 
+  }
+
+  for (unsigned i = 0; i < pad_bx_layer1.size(); i++){
+    ME3IdsKey key3Ch{pad_bx_layer1[i][4], pad_bx_layer1[i][5],pad_bx_layer1[i][7]}; 
+    for (unsigned j = 0; j < pad_bx_layer2.size(); j++){
+      if(pad_bx_layer1[i][4]==pad_bx_layer2[j][4] && pad_bx_layer1[i][5]==pad_bx_layer2[j][5] && pad_bx_layer1[i][7]==pad_bx_layer2[j][7]){
+         
+        if(abs(pad_bx_layer1[i].front() - pad_bx_layer2[j].front()) < 40 && abs(pad_bx_layer1[i].back() - pad_bx_layer2[j].back()) <= 1 ){
+          mapBXDiffMaxPerCh_.Fill(key3Ch, pad_bx_layer2[j][1] - pad_bx_layer1[i][1]);
+          mapBXDiffMinPerCh_.Fill(key3Ch, pad_bx_layer2[j][2] - pad_bx_layer1[i][2]);
+          mapBXDiffMedPerCh_.Fill(key3Ch, pad_bx_layer2[j][3] - pad_bx_layer1[i][3]);
+        }
+      }        
+    }
   }
  /* for (unsigned i = 0; i < pad_bx_diff.size(); i++){
             for (unsigned j = 0; j < pad_bx_diff[i].size(); j++){
