@@ -93,6 +93,7 @@ tobTecStepHitTripletsTripl = _multiHitFromChi2EDProducer.clone(
     extraPhiKDBox = 0.01,
 )
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer
+from RecoTracker.PixelLowPtUtilities.StripSubClusterShapeSeedFilter_cfi import StripSubClusterShapeSeedFilter as _StripSubClusterShapeSeedFilter
 _tobTecStepSeedComparitorPSet = dict(
     ComponentName = 'CombinedSeedComparitor',
     mode          = cms.string('and'),
@@ -104,7 +105,8 @@ _tobTecStepSeedComparitorPSet = dict(
             FilterStripHits    = cms.bool(True),
             ClusterShapeHitFilterName = cms.string('tobTecStepClusterShapeHitFilter'),
             ClusterShapeCacheSrc = cms.InputTag('siPixelClusterShapeCache') # not really needed here since FilterPixelHits=False
-        )
+        ),
+        _StripSubClusterShapeSeedFilter.clone()
     )
 )
 
@@ -112,10 +114,6 @@ tobTecStepSeedsTripl = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProduce
     seedingHitSets     = 'tobTecStepHitTripletsTripl',
     SeedComparitorPSet = _tobTecStepSeedComparitorPSet,
 )
-
-from RecoTracker.PixelLowPtUtilities.StripSubClusterShapeSeedFilter_cfi import StripSubClusterShapeSeedFilter as _StripSubClusterShapeSeedFilter
-from Configuration.ProcessModifiers.approxSiStripClusters_cff import approxSiStripClusters
-(~approxSiStripClusters).toModify(tobTecStepSeedsTripl.SeedComparitorPSet.comparitors, func = lambda list: list.append(_StripSubClusterShapeSeedFilter.clone()) )
 
 #fastsim
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi

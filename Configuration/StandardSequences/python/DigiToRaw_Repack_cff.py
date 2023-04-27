@@ -72,7 +72,7 @@ siStripClustersHLT = cms.EDProducer("SiStripClusterizer",
                                         cms.InputTag('siStripZeroSuppressionHLT','ScopeMode')),
                                 )
 
-from RecoLocalTracker.SiStripClusterizer.SiStripClusters2ApproxClusters_cff import hltSiStripClusters2ApproxClusters
+from RecoLocalTracker.SiStripClusterizer.SiStripClusters2ApproxClusters_cff import * 
 
 from EventFilter.Utilities.EvFFEDExcluder_cfi import EvFFEDExcluder as _EvFFEDExcluder
 rawPrimeDataRepacker = _EvFFEDExcluder.clone(

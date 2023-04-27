@@ -184,13 +184,13 @@ StripSubClusterShapeFilterBase::StripSubClusterShapeFilterBase(const edm::Parame
 
 StripSubClusterShapeFilterBase::~StripSubClusterShapeFilterBase() {
 #if 0
-    std::cout << "StripSubClusterShapeFilterBase " << label_ <<": called        " << called_ << std::endl;
-    std::cout << "StripSubClusterShapeFilterBase " << label_ <<": saturated     " << saturated_ << std::endl;
-    std::cout << "StripSubClusterShapeFilterBase " << label_ <<": test          " << test_ << std::endl;
-    std::cout << "StripSubClusterShapeFilterBase " << label_ <<": failTooNarrow " << failTooNarrow_ << std::endl;
-    std::cout << "StripSubClusterShapeFilterBase " << label_ <<": passTrim      " << passTrim_ << std::endl;
-    std::cout << "StripSubClusterShapeFilterBase " << label_ <<": passSC        " << passSC_ << std::endl;
-    std::cout << "StripSubClusterShapeFilterBase " << label_ <<": failTooLarge  " << failTooLarge_ << std::endl;
+  std::cout << "StripSubClusterShapeFilterBase " << label_ << ": called        " << called_ << std::endl;
+  std::cout << "StripSubClusterShapeFilterBase " << label_ << ": saturated     " << saturated_ << std::endl;
+  std::cout << "StripSubClusterShapeFilterBase " << label_ << ": test          " << test_ << std::endl;
+  std::cout << "StripSubClusterShapeFilterBase " << label_ << ": failTooNarrow " << failTooNarrow_ << std::endl;
+  std::cout << "StripSubClusterShapeFilterBase " << label_ << ": passTrim      " << passTrim_ << std::endl;
+  std::cout << "StripSubClusterShapeFilterBase " << label_ << ": passSC        " << passSC_ << std::endl;
+  std::cout << "StripSubClusterShapeFilterBase " << label_ << ": failTooLarge  " << failTooLarge_ << std::endl;
 #endif
 }
 
@@ -265,74 +265,78 @@ bool StripSubClusterShapeFilterBase::testLastHit(const TrackingRecHit *hit,
       return true;
     }
 
-    // compute number of consecutive saturated strips
-    // (i.e. with adc count >= 254, see SiStripCluster class for documentation)
-    unsigned int thisSat = (ampls[0] >= 254), maxSat = thisSat;
-    for (unsigned int i = 1, n = ampls.size(); i < n; ++i) {
-      if (ampls[i] >= 254) {
-        thisSat++;
-      } else if (thisSat > 0) {
-        maxSat = std::max<int>(maxSat, thisSat);
-        thisSat = 0;
+    if (!cluster.isFromApprox()) {
+      // compute number of consecutive saturated strips
+      // (i.e. with adc count >= 254, see SiStripCluster class for documentation)
+      unsigned int thisSat = (ampls[0] >= 254), maxSat = thisSat;
+      for (unsigned int i = 1, n = ampls.size(); i < n; ++i) {
+        if (ampls[i] >= 254) {
+          thisSat++;
+        } else if (thisSat > 0) {
+          maxSat = std::max<int>(maxSat, thisSat);
+          thisSat = 0;
+        }
       }
-    }
-    if (thisSat > 0) {
-      maxSat = std::max<int>(maxSat, thisSat);
-    }
-    if (maxSat >= maxNSat_) {
-      INC_COUNTER(saturated_)
-      return true;
-    }
+      if (thisSat > 0) {
+        maxSat = std::max<int>(maxSat, thisSat);
+      }
+      if (maxSat >= maxNSat_) {
+        INC_COUNTER(saturated_)
+        return true;
+      }
 
-    // trimming
-    INC_COUNTER(test_)
-    unsigned int hitStripsTrim = ampls.size();
-    int sum = std::accumulate(ampls.begin(), ampls.end(), 0);
-    uint8_t trimCut = std::min<uint8_t>(trimMaxADC_, std::floor(trimMaxFracTotal_ * sum));
-    auto begin = ampls.begin();
-    auto last = ampls.end() - 1;
-    while (hitStripsTrim > 1 && (*begin < std::max<uint8_t>(trimCut, trimMaxFracNeigh_ * (*(begin + 1))))) {
-      hitStripsTrim--;
-      ++begin;
-    }
-    while (hitStripsTrim > 1 && (*last < std::max<uint8_t>(trimCut, trimMaxFracNeigh_ * (*(last - 1))))) {
-      hitStripsTrim--;
-      --last;
-    }
+      // trimming
+      INC_COUNTER(test_)
+      unsigned int hitStripsTrim = ampls.size();
+      int sum = std::accumulate(ampls.begin(), ampls.end(), 0);
+      uint8_t trimCut = std::min<uint8_t>(trimMaxADC_, std::floor(trimMaxFracTotal_ * sum));
+      auto begin = ampls.begin();
+      auto last = ampls.end() - 1;
+      while (hitStripsTrim > 1 && (*begin < std::max<uint8_t>(trimCut, trimMaxFracNeigh_ * (*(begin + 1))))) {
+        hitStripsTrim--;
+        ++begin;
+      }
+      while (hitStripsTrim > 1 && (*last < std::max<uint8_t>(trimCut, trimMaxFracNeigh_ * (*(last - 1))))) {
+        hitStripsTrim--;
+        --last;
+      }
 
-    if (hitStripsTrim < std::floor(std::abs(hitPredPos) - maxTrimmedSizeDiffNeg_)) {
-      INC_COUNTER(failTooNarrow_)
-      return false;
-    } else if (hitStripsTrim <= std::ceil(std::abs(hitPredPos) + maxTrimmedSizeDiffPos_)) {
-      INC_COUNTER(passTrim_)
-      return true;
-    }
+      if (hitStripsTrim < std::floor(std::abs(hitPredPos) - maxTrimmedSizeDiffNeg_)) {
+        INC_COUNTER(failTooNarrow_)
+        return false;
+      } else if (hitStripsTrim <= std::ceil(std::abs(hitPredPos) + maxTrimmedSizeDiffPos_)) {
+        INC_COUNTER(passTrim_)
+        return true;
+      }
 
-    const StripGeomDetUnit *stripDetUnit = dynamic_cast<const StripGeomDetUnit *>(det);
-    if (det == nullptr) {
-      edm::LogError("Strip not a StripGeomDetUnit?") << " on " << detId.rawId() << "\n";
-      return true;
-    }
+      const StripGeomDetUnit *stripDetUnit = dynamic_cast<const StripGeomDetUnit *>(det);
+      if (det == nullptr) {
+        edm::LogError("Strip not a StripGeomDetUnit?") << " on " << detId.rawId() << "\n";
+        return true;
+      }
 
-    float MeVperADCStrip = 9.5665E-4;  // conversion constant from ADC counts to MeV for the SiStrip detector
-    float mip =
-        3.9 / (MeVperADCStrip / stripDetUnit->surface().bounds().thickness());  // 3.9 MeV/cm = ionization in silicon
-    float mipnorm = mip / std::abs(ldir.z());
-    ::SlidingPeakFinder pf(std::max<int>(2, std::ceil(std::abs(hitPredPos) + subclusterWindow_)));
-    ::PeakFinderTest test(mipnorm,
-                          detId(),
-                          cluster.firstStrip(),
-                          &*theNoise,
-                          seedCutMIPs_,
-                          seedCutSN_,
-                          subclusterCutMIPs_,
-                          subclusterCutSN_);
-    if (pf.apply(cluster.amplitudes(), test)) {
-      INC_COUNTER(passSC_)
-      return true;
+      float MeVperADCStrip = 9.5665E-4;  // conversion constant from ADC counts to MeV for the SiStrip detector
+      float mip =
+          3.9 / (MeVperADCStrip / stripDetUnit->surface().bounds().thickness());  // 3.9 MeV/cm = ionization in silicon
+      float mipnorm = mip / std::abs(ldir.z());
+      ::SlidingPeakFinder pf(std::max<int>(2, std::ceil(std::abs(hitPredPos) + subclusterWindow_)));
+      ::PeakFinderTest test(mipnorm,
+                            detId(),
+                            cluster.firstStrip(),
+                            &*theNoise,
+                            seedCutMIPs_,
+                            seedCutSN_,
+                            subclusterCutMIPs_,
+                            subclusterCutSN_);
+      if (pf.apply(cluster.amplitudes(), test)) {
+        INC_COUNTER(passSC_)
+        return true;
+      } else {
+        INC_COUNTER(failTooLarge_)
+        return false;
+      }
     } else {
-      INC_COUNTER(failTooLarge_)
-      return false;
+      return cluster.filter();
     }
   }
   return true;
