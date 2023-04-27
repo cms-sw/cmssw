@@ -205,26 +205,21 @@ private:
 
     STRATEGY strategy_;
 
-    inline float distance2(int cell1, int cell2, int layerId) const {  // distance squared
-        //float dim1Cell1, float dim2Cell1, float dim1Cell2, float dim2Cell2
-        return strategy_.distance2(cells_[layerId].dim1[cell1], cells_[layerId].dim2[cell1],
-                                   cells_[layerId].dim1[cell2], cells_[layerId].dim2[cell2] );
-    }
 
-    inline float distance(int cell1, int cell2, int layerId) const {  // 2-d distance on the layer (x-y)
-        return std::sqrt(distance2(cell1, cell2, layerId));
+    inline float distance(const TILE& lt, int cell1, int cell2, int layerId) const {  // 2-d distance on the layer (x-y)
+        return std::sqrt(lt.distance2(cells_[layerId].dim1[cell1],
+                                    cells_[layerId].dim2[cell1],
+                                    cells_[layerId].dim1[cell2],
+                                    cells_[layerId].dim2[cell2]));
     }
 
     void prepareDataStructures(const unsigned int layerId);
-    void calculateLocalDensity(const TILE& lt,
-                               const unsigned int layerId,
-                               float delta);  // return max density
+    void calculateLocalDensity(const TILE& lt, const unsigned int layerId,
+                                float delta);  // return max density
     void calculateDistanceToHigher(const TILE& lt, const unsigned int layerId, float delta);
     int findAndAssignClusters(const unsigned int layerId, float delta);
     void setDensity(const unsigned int layerId);
-
-
-};
+    };
 
 // explicit template instantiation
 extern template class HGCalCLUEAlgoT<HGCalSiliconLayerTiles, HGCalSiliconStrategy>;

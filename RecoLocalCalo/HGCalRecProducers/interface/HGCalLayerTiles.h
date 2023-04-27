@@ -41,20 +41,61 @@ public:
     /**
     * this is for phi and y
     */
-    int get2Bin(float dim2) const{
-        return WRAPPER::get2Bin(*this, dim2);
+    int getDim2Bin(float dim2) const {
+      if (std::is_same_v<WRAPPER, NoPhiWrapper>) {
+          return getDim1Bin(dim2);
+      }
+      else{
+        auto normPhi = normalizedPhi(dim2);
+        constexpr float r = T::nRowsPhi * M_1_PI * 0.5f;
+        int phiBin = (normPhi + M_PI) * r;
+        return phiBin;
+      }
     }
 
     int mPiPhiBin = get2Bin(-M_PI);
     int pPiPhiBin = get2Bin(M_PI);
 
-    int getGlobalBin(float dim1, float dim2) const { return getBin(dim1) + get2Bin(dim2) * T::nColumns; }
+
+    inline float distance2(float dim1Cell1, float dim2Cell1, float dim1Cell2, float dim2Cell2) const {  // distance squared
+        float d1 = dim1Cell1 - dim1Cell2;
+        float d2 = dim2Cell1 - dim2Cell2;
+        if(std::is_same_v<WRAPPER, PhiWrapper>){
+          d2 = reco::deltaPhi(dim2Cell1, dim2Cell2);
+        }
+        return (d1 * d1 + d2 * d2);
+    }
+    int getGlobalBin(float dim1, float dim2) const { return getDim1Bin(dim1) + getDim2Bin(dim2) * T::nColumns; }
 
     int getGlobalBinByBin(int dim1Bin, int dim2Bin) const { return dim1Bin + dim2Bin * T::nColumns; }
 
-    std::array<int, 4> searchBox(float dim1Min, float dim1Max, float dim2Min, float dim2Max) const {
-        return WRAPPER::searchBox(*this, dim1Min, dim1Max, dim2Min, dim2Max);
+  std::array<int, 4> searchBox(float dim1Min, float dim1Max, float dim2Min, float dim2Max) const {
+    if (std::is_same_v<WRAPPER, NoPhiWrapper>) {
+      int dim1BinMin = getDim1Bin(dim1Min);
+      int dim1BinMax = getDim1Bin(dim1Max);
+      int dim2BinMin = getDim2Bin(dim2Min);
+      int dim2BinMax = getDim2Bin(dim2Max);
+      return std::array<int, 4>({{dim1BinMin, dim1BinMax, dim2BinMin, dim2BinMax}});
     }
+    else{
+      if (dim1Max - dim1Min < 0) {
+        return std::array<int, 4>({{0, 0, 0, 0}});
+      }
+      int dim1BinMin = getDim1Bin(dim1Min);
+      int dim1BinMax = getDim1Bin(dim1Max);
+      int dim2BinMin = getDim2Bin(dim2Min);
+      int dim2BinMax = getDim2Bin(dim2Max);
+      // If the search window cross the phi-bin boundary, add T::nPhiBins to the
+      // MAx value. This guarantees that the caller can perform a valid doule
+      // loop on eta and phi. It is the caller responsibility to perform a module
+      // operation on the phiBin values returned by this function, to explore the
+      // correct bins.
+      if (dim2BinMax < dim2BinMin) {
+        dim2BinMax += T::nRowsPhi;
+      }
+      return std::array<int, 4>({{dim1BinMin, dim1BinMax, dim2BinMin, dim2BinMax}});
+    }
+  }
 
     void clear() {
         for (auto& t : tiles_)
@@ -67,7 +108,7 @@ private:
     std::array<std::vector<int>, T::nTiles> tiles_;
 };
 
-using HGCalSiliconLayerTiles = HGCalLayerTilesT<HGCalSiliconTilesConstants, HGCalSiliconWrapper<HGCalSiliconTilesConstants>>;
-using HGCalScintillatorLayerTiles = HGCalLayerTilesT<HGCalScintillatorTilesConstants, HGCalScintillatorWrapper<HGCalScintillatorTilesConstants>>;
-using HFNoseLayerTiles = HGCalLayerTilesT<HFNoseTilesConstants, HGCalScintillatorWrapper<HFNoseTilesConstants>>;
+using HGCalSiliconLayerTiles = HGCalLayerTilesT<HGCalSiliconTilesConstants, NoPhiWrapper>;
+using HGCalScintillatorLayerTiles = HGCalLayerTilesT<HGCalScintillatorTilesConstants, PhiWrapper>;
+using HFNoseLayerTiles = HGCalLayerTilesT<HFNoseTilesConstants, NoPhiWrapper>;
 #endif
