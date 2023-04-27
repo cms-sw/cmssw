@@ -225,6 +225,7 @@ void L1SeedConePFJetProducer::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<bool>("doCorrections", false);
   desc.add<std::string>("correctorFile", "");
   desc.add<std::string>("correctorDir", "");
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_MODULE(L1SeedConePFJetProducer);
