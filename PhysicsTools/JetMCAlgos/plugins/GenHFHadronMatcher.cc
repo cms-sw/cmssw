@@ -1124,23 +1124,23 @@ bool GenHFHadronMatcher::fixExtraSameFlavours(const unsigned int hadId,
         break;
       }
     } else
-        // Checking other b-quark mother candidates of the particular previous hadron
-        if ((int)LastQuarkIds.at(iHad).size() > theLastQuarkIndex + 1) {
-      if (fixExtraSameFlavours(iHad,
-                               hadIndices,
-                               hadMothers,
-                               hadMothersIndices,
-                               isFromTopWeakDecay,
-                               LastQuarkIds,
-                               LastQuarkMotherIds,
-                               lastQuarkIndices,
-                               hadronFlavour,
-                               checkedHadronIds,
-                               theLastQuarkIndex + 1)) {
-        ambiguityResolved = true;
-        break;
-      };
-    }
+      // Checking other b-quark mother candidates of the particular previous hadron
+      if ((int)LastQuarkIds.at(iHad).size() > theLastQuarkIndex + 1) {
+        if (fixExtraSameFlavours(iHad,
+                                 hadIndices,
+                                 hadMothers,
+                                 hadMothersIndices,
+                                 isFromTopWeakDecay,
+                                 LastQuarkIds,
+                                 LastQuarkMotherIds,
+                                 lastQuarkIndices,
+                                 hadronFlavour,
+                                 checkedHadronIds,
+                                 theLastQuarkIndex + 1)) {
+          ambiguityResolved = true;
+          break;
+        };
+      }
 
   }  // End of loop over all previous hadrons
 
