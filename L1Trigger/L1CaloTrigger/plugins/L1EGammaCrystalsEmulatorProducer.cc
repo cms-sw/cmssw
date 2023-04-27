@@ -1098,12 +1098,12 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
                                             -1000,
                                             energy_cluster_L2Card[ii][jj][ll],
                                             -1,
-                                            is_iso&& is_ss,
-                                            is_iso&& is_ss,
+                                            is_iso && is_ss,
+                                            is_iso && is_ss,
                                             is_photon,
-                                            is_iso&& is_ss,
-                                            is_looseTkiso&& is_looseTkss,
-                                            is_iso&& is_ss);
+                                            is_iso && is_ss,
+                                            is_looseTkiso && is_looseTkss,
+                                            is_iso && is_ss);
           // Experimental parameters, don't want to bother with hardcoding them in data format
           std::map<std::string, float> params;
           params["standaloneWP_showerShape"] = is_ss;
