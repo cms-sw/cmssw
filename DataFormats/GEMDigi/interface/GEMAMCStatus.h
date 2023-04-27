@@ -40,7 +40,7 @@ public:
     // Last BC in AMC13 is different to TCDS, AMC, and VFAT
     error.badBC = !((amc13->bunchCrossing() == amc.bunchCrossing()) ||
                     (amc13->bunchCrossing() == 0 && amc.bunchCrossing() == GEMAMC13::lastBC));
-    error.badRunType = amc.runType() != 0x1;
+    error.badRunType = (amc.runType() != 0x1 and amc.formatVer() == 0);
     // Last OC in AMC13 is different to TCDS, AMC, and VFAT
     if (amc.formatVer() == 0)
       error.badOC =
