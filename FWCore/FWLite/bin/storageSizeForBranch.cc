@@ -45,11 +45,10 @@ int main(int argc, char* argv[]) try {
       "file"
       "\nAllowed options";
   boost::program_options::options_description desc(descString);
-  desc.add_options()(kHelpCommandOpt, "show this help message")(
-      kEntryNumberCommandOpt,
-      boost::program_options::value<int>(),
-      "read branch from the given entry value (default 0)")(kBranchNameOpt, "name of branch")(kFileNameOpt,
-                                                                                              "name of file");
+  desc.add_options()(kHelpCommandOpt, "show this help message")(kEntryNumberCommandOpt,
+                                                                boost::program_options::value<int>(),
+                                                                "read branch from the given entry value (default 0)")(
+      kBranchNameOpt, "name of branch")(kFileNameOpt, "name of file");
 
   boost::program_options::positional_options_description p;
   p.add(kBranchNameOpt, 1);

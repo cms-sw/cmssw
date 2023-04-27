@@ -323,7 +323,7 @@ namespace edmtest {
 
     assert(vpset.size() == 2U);
 
-    edm::ParameterSet pset0 = vpset[0];
+    const edm::ParameterSet& pset0 = vpset[0];
     assert(pset0.getParameter<unsigned>("Drinks") == 5U);
     assert(pset0.getUntrackedParameter<unsigned>("uDrinks") == 5U);
     assert(pset0.getParameter<unsigned>("oDrinks") == 11U);
@@ -332,7 +332,7 @@ namespace edmtest {
     assert(pset0.exists("ndouDrinks") == false);
     // assert(pset0.getUntrackedParameter<unsigned>("ndouDrinks") == 5);
 
-    edm::ParameterSet pset1 = vpset[1];
+    const edm::ParameterSet& pset1 = vpset[1];
     assert(pset1.getParameter<unsigned>("Drinks") == 5U);
     assert(pset1.getUntrackedParameter<unsigned>("uDrinks") == 5U);
     assert(pset1.getParameter<unsigned>("oDrinks") == 11U);
