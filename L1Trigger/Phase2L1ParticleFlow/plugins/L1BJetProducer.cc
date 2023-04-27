@@ -31,13 +31,13 @@ private:
   std::unique_ptr<BJetId> fBJetId_;
   void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-  edm::EDGetTokenT<edm::View<l1t::PFJet>> jets_;
-  bool fUseRawPt_;
-  double fMinPt_;
-  double fMaxEta_;
-  unsigned int fMaxJets_;
-  int fNParticles_;
-  edm::EDGetTokenT<std::vector<l1t::VertexWord>> fVtxEmu_;
+  edm::EDGetTokenT<edm::View<l1t::PFJet>> const jets_;
+  bool const fUseRawPt_;
+  double const fMinPt_;
+  double const fMaxEta_;
+  unsigned int const fMaxJets_;
+  int const fNParticles_;
+  edm::EDGetTokenT<std::vector<l1t::VertexWord>> const fVtxEmu_;
 };
 
 L1BJetProducer::L1BJetProducer(const edm::ParameterSet& cfg, const BJetTFCache* cache)

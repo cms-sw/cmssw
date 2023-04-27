@@ -19,9 +19,9 @@ namespace l1tpf {
   private:
     edm::EDGetTokenT<BXVector<l1t::EGamma>> src_;
     double etCut_;
-    std::vector<double> etaBounds_;
-    std::vector<double> phiBounds_;
-    std::vector<unsigned int> maxClustersEtaPhi_;
+    std::vector<double> const etaBounds_;
+    std::vector<double> const phiBounds_;
+    std::vector<unsigned int> const maxClustersEtaPhi_;
     l1tpf::corrector corrector_;
     l1tpf::ParametricResolution resol_;
 

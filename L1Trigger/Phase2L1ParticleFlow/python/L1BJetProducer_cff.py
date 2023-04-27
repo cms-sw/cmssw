@@ -2,9 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from L1Trigger.Phase2L1ParticleFlow.l1pfJetMet_cff import L1TPFJetsExtendedTask
 
-from L1Trigger.Phase2L1ParticleFlow.L1BJetProducer_cfi import L1BJetProducer as _L1BJetProducer
-
-l1tBJetProducerPuppi = _L1BJetProducer.clone(
+l1tBJetProducerPuppi = cms.EDProducer(
+    "L1BJetProducer",
     jets = ("l1tSCPFL1PuppiExtended", ""),
     maxJets = 6,
     minPt = 10,

@@ -417,10 +417,10 @@ void l1ct::MultififoRegionizerEmulator::fillLinks(unsigned int iclock,
 }
 
 template <typename T>
-void l1ct::MultififoRegionizerEmulator::fillCaloLinks_(unsigned int iclock,
-                                                       const std::vector<DetectorSector<T>>& in,
-                                                       std::vector<T>& links,
-                                                       std::vector<bool>& valid) {
+void l1ct::MultififoRegionizerEmulator::fillCaloLinks(unsigned int iclock,
+                                                      const std::vector<DetectorSector<T>>& in,
+                                                      std::vector<T>& links,
+                                                      std::vector<bool>& valid) {
   unsigned int NLINKS =
       (nendcaps_ ? NCALO_LINKS : (typeid(T) == typeid(l1ct::HadCaloObjEmu) ? HCAL_LINKS : ECAL_LINKS));
   links.resize(NCALO_SECTORS * (nendcaps_ ? nendcaps_ : 1) * NLINKS);
@@ -445,7 +445,7 @@ void l1ct::MultififoRegionizerEmulator::fillLinks(unsigned int iclock,
                                                   std::vector<bool>& valid) {
   if (ncalo_ == 0)
     return;
-  fillCaloLinks_(iclock, in.hadcalo, links, valid);
+  fillCaloLinks(iclock, in.hadcalo, links, valid);
 }
 
 void l1ct::MultififoRegionizerEmulator::fillLinks(unsigned int iclock,
@@ -454,7 +454,7 @@ void l1ct::MultififoRegionizerEmulator::fillLinks(unsigned int iclock,
                                                   std::vector<bool>& valid) {
   if (nem_ == 0 || emInterceptMode_ != noIntercept)
     return;
-  fillCaloLinks_(iclock, in.emcalo, links, valid);
+  fillCaloLinks(iclock, in.emcalo, links, valid);
 }
 
 void l1ct::MultififoRegionizerEmulator::fillLinks(unsigned int iclock,

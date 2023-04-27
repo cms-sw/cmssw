@@ -61,8 +61,8 @@ namespace l1ct {
   private:
     bool debug_ = false;
     // these are not configurable in current design
-    uint nInputFramesPerBX_ = 9;
-    uint tmuxFactor_ = 6;
+    static constexpr uint nInputFramesPerBX_ = 9;
+    static constexpr uint tmuxFactor_ = 6;
   };
 
 }  // namespace l1ct

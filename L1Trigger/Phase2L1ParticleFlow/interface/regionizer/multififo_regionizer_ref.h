@@ -137,10 +137,10 @@ namespace l1ct {
     std::vector<l1ct::multififo_regionizer::Route> tkRoutes_, caloRoutes_, emCaloRoutes_, muRoutes_;
 
     template <typename T>
-    void fillCaloLinks_(unsigned int iclock,
-                        const std::vector<DetectorSector<T>>& in,
-                        std::vector<T>& links,
-                        std::vector<bool>& valid);
+    void fillCaloLinks(unsigned int iclock,
+                       const std::vector<DetectorSector<T>>& in,
+                       std::vector<T>& links,
+                       std::vector<bool>& valid);
   };
 
 }  // namespace l1ct

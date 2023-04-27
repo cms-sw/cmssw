@@ -1,6 +1,7 @@
 
 #include <vector>
 #include <numeric>
+#include <string>
 
 ////////////////////
 // FRAMEWORK HEADERS
@@ -8,6 +9,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"
 #include "DataFormats/L1TParticleFlow/interface/PFJet.h"
@@ -22,6 +24,7 @@ class L1SeedConePFJetProducer : public edm::global::EDProducer<> {
 public:
   explicit L1SeedConePFJetProducer(const edm::ParameterSet&);
   ~L1SeedConePFJetProducer() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& description);
 
 private:
   /// ///////////////// ///
@@ -29,11 +32,11 @@ private:
   void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
   /// ///////////////// ///
 
-  float coneSize;
-  unsigned nJets;
-  bool HW;
-  bool debug;
-  bool doCorrections;
+  const float coneSize;
+  const unsigned nJets;
+  const bool HW;
+  const bool debug;
+  const bool doCorrections;
   L1SCJetEmu emulator;
   edm::EDGetTokenT<std::vector<l1t::PFCandidate>> l1PFToken;
   l1tpf::corrector corrector;
@@ -212,5 +215,16 @@ std::vector<l1t::PFJet> L1SeedConePFJetProducer::convertHWToEDM(
   return edmJets;
 }
 
-#include "FWCore/Framework/interface/MakerMacros.h"
+void L1SeedConePFJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("L1PFObjects", edm::InputTag("l1tLayer1", "Puppi"));
+  desc.add<uint32_t>("nJets", 16);
+  desc.add<double>("coneSize", 0.4);
+  desc.add<bool>("HW", false);
+  desc.add<bool>("debug", false);
+  desc.add<bool>("doCorrections", false);
+  desc.add<std::string>("correctorFile", "");
+  desc.add<std::string>("correctorDir", "");
+}
+
 DEFINE_FWK_MODULE(L1SeedConePFJetProducer);

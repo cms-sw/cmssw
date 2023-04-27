@@ -1,5 +1,5 @@
-#ifndef CONIFER_CPP_H__
-#define CONIFER_CPP_H__
+#ifndef L1TRIGGER_PHASE2L1PARTICLEFLOW_H
+#define L1TRIGGER_PHASE2L1PARTICLEFLOW_H
 #include "FWCore/Utilities/interface/Exception.h"
 #include "nlohmann/json.hpp"
 #include <fstream>

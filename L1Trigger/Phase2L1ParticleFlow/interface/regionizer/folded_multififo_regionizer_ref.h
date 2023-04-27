@@ -1,5 +1,5 @@
-#ifndef folded_multififo_regionizer_ref_h
-#define folded_multififo_regionizer_ref_h
+#ifndef L1TRIGGER_PHASE2L1PARTICLEFLOW_FOLDED_MULTIFIFO_REGIONIZER_REF_H
+#define L1TRIGGER_PHASE2L1PARTICLEFLOW_FOLDED_MULTIFIFO_REGIONIZER_REF_H
 
 #include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/multififo_regionizer_ref.h"
 #include <memory>

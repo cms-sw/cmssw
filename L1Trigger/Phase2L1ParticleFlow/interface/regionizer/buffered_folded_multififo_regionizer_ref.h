@@ -1,5 +1,5 @@
-#ifndef buffered_folded_multififo_regionizer_ref_h
-#define buffered_folded_multififo_regionizer_ref_h
+#ifndef L1TRIGGER_PHASE2L1PARTICLEFLOW_BUFFERED_FOLDED_MULTIFIFO_REGIONZER_REF_H
+#define L1TRIGGER_PHASE2L1PARTICLEFLOW_BUFFERED_FOLDED_MULTIFIFO_REGIONZER_REF_H
 
 #include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/folded_multififo_regionizer_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
