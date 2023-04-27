@@ -84,7 +84,7 @@ namespace btagbtvdeep {
 
   // compute minimum distance between SVs and a candidate (from DeepNTuples, now polymorphic)
   float mindistsvpfcand(const std::vector<reco::VertexCompositePtrCandidate> &svs, const reco::TransientTrack track);
-    
+
   // mimic the calculation in PackedCandidate
   float vtx_ass_from_pfcand(const reco::PFCandidate &pfcand, int pv_ass_quality, const reco::VertexRef &pv);
   float quality_from_pfcand(const reco::PFCandidate &pfcand);

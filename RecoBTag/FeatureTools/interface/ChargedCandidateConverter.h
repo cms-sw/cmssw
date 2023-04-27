@@ -64,7 +64,7 @@ namespace btagbtvdeep {
     std::pair<float, float> drSubjetFeatures = getDRSubjetFeatures(jet, c_pf);
     c_pf_features.drsubjet1 = drSubjetFeatures.first;
     c_pf_features.drsubjet2 = drSubjetFeatures.second;
-      
+
     c_pf_features.pt = c_pf->pt();
     c_pf_features.eta = c_pf->eta();
     c_pf_features.phi = c_pf->phi();
