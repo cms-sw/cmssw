@@ -990,7 +990,7 @@ namespace {
       int n = arr.size();
 
       // Take first word from array as reference
-      std::string s = arr[0];
+      const std::string& s = arr[0];
       int len = s.length();
 
       std::string res = "";
