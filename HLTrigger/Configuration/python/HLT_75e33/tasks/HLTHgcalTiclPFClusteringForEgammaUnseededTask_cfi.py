@@ -11,6 +11,7 @@ from ..modules.particleFlowSuperClusterHGCalFromTICLUnseeded_cfi import *
 from ..modules.ticlLayerTileProducer_cfi import *
 from ..modules.ticlSeedingGlobal_cfi import *
 from ..modules.ticlTrackstersCLUE3DHigh_cfi import *
+from ..modules.hgcalMergeLayerClusters_cfi import hgcalMergeLayerClusters
 from ..tasks.HLTBeamSpotTask_cfi import *
 
 HLTHgcalTiclPFClusteringForEgammaUnseededTask = cms.Task(
@@ -19,7 +20,10 @@ HLTHgcalTiclPFClusteringForEgammaUnseededTask = cms.Task(
     HLTBeamSpotTask,
     filteredLayerClustersCLUE3DHigh,
     hgcalDigis,
-    hgcalLayerClusters,
+    hgcalLayerClustersEE,
+    hgcalLayerClustersHSi,
+    hgcalLayerClustersHSci,
+    hgcalMergeLayerClusters,
     particleFlowClusterHGCalFromTICLUnseeded,
     particleFlowRecHitHGC,
     particleFlowSuperClusterHGCalFromTICLUnseeded,

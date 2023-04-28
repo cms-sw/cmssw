@@ -124,6 +124,8 @@ from ..modules.trackerClusterCheck_cfi import *
 from ..sequences.HLTBeginSequence_cfi import *
 from ..sequences.HLTEndSequence_cfi import *
 
+from ..modules.hgcalMergeLayerClusters_cfi import hgcalMergeLayerClusters
+
 HLT_IsoMu24_FromL1TkMuon = cms.Path(
     HLTBeginSequence +
     hltL1TkSingleMuFiltered22 +
@@ -139,7 +141,10 @@ HLT_IsoMu24_FromL1TkMuon = cms.Path(
         MeasurementTrackerEvent,
         bunchSpacingProducer,
         hgcalDigis,
-        hgcalLayerClusters,
+        hgcalLayerClustersEE,
+        hgcalLayerClustersHSi,
+        hgcalLayerClustersHSci,
+        hgcalMergeLayerClusters,
         hltCsc2DRecHits,
         hltCscSegments,
         hltDt1DRecHits,

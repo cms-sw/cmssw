@@ -76,6 +76,8 @@ public:
     isNose_ = isNose;
   }
 
+  hgcal::RecHitTools getRHTools() { return rhtools_; }
+
   //max number of layers
   unsigned int maxlayer_;
   // last layer per subdetector

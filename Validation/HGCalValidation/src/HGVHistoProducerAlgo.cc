@@ -2177,7 +2177,6 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
                                                        const int count,
                                                        edm::Handle<reco::CaloClusterCollection> clusterHandle,
                                                        const reco::CaloClusterCollection& clusters,
-                                                       const Density& densities,
                                                        edm::Handle<std::vector<CaloParticle>> caloParticleHandle,
                                                        std::vector<CaloParticle> const& cP,
                                                        std::vector<size_t> const& cPIndices,
@@ -2364,26 +2363,6 @@ void HGVHistoProducerAlgo::fill_generic_cluster_histos(const Histograms& histogr
       //----
       if (distancetomax != 0. && histograms.h_distancetomaxcell_perthickperlayer_eneweighted.count(curistr)) {
         histograms.h_distancetomaxcell_perthickperlayer_eneweighted.at(curistr)->Fill(distancetomax, hit->energy());
-      }
-
-      //Let's check the density
-      std::map<DetId, float>::const_iterator dit = densities.find(rh_detid);
-      if (dit == densities.end()) {
-        std::ostringstream st1;
-        if ((rh_detid.det() == DetId::HGCalEE) || (rh_detid.det() == DetId::HGCalHSi)) {
-          st1 << HGCSiliconDetId(rh_detid);
-        } else if (rh_detid.det() == DetId::HGCalHSc) {
-          st1 << HGCScintillatorDetId(rh_detid);
-        } else {
-          st1 << HFNoseDetId(rh_detid);
-        }
-        LogDebug("HGCalValidator") << " You shouldn't be here - Unable to find a density " << rh_detid.rawId() << " "
-                                   << rh_detid.det() << " " << st1.str() << "\n";
-        continue;
-      }
-
-      if (histograms.h_cellsenedens_perthick.count((int)thickness)) {
-        histograms.h_cellsenedens_perthick.at((int)thickness)->Fill(dit->second);
       }
 
     }  // end of loop through hits and fractions
