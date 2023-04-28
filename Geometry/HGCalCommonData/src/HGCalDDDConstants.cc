@@ -41,7 +41,7 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp, const std::strin
                                   << 0.5 * HGCalParameters::k_ScaleFromDDD * hgpar_->cellSize_[1];
 #endif
   }
-  if ((mode_ == HGCalGeometryMode::Hexagon8Cassette) || (mode_ == HGCalGeometryMode::TrapezoidCassette)) {
+  if (cassetteMode()) {
     hgcassette_.setParameter(hgpar_->cassettes_, hgpar_->cassetteShift_);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "Setup HGCalCassette for " << hgpar_->cassettes_ << " cassettes";
@@ -196,7 +196,7 @@ std::array<int, 3> HGCalDDDConstants::assignCellTrap(float x, float y, float z, 
     iphi = (1 + static_cast<int>(phi / indx.second)) % hgpar_->scintCells(layer);
   if (iphi == 0)
     iphi = hgpar_->scintCells(layer);
-  if (mode_ == HGCalGeometryMode::TrapezoidCassette) {
+  if (cassetteMode()) {
     int cassette = HGCalTileIndex::tileCassette(iphi, hgpar_->phiOffset_, hgpar_->nphiCassette_, hgpar_->cassettes_);
     auto cshift = hgcassette_.getShift(layer, -1, cassette);
 #ifdef EDM_ML_DEBUG
@@ -258,7 +258,7 @@ std::array<int, 3> HGCalDDDConstants::assignCellTrap(float x, float y, float z, 
 
 bool HGCalDDDConstants::cassetteShiftSilicon(int zside, int layer, int waferU, int waferV) const {
   bool shift(false);
-  if (mode_ == HGCalGeometryMode::Hexagon8Cassette) {
+  if (cassetteMode()) {
     int indx = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
     auto ktr = hgpar_->waferInfoMap_.find(indx);
     if (ktr != hgpar_->waferInfoMap_.end()) {
@@ -272,7 +272,7 @@ bool HGCalDDDConstants::cassetteShiftSilicon(int zside, int layer, int waferU, i
 
 bool HGCalDDDConstants::cassetteShiftScintillator(int zside, int layer, int iphi) const {
   bool shift(false);
-  if (mode_ == HGCalGeometryMode::TrapezoidCassette) {
+  if (cassetteMode()) {
     auto cshift = hgcassette_.getShift(layer, zside, cassetteTile(iphi));
     if ((cshift.first != 0) || (cshift.second != 0))
       shift = true;
@@ -293,7 +293,7 @@ std::pair<double, double> HGCalDDDConstants::cellEtaPhiTrap(int type, int irad) 
 bool HGCalDDDConstants::cellInLayer(int waferU, int waferV, int cellU, int cellV, int lay, int zside, bool reco) const {
   const auto& indx = getIndex(lay, true);
   if (indx.first >= 0) {
-    if (mode_ == HGCalGeometryMode::Hexagon8Cassette) {
+    if (cassetteMode()) {
       int indx = HGCalWaferIndex::waferIndex(lay, waferU, waferV);
       auto ktr = hgpar_->waferInfoMap_.find(indx);
       int part = (ktr != hgpar_->waferInfoMap_.end()) ? (ktr->second).part : HGCalTypes::WaferFull;
@@ -756,7 +756,7 @@ std::pair<float, float> HGCalDDDConstants::localToGlobal8(
   y += xy.second;
   int indx = HGCalWaferIndex::waferIndex(lay, waferU, waferV);
   auto ktr = hgpar_->waferInfoMap_.find(indx);
-  if ((mode_ == HGCalGeometryMode::Hexagon8Cassette) && (ktr != hgpar_->waferInfoMap_.end())) {
+  if (cassetteMode() && (ktr != hgpar_->waferInfoMap_.end())) {
     auto cshift = hgcassette_.getShift(lay, -1, (ktr->second).cassette);
     std::ostringstream st1;
     if (debug)
@@ -828,7 +828,7 @@ std::pair<float, float> HGCalDDDConstants::locateCell(
   auto ktr = hgpar_->waferInfoMap_.end();
   int place(HGCalCell::cellPlacementOld);
   if (waferHexagon8File()) {
-    if (mode_ == HGCalGeometryMode::Hexagon8Cassette) {
+    if (cassetteMode()) {
       ktr = hgpar_->waferInfoMap_.find(indx);
       if (ktr != hgpar_->waferInfoMap_.end())
         place = HGCalCell::cellPlacementIndex(1, HGCalTypes::layerFrontBack(layertype), (ktr->second).orient);
@@ -869,7 +869,7 @@ std::pair<float, float> HGCalDDDConstants::locateCell(
     const auto& xy = waferPositionNoRot(lay, waferU, waferV, reco, debug);
     x += xy.first;
     y += xy.second;
-    if ((mode_ == HGCalGeometryMode::Hexagon8Cassette) && (ktr != hgpar_->waferInfoMap_.end())) {
+    if (cassetteMode() && (ktr != hgpar_->waferInfoMap_.end())) {
       auto cshift = hgcassette_.getShift(lay, -1, (ktr->second).cassette);
       std::ostringstream st1;
       if (debug)
@@ -934,8 +934,7 @@ std::pair<float, float> HGCalDDDConstants::locateCellTrap(
                                     << hgpar_->iradMaxBH_[indx.first] << " Type " << type << " Z " << indx.first << ":"
                                     << z << " phi " << phi << ":" << convertRadToDeg(phi) << " R " << r << ":"
                                     << range.first << ":" << range.second;
-    if ((mode_ != HGCalGeometryMode::TrapezoidFile) && (mode_ != HGCalGeometryMode::TrapezoidModule) &&
-        (mode_ != HGCalGeometryMode::TrapezoidCassette))
+    if (!trapezoidFile())
       r = std::max(range.first, std::min(r, range.second));
     x = r * std::cos(phi);
     y = r * std::sin(phi);
@@ -944,7 +943,7 @@ std::pair<float, float> HGCalDDDConstants::locateCellTrap(
     y += hgpar_->yLayerHex_[ll];
     if (irad < 0)
       x = -x;
-    if (mode_ == HGCalGeometryMode::TrapezoidCassette) {
+    if (cassetteMode()) {
       int cassette = HGCalTileIndex::tileCassette(iphi, hgpar_->phiOffset_, hgpar_->nphiCassette_, hgpar_->cassettes_);
       auto cshift = hgcassette_.getShift(lay, -1, cassette);
       std::ostringstream st1;
@@ -996,7 +995,7 @@ bool HGCalDDDConstants::maskCell(const DetId& detId, int corners) const {
                                     << wl << ":" << (itr != hgpar_->waferTypes_.end()) << ":"
                                     << (ktr != hgpar_->waferInfoMap_.end());
 #endif
-      if (mode_ == HGCalGeometryMode::Hexagon8Cassette) {
+      if (cassetteMode()) {
         int part = (ktr != hgpar_->waferInfoMap_.end()) ? (ktr->second).part : HGCalTypes::WaferFull;
         mask = !(HGCalWaferMask::goodCell(u, v, part));
       } else if (itr != hgpar_->waferTypes_.end()) {
@@ -1351,8 +1350,7 @@ bool HGCalDDDConstants::tileRingEdge(double r, int layer, int ring) const {
   return ((dif1 < tol_) || (dif2 < tol_));
 }
 std::pair<int, int> HGCalDDDConstants::tileRings(int layer) const {
-  if ((mode_ == HGCalGeometryMode::TrapezoidFile) || (mode_ == HGCalGeometryMode::TrapezoidModule) ||
-      (mode_ == HGCalGeometryMode::TrapezoidCassette)) {
+  if (trapezoidFile()) {
     int ll = layer - hgpar_->firstLayer_;
     if (ll >= 0 && ll < static_cast<int>(hgpar_->tileRingRange_.size()))
       return hgpar_->tileRingRange_[ll];
@@ -1477,7 +1475,7 @@ void HGCalDDDConstants::waferFromPosition(const double x,
     double dx0(0), dy0(0);
     waferU = HGCalWaferIndex::waferU(hgpar_->waferCopy_[k]);
     waferV = HGCalWaferIndex::waferV(hgpar_->waferCopy_[k]);
-    if (mode_ == HGCalGeometryMode::Hexagon8Cassette) {
+    if (cassetteMode()) {
       int indx = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
       auto ktr = hgpar_->waferInfoMap_.find(indx);
       if (ktr != hgpar_->waferInfoMap_.end()) {
@@ -1523,7 +1521,7 @@ void HGCalDDDConstants::waferFromPosition(const double x,
   }
   if ((std::abs(waferU) <= hgpar_->waferUVMax_) && (celltype >= 0)) {
     int place(HGCalCell::cellPlacementOld), part(HGCalTypes::WaferFull);
-    if (mode_ == HGCalGeometryMode::Hexagon8Cassette) {
+    if (cassetteMode()) {
       int indx = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
       auto ktr = hgpar_->waferInfoMap_.find(indx);
       if (ktr != hgpar_->waferInfoMap_.end()) {
@@ -1863,7 +1861,7 @@ int HGCalDDDConstants::cellHex(
 
 void HGCalDDDConstants::cellHex(
     double xloc, double yloc, int cellType, int place, int part, int& cellU, int& cellV, bool extend, bool debug) const {
-  if (mode_ == HGCalGeometryMode::Hexagon8Cassette) {
+  if (cassetteMode()) {
     auto uv = (part == HGCalTypes::WaferFull)
                   ? hgcellUV_->cellUVFromXY3(xloc, yloc, place, cellType, true, debug)
                   : hgcellUV_->cellUVFromXY1(xloc, yloc, place, cellType, part, true, debug);
@@ -1988,11 +1986,10 @@ bool HGCalDDDConstants::isValidCell8(int lay, int waferU, int waferV, int cellU,
   bool result(false);
   auto partn = waferTypeRotation(lay, waferU, waferV, false, false);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "waferHexagon8 " << waferHexagon8File() << ":" << mode_ << ":"
-                                << HGCalGeometryMode::Hexagon8Cassette << " part " << partn.first << ":"
-                                << partn.second;
+  edm::LogVerbatim("HGCalGeom") << "waferHexagon8 " << waferHexagon8File() << ":" << mode_ << ":" << cassetteMode()
+                                << " part " << partn.first << ":" << partn.second;
 #endif
-  if (mode_ == HGCalGeometryMode::Hexagon8Cassette) {
+  if (cassetteMode()) {
     result = HGCalWaferMask::goodCell(cellU, cellV, partn.first);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "Input " << lay << ":" << waferU << ":" << waferV << ":" << cellU << ":" << cellV
