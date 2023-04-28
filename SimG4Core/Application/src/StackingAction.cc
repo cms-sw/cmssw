@@ -211,34 +211,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
       // potentially good for tracking
       const double ke = aTrack->GetKineticEnergy();
       G4int subType = (nullptr != creatorProc) ? creatorProc->GetProcessSubType() : 0;
-      // VI: this part of code is needed for Geant4 10.7 only
-      if (subType == 16) {
-        auto ptr = dynamic_cast<const G4GammaGeneralProcess*>(creatorProc);
-        if (nullptr != ptr) {
-          creatorProc = ptr->GetSelectedProcess();
-          if (nullptr == creatorProc) {
-            if (nullptr == m_Compton) {
-              auto vp = G4LossTableManager::Instance()->GetEmProcessVector();
-              for (auto& p : vp) {
-                if (fComptonScattering == p->GetProcessSubType()) {
-                  m_Compton = p;
-                  break;
-                }
-              }
-            }
-            creatorProc = m_Compton;
-          }
-          subType = creatorProc->GetProcessSubType();
-          track->SetCreatorProcess(creatorProc);
-        }
-        if (creatorProc == nullptr) {
-          edm::LogWarning("StackingAction::ClassifyNewTrack")
-              << " SubType=16 and no creatorProc; TrackID=" << aTrack->GetTrackID()
-              << " ParentID=" << aTrack->GetParentID() << " " << aTrack->GetDefinition()->GetParticleName()
-              << " Ekin(MeV)=" << ke << " SubType=" << subType;
-        }
-      }
-      // VI - end
+
       LogDebug("SimG4CoreApplication") << "##StackingAction:Classify Track " << aTrack->GetTrackID() << " Parent "
                                        << aTrack->GetParentID() << " " << aTrack->GetDefinition()->GetParticleName()
                                        << " Ekin(MeV)=" << ke / CLHEP::MeV << " subType=" << subType << " ";
