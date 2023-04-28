@@ -52,6 +52,7 @@ private:
   MonitorElement* ugmtEMTFBXvsProcessor;
   MonitorElement* ugmtBXvsLink;
 
+  static constexpr unsigned IDX_LOOSE_SHOWER{3};
   static constexpr unsigned IDX_TIGHT_SHOWER{2};
   static constexpr unsigned IDX_NOMINAL_SHOWER{1};
 };
