@@ -580,6 +580,7 @@ namespace {
         SiPixelDetInfoFileReader reader =
             SiPixelDetInfoFileReader(edm::FileInPath(SiPixelDetInfoFileReader::kPh1DefaultFile).fullPath());
         const auto& p1detIds = reader.getAllDetIds();
+
         for (const auto& det : p1detIds) {
           const auto& value = SiPixDynIneff::getMatchingGeomFactor(det, theMap, detIdmasks_db);
           fullMap.fillTrackerMap(det, value);
@@ -771,7 +772,11 @@ namespace {
         // retrieve the list of phase1 detids
         const auto& reader =
             SiPixelDetInfoFileReader(edm::FileInPath(SiPixelDetInfoFileReader::kPh1DefaultFile).fullPath());
-        const auto& p1detIds = reader.getAllDetIds();
+        auto p1detIds = reader.getAllDetIds();
+
+        // follows hack to get an inner ladder module first
+        // skip the first 8 dets since they lay on the same ladder
+        std::swap(p1detIds[0], p1detIds[8]);
 
         std::map<unsigned int, std::vector<uint32_t> > modules_per_region;
 
@@ -840,8 +845,14 @@ namespace {
           index++;
           int n = params.size();
           int npar = n + 2;
-          TF1* f1 =
-              new TF1((fmt::sprintf("region: #bf{%s}", namesOfParts[index - 1])).c_str(), func, xmin_, xmax_, npar);
+          std::string str{namesOfParts[index - 1]};
+          if (str.length() >= 2 && str.substr(str.length() - 2) == "/i") {
+            str += "nner";
+          } else if (str.length() >= 2 && str.substr(str.length() - 2) == "/o") {
+            str += "uter";
+          }
+
+          TF1* f1 = new TF1((fmt::sprintf("region: #bf{%s}", str)).c_str(), func, xmin_, xmax_, npar);
 
           // push polynomial degree as first entry in the vector
           params.insert(params.begin(), n);
@@ -886,6 +897,7 @@ namespace {
           ax->SetTitle("Inst. luminosity [10^{33} cm^{-2}s^{-1}]");
 
           TAxis* ay = h->GetYaxis();
+          ay->SetRangeUser(0.80, 1.00);  // force the scale
           ay->SetTitle("Double Column Efficiency parametrization");
 
           // beautify
