@@ -915,12 +915,12 @@ forwardDict = {
             'Geometry/ForwardCommonData/data/forwardshield/2017/v1/forwardshield.xml',
             'Geometry/ForwardCommonData/data/brmrotations.xml',
             'Geometry/ForwardCommonData/data/PostLS2/brm.xml',
-            'Geometry/ForwardCommonData/data/zdcmaterials.xml',
+            'Geometry/ForwardCommonData/data/zdcmaterials/2021/v1/zdcmaterials.xml',
             'Geometry/ForwardCommonData/data/lumimaterials.xml',
             'Geometry/ForwardCommonData/data/zdcrotations.xml',
             'Geometry/ForwardCommonData/data/lumirotations.xml',
-            'Geometry/ForwardCommonData/data/zdc.xml',
-            'Geometry/ForwardCommonData/data/zdclumi.xml',
+            'Geometry/ForwardCommonData/data/zdc/2021/v1/zdc.xml',
+            'Geometry/ForwardCommonData/data/zdclumi/2021/v2/zdclumi.xml',
             'Geometry/ForwardCommonData/data/cmszdc.xml',
         ],
         3 : [
@@ -928,7 +928,7 @@ forwardDict = {
             'Geometry/ForwardSimData/data/zdcsens.xml',
         ],
         4 : [
-            'Geometry/ForwardSimData/data/zdcProdCuts.xml',
+            'Geometry/ForwardSimData/data/zdcProdCuts/2021/v2/zdcProdCuts.xml',
             'Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml',
         ],
         "reco" :[
@@ -940,12 +940,12 @@ forwardDict = {
             'Geometry/ForwardCommonData/data/forwardshield/2026/v1/forwardshield.xml',
             'Geometry/ForwardCommonData/data/brmrotations.xml',
             'Geometry/ForwardCommonData/data/brm/2026/v2/brm.xml',
-            'Geometry/ForwardCommonData/data/zdcmaterials.xml',
+            'Geometry/ForwardCommonData/data/zdcmaterials/2021/v1/zdcmaterials.xml',
             'Geometry/ForwardCommonData/data/lumimaterials.xml',
             'Geometry/ForwardCommonData/data/zdcrotations.xml',
             'Geometry/ForwardCommonData/data/lumirotations.xml',
-            'Geometry/ForwardCommonData/data/zdc.xml',
-            'Geometry/ForwardCommonData/data/zdclumi.xml',
+            'Geometry/ForwardCommonData/data/zdc/2021/v1/zdc.xml',
+            'Geometry/ForwardCommonData/data/zdclumi/2021/v2/zdclumi.xml',
             'Geometry/ForwardCommonData/data/cmszdc.xml',
         ],
         3 : [
@@ -953,7 +953,7 @@ forwardDict = {
             'Geometry/ForwardSimData/data/zdcsens.xml',
         ],
         4 : [
-            'Geometry/ForwardSimData/data/zdcProdCuts.xml',
+            'Geometry/ForwardSimData/data/zdcProdCuts/2021/v2/zdcProdCuts.xml',
             'Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml',
         ],
         "sim" : [
@@ -967,12 +967,12 @@ forwardDict = {
             'Geometry/ForwardCommonData/data/forwardshield/2026/v2/forwardshield.xml',
             'Geometry/ForwardCommonData/data/brmrotations.xml',
             'Geometry/ForwardCommonData/data/PostLS2/brm.xml',
-            'Geometry/ForwardCommonData/data/zdcmaterials.xml',
+            'Geometry/ForwardCommonData/data/zdcmaterials/2021/v1/zdcmaterials.xml',
             'Geometry/ForwardCommonData/data/lumimaterials.xml',
             'Geometry/ForwardCommonData/data/zdcrotations.xml',
             'Geometry/ForwardCommonData/data/lumirotations.xml',
-            'Geometry/ForwardCommonData/data/zdc.xml',
-            'Geometry/ForwardCommonData/data/zdclumi.xml',
+            'Geometry/ForwardCommonData/data/zdc/2021/v1/zdc.xml',
+            'Geometry/ForwardCommonData/data/zdclumi/2021/v2/zdclumi.xml',
             'Geometry/ForwardCommonData/data/cmszdc.xml',
         ],
         3 : [
@@ -980,7 +980,7 @@ forwardDict = {
             'Geometry/ForwardSimData/data/zdcsens.xml',
         ],
         4 : [
-            'Geometry/ForwardSimData/data/zdcProdCuts.xml',
+            'Geometry/ForwardSimData/data/zdcProdCuts/2021/v2/zdcProdCuts.xml',
             'Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml',
         ],
         "reco" :[
@@ -992,12 +992,12 @@ forwardDict = {
             'Geometry/ForwardCommonData/data/forwardshield/2026/v4/forwardshield.xml',
             'Geometry/ForwardCommonData/data/brmrotations.xml',
             'Geometry/ForwardCommonData/data/brm/2026/v1/brm.xml',
-            'Geometry/ForwardCommonData/data/zdcmaterials.xml',
+            'Geometry/ForwardCommonData/data/zdcmaterials/2021/v1/zdcmaterials.xml',
             'Geometry/ForwardCommonData/data/lumimaterials.xml',
             'Geometry/ForwardCommonData/data/zdcrotations.xml',
             'Geometry/ForwardCommonData/data/lumirotations.xml',
-            'Geometry/ForwardCommonData/data/zdc.xml',
-            'Geometry/ForwardCommonData/data/zdclumi.xml',
+            'Geometry/ForwardCommonData/data/zdc/2021/v1/zdc.xml',
+            'Geometry/ForwardCommonData/data/zdclumi/2021/v2/zdclumi.xml',
             'Geometry/ForwardCommonData/data/cmszdc.xml',
         ],
         3 : [
@@ -1005,7 +1005,7 @@ forwardDict = {
             'Geometry/ForwardSimData/data/zdcsens.xml',
         ],
         4 : [
-            'Geometry/ForwardSimData/data/zdcProdCuts.xml',
+            'Geometry/ForwardSimData/data/zdcProdCuts/2021/v2/zdcProdCuts.xml',
             'Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml',
         ],
         "reco" :[
@@ -1017,12 +1017,12 @@ forwardDict = {
             'Geometry/ForwardCommonData/data/forwardshield/2026/v4/forwardshield.xml',
             'Geometry/ForwardCommonData/data/brmrotations.xml',
             'Geometry/ForwardCommonData/data/brm/2026/v3/brm.xml',
-            'Geometry/ForwardCommonData/data/zdcmaterials.xml',
+            'Geometry/ForwardCommonData/data/zdcmaterials/2021/v1/zdcmaterials.xml',
             'Geometry/ForwardCommonData/data/lumimaterials.xml',
             'Geometry/ForwardCommonData/data/zdcrotations.xml',
             'Geometry/ForwardCommonData/data/lumirotations.xml',
-            'Geometry/ForwardCommonData/data/zdc.xml',
-            'Geometry/ForwardCommonData/data/zdclumi.xml',
+            'Geometry/ForwardCommonData/data/zdc/2021/v1/zdc.xml',
+            'Geometry/ForwardCommonData/data/zdclumi/2021/v2/zdclumi.xml',
             'Geometry/ForwardCommonData/data/cmszdc.xml',
         ],
         3 : [
@@ -1030,7 +1030,7 @@ forwardDict = {
             'Geometry/ForwardSimData/data/zdcsens.xml',
         ],
         4 : [
-            'Geometry/ForwardSimData/data/zdcProdCuts.xml',
+            'Geometry/ForwardSimData/data/zdcProdCuts/2021/v2/zdcProdCuts.xml',
             'Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml',
         ],
         "reco" :[
@@ -1040,19 +1040,19 @@ forwardDict = {
     "F8" : {
         1 : [
             'Geometry/ForwardCommonData/data/forwardshield/2026/v4/forwardshield.xml',
-            'Geometry/ForwardCommonData/data/zdcmaterials.xml',
+            'Geometry/ForwardCommonData/data/zdcmaterials/2021/v1/zdcmaterials.xml',
             'Geometry/ForwardCommonData/data/lumimaterials.xml',
             'Geometry/ForwardCommonData/data/zdcrotations.xml',
             'Geometry/ForwardCommonData/data/lumirotations.xml',
-            'Geometry/ForwardCommonData/data/zdc.xml',
-            'Geometry/ForwardCommonData/data/zdclumi.xml',
+            'Geometry/ForwardCommonData/data/zdc/2021/v1/zdc.xml',
+            'Geometry/ForwardCommonData/data/zdclumi/2021/v2/zdclumi.xml',
             'Geometry/ForwardCommonData/data/cmszdc.xml',
         ],
         3 : [
             'Geometry/ForwardSimData/data/zdcsens.xml',
         ],
         4 : [
-            'Geometry/ForwardSimData/data/zdcProdCuts.xml',
+            'Geometry/ForwardSimData/data/zdcProdCuts/2021/v2/zdcProdCuts.xml',
             'Geometry/ForwardSimData/data/ForwardShieldProdCuts.xml',
         ],
         "reco" :[
