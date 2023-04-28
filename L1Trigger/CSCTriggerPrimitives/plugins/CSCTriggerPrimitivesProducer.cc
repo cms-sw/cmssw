@@ -1,6 +1,3 @@
-#ifndef L1Trigger_CSCTriggerPrimitives_CSCTriggerPrimitivesProducer_h
-#define L1Trigger_CSCTriggerPrimitives_CSCTriggerPrimitivesProducer_h
-
 /** \class CSCTriggerPrimitivesProducer
  *
  * Implementation of the local Level-1 Cathode Strip Chamber trigger.
@@ -27,9 +24,11 @@
  */
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/limited/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -56,19 +55,19 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 
 // temporarily switch to a "one" module with a CSCTriggerPrimitivesBuilder data member
-class CSCTriggerPrimitivesProducer : public edm::one::EDProducer<> {
+class CSCTriggerPrimitivesProducer : public edm::limited::EDProducer<> {
 public:
   explicit CSCTriggerPrimitivesProducer(const edm::ParameterSet&);
   ~CSCTriggerPrimitivesProducer() override;
 
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  // master configuration
-  edm::ParameterSet config_;
-
   // temporarily switch to a "one" module with a CSCTriggerPrimitivesBuilder data member
-  std::unique_ptr<CSCTriggerPrimitivesBuilder> builder_;
+  std::vector<std::unique_ptr<CSCTriggerPrimitivesBuilder>> builders_;
+  mutable std::vector<std::atomic<bool>> usedBuilders_;
 
   // input tags for input collections
   edm::InputTag compDigiProducer_;
@@ -86,6 +85,8 @@ private:
   edm::ESGetToken<CSCL1TPLookupTableME11ILT, CSCL1TPLookupTableME11ILTRcd> pLookupTableME11ILTToken_;
   edm::ESGetToken<CSCL1TPLookupTableME21ILT, CSCL1TPLookupTableME21ILTRcd> pLookupTableME21ILTToken_;
   edm::ESGetToken<CSCDBL1TPParameters, CSCDBL1TPParametersRcd> confToken_;
+
+  std::unique_ptr<CSCBadChambers const> dummyBadChambers_;
   // switch to force the use of parameters from config file rather then from DB
   bool debugParameters_;
 
@@ -109,11 +110,8 @@ private:
   bool runME21ILT_;
 };
 
-#endif
-
-CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterSet& conf) {
-  config_ = conf;
-
+CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterSet& conf)
+    : edm::limited::EDProducerBase(conf), edm::limited::EDProducer<>(conf) {
   // if false, parameters will be read in from DB using EventSetup mechanism
   // else will use all parameters from the config file
   debugParameters_ = conf.getParameter<bool>("debugParameters");
@@ -123,13 +121,18 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   gemPadDigiClusterProducer_ = conf.getParameter<edm::InputTag>("GEMPadDigiClusterProducer");
 
   checkBadChambers_ = conf.getParameter<bool>("checkBadChambers");
+  if (not checkBadChambers_) {
+    dummyBadChambers_ = std::make_unique<CSCBadChambers>();
+  } else {
+    pBadChambersToken_ = esConsumes<CSCBadChambers, CSCBadChambersRcd>();
+  }
 
   keepCLCTPreTriggers_ = conf.getParameter<bool>("keepCLCTPreTriggers");
   keepALCTPreTriggers_ = conf.getParameter<bool>("keepALCTPreTriggers");
   keepShowers_ = conf.getParameter<bool>("keepShowers");
 
   // check whether you need to run the integrated local triggers
-  const edm::ParameterSet commonParam(conf.getParameter<edm::ParameterSet>("commonParam"));
+  const edm::ParameterSet& commonParam = conf.getParameter<edm::ParameterSet>("commonParam");
   runCCLUT_TMB_ = commonParam.getParameter<bool>("runCCLUT_TMB");
   runCCLUT_OTMB_ = commonParam.getParameter<bool>("runCCLUT_OTMB");
   runCCLUT_ = runCCLUT_TMB_ or runCCLUT_OTMB_;
@@ -140,12 +143,12 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
 
   wire_token_ = consumes<CSCWireDigiCollection>(wireDigiProducer_);
   comp_token_ = consumes<CSCComparatorDigiCollection>(compDigiProducer_);
-  if (runILT_)
+  if (runILT_) {
     gem_pad_cluster_token_ = consumes<GEMPadDigiClusterCollection>(gemPadDigiClusterProducer_);
+    gemToken_ = esConsumes<GEMGeometry, MuonGeometryRecord>();
+  }
 
   cscToken_ = esConsumes<CSCGeometry, MuonGeometryRecord>();
-  gemToken_ = esConsumes<GEMGeometry, MuonGeometryRecord>();
-  pBadChambersToken_ = esConsumes<CSCBadChambers, CSCBadChambersRcd>();
   // consume lookup tables only when flags are set
   if (runCCLUT_)
     pLookupTableCCLUTToken_ = esConsumes<CSCL1TPLookupTableCCLUT, CSCL1TPLookupTableCCLUTRcd>();
@@ -153,7 +156,8 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
     pLookupTableME11ILTToken_ = esConsumes<CSCL1TPLookupTableME11ILT, CSCL1TPLookupTableME11ILTRcd>();
   if (runME21ILT_)
     pLookupTableME21ILTToken_ = esConsumes<CSCL1TPLookupTableME21ILT, CSCL1TPLookupTableME21ILTRcd>();
-  confToken_ = esConsumes<CSCDBL1TPParameters, CSCDBL1TPParametersRcd>();
+  if (not debugParameters_)
+    confToken_ = esConsumes<CSCDBL1TPParameters, CSCDBL1TPParametersRcd>();
 
   // register what this produces
   produces<CSCALCTDigiCollection>();
@@ -175,29 +179,57 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   if (runILT_) {
     produces<GEMCoPadDigiCollection>();
   }
-  // temporarily switch to a "one" module with a CSCTriggerPrimitivesBuilder data member
-  builder_ = std::make_unique<CSCTriggerPrimitivesBuilder>(config_);
+  auto n = concurrencyLimit();
+  builders_.reserve(n);
+  //usedBuilders_.reserve(n);
+  usedBuilders_ = std::vector<std::atomic<bool>>(n);
+  for (auto i = 0U; i < n; ++i) {
+    // temporarily switch to a "one" module with a CSCTriggerPrimitivesBuilder data member
+    builders_.emplace_back(std::make_unique<CSCTriggerPrimitivesBuilder>(conf));
+  }
+}
+
+void CSCTriggerPrimitivesProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+
+  desc.addUntracked<unsigned int>("concurrencyLimit", 1);
+
+  desc.setAllowAnything();
+  descriptions.addDefault(desc);
 }
 
 CSCTriggerPrimitivesProducer::~CSCTriggerPrimitivesProducer() {}
 
-void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup& setup) {
+void CSCTriggerPrimitivesProducer::produce(edm::StreamID, edm::Event& ev, const edm::EventSetup& setup) const {
+  unsigned int builderIndex = 0;
+  for (auto& used : usedBuilders_) {
+    bool expected = false;
+    if (used.compare_exchange_strong(expected, true)) {
+      break;
+    } else {
+      ++builderIndex;
+    }
+  }
+  assert(builderIndex < usedBuilders_.size());
+  auto* builder = builders_[builderIndex].get();
+
+  //make sure usedBuilders_[builderIndex] = false is done even if have an exception
+  auto reset = [](std::atomic<bool>* iValue) { *iValue = false; };
+  std::unique_ptr<std::atomic<bool>, decltype(reset)> usedGuard(&usedBuilders_[builderIndex], reset);
+
   // get the csc geometry
-  builder_->setCSCGeometry(&setup.getData(cscToken_));
+  builder->setCSCGeometry(&setup.getData(cscToken_));
 
   // get the gem geometry if it's there
-  edm::ESHandle<GEMGeometry> h_gem = setup.getHandle(gemToken_);
   if (runILT_) {
+    edm::ESHandle<GEMGeometry> h_gem = setup.getHandle(gemToken_);
     if (h_gem.isValid()) {
-      builder_->setGEMGeometry(&*h_gem);
+      builder->setGEMGeometry(&*h_gem);
     } else {
       edm::LogWarning("CSCTriggerPrimitivesProducer|NoGEMGeometry")
           << "GEM geometry is unavailable. Running CSC-only trigger algorithm. +++\n";
     }
   }
-
-  // Find conditions data for bad chambers.
-  edm::ESHandle<CSCBadChambers> pBadChambers = setup.getHandle(pBadChambersToken_);
 
   if (runCCLUT_) {
     edm::ESHandle<CSCL1TPLookupTableCCLUT> conf = setup.getHandle(pLookupTableCCLUTToken_);
@@ -206,7 +238,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
           << "Failed to find a CSCL1TPLookupTableCCLUTRcd in EventSetup with runCCLUT_ on";
       return;
     }
-    builder_->setESLookupTables(conf.product());
+    builder->setESLookupTables(conf.product());
   }
 
   if (runME11ILT_) {
@@ -216,7 +248,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
           << "Failed to find a CSCL1TPLookupTableME11ILTRcd in EventSetup with runME11ILT_ on";
       return;
     }
-    builder_->setESLookupTables(conf.product());
+    builder->setESLookupTables(conf.product());
   }
 
   if (runME21ILT_) {
@@ -226,7 +258,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
           << "Failed to find a CSCL1TPLookupTableME21ILTRcd in EventSetup with runME21ILT_ on";
       return;
     }
-    builder_->setESLookupTables(conf.product());
+    builder->setESLookupTables(conf.product());
   }
 
   // If !debugParameters then get config parameters using EventSetup mechanism.
@@ -240,7 +272,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
           << "+++ Cannot continue emulation without these parameters +++\n";
       return;
     }
-    builder_->setConfigParameters(conf.product());
+    builder->setConfigParameters(conf.product());
   }
 
   // Get the collections of comparator & wire digis from event.
@@ -298,24 +330,28 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
 
   // Fill output collections if valid input collections are available.
   if (wireDigis.isValid() && compDigis.isValid()) {
-    const CSCBadChambers* temp = checkBadChambers_ ? pBadChambers.product() : new CSCBadChambers;
-    builder_->build(temp,
-                    wireDigis.product(),
-                    compDigis.product(),
-                    gemPadClusters,
-                    *oc_alct,
-                    *oc_clct,
-                    *oc_alctpretrigger,
-                    *oc_clctpretrigger,
-                    *oc_pretrig,
-                    *oc_lct,
-                    *oc_sorted_lct,
-                    *oc_shower_anode,
-                    *oc_shower_cathode,
-                    *oc_shower,
-                    *oc_gemcopad);
-    if (!checkBadChambers_)
-      delete temp;
+    const CSCBadChambers* temp = nullptr;
+    if (checkBadChambers_) {
+      // Find conditions data for bad chambers.
+      temp = &setup.getData(pBadChambersToken_);
+    } else {
+      temp = dummyBadChambers_.get();
+    }
+    builder->build(temp,
+                   wireDigis.product(),
+                   compDigis.product(),
+                   gemPadClusters,
+                   *oc_alct,
+                   *oc_clct,
+                   *oc_alctpretrigger,
+                   *oc_clctpretrigger,
+                   *oc_pretrig,
+                   *oc_lct,
+                   *oc_sorted_lct,
+                   *oc_shower_anode,
+                   *oc_shower_cathode,
+                   *oc_shower,
+                   *oc_gemcopad);
   }
 
   // Put collections in event.
