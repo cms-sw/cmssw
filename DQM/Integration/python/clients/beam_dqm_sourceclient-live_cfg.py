@@ -329,7 +329,7 @@ process.dqmBeamMonitor.resetPVEveryNLumi = 5 # was 10 for HI
 
 process.dqmBeamMonitor.PVFitter.minNrVerticesForFit = 20
 process.dqmBeamMonitor.PVFitter.minVertexNdf = 10
-process.dqmBeamMonitor.PVFitter.errorScale = 1.0
+process.dqmBeamMonitor.PVFitter.errorScale = 1.2
 
 #----------------------------
 # Pixel tracks/vertices reco
