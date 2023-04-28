@@ -1,6 +1,3 @@
-// -*- C++ -*-
-//
-
 // system include files
 #include <cmath>
 #include <iostream>
@@ -17,7 +14,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "SimG4Core/Notification/interface/TrackWithHistory.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
