@@ -38,7 +38,7 @@ geomName = "Configuration.Geometry.GeometryExtended" + options.geometry + "Reco_
 if (options.geometry == "2016"):
     from Configuration.Eras.Era_Run2_2016_cff import Run2_2016
     process = cms.Process('G4PrintGeometry',Run2_2016)
-elif (options.geometry == "2018"):
+elif (options.geometry == "2017"):
     from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
     process = cms.Process('G4PrintGeometry',Run2_2017)
 elif (options.geometry == "2018"):

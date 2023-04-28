@@ -27,7 +27,7 @@ baseName = "cmsDD4hep" + options.geometry
 geomName = "Configuration.Geometry.GeometryDD4hepExtended" + options.geometry + "Reco_cff"
 
 from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
-if (options.geometry == "2018"):
+if (options.geometry == "2017"):
     from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
     process = cms.Process('G4PrintGeometry',Run2_2017,dd4hep)
 elif (options.geometry == "2018"):
