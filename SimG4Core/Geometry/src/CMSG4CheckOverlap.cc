@@ -81,7 +81,7 @@ CMSG4CheckOverlap::CMSG4CheckOverlap(const edm::ParameterSet& p,
   bool gdmlFlag = p.getParameter<bool>("gdmlFlag");
   if (gdmlFlag) {
     std::string PVname = p.getParameter<std::string>("PVname");
-    if(PVname.empty() || PVname == "world" || PVname == "World") { 
+    if (PVname.empty() || PVname == "world" || PVname == "World") {
       G4GDMLParser gdml = nullptr;
       gdml.SetRegionExport(true);
       gdml.SetEnergyCutsExport(true);
@@ -183,7 +183,9 @@ void CMSG4CheckOverlap::makeReportForGeometry(std::ofstream& fout, G4VPhysicalVo
        << "\n";
 }
 
-void CMSG4CheckOverlap::makeReportForOverlaps(std::ofstream& fout, const edm::ParameterSet& p, G4VPhysicalVolume* world) {
+void CMSG4CheckOverlap::makeReportForOverlaps(std::ofstream& fout,
+                                              const edm::ParameterSet& p,
+                                              G4VPhysicalVolume* world) {
   std::vector<std::string> nodeNames = p.getParameter<std::vector<std::string>>("NodeNames");
   std::string PVname = p.getParameter<std::string>("PVname");
   std::string LVname = p.getParameter<std::string>("LVname");
@@ -216,7 +218,7 @@ void CMSG4CheckOverlap::makeReportForOverlaps(std::ofstream& fout, const edm::Pa
 
   G4GDMLParser* gdml = nullptr;
   if (gdmlFlag) {
-    gdml = new G4GDMLParser(); 
+    gdml = new G4GDMLParser();
     gdml->SetRegionExport(true);
     gdml->SetEnergyCutsExport(true);
     gdml->SetSDExport(true);
@@ -225,16 +227,19 @@ void CMSG4CheckOverlap::makeReportForOverlaps(std::ofstream& fout, const edm::Pa
     for (unsigned int ii = 0; ii < nn; ++ii) {
       if (nodeNames[ii].empty() || "world" == nodeNames[ii] || "World" == nodeNames[ii]) {
         nodeNames[ii] = world->GetName();
-        fout << "### Check overlaps for World " << "\n";
+        fout << "### Check overlaps for World "
+             << "\n";
         G4GeomTestVolume test(world, tolerance, nPoints, verbose);
         test.SetErrorsThreshold(nPrints);
         test.TestOverlapInTree();
       } else if (regionFlag) {
-        fout << "---------------------------------------------------------------" << "\n";
+        fout << "---------------------------------------------------------------"
+             << "\n";
         fout << "### Check overlaps for G4Region Node[" << ii << "] : " << nodeNames[ii] << "\n";
         G4Region* reg = regStore->GetRegion((G4String)nodeNames[ii]);
         if (!reg) {
-          fout << "### NO G4Region found - EXIT" << "\n";
+          fout << "### NO G4Region found - EXIT"
+               << "\n";
           return;
         }
         std::vector<G4LogicalVolume*>::iterator rootLVItr = reg->GetRootLogicalVolumeIterator();
@@ -257,8 +262,8 @@ void CMSG4CheckOverlap::makeReportForOverlaps(std::ofstream& fout, const edm::Pa
                 }
               }
               if (!isNew) {
-                fout << "### Check overlaps for PhysVolume  " << pvname 
-                     << " is skipted because was already done" << "\n";
+                fout << "### Check overlaps for PhysVolume  " << pvname << " is skipted because was already done"
+                     << "\n";
                 continue;
               }
               savedgdml.push_back(pvname);
@@ -283,7 +288,8 @@ void CMSG4CheckOverlap::makeReportForOverlaps(std::ofstream& fout, const edm::Pa
     }
   }
   if (!PVname.empty()) {
-    fout << "----------- List of PhysVolumes by name -----------------" << "\n";
+    fout << "----------- List of PhysVolumes by name -----------------"
+         << "\n";
     for (unsigned int i = 0; i < numPV; ++i) {
       if (PVname == (*pvs)[i]->GetName()) {
         fout << " ##### PhysVolume " << PVname << " [" << ((*pvs)[i])->GetCopyNo()
@@ -292,7 +298,7 @@ void CMSG4CheckOverlap::makeReportForOverlaps(std::ofstream& fout, const edm::Pa
              << " Region: " << ((*pvs)[i])->GetLogicalVolume()->GetRegion()->GetName() << "\n";
         fout << "       Translation: " << ((*pvs)[i])->GetObjectTranslation() << "\n";
         fout << "       Rotation:    " << ((*pvs)[i])->GetObjectRotationValue() << "\n";
-	if (gdmlFlag) {
+        if (gdmlFlag) {
           gdml->Write(PVname + ".gdml", (*pvs)[i], true);
         }
       }
