@@ -41,6 +41,9 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+
 #include <string>
 #include <iostream>
 #include <map>
@@ -67,6 +70,8 @@ private:
   typedef edm::ValueMap<reco::TrackRefVector> TrackToTrackMapnew;
   typedef edm::ValueMap<reco::GsfTrackRefVector> GsfTrackToTrackMapnew;
 
+  edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> globalGeomToken_;
+  const GlobalTrackingGeometry* geometry_ = nullptr;
 
   edm::EDGetTokenT<TrackToTrackMapnew> inputs_fixtrackrefs_;
   edm::EDGetTokenT<reco::TrackCollection> inputs_fixtrackcol_;
@@ -86,6 +91,7 @@ template <typename T1>
 TrackMergeremb<T1>::TrackMergeremb(const edm::ParameterSet& iConfig) {
   std::string alias(iConfig.getParameter<std::string>("@module_label"));
   std::vector<edm::InputTag> inCollections = iConfig.getParameter<std::vector<edm::InputTag> >("mergCollections");
+  globalGeomToken_ = esConsumes();
   for (const auto& inCollection : inCollections) {
     inputs_[inCollection.instance()].push_back(consumes<TrackCollectionemb>(inCollection));
   }
@@ -102,6 +108,7 @@ TrackMergeremb<T1>::~TrackMergeremb() {
 
 template <typename T1>
 void TrackMergeremb<T1>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  geometry_ = &iSetup.getData(globalGeomToken_);
   for (auto input_ : inputs_) {
     merg_and_put(iEvent, input_.first, input_.second);
 

@@ -110,6 +110,12 @@ void TrackMergeremb<reco::TrackCollection>::merg_and_put(
     for (reco::TrackCollection::const_iterator it = track_col_in->begin(); it != track_col_in->end();
          ++it, ++sedref_it) {
       outTracks->push_back(reco::Track(*it));
+      auto rechits = it->recHits();
+      // Fixing geometry records of detector components for tracking rec. hits
+      for (auto ith = rechits.begin(); ith!= rechits.end(); ith++){
+        auto hit = *(&(*ith));
+        hit->setDet(*geometry_->idToDet(hit->rawId()));
+      }
       outTracks_ex->push_back(reco::TrackExtra(*it->extra()));
       outTracks->back().setExtra(reco::TrackExtraRef(rTrackExtras, outTracks_ex->size() - 1));
       reco::TrackRef trackRefold(track_col_in, sedref_it);
