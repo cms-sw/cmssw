@@ -83,11 +83,11 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     for (unsigned int i = 0; i < channeldata.size(); i++) {
       auto data = channeldata.at(i);
       auto cm = cms.at(i);
-      auto id = data.id();
+      const auto& id = data.id();
       auto idraw = id.raw();
       auto raw = data.raw();
       LogDebug("HGCalRawToDigi:produce") << "id=" << idraw << ", raw=" << raw << ", common mode index=" << cm << ".";
-      digis.push_back(HGCROCChannelDataFrameSpec(elecid_to_detid(data.id()), data.raw()));
+      digis.push_back(HGCROCChannelDataFrameSpec(elecid_to_detid(id), data.raw()));
       elec_digis.push_back(data);
     }
     if (const auto& bad_econds = unpacker_->badECOND(); !bad_econds.empty()) {

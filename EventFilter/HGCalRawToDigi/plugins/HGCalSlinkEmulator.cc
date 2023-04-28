@@ -143,7 +143,7 @@ void HGCalSlinkEmulator::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
   // store the emulation information if requested
   if (store_emul_info_)
-    iEvent.emplace(fedEmulInfoToken_, std::move(frame_gen_.lastSlinkEmulatedInfo()));
+    iEvent.emplace(fedEmulInfoToken_, frame_gen_.lastSlinkEmulatedInfo());
 }
 
 //

@@ -28,7 +28,7 @@ namespace hgcal::econd {
     struct HGCModuleTreeEvent {
       unsigned int event, chip;
       int half, bxcounter, eventcounter, orbitcounter, trigtime, trigwidth;
-      std::vector<unsigned int>* daqdata{0};
+      std::vector<unsigned int>* daqdata{nullptr};
     };
     ECONDInput next() override;
 
