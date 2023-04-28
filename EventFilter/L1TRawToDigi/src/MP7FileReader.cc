@@ -167,6 +167,7 @@ std::vector<uint32_t> MP7FileReader::searchLinks() {
       std::transform(tokens.begin(), tokens.end(), std::back_inserter(links), [](const std::string& str) {
         return std::stoul(str);
       });
+      return links;
     } else {
       throw std::logic_error("Unexpected line found!");
     }
