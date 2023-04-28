@@ -29,7 +29,7 @@ public:
                                 unsigned sector,
                                 unsigned subsector,
                                 unsigned chamber,
-                                const edm::ParameterSet& conf);
+                                CSCBaseboard::Parameters& conf);
 
 private:
   /* Phase2 version. Check all half-strip pattern envelopes simultaneously,

@@ -49,7 +49,7 @@ public:
                          unsigned sector,
                          unsigned subsector,
                          unsigned chamber,
-                         const edm::ParameterSet& conf);
+                         CSCBaseboard::Parameters& conf);
 
   /** Default destructor. */
   ~CSCCathodeLCTProcessor() override = default;

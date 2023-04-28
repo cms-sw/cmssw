@@ -7,18 +7,18 @@ CSCUpgradeCathodeLCTProcessor::CSCUpgradeCathodeLCTProcessor(unsigned endcap,
                                                              unsigned sector,
                                                              unsigned subsector,
                                                              unsigned chamber,
-                                                             const edm::ParameterSet& conf)
+                                                             CSCBaseboard::Parameters& conf)
     : CSCCathodeLCTProcessor(endcap, station, sector, subsector, chamber, conf) {
   if (!runPhase2_)
     edm::LogError("CSCUpgradeCathodeLCTProcessor|ConfigError")
         << "+++ Upgrade CSCUpgradeCathodeLCTProcessor constructed while runPhase2_ is not set! +++\n";
 
   // use of localized dead-time zones
-  use_dead_time_zoning_ = clctParams_.getParameter<bool>("useDeadTimeZoning");
-  clct_state_machine_zone_ = clctParams_.getParameter<unsigned int>("clctStateMachineZone");
+  use_dead_time_zoning_ = conf.clctParams().getParameter<bool>("useDeadTimeZoning");
+  clct_state_machine_zone_ = conf.clctParams().getParameter<unsigned int>("clctStateMachineZone");
 
   // how far away may trigger happen from pretrigger
-  pretrig_trig_zone_ = clctParams_.getParameter<unsigned int>("clctPretriggerTriggerZone");
+  pretrig_trig_zone_ = conf.clctParams().getParameter<unsigned int>("clctPretriggerTriggerZone");
 }
 
 // --------------------------------------------------------------------------

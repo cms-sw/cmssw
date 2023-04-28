@@ -34,6 +34,7 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
   runME21ILT_ = commonParams.getParameter<bool>("runME21ILT");
 
   // Initializing boards.
+  CSCBaseboard::Parameters baseparams(conf);
   for (int endc = min_endcap; endc <= max_endcap; endc++) {
     for (int stat = min_station; stat <= max_station; stat++) {
       int numsubs = ((stat == 1) ? max_subsector : 1);
@@ -60,11 +61,11 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
             // GE1/1-ME1/1 integrated local trigger or GE2/1-ME2/1 integrated local trigger
             if (upgradeGE11 or upgradeGE21)
               tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1] =
-                  std::make_unique<CSCGEMMotherboard>(endc, stat, sect, subs, cham, conf);
+                  std::make_unique<CSCGEMMotherboard>(endc, stat, sect, subs, cham, baseparams);
             // default case
             else
               tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1] =
-                  std::make_unique<CSCMotherboard>(endc, stat, sect, subs, cham, conf);
+                  std::make_unique<CSCMotherboard>(endc, stat, sect, subs, cham, baseparams);
           }
         }
         // Init MPC

@@ -6,21 +6,21 @@ CSCGEMMotherboard::CSCGEMMotherboard(unsigned endcap,
                                      unsigned sector,
                                      unsigned subsector,
                                      unsigned chamber,
-                                     const edm::ParameterSet& conf)
+                                     CSCBaseboard::Parameters& conf)
     : CSCMotherboard(endcap, station, sector, subsector, chamber, conf),
-      drop_low_quality_alct_(tmbParams_.getParameter<bool>("dropLowQualityALCTs")),
-      drop_low_quality_clct_(tmbParams_.getParameter<bool>("dropLowQualityCLCTs")),
-      build_lct_from_alct_gem_(tmbParams_.getParameter<bool>("buildLCTfromALCTandGEM")),
-      build_lct_from_clct_gem_(tmbParams_.getParameter<bool>("buildLCTfromCLCTandGEM")) {
+      drop_low_quality_alct_(conf.tmbParams().getParameter<bool>("dropLowQualityALCTs")),
+      drop_low_quality_clct_(conf.tmbParams().getParameter<bool>("dropLowQualityCLCTs")),
+      build_lct_from_alct_gem_(conf.tmbParams().getParameter<bool>("buildLCTfromALCTandGEM")),
+      build_lct_from_clct_gem_(conf.tmbParams().getParameter<bool>("buildLCTfromCLCTandGEM")) {
   // case for ME1/1
   if (isME11_) {
-    drop_low_quality_clct_me1a_ = tmbParams_.getParameter<bool>("dropLowQualityCLCTs_ME1a");
+    drop_low_quality_clct_me1a_ = conf.tmbParams().getParameter<bool>("dropLowQualityCLCTs_ME1a");
   }
 
-  alct_gem_bx_window_size_ = tmbParams_.getParameter<unsigned>("windowBXALCTGEM");
-  clct_gem_bx_window_size_ = tmbParams_.getParameter<unsigned>("windowBXCLCTGEM");
+  alct_gem_bx_window_size_ = conf.tmbParams().getParameter<unsigned>("windowBXALCTGEM");
+  clct_gem_bx_window_size_ = conf.tmbParams().getParameter<unsigned>("windowBXCLCTGEM");
 
-  assign_gem_csc_bending_ = tmbParams_.getParameter<bool>("assignGEMCSCBending");
+  assign_gem_csc_bending_ = conf.tmbParams().getParameter<bool>("assignGEMCSCBending");
   qualityAssignment_->setGEMCSCBending(assign_gem_csc_bending_);
 
   // These LogErrors are sanity checks and should not be printed
@@ -35,9 +35,9 @@ CSCGEMMotherboard::CSCGEMMotherboard(unsigned endcap,
   // super chamber has layer=0!
   gemId = GEMDetId(theRegion, 1, theStation, 0, theChamber, 0).rawId();
 
-  clusterProc_ = std::make_shared<GEMClusterProcessor>(theRegion, theStation, theChamber, conf);
+  clusterProc_ = std::make_shared<GEMClusterProcessor>(theRegion, theStation, theChamber, conf.conf());
 
-  cscGEMMatcher_ = std::make_unique<CSCGEMMatcher>(theRegion, theStation, theChamber, tmbParams_, conf);
+  cscGEMMatcher_ = std::make_unique<CSCGEMMatcher>(theRegion, theStation, theChamber, conf.tmbParams(), conf.conf());
 }
 
 CSCGEMMotherboard::~CSCGEMMotherboard() {}
