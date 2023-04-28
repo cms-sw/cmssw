@@ -189,16 +189,6 @@ std::array<int, 3> HGCalDDDConstants::assignCellTrap(float x, float y, float z, 
   int ll = layer - hgpar_->firstLayer_;
   xx -= hgpar_->xLayerHex_[ll];
   yy -= hgpar_->yLayerHex_[ll];
-  if (mode_ == HGCalGeometryMode::TrapezoidCassette) {
-    int cassette = HGCalTileIndex::tileCassette(iphi, hgpar_->phiOffset_, hgpar_->nphiCassette_, hgpar_->cassettes_);
-    auto cshift = hgcassette_.getShift(layer, zside, cassette);
-#ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeomT") << "Cassette " << cassette << " Shift " << -(zside * cshift.first) << ":"
-                                   << cshift.second;
-#endif
-    xx += (zside * cshift.first);
-    yy -= cshift.second;
-  }
   double phi = (((yy == 0.0) && (xx == 0.0)) ? 0. : std::atan2(yy, xx));
   if (phi < 0)
     phi += (2.0 * M_PI);
@@ -206,6 +196,16 @@ std::array<int, 3> HGCalDDDConstants::assignCellTrap(float x, float y, float z, 
     iphi = (1 + static_cast<int>(phi / indx.second)) % hgpar_->scintCells(layer);
   if (iphi == 0)
     iphi = hgpar_->scintCells(layer);
+  if (mode_ == HGCalGeometryMode::TrapezoidCassette) {
+    int cassette = HGCalTileIndex::tileCassette(iphi, hgpar_->phiOffset_, hgpar_->nphiCassette_, hgpar_->cassettes_);
+    auto cshift = hgcassette_.getShift(layer, -1, cassette);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeomT") << "Cassette " << cassette << " Shift " << cshift.first << ":" << cshift.second<< " Original " << xx << ":"
+				   << yy;
+#endif
+    xx += (zside * cshift.first);
+    yy -= cshift.second;
+  }
   type = hgpar_->scintType(layer);
   double r = std::sqrt(xx * xx + yy * yy);
   auto ir = std::lower_bound(hgpar_->radiusLayer_[type].begin(), hgpar_->radiusLayer_[type].end(), r);
@@ -927,17 +927,17 @@ std::pair<float, float> HGCalDDDConstants::locateCellTrap(
     int ll = lay - hgpar_->firstLayer_;
     x += hgpar_->xLayerHex_[ll];
     y += hgpar_->yLayerHex_[ll];
+    if (irad < 0)
+      x = -x;
     if (mode_ == HGCalGeometryMode::TrapezoidCassette) {
       int cassette = HGCalTileIndex::tileCassette(iphi, hgpar_->phiOffset_, hgpar_->nphiCassette_, hgpar_->cassettes_);
-      auto cshift = hgcassette_.getShift(lay, zside, cassette);
+      auto cshift = hgcassette_.getShift(lay, -1, cassette);
       if (debug)
         edm::LogVerbatim("HGCalGeom") << "Cassette " << cassette << " Shift " << -(zside * cshift.first) << ":"
                                       << cshift.second;
-      x -= (zside * cshift.first);
+      x -= cshift.first;
       y += cshift.second;
     }
-    if (irad < 0)
-      x = -x;
   }
   if (!reco) {
     x *= HGCalParameters::k_ScaleToDDD;
