@@ -92,11 +92,11 @@ if __name__ == '__main__':
                      11634.911, #2021 DD4hep ttbar reading geometry from XML
                      11634.914, #2021 DDD ttbar reading geometry from the DB
                      11634.0, #2021 ttbar (switching to DD4hep by default)
-                     11634.7, #2021 ttbar mkFit
                      11834.0, #2021 ttbar PU
                      13234.0, #2021 ttbar fastsim
                      13434.0, #2021 ttbar PU fastsim
                      12434.0, #2023 ttbar
+                     12434.7, #2023 ttbar mkFit
                      20834.0, #2026D88 ttbar (2022 new baseline)
                      20834.75, #2026D88 ttbar with HLT75e33
                      20834.76, #2026D88 ttbar with HLT75e33 in the same step as DIGI+L1

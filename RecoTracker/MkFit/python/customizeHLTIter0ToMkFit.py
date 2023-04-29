@@ -11,6 +11,18 @@ import RecoTracker.MkFit.mkFitOutputConverter_cfi as mkFitOutputConverter_cfi
 import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi as SiStripRecHitConverter_cfi
 
 def customizeHLTIter0ToMkFit(process):
+
+    # if any of the following objects does not exist, do not apply any customisation
+    for objLabel in [
+        'hltSiStripRawToClustersFacility',
+        'HLTDoLocalStripSequence',
+        'HLTIterativeTrackingIteration0',
+        'hltIter0PFlowCkfTrackCandidates',
+    ]:
+        if not hasattr(process, objLabel):
+            print(f'# WARNING: customizeHLTIter0ToMkFit failed (object with label "{objLabel}" not found) - no customisation applied !')
+            return process
+
     # mkFit needs all clusters, so switch off the on-demand mode
     process.hltSiStripRawToClustersFacility.onDemand = False
 
@@ -70,11 +82,11 @@ def customizeHLTIter0ToMkFit(process):
 
     process.HLTDoLocalStripSequence += process.hltSiStripRecHits
 
-    replaceWith = (process.hltIter0PFlowCkfTrackCandidatesMkFitSiPixelHits + 
-                   process.hltIter0PFlowCkfTrackCandidatesMkFitSiStripHits + 
-                   process.hltIter0PFlowCkfTrackCandidatesMkFitEventOfHits + 
-                   process.hltIter0PFlowCkfTrackCandidatesMkFitSeeds + 
-                   process.hltIter0PFlowCkfTrackCandidatesMkFit + 
+    replaceWith = (process.hltIter0PFlowCkfTrackCandidatesMkFitSiPixelHits +
+                   process.hltIter0PFlowCkfTrackCandidatesMkFitSiStripHits +
+                   process.hltIter0PFlowCkfTrackCandidatesMkFitEventOfHits +
+                   process.hltIter0PFlowCkfTrackCandidatesMkFitSeeds +
+                   process.hltIter0PFlowCkfTrackCandidatesMkFit +
                    process.hltIter0PFlowCkfTrackCandidates)
 
     process.HLTIterativeTrackingIteration0.replace(process.hltIter0PFlowCkfTrackCandidates, replaceWith)
