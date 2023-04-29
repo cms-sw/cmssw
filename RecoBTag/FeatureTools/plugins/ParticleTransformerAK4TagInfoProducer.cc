@@ -60,7 +60,7 @@ class HistogramProbabilityEstimator;
 class ParticleTransformerAK4TagInfoProducer : public edm::stream::EDProducer<> {
 public:
   explicit ParticleTransformerAK4TagInfoProducer(const edm::ParameterSet&);
-  ~ParticleTransformerAK4TagInfoProducer() override;
+  ~ParticleTransformerAK4TagInfoProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -77,21 +77,21 @@ private:
   const double min_candidate_pt_;
   const bool flip_;
 
-  edm::EDGetTokenT<edm::View<reco::Jet>> jet_token_;
-  edm::EDGetTokenT<VertexCollection> vtx_token_;
-  edm::EDGetTokenT<SVCollection> sv_token_;
+  const edm::EDGetTokenT<edm::View<reco::Jet>> jet_token_;
+  const edm::EDGetTokenT<VertexCollection> vtx_token_;
+  const edm::EDGetTokenT<SVCollection> sv_token_;
   edm::EDGetTokenT<edm::ValueMap<float>> puppi_value_map_token_;
   edm::EDGetTokenT<edm::ValueMap<int>> pvasq_value_map_token_;
   edm::EDGetTokenT<edm::Association<VertexCollection>> pvas_token_;
-  edm::EDGetTokenT<edm::View<reco::Candidate>> candidateToken_;
-  edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> track_builder_token_;
+  const edm::EDGetTokenT<edm::View<reco::Candidate>> candidateToken_;
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> track_builder_token_;
   bool use_puppi_value_map_;
   bool use_pvasq_value_map_;
 
-  bool fallback_puppi_weight_;
-  bool fallback_vertex_association_;
+  const bool fallback_puppi_weight_;
+  const bool fallback_vertex_association_;
 
-  bool is_weighted_jet_;
+  const bool is_weighted_jet_;
 
   const double min_jet_pt_;
   const double max_jet_eta_;
@@ -132,8 +132,6 @@ ParticleTransformerAK4TagInfoProducer::ParticleTransformerAK4TagInfoProducer(con
     use_pvasq_value_map_ = true;
   }
 }
-
-ParticleTransformerAK4TagInfoProducer::~ParticleTransformerAK4TagInfoProducer() {}
 
 void ParticleTransformerAK4TagInfoProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // pfParticleTransformerAK4TagInfos
