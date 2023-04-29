@@ -24,7 +24,7 @@
  */
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/limited/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -55,19 +55,16 @@
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 
 // temporarily switch to a "one" module with a CSCTriggerPrimitivesBuilder data member
-class CSCTriggerPrimitivesProducer : public edm::limited::EDProducer<> {
+class CSCTriggerPrimitivesProducer : public edm::stream::EDProducer<> {
 public:
   explicit CSCTriggerPrimitivesProducer(const edm::ParameterSet&);
   ~CSCTriggerPrimitivesProducer() override;
 
-  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
   // temporarily switch to a "one" module with a CSCTriggerPrimitivesBuilder data member
-  std::vector<std::unique_ptr<CSCTriggerPrimitivesBuilder>> builders_;
-  mutable std::vector<std::atomic<bool>> usedBuilders_;
+  std::unique_ptr<CSCTriggerPrimitivesBuilder> builder_;
 
   // input tags for input collections
   edm::InputTag compDigiProducer_;
@@ -110,8 +107,7 @@ private:
   bool runME21ILT_;
 };
 
-CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterSet& conf)
-    : edm::limited::EDProducerBase(conf), edm::limited::EDProducer<>(conf) {
+CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterSet& conf) {
   // if false, parameters will be read in from DB using EventSetup mechanism
   // else will use all parameters from the config file
   debugParameters_ = conf.getParameter<bool>("debugParameters");
@@ -179,43 +175,14 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   if (runILT_) {
     produces<GEMCoPadDigiCollection>();
   }
-  auto n = concurrencyLimit();
-  builders_.reserve(n);
-  //usedBuilders_.reserve(n);
-  usedBuilders_ = std::vector<std::atomic<bool>>(n);
-  for (auto i = 0U; i < n; ++i) {
-    // temporarily switch to a "one" module with a CSCTriggerPrimitivesBuilder data member
-    builders_.emplace_back(std::make_unique<CSCTriggerPrimitivesBuilder>(conf));
-  }
-}
 
-void CSCTriggerPrimitivesProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc;
-
-  desc.addUntracked<unsigned int>("concurrencyLimit", 1);
-
-  desc.setAllowAnything();
-  descriptions.addDefault(desc);
+  builder_ = std::make_unique<CSCTriggerPrimitivesBuilder>(conf);
 }
 
 CSCTriggerPrimitivesProducer::~CSCTriggerPrimitivesProducer() {}
 
-void CSCTriggerPrimitivesProducer::produce(edm::StreamID, edm::Event& ev, const edm::EventSetup& setup) const {
-  unsigned int builderIndex = 0;
-  for (auto& used : usedBuilders_) {
-    bool expected = false;
-    if (used.compare_exchange_strong(expected, true)) {
-      break;
-    } else {
-      ++builderIndex;
-    }
-  }
-  assert(builderIndex < usedBuilders_.size());
-  auto* builder = builders_[builderIndex].get();
-
-  //make sure usedBuilders_[builderIndex] = false is done even if have an exception
-  auto reset = [](std::atomic<bool>* iValue) { *iValue = false; };
-  std::unique_ptr<std::atomic<bool>, decltype(reset)> usedGuard(&usedBuilders_[builderIndex], reset);
+void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup& setup) {
+  auto* builder = builder_.get();
 
   // get the csc geometry
   builder->setCSCGeometry(&setup.getData(cscToken_));
