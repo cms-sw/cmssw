@@ -110,7 +110,7 @@
 //                               (default "HcalIsoTrkAnalyzer")
 //
 // .L CalibSort.C+g
-//  combineML(const char* inputFileList, const char* outfile)
+//  combineML(inputFileList, outfile);
 //
 //  Combines the ML values otained from the analysis of muon analysis to
 //  determine depth dependent correction factors
@@ -129,6 +129,21 @@
 //   where each file conatins
 //   (4 quantities per line with no tab separating each item):
 //   #ieta depth  ml    uncertainity-in-ml
+//
+// .L CalibSort.C+g
+//  calCorrCombine(inFileCorr, inFileDepth, outFileCorr, truncateFlag, etaMax);
+//
+//  Combines the correction factors obtained from CalibTree and the depth
+//  dependent correction factors used in the CalibTree command
+//
+//   inputFileCorr  (const char*) = file containing correction factors obtained
+//                                  from the CalibTree
+//   inputFileDepth (const char*) = file containing depth dependent correction
+//                                  factors used in the CalibTree step
+//   outfileCorr    (const char*) = name of the output file where the combined
+//                                  correction factors
+//   truncateFlag   (int)         = Truncate flag used in the CalibTree step
+//   etaMax         (int)         = Maximum eta value
 //
 //////////////////////////////////////////////////////////////////////////////
 
@@ -2415,4 +2430,122 @@ void combineML(const char *inputFileList, const char *outfile) {
       fout.close();
     }
   }
+}
+
+void calCorrCombine(
+    const char *inFileCorr, const char *inFileDepth, const char *outFileCorr, int truncateFlag, int etaMax) {
+  const int neta = 58;
+  int ietas[neta] = {1,   2,   3,   4,   5,   6,   7,   8,   9,   10,  11,  12,  13,  14,  15,  16,  17,  18, 19,  20,
+                     21,  22,  23,  24,  25,  26,  27,  28,  29,  -1,  -2,  -3,  -4,  -5,  -6,  -7,  -8,  -9, -10, -11,
+                     -12, -13, -14, -15, -16, -17, -18, -19, -20, -21, -22, -23, -24, -25, -26, -27, -28, -29};
+  int depthMin[neta] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+  int depthMax[neta] = {4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 3,
+                        4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 5, 6, 6, 6, 6, 6, 6, 6, 7, 7, 7, 3};
+
+  // Read the correction factors
+  std::map<unsigned int, std::pair<double, double> > cfactors;
+  if (std::string(inFileCorr) != "") {
+    std::ifstream fInput(inFileCorr);
+    if (!fInput.good()) {
+      std::cout << "Cannot open file " << inFileCorr << std::endl;
+    } else {
+      char buffer[1024];
+      unsigned int all(0), good(0);
+      while (fInput.getline(buffer, 1024)) {
+        ++all;
+        if (buffer[0] == '#')
+          continue;  //ignore comment
+        std::vector<std::string> items = splitString(std::string(buffer));
+        if (items.size() != 5) {
+          std::cout << "Ignore  line: " << buffer << std::endl;
+        } else {
+          ++good;
+          std::istringstream converter(items[0].c_str());
+          unsigned int det;
+          converter >> std::hex >> det;
+          double corrf = std::atof(items[3].c_str());
+          double dcorr = std::atof(items[4].c_str());
+          cfactors[det] = std::pair<double, double>(corrf, dcorr);
+        }
+      }
+      fInput.close();
+      std::cout << "Reads total of " << all << " and " << good << " good records" << std::endl;
+    }
+  }
+
+  // Read in the depth dependent correction factors
+  std::map<int, std::vector<double> > weights;
+  if (std::string(inFileDepth) != "") {
+    std::ifstream infile(inFileDepth);
+    if (!infile.is_open()) {
+      std::cout << "Cannot open duplicate file " << inFileDepth << std::endl;
+    } else {
+      unsigned int all(0), good(0);
+      char buffer[1024];
+      while (infile.getline(buffer, 1024)) {
+        ++all;
+        std::string bufferString(buffer);
+        if (bufferString.substr(0, 1) == "#") {
+          continue;  //ignore other comments
+        } else {
+          std::vector<std::string> items = splitString(bufferString);
+          if (items.size() < 3) {
+            std::cout << "Ignore  line: " << buffer << " Size " << items.size() << std::endl;
+          } else {
+            ++good;
+            int ieta = std::atoi(items[0].c_str());
+            std::vector<double> weight;
+            for (unsigned int k = 1; k < items.size(); ++k) {
+              double corrf = std::atof(items[k].c_str());
+              weight.push_back(corrf);
+            }
+            weights[ieta] = weight;
+          }
+        }
+      }
+      infile.close();
+      std::cout << "Reads total of " << all << " and " << good << " good records of depth dependent factors from "
+                << inFileDepth << std::endl;
+    }
+  }
+
+  // Now combine the two information
+  std::map<unsigned int, std::pair<double, double> > cfacFinal;
+  std::ofstream outfile(outFileCorr);
+  outfile << "#" << std::setprecision(4) << std::setw(10) << "detId" << std::setw(10) << "ieta" << std::setw(10)
+          << "depth" << std::setw(15) << "corrFactor" << std::endl;
+  for (int k = 0; k < neta; ++k) {
+    int ieta = ietas[k];
+    for (int depth = depthMin[k]; depth <= depthMax[k]; ++depth) {
+      int subdet = ifHB(ieta, depth) ? 1 : 2;
+      int d = truncateDepth(ieta, depth, truncateFlag);
+      unsigned int key = repackId(subdet, ieta, 0, d);
+      double c1(1), dc1(0), c2(1);
+      if (cfactors.find(key) != cfactors.end()) {
+        c1 = cfactors[key].first;
+        dc1 = cfactors[key].second;
+      }
+      if (weights.find(ieta) != weights.end()) {
+        if (static_cast<unsigned int>(depth) <= weights[ieta].size())
+          c2 = (weights[ieta])[depth - 1];
+      }
+      double cf = c1 * c2;
+      double dcf = dc1 * c2;
+      if (std::abs(ieta) > etaMax) {
+        int ieta0 = (ieta > 0) ? etaMax : -etaMax;
+        key = repackId(subdet, ieta0, 0, depth);
+        if (cfacFinal.find(key) != cfacFinal.end()) {
+          cf = cfacFinal[key].first;
+          dcf = cfacFinal[key].second;
+        }
+      }
+      key = repackId(subdet, ieta, 0, depth);
+      cfacFinal[key] = std::pair<double, double>(cf, dcf);
+      if (std::abs(ieta) <= etaMax)
+        outfile << std::setw(10) << std::hex << key << std::setw(10) << std::dec << ieta << std::setw(10) << depth
+                << std::setw(10) << cf << " " << std::setw(10) << dcf << std::endl;
+    }
+  }
+  outfile.close();
 }
