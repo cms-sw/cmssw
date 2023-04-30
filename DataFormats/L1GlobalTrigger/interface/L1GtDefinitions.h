@@ -19,7 +19,8 @@ enum L1GtConditionType {
   TypeHfRingEtSums,
   TypeBptx,
   TypeExternal,
-  Type2corWithOverlapRemoval
+  Type2corWithOverlapRemoval,
+  L1GtConditionTypeInvalid = -1
 };
 
 /// condition categories
@@ -35,7 +36,8 @@ enum L1GtConditionCategory {
   CondHfRingEtSums,
   CondBptx,
   CondExternal,
-  CondCorrelationWithOverlapRemoval
+  CondCorrelationWithOverlapRemoval,
+  L1GtConditionCategoryInvalid = -1
 };
 
 #endif
