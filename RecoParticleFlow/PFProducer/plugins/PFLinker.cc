@@ -150,7 +150,8 @@ void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       edm::Ptr<reco::PFCandidate> candPtr(pfCandidates, i);
       reco::PFCandidate cand(candPtr);
 
-      if(!(cand.energy()>0) ) continue;
+      if (!(cand.energy() > 0))
+        continue;
 
       bool isphoton = cand.particleId() == reco::PFCandidate::gamma && cand.mva_nothing_gamma() > 0.;
       bool iselectron = cand.particleId() == reco::PFCandidate::e;
