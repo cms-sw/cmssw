@@ -1,11 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-from L1Trigger.Phase2L1ParticleFlow.l1tSeedConePFJetProducer_cfi import l1tSeedConePFJetProducer, l1tSeedConePFJetEmulatorProducer
+from L1Trigger.Phase2L1ParticleFlow.l1SeedConePFJetProducer_cfi import l1SeedConePFJetProducer 
+from L1Trigger.Phase2L1ParticleFlow.l1SeedConePFJetEmulatorProducer_cfi import l1SeedConePFJetEmulatorProducer
 from L1Trigger.Phase2L1ParticleFlow.l1tDeregionizerProducer_cfi import l1tDeregionizerProducer as l1tLayer2Deregionizer, l1tDeregionizerProducerExtended as l1tLayer2DeregionizerExtended
-l1tSCPFL1PF            = l1tSeedConePFJetProducer.clone(L1PFObjects = 'l1tLayer1:PF')
-l1tSCPFL1Puppi         = l1tSeedConePFJetProducer.clone()
-l1tSCPFL1PuppiEmulator = l1tSeedConePFJetEmulatorProducer.clone(L1PFObjects = 'l1tLayer2Deregionizer:Puppi')
-l1tSCPFL1PuppiCorrectedEmulator = l1tSeedConePFJetEmulatorProducer.clone(L1PFObjects = 'l1tLayer2Deregionizer:Puppi',
+l1tSCPFL1PF            = l1SeedConePFJetProducer.clone(L1PFObjects = 'l1tLayer1:PF')
+l1tSCPFL1Puppi         = l1SeedConePFJetProducer.clone()
+l1tSCPFL1PuppiEmulator = l1SeedConePFJetEmulatorProducer.clone(L1PFObjects = 'l1tLayer2Deregionizer:Puppi')
+l1tSCPFL1PuppiCorrectedEmulator = l1SeedConePFJetEmulatorProducer.clone(L1PFObjects = 'l1tLayer2Deregionizer:Puppi',
                                                                      doCorrections = True,
                                                                      correctorFile = "L1Trigger/Phase2L1ParticleFlow/data/jecs/jecs_20220308.root",
                                                                      correctorDir = "L1PuppiSC4EmuJets")
@@ -31,9 +32,9 @@ L1TPFJetsTask = cms.Task(
     l1tLayer2Deregionizer, l1tSCPFL1PF, l1tSCPFL1Puppi, l1tSCPFL1PuppiEmulator, l1tSCPFL1PuppiCorrectedEmulator, l1tSCPFL1PuppiCorrectedEmulatorMHT
 )
 
-l1tSCPFL1PuppiExtended         = l1tSeedConePFJetProducer.clone(L1PFObjects = 'l1tLayer1Extended:Puppi')
-l1tSCPFL1PuppiExtendedEmulator = l1tSeedConePFJetEmulatorProducer.clone(L1PFObjects = 'l1tLayer2DeregionizerExtended:Puppi')
-l1tSCPFL1PuppiExtendedCorrectedEmulator = l1tSeedConePFJetEmulatorProducer.clone(L1PFObjects = 'l1tLayer2DeregionizerExtended:Puppi',
+l1tSCPFL1PuppiExtended         = l1SeedConePFJetProducer.clone(L1PFObjects = 'l1tLayer1Extended:Puppi')
+l1tSCPFL1PuppiExtendedEmulator = l1SeedConePFJetEmulatorProducer.clone(L1PFObjects = 'l1tLayer2DeregionizerExtended:Puppi')
+l1tSCPFL1PuppiExtendedCorrectedEmulator = l1SeedConePFJetEmulatorProducer.clone(L1PFObjects = 'l1tLayer2DeregionizerExtended:Puppi',
                                                                      doCorrections = True,
                                                                      correctorFile = "L1Trigger/Phase2L1ParticleFlow/data/jecs/jecs_20220308.root",
                                                                      correctorDir = "L1PuppiSC4EmuJets")
