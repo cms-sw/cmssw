@@ -7,8 +7,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/TypeDemangler.h"
 
 // Reco candidates (might not need)
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -80,12 +81,20 @@ public:
                         const edm::EventSetup&,
                         std::vector<RectangularEtaPhiRegion>&) const override;
   template <typename T2>
+  bool isEmpty(const T2& coll) const {
+    return coll.empty();
+  }
+  template <typename T2>
   static typename T2::const_iterator beginIt(const T2& coll) {
     return coll.begin();
   }
   template <typename T2>
   static typename T2::const_iterator endIt(const T2& coll) {
     return coll.end();
+  }
+  template <typename T2>
+  bool isEmpty(const BXVector<T2>& coll) const {
+    return (coll.size() == 0 or coll.isEmpty(0));
   }
   template <typename T2>
   static typename BXVector<T2>::const_iterator beginIt(const BXVector<T2>& coll) {
@@ -285,6 +294,13 @@ void L1RegionData<L1CollType>::getEtaPhiRegions(const edm::Event& event,
                                                 std::vector<RectangularEtaPhiRegion>& regions) const {
   edm::Handle<L1CollType> l1Cands;
   event.getByToken(token_, l1Cands);
+
+  if (isEmpty(*l1Cands)) {
+    LogDebug("HLTRecHitInAllL1RegionsProducerL1RegionData")
+        << "The input collection of L1T candidates is empty (L1CollType = \""
+        << edm::typeDemangle(typeid(L1CollType).name()) << "\"). No regions selected.";
+    return;
+  }
 
   for (auto l1CandIt = beginIt(*l1Cands); l1CandIt != endIt(*l1Cands); ++l1CandIt) {
     if (l1CandIt->et() >= minEt_ && l1CandIt->et() < maxEt_) {
