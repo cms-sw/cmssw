@@ -24,11 +24,7 @@ class FullModelReactionDynamics {
 public:
   FullModelReactionDynamics() {}
 
-  virtual ~FullModelReactionDynamics() {}
-
-  virtual G4double FindInelasticity() { return 0.0; }
-
-  virtual G4double FindTimeDelay() { return 0.0; }
+  ~FullModelReactionDynamics() = default;
 
   G4bool GenerateXandPt(  // derived from GENXPT
       G4FastVector<G4ReactionProduct, MYGHADLISTSIZE> &vec,
@@ -100,6 +96,9 @@ public:
       const G4double theAtomicMass,
       const G4double *massVec);
 
+  FullModelReactionDynamics(const FullModelReactionDynamics&) = delete;
+  FullModelReactionDynamics& operator=(const FullModelReactionDynamics &) = delete;
+
 private:
   void Rotate(const G4double numberofFinalStateNucleons,
               const G4ThreeVector &temp,
@@ -137,8 +136,6 @@ private:
                      G4int &vecLen);
 
   G4double normal();
-
-  G4int Poisson(G4double x);
 };
 
 #endif

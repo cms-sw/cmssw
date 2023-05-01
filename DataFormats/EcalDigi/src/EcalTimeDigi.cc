@@ -10,11 +10,9 @@ EcalTimeDigi::EcalTimeDigi(const DetId& id)
     : id_(id), size_(0), sampleOfInterest_(-1), waveform_(WAVEFORMSAMPLES), data_(MAXSAMPLES) {}
 
 void EcalTimeDigi::setSize(unsigned int size) {
+  size_ = size;
   if (size > MAXSAMPLES)
-    size_ = MAXSAMPLES;
-  else
-    size_ = size;
-  data_.resize(size_);
+    data_.resize(size_);
 }
 
 void EcalTimeDigi::setWaveform(float* waveform) {
