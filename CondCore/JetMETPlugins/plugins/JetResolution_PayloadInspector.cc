@@ -49,9 +49,27 @@ namespace JME {
   public:
     JetResolutionVsEta()
         : cond::payloadInspector::Histogram1D<JetResolutionObject, SINGLE_IOV>(
-              "Jet Resolution", "#eta", NBIN_ETA, MIN_ETA, MAX_ETA, "Resolution") {}
+              "Jet Resolution", "#eta", NBIN_ETA, MIN_ETA, MAX_ETA, "Resolution") {
+      cond::payloadInspector::PlotBase::addInputParam("Jet_Pt");
+      cond::payloadInspector::PlotBase::addInputParam("Jet_Rho");
+    }
 
     bool fill() override {
+      double par_Pt = 100.;
+      double par_Eta = 1.;
+      double par_Rho = 20.;
+
+      // Default values will be used if no input parameters
+      auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
+      auto ip = paramValues.find("Jet_Pt");
+      if (ip != paramValues.end()) {
+        par_Pt = std::stod(ip->second);
+      }
+      ip = paramValues.find("Jet_Rho");
+      if (ip != paramValues.end()) {
+        par_Rho = std::stod(ip->second);
+      }
+
       auto tag = PlotBase::getTag<0>();
       for (auto const& iov : tag.iovs) {
         std::shared_ptr<JetResolutionObject> payload = Base::fetchPayload(std::get<1>(iov));
@@ -63,16 +81,16 @@ namespace JME {
           for (const auto& record : payload->getRecords()) {
             // Check Pt & Rho
             if (!record.getVariablesRange().empty() && payload->getDefinition().getVariableName(0) == "JetPt" &&
-                record.getVariablesRange()[0].is_inside(100.)) {
+                record.getVariablesRange()[0].is_inside(par_Pt)) {
               if (record.getBinsRange().size() > 1 && payload->getDefinition().getBinName(1) == "Rho" &&
-                  record.getBinsRange()[1].is_inside(20.)) {
+                  record.getBinsRange()[1].is_inside(par_Rho)) {
                 if (!record.getBinsRange().empty() && payload->getDefinition().getBinName(0) == "JetEta") {
                   reco::FormulaEvaluator f(payload->getDefinition().getFormulaString());
 
                   for (size_t idx = 0; idx <= NBIN_ETA; idx++) {
-                    double x_axis = (idx + 0.5) * (MAX_ETA - MIN_ETA) / NBIN_ETA + MIN_ETA;
-                    if (record.getBinsRange()[0].is_inside(x_axis)) {
-                      std::vector<double> var = {100.};
+                    par_Eta = (idx + 0.5) * (MAX_ETA - MIN_ETA) / NBIN_ETA + MIN_ETA;
+                    if (record.getBinsRange()[0].is_inside(par_Eta)) {
+                      std::vector<double> var = {par_Pt};
                       std::vector<double> param;
                       for (size_t i = 0; i < record.getParametersValues().size(); i++) {
                         double par = record.getParametersValues()[i];
@@ -97,9 +115,26 @@ namespace JME {
   public:
     JetResolutionVsPt()
         : cond::payloadInspector::Histogram1D<JetResolutionObject, SINGLE_IOV>(
-              "Jet Energy Resolution", "p_T", NBIN_PT, MIN_PT, MAX_PT, "Resolution") {}
+              "Jet Energy Resolution", "p_T", NBIN_PT, MIN_PT, MAX_PT, "Resolution") {
+      cond::payloadInspector::PlotBase::addInputParam("Jet_Eta");
+      cond::payloadInspector::PlotBase::addInputParam("Jet_Rho");
+    }
 
     bool fill() override {
+      double par_Pt = 100.;
+      double par_Eta = 1.;
+      double par_Rho = 20.;
+
+      auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
+      auto ip = paramValues.find("Jet_Eta");
+      if (ip != paramValues.end()) {
+        par_Eta = std::stod(ip->second);
+      }
+      ip = paramValues.find("Jet_Rho");
+      if (ip != paramValues.end()) {
+        par_Rho = std::stod(ip->second);
+      }
+
       auto tag = PlotBase::getTag<0>();
       for (auto const& iov : tag.iovs) {
         std::shared_ptr<JetResolutionObject> payload = Base::fetchPayload(std::get<1>(iov));
@@ -111,16 +146,16 @@ namespace JME {
           for (const auto& record : payload->getRecords()) {
             // Check Eta & Rho
             if (!record.getBinsRange().empty() && payload->getDefinition().getBinName(0) == "JetEta" &&
-                record.getBinsRange()[0].is_inside(2.30)) {
+                record.getBinsRange()[0].is_inside(par_Eta)) {
               if (record.getBinsRange().size() > 1 && payload->getDefinition().getBinName(1) == "Rho" &&
-                  record.getBinsRange()[1].is_inside(15.)) {
+                  record.getBinsRange()[1].is_inside(par_Rho)) {
                 if (!record.getVariablesRange().empty() && payload->getDefinition().getVariableName(0) == "JetPt") {
                   reco::FormulaEvaluator f(payload->getDefinition().getFormulaString());
 
                   for (size_t idx = 0; idx <= NBIN_PT; idx++) {
-                    double x_axis = (idx + 0.5) * (MAX_PT - MIN_PT) / NBIN_PT + MIN_PT;
-                    if (record.getVariablesRange()[0].is_inside(x_axis)) {
-                      std::vector<double> var = {x_axis};
+                    par_Pt = (idx + 0.5) * (MAX_PT - MIN_PT) / NBIN_PT + MIN_PT;
+                    if (record.getVariablesRange()[0].is_inside(par_Pt)) {
+                      std::vector<double> var = {par_Pt};
                       std::vector<double> param;
                       for (size_t i = 0; i < record.getParametersValues().size(); i++) {
                         double par = record.getParametersValues()[i];
@@ -144,9 +179,31 @@ namespace JME {
   class JetResolutionSummary : public cond::payloadInspector::PlotImage<JetResolutionObject, SINGLE_IOV> {
   public:
     JetResolutionSummary()
-        : cond::payloadInspector::PlotImage<JetResolutionObject, SINGLE_IOV>("Jet Resolution Summary") {}
+        : cond::payloadInspector::PlotImage<JetResolutionObject, SINGLE_IOV>("Jet Resolution Summary") {
+      cond::payloadInspector::PlotBase::addInputParam("Jet_Pt");
+      cond::payloadInspector::PlotBase::addInputParam("Jet_Eta");
+      cond::payloadInspector::PlotBase::addInputParam("Jet_Rho");
+    }
 
     bool fill() override {
+      double par_Pt = 100.;
+      double par_Eta = 1.;
+      double par_Rho = 20.;
+
+      auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
+      auto ip = paramValues.find("Jet_Pt");
+      if (ip != paramValues.end()) {
+        par_Pt = std::stod(ip->second);
+      }
+      ip = paramValues.find("Jet_Eta");
+      if (ip != paramValues.end()) {
+        par_Eta = std::stod(ip->second);
+      }
+      ip = paramValues.find("Jet_Rho");
+      if (ip != paramValues.end()) {
+        par_Rho = std::stod(ip->second);
+      }
+
       TH1D* resol_eta = new TH1D("Jet Resolution vs #eta", "", NBIN_ETA, MIN_ETA, MAX_ETA);
       TH1D* resol_pt = new TH1D("Jet Resolution vs p_T", "", NBIN_PT, MIN_PT, MAX_PT);
       TLegend* leg_eta = new TLegend(0.26, 0.73, 0.935, 0.90);
@@ -195,16 +252,16 @@ namespace JME {
         for (const auto& record : payload->getRecords()) {
           // Check Pt & Rho
           if (!record.getVariablesRange().empty() && payload->getDefinition().getVariableName(0) == "JetPt" &&
-              record.getVariablesRange()[0].is_inside(100.)) {
+              record.getVariablesRange()[0].is_inside(par_Pt)) {
             if (record.getBinsRange().size() > 1 && payload->getDefinition().getBinName(1) == "Rho" &&
-                record.getBinsRange()[1].is_inside(20.)) {
+                record.getBinsRange()[1].is_inside(par_Rho)) {
               if (!record.getBinsRange().empty() && payload->getDefinition().getBinName(0) == "JetEta") {
                 reco::FormulaEvaluator f(payload->getDefinition().getFormulaString());
 
                 for (size_t idx = 0; idx <= NBIN_ETA; idx++) {
                   double x_axis = (idx + 0.5) * (MAX_ETA - MIN_ETA) / NBIN_ETA + MIN_ETA;
                   if (record.getBinsRange()[0].is_inside(x_axis)) {
-                    std::vector<double> var = {100.};
+                    std::vector<double> var = {par_Pt};
                     std::vector<double> param;
                     for (size_t i = 0; i < record.getParametersValues().size(); i++) {
                       double par = record.getParametersValues()[i];
@@ -219,9 +276,9 @@ namespace JME {
           }
 
           if (!record.getBinsRange().empty() && payload->getDefinition().getBinName(0) == "JetEta" &&
-              record.getBinsRange()[0].is_inside(2.30)) {
+              record.getBinsRange()[0].is_inside(par_Eta)) {
             if (record.getBinsRange().size() > 1 && payload->getDefinition().getBinName(1) == "Rho" &&
-                record.getBinsRange()[1].is_inside(15.)) {
+                record.getBinsRange()[1].is_inside(par_Rho)) {
               if (!record.getVariablesRange().empty() && payload->getDefinition().getVariableName(0) == "JetPt") {
                 reco::FormulaEvaluator f(payload->getDefinition().getFormulaString());
 
@@ -261,7 +318,7 @@ namespace JME {
         resol_eta->Draw("");
 
         leg_eta->AddEntry(resol_eta, (tag_ver + '_' + tag_jet).c_str(), "l");
-        leg_eta->AddEntry((TObject*)nullptr, "JetPt=100, Rho=20", "");
+        leg_eta->AddEntry((TObject*)nullptr, Form("JetPt=%.2f; JetRho=%.2f", par_Pt, par_Rho), "");
         leg_eta->Draw();
 
         canvas.cd(2);
@@ -271,7 +328,7 @@ namespace JME {
         resol_pt->Draw("][");
 
         leg_pt->AddEntry(resol_pt, (tag_ver + '_' + tag_jet).c_str(), "l");
-        leg_pt->AddEntry((TObject*)nullptr, "JetEta=2.3, Rho=15", "");
+        leg_pt->AddEntry((TObject*)nullptr, Form("JetEta=%.2f; JetRho=%.2f", par_Eta, par_Rho), "");
         leg_pt->Draw();
 
         canvas.SaveAs(m_imageFileName.c_str());
@@ -288,9 +345,25 @@ namespace JME {
   public:
     JetScaleFactorVsEta()
         : cond::payloadInspector::Histogram1D<JetResolutionObject, SINGLE_IOV>(
-              "Jet Energy Scale Factor", "#eta", NBIN_ETA, MIN_ETA, MAX_ETA, "Scale Factor") {}
+              "Jet Energy Scale Factor", "#eta", NBIN_ETA, MIN_ETA, MAX_ETA, "Scale Factor") {
+      cond::payloadInspector::PlotBase::addInputParam("Jet_Pt");
+      cond::payloadInspector::PlotBase::addInputParam("Jet_Eta");
+    }
 
     bool fill() override {
+      double par_Pt = 100.;
+      double par_Eta = 1.;
+
+      auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
+      auto ip = paramValues.find("Jet_Pt");
+      if (ip != paramValues.end()) {
+        par_Pt = std::stod(ip->second);
+      }
+      ip = paramValues.find("Jet_Eta");
+      if (ip != paramValues.end()) {
+        par_Eta = std::stod(ip->second);
+      }
+
       auto tag = PlotBase::getTag<0>();
       for (auto const& iov : tag.iovs) {
         std::shared_ptr<JetResolutionObject> payload = Base::fetchPayload(std::get<1>(iov));
@@ -304,12 +377,12 @@ namespace JME {
                 record.getParametersValues().size() == 3) {  // norm, down, up
 
               if (record.getBinsRange().size() > 1 && payload->getDefinition().getBinName(1) == "JetPt" &&
-                  !record.getBinsRange()[1].is_inside(500.))
+                  !record.getBinsRange()[1].is_inside(par_Pt))
                 continue;  // for 2-bin payload, take jetpt=500
 
               for (size_t it = 0; it <= NBIN_ETA; it++) {
-                double x_axis = (it + 0.5) * (MAX_ETA - MIN_ETA) / NBIN_ETA + MIN_ETA;
-                if (record.getBinsRange()[0].is_inside(x_axis)) {
+                par_Eta = (it + 0.5) * (MAX_ETA - MIN_ETA) / NBIN_ETA + MIN_ETA;
+                if (record.getBinsRange()[0].is_inside(par_Eta)) {
                   double sf = 0.;
                   sf = record.getParametersValues()[ii];
                   fillWithBinAndValue(it, sf);
@@ -334,9 +407,25 @@ namespace JME {
   public:
     JetScaleFactorVsPt()
         : cond::payloadInspector::Histogram1D<JetResolutionObject, SINGLE_IOV>(
-              "Jet Energy Scale Factor", "p_T", NBIN_PT, MIN_PT, MAX_PT, "Scale Factor") {}
+              "Jet Energy Scale Factor", "p_T", NBIN_PT, MIN_PT, MAX_PT, "Scale Factor") {
+      cond::payloadInspector::PlotBase::addInputParam("Jet_Pt");
+      cond::payloadInspector::PlotBase::addInputParam("Jet_Eta");
+    }
 
     bool fill() override {
+      double par_Pt = 100.;
+      double par_Eta = 1.;
+
+      auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
+      auto ip = paramValues.find("Jet_Pt");
+      if (ip != paramValues.end()) {
+        par_Pt = std::stod(ip->second);
+      }
+      ip = paramValues.find("Jet_Eta");
+      if (ip != paramValues.end()) {
+        par_Eta = std::stod(ip->second);
+      }
+
       auto tag = PlotBase::getTag<0>();
       for (auto const& iov : tag.iovs) {
         std::shared_ptr<JetResolutionObject> payload = Base::fetchPayload(std::get<1>(iov));
@@ -347,13 +436,13 @@ namespace JME {
 
           for (const auto& record : payload->getRecords()) {
             if (record.getBinsRange().size() > 1 && payload->getDefinition().getBinName(0) == "JetEta" &&
-                record.getBinsRange()[0].is_inside(2.55) &&           // take jeteta=2.5
+                record.getBinsRange()[0].is_inside(par_Eta) &&        // take jeteta=2.5
                 payload->getDefinition().getBinName(1) == "JetPt" &&  // 2-bin
                 record.getParametersValues().size() == 3) {           // norm, down, up
 
               for (size_t it = 0; it <= NBIN_PT; it++) {
-                double x_axis = (it + 0.5) * (MAX_PT - MIN_PT) / NBIN_PT + MIN_PT;
-                if (record.getBinsRange()[1].is_inside(x_axis)) {
+                par_Pt = (it + 0.5) * (MAX_PT - MIN_PT) / NBIN_PT + MIN_PT;
+                if (record.getBinsRange()[1].is_inside(par_Pt)) {
                   double sf = 0.;
                   sf = record.getParametersValues()[ii];
                   fillWithBinAndValue(it, sf);
@@ -376,9 +465,25 @@ namespace JME {
   class JetScaleFactorSummary : public cond::payloadInspector::PlotImage<JetResolutionObject, SINGLE_IOV> {
   public:
     JetScaleFactorSummary()
-        : cond::payloadInspector::PlotImage<JetResolutionObject, SINGLE_IOV>("Jet ScaleFactor Summary") {}
+        : cond::payloadInspector::PlotImage<JetResolutionObject, SINGLE_IOV>("Jet ScaleFactor Summary") {
+      cond::payloadInspector::PlotBase::addInputParam("Jet_Pt");
+      cond::payloadInspector::PlotBase::addInputParam("Jet_Eta");
+    }
 
     bool fill() override {
+      double par_Pt = 100.;
+      double par_Eta = 1.;
+
+      auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
+      auto ip = paramValues.find("Jet_Pt");
+      if (ip != paramValues.end()) {
+        par_Pt = std::stod(ip->second);
+      }
+      ip = paramValues.find("Jet_Eta");
+      if (ip != paramValues.end()) {
+        par_Eta = std::stod(ip->second);
+      }
+
       TH1D* sf_eta_norm = new TH1D("Jet SF vs #eta NORM", "", NBIN_ETA, MIN_ETA, MAX_ETA);
       TH1D* sf_eta_down = new TH1D("Jet SF vs #eta DOWN", "", NBIN_ETA, MIN_ETA, MAX_ETA);
       TH1D* sf_eta_up = new TH1D("Jet SF vs #eta UP", "", NBIN_ETA, MIN_ETA, MAX_ETA);
@@ -441,7 +546,7 @@ namespace JME {
 
             for (size_t it = 0; it <= NBIN_ETA; it++) {
               double x_axis = (it + 0.5) * (MAX_ETA - MIN_ETA) / NBIN_ETA + MIN_ETA;
-              if (((is_2bin == false) || (is_2bin == true && record.getBinsRange()[1].is_inside(500.))) &&
+              if (((is_2bin == false) || (is_2bin == true && record.getBinsRange()[1].is_inside(par_Pt))) &&
                   record.getBinsRange()[0].is_inside(x_axis)) {
                 sf_eta_norm->SetBinContent(it + 1, record.getParametersValues()[0]);
                 sf_eta_down->SetBinContent(it + 1, record.getParametersValues()[1]);
@@ -451,7 +556,7 @@ namespace JME {
           }
 
           if (record.getBinsRange().size() > 1 && payload->getDefinition().getBinName(0) == "JetEta" &&
-              record.getBinsRange()[0].is_inside(2.55) &&  // take jeteta=2.5
+              record.getBinsRange()[0].is_inside(par_Eta) &&  // take jeteta=2.5
               payload->getDefinition().getBinName(1) == "JetPt" &&
               record.getParametersValues().size() == 3) {  // norm, down, up
 
@@ -500,7 +605,7 @@ namespace JME {
         sf_eta_norm->Draw("axis same");
 
         leg_eta->AddEntry(sf_eta_norm, (tag_ver + '_' + tag_jet).c_str(), "l");
-        leg_eta->AddEntry((TObject*)nullptr, "JetPt=500", "");
+        leg_eta->AddEntry((TObject*)nullptr, Form("JetPt=%.2f", par_Pt), "");
         leg_eta->Draw();
 
         if (is_2bin == true) {
@@ -527,7 +632,7 @@ namespace JME {
           sf_pt_norm->Draw("axis same");
 
           leg_pt->AddEntry(sf_pt_norm, (tag_ver + '_' + tag_jet).c_str(), "l");
-          leg_pt->AddEntry((TObject*)nullptr, "JetEta=2.55", "");
+          leg_pt->AddEntry((TObject*)nullptr, Form("JetEta=%.2f", par_Eta), "");
           leg_pt->Draw();
         }
 
