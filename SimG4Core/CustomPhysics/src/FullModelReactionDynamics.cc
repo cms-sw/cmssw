@@ -917,8 +917,8 @@ G4bool FullModelReactionDynamics::GenerateXandPt(
     return false;  // all the secondaries have been eliminated
   // DEBUGGING --> DumpFrames::DumpFrame(vec, vecLen);
 
-  G4int numberofFinalStateNucleons = currentParticle.GetDefinition()->GetBaryonNumber()
-    + targetParticle.GetDefinition()->GetBaryonNumber();
+  G4int numberofFinalStateNucleons =
+      currentParticle.GetDefinition()->GetBaryonNumber() + targetParticle.GetDefinition()->GetBaryonNumber();
   currentParticle.Lorentz(currentParticle, pseudoParticle[1]);
   targetParticle.Lorentz(targetParticle, pseudoParticle[1]);
 
@@ -1189,9 +1189,7 @@ void FullModelReactionDynamics::SuppressChargedPions(G4FastVector<G4ReactionProd
 
   const G4bool antiTest =
       modifiedOriginal.GetDefinition() != anAntiProton && modifiedOriginal.GetDefinition() != anAntiNeutron;
-  if (antiTest &&
-      (
-          currentParticle.GetDefinition() == aPiPlus || currentParticle.GetDefinition() == aPiMinus) &&
+  if (antiTest && (currentParticle.GetDefinition() == aPiPlus || currentParticle.GetDefinition() == aPiMinus) &&
       (G4UniformRand() <= (10.0 - pOriginal) / 6.0) && (G4UniformRand() <= atomicWeight / 300.0)) {
     if (G4UniformRand() > atomicNumber / atomicWeight)
       currentParticle.SetDefinitionAndUpdateE(aNeutron);
@@ -1200,9 +1198,7 @@ void FullModelReactionDynamics::SuppressChargedPions(G4FastVector<G4ReactionProd
     incidentHasChanged = true;
   }
   for (G4int i = 0; i < vecLen; ++i) {
-    if (antiTest &&
-        (
-            vec[i]->GetDefinition() == aPiPlus || vec[i]->GetDefinition() == aPiMinus) &&
+    if (antiTest && (vec[i]->GetDefinition() == aPiPlus || vec[i]->GetDefinition() == aPiMinus) &&
         (G4UniformRand() <= (10.0 - pOriginal) / 6.0) && (G4UniformRand() <= atomicWeight / 300.0)) {
       if (G4UniformRand() > atomicNumber / atomicWeight)
         vec[i]->SetDefinitionAndUpdateE(aNeutron);
@@ -1671,8 +1667,8 @@ G4bool FullModelReactionDynamics::TwoCluster(
   //
   // Lorentz transformation in lab system
   //
-  G4int numberofFinalStateNucleons = currentParticle.GetDefinition()->GetBaryonNumber()
-    + targetParticle.GetDefinition()->GetBaryonNumber();
+  G4int numberofFinalStateNucleons =
+      currentParticle.GetDefinition()->GetBaryonNumber() + targetParticle.GetDefinition()->GetBaryonNumber();
   currentParticle.Lorentz(currentParticle, pseudoParticle[2]);
   targetParticle.Lorentz(targetParticle, pseudoParticle[2]);
 

@@ -96,8 +96,8 @@ public:
       const G4double theAtomicMass,
       const G4double *massVec);
 
-  FullModelReactionDynamics(const FullModelReactionDynamics&) = delete;
-  FullModelReactionDynamics& operator=(const FullModelReactionDynamics &) = delete;
+  FullModelReactionDynamics(const FullModelReactionDynamics &) = delete;
+  FullModelReactionDynamics &operator=(const FullModelReactionDynamics &) = delete;
 
 private:
   void Rotate(const G4double numberofFinalStateNucleons,
