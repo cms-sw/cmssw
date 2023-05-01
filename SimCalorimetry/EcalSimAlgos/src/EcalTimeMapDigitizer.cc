@@ -222,8 +222,8 @@ void EcalTimeMapDigitizer::run(EcalTimeDigiCollection& output) {
 
     unsigned int nTimeHits = 0;
     unsigned int nTimeHitsMax = vSamAll(m_index[i])->time_average_capacity; 
-    float timeHits[nTimeHitsMax] = {0.f};
-    unsigned int timeBX[nTimeHitsMax] = {0};
+    float timeHits[nTimeHitsMax];
+    unsigned int timeBX[nTimeHitsMax];
 
     for (unsigned int j(0); j != nTimeHitsMax; ++j)  //here sampling on the OOTPU
     {
