@@ -221,7 +221,7 @@ void EcalTimeMapDigitizer::run(EcalTimeDigiCollection& output) {
       output.back().setWaveform(vSamAll(m_index[i])->waveform);
 
     unsigned int nTimeHits = 0;
-    unsigned int nTimeHitsMax = vSamAll(m_index[i])->time_average_capacity; 
+    unsigned int nTimeHitsMax = vSamAll(m_index[i])->time_average_capacity;
     float timeHits[nTimeHitsMax];
     unsigned int timeBX[nTimeHitsMax];
 
@@ -230,7 +230,7 @@ void EcalTimeMapDigitizer::run(EcalTimeDigiCollection& output) {
       if (vSamAll(m_index[i])->nhits[j] > 0) {
         timeHits[nTimeHits] = vSamAll(m_index[i])->average_time[j];
         timeBX[nTimeHits] = m_minBunch + j;
-	nTimeHits++;
+        nTimeHits++;
       }
     }
 
