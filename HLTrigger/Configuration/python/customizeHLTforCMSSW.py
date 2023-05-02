@@ -217,6 +217,15 @@ def customizeHLTfor41058(process):
 
     return process
 
+def customizeHLTfor41495(process):
+    for producer in filters_by_type(process, 'HLTPixelIsolTrackL1TFilter'):
+        if hasattr(producer, 'L1GTSeedLabel'):
+            del producer.L1GTSeedLabel
+        if hasattr(producer, 'MinDeltaPtL1Jet'):
+            del producer.MinDeltaPtL1Jet
+
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -226,5 +235,6 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customiseFor12718(process)
 
     process = customizeHLTfor41058(process)
+    process = customizeHLTfor41495(process)
 
     return process
