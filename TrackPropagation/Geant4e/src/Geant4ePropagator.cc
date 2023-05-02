@@ -30,6 +30,7 @@
 #include "G4TransportationManager.hh"
 #include "G4Tubs.hh"
 #include "G4UImanager.hh"
+#include "G4ErrorPropagationNavigator.hh"
 
 // CLHEP
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
@@ -311,10 +312,17 @@ std::pair<TrajectoryStateOnSurface, double> Geant4ePropagator::propagateGeneric(
 
   theG4eManager->InitTrackPropagation();
 
+  // re-initialize navigator to avoid mismatches and/or segfaults
+  theG4eManager->GetErrorPropagationNavigator()->LocateGlobalPointAndSetup(
+      g4InitPos, &g4InitMom, /*pRelativeSearch = */ false, /*ignoreDirection = */ false);
+
   bool continuePropagation = true;
   while (continuePropagation) {
     iterations++;
     LogDebug("Geant4e") << std::endl << "step count " << iterations << " step length " << finalPathLength;
+
+    // re-initialize navigator to avoid mismatches and/or segfaults
+    theG4eManager->GetErrorPropagationNavigator()->LocateGlobalPointWithinVolume(g4eTrajState.GetPosition());
 
     const int ierr = theG4eManager->PropagateOneStep(&g4eTrajState, mode);
 

@@ -145,8 +145,9 @@ void DeepDoubleXTagInfoProducer::produce(edm::Event& iEvent,
 
         // reco jet reference (use as much as possible)
         const auto& jet = jets->at(jet_n);
-        const auto* pf_jet = dynamic_cast<const reco::PFJet*>(&jet);
         const auto* pat_jet = dynamic_cast<const pat::Jet*>(&jet);
+        if (!pat_jet)
+          throw edm::Exception(edm::errors::InvalidReference) << "Input is not a pat::Jet.";
 
         edm::RefToBase<reco::Jet> jet_ref(jets, jet_n);
 	if (jet.pt() > min_jet_pt_)
@@ -309,14 +310,6 @@ void DeepDoubleXTagInfoProducer::produce(edm::Event& iEvent,
 
                 auto packed_cand = dynamic_cast<const pat::PackedCandidate*>(cand);
                 auto reco_cand = dynamic_cast<const reco::PFCandidate*>(cand);
-
-                // need some edm::Ptr or edm::Ref if reco candidates
-                reco::PFCandidatePtr reco_ptr;
-                if (pf_jet) {
-                  reco_ptr = pf_jet->getPFConstituent(i);
-                } else if (pat_jet && reco_cand) {
-                  reco_ptr = pat_jet->getPFConstituent(i);
-                }
 
                 // get PUPPI weight from value map
                 float puppiw = 1.0; // fallback value

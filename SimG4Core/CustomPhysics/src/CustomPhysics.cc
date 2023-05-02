@@ -3,6 +3,7 @@
 #include "SimG4Core/CustomPhysics/interface/CustomPhysicsListSS.h"
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsLPM.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "SimG4Core/CustomPhysics/interface/APrimePhysics.h"
 
 #include "G4DecayPhysics.hh"
 #include "G4EmExtraPhysics.hh"
@@ -21,6 +22,7 @@ CustomPhysics::CustomPhysics(const edm::ParameterSet& p) : PhysicsList(p) {
   int ver = p.getUntrackedParameter<int>("Verbosity", 0);
   bool tracking = p.getParameter<bool>("TrackingCut");
   bool ssPhys = p.getUntrackedParameter<bool>("ExoticaPhysicsSS", false);
+  bool dbrem = p.getUntrackedParameter<bool>("DBrem", false);
   double timeLimit = p.getParameter<double>("MaxTrackTime") * ns;
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
                               << "FTFP_BERT_EMM for regular particles \n"
@@ -55,7 +57,11 @@ CustomPhysics::CustomPhysics(const edm::ParameterSet& p) : PhysicsList(p) {
   }
 
   // Custom Physics
-  if (ssPhys) {
+  if (dbrem) {
+    RegisterPhysics(new APrimePhysics(p.getUntrackedParameter<double>("DBremMass"),
+                                      p.getUntrackedParameter<std::string>("DBremScaleFile"),
+                                      p.getUntrackedParameter<double>("DBremBiasFactor")));
+  } else if (ssPhys) {
     RegisterPhysics(new CustomPhysicsListSS("custom", p));
   } else {
     RegisterPhysics(new CustomPhysicsList("custom", p));

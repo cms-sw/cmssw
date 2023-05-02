@@ -6,6 +6,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/src/Guid.h"
+#include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #include <string>
 #include <cmath>
@@ -383,6 +384,9 @@ void StatisticsSenderService::fillUDP(const std::string &siteName,
   if (!siteName.empty()) {
     os << "\"site_name\":\"" << siteName << "\", ";
   }
+  // edm::getReleaseVersion() returns a string that includes quotation
+  // marks, therefore they are not added here
+  os << "\"cmssw_version\":" << edm::getReleaseVersion() << ", ";
   if (usedFallback) {
     os << "\"fallback\": true, ";
   } else {
