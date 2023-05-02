@@ -33,7 +33,6 @@ def TICL_iterations_withReco(process):
 
   process.filteredLayerClustersTrk = filteredLayerClustersProducer.clone(
     clusterFilter = "ClusterFilterByAlgo",
-    algo_number = [7, 6], # reco::CaloCluster::hgcal_em, reco::CaloCluster::hgcal_had,
     iteration_label = "Trk"
   )
 
@@ -52,7 +51,6 @@ def TICL_iterations_withReco(process):
 
   process.filteredLayerClustersMIP = filteredLayerClustersProducer.clone(
       clusterFilter = "ClusterFilterBySize",
-      algo_number = [7, 6], # reco::CaloCluster::hgcal_em, reco::CaloCluster::hgcal_had,
       max_cluster_size = 2, # inclusive
       iteration_label = "MIP"
   )
@@ -70,7 +68,6 @@ def TICL_iterations_withReco(process):
   process.filteredLayerClusters = filteredLayerClustersProducer.clone(
       clusterFilter = "ClusterFilterByAlgoAndSize",
       min_cluster_size = 2,
-      algo_number = [7, 6], # reco::CaloCluster::hgcal_em, reco::CaloCluster::hgcal_had,
       iteration_label = "algo8",
       LayerClustersInputMask = "trackstersMIP"
   )
@@ -138,7 +135,6 @@ def TICL_iterations(process):
 
   process.filteredLayerClustersMIP = filteredLayerClustersProducer.clone(
       clusterFilter = "ClusterFilterBySize",
-      algo_number = [7, 6], # reco::CaloCluster::hgcal_em, reco::CaloCluster::hgcal_had,
       max_cluster_size = 2, # inclusive
       iteration_label = "MIP"
   )
@@ -154,7 +150,6 @@ def TICL_iterations(process):
   process.filteredLayerClusters = filteredLayerClustersProducer.clone(
       clusterFilter = "ClusterFilterByAlgoAndSize",
       min_cluster_size = 2,
-      algo_number = [7, 6], # reco::CaloCluster::hgcal_em, reco::CaloCluster::hgcal_had,
       iteration_label = "algo8"
   )
 

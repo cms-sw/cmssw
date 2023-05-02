@@ -8,7 +8,6 @@ from RecoHGCal.TICL.filteredLayerClustersProducer_cfi import filteredLayerCluste
 
 filteredLayerClustersMIP = _filteredLayerClustersProducer.clone(
     clusterFilter = "ClusterFilterBySize",
-    algo_number = [7, 6], # reco::CaloCluster::hgcal_em, reco::CaloCluster::hgcal_had,
     max_cluster_size = 2, # inclusive
     iteration_label = "MIP"
 )

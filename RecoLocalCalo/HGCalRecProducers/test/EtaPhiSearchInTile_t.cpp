@@ -11,7 +11,7 @@ int countEntries(const HGCalScintillatorLayerTiles &t, const std::array<int, 4> 
   int entries = 0;
   for (int e = limits[0]; e <= limits[1]; ++e) {
     for (int p = limits[2]; p <= limits[3]; ++p) {
-      int phi = (p % HGCalScintillatorLayerTiles::type::nRowsPhi);
+      int phi = (p % HGCalScintillatorLayerTiles::type::nRows);
       auto global_bin = t.getGlobalBinByBin(e, phi);
       entries += t[global_bin].size();
     }
@@ -21,10 +21,10 @@ int countEntries(const HGCalScintillatorLayerTiles &t, const std::array<int, 4> 
 
 TEST_CASE("Check the correct behaviour of searchBoxEtaPhi", "searchBoxEtaPhi") {
   using T = HGCalScintillatorLayerTiles::type;
-  auto constexpr phiBins = T::nRowsPhi;
+  auto constexpr phiBins = T::nRows;
   auto constexpr etaBins = T::nColumns;
   auto constexpr phi_bin_width = 2. * M_PI / phiBins;
-  auto constexpr eta_bin_width = (T::maxDim - T::minDim) / etaBins;
+  auto constexpr eta_bin_width = (T::maxDim1 - T::minDim1) / etaBins;
   auto constexpr phi_transition_left = M_PI - 3. * phi_bin_width / 2.;
   auto constexpr phi_transition_right = M_PI + 3. * phi_bin_width / 2.;
   auto constexpr phi_transition_right2 = -M_PI + 5. * phi_bin_width / 2.;

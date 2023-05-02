@@ -33,6 +33,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 class HGCalLayerClusterProducer : public edm::stream::EDProducer<> {
 public:
   /**
@@ -73,6 +75,8 @@ private:
   // for calculate position
   std::vector<double> thresholdW0_;
   double positionDeltaRho2_;
+  hgcal::RecHitTools rhtools_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
 
   /**
    * @brief Sets algoId accordingly to the detector type
@@ -107,17 +111,18 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet& ps
     : algoId_(reco::CaloCluster::undefined),
       detector_(ps.getParameter<std::string>("detector")),  // one of EE, FH, BH, HFNose
       timeClname_(ps.getParameter<std::string>("timeClname")),
-      hitsTime_(ps.getParameter<unsigned int>("nHitsTime")) {
+      hitsTime_(ps.getParameter<unsigned int>("nHitsTime")),
+      caloGeomToken_(consumesCollector().esConsumes<CaloGeometry, CaloGeometryRecord>()) {
   setAlgoId();  //sets algo id according to detector type
   hits_token_ = consumes<HGCRecHitCollection>(ps.getParameter<edm::InputTag>("recHits"));
 
   auto pluginPSet = ps.getParameter<edm::ParameterSet>("plugin");
   if (detector_ == "HFNose") {
-    algo_ = HGCalLayerClusterAlgoFactory::get()->create("HFNoseCLUE", pluginPSet, consumesCollector());
+    algo_ = HGCalLayerClusterAlgoFactory::get()->create("HFNoseCLUE", pluginPSet);
     algo_->setAlgoId(algoId_, true);
   } else {
     algo_ = HGCalLayerClusterAlgoFactory::get()->create(
-        pluginPSet.getParameter<std::string>("type"), pluginPSet, consumesCollector());
+        pluginPSet.getParameter<std::string>("type"), pluginPSet);
     algo_->setAlgoId(algoId_);
   }
   thresholdW0_ = pluginPSet.getParameter<std::vector<double>>("thresholdW0");
@@ -162,14 +167,13 @@ math::XYZPoint HGCalLayerClusterProducer::calculatePosition(
     }
   }
   float total_weight_log = 0.f;
-  hgcal::RecHitTools rhtools = algo_->getRHTools();
-  auto thick = rhtools.getSiThickIndex(maxEnergyIndex);
-  const GlobalPoint positionMaxEnergy(rhtools.getPosition(maxEnergyIndex));
+  auto thick = rhtools_.getSiThickIndex(maxEnergyIndex);
+  const GlobalPoint positionMaxEnergy(rhtools_.getPosition(maxEnergyIndex));
   for (auto const& hit : hitsAndFractions) {
     //time is computed wrt  0-25ns + offset and set to -1 if no time
     const HGCRecHit* rechit = hitmap[hit.first];
 
-    const GlobalPoint position(rhtools.getPosition(rechit->detid()));
+    const GlobalPoint position(rhtools_.getPosition(rechit->detid()));
 
     if (thick != -1) {  //silicon
       //for silicon only just use 1+6 cells = 1.3cm for all thicknesses
@@ -229,7 +233,9 @@ void HGCalLayerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& 
 
   std::unique_ptr<std::vector<reco::BasicCluster>> clusters(new std::vector<reco::BasicCluster>);
 
-  algo_->getEventSetup(es);
+  edm::ESHandle<CaloGeometry> geom = es.getHandle(caloGeomToken_);
+  rhtools_.setGeometry(*geom);
+  algo_->getEventSetup(es, rhtools_);
 
   //make a map detid-rechit
   // NB for the moment just host EE and FH hits

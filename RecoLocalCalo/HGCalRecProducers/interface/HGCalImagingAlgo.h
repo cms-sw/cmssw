@@ -30,11 +30,10 @@ using Density = hgcal_clustering::Density;
 
 class HGCalImagingAlgo : public HGCalClusteringAlgoBase {
 public:
-  HGCalImagingAlgo(const edm::ParameterSet &ps, edm::ConsumesCollector iC)
+  HGCalImagingAlgo(const edm::ParameterSet &ps)
       : HGCalClusteringAlgoBase(
             (HGCalClusteringAlgoBase::VerbosityLevel)ps.getUntrackedParameter<unsigned int>("verbosity", 3),
-            reco::CaloCluster::undefined,
-            iC),
+            reco::CaloCluster::undefined),
         thresholdW0_(ps.getParameter<std::vector<double>>("thresholdW0")),
         positionDeltaRho_c_(ps.getParameter<std::vector<double>>("positionDeltaRho_c")),
         vecDeltas_(ps.getParameter<std::vector<double>>("deltac")),
@@ -253,10 +252,10 @@ private:
                             const unsigned int,
                             std::vector<std::vector<KDNode>> &) const;
   math::XYZPoint calculatePosition(std::vector<KDNode> &) const;
-
+  
   //For keeping the density information
   void setDensity(const std::vector<KDNode> &nd);
-
+  
   // attempt to find subclusters within a given set of hexels
   std::vector<unsigned> findLocalMaximaInCluster(const std::vector<KDNode> &);
   math::XYZPoint calculatePositionWithFraction(const std::vector<KDNode> &, const std::vector<double> &);

@@ -5,7 +5,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalClusteringAlgoBase.h"
 
-typedef edmplugin::PluginFactory<HGCalClusteringAlgoBase*(const edm::ParameterSet&, edm::ConsumesCollector)>
+typedef edmplugin::PluginFactory<HGCalClusteringAlgoBase*(const edm::ParameterSet&)>
     HGCalLayerClusterAlgoFactory;
 
 #endif

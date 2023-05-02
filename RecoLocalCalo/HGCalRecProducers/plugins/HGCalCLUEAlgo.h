@@ -25,16 +25,13 @@
 #include <string>
 #include <vector>
 
-using Density = hgcal_clustering::Density;
-
 template <typename TILE, typename STRATEGY>
 class HGCalCLUEAlgoT : public HGCalClusteringAlgoBase {
 public:
-  HGCalCLUEAlgoT(const edm::ParameterSet& ps, edm::ConsumesCollector iC)
+  HGCalCLUEAlgoT(const edm::ParameterSet& ps)
       : HGCalClusteringAlgoBase(
             (HGCalClusteringAlgoBase::VerbosityLevel)ps.getUntrackedParameter<unsigned int>("verbosity", 3),
-            reco::CaloCluster::undefined,
-            iC),
+            reco::CaloCluster::undefined),
         vecDeltas_(ps.getParameter<std::vector<double>>("deltac")),
         kappa_(ps.getParameter<double>("kappa")),
         ecut_(ps.getParameter<double>("ecut")),
@@ -76,10 +73,7 @@ public:
       cells.clear();
       cells.shrink_to_fit();
     }
-    density_.clear();
   }
-
-  Density getDensity() override;
 
   void computeThreshold();
 
@@ -128,9 +122,6 @@ private:
 
   // The hit energy cutoff
   double ecut_;
-
-  // For keeping the density per hit
-  Density density_;
 
   // various parameters used for calculating the noise levels for a given sensor (and whether to use
   // them)
@@ -212,9 +203,10 @@ private:
   void prepareDataStructures(const unsigned int layerId);
   void calculateLocalDensity(const TILE& lt, const unsigned int layerId,
                              float delta);  // return max density
+  void calculateLocalDensity(const TILE& lt, const unsigned int layerId, float delta, HGCalSiliconStrategy strategy);
+  void calculateLocalDensity(const TILE& lt, const unsigned int layerId, float delta, HGCalScintillatorStrategy strategy);
   void calculateDistanceToHigher(const TILE& lt, const unsigned int layerId, float delta);
   int findAndAssignClusters(const unsigned int layerId, float delta);
-  void setDensity(const unsigned int layerId);
 };
 
 // explicit template instantiation

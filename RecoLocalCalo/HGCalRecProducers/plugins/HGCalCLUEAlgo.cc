@@ -63,7 +63,7 @@ void HGCalCLUEAlgoT<T, STRATEGY>::populate(const HGCRecHitCollection& hits) {
     int layer = layerOnSide + offset;
 
     cells_[layer].detid.emplace_back(detid);
-    if (std::is_same_v<STRATEGY, HGCalScintillatorStrategy>) {
+    if constexpr (std::is_same_v<STRATEGY, HGCalScintillatorStrategy>) {
       cells_[layer].dim1.emplace_back(position.eta());
       cells_[layer].dim2.emplace_back(position.phi());
     }  // else, isSilicon == true and eta phi values will not be used
@@ -113,7 +113,7 @@ void HGCalCLUEAlgoT<T, STRATEGY>::makeClusters() {
 
       float delta;
 
-      if (std::is_same_v<STRATEGY, HGCalSiliconStrategy>)
+      if constexpr (std::is_same_v<STRATEGY, HGCalSiliconStrategy>)
         delta = delta_c;
       else
         delta = delta_r;
@@ -125,10 +125,6 @@ void HGCalCLUEAlgoT<T, STRATEGY>::makeClusters() {
       numberOfClustersPerLayer_[i] = findAndAssignClusters(i, delta);
     });
   });
-  //Now that we have the density per point we can store it
-  for (unsigned int i = 0; i < 2 * maxlayer_ + 2; ++i) {
-    setDensity(i);
-  }
 }
 
 template <typename T, typename STRATEGY>
@@ -186,93 +182,194 @@ std::vector<reco::BasicCluster> HGCalCLUEAlgoT<T, STRATEGY>::getClusters(bool) {
   }
   return clusters_v_;
 }
-
-template <typename T, typename STRATEGY>
-void HGCalCLUEAlgoT<T, STRATEGY>::calculateLocalDensity(const T& lt, const unsigned int layerId, float delta) {
+template<typename T,typename STRATEGY>
+void HGCalCLUEAlgoT<T, STRATEGY>::calculateLocalDensity(const T& lt, const unsigned int layerId, float delta, HGCalSiliconStrategy strategy) {
   auto& cellsOnLayer = cells_[layerId];
   unsigned int numberOfCells = cellsOnLayer.detid.size();
-
   for (unsigned int i = 0; i < numberOfCells; i++) {
-    if (std::is_same_v<STRATEGY, HGCalSiliconStrategy>) {
-      std::array<int, 4> search_box = lt.searchBox(cellsOnLayer.dim1[i] - delta,
-                                                   cellsOnLayer.dim1[i] + delta,
-                                                   cellsOnLayer.dim2[i] - delta,
-                                                   cellsOnLayer.dim2[i] + delta);
+    std::array<int, 4> search_box = lt.searchBox(cellsOnLayer.dim1[i] - delta,
+                                                 cellsOnLayer.dim1[i] + delta,
+                                                 cellsOnLayer.dim2[i] - delta,
+                                                 cellsOnLayer.dim2[i] + delta);
 
-      for (int xBin = search_box[0]; xBin < search_box[1] + 1; ++xBin) {
-        for (int yBin = search_box[2]; yBin < search_box[3] + 1; ++yBin) {
-          int binId = lt.getGlobalBinByBin(xBin, yBin);
-          size_t binSize = lt[binId].size();
+    for (int xBin = search_box[0]; xBin < search_box[1] + 1; ++xBin) {
+      for (int yBin = search_box[2]; yBin < search_box[3] + 1; ++yBin) {
+        int binId = lt.getGlobalBinByBin(xBin, yBin);
+        size_t binSize = lt[binId].size();
 
-          for (unsigned int j = 0; j < binSize; j++) {
-            unsigned int otherId = lt[binId][j];
-            if (distance(lt, i, otherId, layerId) < delta) {
-              cellsOnLayer.rho[i] += (i == otherId ? 1.f : 0.5f) * cellsOnLayer.weight[otherId];
-            }
+        for (unsigned int j = 0; j < binSize; j++) {
+          unsigned int otherId = lt[binId][j];
+          if (distance(lt, i, otherId, layerId) < delta) {
+            cellsOnLayer.rho[i] += (i == otherId ? 1.f : 0.5f) * cellsOnLayer.weight[otherId];
           }
         }
       }
-    } else {
-      std::array<int, 4> search_box = lt.searchBox(cellsOnLayer.dim1[i] - delta,
-                                                   cellsOnLayer.dim1[i] + delta,
-                                                   cellsOnLayer.dim2[i] - delta,
-                                                   cellsOnLayer.dim2[i] + delta);
-      cellsOnLayer.rho[i] += cellsOnLayer.weight[i];
-      float northeast(0), northwest(0), southeast(0), southwest(0), all(0);
-      for (int etaBin = search_box[0]; etaBin < search_box[1] + 1; ++etaBin) {
-        for (int phiBin = search_box[2]; phiBin < search_box[3] + 1; ++phiBin) {
-          int phi = (phiBin % T::type::nRowsPhi);
-          int binId = lt.getGlobalBinByBin(etaBin, phi);
-          size_t binSize = lt[binId].size();
-          for (unsigned int j = 0; j < binSize; j++) {
-            unsigned int otherId = lt[binId][j];
-            if (distance(lt, i, otherId, layerId) < delta) {
-              int iPhi = HGCScintillatorDetId(cellsOnLayer.detid[i]).iphi();
-              int otherIPhi = HGCScintillatorDetId(cellsOnLayer.detid[otherId]).iphi();
-              int iEta = HGCScintillatorDetId(cellsOnLayer.detid[i]).ieta();
-              int otherIEta = HGCScintillatorDetId(cellsOnLayer.detid[otherId]).ieta();
-              int dIPhi = otherIPhi - iPhi;
-              dIPhi += abs(dIPhi) < 2 ? 0
-                       : dIPhi < 0    ? scintMaxIphi_
-                                      : -scintMaxIphi_;  // cells with iPhi=288 and iPhi=1 should be neiboring cells
-              int dIEta = otherIEta - iEta;
-              LogDebug("HGCalCLUEAlgo") << "  Debugging calculateLocalDensity for Scintillator: \n"
-                                        << "    cell: " << otherId << " energy: " << cellsOnLayer.weight[otherId]
-                                        << " otherIPhi: " << otherIPhi << " iPhi: " << iPhi
-                                        << " otherIEta: " << otherIEta << " iEta: " << iEta << "\n";
-
-              if (otherId != i) {
-                auto neighborCellContribution = 0.5f * cellsOnLayer.weight[otherId];
-                all += neighborCellContribution;
-                if (dIPhi >= 0 && dIEta >= 0)
-                  northeast += neighborCellContribution;
-                if (dIPhi <= 0 && dIEta >= 0)
-                  southeast += neighborCellContribution;
-                if (dIPhi >= 0 && dIEta <= 0)
-                  northwest += neighborCellContribution;
-                if (dIPhi <= 0 && dIEta <= 0)
-                  southwest += neighborCellContribution;
-              }
-              LogDebug("HGCalCLUEAlgo") << "  Debugging calculateLocalDensity for Scintillator: \n"
-                                        << "    northeast: " << northeast << " southeast: " << southeast
-                                        << " northwest: " << northwest << " southwest: " << southwest << "\n";
-            }
-          }
-        }
-      }
-      float neighborsval = (std::max(northeast, northwest) > std::max(southeast, southwest))
-                               ? std::max(northeast, northwest)
-                               : std::max(southeast, southwest);
-      if (use2x2_)
-        cellsOnLayer.rho[i] += neighborsval;
-      else
-        cellsOnLayer.rho[i] += all;
     }
     LogDebug("HGCalCLUEAlgo") << "Debugging calculateLocalDensity: \n"
                               << "  cell: " << i << " eta: " << cellsOnLayer.dim1[i] << " phi: " << cellsOnLayer.dim2[i]
                               << " energy: " << cellsOnLayer.weight[i] << " density: " << cellsOnLayer.rho[i] << "\n";
   }
 }
+template <typename T, typename STRATEGY>
+void HGCalCLUEAlgoT<T, STRATEGY>::calculateLocalDensity(const T& lt, const unsigned int layerId, float delta, HGCalScintillatorStrategy strategy) {
+  auto& cellsOnLayer = cells_[layerId];
+  unsigned int numberOfCells = cellsOnLayer.detid.size();
+  for (unsigned int i = 0; i < numberOfCells; i++) {
+
+    std::array<int, 4> search_box = lt.searchBox(cellsOnLayer.dim1[i] - delta,
+                                                  cellsOnLayer.dim1[i] + delta,
+                                                  cellsOnLayer.dim2[i] - delta,
+                                                  cellsOnLayer.dim2[i] + delta);
+    cellsOnLayer.rho[i] += cellsOnLayer.weight[i];
+    float northeast(0), northwest(0), southeast(0), southwest(0), all(0);
+    for (int etaBin = search_box[0]; etaBin < search_box[1] + 1; ++etaBin) {
+      for (int phiBin = search_box[2]; phiBin < search_box[3] + 1; ++phiBin) {
+        int phi = (phiBin % T::type::nRows);
+        int binId = lt.getGlobalBinByBin(etaBin, phi);
+        size_t binSize = lt[binId].size();
+        for (unsigned int j = 0; j < binSize; j++) {
+          unsigned int otherId = lt[binId][j];
+          if (distance(lt, i, otherId, layerId) < delta) {
+            int iPhi = HGCScintillatorDetId(cellsOnLayer.detid[i]).iphi();
+            int otherIPhi = HGCScintillatorDetId(cellsOnLayer.detid[otherId]).iphi();
+            int iEta = HGCScintillatorDetId(cellsOnLayer.detid[i]).ieta();
+            int otherIEta = HGCScintillatorDetId(cellsOnLayer.detid[otherId]).ieta();
+            int dIPhi = otherIPhi - iPhi;
+            dIPhi += abs(dIPhi) < 2 ? 0
+                      : dIPhi < 0    ? scintMaxIphi_
+                                    : -scintMaxIphi_;  // cells with iPhi=288 and iPhi=1 should be neiboring cells
+            int dIEta = otherIEta - iEta;
+            LogDebug("HGCalCLUEAlgo") << "  Debugging calculateLocalDensity for Scintillator: \n"
+                                      << "    cell: " << otherId << " energy: " << cellsOnLayer.weight[otherId]
+                                      << " otherIPhi: " << otherIPhi << " iPhi: " << iPhi
+                                      << " otherIEta: " << otherIEta << " iEta: " << iEta << "\n";
+
+            if (otherId != i) {
+              auto neighborCellContribution = 0.5f * cellsOnLayer.weight[otherId];
+              all += neighborCellContribution;
+              if (dIPhi >= 0 && dIEta >= 0)
+                northeast += neighborCellContribution;
+              if (dIPhi <= 0 && dIEta >= 0)
+                southeast += neighborCellContribution;
+              if (dIPhi >= 0 && dIEta <= 0)
+                northwest += neighborCellContribution;
+              if (dIPhi <= 0 && dIEta <= 0)
+                southwest += neighborCellContribution;
+            }
+            LogDebug("HGCalCLUEAlgo") << "  Debugging calculateLocalDensity for Scintillator: \n"
+                                      << "    northeast: " << northeast << " southeast: " << southeast
+                                      << " northwest: " << northwest << " southwest: " << southwest << "\n";
+          }
+        }
+      }
+    }
+    float neighborsval = (std::max(northeast, northwest) > std::max(southeast, southwest))
+                              ? std::max(northeast, northwest)
+                              : std::max(southeast, southwest);
+    if (use2x2_)
+      cellsOnLayer.rho[i] += neighborsval;
+    else
+      cellsOnLayer.rho[i] += all;
+    LogDebug("HGCalCLUEAlgo") << "Debugging calculateLocalDensity: \n"
+                              << "  cell: " << i << " eta: " << cellsOnLayer.dim1[i] << " phi: " << cellsOnLayer.dim2[i]
+                              << " energy: " << cellsOnLayer.weight[i] << " density: " << cellsOnLayer.rho[i] << "\n";
+  }
+}
+template <typename T, typename STRATEGY>
+void HGCalCLUEAlgoT<T, STRATEGY>::calculateLocalDensity(const T& lt, const unsigned int layerId, float delta){
+  if constexpr (std::is_same_v<STRATEGY, HGCalSiliconStrategy>){
+    calculateLocalDensity(lt, layerId, delta, HGCalSiliconStrategy());
+  }
+  else{
+     calculateLocalDensity(lt, layerId, delta, HGCalScintillatorStrategy());
+  }
+}
+// template <typename T, typename STRATEGY>
+// void HGCalCLUEAlgoT<T, STRATEGY>::calculateLocalDensity(const T& lt, const unsigned int layerId, float delta) {
+//   auto& cellsOnLayer = cells_[layerId];
+//   unsigned int numberOfCells = cellsOnLayer.detid.size();
+
+//   for (unsigned int i = 0; i < numberOfCells; i++) {
+//     if constexpr (std::is_same_v<STRATEGY, HGCalSiliconStrategy>) {
+//       std::array<int, 4> search_box = lt.searchBox(cellsOnLayer.dim1[i] - delta,
+//                                                    cellsOnLayer.dim1[i] + delta,
+//                                                    cellsOnLayer.dim2[i] - delta,
+//                                                    cellsOnLayer.dim2[i] + delta);
+
+//       for (int xBin = search_box[0]; xBin < search_box[1] + 1; ++xBin) {
+//         for (int yBin = search_box[2]; yBin < search_box[3] + 1; ++yBin) {
+//           int binId = lt.getGlobalBinByBin(xBin, yBin);
+//           size_t binSize = lt[binId].size();
+
+//           for (unsigned int j = 0; j < binSize; j++) {
+//             unsigned int otherId = lt[binId][j];
+//             if (distance(lt, i, otherId, layerId) < delta) {
+//               cellsOnLayer.rho[i] += (i == otherId ? 1.f : 0.5f) * cellsOnLayer.weight[otherId];
+//             }
+//           }
+//         }
+//       }
+//     } else {
+//       std::array<int, 4> search_box = lt.searchBox(cellsOnLayer.dim1[i] - delta,
+//                                                    cellsOnLayer.dim1[i] + delta,
+//                                                    cellsOnLayer.dim2[i] - delta,
+//                                                    cellsOnLayer.dim2[i] + delta);
+//       cellsOnLayer.rho[i] += cellsOnLayer.weight[i];
+//       float northeast(0), northwest(0), southeast(0), southwest(0), all(0);
+//       for (int etaBin = search_box[0]; etaBin < search_box[1] + 1; ++etaBin) {
+//         for (int phiBin = search_box[2]; phiBin < search_box[3] + 1; ++phiBin) {
+//           int phi = (phiBin % T::type::nRows);
+//           int binId = lt.getGlobalBinByBin(etaBin, phi);
+//           size_t binSize = lt[binId].size();
+//           for (unsigned int j = 0; j < binSize; j++) {
+//             unsigned int otherId = lt[binId][j];
+//             if (distance(lt, i, otherId, layerId) < delta) {
+//               int iPhi = HGCScintillatorDetId(cellsOnLayer.detid[i]).iphi();
+//               int otherIPhi = HGCScintillatorDetId(cellsOnLayer.detid[otherId]).iphi();
+//               int iEta = HGCScintillatorDetId(cellsOnLayer.detid[i]).ieta();
+//               int otherIEta = HGCScintillatorDetId(cellsOnLayer.detid[otherId]).ieta();
+//               int dIPhi = otherIPhi - iPhi;
+//               dIPhi += abs(dIPhi) < 2 ? 0
+//                        : dIPhi < 0    ? scintMaxIphi_
+//                                       : -scintMaxIphi_;  // cells with iPhi=288 and iPhi=1 should be neiboring cells
+//               int dIEta = otherIEta - iEta;
+//               LogDebug("HGCalCLUEAlgo") << "  Debugging calculateLocalDensity for Scintillator: \n"
+//                                         << "    cell: " << otherId << " energy: " << cellsOnLayer.weight[otherId]
+//                                         << " otherIPhi: " << otherIPhi << " iPhi: " << iPhi
+//                                         << " otherIEta: " << otherIEta << " iEta: " << iEta << "\n";
+
+//               if (otherId != i) {
+//                 auto neighborCellContribution = 0.5f * cellsOnLayer.weight[otherId];
+//                 all += neighborCellContribution;
+//                 if (dIPhi >= 0 && dIEta >= 0)
+//                   northeast += neighborCellContribution;
+//                 if (dIPhi <= 0 && dIEta >= 0)
+//                   southeast += neighborCellContribution;
+//                 if (dIPhi >= 0 && dIEta <= 0)
+//                   northwest += neighborCellContribution;
+//                 if (dIPhi <= 0 && dIEta <= 0)
+//                   southwest += neighborCellContribution;
+//               }
+//               LogDebug("HGCalCLUEAlgo") << "  Debugging calculateLocalDensity for Scintillator: \n"
+//                                         << "    northeast: " << northeast << " southeast: " << southeast
+//                                         << " northwest: " << northwest << " southwest: " << southwest << "\n";
+//             }
+//           }
+//         }
+//       }
+//       float neighborsval = (std::max(northeast, northwest) > std::max(southeast, southwest))
+//                                ? std::max(northeast, northwest)
+//                                : std::max(southeast, southwest);
+//       if (use2x2_)
+//         cellsOnLayer.rho[i] += neighborsval;
+//       else
+//         cellsOnLayer.rho[i] += all;
+//     }
+//     LogDebug("HGCalCLUEAlgo") << "Debugging calculateLocalDensity: \n"
+//                               << "  cell: " << i << " eta: " << cellsOnLayer.dim1[i] << " phi: " << cellsOnLayer.dim2[i]
+//                               << " energy: " << cellsOnLayer.weight[i] << " density: " << cellsOnLayer.rho[i] << "\n";
+//   }
+// }
 
 template <typename T, typename STRATEGY>
 void HGCalCLUEAlgoT<T, STRATEGY>::calculateDistanceToHigher(const T& lt, const unsigned int layerId, float delta) {
@@ -294,8 +391,8 @@ void HGCalCLUEAlgoT<T, STRATEGY>::calculateDistanceToHigher(const T& lt, const u
       for (int dim2Bin = search_box[2]; dim2Bin < search_box[3] + 1; ++dim2Bin) {
         // get the id of this bin
         size_t binId = lt.getGlobalBinByBin(dim1Bin, dim2Bin);
-        if (std::is_same_v<STRATEGY, HGCalScintillatorStrategy>)
-          binId = lt.getGlobalBinByBin(dim1Bin, (dim2Bin % T::type::nRowsPhi));
+        if constexpr (std::is_same_v<STRATEGY, HGCalScintillatorStrategy>)
+          binId = lt.getGlobalBinByBin(dim1Bin, (dim2Bin % T::type::nRows));
         // get the size of this bin
         size_t binSize = lt[binId].size();
 
@@ -420,19 +517,6 @@ void HGCalCLUEAlgoT<T, STRATEGY>::computeThreshold() {
                                 << " scintillators_sigmaNoise: " << scintillators_sigmaNoise << "\n";
     }
   }
-}
-
-template <typename T, typename STRATEGY>
-void HGCalCLUEAlgoT<T, STRATEGY>::setDensity(const unsigned int layerId) {
-  auto& cellsOnLayer = cells_[layerId];
-  unsigned int numberOfCells = cellsOnLayer.detid.size();
-  for (unsigned int i = 0; i < numberOfCells; ++i)
-    density_[cellsOnLayer.detid[i]] = cellsOnLayer.rho[i];
-}
-
-template <typename T, typename STRATEGY>
-Density HGCalCLUEAlgoT<T, STRATEGY>::getDensity() {
-  return density_;
 }
 
 // explicit template instantiation

@@ -39,10 +39,10 @@ public:
     * @return computed bin
     */
   int getDim1Bin(float dim) const {
-    constexpr float dimRange = T::maxDim - T::minDim;
+    constexpr float dimRange = T::maxDim1 - T::minDim1;
     static_assert(dimRange >= 0.);
     constexpr float r = T::nColumns / dimRange;
-    int dimBin = (dim - T::minDim) * r;
+    int dimBin = (dim - T::minDim1) * r;
     dimBin = std::clamp(dimBin, 0, T::nColumns - 1);
     return dimBin;
   }
@@ -54,11 +54,16 @@ public:
     * @return computed bin
     */
   int getDim2Bin(float dim2) const {
-    if (std::is_same_v<WRAPPER, NoPhiWrapper>) {
-      return getDim1Bin(dim2);
+    if constexpr (std::is_same_v<WRAPPER, NoPhiWrapper>) {
+      constexpr float dimRange = T::maxDim2 - T::minDim2;
+      static_assert(dimRange >= 0.);
+      constexpr float r = T::nRows / dimRange;
+      int dimBin = (dim2 - T::minDim2) * r;
+      dimBin = std::clamp(dimBin, 0, T::nRows - 1);
+      return dimBin;
     } else {
       auto normPhi = normalizedPhi(dim2);
-      constexpr float r = T::nRowsPhi * M_1_PI * 0.5f;
+      constexpr float r = T::nRows * M_1_PI * 0.5f;
       int phiBin = (normPhi + M_PI) * r;
       return phiBin;
     }
@@ -70,7 +75,7 @@ public:
   inline float distance2(float dim1Cell1, float dim2Cell1, float dim1Cell2, float dim2Cell2) const {  // distance squared
     float d1 = dim1Cell1 - dim1Cell2;
     float d2 = dim2Cell1 - dim2Cell2;
-    if (std::is_same_v<WRAPPER, PhiWrapper>) {
+    if constexpr (std::is_same_v<WRAPPER, PhiWrapper>) {
       d2 = reco::deltaPhi(dim2Cell1, dim2Cell2);
     }
     return (d1 * d1 + d2 * d2);
@@ -80,30 +85,26 @@ public:
   int getGlobalBinByBin(int dim1Bin, int dim2Bin) const { return dim1Bin + dim2Bin * T::nColumns; }
 
   std::array<int, 4> searchBox(float dim1Min, float dim1Max, float dim2Min, float dim2Max) const {
-    if (std::is_same_v<WRAPPER, NoPhiWrapper>) {
-      int dim1BinMin = getDim1Bin(dim1Min);
-      int dim1BinMax = getDim1Bin(dim1Max);
-      int dim2BinMin = getDim2Bin(dim2Min);
-      int dim2BinMax = getDim2Bin(dim2Max);
-      return std::array<int, 4>({{dim1BinMin, dim1BinMax, dim2BinMin, dim2BinMax}});
-    } else {
+    if constexpr (std::is_same_v<WRAPPER, PhiWrapper>) {
       if (dim1Max - dim1Min < 0) {
         return std::array<int, 4>({{0, 0, 0, 0}});
       }
-      int dim1BinMin = getDim1Bin(dim1Min);
-      int dim1BinMax = getDim1Bin(dim1Max);
-      int dim2BinMin = getDim2Bin(dim2Min);
-      int dim2BinMax = getDim2Bin(dim2Max);
+    }
+    int dim1BinMin = getDim1Bin(dim1Min);
+    int dim1BinMax = getDim1Bin(dim1Max);
+    int dim2BinMin = getDim2Bin(dim2Min);
+    int dim2BinMax = getDim2Bin(dim2Max);
+    if constexpr (std::is_same_v<WRAPPER, PhiWrapper>) {
       // If the search window cross the phi-bin boundary, add T::nPhiBins to the
       // MAx value. This guarantees that the caller can perform a valid doule
       // loop on eta and phi. It is the caller responsibility to perform a module
       // operation on the phiBin values returned by this function, to explore the
       // correct bins.
       if (dim2BinMax < dim2BinMin) {
-        dim2BinMax += T::nRowsPhi;
+        dim2BinMax += T::nRows;
       }
-      return std::array<int, 4>({{dim1BinMin, dim1BinMax, dim2BinMin, dim2BinMax}});
     }
+    return std::array<int, 4>({{dim1BinMin, dim1BinMax, dim2BinMin, dim2BinMax}});
   }
 
   void clear() {
