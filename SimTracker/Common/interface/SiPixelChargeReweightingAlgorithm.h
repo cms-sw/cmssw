@@ -391,7 +391,6 @@ inline int SiPixelChargeReweightingAlgorithm::PixelTempRewgt2D(int id_in, int id
   float xsize, ysize, q50i, q100i, q50r, q10r, xhit2D, yhit2D, dist2, dmin2;
   float xy_in[BXM2][BYM2], xy_rewgt[BXM2][BYM2], xy_clust[TXSIZE][TYSIZE];
   int denx_clust[TXSIZE][TYSIZE], deny_clust[TXSIZE][TYSIZE];
-  int goodWeightsUsed, nearbyWeightsUsed, noWeightsUsed;
   float cotalpha, cotbeta;
   // success = 0 is returned if everthing is OK
   success = 0;
@@ -544,18 +543,10 @@ inline int SiPixelChargeReweightingAlgorithm::PixelTempRewgt2D(int id_in, int id
     printCluster(xy_clust);
   }
 
-  // Do the reweighting
-  goodWeightsUsed = 0;
-  nearbyWeightsUsed = 0;
-  noWeightsUsed = 0;
-
   for (i = 0; i < TYSIZE; ++i) {
     for (j = 0; j < TXSIZE; ++j) {
       if (xy_clust[j][i] > 0.f) {
         cluster[j][i] = xy_clust[j][i] * clust[denx_clust[j][i]][deny_clust[j][i]];
-        if (cluster[j][i] > 0) {
-          goodWeightsUsed++;
-        }
       } else {
         if (clust[j][i] > 0.f) {
           ++ncpix;
@@ -582,10 +573,8 @@ inline int SiPixelChargeReweightingAlgorithm::PixelTempRewgt2D(int id_in, int id
         }
       }
       if (dmin2 < 5.f) {
-        nearbyWeightsUsed++;
         cluster[j][i] *= xy_clust[xtclust[kclose]][ytclust[kclose]];
       } else {
-        noWeightsUsed++;
         cluster[j][i] = 0.f;
       }
     }
