@@ -204,48 +204,14 @@ private:
   /* Container with sorted and selected LCTs */
   std::vector<CSCCorrelatedLCTDigi> lctV;
 
-  CSCShowerDigi showers_[CSCConstants::MAX_LCT_TBINS];
-
-  unsigned int mpc_block_me1a_;
-  unsigned int alct_trig_enable_, clct_trig_enable_, match_trig_enable_;
-  unsigned int match_trig_window_size_, tmb_l1a_window_size_;
-  //protected:
-  /** Phase2: whether to not reuse CLCTs that were used by previous matching ALCTs */
-  bool drop_used_clcts;
-
-  /** Phase2: separate handle for early time bins */
-  int early_tbins;
-
-  /** Phase2: whether to readout only the earliest two LCTs in readout window */
-  bool readout_earliest_2;
-
-  // when set to true, ignore CLCTs found in later BX's
-  bool match_earliest_clct_only_;
-
-  // encode special bits for high-multiplicity triggers
-  std::vector<unsigned> showerSource_;
-  unsigned thisShowerSource_;
-
-  unsigned minbx_readout_;
-  unsigned maxbx_readout_;
-  //protected:
-  bool ignoreAlctCrossClct_;
-
   /*
      Preferential index array in matching window, relative to the ALCT BX.
      Where the central match BX goes first,
      then the closest early, the closest late, etc.
   */
   std::vector<int> preferred_bx_match_;
-
-  /* sort CLCT by bx if true, otherwise sort CLCT by quality+bending */
-  bool sort_clct_bx_;
-
-  /** Default values of configuration parameters. */
-  static const unsigned int def_mpc_block_me1a;
-  static const unsigned int def_alct_trig_enable, def_clct_trig_enable;
-  static const unsigned int def_match_trig_enable, def_match_trig_window_size;
-  static const unsigned int def_tmb_l1a_window_size;
+  // encode special bits for high-multiplicity triggers
+  std::vector<unsigned> showerSource_;
 
   /* quality control */
   std::unique_ptr<LCTQualityControl> qualityControl_;
@@ -257,5 +223,40 @@ private:
     function is not implemented in the firmware.
   */
   std::unique_ptr<CSCALCTCrossCLCT> cscOverlap_;
+
+  CSCShowerDigi showers_[CSCConstants::MAX_LCT_TBINS];
+
+  unsigned int mpc_block_me1a_;
+  unsigned int alct_trig_enable_, clct_trig_enable_, match_trig_enable_;
+  unsigned int match_trig_window_size_, tmb_l1a_window_size_;
+
+  /** Phase2: separate handle for early time bins */
+  int early_tbins;
+
+  // encode special bits for high-multiplicity triggers
+  unsigned thisShowerSource_;
+
+  unsigned minbx_readout_;
+  unsigned maxbx_readout_;
+
+  /** Phase2: whether to not reuse CLCTs that were used by previous matching ALCTs */
+  bool drop_used_clcts;
+
+  /** Phase2: whether to readout only the earliest two LCTs in readout window */
+  bool readout_earliest_2;
+
+  // when set to true, ignore CLCTs found in later BX's
+  bool match_earliest_clct_only_;
+
+  bool ignoreAlctCrossClct_;
+
+  /* sort CLCT by bx if true, otherwise sort CLCT by quality+bending */
+  bool sort_clct_bx_;
+
+  /** Default values of configuration parameters. */
+  static const unsigned int def_mpc_block_me1a;
+  static const unsigned int def_alct_trig_enable, def_clct_trig_enable;
+  static const unsigned int def_match_trig_enable, def_match_trig_window_size;
+  static const unsigned int def_tmb_l1a_window_size;
 };
 #endif
