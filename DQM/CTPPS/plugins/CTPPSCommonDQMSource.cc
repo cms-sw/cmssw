@@ -44,7 +44,7 @@ protected:
 private:
   const unsigned int verbosity;
   constexpr static int MAX_LUMIS = 6000;
-  constexpr static int MAX_VBINS = 18;
+  constexpr static int MAX_VBINS = 20;
 
   const edm::EDGetTokenT<CTPPSRecord> ctppsRecordToken;
   const edm::EDGetTokenT<std::vector<CTPPSLocalTrackLite>> tokenLocalTrackLite;
