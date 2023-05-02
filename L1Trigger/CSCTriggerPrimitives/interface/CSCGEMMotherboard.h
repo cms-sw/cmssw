@@ -38,15 +38,24 @@ public:
   //helper function to convert GEM-CSC amended slopes into Run2 patterns
   uint16_t Run2PatternConverter(const int slope) const;
 
+  struct RunContext {
+    // set CSC and GEM geometries for the matching needs
+    const GEMGeometry* gemGeometry_;
+    const CSCGeometry* cscGeometry_;
+    // access to lookup tables via eventsetup
+    const CSCL1TPLookupTableCCLUT* lookupTableCCLUT_;
+    const CSCL1TPLookupTableME11ILT* lookupTableME11ILT_;
+    const CSCL1TPLookupTableME21ILT* lookupTableME21ILT_;
+    const CSCDBL1TPParameters* parameters_;
+  };
+
   void run(const CSCWireDigiCollection* wiredc,
            const CSCComparatorDigiCollection* compdc,
-           const GEMPadDigiClusterCollection* gemPads);
+           const GEMPadDigiClusterCollection* gemPads,
+           RunContext const&);
 
   /* GEM cluster processor */
   std::shared_ptr<GEMClusterProcessor> clusterProc() const { return clusterProc_; }
-
-  // set CSC and GEM geometries for the matching needs
-  void setGEMGeometry(const GEMGeometry* g) { gem_g = g; }
 
 private:
   /*
@@ -60,19 +69,26 @@ private:
     6) Copy over valid to invalid
     7) ALCT-CLCT with unused combination
   */
-  void matchALCTCLCTGEM();
+  void matchALCTCLCTGEM(const CSCL1TPLookupTableME11ILT* lookupTableME11ILT,
+                        const CSCL1TPLookupTableME21ILT* lookupTableME21ILT);
 
   // correlate ALCT, CLCT with matched pads or copads
   void correlateLCTsGEM(const CSCALCTDigi& ALCT,
                         const CSCCLCTDigi& CLCT,
                         const GEMInternalClusters& clusters,
+                        const CSCL1TPLookupTableME11ILT* lookupTableME11ILT,
+                        const CSCL1TPLookupTableME21ILT* lookupTableME21ILT,
                         CSCCorrelatedLCTDigi& lct) const;
 
   // correlate ALCT and CLCT, no GEM
   void correlateLCTsGEM(const CSCALCTDigi& ALCT, const CSCCLCTDigi& CLCT, CSCCorrelatedLCTDigi& lct) const;
 
   // correlate CLCT with matched pads or copads
-  void correlateLCTsGEM(const CSCCLCTDigi& CLCT, const GEMInternalClusters& clusters, CSCCorrelatedLCTDigi& lct) const;
+  void correlateLCTsGEM(const CSCCLCTDigi& CLCT,
+                        const GEMInternalClusters& clusters,
+                        const CSCL1TPLookupTableME11ILT* lookupTableME11ILT,
+                        const CSCL1TPLookupTableME21ILT* lookupTableME21ILT,
+                        CSCCorrelatedLCTDigi& lct) const;
 
   // correlate ALCT with matched pads or copads
   void correlateLCTsGEM(const CSCALCTDigi& ALCT, const GEMInternalClusters& clusters, CSCCorrelatedLCTDigi& lct) const;
@@ -81,13 +97,19 @@ private:
   void constructLCTsGEM(const CSCALCTDigi& alct,
                         const CSCCLCTDigi& clct,
                         const GEMInternalCluster& gem,
+                        const CSCL1TPLookupTableME11ILT* lookupTableME11ILT,
+                        const CSCL1TPLookupTableME21ILT* lookupTableME21ILT,
                         CSCCorrelatedLCTDigi& lct) const;
 
   // Construct LCT from CSC and no GEM information. ALCT+CLCT
   void constructLCTsGEM(const CSCALCTDigi& alct, const CSCCLCTDigi& clct, CSCCorrelatedLCTDigi& lct) const;
 
   // Construct LCT from CSC and GEM information. CLCT+2GEM
-  void constructLCTsGEM(const CSCCLCTDigi& clct, const GEMInternalCluster& gem, CSCCorrelatedLCTDigi& lct) const;
+  void constructLCTsGEM(const CSCCLCTDigi& clct,
+                        const GEMInternalCluster& gem,
+                        const CSCL1TPLookupTableME11ILT* lookupTableME11ILT,
+                        const CSCL1TPLookupTableME21ILT* lookupTableME21ILT,
+                        CSCCorrelatedLCTDigi& lct) const;
 
   // Construct LCT from CSC and GEM information. ALCT+2GEM
   void constructLCTsGEM(const CSCALCTDigi& alct, const GEMInternalCluster& gem, CSCCorrelatedLCTDigi& lct) const;
@@ -98,7 +120,6 @@ private:
 
   /** Chamber id (trigger-type labels). */
   unsigned gemId;
-  const GEMGeometry* gem_g;
 
   // map of BX to vectors of GEM clusters. Makes it easier to match objects
   std::map<int, GEMInternalClusters> clusters_;

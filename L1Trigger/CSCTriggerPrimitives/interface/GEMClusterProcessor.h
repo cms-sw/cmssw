@@ -25,7 +25,9 @@ public:
   void clear();
 
   /** Runs the CoPad processor code. */
-  void run(const GEMPadDigiClusterCollection*);
+  void run(const GEMPadDigiClusterCollection*,
+           const CSCL1TPLookupTableME11ILT* lookupTableME11ILT,
+           const CSCL1TPLookupTableME21ILT* lookupTableME21ILT);
 
   /* Returns clusters around deltaBX for a given BX
     The parameter option determines which clusters should be returned
@@ -39,10 +41,6 @@ public:
 
   bool hasGE21Geometry16Partitions() const { return hasGE21Geometry16Partitions_; }
 
-  void setESLookupTables(const CSCL1TPLookupTableME11ILT* conf);
-
-  void setESLookupTables(const CSCL1TPLookupTableME21ILT* conf);
-
 private:
   // put coincidence clusters in GEMInternalCluster vector
   void addCoincidenceClusters(const GEMPadDigiClusterCollection*);
@@ -54,7 +52,8 @@ private:
   // translate the cluster central pad numbers into 1/8-strip number,
   // and roll numbers into min and max wiregroup numbers
   // for matching with CSC trigger primitives
-  void doCoordinateConversion();
+  void doCoordinateConversion(const CSCL1TPLookupTableME11ILT* lookupTableME11ILT,
+                              const CSCL1TPLookupTableME21ILT* lookupTableME21ILT);
 
   // Chamber id (trigger-type labels)
   const int region_;
@@ -72,9 +71,6 @@ private:
 
   // output collection
   std::vector<GEMInternalCluster> clusters_;
-
-  const CSCL1TPLookupTableME11ILT* lookupTableME11ILT_;
-  const CSCL1TPLookupTableME21ILT* lookupTableME21ILT_;
 };
 
 #endif

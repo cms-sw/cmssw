@@ -38,8 +38,8 @@ private:
 
   /* Phase-2 version of the CLCT finder function */
   std::vector<CSCCLCTDigi> findLCTs(
-      const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER])
-      override;
+      const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER],
+      const CSCL1TPLookupTableCCLUT* lookupTable) override;
 
   // mark half-strip zones around pretriggers that happened at the current first_bx
   void markPreTriggerZone(bool pretrig_zone[CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]) const;
