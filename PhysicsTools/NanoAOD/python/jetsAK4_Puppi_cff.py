@@ -144,7 +144,7 @@ jetPuppiTable.variables.pt.precision=10
 ## - To be used in nanoAOD_customizeCommon() in nano_cff.py
 ###############################################################
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
-def nanoAOD_addDeepInfoAK4(process,addParticleNet,addRobustParTAK4):
+def nanoAOD_addDeepInfoAK4(process,addParticleNet,addRobustParTAK4=False):
     _btagDiscriminators=[]
     if addParticleNet:
         print("Updating process to run ParticleNetAK4")

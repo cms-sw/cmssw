@@ -371,7 +371,7 @@ run2_jme_2017.toModify(
 ## - To be used in nanoAOD_customizeCommon() in nano_cff.py
 ###############################################################
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
-def nanoAOD_addDeepInfoAK4CHS(process,addDeepBTag,addDeepFlavour,addParticleNet,addRobustParTAK4):
+def nanoAOD_addDeepInfoAK4CHS(process,addDeepBTag,addDeepFlavour,addParticleNet,addRobustParTAK4=False):
     _btagDiscriminators=[]
     if addDeepBTag:
         print("Updating process to run DeepCSV btag")
