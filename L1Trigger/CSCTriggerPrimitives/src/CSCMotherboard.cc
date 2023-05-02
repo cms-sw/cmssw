@@ -15,32 +15,32 @@ CSCMotherboard::CSCMotherboard(unsigned endcap,
                                unsigned sector,
                                unsigned subsector,
                                unsigned chamber,
-                               const edm::ParameterSet& conf)
+                               CSCBaseboard::Parameters& conf)
     : CSCBaseboard(endcap, station, sector, subsector, chamber, conf) {
   // Normal constructor.  -JM
   // Pass ALCT, CLCT, and common parameters on to ALCT and CLCT processors.
   static std::atomic<bool> config_dumped{false};
 
-  mpc_block_me1a = tmbParams_.getParameter<unsigned int>("mpcBlockMe1a");
-  alct_trig_enable = tmbParams_.getParameter<unsigned int>("alctTrigEnable");
-  clct_trig_enable = tmbParams_.getParameter<unsigned int>("clctTrigEnable");
-  match_trig_enable = tmbParams_.getParameter<unsigned int>("matchTrigEnable");
-  match_trig_window_size = tmbParams_.getParameter<unsigned int>("matchTrigWindowSize");
+  mpc_block_me1a = conf.tmbParams().getParameter<unsigned int>("mpcBlockMe1a");
+  alct_trig_enable = conf.tmbParams().getParameter<unsigned int>("alctTrigEnable");
+  clct_trig_enable = conf.tmbParams().getParameter<unsigned int>("clctTrigEnable");
+  match_trig_enable = conf.tmbParams().getParameter<unsigned int>("matchTrigEnable");
+  match_trig_window_size = conf.tmbParams().getParameter<unsigned int>("matchTrigWindowSize");
   tmb_l1a_window_size =  // Common to CLCT and TMB
-      tmbParams_.getParameter<unsigned int>("tmbL1aWindowSize");
+      conf.tmbParams().getParameter<unsigned int>("tmbL1aWindowSize");
 
   // configuration handle for number of early time bins
-  early_tbins = tmbParams_.getParameter<int>("tmbEarlyTbins");
+  early_tbins = conf.tmbParams().getParameter<int>("tmbEarlyTbins");
 
   // whether to not reuse CLCTs that were used by previous matching ALCTs
-  drop_used_clcts = tmbParams_.getParameter<bool>("tmbDropUsedClcts");
+  drop_used_clcts = conf.tmbParams().getParameter<bool>("tmbDropUsedClcts");
 
   // whether to readout only the earliest two LCTs in readout window
-  readout_earliest_2 = tmbParams_.getParameter<bool>("tmbReadoutEarliest2");
+  readout_earliest_2 = conf.tmbParams().getParameter<bool>("tmbReadoutEarliest2");
 
-  match_earliest_clct_only_ = tmbParams_.getParameter<bool>("matchEarliestClctOnly");
+  match_earliest_clct_only_ = conf.tmbParams().getParameter<bool>("matchEarliestClctOnly");
 
-  infoV = tmbParams_.getParameter<int>("verbosity");
+  infoV = conf.tmbParams().getParameter<int>("verbosity");
 
   alctProc = std::make_unique<CSCAnodeLCTProcessor>(endcap, station, sector, subsector, chamber, conf);
   clctProc = std::make_unique<CSCCathodeLCTProcessor>(endcap, station, sector, subsector, chamber, conf);
@@ -55,10 +55,10 @@ CSCMotherboard::CSCMotherboard(unsigned endcap,
   allLCTs_.setMatchTrigWindowSize(match_trig_window_size);
 
   // get the preferred CLCT BX match array
-  preferred_bx_match_ = tmbParams_.getParameter<std::vector<int>>("preferredBxMatch");
+  preferred_bx_match_ = conf.tmbParams().getParameter<std::vector<int>>("preferredBxMatch");
 
   // sort CLCT only by bx or by quality+bending for  ALCT-CLCT match
-  sort_clct_bx_ = tmbParams_.getParameter<bool>("sortClctBx");
+  sort_clct_bx_ = conf.tmbParams().getParameter<bool>("sortClctBx");
 
   // quality assignment
   qualityAssignment_ = std::make_unique<LCTQualityAssignment>(endcap, station, sector, subsector, chamber, conf);
@@ -67,7 +67,7 @@ CSCMotherboard::CSCMotherboard(unsigned endcap,
   qualityControl_ = std::make_unique<LCTQualityControl>(endcap, station, sector, subsector, chamber, conf);
 
   // shower-trigger source
-  showerSource_ = showerParams_.getParameter<std::vector<unsigned>>("source");
+  showerSource_ = conf.showerParams().getParameter<std::vector<unsigned>>("source");
 
   unsigned csc_idx = CSCDetId::iChamberType(theStation, theRing) - 2;
   thisShowerSource_ = showerSource_[csc_idx];
@@ -86,9 +86,9 @@ CSCMotherboard::CSCMotherboard(unsigned endcap,
   }
 
   // set up helper class to check if ALCT and CLCT cross
-  ignoreAlctCrossClct_ = tmbParams_.getParameter<bool>("ignoreAlctCrossClct");
+  ignoreAlctCrossClct_ = conf.tmbParams().getParameter<bool>("ignoreAlctCrossClct");
   if (!ignoreAlctCrossClct_) {
-    cscOverlap_ = std::make_unique<CSCALCTCrossCLCT>(endcap, station, theRing, ignoreAlctCrossClct_, conf);
+    cscOverlap_ = std::make_unique<CSCALCTCrossCLCT>(endcap, station, theRing, ignoreAlctCrossClct_, conf.conf());
   }
 }
 

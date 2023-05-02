@@ -23,32 +23,32 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
                                                unsigned sector,
                                                unsigned subsector,
                                                unsigned chamber,
-                                               const edm::ParameterSet& conf)
+                                               CSCBaseboard::Parameters& conf)
     : CSCBaseboard(endcap, station, sector, subsector, chamber, conf) {
   static std::atomic<bool> config_dumped{false};
 
   // CLCT configuration parameters.
-  fifo_tbins = clctParams_.getParameter<unsigned int>("clctFifoTbins");
-  hit_persist = clctParams_.getParameter<unsigned int>("clctHitPersist");
-  drift_delay = clctParams_.getParameter<unsigned int>("clctDriftDelay");
-  nplanes_hit_pretrig = clctParams_.getParameter<unsigned int>("clctNplanesHitPretrig");
-  nplanes_hit_pattern = clctParams_.getParameter<unsigned int>("clctNplanesHitPattern");
+  fifo_tbins = conf.clctParams().getParameter<unsigned int>("clctFifoTbins");
+  hit_persist = conf.clctParams().getParameter<unsigned int>("clctHitPersist");
+  drift_delay = conf.clctParams().getParameter<unsigned int>("clctDriftDelay");
+  nplanes_hit_pretrig = conf.clctParams().getParameter<unsigned int>("clctNplanesHitPretrig");
+  nplanes_hit_pattern = conf.clctParams().getParameter<unsigned int>("clctNplanesHitPattern");
 
   // Not used yet.
-  fifo_pretrig = clctParams_.getParameter<unsigned int>("clctFifoPretrig");
+  fifo_pretrig = conf.clctParams().getParameter<unsigned int>("clctFifoPretrig");
 
-  pid_thresh_pretrig = clctParams_.getParameter<unsigned int>("clctPidThreshPretrig");
-  min_separation = clctParams_.getParameter<unsigned int>("clctMinSeparation");
+  pid_thresh_pretrig = conf.clctParams().getParameter<unsigned int>("clctPidThreshPretrig");
+  min_separation = conf.clctParams().getParameter<unsigned int>("clctMinSeparation");
 
-  start_bx_shift = clctParams_.getParameter<int>("clctStartBxShift");
+  start_bx_shift = conf.clctParams().getParameter<int>("clctStartBxShift");
 
-  localShowerZone = clctParams_.getParameter<int>("clctLocalShowerZone");
+  localShowerZone = conf.clctParams().getParameter<int>("clctLocalShowerZone");
 
-  localShowerThresh = clctParams_.getParameter<int>("clctLocalShowerThresh");
+  localShowerThresh = conf.clctParams().getParameter<int>("clctLocalShowerThresh");
 
   // Motherboard parameters: common for all configurations.
   tmb_l1a_window_size =  // Common to CLCT and TMB
-      tmbParams_.getParameter<unsigned int>("tmbL1aWindowSize");
+      conf.tmbParams().getParameter<unsigned int>("tmbL1aWindowSize");
 
   /*
     In Summer 2021 the CLCT readout function was updated so that the
@@ -56,15 +56,15 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
     time BX7. In the past the window was based on early_tbins and late_tbins.
     The parameter is kept, but is not used.
   */
-  early_tbins = tmbParams_.getParameter<int>("tmbEarlyTbins");
+  early_tbins = conf.tmbParams().getParameter<int>("tmbEarlyTbins");
   if (early_tbins < 0)
     early_tbins = fifo_pretrig - CSCConstants::CLCT_EMUL_TIME_OFFSET;
 
   // wether to readout only the earliest two LCTs in readout window
-  readout_earliest_2 = tmbParams_.getParameter<bool>("tmbReadoutEarliest2");
+  readout_earliest_2 = conf.tmbParams().getParameter<bool>("tmbReadoutEarliest2");
 
   // Verbosity level, set to 0 (no print) by default.
-  infoV = clctParams_.getParameter<int>("verbosity");
+  infoV = conf.clctParams().getParameter<int>("verbosity");
 
   // Do not exclude pattern 0 and 1 when the Run-3 patterns are enabled!!
   // Valid Run-3 patterns are 0,1,2,3,4
@@ -96,12 +96,12 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
   if (runCCLUT_) {
     clct_pattern_ = CSCPatternBank::clct_pattern_run3_;
     // comparator code lookup table algorithm for Phase-2
-    cclut_ = std::make_unique<ComparatorCodeLUT>(conf);
+    cclut_ = std::make_unique<ComparatorCodeLUT>(conf.conf());
   } else {
     clct_pattern_ = CSCPatternBank::clct_pattern_legacy_;
   }
 
-  const auto& shower = showerParams_.getParameterSet("cathodeShower");
+  const auto& shower = conf.showerParams().getParameterSet("cathodeShower");
   thresholds_ = shower.getParameter<std::vector<unsigned>>("showerThresholds");
   showerNumTBins_ = shower.getParameter<unsigned>("showerNumTBins");
   minLayersCentralTBin_ = shower.getParameter<unsigned>("minLayersCentralTBin");

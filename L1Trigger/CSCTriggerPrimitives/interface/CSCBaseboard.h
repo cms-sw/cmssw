@@ -12,13 +12,45 @@
 
 class CSCBaseboard {
 public:
+  struct Parameters {
+    Parameters(edm::ParameterSet const& conf);
+
+    edm::ParameterSet const& conf() const { return *conf_; }
+
+    edm::ParameterSet const& commonParams() const { return commonParams_; }
+    edm::ParameterSet const& showerParams() const { return showerParams_; }
+    edm::ParameterSet const& tmbParams() const { return tmbParams_; }
+    edm::ParameterSet const& alctParams() const { return alctParams_; }
+    edm::ParameterSet const& clctParams() const { return clctParams_; }
+
+    void chooseParams(std::string_view tmb, std::string_view alct, std::string_view clct);
+
+  private:
+    edm::ParameterSet const* conf_;
+
+    // Parameters common for all boards
+    edm::ParameterSet const commonParams_;
+
+    // Shower Trigger parameters:
+    edm::ParameterSet const showerParams_;
+
+    // Motherboard parameters:
+    edm::ParameterSet tmbParams_;
+
+    // ALCT Processor parameters:
+    edm::ParameterSet alctParams_;
+
+    // CLCT Processor parameters:
+    edm::ParameterSet clctParams_;
+
+    std::string tmbName_;
+    std::string alctName_;
+    std::string clctName_;
+  };
+
   /** Normal constructor. */
-  CSCBaseboard(unsigned endcap,
-               unsigned station,
-               unsigned sector,
-               unsigned subsector,
-               unsigned chamber,
-               const edm::ParameterSet& conf);
+  CSCBaseboard(
+      unsigned endcap, unsigned station, unsigned sector, unsigned subsector, unsigned chamber, Parameters& conf);
 
   /** Constructor for use during testing. */
   CSCBaseboard();
@@ -70,21 +102,6 @@ protected:
 
   const CSCGeometry* cscGeometry_;
   const CSCChamber* cscChamber_;
-
-  // Parameters common for all boards
-  edm::ParameterSet commonParams_;
-
-  // Motherboard parameters:
-  edm::ParameterSet tmbParams_;
-
-  // ALCT Processor parameters:
-  edm::ParameterSet alctParams_;
-
-  // CLCT Processor parameters:
-  edm::ParameterSet clctParams_;
-
-  // Shower Trigger parameters:
-  edm::ParameterSet showerParams_;
 
   // chamber name, e.g. ME+1/1/9
   std::string theCSCName_;

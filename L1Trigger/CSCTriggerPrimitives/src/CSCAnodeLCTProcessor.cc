@@ -22,43 +22,43 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap,
                                            unsigned sector,
                                            unsigned subsector,
                                            unsigned chamber,
-                                           const edm::ParameterSet& conf)
+                                           CSCBaseboard::Parameters& conf)
     : CSCBaseboard(endcap, station, sector, subsector, chamber, conf) {
   static std::atomic<bool> config_dumped{false};
 
   // ALCT configuration parameters.
-  fifo_tbins = alctParams_.getParameter<unsigned int>("alctFifoTbins");
-  fifo_pretrig = alctParams_.getParameter<unsigned int>("alctFifoPretrig");
-  drift_delay = alctParams_.getParameter<unsigned int>("alctDriftDelay");
-  nplanes_hit_pretrig = alctParams_.getParameter<unsigned int>("alctNplanesHitPretrig");
-  nplanes_hit_pattern = alctParams_.getParameter<unsigned int>("alctNplanesHitPattern");
-  nplanes_hit_accel_pretrig = alctParams_.getParameter<unsigned int>("alctNplanesHitAccelPretrig");
-  nplanes_hit_accel_pattern = alctParams_.getParameter<unsigned int>("alctNplanesHitAccelPattern");
-  trig_mode = alctParams_.getParameter<unsigned int>("alctTrigMode");
-  accel_mode = alctParams_.getParameter<unsigned int>("alctAccelMode");
-  l1a_window_width = alctParams_.getParameter<unsigned int>("alctL1aWindowWidth");
+  fifo_tbins = conf.alctParams().getParameter<unsigned int>("alctFifoTbins");
+  fifo_pretrig = conf.alctParams().getParameter<unsigned int>("alctFifoPretrig");
+  drift_delay = conf.alctParams().getParameter<unsigned int>("alctDriftDelay");
+  nplanes_hit_pretrig = conf.alctParams().getParameter<unsigned int>("alctNplanesHitPretrig");
+  nplanes_hit_pattern = conf.alctParams().getParameter<unsigned int>("alctNplanesHitPattern");
+  nplanes_hit_accel_pretrig = conf.alctParams().getParameter<unsigned int>("alctNplanesHitAccelPretrig");
+  nplanes_hit_accel_pattern = conf.alctParams().getParameter<unsigned int>("alctNplanesHitAccelPattern");
+  trig_mode = conf.alctParams().getParameter<unsigned int>("alctTrigMode");
+  accel_mode = conf.alctParams().getParameter<unsigned int>("alctAccelMode");
+  l1a_window_width = conf.alctParams().getParameter<unsigned int>("alctL1aWindowWidth");
 
-  hit_persist = alctParams_.getParameter<unsigned int>("alctHitPersist");
+  hit_persist = conf.alctParams().getParameter<unsigned int>("alctHitPersist");
 
   // Verbosity level, set to 0 (no print) by default.
-  infoV = alctParams_.getParameter<int>("verbosity");
+  infoV = conf.alctParams().getParameter<int>("verbosity");
 
   // separate handle for early time bins
-  early_tbins = alctParams_.getParameter<int>("alctEarlyTbins");
+  early_tbins = conf.alctParams().getParameter<int>("alctEarlyTbins");
   if (early_tbins < 0)
     early_tbins = fifo_pretrig - CSCConstants::ALCT_EMUL_TIME_OFFSET;
 
   // delta BX time depth for ghostCancellationLogic
-  ghost_cancellation_bx_depth = alctParams_.getParameter<int>("alctGhostCancellationBxDepth");
+  ghost_cancellation_bx_depth = conf.alctParams().getParameter<int>("alctGhostCancellationBxDepth");
 
   // whether to consider ALCT candidates' qualities while doing ghostCancellationLogic on +-1 wire groups
-  ghost_cancellation_side_quality = alctParams_.getParameter<bool>("alctGhostCancellationSideQuality");
+  ghost_cancellation_side_quality = conf.alctParams().getParameter<bool>("alctGhostCancellationSideQuality");
 
   // deadtime clocks after pretrigger (extra in addition to drift_delay)
-  pretrig_extra_deadtime = alctParams_.getParameter<unsigned int>("alctPretrigDeadtime");
+  pretrig_extra_deadtime = conf.alctParams().getParameter<unsigned int>("alctPretrigDeadtime");
 
   // whether to use narrow pattern mask for the rings close to the beam
-  narrow_mask_r1 = alctParams_.getParameter<bool>("alctNarrowMaskForR1");
+  narrow_mask_r1 = conf.alctParams().getParameter<bool>("alctNarrowMaskForR1");
 
   // Check and print configuration parameters.
   checkConfigParameters();
@@ -73,7 +73,7 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap,
   // whether to calculate bx as corrected_bx instead of pretrigger one
   use_corrected_bx = false;
   if (runPhase2_) {
-    use_corrected_bx = alctParams_.getParameter<bool>("alctUseCorrectedBx");
+    use_corrected_bx = conf.alctParams().getParameter<bool>("alctUseCorrectedBx");
   }
 
   // Load appropriate pattern mask.
@@ -82,7 +82,7 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap,
   // quality control of stubs
   qualityControl_ = std::make_unique<LCTQualityControl>(endcap, station, sector, subsector, chamber, conf);
 
-  const auto& shower = showerParams_.getParameterSet("anodeShower");
+  const auto& shower = conf.showerParams().getParameterSet("anodeShower");
   thresholds_ = shower.getParameter<std::vector<unsigned>>("showerThresholds");
   showerNumTBins_ = shower.getParameter<unsigned>("showerNumTBins");
   minLayersCentralTBin_ = shower.getParameter<unsigned>("minLayersCentralTBin");
