@@ -24,6 +24,7 @@ class LHEGenericMassFilter : public edm::global::EDFilter<> {
 public:
   explicit LHEGenericMassFilter(const edm::ParameterSet&);
   ~LHEGenericMassFilter() override = default;
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
   bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
@@ -35,14 +36,16 @@ private:
   const std::vector<int> particleID_;  // vector of particle IDs to look for
   const double minMass_;
   const double maxMass_;
+  const bool requiredOutgoingStatus_;  // Whether particles required to pass filter must have outgoing status
 };
 
 LHEGenericMassFilter::LHEGenericMassFilter(const edm::ParameterSet& iConfig)
     : src_(consumes<LHEEventProduct>(iConfig.getParameter<edm::InputTag>("src"))),
       numRequired_(iConfig.getParameter<int>("NumRequired")),
-      particleID_(iConfig.getParameter<std::vector<int> >("ParticleID")),
+      particleID_(iConfig.getParameter<std::vector<int>>("ParticleID")),
       minMass_(iConfig.getParameter<double>("MinMass")),
-      maxMass_(iConfig.getParameter<double>("MaxMass")) {}
+      maxMass_(iConfig.getParameter<double>("MaxMass")),
+      requiredOutgoingStatus_(iConfig.getParameter<bool>("RequiredOutgoingStatus")) {}
 
 // ------------ method called to skim the data  ------------
 bool LHEGenericMassFilter::filter(edm::StreamID iID, edm::Event& iEvent, edm::EventSetup const& iSetup) const {
@@ -57,7 +60,8 @@ bool LHEGenericMassFilter::filter(edm::StreamID iID, edm::Event& iEvent, edm::Ev
   double E = 0.;
 
   for (int i = 0; i < EvtHandle->hepeup().NUP; ++i) {
-    if (EvtHandle->hepeup().ISTUP[i] != 1) {  // keep only outgoing particles
+    // if requiredOutgoingStatus_ keep only outgoing particles, otherwise keep them all
+    if (requiredOutgoingStatus_ && EvtHandle->hepeup().ISTUP[i] != 1) {
       continue;
     }
     for (unsigned int j = 0; j < particleID_.size(); ++j) {
@@ -82,6 +86,18 @@ bool LHEGenericMassFilter::filter(edm::StreamID iID, edm::Event& iEvent, edm::Ev
     }
   }
   return false;
+}
+
+// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
+void LHEGenericMassFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("src", edm::InputTag("externalLHEProducer"));
+  desc.add<int>("NumRequired", 1);
+  desc.add<vector<int>>("ParticleID", std::vector<int>{1});
+  desc.add<double>("MinMass", 0.0);
+  desc.add<double>("MaxMass", 1.0);
+  desc.add<bool>("RequiredOutgoingStatus", true);
+  descriptions.addDefault(desc);
 }
 
 //define this as a plug-in
