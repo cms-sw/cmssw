@@ -9,3 +9,4 @@
   </test>
   <bin name="test-valgrind-memleak" file="test-valgrind-memleak.cpp"/>
 </ifrelease>
+<test name="DummyTest" comamnd="true"/>
