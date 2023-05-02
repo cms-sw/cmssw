@@ -3,7 +3,7 @@
 
 <SpecParSection label="hgcalsense.xml" eval="true">
   <SpecPar name="hgcee">
-    <PartSelector path="//HGCalEECellSensitive*"/>
+    <PartSelector path="//HGCalEECellSensitive.*"/>
     <Parameter name="SensitiveDetector" value="HGCalSensitiveDetector" eval="false"/>
     <Parameter name="ReadOutName" value="HGCHitsEE" eval="false"/>
   </SpecPar>
