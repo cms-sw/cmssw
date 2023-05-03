@@ -25,23 +25,17 @@ options.register('outputDirectoryPath',
                 VarParsing.VarParsing.varType.string,
                 "directory in which the output ROOT file will be saved")
 
-options.register('campaign',
-                'testCampaign',
+options.register('run',
+                '999999',
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.string,
-                "")
+                "Run number to tag the output file")
 
-options.register('workflow',
-                'testWorkflow',
+options.register('clusterid',
+                '9999999999',
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.string,
-                "")
-
-options.register('dataPeriod',
-                'testDataPeriod',
-                VarParsing.VarParsing.multiplicity.singleton,
-                VarParsing.VarParsing.varType.string,
-                "")
+                "HTCondor cluster id to tag the output")
 
 options.register('globalTag',
                 '',
@@ -114,7 +108,7 @@ process.harvester = DQMEDHarvester('EfficiencyTool_2018DQMHarvester')
 #CONFIGURE DQM Saver
 process.dqmEnv.subSystemFolder = "RolCalPPS"
 process.dqmSaver.convention = 'Offline'
-process.dqmSaver.workflow = "/"+"/".join([options.campaign, options.workflow, options.dataPeriod])
+process.dqmSaver.workflow = "/"+"/".join(['efficiencyAnalysis', options.run, options.clusterid])
 process.dqmSaver.saveByRun = -1
 process.dqmSaver.saveAtJobEnd = True
 process.dqmSaver.forceRunNumber = 999999
