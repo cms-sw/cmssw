@@ -223,6 +223,155 @@ namespace {
       return (masks_geom.size() == masks_db.size() &&
               std::equal(masks_geom.begin(), masks_geom.end(), masks_db.begin()));
     }
+
+    //_________________________________________________
+    unsigned int maxDepthOfPUArray(const std::map<unsigned int, std::vector<double> >& map_pufactor) {
+      unsigned int size{0};
+      for (const auto& [id, vec] : map_pufactor) {
+        if (vec.size() > size)
+          size = vec.size();
+      }
+      return size;
+    }
+
+    //_________________________________________________
+    std::pair<int, int> getClosestFactors(int input) {
+      if ((input % 2 != 0) && input > 1) {
+        input += 1;
+      }
+
+      int testNum = (int)sqrt(input);
+      while (input % testNum != 0) {
+        testNum--;
+      }
+      return std::make_pair(testNum, input / testNum);
+    }
+
+    /** Given an input list of std::string this
+     *  finds the longest common substring
+     */
+    std::string findStem(const std::vector<std::string>& arr) {
+      // Determine size of the array
+      int n = arr.size();
+
+      // Take first word from array as reference
+      const std::string& s = arr[0];
+      int len = s.length();
+
+      std::string res = "";
+
+      for (int i = 0; i < len; i++) {
+        for (int j = i + 1; j <= len; j++) {
+          // generating all possible substrings
+          // of our reference string arr[0] i.e s
+          std::string stem = s.substr(i, j);
+          int k = 1;
+          for (k = 1; k < n; k++) {
+            // Check if the generated stem is
+            // common to all words
+            if (arr[k].find(stem) == std::string::npos)
+              break;
+          }
+
+          // If current substring is present in
+          // all strings and its length is greater
+          // than current result
+          if (k == n && res.length() < stem.length())
+            res = stem;
+        }
+      }
+      return res;
+    }
+
+    /** This function determines from the list of attached DetId which
+     *  SiPixelPI::region represents them
+     */
+    std::string attachLocationLabel(const std::vector<uint32_t>& listOfDetIds, SiPixelPI::PhaseInfo& phInfo) {
+      // collect all the regions in which it can be split
+      std::vector<std::string> regions;
+      for (const auto& rawId : listOfDetIds) {
+        SiPixelPI::topolInfo t_info_fromXML;
+        t_info_fromXML.init();
+        DetId detid(rawId);
+
+        const char* path_toTopologyXML = phInfo.pathToTopoXML();
+        auto tTopo =
+            StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
+        t_info_fromXML.fillGeometryInfo(detid, tTopo, phInfo.phase());
+        const auto& reg = SiPixelPI::getStringFromRegionEnum(t_info_fromXML.filterThePartition());
+        if (!std::count(regions.begin(), regions.end(), reg)) {
+          regions.push_back(reg);
+        }
+      }
+
+      std::string retVal = "";
+      // if perfect match (only one category)
+      if (regions.size() == 1) {
+        retVal = regions.front();
+      } else {
+        retVal = findStem(regions);
+      }
+
+      // if the last char is "/" strip it from the string
+      if (retVal.back() == '/')
+        retVal.pop_back();
+
+      return retVal;
+    }
+
+    void fillParametrizations(std::vector<std::vector<double> >& listOfParametrizations,
+                              std::vector<TF1*>& parametrizations,
+                              std::vector<std::string>& formulas,
+                              const std::vector<std::string>& namesOfParts) {
+      static constexpr double xmin_ = 0.;   // x10e34 (min inst. lumi)
+      static constexpr double xmax_ = 25.;  // x10e34 (max inst. lumi)
+
+      // functional for polynomial of n-th degree
+      auto func = [](double* x, double* p) {
+        int n = p[0];
+        double* params = p + 1;
+        ROOT::Math::Polynomial pol(n);
+        return pol(x, params);
+      };
+
+      int index{0};
+      for (auto& params : listOfParametrizations) {
+        index++;
+        int n = params.size();
+        int npar = n + 2;
+        std::string str{namesOfParts[index - 1]};
+        if (str.length() >= 2 && str.substr(str.length() - 2) == "/i") {
+          str += "nner";
+        } else if (str.length() >= 2 && str.substr(str.length() - 2) == "/o") {
+          str += "uter";
+        }
+
+        TF1* f1 = new TF1((fmt::sprintf("region: #bf{%s}", str)).c_str(), func, xmin_, xmax_, npar);
+
+        // push polynomial degree as first entry in the vector
+        params.insert(params.begin(), n);
+        // TF1::SetParameters needs a C-style array
+        double* arr = params.data();
+        f1->SetLineWidth(2);
+
+        // fill in the parameter
+        for (unsigned int j = 0; j < params.size(); j++) {
+          f1->SetParameter(j, arr[j]);
+        }
+
+        parametrizations.push_back(f1);
+
+        // build the formula to be displayed
+        std::string formula;
+        edm::LogVerbatim("fillParametrizations") << "index: " << index;
+        for (unsigned int i = 1; i < params.size(); i++) {
+          edm::LogVerbatim("fillParametrizations") << " " << params[i];
+          formula += fmt::sprintf("%s%fx^{%i}", (i == 1 ? "" : (std::signbit(params[i]) ? "" : "+")), params[i], i - 1);
+        }
+        edm::LogVerbatim("fillParametrizations") << std::endl;
+        formulas.push_back(formula);
+      }
+    }
   }  // namespace SiPixDynIneff
 
   /************************************************
@@ -652,7 +801,7 @@ namespace {
           return false;
         }
 
-        unsigned int depth = maxDepthOfPUArray(theMap);
+        unsigned int depth = SiPixDynIneff::maxDepthOfPUArray(theMap);
 
         // create the maps
         for (unsigned int i = 0; i < depth; i++) {
@@ -686,7 +835,7 @@ namespace {
         }
 
         // determine how the plot will be paginated
-        auto sides = getClosestFactors(depth);
+        auto sides = SiPixDynIneff::getClosestFactors(depth);
         TCanvas canvas("Canv", "Canv", sides.second * 900, sides.first * 600);
         canvas.Divide(sides.second, sides.first);
 
@@ -712,28 +861,6 @@ namespace {
   protected:
     std::string payloadString;
     std::string label_;
-
-  private:
-    unsigned int maxDepthOfPUArray(const std::map<unsigned int, std::vector<double> >& map_pufactor) {
-      unsigned int size{0};
-      for (const auto& [id, vec] : map_pufactor) {
-        if (vec.size() > size)
-          size = vec.size();
-      }
-      return size;
-    }
-
-    std::pair<int, int> getClosestFactors(int input) {
-      if ((input % 2 != 0) && input > 1) {
-        input += 1;
-      }
-
-      int testNum = (int)sqrt(input);
-      while (input % testNum != 0) {
-        testNum--;
-      }
-      return std::make_pair(testNum, input / testNum);
-    }
   };
 
   /************************************************
@@ -802,7 +929,7 @@ namespace {
         // fill in the (ordered) information about regions
         for (const auto& [index, modules] : modules_per_region) {
           auto PhInfo = SiPixelPI::PhaseInfo(SiPixelPI::phase1size);
-          const auto& regName = this->attachLocationLabel(modules, PhInfo);
+          const auto& regName = SiPixDynIneff::attachLocationLabel(modules, PhInfo);
           namesOfParts.push_back(regName);
 
           /*
@@ -827,60 +954,16 @@ namespace {
           ss.str(std::string()); /* clear the stringstream */
         }
 
-        // functional for polynomial of n-th degree
-        auto func = [](double* x, double* p) {
-          int n = p[0];
-          double* params = p + 1;
-          ROOT::Math::Polynomial pol(n);
-          return pol(x, params);
-        };
-
         std::vector<TF1*> parametrizations;
         std::vector<std::string> formulas;
         parametrizations.reserve(depth);
         formulas.reserve(depth);
 
-        int index{0};
-        for (auto& params : listOfParametrizations) {
-          index++;
-          int n = params.size();
-          int npar = n + 2;
-          std::string str{namesOfParts[index - 1]};
-          if (str.length() >= 2 && str.substr(str.length() - 2) == "/i") {
-            str += "nner";
-          } else if (str.length() >= 2 && str.substr(str.length() - 2) == "/o") {
-            str += "uter";
-          }
-
-          TF1* f1 = new TF1((fmt::sprintf("region: #bf{%s}", str)).c_str(), func, xmin_, xmax_, npar);
-
-          // push polynomial degree as first entry in the vector
-          params.insert(params.begin(), n);
-          // TF1::SetParameters needs a C-style array
-          double* arr = params.data();
-          f1->SetLineWidth(2);
-
-          // fill in the parameter
-          for (unsigned int j = 0; j < params.size(); j++) {
-            f1->SetParameter(j, arr[j]);
-          }
-
-          parametrizations.push_back(f1);
-
-          // build the formula to be displayed
-          std::string formula;
-          edm::LogVerbatim(label_) << "index: " << index;
-          for (unsigned int i = 1; i < params.size(); i++) {
-            edm::LogVerbatim(label_) << " " << params[i];
-            formula +=
-                fmt::sprintf("%s%fx^{%i}", (i == 1 ? "" : (std::signbit(params[i]) ? "" : "+")), params[i], i - 1);
-          }
-          edm::LogVerbatim(label_) << std::endl;
-          formulas.push_back(formula);
-        }
+        // fill the parametrization plots
+        SiPixDynIneff::fillParametrizations(listOfParametrizations, parametrizations, formulas, namesOfParts);
 
         // determine how the plot will be paginated
-        auto sides = getClosestFactors(depth);
+        auto sides = SiPixDynIneff::getClosestFactors(depth);
         TCanvas canvas("Canv", "Canv", sides.second * 900, sides.first * 600);
         canvas.Divide(sides.second, sides.first);
 
@@ -932,103 +1015,6 @@ namespace {
   protected:
     std::string payloadString;
     std::string label_;
-
-    static constexpr double xmin_ = 0.;   // x10e34 (min inst. lumi)
-    static constexpr double xmax_ = 25.;  // x10e34 (max inst. lumi)
-
-  private:
-    unsigned int maxDepthOfPUArray(const std::map<unsigned int, std::vector<double> >& map_pufactor) {
-      unsigned int size{0};
-      for (const auto& [id, vec] : map_pufactor) {
-        if (vec.size() > size)
-          size = vec.size();
-      }
-      return size;
-    }
-
-    std::pair<int, int> getClosestFactors(int input) {
-      if ((input % 2 != 0) && input > 1) {
-        input += 1;
-      }
-
-      int testNum = (int)sqrt(input);
-      while (input % testNum != 0) {
-        testNum--;
-      }
-      return std::make_pair(testNum, input / testNum);
-    }
-
-    /** This function determines from the list of attached DetId which
-     *  SiPixelPI::region represents them
-     */
-    std::string attachLocationLabel(const std::vector<uint32_t>& listOfDetIds, SiPixelPI::PhaseInfo& phInfo) {
-      // collect all the regions in which it can be split
-      std::vector<std::string> regions;
-      for (const auto& rawId : listOfDetIds) {
-        SiPixelPI::topolInfo t_info_fromXML;
-        t_info_fromXML.init();
-        DetId detid(rawId);
-
-        const char* path_toTopologyXML = phInfo.pathToTopoXML();
-        auto tTopo =
-            StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
-        t_info_fromXML.fillGeometryInfo(detid, tTopo, phInfo.phase());
-        const auto& reg = SiPixelPI::getStringFromRegionEnum(t_info_fromXML.filterThePartition());
-        if (!std::count(regions.begin(), regions.end(), reg)) {
-          regions.push_back(reg);
-        }
-      }
-
-      std::string retVal = "";
-      // if perfect match (only one category)
-      if (regions.size() == 1) {
-        retVal = regions.front();
-      } else {
-        retVal = this->findStem(regions);
-      }
-
-      // if the last char is "/" strip it from the string
-      if (retVal.back() == '/')
-        retVal.pop_back();
-
-      return retVal;
-    }
-
-    /** Given an input list of std::string this
-     *  finds the longest common substring
-     */
-    std::string findStem(const std::vector<std::string>& arr) {
-      // Determine size of the array
-      int n = arr.size();
-
-      // Take first word from array as reference
-      const std::string& s = arr[0];
-      int len = s.length();
-
-      std::string res = "";
-
-      for (int i = 0; i < len; i++) {
-        for (int j = i + 1; j <= len; j++) {
-          // generating all possible substrings
-          // of our reference string arr[0] i.e s
-          std::string stem = s.substr(i, j);
-          int k = 1;
-          for (k = 1; k < n; k++) {
-            // Check if the generated stem is
-            // common to all words
-            if (arr[k].find(stem) == std::string::npos)
-              break;
-          }
-
-          // If current substring is present in
-          // all strings and its length is greater
-          // than current result
-          if (k == n && res.length() < stem.length())
-            res = stem;
-        }
-      }
-      return res;
-    }
   };
 
   template <IOVMultiplicity nIOVs, int ntags>
@@ -1036,7 +1022,9 @@ namespace {
   public:
     SiPixelDynamicInefficiencyPUParamComparisonBase()
         : PlotImage<SiPixelDynamicInefficiency, nIOVs, ntags>(
-              Form("SiPixelDynamic Inefficiency parameterization comparison by Region %i tag(s)", ntags)) {}
+              Form("SiPixelDynamic Inefficiency parameterization comparison by Region %i tag(s)", ntags)) {
+      label_ = "SiPixelDynamicInefficiencyPUParameterization";
+    }
 
     bool fill() override {
       gStyle->SetPalette(1);
@@ -1119,6 +1107,16 @@ namespace {
         unsigned int f_depth = f_listOfParametrizations.size();
         unsigned int l_depth = l_listOfParametrizations.size();
 
+        if (l_depth != f_depth) {
+          edm::LogError(label_) << label_
+                                << " trying to compare dynamic inefficiencys payload with different detid masks!";
+          TCanvas canvas("Canv", "Canv", 1200, 1000);
+          SiPixelPI::displayNotSupported(canvas, 0);
+          std::string fileName(this->m_imageFileName);
+          canvas.SaveAs(fileName.c_str());
+          return false;
+        }
+
         assert(f_depth == l_depth);
 
         std::vector<std::string> namesOfParts;
@@ -1126,7 +1124,7 @@ namespace {
         // fill in the (ordered) information about regions
         for (const auto& [index, modules] : modules_per_region) {
           auto PhInfo = SiPixelPI::PhaseInfo(SiPixelPI::phase1size);
-          const auto& regName = this->attachLocationLabel(modules, PhInfo);
+          const auto& regName = SiPixDynIneff::attachLocationLabel(modules, PhInfo);
           namesOfParts.push_back(regName);
 
           /*
@@ -1162,11 +1160,12 @@ namespace {
         l_parametrizations.reserve(l_depth);
         l_formulas.reserve(l_depth);
 
-        this->fillParametrizations(f_listOfParametrizations, f_parametrizations, f_formulas, namesOfParts);
-        this->fillParametrizations(l_listOfParametrizations, l_parametrizations, l_formulas, namesOfParts);
+        // fill the parametrization plots
+        SiPixDynIneff::fillParametrizations(f_listOfParametrizations, f_parametrizations, f_formulas, namesOfParts);
+        SiPixDynIneff::fillParametrizations(l_listOfParametrizations, l_parametrizations, l_formulas, namesOfParts);
 
         // determine how the plot will be paginated
-        auto sides = getClosestFactors(f_depth);
+        auto sides = SiPixDynIneff::getClosestFactors(f_depth);
         TCanvas canvas("Canv", "Canv", sides.second * 900, sides.first * 600);
         canvas.Divide(sides.second, sides.first);
 
@@ -1228,156 +1227,7 @@ namespace {
     }  // fill()
 
   protected:
-    std::string payloadString;
     std::string label_;
-
-    static constexpr double xmin_ = 0.;   // x10e34 (min inst. lumi)
-    static constexpr double xmax_ = 25.;  // x10e34 (max inst. lumi)
-
-  private:
-    unsigned int maxDepthOfPUArray(const std::map<unsigned int, std::vector<double> >& map_pufactor) {
-      unsigned int size{0};
-      for (const auto& [id, vec] : map_pufactor) {
-        if (vec.size() > size)
-          size = vec.size();
-      }
-      return size;
-    }
-
-    std::pair<int, int> getClosestFactors(int input) {
-      if ((input % 2 != 0) && input > 1) {
-        input += 1;
-      }
-
-      int testNum = (int)sqrt(input);
-      while (input % testNum != 0) {
-        testNum--;
-      }
-      return std::make_pair(testNum, input / testNum);
-    }
-
-    void fillParametrizations(std::vector<std::vector<double> >& listOfParametrizations,
-                              std::vector<TF1*>& parametrizations,
-                              std::vector<std::string>& formulas,
-                              const std::vector<std::string>& namesOfParts) {
-      // functional for polynomial of n-th degree
-      auto func = [](double* x, double* p) {
-        int n = p[0];
-        double* params = p + 1;
-        ROOT::Math::Polynomial pol(n);
-        return pol(x, params);
-      };
-
-      int index{0};
-      for (auto& params : listOfParametrizations) {
-        index++;
-        int n = params.size();
-        int npar = n + 2;
-        std::string str{namesOfParts[index - 1]};
-        if (str.length() >= 2 && str.substr(str.length() - 2) == "/i") {
-          str += "nner";
-        } else if (str.length() >= 2 && str.substr(str.length() - 2) == "/o") {
-          str += "uter";
-        }
-
-        TF1* f1 = new TF1((fmt::sprintf("region: #bf{%s}", str)).c_str(), func, xmin_, xmax_, npar);
-
-        // push polynomial degree as first entry in the vector
-        params.insert(params.begin(), n);
-        // TF1::SetParameters needs a C-style array
-        double* arr = params.data();
-        f1->SetLineWidth(2);
-
-        // fill in the parameter
-        for (unsigned int j = 0; j < params.size(); j++) {
-          f1->SetParameter(j, arr[j]);
-        }
-
-        parametrizations.push_back(f1);
-
-        // build the formula to be displayed
-        std::string formula;
-        edm::LogVerbatim(label_) << "index: " << index;
-        for (unsigned int i = 1; i < params.size(); i++) {
-          edm::LogVerbatim(label_) << " " << params[i];
-          formula += fmt::sprintf("%s%fx^{%i}", (i == 1 ? "" : (std::signbit(params[i]) ? "" : "+")), params[i], i - 1);
-        }
-        edm::LogVerbatim(label_) << std::endl;
-        formulas.push_back(formula);
-      }
-    }
-
-    /** This function determines from the list of attached DetId which
-     *  SiPixelPI::region represents them
-     */
-    std::string attachLocationLabel(const std::vector<uint32_t>& listOfDetIds, SiPixelPI::PhaseInfo& phInfo) {
-      // collect all the regions in which it can be split
-      std::vector<std::string> regions;
-      for (const auto& rawId : listOfDetIds) {
-        SiPixelPI::topolInfo t_info_fromXML;
-        t_info_fromXML.init();
-        DetId detid(rawId);
-
-        const char* path_toTopologyXML = phInfo.pathToTopoXML();
-        auto tTopo =
-            StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
-        t_info_fromXML.fillGeometryInfo(detid, tTopo, phInfo.phase());
-        const auto& reg = SiPixelPI::getStringFromRegionEnum(t_info_fromXML.filterThePartition());
-        if (!std::count(regions.begin(), regions.end(), reg)) {
-          regions.push_back(reg);
-        }
-      }
-
-      std::string retVal = "";
-      // if perfect match (only one category)
-      if (regions.size() == 1) {
-        retVal = regions.front();
-      } else {
-        retVal = this->findStem(regions);
-      }
-
-      // if the last char is "/" strip it from the string
-      if (retVal.back() == '/')
-        retVal.pop_back();
-
-      return retVal;
-    }
-
-    /** Given an input list of std::string this
-     *  finds the longest common substring
-     */
-    std::string findStem(const std::vector<std::string>& arr) {
-      // Determine size of the array
-      int n = arr.size();
-
-      // Take first word from array as reference
-      const std::string& s = arr[0];
-      int len = s.length();
-
-      std::string res = "";
-
-      for (int i = 0; i < len; i++) {
-        for (int j = i + 1; j <= len; j++) {
-          // generating all possible substrings
-          // of our reference string arr[0] i.e s
-          std::string stem = s.substr(i, j);
-          int k = 1;
-          for (k = 1; k < n; k++) {
-            // Check if the generated stem is
-            // common to all words
-            if (arr[k].find(stem) == std::string::npos)
-              break;
-          }
-
-          // If current substring is present in
-          // all strings and its length is greater
-          // than current result
-          if (k == n && res.length() < stem.length())
-            res = stem;
-        }
-      }
-      return res;
-    }
   };
 
   using SiPixelDynamicInefficiencyPUParamComparisonTwoTags =
