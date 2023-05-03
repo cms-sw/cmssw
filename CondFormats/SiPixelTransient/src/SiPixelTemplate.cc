@@ -2271,7 +2271,7 @@ void SiPixelTemplate::ysigma2(float qpixel, int index, float& ysig2)
 //! \param xsum - (input) 11-element vector of pixel signals
 //! \param xsig2 - (output) 11-element vector of x errors (squared)
 // ************************************************************************************************************
-void SiPixelTemplate::xsigma2(int fxpix, int lxpix, float sxthr, float xsum[11], float xsig2[11])
+void SiPixelTemplate::xsigma2(int fxpix, int lxpix, float sxthr, float xsum[BXSIZE], float xsig2[BXSIZE])
 
 {
   // Interpolate using quantities already stored in the private variables
