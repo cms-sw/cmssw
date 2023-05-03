@@ -25,12 +25,10 @@ float SiStripLorentzAngle::getLorentzAngle(const uint32_t& detid) const {
 void SiStripLorentzAngle::printDebug(std::stringstream& ss, const TrackerTopology* /*trackerTopo*/) const {
   std::map<unsigned int, float> detid_la = getLorentzAngles();
   std::map<unsigned int, float>::const_iterator it;
-  size_t count = 0;
   ss << "SiStripLorentzAngleReader:" << std::endl;
   ss << "detid \t Lorentz angle" << std::endl;
   for (it = detid_la.begin(); it != detid_la.end(); ++it) {
     ss << it->first << "\t" << it->second << std::endl;
-    ++count;
   }
 }
 
