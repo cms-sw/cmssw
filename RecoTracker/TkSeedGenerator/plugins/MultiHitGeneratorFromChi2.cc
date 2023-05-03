@@ -173,13 +173,13 @@ void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,
 
   auto const& doublets = thePairGenerator->doublets(region, ev, es, pairLayers);
   LogTrace("MultiHitGeneratorFromChi2") << "";
-  if (doublets.empty()) {
+  if (not doublets or doublets->empty()) {
     //  LogDebug("MultiHitGeneratorFromChi2") << "empy pairs";
     return;
   }
 
   assert(theLayerCache);
-  hitSets(region, result, doublets, thirdLayers, *theLayerCache, cache);
+  hitSets(region, result, *doublets, thirdLayers, *theLayerCache, cache);
 }
 
 void MultiHitGeneratorFromChi2::hitSets(const TrackingRegion& region,

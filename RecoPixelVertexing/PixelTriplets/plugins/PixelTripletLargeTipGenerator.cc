@@ -93,11 +93,11 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
                                                 const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers) {
   auto const& doublets = thePairGenerator->doublets(region, ev, es, pairLayers);
 
-  if (doublets.empty())
+  if (not doublets or doublets->empty())
     return;
 
   assert(theLayerCache);
-  hitTriplets(region, result, ev, es, doublets, thirdLayers, nullptr, *theLayerCache);
+  hitTriplets(region, result, ev, es, *doublets, thirdLayers, nullptr, *theLayerCache);
 }
 
 void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region,
