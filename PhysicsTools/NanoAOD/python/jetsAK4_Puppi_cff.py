@@ -131,9 +131,6 @@ run2_nanoAOD_ANY.toModify(
     PNetRegPtRawCorr = None,
     PNetRegPtRawCorrNeutrino = None,
     PNetRegPtRawRes = None,
-    btagRobustPartAK4CvL = None,
-    btagRobustPartAK4CvB = None,
-    btagRobustPartAK4QG = None,
 )
 
 #jets are not as precise as muons
