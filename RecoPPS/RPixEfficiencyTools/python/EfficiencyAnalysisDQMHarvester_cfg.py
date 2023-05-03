@@ -92,9 +92,9 @@ process.GlobalTag = GlobalTag(process.GlobalTag, gt)
 #PREPARE SOURCE
 if len(options.inputFiles) != 0:
     # Add 'file:' in front of file names
-    inputFiles = ''
+    inputFiles = []
     for file_name in options.inputFiles:
-        inputFiles += 'file:'+file_name+'\n'
+        inputFiles.append('file:'+file_name)
     inputFiles = cms.untracked.vstring(inputFiles) 
 else:
     inputFiles = cms.untracked.vstring('file:outputEfficiencyAnalysisDQMWorker.root')
