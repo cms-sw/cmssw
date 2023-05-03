@@ -6,7 +6,7 @@ AlCaRecoMatrix = {
                   "AlCaP0"                      : "",
                   "AlCaPPSExpress"              : "PPSCalMaxTracks", # Express producer
                   "AlCaPPSPrompt"               : "PPSCalMaxTracks", # Prompt  producer
-                  "Commissioning"               : "HcalCalIsoTrk+TkAlMinBias+SiStripCalMinBias+HcalCalIsolatedBunchFilter",
+                  "Commissioning"               : "HcalCalIsoTrk+TkAlMinBias+SiStripCalMinBias+HcalCalIsolatedBunchFilter+HcalCalIsolatedBunchSelector",
                   "Cosmics"                     : "SiPixelCalCosmics+SiStripCalCosmics+TkAlCosmics0T+MuAlGlobalCosmics",
                   "DoubleMuon"                  : "TkAlZMuMu+TkAlDiMuonAndVertex+MuAlCalIsolatedMu",
                   "DoubleMuonLowMass"           : "TkAlJpsiMuMu+TkAlUpsilonMuMu",
