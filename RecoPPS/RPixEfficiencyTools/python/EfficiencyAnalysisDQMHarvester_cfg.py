@@ -95,7 +95,7 @@ if len(options.inputFiles) != 0:
     inputFiles = ''
     for file_name in options.inputFiles:
         inputFiles += 'file:'+file_name+'\n'
-    inputFiles = cms.untracked.vstring(options.inputFiles) 
+    inputFiles = cms.untracked.vstring(inputFiles) 
 else:
     inputFiles = cms.untracked.vstring('file:outputEfficiencyAnalysisDQMWorker.root')
 print('Input files:\n',inputFiles, sep='')
