@@ -43,7 +43,6 @@ std::vector<RPCObImon::I_Item> RPCFw::createIMON(long long since, long long till
   coral::ISession* session = this->connect(m_connectionString, m_userName, m_password);
   session->transaction().start(true);
   coral::ISchema& schema = session->nominalSchema();
-  int nRows = 0;
   coral::IQuery* queryI = schema.newQuery();
   queryI->addToTableList("FWCAENCHANNEL");
   queryI->addToOutputList("FWCAENCHANNEL.DPID", "DPID");
@@ -79,7 +78,6 @@ std::vector<RPCObImon::I_Item> RPCFw::createIMON(long long since, long long till
       Itemp.day = ndate;
       Itemp.time = ntime;
       imonarray.push_back(Itemp);
-      ++nRows;
     }
   } else {
     std::cout << ">> creating IMON object..." << std::endl;
@@ -104,7 +102,6 @@ std::vector<RPCObImon::I_Item> RPCFw::createIMON(long long since, long long till
       Itemp.day = ndate;
       Itemp.time = ntime;
       imonarray.push_back(Itemp);
-      ++nRows;
     }
   }
   N_IOV = TtoUT(tlast);
@@ -126,7 +123,6 @@ std::vector<RPCObVmon::V_Item> RPCFw::createVMON(long long since, long long till
   coral::ISession* session = this->connect(m_connectionString, m_userName, m_password);
   session->transaction().start(true);
   coral::ISchema& schema = session->nominalSchema();
-  int nRows = 0;
   coral::IQuery* queryV = schema.newQuery();
   queryV->addToTableList("FWCAENCHANNEL");
   queryV->addToOutputList("FWCAENCHANNEL.DPID", "DPID");
@@ -165,7 +161,6 @@ std::vector<RPCObVmon::V_Item> RPCFw::createVMON(long long since, long long till
       Vtemp.day = ndate;
       Vtemp.time = ntime;
       vmonarray.push_back(Vtemp);
-      ++nRows;
     }
   } else {
     std::cout << ">> creating VMON object..." << std::endl;
@@ -190,7 +185,6 @@ std::vector<RPCObVmon::V_Item> RPCFw::createVMON(long long since, long long till
       Vtemp.day = ndate;
       Vtemp.time = ntime;
       vmonarray.push_back(Vtemp);
-      ++nRows;
     }
   }
 
@@ -210,7 +204,6 @@ std::vector<RPCObStatus::S_Item> RPCFw::createSTATUS(long long since, long long 
   coral::ISession* session = this->connect(m_connectionString, m_userName, m_password);
   session->transaction().start(true);
   coral::ISchema& schema = session->nominalSchema();
-  int nRows = 0;
   std::cout << ">> creating STATUS object..." << std::endl;
   coral::IQuery* queryS = schema.newQuery();
   queryS->addToTableList("FWCAENCHANNEL");
@@ -248,7 +241,6 @@ std::vector<RPCObStatus::S_Item> RPCFw::createSTATUS(long long since, long long 
       Stemp.day = ndate;
       Stemp.time = ntime;
       statusarray.push_back(Stemp);
-      ++nRows;
     }
   } else {
     std::cout << ">> creating STATUS object..." << std::endl;
@@ -271,7 +263,6 @@ std::vector<RPCObStatus::S_Item> RPCFw::createSTATUS(long long since, long long 
       Stemp.day = ndate;
       Stemp.time = ntime;
       statusarray.push_back(Stemp);
-      ++nRows;
     }
   }
   std::cout << ">> Staus array --> size: " << statusarray.size() << " >> done." << std::endl << std::endl << std::endl;
@@ -460,7 +451,6 @@ std::vector<RPCObTemp::T_Item> RPCFw::createT(long long since, long long till) {
   coral::ISession* session = this->connect(m_connectionString, m_userName, m_password);
   session->transaction().start(true);
   coral::ISchema& schema = session->nominalSchema();
-  int nRows = 0;
   coral::IQuery* queryS = schema.newQuery();
   queryS->addToTableList("FWCAENCHANNELADC");
   queryS->addToOutputList("FWCAENCHANNELADC.DPID", "DPID");
@@ -497,8 +487,6 @@ std::vector<RPCObTemp::T_Item> RPCFw::createT(long long since, long long till) {
       Ttemp.day = ndate;
       Ttemp.time = ntime;
       temparray.push_back(Ttemp);
-
-      ++nRows;
     }
   } else {
     std::cout << ">> creating TEMPERATURE object..." << std::endl;
@@ -522,8 +510,6 @@ std::vector<RPCObTemp::T_Item> RPCFw::createT(long long since, long long till) {
       Ttemp.day = ndate;
       Ttemp.time = ntime;
       temparray.push_back(Ttemp);
-
-      ++nRows;
     }
   }
   N_IOV = TtoUT(tlast);
@@ -548,7 +534,6 @@ std::vector<RPCObPVSSmap::Item> RPCFw::createIDMAP() {
   coral::ISession* session = this->connect(m_connectionString, m_userName, m_password);
   session->transaction().start(true);
   coral::ISchema& schema = session->nominalSchema();
-  int nRows = 0;
   std::cout << ">> creating IDMAP object..." << std::endl;
   coral::IQuery* queryM = schema.newQuery();
   queryM->addToTableList("RPCPVSSDETID");
@@ -620,8 +605,6 @@ std::vector<RPCObPVSSmap::Item> RPCFw::createIDMAP() {
     Itemp.suptype = sup;
 
     idmaparray.push_back(Itemp);
-
-    ++nRows;
   }
 
   std::cout << ">> IDMAP array --> size: " << idmaparray.size() << " >> done." << std::endl;

@@ -53,7 +53,6 @@ void popcon::EcalPulseSymmCovariancesHandler::getNewObjects() {
 
   // keep track of bad crystals
   int nEBbad(0), nEEbad(0);
-  int nEBgood(0), nEEgood(0);
   std::vector<EBDetId> ebgood;
   std::vector<EEDetId> eegood;
 
@@ -84,7 +83,6 @@ void popcon::EcalPulseSymmCovariancesHandler::getNewObjects() {
         if (!checkPulseSymmCovariance(&item))
           nEBbad++;
         else {
-          nEBgood++;
           ebgood.push_back(ebdetid);
           pulsecovs->insert(std::make_pair(ebdetid.rawId(), item));
         }
@@ -93,7 +91,6 @@ void popcon::EcalPulseSymmCovariancesHandler::getNewObjects() {
         if (!checkPulseSymmCovariance(&item))
           nEEbad++;
         else {
-          nEEgood++;
           eegood.push_back(eedetid);
           pulsecovs->insert(std::make_pair(eedetid.rawId(), item));
         }

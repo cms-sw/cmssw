@@ -63,53 +63,40 @@ void PGeometricDetBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) 
   std::vector<const GeometricDet*> tc = tracker->components();
   std::vector<const GeometricDet*>::const_iterator git = tc.begin();
   std::vector<const GeometricDet*>::const_iterator egit = tc.end();
-  int count = 0;
   int lev = 1;
   for (; git != egit; ++git) {  // one level below "tracker"
     putOne(*git, &pgd, lev);
     std::vector<const GeometricDet*> inone = (*git)->components();
-    if (inone.empty())
-      ++count;
     std::vector<const GeometricDet*>::const_iterator git2 = inone.begin();
     std::vector<const GeometricDet*>::const_iterator egit2 = inone.end();
     ++lev;
     for (; git2 != egit2; ++git2) {  // level 2
       putOne(*git2, &pgd, lev);
       std::vector<const GeometricDet*> intwo = (*git2)->components();
-      if (intwo.empty())
-        ++count;
       std::vector<const GeometricDet*>::const_iterator git3 = intwo.begin();
       std::vector<const GeometricDet*>::const_iterator egit3 = intwo.end();
       ++lev;
       for (; git3 != egit3; ++git3) {  // level 3
         putOne(*git3, &pgd, lev);
         std::vector<const GeometricDet*> inthree = (*git3)->components();
-        if (inthree.empty())
-          ++count;
         std::vector<const GeometricDet*>::const_iterator git4 = inthree.begin();
         std::vector<const GeometricDet*>::const_iterator egit4 = inthree.end();
         ++lev;
         for (; git4 != egit4; ++git4) {  //level 4
           putOne(*git4, &pgd, lev);
           std::vector<const GeometricDet*> infour = (*git4)->components();
-          if (infour.empty())
-            ++count;
           std::vector<const GeometricDet*>::const_iterator git5 = infour.begin();
           std::vector<const GeometricDet*>::const_iterator egit5 = infour.end();
           ++lev;
           for (; git5 != egit5; ++git5) {  // level 5
             putOne(*git5, &pgd, lev);
             std::vector<const GeometricDet*> infive = (*git5)->components();
-            if (infive.empty())
-              ++count;
             std::vector<const GeometricDet*>::const_iterator git6 = infive.begin();
             std::vector<const GeometricDet*>::const_iterator egit6 = infive.end();
             ++lev;
             for (; git6 != egit6; ++git6) {  //level 6
               putOne(*git6, &pgd, lev);
               std::vector<const GeometricDet*> insix = (*git6)->components();
-              if (insix.empty())
-                ++count;
             }  // level 6
             --lev;
           }  // level 5

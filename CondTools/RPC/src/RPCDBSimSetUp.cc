@@ -32,7 +32,6 @@ RPCDBSimSetUp::RPCDBSimSetUp(const edm::ParameterSet& ps) {
 
   std::vector<std::string> words;
 
-  int count = 0;
   while (getline(_infile1, buff, '\n')) {
     words.clear();
     vnoise.clear();
@@ -56,8 +55,6 @@ RPCDBSimSetUp::RPCDBSimSetUp(const edm::ParameterSet& ps) {
     }
 
     _mapDetIdNoise.insert(make_pair(static_cast<uint32_t>(rpcdetid), vnoise));
-
-    count++;
   }
   _infile1.close();
 
