@@ -8,7 +8,7 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 
 #SETUP PROCESS
-process = cms.Process("EfficiencyAnalysisDQMHarvester", eras.Run3)
+process = cms.Process('EfficiencyAnalysisDQMHarvester', eras.Run3)
 
 
 #SPECIFY INPUT PARAMETERS
@@ -22,32 +22,32 @@ options.register('outputDirectoryPath',
                 '.',
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.string,
-                "directory in which the output ROOT file will be saved")
+                'directory in which the output ROOT file will be saved')
 
 options.register('run',
                 '999999',
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.string,
-                "Run number to tag the output file")
+                'Run number to tag the output file')
 
 options.register('clusterid',
                 '9999999999',
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.string,
-                "HTCondor cluster id to tag the output")
+                'HTCondor cluster id to tag the output')
 
 options.register('globalTag',
                 '',
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.string,
-                "GT to use")
+                'GT to use')
 
 options.parseArguments()
 
 
 #PREPARE LOGGER
-process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger = cms.Service("MessageLogger",
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.MessageLogger = cms.Service('MessageLogger',
     destinations = cms.untracked.vstring('cout'),
     cout = cms.untracked.PSet( 
         optionalPSet = cms.untracked.bool(True),
@@ -67,7 +67,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         threshold = cms.untracked.string('INFO')
         ),
     categories = cms.untracked.vstring(
-        "FwkReport"
+        'FwkReport'
         ),
 )
 process.MessageLogger.statistics = cms.untracked.vstring()
@@ -75,9 +75,9 @@ process.MessageLogger.statistics = cms.untracked.vstring()
 
 #LOAD NECCESSARY DEPENDENCIES
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load("DQM.Integration.config.environment_cfi")
-process.load("DQMServices.Components.DQMEnvironment_cfi")
-process.load("Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi")
+process.load('DQM.Integration.config.environment_cfi')
+process.load('DQMServices.Components.DQMEnvironment_cfi')
+process.load('Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi')
 
 #SETUP GLOBAL TAG
 if options.globalTag != '':
@@ -91,12 +91,16 @@ process.GlobalTag = GlobalTag(process.GlobalTag, gt)
 
 #PREPARE SOURCE
 if len(options.inputFiles) != 0:
+    # Add 'file:' in front of file names
+    inputFiles = ''
+    for file_name in options.inputFiles:
+        inputFiles += 'file:'+file_name+'\n'
     inputFiles = cms.untracked.vstring(options.inputFiles) 
 else:
     inputFiles = cms.untracked.vstring('file:outputEfficiencyAnalysisDQMWorker.root')
 print('Input files:\n',inputFiles, sep='')
 
-process.source = cms.Source("DQMRootSource",
+process.source = cms.Source('DQMRootSource',
     fileNames = cms.untracked.vstring(inputFiles),
 )
 
@@ -105,9 +109,9 @@ process.harvester = DQMEDHarvester('EfficiencyTool_2018DQMHarvester')
 
 
 #CONFIGURE DQM Saver
-process.dqmEnv.subSystemFolder = "RolCalPPS"
+process.dqmEnv.subSystemFolder = 'RolCalPPS'
 process.dqmSaver.convention = 'Offline'
-process.dqmSaver.workflow = "/"+"/".join(['efficiencyAnalysis', options.run, options.clusterid])
+process.dqmSaver.workflow = '/'+'/'.join(['efficiencyAnalysis', options.run, options.clusterid])
 process.dqmSaver.saveByRun = -1
 process.dqmSaver.saveAtJobEnd = True
 process.dqmSaver.forceRunNumber = 999999
