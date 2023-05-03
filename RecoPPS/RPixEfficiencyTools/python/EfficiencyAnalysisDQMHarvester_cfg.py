@@ -17,12 +17,7 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(False),
     FailPath = cms.untracked.vstring('Type Mismatch')
     )
-options = VarParsing.VarParsing()
-options.register('inputFileNames',
-                'outputEfficiencyAnalysisDQMWorker.root',
-                VarParsing.VarParsing.multiplicity.singleton,
-                VarParsing.VarParsing.varType.string,
-                "input ROOT file names, comma-separated (file created by EfficiencyAnalysisDQMWorker)")
+options = VarParsing.VarParsing('analysis')
 
 options.register('outputDirectoryPath',
                 '.',
@@ -48,6 +43,11 @@ options.register('dataPeriod',
                 VarParsing.VarParsing.varType.string,
                 "")
 
+options.register('globalTag',
+                '',
+                VarParsing.VarParsing.multiplicity.singleton,
+                VarParsing.VarParsing.varType.string,
+                "GT to use")
 
 options.parseArguments()
 
@@ -87,9 +87,9 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load("Geometry.VeryForwardGeometry.geometryRPFromDD_2018_cfi")
 
 #SETUP GLOBAL TAG
-gt_from_env = os.getenv('EFFICIENCY_GT')
-gt = gt_from_env
-if gt == None:
+if options.globalTag != '':
+    gt = options.globalTag
+else:
     gt = 'auto:run3_data_prompt'
 
 print('Using GT:',gt)
@@ -97,14 +97,14 @@ process.GlobalTag = GlobalTag(process.GlobalTag, gt)
 
 
 #PREPARE SOURCE
-file_names_list = options.inputFileNames.split(",")
-input_files = ""
-for file_name in file_names_list:
-    input_files+="file:"+file_name+"\n"
+if len(options.inputFiles) != 0:
+    inputFiles = cms.untracked.vstring(options.inputFiles) 
+else:
+    inputFiles = cms.untracked.vstring('file:outputEfficiencyAnalysisDQMWorker.root')
+print('Input files:\n',inputFiles, sep='')
 
-print('Input files:\n',input_files,sep='')
 process.source = cms.Source("DQMRootSource",
-    fileNames = cms.untracked.vstring(input_files),
+    fileNames = cms.untracked.vstring(inputFiles),
 )
 
 #SETUP HARVESTER
