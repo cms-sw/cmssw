@@ -1,7 +1,6 @@
 import os
 
 import FWCore.ParameterSet.Config as cms
-from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 import FWCore.ParameterSet.VarParsing as VarParsing
 from Configuration.StandardSequences.Eras import eras
 from Configuration.AlCa.GlobalTag import GlobalTag
