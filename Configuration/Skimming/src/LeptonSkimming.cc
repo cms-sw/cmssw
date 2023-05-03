@@ -302,9 +302,7 @@ bool LeptonSkimming::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Save electrons we want to skim
   ElTracks.clear();
   if (!SkimOnlyMuons) {
-    unsigned int count_el = -1;
     for (const reco::GsfElectron& el : *electrons) {
-      count_el++;
       bool passConvVeto = !ConversionTools::hasMatchedConversion(*(&el), *conversions, theBeamSpot->position());
       if (!passConvVeto)
         continue;
