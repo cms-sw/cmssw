@@ -121,8 +121,7 @@ HGCalLayerClusterProducer::HGCalLayerClusterProducer(const edm::ParameterSet& ps
     algo_ = HGCalLayerClusterAlgoFactory::get()->create("HFNoseCLUE", pluginPSet);
     algo_->setAlgoId(algoId_, true);
   } else {
-    algo_ = HGCalLayerClusterAlgoFactory::get()->create(
-        pluginPSet.getParameter<std::string>("type"), pluginPSet);
+    algo_ = HGCalLayerClusterAlgoFactory::get()->create(pluginPSet.getParameter<std::string>("type"), pluginPSet);
     algo_->setAlgoId(algoId_);
   }
   thresholdW0_ = pluginPSet.getParameter<std::vector<double>>("thresholdW0");

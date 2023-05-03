@@ -63,6 +63,7 @@ hgcalLayerClustersHSiL1Seeded = hgcalLayerClustersEEL1Seeded.clone(
   recHits = cms.InputTag('HGCalRecHit', 'HGCHEFRecHits')
 )
 hgcalLayerClustersHSciL1Seeded = hgcalLayerClustersEEL1Seeded.clone(
-  recHits = cms.InputTag('HGCalRecHit', 'HGCHEBRecHits')
+  recHits = cms.InputTag('HGCalRecHit', 'HGCHEBRecHits'),
+  plugin = hgcalLayerClustersEEL1Seeded.plugin.clone(type = cms.string('SciCLUE'))
+
 )
-hgcalLayerClustersHSciL1Seeded.plugin["type"] = cms.string('SciCLUE')

@@ -204,7 +204,10 @@ private:
   void calculateLocalDensity(const TILE& lt, const unsigned int layerId,
                              float delta);  // return max density
   void calculateLocalDensity(const TILE& lt, const unsigned int layerId, float delta, HGCalSiliconStrategy strategy);
-  void calculateLocalDensity(const TILE& lt, const unsigned int layerId, float delta, HGCalScintillatorStrategy strategy);
+  void calculateLocalDensity(const TILE& lt,
+                             const unsigned int layerId,
+                             float delta,
+                             HGCalScintillatorStrategy strategy);
   void calculateDistanceToHigher(const TILE& lt, const unsigned int layerId, float delta);
   int findAndAssignClusters(const unsigned int layerId, float delta);
 };

@@ -252,10 +252,10 @@ private:
                             const unsigned int,
                             std::vector<std::vector<KDNode>> &) const;
   math::XYZPoint calculatePosition(std::vector<KDNode> &) const;
-  
+
   //For keeping the density information
   void setDensity(const std::vector<KDNode> &nd);
-  
+
   // attempt to find subclusters within a given set of hexels
   std::vector<unsigned> findLocalMaximaInCluster(const std::vector<KDNode> &);
   math::XYZPoint calculatePositionWithFraction(const std::vector<KDNode> &, const std::vector<double> &);
