@@ -104,14 +104,8 @@ void EvtGenTestAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
   const float mmcToPs = 3.3355;
   int nB = 0;
   int nJpsi = 0;
-  int nBp = 0;
   int nBz = 0;
   int nBzb = 0;
-  int nBzmix = 0;
-  int nBzunmix = 0;
-  int nBzKmumu = 0;
-  int nBJpsiKs = 0;
-  int nBJpsiKstar = 0;
 
   for (HepMC::GenEvent::particle_const_iterator p = Evt->particles_begin(); p != Evt->particles_end(); ++p) {
     // General
@@ -151,17 +145,7 @@ void EvtGenTestAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
     if (std::abs((*p)->pdg_id()) == 521)  // B+/-
     // || abs((*p)->pdg_id()/100) == 4 || abs((*p)->pdg_id()/100) == 3)
     {
-      nBp++;
       htbPlus->Fill(dectime);
-      int isJpsiKstar = 0;
-      for (HepMC::GenVertex::particles_out_const_iterator bp = endvert->particles_out_const_begin();
-           bp != endvert->particles_out_const_end();
-           ++bp) {
-        if ((*bp)->pdg_id() == 443 || std::abs((*bp)->pdg_id()) == 323)
-          isJpsiKstar++;
-      }
-      if (isJpsiKstar == 2)
-        nBJpsiKstar++;
     }
     // if ((*p)->pdg_id() == 443) *undecayed << (*p)->pdg_id() << std::endl;
     // --------------------------------------------------------------
@@ -191,17 +175,11 @@ void EvtGenTestAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
         nB++;
         if ((*p)->pdg_id() > 0) {
           nBz++;
-          if (mixed == 1) {
-            nBzmix++;
-          } else {
-            nBzunmix++;
-          }
         } else {
           nBzb++;
         }
       }
       int isJpsiKs = 0;
-      int isKmumu = 0;
       int isSemilept = 0;
       for (HepMC::GenVertex::particles_out_const_iterator bp = endvert->particles_out_const_begin();
            bp != endvert->particles_out_const_end();
@@ -218,8 +196,6 @@ void EvtGenTestAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
           hPhiRadPho->Fill((*bp)->momentum().phi());
           hEtaRadPho->Fill((*bp)->momentum().pseudoRapidity());
         }
-        if ((*p)->pdg_id() > 0 && (std::abs((*bp)->pdg_id()) == 313 || std::abs((*bp)->pdg_id()) == 13))
-          isKmumu++;
         if (std::abs((*bp)->pdg_id()) == 11 || std::abs((*bp)->pdg_id()) == 13 || std::abs((*bp)->pdg_id()) == 15)
           isSemilept++;
       }
@@ -247,7 +223,6 @@ void EvtGenTestAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
       }
 
       if (isJpsiKs == 2) {
-        nBJpsiKs++;
         if ((*p)->pdg_id() * mixed < 0) {
           htbbarJpsiKs->Fill(dectime);
         } else {
@@ -255,8 +230,6 @@ void EvtGenTestAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
         }
       }
 
-      if (isKmumu == 3)
-        nBzKmumu++;
     }
     // --------------------------------------------------------------
     if ((*p)->pdg_id() == 443) {  //Jpsi
@@ -416,12 +389,6 @@ void EvtGenTestAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
   hnBzb->Fill(nBzb);
   // *undecayed << "-------------------------------" << std::endl;
   // *decayed << "-------------------------------" << std::endl;
-
-  // if (nBz > 0) std::cout << "nBz = " << nBz << " nBz (K*mu+mu-) = " << nBzKmumu << " nMix = " << nBzmix << std::endl;
-  // if (nBz > 0 && nBzKmumu == 0) Evt->print();
-  // if (nB > 0) std::cout << "nB = " << nB << " nBz (JPsi Ks) = " << nBJpsiKs << std::endl;
-  // if (nBp > 0) std::cout << "nB = " << nBp << " nBz (JPsi Kstar) = " << nBJpsiKstar << std::endl;
-  // if (nBp > 0 && nBJpsiKstar == 0) Evt->print();
 
   return;
 }
