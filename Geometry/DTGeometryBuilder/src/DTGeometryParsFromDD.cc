@@ -81,9 +81,7 @@ void DTGeometryParsFromDD::buildGeometry(DDFilteredView& fv,
   bool doChamber = fv.firstChild();
 
   // Loop on chambers
-  int ChamCounter = 0;
   while (doChamber) {
-    ChamCounter++;
     DDValue val("Type");
     const DDsvalues_type params(fv.mergedSpecifics());
     std::string type;
@@ -98,16 +96,12 @@ void DTGeometryParsFromDD::buildGeometry(DDFilteredView& fv,
 
     // Loop on SLs
     bool doSL = fv.firstChild();
-    int SLCounter = 0;
     while (doSL) {
-      SLCounter++;
       insertSuperLayer(fv, type, muonConstants, rig);
 
       bool doL = fv.firstChild();
-      int LCounter = 0;
       // Loop on SLs
       while (doL) {
-        LCounter++;
         insertLayer(fv, type, muonConstants, rig);
 
         // fv.parent();

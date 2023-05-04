@@ -55,9 +55,7 @@ void DTGeometryBuilderFromDDD::buildGeometry(DTGeometry& theGeometry,
   bool doChamber = fv.firstChild();
 
   // Loop on chambers
-  int ChamCounter = 0;
   while (doChamber) {
-    ChamCounter++;
     DDValue val("Type");
     const DDsvalues_type params(fv.mergedSpecifics());
     std::string type;
@@ -72,17 +70,13 @@ void DTGeometryBuilderFromDDD::buildGeometry(DTGeometry& theGeometry,
 
     // Loop on SLs
     bool doSL = fv.firstChild();
-    int SLCounter = 0;
     while (doSL) {
-      SLCounter++;
       DTSuperLayer* sl = buildSuperLayer(fv, chamber, type, muonConstants);
       theGeometry.add(sl);
 
       bool doL = fv.firstChild();
-      int LCounter = 0;
       // Loop on SLs
       while (doL) {
-        LCounter++;
         DTLayer* layer = buildLayer(fv, sl, type, muonConstants);
         theGeometry.add(layer);
 
