@@ -1,4 +1,4 @@
-#!/bin/env python
+#!/bin/env python3
 import ROOT
 import numpy
 import sys
@@ -100,6 +100,9 @@ for e in fileHandles[0].GetListOfKeys():
         for st in inputs:
             if st.GetString() != obj.GetString():
                 print("Strings are not matching")
+        obj.Write()
+    elif obj.IsA().InheritsFrom(ROOT.THnSparse.Class()):
+        obj.Merge(inputs)
         obj.Write()
     else:
         print("Cannot handle " + str(obj.IsA().GetName()))
