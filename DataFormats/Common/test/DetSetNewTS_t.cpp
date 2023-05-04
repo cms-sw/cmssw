@@ -123,17 +123,14 @@ TestDetSet::TestDetSet() : sv(10) {
 }
 
 void read(DSTV const& detsets, bool all = false) {
-  int i = 0;
   for (auto di = detsets.begin(false); di != detsets.end(false); ++di) {
     auto ds = *di;
     auto id = ds.id();
     std::cout << id << ' ';
-    // if (all) CPPUNIT_ASSERT(int(id)==20+i);
     if (ds.isValid()) {
       CPPUNIT_ASSERT(ds[0] == 100 * (id - 20) + 3);
       CPPUNIT_ASSERT(ds[1] == -(100 * (id - 20) + 3));
     }
-    ++i;
   }
   std::cout << std::endl;
 }
