@@ -101,7 +101,6 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(std::vector<double>& ha
   fullPath = myDataFile.fullPath();
   theFile = TFile::Open(fullPath.c_str());
 
-  unsigned fileNb = 0;
   for (unsigned iname = 0; iname < thePionNA.size(); ++iname) {
     for (unsigned iene = 0; iene < thePionEN.size(); ++iene) {
       //std::cout << "iname/iene " << iname << " " << iene << std::endl;
@@ -111,7 +110,6 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(std::vector<double>& ha
       theFileNames[iname][iene] = filename.str();
       //std::cout << "thePid/theEne " << thePionID[iname] << " " << theEne << std::endl;
 
-      ++fileNb;
       std::string treeName = "NuclearInteractions_" + thePionNA[iname] + "_E" + std::to_string(int(theEne));
       //
       theTrees[iname][iene] = (TTree*)theFile->Get(treeName.c_str());
@@ -153,7 +151,6 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(std::vector<double>& ha
   gROOT->cd();
 
   // Information (Should be on LogInfo)
-  //  std::cout << " ---> A total of " << fileNb
   //	    << " nuclear-interaction files was sucessfully open" << std::endl;
 
   //  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
