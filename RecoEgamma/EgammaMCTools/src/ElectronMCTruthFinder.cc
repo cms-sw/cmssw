@@ -65,7 +65,6 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(const std::vector<SimTr
 
   //std::cout << " Loop over all particles " << std::endl;
 
-  //int npv = 0;
   for (std::vector<SimTrack>::const_iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk) {
     if ((*iSimTk).noVertex())
       continue;
@@ -75,34 +74,12 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(const std::vector<SimTr
 
     //std::cout << " Particle type " <<  (*iSimTk).type() << " Sim Track ID " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  " vertex position " << vertex.position() << " vertex ID " << vertexId  << std::endl;
     if ((*iSimTk).vertIndex() == iPV) {
-      //npv++;
       if (std::abs((*iSimTk).type()) == 11) {
         //std::cout << " Found a primary electron with ID  " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  std::endl;
         electronTracks.push_back(*iSimTk);
       }
     }
   }
-  //std::cout << " There are " << npv << " particles originating in the PV " << std::endl;
-
-  //if(npv > 4) {
-  //  ievtype = PYTHIA;
-  //} else if(npv == 1) {
-  //  if( std::abs(partType1) == 11 ) {
-  //    ievtype = SINGLE; ievflav = ELECTRON_FLAV;
-  //  } else if(partType1 == 111) {
-  //    ievtype = SINGLE; ievflav = PIZERO_FLAV;
-  //  } else if(partType1 == 22) {
-  //    ievtype = SINGLE; ievflav = PHOTON_FLAV;
-  //  }
-  //} else if(npv == 2) {
-  //  if (  std::abs(partType1) == 11 && std::abs(partType2) == 11 ) {
-  //    ievtype = DOUBLE; ievflav = ELECTRON_FLAV;
-  //  } else if(partType1 == 111 && partType2 == 111)   {
-  //    ievtype = DOUBLE; ievflav = PIZERO_FLAV;
-  //  } else if(partType1 == 22 && partType2 == 22)   {
-  //    ievtype = DOUBLE; ievflav = PHOTON_FLAV;
-  //  }
-  //}
 
   /// Now store the electron truth
   std::vector<CLHEP::Hep3Vector> bremPos;
