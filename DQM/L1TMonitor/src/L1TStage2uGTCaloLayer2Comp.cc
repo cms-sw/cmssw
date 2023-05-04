@@ -134,7 +134,6 @@ bool L1TStage2uGTCaloLayer2Comp::compareJets(const edm::Handle<l1t::JetBxCollect
 
   if (col1It != col1->end() || col2It != col2->end()) {
     while (true) {
-
       // object pt mismatch
       if (col1It->hwPt() != col2It->hwPt()) {
         comparisonNum->Fill(JETBADET);

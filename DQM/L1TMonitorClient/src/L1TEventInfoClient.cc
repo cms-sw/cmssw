@@ -329,7 +329,6 @@ void L1TEventInfoClient::book(DQMStore::IBooker& ibooker, DQMStore::IGetter& ige
 
       iAllQTest++;
     }
-
   }
 
   for (unsigned int iMon = 0; iMon < m_nrL1Objects; ++iMon) {
@@ -346,7 +345,6 @@ void L1TEventInfoClient::book(DQMStore::IBooker& ibooker, DQMStore::IGetter& ige
 
       iAllQTest++;
     }
-
   }
 
   ibooker.setCurrentFolder(dirEventInfo);

@@ -919,13 +919,11 @@ void DQMSourcePi0::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
                 // pt, eta, phi, Iso, m_inv, i, j :   "<<pt_pair<<"
                 //"<<pairVect.Eta()<<" "<<pairVect.Phi()<<" "<<Iso<<"
                 //"<<m_inv<<" "<<i<<" "<<j<<" "<<endl;
-
               }
             }
           }
         }  // End of the "j" loop over Simple Clusters
       }    // End of the "i" loop over Simple Clusters
-
 
     }  // rhEBpi0.valid() ends
 
@@ -1225,13 +1223,11 @@ void DQMSourcePi0::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
                 // pt, eta, phi, Iso, m_inv, i, j :   "<<pt_pair<<"
                 //"<<pairVect.Eta()<<" "<<pairVect.Phi()<<" "<<Iso<<"
                 //"<<m_inv<<" "<<i<<" "<<j<<" "<<endl;
-
               }
             }
           }
         }  // End of the "j" loop over Simple Clusters
       }    // End of the "i" loop over Simple Clusters
-
 
     }  // rhEBeta.valid() ends
 
@@ -1476,7 +1472,6 @@ void DQMSourcePi0::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
                 hIsoPi0EE_->Fill(Iso / pt_pair);
                 hS4S91Pi0EE_->Fill(s4s9ClusEndCap[i]);
                 hS4S92Pi0EE_->Fill(s4s9ClusEndCap[j]);
-
               }
             }
           }
@@ -1723,7 +1718,6 @@ void DQMSourcePi0::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
                 hIsoEtaEE_->Fill(Iso / pt_pair);
                 hS4S91EtaEE_->Fill(s4s9ClusEndCap[i]);
                 hS4S92EtaEE_->Fill(s4s9ClusEndCap[j]);
-
               }
             }
           }

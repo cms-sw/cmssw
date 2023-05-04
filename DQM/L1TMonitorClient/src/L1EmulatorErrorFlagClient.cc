@@ -41,7 +41,6 @@ void L1EmulatorErrorFlagClient::initialize() {
   m_systemFolder.reserve(m_nrL1Systems);
   m_systemErrorFlag.reserve(m_nrL1Systems);
 
-
   for (std::vector<edm::ParameterSet>::const_iterator itSystem = m_l1Systems.begin(); itSystem != m_l1Systems.end();
        ++itSystem) {
     m_systemLabel.push_back(itSystem->getParameter<std::string>("SystemLabel"));
@@ -51,7 +50,6 @@ void L1EmulatorErrorFlagClient::initialize() {
     m_systemMask.push_back(itSystem->getParameter<unsigned int>("SystemMask"));
 
     m_systemFolder.push_back(itSystem->getParameter<std::string>("SystemFolder"));
-
   }
 
   // [SYS]ErrorFlag histogram

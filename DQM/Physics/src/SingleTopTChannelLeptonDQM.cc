@@ -801,7 +801,6 @@ void SingleTopTChannelLeptonDQM::analyze(const edm::Event& event, const edm::Eve
       }
       if (type == "elecs/pf" && PFElectronStep != nullptr) {
         if (PFElectronStep->select(event, "electron")) {
-
           selection_[key].second->fill(event, setup);
 
         } else

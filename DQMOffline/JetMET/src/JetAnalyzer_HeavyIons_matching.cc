@@ -342,7 +342,6 @@ void JetAnalyzer_HeavyIons_matching::analyze(const edm::Event& mEvent, const edm
 
         Jet1_ID[Aj.id] = 1;
         Jet2_ID[Bj.id] = 1;
-
       }
     }
 

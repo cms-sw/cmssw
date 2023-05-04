@@ -497,7 +497,6 @@ void L1TEMTFEventInfoClient::book(DQMStore::IBooker& ibooker, DQMStore::IGetter&
 
       iAllQTest++;
     }
-
   }
 
   for (unsigned int iMon = 0; iMon < m_nrHitObjects; ++iMon) {
@@ -526,7 +525,6 @@ void L1TEMTFEventInfoClient::book(DQMStore::IBooker& ibooker, DQMStore::IGetter&
 
       iAllQTest++;
     }
-
   }
 
   // for Noisy Strips ====================================================================
