@@ -8,9 +8,6 @@
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
-// all these debug printouts will need to be removed at some point
-//#define DBG_PRINT(arg) (arg)
-#define DBG_PRINT(arg)
 
 L2TauPixelTrackMatch::L2TauPixelTrackMatch(const edm::ParameterSet& conf) {
   m_jetSrc = consumes<trigger::TriggerFilterObjectWithRefs>(conf.getParameter<edm::InputTag>("JetSrc"));
@@ -38,7 +35,6 @@ void L2TauPixelTrackMatch::produce(edm::StreamID, edm::Event& ev, const edm::Eve
   ev.getByToken(m_beamSpotTag, bsHandle);
   const reco::BeamSpot& bs = *bsHandle;
   math::XYZPoint beam_spot(bs.x0(), bs.y0(), bs.z0());
-  DBG_PRINT(cout << endl << "beamspot " << beam_spot << endl);
 
   // *** Pick up pixel tracks ***
 
@@ -73,52 +69,34 @@ void L2TauPixelTrackMatch::produce(edm::StreamID, edm::Event& ev, const edm::Eve
     trk.vtx = math::XYZPoint(bs.x(dz), bs.y(dz), dz);
     good_tracks.push_back(trk);
   }
-  DBG_PRINT(cout << "got " << good_tracks.size() << " good tracks;   " << n_jets << " tau jets" << endl);
 
   // *** Match tau jets to intertesting tracks  and assign them new vertices ***
 
   // the new product
   std::unique_ptr<CaloJetCollection> new_tau_jets(new CaloJetCollection);
-  int n_uniq = 0;
   if (!good_tracks.empty())
     for (size_t i = 0; i < n_jets; ++i) {
       reco::CaloJetRef jet = tau_jets[i];
       if (jet->pt() < m_jetMinPt || std::abs(jet->eta()) > m_jetMaxEta)
         continue;
 
-      DBG_PRINT(cout << i << " :" << endl);
-
       size_t n0 = new_tau_jets->size();
 
       for (vector<TinyTrack>::const_iterator itrk = good_tracks.begin(); itrk != good_tracks.end(); ++itrk) {
-        DBG_PRINT(cout << "  trk pt,eta,phi,z: " << itrk->pt << " " << itrk->eta << " " << itrk->phi << " "
-                       << itrk->vtx.z() << " \t\t ");
-
         math::XYZTLorentzVector new_jet_dir = Jet::physicsP4(itrk->vtx, *jet, itrk->vtx);
         float dphi = reco::deltaPhi(new_jet_dir.phi(), itrk->phi);
         float deta = new_jet_dir.eta() - itrk->eta;
 
-        DBG_PRINT(cout << " jet pt,deta,dphi,dr: " << jet->pt() << " " << deta << " " << dphi << " "
-                       << sqrt(dphi * dphi + deta * deta) << endl);
-
         if (dphi * dphi + deta * deta > m_deltaR * m_deltaR)
           continue;
-
-        DBG_PRINT(cout << "  jet-trk match!" << endl);
 
         // create a jet copy and assign a new vertex to it
         CaloJet new_jet = *jet;
         new_jet.setVertex(itrk->vtx);
-
         new_tau_jets->push_back(new_jet);
       }
-      DBG_PRINT(cout << "  nmatchedjets " << new_tau_jets->size() - n0 << endl);
-      if (new_tau_jets->size() - n0 > 0)
-        n_uniq++;
-
       ///if (jet_with_vertices.size()) new_tau_jets->push_back(jet_with_vertices);
     }
-  DBG_PRINT(cout << "n_uniq_matched_jets " << n_uniq << endl << "storing njets " << new_tau_jets->size() << endl);
 
   // store the result
   ev.put(std::move(new_tau_jets));

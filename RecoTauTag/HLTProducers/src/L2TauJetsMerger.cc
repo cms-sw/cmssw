@@ -30,7 +30,6 @@ void L2TauJetsMerger::produce(edm::StreamID iSId, edm::Event& iEvent, const edm:
   //and removing the collinear jets
   CaloJetCollection myTmpJets;
 
-  int iL1Jet = 0;
   for (vtoken_cjets::const_iterator s = jetSrc_token.begin(); s != jetSrc_token.end(); ++s) {
     edm::Handle<CaloJetCollection> tauJets;
     iEvent.getByToken(*s, tauJets);
@@ -42,7 +41,6 @@ void L2TauJetsMerger::produce(edm::StreamID iSId, edm::Event& iEvent, const edm:
         myTmpJets.push_back(myJet);
       }
     }
-    iL1Jet++;
   }
 
   std::unique_ptr<CaloJetCollection> tauL2jets(new CaloJetCollection);
