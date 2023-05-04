@@ -11,7 +11,10 @@ process = cms.Process("L1TrackNtuple")
 # edit options here
 ############################################################
 
-GEOMETRY = "D76"
+# D76 used for old CMSSW_11_3 MC datasets. D88 used for CMSSW_12_6 datasets.
+#GEOMETRY = "D76"  
+GEOMETRY = "D88"
+
 # Set L1 tracking algorithm:
 # 'HYBRID' (baseline, 4par fit) or 'HYBRID_DISPLACED' (extended, 5par fit).
 # 'HYBRID_NEWKF' (baseline, 4par fit, with bit-accurate KF emulation),
@@ -34,14 +37,12 @@ process.MessageLogger.L1track = dict(limit = -1)
 process.MessageLogger.Tracklet = dict(limit = -1)
 process.MessageLogger.TrackTriggerHPH = dict(limit = -1)
 
-if GEOMETRY == "D49":
+if GEOMETRY == "D76" or GEOMETRY == "D88":
+    # Use D88 for both, as both correspond to identical CMS Tracker design, and D76 
+    # unavailable in CMSSW_12_6_0. 
     print("using geometry " + GEOMETRY + " (tilted)")
-    process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
-    process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
-elif GEOMETRY == "D76":
-    print("using geometry " + GEOMETRY + " (tilted)")
-    process.load('Configuration.Geometry.GeometryExtended2026D76Reco_cff')
-    process.load('Configuration.Geometry.GeometryExtended2026D76_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D88_cff')
 else:
     print("this is not a valid geometry!!!")
 
@@ -64,16 +65,13 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 #from MCsamples.Scripts.getCMSdata_cfi import *
 #from MCsamples.Scripts.getCMSlocaldata_cfi import *
 
-if GEOMETRY == "D49":
-  inputMC = ["/store/relval/CMSSW_11_3_0_pre3/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_113X_mcRun4_realistic_v3_2026D49PU200_rsb-v1/00000/00260a30-734a-4a3a-a4b0-f836ce5502c6.root"]
-
-elif GEOMETRY == "D76":
+if GEOMETRY == "D76":
   # Read data from card files (defines getCMSdataFromCards()):
   #from MCsamples.RelVal_1130_D76.PU200_TTbar_14TeV_cfi import *
   #inputMC = getCMSdataFromCards()
 
   # Or read .root files from directory on local computer:
-  #dirName = "$myDir/whatever/"
+  #dirName = "$scratchmc/MCsamples1130_D76/RelVal/TTbar/PU200/"
   #inputMC=getCMSlocaldata(dirName)
 
   # Or read specified dataset (accesses CMS DB, so use this method only occasionally):
@@ -83,13 +81,29 @@ elif GEOMETRY == "D76":
   # Or read specified .root file:
   inputMC = ["/store/relval/CMSSW_11_3_0_pre6/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_113X_mcRun4_realistic_v6_2026D76PU200-v1/00000/00026541-6200-4eed-b6f8-d3a1fd720e9c.root"]
 
+elif GEOMETRY == "D88":
+
+  # Read specified .root file:
+  inputMC = ["/store/relval/CMSSW_12_6_0_pre4/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_125X_mcRun4_realistic_v2_2026D88PU200-v1/2590000/00b3d04b-4c7b-4506-8d82-9538fb21ee19.root"]
+
 else:
 
   print("this is not a valid geometry!!!")
 
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(*inputMC))
+
+if GEOMETRY == "D76":
+  # If reading old MC dataset, drop incompatible EDProducts.
+  process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
+  process.source.inputCommands = cms.untracked.vstring()
+  process.source.inputCommands.append('keep  *_*_*Level1TTTracks*_*')
+  process.source.inputCommands.append('keep  *_*_*StubAccepted*_*')
+  process.source.inputCommands.append('keep  *_*_*ClusterAccepted*_*')
+  process.source.inputCommands.append('keep  *_*_*MergedTrackTruth*_*')
+  process.source.inputCommands.append('keep  *_genParticles_*_*')
+
 # Use skipEvents to select particular single events for test vectors
-#process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(*inputMC), skipEvents = cms.untracked.uint32(11))
+#process.source.skipEvents = cms.untracked.uint32(11)
 
 process.TFileService = cms.Service("TFileService", fileName = cms.string('TTbar_PU200_'+GEOMETRY+'.root'), closeFileFast = cms.untracked.bool(True))
 process.Timing = cms.Service("Timing", summaryOnly = cms.untracked.bool(True))
@@ -100,6 +114,8 @@ process.Timing = cms.Service("Timing", summaryOnly = cms.untracked.bool(True))
 ############################################################
 
 process.load('L1Trigger.TrackTrigger.TrackTrigger_cff')
+process.load('L1Trigger.TrackerTFP.ProducerES_cff')
+process.load('L1Trigger.TrackerTFP.ProducerLayerEncoding_cff')
 
 # remake stubs?
 #from L1Trigger.TrackTrigger.TTStubAlgorithmRegister_cfi import *
@@ -157,7 +173,7 @@ elif (L1TRKALGO == 'HYBRID_NEWKF' or L1TRKALGO == 'HYBRID_REDUCED'):
     L1TRK_LABEL = process.TrackFindingTrackletProducer_params.BranchAcceptedTracks.value()
     L1TRUTH_NAME = "TTTrackAssociatorFromPixelDigis"
     process.TTTrackAssociatorFromPixelDigis.TTTracks = cms.VInputTag( cms.InputTag(L1TRK_NAME, L1TRK_LABEL) )
-    process.HybridNewKF = cms.Sequence(process.L1HybridTracks + process.TrackFindingTrackletProducerTBout + process.TrackFindingTrackletProducerKFin + process.TrackFindingTrackletProducerKF + process.TrackFindingTrackletProducerTT + process.TrackFindingTrackletProducerAS + process.TrackFindingTrackletProducerKFout)
+    process.HybridNewKF = cms.Sequence(process.L1THybridTracks + process.TrackFindingTrackletProducerTBout + process.TrackFindingTrackletProducerKFin + process.TrackFindingTrackletProducerKF + process.TrackFindingTrackletProducerTT + process.TrackFindingTrackletProducerAS + process.TrackFindingTrackletProducerKFout)
     process.TTTracksEmulation = cms.Path(process.HybridNewKF)
     #process.TTTracksEmulationWithTruth = cms.Path(process.HybridNewKF +  process.TrackTriggerAssociatorTracks)
     # Optionally include code producing performance plots & end-of-job summary.
@@ -172,8 +188,8 @@ elif (L1TRKALGO == 'HYBRID_NEWKF' or L1TRKALGO == 'HYBRID_REDUCED'):
 
 # LEGACY ALGORITHM (EXPERTS ONLY): TRACKLET
 elif (L1TRKALGO == 'TRACKLET'):
-    print "\n WARNING: This is not the baseline algorithm! Prefer HYBRID or HYBRID_DISPLACED!"
-    print "\n To run the Tracklet-only algorithm, ensure you have commented out 'CXXFLAGS=-DUSEHYBRID' in BuildFile.xml & recompiled! \n"
+    print("\n WARNING: This is not the baseline algorithm! Prefer HYBRID or HYBRID_DISPLACED!")
+    print("\n To run the Tracklet-only algorithm, ensure you have commented out 'CXXFLAGS=-DUSEHYBRID' in BuildFile.xml & recompiled! \n")
     process.TTTracksEmulation = cms.Path(process.L1THybridTracks)
     process.TTTracksEmulationWithTruth = cms.Path(process.L1THybridTracksWithAssociators)
     NHELIXPAR = 4
@@ -274,3 +290,6 @@ if (WRITE_DATA):
 
   process.pd = cms.EndPath(process.writeDataset)
   process.schedule.append(process.pd)
+
+
+

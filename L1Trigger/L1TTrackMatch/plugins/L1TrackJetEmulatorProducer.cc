@@ -1,29 +1,30 @@
-// Original simulation Author:  Rishi Patel
+// Original Author: Samuel Edwin Leigh, Tyler Wu,
+//                  Rutgers, the State University of New Jersey
 //
-// Rewritting/improvements:  George Karathanasis,
-//                           georgios.karathanasis@cern.ch, CU Boulder
+// Rewritting/Improvements:      George Karathanasis,
+//                          georgios.karathanasis@cern.ch, CU Boulder
 //
 //         Created:  Wed, 01 Aug 2018 14:01:41 GMT
 //         Latest update: Nov 2022 (by GK)
 //
 // Track jets are clustered in a two-layer process, first by clustering in phi,
-// then by clustering in eta. The code proceeds as following: putting all tracks
-// in a grid of eta vs phi space, and then cluster them. Finally we merge the cl
+// then by clustering in eta. The code proceeds as following: putting all tracks// in a grid of eta vs phi space, and then cluster them. Finally we merge the cl
 // usters when needed. The code is improved to use the same module between emula
 // tion and simulation was also improved, with bug fixes and being faster.
 // Introduction to object (p10-13):
 // https://indico.cern.ch/event/791517/contributions/3341650/attachments/1818736/2973771/TrackBasedAlgos_L1TMadrid_MacDonald.pdf
 // New and improved version: https://indico.cern.ch/event/1203796/contributions/5073056/attachments/2519806/4333006/trackjet_emu.pdf
 
-// system include files
-#include "DataFormats/Common/interface/Ref.h"
+// L1T include files
 #include "DataFormats/L1TCorrelator/interface/TkJet.h"
 #include "DataFormats/L1TCorrelator/interface/TkJetFwd.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTrack.h"
+#include "DataFormats/L1TrackTrigger/interface/TTTrack_TrackWord.h"
+#include "DataFormats/L1Trigger/interface/TkJetWord.h"
 #include "DataFormats/L1Trigger/interface/VertexWord.h"
 
-// user include files
+// system include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -32,19 +33,23 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "DataFormats/Common/interface/Ref.h"
 
 //own headers
 #include "L1TrackJetClustering.h"
+
+//general
+#include <ap_int.h>
 
 using namespace std;
 using namespace edm;
 using namespace l1t;
 using namespace l1ttrackjet;
 
-class L1TrackJetProducer : public stream::EDProducer<> {
+class L1TrackJetEmulatorProducer : public stream::EDProducer<> {
 public:
-  explicit L1TrackJetProducer(const ParameterSet &);
-  ~L1TrackJetProducer() override = default;
+  explicit L1TrackJetEmulatorProducer(const ParameterSet &);
+  ~L1TrackJetEmulatorProducer() override = default;
   typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
   typedef vector<L1TTTrackType> L1TTTrackCollectionType;
   static void fillDescriptions(ConfigurationDescriptions &descriptions);
@@ -54,7 +59,7 @@ private:
 
   // ----------member data ---------------------------
 
-  vector<Ptr<L1TTTrackType>> L1TrkPtrs_;
+  std::vector<edm::Ptr<L1TTTrackType>> L1TrkPtrs_;
   vector<int> tdtrk_;
   const float trkZMax_;
   const float trkPtMax_;
@@ -73,9 +78,6 @@ private:
   const int etaBins_;
   const int phiBins_;
   const double minTrkJetpT_;
-  float zStep_;
-  float etaStep_;
-  float phiStep_;
   const bool displaced_;
   const float d0CutNStubs4_;
   const float d0CutNStubs5_;
@@ -86,12 +88,20 @@ private:
   const int nDisplacedTracks_;
   const float dzPVTrk_;
 
+  float PVz;
+  float zStep_;
+  glbeta_intern etaStep_;
+  glbphi_intern phiStep_;
+
+  TTTrack_TrackWord trackword;
+
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
   const EDGetTokenT<vector<TTTrack<Ref_Phase2TrackerDigi_>>> trackToken_;
   const EDGetTokenT<l1t::VertexWordCollection> PVtxToken_;
 };
 
-L1TrackJetProducer::L1TrackJetProducer(const ParameterSet &iConfig)
+//constructor
+L1TrackJetEmulatorProducer::L1TrackJetEmulatorProducer(const ParameterSet &iConfig)
     : trkZMax_(iConfig.getParameter<double>("trk_zMax")),
       trkPtMax_(iConfig.getParameter<double>("trk_ptMax")),
       trkPtMin_(iConfig.getParameter<double>("trk_ptMin")),
@@ -121,19 +131,20 @@ L1TrackJetProducer::L1TrackJetProducer(const ParameterSet &iConfig)
       tTopoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""))),
       trackToken_(consumes<vector<TTTrack<Ref_Phase2TrackerDigi_>>>(iConfig.getParameter<InputTag>("L1TrackInputTag"))),
       PVtxToken_(consumes<l1t::VertexWordCollection>(iConfig.getParameter<InputTag>("L1PVertexInputTag"))) {
-  zStep_ = 2.0 * trkZMax_ / (zBins_ + 1);  // added +1 in denom
-  etaStep_ = 2.0 * trkEtaMax_ / etaBins_;  //etaStep is the width of an etabin
-  phiStep_ = 2 * M_PI / phiBins_;          ////phiStep is the width of a phibin
+  zStep_ = 2.0 * trkZMax_ / (zBins_ + 1);                 // added +1 in denom
+  etaStep_ = glbeta_intern(2.0 * trkEtaMax_ / etaBins_);  //etaStep is the width of an etabin
+  phiStep_ = DoubleToBit(2.0 * (M_PI) / phiBins_,
+                         TTTrack_TrackWord::TrackBitWidths::kPhiSize + kExtraGlobalPhiBit,
+                         TTTrack_TrackWord::stepPhi0);  ///phiStep is the width of a phibin
 
   if (displaced_)
-    produces<TkJetCollection>("L1TrackJetsExtended");
+    produces<l1t::TkJetWordCollection>("L1TrackJetsExtended");
   else
-    produces<TkJetCollection>("L1TrackJets");
+    produces<l1t::TkJetWordCollection>("L1TrackJets");
 }
 
-void L1TrackJetProducer::produce(Event &iEvent, const EventSetup &iSetup) {
-  unique_ptr<TkJetCollection> L1L1TrackJetProducer(new TkJetCollection);
-
+void L1TrackJetEmulatorProducer::produce(Event &iEvent, const EventSetup &iSetup) {
+  unique_ptr<l1t::TkJetWordCollection> L1TrackJetContainer(new l1t::TkJetWordCollection);
   // Read inputs
   const TrackerTopology &tTopo = iSetup.getData(tTopoToken_);
 
@@ -146,18 +157,15 @@ void L1TrackJetProducer::produce(Event &iEvent, const EventSetup &iSetup) {
 
   L1TrkPtrs_.clear();
   tdtrk_.clear();
-
   // track selection
   for (unsigned int this_l1track = 0; this_l1track < TTTrackHandle->size(); this_l1track++) {
     edm::Ptr<L1TTTrackType> trkPtr(TTTrackHandle, this_l1track);
     float trk_pt = trkPtr->momentum().perp();
     int trk_nstubs = (int)trkPtr->getStubRefs().size();
     float trk_chi2dof = trkPtr->chi2Red();
-    float trk_d0 = trkPtr->d0();
     float trk_bendchi2 = trkPtr->stubPtConsistency();
-
     int trk_nPS = 0;
-    for (int istub = 0; istub < trk_nstubs; istub++) {  // loop over the stubs
+    for (int istub = 0; istub < trk_nstubs; istub++) {
       DetId detId(trkPtr->getStubRefs().at(istub)->getDetId());
       if (detId.det() == DetId::Detector::Tracker) {
         if ((detId.subdetId() == StripSubdetector::TOB && tTopo.tobLayer(detId) <= 3) ||
@@ -165,7 +173,7 @@ void L1TrackJetProducer::produce(Event &iEvent, const EventSetup &iSetup) {
           trk_nPS++;
       }
     }
-    // select tracks
+    // selection tracks - supposed to happen on seperate module (kept for legacy/debug reasons)
     if (trk_nPS < trkNPSStubMin_)
       continue;
     if (!TrackQualitySelection(trk_nstubs,
@@ -190,52 +198,49 @@ void L1TrackJetProducer::produce(Event &iEvent, const EventSetup &iSetup) {
     if (trk_pt < trkPtMin_)
       continue;
     L1TrkPtrs_.push_back(trkPtr);
-
-    if ((std::abs(trk_d0) > d0CutNStubs5_ && trk_nstubs >= 5 && d0CutNStubs5_ >= 0) ||
-        (trk_nstubs == 4 && std::abs(trk_d0) > d0CutNStubs4_ && d0CutNStubs4_ >= 0))
-      tdtrk_.push_back(1);  //displaced track
-    else
-      tdtrk_.push_back(0);  // not displaced track
   }
 
   // if no tracks pass selection return empty containers
   if (L1TrkPtrs_.empty()) {
     if (displaced_)
-      iEvent.put(std::move(L1L1TrackJetProducer), "L1TrackJetsExtended");
+      iEvent.put(std::move(L1TrackJetContainer), "L1TrackJetsExtended");
     else
-      iEvent.put(std::move(L1L1TrackJetProducer), "L1TrackJets");
+      iEvent.put(std::move(L1TrackJetContainer), "L1TrackJets");
     return;
   }
 
-  MaxZBin mzb;
-  mzb.znum = -1;
-  mzb.nclust = -1;
-  mzb.ht = -1;
+  TrackJetEmulationMaxZBin mzb;
+  mzb.znum = 0;
+  mzb.nclust = 0;
+  mzb.ht = 0;
 
-  // create 2D grid of eta phi bins
-  EtaPhiBin epbins_default[phiBins_][etaBins_];
-  float phi = -1.0 * M_PI;
+  TrackJetEmulationEtaPhiBin epbins_default[phiBins_][etaBins_];  // create grid of phiBins
+  glbphi_intern phi = DoubleToBit(
+      -1.0 * M_PI, TTTrack_TrackWord::TrackBitWidths::kPhiSize + kExtraGlobalPhiBit, TTTrack_TrackWord::stepPhi0);
   for (int i = 0; i < phiBins_; ++i) {
-    float eta = -1.0 * trkEtaMax_;
+    glbeta_intern eta = -1 * trkEtaMax_;
     for (int j = 0; j < etaBins_; ++j) {
-      epbins_default[i][j].phi = (phi + (phi + phiStep_)) / 2.0;
-      epbins_default[i][j].eta = (eta + (eta + etaStep_)) / 2.0;
+      epbins_default[i][j].phi = (phi + (phi + phiStep_)) / 2;  // phi coord of bin center
+      epbins_default[i][j].eta = (eta + (eta + etaStep_)) / 2;  // eta coord of bin center
       eta += etaStep_;
     }  // for each etabin
     phi += phiStep_;
-  }  // for each phibin (finished creating bins)
+  }  // for each phibin (finished creating epbins)
 
-  // create z-bins (might be useful for displaced if we run w/o dz cut)
-  std::vector<float> zmins, zmaxs;
+  // bins for z if multibin option is selected
+  std::vector<z0_intern> zmins, zmaxs;
   for (int zbin = 0; zbin < zBins_; zbin++) {
-    zmins.push_back(-1.0 * trkZMax_ + zStep_ * zbin);
-    zmaxs.push_back(-1.0 * trkZMax_ + zStep_ * zbin + zStep_ * 2);
+    zmins.push_back(DoubleToBit(
+        -1.0 * trkZMax_ + zStep_ * zbin, TTTrack_TrackWord::TrackBitWidths::kZ0Size, TTTrack_TrackWord::stepZ0));
+    zmaxs.push_back(DoubleToBit(-1.0 * trkZMax_ + zStep_ * zbin + 2 * zStep_,
+                                TTTrack_TrackWord::TrackBitWidths::kZ0Size,
+                                TTTrack_TrackWord::stepZ0));
   }
 
-  // create vectors of clusters
-  std::vector<std::vector<EtaPhiBin>> L1clusters;
+  // create vectors that hold clusters
+  std::vector<std::vector<TrackJetEmulationEtaPhiBin>> L1clusters;
   L1clusters.reserve(phiBins_);
-  std::vector<EtaPhiBin> L2clusters;
+  std::vector<TrackJetEmulationEtaPhiBin> L2clusters;
 
   // default (empty) grid
   for (int i = 0; i < phiBins_; ++i) {
@@ -248,72 +253,125 @@ void L1TrackJetProducer::produce(Event &iEvent, const EventSetup &iSetup) {
     }
   }
 
+  // logic: loop over z bins find tracks in this bin and arrange them in a 2D eta-phi matrix
   for (unsigned int zbin = 0; zbin < zmins.size(); ++zbin) {
-    // initialize grid
-    float zmin = zmins[zbin];
-    float zmax = zmaxs[zbin];
-    EtaPhiBin epbins[phiBins_][etaBins_];
+    // initialize matrices for every z bin
+    z0_intern zmin = zmins[zbin];
+    z0_intern zmax = zmaxs[zbin];
+    TrackJetEmulationEtaPhiBin epbins[phiBins_][etaBins_];
     std::copy(&epbins_default[0][0], &epbins_default[0][0] + phiBins_ * etaBins_, &epbins[0][0]);
 
-    //clear cluster containers
+    //clear containers
     L1clusters.clear();
     L2clusters.clear();
 
-    // fill grid with tracks
+    // fill grid
     for (unsigned int k = 0; k < L1TrkPtrs_.size(); ++k) {
-      float trkZ = L1TrkPtrs_[k]->z0();
+      //// conversions
+      //-z0
+      z0_intern trkZ = L1TrkPtrs_[k]->getZ0Word();
+
       if (zmax < trkZ)
         continue;
       if (zmin > trkZ)
         continue;
       if (zbin == 0 && zmin == trkZ)
         continue;
-      float trkpt = L1TrkPtrs_[k]->momentum().perp();
-      float trketa = L1TrkPtrs_[k]->momentum().eta();
-      float trkphi = L1TrkPtrs_[k]->momentum().phi();
+
+      //-pt
+      ap_uint<TTTrack_TrackWord::TrackBitWidths::kRinvSize - 1> ptEmulationBits = L1TrkPtrs_[k]->getRinvWord();
+      pt_intern trkpt;
+      trkpt.V = ptEmulationBits.range();
+
+      //-eta
+      TTTrack_TrackWord::tanl_t etaEmulationBits = L1TrkPtrs_[k]->getTanlWord();
+      glbeta_intern trketa;
+      trketa.V = etaEmulationBits.range();
+
+      //-phi
+      int Sector = L1TrkPtrs_[k]->phiSector();
+      double sector_phi_value = 0;
+      if (Sector < 5) {
+        sector_phi_value = 2.0 * M_PI * Sector / 9.0;
+      } else {
+        sector_phi_value = (-1.0 * M_PI + M_PI / 9.0 + (Sector - 5) * 2.0 * M_PI / 9.0);
+      }
+
+      glbphi_intern trkphiSector = DoubleToBit(sector_phi_value,
+                                               TTTrack_TrackWord::TrackBitWidths::kPhiSize + kExtraGlobalPhiBit,
+                                               TTTrack_TrackWord::stepPhi0);
+      glbphi_intern local_phi = 0;
+      local_phi.V = L1TrkPtrs_[k]->getPhiWord();
+      glbphi_intern local_phi2 =
+          DoubleToBit(BitToDouble(local_phi, TTTrack_TrackWord::TrackBitWidths::kPhiSize, TTTrack_TrackWord::stepPhi0),
+                      TTTrack_TrackWord::TrackBitWidths::kPhiSize + kExtraGlobalPhiBit,
+                      TTTrack_TrackWord::stepPhi0);
+      glbphi_intern trkphi = local_phi2 + trkphiSector;
+
+      //-d0
+      d0_intern abs_trkD0 = L1TrkPtrs_[k]->getD0Word();
+
+      //-nstub
+      int trk_nstubs = (int)L1TrkPtrs_[k]->getStubRefs().size();
+
+      // now fill the 2D grid with tracks
       for (int i = 0; i < phiBins_; ++i) {
         for (int j = 0; j < etaBins_; ++j) {
-          float eta_min = epbins[i][j].eta - etaStep_ / 2.0;  //eta min
-          float eta_max = epbins[i][j].eta + etaStep_ / 2.0;  //eta max
-          float phi_min = epbins[i][j].phi - phiStep_ / 2.0;  //phi min
-          float phi_max = epbins[i][j].phi + phiStep_ / 2.0;  //phi max
-
-          if ((trketa < eta_min) || (trketa > eta_max) || (trkphi < phi_min) || (trkphi > phi_max))
+          glbeta_intern eta_min = epbins[i][j].eta - etaStep_ / 2;  //eta min
+          glbeta_intern eta_max = epbins[i][j].eta + etaStep_ / 2;  //eta max
+          glbphi_intern phi_min = epbins[i][j].phi - phiStep_ / 2;  //phi min
+          glbphi_intern phi_max = epbins[i][j].phi + phiStep_ / 2;  //phi max
+          if ((trketa < eta_min) && j != 0)
+            continue;
+          if ((trketa > eta_max) && j != etaBins_ - 1)
+            continue;
+          if ((trkphi < phi_min) && i != 0)
+            continue;
+          if ((trkphi > phi_max) && i != phiBins_ - 1)
             continue;
 
-          if (trkpt < trkPtMax_)
+          if (trkpt < pt_intern(trkPtMax_))
             epbins[i][j].pTtot += trkpt;
           else
-            epbins[i][j].pTtot += trkPtMax_;
-          epbins[i][j].nxtracks += tdtrk_[k];
+            epbins[i][j].pTtot += pt_intern(trkPtMax_);
+          if ((abs_trkD0 >
+                   DoubleToBit(d0CutNStubs5_, TTTrack_TrackWord::TrackBitWidths::kD0Size, TTTrack_TrackWord::stepD0) &&
+               trk_nstubs >= 5 && d0CutNStubs5_ >= 0) ||
+              (abs_trkD0 >
+                   DoubleToBit(d0CutNStubs4_, TTTrack_TrackWord::TrackBitWidths::kD0Size, TTTrack_TrackWord::stepD0) &&
+               trk_nstubs == 4 && d0CutNStubs4_ >= 0))
+            epbins[i][j].nxtracks += 1;
+
           epbins[i][j].trackidx.push_back(k);
           ++epbins[i][j].ntracks;
         }  // for each etabin
       }    // for each phibin
     }      //end loop over tracks
 
-    // cluster tracks in eta (first layer) using grid
+    // first layer clustering - in eta using grid
     for (int phibin = 0; phibin < phiBins_; ++phibin) {
-      L1clusters.push_back(L1_clustering<EtaPhiBin, float, float, float>(epbins[phibin], etaBins_, etaStep_));
+      L1clusters.push_back(L1_clustering<TrackJetEmulationEtaPhiBin, pt_intern, glbeta_intern, glbphi_intern>(
+          epbins[phibin], etaBins_, etaStep_));
     }
 
-    // second layer clustering in phi for using eta clusters
-    L2clusters = L2_clustering<EtaPhiBin, float, float, float>(L1clusters, phiBins_, phiStep_, etaStep_);
+    //second layer clustering in phi for all eta clusters
+    L2clusters = L2_clustering<TrackJetEmulationEtaPhiBin, pt_intern, glbeta_intern, glbphi_intern>(
+        L1clusters, phiBins_, phiStep_, etaStep_);
 
     // sum all cluster pTs in this zbin to find max
-    float sum_pt = 0;
+    pt_intern sum_pt = 0;
     for (unsigned int k = 0; k < L2clusters.size(); ++k) {
-      if (L2clusters[k].pTtot > lowpTJetThreshold_ && L2clusters[k].ntracks < lowpTJetMinTrackMultiplicity_)
+      if (L2clusters[k].pTtot > pt_intern(highpTJetThreshold_) && L2clusters[k].ntracks < lowpTJetMinTrackMultiplicity_)
         continue;
-      if (L2clusters[k].pTtot > highpTJetThreshold_ && L2clusters[k].ntracks < highpTJetMinTrackMultiplicity_)
+      if (L2clusters[k].pTtot > pt_intern(highpTJetThreshold_) &&
+          L2clusters[k].ntracks < highpTJetMinTrackMultiplicity_)
         continue;
-      if (L2clusters[k].pTtot > minTrkJetpT_)
+
+      if (L2clusters[k].pTtot > pt_intern(minTrkJetpT_))
         sum_pt += L2clusters[k].pTtot;
     }
-
     if (sum_pt < mzb.ht)
       continue;
-
     // if ht is larger than previous max, this is the new vertex zbin
     mzb.ht = sum_pt;
     mzb.znum = zbin;
@@ -322,38 +380,46 @@ void L1TrackJetProducer::produce(Event &iEvent, const EventSetup &iSetup) {
     mzb.zbincenter = (zmin + zmax) / 2.0;
   }  //zbin loop
 
-  // output
-  vector<Ptr<L1TTTrackType>> L1TrackAssocJet;
+  vector<edm::Ptr<L1TTTrackType>> L1TrackAssocJet;
   for (unsigned int j = 0; j < mzb.clusters.size(); ++j) {
-    float jetEta = mzb.clusters[j].eta;
-    float jetPhi = mzb.clusters[j].phi;
-    float jetPt = mzb.clusters[j].pTtot;
-    float jetPx = jetPt * cos(jetPhi);
-    float jetPy = jetPt * sin(jetPhi);
-    float jetPz = jetPt * sinh(jetEta);
-    float jetP = jetPt * cosh(jetEta);
-    int totalDisptrk = mzb.clusters[j].nxtracks;
-    bool isDispJet = (totalDisptrk > nDisplacedTracks_ || totalDisptrk == nDisplacedTracks_);
+    if (mzb.clusters[j].pTtot < pt_intern(trkPtMin_))
+      continue;
 
-    math::XYZTLorentzVector jetP4(jetPx, jetPy, jetPz, jetP);
+    l1t::TkJetWord::glbeta_t jetEta = DoubleToBit(double(mzb.clusters[j].eta),
+                                                  TkJetWord::TkJetBitWidths::kGlbEtaSize,
+                                                  TkJetWord::MAX_ETA / (1 << TkJetWord::TkJetBitWidths::kGlbEtaSize));
+    l1t::TkJetWord::glbphi_t jetPhi = DoubleToBit(
+        BitToDouble(mzb.clusters[j].phi, TTTrack_TrackWord::TrackBitWidths::kPhiSize + 4, TTTrack_TrackWord::stepPhi0),
+        TkJetWord::TkJetBitWidths::kGlbPhiSize,
+        (2. * std::abs(M_PI)) / (1 << TkJetWord::TkJetBitWidths::kGlbPhiSize));
+    l1t::TkJetWord::z0_t jetZ0 = 0;
+    l1t::TkJetWord::pt_t jetPt = mzb.clusters[j].pTtot;
+    l1t::TkJetWord::nt_t total_ntracks = mzb.clusters[j].ntracks;
+    l1t::TkJetWord::nx_t total_disptracks = mzb.clusters[j].nxtracks;
+    l1t::TkJetWord::dispflag_t dispflag = 0;
+    l1t::TkJetWord::tkjetunassigned_t unassigned = 0;
+
+    if (total_disptracks > nDisplacedTracks_ || total_disptracks == nDisplacedTracks_)
+      dispflag = 1;
     L1TrackAssocJet.clear();
     for (unsigned int itrk = 0; itrk < mzb.clusters[j].trackidx.size(); itrk++)
       L1TrackAssocJet.push_back(L1TrkPtrs_[mzb.clusters[j].trackidx[itrk]]);
 
-    TkJet trkJet(jetP4, L1TrackAssocJet, mzb.zbincenter, mzb.clusters[j].ntracks, 0, totalDisptrk, 0, isDispJet);
+    l1t::TkJetWord trkJet(jetPt, jetEta, jetPhi, jetZ0, total_ntracks, total_disptracks, dispflag, unassigned);
 
-    L1L1TrackJetProducer->push_back(trkJet);
+    L1TrackJetContainer->push_back(trkJet);
   }
 
-  std::sort(
-      L1L1TrackJetProducer->begin(), L1L1TrackJetProducer->end(), [](auto &a, auto &b) { return a.pt() > b.pt(); });
+  std::sort(L1TrackJetContainer->begin(), L1TrackJetContainer->end(), [](auto &a, auto &b) { return a.pt() > b.pt(); });
   if (displaced_)
-    iEvent.put(std::move(L1L1TrackJetProducer), "L1TrackJetsExtended");
+    iEvent.put(std::move(L1TrackJetContainer), "L1TrackJetsExtended");
   else
-    iEvent.put(std::move(L1L1TrackJetProducer), "L1TrackJets");
+    iEvent.put(std::move(L1TrackJetContainer), "L1TrackJets");
 }
 
-void L1TrackJetProducer::fillDescriptions(ConfigurationDescriptions &descriptions) {
+void L1TrackJetEmulatorProducer::fillDescriptions(ConfigurationDescriptions &descriptions) {
+  //The following says we do not know what parameters are allowed so do no validation
+  // Please change this to state exactly what you do use, even if it is no parameters
   ParameterSetDescription desc;
   desc.add<edm::InputTag>("L1TrackInputTag", edm::InputTag("l1tTTTracksFromTrackletEmulation", "Level1TTTracks"));
   desc.add<edm::InputTag>("L1PVertexInputTag", edm::InputTag("l1tVertexFinderEmulator", "l1verticesEmulation"));
@@ -383,8 +449,8 @@ void L1TrackJetProducer::fillDescriptions(ConfigurationDescriptions &description
   desc.add<double>("nStubs5DisplacedChi2", 2.75);
   desc.add<double>("nStubs5DisplacedBend", 3.5);
   desc.add<int>("nDisplacedTracks", 2);
-  descriptions.add("l1tTrackJets", desc);
+  descriptions.add("l1tTrackJetsEmulator", desc);
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(L1TrackJetProducer);
+DEFINE_FWK_MODULE(L1TrackJetEmulatorProducer);
