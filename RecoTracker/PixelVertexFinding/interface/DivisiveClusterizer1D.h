@@ -110,11 +110,9 @@ namespace pixeltemp {
       return;
     }
     sort(input.begin(), input.end(), ComparePairs<T>());
-    int ncount = 0;
     std::vector<Cluster1D<T> > partOfPTracks;
     partOfPTracks.push_back(input.front());
     for (typename std::vector<Cluster1D<T> >::const_iterator ic = (input.begin()) + 1; ic != input.end(); ic++) {
-      ncount++;
       if (fabs((*ic).position().value() - (*(ic - 1)).position().value()) < (double)theZSeparation) {
         partOfPTracks.push_back((*ic));
       } else {

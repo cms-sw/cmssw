@@ -157,12 +157,10 @@ template <typename T>
 void SiPixelClusterProducer::run(const T& input,
                                  const edm::ESHandle<TrackerGeometry>& geom,
                                  edmNew::DetSetVector<SiPixelCluster>& output) {
-  int numberOfDetUnits = 0;
   int numberOfClusters = 0;
 
   // Iterate on detector units
   for (auto const& dsv : input) {
-    ++numberOfDetUnits;
 
     //  LogDebug takes very long time, get rid off.
     //LogDebug("SiStripClusterizer") << "[SiPixelClusterProducer::run] DetID" << dsv.id;
@@ -201,9 +199,6 @@ void SiPixelClusterProducer::run(const T& input,
     }
   }  // end of DetUnit loop
 
-  //LogDebug ("SiPixelClusterProducer") << " Executing "
-  //      << clusterMode_ << " resulted in " << numberOfClusters
-  //      << " SiPixelClusters in " << numberOfDetUnits << " DetUnits.";
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

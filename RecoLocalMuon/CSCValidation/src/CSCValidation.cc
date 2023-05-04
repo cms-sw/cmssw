@@ -928,12 +928,10 @@ void CSCValidation::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::E
   // ---------------------
   // Loop over rechits
   // ---------------------
-  int iHit = 0;
 
   // Build iterator for rechits and loop :
   CSCRecHit2DCollection::const_iterator dRHIter;
   for (dRHIter = recHits->begin(); dRHIter != recHits->end(); dRHIter++) {
-    iHit++;
 
     // Find chamber with rechits in CSC
     CSCDetId idrec = (CSCDetId)(*dRHIter).cscDetId();
@@ -1113,9 +1111,7 @@ void CSCValidation::doSegments(edm::Handle<CSCSegmentCollection> cscSegments, ed
   // -----------------------
   // loop over segments
   // -----------------------
-  int iSegment = 0;
   for (CSCSegmentCollection::const_iterator dSiter = cscSegments->begin(); dSiter != cscSegments->end(); dSiter++) {
-    iSegment++;
     //
     CSCDetId id = (CSCDetId)(*dSiter).cscDetId();
     int kEndcap = id.endcap();
@@ -1208,11 +1204,9 @@ void CSCValidation::doResolution(edm::Handle<CSCSegmentCollection> cscSegments, 
     // try to get the CSC recHits that contribute to this segment.
     std::vector<CSCRecHit2D> theseRecHits = (*dSiter).specificRecHits();
     int nRH = (*dSiter).nRecHits();
-    int jRH = 0;
     CLHEP::HepMatrix sp(6, 1);
     CLHEP::HepMatrix se(6, 1);
     for (std::vector<CSCRecHit2D>::const_iterator iRH = theseRecHits.begin(); iRH != theseRecHits.end(); iRH++) {
-      jRH++;
       CSCDetId idRH = (CSCDetId)(*iRH).cscDetId();
       int kRing = idRH.ring();
       int kStation = idRH.station();
@@ -3002,9 +2996,7 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
   // -----------------------
   // loop over segments
   // -----------------------
-  int iSegment = 0;
   for (CSCSegmentCollection::const_iterator dSiter = cscSegments->begin(); dSiter != cscSegments->end(); dSiter++) {
-    iSegment++;
 
     CSCDetId id = (CSCDetId)(*dSiter).cscDetId();
     LocalPoint localPos = (*dSiter).localPosition();

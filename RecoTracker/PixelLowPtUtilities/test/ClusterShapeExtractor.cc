@@ -292,7 +292,6 @@ void ClusterShapeExtractor::processPixelRecHits(const SiPixelRecHitCollection::D
 
   PSimHit simHit;
   pair<unsigned int, float> key;
-  size_t counter = 0, counter_2 = 0;
 
   for (SiPixelRecHitCollection::DataContainer::const_iterator recHit = recHits->begin(); recHit != recHits->end();
        recHit++)
@@ -302,7 +301,6 @@ void ClusterShapeExtractor::processPixelRecHits(const SiPixelRecHitCollection::D
         simHitMap[key] = &(*recHit);
       } else if (recHit->cluster()->size() > simHitMap[key]->cluster()->size())
         simHitMap[key] = &(*recHit);
-      ++counter_2;
     }
 
   for (SiPixelRecHitCollection::DataContainer::const_iterator recHit = recHits->begin(); recHit != recHits->end();
@@ -311,11 +309,8 @@ void ClusterShapeExtractor::processPixelRecHits(const SiPixelRecHitCollection::D
       // Check whether the present rechit is the largest
       if (&(*recHit) == simHitMap[key]) {
         processSim(*recHit, simHit, clusterShapeCache, hspc);
-        ++counter;
       }
     }
-  //    std::cout << "recHits->size() = " << recHits->size() << ", counter = " << counter
-  //              << ", counter_2 = " << counter_2 << std::endl;
 }
 
 /*****************************************************************************/

@@ -65,7 +65,7 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(const std::vector<SimTr
 
   //std::cout << " Loop over all particles " << std::endl;
 
-  int npv = 0;
+  //int npv = 0;
   for (std::vector<SimTrack>::const_iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk) {
     if ((*iSimTk).noVertex())
       continue;
@@ -75,7 +75,7 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(const std::vector<SimTr
 
     //std::cout << " Particle type " <<  (*iSimTk).type() << " Sim Track ID " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  " vertex position " << vertex.position() << " vertex ID " << vertexId  << std::endl;
     if ((*iSimTk).vertIndex() == iPV) {
-      npv++;
+      //npv++;
       if (std::abs((*iSimTk).type()) == 11) {
         //std::cout << " Found a primary electron with ID  " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  std::endl;
         electronTracks.push_back(*iSimTk);

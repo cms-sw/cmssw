@@ -227,7 +227,6 @@ bool DTSegmentUpdator::fit(DTSegmentCand* seg, bool allow3par, const bool fitdeb
   vector<float> sigy;
   vector<int> lfit;
   vector<double> dist;
-  int i = 0;
 
   x.reserve(8);
   y.reserve(8);
@@ -250,7 +249,6 @@ bool DTSegmentUpdator::fit(DTSegmentCand* seg, bool allow3par, const bool fitdeb
     sigy.push_back(sqrt((*iter).first->localPositionError().xx()));
     x.push_back(pos.z());
     y.push_back(pos.x());
-    i++;
   }
 
   LocalPoint pos;

@@ -414,11 +414,9 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface& starti
 
     } else {
       //Loop over compatible hits
-      int mea = 0;
       for (std::vector<TrajectoryMeasurement>::iterator tmItr = theFirstMeasurements_.begin();
            tmItr != theFirstMeasurements_.end();
            ++tmItr) {
-        mea++;
 
         if (tmItr->recHit()->isValid()) {
           // Make a new helix as in fillClusterSeeds() but using the hit position

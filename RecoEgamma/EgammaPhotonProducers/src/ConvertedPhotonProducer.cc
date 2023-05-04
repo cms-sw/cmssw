@@ -334,7 +334,6 @@ void ConvertedPhotonProducer::buildCollections(
     t_generalTrk = transientTrackBuilder_->build(generalTrkHandle);
 
   //  Loop over SC in the barrel and reconstruct converted photons
-  int myCands = 0;
   reco::CaloClusterPtrVector scPtrVec;
   for (auto const& aClus : scHandle->ptrs()) {
     // preselection based in Et and H/E cut
@@ -362,9 +361,7 @@ void ConvertedPhotonProducer::buildCollections(
     math::XYZVector momentum = direction.unit() * aClus->energy();
     const reco::Particle::LorentzVector p4(momentum.x(), momentum.y(), momentum.z(), aClus->energy());
 
-    int nFound = 0;
     if (!allPairs.empty()) {
-      nFound = 0;
 
       for (auto iPair = allPairs.begin(); iPair != allPairs.end(); ++iPair) {
         scPtrVec.clear();
@@ -375,7 +372,6 @@ void ConvertedPhotonProducer::buildCollections(
           continue;
 
         scPtrVec.push_back(aClus);
-        nFound++;
 
         std::vector<math::XYZPointF> trkPositionAtEcal = theEcalImpactPositionFinder.find(iPair->first, bcHandle);
         std::vector<reco::CaloClusterPtr> matchingBC = theEcalImpactPositionFinder.matchingBC();
@@ -455,7 +451,6 @@ void ConvertedPhotonProducer::buildCollections(
           newCandidate.setMVAout(like);
           outputConvPhotonCollection.push_back(newCandidate);
 
-          myCands++;
           //LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Put the ConvertedPhotonCollection a candidate in the Barrel " << "\n";
 
         } else {

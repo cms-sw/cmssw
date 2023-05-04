@@ -47,8 +47,8 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
   Layer innerLayerObj = layers[theInnerLayer];
   Layer outerLayerObj = layers[theOuterLayer];
 
-  size_t totCountP2 = 0, totCountP1 = 0, totCountM2 = 0, totCountM1 = 0, selCount = 0;
 #ifdef mydebug_QSeed
+  size_t totCountP2 = 0, totCountP1 = 0, totCountM2 = 0, totCountM1 = 0, selCount = 0;
   (*ss) << "In " << innerLayerObj.name() << " Out " << theOuterLayer.name() << std::endl;
 #endif
 
@@ -78,7 +78,9 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
     RecHitsSortedInPhi::Hit ohit = (*oh).hit();
     GlobalPoint oPos = ohit->globalPosition();
 
+#ifdef mydebug_QSeed
     totCountP2++;
+#endif
     std::unique_ptr<const HitRZCompatibility> checkRZ = region.checkRZ(outerLayerObj.detLayer(), ohit);
     for (nextoh = oh + 1; nextoh != outerHits.second; ++nextoh) {
       RecHitsSortedInPhi::Hit nohit = (*nextoh).hit();
@@ -95,7 +97,9 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
       if (fabs(reco::deltaPhi(noPos.barePhi(), oPos.barePhi())) > maxDeltaPhi)
         break;
 
+#ifdef mydebug_QSeed      
       totCountM2++;
+#endif
 
       /*Check the compatibility of the ohit with the eta of the seeding track*/
       if (failCheckRZCompatibility(nohit, *outerLayerObj.detLayer(), checkRZ.get(), region))
@@ -137,10 +141,9 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
               << noPos.z() / noPos.perp() << std::endl;
         (*ss) << "\tinnPos " << innPos << " r " << innPos.perp() << " phi " << innPos.phi() << " cotTheta "
               << innPos.z() / innPos.perp() << std::endl;
-#endif
 
         totCountP1++;
-
+#endif
         /*Check the compatibility of the ihit with the two outer hits*/
         if (failCheckRZCompatibility(ihit, *innerLayerObj.detLayer(), checkRZb.get(), region) ||
             failCheckRZCompatibility(ihit, *innerLayerObj.detLayer(), checkRZc.get(), region))
@@ -159,9 +162,9 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
                 << innPos.z() / innPos.perp() << std::endl;
           (*ss) << "\tninnPos " << ninnPos << " r " << ninnPos.perp() << " phi " << ninnPos.phi() << " cotTheta "
                 << ninnPos.z() / ninnPos.perp() << std::endl;
-#endif
 
           totCountM1++;
+#endif
 
           /*Check the compatibility of the nihit with the two outer hits*/
           if (failCheckRZCompatibility(nihit, *innerLayerObj.detLayer(), checkRZb.get(), region) ||
@@ -183,7 +186,9 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
 #endif
             return;
           }
+#ifdef mydebug_QSeed
           selCount++;
+#endif
           result.push_back(OrderedHitPair(ihit, ohit));
           result.push_back(OrderedHitPair(nihit, nohit));
           //#ifdef mydebug_QSeed
