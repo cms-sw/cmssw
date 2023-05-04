@@ -81,7 +81,6 @@ void FedTimingAlgorithm::analyse() {
   }
 
   // Transfer histogram contents/errors/stats to containers
-  uint16_t non_zero = 0;
   float max = -1.e9;
   float min = 1.e9;
   uint16_t nbins = static_cast<uint16_t>(histo_.first->GetNbinsX());
@@ -102,11 +101,9 @@ void FedTimingAlgorithm::analyse() {
       if (bin_contents[ibin] < min) {
         min = bin_contents[ibin];
       }
-      non_zero++;
     }
   }
 
-  //LogTrace(mlCommissioning_) << " Number of bins with non-zero entries: " << non_zero;
   if (bin_contents.size() < 100) {
     anal->addErrorCode(sistrip::numberOfBins_);
     return;

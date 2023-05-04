@@ -300,10 +300,6 @@ void JetAnalyzer_HeavyIons_matching::analyze(const edm::Event& mEvent, const edm
   bool onlyJet2 = (jet1 == 0 && jet2 > 0) ? true : false;
   bool bothJet1Jet2 = (jet1 > 0 && jet2 > 0) ? true : false;
 
-  int matchedJets = 0;
-  int unmatchedJet1 = 0;
-  int unmatchedJet2 = 0;
-
   std::vector<MyJet>::const_iterator iJet, jJet;
 
   if (onlyJet1) {
@@ -347,7 +343,6 @@ void JetAnalyzer_HeavyIons_matching::analyze(const edm::Event& mEvent, const edm
         Jet1_ID[Aj.id] = 1;
         Jet2_ID[Bj.id] = 1;
 
-        matchedJets++;
       }
     }
 
@@ -360,7 +355,6 @@ void JetAnalyzer_HeavyIons_matching::analyze(const edm::Event& mEvent, const edm
 
       if (Jet1_ID[Aj.id] == 0) {
         mpT_Jet1_unmatched->Fill(recoJet1[Aj.id]->pt());
-        unmatchedJet1++;
         Jet1_ID[Aj.id] = 1;
 
         if (std::string("VsCalo") == JetType1 || std::string("PuCalo") == JetType1) {
@@ -387,7 +381,6 @@ void JetAnalyzer_HeavyIons_matching::analyze(const edm::Event& mEvent, const edm
 
       if (Jet2_ID[Bj.id] == 0) {
         mpT_Jet2_unmatched->Fill(recoJet2[Bj.id]->pt());
-        unmatchedJet2++;
         Jet2_ID[Bj.id] = 2;
         if (std::string("VsCalo") == JetType2 || std::string("PuCalo") == JetType2) {
           mHadEnergy_Jet2_unmatched->Fill((*caloJet2)[Bj.id].hadEnergyInHO() + (*caloJet2)[Bj.id].hadEnergyInHB() +

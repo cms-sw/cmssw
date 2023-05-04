@@ -258,12 +258,9 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup) {
   int HBmin_iphi = 99, HBmax_iphi = -99;
 
   // Loop Over all Hcal Barrel DetId's
-  int nHBdetid = 0;
   std::vector<DetId> HBids = HBgeom->getValidDetIds(DetId::Hcal, HcalBarrel);
 
   for (i = HBids.begin(); i != HBids.end(); i++) {
-    nHBdetid++;
-
     HcalDetId HcalID(*i);
 
     int Calo_ieta = 42 + HcalID.ieta();
@@ -290,12 +287,9 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup) {
   int HEmin_iphi = 99, HEmax_iphi = -99;
 
   // Loop Over all Hcal Endcap DetId's
-  int nHEdetid = 0;
   std::vector<DetId> HEids = HEgeom->getValidDetIds(DetId::Hcal, HcalEndcap);
 
   for (i = HEids.begin(); i != HEids.end(); i++) {
-    nHEdetid++;
-
     HcalDetId HcalID(*i);
 
     int Calo_ieta = 42 + HcalID.ieta();
@@ -323,12 +317,9 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup) {
   int HFmin_iphi = 99, HFmax_iphi = -99;
 
   // Loop Over all Hcal Forward DetId's
-  int nHFdetid = 0;
   std::vector<DetId> HFids = HFgeom->getValidDetIds(DetId::Hcal, HcalForward);
 
   for (i = HFids.begin(); i != HFids.end(); i++) {
-    nHFdetid++;
-
     auto cell = HFgeom->getGeometry(*i);
     HcalDetId HcalID(i->rawId());
     //GlobalPoint p = cell->getPosition();
@@ -358,12 +349,9 @@ void HCALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup) {
   int HOmin_iphi = 99, HOmax_iphi = -99;
 
   // Loop Over all Hcal Outer DetId's
-  int nHOdetid = 0;
   std::vector<DetId> HOids = HOgeom->getValidDetIds(DetId::Hcal, HcalOuter);
 
   for (i = HOids.begin(); i != HOids.end(); i++) {
-    nHOdetid++;
-
     auto cell = HOgeom->getGeometry(*i);
     HcalDetId HcalID(i->rawId());
     //GlobalPoint p = cell->getPosition();
@@ -494,7 +482,6 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   // Loop over HBHERecHit's
   HBHERecHitCollection::const_iterator hbherechit;
-  int nHBrechit = 0, nHErechit = 0;
 
   for (hbherechit = HBHERecHits->begin(); hbherechit != HBHERecHits->end(); hbherechit++) {
     HcalDetId det = hbherechit->id();
@@ -569,11 +556,6 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
         break;
     }  // end switch
 
-    if (HcalNum == HcalBarrel) {
-      nHBrechit++;
-    } else {  // HcalEndcap
-      nHErechit++;
-    }
   }  // end loop over HBHERecHit's
 
   // Fill eta-ring MET quantities
@@ -643,11 +625,8 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   // Loop over HORecHit's
   HORecHitCollection::const_iterator horechit;
-  int nHOrechit = 0;
 
   for (horechit = HORecHits->begin(); horechit != HORecHits->end(); horechit++) {
-    nHOrechit++;
-
     HcalDetId det = horechit->id();
     double Energy = horechit->energy();
     ///Int_t depth = det.depth(); //always 4
@@ -722,11 +701,8 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   // Loop over HFRecHit's
   HFRecHitCollection::const_iterator hfrechit;
-  int nHFrechit = 0;
 
   for (hfrechit = HFRecHits->begin(); hfrechit != HFRecHits->end(); hfrechit++) {
-    nHFrechit++;
-
     HcalDetId det = hfrechit->id();
     double Energy = hfrechit->energy();
     Int_t depth = det.depth();

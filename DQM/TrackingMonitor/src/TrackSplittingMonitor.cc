@@ -216,14 +216,9 @@ void TrackSplittingMonitor::analyze(const edm::Event& iEvent, const edm::EventSe
     }
     // looping through the hits for track 2
     double nRechits2 = 0;
-    double nRechitinBPIX2 = 0;
     for (trackingRecHit_iterator iHit = track2.recHitsBegin(); iHit != track2.recHitsEnd(); ++iHit) {
       if ((*iHit)->isValid()) {
         nRechits2++;
-        int type = (*iHit)->geographicalId().subdetId();
-        if (type == int(PixelSubdetector::PixelBarrel)) {
-          ++nRechitinBPIX2;
-        }
       }
     }
 

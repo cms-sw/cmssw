@@ -459,9 +459,7 @@ void L1TEMTFEventInfoClient::book(DQMStore::IBooker& ibooker, DQMStore::IGetter&
     std::cout << "Ran ibooker.setCurrentFolder(dirEventInfo" << std::endl;
   // general counters:
   //   iAllQTest: all quality tests for all systems and objects
-  //   iAllMon:   all monitored systems and objects
   int iAllQTest = 0;
-  int iAllMon = 0;
 
   if (m_verbose)
     std::cout << "m_nrTrackObjects = " << m_nrTrackObjects << std::endl;
@@ -500,7 +498,6 @@ void L1TEMTFEventInfoClient::book(DQMStore::IBooker& ibooker, DQMStore::IGetter&
       iAllQTest++;
     }
 
-    iAllMon++;
   }
 
   for (unsigned int iMon = 0; iMon < m_nrHitObjects; ++iMon) {
@@ -530,7 +527,6 @@ void L1TEMTFEventInfoClient::book(DQMStore::IBooker& ibooker, DQMStore::IGetter&
       iAllQTest++;
     }
 
-    iAllMon++;
   }
 
   // for Noisy Strips ====================================================================
@@ -553,7 +549,6 @@ void L1TEMTFEventInfoClient::book(DQMStore::IBooker& ibooker, DQMStore::IGetter&
 
       iAllQTest++;
     }
-    iAllMon++;
   }
   // for Dead Strips ====================================================================
   for (unsigned int iMon = 0; iMon < m_nrDeadStrip; ++iMon) {
@@ -575,7 +570,6 @@ void L1TEMTFEventInfoClient::book(DQMStore::IBooker& ibooker, DQMStore::IGetter&
 
       iAllQTest++;
     }
-    iAllMon++;
   }
 
   if (m_verbose)

@@ -41,7 +41,6 @@ void L1EmulatorErrorFlagClient::initialize() {
   m_systemFolder.reserve(m_nrL1Systems);
   m_systemErrorFlag.reserve(m_nrL1Systems);
 
-  int indexSys = 0;
 
   for (std::vector<edm::ParameterSet>::const_iterator itSystem = m_l1Systems.begin(); itSystem != m_l1Systems.end();
        ++itSystem) {
@@ -53,7 +52,6 @@ void L1EmulatorErrorFlagClient::initialize() {
 
     m_systemFolder.push_back(itSystem->getParameter<std::string>("SystemFolder"));
 
-    indexSys++;
   }
 
   // [SYS]ErrorFlag histogram
@@ -113,13 +111,6 @@ void L1EmulatorErrorFlagClient::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker
     }
 
     m_summaryContent[iSys] = percAgree;
-  }
-
-  int numUnMaskedSystems = 0;
-  for (unsigned int iMon = 0; iMon < m_nrL1Systems; iMon++) {
-    if (m_summaryContent[iMon] != -1) {
-      numUnMaskedSystems++;
-    }
   }
 
   // fill the SummaryErrorFlagMap histogram for L1 systems
