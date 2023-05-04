@@ -46,7 +46,7 @@ void testOneToManyAssociation::dummy() {
     ++f;
     n = v.numberOfAssociations(edm::Ref<CKey>());
     ++n;
-    std::cout <<"numberOfAssociations:"<<n<<std::endl;
+    std::cout << "numberOfAssociations:" << n << std::endl;
     edm::Ref<Assoc> r;
     v[edm::Ref<CKey>()];
     v.erase(edm::Ref<CKey>());
@@ -68,7 +68,7 @@ void testOneToManyAssociation::dummy() {
     ++f;
     n = v.numberOfAssociations(edm::Ref<CKey>());
     ++n;
-    std::cout <<"numberOfAssociations:"<<n<<std::endl;
+    std::cout << "numberOfAssociations:" << n << std::endl;
     edm::Ref<Assoc> r;
     v[edm::Ref<CKey>()];
     v.erase(edm::Ref<CKey>());
