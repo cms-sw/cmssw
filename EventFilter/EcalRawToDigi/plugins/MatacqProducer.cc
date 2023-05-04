@@ -1151,12 +1151,10 @@ void MatacqProducer::loadOrbitOffset() {
        << "Offset to substract to Matacq events Orbit ID: \n"
        << "#Run Number\t Offset\n";
 
-  int iline = 0;
   string s;
   stringstream buf;
   while (f.eof()) {
     getline(f, s);
-    ++iline;
     if (s[0] == '#') {  //comment
       //skip line:
       f.ignore(numeric_limits<streamsize>::max(), '\n');
