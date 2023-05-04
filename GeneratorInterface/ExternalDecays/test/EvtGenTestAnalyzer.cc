@@ -229,7 +229,6 @@ void EvtGenTestAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
           htbJpsiKs->Fill(dectime);
         }
       }
-
     }
     // --------------------------------------------------------------
     if ((*p)->pdg_id() == 443) {  //Jpsi
