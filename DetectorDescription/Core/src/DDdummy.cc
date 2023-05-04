@@ -1,1 +1,1 @@
-void dddddd() { }
+void dddddd() {}
