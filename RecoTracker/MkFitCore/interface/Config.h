@@ -119,6 +119,11 @@ namespace mkfit {
     extern const float maxcth_ob;
     extern const float maxcth_fw;
 
+    constexpr float rangeZMat = 300.;
+    constexpr int nBinsZMat = 300;
+    constexpr float rangeRMat = 120.;
+    constexpr int nBinsRMat = 120;
+
     // ================================================================
 
     inline float bFieldFromZR(const float z, const float r) {

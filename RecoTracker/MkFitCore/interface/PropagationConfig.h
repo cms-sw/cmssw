@@ -13,7 +13,7 @@ namespace mkfit {
   };
 
   struct PropagationFlags {
-    const TrackerInfo *tracker_info = nullptr; // back-pointer for easy passing into low-level funcs
+    const TrackerInfo *tracker_info = nullptr;  // back-pointer for easy passing into low-level funcs
     bool use_param_b_field : 1;
     bool apply_material : 1;
     bool copy_input_state_on_fail : 1;
@@ -41,6 +41,6 @@ namespace mkfit {
 
     void apply_tracker_info(const TrackerInfo *ti);
   };
-}
+}  // namespace mkfit
 
 #endif

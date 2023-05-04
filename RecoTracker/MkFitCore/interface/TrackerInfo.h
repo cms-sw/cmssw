@@ -3,6 +3,7 @@
 
 #include "RecoTracker/MkFitCore/interface/MatrixSTypes.h"
 #include "RecoTracker/MkFitCore/interface/PropagationConfig.h"
+#include "RecoTracker/MkFitCore/interface/Config.h"
 #include <string>
 #include <vector>
 
@@ -182,6 +183,9 @@ namespace mkfit {
     void write_bin_file(const std::string& fname) const;
     void read_bin_file(const std::string& fname);
     void print_tracker(int level) const;
+
+    float material_bbxi[Config::nBinsZMat][Config::nBinsRMat];
+    float material_radl[Config::nBinsZMat][Config::nBinsRMat];
 
   private:
     int new_layer(LayerInfo::LayerType_e type);

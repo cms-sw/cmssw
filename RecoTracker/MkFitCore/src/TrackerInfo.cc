@@ -10,7 +10,7 @@ namespace mkfit {
   // PropagationConfig
   //==============================================================================
 
-  void PropagationConfig::apply_tracker_info(const TrackerInfo *ti) {
+  void PropagationConfig::apply_tracker_info(const TrackerInfo* ti) {
     finding_inter_layer_pflags.tracker_info = ti;
     finding_intra_layer_pflags.tracker_info = ti;
     backward_fit_pflags.tracker_info = ti;

@@ -299,7 +299,9 @@ namespace mkfit {
     }
   }
 
-  void MkFitter::fitTracksWithInterSlurp(const std::vector<HitVec>& layersohits, const PropagationFlags &pflags, const int N_proc) {
+  void MkFitter::fitTracksWithInterSlurp(const std::vector<HitVec>& layersohits,
+                                         const PropagationFlags& pflags,
+                                         const int N_proc) {
     // XXXX This has potential issues hits coming from different layers!
     // Expected to only work reliably with barrel (consecutive layers from 0 -> m_Nhits)
     // and with hits present on every layer for every track.
