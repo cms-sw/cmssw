@@ -1,6 +1,7 @@
 
 #include <vector>
 #include <numeric>
+#include <string>
 
 ////////////////////
 // FRAMEWORK HEADERS
@@ -8,9 +9,11 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"
 #include "DataFormats/L1TParticleFlow/interface/PFJet.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/corrector.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 // bitwise emulation headers
@@ -21,6 +24,7 @@ class L1SeedConePFJetProducer : public edm::global::EDProducer<> {
 public:
   explicit L1SeedConePFJetProducer(const edm::ParameterSet&);
   ~L1SeedConePFJetProducer() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& description);
 
 private:
   /// ///////////////// ///
@@ -28,25 +32,26 @@ private:
   void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
   /// ///////////////// ///
 
-  float coneSize;
-  unsigned nJets;
-  bool HW;
-  bool debug;
+  const float coneSize;
+  const unsigned nJets;
+  const bool HW;
+  const bool debug;
+  const bool doCorrections;
   L1SCJetEmu emulator;
   edm::EDGetTokenT<std::vector<l1t::PFCandidate>> l1PFToken;
+  l1tpf::corrector corrector;
 
   std::vector<l1t::PFJet> processEvent_SW(std::vector<edm::Ptr<l1t::PFCandidate>>& parts) const;
   std::vector<l1t::PFJet> processEvent_HW(std::vector<edm::Ptr<l1t::PFCandidate>>& parts) const;
 
   l1t::PFJet makeJet_SW(const std::vector<edm::Ptr<l1t::PFCandidate>>& parts) const;
 
-  static std::pair<std::vector<L1SCJetEmu::Particle>,
-                   std::unordered_map<const l1t::PFCandidate*, edm::Ptr<l1t::PFCandidate>>>
-  convertEDMToHW(std::vector<edm::Ptr<l1t::PFCandidate>>& edmParticles);
+  std::pair<std::vector<L1SCJetEmu::Particle>, std::unordered_map<const l1t::PFCandidate*, edm::Ptr<l1t::PFCandidate>>>
+  convertEDMToHW(std::vector<edm::Ptr<l1t::PFCandidate>>& edmParticles) const;
 
-  static std::vector<l1t::PFJet> convertHWToEDM(
+  std::vector<l1t::PFJet> convertHWToEDM(
       std::vector<L1SCJetEmu::Jet> hwJets,
-      std::unordered_map<const l1t::PFCandidate*, edm::Ptr<l1t::PFCandidate>> constituentMap);
+      std::unordered_map<const l1t::PFCandidate*, edm::Ptr<l1t::PFCandidate>> constituentMap) const;
 };
 
 L1SeedConePFJetProducer::L1SeedConePFJetProducer(const edm::ParameterSet& cfg)
@@ -54,9 +59,14 @@ L1SeedConePFJetProducer::L1SeedConePFJetProducer(const edm::ParameterSet& cfg)
       nJets(cfg.getParameter<unsigned>("nJets")),
       HW(cfg.getParameter<bool>("HW")),
       debug(cfg.getParameter<bool>("debug")),
+      doCorrections(cfg.getParameter<bool>("doCorrections")),
       emulator(L1SCJetEmu(debug, coneSize, nJets)),
       l1PFToken(consumes<std::vector<l1t::PFCandidate>>(cfg.getParameter<edm::InputTag>("L1PFObjects"))) {
   produces<l1t::PFJetCollection>();
+  if (doCorrections) {
+    corrector = l1tpf::corrector(
+        cfg.getParameter<std::string>("correctorFile"), cfg.getParameter<std::string>("correctorDir"), -1., debug, HW);
+  }
 }
 
 void L1SeedConePFJetProducer::produce(edm::StreamID /*unused*/,
@@ -119,6 +129,10 @@ l1t::PFJet L1SeedConePFJetProducer::makeJet_SW(const std::vector<edm::Ptr<l1t::P
     jet.addConstituent(*it);
   }
 
+  if (doCorrections) {
+    jet.calibratePt(corrector.correctedPt(jet.pt(), jet.eta()));
+  }
+
   return jet;
 }
 
@@ -132,7 +146,7 @@ std::vector<l1t::PFJet> L1SeedConePFJetProducer::processEvent_SW(std::vector<edm
   while (!work.empty() && jets.size() < nJets) {
     // Take the first (highest pt) candidate as a seed
     edm::Ptr<l1t::PFCandidate> seed = work.at(0);
-    // Get the particles within a _coneSize of the seed
+    // Get the particles within a coneSize of the seed
     std::vector<edm::Ptr<l1t::PFCandidate>> particlesInCone;
     std::copy_if(
         work.begin(), work.end(), std::back_inserter(particlesInCone), [&](const edm::Ptr<l1t::PFCandidate>& part) {
@@ -160,7 +174,7 @@ std::vector<l1t::PFJet> L1SeedConePFJetProducer::processEvent_HW(std::vector<edm
 }
 
 std::pair<std::vector<L1SCJetEmu::Particle>, std::unordered_map<const l1t::PFCandidate*, edm::Ptr<l1t::PFCandidate>>>
-L1SeedConePFJetProducer::convertEDMToHW(std::vector<edm::Ptr<l1t::PFCandidate>>& edmParticles) {
+L1SeedConePFJetProducer::convertEDMToHW(std::vector<edm::Ptr<l1t::PFCandidate>>& edmParticles) const {
   std::vector<l1ct::PuppiObjEmu> hwParticles;
   std::unordered_map<const l1t::PFCandidate*, edm::Ptr<l1t::PFCandidate>> candidateMap;
   std::for_each(edmParticles.begin(), edmParticles.end(), [&](edm::Ptr<l1t::PFCandidate>& edmParticle) {
@@ -175,22 +189,43 @@ L1SeedConePFJetProducer::convertEDMToHW(std::vector<edm::Ptr<l1t::PFCandidate>>&
 
 std::vector<l1t::PFJet> L1SeedConePFJetProducer::convertHWToEDM(
     std::vector<L1SCJetEmu::Jet> hwJets,
-    std::unordered_map<const l1t::PFCandidate*, edm::Ptr<l1t::PFCandidate>> constituentMap) {
+    std::unordered_map<const l1t::PFCandidate*, edm::Ptr<l1t::PFCandidate>> constituentMap) const {
   std::vector<l1t::PFJet> edmJets;
   std::for_each(hwJets.begin(), hwJets.end(), [&](L1SCJetEmu::Jet jet) {
-    l1t::PFJet edmJet(
-        jet.floatPt(), jet.floatEta(), jet.floatPhi(), /*mass=*/0., jet.intPt(), jet.intEta(), jet.intPhi());
+    if (doCorrections) {
+      float correctedPt = corrector.correctedPt(jet.floatPt(), jet.floatEta());
+      jet.hwPt = correctedPt;
+    }
+    l1gt::Jet gtJet = jet.toGT();
+    l1t::PFJet edmJet(l1gt::Scales::floatPt(gtJet.v3.pt),
+                      l1gt::Scales::floatEta(gtJet.v3.eta),
+                      l1gt::Scales::floatPhi(gtJet.v3.phi),
+                      /*mass=*/0.,
+                      gtJet.v3.pt.V,
+                      gtJet.v3.eta.V,
+                      gtJet.v3.phi.V);
+    edmJet.setEncodedJet(jet.toGT().pack());
     // get back the references to the constituents
     std::vector<edm::Ptr<l1t::PFCandidate>> constituents;
     std::for_each(jet.constituents.begin(), jet.constituents.end(), [&](auto constituent) {
       edmJet.addConstituent(constituentMap[constituent.srcCand]);
     });
-    l1gt::Jet gtJet = jet.toGT();
-    edmJet.setEncodedJet(jet.toGT().pack());
     edmJets.push_back(edmJet);
   });
   return edmJets;
 }
 
-#include "FWCore/Framework/interface/MakerMacros.h"
+void L1SeedConePFJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("L1PFObjects", edm::InputTag("l1tLayer1", "Puppi"));
+  desc.add<uint32_t>("nJets", 16);
+  desc.add<double>("coneSize", 0.4);
+  desc.add<bool>("HW", false);
+  desc.add<bool>("debug", false);
+  desc.add<bool>("doCorrections", false);
+  desc.add<std::string>("correctorFile", "");
+  desc.add<std::string>("correctorDir", "");
+  descriptions.addWithDefaultLabel(desc);
+}
+
 DEFINE_FWK_MODULE(L1SeedConePFJetProducer);
