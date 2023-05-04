@@ -161,7 +161,6 @@ void SiPixelClusterProducer::run(const T& input,
 
   // Iterate on detector units
   for (auto const& dsv : input) {
-
     //  LogDebug takes very long time, get rid off.
     //LogDebug("SiStripClusterizer") << "[SiPixelClusterProducer::run] DetID" << dsv.id;
 
@@ -198,7 +197,6 @@ void SiPixelClusterProducer::run(const T& input,
       break;
     }
   }  // end of DetUnit loop
-
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

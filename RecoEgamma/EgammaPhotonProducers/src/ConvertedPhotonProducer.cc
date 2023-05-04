@@ -362,7 +362,6 @@ void ConvertedPhotonProducer::buildCollections(
     const reco::Particle::LorentzVector p4(momentum.x(), momentum.y(), momentum.z(), aClus->energy());
 
     if (!allPairs.empty()) {
-
       for (auto iPair = allPairs.begin(); iPair != allPairs.end(); ++iPair) {
         scPtrVec.clear();
 

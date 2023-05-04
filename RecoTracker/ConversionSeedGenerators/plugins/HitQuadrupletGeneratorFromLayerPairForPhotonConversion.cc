@@ -97,7 +97,7 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
       if (fabs(reco::deltaPhi(noPos.barePhi(), oPos.barePhi())) > maxDeltaPhi)
         break;
 
-#ifdef mydebug_QSeed      
+#ifdef mydebug_QSeed
       totCountM2++;
 #endif
 

@@ -386,7 +386,6 @@ reco::TrackRefVector JetPlusTrackProducerAA::calculateBGtracksJet(
                                                              ixtrp = xtrpBegin;
        ixtrp != xtrpEnd;
        ++ixtrp) {
-
     reco::TrackRefVector::iterator it = find(trBgOutOfVertex.begin(), trBgOutOfVertex.end(), (*ixtrp).track());
 
     if (it != trBgOutOfVertex.end()) {

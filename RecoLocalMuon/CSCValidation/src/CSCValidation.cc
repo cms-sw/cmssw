@@ -932,7 +932,6 @@ void CSCValidation::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::E
   // Build iterator for rechits and loop :
   CSCRecHit2DCollection::const_iterator dRHIter;
   for (dRHIter = recHits->begin(); dRHIter != recHits->end(); dRHIter++) {
-
     // Find chamber with rechits in CSC
     CSCDetId idrec = (CSCDetId)(*dRHIter).cscDetId();
     int kEndcap = idrec.endcap();
@@ -2997,7 +2996,6 @@ void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
   // loop over segments
   // -----------------------
   for (CSCSegmentCollection::const_iterator dSiter = cscSegments->begin(); dSiter != cscSegments->end(); dSiter++) {
-
     CSCDetId id = (CSCDetId)(*dSiter).cscDetId();
     LocalPoint localPos = (*dSiter).localPosition();
     GlobalPoint globalPosition = GlobalPoint(0.0, 0.0, 0.0);
