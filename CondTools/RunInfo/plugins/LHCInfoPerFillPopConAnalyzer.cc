@@ -418,7 +418,6 @@ private:
     query->filterEQ("beams_stable", "true");
     query->limit(kLumisectionsQueryLimit);
     if (query->execute()) {
-      int nLumi = 0;
       auto queryResult = query->result();
       edm::LogInfo(m_name) << "Found " << queryResult.size() << " lumisections with STABLE BEAM during the fill "
                            << fillId;
@@ -427,12 +426,10 @@ private:
         if (m_endFillMode) {
           auto firstRow = queryResult.front();
           addPayloadToBuffer(firstRow);
-          nLumi++;
         }
 
         auto lastRow = queryResult.back();
         addPayloadToBuffer(lastRow);
-        nLumi++;
       }
     }
     return 0;

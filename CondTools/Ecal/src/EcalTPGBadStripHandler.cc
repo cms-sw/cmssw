@@ -181,8 +181,6 @@ void popcon::EcalTPGBadStripHandler::getNewObjects() {
             //unsigned int  rd_stripStatus;
 
             // put at 1 the strip that are bad
-            int icells = 0;
-            int icellsFound = 0;
             for (CIfeped p = dataset_TpgBadStrip.begin(); p != dataset_TpgBadStrip.end(); p++) {
               rd_badStrip = *p;
 
@@ -205,7 +203,6 @@ void popcon::EcalTPGBadStripHandler::getNewObjects() {
                     stripid = my_StripEcalLogicId_EE[istrip].getLogicID();
 
                     set_the_strip = true;
-                    ++icellsFound;
                     break;
                   }
                 }
@@ -214,11 +211,7 @@ void popcon::EcalTPGBadStripHandler::getNewObjects() {
               if (set_the_strip) {
                 stripStatus->setValue(stripid, (unsigned int)rd_badStrip.getStatus());
               }
-
-              ++icells;
             }
-
-            // std::cout << " icells = "  << icells << std::endl;
 
             edm::LogInfo("EcalTPGBadStripHandler") << "Finished badStrip reading.";
 
