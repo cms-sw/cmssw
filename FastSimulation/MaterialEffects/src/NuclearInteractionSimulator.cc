@@ -150,9 +150,6 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(std::vector<double>& ha
 
   gROOT->cd();
 
-  // Information (Should be on LogInfo)
-  //	    << " nuclear-interaction files was sucessfully open" << std::endl;
-
   //  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
   //  htot = dbe->book1D("Total", "All particles",150,0.,150.);
   //  helas = dbe->book1D("Elastic", "Elastic interactions",150,0.,150.);
