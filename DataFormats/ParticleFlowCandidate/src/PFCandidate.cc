@@ -296,8 +296,14 @@ void PFCandidate::rescaleMomentum(double rescaleFactor) {
     throw cms::Exception(
         "NegativeScaling",
         "Scale factor " + std::to_string(rescaleFactor) + " is < 0. Cannot rescale momentum by this value");
-  float rescaleE = std::sqrt(p() * p() * (rescaleFactor * rescaleFactor - 1) / (energy() * energy()) + 1);
-  LorentzVector rescaledp4(rescaleFactor * px(), rescaleFactor * py(), rescaleFactor * pz(), rescaleE * energy());
+
+  float e = std::sqrt(p() * p() * rescaleFactor * rescaleFactor + mass() * mass());
+
+  // Protect against invalid values (shouldn't happen, but could)
+  if (!(e > 0))
+    e = p() * rescaleFactor;
+
+  LorentzVector rescaledp4(rescaleFactor * px(), rescaleFactor * py(), rescaleFactor * pz(), e);
   setP4(rescaledp4);
 }
 

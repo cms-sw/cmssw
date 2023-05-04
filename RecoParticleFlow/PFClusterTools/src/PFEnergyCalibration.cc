@@ -290,7 +290,6 @@ void PFEnergyCalibration::energyEmHad(double t, double& e, double& h, double eta
     if (h < 0.)
       h = hh;
   }
-
   // And that's it !
 }
 
