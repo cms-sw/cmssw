@@ -726,7 +726,6 @@ void FakeBeamMonitor::analyze(const Event& iEvent, const EventSetup& iSetup) {
   //  edm::Handle<reco::VertexCollection> PVCollection;
 
   //  if (iEvent.getByToken(pvSrc_, PVCollection)) {
-  int nPVcount = 0;
   int nPVcount_ST = 0;  //For Single Trigger(hence ST)
 
   //    for (reco::VertexCollection::const_iterator pv = PVCollection->begin(); pv != PVCollection->end(); ++pv) {
@@ -734,8 +733,6 @@ void FakeBeamMonitor::analyze(const Event& iEvent, const EventSetup& iSetup) {
     //--- vertex selection
     //    if (pv->isFake() || pv->tracksSize() == 0)
     //      continue;
-    nPVcount++;  // count non fake pv:
-
     //if (JetTrigPass)
     nPVcount_ST++;  //non-fake pv with a specific trigger
 
@@ -760,8 +757,6 @@ void FakeBeamMonitor::analyze(const Event& iEvent, const EventSetup& iSetup) {
     //      }
 
   }  //loop over pvs
-
-  //    h_nVtx->Fill(nPVcount * 1.);  //no need to change it for average BS
 
   mapNPV[countLumi_].push_back((nPVcount_ST));
 
@@ -853,7 +848,6 @@ void FakeBeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, 
   }
 
   int MaxPVs = 0;
-  int countEvtLastNLS_ = 0;
 
   std::map<int, std::vector<int> >::iterator mnpv = mapNPV.begin();
   std::map<int, std::vector<float> >::iterator mpv2 = mapPVy.begin();
@@ -876,7 +870,6 @@ void FakeBeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, 
     for (std::vector<int>::iterator mnpvs = (mnpv->second).begin(); mnpvs != (mnpv->second).end(); ++mnpvs) {
       if ((*mnpvs > 0) && (resetHistoFlag_))
         h_nVtx_st->Fill((*mnpvs) * (1.0));
-      countEvtLastNLS_++;
       if ((*mnpvs) > MaxPVs)
         MaxPVs = (*mnpvs);
     }  //loop over second of mapNPV
@@ -895,7 +888,6 @@ void FakeBeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, 
   DipPVInfo_.push_back(rndm_->Gaus(10., 5.));      // Rms PV
   DipPVInfo_.push_back(rndm_->Gaus(5., 3.));       // Rms PV err
   DipPVInfo_.push_back(rndm_->Gaus(100., 10.));    // Max PVs
-  countEvtLastNLS_ = 0;
 
   if (onlineMode_) {  // filling LS gap
     // FIXME: need to add protection for the case if the gap is at the resetting LS!
