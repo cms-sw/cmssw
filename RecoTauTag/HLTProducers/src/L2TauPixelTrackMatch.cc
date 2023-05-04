@@ -8,7 +8,6 @@
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
-
 L2TauPixelTrackMatch::L2TauPixelTrackMatch(const edm::ParameterSet& conf) {
   m_jetSrc = consumes<trigger::TriggerFilterObjectWithRefs>(conf.getParameter<edm::InputTag>("JetSrc"));
   m_jetMinPt = conf.getParameter<double>("JetMinPt");
