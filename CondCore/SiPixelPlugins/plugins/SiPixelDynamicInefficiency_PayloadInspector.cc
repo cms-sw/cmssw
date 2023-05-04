@@ -223,6 +223,155 @@ namespace {
       return (masks_geom.size() == masks_db.size() &&
               std::equal(masks_geom.begin(), masks_geom.end(), masks_db.begin()));
     }
+
+    //_________________________________________________
+    unsigned int maxDepthOfPUArray(const std::map<unsigned int, std::vector<double> >& map_pufactor) {
+      unsigned int size{0};
+      for (const auto& [id, vec] : map_pufactor) {
+        if (vec.size() > size)
+          size = vec.size();
+      }
+      return size;
+    }
+
+    //_________________________________________________
+    std::pair<int, int> getClosestFactors(int input) {
+      if ((input % 2 != 0) && input > 1) {
+        input += 1;
+      }
+
+      int testNum = (int)sqrt(input);
+      while (input % testNum != 0) {
+        testNum--;
+      }
+      return std::make_pair(testNum, input / testNum);
+    }
+
+    /** Given an input list of std::string this
+     *  finds the longest common substring
+     */
+    std::string findStem(const std::vector<std::string>& arr) {
+      // Determine size of the array
+      int n = arr.size();
+
+      // Take first word from array as reference
+      const std::string& s = arr[0];
+      int len = s.length();
+
+      std::string res = "";
+
+      for (int i = 0; i < len; i++) {
+        for (int j = i + 1; j <= len; j++) {
+          // generating all possible substrings
+          // of our reference string arr[0] i.e s
+          std::string stem = s.substr(i, j);
+          int k = 1;
+          for (k = 1; k < n; k++) {
+            // Check if the generated stem is
+            // common to all words
+            if (arr[k].find(stem) == std::string::npos)
+              break;
+          }
+
+          // If current substring is present in
+          // all strings and its length is greater
+          // than current result
+          if (k == n && res.length() < stem.length())
+            res = stem;
+        }
+      }
+      return res;
+    }
+
+    /** This function determines from the list of attached DetId which
+     *  SiPixelPI::region represents them
+     */
+    std::string attachLocationLabel(const std::vector<uint32_t>& listOfDetIds, SiPixelPI::PhaseInfo& phInfo) {
+      // collect all the regions in which it can be split
+      std::vector<std::string> regions;
+      for (const auto& rawId : listOfDetIds) {
+        SiPixelPI::topolInfo t_info_fromXML;
+        t_info_fromXML.init();
+        DetId detid(rawId);
+
+        const char* path_toTopologyXML = phInfo.pathToTopoXML();
+        auto tTopo =
+            StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
+        t_info_fromXML.fillGeometryInfo(detid, tTopo, phInfo.phase());
+        const auto& reg = SiPixelPI::getStringFromRegionEnum(t_info_fromXML.filterThePartition());
+        if (!std::count(regions.begin(), regions.end(), reg)) {
+          regions.push_back(reg);
+        }
+      }
+
+      std::string retVal = "";
+      // if perfect match (only one category)
+      if (regions.size() == 1) {
+        retVal = regions.front();
+      } else {
+        retVal = findStem(regions);
+      }
+
+      // if the last char is "/" strip it from the string
+      if (retVal.back() == '/')
+        retVal.pop_back();
+
+      return retVal;
+    }
+
+    void fillParametrizations(std::vector<std::vector<double> >& listOfParametrizations,
+                              std::vector<TF1*>& parametrizations,
+                              std::vector<std::string>& formulas,
+                              const std::vector<std::string>& namesOfParts) {
+      static constexpr double xmin_ = 0.;   // x10e34 (min inst. lumi)
+      static constexpr double xmax_ = 25.;  // x10e34 (max inst. lumi)
+
+      // functional for polynomial of n-th degree
+      auto func = [](double* x, double* p) {
+        int n = p[0];
+        double* params = p + 1;
+        ROOT::Math::Polynomial pol(n);
+        return pol(x, params);
+      };
+
+      int index{0};
+      for (auto& params : listOfParametrizations) {
+        index++;
+        int n = params.size();
+        int npar = n + 2;
+        std::string str{namesOfParts[index - 1]};
+        if (str.length() >= 2 && str.substr(str.length() - 2) == "/i") {
+          str += "nner";
+        } else if (str.length() >= 2 && str.substr(str.length() - 2) == "/o") {
+          str += "uter";
+        }
+
+        TF1* f1 = new TF1((fmt::sprintf("region: #bf{%s}", str)).c_str(), func, xmin_, xmax_, npar);
+
+        // push polynomial degree as first entry in the vector
+        params.insert(params.begin(), n);
+        // TF1::SetParameters needs a C-style array
+        double* arr = params.data();
+        f1->SetLineWidth(2);
+
+        // fill in the parameter
+        for (unsigned int j = 0; j < params.size(); j++) {
+          f1->SetParameter(j, arr[j]);
+        }
+
+        parametrizations.push_back(f1);
+
+        // build the formula to be displayed
+        std::string formula;
+        edm::LogVerbatim("fillParametrizations") << "index: " << index;
+        for (unsigned int i = 1; i < params.size(); i++) {
+          edm::LogVerbatim("fillParametrizations") << " " << params[i];
+          formula += fmt::sprintf("%s%fx^{%i}", (i == 1 ? "" : (std::signbit(params[i]) ? "" : "+")), params[i], i - 1);
+        }
+        edm::LogVerbatim("fillParametrizations") << std::endl;
+        formulas.push_back(formula);
+      }
+    }
   }  // namespace SiPixDynIneff
 
   /************************************************
@@ -580,6 +729,7 @@ namespace {
         SiPixelDetInfoFileReader reader =
             SiPixelDetInfoFileReader(edm::FileInPath(SiPixelDetInfoFileReader::kPh1DefaultFile).fullPath());
         const auto& p1detIds = reader.getAllDetIds();
+
         for (const auto& det : p1detIds) {
           const auto& value = SiPixDynIneff::getMatchingGeomFactor(det, theMap, detIdmasks_db);
           fullMap.fillTrackerMap(det, value);
@@ -651,7 +801,7 @@ namespace {
           return false;
         }
 
-        unsigned int depth = maxDepthOfPUArray(theMap);
+        unsigned int depth = SiPixDynIneff::maxDepthOfPUArray(theMap);
 
         // create the maps
         for (unsigned int i = 0; i < depth; i++) {
@@ -685,7 +835,7 @@ namespace {
         }
 
         // determine how the plot will be paginated
-        auto sides = getClosestFactors(depth);
+        auto sides = SiPixDynIneff::getClosestFactors(depth);
         TCanvas canvas("Canv", "Canv", sides.second * 900, sides.first * 600);
         canvas.Divide(sides.second, sides.first);
 
@@ -711,28 +861,6 @@ namespace {
   protected:
     std::string payloadString;
     std::string label_;
-
-  private:
-    unsigned int maxDepthOfPUArray(const std::map<unsigned int, std::vector<double> >& map_pufactor) {
-      unsigned int size{0};
-      for (const auto& [id, vec] : map_pufactor) {
-        if (vec.size() > size)
-          size = vec.size();
-      }
-      return size;
-    }
-
-    std::pair<int, int> getClosestFactors(int input) {
-      if ((input % 2 != 0) && input > 1) {
-        input += 1;
-      }
-
-      int testNum = (int)sqrt(input);
-      while (input % testNum != 0) {
-        testNum--;
-      }
-      return std::make_pair(testNum, input / testNum);
-    }
   };
 
   /************************************************
@@ -771,7 +899,11 @@ namespace {
         // retrieve the list of phase1 detids
         const auto& reader =
             SiPixelDetInfoFileReader(edm::FileInPath(SiPixelDetInfoFileReader::kPh1DefaultFile).fullPath());
-        const auto& p1detIds = reader.getAllDetIds();
+        auto p1detIds = reader.getAllDetIds();
+
+        // follows hack to get an inner ladder module first
+        // skip the first 8 dets since they lay on the same ladder
+        std::swap(p1detIds[0], p1detIds[8]);
 
         std::map<unsigned int, std::vector<uint32_t> > modules_per_region;
 
@@ -797,7 +929,7 @@ namespace {
         // fill in the (ordered) information about regions
         for (const auto& [index, modules] : modules_per_region) {
           auto PhInfo = SiPixelPI::PhaseInfo(SiPixelPI::phase1size);
-          const auto& regName = this->attachLocationLabel(modules, PhInfo);
+          const auto& regName = SiPixDynIneff::attachLocationLabel(modules, PhInfo);
           namesOfParts.push_back(regName);
 
           /*
@@ -822,54 +954,16 @@ namespace {
           ss.str(std::string()); /* clear the stringstream */
         }
 
-        // functional for polynomial of n-th degree
-        auto func = [](double* x, double* p) {
-          int n = p[0];
-          double* params = p + 1;
-          ROOT::Math::Polynomial pol(n);
-          return pol(x, params);
-        };
-
         std::vector<TF1*> parametrizations;
         std::vector<std::string> formulas;
         parametrizations.reserve(depth);
         formulas.reserve(depth);
 
-        int index{0};
-        for (auto& params : listOfParametrizations) {
-          index++;
-          int n = params.size();
-          int npar = n + 2;
-          TF1* f1 =
-              new TF1((fmt::sprintf("region: #bf{%s}", namesOfParts[index - 1])).c_str(), func, xmin_, xmax_, npar);
-
-          // push polynomial degree as first entry in the vector
-          params.insert(params.begin(), n);
-          // TF1::SetParameters needs a C-style array
-          double* arr = params.data();
-          f1->SetLineWidth(2);
-
-          // fill in the parameter
-          for (unsigned int j = 0; j < params.size(); j++) {
-            f1->SetParameter(j, arr[j]);
-          }
-
-          parametrizations.push_back(f1);
-
-          // build the formula to be displayed
-          std::string formula;
-          edm::LogVerbatim(label_) << "index: " << index;
-          for (unsigned int i = 1; i < params.size(); i++) {
-            edm::LogVerbatim(label_) << " " << params[i];
-            formula +=
-                fmt::sprintf("%s%fx^{%i}", (i == 1 ? "" : (std::signbit(params[i]) ? "" : "+")), params[i], i - 1);
-          }
-          edm::LogVerbatim(label_) << std::endl;
-          formulas.push_back(formula);
-        }
+        // fill the parametrization plots
+        SiPixDynIneff::fillParametrizations(listOfParametrizations, parametrizations, formulas, namesOfParts);
 
         // determine how the plot will be paginated
-        auto sides = getClosestFactors(depth);
+        auto sides = SiPixDynIneff::getClosestFactors(depth);
         TCanvas canvas("Canv", "Canv", sides.second * 900, sides.first * 600);
         canvas.Divide(sides.second, sides.first);
 
@@ -886,6 +980,7 @@ namespace {
           ax->SetTitle("Inst. luminosity [10^{33} cm^{-2}s^{-1}]");
 
           TAxis* ay = h->GetYaxis();
+          ay->SetRangeUser(0.80, 1.00);  // force the scale
           ay->SetTitle("Double Column Efficiency parametrization");
 
           // beautify
@@ -897,15 +992,15 @@ namespace {
           ltx.SetTextAlign(11);
           ltx.DrawLatexNDC(
               gPad->GetLeftMargin() + 0.03,
-              gPad->GetBottomMargin() + 0.04,
-              ("#color[4]{" + tag.name + "}, IOV: #color[4]{" + std::to_string(std::get<0>(iov)) + "}").c_str());
+              gPad->GetBottomMargin() + 0.08,
+              ("#color[2]{" + tag.name + "},IOV: #color[2]{" + std::to_string(std::get<0>(iov)) + "}").c_str());
 
           auto ltxForm = TLatex();
           ltxForm.SetTextFont(62);
           ltxForm.SetTextColor(kRed);
-          ltxForm.SetTextSize(0.045);
+          ltxForm.SetTextSize(0.035);
           ltxForm.SetTextAlign(11);
-          ltxForm.DrawLatexNDC(gPad->GetLeftMargin() + 0.05, 0.85, formulas[i].c_str());
+          ltxForm.DrawLatexNDC(gPad->GetLeftMargin() + 0.03, gPad->GetBottomMargin() + 0.04, formulas[i].c_str());
 
           edm::LogPrint(label_) << namesOfParts[i] << " => " << formulas[i] << std::endl;
         }
@@ -920,104 +1015,224 @@ namespace {
   protected:
     std::string payloadString;
     std::string label_;
+  };
 
-    static constexpr double xmin_ = 0.;   // x10e34 (min inst. lumi)
-    static constexpr double xmax_ = 25.;  // x10e34 (max inst. lumi)
-
-  private:
-    unsigned int maxDepthOfPUArray(const std::map<unsigned int, std::vector<double> >& map_pufactor) {
-      unsigned int size{0};
-      for (const auto& [id, vec] : map_pufactor) {
-        if (vec.size() > size)
-          size = vec.size();
-      }
-      return size;
+  template <IOVMultiplicity nIOVs, int ntags>
+  class SiPixelDynamicInefficiencyPUParamComparisonBase : public PlotImage<SiPixelDynamicInefficiency, nIOVs, ntags> {
+  public:
+    SiPixelDynamicInefficiencyPUParamComparisonBase()
+        : PlotImage<SiPixelDynamicInefficiency, nIOVs, ntags>(
+              Form("SiPixelDynamic Inefficiency parameterization comparison by Region %i tag(s)", ntags)) {
+      label_ = "SiPixelDynamicInefficiencyPUParameterization";
     }
 
-    std::pair<int, int> getClosestFactors(int input) {
-      if ((input % 2 != 0) && input > 1) {
-        input += 1;
-      }
+    bool fill() override {
+      gStyle->SetPalette(1);
 
-      int testNum = (int)sqrt(input);
-      while (input % testNum != 0) {
-        testNum--;
-      }
-      return std::make_pair(testNum, input / testNum);
-    }
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto f_tagname = PlotBase::getTag<0>().name;
+      std::string l_tagname = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
 
-    /** This function determines from the list of attached DetId which
-     *  SiPixelPI::region represents them
-     */
-    std::string attachLocationLabel(const std::vector<uint32_t>& listOfDetIds, SiPixelPI::PhaseInfo& phInfo) {
-      // collect all the regions in which it can be split
-      std::vector<std::string> regions;
-      for (const auto& rawId : listOfDetIds) {
-        SiPixelPI::topolInfo t_info_fromXML;
-        t_info_fromXML.init();
-        DetId detid(rawId);
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
 
-        const char* path_toTopologyXML = phInfo.pathToTopoXML();
-        auto tTopo =
-            StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
-        t_info_fromXML.fillGeometryInfo(detid, tTopo, phInfo.phase());
-        const auto& reg = SiPixelPI::getStringFromRegionEnum(t_info_fromXML.filterThePartition());
-        if (!std::count(regions.begin(), regions.end(), reg)) {
-          regions.push_back(reg);
-        }
-      }
-
-      std::string retVal = "";
-      // if perfect match (only one category)
-      if (regions.size() == 1) {
-        retVal = regions.front();
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        l_tagname = PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
       } else {
-        retVal = this->findStem(regions);
+        lastiov = theIOVs.back();
       }
 
-      // if the last char is "/" strip it from the string
-      if (retVal.back() == '/')
-        retVal.pop_back();
+      std::shared_ptr<SiPixelDynamicInefficiency> last_payload = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiPixelDynamicInefficiency> first_payload = this->fetchPayload(std::get<1>(firstiov));
 
-      return retVal;
-    }
+      if (first_payload.get() && last_payload.get()) {
+        SiPixDynIneff::PUFactorMap f_theMap = first_payload->getPUFactors();
+        std::vector<uint32_t> f_detIdmasks_db = first_payload->getDetIdmasks();
 
-    /** Given an input list of std::string this
-     *  finds the longest common substring
-     */
-    std::string findStem(const std::vector<std::string>& arr) {
-      // Determine size of the array
-      int n = arr.size();
+        SiPixDynIneff::PUFactorMap l_theMap = last_payload->getPUFactors();
+        std::vector<uint32_t> l_detIdmasks_db = last_payload->getDetIdmasks();
 
-      // Take first word from array as reference
-      const std::string& s = arr[0];
-      int len = s.length();
+        if (!SiPixDynIneff::checkPhase(SiPixelPI::phase::one, f_detIdmasks_db) ||
+            !SiPixDynIneff::checkPhase(SiPixelPI::phase::one, l_detIdmasks_db)) {
+          edm::LogError(label_) << label_ << " maps are not supported for non-Phase1 Pixel geometries !";
+          TCanvas canvas("Canv", "Canv", 1200, 1000);
+          SiPixelPI::displayNotSupported(canvas, 0);
+          std::string fileName(this->m_imageFileName);
+          canvas.SaveAs(fileName.c_str());
+          return false;
+        }
 
-      std::string res = "";
+        std::vector<std::vector<double> > f_listOfParametrizations;
+        std::vector<std::vector<double> > l_listOfParametrizations;
 
-      for (int i = 0; i < len; i++) {
-        for (int j = i + 1; j <= len; j++) {
-          // generating all possible substrings
-          // of our reference string arr[0] i.e s
-          std::string stem = s.substr(i, j);
-          int k = 1;
-          for (k = 1; k < n; k++) {
-            // Check if the generated stem is
-            // common to all words
-            if (arr[k].find(stem) == std::string::npos)
-              break;
+        // retrieve the list of phase1 detids
+        const auto& reader =
+            SiPixelDetInfoFileReader(edm::FileInPath(SiPixelDetInfoFileReader::kPh1DefaultFile).fullPath());
+        auto p1detIds = reader.getAllDetIds();
+
+        // follows hack to get an inner ladder module first
+        // skip the first 8 dets since they lay on the same ladder
+        std::swap(p1detIds[0], p1detIds[8]);
+
+        std::map<unsigned int, std::vector<uint32_t> > modules_per_region;
+
+        // fill the maps
+        for (const auto& det : p1detIds) {
+          const auto& f_values = SiPixDynIneff::getMatchingPUFactors(det, f_theMap, f_detIdmasks_db);
+          const auto& l_values = SiPixDynIneff::getMatchingPUFactors(det, l_theMap, l_detIdmasks_db);
+
+          // find the index in the vector
+          auto fIndex = std::find(f_listOfParametrizations.begin(), f_listOfParametrizations.end(), f_values);
+          auto lIndex = std::find(l_listOfParametrizations.begin(), l_listOfParametrizations.end(), l_values);
+
+          // if it's not there push it back in the list of parametrizations and then insert in the map
+          if (fIndex == f_listOfParametrizations.end()) {
+            f_listOfParametrizations.push_back(f_values);
+            std::vector<unsigned int> toInsert = {det};
+            modules_per_region.insert(std::make_pair(f_listOfParametrizations.size() - 1, toInsert));
+          } else {
+            modules_per_region.at(fIndex - f_listOfParametrizations.begin()).push_back(det);
           }
 
-          // If current substring is present in
-          // all strings and its length is greater
-          // than current result
-          if (k == n && res.length() < stem.length())
-            res = stem;
+          if (lIndex == l_listOfParametrizations.end()) {
+            l_listOfParametrizations.push_back(l_values);
+          }
         }
-      }
-      return res;
-    }
+
+        unsigned int f_depth = f_listOfParametrizations.size();
+        unsigned int l_depth = l_listOfParametrizations.size();
+
+        if (l_depth != f_depth) {
+          edm::LogError(label_) << label_
+                                << " trying to compare dynamic inefficiencys payload with different detid masks!";
+          TCanvas canvas("Canv", "Canv", 1200, 1000);
+          SiPixelPI::displayNotSupported(canvas, 0);
+          std::string fileName(this->m_imageFileName);
+          canvas.SaveAs(fileName.c_str());
+          return false;
+        }
+
+        assert(f_depth == l_depth);
+
+        std::vector<std::string> namesOfParts;
+        namesOfParts.reserve(f_depth);
+        // fill in the (ordered) information about regions
+        for (const auto& [index, modules] : modules_per_region) {
+          auto PhInfo = SiPixelPI::PhaseInfo(SiPixelPI::phase1size);
+          const auto& regName = SiPixDynIneff::attachLocationLabel(modules, PhInfo);
+          namesOfParts.push_back(regName);
+
+          /*
+	   *  The following is needed for internal
+	   *  debug / cross-check
+	   */
+
+          std::stringstream ss;
+          ss << "region name: " << regName << " has the following modules attached: [";
+          for (const auto& module : modules) {
+            ss << module << ", ";
+          }
+          ss.seekp(-2, std::ios_base::end);  // remove last two chars
+          ss << "] "
+             << " has representation (";
+          for (const auto& param : f_listOfParametrizations[index]) {
+            ss << param << ", ";
+          }
+          ss.seekp(-2, std::ios_base::end);  // remove last two chars
+          ss << ") ";
+          edm::LogPrint(label_) << ss.str() << "\n\n";
+          ss.str(std::string()); /* clear the stringstream */
+        }
+
+        // now fill the paramtrizations
+        std::vector<TF1*> f_parametrizations;
+        std::vector<std::string> f_formulas;
+        f_parametrizations.reserve(f_depth);
+        f_formulas.reserve(f_depth);
+
+        std::vector<TF1*> l_parametrizations;
+        std::vector<std::string> l_formulas;
+        l_parametrizations.reserve(l_depth);
+        l_formulas.reserve(l_depth);
+
+        // fill the parametrization plots
+        SiPixDynIneff::fillParametrizations(f_listOfParametrizations, f_parametrizations, f_formulas, namesOfParts);
+        SiPixDynIneff::fillParametrizations(l_listOfParametrizations, l_parametrizations, l_formulas, namesOfParts);
+
+        // determine how the plot will be paginated
+        auto sides = SiPixDynIneff::getClosestFactors(f_depth);
+        TCanvas canvas("Canv", "Canv", sides.second * 900, sides.first * 600);
+        canvas.Divide(sides.second, sides.first);
+
+        // print the sub-canvases
+        for (unsigned int i = 0; i < f_depth; i++) {
+          canvas.cd(i + 1);
+          gPad->SetGrid();
+          SiPixelPI::adjustCanvasMargins(gPad, 0.07, 0.14, 0.14, 0.03);
+          f_parametrizations[i]->Draw();
+          l_parametrizations[i]->SetLineColor(kBlue);
+          l_parametrizations[i]->SetLineStyle(kDashed);
+          l_parametrizations[i]->Draw("same");
+
+          // set axis
+          TH1* h = f_parametrizations[i]->GetHistogram();
+          TAxis* ax = h->GetXaxis();
+          ax->SetTitle("Inst. luminosity [10^{33} cm^{-2}s^{-1}]");
+
+          TAxis* ay = h->GetYaxis();
+          ay->SetRangeUser(0.80, 1.00);  // force the scale
+          ay->SetTitle("Double Column Efficiency parametrization");
+
+          // beautify
+          SiPixelPI::makeNicePlotStyle(h);
+
+          auto ltx = TLatex();
+          ltx.SetTextFont(62);
+          ltx.SetTextSize(0.045);
+          ltx.SetTextAlign(11);
+          ltx.DrawLatexNDC(
+              gPad->GetLeftMargin() + 0.03,
+              gPad->GetBottomMargin() + 0.16,
+              ("#color[2]{" + f_tagname + "},IOV: #color[2]{" + std::to_string(std::get<0>(firstiov)) + "}").c_str());
+          ltx.DrawLatexNDC(
+              gPad->GetLeftMargin() + 0.03,
+              gPad->GetBottomMargin() + 0.08,
+              ("#color[4]{" + l_tagname + "},IOV: #color[4]{" + std::to_string(std::get<0>(lastiov)) + "}").c_str());
+
+          auto ltxForm = TLatex();
+          ltxForm.SetTextFont(62);
+          ltxForm.SetTextColor(kRed);
+          ltxForm.SetTextSize(0.035);
+          ltxForm.SetTextAlign(11);
+          ltxForm.DrawLatexNDC(gPad->GetLeftMargin() + 0.03, gPad->GetBottomMargin() + 0.12, f_formulas[i].c_str());
+
+          ltxForm.SetTextColor(kBlue);
+          ltxForm.DrawLatexNDC(gPad->GetLeftMargin() + 0.03, gPad->GetBottomMargin() + 0.04, l_formulas[i].c_str());
+
+          edm::LogPrint(label_) << namesOfParts[i] << " => " << f_formulas[i] << std::endl;
+          edm::LogPrint(label_) << namesOfParts[i] << " => " << l_formulas[i] << std::endl;
+        }
+
+        std::string fileName(this->m_imageFileName);
+        canvas.SaveAs(fileName.c_str());
+        //canvas.SaveAs((fileName+".root").c_str());
+
+      }  // if payload.get()
+      return true;
+    }  // fill()
+
+  protected:
+    std::string label_;
   };
+
+  using SiPixelDynamicInefficiencyPUParamComparisonTwoTags =
+      SiPixelDynamicInefficiencyPUParamComparisonBase<SINGLE_IOV, 2>;
+
 }  // namespace
 
 // Register the classes as boost python plugin
@@ -1034,4 +1249,5 @@ PAYLOAD_INSPECTOR_MODULE(SiPixelDynamicInefficiency) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelDynamicInefficiencyChipGeomFactorMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelDynamicInefficiencyPUPixelMaps);
   PAYLOAD_INSPECTOR_CLASS(SiPixelDynamicInefficiencyPUParametrization);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelDynamicInefficiencyPUParamComparisonTwoTags);
 }
