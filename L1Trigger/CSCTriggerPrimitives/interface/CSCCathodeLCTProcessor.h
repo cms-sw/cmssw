@@ -57,18 +57,19 @@ public:
   /** Sets configuration parameters obtained via EventSetup mechanism. */
   void setConfigParameters(const CSCDBL1TPParameters* conf);
 
-  void setESLookupTables(const CSCL1TPLookupTableCCLUT* conf);
-
   /** Clears the LCT containers. */
   void clear();
 
   /** Runs the LCT processor code. Called in normal running -- gets info from
       a collection of comparator digis. */
-  std::vector<CSCCLCTDigi> run(const CSCComparatorDigiCollection* compdc);
+  std::vector<CSCCLCTDigi> run(const CSCComparatorDigiCollection* compdc,
+                               const CSCChamber* chamber,
+                               const CSCL1TPLookupTableCCLUT* lookupTable);
 
   /** Called in test mode and by the run(compdc) function; does the actual LCT
       finding. */
-  void run(const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]);
+  void run(const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER],
+           const CSCL1TPLookupTableCCLUT* lookupTable);
 
   /** Returns vector of CLCTs in the read-out time window, if any. */
   std::vector<CSCCLCTDigi> readoutCLCTs() const;
@@ -132,7 +133,8 @@ protected:
 
   //--------------- Functions for post-2007 version of the firmware -----------
   virtual std::vector<CSCCLCTDigi> findLCTs(
-      const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]);
+      const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER],
+      const CSCL1TPLookupTableCCLUT* lookupTable);
 
   /* Check all half-strip pattern envelopes simultaneously, on every clock cycle, for a matching pattern
      Returns true if a pretrigger was found, and the first BX of the pretrigger */
@@ -153,7 +155,8 @@ protected:
   // build a new CLCT trigger
   CSCCLCTDigi constructCLCT(const int bx,
                             const unsigned halfstrip_withstagger,
-                            const CSCCLCTDigi::ComparatorContainer& hits);
+                            const CSCCLCTDigi::ComparatorContainer& hits,
+                            const CSCL1TPLookupTableCCLUT* lookupTable);
 
   // build a new CLCT pretrigger
   CSCCLCTPreTriggerDigi constructPreCLCT(const int bx, const unsigned halfstrip, const unsigned index) const;

@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from L1Trigger.Phase2L1ParticleFlow.l1tDeregionizerProducer_cfi import l1tDeregionizerProducer as l1tLayer2Deregionizer
+
 l1tLayer2EG = cms.EDProducer(
     "L1TCtL2EgProducer",
     tkElectrons=cms.VPSet(
@@ -36,6 +38,7 @@ l1tLayer2EG = cms.EDProducer(
             channels=cms.vint32(-1)
         ),
     ),
+    l1PFObjects = cms.InputTag("l1tLayer2Deregionizer", "Puppi"),
     egStaInstanceLabel=cms.string("L1CtEgEE"),
     tkEmInstanceLabel=cms.string("L1CtTkEm"),
     tkEleInstanceLabel=cms.string("L1CtTkElectron"),
@@ -48,6 +51,22 @@ l1tLayer2EG = cms.EDProducer(
     encoder=cms.PSet(
         nTKELE_OUT=cms.uint32(12),
         nTKPHO_OUT=cms.uint32(12),
+    ),
+    puppiIsoParametersTkEm = cms.PSet(
+        pfIsoType = cms.string("PUPPI"),
+        pfPtMin = cms.double(1.),
+        dZ = cms.double(0.6),
+        dRMin = cms.double(0.07),
+        dRMax = cms.double(0.3),
+        pfCandReuse = cms.bool(True)
+    ),
+    puppiIsoParametersTkEle = cms.PSet(
+        pfIsoType = cms.string("PUPPI"),
+        pfPtMin = cms.double(1.),
+        dZ = cms.double(0.6),
+        dRMin = cms.double(0.03),
+        dRMax = cms.double(0.2),
+        pfCandReuse = cms.bool(True)
     ),
     writeInPattern=cms.bool(False),
     writeOutPattern=cms.bool(False),
@@ -133,5 +152,6 @@ l1tLayer2EG = cms.EDProducer(
 
 
 L1TLayer2EGTask = cms.Task(
+     l1tLayer2Deregionizer,
      l1tLayer2EG
 )

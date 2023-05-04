@@ -25,3 +25,16 @@ l1tPFTracksFromL1Tracks = cms.EDProducer("PFTrackProducerFromL1Tracks",
     redigitizeTrackWord = cms.bool(True),
 )
 
+l1tPFTracksFromL1TracksExtended = l1tPFTracksFromL1Tracks.clone(
+    L1TrackTag = ("l1tTTTracksFromExtendedTrackletEmulation", "Level1TTTracks"),
+    nParam = 5,
+    qualityBits = [ 
+        "momentum.perp > 2 && getStubRefs.size >= 4 && chi2Red < 15 && POCA.x < 1.0 && POCA.x > -1.0 && POCA.y < 1.0 && POCA.y > -1.0",
+        "momentum.perp > 2 && getStubRefs.size >= 6 && chi2Red < 15 && chi2 < 50 && POCA.x < 1.0 && POCA.x > -1.0 && POCA.y < 1.0 && POCA.y > -1.0", # historical reasons
+        "momentum.perp > 5 && getStubRefs.size >= 4 && POCA.x < 1.0 && POCA.x > -1.0 && POCA.y < 1.0 && POCA.y > -1.0"
+        #using restriction on track x,y for now
+        #long term fix would be to alter track propagation in L1Trigger/Phase2L1ParticleFlow/plugins/PFTrackProducerFromL1Tracks.cc
+    ],
+    redigitizeTrackWord = True,
+)
+

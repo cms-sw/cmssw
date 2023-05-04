@@ -42,10 +42,7 @@ CSCGEMMotherboard::CSCGEMMotherboard(unsigned endcap,
 
 CSCGEMMotherboard::~CSCGEMMotherboard() {}
 
-void CSCGEMMotherboard::clear() {
-  CSCMotherboard::clear();
-  clusterProc_->clear();
-}
+void CSCGEMMotherboard::clear() { clusterProc_->clear(); }
 
 //function to convert GEM-CSC amended signed slope into Run2 legacy pattern number
 uint16_t CSCGEMMotherboard::Run2PatternConverter(const int slope) const {
@@ -69,63 +66,42 @@ uint16_t CSCGEMMotherboard::Run2PatternConverter(const int slope) const {
 
 void CSCGEMMotherboard::run(const CSCWireDigiCollection* wiredc,
                             const CSCComparatorDigiCollection* compdc,
-                            const GEMPadDigiClusterCollection* gemClusters) {
+                            const GEMPadDigiClusterCollection* gemClusters,
+                            const RunContext& context) {
   // Step 1: Setup
   clear();
 
   // check for GEM geometry
-  if (gem_g == nullptr) {
+  if (context.gemGeometry_ == nullptr) {
     edm::LogError("CSCGEMMotherboard") << "run() called for GEM-CSC integrated trigger without valid GEM geometry! \n";
     return;
   }
 
-  // Check that the processors can deliver data
-  if (!(alctProc and clctProc)) {
-    edm::LogError("CSCGEMMotherboard") << "run() called for non-existing ALCT/CLCT processor! \n";
-    return;
-  }
-
-  alctProc->setCSCGeometry(cscGeometry_);
-  clctProc->setCSCGeometry(cscGeometry_);
-
-  // set CCLUT parameters if necessary
-  if (runCCLUT_) {
-    clctProc->setESLookupTables(lookupTableCCLUT_);
-  }
-
   // Step 2: Run the processors
-  const std::vector<CSCALCTDigi>& alctV = alctProc->run(wiredc);  // run anodeLCT
-  const std::vector<CSCCLCTDigi>& clctV = clctProc->run(compdc);  // run cathodeLCT
-
-  // Step 2b: encode high multiplicity bits (independent of LCT construction)
-  encodeHighMultiplicityBits();
+  CSCMotherboard::RunContext mbc{context.cscGeometry_,
+                                 context.lookupTableCCLUT_,
+                                 context.lookupTableME11ILT_,
+                                 context.lookupTableME21ILT_,
+                                 context.parameters_};
+  auto [alctV, clctV] = runCommon(wiredc, compdc, mbc);
 
   // if there are no ALCTs and no CLCTs, do not run the ALCT-CLCT correlation
   if (alctV.empty() and clctV.empty())
     return;
 
-  // set the lookup tables for coordinate conversion and matching
-  if (isME11_) {
-    clusterProc_->setESLookupTables(lookupTableME11ILT_);
-    cscGEMMatcher_->setESLookupTables(lookupTableME11ILT_);
-  }
-  if (isME21_) {
-    clusterProc_->setESLookupTables(lookupTableME21ILT_);
-    cscGEMMatcher_->setESLookupTables(lookupTableME21ILT_);
-  }
-
   // Step 3: run the GEM cluster processor to get the internal clusters
-  clusterProc_->run(gemClusters);
+  clusterProc_->run(gemClusters, context.lookupTableME11ILT_, context.lookupTableME21ILT_);
   hasGE21Geometry16Partitions_ = clusterProc_->hasGE21Geometry16Partitions();
 
   // Step 4: ALCT-CLCT-GEM matching
-  matchALCTCLCTGEM();
+  matchALCTCLCTGEM(context.lookupTableME11ILT_, context.lookupTableME21ILT_);
 
   // Step 5: Select at most 2 LCTs per BX
   selectLCTs();
 }
 
-void CSCGEMMotherboard::matchALCTCLCTGEM() {
+void CSCGEMMotherboard::matchALCTCLCTGEM(const CSCL1TPLookupTableME11ILT* lookupTableME11ILT,
+                                         const CSCL1TPLookupTableME21ILT* lookupTableME21ILT) {
   // no matching is done for GE2/1 geometries with 8 eta partitions
   // this has been superseded by 16-eta partition geometries
   if (isME21_ and !hasGE21Geometry16Partitions_)
@@ -159,14 +135,14 @@ void CSCGEMMotherboard::matchALCTCLCTGEM() {
     sortCLCTByQualBend(bx_alct, clctBx_qualbend_match);
 
     bool hasLocalShower = false;
-    for (unsigned ibx = 1; ibx <= match_trig_window_size / 2; ibx++)
+    for (unsigned ibx = 1; ibx <= match_trig_window_size() / 2; ibx++)
       hasLocalShower = (hasLocalShower or clctProc->getLocalShowerFlag(bx_alct - CSCConstants::ALCT_CLCT_OFFSET - ibx));
     // BestCLCT and secondCLCT
-    for (unsigned mbx = 0; mbx < match_trig_window_size; mbx++) {
+    for (unsigned mbx = 0; mbx < match_trig_window_size(); mbx++) {
       //bx_clct_run2 would be overflow when bx_alct is small but it is okay
-      unsigned bx_clct_run2 = bx_alct + preferred_bx_match_[mbx] - CSCConstants::ALCT_CLCT_OFFSET;
+      unsigned bx_clct_run2 = bx_alct + preferred_bx_match(mbx) - CSCConstants::ALCT_CLCT_OFFSET;
       unsigned bx_clct_qualbend = clctBx_qualbend_match[mbx];
-      bx_clct = (sort_clct_bx_ or not(hasLocalShower)) ? bx_clct_run2 : bx_clct_qualbend;
+      bx_clct = (sort_clct_bx() or not(hasLocalShower)) ? bx_clct_run2 : bx_clct_qualbend;
 
       if (bx_clct >= CSCConstants::MAX_CLCT_TBINS)
         continue;
@@ -195,13 +171,14 @@ void CSCGEMMotherboard::matchALCTCLCTGEM() {
     // ALCT + CLCT + GEM
 
     for (unsigned gmbx = 0; gmbx < alct_gem_bx_window_size_; gmbx++) {
-      unsigned bx_gem = bx_alct + preferred_bx_match_[gmbx];
+      unsigned bx_gem = bx_alct + preferred_bx_match(gmbx);
       clustersGEM = clusterProc_->getClusters(bx_gem, GEMClusterProcessor::AllClusters);
       if (!clustersGEM.empty()) {
-        correlateLCTsGEM(bestALCT, bestCLCT, clustersGEM, LCTbestAbestCgem);
-        correlateLCTsGEM(bestALCT, secondCLCT, clustersGEM, LCTbestAsecondCgem);
-        correlateLCTsGEM(secondALCT, bestCLCT, clustersGEM, LCTsecondAbestCgem);
-        correlateLCTsGEM(secondALCT, secondCLCT, clustersGEM, LCTsecondAsecondCgem);
+        correlateLCTsGEM(bestALCT, bestCLCT, clustersGEM, lookupTableME11ILT, lookupTableME21ILT, LCTbestAbestCgem);
+        correlateLCTsGEM(bestALCT, secondCLCT, clustersGEM, lookupTableME11ILT, lookupTableME21ILT, LCTbestAsecondCgem);
+        correlateLCTsGEM(secondALCT, bestCLCT, clustersGEM, lookupTableME11ILT, lookupTableME21ILT, LCTsecondAbestCgem);
+        correlateLCTsGEM(
+            secondALCT, secondCLCT, clustersGEM, lookupTableME11ILT, lookupTableME21ILT, LCTsecondAsecondCgem);
         break;
       }
     }
@@ -219,16 +196,16 @@ void CSCGEMMotherboard::matchALCTCLCTGEM() {
       unsigned bx_gem = bx_alct;
 
       clustersGEM = clusterProc_->getClusters(bx_gem, GEMClusterProcessor::CoincidenceClusters);
-      correlateLCTsGEM(bestCLCT, clustersGEM, LCTbestCLCTgem);
+      correlateLCTsGEM(bestCLCT, clustersGEM, lookupTableME11ILT, lookupTableME21ILT, LCTbestCLCTgem);
       clustersGEM = clusterProc_->getClusters(bx_gem, GEMClusterProcessor::CoincidenceClusters);
-      correlateLCTsGEM(secondCLCT, clustersGEM, LCTsecondCLCTgem);
+      correlateLCTsGEM(secondCLCT, clustersGEM, lookupTableME11ILT, lookupTableME21ILT, LCTsecondCLCTgem);
     }
 
     // ALCT + 2 GEM
 
     if (build_lct_from_alct_gem_) {
       for (unsigned gmbx = 0; gmbx < alct_gem_bx_window_size_; gmbx++) {
-        unsigned bx_gem = bx_alct + preferred_bx_match_[gmbx];
+        unsigned bx_gem = bx_alct + preferred_bx_match(gmbx);
         clustersGEM = clusterProc_->getClusters(bx_gem, GEMClusterProcessor::CoincidenceClusters);
         if (!clustersGEM.empty()) {
           correlateLCTsGEM(bestALCT, clustersGEM, LCTbestALCTgem);
@@ -402,6 +379,8 @@ void CSCGEMMotherboard::matchALCTCLCTGEM() {
 void CSCGEMMotherboard::correlateLCTsGEM(const CSCALCTDigi& ALCT,
                                          const CSCCLCTDigi& CLCT,
                                          const GEMInternalClusters& clusters,
+                                         const CSCL1TPLookupTableME11ILT* lookupTableME11ILT,
+                                         const CSCL1TPLookupTableME21ILT* lookupTableME21ILT,
                                          CSCCorrelatedLCTDigi& lct) const {
   // Sanity checks on ALCT, CLCT, GEM clusters
   if (!ALCT.isValid()) {
@@ -424,9 +403,9 @@ void CSCGEMMotherboard::correlateLCTsGEM(const CSCALCTDigi& ALCT,
   // We can now check possible triplets and construct all LCTs with
   // valid ALCT, valid CLCTs and GEM clusters
   GEMInternalCluster bestCluster;
-  cscGEMMatcher_->bestClusterLoc(ALCT, CLCT, ValidClusters, bestCluster);
+  cscGEMMatcher_->bestClusterLoc(ALCT, CLCT, ValidClusters, lookupTableME11ILT, lookupTableME21ILT, bestCluster);
   if (bestCluster.isValid())
-    constructLCTsGEM(ALCT, CLCT, bestCluster, lct);
+    constructLCTsGEM(ALCT, CLCT, bestCluster, lookupTableME11ILT, lookupTableME21ILT, lct);
 }
 
 // Correlate CSC information. Option ALCT-CLCT
@@ -449,7 +428,7 @@ void CSCGEMMotherboard::correlateLCTsGEM(const CSCALCTDigi& ALCT,
   }
 
   // construct LCT
-  if (match_trig_enable and doesALCTCrossCLCT(ALCT, CLCT)) {
+  if (match_trig_enable() and doesALCTCrossCLCT(ALCT, CLCT)) {
     constructLCTsGEM(ALCT, CLCT, lct);
   }
 }
@@ -457,6 +436,8 @@ void CSCGEMMotherboard::correlateLCTsGEM(const CSCALCTDigi& ALCT,
 // Correlate CSC and GEM information. Option CLCT-GEM
 void CSCGEMMotherboard::correlateLCTsGEM(const CSCCLCTDigi& CLCT,
                                          const GEMInternalClusters& clusters,
+                                         const CSCL1TPLookupTableME11ILT* lookupTableME11ILT,
+                                         const CSCL1TPLookupTableME21ILT* lookupTableME21ILT,
                                          CSCCorrelatedLCTDigi& lct) const {
   // Sanity checks on CLCT, GEM clusters
   bool dropLowQualityCLCT = drop_low_quality_clct_;
@@ -477,11 +458,11 @@ void CSCGEMMotherboard::correlateLCTsGEM(const CSCCLCTDigi& CLCT,
 
   // get the best matching cluster
   GEMInternalCluster bestCluster;
-  cscGEMMatcher_->bestClusterLoc(CLCT, ValidClusters, bestCluster);
+  cscGEMMatcher_->bestClusterLoc(CLCT, ValidClusters, lookupTableME11ILT, lookupTableME21ILT, bestCluster);
 
   // construct all LCTs with valid CLCTs and coincidence clusters
   if (bestCluster.isCoincidence()) {
-    constructLCTsGEM(CLCT, bestCluster, lct);
+    constructLCTsGEM(CLCT, bestCluster, lookupTableME11ILT, lookupTableME21ILT, lct);
   }
 }
 
@@ -516,6 +497,8 @@ void CSCGEMMotherboard::correlateLCTsGEM(const CSCALCTDigi& ALCT,
 void CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct,
                                          const CSCCLCTDigi& clct,
                                          const GEMInternalCluster& gem,
+                                         const CSCL1TPLookupTableME11ILT* lookupTableME11ILT,
+                                         const CSCL1TPLookupTableME21ILT* lookupTableME21ILT,
                                          CSCCorrelatedLCTDigi& thisLCT) const {
   thisLCT.setValid(true);
   if (gem.isCoincidence())
@@ -542,7 +525,7 @@ void CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& alct,
     thisLCT.setRun3(true);
     if (assign_gem_csc_bending_ &&
         gem.isValid()) {  //calculate new slope from strip difference between CLCT and associated GEM
-      int slope = cscGEMMatcher_->calculateGEMCSCBending(clct, gem);
+      int slope = cscGEMMatcher_->calculateGEMCSCBending(clct, gem, lookupTableME11ILT, lookupTableME21ILT);
       thisLCT.setSlope(abs(slope));
       thisLCT.setBend(std::signbit(slope));
       thisLCT.setPattern(Run2PatternConverter(slope));
@@ -586,6 +569,8 @@ void CSCGEMMotherboard::constructLCTsGEM(const CSCALCTDigi& aLCT,
 // Construct LCT from CSC and GEM information. Option CLCT-2GEM
 void CSCGEMMotherboard::constructLCTsGEM(const CSCCLCTDigi& clct,
                                          const GEMInternalCluster& gem,
+                                         const CSCL1TPLookupTableME11ILT* lookupTableME11ILT,
+                                         const CSCL1TPLookupTableME21ILT* lookupTableME21ILT,
                                          CSCCorrelatedLCTDigi& thisLCT) const {
   thisLCT.setValid(true);
   thisLCT.setType(CSCCorrelatedLCTDigi::CLCT2GEM);
@@ -607,7 +592,7 @@ void CSCGEMMotherboard::constructLCTsGEM(const CSCCLCTDigi& clct,
     thisLCT.setRun3(true);
     if (assign_gem_csc_bending_ &&
         gem.isValid()) {  //calculate new slope from strip difference between CLCT and associated GEM
-      int slope = cscGEMMatcher_->calculateGEMCSCBending(clct, gem);
+      int slope = cscGEMMatcher_->calculateGEMCSCBending(clct, gem, lookupTableME11ILT, lookupTableME21ILT);
       thisLCT.setSlope(abs(slope));
       thisLCT.setBend(pow(-1, std::signbit(slope)));
       thisLCT.setPattern(Run2PatternConverter(slope));

@@ -184,20 +184,19 @@ CSCTriggerPrimitivesProducer::~CSCTriggerPrimitivesProducer() {}
 void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup& setup) {
   auto* builder = builder_.get();
 
-  // get the csc geometry
-  builder->setCSCGeometry(&setup.getData(cscToken_));
-
   // get the gem geometry if it's there
+  GEMGeometry const* gemGeometry = nullptr;
   if (runILT_) {
     edm::ESHandle<GEMGeometry> h_gem = setup.getHandle(gemToken_);
     if (h_gem.isValid()) {
-      builder->setGEMGeometry(&*h_gem);
+      gemGeometry = &*h_gem;
     } else {
       edm::LogWarning("CSCTriggerPrimitivesProducer|NoGEMGeometry")
           << "GEM geometry is unavailable. Running CSC-only trigger algorithm. +++\n";
     }
   }
 
+  CSCL1TPLookupTableCCLUT const* cclut = nullptr;
   if (runCCLUT_) {
     edm::ESHandle<CSCL1TPLookupTableCCLUT> conf = setup.getHandle(pLookupTableCCLUTToken_);
     if (conf.product() == nullptr) {
@@ -205,9 +204,10 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
           << "Failed to find a CSCL1TPLookupTableCCLUTRcd in EventSetup with runCCLUT_ on";
       return;
     }
-    builder->setESLookupTables(conf.product());
+    cclut = conf.product();
   }
 
+  CSCL1TPLookupTableME11ILT const* me11ilt = nullptr;
   if (runME11ILT_) {
     edm::ESHandle<CSCL1TPLookupTableME11ILT> conf = setup.getHandle(pLookupTableME11ILTToken_);
     if (conf.product() == nullptr) {
@@ -215,9 +215,10 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
           << "Failed to find a CSCL1TPLookupTableME11ILTRcd in EventSetup with runME11ILT_ on";
       return;
     }
-    builder->setESLookupTables(conf.product());
+    me11ilt = conf.product();
   }
 
+  CSCL1TPLookupTableME21ILT const* me21ilt = nullptr;
   if (runME21ILT_) {
     edm::ESHandle<CSCL1TPLookupTableME21ILT> conf = setup.getHandle(pLookupTableME21ILTToken_);
     if (conf.product() == nullptr) {
@@ -225,12 +226,13 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
           << "Failed to find a CSCL1TPLookupTableME21ILTRcd in EventSetup with runME21ILT_ on";
       return;
     }
-    builder->setESLookupTables(conf.product());
+    me21ilt = conf.product();
   }
 
   // If !debugParameters then get config parameters using EventSetup mechanism.
   // This must be done in produce() for every event and not in beginJob()
   // (see mail from Jim Brooke sent to hn-cms-L1TrigEmulator on July 30, 2007).
+  CSCDBL1TPParameters const* parameters = nullptr;
   if (!debugParameters_) {
     edm::ESHandle<CSCDBL1TPParameters> conf = setup.getHandle(confToken_);
     if (conf.product() == nullptr) {
@@ -239,8 +241,11 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
           << "+++ Cannot continue emulation without these parameters +++\n";
       return;
     }
-    builder->setConfigParameters(conf.product());
+    parameters = conf.product();
   }
+
+  CSCTriggerPrimitivesBuilder::BuildContext buildContext{
+      cclut, me11ilt, me21ilt, &setup.getData(cscToken_), gemGeometry, parameters};
 
   // Get the collections of comparator & wire digis from event.
   edm::Handle<CSCComparatorDigiCollection> compDigis;
@@ -308,6 +313,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
                    wireDigis.product(),
                    compDigis.product(),
                    gemPadClusters,
+                   buildContext,
                    *oc_alct,
                    *oc_clct,
                    *oc_alctpretrigger,

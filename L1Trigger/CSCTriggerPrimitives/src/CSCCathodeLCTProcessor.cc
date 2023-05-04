@@ -154,8 +154,6 @@ void CSCCathodeLCTProcessor::setConfigParameters(const CSCDBL1TPParameters* conf
   maxbx_readout_ = CSCConstants::LCT_CENTRAL_BX + tmb_l1a_window_size / 2;
 }
 
-void CSCCathodeLCTProcessor::setESLookupTables(const CSCL1TPLookupTableCCLUT* conf) { cclut_->setESLookupTables(conf); }
-
 void CSCCathodeLCTProcessor::checkConfigParameters() {
   // Make sure that the parameter values are within the allowed range.
 
@@ -198,7 +196,9 @@ void CSCCathodeLCTProcessor::clear() {
   }
 }
 
-std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
+std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc,
+                                                     const CSCChamber* cscChamber,
+                                                     const CSCL1TPLookupTableCCLUT* lookupTable) {
   // This is the version of the run() function that is called when running
   // over the entire detector.  It gets the comparator & timing info from the
   // comparator digis and then passes them on to another run() function.
@@ -212,8 +212,8 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiColl
   // Get the number of strips and stagger of layers for the given chamber.
   // Do it only once per chamber.
   if (numStrips_ <= 0 or numStrips_ > CSCConstants::MAX_NUM_STRIPS_RUN2) {
-    if (cscChamber_) {
-      numStrips_ = cscChamber_->layer(1)->geometry()->numberOfStrips();
+    if (cscChamber) {
+      numStrips_ = cscChamber->layer(1)->geometry()->numberOfStrips();
 
       // ME1/a is known to the readout hardware as strips 65-80 of ME1/1.
       // Still need to decide whether we do any special adjustments to
@@ -263,7 +263,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiColl
       // negative half-strip numbers.  This will necessitate a
       // subtraction of 1 half-strip for TMB-07 later on. -SV.
       for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
-        stagger[i_layer] = (cscChamber_->layer(i_layer + 1)->geometry()->stagger() + 1) / 2;
+        stagger[i_layer] = (cscChamber->layer(i_layer + 1)->geometry()->stagger() + 1) / 2;
       }
     } else {
       edm::LogError("CSCCathodeLCTProcessor|ConfigError")
@@ -313,7 +313,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiColl
     // to fire is not null.  (Pre-trigger decisions are used for the
     // strip read-out conditions in DigiToRaw.)
     if (layersHit >= nplanes_hit_pretrig)
-      run(halfStripTimes);
+      run(halfStripTimes, lookupTable);
 
     // Get the high multiplicity bits in this chamber
     encodeHighMultiplicityBits();
@@ -337,7 +337,8 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiColl
 }
 
 void CSCCathodeLCTProcessor::run(
-    const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]) {
+    const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER],
+    const CSCL1TPLookupTableCCLUT* lookupTable) {
   // This version of the run() function can either be called in a standalone
   // test, being passed the halfstrip times, or called by the
   // run() function above.  It uses the findLCTs() method to find vectors
@@ -348,7 +349,7 @@ void CSCCathodeLCTProcessor::run(
   // add 1 for possible stagger
   pulse_.initialize(numHalfStrips_ + 1);
 
-  std::vector<CSCCLCTDigi> CLCTlist = findLCTs(halfstrip);
+  std::vector<CSCCLCTDigi> CLCTlist = findLCTs(halfstrip, lookupTable);
 
   for (const auto& p : CLCTlist) {
     const int bx = p.getBX();
@@ -572,7 +573,8 @@ void CSCCathodeLCTProcessor::readComparatorDigis(
 
 // TMB-07 version.
 std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
-    const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]) {
+    const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER],
+    const CSCL1TPLookupTableCCLUT* lookupTable) {
   std::vector<CSCCLCTDigi> lctList;
 
   if (infoV > 1)
@@ -663,7 +665,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
           // construct a CLCT if the trigger condition has been met
           if (best_hs >= 0 && nhits[best_hs] >= nplanes_hit_pattern) {
             // overwrite the current best CLCT
-            tempBestCLCT = constructCLCT(first_bx, best_hs, hits_in_patterns[best_hs][best_pid[best_hs]]);
+            tempBestCLCT = constructCLCT(first_bx, best_hs, hits_in_patterns[best_hs][best_pid[best_hs]], lookupTable);
           }
         }
       }
@@ -689,7 +691,8 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
           // construct a CLCT if the trigger condition has been met
           if (best_hs >= 0 && nhits[best_hs] >= nplanes_hit_pattern) {
             // overwrite the current second best CLCT
-            tempSecondCLCT = constructCLCT(first_bx, best_hs, hits_in_patterns[best_hs][best_pid[best_hs]]);
+            tempSecondCLCT =
+                constructCLCT(first_bx, best_hs, hits_in_patterns[best_hs][best_pid[best_hs]], lookupTable);
           }
         }
 
@@ -1003,7 +1006,8 @@ void CSCCathodeLCTProcessor::markBusyKeys(const int best_hstrip,
 
 CSCCLCTDigi CSCCathodeLCTProcessor::constructCLCT(const int bx,
                                                   const unsigned halfstrip_withstagger,
-                                                  const CSCCLCTDigi::ComparatorContainer& hits) {
+                                                  const CSCCLCTDigi::ComparatorContainer& hits,
+                                                  const CSCL1TPLookupTableCCLUT* lookupTable) {
   // Assign the CLCT properties
   const unsigned quality = nhits[halfstrip_withstagger];
   const unsigned pattern = best_pid[halfstrip_withstagger];
@@ -1032,7 +1036,7 @@ CSCCLCTDigi CSCCathodeLCTProcessor::constructCLCT(const int bx,
 
   // do the CCLUT procedures for Run-3
   if (runCCLUT_) {
-    cclut_->run(clct, numCFEBs_);
+    cclut_->run(clct, numCFEBs_, lookupTable);
   }
 
   // purge the comparator digi collection from the obsolete "65535" entries...

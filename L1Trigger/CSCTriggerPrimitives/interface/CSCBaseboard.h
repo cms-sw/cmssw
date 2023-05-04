@@ -58,13 +58,13 @@ public:
   /** Default destructor. */
   virtual ~CSCBaseboard() = default;
 
-  void setCSCGeometry(const CSCGeometry* g);
-
   std::string getCSCName() const { return theCSCName_; }
 
   CSCDetId id() const { return cscId_; }
 
 protected:
+  const CSCChamber* cscChamber(CSCGeometry const&) const;
+
   void checkConfigParameters(unsigned int& var,
                              const unsigned int var_max,
                              const unsigned int var_def,
@@ -99,9 +99,6 @@ protected:
    *                   2: info at every step of the algorithm.
    *                   3: add special-purpose prints. */
   int infoV;
-
-  const CSCGeometry* cscGeometry_;
-  const CSCChamber* cscChamber_;
 
   // chamber name, e.g. ME+1/1/9
   std::string theCSCName_;
