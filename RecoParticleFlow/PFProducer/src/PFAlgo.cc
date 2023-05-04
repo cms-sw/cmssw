@@ -2425,7 +2425,15 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
       if (iTrack == corrTrack) {
         if (corrFact < 0.)
           corrFact = 0.;  // protect against negative scaling
-        (*pfCandidates_)[tmpi].rescaleMomentum(corrFact);
+        auto& candRescale = (*pfCandidates_)[tmpi];
+        LogTrace("PFAlgo|createCandidatesHCAL")
+            << "\tBefore rescaling: momentum " << candRescale.p() << " pT " << candRescale.pt() << " energy "
+            << candRescale.energy() << " mass " << candRescale.mass() << std::endl
+            << "\tTo rescale by " << corrFact << std::endl;
+        candRescale.rescaleMomentum(corrFact);
+        LogTrace("PFAlgo|createCandidatesHCAL")
+            << "\tRescaled candidate momentum " << candRescale.p() << " pT " << candRescale.pt() << " energy "
+            << candRescale.energy() << " mass " << candRescale.mass() << std::endl;
         trackMomentum *= corrFact;
       }
       chargedHadronsIndices.push_back(tmpi);
@@ -2508,7 +2516,15 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
             double rescaleFactor = x(i) / hcalP[i];
             if (rescaleFactor < 0.)
               rescaleFactor = 0.;  // protect against negative scaling
-            (*pfCandidates_)[ich].rescaleMomentum(rescaleFactor);
+            auto& candRescale = (*pfCandidates_)[ich];
+            LogTrace("PFAlgo|createCandidatesHCAL")
+                << "\tBefore rescaling: momentum " << candRescale.p() << " pT " << candRescale.pt() << " energy "
+                << candRescale.energy() << " mass " << candRescale.mass() << std::endl
+                << "\tTo rescale by " << rescaleFactor << std::endl;
+            candRescale.rescaleMomentum(rescaleFactor);
+            LogTrace("PFAlgo|createCandidatesHCAL")
+                << "\tRescaled candidate momentum " << candRescale.p() << " pT " << candRescale.pt() << " energy "
+                << candRescale.energy() << " mass " << candRescale.mass() << std::endl;
 
             LogTrace("PFAlgo|createCandidatesHCAL")
                 << "\t\t\told p " << hcalP[i] << " new p " << x(i) << " rescale " << rescaleFactor;
