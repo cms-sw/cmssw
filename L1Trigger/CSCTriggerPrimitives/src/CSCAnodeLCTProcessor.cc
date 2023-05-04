@@ -198,7 +198,7 @@ void CSCAnodeLCTProcessor::clear(const int wire, const int pattern) {
   }
 }
 
-std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* wiredc) {
+std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* wiredc, const CSCChamber* cscChamber) {
   static std::atomic<bool> config_dumped{false};
   if ((infoV > 0 || (runPhase2_)) && !config_dumped) {
     dumpConfigParams();
@@ -208,8 +208,8 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* 
   // Get the number of wire groups for the given chamber.  Do it only once
   // per chamber.
   if (numWireGroups <= 0 or numWireGroups > CSCConstants::MAX_NUM_WIREGROUPS) {
-    if (cscChamber_) {
-      numWireGroups = cscChamber_->layer(1)->geometry()->numberOfWireGroups();
+    if (cscChamber) {
+      numWireGroups = cscChamber->layer(1)->geometry()->numberOfWireGroups();
       if (numWireGroups > CSCConstants::MAX_NUM_WIREGROUPS) {
         edm::LogError("CSCAnodeLCTProcessor|SetupError")
             << "+++ Number of wire groups, " << numWireGroups << " found in " << theCSCName_ << " (sector " << theSector

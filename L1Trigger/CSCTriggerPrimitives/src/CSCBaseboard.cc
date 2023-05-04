@@ -110,10 +110,7 @@ CSCBaseboard::CSCBaseboard() : theEndcap(1), theStation(1), theSector(1), theSub
   gangedME1a_ = false;
 }
 
-void CSCBaseboard::setCSCGeometry(const CSCGeometry* g) {
-  cscGeometry_ = g;
-  cscChamber_ = cscGeometry_->chamber(cscId_);
-}
+CSCChamber const* CSCBaseboard::cscChamber(const CSCGeometry& g) const { return g.chamber(cscId_); }
 
 void CSCBaseboard::checkConfigParameters(unsigned int& var,
                                          const unsigned int var_max,
