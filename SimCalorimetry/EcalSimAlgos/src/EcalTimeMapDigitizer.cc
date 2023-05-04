@@ -221,14 +221,16 @@ void EcalTimeMapDigitizer::run(EcalTimeDigiCollection& output) {
       output.back().setWaveform(vSamAll(m_index[i])->waveform);
 
     unsigned int nTimeHits = 0;
-    float timeHits[vSamAll(m_index[i])->time_average_capacity];
-    unsigned int timeBX[vSamAll(m_index[i])->time_average_capacity];
+    unsigned int nTimeHitsMax = vSamAll(m_index[i])->time_average_capacity;
+    float timeHits[nTimeHitsMax];
+    unsigned int timeBX[nTimeHitsMax];
 
-    for (unsigned int j(0); j != vSamAll(m_index[i])->time_average_capacity; ++j)  //here sampling on the OOTPU
+    for (unsigned int j(0); j != nTimeHitsMax; ++j)  //here sampling on the OOTPU
     {
       if (vSamAll(m_index[i])->nhits[j] > 0) {
         timeHits[nTimeHits] = vSamAll(m_index[i])->average_time[j];
-        timeBX[nTimeHits++] = m_minBunch + j;
+        timeBX[nTimeHits] = m_minBunch + j;
+        nTimeHits++;
       }
     }
 
