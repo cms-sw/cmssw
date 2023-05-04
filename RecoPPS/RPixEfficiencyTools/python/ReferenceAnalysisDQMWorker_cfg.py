@@ -21,7 +21,7 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True),
     FailPath = cms.untracked.vstring('Type Mismatch')
     )
-options = VarParsing.VarParsing ()
+options = VarParsing.VarParsing ('analysis')
 options.register('outputFileName',
                 'outputReferenceAnalysisDQMWorker.root',
                 VarParsing.VarParsing.multiplicity.singleton,
@@ -52,11 +52,21 @@ options.register('jsonFileName',
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.string,
                 "JSON file list name")
+options.register('globalTag',
+                '',
+                VarParsing.VarParsing.multiplicity.singleton,
+                VarParsing.VarParsing.varType.string,
+                'GT to use')
 options.parseArguments()
 
-import FWCore.Utilities.FileUtils as FileUtils
-fileList = FileUtils.loadListFromFile (options.sourceFileList) 
-inputFiles = cms.untracked.vstring( *fileList)
+# Prefer input from files over source
+if len(options.inputFiles) != 0:
+    inputFiles = cms.untracked.vstring(options.inputFiles)
+elif options.sourceFileList != '':
+    import FWCore.Utilities.FileUtils as FileUtils
+    print('Taking input from:',options.sourceFileList)
+    fileList = FileUtils.loadListFromFile (options.sourceFileList) 
+    inputFiles = cms.untracked.vstring( *fileList)
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("DQM.Integration.config.environment_cfi")
@@ -101,9 +111,9 @@ if options.useJsonFile == True:
     process.source.lumisToProcess = LumiList.LumiList(filename = jsonFileName).getVLuminosityBlockRange()
 
 #SETUP GLOBAL TAG
-gt_from_env = os.getenv('EFFICIENCY_GT')
-gt = gt_from_env
-if gt == None:
+if options.globalTag != '':
+    gt = options.globalTag
+else:
     gt = 'auto:run3_data_prompt'
 
 print('Using GT:',gt)

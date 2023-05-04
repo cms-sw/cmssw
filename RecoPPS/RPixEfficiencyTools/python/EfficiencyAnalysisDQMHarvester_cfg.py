@@ -17,31 +17,26 @@ process.options = cms.untracked.PSet(
     FailPath = cms.untracked.vstring('Type Mismatch')
     )
 options = VarParsing.VarParsing('analysis')
-
 options.register('outputDirectoryPath',
                 '.',
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.string,
                 'directory in which the output ROOT file will be saved')
-
 options.register('run',
                 '999999',
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.string,
                 'Run number to tag the output file')
-
 options.register('clusterid',
                 '9999999999',
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.string,
                 'HTCondor cluster id to tag the output')
-
 options.register('globalTag',
                 '',
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.string,
                 'GT to use')
-
 options.parseArguments()
 
 
@@ -90,6 +85,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, gt)
 
 
 #PREPARE SOURCE
+# Pass input files as a comma-separated list of files. Since the output is local by definition, the 
+# 'file:' prefix is automatically added
 if len(options.inputFiles) != 0:
     # Add 'file:' in front of file names
     inputFiles = []

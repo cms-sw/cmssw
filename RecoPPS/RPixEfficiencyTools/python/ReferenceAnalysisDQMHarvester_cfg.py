@@ -17,18 +17,17 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(False),
     FailPath = cms.untracked.vstring('Type Mismatch')
     )
-options = VarParsing.VarParsing()
-options.register('inputFileNames', # parameter name 
-                'outputReferenceAnalysisDQMWorker.root', # default value - empty means no default value
-                VarParsing.VarParsing.multiplicity.singleton,
-                VarParsing.VarParsing.varType.string,
-                "input ROOT file name (file created by DQMWorker)")
-
+options = VarParsing.VarParsing('analysis')
 options.register('outputDirectoryPath',
                 '.',
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.string,
                 "directory in which the output ROOT file will be saved")
+options.register('globalTag',
+                '',
+                VarParsing.VarParsing.multiplicity.singleton,
+                VarParsing.VarParsing.varType.string,
+                'GT to use')
 options.parseArguments()
 
 
@@ -67,23 +66,29 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load("Geometry.VeryForwardGeometry.geometryRPFromDB_cfi")
 
 #SETUP GLOBAL TAG
-gt_from_env = os.getenv('EFFICIENCY_GT')
-gt = gt_from_env
-if gt == None:
+if options.globalTag != '':
+    gt = options.globalTag
+else:
     gt = 'auto:run3_data_prompt'
 
 print('Using GT:',gt)
 process.GlobalTag = GlobalTag(process.GlobalTag, gt)
 
 #PREPARE SOURCE
-file_names_list = options.inputFileNames.split(",")
-input_files = ""
-for file_name in file_names_list:
-    input_files+="file:"+file_name+"\n"
+# Pass input files as a comma-separated list of files. Since the output is local by definition, the 
+# 'file:' prefix is automatically added
+if len(options.inputFiles) != 0:
+    # Add 'file:' in front of file names
+    inputFiles = []
+    for file_name in options.inputFiles:
+        inputFiles.append('file:'+file_name)
+    inputFiles = cms.untracked.vstring(inputFiles) 
+else:
+    inputFiles = cms.untracked.vstring('file:outputReferenceAnalysisDQMWorker.root')
+print('Input files:\n',inputFiles, sep='')
 
-print('Input files:\n',input_files,sep='')
 process.source = cms.Source("DQMRootSource",
-    fileNames = cms.untracked.vstring(input_files),
+    fileNames = cms.untracked.vstring(inputFiles),
 )
 
 #SETUP HARVESTER
