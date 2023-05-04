@@ -838,8 +838,6 @@ namespace evf {
 
     struct stat buf;
     std::stringstream ss;
-    unsigned int nextIndex = index;
-    nextIndex++;
 
     // 1. Check suggested file
     std::string nextFileJson = getInputJsonFilePath(ls, index);
