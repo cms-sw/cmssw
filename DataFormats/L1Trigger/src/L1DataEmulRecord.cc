@@ -11,9 +11,9 @@ L1DataEmulRecord::L1DataEmulRecord() : deAgree(false), deGlt() {
 }
 
 L1DataEmulRecord::L1DataEmulRecord(bool evt_match,
-                                   bool sys_comp[],
-                                   bool sys_match[],
-                                   int nCand[][2],
+                                   bool sys_comp[DEnsys],
+                                   bool sys_match[DEnsys],
+                                   int nCand[DEnsys][2],
                                    const L1DEDigiCollection& coll,
                                    const GltDEDigi& glt)
     : deAgree(evt_match), deGlt(glt) {
