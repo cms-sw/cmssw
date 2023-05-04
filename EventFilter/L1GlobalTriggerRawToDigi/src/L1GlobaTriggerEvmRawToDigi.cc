@@ -328,16 +328,21 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
 
     if (activeBoardToUnpack) {
       switch (itBoard->gtBoardType()) {
-        case GTFE: break;
+        case GTFE:
+          break;
         case FDL: {
           numberFdlBoards++;
         }
 
         break;
-        case PSB: break;
-        case GMT: break;
-        case TCS: break;
-        case TIM: break;
+        case PSB:
+          break;
+        case GMT:
+          break;
+        case TCS:
+          break;
+        case TIM:
+          break;
         default: {
           // do nothing, all blocks are given in GtBoardType enum
           if (m_verbosity) {
