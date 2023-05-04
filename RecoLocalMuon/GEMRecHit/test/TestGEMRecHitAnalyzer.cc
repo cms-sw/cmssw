@@ -426,13 +426,8 @@ void TestGEMRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
   iEvent.getByToken(GEMRecHit_Token, gemRecHits);
 
   // count the number of GEM rechits
-  int nGEM = 0;
   GEMRecHitCollection::const_iterator recHit;
-  for (recHit = gemRecHits->begin(); recHit != gemRecHits->end(); recHit++) {
-    nGEM++;
-  }
 
-  // std::cout<<"The Number of RecHits is "<<nGEM<<std::endl;
   for (recHit = gemRecHits->begin(); recHit != gemRecHits->end(); recHit++) {
     GEMDetId rollId = (GEMDetId)(*recHit).gemId();
     LocalPoint recHitPos = recHit->localPosition();
