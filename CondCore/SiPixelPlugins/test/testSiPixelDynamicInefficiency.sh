@@ -88,3 +88,16 @@ getPayloadData.py \
     --test;
 
 mv *.png $W_DIR/plots_DynIneff/SiPixelFullIneffROCfromDynIneffMapDelta.png
+
+getPayloadData.py \
+    --plugin pluginSiPixelDynamicInefficiency_PayloadInspector \
+    --plot plot_SiPixelDynamicInefficiencyPUParamComparisonTwoTags \
+    --tag SiPixelDynamicInefficiency_phase1_2023_v2_fix3  \
+    --tagtwo SiPixelDynamicInefficiency_phase1_2023_v2_fix2  \
+    --time_type Run \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
+    --iovstwo '{"start_iov": "1", "end_iov": "1"}' \
+    --db Prod \
+    --test;
+
+mv *.png $W_DIR/plots_DynIneff/SiPixelDynamicInefficiencyPUParamComparisonTwoTags.png
