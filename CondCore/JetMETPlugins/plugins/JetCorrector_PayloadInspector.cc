@@ -36,7 +36,6 @@
 #define MAX_PT 3005.
 #define NBIN_PT 301
 
-//namespace JME {
 namespace {
 
   using namespace cond::payloadInspector;
@@ -96,9 +95,28 @@ namespace {
   public:
     JetCorrectorVsEta()
         : cond::payloadInspector::Histogram1D<JetCorrectorParametersCollection, SINGLE_IOV>(
-              "Jet Corrector", "#eta", NBIN_ETA, MIN_ETA, MAX_ETA, "Corrector") {}
+              "Jet Corrector", "#eta", NBIN_ETA, MIN_ETA, MAX_ETA, "Corrector") {
+      cond::payloadInspector::PlotBase::addInputParam("Jet_Pt");
+      cond::payloadInspector::PlotBase::addInputParam("Jet_Rho");
+    }
 
     bool fill() override {
+      double par_JetPt = 100.;
+      double par_JetEta = 0.;
+      double par_Rho = 20.;
+      double par_JetA = 0.5;
+
+      // Default values will be used if no input parameters
+      auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
+      auto ip = paramValues.find("Jet_Pt");
+      if (ip != paramValues.end()) {
+        par_JetPt = std::stod(ip->second);
+      }
+      ip = paramValues.find("Jet_Rho");
+      if (ip != paramValues.end()) {
+        par_Rho = std::stod(ip->second);
+      }
+
       auto tag = PlotBase::getTag<0>();
       for (auto const& iov : tag.iovs) {
         std::shared_ptr<JetCorrectorParametersCollection> payload = Base::fetchPayload(std::get<1>(iov));
@@ -127,7 +145,7 @@ namespace {
                 JCParams.definitions().formula().compare("\"\"") == 0) {
               JetCorrectionUncertainty JCU(JCParams);
               JCU.setJetEta(x_axis);
-              JCU.setJetPt(100.);
+              JCU.setJetPt(par_JetPt);
               JCU.setJetPhi(0.);
               JCU.setJetE(150.);
 
@@ -141,11 +159,7 @@ namespace {
               std::vector<float> bins;
               std::vector<double> params;
 
-              double par_JetPt = 100.;
-              double par_JetEta = x_axis;
-              double par_JetA = 0.5;
-              double par_Rho = 40.;
-
+              par_JetEta = x_axis;
               int ir = -1;
 
               vars.clear();
@@ -213,7 +227,10 @@ namespace {
       : public cond::payloadInspector::PlotImage<JetCorrectorParametersCollection, SINGLE_IOV> {
   public:
     JetCorrectorVsEtaSummary()
-        : cond::payloadInspector::PlotImage<JetCorrectorParametersCollection, SINGLE_IOV>("Jet Correction Summary") {}
+        : cond::payloadInspector::PlotImage<JetCorrectorParametersCollection, SINGLE_IOV>("Jet Correction Summary") {
+      cond::payloadInspector::PlotBase::addInputParam("Jet_Pt");
+      cond::payloadInspector::PlotBase::addInputParam("Jet_Rho");
+    }
 
     bool fill_eta_hist(JetCorrectorParameters const& JCParam, TH1D* hist) {
       if (!(JCParam.isValid())) {
@@ -229,6 +246,17 @@ namespace {
       double par_JetEta = 0.;
       double par_JetA = 0.5;
       double par_Rho = 40.;
+
+      // Default values will be used if no input parameters
+      auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
+      auto ip = paramValues.find("Jet_Pt");
+      if (ip != paramValues.end()) {
+        par_JetPt = std::stod(ip->second);
+      }
+      ip = paramValues.find("Jet_Rho");
+      if (ip != paramValues.end()) {
+        par_Rho = std::stod(ip->second);
+      }
 
       int ir = -1;
 
@@ -302,6 +330,21 @@ namespace {
     }  // fill_eta_hist()
 
     bool fill() override {
+      double par_JetPt = 100.;
+      double par_JetA = 0.5;
+      double par_Rho = 40.;
+
+      // Default values will be used if no input parameters (legend)
+      auto paramValues = cond::payloadInspector::PlotBase::inputParamValues();
+      auto ip = paramValues.find("Jet_Pt");
+      if (ip != paramValues.end()) {
+        par_JetPt = std::stod(ip->second);
+      }
+      ip = paramValues.find("Jet_Rho");
+      if (ip != paramValues.end()) {
+        par_Rho = std::stod(ip->second);
+      }
+
       TH1D* jec_l1fj = new TH1D("JEC L1FastJet vs. #eta", "", NBIN_ETA, MIN_ETA, MAX_ETA);
       TH1D* jec_l2rel = new TH1D("JEC L2Relative vs. #eta", "", NBIN_ETA, MIN_ETA, MAX_ETA);
       TH1D* jec_l2l3 = new TH1D("JEC L2L3Residual vs. #eta", "", NBIN_ETA, MIN_ETA, MAX_ETA);
@@ -399,7 +442,7 @@ namespace {
         leg_eta->AddEntry(jec_l2rel, (*payload).findLabel(L2Relative).c_str(), "l");
         leg_eta->AddEntry(jec_l2l3, (*payload).findLabel(L2L3Residual).c_str(), "l");
         leg_eta->AddEntry(jec_l1rc, (*payload).findLabel(L1RC).c_str(), "l");
-        leg_eta->AddEntry((TObject*)nullptr, "JetPt=100; JetA=0.5; Rho=40.", "");
+        leg_eta->AddEntry((TObject*)nullptr, Form("JetPt=%.2f; JetA=%.2f; Rho=%.2f", par_JetPt, par_JetA, par_Rho), "");
         leg_eta->Draw();
 
         canvas.cd(2);
@@ -412,7 +455,8 @@ namespace {
         jec_uncert->Draw("][");
 
         leg_eta2->AddEntry(jec_uncert, (*payload).findLabel(Uncertainty).c_str(), "l");
-        leg_eta2->AddEntry((TObject*)nullptr, "JetPt=100; JetA=0.5; Rho=40.", "");
+        leg_eta2->AddEntry(
+            (TObject*)nullptr, Form("JetPt=%.2f; JetA=%.2f; Rho=%.2f", par_JetPt, par_JetA, par_Rho), "");
         leg_eta2->Draw();
 
         canvas.SaveAs(m_imageFileName.c_str());
