@@ -56,3 +56,5 @@ filesDefaultData_Comissioning2022_Cosmics_string = '/store/data/Commissioning202
 filesDefaultData_MinBias2018B = cms.untracked.vstring(
     '/store/express/Run2018B/StreamExpress/ALCARECO/TkAlMinBias-Express-v1/000/317/212/00000/00F0EFA7-8D64-E811-A594-FA163EFC96CC.root'
 )
+
+filesDefaultData_Cosmics_string = "/store/data/Run2022G/Cosmics/ALCARECO/TkAlCosmics0T-PromptReco-v1/000/362/440/00000/47f31eaa-1c00-4f39-902b-a09fa19c27f2.root"

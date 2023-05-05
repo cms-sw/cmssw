@@ -167,6 +167,7 @@ TCanvas *trackSplitPlot(Int_t nFiles,
     Double_t x = 0, y = 0, rel = 1, sigma1 = 1;
     Double_t sigma2 = 1;  //if !pull, we want to divide by sqrt(2) because we want the error from 1 track
     Double_t sigmaorg = 0;
+
     Int_t xint = 0, xint2 = 0;
     Int_t runNumber = 0;
     double pt1 = 0, maxpt1 = 0;
@@ -644,9 +645,6 @@ void deleteCanvas(TObject *canvas) {
     return;
   }
   TCanvas *c1 = (TCanvas *)canvas;
-  TList *list = c1->GetListOfPrimitives();
-  list->SetOwner(true);
-  list->Clear();
   delete c1;
 }
 
