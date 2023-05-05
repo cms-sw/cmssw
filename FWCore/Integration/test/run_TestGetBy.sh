@@ -52,4 +52,7 @@ LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
   echo "testGetByWithEmptyRun_cfg.py"
   cmsRun -p ${LOCAL_TEST_DIR}/testGetByWithEmptyRun_cfg.py || die "cmsRun testGetByWithEmptyRun_cfg.py" $?
 
+  echo "testGetterOfProductsWithOutputModule_cfg.py"
+  cmsRun -p ${LOCAL_TEST_DIR}/testGetterOfProductsWithOutputModule_cfg.py || die "cmsRun testGetterOfProductsWithOutputModule_cfg.py" $?
+
 exit 0

@@ -7,7 +7,7 @@
     <use name="FWCore/Utilities"/>
   </library>
 
-  <library file="ThingProducer.cc,ThingAlgorithm.cc,TrackOfThingsProducer.cc,ThinningTestAnalyzer.cc,ThinnedRefFromTestAnalyzer.cc,DetSetVectorThingProducer.cc,TrackOfDSVThingsProducer.cc,ThinningDSVThingProducer.cc,SlimmingDSVThingProducer.cc,ThinningDSVTestAnalyzer.cc,ThingSource.cc,ThingExtSource.cc,ThingWithMergeProducer.cc,TestGetterOfProducts.cc,PutOrMergeTestSource.cc,TestGetByLabelAnalyzer.cc,ThingAnalyzer.cc"
+  <library file="ThingProducer.cc,ThingAlgorithm.cc,TrackOfThingsProducer.cc,ThinningTestAnalyzer.cc,ThinnedRefFromTestAnalyzer.cc,DetSetVectorThingProducer.cc,TrackOfDSVThingsProducer.cc,ThinningDSVThingProducer.cc,SlimmingDSVThingProducer.cc,ThinningDSVTestAnalyzer.cc,ThingSource.cc,ThingExtSource.cc,ThingWithMergeProducer.cc,TestGetterOfProducts.cc,PutOrMergeTestSource.cc,TestGetByLabelAnalyzer.cc,ThingAnalyzer.cc,TestOutputWithGetterOfProducts.cc,TestOutputWithGetterOfProductsGlobal.cc,TestOutputWithGetterOfProductsLimited.cc"
       name="FWCoreIntegrationTestWithThing">
       <flags EDM_PLUGIN="1"/>
       <use name="FWCore/Framework"/>
