@@ -63,6 +63,7 @@ namespace gen {
       double the = 2. * atan(exp(-eta));
 
       double mass = (fMasterGen->particleData).m0(particleID);
+      ee = std::max(ee, mass);
 
       double pp = sqrt(ee * ee - mass * mass);
       double px = pp * sin(the) * cos(phi);
