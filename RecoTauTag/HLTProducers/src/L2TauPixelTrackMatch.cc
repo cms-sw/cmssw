@@ -79,8 +79,6 @@ void L2TauPixelTrackMatch::produce(edm::StreamID, edm::Event& ev, const edm::Eve
       if (jet->pt() < m_jetMinPt || std::abs(jet->eta()) > m_jetMaxEta)
         continue;
 
-      size_t n0 = new_tau_jets->size();
-
       for (vector<TinyTrack>::const_iterator itrk = good_tracks.begin(); itrk != good_tracks.end(); ++itrk) {
         math::XYZTLorentzVector new_jet_dir = Jet::physicsP4(itrk->vtx, *jet, itrk->vtx);
         float dphi = reco::deltaPhi(new_jet_dir.phi(), itrk->phi);
