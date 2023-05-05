@@ -403,7 +403,7 @@ struct HGCalMixRotatedLayer {
                                       << cms::convert2mm(r1) << ":" << cms::convert2mm(r2) << " Thick "
                                       << cms::convert2mm((2.0 * hthickl)) << " phi " << fimin << ":" << fimax << ":"
                                       << convertRadToDeg(phi1) << ":" << convertRadToDeg(phi2) << " cassette "
-                                      << cassette << ":" << cassett0 << " Shift " << cshift.first << ":"
+                                      << cassette << ":" << cassette0 << " Shift " << cshift.first << ":"
                                       << cshift.second;
 #endif
         std::string name = namesTop_[ii] + "L" + std::to_string(copy) + "F" + std::to_string(k);
