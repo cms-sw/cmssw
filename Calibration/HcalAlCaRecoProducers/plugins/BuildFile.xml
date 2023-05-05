@@ -13,6 +13,7 @@
 <use name="DataFormats/HcalRecHit"/>
 <use name="DataFormats/JetReco"/>
 <use name="DataFormats/Luminosity"/>
+<use name="DataFormats/OnlineMetaData"/>
 <use name="DataFormats/METReco"/>
 <use name="DataFormats/RecoCandidate"/>
 <use name="DataFormats/Scalers"/>
