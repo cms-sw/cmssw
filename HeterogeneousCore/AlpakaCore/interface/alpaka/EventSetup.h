@@ -24,7 +24,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::device {
 
     // To be able to interact with non-Alpaka helper code that needs
     // to access edm::EventSetup
-    operator edm::EventSetup const &() const { return setup_; }
+    operator edm::EventSetup const&() const { return setup_; }
 
     // getData()
 

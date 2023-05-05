@@ -49,7 +49,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::device {
 
     // To be able to interact with non-Alpaka helper code that needs
     // to access edm::Event
-    operator edm::Event const &() const { return constEvent_; }
+    operator edm::Event const&() const { return constEvent_; }
 
     Device device() const { return metadata_->device(); }
 
