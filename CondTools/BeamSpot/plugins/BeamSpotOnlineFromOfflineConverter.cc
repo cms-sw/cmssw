@@ -58,27 +58,40 @@ private:
   // ----------member data ---------------------------
   const edm::ESGetToken<BeamSpotObjects, BeamSpotObjectsRcd> bsToken_;
 
+  // parameters that can't be copied from the BeamSpotObject
+  const int lastAnalyzedLumi_, lastAnalyzedRun_, lastAnalyzedFill_;
+  const int numTracks_, numPVs_, numUsedEvents_, numMaxPVs_;
+  const float meanPVs_, meanPVError_, rmsPV_, rmsPVError_;
+  const std::string startTime_, endTime_, lumiRange_;
+
   // IoV-structure
-  bool fIsHLT_;
+  const bool fIsHLT_;
   uint32_t fIOVStartRun_;
   uint32_t fIOVStartLumi_;
   cond::Time_t fnewSince_;
   bool fuseNewSince_;
-
-  // parameters that can't be copied from the BeamSpotObject
-  int lastAnalyzedLumi_, lastAnalyzedRun_, lastAnalyzedFill_;
 };
 
 //
 // constructors and destructor
 //
 BeamSpotOnlineFromOfflineConverter::BeamSpotOnlineFromOfflineConverter(const edm::ParameterSet& iConfig)
-    : bsToken_(esConsumes()) {
-  lastAnalyzedLumi_ = iConfig.getParameter<double>("lastAnalyzedLumi");
-  lastAnalyzedRun_ = iConfig.getParameter<double>("lastAnalyzedRun");
-  lastAnalyzedFill_ = iConfig.getParameter<double>("lastAnalyzedFill");
-
-  fIsHLT_ = iConfig.getParameter<bool>("isHLT");
+    : bsToken_(esConsumes()),
+      lastAnalyzedLumi_(iConfig.getParameter<double>("lastAnalyzedLumi")),
+      lastAnalyzedRun_(iConfig.getParameter<double>("lastAnalyzedRun")),
+      lastAnalyzedFill_(iConfig.getParameter<double>("lastAnalyzedFill")),
+      numTracks_(iConfig.getParameter<int>("numTracks")),
+      numPVs_(iConfig.getParameter<int>("numPVs")),
+      numUsedEvents_(iConfig.getParameter<int>("numUsedEvents")),
+      numMaxPVs_(iConfig.getParameter<int>("numMaxPVs")),
+      meanPVs_(iConfig.getParameter<double>("meanPVs")),
+      meanPVError_(iConfig.getParameter<double>("meanPVError")),
+      rmsPV_(iConfig.getParameter<double>("rmsPVs")),
+      rmsPVError_(iConfig.getParameter<double>("rmsPVError")),
+      startTime_(iConfig.getParameter<std::string>("startTime")),
+      endTime_(iConfig.getParameter<std::string>("endTime")),
+      lumiRange_(iConfig.getParameter<std::string>("lumiRange")),
+      fIsHLT_(iConfig.getParameter<bool>("isHLT")) {
   if (iConfig.exists("IOVStartRun") && iConfig.exists("IOVStartLumi")) {
     fIOVStartRun_ = iConfig.getUntrackedParameter<uint32_t>("IOVStartRun");
     fIOVStartLumi_ = iConfig.getUntrackedParameter<uint32_t>("IOVStartLumi");
@@ -106,28 +119,23 @@ void BeamSpotOnlineFromOfflineConverter::analyze(const edm::Event& iEvent, const
   const BeamSpotObjects* inputSpot = &iSetup.getData(bsToken_);
 
   BeamSpotOnlineObjects abeam;
-
+  abeam.copyFromBeamSpotObject(*inputSpot);
   abeam.setLastAnalyzedLumi(lastAnalyzedLumi_);
   abeam.setLastAnalyzedRun(lastAnalyzedRun_);
   abeam.setLastAnalyzedFill(lastAnalyzedFill_);
   abeam.setStartTimeStamp(std::time(nullptr));
   abeam.setEndTimeStamp(std::time(nullptr));
-  abeam.setType(inputSpot->beamType());
-  abeam.setPosition(inputSpot->x(), inputSpot->y(), inputSpot->z());
-  abeam.setSigmaZ(inputSpot->sigmaZ());
-  abeam.setdxdz(inputSpot->dxdz());
-  abeam.setdydz(inputSpot->dydz());
-  abeam.setBeamWidthX(inputSpot->beamWidthX());
-  abeam.setBeamWidthY(inputSpot->beamWidthY());
-  abeam.setEmittanceX(inputSpot->emittanceX());
-  abeam.setEmittanceY(inputSpot->emittanceY());
-  abeam.setBetaStar(inputSpot->betaStar());
-
-  for (int i = 0; i < 7; ++i) {
-    for (int j = 0; j < 7; ++j) {
-      abeam.setCovariance(i, j, inputSpot->covariance(i, j));
-    }
-  }
+  abeam.setNumTracks(numTracks_);
+  abeam.setNumPVs(numPVs_);
+  abeam.setUsedEvents(numUsedEvents_);
+  abeam.setMaxPVs(numMaxPVs_);
+  abeam.setMeanPV(meanPVs_);
+  abeam.setMeanErrorPV(meanPVError_);
+  abeam.setRmsPV(rmsPV_);
+  abeam.setRmsErrorPV(rmsPVError_);
+  abeam.setStartTime(startTime_);
+  abeam.setEndTime(endTime_);
+  abeam.setLumiRange(lumiRange_);
 
   // Set the creation time of the payload to the current time
   auto creationTime =
@@ -135,6 +143,7 @@ void BeamSpotOnlineFromOfflineConverter::analyze(const edm::Event& iEvent, const
   abeam.setCreationTime(creationTime);
 
   edm::LogPrint("BeamSpotOnlineFromOfflineConverter") << " Writing results to DB...";
+  edm::LogPrint("BeamSpotOnlineFromOfflineConverter") << abeam;
 
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable()) {
@@ -155,7 +164,7 @@ void BeamSpotOnlineFromOfflineConverter::analyze(const edm::Event& iEvent, const
         poolDbService->appendOneIOV<BeamSpotOnlineObjects>(abeam, poolDbService->currentTime(), fLabel);
     }
   }
-  edm::LogPrint("BeamSpotOnlineFromOfflineConverter") << "[BeamSpotOnlineFromOfflineConverter] endJob done \n";
+  edm::LogPrint("BeamSpotOnlineFromOfflineConverter") << "[BeamSpotOnlineFromOfflineConverter] analyze done \n";
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
@@ -167,6 +176,17 @@ void BeamSpotOnlineFromOfflineConverter::fillDescriptions(edm::ConfigurationDesc
   desc.add<double>("lastAnalyzedLumi", 1000);
   desc.add<double>("lastAnalyzedRun", 1);
   desc.add<double>("lastAnalyzedFill", -999);
+  desc.add<int>("numTracks", 0);
+  desc.add<int>("numPVs", 0);
+  desc.add<int>("numUsedEvents", 0);
+  desc.add<int>("numMaxPVs", 0);
+  desc.add<double>("meanPVs", 0.);
+  desc.add<double>("meanPVError", 0.);
+  desc.add<double>("rmsPVs", 0.);
+  desc.add<double>("rmsPVError", 0.);
+  desc.add<std::string>("startTime", std::string(""));
+  desc.add<std::string>("endTime", std::string(""));
+  desc.add<std::string>("lumiRange", std::string(""));
   descriptions.addWithDefaultLabel(desc);
 }
 
