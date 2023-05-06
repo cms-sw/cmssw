@@ -115,7 +115,6 @@ namespace l1t {
 
           qualEta_32bit = etaNull_32bit;
 
-          int theta_iterators = 0;  //debug
           for (const auto& ithe : *(thInputs->getContainer())) {
             // Only allow -2 <= bxNum <= 2, as in Stage2 data
             if (std::abs(ithe.bxNum()) > 2)
@@ -123,8 +122,6 @@ namespace l1t {
 
             if (ithe.bxNum() != 0)
               moreBXeta = true;
-
-            theta_iterators++;  //debug
 
             //debug
             //		std::cout << "scNum+1 = " << ithe.scNum()+1 << ",   board_id = " << board_id << std::endl;
