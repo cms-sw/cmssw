@@ -229,7 +229,6 @@ bool EcalHitMaker::addHit(double r, double phi, unsigned layer) {
 unsigned EcalHitMaker::fastInsideCell(const CLHEP::Hep2Vector& point, double& sp, bool debug) {
   //  debug = true;
   bool found = false;
-  unsigned niter = 0;
   // something clever has to be implemented here
   unsigned d1, d2;
   convertIntegerCoordinates(point.x(), point.y(), d1, d2);
@@ -275,7 +274,6 @@ unsigned EcalHitMaker::fastInsideCell(const CLHEP::Hep2Vector& point, double& sp
       }
       //	  std::cout << " Not inside " << std::endl;
       //	  std::cout << "No " << std::endl;
-      ++niter;
     }
   }
   if (debug)
@@ -293,7 +291,6 @@ unsigned EcalHitMaker::fastInsideCell(const CLHEP::Hep2Vector& point, double& sp
       sp = crackpadsatdepth_[iquad].survivalProbability();
     }
     ++iquad;
-    ++niter;
   }
   //  myHistos->fill("h1002",niter);
   if (!found && debug)
@@ -601,7 +598,9 @@ void EcalHitMaker::buildSegments(const std::vector<CaloPoint>& cp) {
   double sX0 = 0.;
   double sL0 = 0.;
 
+#ifdef DEBUGCELLLINE
   unsigned ncrossedxtals = 0;
+#endif
   unsigned is = 0;
   while (is < nsegments) {
     if (cp[2 * is].getDetId() != cp[2 * is + 1].getDetId() && cp[2 * is].whichDetector() != DetId::Hcal &&
@@ -693,7 +692,9 @@ void EcalHitMaker::buildSegments(const std::vector<CaloPoint>& cp) {
           sL0 += segment.L0length();
           X0ECAL_ += segment.X0length();
           L0ECAL_ += segment.L0length();
+#ifdef DEBUGCELLLINE
           ++ncrossedxtals;
+#endif
           ++is;
         } else {
           std::cout << " One more bug in the segment " << std::endl;
