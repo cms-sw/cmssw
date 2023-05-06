@@ -36,7 +36,7 @@ step1Up2018ProdDefaults = merge ([{'--eventcontent':'RAWSIM'},step1Up2018Default
 step1Up2018HiProdDefaults = merge ([{'--eventcontent':'RAWSIM'},step1Up2018HiDefaults])
 # step1 gensim: for 2022 HI prod
 step1Up2022HiProdDefaults = merge ([{'--conditions':'auto:phase1_2022_realistic_hi','--era':'Run3_pp_on_PbPb','--beamspot':'Realistic2022PbPbCollision','--eventcontent':'RAWSIM','--geometry':'DB:Extended'},step1Up2018HiDefaults])
-step1Up2023HiProdDefaults = merge ([{'--conditions':'auto:phase1_2023_realistic_hi','--era':'Run3_pp_on_PbPb','--beamspot':'Realistic2022PbPbCollision','--eventcontent':'RAWSIM','--geometry':'DB:Extended'},step1Up2018HiDefaults])
+step1Up2023HiProdDefaults = merge ([{'--conditions':'auto:phase1_2023_realistic_hi','--era':'Run3_pp_on_PbPb_2023','--beamspot':'Realistic2022PbPbCollision','--eventcontent':'RAWSIM','--geometry':'DB:Extended'},step1Up2018HiDefaults])
 
 steps = Steps()
 
@@ -1067,8 +1067,8 @@ hiDefaults2018 = {'--conditions':'auto:phase1_2018_realistic_hi', '--era':'Run2_
 hiDefaults2018_ppReco = {'--conditions':'auto:phase1_2018_realistic_hi', '--era':'Run2_2018_pp_on_AA'}
 hiDefaults2022_ppReco = {'--conditions':'auto:phase1_2022_realistic_hi', '--era':'Run3_pp_on_PbPb'}
 hiDefaults2022_ppReco_approxClusters = {'--conditions':'auto:phase1_2022_realistic_hi', '--era':'Run3_pp_on_PbPb_approxSiStripClusters'}
-hiDefaults2023_ppReco = {'--conditions':'auto:phase1_2023_realistic_hi', '--era':'Run3_pp_on_PbPb'}
-hiDefaults2023_ppReco_approxClusters = {'--conditions':'auto:phase1_2023_realistic_hi', '--era':'Run3_pp_on_PbPb_approxSiStripClusters'}
+hiDefaults2023_ppReco = {'--conditions':'auto:phase1_2023_realistic_hi', '--era':'Run3_pp_on_PbPb_2023'}
+hiDefaults2023_ppReco_approxClusters = {'--conditions':'auto:phase1_2023_realistic_hi', '--era':'Run3_pp_on_PbPb_approxSiStripClusters_2023'}
 
 steps['Hydjet2Q_MinBias_5020GeV_2018_ppReco']=merge([{'-n':1},hiDefaults2018_ppReco,gen2018hiprod('Hydjet2_Quenched_MinBias_5020GeV_cfi',U2000by1)])
 steps['HydjetQ_B12_5020GeV_2011']=merge([{'-n':1,'--beamspot':'RealisticHI2011Collision'},hiDefaults2011,genS('Hydjet_Quenched_B12_5020GeV_cfi',U2000by1)])
@@ -2919,20 +2919,20 @@ steps['RECOHI2023PPRECOAPPROXCLUSTERS']=merge([hiDefaults2023_ppReco_approxClust
 steps['RECOHI2023PPRECOMBAPPROXCLUSTERS']=merge([hiDefaults2023_ppReco_approxClusters,{'-s':'RAW2DIGI,L1Reco,RECO,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM',
                                                           '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
                                                           '--eventcontent':'RECOSIM,MINIAODSIM,DQM',
-                                                          '--era':'Run3_pp_on_PbPb',
+                                                          '--era':'Run3_pp_on_PbPb_2023',
                                                           '--procModifiers':'genJetSubEvent',
                                                         },step3Up2015Defaults])
 
 steps['RECOHI2023PROD']=merge([hiDefaults2023_ppReco_approxClusters,{'-s':'RAW2DIGI,L1Reco,RECO',
                                                                      '--datatier':'AODSIM',
                                                                      '--eventcontent':'AODSIM',
-                                                                     '--era':'Run3_pp_on_PbPb',
+                                                                     '--era':'Run3_pp_on_PbPb_2023',
                                                         },step3Up2015Defaults])
 
 steps['MINIHI2023PROD']=merge([hiDefaults2023_ppReco,{'-s':'PAT',
                                                                      '--datatier':'MINIAODSIM',
                                                                      '--eventcontent':'MINIAODSIM',
-                                                                     '--era':'Run3_pp_on_PbPb',
+                                                                     '--era':'Run3_pp_on_PbPb_2023',
                                                                      '--procModifiers':'genJetSubEvent',
                                                         },step3Up2015Defaults])
 
@@ -2943,14 +2943,14 @@ steps['RECOHI2023PPRECO']=merge([hiDefaults2023_ppReco,{'-s':'RAW2DIGI,L1Reco,RE
 steps['RECOHI2023PPRECOMB']=merge([hiDefaults2023_ppReco,{'-s':'RAW2DIGI,L1Reco,RECO,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM',
                                                           '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
                                                           '--eventcontent':'RECOSIM,MINIAODSIM,DQM',
-                                                          '--era':'Run3_pp_on_PbPb',
+                                                          '--era':'Run3_pp_on_PbPb_2023',
                                                           '--procModifiers':'genJetSubEvent',
                                                         },step3Up2015Defaults])
 steps['REMINIAODHI2023PPRECOMB']=merge([{'-s':'PAT,VALIDATION:@miniAODValidation,DQM:@miniAODDQM',
                                          '--datatier':'MINIAODSIM,DQMIO',
                                          '--eventcontent':'MINIAODSIM,DQM',
                                          '-n':100,
-                                         '--era':'Run3_pp_on_PbPb',
+                                         '--era':'Run3_pp_on_PbPb_2023',
                                          '--procModifiers':'genJetSubEvent',
                                      },hiDefaults2023_ppReco,step3Up2015Defaults])
 
@@ -3559,18 +3559,18 @@ steps['HARVESTFS']={'-s':'HARVESTING:validationHarvestingFS',
 steps['HARVESTHI2023PPRECO']=merge([hiDefaults2023_ppReco,{'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
                                                            '--filein':'file:step3_inDQM.root',
                                                            '--mc':'',
-                                                           '--era' : 'Run3_pp_on_PbPb',
+                                                           '--era' : 'Run3_pp_on_PbPb_2023',
                                                            '--filetype':'DQM'}])
 
 steps['HARVESTHI2023PPRECO4']=merge([hiDefaults2023_ppReco,{'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
                                                             '--filein':'file:step4_inDQM.root',
                                                             '--mc':'',
-                                                            '--era' : 'Run3_pp_on_PbPb',
+                                                            '--era' : 'Run3_pp_on_PbPb_2023',
                                                             '--filetype':'DQM'}])
 steps['HARVESTHI2023PPRECOMINIAOD']=merge([{'-s':'HARVESTING:@miniAODValidation+@miniAODDQM',
                                                                   '--filein':'file:step2_inDQM.root',
                                                                   '--mc':'',
-                                                                  '--era' : 'Run3_pp_on_PbPb',
+                                                                  '--era' : 'Run3_pp_on_PbPb_2023',
                                                                   '--filetype':'DQM',
                                                                   '-n':100},hiDefaults2023_ppReco])
 
