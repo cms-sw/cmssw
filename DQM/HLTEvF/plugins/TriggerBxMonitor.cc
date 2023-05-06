@@ -100,9 +100,10 @@ private:
   };
 
   // module configuration
-  const edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> m_l1tMenuToken;
-  const edm::EDGetTokenT<GlobalAlgBlkBxCollection> m_l1t_results;
-  const edm::EDGetTokenT<edm::TriggerResults> m_hlt_results;
+  const edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> m_l1tMenu_token;
+  const edm::InputTag m_l1t_results_inputTag;
+  const edm::EDGetTokenT<GlobalAlgBlkBxCollection> m_l1t_results_token;
+  const edm::EDGetTokenT<edm::TriggerResults> m_hlt_results_token;
   const std::string m_dqm_path;
   const bool m_make_1d_plots;
   const bool m_make_2d_plots;
@@ -125,13 +126,14 @@ void TriggerBxMonitor::fillDescriptions(edm::ConfigurationDescriptions& descript
 
 TriggerBxMonitor::TriggerBxMonitor(edm::ParameterSet const& config)
     :  // module configuration
-      m_l1tMenuToken{esConsumes<edm::Transition::BeginRun>()},
-      m_l1t_results(consumes<GlobalAlgBlkBxCollection>(config.getUntrackedParameter<edm::InputTag>("l1tResults"))),
-      m_hlt_results(consumes<edm::TriggerResults>(config.getUntrackedParameter<edm::InputTag>("hltResults"))),
-      m_dqm_path(config.getUntrackedParameter<std::string>("dqmPath")),
-      m_make_1d_plots(config.getUntrackedParameter<bool>("make1DPlots")),
-      m_make_2d_plots(config.getUntrackedParameter<bool>("make2DPlots")),
-      m_ls_range(config.getUntrackedParameter<uint32_t>("lsRange")) {}
+      m_l1tMenu_token{esConsumes<edm::Transition::BeginRun>()},
+      m_l1t_results_inputTag{config.getUntrackedParameter<edm::InputTag>("l1tResults")},
+      m_l1t_results_token{consumes(m_l1t_results_inputTag)},
+      m_hlt_results_token{consumes(config.getUntrackedParameter<edm::InputTag>("hltResults"))},
+      m_dqm_path{config.getUntrackedParameter<std::string>("dqmPath")},
+      m_make_1d_plots{config.getUntrackedParameter<bool>("make1DPlots")},
+      m_make_2d_plots{config.getUntrackedParameter<bool>("make2DPlots")},
+      m_ls_range{config.getUntrackedParameter<uint32_t>("lsRange")} {}
 
 void TriggerBxMonitor::dqmBeginRun(edm::Run const& run,
                                    edm::EventSetup const& setup,
@@ -159,7 +161,7 @@ void TriggerBxMonitor::dqmBeginRun(edm::Run const& run,
   // initialise the HLTConfigProvider
   bool changed = true;
   edm::EDConsumerBase::Labels labels;
-  labelsForToken(m_hlt_results, labels);
+  labelsForToken(m_hlt_results_token, labels);
   if (histograms.hltConfig.init(run, setup, labels.process, changed)) {
     if (m_make_1d_plots) {
       histograms.hlt_bx.clear();
@@ -228,7 +230,7 @@ void TriggerBxMonitor::bookHistograms(DQMStore::IBooker& booker,
 
     // book the individual histograms for the L1 triggers that are included in the L1 menu
     booker.setCurrentFolder(m_dqm_path + "/L1T");
-    auto const& l1tMenu = setup.getData(m_l1tMenuToken);
+    auto const& l1tMenu = setup.getData(m_l1tMenu_token);
     for (auto const& keyval : l1tMenu.getAlgorithmMap()) {
       unsigned int bit = keyval.second.getIndex();
       std::string const& name = fmt::sprintf("%s (bit %d)", keyval.first, bit);
@@ -295,10 +297,18 @@ void TriggerBxMonitor::dqmAnalyze(edm::Event const& event,
 
   // monitor the bx distribution for the L1 triggers
   {
-    auto const& bxvector = event.get(m_l1t_results);
-    if (not bxvector.isEmpty(0)) {
-      auto const& results = bxvector.at(0, 0);
-      for (unsigned int i = 0; i < GlobalAlgBlk::maxPhysicsTriggers; ++i)
+    auto const& algBlkBxVecHandle = event.getHandle(m_l1t_results_token);
+    if (not algBlkBxVecHandle.isValid()) {
+      edm::LogError("TriggerBxMonitor")
+          << "L1 trigger results with label [" << m_l1t_results_inputTag.encode()
+          << "] not present or invalid. MonitorElements of L1T results not filled for this event.";
+    } else if (algBlkBxVecHandle->isEmpty(0)) {
+      edm::LogError("TriggerBxMonitor")
+          << "L1 trigger results with label [" << m_l1t_results_inputTag.encode()
+          << "] empty for BX=0. MonitorElements of L1T results not filled for this event.";
+    } else {
+      auto const& results = algBlkBxVecHandle->at(0, 0);
+      for (unsigned int i = 0; i < GlobalAlgBlk::maxPhysicsTriggers; ++i) {
         if (results.getAlgoDecisionFinal(i)) {
           if (m_make_1d_plots and histograms.l1t_bx.at(i))
             histograms.l1t_bx[i]->Fill(bx);
@@ -306,12 +316,13 @@ void TriggerBxMonitor::dqmAnalyze(edm::Event const& event,
             histograms.l1t_bx_2d[i]->Fill(bx, ls);
           histograms.l1t_bx_all->Fill(bx, i);
         }
+      }
     }
   }
 
   // monitor the bx distribution for the HLT triggers
   if (histograms.hltConfig.inited()) {
-    auto const& hltResults = event.get(m_hlt_results);
+    auto const& hltResults = event.get(m_hlt_results_token);
     for (unsigned int i = 0; i < hltResults.size(); ++i) {
       if (hltResults.at(i).accept()) {
         if (m_make_1d_plots and histograms.hlt_bx.at(i))
