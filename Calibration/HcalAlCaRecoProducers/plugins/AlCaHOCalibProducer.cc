@@ -6,14 +6,14 @@
 //runTheMatrix.py -l 4.22
 
 // 7th Nov 2015 :  tmpHOCalib.ecal03 = iso05.sumPt; // iso03.emEt+muonenr.em;
-//                   tmpHOCalib.inslumi=lumiScale->begin()->pileup();
+//                   tmpHOCalib.pileup=lumiScale->begin()->pileup();
 //
 // April 2015 : Remove all digi part
 //  Also look for HO geometry in CMSSW in parallel with stanalone one.
 // Official one has problem in reco geometry, particularly tiles at the edge of wheel
 // Remove all histogrammes except occupancy one
 // Remove Trigger bits
-// But addition of these variables, ilumi (analyser), inslumi (analyser), nprim
+// But addition of these variables, ilumi (analyser), pileup (analyser), nprim
 
 // Feb09 2009
 // Move the initialisation of SteppingHelixPropagator from ::beginJob() to ::produce()
@@ -329,7 +329,7 @@ void AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   bool muonOK(true);
   HOCalibVariables tmpHOCalib;
   tmpHOCalib.nprim = -1;
-  tmpHOCalib.inslumi = -1.;
+  tmpHOCalib.pileup = -1.;
 
   if (m_cosmic) {
     cosmicmuon = iEvent.getHandle(tok_muonsCosmic_);
@@ -344,17 +344,17 @@ void AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
         tmpHOCalib.nprim = primaryVertices->size();
       }
 
-      tmpHOCalib.inslumi = 0.;
+      tmpHOCalib.pileup = 0.;
 
       auto const& lumiScale = iEvent.getHandle(tok_lumi_);
       auto const& metaData = iEvent.getHandle(tok_metaData_);
 
       // by default use Run-3 access (onlineMetaDataDigis)
       if (metaData.isValid()) {
-        tmpHOCalib.inslumi = metaData->avgPileUp();
+        tmpHOCalib.pileup = metaData->avgPileUp();
       } else if (lumiScale.isValid() && !lumiScale->empty()) {
         if (lumiScale->begin() != lumiScale->end()) {
-          tmpHOCalib.inslumi = lumiScale->begin()->pileup();
+          tmpHOCalib.pileup = lumiScale->begin()->pileup();
         }
       } else {
         edm::LogWarning("HOCalib") << "Neither LumiScalers nor OnlineMetadata collections found in the event";
