@@ -219,7 +219,7 @@ jetCoreRegionalStepEndcapTrackCandidates = jetCoreRegionalStepTrackCandidates.cl
 
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi
-jetCoreRegionalStepTracks = RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi.TrackProducer.clone(
+jetCoreRegionalStepTracks = RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi.TrackProducerIterativeDefault.clone(
     AlgorithmName = 'jetCoreRegionalStep',
     src           = 'jetCoreRegionalStepTrackCandidates',
     Fitter        = 'FlexibleKFFittingSmoother'

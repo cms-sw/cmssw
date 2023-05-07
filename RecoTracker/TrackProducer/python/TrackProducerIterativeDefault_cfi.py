@@ -4,10 +4,10 @@ import RecoTracker.TrackProducer.TrackProducer_cfi
 # for parabolic magnetic field
 from Configuration.ProcessModifiers.trackingParabolicMf_cff import trackingParabolicMf
 
-TrackProducer = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
-    useSimpleMF = cms.bool(True),
-    SimpleMagneticField = cms.string("ParabolicMf"),
-    Propagator = cms.string('PropagatorWithMaterialParabolicMf'),
-    TTRHBuilder = cms.string('WithAngleAndTemplateWithoutProbQ')
+TrackProducerIterativeDefault = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+    useSimpleMF = True,
+    SimpleMagneticField = 'ParabolicMf',
+    Propagator = 'PropagatorWithMaterialParabolicMf',
+    TTRHBuilder = 'WithAngleAndTemplateWithoutProbQ'
 )
-trackingParabolicMf.toModify(TrackProducer, NavigationSchool = 'SimpleNavigationSchoolParabolicMf')
+trackingParabolicMf.toModify(TrackProducerIterativeDefault, NavigationSchool = 'SimpleNavigationSchoolParabolicMf')

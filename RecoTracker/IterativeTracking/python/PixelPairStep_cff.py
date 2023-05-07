@@ -354,7 +354,7 @@ trackingPhase2PU140.toModify(pixelPairStepTrajectoryCleanerBySharedHits, fractio
 
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi
-pixelPairStepTracks = RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi.TrackProducer.clone(
+pixelPairStepTracks = RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi.TrackProducerIterativeDefault.clone(
     AlgorithmName = 'pixelPairStep',
     src           = 'pixelPairStepTrackCandidates',
     Fitter        = 'FlexibleKFFittingSmoother'

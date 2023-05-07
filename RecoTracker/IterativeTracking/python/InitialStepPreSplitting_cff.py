@@ -165,7 +165,7 @@ trackingMkFitInitialStepPreSplitting.toReplaceWith(initialStepTrackCandidatesPre
 
 # fitting
 import RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi
-initialStepTracksPreSplitting = RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi.TrackProducer.clone(
+initialStepTracksPreSplitting = RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi.TrackProducerIterativeDefault.clone(
     src              = 'initialStepTrackCandidatesPreSplitting',
     AlgorithmName    = 'initialStep',
     Fitter           = 'FlexibleKFFittingSmoother',

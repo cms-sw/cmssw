@@ -346,7 +346,7 @@ trackingLowPU.toModify(mixedTripletStepTrajectoryCleanerBySharedHits, fractionSh
 
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi
-mixedTripletStepTracks = RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi.TrackProducer.clone(
+mixedTripletStepTracks = RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi.TrackProducerIterativeDefault.clone(
     AlgorithmName = 'mixedTripletStep',
     src           = 'mixedTripletStepTrackCandidates',
     Fitter        = 'FlexibleKFFittingSmoother'

@@ -270,7 +270,7 @@ fastSim.toReplaceWith(highPtTripletStepTrackCandidates,_fastSim_highPtTripletSte
 
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi
-highPtTripletStepTracks = RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi.TrackProducer.clone(
+highPtTripletStepTracks = RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi.TrackProducerIterativeDefault.clone(
     src           = 'highPtTripletStepTrackCandidates',
     AlgorithmName = 'highPtTripletStep',
     Fitter        = 'FlexibleKFFittingSmoother',
