@@ -28,6 +28,8 @@ upgradeKeys[2017] = [
     '2021FSPU',
     '2021postEE',
     '2021postEEPU',
+    '2022ReReco',
+    '2022ReRecoPU'
 ]
 
 upgradeKeys[2026] = [
@@ -1844,7 +1846,7 @@ upgradeWFs['DD4hepDB'].allowReuse = False
 
 class UpgradeWorkflow_DDDDB(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
-        if 'Run3' in stepDict[step][k]['--era'] and 'Fast' not in stepDict[step][k]['--era']:
+        if 'Run3' in stepDict[step][k]['--era'] and 'rereco' not in stepDict[step][k]['--era'] and 'Fast' not in stepDict[step][k]['--era']: 
             # retain any other eras
             tmp_eras = stepDict[step][k]['--era'].split(',')
             tmp_eras[tmp_eras.index("Run3")] = 'Run3_DDD'
@@ -2001,6 +2003,15 @@ upgradeProperties[2017] = {
         'BeamSpot': 'Realistic25ns13p6TeVEarly2022Collision',
         'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
     },
+   '2022ReReco' : {
+        'Geom' : 'DB:Extended',
+        'GT' : 'auto:phase1_2022_realistic',
+        'HLTmenu': '@relval2022',
+        'Era' : 'Run3_2022_rereco',
+        'BeamSpot': 'Realistic25ns13p6TeVEarly2022Collision',
+        'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
+    },
+
 }
 
 # standard PU sequences
