@@ -30,5 +30,9 @@ cmsRun ${LOCAL_TEST_DIR}/BeamSpotOnlineRecordsReader_cfg.py unitTest=True inputR
 printf "TESTING Reading BeamSpotOnlineHLTObjectsRcd DB object ...\n\n"
 cmsRun ${LOCAL_TEST_DIR}/BeamSpotOnlineRecordsReader_cfg.py unitTest=True inputRecord=BeamSpotOnlineHLTObjectsRcd || die "Failure reading payload for BeamSpotOnlineHLTObjectsRcd" $? 
 
-echo "TESTING reading BeamSpotObjectRcd DB object ...\n\n"
+printf "TESTING reading BeamSpotObjectRcd DB object ...\n\n"
 cmsRun ${LOCAL_TEST_DIR}/BeamSpotRcdPrinter_cfg.py || die "Failure running BeamSpotRcdPrinter" $?
+
+printf "TESTING converting BeamSpotOnlineObjects from BeamSpotObjects ...\n\n"
+cmsRun ${LOCAL_TEST_DIR}/BeamSpotOnlineFromOfflineConverter_cfg.py unitTest=True || die "Failure running BeamSpotRcdPrinter" $?
+
