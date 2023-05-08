@@ -82,10 +82,8 @@ HGCalValidityTester::HGCalValidityTester(const edm::ParameterSet &iC)
       edm::LogVerbatim("HGCGeom") << "Cannot open file " << fileName;
     } else {
       char buffer[80];
-      uint32_t lines(0);
       const std::vector<DetId::Detector> dets = {DetId::HGCalEE, DetId::HGCalHSi, DetId::HGCalHSc};
       while (fInput.getline(buffer, 80)) {
-        ++lines;
         std::vector<std::string> items = HGCalGeomUtils::splitString(std::string(buffer));
         if (items.size() == 8) {
           DetId::Detector det = static_cast<DetId::Detector>(std::atoi(items[0].c_str()));

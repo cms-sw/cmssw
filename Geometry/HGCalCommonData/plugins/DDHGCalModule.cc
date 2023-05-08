@@ -268,8 +268,9 @@ void DDHGCalModule::positionSensitive(DDLogicalPart& glog, double rin, double ro
   double rr = 2.0 * dx * tan(30._deg);
   int ncol = (int)(2.0 * rout / waferW_) + 1;
   int nrow = (int)(rout / (waferW_ * tan(30._deg))) + 1;
-  int incm(0), inrm(0), kount(0), ntot(0), nin(0), nfine(0), ncoarse(0);
+  int incm(0), inrm(0);
 #ifdef EDM_ML_DEBUG
+  int kount(0), ntot(0), nin(0), nfine(0), ncoarse(0);
   edm::LogVerbatim("HGCalGeom") << glog.ddname() << " rout " << rout << " Row " << nrow << " Column " << ncol;
 #endif
   for (int nr = -nrow; nr <= nrow; ++nr) {
@@ -280,29 +281,35 @@ void DDHGCalModule::positionSensitive(DDLogicalPart& glog, double rin, double ro
         double xpos = nc * dx;
         double ypos = nr * dy;
         auto const& corner = HGCalGeomTools::waferCorner(xpos, ypos, dx, rr, rin, rout, true);
+#ifdef EDM_ML_DEBUG
         ++ntot;
+#endif
         if (corner.first > 0) {
           int copy = HGCalTypes::packTypeUV(0, nc, nr);
           if (inc > incm)
             incm = inc;
           if (inr > inrm)
             inrm = inr;
+#ifdef EDM_ML_DEBUG
           kount++;
+#endif
           if (copies_.count(copy) == 0)
             copies_.insert(copy);
           if (corner.first == (int)(HGCalParameters::k_CornerSize)) {
             double rpos = std::sqrt(xpos * xpos + ypos * ypos);
             DDTranslation tran(xpos, ypos, 0.0);
             DDRotation rotation;
+#ifdef EDM_ML_DEBUG
             ++nin;
+#endif
             DDName name = (rpos < rMaxFine_) ? DDName(DDSplit(wafer_[0]).first, DDSplit(wafer_[0]).second)
                                              : DDName(DDSplit(wafer_[1]).first, DDSplit(wafer_[1]).second);
             cpv.position(name, glog.ddname(), copy, tran, rotation);
+#ifdef EDM_ML_DEBUG
             if (rpos < rMaxFine_)
               ++nfine;
             else
               ++ncoarse;
-#ifdef EDM_ML_DEBUG
             edm::LogVerbatim("HGCalGeom") << "DDHGCalModule: " << name << " number " << copy << " positioned in "
                                           << glog.ddname() << " at " << tran << " with " << rotation;
 #endif
