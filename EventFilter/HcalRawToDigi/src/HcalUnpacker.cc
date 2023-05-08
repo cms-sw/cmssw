@@ -362,7 +362,6 @@ void HcalUnpacker::unpackVME(const FEDRawData& raw,
 
     bool tpgSOIbitInUse = htr.getFormatVersion() >= 3;                           // version 3 and later
     bool isHOtpg = htr.getFormatVersion() >= 3 && htr.getFirmwareFlavor() == 0;  // HO is flavor zero
-    int npre = 0;
     /*
       Unpack the trigger primitives
     */
@@ -415,7 +414,6 @@ void HcalUnpacker::unpackVME(const FEDRawData& raw,
         if (tp_work->raw() == 0xFFFF)
           continue;                                         // filler word
         if (slbAndChan(tp_work->raw()) != currFiberChan) {  // start new set
-          npre = 0;
           currFiberChan = slbAndChan(tp_work->raw());
           // lookup the right channel
           HcalElectronicsId eid(slbChan(tp_work->raw()), slb(tp_work->raw()), spigot, dccid, htr_cr, htr_slot, htr_tb);
@@ -456,7 +454,6 @@ void HcalUnpacker::unpackVME(const FEDRawData& raw,
           colls.tpCont->back().setPresamples(ncurr);
         }
         ncurr++;
-        npre++;
       }
     }
 

@@ -34,11 +34,6 @@ FEDRawData* DTDigiToRaw::createFedBuffers(const DTDigiCollection& digis, edm::ES
   words.push_back(0);
   words.push_back(0);
 
-  int NTDCMeaWords = 0;
-
-  int NLayers = 0;
-  int NDigis = 0;
-
   DTDigiCollection::DigiRangeIterator detUnitIt;
   detUnitIt = digis.begin();
 
@@ -46,14 +41,11 @@ FEDRawData* DTDigiToRaw::createFedBuffers(const DTDigiCollection& digis, edm::ES
   vector<uint32_t> w_ROBROS[12][25];
 
   for (detUnitIt = digis.begin(); detUnitIt != digis.end(); ++detUnitIt) {
-    NLayers++;
-
     const DTLayerId layerId = (*detUnitIt).first;
     const DTDigiCollection::Range& digiRange = (*detUnitIt).second;
     // Loop over all digis in the given range
 
     for (DTDigiCollection::const_iterator digi = digiRange.first; digi != digiRange.second; digi++) {
-      NDigis++;
       int dduId = -1, rosId = -1, robId = -1, tdcId = -1, channelId = -1;
 
       int layer = layerId.layer();
@@ -100,7 +92,6 @@ FEDRawData* DTDigiToRaw::createFedBuffers(const DTDigiCollection& digis, edm::ES
           cout << "[DTDigiToRaw]: invalid value for rosId" << endl;
         }
 
-        NTDCMeaWords++;
         w_ROBROS[rosId - 1][robId].push_back(word);
       }
     }
