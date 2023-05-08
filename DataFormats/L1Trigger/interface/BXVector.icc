@@ -1,6 +1,8 @@
+#include <cassert>
+
+// FIXME: these 3 lines are required by other packages
 #include <vector>
 #include <iostream>
-#include <cassert>
 using namespace std;
 
 template <class T>
@@ -211,15 +213,27 @@ unsigned BXVector<T>::indexFromBX(int bx) const {
 // check to see if bx is empty
 template <class T>
 bool BXVector<T>::isEmpty(int bx) const {
-  if (itrs_[indexFromBX(bx)] == data_.size()) {
+  if (bx < bxFirst_) {
     return true;
   }
 
-  if (indexFromBX(bx + 1) >= itrs_.size()) {
+  auto const index_bx = indexFromBX(bx);
+
+  if (index_bx >= itrs_.size()) {
+    return true;
+  }
+
+  if (itrs_[index_bx] == data_.size()) {
+    return true;
+  }
+
+  auto const index_bxPlus1 = indexFromBX(bx + 1);
+
+  if (index_bxPlus1 >= itrs_.size()) {
     return false;
   }
 
-  if (itrs_[indexFromBX(bx)] == itrs_[indexFromBX(bx + 1)]) {
+  if (itrs_[index_bx] == itrs_[index_bxPlus1]) {
     return true;
   }
 
