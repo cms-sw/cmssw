@@ -30,7 +30,6 @@ typename RKAdaptiveSolver<T, StepWithPrec, N>::Vector RKAdaptiveSolver<T, StepWi
   double stepSize = step;  // attempt to solve in one step
   Scalar currentPar = startPar;
   Vector currentStart = startState;
-  int nsteps = 0;
   std::pair<Vector, Scalar> tryStep;
 
   StepWithPrec<T, N> stepWithAccuracy;
@@ -40,11 +39,8 @@ typename RKAdaptiveSolver<T, StepWithPrec, N>::Vector RKAdaptiveSolver<T, StepWi
     float acc = tryStep.second;
     //assert(eps>0);
     // assert(acc>=0);
-    nsteps++;
     if (acc < eps || std::abs(stepSize) < std::abs(remainigStep) * 0.1f) {
       if (std::abs(remainigStep - stepSize) < 0.5f * eps) {
-        //	if (verbose()) std::cout << "Accuracy reached, and full step taken in "
-        //		    << nsteps << " steps" << std::endl;
         return tryStep.first;  // we are there
       } else {
         remainigStep -= stepSize;
@@ -61,9 +57,6 @@ typename RKAdaptiveSolver<T, StepWithPrec, N>::Vector RKAdaptiveSolver<T, StepWi
           absSize = 0.05f * absRemainingStep;
         stepSize = std::copysign(absSize, stepSize);
         currentStart = tryStep.first;
-        //if (verbose()) std::cout << "Accuracy reached, but " << remainigStep
-        //     << " remain after " << nsteps << " steps. Step size increased by "
-        //     << factor << " to " << stepSize << std::endl;
       }
     } else {
       // decrease step size
