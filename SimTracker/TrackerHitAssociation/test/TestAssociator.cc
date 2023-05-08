@@ -92,7 +92,6 @@ void TestAssociator::printRechitSimhit(const edm::Handle<edmNew::DetSetVector<re
     uint32_t myid = detid.rawId();
     // Loop over the RecHits in this sensor
     for (auto const& rechit : theDetSet) {
-      int i = 0;
       hitCounter++;
       cout << hitCounter << ") " << rechitName << " RecHit subDet, DetId " << detid.subdetId() << ", " << myid
            << " Pos = " << rechit.localPosition() << endl;
@@ -129,7 +128,6 @@ void TestAssociator::printRechitSimhit(const edm::Handle<edmNew::DetSetVector<re
         }
         cout << ", |diff| = " << mindist << endl;
       }
-      ++i;
     }
   }  // end loop on detSets
 }

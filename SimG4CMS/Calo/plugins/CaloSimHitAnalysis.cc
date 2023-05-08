@@ -317,7 +317,10 @@ void CaloSimHitAnalysis::analyze(edm::Event const& e, edm::EventSetup const& set
 
 void CaloSimHitAnalysis::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
   int nHit = hits.size();
-  int nHB = 0, nHE = 0, nHO = 0, nHF = 0, nEB = 0, nEE = 0, nBad = 0, iHit = 0;
+  int nHB = 0, nHE = 0, nHO = 0, nHF = 0, nEB = 0, nEE = 0, nBad = 0;
+#ifdef EDM_ML_DEBUG
+  int iHit = 0;
+#endif
   std::map<CaloHitID, std::pair<double, double> > hitMap;
   double etot[nCalo_], etotG[nCalo_];
   for (unsigned int k = 0; k < nCalo_; ++k) {
@@ -364,8 +367,8 @@ void CaloSimHitAnalysis::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
     edm::LogVerbatim("HitStudy") << "Hit[" << iHit << ":" << nHit << ":" << idx << "] E " << edep << ":" << edepEM
                                  << ":" << edepHad << " T " << time << " itra " << itra << " ID " << std::hex << id
                                  << std::dec;
-#endif
     ++iHit;
+#endif
     if (idx >= 0) {
       CaloHitID hid(id, time, itra, 0, timeSliceUnit_[indx]);
       auto itr = hitMap.find(hid);

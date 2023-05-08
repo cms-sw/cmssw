@@ -39,10 +39,9 @@ HFShower::HFShower(const std::string &name,
 
 std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, double weight) {
   std::vector<HFShower::Hit> hits;
-  int nHit = 0;
-
   double edep = weight * (aStep->GetTotalEnergyDeposit());
 #ifdef EDM_ML_DEBUG
+  int nHit = 0;
   edm::LogVerbatim("HFShower") << "HFShower::getHits: energy " << aStep->GetTotalEnergyDeposit() << " weight " << weight
                                << " edep " << edep;
 #endif
@@ -152,7 +151,9 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, double weight)
         }
         hit.position = globalPos;
         hits.push_back(hit);
+#ifdef EDM_ML_DEBUG
         nHit++;
+#endif
       }
     }
   }
@@ -169,7 +170,10 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, double weight)
 
 std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, bool forLibraryProducer, double zoffset) {
   std::vector<HFShower::Hit> hits;
+
+#ifdef EDM_ML_DEBUG
   int nHit = 0;
+#endif
 
   double edep = aStep->GetTotalEnergyDeposit();
   double stepl = 0.;
@@ -239,7 +243,9 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, bool forLibrar
       hit.momentum = momz[i];
       hit.position = globalPos;
       hits.push_back(hit);
+#ifdef EDM_ML_DEBUG
       nHit++;
+#endif
     }
   }
 
@@ -255,7 +261,9 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, bool forLibrar
 
 std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, bool forLibrary) {
   std::vector<HFShower::Hit> hits;
+#ifdef EDM_ML_DEBUG
   int nHit = 0;
+#endif
 
   double edep = aStep->GetTotalEnergyDeposit();
   double stepl = 0.;
@@ -342,7 +350,9 @@ std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, bool forLibrar
     hit.momentum = momz[i];
     hit.position = globalPos;
     hits.push_back(hit);
+#ifdef EDM_ML_DEBUG
     nHit++;
+#endif
   }
 
   return hits;

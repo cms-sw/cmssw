@@ -62,7 +62,6 @@ namespace edm {
       // Get the SimTrack collection
 
       //double simPt=0;
-      int i = 0;
 
       // Get the SimTrack collection from the event
       edm::Handle<SimTrackContainer> simTracks;
@@ -73,16 +72,6 @@ namespace edm {
       } else {
         std::cout << "-> Could read SimTracks !!!!" << std::endl;
       }
-
-      // Loop over the tracks
-      SimTrackContainer::const_iterator simTrack;
-      for (simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack) {
-        i++;
-
-        //simPt=(*simTrack).momentum().Pt();
-        //std::cout << " # i = " << i << " simPt = " << simPt << std::endl;
-      }
-
     } else {
       // Get the PCrossingFrame collection given as signal
 

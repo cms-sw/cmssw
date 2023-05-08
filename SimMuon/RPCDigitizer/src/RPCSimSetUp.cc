@@ -203,7 +203,9 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
 #endif
   // ### NoiseItem #############################################################
   unsigned int count_strips = 1;
+#ifdef EDM_ML_DEBUG
   unsigned int count_all = 1;
+#endif
   std::vector<float> vveff, vvnoise;
 
   // DetId to start with needs to be a DetId inside the Geometry used
@@ -281,10 +283,11 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
       sslognoiseitem << "First Value :: [" << std::setw(6) << count_all << "][" << std::setw(3) << count_strips
                      << "] :: this_detId = " << this_detId << " aka " << this_rpcId;
       sslognoiseitem << " Strip " << std::setw(3) << count_strips << " Noise = " << it->noise << " Hz/cm2" << std::endl;
+      // update counter
+      ++count_all
 #endif
       // update counter
       ++count_strips;
-      ++count_all;
     }
     // Case 2 :: 2ND ENTRY --> LAST-1 ENTRY
     // ------------------------------------
@@ -294,13 +297,14 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
       sslognoiseitem << "Inside Loop :: [" << std::setw(6) << count_all << "][" << std::setw(3) << count_strips
                      << "] :: this_detId = " << this_detId << " aka " << this_rpcId;
       sslognoiseitem << " Strip " << std::setw(3) << count_strips << " Noise = " << it->noise << " Hz/cm2" << std::endl;
+      // update counter
+      ++count_all;
 #endif
       // fill the vectors
       vvnoise.push_back((it->noise));
       vveff.push_back((it->eff));
       // update counter
       ++count_strips;
-      ++count_all;
     }
 
     // Case 3 :: LAST ENTRY
@@ -311,13 +315,14 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
       sslognoiseitem << "Last Value ::  [" << std::setw(6) << count_all << "][" << std::setw(3) << count_strips
                      << "] :: this_detId = " << this_detId << " aka " << this_rpcId;
       sslognoiseitem << " Strip " << std::setw(3) << count_strips << " Noise = " << it->noise << " Hz/cm2" << std::endl;
+      // update counter
+      ++count_all
 #endif
       // fill last value in the vector
       vvnoise.push_back((it->noise));
       vveff.push_back((it->eff));
       // update counter
       ++count_strips;
-      ++count_all;
       // fill vectors into map
       _mapDetIdNoise[current_detId] = vvnoise;
       _mapDetIdEff[current_detId] = vveff;
