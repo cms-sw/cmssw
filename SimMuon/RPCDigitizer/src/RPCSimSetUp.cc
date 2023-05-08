@@ -318,8 +318,8 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
       // update counter
       ++count_all
 #endif
-            // fill last value in the vector
-            vvnoise.push_back((it->noise));
+      // fill last value in the vector
+      vvnoise.push_back((it->noise));
       vveff.push_back((it->eff));
       // update counter
       ++count_strips;
