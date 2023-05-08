@@ -234,7 +234,7 @@ std::vector<HFGflash::Hit> HFGflash::gfParameterization(const G4Step* aStep, boo
   p1 *= 0.96;
 
 #ifdef EDM_ML_DEBUG
-  G4int nSpots_sd = 0;                // count total number of spots in SD
+  G4int nSpots_sd = 0;  // count total number of spots in SD
 #endif
 
   G4double stepLengthLeft = 10000;
