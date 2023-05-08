@@ -307,7 +307,7 @@ displacedRegionalStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementE
 
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
-displacedRegionalStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
+displacedRegionalStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilderIterativeDefault.clone(
     trajectoryFilter       = dict(refToPSet_ = 'displacedRegionalStepTrajectoryFilter'),
     inOutTrajectoryFilter  = dict(refToPSet_ = 'displacedRegionalStepInOutTrajectoryFilter'),
     useSameTrajFilter      = False,
@@ -325,7 +325,7 @@ trackingNoLoopers.toModify(displacedRegionalStepTrajectoryBuilder,
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 # Give handle for CKF for HI
-_displacedRegionalStepTrackCandidatesCkf = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
+_displacedRegionalStepTrackCandidatesCkf = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidatesIterativeDefault.clone(
     src = 'displacedRegionalStepSeeds',
     clustersToSkip              = 'displacedRegionalStepClusters',
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
@@ -416,7 +416,7 @@ displacedRegionalFlexibleKFFittingSmoother = TrackingTools.TrackFitters.Flexible
 
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi
-displacedRegionalStepTracks = RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi.TrackProducer.clone(
+displacedRegionalStepTracks = RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi.TrackProducerIterativeDefault.clone(
     src           = 'displacedRegionalStepTrackCandidates',
     AlgorithmName = 'displacedRegionalStep',
     #Fitter = 'displacedRegionalStepFitterSmoother',
