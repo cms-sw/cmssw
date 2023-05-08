@@ -372,6 +372,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
           (lPack->pt() > fPtMaxPhotons) && fuseBugFix)
         curpupweight = 1;
 
+
       // Optional: Protect high pT photons (important for gamma to hadronic recoil balance) for existing weights.
       if (fApplyPhotonProtectionForExistingWeights && (fPtMaxPhotons > 0) && (lPack->pdgId() == 22) &&
           (std::abs(lPack->eta()) < fEtaMaxPhotons) && (lPack->pt() > fPtMaxPhotons))

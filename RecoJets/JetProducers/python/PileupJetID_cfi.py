@@ -35,7 +35,6 @@ pileupJetId = cms.EDProducer('PileupJetIdProducer',
      usePuppi = cms.bool(False),
      srcConstituentWeights = cms.InputTag(""),
      useBugFix = cms.bool(False)
-
 #     residualsTxt     = cms.FileInPath("RecoJets/JetProducers/data/download.url") # must be an existing file
 )
 

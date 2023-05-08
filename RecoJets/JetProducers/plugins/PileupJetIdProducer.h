@@ -65,7 +65,6 @@ public:
   bool applyConstituentWeight() const { return applyConstituentWeight_; }
   bool useBugFix() const {return useBugFix_; }
 
-
 private:
   std::vector<PileupJetIdAlgo::AlgoGBRForestsAndConstants> vAlgoGBRForestsAndConstants_;
 
