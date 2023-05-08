@@ -22,7 +22,17 @@ options.register('outputDirectoryPath',
                 '.',
                 VarParsing.VarParsing.multiplicity.singleton,
                 VarParsing.VarParsing.varType.string,
-                "directory in which the output ROOT file will be saved")
+                'directory in which the output ROOT file will be saved')
+options.register('run',
+                '999999',
+                VarParsing.VarParsing.multiplicity.singleton,
+                VarParsing.VarParsing.varType.string,
+                'Run number to tag the output file')
+options.register('clusterid',
+                '9999999999',
+                VarParsing.VarParsing.multiplicity.singleton,
+                VarParsing.VarParsing.varType.string,
+                'HTCondor cluster id to tag the output')
 options.register('globalTag',
                 '',
                 VarParsing.VarParsing.multiplicity.singleton,
@@ -96,9 +106,9 @@ process.harvester = DQMEDHarvester('ReferenceAnalysisDQMHarvester')
 
 
 #CONFIGURE DQM Saver
-process.dqmEnv.subSystemFolder = "RolCalPPS"
+process.dqmEnv.subSystemFolder = 'RolCalPPS'
 process.dqmSaver.convention = 'Offline'
-process.dqmSaver.workflow = "/RolCalPPS/tracking-efficiency/"+os.getenv('CMSSW_VERSION')
+process.dqmSaver.workflow = '/'+'/'.join(['referenceAnalysis', options.run, options.clusterid])
 process.dqmSaver.saveByRun = -1
 process.dqmSaver.saveAtJobEnd = True
 process.dqmSaver.forceRunNumber = 999999
