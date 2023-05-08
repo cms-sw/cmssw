@@ -9,7 +9,10 @@ _seedingThresholdsHB = cms.vdouble(1.0, 1.0, 1.0, 1.0)
 _seedingThresholdsHE = cms.vdouble(1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1)
 _seedingThresholdsHBphase1 = cms.vdouble(0.125, 0.25, 0.35, 0.35)
 _seedingThresholdsHEphase1 = cms.vdouble(0.1375, 0.275, 0.275, 0.275, 0.275, 0.275, 0.275)
-
+#updated HB RecHit threshold for 2022 rereco
+_thresholdsHBphase1_2022_rereco = cms.vdouble(0.25, 0.25, 0.3, 0.3)
+#updated HB seeding threshold for 2022_rereco
+_seedingThresholdsHBphase1_2022_rereco = cms.vdouble(0.3625, 0.375, 0.425, 0.425)
 
 #### PF CLUSTER HCAL ####
 particleFlowClusterHBHE = cms.EDProducer(
@@ -139,6 +142,18 @@ run3_HB.toModify(particleFlowClusterHBHE,
         recHitEnergyNorms = {0 : dict(recHitEnergyNorm = _thresholdsHBphase1) },
         positionCalc = dict(logWeightDenominatorByDetector = {0 : dict(logWeightDenominator = _thresholdsHBphase1) } ),
         allCellsPositionCalc = dict(logWeightDenominatorByDetector = {0 : dict(logWeightDenominator = _thresholdsHBphase1) } ),
+    ),
+)
+
+# offline 2022 rereco
+from Configuration.Eras.Modifier_run3_egamma_2022_rereco_cff import run3_egamma_2022_rereco
+run3_egamma_2022_rereco.toModify(particleFlowClusterHBHE,
+    seedFinder = dict(thresholdsByDetector = {0 : dict(seedingThreshold = _seedingThresholdsHBphase1_2022_rereco) } ),
+    initialClusteringStep = dict(thresholdsByDetector = {0 : dict(gatheringThreshold = _thresholdsHBphase1_2022_rereco) } ),
+    pfClusterBuilder = dict(
+        recHitEnergyNorms = {0 : dict(recHitEnergyNorm = _thresholdsHBphase1_2022_rereco) },
+        positionCalc = dict(logWeightDenominatorByDetector = {0 : dict(logWeightDenominator = _thresholdsHBphase1_2022_rereco) } ),
+        allCellsPositionCalc = dict(logWeightDenominatorByDetector = {0 : dict(logWeightDenominator = _thresholdsHBphase1_2022_rereco) } ),
     ),
 )
 
