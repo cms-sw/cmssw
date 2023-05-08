@@ -143,7 +143,7 @@ void CTPPSCommonDQMSource::GlobalPlots::Init(DQMStore::IBooker &ibooker) {
     ya->SetBinLabel(5, "45, 220, FR-BT");
     ya->SetBinLabel(6, "45, 220, FR-HR");
     ya->SetBinLabel(7, "45, 220, FR-TP");
-    ya->SetBinLabel(8, "45, 220, NR-BP");
+    ya->SetBinLabel(8, "45, 220, NR-BT");
     ya->SetBinLabel(9, "45, 220, NR-HR");
     ya->SetBinLabel(10, "45, 220, NR-TP");
     ya->SetBinLabel(11, "56, 210, FR-BT");
@@ -153,7 +153,7 @@ void CTPPSCommonDQMSource::GlobalPlots::Init(DQMStore::IBooker &ibooker) {
     ya->SetBinLabel(15, "56, 220, FR-BT");
     ya->SetBinLabel(16, "56, 220, FR-HR");
     ya->SetBinLabel(17, "56, 220, FR-TP");
-    ya->SetBinLabel(18, "56, 220, NR-BP");
+    ya->SetBinLabel(18, "56, 220, NR-BT");
     ya->SetBinLabel(19, "56, 220, NR-HR");
     ya->SetBinLabel(20, "56, 220, NR-TP");
   }
