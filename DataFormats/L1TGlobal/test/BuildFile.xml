@@ -1,0 +1,10 @@
+<use name="DataFormats/L1TGlobal"/>
+
+<library name="testGlobalObjectMapRecord" file="TestReadGlobalObjectMapRecord.cc,TestWriteGlobalObjectMapRecord.cc">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/Utilities"/>
+</library>
+
+<test name="TestGlobalObjectMapRecordFormat" command="TestGlobalObjectMapRecordFormat.sh"/>
