@@ -50,8 +50,7 @@ typename RKAdaptiveSolver<T, StepWithPrec, N>::Vector RKAdaptiveSolver<T, StepWi
     if (acc < eps || std::abs(stepSize) < std::abs(remainigStep) * 0.1f) {
       if (std::abs(remainigStep - stepSize) < 0.5f * eps) {
 #ifdef DEBUG_PRINTS
-        std::cout << "Accuracy reached, and full step taken in "
-            << nsteps << " steps" << std::endl;
+        std::cout << "Accuracy reached, and full step taken in " << nsteps << " steps" << std::endl;
 #endif
         return tryStep.first;  // we are there
       } else {
@@ -70,9 +69,8 @@ typename RKAdaptiveSolver<T, StepWithPrec, N>::Vector RKAdaptiveSolver<T, StepWi
         stepSize = std::copysign(absSize, stepSize);
         currentStart = tryStep.first;
 #ifdef DEBUG_PRINTS
-        std::cout << "Accuracy reached, but " << remainigStep
-             << " remain after " << nsteps << " steps. Step size increased by "
-             << factor << " to " << stepSize << std::endl;
+        std::cout << "Accuracy reached, but " << remainigStep << " remain after " << nsteps
+                  << " steps. Step size increased by " << factor << " to " << stepSize << std::endl;
 #endif
       }
     } else {
@@ -86,8 +84,8 @@ typename RKAdaptiveSolver<T, StepWithPrec, N>::Vector RKAdaptiveSolver<T, StepWi
       if (std::abs(stepSize) < 0.05f * std::abs(remainigStep))
         stepSize = 0.05f * remainigStep;
 #ifdef DEBUG_PRINTS
-      std::cout << "Accuracy not yet reached: delta = " << tryStep.second
-           << ", step reduced by " << factor << " to " << stepSize << std::endl;
+      std::cout << "Accuracy not yet reached: delta = " << tryStep.second << ", step reduced by " << factor << " to "
+                << stepSize << std::endl;
 #endif
     }
   } while (std::abs(remainigStep) > eps * 0.5f);
