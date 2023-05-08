@@ -646,7 +646,6 @@ void EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event, const ed
     }
   }
 
-
   for (EBDigiCollection::const_iterator it = ebDigis_->begin(); it != ebDigis_->end(); ++it) {
     const EBDataFrame& frame = *it;
     int iEta = static_cast<const EBDetId&>(frame.id()).ieta();

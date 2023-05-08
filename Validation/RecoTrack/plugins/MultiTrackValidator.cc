@@ -870,7 +870,7 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event,
       //compute number of tracks per eta interval
       //
       LogTrace("TrackValidator") << "\n# of TrackingParticles: " << tPCeff.size() << "\n";
-      int st(0);   //This counter counts the number of simulated tracks passing the MTV selection (i.e. tpSelector(tp) )
+      int st(0);  //This counter counts the number of simulated tracks passing the MTV selection (i.e. tpSelector(tp) )
 
       //loop over already-selected TPs for tracking efficiency
       for (size_t i = 0; i < selected_tPCeff.size(); ++i) {
@@ -1028,8 +1028,8 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event,
       LogTrace("TrackValidator") << "\n# of reco::Tracks with " << label[www].process() << ":" << label[www].label()
                                  << ":" << label[www].instance() << ": " << trackCollection.size() << "\n";
 
-      int at(0);   //This counter counts the number of recoTracks that are associated to SimTracks
-      int rT(0);   //This counter counts the number of recoTracks in general
+      int at(0);  //This counter counts the number of recoTracks that are associated to SimTracks
+      int rT(0);  //This counter counts the number of recoTracks in general
       int seed_fit_failed = 0;
       size_t n_selTrack_dr = 0;
 

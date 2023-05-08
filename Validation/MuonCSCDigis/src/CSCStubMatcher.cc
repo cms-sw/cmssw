@@ -275,7 +275,6 @@ void CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& l
                  std::inserter(cathode_and_anode_ids, cathode_and_anode_ids.end()));
 
   for (const auto& id : cathode_and_anode_ids) {
-
     CSCDetId ch_id(id);
 
     //use ME1b id to get LCTs
@@ -308,7 +307,6 @@ void CSCStubMatcher::matchLCTsToSimTrack(const CSCCorrelatedLCTDigiCollection& l
     }
 
     for (const auto& lct : lcts_tmp) {
-
       bool lct_clct_match(false);
       bool lct_alct_match(false);
       bool lct_gem1_match(false);
