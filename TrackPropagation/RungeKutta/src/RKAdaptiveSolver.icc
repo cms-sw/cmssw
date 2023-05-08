@@ -1,6 +1,8 @@
 #include "RKAdaptiveSolver.h"
 #include <cmath>
 
+//#define DEBUG_PRINTS
+
 namespace RKDetails {
   // From http://martin.ankerl.com/2012/01/25/optimized-approximative-pow-in-c-and-cpp/
   // good at 10%
@@ -30,6 +32,9 @@ typename RKAdaptiveSolver<T, StepWithPrec, N>::Vector RKAdaptiveSolver<T, StepWi
   double stepSize = step;  // attempt to solve in one step
   Scalar currentPar = startPar;
   Vector currentStart = startState;
+#ifdef DEBUG_PRINTS
+  int nsteps = 0;
+#endif
   std::pair<Vector, Scalar> tryStep;
 
   StepWithPrec<T, N> stepWithAccuracy;
@@ -37,10 +42,17 @@ typename RKAdaptiveSolver<T, StepWithPrec, N>::Vector RKAdaptiveSolver<T, StepWi
   do {
     tryStep = stepWithAccuracy(currentPar, currentStart, deriv, dist, stepSize);
     float acc = tryStep.second;
-    //assert(eps>0);
+    // assert(eps>0);
     // assert(acc>=0);
+#ifdef DEBUG_PRINTS
+    nsteps++;
+#endif
     if (acc < eps || std::abs(stepSize) < std::abs(remainigStep) * 0.1f) {
       if (std::abs(remainigStep - stepSize) < 0.5f * eps) {
+#ifdef DEBUG_PRINTS
+        std::cout << "Accuracy reached, and full step taken in "
+            << nsteps << " steps" << std::endl;
+#endif
         return tryStep.first;  // we are there
       } else {
         remainigStep -= stepSize;
@@ -57,6 +69,11 @@ typename RKAdaptiveSolver<T, StepWithPrec, N>::Vector RKAdaptiveSolver<T, StepWi
           absSize = 0.05f * absRemainingStep;
         stepSize = std::copysign(absSize, stepSize);
         currentStart = tryStep.first;
+#ifdef DEBUG_PRINTS
+        std::cout << "Accuracy reached, but " << remainigStep
+             << " remain after " << nsteps << " steps. Step size increased by "
+             << factor << " to " << stepSize << std::endl;
+#endif
       }
     } else {
       // decrease step size
@@ -68,8 +85,10 @@ typename RKAdaptiveSolver<T, StepWithPrec, N>::Vector RKAdaptiveSolver<T, StepWi
       stepSize *= factor;
       if (std::abs(stepSize) < 0.05f * std::abs(remainigStep))
         stepSize = 0.05f * remainigStep;
-      // if (verbose()) std::cout << "Accuracy not yet reached: delta = " << tryStep.second
-      //	 << ", step reduced by " << factor << " to " << stepSize << std::endl;
+#ifdef DEBUG_PRINTS
+      std::cout << "Accuracy not yet reached: delta = " << tryStep.second
+           << ", step reduced by " << factor << " to " << stepSize << std::endl;
+#endif
     }
   } while (std::abs(remainigStep) > eps * 0.5f);
 
