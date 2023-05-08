@@ -265,14 +265,12 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
 
   // Get GeomDetUnits for the current tracker
   auto const& detUnits = theCurTracker->detUnits();
-  int detUnit(0);
   //\\for (unsigned int iDet = 0; iDet < detUnits.size(); ++iDet) {
   for (auto iunit = detUnits.begin(); iunit != detUnits.end(); ++iunit) {
     DetId detid = (*iunit)->geographicalId();
     m_rawid = detid.rawId();
     m_subdetid = detid.subdetId();
 
-    ++detUnit;
     //\\GeomDetUnit* geomDetUnit = detUnits.at(iDet) ;
     auto geomDetUnit = *iunit;
 

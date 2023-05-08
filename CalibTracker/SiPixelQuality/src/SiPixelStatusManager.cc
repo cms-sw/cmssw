@@ -153,7 +153,6 @@ void SiPixelStatusManager::createBadComponents() {
     SiPixelDetectorStatus tmpSiPixelStatus;
     bool isNewIOV = true;
 
-    int counter = 0;
     for (siPixelStatusVtr_iterator it = firstStatus; it != lastStatus; it++) {
       if (isNewIOV) {  // if it is new IOV, init with the current data
         tmpLumi = edm::LuminosityBlockNumber_t(it->getLSRange().first);
@@ -173,7 +172,6 @@ void SiPixelStatusManager::createBadComponents() {
         siPixelStatusMap_[tmpLumi] = tmpSiPixelStatus;
         // so next loop is the begining of a new IOV
       }
-      counter++;
 
     }  // end of siPixelStatusMap
 

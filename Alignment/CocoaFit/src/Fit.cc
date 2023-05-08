@@ -887,7 +887,6 @@ void Fit::multiplyMatrices() {
   }
 
   ALIint nEnt = 0;
-  ALIint nEntUnk = 0;
   for (vecite = Model::EntryList().begin(); vecite != Model::EntryList().end(); ++vecite) {
     //------------------ Number of parameters 'cal'
     //                  (= No parameters to be fitted - No parameters 'unk' )
@@ -901,8 +900,6 @@ void Fit::multiplyMatrices() {
       }
       nEnt++;
     }
-    if ((*vecite)->quality() == 2)
-      nEntUnk++;
   }
 
   if (ALIUtils::debug >= 5)

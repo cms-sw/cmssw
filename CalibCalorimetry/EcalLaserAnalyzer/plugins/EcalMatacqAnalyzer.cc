@@ -232,7 +232,6 @@ void EcalMatacqAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) 
   // Decode Matacq Information
   // ===========================
 
-  int iCh = 0;
   double max = 0;
 
   for (EcalMatacqDigiCollection::const_iterator it = matacqDigi->begin(); it != matacqDigi->end();
@@ -241,7 +240,6 @@ void EcalMatacqAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) 
     //
     const EcalMatacqDigi& digis = *it;
 
-    //if(digis.size()==0 || iCh>=N_channels) continue;
     if (_debug == 1) {
       edm::LogVerbatim("EcalMatacqAnalyzzer") << "-- debug test -- Inside digis -- digi size=" << digis.size();
     }
@@ -267,8 +265,6 @@ void EcalMatacqAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) 
       edm::LogVerbatim("EcalMatacqAnalyzzer")
           << "-- debug test -- Inside digis -- nsamples=" << nsamples << ", max=" << max;
     }
-
-    iCh++;
   }
 
   if (_debug == 1)

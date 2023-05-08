@@ -65,8 +65,6 @@ inline CSCDBPedestals *CSCPedestalsDBConditions::prefillDBPedestals() {
   std::vector<float> new_pedrms;
 
   int counter;
-  int db_nrlines = 0;
-  int new_nrlines = 0;
 
   std::ifstream dbdata;
   dbdata.open("old_dbpeds.dat", std::ios::in);
@@ -80,7 +78,6 @@ inline CSCDBPedestals *CSCPedestalsDBConditions::prefillDBPedestals() {
     db_index_id.push_back(db_index);
     db_peds.push_back(db_ped);
     db_pedrms.push_back(db_rms);
-    db_nrlines++;
   }
   dbdata.close();
 
@@ -96,7 +93,6 @@ inline CSCDBPedestals *CSCPedestalsDBConditions::prefillDBPedestals() {
     new_index_id.push_back(new_index);
     new_peds.push_back(new_ped);
     new_pedrms.push_back(new_rms);
-    new_nrlines++;
   }
   newdata.close();
 

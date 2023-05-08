@@ -65,8 +65,6 @@ inline CSCDBCrosstalk *CSCCrosstalkDBConditions::prefillDBCrosstalk() {
   std::vector<float> new_intercept_l;
 
   int counter;
-  int db_nrlines = 0;
-  int new_nrlines = 0;
 
   std::ifstream dbdata;
   dbdata.open("old_dbxtalk.dat", std::ios::in);
@@ -82,7 +80,6 @@ inline CSCDBCrosstalk *CSCCrosstalkDBConditions::prefillDBCrosstalk() {
     db_slope_l.push_back(db_slope_left);
     db_intercept_r.push_back(db_intercept_right);
     db_intercept_l.push_back(db_intercept_left);
-    db_nrlines++;
   }
   dbdata.close();
 
@@ -100,7 +97,6 @@ inline CSCDBCrosstalk *CSCCrosstalkDBConditions::prefillDBCrosstalk() {
     new_slope_l.push_back(new_slope_left);
     new_intercept_r.push_back(new_intercept_right);
     new_intercept_l.push_back(new_intercept_left);
-    new_nrlines++;
   }
   newdata.close();
 

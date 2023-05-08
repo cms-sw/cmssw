@@ -143,7 +143,6 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
                                         << "  Phi=" << Phi[trk_cnt] << "  P=" << P[trk_cnt]
                                         << "   Nhits=" << Nhits[trk_cnt][0];
 
-    int nhit = 0;
     //loop on tracking rechits
     //edm::LogVerbatim("AlignmenStats") << "   loop on hits of track #" << (itt - tracks->begin());
     for (auto const &hit : ittrk->recHits()) {
@@ -242,7 +241,6 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
       if (ntracks > 1)
         edm::LogVerbatim("AlignmenStats") << "Hit in SubDet=" << subdethit;
       Nhits[trk_cnt][subdethit] = Nhits[trk_cnt][subdethit] + 1;
-      nhit++;
     }  //end loop on trackingrechits
     trk_cnt++;
 

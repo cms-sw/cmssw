@@ -93,7 +93,7 @@ void FittedEntriesManager::MakeHistos() {
       fout2 << (*vfescite)->getDate() << " " << (*vfescite)->getTime() << " ";
     }
 
-    ALIint ii = 0;
+    //ALIint ii = 0;
     for (vfecite = ((*vfescite)->FittedEntries()).begin(); vfecite != ((*vfescite)->FittedEntries()).end(); ++vfecite) {
       //      std::cout << ii << *vfescite << " FITTEDENTRY: "   << vfecite << " " <<*vfecite << " " << (*vfecite)->Value() << std::endl;
       //      if( ii == 2 || ii == 4 ) {
@@ -107,7 +107,7 @@ void FittedEntriesManager::MakeHistos() {
       ALIstring filename = createFileName((*vfecite)->getOptOName(), (*vfecite)->getEntryName());
       fout2 << std::setprecision(8) << std::setw(10) << filename << " " << (*vfecite)->getValue() << " "
             << (*vfecite)->getSigma() << "  ";
-      ii++;
+      //ii++;
     }
     //    dumpEntriesSubstraction( fout, *(*vfescite), 2, 4);
     fout << std::endl;

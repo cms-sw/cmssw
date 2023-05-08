@@ -233,9 +233,7 @@ void DiElectronVertexValidation::analyze(const edm::Event& iEvent, const edm::Ev
 
   std::vector<const reco::GsfTrack*> myGoodGsfTracks;
 
-  unsigned int i = 0;
   for (const auto& electron : theZElectronVector) {
-    i++;
     float minD = 1000.;
     const reco::GsfTrack* theMatch = nullptr;
     for (const auto& track : iEvent.get(gsfTracksToken_)) {
