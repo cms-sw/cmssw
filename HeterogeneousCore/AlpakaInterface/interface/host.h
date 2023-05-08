@@ -3,6 +3,8 @@
 
 #include <cassert>
 
+#include <alpaka/alpaka.hpp>
+
 namespace cms::alpakatools {
 
   namespace detail {

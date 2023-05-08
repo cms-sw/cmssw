@@ -1,6 +1,7 @@
 #ifndef HeterogeneousCore_AlpakaInterface_interface_AllocatorConfig_h
 #define HeterogeneousCore_AlpakaInterface_interface_AllocatorConfig_h
 
+#include <cstddef>
 #include <limits>
 
 namespace cms::alpakatools {
