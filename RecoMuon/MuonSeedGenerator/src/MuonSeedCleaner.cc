@@ -293,9 +293,7 @@ SeedContainer MuonSeedCleaner::SeedCandidates(std::vector<TrajectorySeed>& seeds
       longSeed = true;
     //std::cout<<"  Seed: "<<i<<" w/"<<seeds[i].nHits()<<" segs "<<std::endl;
     // looking for 1st layer segment
-    int idx = 0;
     for (auto const& r1 : seeds[i].recHits()) {
-      idx++;
       const GeomDet* gdet = theService->trackingGeometry()->idToDet(r1.geographicalId());
       DetId geoId = gdet->geographicalId();
 
@@ -307,7 +305,6 @@ SeedContainer MuonSeedCleaner::SeedCandidates(std::vector<TrajectorySeed>& seeds
         withFirstLayer = true;
       }
       if (geoId.subdetId() == MuonSubdetId::CSC) {
-        idx++;
         CSCDetId CSC_Id = CSCDetId(r1.geographicalId());
         //std::cout<<" ID:"<<CSC_Id <<" pos:"<< r1->localPosition()  <<std::endl;
         if (CSC_Id.station() != 1)

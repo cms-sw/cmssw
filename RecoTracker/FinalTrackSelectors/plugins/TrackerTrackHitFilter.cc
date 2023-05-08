@@ -648,15 +648,12 @@ namespace reco {
       //int previousLayer(-1);
       ///---OverlapEnd
 
-      int constrhits = 0;
-
       for (std::vector<TrajectoryMeasurement>::const_iterator itTrajMeas = tmColl.begin(); itTrajMeas != tmColl.end();
            itTrajMeas++) {
         TransientTrackingRecHit::ConstRecHitPointer hitpointer = itTrajMeas->recHit();
 
         //check that the hit is a real hit and not a constraint
         if (hitpointer->isValid() && hitpointer->hit() == nullptr) {
-          constrhits++;
           continue;
         }
 
@@ -744,7 +741,6 @@ namespace reco {
       }  // loop on hits
 
       std::reverse(hits.begin(), hits.end());
-      //  std::cout<<"Finished producefromTrajecotries. Nhits in final coll"<<hits.size() <<"   Nconstraints="<<constrhits<<std::endl;
     }  //end TrackerTrackHitFilter::produceFromTrajectories
 
     int TrackerTrackHitFilter::checkHit(const edm::EventSetup &iSetup, const DetId &detid, const TrackingRecHit *hit) {
