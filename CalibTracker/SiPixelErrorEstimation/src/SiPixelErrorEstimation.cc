@@ -1356,8 +1356,6 @@ void SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup&
               float distx, disty, dist;
               bool found_hit_from_generated_particle = false;
 
-              int n_assoc_muon = 0;
-
               vector<PSimHit>::const_iterator closestit = matched.begin();
               for (vector<PSimHit>::const_iterator m = matched.begin(); m < matched.end(); ++m) {
                 if (checkType_) {  // only consider associated simhits with the generated pid (muons)
@@ -1374,8 +1372,6 @@ void SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup&
                 dist = sqrt(distx * distx + disty * disty);
 
                 if (dist < mindist) {
-                  n_assoc_muon++;
-
                   mindist = dist;
                   closestit = m;
                   found_hit_from_generated_particle = true;
@@ -1386,12 +1382,6 @@ void SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup&
               // Ignore it as most probably come from delta rays.
               if (checkType_ && !found_hit_from_generated_particle)
                 continue;
-
-              //if ( n_assoc_muon > 1 )
-              //{
-              //  // cout << " ----- This is not good: n_assoc_muon = " << n_assoc_muon << endl;
-              //  // cout << "evt = " << evt << endl;
-              //}
 
               DetId detId = hit->geographicalId();
 

@@ -343,7 +343,6 @@ void ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::E
   const edm::Handle<TrackingParticleCollection>& TPCollectionHfake = iEvent.getHandle(tpfakeToken_);
   const TrackingParticleCollection tPCfake = *(TPCollectionHfake.product());
 
-  int w = 0;
   for (unsigned int ww = 0; ww < associators.size(); ww++) {
     //
     //get collections from the event
@@ -367,7 +366,6 @@ void ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::E
       edm::LogVerbatim("ValidationMisalignedTracker") << "Computing Efficiency";
 
       edm::LogVerbatim("TrackValidator") << "\n# of TrackingParticles (before cuts): " << tPCeff.size() << "\n";
-      int ats = 0;
       int st = 0;
       for (TrackingParticleCollection::size_type i = 0; i < tPCeff.size(); i++) {
         // Initialize variables
@@ -457,7 +455,6 @@ void ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::E
             rt = simRecColl[tp];
             if (!rt.empty()) {
               edm::RefToBase<reco::Track> t = rt.begin()->first;
-              ats++;
 
               // bool flagptused=false;
               // for (unsigned int j=0;j<ptused.size();j++){
@@ -767,8 +764,6 @@ void ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::E
       }
 
     }  // End of loop on fakerate
-
-    w++;
 
   }  // End of loop on associators
 }

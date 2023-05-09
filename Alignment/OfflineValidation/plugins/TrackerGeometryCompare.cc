@@ -120,9 +120,7 @@ TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg)
   if (weightById_) {
     std::ifstream inFile;
     inFile.open(weightByIdFile_.c_str());
-    int ctr = 0;
     while (!inFile.eof()) {
-      ctr++;
       unsigned int listId;
       inFile >> listId;
       inFile.ignore(256, '\n');

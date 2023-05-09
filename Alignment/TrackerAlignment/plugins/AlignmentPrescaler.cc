@@ -121,20 +121,16 @@ void AlignmentPrescaler::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   //prepare the output of the ValueMap flagging tracks
   std::vector<int> trackflags(Tracks->size(), 0);
 
-  int npxlhits = 0;
-
   //loop on tracks
   for (std::vector<reco::Track>::const_iterator ittrk = Tracks->begin(), edtrk = Tracks->end(); ittrk != edtrk;
        ++ittrk) {
     //loop on tracking rechits
     LogDebug("AlignmentPrescaler") << "Loop on hits of track #" << (ittrk - Tracks->begin()) << std::endl;
-    int nhit = 0;
     int ntakenhits = 0;
     bool firstTakenHit = false;
 
     for (auto const& hit : ittrk->recHits()) {
       if (!hit->isValid()) {
-        nhit++;
         continue;
       }
       uint32_t tmpdetid = hit->geographicalId().rawId();
@@ -198,7 +194,6 @@ void AlignmentPrescaler::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       else {
         //	const SiPixelRecHit*   pixelhit= dynamic_cast<const SiPixelRecHit*>(hit);
         if (pixelhit != nullptr) {
-          npxlhits++;
           SiPixelClusterRefNew pixclust(pixelhit->cluster());
           tmpflag = InValMap[pixclust];
           tmpflag.SetDetId(hit->geographicalId());
@@ -240,8 +235,7 @@ void AlignmentPrescaler::produce(edm::Event& iEvent, const edm::EventSetup& iSet
         }
         ntakenhits++;
       }  //end if take this hit
-      nhit++;
-    }  //end loop on RecHits
+    }    //end loop on RecHits
     trackflags[ittrk - Tracks->begin()] = ntakenhits;
   }  //end loop on tracks
 
