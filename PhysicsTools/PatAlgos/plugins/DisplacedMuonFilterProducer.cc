@@ -170,8 +170,13 @@ void pat::DisplacedMuonFilterProducer::produce(edm::Event& iEvent, const edm::Ev
           oMuons = oMuons - 1;
           continue;
         }
+        // Discard STA-only muons below pt threshold
+      } else if (muon.standAloneMuon()->pt() < minPtSTA_) {
+        filteredmuons[i] = false;
+        oMuons = oMuons - 1;
+        continue;
       } else {
-        // Compute number of DT+CSC segments
+        // Compute number of DT+CSC segments and discard those that have less than the minimum required
         nsegments = 0;
         for (trackingRecHit_iterator hit = muon.standAloneMuon()->recHitsBegin();
              hit != muon.standAloneMuon()->recHitsEnd();
@@ -185,8 +190,8 @@ void pat::DisplacedMuonFilterProducer::produce(edm::Event& iEvent, const edm::Ev
             nsegments++;
           }
         }
-        // Discard STA-only muons with less than minMatches_ segments and below pt threshold
-        if (nsegments < minMatches_ || muon.standAloneMuon()->pt() < minPtSTA_) {
+        // Discard STA-only muons with less than minMatches_ segments
+        if (nsegments < minMatches_) {
           filteredmuons[i] = false;
           oMuons = oMuons - 1;
           continue;
