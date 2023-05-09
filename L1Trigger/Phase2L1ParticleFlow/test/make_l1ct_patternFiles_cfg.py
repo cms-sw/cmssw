@@ -32,7 +32,7 @@ process.load('L1Trigger.Phase2L1ParticleFlow.l1ctLayer1_cff')
 process.load('L1Trigger.Phase2L1ParticleFlow.l1ctLayer2EG_cff')
 process.load('L1Trigger.L1TTrackMatch.l1tGTTInputProducer_cfi')
 process.load('L1Trigger.VertexFinder.l1tVertexProducer_cfi')
-process.l1tVertexFinderEmulator = process.VertexProducer.clone()
+process.l1tVertexFinderEmulator = process.l1tVertexProducer.clone()
 process.l1tVertexFinderEmulator.VertexReconstruction.Algorithm = "fastHistoEmulation"
 process.l1tVertexFinderEmulator.l1TracksInputTag = cms.InputTag("l1tGTTInputProducer", "Level1TTTracksConverted")
 from L1Trigger.Phase2L1GMT.gmt_cfi import l1tStandaloneMuons
@@ -42,8 +42,11 @@ from L1Trigger.Phase2L1ParticleFlow.l1tSeedConePFJetProducer_cfi import l1tSeedC
 from L1Trigger.Phase2L1ParticleFlow.l1tDeregionizerProducer_cfi import l1tDeregionizerProducer
 from L1Trigger.Phase2L1ParticleFlow.l1tJetFileWriter_cfi import l1tSeededConeJetFileWriter
 process.l1tLayer2Deregionizer = l1tDeregionizerProducer.clone()
-process.l1tLayer2SeedConeJets = l1tSeedConePFJetEmulatorProducer.clone(L1PFObject = cms.InputTag('l1tLayer2Deregionizer', 'Puppi'))
-process.l1tLayer2SeedConeJetWriter = l1tSeededConeJetFileWriter.clone(jets = "l1tLayer2SeedConeJets")
+process.l1tLayer2SeedConeJetsCorrected = l1tSeedConePFJetEmulatorProducer.clone(L1PFObject = ('l1tLayer2Deregionizer', 'Puppi'),
+                                                                                doCorrections = True,
+                                                                                correctorFile = "L1Trigger/Phase2L1ParticleFlow/data/jecs/jecs_20220308.root",
+                                                                                correctorDir = "L1PuppiSC4EmuJets")
+process.l1tLayer2SeedConeJetWriter = l1tSeededConeJetFileWriter.clone(jets = "l1tLayer2SeedConeJetsCorrected")
 
 process.l1tLayer1Barrel9 = process.l1tLayer1Barrel.clone()
 process.l1tLayer1Barrel9.puAlgo.nFinalSort = 32
@@ -74,12 +77,12 @@ process.runPF = cms.Path(
         process.l1tLayer1HGCalNoTK +
         process.l1tLayer1HF +
         process.l1tLayer1 +
-        process.l1tLayer2EG +
         process.l1tLayer2Deregionizer +
-        process.l1tLayer2SeedConeJets +
-        process.l1tLayer2SeedConeJetWriter
+        process.l1tLayer2SeedConeJetsCorrected +
+        process.l1tLayer2SeedConeJetWriter +
+        process.l1tLayer2EG
     )
-process.runPF.associate(process.l1tLayer1TaskInputsTask)
+process.runPF.associate(process.L1TLayer1TaskInputsTask)
 
 
 #####################################################################################################################
@@ -95,4 +98,10 @@ process.l1tLayer2EG.outPatternFile.maxLinesPerFile = eventsPerFile_*54
 process.l1tLayer2SeedConeJetWriter.maxLinesPerFile = eventsPerFile_*54
 
 process.source.fileNames  = [ '/store/cmst3/group/l1tr/gpetrucc/11_1_0/NewInputs110X/110121.done/TTbar_PU200/inputs110X_%d.root' % i for i in (1,3,7,8,9) ]
-process.pfClustersFromCombinedCaloHCal.phase2barrelCaloTowers = [cms.InputTag("l1tEGammaClusterEmuProducer",)]
+process.l1tPFClustersFromL1EGClusters.src = cms.InputTag("L1EGammaClusterEmuProducer",)
+process.l1tPFClustersFromCombinedCaloHCal.phase2barrelCaloTowers = [cms.InputTag("L1EGammaClusterEmuProducer",)]
+process.l1tPFClustersFromHGC3DClusters.src  = cms.InputTag("hgcalBackEndLayer2Producer","HGCalBackendLayer2Processor3DClustering")
+process.l1tPFClustersFromCombinedCaloHF.hcalCandidates = [ cms.InputTag("hgcalBackEndLayer2Producer","HGCalBackendLayer2Processor3DClustering")]
+process.l1tPFTracksFromL1Tracks.L1TrackTag = cms.InputTag("TTTracksFromTrackletEmulation","Level1TTTracks")
+process.l1tGTTInputProducer.l1TracksInputTag = cms.InputTag("TTTracksFromTrackletEmulation","Level1TTTracks")
+

@@ -1,5 +1,6 @@
 
 #include "CSCDQM_StripClusterFinder.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace cscdqm {
 
@@ -15,11 +16,12 @@ namespace cscdqm {
     if (cf == 7) {
       is7DCFEBs = true;
       isME11 = true;
+    } else {
+      is7DCFEBs = false;
     }
   }
   void StripClusterFinder::DoAction(int LayerId, float* Cathodes) {
     int TimeId, StripId;
-    this->LId = LayerId;
     MEStripClusters.clear();
     StripClusterFitData PulseHeightMapTMP;
 
@@ -41,7 +43,7 @@ namespace cscdqm {
 
     if (thePulseHeightMap.empty())
       return;
-    SearchMax();
+    SearchMax(LayerId);
     SearchBorders();
     Match();
     RefindMax();
@@ -63,9 +65,9 @@ namespace cscdqm {
     float sumtime;
     float sumheight;
 
-    for (i = 0; i < MEStripClusters.size(); i++) {
+    for (uint32_t i = 0; i < MEStripClusters.size(); i++) {
       MEStripClusters[i].ClusterPulseMapHeight.clear();
-      for (j = 0; j < thePulseHeightMap.size(); j++) {
+      for (uint32_t j = 0; j < thePulseHeightMap.size(); j++) {
         if (thePulseHeightMap[j].channel_ >= MEStripClusters[i].LFTBNDStrip &&
             thePulseHeightMap[j].channel_ <= MEStripClusters[i].IRTBNDStrip)
           MEStripClusters[i].ClusterPulseMapHeight.push_back(thePulseHeightMap[j]);
@@ -90,12 +92,12 @@ namespace cscdqm {
     return;
   }
 
-  void StripClusterFinder::SearchMax(void) {
+  void StripClusterFinder::SearchMax(int32_t layerId) {
     StripCluster tmpCluster;
-    for (i = 1; i < (thePulseHeightMap.size() - 1); i++) {
+    for (uint32_t i = 1; i < (thePulseHeightMap.size() - 1); i++) {
       if (isME11 && (thePulseHeightMap[i].channel_ == 63 || thePulseHeightMap[i].channel_ == 64))
         continue;
-      for (j = 1; j < 15; j++) {
+      for (uint32_t j = 1; j < 15; j++) {
         if (thePulseHeightMap[i].height_[j] > thePulseHeightMap[i - 1].height_[j] &&
             thePulseHeightMap[i].height_[j] > thePulseHeightMap[i + 1].height_[j] &&
             thePulseHeightMap[i].height_[j] > thePulseHeightMap[i].height_[j - 1] &&
@@ -108,7 +110,7 @@ namespace cscdqm {
           localMaxTMP.Strip = i;
           localMaxTMP.Time = j;
           tmpCluster.localMax.push_back(localMaxTMP);
-          tmpCluster.LayerId = this->LId;
+          tmpCluster.LayerId = layerId;
           tmpCluster.LFTBNDTime = -100;
           tmpCluster.LFTBNDStrip = -100;
           tmpCluster.IRTBNDTime = -100;
@@ -124,9 +126,9 @@ namespace cscdqm {
 
     //              SEARCHING PARAMETERS OF THE CLASTERS (LEFT DOWN & RIGHT UP)
 
-    for (i = 0; i < MEStripClusters.size(); i++) {
+    for (uint32_t i = 0; i < MEStripClusters.size(); i++) {
       if (MEStripClusters[i].localMax.empty()) {
-        std::cout << "!!!Warning Cluster has'nt local Maxima" << std::endl;
+        edm::LogWarning("NoLocalMax") << "Cluster " << i << " has no local Maxima";
         continue;
       }
       iS = MEStripClusters[i].localMax[0].Strip;
@@ -189,29 +191,30 @@ namespace cscdqm {
 
   bool StripClusterFinder::FindAndMatch(void) {
     // Find clusters to match
-    icstart = 0;  //!!!???
-    for (ic1 = icstart; ic1 < MEStripClusters.size(); ic1++) {
-      IC1MIN = MEStripClusters[ic1].LFTBNDStrip;
-      IC1MAX = MEStripClusters[ic1].IRTBNDStrip;
-      JC1MIN = MEStripClusters[ic1].LFTBNDTime;
-      JC1MAX = MEStripClusters[ic1].IRTBNDTime;
-      for (ic2 = ic1 + 1; ic2 < MEStripClusters.size(); ic2++) {
-        IC2MIN = MEStripClusters[ic2].LFTBNDStrip;
-        IC2MAX = MEStripClusters[ic2].IRTBNDStrip;
-        JC2MIN = MEStripClusters[ic2].LFTBNDTime;
-        JC2MAX = MEStripClusters[ic2].IRTBNDTime;
-        if ((IC2MIN >= IC1MIN && IC2MIN <= IC1MAX && JC2MIN >= JC1MIN && JC2MIN <= JC1MAX) ||
-            (IC2MIN >= IC1MIN && IC2MIN <= IC1MAX && JC2MAX >= JC1MIN && JC2MAX <= JC1MAX) ||
-            (IC2MAX >= IC1MIN && IC2MAX <= IC1MAX && JC2MIN >= JC1MIN && JC2MIN <= JC1MAX) ||
-            (IC2MAX >= IC1MIN && IC2MAX <= IC1MAX && JC2MAX >= JC1MIN && JC2MAX <= JC1MAX)) {
-          KillCluster();
+    for (uint32_t ic1 = 0; ic1 < MEStripClusters.size(); ic1++) {
+      C1 c1;
+      c1.IC1MIN = MEStripClusters[ic1].LFTBNDStrip;
+      c1.IC1MAX = MEStripClusters[ic1].IRTBNDStrip;
+      c1.JC1MIN = MEStripClusters[ic1].LFTBNDTime;
+      c1.JC1MAX = MEStripClusters[ic1].IRTBNDTime;
+      for (uint32_t ic2 = ic1 + 1; ic2 < MEStripClusters.size(); ic2++) {
+        C2 c2;
+        c2.IC2MIN = MEStripClusters[ic2].LFTBNDStrip;
+        c2.IC2MAX = MEStripClusters[ic2].IRTBNDStrip;
+        c2.JC2MIN = MEStripClusters[ic2].LFTBNDTime;
+        c2.JC2MAX = MEStripClusters[ic2].IRTBNDTime;
+        if ((c2.IC2MIN >= c1.IC1MIN && c2.IC2MIN <= c1.IC1MAX && c2.JC2MIN >= c1.JC1MIN && c2.JC2MIN <= c1.JC1MAX) ||
+            (c2.IC2MIN >= c1.IC1MIN && c2.IC2MIN <= c1.IC1MAX && c2.JC2MAX >= c1.JC1MIN && c2.JC2MAX <= c1.JC1MAX) ||
+            (c2.IC2MAX >= c1.IC1MIN && c2.IC2MAX <= c1.IC1MAX && c2.JC2MIN >= c1.JC1MIN && c2.JC2MIN <= c1.JC1MAX) ||
+            (c2.IC2MAX >= c1.IC1MIN && c2.IC2MAX <= c1.IC1MAX && c2.JC2MAX >= c1.JC1MIN && c2.JC2MAX <= c1.JC1MAX)) {
+          KillCluster(ic1, ic2, c1, c2);
           return true;
         } else {
-          if ((IC1MIN >= IC2MIN && IC1MIN <= IC2MAX && JC1MIN >= JC2MIN && JC1MIN <= JC2MAX) ||
-              (IC1MIN >= IC2MIN && IC1MIN <= IC2MAX && JC1MAX >= JC2MIN && JC1MAX <= JC2MAX) ||
-              (IC1MAX >= IC2MIN && IC1MAX <= IC2MAX && JC1MIN >= JC2MIN && JC1MIN <= JC2MAX) ||
-              (IC1MAX >= IC2MIN && IC1MAX <= IC2MAX && JC1MAX >= JC2MIN && JC1MAX <= JC2MAX)) {
-            KillCluster();
+          if ((c1.IC1MIN >= c2.IC2MIN && c1.IC1MIN <= c2.IC2MAX && c1.JC1MIN >= c2.JC2MIN && c1.JC1MIN <= c2.JC2MAX) ||
+              (c1.IC1MIN >= c2.IC2MIN && c1.IC1MIN <= c2.IC2MAX && c1.JC1MAX >= c2.JC2MIN && c1.JC1MAX <= c2.JC2MAX) ||
+              (c1.IC1MAX >= c2.IC2MIN && c1.IC1MAX <= c2.IC2MAX && c1.JC1MIN >= c2.JC2MIN && c1.JC1MIN <= c2.JC2MAX) ||
+              (c1.IC1MAX >= c2.IC2MIN && c1.IC1MAX <= c2.IC2MAX && c1.JC1MAX >= c2.JC2MIN && c1.JC1MAX <= c2.JC2MAX)) {
+            KillCluster(ic1, ic2, c1, c2);
             return true;
           }
         }
@@ -219,54 +222,42 @@ namespace cscdqm {
     }
     return false;
   }
-  void StripClusterFinder::KillCluster(void) {
+  void StripClusterFinder::KillCluster(uint32_t ic1, uint32_t ic2, C1 const& c1, C2 const& c2) {
     // Match Clusters and kill one of clusters.
-    if (IC1MIN < IC2MIN)
-      MEStripClusters[ic1].LFTBNDStrip = IC1MIN;
+    if (c1.IC1MIN < c2.IC2MIN)
+      MEStripClusters[ic1].LFTBNDStrip = c1.IC1MIN;
     else
-      MEStripClusters[ic1].LFTBNDStrip = IC2MIN;
-    if (JC1MIN < JC2MIN)
-      MEStripClusters[ic1].LFTBNDTime = JC1MIN;
+      MEStripClusters[ic1].LFTBNDStrip = c2.IC2MIN;
+    if (c1.JC1MIN < c2.JC2MIN)
+      MEStripClusters[ic1].LFTBNDTime = c1.JC1MIN;
     else
-      MEStripClusters[ic1].LFTBNDTime = JC2MIN;
-    if (IC1MAX > IC2MAX)
-      MEStripClusters[ic1].IRTBNDStrip = IC1MAX;
+      MEStripClusters[ic1].LFTBNDTime = c2.JC2MIN;
+    if (c1.IC1MAX > c2.IC2MAX)
+      MEStripClusters[ic1].IRTBNDStrip = c1.IC1MAX;
     else
-      MEStripClusters[ic1].IRTBNDStrip = IC2MAX;
-    if (JC1MAX > JC2MAX)
-      MEStripClusters[ic1].IRTBNDTime = JC1MAX;
+      MEStripClusters[ic1].IRTBNDStrip = c2.IC2MAX;
+    if (c1.JC1MAX > c2.JC2MAX)
+      MEStripClusters[ic1].IRTBNDTime = c1.JC1MAX;
     else
-      MEStripClusters[ic1].IRTBNDTime = JC2MAX;
+      MEStripClusters[ic1].IRTBNDTime = c2.JC2MAX;
 
     MEStripClusters.erase(MEStripClusters.begin() + ic2);
-    icstart = ic1;
-
     return;
   }
   void StripClusterFinder::RefindMax(void) {
-    int iLS, iRS, iLT, iRT;
-    int iS, jT;
-    int ilocal;
-    float GlobalMax;
-    bool Erased;
-    //             SEARCHING EXTREMUMS IN THE CLASTERS
+    //             SEARCHING EXTREMUMS IN THE CLUSTERS
 
-    for (i = 0; i < MEStripClusters.size(); i++) {
+    for (uint32_t i = 0; i < MEStripClusters.size(); i++) {
       MEStripClusters[i].localMax.clear();
-      ilocal = 0;
-      iLS = MEStripClusters[i].LFTBNDStrip;
-      iRS = MEStripClusters[i].IRTBNDStrip;
-      iLT = MEStripClusters[i].LFTBNDTime;
-      iRT = MEStripClusters[i].IRTBNDTime;
+      int iLS = MEStripClusters[i].LFTBNDStrip;
+      int iRS = MEStripClusters[i].IRTBNDStrip;
+      int iLT = MEStripClusters[i].LFTBNDTime;
+      int iRT = MEStripClusters[i].IRTBNDTime;
 
-      /*
-    for(iS=iLS+1;iS<=iRS-1;iS++){ 
-      for(jT=iLT+1;jT<=iRT-1;jT++){
-    */
-      for (iS = iLS; iS <= iRS; iS++) {
+      for (int iS = iLS; iS <= iRS; iS++) {
         if (isME11 && (thePulseHeightMap[iS].channel_ == 63 || thePulseHeightMap[iS].channel_ == 64))
           continue;
-        for (jT = iLT; jT <= iRT; jT++) {
+        for (int jT = iLT; jT <= iRT; jT++) {
           if (iS == 0 || jT == 0 || (!is7DCFEBs && (iS == 79)) || (is7DCFEBs && (iS == 111)) || jT == 7)
             continue;
           if (thePulseHeightMap[iS].height_[jT] > thePulseHeightMap[iS - 1].height_[jT] &&
@@ -280,19 +271,18 @@ namespace cscdqm {
             localMaxTMP.Strip = iS;
             localMaxTMP.Time = jT;
             MEStripClusters[i].localMax.push_back(localMaxTMP);
-            ilocal++;
           }
         }
       }
       // kill local maximums rellated to noise, maximums with pulse height less then 10% of Global max of clust.
       //fing Global Max
-      GlobalMax = 0;
+      float GlobalMax = 0;
       if (!MEStripClusters[i].localMax.empty()) {
         //std::cout << "Cluster: " << i << " Number of local maximums before erase: "
         //		<< MEStripClusters[i].localMax.size() << std::endl;
-        for (j = 0; j < MEStripClusters[i].localMax.size(); j++) {
-          iS = MEStripClusters[i].localMax[j].Strip;
-          jT = MEStripClusters[i].localMax[j].Time;
+        for (uint32_t j = 0; j < MEStripClusters[i].localMax.size(); j++) {
+          int iS = MEStripClusters[i].localMax[j].Strip;
+          int jT = MEStripClusters[i].localMax[j].Time;
           /*
 	  std::cout << "Current Max:" 
 	  << " " << iS
@@ -304,11 +294,12 @@ namespace cscdqm {
         }
         GlobalMax = (float)(GlobalMax / 10.);
         //erase noise localMaximums
+        bool Erased;
         do {
           Erased = false;
-          for (j = 0; j < MEStripClusters[i].localMax.size(); j++) {
-            iS = MEStripClusters[i].localMax[j].Strip;
-            jT = MEStripClusters[i].localMax[j].Time;
+          for (uint32_t j = 0; j < MEStripClusters[i].localMax.size(); j++) {
+            int iS = MEStripClusters[i].localMax[j].Strip;
+            int jT = MEStripClusters[i].localMax[j].Time;
             if (thePulseHeightMap[iS].height_[jT] < GlobalMax) {
               MEStripClusters[i].localMax.erase(MEStripClusters[i].localMax.begin() + j);
               Erased = true;
@@ -337,12 +328,12 @@ namespace cscdqm {
     int iS, jT;
     std::cout << "====================================================================" << std::endl;
     std::cout << "debug information from StripClusterFinder" << std::endl;
-    for (i = 0; i < MEStripClusters.size(); i++) {
+    for (uint32_t i = 0; i < MEStripClusters.size(); i++) {
       if (MEStripClusters[i].localMax.empty())
         continue;
       std::cout << " Cluster: " << i + 1 << " Number of local Maximums " << MEStripClusters[i].localMax.size()
                 << std::endl;
-      for (j = 0; j < MEStripClusters[i].localMax.size(); j++) {
+      for (uint32_t j = 0; j < MEStripClusters[i].localMax.size(); j++) {
         iS = MEStripClusters[i].localMax[j].Strip;
         jT = MEStripClusters[i].localMax[j].Time;
 

@@ -68,8 +68,11 @@ namespace edm {
       FileNameInconsistentWithGUID = 8034,
 
       UnavailableAccelerator = 8035,
+      ExternalFailure = 8036,
 
       EventGenerationFailure = 8501,
+
+      UnexpectedJobTermination = 8901,
 
       CaughtSignal = 9000
     };

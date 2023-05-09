@@ -120,7 +120,6 @@ def printHLTriggerEventContentCff(process):
       'hltOutputA',
       'hltOutputPhysicsCommissioning',
       'hltOutputDQM',
-      'hltOutputDQMGPUvsCPU',
       'hltOutputHLTMonitor',
       'hltOutputReleaseValidation',
     ],
@@ -140,18 +139,15 @@ def printHLTriggerEventContentCff(process):
     hltOutputMON_cff.block_hltOutputA = hltOutputMON_cff.block_hltOutputPhysicsCommissioning
   if not hasattr(hltOutputMON_cff,'block_hltOutputDQM'):
     hltOutputMON_cff.block_hltOutputDQM = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
-  if not hasattr(hltOutputMON_cff,'block_hltOutputDQMGPUvsCPU'):
-    hltOutputMON_cff.block_hltOutputDQMGPUvsCPU = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
   if not hasattr(hltOutputMON_cff,'block_hltOutputHLTMonitor'):
     hltOutputMON_cff.block_hltOutputHLTMonitor = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*' ))
   if not hasattr(hltOutputMON_cff,'block_hltOutputReleaseValidation'):
     hltOutputMON_cff.block_hltOutputReleaseValidation = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
 
   hltDebugOutputBlocks = (
-    # the DQM, DQMGPUvsCPU and HLTMON streams have the HLT debug outputs used online
+    # the DQM and HLTMON streams have the HLT debug outputs used online
     hltOutputMON_cff.block_hltOutputA.outputCommands,
     hltOutputMON_cff.block_hltOutputDQM.outputCommands,
-    hltOutputMON_cff.block_hltOutputDQMGPUvsCPU.outputCommands,
     hltOutputMON_cff.block_hltOutputHLTMonitor.outputCommands,
     hltOutputMON_cff.block_hltOutputReleaseValidation.outputCommands,
   )
@@ -174,10 +170,9 @@ def printHLTriggerEventContentCff(process):
   if not hasattr(hltOutputALCA_cff,'block_hltOutputRPCMON'):
     hltOutputALCA_cff.block_hltOutputRPCMON = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
   hltDebugWithAlCaOutputBlocks = (
-    # the DQM, DQMGPUvsCPU and HLTMON streams have the HLT debug outputs used online
+    # the DQM and HLTMON streams have the HLT debug outputs used online
     hltOutputMON_cff.block_hltOutputA.outputCommands,
     hltOutputMON_cff.block_hltOutputDQM.outputCommands,
-    hltOutputMON_cff.block_hltOutputDQMGPUvsCPU.outputCommands,
     hltOutputMON_cff.block_hltOutputHLTMonitor.outputCommands,
     hltOutputMON_cff.block_hltOutputReleaseValidation.outputCommands,
     # the ALCA streams have the AlCa outputs

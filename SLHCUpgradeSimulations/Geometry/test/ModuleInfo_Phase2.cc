@@ -699,9 +699,9 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
             if (out_ring == 2)
               out_module += 1;
           } else
-              // in odd rings, stereo modules are the odd ones
-              if (out_ring != 2)
-            out_module += 1;
+            // in odd rings, stereo modules are the odd ones
+            if (out_ring != 2)
+              out_module += 1;
         } else {
           out_module = tTopo->tecModule(rawid);
         }

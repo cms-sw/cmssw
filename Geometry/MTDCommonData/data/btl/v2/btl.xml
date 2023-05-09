@@ -1480,8 +1480,8 @@
       <Numeric name="Tilt" value="0*deg"/>
       <Numeric name="StartAngle" value="4.7368421*deg"/>
       <Numeric name="RangeAngle" value="350.52632*deg"/>
-      <Numeric name="RadiusIn" value="1176.15*mm"/>
-      <Numeric name="RadiusOut" value="1176.15*mm"/>
+      <Numeric name="RadiusIn" value="1176.25*mm"/>
+      <Numeric name="RadiusOut" value="1176.25*mm"/>
       <Numeric name="ZPosition" value="1286*mm"/>
       <Numeric name="Number" value="38"/>
       <Numeric name="StartCopyNo" value="1"/>
@@ -1493,8 +1493,8 @@
       <Numeric name="Tilt" value="0*deg"/>
       <Numeric name="StartAngle" value="4.7368421*deg"/>
       <Numeric name="RangeAngle" value="350.52632*deg"/>
-      <Numeric name="RadiusIn" value="1176.15*mm"/>
-      <Numeric name="RadiusOut" value="1176.15*mm"/>
+      <Numeric name="RadiusIn" value="1176.25*mm"/>
+      <Numeric name="RadiusOut" value="1176.25*mm"/>
       <Numeric name="ZPosition" value="-1286*mm"/>
       <Numeric name="Number" value="38"/>
       <Numeric name="StartCopyNo" value="39"/>

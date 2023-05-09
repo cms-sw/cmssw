@@ -27,6 +27,17 @@ from .ExceptionHandling import *
 if sys.getrecursionlimit()<5000:
     sys.setrecursionlimit(5000)
 
+class edm(object):
+    class errors(object):
+        #Allowed errors to be used within Python
+        Configuration = "{Configuration}"
+        UnavailableAccelerator = "{UnavailableAccelerator}"
+
+class EDMException(Exception):
+    def __init__(self, error, message):
+        super().__init__(error+"\n"+message)
+
+
 def checkImportPermission(minLevel = 2, allowedPatterns = []):
     """
     Raise an exception if called by special config files. This checks
@@ -1527,14 +1538,38 @@ class Process(object):
                    resolved.update(acc)
             # Sanity check
             if len(invalid) != 0:
-                raise ValueError("Invalid pattern{} of {} in process.options.accelerators, valid values are {} or a pattern matching to some of them.".format(
+                raise ValueError("Invalid pattern{} of '{}' in process.options.accelerators, valid values are '{}' or a pattern matching some of them.".format(
                     "s" if len(invalid) > 2 else "",
-                    ",".join(invalid),
-                    ",".join(sorted(list(allAccelerators)))))
+                    "', '".join(invalid),
+                    "', '".join(sorted(list(allAccelerators)))))
             selectedAccelerators = sorted(list(resolved))
         parameterSet.addVString(False, "@selected_accelerators", selectedAccelerators)
 
-        # Customize
+        # Get and apply module type resolver
+        moduleTypeResolver = None
+        moduleTypeResolverPlugin = ""
+        for acc in self.__dict__['_Process__accelerators'].values():
+            resolver = acc.moduleTypeResolver(selectedAccelerators)
+            if resolver is not None:
+                if moduleTypeResolver is not None:
+                    raise RuntimeError("Module type resolver was already set to {} when {} tried to set it to {}. A job can have at most one ProcessAccelerator that sets module type resolver.".format(
+                        moduleTypeResolver.__class__.__name__,
+                        acc.__class__.__name__,
+                        resolver.__class__.__name__))
+                moduleTypeResolver = resolver
+        if moduleTypeResolver is not None:
+            # Plugin name and its configuration
+            moduleTypeResolverPlugin = moduleTypeResolver.plugin()
+
+            # Customize modules
+            for modlist in [self.producers_, self.filters_, self.analyzers_,
+                            self.es_producers_, self.es_sources_]:
+                for module in modlist().values():
+                    moduleTypeResolver.setModuleVariant(module)
+
+        parameterSet.addString(False, "@module_type_resolver", moduleTypeResolverPlugin)
+
+        # Customize process
         wrapped = ProcessForProcessAccelerator(self)
         for acc in self.__dict__['_Process__accelerators'].values():
             acc.apply(wrapped, selectedAccelerators)
@@ -1948,6 +1983,11 @@ class ProcessAccelerator(_ConfigureComponent,_Unlabelable):
     it would be good to have specific unit test for each deriving
     class to ensure that all combinations of the enabled accelerators
     give the same configuration hash.
+
+    The deriving class must do its checks for hardware availability
+    only in enabledLabels(), and possibly in apply() if any further
+    fine-tuning is needed, because those two are the only functions
+    that are guaranteed to be called at the worker node.
     """
     def __init__(self):
         pass
@@ -1977,6 +2017,21 @@ class ProcessAccelerator(_ConfigureComponent,_Unlabelable):
         """Override to return a list of strings for the accelerator labels
         that are enabled in the system the job is being run on."""
         return []
+    def moduleTypeResolver(self, accelerators):
+        """Override to return an object that implements "module type resolver"
+        in python. The object should have the following methods
+        - __init__(self, accelerators)
+          * accelerators = list of selected accelerators
+        - plugin(self):
+          * should return a string for the type resolver plugin name
+        - setModuleVariant(self, module):
+          * Called for each ED and ES module. Should act only if
+            module.type_() contains the magic identifier
+
+        At most one of the ProcessAccelerators in a job can return a
+non-None object
+        """
+        return None
     def apply(self, process, accelerators):
         """Override if need to customize the Process at worker node. The
         selected available accelerator labels are given in the
@@ -2004,6 +2059,11 @@ class ProcessForProcessAccelerator(object):
             if not isinstance(value, Service):
                 raise TypeError("ProcessAccelerator.apply() can only set Services. Tried to set {} with label {}".format(str(type(value)), label))
             setattr(self.__process, label, value)
+    def __delattr__(self, label):
+        value = getattr(self.__process, label)
+        if not isinstance(value, Service):
+            raise TypeError("ProcessAccelerator.apply() can delete only Services. Tried to del {} with label {}".format(str(type(value)), label))
+        delattr(self.__process, label)
     def add_(self, value):
         if not isinstance(value, Service):
             raise TypeError("ProcessAccelerator.apply() can only add Services. Tried to set {} with label {}".format(str(type(value)), label))
@@ -2126,11 +2186,40 @@ if __name__=="__main__":
                 ), **kargs)
     specialImportRegistry.registerSpecialImportForType(SwitchProducerTest2, "from test import SwitchProducerTest2")
 
+    class TestModuleTypeResolver:
+        def __init__(self, accelerators):
+            # first element is used as the default is nothing is set
+            self._valid_backends = []
+            if "test1" in accelerators:
+                self._valid_backends.append("test1_backend")
+            if "test2" in accelerators:
+                self._valid_backends.append("test2_backend")
+            if len(self._valid_backends) == 0:
+                raise EDMException(edm.errors.UnavailableAccelerator, "Machine has no accelerators that Test supports (has {})".format(", ".join(accelerators)))
+
+        def plugin(self):
+            return "TestModuleTypeResolver"
+
+        def setModuleVariant(self, module):
+            if "@test" in module.type_():
+                defaultBackend = self._valid_backends[0]
+                if hasattr(module, "test"):
+                    if hasattr(module.test, "backend"):
+                        if module.test.backend.value() not in self._valid_backends:
+                            raise EDMException(edm.errors.UnavailableAccelerator, "Module {} has the Test backend set explicitly, but its accelerator is not available for the job".format(module.label_()))
+                    else:
+                        module.test.backend = untracked.string(defaultBackend)
+                else:
+                    module.test = untracked.PSet(
+                        backend = untracked.string(defaultBackend)
+                    )
+
     class ProcessAcceleratorTest(ProcessAccelerator):
-        def __init__(self, enabled=["test1", "test2", "anothertest3"]):
-            super(ProcessAcceleratorTest,self).__init__()
+        def __init__(self, enabled=["test1", "test2", "anothertest3"], moduleTypeResolverMaker=None):
+            super().__init__()
             self._labels = ["test1", "test2", "anothertest3"]
             self.setEnabled(enabled)
+            self._moduleTypeResolverMaker = moduleTypeResolverMaker
         def setEnabled(self, enabled):
             invalid = set(enabled).difference(set(self._labels))
             if len(invalid) > 0:
@@ -2144,15 +2233,22 @@ if __name__=="__main__":
             return self._labels
         def enabledLabels(self):
             return self._enabled
+        def moduleTypeResolver(self, accelerators):
+            if not self._moduleTypeResolverMaker:
+                return super().moduleTypeResolver(accelerators)
+            return self._moduleTypeResolverMaker(accelerators)
         def apply(self, process, accelerators):
             process.AcceleratorTestService = Service("AcceleratorTestService")
+            if hasattr(process, "AcceleratorTestServiceRemove"):
+                del process.AcceleratorTestServiceRemove
     specialImportRegistry.registerSpecialImportForType(ProcessAcceleratorTest, "from test import ProcessAcceleratorTest")
 
     class ProcessAcceleratorTest2(ProcessAccelerator):
-        def __init__(self, enabled=["anothertest3", "anothertest4"]):
-            super(ProcessAcceleratorTest2,self).__init__()
+        def __init__(self, enabled=["anothertest3", "anothertest4"], moduleTypeResolverMaker=None):
+            super().__init__()
             self._labels = ["anothertest3", "anothertest4"]
             self.setEnabled(enabled)
+            self._moduleTypeResolverMaker = moduleTypeResolverMaker
         def setEnabled(self, enabled):
             invalid = set(enabled).difference(set(self._labels))
             if len(invalid) > 0:
@@ -2166,6 +2262,10 @@ if __name__=="__main__":
             return self._labels
         def enabledLabels(self):
             return self._enabled
+        def moduleTypeResolver(self, accelerators):
+            if not self._moduleTypeResolverMaker:
+                return super().moduleTypeResolver(accelerators)
+            return self._moduleTypeResolverMaker(accelerators)
         def apply(self, process, accelerators):
             pass
     specialImportRegistry.registerSpecialImportForType(ProcessAcceleratorTest2, "from test import ProcessAcceleratorTest2")
@@ -4512,6 +4612,8 @@ process.schedule = cms.Schedule(*[ process.path1, process.path2 ])""")
             self.assertTrue(["cpu"], p.values["@available_accelerators"][1])
             self.assertFalse(p.values["@selected_accelerators"][0])
             self.assertTrue(["cpu"], p.values["@selected_accelerators"][1])
+            self.assertFalse(p.values["@module_type_resolver"][0])
+            self.assertEqual("", p.values["@module_type_resolver"][1])
 
             proc = Process("TEST")
             self.assertRaises(TypeError, setattr, proc, "processAcceleratorTest", ProcessAcceleratorTest())
@@ -4579,6 +4681,17 @@ process.ProcessAcceleratorTest = ProcessAcceleratorTest(
             self.assertEqual("AcceleratorTestService", p.values["services"][1][0].values["@service_type"][1])
             self.assertFalse(p.values["@available_accelerators"][0])
             self.assertTrue(["anothertest3", "cpu", "test1", "test2"], p.values["@available_accelerators"][1])
+            self.assertFalse(p.values["@module_type_resolver"][0])
+            self.assertEqual("", p.values["@module_type_resolver"][1])
+
+            proc = Process("TEST")
+            proc.ProcessAcceleratorTest = ProcessAcceleratorTest()
+            proc.add_(Service("AcceleratorTestServiceRemove"))
+            p = TestMakePSet()
+            proc.fillProcessDesc(p)
+            services = [x.values["@service_type"][1] for x in p.values["services"][1]]
+            self.assertTrue("AcceleratorTestService" in services)
+            self.assertFalse("AcceleratorTestServiceRemove" in services)
 
             proc = Process("TEST")
             proc.ProcessAcceleratorTest = ProcessAcceleratorTest(enabled=["test1"])
@@ -4711,6 +4824,62 @@ process.ProcessAcceleratorTest = ProcessAcceleratorTest(
                                                              aa = int32(11),
                                                              bb = PSet(cc = int32(12))))
             proc.p = Path(proc.sp)
+            p = TestMakePSet()
+            self.assertRaises(RuntimeError, proc.fillProcessDesc, p)
+
+            proc = Process("TEST")
+            proc.ProcessAcceleratorTest = ProcessAcceleratorTest(
+                moduleTypeResolverMaker=lambda accelerators: TestModuleTypeResolver(accelerators))
+            proc.ProcessAcceleratorTest2 = ProcessAcceleratorTest2()
+            proc.normalProducer = EDProducer("FooProducer")
+            proc.testProducer = EDProducer("BarProducer@test")
+            proc.test2Producer = EDProducer("BarProducer@test", test=untracked.PSet(backend=untracked.string("test2_backend")))
+            proc.testAnalyzer = EDAnalyzer("Analyzer@test")
+            proc.testFilter = EDAnalyzer("Filter@test")
+            proc.testESProducer = ESProducer("ESProducer@test")
+            proc.testESSource = ESSource("ESSource@test")
+            proc.p = Path(proc.normalProducer+proc.testProducer+proc.test2Producer+proc.testAnalyzer+proc.testFilter)
+            p = TestMakePSet()
+            proc.fillProcessDesc(p)
+            self.assertEqual("TestModuleTypeResolver", p.values["@module_type_resolver"][1])
+            self.assertEqual("FooProducer", p.values["normalProducer"][1].values["@module_type"][1])
+            self.assertEqual(len(list(filter(lambda x: not "@" in x, p.values["normalProducer"][1].values.keys()))), 0)
+            self.assertEqual("BarProducer@test", p.values["testProducer"][1].values["@module_type"][1])
+            self.assertEqual(False, p.values["testProducer"][1].values["test"][0])
+            self.assertEqual(False, p.values["testProducer"][1].values["test"][1].values["backend"][0])
+            self.assertEqual("test1_backend", p.values["testProducer"][1].values["test"][1].values["backend"][1])
+            self.assertEqual("BarProducer@test", p.values["test2Producer"][1].values["@module_type"][1])
+            self.assertEqual("test2_backend", p.values["test2Producer"][1].values["test"][1].values["backend"][1])
+            self.assertEqual("Analyzer@test", p.values["testAnalyzer"][1].values["@module_type"][1])
+            self.assertEqual("test1_backend", p.values["testAnalyzer"][1].values["test"][1].values["backend"][1])
+            self.assertEqual("Filter@test", p.values["testFilter"][1].values["@module_type"][1])
+            self.assertEqual("test1_backend", p.values["testFilter"][1].values["test"][1].values["backend"][1])
+            self.assertEqual("ESProducer@test", p.values["ESProducer@test@testESProducer"][1].values["@module_type"][1])
+            self.assertEqual("test1_backend", p.values["ESProducer@test@testESProducer"][1].values["test"][1].values["backend"][1])
+            self.assertEqual("ESSource@test", p.values["ESSource@test@testESSource"][1].values["@module_type"][1])
+            self.assertEqual("test1_backend", p.values["ESSource@test@testESSource"][1].values["test"][1].values["backend"][1])
+
+            # No required accelerators available
+            proc = Process("Test")
+            proc.ProcessAcceleratorTest = ProcessAcceleratorTest(
+                moduleTypeResolverMaker=lambda accelerators: TestModuleTypeResolver(accelerators))
+            proc.options.accelerators = []
+            self.assertRaises(EDMException, proc.fillProcessDesc, p)
+
+            proc = Process("Test")
+            proc.ProcessAcceleratorTest = ProcessAcceleratorTest(
+                moduleTypeResolverMaker=lambda accelerators: TestModuleTypeResolver(accelerators))
+            proc.options.accelerators = ["test1"]
+            proc.test2Producer = EDProducer("BarProducer@test", test=untracked.PSet(backend=untracked.string("test2_backend")))
+            proc.p = Path(proc.test2Producer)
+            self.assertRaises(EDMException, proc.fillProcessDesc, p)
+
+            # Two ProcessAccelerators return type resolver
+            proc = Process("TEST")
+            proc.ProcessAcceleratorTest = ProcessAcceleratorTest(
+                moduleTypeResolverMaker=lambda accelerators: TestModuleTypeResolver(accelerators))
+            proc.ProcessAcceleratorTest2 = ProcessAcceleratorTest2(
+                moduleTypeResolverMaker=lambda accelerators: TestModuleTypeResolver(accelerators))
             p = TestMakePSet()
             self.assertRaises(RuntimeError, proc.fillProcessDesc, p)
 

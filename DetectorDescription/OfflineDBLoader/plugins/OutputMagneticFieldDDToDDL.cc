@@ -142,7 +142,6 @@ void OutputMagneticFieldDDToDDL::beginRun(const edm::Run&, edm::EventSetup const
   adjl_iterator git = gra.begin();
   adjl_iterator gend = gra.end();
 
-  Graph::index_type i = 0;
   (*m_xos) << "<PosPartSection label=\"" << ns_ << "\">\n";
   git = gra.begin();
   for (; git != gend; ++git) {
@@ -153,7 +152,6 @@ void OutputMagneticFieldDDToDDL::beginRun(const edm::Run&, edm::EventSetup const
     lpStore.insert(ddLP);
     addToMatStore(ddLP.material(), matStore);
     addToSolStore(ddLP.solid(), solStore, rotStore);
-    ++i;
     if (!git->empty()) {
       // ask for children of ddLP
       auto cit = git->begin();
@@ -191,7 +189,7 @@ void OutputMagneticFieldDDToDDL::beginRun(const edm::Run&, edm::EventSetup const
     if (!rit->isDefined().second)
       continue;
     if (rit->toString() != ":") {
-      DDRotation r(*rit);
+      const DDRotation& r(*rit);
       out.rotation(r, *m_xos);
     }
   }

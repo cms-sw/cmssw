@@ -1,17 +1,18 @@
 import FWCore.ParameterSet.Config as cms
 
+#prompt jet selection
 l1tTrackJets = cms.EDProducer('L1TrackJetProducer',
-	L1TrackInputTag= cms.InputTag("l1tTTTracksFromTrackletEmulation", "Level1TTTracks"),
-	L1PVertexCollection = cms.InputTag("l1tVertexProducer", "l1vertices"),
-	MaxDzTrackPV = cms.double( 1.0 ),
+        L1TrackInputTag= cms.InputTag("l1tTTTracksFromTrackletEmulation","Level1TTTracks"),
+        L1PVertexInputTag = cms.InputTag("l1tVertexFinderEmulator","l1verticesEmulation"),
+        MaxDzTrackPV = cms.double( 1.0 ), #max distance from PV;negative=no cut
 	trk_zMax = cms.double (15.) ,    # maximum track z
 	trk_ptMax = cms.double(200.),    # maximumum track pT before saturation [GeV]
-	trk_ptMin = cms.double(3.0),     # minimum track pt [GeV]
+	trk_ptMin = cms.double(2.0),     # minimum track pt [GeV]
    	trk_etaMax = cms.double(2.4),    # maximum track eta
-	nStubs4PromptChi2=cms.double(5.0), #Prompt track quality flags for loose/tight
-        nStubs4PromptBend=cms.double(1.7),
-        nStubs5PromptChi2=cms.double(2.75),
-        nStubs5PromptBend=cms.double(3.5),
+	nStubs4PromptChi2=cms.double(10.0), #Prompt track quality flags for loose/tight
+        nStubs4PromptBend=cms.double(2.2),
+        nStubs5PromptChi2=cms.double(10.0),
+        nStubs5PromptBend=cms.double(2.2),
 	trk_nPSStubMin=cms.int32(-1),    # minimum PS stubs, -1 means no cut
 	minTrkJetpT=cms.double(-1.),     # min track jet pt to be considered for most energetic zbin finding 
 	etaBins=cms.int32(24),
@@ -31,6 +32,7 @@ l1tTrackJets = cms.EDProducer('L1TrackJetProducer',
         nDisplacedTracks=cms.int32(2)
 )
 
+#displaced jets
 l1tTrackJetsExtended = l1tTrackJets.clone(
 	L1TrackInputTag= ("l1tTTTracksFromExtendedTrackletEmulation", "Level1TTTracks"),
 	MaxDzTrackPV = 5.0 ,             # tracks with dz(trk,PV)>cut excluded

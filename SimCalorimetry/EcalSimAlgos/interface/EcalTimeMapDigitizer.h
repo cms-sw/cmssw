@@ -13,24 +13,31 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "CalibFormats/CaloObjects/interface/CaloTSamplesBase.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/ComponentShapeCollection.h"
 
 class CaloSubdetectorGeometry;
 
 class EcalTimeMapDigitizer {
 public:
   struct time_average {
-    static const unsigned short time_average_capacity = 10;
+    static const unsigned short time_average_capacity = 10;  // this corresponds to the number of BX
+    static const unsigned short waveform_capacity = EcalTimeDigi::WAVEFORMSAMPLES;  // this will give a waveform with
+    static constexpr double waveform_granularity = 1.;                              // a granularity of 1ns
 
-    DetId id;
+    const DetId id;
     float average_time[time_average_capacity];
     unsigned int nhits[time_average_capacity];
     float tot_energy[time_average_capacity];
+    float waveform[waveform_capacity];
 
     time_average(const DetId& myId) : id(myId) {
       for (unsigned int i(0); i < time_average_capacity; ++i) {
         average_time[i] = 0;
         nhits[i] = 0;
         tot_energy[i] = 0;
+      }
+      for (unsigned int i(0); i < waveform_capacity; ++i) {
+        waveform[i] = 0;
       }
     };
 
@@ -49,6 +56,9 @@ public:
         nhits[i] = 0;
         tot_energy[i] = 0;
       }
+      for (unsigned int i(0); i < waveform_capacity; ++i) {
+        waveform[i] = 0;
+      }
     };
 
     bool zero() {
@@ -66,13 +76,15 @@ public:
 
   typedef std::vector<unsigned int> VecInd;
 
-  explicit EcalTimeMapDigitizer(EcalSubdetector myDet);
+  explicit EcalTimeMapDigitizer(EcalSubdetector myDet, ComponentShapeCollection* componentShapes);
 
   virtual ~EcalTimeMapDigitizer();
 
   void add(const std::vector<PCaloHit>& hits, int bunchCrossing);
 
   void setGeometry(const CaloSubdetectorGeometry* geometry);
+
+  void setEventSetup(const edm::EventSetup& eventSetup);
 
   void initializeMap();
 
@@ -127,9 +139,13 @@ private:
 
   int m_timeLayerId;
 
+  ComponentShapeCollection* m_ComponentShapes;
+
   const CaloSubdetectorGeometry* m_geometry;
 
   double timeOfFlight(const DetId& detId, int layer) const;
+
+  const ComponentShapeCollection* shapes() const;
 
   std::vector<TimeSamples> m_vSam;
 

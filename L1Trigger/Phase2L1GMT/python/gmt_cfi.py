@@ -70,7 +70,7 @@ l1tGMTMuons = cms.EDProducer('Phase2L1TGMTProducer',
                        RelIsoThresholdM = cms.double(0.05),
                        RelIsoThresholdT = cms.double(0.01),
                        verbose       = cms.int32(0),
-                       IsodumpForHLS = cms.int32(1),
+                       IsodumpForHLS = cms.int32(0),
                      ),
                     tauto3mu = cms.PSet()
 

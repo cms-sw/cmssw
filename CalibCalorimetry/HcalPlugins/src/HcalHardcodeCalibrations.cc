@@ -222,6 +222,10 @@ HcalHardcodeCalibrations::HcalHardcodeCalibrations(const edm::ParameterSet& iCon
       topoTokens_[kGainWidths] = setWhatProduced(this, &HcalHardcodeCalibrations::produceGainWidths).consumes();
       findingRecord<HcalGainWidthsRcd>();
     }
+    if ((objectName == "PFCuts") || all) {
+      topoTokens_[kPFCuts] = setWhatProduced(this, &HcalHardcodeCalibrations::producePFCuts).consumes();
+      findingRecord<HcalPFCutsRcd>();
+    }
     if ((objectName == "QIEData") || all) {
       topoTokens_[kQIEData] = setWhatProduced(this, &HcalHardcodeCalibrations::produceQIEData).consumes();
       findingRecord<HcalQIEDataRcd>();
@@ -419,6 +423,22 @@ std::unique_ptr<HcalGainWidths> HcalHardcodeCalibrations::produceGainWidths(cons
       result->addValues(item);
     } else if (!cell.isHcalTrigTowerDetId()) {
       HcalGainWidth item = dbHardcode.makeGainWidth(cell);
+      result->addValues(item);
+    }
+  }
+  return result;
+}
+
+std::unique_ptr<HcalPFCuts> HcalHardcodeCalibrations::producePFCuts(const HcalPFCutsRcd& rec) {
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::producePFCuts-> ...";
+
+  auto const& topo = rec.get(topoTokens_[kPFCuts]);
+  auto result = std::make_unique<HcalPFCuts>(&topo);
+  const std::vector<HcalGenericDetId>& cells = allCells(topo, dbHardcode.killHE());
+  for (auto cell : cells) {
+    // Use only standard Hcal channels for now, no TrigPrims
+    if (!cell.isHcalTrigTowerDetId()) {
+      HcalPFCut item = dbHardcode.makePFCut(cell);
       result->addValues(item);
     }
   }
@@ -890,6 +910,8 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions& 
   desc_hb.add<std::vector<double>>("darkCurrent", std::vector<double>({0.0}));
   desc_hb.add<std::vector<double>>("noiseCorrelation", std::vector<double>({0.0}));
   desc_hb.add<bool>("doRadiationDamage", false);
+  desc_hb.add<double>("noiseThreshold", 0.0);
+  desc_hb.add<double>("seedThreshold", 0.1);
   desc.add<edm::ParameterSetDescription>("hb", desc_hb);
 
   edm::ParameterSetDescription desc_hbRaddam;
@@ -916,6 +938,8 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions& 
   desc_hbUpgrade.add<std::vector<double>>("noiseCorrelation", std::vector<double>({0.26}));
   desc_hbUpgrade.add<bool>("doRadiationDamage", true);
   desc_hbUpgrade.add<edm::ParameterSetDescription>("radiationDamage", desc_hbRaddam);
+  desc_hbUpgrade.add<double>("noiseThreshold", 0.0);
+  desc_hbUpgrade.add<double>("seedThreshold", 0.1);
   desc.add<edm::ParameterSetDescription>("hbUpgrade", desc_hbUpgrade);
 
   edm::ParameterSetDescription desc_he;
@@ -933,6 +957,8 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions& 
   desc_he.add<std::vector<double>>("darkCurrent", std::vector<double>({0.0}));
   desc_he.add<std::vector<double>>("noiseCorrelation", std::vector<double>({0.0}));
   desc_he.add<bool>("doRadiationDamage", false);
+  desc_he.add<double>("noiseThreshold", 0.0);
+  desc_he.add<double>("seedThreshold", 0.1);
   desc.add<edm::ParameterSetDescription>("he", desc_he);
 
   edm::ParameterSetDescription desc_heRaddam;
@@ -959,6 +985,8 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions& 
   desc_heUpgrade.add<std::vector<double>>("noiseCorrelation", std::vector<double>({0.26}));
   desc_heUpgrade.add<bool>("doRadiationDamage", true);
   desc_heUpgrade.add<edm::ParameterSetDescription>("radiationDamage", desc_heRaddam);
+  desc_heUpgrade.add<double>("noiseThreshold", 0.0);
+  desc_heUpgrade.add<double>("seedThreshold", 0.1);
   desc.add<edm::ParameterSetDescription>("heUpgrade", desc_heUpgrade);
 
   edm::ParameterSetDescription desc_hf;
@@ -976,6 +1004,8 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions& 
   desc_hf.add<std::vector<double>>("darkCurrent", std::vector<double>({0.0}));
   desc_hf.add<std::vector<double>>("noiseCorrelation", std::vector<double>({0.0}));
   desc_hf.add<bool>("doRadiationDamage", false);
+  desc_hf.add<double>("noiseThreshold", 0.0);
+  desc_hf.add<double>("seedThreshold", 0.1);
   desc.add<edm::ParameterSetDescription>("hf", desc_hf);
 
   edm::ParameterSetDescription desc_hfUpgrade;
@@ -993,6 +1023,8 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions& 
   desc_hfUpgrade.add<std::vector<double>>("darkCurrent", std::vector<double>({0.0}));
   desc_hfUpgrade.add<std::vector<double>>("noiseCorrelation", std::vector<double>({0.0}));
   desc_hfUpgrade.add<bool>("doRadiationDamage", false);
+  desc_hfUpgrade.add<double>("noiseThreshold", 0.0);
+  desc_hfUpgrade.add<double>("seedThreshold", 0.1);
   desc.add<edm::ParameterSetDescription>("hfUpgrade", desc_hfUpgrade);
 
   edm::ParameterSetDescription desc_hfrecal;
@@ -1017,6 +1049,8 @@ void HcalHardcodeCalibrations::fillDescriptions(edm::ConfigurationDescriptions& 
   desc_ho.add<std::vector<double>>("darkCurrent", std::vector<double>({0.0}));
   desc_ho.add<std::vector<double>>("noiseCorrelation", std::vector<double>({0.0}));
   desc_ho.add<bool>("doRadiationDamage", false);
+  desc_ho.add<double>("noiseThreshold", 0.0);
+  desc_ho.add<double>("seedThreshold", 0.1);
   desc.add<edm::ParameterSetDescription>("ho", desc_ho);
 
   edm::ParameterSetDescription validator_sipm;

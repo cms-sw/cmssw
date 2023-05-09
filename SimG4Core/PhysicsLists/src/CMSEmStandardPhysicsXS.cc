@@ -48,11 +48,8 @@
 #include "G4BuilderType.hh"
 #include "G4GammaGeneralProcess.hh"
 
-#include "G4Version.hh"
-#if G4VERSION_NUMBER >= 1110
 #include "G4ProcessManager.hh"
 #include "G4TransportationWithMsc.hh"
-#endif
 
 #include "G4RegionStore.hh"
 #include "G4Region.hh"
@@ -63,6 +60,7 @@
 CMSEmStandardPhysicsXS::CMSEmStandardPhysicsXS(G4int ver, const edm::ParameterSet& p)
     : G4VPhysicsConstructor("CMSEmStandard_emn") {
   SetVerboseLevel(ver);
+  // EM parameters specific for this EM physics configuration
   G4EmParameters* param = G4EmParameters::Instance();
   param->SetDefaults();
   param->SetVerbose(ver);
@@ -91,8 +89,6 @@ CMSEmStandardPhysicsXS::CMSEmStandardPhysicsXS(G4int ver, const edm::ParameterSe
   param->SetLowestElectronEnergy(tcut);
   param->SetLowestMuHadEnergy(tcut);
 }
-
-CMSEmStandardPhysicsXS::~CMSEmStandardPhysicsXS() {}
 
 void CMSEmStandardPhysicsXS::ConstructParticle() {
   // minimal set of particles for EM physics
@@ -185,7 +181,6 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
     msc3->SetLocked(true);
   }
 
-#if G4VERSION_NUMBER >= 1110
   G4TransportationWithMscType transportationWithMsc = G4EmParameters::Instance()->TransportationWithMsc();
   if (transportationWithMsc != G4TransportationWithMscType::fDisabled) {
     G4ProcessManager* procManager = particle->GetProcessManager();
@@ -211,9 +206,7 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
       transportWithMsc->AddMscModel(msc3, -1, bRegion);
     }
     procManager->AddProcess(transportWithMsc, -1, 0, 0);
-  } else
-#endif
-  {
+  } else {
     // Register as a separate process.
     G4eMultipleScattering* msc = new G4eMultipleScattering;
     msc->SetEmModel(msc1);
@@ -287,7 +280,6 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
     msc3->SetLocked(true);
   }
 
-#if G4VERSION_NUMBER >= 1110
   if (transportationWithMsc != G4TransportationWithMscType::fDisabled) {
     G4ProcessManager* procManager = particle->GetProcessManager();
     // Remove default G4Transportation and replace with G4TransportationWithMsc.
@@ -312,9 +304,7 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
       transportWithMsc->AddMscModel(msc3, -1, bRegion);
     }
     procManager->AddProcess(transportWithMsc, -1, 0, 0);
-  } else
-#endif
-  {
+  } else {
     // Register as a separate process.
     G4eMultipleScattering* msc = new G4eMultipleScattering;
     msc->SetEmModel(msc1);

@@ -216,22 +216,7 @@ public:
   /*
    * Destructor for JDrawer
    */
-  ~JDrawer() {
-    if (fCanvas)
-      delete fCanvas;
-    if (fSinglePad)
-      delete fSinglePad;
-    if (fUpperSplitPad)
-      delete fUpperSplitPad;
-    if (fLowerSplitPad)
-      delete fLowerSplitPad;
-    if (fLeftRowPad)
-      delete fLeftRowPad;
-    if (fMiddleRowPad)
-      delete fMiddleRowPad;
-    if (fRightRowPad)
-      delete fRightRowPad;
-  }
+  ~JDrawer() = default;
 
   /*
    *  Draw a histogram to a canvas

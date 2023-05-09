@@ -5,6 +5,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 
@@ -48,6 +50,7 @@
 
 #include <boost/regex.hpp>
 #include <map>
+#include <optional>
 //#include <math>
 
 /**
@@ -83,6 +86,8 @@ namespace reco {
                                  const Trajectory *itt,
                                  std::vector<TrackingRecHit *> &hits);
       void produceFromTrack(const edm::EventSetup &iSetup, const Track *itt, std::vector<TrackingRecHit *> &hits);
+
+      static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
     private:
       class Rule {
@@ -124,6 +129,7 @@ namespace reco {
       bool stripBackInvalidHits_;
       bool stripAllInvalidHits_;
 
+      bool isPhase2_;
       bool rejectBadStoNHits_;
       std::string CMNSubtractionMode_;
       std::vector<bool> subdetStoN_;           //(6); //,std::bool(false));
@@ -156,7 +162,7 @@ namespace reco {
       edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tokenMagField;
       edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tokenTrackerTopo;
 
-      SiStripClusterInfo siStripClusterInfo_;
+      std::optional<SiStripClusterInfo> siStripClusterInfo_;
 
       bool tagOverlaps_;
       int nOverlaps;
@@ -298,6 +304,7 @@ namespace reco {
           stripFrontInvalidHits_(iConfig.getParameter<bool>("stripFrontInvalidHits")),
           stripBackInvalidHits_(iConfig.getParameter<bool>("stripBackInvalidHits")),
           stripAllInvalidHits_(iConfig.getParameter<bool>("stripAllInvalidHits")),
+          isPhase2_(iConfig.getParameter<bool>("isPhase2")),
           rejectBadStoNHits_(iConfig.getParameter<bool>("rejectBadStoNHits")),
           CMNSubtractionMode_(iConfig.getParameter<std::string>("CMNSubtractionMode")),
           detsToIgnore_(iConfig.getParameter<std::vector<uint32_t> >("detsToIgnore")),
@@ -309,8 +316,13 @@ namespace reco {
           pxlTPLProbXYQ_(iConfig.getParameter<double>("PxlTemplateProbXYChargeCut")),
           pxlTPLqBin_(iConfig.getParameter<std::vector<int32_t> >("PxlTemplateqBinCut")),
           PXLcorrClusChargeCut_(iConfig.getParameter<double>("PxlCorrClusterChargeCut")),
-          siStripClusterInfo_(consumesCollector()),
           tagOverlaps_(iConfig.getParameter<bool>("tagOverlaps")) {
+      // construct the SiStripClusterInfo object only for Phase-0 / Phase-1
+      // no Strip modules in Phase-2
+      if (!isPhase2_) {
+        siStripClusterInfo_ = consumesCollector();
+      }
+
       tokenGeometry = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
       tokenMagField = esConsumes<MagneticField, IdealMagneticFieldRecord>();
       tokenTrackerTopo = esConsumes<TrackerTopology, TrackerTopologyRcd>();
@@ -399,7 +411,8 @@ namespace reco {
       // read from EventSetup
       theGeometry = iSetup.getHandle(tokenGeometry);
       theMagField = iSetup.getHandle(tokenMagField);
-      siStripClusterInfo_.initEvent(iSetup);
+      if (!isPhase2_)
+        siStripClusterInfo_->initEvent(iSetup);
 
       // prepare output collection
       size_t candcollsize;
@@ -635,15 +648,12 @@ namespace reco {
       //int previousLayer(-1);
       ///---OverlapEnd
 
-      int constrhits = 0;
-
       for (std::vector<TrajectoryMeasurement>::const_iterator itTrajMeas = tmColl.begin(); itTrajMeas != tmColl.end();
            itTrajMeas++) {
         TransientTrackingRecHit::ConstRecHitPointer hitpointer = itTrajMeas->recHit();
 
         //check that the hit is a real hit and not a constraint
         if (hitpointer->isValid() && hitpointer->hit() == nullptr) {
-          constrhits++;
           continue;
         }
 
@@ -731,7 +741,6 @@ namespace reco {
       }  // loop on hits
 
       std::reverse(hits.begin(), hits.end());
-      //  std::cout<<"Finished producefromTrajecotries. Nhits in final coll"<<hits.size() <<"   Nconstraints="<<constrhits<<std::endl;
     }  //end TrackerTrackHitFilter::produceFromTrajectories
 
     int TrackerTrackHitFilter::checkHit(const edm::EventSetup &iSetup, const DetId &detid, const TrackingRecHit *hit) {
@@ -781,6 +790,12 @@ namespace reco {
 
       //  if( subdetStoN_[subdet_cnt-1]&& (id.subdetId()==subdet_cnt)  ){//check that hit is in a det belonging to a subdet where we decided to apply a S/N cut
 
+      // for phase-2 OT placehold, do nothing
+      if (GeomDetEnumerators::isOuterTracker(theGeometry->geomDetSubDetector(id.subdetId())) &&
+          !GeomDetEnumerators::isTrackerStrip(theGeometry->geomDetSubDetector(id.subdetId()))) {
+        return true;
+      }
+
       if (GeomDetEnumerators::isTrackerStrip(theGeometry->geomDetSubDetector(id.subdetId()))) {
         if (subdetStoN_[subdet_cnt - 1]) {
           //check that hit is in a det belonging to a subdet where we decided to apply a S/N cut
@@ -816,14 +831,14 @@ namespace reco {
           }
 
           if (keepthishit) {
-            siStripClusterInfo_.setCluster(*cluster, id.rawId());
+            siStripClusterInfo_->setCluster(*cluster, id.rawId());
             if ((subdetStoNlowcut_[subdet_cnt - 1] > 0) &&
-                (siStripClusterInfo_.signalOverNoise() < subdetStoNlowcut_[subdet_cnt - 1]))
+                (siStripClusterInfo_->signalOverNoise() < subdetStoNlowcut_[subdet_cnt - 1]))
               keepthishit = false;
             if ((subdetStoNhighcut_[subdet_cnt - 1] > 0) &&
-                (siStripClusterInfo_.signalOverNoise() > subdetStoNhighcut_[subdet_cnt - 1]))
+                (siStripClusterInfo_->signalOverNoise() > subdetStoNhighcut_[subdet_cnt - 1]))
               keepthishit = false;
-            //if(!keepthishit)std::cout<<"Hit rejected because of bad S/N: "<<siStripClusterInfo_.signalOverNoise()<<std::endl;
+            //if(!keepthishit)std::cout<<"Hit rejected because of bad S/N: "<<siStripClusterInfo_->signalOverNoise()<<std::endl;
           }
 
         }  //end if  subdetStoN_[subdet_cnt]&&...
@@ -973,6 +988,39 @@ namespace reco {
 
     int TrackerTrackHitFilter::sideFromId(const DetId &id, const TrackerTopology *tTopo) const {
       return tTopo->side(id);
+    }
+
+    // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
+    void TrackerTrackHitFilter::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.setComment("");
+      desc.add<edm::InputTag>("src", edm::InputTag("generalTracks"));
+      desc.add<uint32_t>("minimumHits", 3)->setComment("number of hits for refit");
+      desc.add<bool>("replaceWithInactiveHits", false)
+          ->setComment(
+              " instead of removing hits replace them with inactive hits, so you still consider the multiple "
+              "scattering");
+      desc.add<bool>("stripFrontInvalidHits", false)
+          ->setComment("strip invalid & inactive hits from any end of the track");
+      desc.add<bool>("stripBackInvalidHits", false)
+          ->setComment("strip invalid & inactive hits from any end of the track");
+      desc.add<bool>("stripAllInvalidHits", false)->setComment("dangerous to turn on, you might forget about MS");
+      desc.add<bool>("isPhase2", false);
+      desc.add<bool>("rejectBadStoNHits", false);
+      desc.add<std::string>("CMNSubtractionMode", std::string("Median"))->setComment("TT6");
+      desc.add<std::vector<uint32_t> >("detsToIgnore", {});
+      desc.add<bool>("useTrajectories", false);
+      desc.add<bool>("rejectLowAngleHits", false);
+      desc.add<double>("TrackAngleCut", 0.25)->setComment("rad");
+      desc.add<bool>("usePixelQualityFlag", false);
+      desc.add<double>("PxlTemplateProbXYCut", 0.000125);
+      desc.add<double>("PxlTemplateProbXYChargeCut", -99.);
+      desc.add<std::vector<int32_t> >("PxlTemplateqBinCut", {0, 3});
+      desc.add<double>("PxlCorrClusterChargeCut", -999.0);
+      desc.add<bool>("tagOverlaps", false);
+      desc.add<std::vector<std::string> >("commands", {})->setComment("layers to remove");
+      desc.add<std::vector<std::string> >("StoNcommands", {})->setComment("S/N cut per layer");
+      descriptions.addWithDefaultLabel(desc);
     }
 
   }  // namespace modules

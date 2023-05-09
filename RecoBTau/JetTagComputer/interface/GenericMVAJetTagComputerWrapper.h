@@ -58,8 +58,8 @@ public:
 
 protected:
   reco::TaggingVariableList taggingVariables(const TagInfoHelper &info) const override {
-    return (
-        static_cast<const Provider &>(*this))(info.get<TI1>(0), info.get<TI2>(1), info.get<TI3>(2), info.get<TI4>(3));
+    return (static_cast<const Provider &>(*this))(
+        info.get<TI1>(0), info.get<TI2>(1), info.get<TI3>(2), info.get<TI4>(3));
   }
 };
 

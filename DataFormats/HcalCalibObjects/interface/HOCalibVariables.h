@@ -1,13 +1,13 @@
 #ifndef AlCaHOCalibProducer_HOCalibVariables_h
 #define AlCaHOCalibProducer_HOCalibVariables_h
 #include <vector>
-//April 2015 : Added more variables, e.g., momatho, tkpt03, ecal03, hcal03, inslumi, nprim
+//April 2015 : Added more variables, e.g., momatho, tkpt03, ecal03, hcal03, pileup, nprim
 class HOCalibVariables {
 public:
   int nmuon;  //number of muons in the event
   int nprim;  // number of primary vertices
 
-  float inslumi;  //instantaneous luminosity
+  float pileup;  //Number of pileup events in the bunch crossing
 
   float trkdr;  //r-phi coordinate of track wrt vertex
   float trkdz;  //Z coordinate of track wrt vertex

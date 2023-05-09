@@ -1,5 +1,7 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EBHitResponse.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/ComponentShapeCollection.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/APDSimParameters.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/ComponentSimParameterMap.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVSimParameterMap.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloSimParameters.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVHitFilter.h"
@@ -18,15 +20,21 @@ template <class constset>
 EBHitResponseImpl<constset>::EBHitResponseImpl(const CaloVSimParameterMap* parameterMap,
                                                const CaloVShape* shape,
                                                bool apdOnly,
+                                               bool doComponent,
                                                const APDSimParameters* apdPars,
-                                               const CaloVShape* apdShape)
+                                               const CaloVShape* apdShape,
+                                               const ComponentSimParameterMap* componentPars,
+                                               const ComponentShapeCollection* componentShapes)
     :
 
       EcalHitResponse(parameterMap, shape),
 
       m_apdOnly(apdOnly),
+      m_isComponentShapeBased(doComponent),
       m_apdPars(apdPars),
       m_apdShape(apdShape),
+      m_componentPars(componentPars),
+      m_componentShapes(componentShapes),
       m_timeOffVec(kNOffsets, apdParameters()->timeOffset()),
       pcub(nullptr == apdPars ? 0 : apdParameters()->nonlParms()[0]),
       pqua(nullptr == apdPars ? 0 : apdParameters()->nonlParms()[1]),
@@ -78,6 +86,12 @@ const CaloVShape* EBHitResponseImpl<constset>::apdShape() const {
 }
 
 template <class constset>
+const ComponentShapeCollection* EBHitResponseImpl<constset>::shapes() const {
+  assert(nullptr != m_componentShapes);
+  return m_componentShapes;
+}
+
+template <class constset>
 void EBHitResponseImpl<constset>::putAPDSignal(const DetId& detId, double npe, double time) {
   const CaloSimParameters& parameters(*params(detId));
 
@@ -119,18 +133,30 @@ void EBHitResponseImpl<constset>::putAnalogSignal(const PCaloHit& hit, CLHEP::He
   }
 
   const double jitter(time - timeOfFlight(detId));
-
-  const double tzero = (shape()->timeToRise() + parameters.timePhase() - jitter -
-                        kSamplePeriod * (parameters.binOfMaximum() - phaseShift()));
-  double binTime(tzero);
-
   EcalSamples& result(*findSignal(detId));
-
   const unsigned int rsize(result.size());
 
-  for (unsigned int bin(0); bin != rsize; ++bin) {
-    result[bin] += (*shape())(binTime)*signal;
-    binTime += kSamplePeriod;
+  if (!m_isComponentShapeBased) {
+    const double tzero = (shape()->timeToRise() + parameters.timePhase() - jitter -
+                          kSamplePeriod * (parameters.binOfMaximum() - phaseShift()));
+    double binTime(tzero);
+
+    for (unsigned int bin(0); bin != rsize; ++bin) {
+      result[bin] += (*shape())(binTime)*signal;
+      binTime += kSamplePeriod;
+    }
+  } else {
+    if (ComponentShapeCollection::toDepthBin(hit.depth()) <= ComponentShapeCollection::maxDepthBin()) {
+      const double tzero =
+          (shapes()->at(hit.depth())->timeToRise() + m_componentPars->simParameters(detId).timePhase() - jitter -
+           kSamplePeriod * (parameters.binOfMaximum() - phaseShift()));
+      double binTime(tzero);
+
+      for (unsigned int bin(0); bin != rsize; ++bin) {
+        result[bin] += (*(shapes()->at(hit.depth())))(binTime)*signal;
+        binTime += kSamplePeriod;
+      }
+    }
   }
 }
 

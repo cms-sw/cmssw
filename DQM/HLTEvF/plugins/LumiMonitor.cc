@@ -43,9 +43,14 @@ class LumiMonitor : public DQMGlobalEDAnalyzer<Histograms> {
 public:
   LumiMonitor(const edm::ParameterSet&);
   ~LumiMonitor() override = default;
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  static void fillHistoPSetDescription(edm::ParameterSetDescription& pset);
-  static void fillHistoLSPSetDescription(edm::ParameterSetDescription& pset);
+
+  static void fillHistoPSetDescription(edm::ParameterSetDescription& pset,
+                                       int const nbins,
+                                       double const xmin,
+                                       double const xmax);
+  static void fillHistoLSPSetDescription(edm::ParameterSetDescription& pset, int const nbins);
 
 private:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, Histograms&) const override;
@@ -221,7 +226,6 @@ void LumiMonitor::dqmAnalyze(edm::Event const& event,
 
       // Count the number of clusters with at least a minimum
       // number of pixels per cluster and at least a minimum charge.
-      size_t tot = 0;
       for (auto pixCluDet = pixelClusters->begin(); pixCluDet != pixelClusters->end(); ++pixCluDet) {
         DetId detid = pixCluDet->detId();
         size_t subdetid = detid.subdetId();
@@ -232,7 +236,6 @@ void LumiMonitor::dqmAnalyze(edm::Event const& event,
         }
 
         for (auto pixClu = pixCluDet->begin(); pixClu != pixCluDet->end(); ++pixClu) {
-          ++tot;
           if ((pixClu->size() >= minNumberOfPixelsPerCluster_) and (pixClu->charge() >= minPixelClusterCharge_)) {
             ++pixel_clusters;
           }
@@ -250,13 +253,18 @@ void LumiMonitor::dqmAnalyze(edm::Event const& event,
   }
 }
 
-void LumiMonitor::fillHistoPSetDescription(edm::ParameterSetDescription& pset) {
-  pset.add<int>("nbins");
-  pset.add<double>("xmin");
-  pset.add<double>("xmax");
+void LumiMonitor::fillHistoPSetDescription(edm::ParameterSetDescription& pset,
+                                           int const nbins,
+                                           double const xmin,
+                                           double const xmax) {
+  pset.add<int>("nbins", nbins);
+  pset.add<double>("xmin", xmin);
+  pset.add<double>("xmax", xmax);
 }
 
-void LumiMonitor::fillHistoLSPSetDescription(edm::ParameterSetDescription& pset) { pset.add<int>("nbins", 2500); }
+void LumiMonitor::fillHistoLSPSetDescription(edm::ParameterSetDescription& pset, int const nbins) {
+  pset.add<int>("nbins", nbins);
+}
 
 void LumiMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -270,25 +278,26 @@ void LumiMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.add<double>("minPixelClusterCharge", 15000.);
 
   edm::ParameterSetDescription histoPSet;
-  edm::ParameterSetDescription pixelClusterPSet;
-  LumiMonitor::fillHistoPSetDescription(pixelClusterPSet);
-  histoPSet.add("pixelClusterPSet", pixelClusterPSet);
-
-  edm::ParameterSetDescription lumiPSet;
-  fillHistoPSetDescription(lumiPSet);
-  histoPSet.add<edm::ParameterSetDescription>("lumiPSet", lumiPSet);
-
-  edm::ParameterSetDescription puPSet;
-  fillHistoPSetDescription(puPSet);
-  histoPSet.add<edm::ParameterSetDescription>("puPSet", puPSet);
-
-  edm::ParameterSetDescription pixellumiPSet;
-  fillHistoPSetDescription(pixellumiPSet);
-  histoPSet.add<edm::ParameterSetDescription>("pixellumiPSet", pixellumiPSet);
 
   edm::ParameterSetDescription lsPSet;
-  fillHistoLSPSetDescription(lsPSet);
+  fillHistoLSPSetDescription(lsPSet, 2500);
   histoPSet.add<edm::ParameterSetDescription>("lsPSet", lsPSet);
+
+  edm::ParameterSetDescription puPSet;
+  fillHistoPSetDescription(puPSet, 130, 0, 130);
+  histoPSet.add<edm::ParameterSetDescription>("puPSet", puPSet);
+
+  edm::ParameterSetDescription lumiPSet;
+  fillHistoPSetDescription(lumiPSet, 5000, 0, 20000);
+  histoPSet.add<edm::ParameterSetDescription>("lumiPSet", lumiPSet);
+
+  edm::ParameterSetDescription pixellumiPSet;
+  fillHistoPSetDescription(pixellumiPSet, 300, 0, 3);
+  histoPSet.add<edm::ParameterSetDescription>("pixellumiPSet", pixellumiPSet);
+
+  edm::ParameterSetDescription pixelClusterPSet;
+  fillHistoPSetDescription(pixelClusterPSet, 200, -0.5, 19999.5);
+  histoPSet.add("pixelClusterPSet", pixelClusterPSet);
 
   desc.add<edm::ParameterSetDescription>("histoPSet", histoPSet);
 

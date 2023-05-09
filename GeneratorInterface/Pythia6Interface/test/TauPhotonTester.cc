@@ -106,7 +106,6 @@ void TauPhotonTester::analyze(const Event& e, const EventSetup&) {
     }
 
     int NGammaInVtx = 0;
-    int NTauInVtx = 0;
     PhotonE.clear();
     PhotonPt.clear();
 
@@ -114,7 +113,6 @@ void TauPhotonTester::analyze(const Event& e, const EventSetup&) {
          pitr != (*vtx)->particles_end(HepMC::children);
          ++pitr) {
       if (abs((*pitr)->pdg_id()) == 15) {
-        NTauInVtx++;
         tau_out_vtx_flag = true;
       }
       if ((*pitr)->pdg_id() == 22) {

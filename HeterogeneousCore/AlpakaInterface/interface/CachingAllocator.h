@@ -84,14 +84,14 @@ namespace cms::alpakatools {
 
   template <typename TDev,
             typename TQueue,
-            typename = std::enable_if_t<cms::alpakatools::is_device_v<TDev> and cms::alpakatools::is_queue_v<TQueue>>>
+            typename = std::enable_if_t<alpaka::isDevice<TDev> and alpaka::isQueue<TQueue>>>
   class CachingAllocator {
   public:
 #ifdef ALPAKA_ACC_GPU_CUDA_ENABLED
     friend class alpaka_cuda_async::AlpakaService;
 #endif
 #ifdef ALPAKA_ACC_GPU_HIP_ENABLED
-    friend class alpaka_hip_async::AlpakaService;
+    friend class alpaka_rocm_async::AlpakaService;
 #endif
 #ifdef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED
     friend class alpaka_serial_sync::AlpakaService;

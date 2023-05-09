@@ -1143,9 +1143,6 @@ void DQMGenericClient::makeNoFlowDist(DQMStore::IBooker& ibooker,
 void DQMGenericClient::limitedFit(MonitorElement* srcME, MonitorElement* meanME, MonitorElement* sigmaME) {
   TH2F* histo = srcME->getTH2F();
 
-  static int i = 0;
-  i++;
-
   // Fit slices projected along Y from bins in X
   double cont_min = 100;  //Minimum number of entries
   Int_t binx = histo->GetXaxis()->GetNbins();

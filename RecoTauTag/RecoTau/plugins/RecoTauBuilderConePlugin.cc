@@ -318,7 +318,6 @@ namespace reco {
       CandPtrs signalPFCHs;
       int numSignalPFCHs = 0;
       CandPtrs isolationPFCHs;
-      int numIsolationPFCHs = 0;
       for (CandPtrDRFilterIter iter = signalPFCHCands_begin; iter != signalPFCHCands_end; ++iter) {
         if (numSignalPFCHs < maxSignalConeChargedHadrons_ || maxSignalConeChargedHadrons_ == -1) {
           //std::cout << "adding signalPFCH #" << numSignalPFCHs << ": Pt = " << (*iter)->pt() << ", eta = " << (*iter)->eta() << ", phi = " << (*iter)->phi() << std::endl;
@@ -326,9 +325,7 @@ namespace reco {
           ++numSignalPFCHs;
         } else {
           //std::cout << "maxSignalConeChargedHadrons reached"
-          //	  << " --> adding isolationPFCH #" << numIsolationPFCHs << ": Pt = " << (*iter)->pt() << ", eta = " << (*iter)->eta() << ", phi = " << (*iter)->phi() << std::endl;
           isolationPFCHs.push_back(*iter);
-          ++numIsolationPFCHs;
         }
       }
       CandPtrs::const_iterator signalPFCHs_begin = signalPFCHs.begin();
@@ -347,9 +344,7 @@ namespace reco {
       auto isolationPFCHCands_end(boost::make_filter_iterator(
           xclean::makePredicateAND(isoConePFCHFilter, pfCandXCleaner), pfchs.end(), pfchs.end()));
       for (auto iter = isolationPFCHCands_begin; iter != isolationPFCHCands_end; ++iter) {
-        //std::cout << "adding isolationPFCH #" << numIsolationPFCHs << ": Pt = " << (*iter)->pt() << ", eta = " << (*iter)->eta() << ", phi = " << (*iter)->phi() << std::endl;
         isolationPFCHs.push_back(*iter);
-        ++numIsolationPFCHs;
       }
       CandPtrs::const_iterator isolationPFCHs_begin = isolationPFCHs.begin();
       CandPtrs::const_iterator isolationPFCHs_end = isolationPFCHs.end();

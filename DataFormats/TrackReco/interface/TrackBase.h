@@ -114,7 +114,7 @@ namespace reco {
       lowPtQuadStep = 23,
       detachedQuadStep = 24,
       displacedGeneralStep = 25,
-      reservedForUpgrades2 = 26,
+      displacedRegionalStep = 26,
       bTagGhostTracks = 27,
       beamhalo = 28,
       gsf = 29,

@@ -202,11 +202,6 @@ int DTReadOutMapping::geometryToReadOut(int wheelId,
   int defaultValue;
   atomicCache()->mType.find(0, defaultValue);
   if (defaultValue) {
-    int loop1 = 0;
-    int loop2 = 0;
-    int loop3 = 0;
-    int loop0 = 0;
-
     int searchStatus;
     int mapId = 0;
     std::vector<int> const* robMLgr;
@@ -222,12 +217,11 @@ int DTReadOutMapping::geometryToReadOut(int wheelId,
     searchStatus = atomicCache()->grROB.find(cellKey.begin(), cellKey.end(), robMLgr);
     if (searchStatus)
       return searchStatus;
-    if (!(robMLgr->size()))
+    if (robMLgr->empty())
       return 1;
     std::vector<int>::const_iterator tdc_iter = robMLgr->begin();
     std::vector<int>::const_iterator tdc_iend = robMLgr->end();
     while (tdc_iter != tdc_iend) {
-      loop1++;
       const DTReadOutGeometryLink& ltdc(readOutChannelDriftTubeMap[*tdc_iter++]);
       channelId = ltdc.channelId;
       tdcId = ltdc.tdcId;
@@ -239,12 +233,11 @@ int DTReadOutMapping::geometryToReadOut(int wheelId,
       searchStatus = atomicCache()->grROS.find(cellKey.begin(), cellKey.end(), rosMLgr);
       if (searchStatus)
         continue;
-      if (!(rosMLgr->size()))
+      if (rosMLgr->empty())
         continue;
       std::vector<int>::const_iterator ros_iter = rosMLgr->begin();
       std::vector<int>::const_iterator ros_iend = rosMLgr->end();
       while (ros_iter != ros_iend) {
-        loop2++;
         const DTReadOutGeometryLink& lros(readOutChannelDriftTubeMap[*ros_iter++]);
         int secCk = lros.sectorId;
         int wheCk = lros.wheelId;
@@ -262,17 +255,15 @@ int DTReadOutMapping::geometryToReadOut(int wheelId,
         searchStatus = atomicCache()->grDDU.find(cellKey.begin(), cellKey.end(), dduMLgr);
         if (searchStatus)
           continue;
-        if (!(dduMLgr->size()))
+        if (dduMLgr->empty())
           continue;
         if (searchStatus)
           return searchStatus;
-        if (!(dduMLgr->size()))
+        if (dduMLgr->empty())
           return 1;
-        loop0++;
         std::vector<int>::const_iterator ddu_iter = dduMLgr->begin();
         std::vector<int>::const_iterator ddu_iend = dduMLgr->end();
         while (ddu_iter != ddu_iend) {
-          loop3++;
           const DTReadOutGeometryLink& lddu(readOutChannelDriftTubeMap[*ddu_iter++]);
           if (((sectorId == secCk) || (sectorId == lddu.sectorId)) &&
               ((wheelId == wheCk) || (wheelId == lddu.wheelId))) {

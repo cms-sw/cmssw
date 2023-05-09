@@ -62,6 +62,9 @@ protected:
   const G4ThreeVector& getLocalEntryPoint() const { return hitPointLocal; };
   const G4ThreeVector& getGlobalEntryPoint() const { return hitPoint; };
 
+  // general method to assign track ID to be stored in hits
+  virtual int getTrackID(const G4Track*);
+
 private:
   void getStepInfo(const G4Step*);
   bool hitExists(const G4Step*);

@@ -60,11 +60,8 @@ patDisplacedMuons = patMuons.clone(
     # Standard Muon Selectors and Jet-related observables
     # Depends on MiniIsolation, so only works in miniaod
     # Don't forget to set flags properly in miniAOD_tools.py                      
-    computeMuonMVA = False,
-    mvaTrainingFile      = "RecoMuon/MuonIdentification/data/mu_2017_BDTG.weights.xml",
-    lowPtmvaTrainingFile = "RecoMuon/MuonIdentification/data/mu_lowpt_BDTG.weights.xml",
     recomputeBasicSelectors = False,
-    mvaUseJec = False,
+    useJec = False,
     mvaDrMax = 0.4,
     mvaJetTag = "pfCombinedInclusiveSecondaryVertexV2BJetTags",
     mvaL1Corrector = "ak4PFCHSL1FastjetCorrector",
@@ -88,8 +85,6 @@ patDisplacedMuons = patMuons.clone(
 patDisplacedMuons.isoDeposits = cms.PSet()
 patDisplacedMuons.isolationValues = cms.PSet()
 
-
-
 # Displaced muon task filters the displacedMuons that overlap with standard muons
 makePatDisplacedMuonsTask = cms.Task(
     filteredDisplacedMuonsTask,
@@ -97,4 +92,9 @@ makePatDisplacedMuonsTask = cms.Task(
     )
 
 makePatDisplacedMuons = cms.Sequence(makePatDisplacedMuonsTask)
+
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(patDisplacedMuons,
+                     mvaJetTag = "pfDeepCSVJetTags:probb",
+)
 

@@ -52,8 +52,10 @@ namespace mkfit {
     void setup(const PropagationConfig &pc,
                const IterationParams &ip,
                const IterationLayerConfig &ilc,
-               const std::vector<bool> *ihm);
-    void setup_bkfit(const PropagationConfig &pc);
+               const SteeringParams &sp,
+               const std::vector<bool> *ihm,
+               bool infwd);
+    void setup_bkfit(const PropagationConfig &pc, const SteeringParams &sp);
     void release();
 
     //----------------------------------------------------------------------------
@@ -271,6 +273,8 @@ namespace mkfit {
 
     int num_inside_minus_one_hits(const int mslot) const { return m_NInsideMinusOneHits(mslot, 0, 0); }
 
+    void print_par_err(int corp, int mslot) const;
+
     //----------------------------------------------------------------------------
 
     MPlexQF m_Chi2;
@@ -326,7 +330,9 @@ namespace mkfit {
     const PropagationConfig *m_prop_config = nullptr;
     const IterationParams *m_iteration_params = nullptr;
     const IterationLayerConfig *m_iteration_layer_config = nullptr;
+    const SteeringParams *m_steering_params = nullptr;
     const std::vector<bool> *m_iteration_hit_mask = nullptr;
+    bool m_in_fwd = true;
 
     // Backward fit
     int m_CurHit[NN];

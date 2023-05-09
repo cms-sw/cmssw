@@ -131,6 +131,12 @@
 //         Mean response and its error for the 4 regions
 //         Width of response and uts error for the 4 regions
 //
+//            For plotting depth dependent correction factors from muon study
+//  PlotDepthCorrFactor(infile, text, prefix, dataMC, drawStatBox, save)
+//      Defaults prefix = "", dataMC = true, drawStatBox = true, save = 0
+//      Format for the input file: ieta and correcrion factor with its
+//             uncertainty for each depth
+//
 //  where:
 //  infile   (std::string)  = Name of the input ROOT file
 //  outfile  (std::string)  = Name of the output ROOT file
@@ -1099,6 +1105,8 @@ void PlotHist(const char* infile,
       } else {
         if (mode == 5)
           hist->GetYaxis()->SetRangeUser(0.1, 0.50);
+        else if (dataMC)
+          hist->GetYaxis()->SetRangeUser(0.5, 1.50);
         else
           hist->GetYaxis()->SetRangeUser(0.8, 1.20);
         if (kopt % 10 > 0) {
@@ -2218,8 +2226,8 @@ void PlotHistCorrFactors(char* infile1,
       gStyle->SetOptStat(0);
       gStyle->SetOptFit(0);
     }
-    int colors[6] = {1, 6, 4, 2, 7, 9};
-    int mtype[6] = {20, 24, 22, 23, 21, 33};
+    int colors[7] = {1, 6, 4, 2, 7, 9, 46};
+    int mtype[7] = {20, 24, 22, 23, 21, 25, 33};
     int nbin = etamax - etamin + 1;
     std::vector<TH1D*> hists;
     std::vector<int> entries, htype, depths;
@@ -2316,7 +2324,7 @@ void PlotHistCorrFactors(char* infile1,
           htype.push_back(k1);
           depths.push_back(j + 1);
         }
-        if (k1 == 0)
+        if (k1 <= 1)
           nline += hists.size();
         else
           ++nline;
@@ -2356,7 +2364,7 @@ void PlotHistCorrFactors(char* infile1,
       } else {
         sprintf(name, "Depth %d (%s Mean = %5.3f)", depths[k], texts[k1].c_str(), fitr[k]);
       }
-      if ((depths[k] == 1) || (k1 == 0))
+      if ((depths[k] == 1) || (k1 <= 1))
         legend->AddEntry(hists[k], name, "lp");
     }
     legend->Draw("same");
@@ -3525,5 +3533,175 @@ void PlotMeanError(const std::string infilest, int reg = 3, bool resol = false, 
       sprintf(cname, "%s.C", canvas->GetName());
       canvas->Print(cname);
     }
+  }
+}
+
+void PlotDepthCorrFactor(char* infile,
+                         std::string text,
+                         std::string prefix = "",
+                         bool dataMC = true,
+                         bool drawStatBox = true,
+                         int save = 0) {
+  std::map<int, cfactors> cfacs;
+  int etamin(100), etamax(-100), maxdepth(0);
+  std::ifstream ifile(infile);
+  if (!ifile.is_open()) {
+    std::cout << "Cannot open duplicate file " << infile << std::endl;
+  } else {
+    unsigned int all(0), good(0);
+    char buffer[1024];
+    while (ifile.getline(buffer, 1024)) {
+      ++all;
+      std::string bufferString(buffer);
+      if (bufferString.substr(0, 1) == "#") {
+        continue;  //ignore other comments
+      } else {
+        std::vector<std::string> items = splitString(bufferString);
+        if (items.size() < 3) {
+          std::cout << "Ignore  line: " << buffer << " Size " << items.size();
+          for (unsigned int k = 0; k < items.size(); ++k)
+            std::cout << " [" << k << "] : " << items[k];
+          std::cout << std::endl;
+        } else {
+          ++good;
+          int ieta = std::atoi(items[0].c_str());
+          if (ieta < etamin)
+            etamin = ieta;
+          if (ieta > etamax)
+            etamax = ieta;
+          unsigned int k(1);
+          int depth(0);
+          std::cout << "ieta " << ieta;
+          while (k < items.size()) {
+            ++depth;
+            double corrf = std::atof(items[k].c_str());
+            double dcorr = std::atof(items[k + 1].c_str());
+            if (depth > maxdepth)
+              maxdepth = depth;
+            if ((depth == 1) && ((std::abs(ieta) == 17) || (std::abs(ieta) == 18))) {
+            } else {
+              int detId = repackId(ieta, depth);
+              cfacs[detId] = cfactors(ieta, depth, corrf, dcorr);
+              std::cout << " Depth " << depth << " " << corrf << " +- " << dcorr;
+            }
+            k += 2;
+          }
+          std::cout << std::endl;
+        }
+      }
+    }
+    ifile.close();
+    std::cout << "Reads total of " << all << " and " << good << " good records of depth dependent factors from "
+              << infile << " Eta range " << etamin << ":" << etamax << " maxdepth " << maxdepth << std::endl;
+  }
+
+  gStyle->SetCanvasBorderMode(0);
+  gStyle->SetCanvasColor(kWhite);
+  gStyle->SetPadColor(kWhite);
+  gStyle->SetFillColor(kWhite);
+  gStyle->SetOptTitle(0);
+  if (drawStatBox) {
+    gStyle->SetOptStat(10);
+    gStyle->SetOptFit(10);
+  } else {
+    gStyle->SetOptStat(0);
+    gStyle->SetOptFit(0);
+  }
+  int colors[7] = {1, 6, 4, 7, 2, 9, 3};
+  int mtype[7] = {20, 21, 22, 23, 24, 33, 25};
+  int nbin = etamax - etamin + 1;
+  std::vector<TH1D*> hists;
+  std::vector<int> entries;
+  char name[100];
+  double dy(0);
+  int fits(0);
+  for (int j = 0; j < maxdepth; ++j) {
+    sprintf(name, "hd%d", j + 1);
+    TH1D* h = new TH1D(name, name, nbin, etamin, etamax);
+    int nent(0);
+    for (std::map<int, cfactors>::const_iterator itr = cfacs.begin(); itr != cfacs.end(); ++itr) {
+      if ((itr->second).depth == j + 1) {
+        int ieta = (itr->second).ieta;
+        int bin = ieta - etamin + 1;
+        float val = (itr->second).corrf;
+        float dvl = (itr->second).dcorr;
+        h->SetBinContent(bin, val);
+        h->SetBinError(bin, dvl);
+        nent++;
+      }
+    }
+    h->SetLineColor(colors[j]);
+    h->SetMarkerColor(colors[j]);
+    h->SetMarkerStyle(mtype[j]);
+    h->GetXaxis()->SetTitle("i#eta");
+    h->GetYaxis()->SetTitle("Depth Dependent Correction Factor");
+    h->GetYaxis()->SetLabelOffset(0.005);
+    h->GetYaxis()->SetTitleOffset(1.20);
+    h->GetYaxis()->SetRangeUser(0.0, 2.0);
+    hists.push_back(h);
+    entries.push_back(nent);
+    dy += 0.025;
+  }
+  sprintf(name, "c_%sCorrFactor", prefix.c_str());
+  TCanvas* pad = new TCanvas(name, name, 700, 500);
+  pad->SetRightMargin(0.10);
+  pad->SetTopMargin(0.10);
+  double yh = 0.90;
+  // double yl = yh - 0.025 * hists.size() - dy - 0.01;
+  double yl = 0.15;
+  TLegend* legend = new TLegend(0.35, yl, 0.65, yl + 0.04 * hists.size());
+  legend->SetFillColor(kWhite);
+  for (unsigned int k = 0; k < hists.size(); ++k) {
+    if (k == 0)
+      hists[k]->Draw("");
+    else
+      hists[k]->Draw("sames");
+    pad->Update();
+    TPaveStats* st1 = (TPaveStats*)hists[k]->GetListOfFunctions()->FindObject("stats");
+    if (st1 != nullptr) {
+      dy = 0.025;
+      st1->SetLineColor(colors[k]);
+      st1->SetTextColor(colors[k]);
+      st1->SetY1NDC(yh - dy);
+      st1->SetY2NDC(yh);
+      st1->SetX1NDC(0.70);
+      st1->SetX2NDC(0.90);
+      yh -= dy;
+    }
+    sprintf(name, "Depth %d (%s)", k + 1, text.c_str());
+    legend->AddEntry(hists[k], name, "lp");
+  }
+  legend->Draw("same");
+  pad->Update();
+  if (fits < 1) {
+    double xmin = hists[0]->GetBinLowEdge(1);
+    int nbin = hists[0]->GetNbinsX();
+    double xmax = hists[0]->GetBinLowEdge(nbin) + hists[0]->GetBinWidth(nbin);
+    TLine* line = new TLine(xmin, 1.0, xmax, 1.0);
+    line->SetLineColor(9);
+    line->SetLineWidth(2);
+    line->SetLineStyle(2);
+    line->Draw("same");
+    pad->Modified();
+    pad->Update();
+  }
+  char txt1[30];
+  double xmax = (dataMC) ? 0.33 : 0.44;
+  TPaveText* txt2 = new TPaveText(0.11, 0.85, xmax, 0.89, "blNDC");
+  txt2->SetFillColor(0);
+  if (dataMC)
+    sprintf(txt1, "CMS Preliminary");
+  else
+    sprintf(txt1, "CMS Simulation Preliminary");
+  txt2->AddText(txt1);
+  txt2->Draw("same");
+  pad->Modified();
+  pad->Update();
+  if (save > 0) {
+    sprintf(name, "%s.pdf", pad->GetName());
+    pad->Print(name);
+  } else if (save < 0) {
+    sprintf(name, "%s.C", pad->GetName());
+    pad->Print(name);
   }
 }

@@ -68,8 +68,17 @@ void L1TGlobalProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
 
   // switch for muon showers in Run-3
   desc.add<bool>("useMuonShowers", false);
-  desc.add<bool>("resetPSCountersEachLumiSec", true);
+
+  // disables resetting the prescale counters each lumisection (needed for offline)
+  //  originally, the L1T firmware applied the reset of prescale counters at the end of every LS;
+  //  this reset was disabled in the L1T firmware starting from run-362658 (November 25th, 2022), see
+  //  https://github.com/cms-sw/cmssw/pull/37395#issuecomment-1323437044
+  desc.add<bool>("resetPSCountersEachLumiSec", false);
+
+  // initialise prescale counters with a semi-random value in the range [0, prescale*10^precision - 1];
+  // if false, the prescale counters are initialised to zero
   desc.add<bool>("semiRandomInitialPSCounters", false);
+
   // These parameters have well defined  default values and are not currently
   // part of the L1T/HLT interface.  They can be cleaned up or updated at will:
   desc.add<bool>("ProduceL1GtDaqRecord", true);

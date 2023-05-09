@@ -23,9 +23,9 @@ namespace gpuCalibPixel {
   constexpr float VCaltoElectronOffset_L1 = -670;  // L1:   -670 +- 220
   constexpr int VCalChargeThreshold = 100;
   //for phase2
-  constexpr float ElectronPerADCGain = 600;
+  constexpr float ElectronPerADCGain = 1500;
   constexpr int8_t Phase2ReadoutMode = 3;
-  constexpr uint16_t Phase2DigiBaseline = 1500;
+  constexpr uint16_t Phase2DigiBaseline = 1000;
   constexpr uint8_t Phase2KinkADC = 8;
 
   template <bool isRun2>
@@ -104,21 +104,20 @@ namespace gpuCalibPixel {
         adc_int = int(adc_int * ElectronPerADCGain);
       else {
         if (adc_int < Phase2KinkADC)
-          adc_int = int((adc_int - 0.5) * ElectronPerADCGain);
+          adc_int = int((adc_int + 0.5) * ElectronPerADCGain);
         else {
           constexpr int8_t dspp = (Phase2ReadoutMode < 10 ? Phase2ReadoutMode : 10);
           constexpr int8_t ds = int8_t(dspp <= 1 ? 1 : (dspp - 1) * (dspp - 1));
 
-          adc_int -= (Phase2KinkADC - 1);
+          adc_int -= Phase2KinkADC;
           adc_int *= ds;
-          adc_int += (Phase2KinkADC - 1);
+          adc_int += Phase2KinkADC;
 
           adc_int = ((adc_int + 0.5 * ds) * ElectronPerADCGain);
         }
 
         adc_int += int(Phase2DigiBaseline);
       }
-
       adc[i] = std::min(adc_int, int(std::numeric_limits<uint16_t>::max()));
     }
   }

@@ -12,7 +12,7 @@
 // Original Author:  Dmytro Kovalskyi
 //
 //
-
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 
 void TrackAssociatorParameters::loadParameters(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC) {
@@ -94,4 +94,41 @@ void TrackAssociatorParameters::loadParameters(const edm::ParameterSet& iConfig,
 
 TrackAssociatorParameters::TrackAssociatorParameters(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC) {
   loadParameters(iConfig, iC);
+}
+
+void TrackAssociatorParameters::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.setComment("Auxilliary class to store parameters for track association");
+  // the following setup is the one from TrackingTools/TrackAssociator/python/default_cfi.py
+  desc.add<bool>("accountForTrajectoryChangeCalo", false);
+  desc.add<bool>("propagateAllDirections", true);
+  desc.add<bool>("truthMatch", false);
+  desc.add<bool>("useCalo", false);
+  desc.add<bool>("useEcal", true);
+  desc.add<bool>("useGEM", false);
+  desc.add<bool>("useHO", true);
+  desc.add<bool>("useHcal", true);
+  desc.add<bool>("useME0", false);
+  desc.add<bool>("useMuon", true);
+  desc.add<bool>("usePreshower", false);
+  desc.add<double>("dREcal", 9999.0);
+  desc.add<double>("dREcalPreselection", 0.05);
+  desc.add<double>("dRHcal", 9999.0);
+  desc.add<double>("dRHcalPreselection", 0.2);
+  desc.add<double>("dRMuon", 9999.0);
+  desc.add<double>("dRMuonPreselection", 0.2);
+  desc.add<double>("dRPreshowerPreselection", 0.2);
+  desc.add<double>("muonMaxDistanceSigmaX", 0.0);
+  desc.add<double>("muonMaxDistanceSigmaY", 0.0);
+  desc.add<double>("muonMaxDistanceX", 5.0);
+  desc.add<double>("muonMaxDistanceY", 5.0);
+  desc.add<double>("trajectoryUncertaintyTolerance", -1.0);
+  desc.add<edm::InputTag>("CSCSegmentCollectionLabel", edm::InputTag("cscSegments"));
+  desc.add<edm::InputTag>("CaloTowerCollectionLabel", edm::InputTag("towerMaker"));
+  desc.add<edm::InputTag>("DTRecSegment4DCollectionLabel", edm::InputTag("dt4DSegments"));
+  desc.add<edm::InputTag>("EBRecHitCollectionLabel", edm::InputTag("ecalRecHit", "EcalRecHitsEB"));
+  desc.add<edm::InputTag>("EERecHitCollectionLabel", edm::InputTag("ecalRecHit", "EcalRecHitsEE"));
+  desc.add<edm::InputTag>("GEMSegmentCollectionLabel", edm::InputTag("gemSegments"));
+  desc.add<edm::InputTag>("HBHERecHitCollectionLabel", edm::InputTag("hbreco"));
+  desc.add<edm::InputTag>("HORecHitCollectionLabel", edm::InputTag("horeco"));
+  desc.add<edm::InputTag>("ME0SegmentCollectionLabel", edm::InputTag("me0Segments"));
 }

@@ -69,7 +69,20 @@ namespace edm::shared_memory {
     char* buffer_;
     BufferInfo* bufferInfo_;
     std::array<std::string, 2> bufferNames_;
-    std::unique_ptr<boost::interprocess::managed_shared_memory> sm_;
+    struct SMOwner {
+      SMOwner() = default;
+      SMOwner(std::string const& iName, std::size_t iLength);
+      ~SMOwner();
+      SMOwner& operator=(SMOwner&&);
+      boost::interprocess::managed_shared_memory* operator->() { return sm_.get(); }
+      boost::interprocess::managed_shared_memory* get() { return sm_.get(); }
+      operator bool() const { return bool(sm_); }
+      void reset();
+
+    private:
+      std::string name_;
+      std::unique_ptr<boost::interprocess::managed_shared_memory> sm_;
+    } sm_;
   };
 }  // namespace edm::shared_memory
 

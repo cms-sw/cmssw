@@ -1,0 +1,6 @@
+<iftool name="rocm">
+  <use name="rocm"/>
+  <export>
+    <lib name="1"/>
+  </export>
+</iftool>

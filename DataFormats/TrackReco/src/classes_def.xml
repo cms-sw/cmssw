@@ -332,6 +332,7 @@
   <class name="std::vector<reco::TrackExtra>"/>
   <class name="edm::Wrapper<std::vector<reco::TrackExtra> >"/>
   <class name="edm::RefProd<std::vector<reco::TrackExtra> >"/>
+  <class name="edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra>"/>
   <class name="edm::Ref<std::vector<reco::TrackExtra>,reco::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra> >"/>
   <class name="edm::RefVector<std::vector<reco::TrackExtra>,reco::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra> >"/>
 
@@ -351,6 +352,7 @@
   <class name="std::vector<reco::Track>"/>
   <class name="edm::Wrapper<std::vector<reco::Track> >"/>
   <class name="edm::RefProd<std::vector<reco::Track> >"/>
+  <class name="edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track>"/>
   <class name="edm::Ref<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >"/>
   <class name="edm::RefVector<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >"/>
   <class name="std::vector<edm::RefVector<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> > >"/>

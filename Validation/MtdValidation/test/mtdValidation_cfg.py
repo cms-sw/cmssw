@@ -10,7 +10,13 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 
-process.load("Configuration.Geometry.GeometryExtended2026D88Reco_cff")
+process.load("Configuration.Geometry.GeometryExtended2026D95Reco_cff")
+process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
+process.load('RecoLocalFastTime.FTLClusterizer.MTDCPEESProducer_cfi')
+process.load("Configuration.StandardSequences.Reconstruction_cff")
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
@@ -68,7 +74,7 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
     splitLevel = cms.untracked.int32(0)
 )
 
-process.p = cms.Path( process.mix + process.validation )
+process.p = cms.Path( process.mix + process.mtdTrackingRecHits + process.validation )
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.DQMoutput_step = cms.EndPath( process.DQMoutput )
 

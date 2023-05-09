@@ -19,12 +19,12 @@ public:
      *  when some of the information is not available yet.
      */
   TrackWithHistory(const G4Track *g4track);
-  ~TrackWithHistory() {}
+  ~TrackWithHistory() = default;
 
   inline void *operator new(size_t);
   inline void operator delete(void *TrackWithHistory);
 
-  void save() { saved_ = true; }
+  void setToBeSaved() { saved_ = true; }
   unsigned int trackID() const { return trackID_; }
   int particleID() const { return particleID_; }
   int parentID() const { return parentID_; }
@@ -56,18 +56,12 @@ public:
   const math::XYZTLorentzVectorF &getPositionAtBoundary() const { return positionAtBoundary_; }
   const math::XYZTLorentzVectorF &getMomentumAtBoundary() const { return momentumAtBoundary_; }
   int getIDAtBoundary() const { return idAtBoundary_; }
-  /** Internal consistency check (optional).
-     *  Method called at PostUserTrackingAction time, to check
-     *  if the information is consistent with that provided
-     *  to the constructor.
-     */
-  void checkAtEnd(const G4Track *);
 
 private:
   unsigned int trackID_;
   int particleID_;
   int parentID_;
-  int genParticleID_;
+  int genParticleID_{-1};
   math::XYZVectorD momentum_;
   double totalEnergy_;
   math::XYZVectorD vertexPosition_;
@@ -77,15 +71,12 @@ private:
   const G4VProcess *creatorProcess_;
   double weight_;
   bool storeTrack_;
-  bool saved_;
+  bool saved_{false};
 
-  bool isPrimary_;
-  bool crossedBoundary_;
-  int idAtBoundary_;
-  math::XYZTLorentzVectorF positionAtBoundary_;
-  math::XYZTLorentzVectorF momentumAtBoundary_;
-
-  int extractGenID(const G4Track *gt) const;
+  bool crossedBoundary_{false};
+  int idAtBoundary_{-1};
+  math::XYZTLorentzVectorF positionAtBoundary_{math::XYZTLorentzVectorF(0.f, 0.f, 0.f, 0.f)};
+  math::XYZTLorentzVectorF momentumAtBoundary_{math::XYZTLorentzVectorF(0.f, 0.f, 0.f, 0.f)};
 };
 
 extern G4ThreadLocal G4Allocator<TrackWithHistory> *fpTrackWithHistoryAllocator;

@@ -114,6 +114,8 @@ process.Timing = cms.Service("Timing", summaryOnly = cms.untracked.bool(True))
 ############################################################
 
 process.load('L1Trigger.TrackTrigger.TrackTrigger_cff')
+process.load('L1Trigger.TrackerTFP.ProducerES_cff')
+process.load('L1Trigger.TrackerTFP.ProducerLayerEncoding_cff')
 
 # remake stubs?
 #from L1Trigger.TrackTrigger.TTStubAlgorithmRegister_cfi import *
@@ -288,3 +290,6 @@ if (WRITE_DATA):
 
   process.pd = cms.EndPath(process.writeDataset)
   process.schedule.append(process.pd)
+
+
+

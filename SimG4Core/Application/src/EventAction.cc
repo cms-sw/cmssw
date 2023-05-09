@@ -1,7 +1,8 @@
 #include "SimG4Core/Application/interface/EventAction.h"
 #include "SimG4Core/Application/interface/SimRunInterface.h"
-#include "SimG4Core/Notification/interface/G4SimVertex.h"
-#include "SimG4Core/Notification/interface/G4SimTrack.h"
+#include "SimG4Core/Notification/interface/TmpSimEvent.h"
+#include "SimG4Core/Notification/interface/TmpSimVertex.h"
+#include "SimG4Core/Notification/interface/TmpSimTrack.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
 #include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
@@ -19,11 +20,7 @@ EventAction::EventAction(const edm::ParameterSet& p,
       m_SteppingVerbose(sv),
       m_stopFile(p.getParameter<std::string>("StopFile")),
       m_printRandom(p.getParameter<bool>("PrintRandomSeed")),
-      m_debug(p.getUntrackedParameter<bool>("debug", false)) {
-  m_trackManager->setCollapsePrimaryVertices(p.getParameter<bool>("CollapsePrimaryVertices"));
-}
-
-EventAction::~EventAction() {}
+      m_debug(p.getUntrackedParameter<bool>("debug", false)) {}
 
 void EventAction::BeginOfEventAction(const G4Event* anEvent) {
   m_trackManager->reset();
@@ -37,7 +34,7 @@ void EventAction::BeginOfEventAction(const G4Event* anEvent) {
   }
 
   if (nullptr != m_SteppingVerbose) {
-    m_SteppingVerbose->BeginOfEvent(anEvent);
+    m_SteppingVerbose->beginOfEvent(anEvent);
   }
 }
 
@@ -60,16 +57,12 @@ void EventAction::EndOfEventAction(const G4Event* anEvent) {
 
   m_trackManager->storeTracks(m_runInterface->simEvent());
 
-  // dispatch now end of event, and only then delete tracks...
+  // dispatch now end of event
   EndOfEvent e(anEvent);
   m_endOfEventSignal(&e);
 
-  m_trackManager->deleteTracks();
-  m_trackManager->cleanTkCaloStateInfoMap();
-}
-
-void EventAction::addTkCaloStateInfo(uint32_t t, const std::pair<math::XYZVectorD, math::XYZTLorentzVectorD>& p) {
-  m_trackManager->addTkCaloStateInfo(t, p);
+  // delete transient objects
+  m_trackManager->reset();
 }
 
 void EventAction::abortEvent() { m_runInterface->abortEvent(); }

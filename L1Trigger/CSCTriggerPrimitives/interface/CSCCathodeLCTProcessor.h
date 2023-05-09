@@ -49,7 +49,7 @@ public:
                          unsigned sector,
                          unsigned subsector,
                          unsigned chamber,
-                         const edm::ParameterSet& conf);
+                         CSCBaseboard::Parameters& conf);
 
   /** Default destructor. */
   ~CSCCathodeLCTProcessor() override = default;
@@ -57,18 +57,19 @@ public:
   /** Sets configuration parameters obtained via EventSetup mechanism. */
   void setConfigParameters(const CSCDBL1TPParameters* conf);
 
-  void setESLookupTables(const CSCL1TPLookupTableCCLUT* conf);
-
   /** Clears the LCT containers. */
   void clear();
 
   /** Runs the LCT processor code. Called in normal running -- gets info from
       a collection of comparator digis. */
-  std::vector<CSCCLCTDigi> run(const CSCComparatorDigiCollection* compdc);
+  std::vector<CSCCLCTDigi> run(const CSCComparatorDigiCollection* compdc,
+                               const CSCChamber* chamber,
+                               const CSCL1TPLookupTableCCLUT* lookupTable);
 
   /** Called in test mode and by the run(compdc) function; does the actual LCT
       finding. */
-  void run(const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]);
+  void run(const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER],
+           const CSCL1TPLookupTableCCLUT* lookupTable);
 
   /** Returns vector of CLCTs in the read-out time window, if any. */
   std::vector<CSCCLCTDigi> readoutCLCTs() const;
@@ -80,6 +81,9 @@ public:
    * Note: CLCT has BX shifted */
   CSCCLCTDigi getBestCLCT(int bx) const;
   CSCCLCTDigi getSecondCLCT(int bx) const;
+
+  /* get the flag of local shower around best CLCT at bx */
+  bool getLocalShowerFlag(int bx) const;
 
   std::vector<int> preTriggerBXs() const { return thePreTriggerBXs; }
 
@@ -105,6 +109,9 @@ protected:
   CSCShowerDigi cathode_showers_[CSCConstants::MAX_CLCT_TBINS];
   //CSCShowerDigi shower_;
 
+  /* flag of shower around best CLCT in each BX */
+  bool localShowerFlag[CSCConstants::MAX_CLCT_TBINS];
+
   /** Access routines to comparator digis. */
   bool getDigis(const CSCComparatorDigiCollection* compdc);
   void getDigis(const CSCComparatorDigiCollection* compdc, const CSCDetId& id);
@@ -126,7 +133,8 @@ protected:
 
   //--------------- Functions for post-2007 version of the firmware -----------
   virtual std::vector<CSCCLCTDigi> findLCTs(
-      const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]);
+      const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER],
+      const CSCL1TPLookupTableCCLUT* lookupTable);
 
   /* Check all half-strip pattern envelopes simultaneously, on every clock cycle, for a matching pattern
      Returns true if a pretrigger was found, and the first BX of the pretrigger */
@@ -147,7 +155,8 @@ protected:
   // build a new CLCT trigger
   CSCCLCTDigi constructCLCT(const int bx,
                             const unsigned halfstrip_withstagger,
-                            const CSCCLCTDigi::ComparatorContainer& hits);
+                            const CSCCLCTDigi::ComparatorContainer& hits,
+                            const CSCL1TPLookupTableCCLUT* lookupTable);
 
   // build a new CLCT pretrigger
   CSCCLCTPreTriggerDigi constructPreCLCT(const int bx, const unsigned halfstrip, const unsigned index) const;
@@ -160,7 +169,14 @@ protected:
 
   /** Dump half-strip digis */
   void dumpDigis(
-      const std::vector<int> strip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]) const;
+      const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]) const;
+
+  /* check whether there is a shower around best CLCT */
+  void checkLocalShower(
+      int zone,
+      const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]);
+
+  void encodeHighMultiplicityBits();
 
   //--------------------------- Member variables -----------------------------
 
@@ -191,7 +207,6 @@ protected:
   std::vector<CSCCLCTPreTriggerDigi> thePreTriggerDigis;
 
   /* data members for high multiplicity triggers */
-  void encodeHighMultiplicityBits();
   std::vector<unsigned> thresholds_;
   unsigned showerNumTBins_;
   unsigned minLayersCentralTBin_;
@@ -209,6 +224,12 @@ protected:
 
   /** VK: some quick and dirty fix to reduce CLCT deadtime */
   int start_bx_shift;
+
+  /* define the region around best CLCT to check local shower */
+  int localShowerZone;
+
+  /* threshold of total hits for local shower */
+  int localShowerThresh;
 
   /** VK: separate handle for early time bins */
   int early_tbins;

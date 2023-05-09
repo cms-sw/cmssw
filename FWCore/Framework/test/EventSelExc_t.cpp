@@ -173,13 +173,8 @@ Bools toBools(std::array<bool, nb> const& t) {
 }
 
 void evSelTest(PathSpecifiers const& ps, TrigResults const& tr, bool ans) {
-  ParameterSet pset;
-  pset.addParameter<Strings>("SelectEvents", ps.path);
-  pset.registerIt();
-
-  // There are 3 different ways to build the EventSelector.  All
-  // should give the same result.  We exercise all 3 here.
-  EventSelector select_based_on_pset(pset, trigger_path_names);
+  // There are 2 different ways to build the EventSelector.
+  // Both should give the same result.  We exercise both here.
   EventSelector select_based_on_path_specifiers_and_names(ps.path, trigger_path_names);
   EventSelector select_based_on_path_specifiers_only(ps.path);
 
@@ -203,19 +198,17 @@ void evSelTest(PathSpecifiers const& ps, TrigResults const& tr, bool ans) {
 
   TriggerResults results(bm, trigger_path_names);
 
-  bool a = select_based_on_pset.acceptEvent(results);
-  bool b = select_based_on_path_specifiers_and_names.acceptEvent(results);
-  bool c = select_based_on_path_specifiers_only.acceptEvent(results);
-  bool ab = select_based_on_pset.acceptEvent(&(bitArray[0]), number_of_trigger_paths);
-  bool bb = select_based_on_path_specifiers_and_names.acceptEvent(&(bitArray[0]), number_of_trigger_paths);
+  bool a = select_based_on_path_specifiers_and_names.acceptEvent(results);
+  bool b = select_based_on_path_specifiers_only.acceptEvent(results);
+  bool aa = select_based_on_path_specifiers_and_names.acceptEvent(&(bitArray[0]), number_of_trigger_paths);
   // select_based_on_path_specifiers_only.acceptEvent(&(bitArray[0]),
   //                                     number_of_trigger_paths);
   // is not a valid way to use acceptEvent.
 
-  if (a != ans || b != ans || c != ans || ab != ans || bb != ans) {
+  if (a != ans || b != ans || aa != ans) {
     std::cerr << "failed to compare path specifiers with trigger results: "
               << "correct=" << ans << " "
-              << "results=" << a << "  " << b << "  " << c << "  " << ab << "  " << bb << "\n"
+              << "results=" << a << "  " << b << "  " << aa << "\n"
               << "pathspecs = " << ps.path << "\n"
               << "trigger results = " << tr << "\n";
     abort();
@@ -230,14 +223,13 @@ void evSelTest(PathSpecifiers const& ps, TrigResults const& tr, bool ans) {
 
   TriggerResults results_id(bm, trigger_pset.id());
 
-  bool x = select_based_on_pset.acceptEvent(results_id);
-  bool y = select_based_on_path_specifiers_and_names.acceptEvent(results_id);
-  bool z = select_based_on_path_specifiers_only.acceptEvent(results_id);
+  bool x = select_based_on_path_specifiers_and_names.acceptEvent(results_id);
+  bool y = select_based_on_path_specifiers_only.acceptEvent(results_id);
 
-  if (x != ans || y != ans || z != ans) {
+  if (x != ans || y != ans) {
     std::cerr << "failed to compare pathspecs with trigger results using pset ID: "
               << "correct=" << ans << " "
-              << "results=" << x << "  " << y << "  " << z << "\n"
+              << "results=" << x << "  " << y << "\n"
               << "pathspecs =" << ps.path << "\n"
               << "trigger results = " << tr << "\n";
     abort();

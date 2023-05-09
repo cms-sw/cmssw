@@ -16,8 +16,6 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
-
 using namespace std;
 namespace TopSingleLepton_miniAOD {
 
@@ -112,11 +110,6 @@ namespace TopSingleLepton_miniAOD {
     // empty
     if (cfg.existsAs<edm::ParameterSet>("jetExtras")) {
       edm::ParameterSet jetExtras = cfg.getParameter<edm::ParameterSet>("jetExtras");
-      // jetCorrector is optional; in case it's not found
-      // the InputTag will remain empty
-      if (jetExtras.existsAs<std::string>("jetCorrector")) {
-        jetCorrector_ = iC.esConsumes(edm::ESInputTag("", jetExtras.getParameter<std::string>("jetCorrector")));
-      }
       // read jetID information if it exists
       if (jetExtras.existsAs<edm::ParameterSet>("jetID")) {
         edm::ParameterSet jetID = jetExtras.getParameter<edm::ParameterSet>("jetID");
@@ -568,14 +561,14 @@ namespace TopSingleLepton_miniAOD {
       // check jetID for calo jets
       //unsigned int idx = jet - jets->begin();
 
-      pat::Jet sel = *jet;
+      const pat::Jet& sel = *jet;
 
       if (!(*jetSelect)(sel))
         continue;
       //      if (!jetSelect(sel)) continue;
 
       // prepare jet to fill monitor histograms
-      pat::Jet monitorJet = *jet;
+      const pat::Jet& monitorJet = *jet;
 
       ++mult;
 
@@ -784,7 +777,6 @@ void TopSingleLeptonDQM_miniAOD::analyze(const edm::Event& event, const edm::Eve
       return;
   }
 
-  unsigned int passed = 0;
   unsigned int nJetSteps = -1;
 
   for (std::vector<std::string>::const_iterator selIt = selectionOrder_.begin(); selIt != selectionOrder_.end();
@@ -796,8 +788,6 @@ void TopSingleLeptonDQM_miniAOD::analyze(const edm::Event& event, const edm::Eve
       }
       if (type == "muons" && MuonStep != nullptr) {
         if (MuonStep->select(event)) {
-          ++passed;
-
           selection_[key].second->fill(event, setup);
         } else
           break;
@@ -805,7 +795,6 @@ void TopSingleLeptonDQM_miniAOD::analyze(const edm::Event& event, const edm::Eve
 
       if (type == "elecs" && ElectronStep != nullptr) {
         if (ElectronStep->select(event)) {
-          ++passed;
           selection_[key].second->fill(event, setup);
         } else
           break;
@@ -813,7 +802,6 @@ void TopSingleLeptonDQM_miniAOD::analyze(const edm::Event& event, const edm::Eve
 
       if (type == "pvs" && PvStep != nullptr) {
         if (PvStep->selectVertex(event)) {
-          ++passed;
           selection_[key].second->fill(event, setup);
         } else
           break;
@@ -823,7 +811,6 @@ void TopSingleLeptonDQM_miniAOD::analyze(const edm::Event& event, const edm::Eve
         nJetSteps++;
         if (JetSteps[nJetSteps] != nullptr) {
           if (JetSteps[nJetSteps]->select(event, setup)) {
-            ++passed;
             selection_[key].second->fill(event, setup);
           } else
             break;
@@ -832,7 +819,6 @@ void TopSingleLeptonDQM_miniAOD::analyze(const edm::Event& event, const edm::Eve
 
       if (type == "met" && METStep != nullptr) {
         if (METStep->select(event)) {
-          ++passed;
           selection_[key].second->fill(event, setup);
         } else
           break;

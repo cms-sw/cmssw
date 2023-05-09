@@ -14,7 +14,6 @@
 
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 
-#include "SimG4Core/Notification/interface/G4SimEvent.h"
 #include "SimG4Core/Notification/interface/SimTrackManager.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/CurrentG4Track.h"
@@ -36,7 +35,6 @@
 #include "G4MTRunManagerKernel.hh"
 #include "G4UImanager.hh"
 
-#include "G4EventManager.hh"
 #include "G4Run.hh"
 #include "G4Event.hh"
 #include "G4TransportationManager.hh"
@@ -252,6 +250,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
 
   // G4Region dump file name
   auto regionFile = m_p.getUntrackedParameter<std::string>("FileNameRegions", "");
+  runForPhase2();
 
   // Geometry checks
   if (m_check || !regionFile.empty()) {
@@ -358,4 +357,15 @@ void RunManagerMT::setupVoxels() {
   }
   edm::LogVerbatim("SimG4CoreApplication")
       << "RunManagerMT: default voxel density=" << density << "; number of regions with special density " << nr;
+}
+
+void RunManagerMT::runForPhase2() {
+  const G4RegionStore* regStore = G4RegionStore::GetInstance();
+  for (auto& r : *regStore) {
+    const G4String& name = r->GetName();
+    if (name == "HGCalRegion" || name == "FastTimerRegionETL" || name == "FastTimerRegionBTL") {
+      m_isPhase2 = true;
+      break;
+    }
+  }
 }

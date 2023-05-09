@@ -193,12 +193,10 @@ int HemisphereAlgo::reconstruct() {
     float Sum1_Px = 0.;
     float Sum1_Py = 0.;
     float Sum1_Pz = 0.;
-    float Sum1_P = 0.;
     float Sum1_E = 0.;
     float Sum2_Px = 0.;
     float Sum2_Py = 0.;
     float Sum2_Pz = 0.;
-    float Sum2_P = 0.;
     float Sum2_E = 0.;
 
     if (hemi_meth == 1) {
@@ -213,7 +211,6 @@ int HemisphereAlgo::reconstruct() {
           Sum1_Px += (*Object[i]).px();
           Sum1_Py += (*Object[i]).py();
           Sum1_Pz += (*Object[i]).pz();
-          Sum1_P += (*Object[i]).p();
           Sum1_E += (*Object[i]).energy();
         } else {
           if (Object_Group[i] != 2) {
@@ -223,7 +220,6 @@ int HemisphereAlgo::reconstruct() {
           Sum2_Px += (*Object[i]).px();
           Sum2_Py += (*Object[i]).py();
           Sum2_Pz += (*Object[i]).pz();
-          Sum2_P += (*Object[i]).p();
           Sum2_E += (*Object[i]).energy();
         }
       }
@@ -235,14 +231,12 @@ int HemisphereAlgo::reconstruct() {
           Sum1_Px += (*Object[i]).px();
           Sum1_Py += (*Object[i]).py();
           Sum1_Pz += (*Object[i]).pz();
-          Sum1_P += (*Object[i]).p();
           Sum1_E += (*Object[i]).energy();
         } else if (i == J_Max) {
           Object_Group[i] = 2;
           Sum2_Px += (*Object[i]).px();
           Sum2_Py += (*Object[i]).py();
           Sum2_Pz += (*Object[i]).pz();
-          Sum2_P += (*Object[i]).p();
           Sum2_E += (*Object[i]).energy();
         } else {
           if (!I_Move) {
@@ -294,7 +288,6 @@ int HemisphereAlgo::reconstruct() {
               Sum1_Px += (*Object[i]).px();
               Sum1_Py += (*Object[i]).py();
               Sum1_Pz += (*Object[i]).pz();
-              Sum1_P += (*Object[i]).p();
               Sum1_E += (*Object[i]).energy();
             } else {
               if (Object_Group[i] != 2) {
@@ -304,7 +297,6 @@ int HemisphereAlgo::reconstruct() {
               Sum2_Px += (*Object[i]).px();
               Sum2_Py += (*Object[i]).py();
               Sum2_Pz += (*Object[i]).pz();
-              Sum2_P += (*Object[i]).p();
               Sum2_E += (*Object[i]).energy();
             }
 
@@ -313,14 +305,12 @@ int HemisphereAlgo::reconstruct() {
               Sum1_Px += (*Object[i]).px();
               Sum1_Py += (*Object[i]).py();
               Sum1_Pz += (*Object[i]).pz();
-              Sum1_P += (*Object[i]).p();
               Sum1_E += (*Object[i]).energy();
             }
             if (Object_Group[i] == 2) {
               Sum2_Px += (*Object[i]).px();
               Sum2_Py += (*Object[i]).py();
               Sum2_Pz += (*Object[i]).pz();
-              Sum2_P += (*Object[i]).p();
               Sum2_E += (*Object[i]).energy();
             }
           }

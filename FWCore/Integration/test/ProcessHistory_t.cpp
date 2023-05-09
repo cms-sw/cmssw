@@ -1,3 +1,4 @@
+#include "catch.hpp"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
@@ -9,7 +10,6 @@
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
-#include <cassert>
 #include <string>
 #include <iostream>
 
@@ -41,125 +41,131 @@ bool checkRunOrLumiEntry(edm::IndexIntoFile::RunOrLumiEntry const& rl,
   return true;
 }
 
-int main() try {
+TEST_CASE("test ProcessHistory", "[ProcessHistory]") {
   edm::ProcessHistoryRegistry processHistoryRegistry;
   edm::ParameterSet dummyPset;
   edm::ParameterSetID psetID;
   dummyPset.registerIt();
   psetID = dummyPset.id();
+  SECTION("ProcessHistory") {
+    edm::ProcessHistory pnl1;
+    edm::ProcessHistory pnl2;
+    SECTION("default initialize comparison") {
+      REQUIRE(pnl1 == pnl1);
+      REQUIRE(pnl1 == pnl2);
+    }
+    edm::ProcessConfiguration iHLT(std::string("HLT"), psetID, std::string("CMSSW_5_100_40"), edm::getPassID());
+    edm::ProcessConfiguration iRECO(std::string("RECO"), psetID, std::string("5_100_42patch100"), edm::getPassID());
+    pnl2.push_back(iHLT);
+    edm::ProcessHistory pnl3;
+    pnl3.push_back(iHLT);
+    pnl3.push_back(iRECO);
 
-  edm::ProcessHistory pnl1;
-  assert(pnl1 == pnl1);
-  edm::ProcessHistory pnl2;
-  assert(pnl1 == pnl2);
-  edm::ProcessConfiguration iHLT(std::string("HLT"), psetID, std::string("CMSSW_5_100_40"), edm::getPassID());
-  edm::ProcessConfiguration iRECO(std::string("RECO"), psetID, std::string("5_100_42patch100"), edm::getPassID());
-  pnl2.push_back(iHLT);
-  assert(pnl1 != pnl2);
-  edm::ProcessHistory pnl3;
-  pnl3.push_back(iHLT);
-  pnl3.push_back(iRECO);
+    SECTION("different history comparison") {
+      REQUIRE(pnl1 != pnl2);
+      edm::ProcessHistoryID id1 = pnl1.setProcessHistoryID();
+      edm::ProcessHistoryID id2 = pnl2.setProcessHistoryID();
+      edm::ProcessHistoryID id3 = pnl3.setProcessHistoryID();
 
-  edm::ProcessHistoryID id1 = pnl1.setProcessHistoryID();
-  edm::ProcessHistoryID id2 = pnl2.setProcessHistoryID();
-  edm::ProcessHistoryID id3 = pnl3.setProcessHistoryID();
+      REQUIRE(id1 != id2);
+      REQUIRE(id2 != id3);
+      REQUIRE(id3 != id1);
 
-  assert(id1 != id2);
-  assert(id2 != id3);
-  assert(id3 != id1);
+      edm::ProcessHistory pnl4;
+      pnl4.push_back(iHLT);
+      edm::ProcessHistoryID id4 = pnl4.setProcessHistoryID();
+      REQUIRE(pnl4 == pnl2);
+      REQUIRE(id4 == id2);
 
-  edm::ProcessHistory pnl4;
-  pnl4.push_back(iHLT);
-  edm::ProcessHistoryID id4 = pnl4.setProcessHistoryID();
-  assert(pnl4 == pnl2);
-  assert(id4 == id2);
+      edm::ProcessHistory pnl5;
+      pnl5 = pnl3;
+      REQUIRE(pnl5 == pnl3);
+      REQUIRE(pnl5.id() == pnl3.id());
+    }
 
-  edm::ProcessHistory pnl5;
-  pnl5 = pnl3;
-  assert(pnl5 == pnl3);
-  assert(pnl5.id() == pnl3.id());
+    SECTION("reduce") {
+      edm::ProcessConfiguration pc1(std::string("HLT"), psetID, std::string(""), edm::getPassID());
+      edm::ProcessConfiguration pc2(std::string("HLT"), psetID, std::string("a"), edm::getPassID());
+      edm::ProcessConfiguration pc3(std::string("HLT"), psetID, std::string("1"), edm::getPassID());
+      edm::ProcessConfiguration pc4(std::string("HLT"), psetID, std::string("ccc500yz"), edm::getPassID());
+      edm::ProcessConfiguration pc5(std::string("HLT"), psetID, std::string("500yz872"), edm::getPassID());
+      edm::ProcessConfiguration pc6(std::string("HLT"), psetID, std::string("500yz872djk999patch10"), edm::getPassID());
+      edm::ProcessConfiguration pc7(
+          std::string("HLT"), psetID, std::string("xb500yz872djk999patch10"), edm::getPassID());
+      edm::ProcessConfiguration pc8(std::string("HLT"), psetID, std::string("CMSSW_4_4_0_pre5"), edm::getPassID());
 
-  {
-    edm::ProcessConfiguration pc1(std::string("HLT"), psetID, std::string(""), edm::getPassID());
-    edm::ProcessConfiguration pc2(std::string("HLT"), psetID, std::string("a"), edm::getPassID());
-    edm::ProcessConfiguration pc3(std::string("HLT"), psetID, std::string("1"), edm::getPassID());
-    edm::ProcessConfiguration pc4(std::string("HLT"), psetID, std::string("ccc500yz"), edm::getPassID());
-    edm::ProcessConfiguration pc5(std::string("HLT"), psetID, std::string("500yz872"), edm::getPassID());
-    edm::ProcessConfiguration pc6(std::string("HLT"), psetID, std::string("500yz872djk999patch10"), edm::getPassID());
-    edm::ProcessConfiguration pc7(std::string("HLT"), psetID, std::string("xb500yz872djk999patch10"), edm::getPassID());
-    edm::ProcessConfiguration pc8(std::string("HLT"), psetID, std::string("CMSSW_4_4_0_pre5"), edm::getPassID());
+      pc1.setProcessConfigurationID();
+      pc2.setProcessConfigurationID();
+      pc3.setProcessConfigurationID();
+      pc4.setProcessConfigurationID();
+      pc5.setProcessConfigurationID();
+      pc6.setProcessConfigurationID();
+      pc7.setProcessConfigurationID();
+      pc8.setProcessConfigurationID();
 
-    pc1.setProcessConfigurationID();
-    pc2.setProcessConfigurationID();
-    pc3.setProcessConfigurationID();
-    pc4.setProcessConfigurationID();
-    pc5.setProcessConfigurationID();
-    pc6.setProcessConfigurationID();
-    pc7.setProcessConfigurationID();
-    pc8.setProcessConfigurationID();
+      pc1.reduce();
+      pc2.reduce();
+      pc3.reduce();
+      pc4.reduce();
+      pc5.reduce();
+      pc6.reduce();
+      pc7.reduce();
+      pc8.reduce();
 
-    pc1.reduce();
-    pc2.reduce();
-    pc3.reduce();
-    pc4.reduce();
-    pc5.reduce();
-    pc6.reduce();
-    pc7.reduce();
-    pc8.reduce();
+      edm::ProcessConfiguration pc1expected(std::string("HLT"), psetID, std::string(""), edm::getPassID());
+      edm::ProcessConfiguration pc2expected(std::string("HLT"), psetID, std::string("a"), edm::getPassID());
+      edm::ProcessConfiguration pc3expected(std::string("HLT"), psetID, std::string("1"), edm::getPassID());
+      edm::ProcessConfiguration pc4expected(std::string("HLT"), psetID, std::string("ccc500yz"), edm::getPassID());
+      edm::ProcessConfiguration pc5expected(std::string("HLT"), psetID, std::string("500yz872"), edm::getPassID());
+      edm::ProcessConfiguration pc6expected(std::string("HLT"), psetID, std::string("500yz872"), edm::getPassID());
+      edm::ProcessConfiguration pc7expected(std::string("HLT"), psetID, std::string("xb500yz872"), edm::getPassID());
+      edm::ProcessConfiguration pc8expected(std::string("HLT"), psetID, std::string("CMSSW_4_4"), edm::getPassID());
 
-    edm::ProcessConfiguration pc1expected(std::string("HLT"), psetID, std::string(""), edm::getPassID());
-    edm::ProcessConfiguration pc2expected(std::string("HLT"), psetID, std::string("a"), edm::getPassID());
-    edm::ProcessConfiguration pc3expected(std::string("HLT"), psetID, std::string("1"), edm::getPassID());
-    edm::ProcessConfiguration pc4expected(std::string("HLT"), psetID, std::string("ccc500yz"), edm::getPassID());
-    edm::ProcessConfiguration pc5expected(std::string("HLT"), psetID, std::string("500yz872"), edm::getPassID());
-    edm::ProcessConfiguration pc6expected(std::string("HLT"), psetID, std::string("500yz872"), edm::getPassID());
-    edm::ProcessConfiguration pc7expected(std::string("HLT"), psetID, std::string("xb500yz872"), edm::getPassID());
-    edm::ProcessConfiguration pc8expected(std::string("HLT"), psetID, std::string("CMSSW_4_4"), edm::getPassID());
+      REQUIRE(pc1 == pc1expected);
+      REQUIRE(pc2 == pc2expected);
+      REQUIRE(pc3 == pc3expected);
+      REQUIRE(pc4 == pc4expected);
+      REQUIRE(pc5 == pc5expected);
+      REQUIRE(pc6 == pc6expected);
+      REQUIRE(pc7 == pc7expected);
+      REQUIRE(pc8 == pc8expected);
 
-    assert(pc1 == pc1expected);
-    assert(pc2 == pc2expected);
-    assert(pc3 == pc3expected);
-    assert(pc4 == pc4expected);
-    assert(pc5 == pc5expected);
-    assert(pc6 == pc6expected);
-    assert(pc7 == pc7expected);
-    assert(pc8 == pc8expected);
+      REQUIRE(pc1.id() == pc1expected.id());
+      REQUIRE(pc2.id() == pc2expected.id());
+      REQUIRE(pc3.id() == pc3expected.id());
+      REQUIRE(pc4.id() == pc4expected.id());
+      REQUIRE(pc5.id() == pc5expected.id());
+      REQUIRE(pc6.id() == pc6expected.id());
+      REQUIRE(pc7.id() == pc7expected.id());
+      REQUIRE(pc8.id() == pc8expected.id());
 
-    assert(pc1.id() == pc1expected.id());
-    assert(pc2.id() == pc2expected.id());
-    assert(pc3.id() == pc3expected.id());
-    assert(pc4.id() == pc4expected.id());
-    assert(pc5.id() == pc5expected.id());
-    assert(pc6.id() == pc6expected.id());
-    assert(pc7.id() == pc7expected.id());
-    assert(pc8.id() == pc8expected.id());
+      REQUIRE(pc7.id() != pc8expected.id());
+    }
+    SECTION("multi-step history reduce") {
+      edm::ProcessConfiguration iHLTreduced(std::string("HLT"), psetID, std::string("CMSSW_5_100"), edm::getPassID());
+      edm::ProcessConfiguration iRECOreduced(std::string("RECO"), psetID, std::string("5_100"), edm::getPassID());
+      edm::ProcessHistory phTestExpected;
+      phTestExpected.push_back(iHLTreduced);
+      phTestExpected.push_back(iRECOreduced);
 
-    assert(pc7.id() != pc8expected.id());
+      edm::ProcessHistory phTest = pnl3;
+      phTest.setProcessHistoryID();
+      phTest.reduce();
+      REQUIRE(phTest == phTestExpected);
+      REQUIRE(phTest.id() == phTestExpected.id());
+      REQUIRE(phTest.id() != pnl3.id());
+
+      processHistoryRegistry.registerProcessHistory(pnl3);
+      edm::ProcessHistoryID reducedPHID = processHistoryRegistry.reducedProcessHistoryID(pnl3.id());
+      REQUIRE(reducedPHID == phTest.id());
+
+      processHistoryRegistry.registerProcessHistory(pnl2);
+      reducedPHID = processHistoryRegistry.reducedProcessHistoryID(pnl2.id());
+      pnl2.reduce();
+      REQUIRE(reducedPHID == pnl2.id());
+    }
   }
-
-  edm::ProcessConfiguration iHLTreduced(std::string("HLT"), psetID, std::string("CMSSW_5_100"), edm::getPassID());
-  edm::ProcessConfiguration iRECOreduced(std::string("RECO"), psetID, std::string("5_100"), edm::getPassID());
-  edm::ProcessHistory phTestExpected;
-  phTestExpected.push_back(iHLTreduced);
-  phTestExpected.push_back(iRECOreduced);
-
-  edm::ProcessHistory phTest = pnl3;
-  phTest.setProcessHistoryID();
-  phTest.reduce();
-  assert(phTest == phTestExpected);
-  assert(phTest.id() == phTestExpected.id());
-  assert(phTest.id() != pnl3.id());
-
-  processHistoryRegistry.registerProcessHistory(pnl3);
-  edm::ProcessHistoryID reducedPHID = processHistoryRegistry.reducedProcessHistoryID(pnl3.id());
-  assert(reducedPHID == phTest.id());
-
-  processHistoryRegistry.registerProcessHistory(pnl2);
-  reducedPHID = processHistoryRegistry.reducedProcessHistoryID(pnl2.id());
-  pnl2.reduce();
-  assert(reducedPHID == pnl2.id());
-
-  {
+  SECTION("IndexIntoFile") {
     edm::ProcessHistory ph1;
     edm::ProcessHistory ph1a;
     edm::ProcessHistory ph1b;
@@ -205,16 +211,6 @@ int main() try {
     processHistoryRegistry.registerProcessHistory(ph3);
     processHistoryRegistry.registerProcessHistory(ph4);
 
-    edm::IndexIntoFile indexIntoFile;
-    indexIntoFile.addEntry(phid1, 1, 0, 0, 0);
-    indexIntoFile.addEntry(phid2, 2, 0, 0, 1);
-    indexIntoFile.addEntry(phid3, 3, 0, 0, 2);
-    indexIntoFile.addEntry(phid4, 4, 0, 0, 3);
-
-    indexIntoFile.sortVector_Run_Or_Lumi_Entries();
-
-    indexIntoFile.reduceProcessHistoryIDs(processHistoryRegistry);
-
     edm::ProcessHistory rph1 = ph1;
     edm::ProcessHistory rph1a = ph1a;
     edm::ProcessHistory rph1b = ph1b;
@@ -232,97 +228,105 @@ int main() try {
     rph3.reduce();
     rph4.reduce();
 
-    std::vector<edm::ProcessHistoryID> const& v = indexIntoFile.processHistoryIDs();
-    assert(v[0] == rph1.id());
-    assert(v[1] == rph2.id());
-    assert(v[2] == rph3.id());
-    assert(v[3] == rph4.id());
+    SECTION("sequential") {
+      edm::IndexIntoFile indexIntoFile;
+      indexIntoFile.addEntry(phid1, 1, 0, 0, 0);
+      indexIntoFile.addEntry(phid2, 2, 0, 0, 1);
+      indexIntoFile.addEntry(phid3, 3, 0, 0, 2);
+      indexIntoFile.addEntry(phid4, 4, 0, 0, 3);
 
-    edm::IndexIntoFile indexIntoFile1;
-    indexIntoFile1.addEntry(phid1, 1, 11, 0, 0);
-    indexIntoFile1.addEntry(phid1, 1, 12, 0, 1);
-    indexIntoFile1.addEntry(phid1, 1, 0, 0, 0);
-    indexIntoFile1.addEntry(phid2, 2, 11, 0, 2);
-    indexIntoFile1.addEntry(phid2, 2, 12, 0, 3);
-    indexIntoFile1.addEntry(phid2, 2, 0, 0, 1);
-    indexIntoFile1.addEntry(phid1a, 1, 11, 1, 0);
-    indexIntoFile1.addEntry(phid1a, 1, 11, 2, 1);
-    indexIntoFile1.addEntry(phid1a, 1, 11, 0, 4);
-    indexIntoFile1.addEntry(phid1a, 1, 12, 1, 2);
-    indexIntoFile1.addEntry(phid1a, 1, 12, 2, 3);
-    indexIntoFile1.addEntry(phid1a, 1, 12, 0, 5);
-    indexIntoFile1.addEntry(phid1a, 1, 0, 0, 2);
-    indexIntoFile1.addEntry(phid3, 3, 0, 0, 3);
-    indexIntoFile1.addEntry(phid2a, 2, 0, 0, 4);
-    indexIntoFile1.addEntry(phid2b, 2, 0, 0, 5);
-    indexIntoFile1.addEntry(phid4, 4, 0, 0, 6);
-    indexIntoFile1.addEntry(phid1b, 1, 0, 0, 7);
-    indexIntoFile1.addEntry(phid1, 5, 11, 0, 6);
-    indexIntoFile1.addEntry(phid1, 5, 0, 0, 8);
-    indexIntoFile1.addEntry(phid4, 1, 11, 0, 7);
-    indexIntoFile1.addEntry(phid4, 1, 0, 0, 9);
+      indexIntoFile.sortVector_Run_Or_Lumi_Entries();
 
-    indexIntoFile1.sortVector_Run_Or_Lumi_Entries();
+      indexIntoFile.reduceProcessHistoryIDs(processHistoryRegistry);
 
-    std::vector<edm::ProcessHistoryID> const& v1 = indexIntoFile1.processHistoryIDs();
-    assert(v1.size() == 8U);
-
-    indexIntoFile1.reduceProcessHistoryIDs(processHistoryRegistry);
-
-    std::vector<edm::ProcessHistoryID> const& rv1 = indexIntoFile1.processHistoryIDs();
-    assert(rv1.size() == 4U);
-    assert(rv1[0] == rph1.id());
-    assert(rv1[1] == rph2.id());
-    assert(rv1[2] == rph3.id());
-    assert(rv1[3] == rph4.id());
-
-    std::vector<edm::IndexIntoFile::RunOrLumiEntry>& runOrLumiEntries = indexIntoFile1.setRunOrLumiEntries();
-
-    assert(runOrLumiEntries.size() == 18U);
-
-    /*
-    std::cout << rv1[0] << "  " << rph1 << "\n";
-    std::cout << rv1[1] << "  " << rph2 << "\n";
-    std::cout << rv1[2] << "  " << rph3 << "\n";
-    std::cout << rv1[3] << "  " << rph4 << "\n";
-
-    for (auto const& item : runOrLumiEntries) {
-      std::cout << item.orderPHIDRun() << "  "
-                << item.orderPHIDRunLumi() << "  "
-                << item.entry() << "  "
-                << item.processHistoryIDIndex() << "  "
-                << item.run() << "  "
-                << item.lumi() << "  "
-                << item.beginEvents() << "  "
-                << item.endEvents() << "\n";
-
+      std::vector<edm::ProcessHistoryID> const& v = indexIntoFile.processHistoryIDs();
+      REQUIRE(v[0] == rph1.id());
+      REQUIRE(v[1] == rph2.id());
+      REQUIRE(v[2] == rph3.id());
+      REQUIRE(v[3] == rph4.id());
     }
-    */
 
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(0), 0, -1, 0, 0, 1, 0, -1, -1));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(1), 0, -1, 2, 0, 1, 0, -1, -1));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(2), 0, -1, 7, 0, 1, 0, -1, -1));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(3), 0, 0, 0, 0, 1, 11, -1, -1));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(4), 0, 0, 4, 0, 1, 11, 0, 2));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(5), 0, 1, 1, 0, 1, 12, -1, -1));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(6), 0, 1, 5, 0, 1, 12, 2, 4));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(7), 1, -1, 1, 1, 2, 0, -1, -1));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(8), 1, -1, 4, 1, 2, 0, -1, -1));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(9), 1, -1, 5, 1, 2, 0, -1, -1));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(10), 1, 2, 2, 1, 2, 11, -1, -1));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(11), 1, 3, 3, 1, 2, 12, -1, -1));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(12), 3, -1, 3, 2, 3, 0, -1, -1));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(13), 6, -1, 6, 3, 4, 0, -1, -1));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(14), 8, -1, 8, 0, 5, 0, -1, -1));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(15), 8, 6, 6, 0, 5, 11, -1, -1));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(16), 9, -1, 9, 3, 1, 0, -1, -1));
-    assert(checkRunOrLumiEntry(runOrLumiEntries.at(17), 9, 7, 7, 3, 1, 11, -1, -1));
+    SECTION("non-sequential") {
+      edm::IndexIntoFile indexIntoFile1;
+      indexIntoFile1.addEntry(phid1, 1, 11, 0, 0);
+      indexIntoFile1.addEntry(phid1, 1, 12, 0, 1);
+      indexIntoFile1.addEntry(phid1, 1, 0, 0, 0);
+      indexIntoFile1.addEntry(phid2, 2, 11, 0, 2);
+      indexIntoFile1.addEntry(phid2, 2, 12, 0, 3);
+      indexIntoFile1.addEntry(phid2, 2, 0, 0, 1);
+      indexIntoFile1.addEntry(phid1a, 1, 11, 1, 0);
+      indexIntoFile1.addEntry(phid1a, 1, 11, 2, 1);
+      indexIntoFile1.addEntry(phid1a, 1, 11, 0, 4);
+      indexIntoFile1.addEntry(phid1a, 1, 12, 1, 2);
+      indexIntoFile1.addEntry(phid1a, 1, 12, 2, 3);
+      indexIntoFile1.addEntry(phid1a, 1, 12, 0, 5);
+      indexIntoFile1.addEntry(phid1a, 1, 0, 0, 2);
+      indexIntoFile1.addEntry(phid3, 3, 0, 0, 3);
+      indexIntoFile1.addEntry(phid2a, 2, 0, 0, 4);
+      indexIntoFile1.addEntry(phid2b, 2, 0, 0, 5);
+      indexIntoFile1.addEntry(phid4, 4, 0, 0, 6);
+      indexIntoFile1.addEntry(phid1b, 1, 0, 0, 7);
+      indexIntoFile1.addEntry(phid1, 5, 11, 0, 6);
+      indexIntoFile1.addEntry(phid1, 5, 0, 0, 8);
+      indexIntoFile1.addEntry(phid4, 1, 11, 0, 7);
+      indexIntoFile1.addEntry(phid4, 1, 0, 0, 9);
+
+      indexIntoFile1.sortVector_Run_Or_Lumi_Entries();
+
+      std::vector<edm::ProcessHistoryID> const& v1 = indexIntoFile1.processHistoryIDs();
+      REQUIRE(v1.size() == 8U);
+
+      indexIntoFile1.reduceProcessHistoryIDs(processHistoryRegistry);
+
+      std::vector<edm::ProcessHistoryID> const& rv1 = indexIntoFile1.processHistoryIDs();
+      REQUIRE(rv1.size() == 4U);
+      REQUIRE(rv1[0] == rph1.id());
+      REQUIRE(rv1[1] == rph2.id());
+      REQUIRE(rv1[2] == rph3.id());
+      REQUIRE(rv1[3] == rph4.id());
+
+      std::vector<edm::IndexIntoFile::RunOrLumiEntry>& runOrLumiEntries = indexIntoFile1.setRunOrLumiEntries();
+
+      REQUIRE(runOrLumiEntries.size() == 18U);
+
+      /*
+       std::cout << rv1[0] << "  " << rph1 << "\n";
+       std::cout << rv1[1] << "  " << rph2 << "\n";
+       std::cout << rv1[2] << "  " << rph3 << "\n";
+       std::cout << rv1[3] << "  " << rph4 << "\n";
+       
+       for (auto const& item : runOrLumiEntries) {
+       std::cout << item.orderPHIDRun() << "  "
+       << item.orderPHIDRunLumi() << "  "
+       << item.entry() << "  "
+       << item.processHistoryIDIndex() << "  "
+       << item.run() << "  "
+       << item.lumi() << "  "
+       << item.beginEvents() << "  "
+       << item.endEvents() << "\n";
+       
+       }
+       */
+      SECTION("checkRunOrLumiEntry") {
+        REQUIRE(checkRunOrLumiEntry(runOrLumiEntries.at(0), 0, -1, 0, 0, 1, 0, -1, -1));
+        REQUIRE(checkRunOrLumiEntry(runOrLumiEntries.at(1), 0, -1, 2, 0, 1, 0, -1, -1));
+        REQUIRE(checkRunOrLumiEntry(runOrLumiEntries.at(2), 0, -1, 7, 0, 1, 0, -1, -1));
+        REQUIRE(checkRunOrLumiEntry(runOrLumiEntries.at(3), 0, 0, 0, 0, 1, 11, -1, -1));
+        REQUIRE(checkRunOrLumiEntry(runOrLumiEntries.at(4), 0, 0, 4, 0, 1, 11, 0, 2));
+        REQUIRE(checkRunOrLumiEntry(runOrLumiEntries.at(5), 0, 1, 1, 0, 1, 12, -1, -1));
+        REQUIRE(checkRunOrLumiEntry(runOrLumiEntries.at(6), 0, 1, 5, 0, 1, 12, 2, 4));
+        REQUIRE(checkRunOrLumiEntry(runOrLumiEntries.at(7), 1, -1, 1, 1, 2, 0, -1, -1));
+        REQUIRE(checkRunOrLumiEntry(runOrLumiEntries.at(8), 1, -1, 4, 1, 2, 0, -1, -1));
+        REQUIRE(checkRunOrLumiEntry(runOrLumiEntries.at(9), 1, -1, 5, 1, 2, 0, -1, -1));
+        REQUIRE(checkRunOrLumiEntry(runOrLumiEntries.at(10), 1, 2, 2, 1, 2, 11, -1, -1));
+        REQUIRE(checkRunOrLumiEntry(runOrLumiEntries.at(11), 1, 3, 3, 1, 2, 12, -1, -1));
+        REQUIRE(checkRunOrLumiEntry(runOrLumiEntries.at(12), 3, -1, 3, 2, 3, 0, -1, -1));
+        REQUIRE(checkRunOrLumiEntry(runOrLumiEntries.at(13), 6, -1, 6, 3, 4, 0, -1, -1));
+        REQUIRE(checkRunOrLumiEntry(runOrLumiEntries.at(14), 8, -1, 8, 0, 5, 0, -1, -1));
+        REQUIRE(checkRunOrLumiEntry(runOrLumiEntries.at(15), 8, 6, 6, 0, 5, 11, -1, -1));
+        REQUIRE(checkRunOrLumiEntry(runOrLumiEntries.at(16), 9, -1, 9, 3, 1, 0, -1, -1));
+        REQUIRE(checkRunOrLumiEntry(runOrLumiEntries.at(17), 9, 7, 7, 3, 1, 11, -1, -1));
+      }
+    }
   }
-  return 0;
-} catch (cms::Exception const& e) {
-  std::cerr << e.explainSelf() << std::endl;
-  return 1;
-} catch (std::exception const& e) {
-  std::cerr << e.what() << std::endl;
-  return 1;
 }

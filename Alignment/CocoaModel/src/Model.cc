@@ -358,7 +358,7 @@ void Model::readSystemDescription() {
             std::cerr << "!!!SYSTEM_TREE_DESCRIPTION section: object " << *((*vvscite).begin())
                       << " is not hanging from object 'system' " << std::endl;
             for (vvscite = OptODictionary().begin(); vvscite != OptODictionary().end(); ++vvscite) {
-              std::vector<ALIstring> ptemp = *vvscite;
+              const std::vector<ALIstring>& ptemp = *vvscite;
               ALIUtils::dumpVS(ptemp, "OBJECT ", std::cerr);
             }
             exit(9);

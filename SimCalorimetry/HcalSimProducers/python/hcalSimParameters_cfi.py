@@ -114,16 +114,26 @@ hcalSimParameters.hoZecotek = hcalSimParameters.ho.clone()
 
 hcalSimParameters.hoHamamatsu = hcalSimParameters.ho.clone()
 
-# Customises the HCal digitiser for post LS1 running
+# Customises the HCAL digitiser for post LS1 running
 from Configuration.Eras.Modifier_run2_common_cff import run2_common
-run2_common.toModify( hcalSimParameters, 
-    ho = dict(
-        siPMCode = cms.int32(1)
-    ),
-    hf1 = dict( samplingFactor = cms.double(0.335) ),
-    hf2 = dict( samplingFactor = cms.double(0.335) )
-)
+from Configuration.ProcessModifiers.applyHFLibraryFix_cff import applyHFLibraryFix
 
+run2_common.toModify( hcalSimParameters, 
+    ho = dict( siPMCode = 1 ),
+#--- Default for Run2 HFShowerLibrary file
+    hf1 = dict( samplingFactor = 0.335 ),
+    hf2 = dict( samplingFactor = 0.335 )
+)
+#--- Alternative: usage of Run3 HFShowerLibrary file for Run2
+(applyHFLibraryFix & run2_common).toModify( hcalSimParameters, 
+    hf1 = dict( samplingFactor = 0.37,
+                timePhase = 9.0
+              ),
+    hf2 = dict( samplingFactor = 0.37,
+                timePhase = 8.0
+              )
+)
+   
 from Configuration.Eras.Modifier_run2_HE_2017_cff import run2_HE_2017
 run2_HE_2017.toModify( hcalSimParameters,
     he = dict(

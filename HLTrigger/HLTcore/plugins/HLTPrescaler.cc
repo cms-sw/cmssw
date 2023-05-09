@@ -81,7 +81,7 @@ bool HLTPrescaler::filter(edm::Event& iEvent, const edm::EventSetup&) {
       edm::Handle<GlobalAlgBlkBxCollection> handle2;
       iEvent.getByToken(gtDigi2Token_, handle2);
       if (handle2.isValid()) {
-        if (handle2->begin(0) != handle2->end(0)) {
+        if (not handle2->isEmpty(0)) {
           prescaleSet_ = static_cast<unsigned int>(handle2->begin(0)->getPreScColumn());
           prescaleFactor_ = prescaleService_->getPrescale(prescaleSet_, pathName);
         } else {

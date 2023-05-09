@@ -375,7 +375,7 @@ std::vector<int> GenHFHadronMatcher::findHadronJets(const reco::GenParticleColle
   for (reco::GenParticleCollection::const_iterator i_particle = genParticles->begin();
        i_particle != genParticles->end();
        ++i_particle) {
-    const reco::GenParticle lepton = *i_particle;
+    const reco::GenParticle &lepton = *i_particle;
     const int pdg_abs = lepton.pdgId();
     // Skipping if not a lepton: e/mu
     if (pdg_abs != 11 && pdg_abs != 13)
@@ -1124,23 +1124,23 @@ bool GenHFHadronMatcher::fixExtraSameFlavours(const unsigned int hadId,
         break;
       }
     } else
-        // Checking other b-quark mother candidates of the particular previous hadron
-        if ((int)LastQuarkIds.at(iHad).size() > theLastQuarkIndex + 1) {
-      if (fixExtraSameFlavours(iHad,
-                               hadIndices,
-                               hadMothers,
-                               hadMothersIndices,
-                               isFromTopWeakDecay,
-                               LastQuarkIds,
-                               LastQuarkMotherIds,
-                               lastQuarkIndices,
-                               hadronFlavour,
-                               checkedHadronIds,
-                               theLastQuarkIndex + 1)) {
-        ambiguityResolved = true;
-        break;
-      };
-    }
+      // Checking other b-quark mother candidates of the particular previous hadron
+      if ((int)LastQuarkIds.at(iHad).size() > theLastQuarkIndex + 1) {
+        if (fixExtraSameFlavours(iHad,
+                                 hadIndices,
+                                 hadMothers,
+                                 hadMothersIndices,
+                                 isFromTopWeakDecay,
+                                 LastQuarkIds,
+                                 LastQuarkMotherIds,
+                                 lastQuarkIndices,
+                                 hadronFlavour,
+                                 checkedHadronIds,
+                                 theLastQuarkIndex + 1)) {
+          ambiguityResolved = true;
+          break;
+        };
+      }
 
   }  // End of loop over all previous hadrons
 

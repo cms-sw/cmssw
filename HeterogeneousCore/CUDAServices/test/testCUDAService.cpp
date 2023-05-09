@@ -6,19 +6,49 @@
 
 #include <cuda_runtime_api.h>
 
-#include "catch.hpp"
+#include <fmt/core.h>
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <catch.hpp>
+
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
+#include "FWCore/Utilities/interface/ResourceInformation.h"
+#include "HeterogeneousCore/CUDAServices/interface/CUDAInterface.h"
 
 namespace {
-  CUDAService makeCUDAService(edm::ParameterSet ps) {
-    auto desc = edm::ConfigurationDescriptions("Service", "CUDAService");
-    CUDAService::fillDescriptions(desc);
-    desc.validate(ps, "CUDAService");
-    return CUDAService(ps);
+  std::string makeProcess(std::string const& name) {
+    return fmt::format(R"_(
+import FWCore.ParameterSet.Config as cms
+process = cms.Process('{}')
+)_",
+                       name);
+  }
+
+  void addResourceInformationService(std::string& config) {
+    config += R"_(
+process.add_(cms.Service('ResourceInformationService'))
+  )_";
+  }
+
+  void addCUDAService(std::string& config, bool enabled = true) {
+    config += fmt::format(R"_(
+process.add_(cms.Service('CUDAService',
+  enabled = cms.untracked.bool({}),
+  verbose = cms.untracked.bool(True)
+))
+  )_",
+                          enabled ? "True" : "False");
+  }
+
+  edm::ServiceToken getServiceToken(std::string const& config) {
+    std::unique_ptr<edm::ParameterSet> params;
+    edm::makeParameterSets(config, params);
+    return edm::ServiceToken(edm::ServiceRegistry::createServicesFromConfig(std::move(params)));
   }
 }  // namespace
 
@@ -33,46 +63,46 @@ TEST_CASE("Tests of CUDAService", "[CUDAService]") {
          << ret << ") " << cudaGetErrorString(ret) << ". Running only tests not requiring devices.");
   }
 
-  SECTION("CUDAService enabled") {
-    edm::ParameterSet ps;
-    ps.addUntrackedParameter("enabled", true);
-    SECTION("Enabled only if there are CUDA capable GPUs") {
-      auto cs = makeCUDAService(ps);
-      if (deviceCount <= 0) {
-        REQUIRE(cs.enabled() == false);
-        WARN("CUDAService is disabled as there are no CUDA GPU devices");
-      } else {
-        REQUIRE(cs.enabled() == true);
-        INFO("CUDAService is enabled");
-      }
-    }
+  std::string config = makeProcess("Test");
+  addCUDAService(config);
+  auto serviceToken = getServiceToken(config);
+  edm::ServiceRegistry::Operate operate(serviceToken);
 
+  SECTION("Enable the CUDAService only if there are CUDA capable GPUs") {
+    edm::Service<CUDAInterface> cuda;
     if (deviceCount <= 0) {
+      REQUIRE((not cuda or not cuda->enabled()));
+      WARN("CUDAService is not present, or disabled because there are no CUDA GPU devices");
       return;
+    } else {
+      REQUIRE(cuda);
+      REQUIRE(cuda->enabled());
+      INFO("CUDAService is enabled");
     }
+  }
 
-    auto cs = makeCUDAService(ps);
+  SECTION("CUDAService enabled") {
+    int driverVersion = 0, runtimeVersion = 0;
+    edm::Service<CUDAInterface> cuda;
+    ret = cudaDriverGetVersion(&driverVersion);
+    if (ret != cudaSuccess) {
+      FAIL("Unable to query the CUDA driver version from the CUDA runtime API: (" << ret << ") "
+                                                                                  << cudaGetErrorString(ret));
+    }
+    ret = cudaRuntimeGetVersion(&runtimeVersion);
+    if (ret != cudaSuccess) {
+      FAIL("Unable to query the CUDA runtime API version: (" << ret << ") " << cudaGetErrorString(ret));
+    }
 
     SECTION("CUDA Queries") {
-      int driverVersion = 0, runtimeVersion = 0;
-      ret = cudaDriverGetVersion(&driverVersion);
-      if (ret != cudaSuccess) {
-        FAIL("Unable to query the CUDA driver version from the CUDA runtime API: (" << ret << ") "
-                                                                                    << cudaGetErrorString(ret));
-      }
-      ret = cudaRuntimeGetVersion(&runtimeVersion);
-      if (ret != cudaSuccess) {
-        FAIL("Unable to query the CUDA runtime API version: (" << ret << ") " << cudaGetErrorString(ret));
-      }
-
       WARN("CUDA Driver Version / Runtime Version: " << driverVersion / 1000 << "." << (driverVersion % 100) / 10
                                                      << " / " << runtimeVersion / 1000 << "."
                                                      << (runtimeVersion % 100) / 10);
 
       // Test that the number of devices found by the service
       // is the same as detected by the CUDA runtime API
-      REQUIRE(cs.numberOfDevices() == deviceCount);
-      WARN("Detected " << cs.numberOfDevices() << " CUDA Capable device(s)");
+      REQUIRE(cuda->numberOfDevices() == deviceCount);
+      WARN("Detected " << cuda->numberOfDevices() << " CUDA Capable device(s)");
 
       // Test that the compute capabilities of each device
       // are the same as detected by the CUDA runtime API
@@ -84,36 +114,40 @@ TEST_CASE("Tests of CUDAService", "[CUDAService]") {
                                                                  << cudaGetErrorString(ret));
         }
 
-        REQUIRE(deviceProp.major == cs.computeCapability(i).first);
-        REQUIRE(deviceProp.minor == cs.computeCapability(i).second);
+        REQUIRE(deviceProp.major == cuda->computeCapability(i).first);
+        REQUIRE(deviceProp.minor == cuda->computeCapability(i).second);
         INFO("Device " << i << ": " << deviceProp.name << "\n CUDA Capability Major/Minor version number: "
                        << deviceProp.major << "." << deviceProp.minor);
       }
     }
 
-    SECTION("CUDAService device free memory") {
-      size_t mem = 0;
-      int dev = -1;
-      for (int i = 0; i < deviceCount; ++i) {
-        size_t free, tot;
-        cudaSetDevice(i);
-        cudaMemGetInfo(&free, &tot);
-        WARN("Device " << i << " memory total " << tot << " free " << free);
-        if (free > mem) {
-          mem = free;
-          dev = i;
-        }
-      }
-      WARN("Device with most free memory " << dev << "\n"
-                                           << "     as given by CUDAService " << cs.deviceWithMostFreeMemory());
+    SECTION("With ResourceInformationService available") {
+      std::string config = makeProcess("Test");
+      addResourceInformationService(config);
+      addCUDAService(config);
+      auto serviceToken = getServiceToken(config);
+      edm::ServiceRegistry::Operate operate(serviceToken);
+
+      edm::Service<CUDAInterface> cuda;
+      REQUIRE(cuda);
+      REQUIRE(cuda->enabled());
+      edm::Service<edm::ResourceInformation> ri;
+      REQUIRE(ri);
+      REQUIRE(ri->gpuModels().size() > 0);
+      REQUIRE(ri->nvidiaDriverVersion().size() > 0);
+      REQUIRE(ri->cudaDriverVersion() == driverVersion);
+      REQUIRE(ri->cudaRuntimeVersion() == runtimeVersion);
     }
   }
 
-  SECTION("Force to be disabled") {
-    edm::ParameterSet ps;
-    ps.addUntrackedParameter("enabled", false);
-    auto cs = makeCUDAService(ps);
-    REQUIRE(cs.enabled() == false);
-    REQUIRE(cs.numberOfDevices() == 0);
+  SECTION("CUDAService disabled") {
+    std::string config = makeProcess("Test");
+    addCUDAService(config, false);
+    auto serviceToken = getServiceToken(config);
+    edm::ServiceRegistry::Operate operate(serviceToken);
+
+    edm::Service<CUDAInterface> cuda;
+    REQUIRE(cuda->enabled() == false);
+    REQUIRE(cuda->numberOfDevices() == 0);
   }
 }

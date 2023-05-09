@@ -105,7 +105,7 @@ void JetResolutionDemo::analyze(const edm::Event& iEvent, const edm::EventSetup&
     const std::vector<JME::Binning>& bins = resolution.getResolutionObject()->getDefinition().getBins();
 
     // Check that the first bin is eta
-    if ((bins.size()) && (bins[0] == JME::Binning::JetEta)) {
+    if ((!bins.empty()) && (bins[0] == JME::Binning::JetEta)) {
       const std::vector<JME::JetResolutionObject::Record> records = resolution.getResolutionObject()->getRecords();
       // Get all records from the object. Each record correspond to a different binning and different parameters
 

@@ -124,7 +124,7 @@ void HLTMuonOfflineAnalyzer::dqmBeginRun(const edm::Run &iRun, const edm::EventS
   set<string>::iterator iPath;
   vector<string>::const_iterator ilabel;
   for (iPath = hltPaths.begin(); iPath != hltPaths.end(); iPath++) {
-    string path = *iPath;
+    const string &path = *iPath;
     vector<string> labels = moduleLabels(path);
     bool isLastLabel = false;
     for (ilabel = labels.begin(); ilabel != labels.end(); ilabel++) {

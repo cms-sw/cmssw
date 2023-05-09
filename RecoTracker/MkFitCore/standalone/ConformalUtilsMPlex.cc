@@ -251,7 +251,7 @@ namespace mkfit {
           (fitting ? Config::thetaerr049 * Config::thetaerr049 : Config::thetaerr012 * Config::thetaerr012);
     }
 
-    if (debug) {
+    if (debug && g_debug) {
       for (int n = 0; n < N; ++n) {
         dprintf("afterCF seedID: %1u \n", seedID.constAt(n, 0, 0));
         // do a dumb copy out

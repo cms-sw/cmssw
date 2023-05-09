@@ -1,10 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from CalibCalorimetry.CaloTPG.CaloTPGTranscoder_cfi import tpScales
-from Configuration.Eras.Modifier_run2_HE_2017_cff import run2_HE_2017
-from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
-from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
-from Configuration.Eras.Modifier_run3_common_cff import run3_common
+from CalibCalorimetry.CaloTPG.tpScales_cff import tpScales
 
 LSParameter =cms.untracked.PSet(
 HcalFeatureHFEMBit= cms.bool(False),
@@ -93,13 +89,18 @@ simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
     tpScales = tpScales,
 )
 
-run2_HE_2017.toModify(simHcalTriggerPrimitiveDigis, upgradeHE=cms.bool(True))
-run2_HF_2017.toModify(simHcalTriggerPrimitiveDigis, 
-                      upgradeHF=cms.bool(True),
-                      numberOfSamplesHF = cms.int32(2),
-                      numberOfPresamplesHF = cms.int32(1)
+from Configuration.Eras.Modifier_run2_HE_2017_cff import run2_HE_2017
+run2_HE_2017.toModify(simHcalTriggerPrimitiveDigis, upgradeHE=True)
+
+from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
+run2_HF_2017.toModify(simHcalTriggerPrimitiveDigis,
+                      upgradeHF=True,
+                      numberOfSamplesHF = 2,
+                      numberOfPresamplesHF = 1
 )
-run2_HF_2017.toModify(tpScales.HF, NCTShift=cms.int32(2))
-run3_HB.toModify(simHcalTriggerPrimitiveDigis, upgradeHB=cms.bool(True))
-run3_common.toModify(simHcalTriggerPrimitiveDigis, applySaturationFix=cms.bool(True))
-run3_HB.toModify(tpScales.HBHE, LSBQIE11Overlap=cms.double(1/16.))
+
+from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
+run3_HB.toModify(simHcalTriggerPrimitiveDigis, upgradeHB=True)
+
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(simHcalTriggerPrimitiveDigis, applySaturationFix=True)

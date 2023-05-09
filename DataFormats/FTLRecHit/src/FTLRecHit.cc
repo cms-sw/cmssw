@@ -1,5 +1,4 @@
 #include "DataFormats/FTLRecHit/interface/FTLRecHit.h"
-#include "DataFormats/ForwardDetId/interface/FastTimeDetId.h"
 #include <cassert>
 #include <cmath>
 #include <limits>
@@ -62,7 +61,7 @@ bool FTLRecHit::checkFlags(const std::vector<int>& flagsvec) const {
 
 std::ostream& operator<<(std::ostream& s, const FTLRecHit& hit) {
   if (hit.detid().det() == DetId::Forward && hit.detid().subdetId() == FastTime)
-    return s << FastTimeDetId(hit.detid()) << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
+    return s << MTDDetId(hit.detid()) << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
   else
     return s << "FTLRecHit undefined subdetector";
 }

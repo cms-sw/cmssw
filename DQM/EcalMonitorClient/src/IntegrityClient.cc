@@ -8,9 +8,10 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
+#include "DQM/EcalCommon/interface/MESetNonObject.h"
 
 namespace ecaldqm {
-  IntegrityClient::IntegrityClient() : DQWorkerClient(), errFractionThreshold_(0.) {
+  IntegrityClient::IntegrityClient() : DQWorkerClient(), errFractionThreshold_(0.), processedEvents(0) {
     qualitySummaries_.insert("Quality");
     qualitySummaries_.insert("QualitySummary");
   }
@@ -44,7 +45,21 @@ namespace ecaldqm {
     MESet const& sGainSwitch(sources_.at("GainSwitch"));
     MESet const& sTowerId(sources_.at("TowerId"));
     MESet const& sBlockSize(sources_.at("BlockSize"));
+    MESetNonObject const& sNumEvents(static_cast<MESetNonObject&>(sources_.at("NumEvents")));
 
+    //Get the no.of events per LS calculated in OccupancyTask
+    int nEv = sNumEvents.getFloatValue();
+    processedEvents += nEv;  //Sum it up to get the total processed events for the whole run.
+
+    //TTID errors nomalized by total no.of events in a run.
+    MESet& meTTIDNorm(MEs_.at("TowerIdNormalized"));
+    MESet::iterator tEnd(meTTIDNorm.end(GetElectronicsMap()));
+    for (MESet::iterator tItr(meTTIDNorm.beginChannel(GetElectronicsMap())); tItr != tEnd;
+         tItr.toNextChannel(GetElectronicsMap())) {
+      DetId id(tItr->getId());
+      float towerid(sTowerId.getBinContent(getEcalDQMSetupObjects(), id));
+      tItr->setBinContent(towerid / processedEvents);
+    }
     // Fill Channel Status Map MEs
     // Record is checked for updates at every endLumi and filled here
     MESet::iterator chSEnd(meChStatus.end(GetElectronicsMap()));

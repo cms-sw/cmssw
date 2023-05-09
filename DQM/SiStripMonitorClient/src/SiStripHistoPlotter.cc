@@ -308,7 +308,7 @@ void SiStripHistoPlotter::makeCondDBPlots(DQMStore* dqm_store, const PlotParamet
   std::vector<MonitorElement*> all_mes = dqm_store->getContents(par.Path);
 
   for (std::vector<std::string>::const_iterator ih = htypes.begin(); ih != htypes.end(); ih++) {
-    std::string type = (*ih);
+    const std::string& type = (*ih);
     if (type.empty())
       continue;
     std::string tag = par.Path + "/";

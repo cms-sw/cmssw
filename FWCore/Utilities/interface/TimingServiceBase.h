@@ -19,6 +19,7 @@
 //
 
 // system include files
+#include <chrono>
 
 // user include files
 #include "FWCore/Utilities/interface/StreamID.h"
@@ -44,10 +45,10 @@ namespace edm {
 
     static void jobStarted();
 
-    static double jobStartTime() { return s_jobStartTime; }
+    static std::chrono::steady_clock::time_point jobStartTime() { return s_jobStartTime; }
 
   private:
-    static double s_jobStartTime;
+    static std::chrono::steady_clock::time_point s_jobStartTime;
   };
 }  // namespace edm
 

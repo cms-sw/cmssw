@@ -101,7 +101,7 @@ void CSCRecHitMatcher::matchCSCRecHit2DsToSimTrack(const CSCRecHit2DCollection& 
       // does the strip number match?
       bool stripMatch(false);
       for (size_t iS = 0; iS < d->nStrips(); ++iS) {
-        if (std::find(hit_strips.begin(), hit_strips.end(), d->channels(iS)) != hit_strips.end())
+        if (hit_strips.find(d->channels(iS)) != hit_strips.end())
           stripMatch = true;
       }
 

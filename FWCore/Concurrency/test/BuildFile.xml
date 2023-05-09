@@ -5,19 +5,16 @@
 
 <bin file="test_threadSafeOutputFileStream.cpp">
   <use name="FWCore/Concurrency"/>
-  <flags NO_TESTRUN="1"/>
+  <flags TEST_RUNNER_CMD="run_threadSafeOutputFileStream_test.sh"/>
 </bin>
 
 <bin file="ThreadSafeAddOnlyContainer_t.cpp">
   <use name="FWCore/Concurrency"/>
 </bin>
 
-<bin file="TestFWCoreConcurrencyDriver.cpp">
-  <use name="FWCore/Utilities"/>
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Concurrency/test run_streamGrapher_test.sh run_threadSafeOutputFileStream_test.sh"/>
-</bin>
+<test name="TestFWCoreConcurrencyDriver" command="run_streamGrapher_test.sh"/>
 
-<bin name="testFWCoreConcurrencyTBB.cc" file="TestTBB.cc">
+<bin name="testFWCoreConcurrencyTBB" file="TestTBB.cc">
   <use name="tbb"/>
 </bin>
 

@@ -2,7 +2,6 @@ import sys
 import pickle
 import networkx as nx
 import numpy as np
-#import numba
 import os
 import uproot
 import uproot_methods
@@ -35,7 +34,6 @@ for candid, pdgids in map_candid_to_pdgid.items():
     for p in pdgids:
         map_pdgid_to_candid[p] = candid
 
-#@numba.njit
 def get_charge(pid):
     abs_pid = abs(pid)
     if pid == 130 or pid == 22 or pid == 1 or pid == 2:

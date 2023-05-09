@@ -7,18 +7,18 @@ CSCUpgradeCathodeLCTProcessor::CSCUpgradeCathodeLCTProcessor(unsigned endcap,
                                                              unsigned sector,
                                                              unsigned subsector,
                                                              unsigned chamber,
-                                                             const edm::ParameterSet& conf)
+                                                             CSCBaseboard::Parameters& conf)
     : CSCCathodeLCTProcessor(endcap, station, sector, subsector, chamber, conf) {
   if (!runPhase2_)
     edm::LogError("CSCUpgradeCathodeLCTProcessor|ConfigError")
         << "+++ Upgrade CSCUpgradeCathodeLCTProcessor constructed while runPhase2_ is not set! +++\n";
 
   // use of localized dead-time zones
-  use_dead_time_zoning_ = clctParams_.getParameter<bool>("useDeadTimeZoning");
-  clct_state_machine_zone_ = clctParams_.getParameter<unsigned int>("clctStateMachineZone");
+  use_dead_time_zoning_ = conf.clctParams().getParameter<bool>("useDeadTimeZoning");
+  clct_state_machine_zone_ = conf.clctParams().getParameter<unsigned int>("clctStateMachineZone");
 
   // how far away may trigger happen from pretrigger
-  pretrig_trig_zone_ = clctParams_.getParameter<unsigned int>("clctPretriggerTriggerZone");
+  pretrig_trig_zone_ = conf.clctParams().getParameter<unsigned int>("clctPretriggerTriggerZone");
 }
 
 // --------------------------------------------------------------------------
@@ -104,10 +104,11 @@ bool CSCUpgradeCathodeLCTProcessor::preTrigger(const int start_bx, int& first_bx
 
 // Phase2 version.
 std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
-    const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]) {
+    const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER],
+    const CSCL1TPLookupTableCCLUT* lookupTable) {
   // run the original algorithm in case we do not use dead time zoning
   if (runPhase2_ and !use_dead_time_zoning_) {
-    return CSCCathodeLCTProcessor::findLCTs(halfstrip);
+    return CSCCathodeLCTProcessor::findLCTs(halfstrip, lookupTable);
   }
 
   std::vector<CSCCLCTDigi> lctList;
@@ -219,7 +220,7 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
             // construct a CLCT if the trigger condition has been met
             if (best_hs >= 0 && nhits[best_hs] >= nplanes_hit_pattern) {
               // overwrite the current best CLCT
-              tempBestCLCT = constructCLCT(first_bx, best_hs, hits_in_patterns[best_hs][best_pat]);
+              tempBestCLCT = constructCLCT(first_bx, best_hs, hits_in_patterns[best_hs][best_pat], lookupTable);
             }
           }
         }
@@ -248,7 +249,7 @@ std::vector<CSCCLCTDigi> CSCUpgradeCathodeLCTProcessor::findLCTs(
             // construct a CLCT if the trigger condition has been met
             if (best_hs >= 0 && nhits[best_hs] >= nplanes_hit_pattern) {
               // overwrite the current second best CLCT
-              tempSecondCLCT = constructCLCT(first_bx, best_hs, hits_in_patterns[best_hs][best_pat]);
+              tempSecondCLCT = constructCLCT(first_bx, best_hs, hits_in_patterns[best_hs][best_pat], lookupTable);
             }
           }
         }

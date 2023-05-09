@@ -1,12 +1,6 @@
 <ifarch value="x86_64">
-  <ifcxx11_abi value="1">
-    <flags SETENV="LD_PRELOAD=$(CMS_ORACLEOCCI_LIB)"/>
-  </ifcxx11_abi>
   <test name="SiStripDCS_O2O_test" command="testSiStripDCSO2O.sh"/>
   <test name="SiStripDAQ_O2O_test" command="testSiStripDAQO2O.sh"/>
 </ifarch>
 
-<bin file="runTests.cpp" name="testCondToolsSiStripBuildersReaders">
-  <use name="FWCore/Utilities"/>
-  <flags TEST_RUNNER_ARGS="/bin/bash CondTools/SiStrip/test testBuildersReaders.sh"/>
-</bin>
+<test name="testCondToolsSiStripBuildersReaders" command="testBuildersReaders.sh"/>

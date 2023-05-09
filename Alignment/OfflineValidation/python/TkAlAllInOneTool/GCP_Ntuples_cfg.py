@@ -73,9 +73,12 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 print('Output file: '+config["output"]+'/Ntuples.root')
-process.dump = cms.EDAnalyzer("TrackerGeometryIntoNtuples",
-    outputFile = cms.untracked.string(str(config["output"]+'/Ntuples.root')),
-    outputTreename = cms.untracked.string('alignTree')
+
+from Alignment.OfflineValidation.trackerGeometryIntoNtuples_cfi import trackerGeometryIntoNtuples as _trackerGeometryIntoNtuples
+
+process.dump = _trackerGeometryIntoNtuples.clone(
+    outputFile = str(config["output"]+'/Ntuples.root'),
+    outputTreename = 'alignTree'
 )
 
 process.p = cms.Path(process.dump)  

@@ -110,14 +110,14 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   rmsHOMax = cms.double(4.4),
                                   # -55 for  BAD HBHEHF channels from study on TSmean of shapes
                                   #Verbosity = cms.untracked.int32(-55),
-                                  TSmeanHBMin = cms.double(0.8),
+                                  TSmeanHBMin = cms.double(1.8),
                                   TSmeanHBMax = cms.double(8.0),
-                                  TSmeanHEMin = cms.double(0.8),
+                                  TSmeanHEMin = cms.double(1.8),
                                   TSmeanHEMax = cms.double(8.0),
-                                  TSmeanHFMin = cms.double(1.0),
+                                  TSmeanHFMin = cms.double(0.4),
                                   TSmeanHFMax = cms.double(2.8),
-                                  TSmeanHOMin = cms.double(0.8),
-                                  TSmeanHOMax = cms.double(8.0),
+                                  TSmeanHOMin = cms.double(1.8),
+                                  TSmeanHOMax = cms.double(7.0),
                                   # -55 for  BAD HBHEHF channels from study on TSmax of shapes
                                   #Verbosity = cms.untracked.int32(-55),
                                   TSpeakHBMin = cms.double(-0.5),
@@ -457,7 +457,8 @@ from Configuration.AlCa.autoCond import autoCond
 #process.GlobalTag.globaltag = '105X_postLS2_design_v4'
 #process.GlobalTag.globaltag = '106X_dataRun3_HLT_v3'
 #process.GlobalTag.globaltag = '113X_dataRun3_HLT_v3'
-process.GlobalTag.globaltag = '120X_dataRun3_HLT_v3'
+#process.GlobalTag.globaltag = '120X_dataRun3_HLT_v3'
+process.GlobalTag.globaltag = '123X_dataRun3_HLT_v7'
 ###########################################################################
 process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
 #process.hcalDigis.FilterDataQuality = cms.bool(False)

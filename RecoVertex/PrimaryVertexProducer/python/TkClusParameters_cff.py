@@ -16,9 +16,27 @@ DA_vectParameters = cms.PSet(
         dzCutOff = cms.double(3.),        # outlier rejection after freeze-out (T<Tmin)       
         zmerge = cms.double(1e-2),        # merge intermediat clusters separated by less than zmerge
         uniquetrkweight = cms.double(0.8),# require at least two tracks with this weight at T=Tpurge
-        uniquetrkminp = cms.double(0.0)   # minimal a priori track weight for counting unique tracks
+        uniquetrkminp = cms.double(0.0),  # minimal a priori track weight for counting unique tracks
+        runInBlocks = cms.bool(False),    # activate the DA running in blocks of z sorted tracks
+        block_size = cms.uint32(10000),   # block size in tracks
+        overlap_frac = cms.double(0.0)    # overlap between consecutive blocks (blocks_size*overlap_frac)
         )
 )
+
+from Configuration.ProcessModifiers.vertexInBlocks_cff import vertexInBlocks
+vertexInBlocks.toModify(DA_vectParameters,
+    TkDAClusParameters = dict(
+    runInBlocks = True,
+    block_size = 128,
+    overlap_frac = 0.5
+    )
+)
+
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+(phase2_tracker & vertexInBlocks).toModify(DA_vectParameters,
+        TkDAClusParameters = dict(
+        block_size = 512,
+        overlap_frac = 0.5))
 
 from Configuration.Eras.Modifier_highBetaStar_2018_cff import highBetaStar_2018
 highBetaStar_2018.toModify(DA_vectParameters,

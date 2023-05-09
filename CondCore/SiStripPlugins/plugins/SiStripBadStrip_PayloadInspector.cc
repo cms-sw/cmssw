@@ -901,26 +901,34 @@ namespace {
 
       std::vector<uint32_t> allDetIds = detInfo.getAllDetIds();
 
+#ifdef MMDEBUG
       int countLastButNotFirst(0);
       int countFirstButNotLast(0);
       int countBoth(0);
+#endif
 
       for (const auto& d : allDetIds) {
         if (LastFractionPerDetId.find(d) != LastFractionPerDetId.end() &&
             FirstFractionPerDetId.find(d) == FirstFractionPerDetId.end()) {
           tmap->fill(d, LastFractionPerDetId[d]);
+#ifdef MMDEBUG
           countLastButNotFirst++;
+#endif
         } else if (LastFractionPerDetId.find(d) == LastFractionPerDetId.end() &&
                    FirstFractionPerDetId.find(d) != FirstFractionPerDetId.end()) {
           tmap->fill(d, -FirstFractionPerDetId[d]);
+#ifdef MMDEBUG
           countFirstButNotLast++;
+#endif
         } else if (LastFractionPerDetId.find(d) != LastFractionPerDetId.end() &&
                    FirstFractionPerDetId.find(d) != FirstFractionPerDetId.end()) {
           float delta = (LastFractionPerDetId[d] - FirstFractionPerDetId[d]);
           if (delta != 0.) {
             tmap->fill(d, delta);
           }
+#ifdef MMDEBUG
           countBoth++;
+#endif
         }
       }
 

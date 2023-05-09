@@ -22,6 +22,7 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "CommonTools/RecoAlgos/interface/ClusterStorer.h"
 #include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
@@ -74,6 +75,7 @@ namespace helper {
     std::unique_ptr<TrackingRecHitCollection> selStandAloneTracksHits_;
     std::unique_ptr<edmNew::DetSetVector<SiStripCluster>> selStripClusters_;
     std::unique_ptr<edmNew::DetSetVector<SiPixelCluster>> selPixelClusters_;
+    std::unique_ptr<edmNew::DetSetVector<Phase2TrackerCluster1D>> selPhase2OTClusters_;
 
     reco::MuonRefProd rMuons_;
     reco::TrackRefProd rTracks_;
@@ -128,6 +130,9 @@ namespace helper {
     edm::RefProd<edmNew::DetSetVector<SiPixelCluster>> rPixelClusters =
         evt.template getRefBeforePut<edmNew::DetSetVector<SiPixelCluster>>();
 
+    edm::RefProd<edmNew::DetSetVector<Phase2TrackerCluster1D>> rPhase2OTClusters =
+        evt.template getRefBeforePut<edmNew::DetSetVector<Phase2TrackerCluster1D>>();
+
     id_ = 0;
     igbd_ = 0;
     isad_ = 0;
@@ -145,7 +150,12 @@ namespace helper {
       processMuon(mu);
     }
     //--- Clone the clusters and fixup refs
-    clusterStorer_.processAllClusters(*selPixelClusters_, rPixelClusters, *selStripClusters_, rStripClusters);
+    clusterStorer_.processAllClusters(*selPixelClusters_,
+                                      rPixelClusters,
+                                      *selStripClusters_,
+                                      rStripClusters,
+                                      *selPhase2OTClusters_,
+                                      rPhase2OTClusters);
   }
 
   //----------------------------------------------------------------------
@@ -161,6 +171,7 @@ namespace helper {
       //--- New: save clusters too
       produces<edmNew::DetSetVector<SiPixelCluster>>().setBranchAlias(alias + "PixelClusters");
       produces<edmNew::DetSetVector<SiStripCluster>>().setBranchAlias(alias + "StripClusters");
+      produces<edmNew::DetSetVector<Phase2TrackerCluster1D>>().setBranchAlias(alias + "Phase2OTClusters");
       produces<reco::TrackCollection>("GlobalMuon").setBranchAlias(alias + "GlobalMuonTracks");
       produces<reco::TrackExtraCollection>("GlobalMuon").setBranchAlias(alias + "GlobalMuonExtras");
       produces<TrackingRecHitCollection>("GlobalMuon").setBranchAlias(alias + "GlobalMuonHits");

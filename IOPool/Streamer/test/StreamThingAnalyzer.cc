@@ -22,6 +22,8 @@ namespace edmtest_thing {
       : name_(ps.getParameter<std::string>("product_to_get")),
         total_(),
         out_("gennums.txt"),
+        inChecksumFile_(ps.getUntrackedParameter<std::string>("inChecksum", "")),
+        outChecksumFile_(ps.getUntrackedParameter<std::string>("outChecksum", "")),
         cnt_(),
         getterUsingLabel_(edm::ModuleLabelMatch(name_), this) {
     callWhenNewProductsRegistered(getterUsingLabel_);
@@ -36,6 +38,23 @@ namespace edmtest_thing {
   }
 
   StreamThingAnalyzer::~StreamThingAnalyzer() { std::cout << "\nSTREAMTHING_CHECKSUM " << total_ << "\n" << std::endl; }
+
+  void StreamThingAnalyzer::endJob() {
+    edm::LogInfo("StreamThingAnalyzer") << "STREAMTHING_CHECKSUM " << total_;
+    if (!outChecksumFile_.empty()) {
+      edm::LogInfo("StreamThingAnalyzer") << "Writing checksum to " << outChecksumFile_;
+      std::ofstream outChecksum(outChecksumFile_);
+      outChecksum << total_;
+    } else if (!inChecksumFile_.empty()) {
+      edm::LogInfo("StreamThingAnalyzer") << "Reading checksum from " << inChecksumFile_;
+      int totalIn = 0;
+      std::ifstream inChecksum(inChecksumFile_);
+      inChecksum >> totalIn;
+      if (totalIn != total_)
+        throw cms::Exception("StreamThingAnalyzer")
+            << "Checksum mismatch input: " << totalIn << " compared to: " << total_;
+    }
+  }
 
   void StreamThingAnalyzer::analyze(edm::Event const& e, edm::EventSetup const&) {
     typedef std::vector<edm::Handle<WriteThis> > ProdList;

@@ -1,7 +1,7 @@
 
 #include "FWCore/Framework/src/Factory.h"
 #include "FWCore/Framework/interface/maker/MakerPluginFactory.h"
-#include "FWCore/Framework/interface/ModuleTypeResolverBase.h"
+#include "FWCore/Framework/interface/ModuleTypeResolverMaker.h"
 #include "FWCore/Framework/interface/resolveMaker.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -20,28 +20,22 @@ namespace edm {
 
   Factory const* Factory::get() { return &singleInstance_; }
 
-  Maker* Factory::findMaker(const MakeModuleParams& p, ModuleTypeResolverBase const* resolver) const {
+  Maker const* Factory::findMaker(const MakeModuleParams& p, ModuleTypeResolverMaker const* resolverMaker) const {
     std::string modtype = p.pset_->getParameter<std::string>("@module_type");
     FDEBUG(1) << "Factory: module_type = " << modtype << std::endl;
     MakerMap::iterator it = makers_.find(modtype);
-
-    if (it == makers_.end()) {
-      std::unique_ptr<Maker> wm = detail::resolveMaker<MakerPluginFactory>(modtype, resolver);
-      FDEBUG(1) << "Factory:  created worker of type " << modtype << std::endl;
-
-      std::pair<MakerMap::iterator, bool> ret = makers_.insert({modtype, std::move(wm)});
-
-      it = ret.first;
+    if (it != makers_.end()) {
+      return it->second.get();
     }
-    return it->second;
+    return detail::resolveMaker<MakerPluginFactory>(modtype, resolverMaker, *p.pset_, makers_);
   }
 
   std::shared_ptr<maker::ModuleHolder> Factory::makeModule(
       const MakeModuleParams& p,
-      const ModuleTypeResolverBase* resolver,
+      const ModuleTypeResolverMaker* resolverMaker,
       signalslot::Signal<void(const ModuleDescription&)>& pre,
       signalslot::Signal<void(const ModuleDescription&)>& post) const {
-    auto maker = findMaker(p, resolver);
+    auto maker = findMaker(p, resolverMaker);
     auto mod(maker->makeModule(p, pre, post));
     return mod;
   }

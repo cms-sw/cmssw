@@ -273,8 +273,8 @@ void EcalLaserCondTools::fillDb(CorrReader& r) {
     int iline = 0;
     while (!feof(eventList_)) {
       //skips comment lines:
-      char c;
-      while (fscanf(eventList_, " %1[#]%*[^\n]\n", &c) == 1)
+      char c[2];
+      while (fscanf(eventList_, " %1[#]%*[^\n]\n", &c[0]) == 1)
         ++iline;
 
       int n = fscanf(eventList_, "%*d %*d %*d %d%*[^\n]\n", &t);

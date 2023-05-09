@@ -171,7 +171,6 @@ vector<TransientVertex> AdaptiveVertexReconstructor::vertices(const vector<reco:
 
   copy(tracks.begin(), tracks.end(), inserter(remainingtrks, remainingtrks.begin()));
 
-  int ctr = 0;
   unsigned int n_tracks = remainingtrks.size();
 
   // cout << "[AdaptiveVertexReconstructor] DEBUG ::vertices!!" << endl;
@@ -181,7 +180,6 @@ vector<TransientVertex> AdaptiveVertexReconstructor::vertices(const vector<reco:
       cout << "[AdaptiveVertexReconstructor] next round: "
            << remainingtrks.size() << endl;
            */
-      ctr++;
       const AdaptiveVertexFitter* fitter = theSecondaryFitter;
       if (ret.empty()) {
         fitter = thePrimaryFitter;

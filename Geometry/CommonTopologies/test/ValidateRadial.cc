@@ -2,6 +2,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -116,7 +117,6 @@ void compare(const TkRadialStripTopology& t,
     std::cout << "FAILED " << le.yy() << " " << ole.xy() << std::endl;
   if (fabs(le.xy() - ole.xy()) > 0.001)
     std::cout << "FAILED " << le.xy() << " " << ole.yy() << std::endl;
-
   if (fabs(mp.x() - omp.x()) > 0.001)
     std::cout << "FAILED " << mp.x() << " " << omp.x() << std::endl;
   if (fabs(me.uu() - ome.uu()) > 0.001)

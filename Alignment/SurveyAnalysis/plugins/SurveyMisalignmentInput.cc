@@ -21,7 +21,6 @@ SurveyMisalignmentInput::SurveyMisalignmentInput(const edm::ParameterSet& cfg)
     : tTopoToken_(esConsumes()),
       geomDetToken_(esConsumes()),
       ptpToken_(esConsumes()),
-      ptitpToken_(esConsumes()),
       aliToken_(esConsumes()),
       textFileName(cfg.getParameter<std::string>("textFileName")) {}
 
@@ -31,8 +30,7 @@ void SurveyMisalignmentInput::analyze(const edm::Event&, const edm::EventSetup& 
     const TrackerTopology* const tTopo = &setup.getData(tTopoToken_);
     const GeometricDet* geom = &setup.getData(geomDetToken_);
     const PTrackerParameters& ptp = setup.getData(ptpToken_);
-    const PTrackerAdditionalParametersPerDet* ptitp = &setup.getData(ptitpToken_);
-    TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(geom, ptitp, ptp, tTopo);
+    TrackerGeometry* tracker = TrackerGeomBuilderFromGeometricDet().build(geom, ptp, tTopo);
 
     addComponent(new AlignableTracker(tracker, tTopo));
 

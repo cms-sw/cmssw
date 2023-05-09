@@ -144,7 +144,7 @@ bool TriggerTools::passObj(const double eta, const double phi) const {
       for (unsigned int hlto = 0; hlto < keys.size(); hlto++) {
         trigger::size_type hltf = keys[hlto];
         const trigger::TriggerObject& tobj(toc[hltf]);
-        if (reco::deltaR(eta, phi, tobj.eta(), tobj.phi()) < DRMAX) {
+        if (reco::deltaR2(eta, phi, tobj.eta(), tobj.phi()) < DRMAX) {
           return true;
         }
       }

@@ -944,7 +944,6 @@ void PFAlgo::relinkTrackToHcal(const reco::PFBlock& block,
                                const std::vector<bool>& active,
                                reco::PFBlock::LinkData& linkData,
                                unsigned int iTrack) {
-  unsigned ntt = 1;
   unsigned index = ecalElems.begin()->second;
   std::multimap<double, unsigned> sortedTracks;
   block.associatedElements(index, linkData, sortedTracks, reco::PFBlockElement::TRACK, reco::PFBlock::LINKTEST_ALL);
@@ -980,7 +979,6 @@ void PFAlgo::relinkTrackToHcal(const reco::PFBlock& block,
     if (sortedHCAL.empty())
       continue;
     LogTrace("PFAlgo|elementLoop") << "  and with an HCAL cluster " << sortedHCAL.begin()->second;
-    ntt++;
 
     // In that case establish a link with the first track
     block.setLink(iTrack, sortedHCAL.begin()->second, sortedECAL.begin()->first, linkData, PFBlock::LINKTEST_RECHIT);
@@ -3439,7 +3437,6 @@ void PFAlgo::associatePSClusters(unsigned iEcal,
   block.associatedElements(iEcal, linkData, sortedPS, psElementType, reco::PFBlock::LINKTEST_ALL);
 
   // Loop over these PS clusters
-  double totalPS = 0.;
   for (auto const& ps : sortedPS) {
     // CLuster index and distance to iEcal
     unsigned iPS = ps.second;
@@ -3461,7 +3458,6 @@ void PFAlgo::associatePSClusters(unsigned iEcal,
     assert(pstype == psElementType);
     PFClusterRef psclusterref = elements[iPS].clusterRef();
     assert(!psclusterref.isNull());
-    totalPS += psclusterref->energy();
     psEne[0] += psclusterref->energy();
     active[iPS] = false;
   }

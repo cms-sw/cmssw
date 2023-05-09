@@ -1,0 +1,10 @@
+<iftool name="rocm">
+  <bin file="testDeviceAdditionKernel.hip.cc" name="testRocmDeviceAdditionKernel">
+    <use name="catch2"/>
+    <use name="rocm"/>
+    <use name="HeterogeneousTest/ROCmKernel"/>
+    <use name="HeterogeneousCore/ROCmUtilities"/>
+  </bin>
+
+  <test name="testROCmTestKernelAdditionModule" command="cmsRun ${LOCALTOP}/src/HeterogeneousTest/ROCmKernel/test/testROCmTestKernelAdditionModule.py"/>
+</iftool>

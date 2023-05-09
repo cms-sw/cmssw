@@ -33,27 +33,26 @@ l1ct::DeregionizerEmulator::DeregionizerEmulator(const unsigned int nPuppiFinalB
          nPuppiSecondBuffers < nPuppiThirdBuffers && nPuppiThirdBuffers <= nPuppiFinalBuffer);
 }
 
-std::vector<std::vector<l1ct::PuppiObjEmu> > l1ct::DeregionizerEmulator::splitPFregions(
-    const std::vector<std::vector<std::vector<l1ct::PuppiObjEmu> > > &regionPuppis, const int i, const int j) {
-  int k = nPuppiPerClk_ * j;
-  std::vector<std::vector<l1ct::PuppiObjEmu> > subregionPuppis;
-  for (int l = 0, n = regionPuppis.size(); l < n; l++) {
-    const auto &puppis = regionPuppis[l][i];
-    std::vector<l1ct::PuppiObjEmu> tmp(std::min(puppis.begin() + k, puppis.end()),
-                                       std::min(puppis.begin() + k + nPuppiPerClk_, puppis.end()));
-    subregionPuppis.push_back(tmp);
-  }
-  return subregionPuppis;
-}
-
 std::vector<l1ct::PuppiObjEmu> l1ct::DeregionizerEmulator::mergeXtoY(const unsigned int X,
                                                                      const unsigned int Y,
                                                                      const std::vector<l1ct::PuppiObjEmu> &inLeft,
                                                                      const std::vector<l1ct::PuppiObjEmu> &inRight) {
+  // merge X to Y with truncation
   std::vector<l1ct::PuppiObjEmu> out;
 
   out.insert(out.end(), inLeft.begin(), std::min(inLeft.end(), inLeft.begin() + X));
   out.insert(out.end(), inRight.begin(), std::min(inRight.end(), inRight.begin() + Y - X));
+
+  return out;
+}
+
+std::vector<l1ct::PuppiObjEmu> l1ct::DeregionizerEmulator::mergeXtoY(const std::vector<l1ct::PuppiObjEmu> &inLeft,
+                                                                     const std::vector<l1ct::PuppiObjEmu> &inRight) {
+  // merge X to Y with no truncation
+  std::vector<l1ct::PuppiObjEmu> out;
+
+  out.insert(out.end(), inLeft.begin(), inLeft.end());
+  out.insert(out.end(), inRight.begin(), inRight.end());
 
   return out;
 }
@@ -80,69 +79,20 @@ static void debugPrint(const std::string &header, const std::vector<l1ct::PuppiO
     dbgCout() << "      > puppi[" << iPup << "] pT = " << pup[iPup].hwPt << "\n";
 }
 
-void l1ct::DeregionizerEmulator::run(const l1ct::DeregionizerInput in,
+void l1ct::DeregionizerEmulator::run(std::vector<std::vector<std::vector<l1ct::PuppiObjEmu>>> in,
                                      std::vector<l1ct::PuppiObjEmu> &out,
                                      std::vector<l1ct::PuppiObjEmu> &truncated) {
-  const auto &regionPuppis = in.orderedInRegionsPuppis();
-  std::vector<l1ct::PuppiObjEmu> intermediateTruncated;
-
-  for (int i = 0, n = in.nPhiRegions; i < n; i++) {
-    // Each PF region (containing at most 18 puppi candidates) is split in 3(*nPuppiPerClk=18)
-    for (int j = 0; j < 3; j++) {
-      std::vector<std::vector<l1ct::PuppiObjEmu> > subregionPuppis = splitPFregions(regionPuppis, i, j);
-
-      // Merge PF regions in pairs
-      std::vector<l1ct::PuppiObjEmu> buffer01 =
-          mergeXtoY(nPuppiPerClk_, nPuppiFirstBuffers_, subregionPuppis[0], subregionPuppis[1]);
-      std::vector<l1ct::PuppiObjEmu> buffer23 =
-          mergeXtoY(nPuppiPerClk_, nPuppiFirstBuffers_, subregionPuppis[2], subregionPuppis[3]);
-      std::vector<l1ct::PuppiObjEmu> buffer45 =
-          mergeXtoY(nPuppiPerClk_, nPuppiFirstBuffers_, subregionPuppis[4], subregionPuppis[5]);
-
-      // Merge 4 first regions together, forward the last 2
-      std::vector<l1ct::PuppiObjEmu> buffer0123 =
-          mergeXtoY(nPuppiFirstBuffers_, nPuppiSecondBuffers_, buffer01, buffer23);
-      std::vector<l1ct::PuppiObjEmu> buffer45ext;
-      accumulateToY(nPuppiSecondBuffers_, buffer45, buffer45ext, intermediateTruncated);
-
-      // Merge all regions together and forward them to the final buffer
-      std::vector<l1ct::PuppiObjEmu> buffer012345 =
-          mergeXtoY(nPuppiSecondBuffers_, nPuppiThirdBuffers_, buffer0123, buffer45ext);
-      accumulateToY(nPuppiFinalBuffer_, buffer012345, out, truncated);
-
-      if (debug_) {
-        dbgCout() << "\n";
-        dbgCout() << "Phi region index : " << i << "," << j << "\n";
-
-        debugPrint("Eta region : 0", subregionPuppis[0]);
-        debugPrint("Eta region : 1", subregionPuppis[1]);
-        debugPrint("Eta region : 0+1", buffer01);
-        dbgCout() << "------------------ "
-                  << "\n";
-
-        debugPrint("Eta region : 2", subregionPuppis[2]);
-        debugPrint("Eta region : 3", subregionPuppis[3]);
-        debugPrint("Eta region : 2+3", buffer23);
-        dbgCout() << "------------------ "
-                  << "\n";
-
-        debugPrint("Eta region : 4", subregionPuppis[4]);
-        debugPrint("Eta region : 5", subregionPuppis[5]);
-        debugPrint("Eta region : 4+5", buffer45);
-        dbgCout() << "------------------ "
-                  << "\n";
-
-        debugPrint("Eta region : 0+1+2+3", buffer0123);
-        dbgCout() << "------------------ "
-                  << "\n";
-
-        debugPrint("Eta region : 0+1+2+3+4+5", buffer012345);
-        dbgCout() << "------------------ "
-                  << "\n";
-
-        debugPrint("Inclusive", out);
-      }
+  for (int i = 0, n = in.size(); i < n; i++) {
+    std::vector<std::vector<l1ct::PuppiObjEmu>> pupsOnClock = in[i];
+    std::vector<l1ct::PuppiObjEmu> intermediateTruncated;
+    // Merge PF regions from this cycle. No truncation happens here
+    std::vector<l1ct::PuppiObjEmu> buffer;
+    for (const auto &pupsOnClockOnBoard : pupsOnClock) {
+      buffer = mergeXtoY(buffer, pupsOnClockOnBoard);
     }
+
+    // accumulate PF regions over cycles, truncation may happen here
+    accumulateToY(nPuppiFinalBuffer_, buffer, out, truncated);
   }
 
   if (debug_) {

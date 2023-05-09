@@ -16,7 +16,6 @@ std::unique_ptr<GeometricDet> CondDBCmsTrackerConstruction::construct(const PGeo
   size_t detMax = pgd.pgeomdets_.size();
   size_t tri = 1;
   std::vector<GeometricDet*> hier;
-  int lev = 1;
   GeometricDet* subdet = tracker.get();
   hier.emplace_back(subdet);
   while (tri < detMax && pgd.pgeomdets_[tri]._level == 1) {
@@ -25,54 +24,44 @@ std::unique_ptr<GeometricDet> CondDBCmsTrackerConstruction::construct(const PGeo
     ++tri;
     hier.back()->addComponent(subdet);
     hier.emplace_back(subdet);
-    ++lev;
     while (tri < detMax && pgd.pgeomdets_[tri]._level == 2) {
       subdet = new GeometricDet(pgd.pgeomdets_[tri], GeometricDet::GDEnumType(pgd.pgeomdets_[tri]._type));
       //std::cout << lev << "\ttype " << pgd.pgeomdets_[tri]._type << " " << subdet->geographicalId() << std::endl;
       ++tri;
       hier.back()->addComponent(subdet);
       hier.emplace_back(subdet);
-      ++lev;
       while (tri < detMax && pgd.pgeomdets_[tri]._level == 3) {
         subdet = new GeometricDet(pgd.pgeomdets_[tri], GeometricDet::GDEnumType(pgd.pgeomdets_[tri]._type));
         //std::cout << lev << "\t\ttype " << pgd.pgeomdets_[tri]._type << " " << subdet->geographicalId() << std::endl;
         ++tri;
         hier.back()->addComponent(subdet);
         hier.emplace_back(subdet);
-        ++lev;
         while (tri < detMax && pgd.pgeomdets_[tri]._level == 4) {
           subdet = new GeometricDet(pgd.pgeomdets_[tri], GeometricDet::GDEnumType(pgd.pgeomdets_[tri]._type));
           //std::cout << lev << "\t\t\ttype " << pgd.pgeomdets_[tri]._type << " " << subdet->geographicalId() << std::endl;
           ++tri;
           hier.back()->addComponent(subdet);
           hier.emplace_back(subdet);
-          ++lev;
           while (tri < detMax && pgd.pgeomdets_[tri]._level == 5) {
             subdet = new GeometricDet(pgd.pgeomdets_[tri], GeometricDet::GDEnumType(pgd.pgeomdets_[tri]._type));
             //std::cout << lev << "\t\t\t\ttype " << pgd.pgeomdets_[tri]._type << " " << subdet->geographicalId() << std::endl;
             ++tri;
             hier.back()->addComponent(subdet);
             hier.emplace_back(subdet);
-            ++lev;
             while (tri < detMax && pgd.pgeomdets_[tri]._level == 6) {
               subdet = new GeometricDet(pgd.pgeomdets_[tri], GeometricDet::GDEnumType(pgd.pgeomdets_[tri]._type));
               //std::cout << lev << "\t\t\t\t\ttype " << pgd.pgeomdets_[tri]._type << " " << subdet->geographicalId() << std::endl;
               ++tri;
               hier.back()->addComponent(subdet);
             }
-            --lev;
             hier.pop_back();
           }
-          --lev;
           hier.pop_back();
         }
-        --lev;
         hier.pop_back();
       }
-      --lev;
       hier.pop_back();
     }
-    --lev;
     hier.pop_back();
   }
   //     std::cout << "Before \"deep components\" test I want to see if I can iterate to 6 layers by myself..." << std::endl;

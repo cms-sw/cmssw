@@ -65,7 +65,7 @@ void ThroughputService::preallocate(edm::service::SystemBounds const& bounds) {
 void ThroughputService::preGlobalBeginRun(edm::GlobalContext const& gc) {
   // if the DQMStore is available, book the DQM histograms
   // check that the DQMStore service is available
-  if (m_enable_dqm and not edm::Service<dqm::legacy::DQMStore>().isAvailable()) {
+  if (m_enable_dqm and not edm::Service<DQMStore>().isAvailable()) {
     // the DQMStore is not available, disable all DQM plots
     m_enable_dqm = false;
     edm::LogWarning("ThroughputService") << "The DQMStore is not avalable, the DQM plots will not be generated";
@@ -85,6 +85,7 @@ void ThroughputService::preGlobalBeginRun(edm::GlobalContext const& gc) {
 
     // define a callback that can book the histograms
     auto bookTransactionCallback = [&, this](DQMStore::IBooker& booker, DQMStore::IGetter&) {
+      auto scope = dqm::reco::DQMStore::IBooker::UseRunScope(booker);
       booker.setCurrentFolder(m_dqm_path);
       m_sourced_events = booker.book1D("throughput_sourced", "Throughput (sourced events)", bins, 0., range);
       m_sourced_events->setXTitle("time [s]");

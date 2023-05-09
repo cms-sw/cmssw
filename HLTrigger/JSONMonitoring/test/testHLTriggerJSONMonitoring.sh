@@ -2,20 +2,25 @@
 
 # Pass in name and status
 function die {
-  echo $1: status $2
-  echo === Log file ===
-  cat ${3:-/dev/null}
-  echo === End log file ===
+  printf "\n%s: status %s\n" "$1" "$2"
+  if [ $# -gt 2 ]; then
+    printf "%s\n" "=== Log File =========="
+    cat $3
+    printf "%s\n" "=== End of Log File ==="
+  fi
   exit $2
 }
 
 # run test job
 TESTDIR="${LOCALTOP}"/src/HLTrigger/JSONMonitoring/test
-cmsRun "${TESTDIR}"/testHLTriggerJSONMonitoring.py &> log_HLTriggerJSONMonitoring \
- || die "Failure using testHLTriggerJSONMonitoring.py" $? log_HLTriggerJSONMonitoring
+
+cmsRun "${TESTDIR}"/testHLTriggerJSONMonitoring_cfg.py &> log_testHLTriggerJSONMonitoring \
+ || die "Failure using testHLTriggerJSONMonitoring_cfg.py" $? log_testHLTriggerJSONMonitoring
+
+cat log_testHLTriggerJSONMonitoring
 
 # expected PathSummary of test job
-cat <<@EOF > log_HLTriggerJSONMonitoring_expected
+cat <<@EOF > log_testHLTriggerJSONMonitoring_expected
 TrigReport ---------- Event  Summary ------------
 TrigReport Events total = 100 passed = 100 failed = 0
 TrigReport ---------- Path   Summary ------------
@@ -30,5 +35,5 @@ TrigReport     1    6        100          2         98          0 Dataset_TestDa
 @EOF
 
 # compare to expected output of test job
-grep -m11 TrigReport log_HLTriggerJSONMonitoring \
- | diff log_HLTriggerJSONMonitoring_expected - || die "differences in expected log report" $?
+grep -m11 TrigReport log_testHLTriggerJSONMonitoring | diff log_testHLTriggerJSONMonitoring_expected - \
+  || die "Unexpected differences in outputs of testHLTriggerJSONMonitoring_cfg.py" $?

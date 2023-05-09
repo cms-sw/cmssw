@@ -21,16 +21,8 @@
 <test name="test_root_PyMVA" command="rm -f tmp/test_PyMVA; mkdir tmp/test_PyMVA; cd tmp/test_PyMVA; cp $(LOCALTOP)/src/PhysicsTools/PythonAnalysis/test/test_PyMVA.cpp .; root -n -b -l -q test_PyMVA.cpp+">
   <use name="rootpymva"/>
 </test>
-<iftool name="py2-numba">
-  <test name="testNumba" command="testNumba.py"/>
-</iftool>
-<iftool name="py2-llvmlite">
-  <test name="testLLVMLite" command="python3 -c 'import llvmlite'"/>
-</iftool>
-<iftool name="py2-numpy">
-  <test name="testNumPy" command="python3 -c 'import numpy'"/>
-</iftool>
-<iftool name="py2-cx-oracle">
+<test name="testNumPy" command="python3 -c 'import numpy'"/>
+<iftool name="py3-cx-oracle">
   <test name="testCxOracle" command="python3 -c 'import cx_Oracle'"/>
 </iftool>
 

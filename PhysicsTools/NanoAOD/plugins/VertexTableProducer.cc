@@ -125,8 +125,8 @@ void VertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   for (const auto& pv : *pvsIn)
     if (goodPvCut_(pv))
       goodPVs++;
-  pvTable->addColumnValue<int>("npvs", pvsIn->size(), "total number of reconstructed primary vertices");
-  pvTable->addColumnValue<int>(
+  pvTable->addColumnValue<uint8_t>("npvs", pvsIn->size(), "total number of reconstructed primary vertices");
+  pvTable->addColumnValue<uint8_t>(
       "npvsGood", goodPVs, "number of good reconstructed primary vertices. selection:" + goodPvCutString_);
   pvTable->addColumnValue<float>(
       "score", pvsScoreProd.get(pvsIn.id(), 0), "main primary vertex score, i.e. sum pt2 of clustered objects", 8);
@@ -145,7 +145,7 @@ void VertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   const auto& svsProd = iEvent.get(svs_);
   auto selCandSv = std::make_unique<PtrVector<reco::Candidate>>();
   std::vector<float> dlen, dlenSig, pAngle, dxy, dxySig;
-  std::vector<int> charge;
+  std::vector<int16_t> charge;
   VertexDistance3D vdist;
   VertexDistanceXY vdistXY;
 
@@ -187,7 +187,7 @@ void VertexTableProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   svsTable->addColumn<float>("dxy", dxy, "2D decay length in cm", 10);
   svsTable->addColumn<float>("dxySig", dxySig, "2D decay length significance", 10);
   svsTable->addColumn<float>("pAngle", pAngle, "pointing angle, i.e. acos(p_SV * (SV - PV)) ", 10);
-  svsTable->addColumn<int>("charge", charge, "sum of the charge of the SV tracks", 10);
+  svsTable->addColumn<int16_t>("charge", charge, "sum of the charge of the SV tracks", 10);
 
   iEvent.put(std::move(pvTable), "pv");
   iEvent.put(std::move(otherPVsTable), "otherPVs");

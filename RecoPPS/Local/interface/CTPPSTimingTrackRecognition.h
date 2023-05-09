@@ -124,7 +124,6 @@ inline void CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::producePartialTra
     void (*setTrackCenter)(TRACK_TYPE&, float),
     void (*setTrackSigma)(TRACK_TYPE&, float),
     TrackVector& result) {
-  int numberOfTracks = 0;
   const float invResolution = 1. / resolution_;
   const float profileRangeMargin = sigma_ * 3.;
   const float profileRangeBegin = param.rangeBegin - profileRangeMargin;
@@ -185,7 +184,6 @@ inline void CTPPSTimingTrackRecognition<TRACK_TYPE, HIT_TYPE>::producePartialTra
           setTrackCenter(track, 0.5f * (leftMargin + rightMargin));
           setTrackSigma(track, 0.5f * (rightMargin - leftMargin));
           result.push_back(track);
-          numberOfTracks++;
         }
       }
       trackRangeFound = false;

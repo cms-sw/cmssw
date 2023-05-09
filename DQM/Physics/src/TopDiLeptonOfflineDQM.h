@@ -12,11 +12,11 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 /**
    \class   MonitorEnsemble TopDQMHelpers.h
    "DQM/Physics/interface/TopDQMHelpers.h"
@@ -159,7 +159,7 @@ namespace TopDiLeptonOffline {
     std::unique_ptr<StringCutObjectSelector<reco::PFCandidate, true> > muonSelect_;
 
     /// jetCorrector
-    edm::ESGetToken<JetCorrector, JetCorrectionsRecord> jetCorrector_;
+    edm::EDGetTokenT<reco::JetCorrector> jetCorrector_;
     /// jetID as an extra selection type
     edm::EDGetTokenT<reco::JetIDValueMap> jetIDLabel_;
     /// extra jetID selection on calo jets

@@ -13,9 +13,9 @@ namespace alpaka_cuda_async {
 #endif  // ALPAKA_ACC_GPU_CUDA_ENABLED
 
 #ifdef ALPAKA_ACC_GPU_HIP_ENABLED
-namespace alpaka_hip_async {
+namespace alpaka_rocm_async {
   class AlpakaService;
-}  // namespace alpaka_hip_async
+}  // namespace alpaka_rocm_async
 #endif  // ALPAKA_ACC_GPU_HIP_ENABLED
 
 #ifdef ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED

@@ -34,6 +34,7 @@
 // user include files
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "CondCore/SiPixelPlugins/interface/SiPixelPayloadInspectorHelper.h"
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
@@ -90,10 +91,14 @@ public:
   GeneralPurposeTrackAnalyzer(const edm::ParameterSet &pset)
       : geomToken_(esConsumes()),
         magFieldToken_(esConsumes<edm::Transition::BeginRun>()),
-        latencyToken_(esConsumes<edm::Transition::BeginRun>()),
         geomTokenBR_(esConsumes<edm::Transition::BeginRun>()),
         trackerTopologyTokenBR_(esConsumes<edm::Transition::BeginRun>()),
         siPixelFedCablingMapTokenBR_(esConsumes<edm::Transition::BeginRun>()) {
+    doLatencyAnalysis_ = pset.getParameter<bool>("doLatencyAnalysis");
+    if (doLatencyAnalysis_) {
+      latencyToken_ = esConsumes<edm::Transition::BeginRun>();
+    }
+
     usesResource(TFileService::kSharedResource);
 
     TkTag_ = pset.getParameter<edm::InputTag>("TkTag");
@@ -152,7 +157,7 @@ private:
   // tokens for the event setup
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
-  const edm::ESGetToken<SiStripLatency, SiStripLatencyRcd> latencyToken_;
+  edm::ESGetToken<SiStripLatency, SiStripLatencyRcd> latencyToken_;
 
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomTokenBR_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopologyTokenBR_;
@@ -269,6 +274,15 @@ private:
   TH1D *hrun;
   TH1D *hlumi;
 
+  TH1F *h_BSx0;
+  TH1F *h_BSy0;
+  TH1F *h_BSz0;
+  TH1F *h_Beamsigmaz;
+  TH1F *h_BeamWidthX;
+  TH1F *h_BeamWidthY;
+  TH1F *h_BSdxdz;
+  TH1F *h_BSdydz;
+
   std::vector<TH1 *> vTrackHistos_;
   std::vector<TH1 *> vTrackProfiles_;
   std::vector<TH1 *> vTrack2DHistos_;
@@ -282,9 +296,8 @@ private:
   int ievt;
   int itrks;
   int mode;
-  bool firstEvent_;
-  bool isPhase1_;
   float etaMax_;
+  SiPixelPI::phase phase_;
 
   const TrackerGeometry *trackerGeometry_;
 
@@ -294,6 +307,7 @@ private:
   edm::InputTag VerticesTag_;
 
   bool isCosmics_;
+  bool doLatencyAnalysis_;
 
   edm::EDGetTokenT<reco::TrackCollection> theTrackCollectionToken_;
   edm::EDGetTokenT<edm::TriggerResults> hltresultsToken_;
@@ -310,18 +324,10 @@ private:
   {
     ievt++;
 
-    edm::Handle<reco::TrackCollection> trackCollection = event.getHandle(theTrackCollectionToken_);
-
     // geometry setup
     const TrackerGeometry *theGeometry = &setup.getData(geomToken_);
 
-    // switch on the phase1
-    if ((theGeometry->isThere(GeomDetEnumerators::P1PXB)) || (theGeometry->isThere(GeomDetEnumerators::P1PXEC))) {
-      isPhase1_ = true;
-    } else {
-      isPhase1_ = false;
-    }
-
+    edm::Handle<reco::TrackCollection> trackCollection = event.getHandle(theTrackCollectionToken_);
     const reco::TrackCollection tC = *(trackCollection.product());
     itrks += tC.size();
 
@@ -387,12 +393,12 @@ private:
             int row = cluster.x() - 0.5, col = cluster.y() - 0.5;
             int rocId = coord_.roc(detId, std::make_pair(row, col));
 
-            rocsToMask.set(rocId);
-            pixelrocsmap_->fillSelectedRocs(detid_db, rocsToMask, 1);
-
-            if (!isPhase1_) {
+            if (phase_ == SiPixelPI::phase::zero) {
               pmap->fill(detid_db, 1);
-            } else {
+            } else if (phase_ == SiPixelPI::phase::one) {
+              rocsToMask.set(rocId);
+              pixelrocsmap_->fillSelectedRocs(detid_db, rocsToMask, 1);
+
               if (subid == PixelSubdetector::PixelBarrel) {
                 pixelmap->fillBarrelBin("entriesBarrel", detid_db, 1);
               } else {
@@ -426,7 +432,7 @@ private:
             }
           }
         } else {
-          if ((*iHit)->isValid()) {
+          if ((*iHit)->isValid() && phase_ != SiPixelPI::phase::two) {
             tmap->fill(detId.rawId(), 1);
           }
         }
@@ -649,12 +655,31 @@ private:
       edm::Handle<reco::BeamSpot> beamSpotHandle = event.getHandle(beamspotToken_);
       if (beamSpotHandle.isValid()) {
         beamSpot = *beamSpotHandle;
-        math::XYZPoint point(beamSpot.x0(), beamSpot.y0(), beamSpot.z0());
+
+        double BSx0 = beamSpot.x0();
+        double BSy0 = beamSpot.y0();
+        double BSz0 = beamSpot.z0();
+        double Beamsigmaz = beamSpot.sigmaZ();
+        double Beamdxdz = beamSpot.dxdz();
+        double Beamdydz = beamSpot.dydz();
+        double BeamWidthX = beamSpot.BeamWidthX();
+        double BeamWidthY = beamSpot.BeamWidthY();
+
+        math::XYZPoint point(BSx0, BSy0, BSz0);
         double dxy = track->dxy(point);
         double dz = track->dz(point);
         hdxyBS->Fill(dxy);
         hd0BS->Fill(-dxy);
         hdzBS->Fill(dz);
+
+        h_BSx0->Fill(BSx0);
+        h_BSy0->Fill(BSy0);
+        h_BSz0->Fill(BSz0);
+        h_Beamsigmaz->Fill(Beamsigmaz);
+        h_BeamWidthX->Fill(BeamWidthX);
+        h_BeamWidthY->Fill(BeamWidthY);
+        h_BSdxdz->Fill(Beamdxdz);
+        h_BSdydz->Fill(Beamdydz);
       }
 
       //dxy with respect to the primary vertex
@@ -720,19 +745,37 @@ private:
           << "run number:" << run.run() << " magnetic field: " << B_ << " [T]" << std::endl;
     }
 
-    //SiStrip Latency
-    const SiStripLatency *apvlat = &setup.getData(latencyToken_);
-    if (apvlat->singleReadOutMode() == 1) {
-      mode = 1;  // peak mode
-    } else if (apvlat->singleReadOutMode() == 0) {
-      mode = -1;  // deco mode
+    const TrackerGeometry *trackerGeometry = &setup.getData(geomTokenBR_);
+    if (trackerGeometry->isThere(GeomDetEnumerators::P2PXB) || trackerGeometry->isThere(GeomDetEnumerators::P2PXEC)) {
+      phase_ = SiPixelPI::phase::two;
+    } else if (trackerGeometry->isThere(GeomDetEnumerators::P1PXB) ||
+               trackerGeometry->isThere(GeomDetEnumerators::P1PXEC)) {
+      phase_ = SiPixelPI::phase::one;
+    } else {
+      phase_ = SiPixelPI::phase::zero;
+    }
+
+    // if it's a phase-2 geometry there are no phase-1 conditions
+    if (phase_ == SiPixelPI::phase::two) {
+      mode = 0;
+    } else {
+      if (doLatencyAnalysis_) {
+        //SiStrip Latency
+        const SiStripLatency *apvlat = &setup.getData(latencyToken_);
+        if (apvlat->singleReadOutMode() == 1) {
+          mode = 1;  // peak mode
+        } else if (apvlat->singleReadOutMode() == 0) {
+          mode = -1;  // deco mode
+        }
+      } else {
+        mode = 0;
+      }
     }
 
     conditionsMap_[run.run()].first = mode;
     conditionsMap_[run.run()].second = B_;
 
     // init the sipixel coordinates
-    const TrackerGeometry *trackerGeometry = &setup.getData(geomTokenBR_);
     const TrackerTopology *trackerTopology = &setup.getData(trackerTopologyTokenBR_);
     const SiPixelFedCablingMap *siPixelFedCablingMap = &setup.getData(siPixelFedCablingMapTokenBR_);
 
@@ -753,8 +796,6 @@ private:
     }
 
     TH1D::SetDefaultSumw2(kTRUE);
-
-    isPhase1_ = true;
     etaMax_ = 3.0;
 
     ievt = 0;
@@ -829,6 +870,15 @@ private:
         book<TH1D>("h_PhiOverlapMinus", "hPhiOverlapMinus (-1.4<#eta<-0.8);track #phi;tracks", 100, -M_PI, M_PI);
     hPhiEndcapPlus = book<TH1D>("h_PhiEndcapPlus", "hPhiEndcapPlus (#eta>1.4);track #phi;track", 100, -M_PI, M_PI);
     hPhiEndcapMinus = book<TH1D>("h_PhiEndcapMinus", "hPhiEndcapMinus (#eta<1.4);track #phi;tracks", 100, -M_PI, M_PI);
+
+    h_BSx0 = book<TH1F>("h_BSx0", "x-coordinate of reco beamspot;x^{BS}_{0};n_{events}", 100, -0.1, 0.1);
+    h_BSy0 = book<TH1F>("h_BSy0", "y-coordinate of reco beamspot;y^{BS}_{0};n_{events}", 100, -0.1, 0.1);
+    h_BSz0 = book<TH1F>("h_BSz0", "z-coordinate of reco beamspot;z^{BS}_{0};n_{events}", 100, -1., 1.);
+    h_Beamsigmaz = book<TH1F>("h_Beamsigmaz", "z-coordinate beam width;#sigma_{Z}^{beam};n_{events}", 100, 0., 1.);
+    h_BeamWidthX = book<TH1F>("h_BeamWidthX", "x-coordinate beam width;#sigma_{X}^{beam};n_{events}", 100, 0., 0.01);
+    h_BeamWidthY = book<TH1F>("h_BeamWidthY", "y-coordinate beam width;#sigma_{Y}^{beam};n_{events}", 100, 0., 0.01);
+    h_BSdxdz = book<TH1F>("h_BSdxdz", "BeamSpot dxdz;beamspot dx/dz;n_{events}", 100, -0.0003, 0.0003);
+    h_BSdydz = book<TH1F>("h_BSdydz", "BeamSpot dydz;beamspot dy/dz;n_{events}", 100, -0.0003, 0.0003);
 
     if (!isCosmics_) {
       hPhp = book<TH1D>("h_P_hp", "Momentum (high purity);track momentum [GeV];tracks", 100, 0., 100.);
@@ -971,8 +1021,6 @@ private:
 
     // clang-format on
 
-    firstEvent_ = true;
-
   }  //beginJob
 
   //*************************************************************
@@ -984,8 +1032,8 @@ private:
     edm::LogPrint("GeneralPurposeTrackAnalyzer") << "n. tracks: " << itrks << std::endl;
     edm::LogPrint("GeneralPurposeTrackAnalyzer") << "*******************************" << std::endl;
 
-    int nFiringTriggers = triggerMap_.size();
-    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "firing triggers: " << nFiringTriggers << std::endl;
+    int nFiringTriggers = !triggerMap_.empty() ? triggerMap_.size() : 1;
+    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "firing triggers: " << triggerMap_.size() << std::endl;
     edm::LogPrint("GeneralPurposeTrackAnalyzer") << "*******************************" << std::endl;
 
     tksByTrigger_ =
@@ -1017,6 +1065,15 @@ private:
     }
 
     int nRuns = conditionsMap_.size();
+    if (nRuns < 1) {
+      edm::LogPrint("GeneralPurposeTrackAnalyzer") << "*******************************"
+                                                   << "\n"
+                                                   << " no run was processed! "
+                                                   << "\n"
+                                                   << "*******************************";
+
+      return;
+    }
 
     std::vector<int> theRuns_;
     for (const auto &it : conditionsMap_) {
@@ -1026,11 +1083,12 @@ private:
     sort(theRuns_.begin(), theRuns_.end());
     int runRange = theRuns_.back() - theRuns_.front() + 1;
 
-    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "*******************************" << std::endl;
-    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "first run: " << theRuns_.front() << std::endl;
-    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "last run:  " << theRuns_.back() << std::endl;
-    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "considered runs: " << nRuns << std::endl;
-    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "*******************************" << std::endl;
+    edm::LogPrint("GeneralPurposeTrackAnalyzer") << "*******************************"
+                                                 << "\n"
+                                                 << "first run: " << theRuns_.front() << "\n"
+                                                 << "last run:  " << theRuns_.back() << "\n"
+                                                 << "considered runs: " << nRuns << "\n"
+                                                 << "*******************************";
 
     modeByRun_ = book<TH1D>("modeByRun",
                             "Strip APV mode by run number;;APV mode (-1=deco,+1=peak)",
@@ -1043,6 +1101,8 @@ private:
                              runRange,
                              theRuns_.front() - 0.5,
                              theRuns_.back() + 0.5);
+
+    edm::LogPrint("") << __PRETTY_FUNCTION__ << " line: " << __LINE__ << std::endl;
 
     for (const auto &the_r : theRuns_) {
       if (conditionsMap_.find(the_r)->second.first != 0) {
@@ -1059,28 +1119,30 @@ private:
       fieldByRun_->GetXaxis()->SetBinLabel((the_r - theRuns_.front()) + 1, std::to_string(the_r).c_str());
     }
 
-    if (!isPhase1_) {
-      pmap->save(true, 0, 0, "PixelHitMap.pdf", 600, 800);
-      pmap->save(true, 0, 0, "PixelHitMap.png", 500, 750);
+    if (phase_ < SiPixelPI::phase::two) {
+      if (phase_ == SiPixelPI::phase::zero) {
+        pmap->save(true, 0, 0, "PixelHitMap.pdf", 600, 800);
+        pmap->save(true, 0, 0, "PixelHitMap.png", 500, 750);
+      }
+
+      tmap->save(true, 0, 0, "StripHitMap.pdf");
+      tmap->save(true, 0, 0, "StripHitMap.png");
+
+      gStyle->SetPalette(kRainBow);
+      pixelmap->beautifyAllHistograms();
+
+      TCanvas cB("CanvBarrel", "CanvBarrel", 1200, 1000);
+      pixelmap->drawBarrelMaps("entriesBarrel", cB);
+      cB.SaveAs("pixelBarrelEntries.png");
+
+      TCanvas cF("CanvForward", "CanvForward", 1600, 1000);
+      pixelmap->drawForwardMaps("entriesForward", cF);
+      cF.SaveAs("pixelForwardEntries.png");
+
+      TCanvas cRocs = TCanvas("cRocs", "cRocs", 1200, 1600);
+      pixelrocsmap_->drawMaps(cRocs, "Pixel on-track clusters occupancy");
+      cRocs.SaveAs("Phase1PixelROCMaps_fullROCs.png");
     }
-
-    tmap->save(true, 0, 0, "StripHitMap.pdf");
-    tmap->save(true, 0, 0, "StripHitMap.png");
-
-    gStyle->SetPalette(kRainBow);
-    pixelmap->beautifyAllHistograms();
-
-    TCanvas cB("CanvBarrel", "CanvBarrel", 1200, 1000);
-    pixelmap->drawBarrelMaps("entriesBarrel", cB);
-    cB.SaveAs("pixelBarrelEntries.png");
-
-    TCanvas cF("CanvForward", "CanvForward", 1600, 1000);
-    pixelmap->drawForwardMaps("entriesForward", cF);
-    cF.SaveAs("pixelForwardEntries.png");
-
-    TCanvas cRocs = TCanvas("cRocs", "cRocs", 1200, 1600);
-    pixelrocsmap_->drawMaps(cRocs, "Pixel on-track clusters occupancy");
-    cRocs.SaveAs("Phase1PixelROCMaps_fullROCs.png");
   }
 
   //*************************************************************
@@ -1138,7 +1200,8 @@ void GeneralPurposeTrackAnalyzer::fillDescriptions(edm::ConfigurationDescription
   desc.add<edm::InputTag>("BeamSpotTag", edm::InputTag("offlineBeamSpot"));
   desc.add<edm::InputTag>("VerticesTag", edm::InputTag("offlinePrimaryVertices"));
   desc.add<bool>("isCosmics", false);
-  descriptions.add("GeneralPurposeTrackAnalyzer", desc);
+  desc.add<bool>("doLatencyAnalysis", true);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_MODULE(GeneralPurposeTrackAnalyzer);

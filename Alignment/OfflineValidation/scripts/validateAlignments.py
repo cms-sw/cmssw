@@ -14,6 +14,7 @@ import Alignment.OfflineValidation.TkAlAllInOneTool.findAndChange as fnc
 
 import Alignment.OfflineValidation.TkAlAllInOneTool.GCP as GCP
 import Alignment.OfflineValidation.TkAlAllInOneTool.DMR as DMR
+import Alignment.OfflineValidation.TkAlAllInOneTool.Zmumu as Zmumu
 import Alignment.OfflineValidation.TkAlAllInOneTool.PV as PV
 import Alignment.OfflineValidation.TkAlAllInOneTool.SplitV as SplitV
 import Alignment.OfflineValidation.TkAlAllInOneTool.JetHT as JetHT
@@ -248,6 +249,9 @@ def main():
 
         elif validation == "DMR":
             jobs.extend(DMR.DMR(config, validationDir))
+
+        elif validation == "Zmumu":
+            jobs.extend(Zmumu.Zmumu(config, validationDir))
 
         elif validation == "PV":
             jobs.extend(PV.PV(config, validationDir))

@@ -125,19 +125,19 @@ L1MuKBMTCombinedStubCollection L1TMuonBarrelKalmanStubProcessor::makeStubs(const
           bool phiMask = false;
           bool etaMask = false;
           if (station == 1) {
-            phiMask = msks.get_inrec_chdis_st1(lwheel1, sector) | msks.get_inrec_chdis_st1(lwheel2, sector);
-            etaMask = msks.get_etsoc_chdis_st1(lwheel1, sector) | msks.get_etsoc_chdis_st1(lwheel2, sector);
+            phiMask = msks.get_inrec_chdis_st1(lwheel1, sector) || msks.get_inrec_chdis_st1(lwheel2, sector);
+            etaMask = msks.get_etsoc_chdis_st1(lwheel1, sector) || msks.get_etsoc_chdis_st1(lwheel2, sector);
           }
           if (station == 2) {
-            phiMask = msks.get_inrec_chdis_st2(lwheel1, sector) | msks.get_inrec_chdis_st2(lwheel2, sector);
-            etaMask = msks.get_etsoc_chdis_st2(lwheel1, sector) | msks.get_etsoc_chdis_st2(lwheel2, sector);
+            phiMask = msks.get_inrec_chdis_st2(lwheel1, sector) || msks.get_inrec_chdis_st2(lwheel2, sector);
+            etaMask = msks.get_etsoc_chdis_st2(lwheel1, sector) || msks.get_etsoc_chdis_st2(lwheel2, sector);
           }
           if (station == 3) {
-            phiMask = msks.get_inrec_chdis_st3(lwheel1, sector) | msks.get_inrec_chdis_st3(lwheel2, sector);
-            etaMask = msks.get_etsoc_chdis_st3(lwheel1, sector) | msks.get_etsoc_chdis_st3(lwheel2, sector);
+            phiMask = msks.get_inrec_chdis_st3(lwheel1, sector) || msks.get_inrec_chdis_st3(lwheel2, sector);
+            etaMask = msks.get_etsoc_chdis_st3(lwheel1, sector) || msks.get_etsoc_chdis_st3(lwheel2, sector);
           }
           if (station == 4) {
-            phiMask = msks.get_inrec_chdis_st4(lwheel1, sector) | msks.get_inrec_chdis_st4(lwheel2, sector);
+            phiMask = msks.get_inrec_chdis_st4(lwheel1, sector) || msks.get_inrec_chdis_st4(lwheel2, sector);
           }
 
           if (disableMasks_) {

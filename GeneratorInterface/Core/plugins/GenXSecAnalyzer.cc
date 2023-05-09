@@ -385,8 +385,6 @@ GenLumiInfoProduct::XSec GenXSecAnalyzer::compute(const GenLumiInfoProduct &iLum
   // sum of cross sections and errors over different processes
   double sigSelSum = 0.0;
   double err2SelSum = 0.0;
-  double sigSum = 0.0;
-  double err2Sum = 0.0;
 
   std::vector<GenLumiInfoProduct::XSec> tempVector_before;
   std::vector<GenLumiInfoProduct::XSec> tempVector_after;
@@ -474,10 +472,6 @@ GenLumiInfoProduct::XSec GenXSecAnalyzer::compute(const GenLumiInfoProduct &iLum
     double deltaFin = sigmaFin * relErr;
 
     tempVector_after.push_back(GenLumiInfoProduct::XSec(sigmaFin, deltaFin));
-
-    // sum of cross sections and errors over different processes
-    sigSum += sigmaFin;
-    err2Sum += deltaFin * deltaFin;
 
   }  // end of loop over different processes
   tempVector_before.push_back(GenLumiInfoProduct::XSec(sigSelSum, sqrt(err2SelSum)));

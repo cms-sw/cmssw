@@ -80,7 +80,7 @@ void EcalTrigPrimAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSet
   // Get input
   const auto &tp = iEvent.get(tpToken_);
   for (unsigned int i = 0; i < tp.size(); i++) {
-    EcalTriggerPrimitiveDigi d = tp[i];
+    const EcalTriggerPrimitiveDigi &d = tp[i];
     int subdet = d.id().subDet() - 1;
     if (subdet == 0) {
       ecal_et_[subdet]->Fill(d.compressedEt());
@@ -168,7 +168,7 @@ void EcalTrigPrimAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSet
 
   EcalTPGScale ecalScale(tokens_, iSetup);
   for (unsigned int i = 0; i < tp.size(); i++) {
-    EcalTriggerPrimitiveDigi d = tp[i];
+    const EcalTriggerPrimitiveDigi &d = tp[i];
     const EcalTrigTowerDetId TPtowid = d.id();
     std::map<EcalTrigTowerDetId, float>::iterator it = mapTow_Et.find(TPtowid);
     float Et = ecalScale.getTPGInGeV(d.compressedEt(), TPtowid);

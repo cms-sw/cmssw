@@ -11,7 +11,7 @@ std::bitset<2> HcalFinegrainBit::compute(const HcalFinegrainBit::Tower& tower) c
 
     // First layer consistent with a MIP, at least one layer with more
     // than MIP energy deposition
-    result[1] = result[0] & (tower[is_above_mip].count() > 0);
+    result[1] = result[0] && (tower[is_above_mip].count() > 0);
 
     // There layers consistent with a MIP
     //    result[2] = tower[is_mip].count() >= 3;

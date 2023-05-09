@@ -4,10 +4,10 @@ import FWCore.ParameterSet.Config as cms
 import sys
 if 'runkey=hi_run' in sys.argv:
   from Configuration.Eras.Era_Run3_pp_on_PbPb_approxSiStripClusters_cff import Run3_pp_on_PbPb_approxSiStripClusters
-  process = cms.Process("BeamMonitor", Run3_pp_on_PbPb_approxSiStripClusters)
+  process = cms.Process("PIXELDQMLIVE", Run3_pp_on_PbPb_approxSiStripClusters)
 else:
   from Configuration.Eras.Era_Run3_cff import Run3
-  process = cms.Process("BeamMonitor", Run3)
+  process = cms.Process("PIXELDQMLIVE", Run3)
 
 live=True
 unitTest = False
@@ -128,7 +128,7 @@ process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 if (process.runType.getRunType() == process.runType.cosmic_run or process.runType.getRunType() == process.runType.cosmic_run_stage1):
     process.load("RecoTracker.Configuration.RecoTrackerP5_cff")
     process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
-    process.load("RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi")
+    process.load("RecoTracker.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi")
 else:
     process.load("Configuration.StandardSequences.Reconstruction_cff")
 
@@ -223,7 +223,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
     process.PixelLayerTriplets.BPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
     process.PixelLayerTriplets.FPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
-    from RecoPixelVertexing.PixelTrackFitting.PixelTracks_cff import *
+    from RecoTracker.PixelTrackFitting.PixelTracks_cff import *
     process.pixelTracksHitTriplets.SeedComparitorPSet.clusterShapeCacheSrc = 'siPixelClusterShapeCachePreSplitting'
     process.RecoForDQM_TrkReco = cms.Sequence(process.offlineBeamSpot*process.MeasurementTrackerEventPreSplitting*process.siPixelClusterShapeCachePreSplitting*process.recopixelvertexing*process.InitialStepPreSplitting)
 

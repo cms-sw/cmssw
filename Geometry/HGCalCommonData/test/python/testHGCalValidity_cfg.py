@@ -24,8 +24,8 @@ print(options)
 
 ####################################################################
 # Use the options
-from Configuration.Eras.Era_Phase2C17M9_cff import Phase2C17M9
-process = cms.Process('GeomCheck',Phase2C17M9)
+from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+process = cms.Process('GeomCheck',Phase2C17I13M9)
 
 geomFile = "Configuration.Geometry.GeometryExtended2026" + options.geometry + "Reco_cff"
 inFile = "miss" + options.geometry + ".txt"
@@ -38,7 +38,9 @@ process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if hasattr(process,'MessageLogger'):
-    process.MessageLogger.HGCalGeom=dict()
+#   process.MessageLogger.HGCalGeom=dict()
+#   process.MessageLogger.HGCGeom=dict()
+    process.MessageLogger.HGCalMiss=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789

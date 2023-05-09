@@ -34,13 +34,19 @@ namespace l1t::demo::codecs {
       //if (not x.test(TkJetWord::kValidLSB))
       //  break;
 
-      TkJetWord j(TkJetWord::pt_t(frames[f](TkJetWord::kPtMSB, TkJetWord::kPtLSB)),
-                  TkJetWord::glbeta_t(frames[f](TkJetWord::kGlbEtaMSB, TkJetWord::kGlbEtaLSB)),
-                  TkJetWord::glbphi_t(frames[f](TkJetWord::kGlbPhiMSB, TkJetWord::kGlbPhiLSB)),
-                  TkJetWord::z0_t(frames[f](TkJetWord::kZ0MSB, TkJetWord::kZ0LSB)),
-                  TkJetWord::nt_t(frames[f](TkJetWord::kNtMSB, TkJetWord::kNtLSB)),
-                  TkJetWord::nx_t(frames[f](TkJetWord::kXtMSB, TkJetWord::kXtLSB)),
-                  TkJetWord::tkjetunassigned_t(frames[f](TkJetWord::kUnassignedMSB, TkJetWord::kUnassignedLSB)));
+      TkJetWord j(
+          TkJetWord::pt_t(frames[f](TkJetWord::TkJetBitLocations::kPtMSB, TkJetWord::TkJetBitLocations::kPtLSB)),
+          TkJetWord::glbphi_t(
+              frames[f](TkJetWord::TkJetBitLocations::kGlbPhiMSB, TkJetWord::TkJetBitLocations::kGlbPhiLSB)),
+          TkJetWord::glbeta_t(
+              frames[f](TkJetWord::TkJetBitLocations::kGlbEtaMSB, TkJetWord::TkJetBitLocations::kGlbEtaLSB)),
+          TkJetWord::z0_t(frames[f](TkJetWord::TkJetBitLocations::kZ0MSB, TkJetWord::TkJetBitLocations::kZ0LSB)),
+          TkJetWord::nt_t(frames[f](TkJetWord::TkJetBitLocations::kNtMSB, TkJetWord::TkJetBitLocations::kNtLSB)),
+          TkJetWord::nx_t(frames[f](TkJetWord::TkJetBitLocations::kXtMSB, TkJetWord::TkJetBitLocations::kXtLSB)),
+          TkJetWord::dispflag_t(
+              frames[f](TkJetWord::TkJetBitLocations::kDispFlagMSB, TkJetWord::TkJetBitLocations::kDispFlagLSB)),
+          TkJetWord::tkjetunassigned_t(
+              frames[f](TkJetWord::TkJetBitLocations::kUnassignedMSB, TkJetWord::TkJetBitLocations::kUnassignedLSB)));
       tkJets.push_back(j);
     }
 

@@ -1,232 +1,246 @@
 #ifdef MPLEX_INTRINSICS
 
-   for (int n = 0; n < N; n += MPLEX_INTRINSICS_WIDTH_BYTES / sizeof(T))
-   {
-      IntrVec_t b_0 = LD(b, 0);
-      IntrVec_t a_0 = LD(a, 0);
-      IntrVec_t c_0 = MUL(b_0, a_0);
+for (int n = 0; n < N; n += MPLEX_INTRINSICS_WIDTH_BYTES / sizeof(T)) {
+  IntrVec_t b_0 = LD(b, 0);
+  IntrVec_t a_0 = LD(a, 0);
+  IntrVec_t c_0 = MUL(b_0, a_0);
 
-      IntrVec_t b_1 = LD(b, 1);
-      IntrVec_t a_1 = LD(a, 1);
-      c_0 = FMA(b_1, a_1, c_0);
+  IntrVec_t b_1 = LD(b, 1);
+  IntrVec_t a_1 = LD(a, 1);
+  c_0 = FMA(b_1, a_1, c_0);
 
+  IntrVec_t b_3 = LD(b, 3);
+  IntrVec_t a_3 = LD(a, 3);
+  c_0 = FMA(b_3, a_3, c_0);
 
-      IntrVec_t b_3 = LD(b, 3);
-      IntrVec_t a_3 = LD(a, 3);
-      c_0 = FMA(b_3, a_3, c_0);
+  IntrVec_t b_4 = LD(b, 4);
+  IntrVec_t a_4 = LD(a, 4);
+  c_0 = FMA(b_4, a_4, c_0);
 
-      IntrVec_t b_4 = LD(b, 4);
-      IntrVec_t a_4 = LD(a, 4);
-      c_0 = FMA(b_4, a_4, c_0);
+  IntrVec_t b_6 = LD(b, 6);
+  IntrVec_t c_1 = MUL(b_6, a_0);
+  IntrVec_t a_6 = LD(a, 6);
+  IntrVec_t c_2 = MUL(b_6, a_6);
+  ST(c, 0, c_0);
 
+  IntrVec_t b_7 = LD(b, 7);
+  c_1 = FMA(b_7, a_1, c_1);
+  IntrVec_t a_7 = LD(a, 7);
+  c_2 = FMA(b_7, a_7, c_2);
 
-      IntrVec_t b_6 = LD(b, 6);
-      IntrVec_t c_1 = MUL(b_6, a_0);
-      IntrVec_t a_6 = LD(a, 6);
-      IntrVec_t c_2 = MUL(b_6, a_6);
-      ST(c, 0, c_0);
+  IntrVec_t b_9 = LD(b, 9);
+  c_1 = FMA(b_9, a_3, c_1);
+  IntrVec_t a_9 = LD(a, 9);
+  c_2 = FMA(b_9, a_9, c_2);
 
-      IntrVec_t b_7 = LD(b, 7);
-      c_1 = FMA(b_7, a_1, c_1);
-      IntrVec_t a_7 = LD(a, 7);
-      c_2 = FMA(b_7, a_7, c_2);
+  IntrVec_t b_10 = LD(b, 10);
+  c_1 = FMA(b_10, a_4, c_1);
+  IntrVec_t a_10 = LD(a, 10);
+  c_2 = FMA(b_10, a_10, c_2);
 
+  IntrVec_t b_12 = LD(b, 12);
+  IntrVec_t c_3 = MUL(b_12, a_0);
+  IntrVec_t c_4 = MUL(b_12, a_6);
+  IntrVec_t a_12 = LD(a, 12);
+  IntrVec_t c_5 = MUL(b_12, a_12);
+  ST(c, 1, c_1);
+  ST(c, 2, c_2);
 
-      IntrVec_t b_9 = LD(b, 9);
-      c_1 = FMA(b_9, a_3, c_1);
-      IntrVec_t a_9 = LD(a, 9);
-      c_2 = FMA(b_9, a_9, c_2);
+  IntrVec_t b_13 = LD(b, 13);
+  c_3 = FMA(b_13, a_1, c_3);
+  c_4 = FMA(b_13, a_7, c_4);
+  IntrVec_t a_13 = LD(a, 13);
+  c_5 = FMA(b_13, a_13, c_5);
 
-      IntrVec_t b_10 = LD(b, 10);
-      c_1 = FMA(b_10, a_4, c_1);
-      IntrVec_t a_10 = LD(a, 10);
-      c_2 = FMA(b_10, a_10, c_2);
+  IntrVec_t b_14 = LD(b, 14);
+  c_5 = ADD(b_14, c_5);
 
+  IntrVec_t b_15 = LD(b, 15);
+  c_3 = FMA(b_15, a_3, c_3);
+  c_4 = FMA(b_15, a_9, c_4);
+  IntrVec_t a_15 = LD(a, 15);
+  c_5 = FMA(b_15, a_15, c_5);
 
-      IntrVec_t b_12 = LD(b, 12);
-      IntrVec_t c_3 = MUL(b_12, a_0);
-      IntrVec_t c_4 = MUL(b_12, a_6);
-      IntrVec_t a_12 = LD(a, 12);
-      IntrVec_t c_5 = MUL(b_12, a_12);
-      ST(c, 1, c_1);
-      ST(c, 2, c_2);
+  IntrVec_t b_16 = LD(b, 16);
+  c_3 = FMA(b_16, a_4, c_3);
+  c_4 = FMA(b_16, a_10, c_4);
+  IntrVec_t a_16 = LD(a, 16);
+  c_5 = FMA(b_16, a_16, c_5);
 
-      IntrVec_t b_13 = LD(b, 13);
-      c_3 = FMA(b_13, a_1, c_3);
-      c_4 = FMA(b_13, a_7, c_4);
-      IntrVec_t a_13 = LD(a, 13);
-      c_5 = FMA(b_13, a_13, c_5);
+  IntrVec_t b_17 = LD(b, 17);
+  IntrVec_t a_17 = LD(a, 17);
+  c_5 = FMA(b_17, a_17, c_5);
 
-      IntrVec_t b_14 = LD(b, 14);
-      c_5 = ADD(b_14, c_5);
+  IntrVec_t b_18 = LD(b, 18);
+  IntrVec_t c_6 = MUL(b_18, a_0);
+  ST(c, 3, c_3);
+  ST(c, 4, c_4);
+  ST(c, 5, c_5);
+  IntrVec_t c_7 = MUL(b_18, a_6);
+  IntrVec_t c_8 = MUL(b_18, a_12);
+  IntrVec_t a_18 = LD(a, 18);
+  IntrVec_t c_9 = MUL(b_18, a_18);
 
-      IntrVec_t b_15 = LD(b, 15);
-      c_3 = FMA(b_15, a_3, c_3);
-      c_4 = FMA(b_15, a_9, c_4);
-      IntrVec_t a_15 = LD(a, 15);
-      c_5 = FMA(b_15, a_15, c_5);
+  IntrVec_t b_19 = LD(b, 19);
+  c_6 = FMA(b_19, a_1, c_6);
+  c_7 = FMA(b_19, a_7, c_7);
+  c_8 = FMA(b_19, a_13, c_8);
+  IntrVec_t a_19 = LD(a, 19);
+  c_9 = FMA(b_19, a_19, c_9);
 
-      IntrVec_t b_16 = LD(b, 16);
-      c_3 = FMA(b_16, a_4, c_3);
-      c_4 = FMA(b_16, a_10, c_4);
-      IntrVec_t a_16 = LD(a, 16);
-      c_5 = FMA(b_16, a_16, c_5);
+  IntrVec_t b_20 = LD(b, 20);
+  c_8 = ADD(b_20, c_8);
 
-      IntrVec_t b_17 = LD(b, 17);
-      IntrVec_t a_17 = LD(a, 17);
-      c_5 = FMA(b_17, a_17, c_5);
+  IntrVec_t b_21 = LD(b, 21);
+  c_6 = FMA(b_21, a_3, c_6);
+  c_7 = FMA(b_21, a_9, c_7);
+  c_8 = FMA(b_21, a_15, c_8);
+  IntrVec_t a_21 = LD(a, 21);
+  c_9 = FMA(b_21, a_21, c_9);
 
-      IntrVec_t b_18 = LD(b, 18);
-      IntrVec_t c_6 = MUL(b_18, a_0);
-      ST(c, 3, c_3);
-      ST(c, 4, c_4);
-      ST(c, 5, c_5);
-      IntrVec_t c_7 = MUL(b_18, a_6);
-      IntrVec_t c_8 = MUL(b_18, a_12);
-      IntrVec_t a_18 = LD(a, 18);
-      IntrVec_t c_9 = MUL(b_18, a_18);
+  IntrVec_t b_22 = LD(b, 22);
+  c_6 = FMA(b_22, a_4, c_6);
+  c_7 = FMA(b_22, a_10, c_7);
+  c_8 = FMA(b_22, a_16, c_8);
+  IntrVec_t a_22 = LD(a, 22);
+  c_9 = FMA(b_22, a_22, c_9);
 
-      IntrVec_t b_19 = LD(b, 19);
-      c_6 = FMA(b_19, a_1, c_6);
-      c_7 = FMA(b_19, a_7, c_7);
-      c_8 = FMA(b_19, a_13, c_8);
-      IntrVec_t a_19 = LD(a, 19);
-      c_9 = FMA(b_19, a_19, c_9);
+  IntrVec_t b_23 = LD(b, 23);
+  c_8 = FMA(b_23, a_17, c_8);
 
-      IntrVec_t b_20 = LD(b, 20);
-      c_8 = ADD(b_20, c_8);
+  IntrVec_t b_24 = LD(b, 24);
+  IntrVec_t c_10 = MUL(b_24, a_0);
+  ST(c, 6, c_6);
+  ST(c, 7, c_7);
+  ST(c, 8, c_8);
+  ST(c, 9, c_9);
+  IntrVec_t c_11 = MUL(b_24, a_6);
+  IntrVec_t c_12 = MUL(b_24, a_12);
+  IntrVec_t c_13 = MUL(b_24, a_18);
+  IntrVec_t a_24 = LD(a, 24);
+  IntrVec_t c_14 = MUL(b_24, a_24);
 
-      IntrVec_t b_21 = LD(b, 21);
-      c_6 = FMA(b_21, a_3, c_6);
-      c_7 = FMA(b_21, a_9, c_7);
-      c_8 = FMA(b_21, a_15, c_8);
-      IntrVec_t a_21 = LD(a, 21);
-      c_9 = FMA(b_21, a_21, c_9);
+  IntrVec_t b_25 = LD(b, 25);
+  c_10 = FMA(b_25, a_1, c_10);
+  c_11 = FMA(b_25, a_7, c_11);
+  c_12 = FMA(b_25, a_13, c_12);
+  c_13 = FMA(b_25, a_19, c_13);
+  IntrVec_t a_25 = LD(a, 25);
+  c_14 = FMA(b_25, a_25, c_14);
 
-      IntrVec_t b_22 = LD(b, 22);
-      c_6 = FMA(b_22, a_4, c_6);
-      c_7 = FMA(b_22, a_10, c_7);
-      c_8 = FMA(b_22, a_16, c_8);
-      IntrVec_t a_22 = LD(a, 22);
-      c_9 = FMA(b_22, a_22, c_9);
+  IntrVec_t b_26 = LD(b, 26);
+  c_12 = ADD(b_26, c_12);
 
-      IntrVec_t b_23 = LD(b, 23);
-      c_8 = FMA(b_23, a_17, c_8);
+  IntrVec_t b_27 = LD(b, 27);
+  c_10 = FMA(b_27, a_3, c_10);
+  c_11 = FMA(b_27, a_9, c_11);
+  c_12 = FMA(b_27, a_15, c_12);
+  c_13 = FMA(b_27, a_21, c_13);
+  IntrVec_t a_27 = LD(a, 27);
+  c_14 = FMA(b_27, a_27, c_14);
 
-      IntrVec_t b_24 = LD(b, 24);
-      IntrVec_t c_10 = MUL(b_24, a_0);
-      ST(c, 6, c_6);
-      ST(c, 7, c_7);
-      ST(c, 8, c_8);
-      ST(c, 9, c_9);
-      IntrVec_t c_11 = MUL(b_24, a_6);
-      IntrVec_t c_12 = MUL(b_24, a_12);
-      IntrVec_t c_13 = MUL(b_24, a_18);
-      IntrVec_t a_24 = LD(a, 24);
-      IntrVec_t c_14 = MUL(b_24, a_24);
+  IntrVec_t b_28 = LD(b, 28);
+  c_10 = FMA(b_28, a_4, c_10);
+  c_11 = FMA(b_28, a_10, c_11);
+  c_12 = FMA(b_28, a_16, c_12);
+  c_13 = FMA(b_28, a_22, c_13);
+  IntrVec_t a_28 = LD(a, 28);
+  c_14 = FMA(b_28, a_28, c_14);
 
-      IntrVec_t b_25 = LD(b, 25);
-      c_10 = FMA(b_25, a_1, c_10);
-      c_11 = FMA(b_25, a_7, c_11);
-      c_12 = FMA(b_25, a_13, c_12);
-      c_13 = FMA(b_25, a_19, c_13);
-      IntrVec_t a_25 = LD(a, 25);
-      c_14 = FMA(b_25, a_25, c_14);
+  IntrVec_t b_29 = LD(b, 29);
+  c_12 = FMA(b_29, a_17, c_12);
 
-      IntrVec_t b_26 = LD(b, 26);
-      c_12 = ADD(b_26, c_12);
+  IntrVec_t b_30 = LD(b, 30);
+  IntrVec_t c_15 = MUL(b_30, a_0);
+  ST(c, 10, c_10);
+  ST(c, 11, c_11);
+  ST(c, 12, c_12);
+  ST(c, 13, c_13);
+  ST(c, 14, c_14);
+  IntrVec_t c_16 = MUL(b_30, a_6);
+  IntrVec_t c_17 = MUL(b_30, a_12);
+  IntrVec_t c_18 = MUL(b_30, a_18);
+  IntrVec_t c_19 = MUL(b_30, a_24);
 
-      IntrVec_t b_27 = LD(b, 27);
-      c_10 = FMA(b_27, a_3, c_10);
-      c_11 = FMA(b_27, a_9, c_11);
-      c_12 = FMA(b_27, a_15, c_12);
-      c_13 = FMA(b_27, a_21, c_13);
-      IntrVec_t a_27 = LD(a, 27);
-      c_14 = FMA(b_27, a_27, c_14);
+  IntrVec_t b_31 = LD(b, 31);
+  c_15 = FMA(b_31, a_1, c_15);
+  c_16 = FMA(b_31, a_7, c_16);
+  c_17 = FMA(b_31, a_13, c_17);
+  c_18 = FMA(b_31, a_19, c_18);
+  c_19 = FMA(b_31, a_25, c_19);
 
-      IntrVec_t b_28 = LD(b, 28);
-      c_10 = FMA(b_28, a_4, c_10);
-      c_11 = FMA(b_28, a_10, c_11);
-      c_12 = FMA(b_28, a_16, c_12);
-      c_13 = FMA(b_28, a_22, c_13);
-      IntrVec_t a_28 = LD(a, 28);
-      c_14 = FMA(b_28, a_28, c_14);
+  IntrVec_t b_32 = LD(b, 32);
+  c_17 = ADD(b_32, c_17);
 
-      IntrVec_t b_29 = LD(b, 29);
-      c_12 = FMA(b_29, a_17, c_12);
+  IntrVec_t b_33 = LD(b, 33);
+  c_15 = FMA(b_33, a_3, c_15);
+  c_16 = FMA(b_33, a_9, c_16);
+  c_17 = FMA(b_33, a_15, c_17);
+  c_18 = FMA(b_33, a_21, c_18);
+  c_19 = FMA(b_33, a_27, c_19);
 
-      IntrVec_t b_30 = LD(b, 30);
-      IntrVec_t c_15 = MUL(b_30, a_0);
-      ST(c, 10, c_10);
-      ST(c, 11, c_11);
-      ST(c, 12, c_12);
-      ST(c, 13, c_13);
-      ST(c, 14, c_14);
-      IntrVec_t c_16 = MUL(b_30, a_6);
-      IntrVec_t c_17 = MUL(b_30, a_12);
-      IntrVec_t c_18 = MUL(b_30, a_18);
-      IntrVec_t c_19 = MUL(b_30, a_24);
+  IntrVec_t b_34 = LD(b, 34);
+  c_15 = FMA(b_34, a_4, c_15);
+  c_16 = FMA(b_34, a_10, c_16);
+  c_17 = FMA(b_34, a_16, c_17);
+  c_18 = FMA(b_34, a_22, c_18);
+  c_19 = FMA(b_34, a_28, c_19);
 
-      IntrVec_t b_31 = LD(b, 31);
-      c_15 = FMA(b_31, a_1, c_15);
-      c_16 = FMA(b_31, a_7, c_16);
-      c_17 = FMA(b_31, a_13, c_17);
-      c_18 = FMA(b_31, a_19, c_18);
-      c_19 = FMA(b_31, a_25, c_19);
-
-      IntrVec_t b_32 = LD(b, 32);
-      c_17 = ADD(b_32, c_17);
-
-      IntrVec_t b_33 = LD(b, 33);
-      c_15 = FMA(b_33, a_3, c_15);
-      c_16 = FMA(b_33, a_9, c_16);
-      c_17 = FMA(b_33, a_15, c_17);
-      c_18 = FMA(b_33, a_21, c_18);
-      c_19 = FMA(b_33, a_27, c_19);
-
-      IntrVec_t b_34 = LD(b, 34);
-      c_15 = FMA(b_34, a_4, c_15);
-      c_16 = FMA(b_34, a_10, c_16);
-      c_17 = FMA(b_34, a_16, c_17);
-      c_18 = FMA(b_34, a_22, c_18);
-      c_19 = FMA(b_34, a_28, c_19);
-
-      IntrVec_t b_35 = LD(b, 35);
-      c_17 = FMA(b_35, a_17, c_17);
-      IntrVec_t c_20 = b_35;
-      ST(c, 15, c_15);
-      ST(c, 16, c_16);
-      ST(c, 17, c_17);
-      ST(c, 18, c_18);
-      ST(c, 19, c_19);
-      ST(c, 20, c_20);
-   }
+  IntrVec_t b_35 = LD(b, 35);
+  c_17 = FMA(b_35, a_17, c_17);
+  IntrVec_t c_20 = b_35;
+  ST(c, 15, c_15);
+  ST(c, 16, c_16);
+  ST(c, 17, c_17);
+  ST(c, 18, c_18);
+  ST(c, 19, c_19);
+  ST(c, 20, c_20);
+}
 
 #else
 
 #pragma omp simd
-   for (int n = 0; n < N; ++n)
-   {
-      c[ 0*N+n] = b[ 0*N+n]*a[ 0*N+n] + b[ 1*N+n]*a[ 1*N+n] + b[ 3*N+n]*a[ 3*N+n] + b[ 4*N+n]*a[ 4*N+n];
-      c[ 1*N+n] = b[ 6*N+n]*a[ 0*N+n] + b[ 7*N+n]*a[ 1*N+n] + b[ 9*N+n]*a[ 3*N+n] + b[10*N+n]*a[ 4*N+n];
-      c[ 2*N+n] = b[ 6*N+n]*a[ 6*N+n] + b[ 7*N+n]*a[ 7*N+n] + b[ 9*N+n]*a[ 9*N+n] + b[10*N+n]*a[10*N+n];
-      c[ 3*N+n] = b[12*N+n]*a[ 0*N+n] + b[13*N+n]*a[ 1*N+n] + b[15*N+n]*a[ 3*N+n] + b[16*N+n]*a[ 4*N+n];
-      c[ 4*N+n] = b[12*N+n]*a[ 6*N+n] + b[13*N+n]*a[ 7*N+n] + b[15*N+n]*a[ 9*N+n] + b[16*N+n]*a[10*N+n];
-      c[ 5*N+n] = b[12*N+n]*a[12*N+n] + b[13*N+n]*a[13*N+n] + b[14*N+n] + b[15*N+n]*a[15*N+n] + b[16*N+n]*a[16*N+n] + b[17*N+n]*a[17*N+n];
-      c[ 6*N+n] = b[18*N+n]*a[ 0*N+n] + b[19*N+n]*a[ 1*N+n] + b[21*N+n]*a[ 3*N+n] + b[22*N+n]*a[ 4*N+n];
-      c[ 7*N+n] = b[18*N+n]*a[ 6*N+n] + b[19*N+n]*a[ 7*N+n] + b[21*N+n]*a[ 9*N+n] + b[22*N+n]*a[10*N+n];
-      c[ 8*N+n] = b[18*N+n]*a[12*N+n] + b[19*N+n]*a[13*N+n] + b[20*N+n] + b[21*N+n]*a[15*N+n] + b[22*N+n]*a[16*N+n] + b[23*N+n]*a[17*N+n];
-      c[ 9*N+n] = b[18*N+n]*a[18*N+n] + b[19*N+n]*a[19*N+n] + b[21*N+n]*a[21*N+n] + b[22*N+n]*a[22*N+n];
-      c[10*N+n] = b[24*N+n]*a[ 0*N+n] + b[25*N+n]*a[ 1*N+n] + b[27*N+n]*a[ 3*N+n] + b[28*N+n]*a[ 4*N+n];
-      c[11*N+n] = b[24*N+n]*a[ 6*N+n] + b[25*N+n]*a[ 7*N+n] + b[27*N+n]*a[ 9*N+n] + b[28*N+n]*a[10*N+n];
-      c[12*N+n] = b[24*N+n]*a[12*N+n] + b[25*N+n]*a[13*N+n] + b[26*N+n] + b[27*N+n]*a[15*N+n] + b[28*N+n]*a[16*N+n] + b[29*N+n]*a[17*N+n];
-      c[13*N+n] = b[24*N+n]*a[18*N+n] + b[25*N+n]*a[19*N+n] + b[27*N+n]*a[21*N+n] + b[28*N+n]*a[22*N+n];
-      c[14*N+n] = b[24*N+n]*a[24*N+n] + b[25*N+n]*a[25*N+n] + b[27*N+n]*a[27*N+n] + b[28*N+n]*a[28*N+n];
-      c[15*N+n] = b[30*N+n]*a[ 0*N+n] + b[31*N+n]*a[ 1*N+n] + b[33*N+n]*a[ 3*N+n] + b[34*N+n]*a[ 4*N+n];
-      c[16*N+n] = b[30*N+n]*a[ 6*N+n] + b[31*N+n]*a[ 7*N+n] + b[33*N+n]*a[ 9*N+n] + b[34*N+n]*a[10*N+n];
-      c[17*N+n] = b[30*N+n]*a[12*N+n] + b[31*N+n]*a[13*N+n] + b[32*N+n] + b[33*N+n]*a[15*N+n] + b[34*N+n]*a[16*N+n] + b[35*N+n]*a[17*N+n];
-      c[18*N+n] = b[30*N+n]*a[18*N+n] + b[31*N+n]*a[19*N+n] + b[33*N+n]*a[21*N+n] + b[34*N+n]*a[22*N+n];
-      c[19*N+n] = b[30*N+n]*a[24*N+n] + b[31*N+n]*a[25*N+n] + b[33*N+n]*a[27*N+n] + b[34*N+n]*a[28*N+n];
-      c[20*N+n] = b[35*N+n];
-   }
+for (int n = 0; n < N; ++n) {
+  c[0 * N + n] = b[0 * N + n] * a[0 * N + n] + b[1 * N + n] * a[1 * N + n] + b[3 * N + n] * a[3 * N + n] +
+                 b[4 * N + n] * a[4 * N + n];
+  c[1 * N + n] = b[6 * N + n] * a[0 * N + n] + b[7 * N + n] * a[1 * N + n] + b[9 * N + n] * a[3 * N + n] +
+                 b[10 * N + n] * a[4 * N + n];
+  c[2 * N + n] = b[6 * N + n] * a[6 * N + n] + b[7 * N + n] * a[7 * N + n] + b[9 * N + n] * a[9 * N + n] +
+                 b[10 * N + n] * a[10 * N + n];
+  c[3 * N + n] = b[12 * N + n] * a[0 * N + n] + b[13 * N + n] * a[1 * N + n] + b[15 * N + n] * a[3 * N + n] +
+                 b[16 * N + n] * a[4 * N + n];
+  c[4 * N + n] = b[12 * N + n] * a[6 * N + n] + b[13 * N + n] * a[7 * N + n] + b[15 * N + n] * a[9 * N + n] +
+                 b[16 * N + n] * a[10 * N + n];
+  c[5 * N + n] = b[12 * N + n] * a[12 * N + n] + b[13 * N + n] * a[13 * N + n] + b[14 * N + n] +
+                 b[15 * N + n] * a[15 * N + n] + b[16 * N + n] * a[16 * N + n] + b[17 * N + n] * a[17 * N + n];
+  c[6 * N + n] = b[18 * N + n] * a[0 * N + n] + b[19 * N + n] * a[1 * N + n] + b[21 * N + n] * a[3 * N + n] +
+                 b[22 * N + n] * a[4 * N + n];
+  c[7 * N + n] = b[18 * N + n] * a[6 * N + n] + b[19 * N + n] * a[7 * N + n] + b[21 * N + n] * a[9 * N + n] +
+                 b[22 * N + n] * a[10 * N + n];
+  c[8 * N + n] = b[18 * N + n] * a[12 * N + n] + b[19 * N + n] * a[13 * N + n] + b[20 * N + n] +
+                 b[21 * N + n] * a[15 * N + n] + b[22 * N + n] * a[16 * N + n] + b[23 * N + n] * a[17 * N + n];
+  c[9 * N + n] = b[18 * N + n] * a[18 * N + n] + b[19 * N + n] * a[19 * N + n] + b[21 * N + n] * a[21 * N + n] +
+                 b[22 * N + n] * a[22 * N + n];
+  c[10 * N + n] = b[24 * N + n] * a[0 * N + n] + b[25 * N + n] * a[1 * N + n] + b[27 * N + n] * a[3 * N + n] +
+                  b[28 * N + n] * a[4 * N + n];
+  c[11 * N + n] = b[24 * N + n] * a[6 * N + n] + b[25 * N + n] * a[7 * N + n] + b[27 * N + n] * a[9 * N + n] +
+                  b[28 * N + n] * a[10 * N + n];
+  c[12 * N + n] = b[24 * N + n] * a[12 * N + n] + b[25 * N + n] * a[13 * N + n] + b[26 * N + n] +
+                  b[27 * N + n] * a[15 * N + n] + b[28 * N + n] * a[16 * N + n] + b[29 * N + n] * a[17 * N + n];
+  c[13 * N + n] = b[24 * N + n] * a[18 * N + n] + b[25 * N + n] * a[19 * N + n] + b[27 * N + n] * a[21 * N + n] +
+                  b[28 * N + n] * a[22 * N + n];
+  c[14 * N + n] = b[24 * N + n] * a[24 * N + n] + b[25 * N + n] * a[25 * N + n] + b[27 * N + n] * a[27 * N + n] +
+                  b[28 * N + n] * a[28 * N + n];
+  c[15 * N + n] = b[30 * N + n] * a[0 * N + n] + b[31 * N + n] * a[1 * N + n] + b[33 * N + n] * a[3 * N + n] +
+                  b[34 * N + n] * a[4 * N + n];
+  c[16 * N + n] = b[30 * N + n] * a[6 * N + n] + b[31 * N + n] * a[7 * N + n] + b[33 * N + n] * a[9 * N + n] +
+                  b[34 * N + n] * a[10 * N + n];
+  c[17 * N + n] = b[30 * N + n] * a[12 * N + n] + b[31 * N + n] * a[13 * N + n] + b[32 * N + n] +
+                  b[33 * N + n] * a[15 * N + n] + b[34 * N + n] * a[16 * N + n] + b[35 * N + n] * a[17 * N + n];
+  c[18 * N + n] = b[30 * N + n] * a[18 * N + n] + b[31 * N + n] * a[19 * N + n] + b[33 * N + n] * a[21 * N + n] +
+                  b[34 * N + n] * a[22 * N + n];
+  c[19 * N + n] = b[30 * N + n] * a[24 * N + n] + b[31 * N + n] * a[25 * N + n] + b[33 * N + n] * a[27 * N + n] +
+                  b[34 * N + n] * a[28 * N + n];
+  c[20 * N + n] = b[35 * N + n];
+}
 #endif

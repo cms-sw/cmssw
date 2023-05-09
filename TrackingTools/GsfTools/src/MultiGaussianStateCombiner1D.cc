@@ -17,7 +17,7 @@ SingleGaussianState1D MultiGaussianStateCombiner1D::combine(const VSC& theCompon
     return SingleGaussianState1D();
   }
 
-  const SingleGaussianState1D firstState(theComponents.front());
+  const SingleGaussianState1D& firstState(theComponents.front());
   if (theComponents.size() == 1)
     return firstState;
 

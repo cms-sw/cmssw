@@ -1,28 +1,9 @@
 <use name="boost"/>
 <use name="FWCore/Utilities"/>
-<bin file="Exception_t.cpp">
-</bin>
 
-<bin file="EDMException_t.cpp">
-</bin>
-
-<bin file="TestHelper_t.cpp">
-  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Utilities/test one.sh two.sh testFriendlyNames.sh testAdler32.sh"/>
-</bin>
-
-<bin file="value_ptr_t.cpp">
-</bin>
+<test name="TestHelper_t" command="${value}.sh" foreach="testFriendlyNames,testAdler32"/>
 
 <bin file="atomic_value_ptr_t.cpp">
-</bin>
-
-<bin file="Digest_t.cpp">
-</bin>
-
-<bin file="CRC32Calculator_t.cpp">
-</bin>
-
-<bin file="Guid_t.cpp">
 </bin>
 
 <bin file="typedefs_t.cpp">
@@ -30,12 +11,6 @@
 
 <bin file="HRTime_t.cpp">
   <use name="cppunit"/>
-</bin>
-
-<bin file="isFinite_t.cpp">
-</bin>
-
-<bin file="clone_ptr_t.cpp">
 </bin>
 
 <bin name="testFWCoreUtilities" file="typeidbase_t.cppunit.cpp,typeid_t.cppunit.cpp,cputimer_t.cppunit.cpp,esinputtag.cppunit.cpp,friendlyname_t.cppunit.cpp,signal_t.cppunit.cpp,soatuple_t.cppunit.cpp,transform.cppunit.cpp,callxnowait_t.cppunit.cpp,vecarray.cppunit.cpp,reusableobjectholder_t.cppunit.cpp,propagate_const_t.cppunit.cpp,propagate_const_array_t.cppunit.cpp,indexset.cppunit.cpp">

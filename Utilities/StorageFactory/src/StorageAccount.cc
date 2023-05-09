@@ -101,13 +101,12 @@ StorageAccount::Counter& StorageAccount::counter(StorageClassToken token, Operat
   return opstats[static_cast<int>(operation)];
 }
 
-StorageAccount::Stamp::Stamp(Counter& counter)
-    : m_counter(counter), m_start(std::chrono::high_resolution_clock::now()) {
+StorageAccount::Stamp::Stamp(Counter& counter) : m_counter(counter), m_start(std::chrono::steady_clock::now()) {
   m_counter.attempts++;
 }
 
 void StorageAccount::Stamp::tick(uint64_t amount, int64_t count) const {
-  std::chrono::nanoseconds elapsed_ns = std::chrono::high_resolution_clock::now() - m_start;
+  std::chrono::nanoseconds elapsed_ns = std::chrono::steady_clock::now() - m_start;
   uint64_t elapsed = elapsed_ns.count();
   m_counter.successes++;
 

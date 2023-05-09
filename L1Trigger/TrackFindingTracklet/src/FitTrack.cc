@@ -543,7 +543,6 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
   double tseedexact = tracklet->t();
   double z0seedexact = tracklet->z0();
 
-  double chisqseed = 0.0;
   double chisqseedexact = 0.0;
 
   double delta[2 * N_FITSTUB];
@@ -579,7 +578,6 @@ void FitTrack::trackFitChisq(Tracklet* tracklet, std::vector<const Stub*>&, std:
     delta[j] = zresid[i];
     deltaexact[j++] = zresidexact[i];
 
-    chisqseed += (delta[j - 2] * delta[j - 2] + delta[j - 1] * delta[j - 1]);
     chisqseedexact += (deltaexact[j - 2] * deltaexact[j - 2] + deltaexact[j - 1] * deltaexact[j - 1]);
   }
   assert(j <= 12);

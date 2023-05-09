@@ -8,6 +8,4 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<bin file="TestIntegration.cpp" name="TestDQMServicesFwkIOScripts">
-  <flags TEST_RUNNER_ARGS=" /bin/bash DQMServices/FwkIO/test run_tests.sh"/>
-</bin>
+<test name="TestDQMServicesFwkIOScripts" command="run_tests.sh"/>

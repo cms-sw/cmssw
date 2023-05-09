@@ -33,8 +33,8 @@ public:
 
   PFHCALDenseIdNavigator(const edm::ParameterSet& iConfig, edm::ConsumesCollector& cc)
       : vhcalEnum_(iConfig.getParameter<std::vector<int>>("hcalEnums")),
-        hcalToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()),
-        geomToken_(cc.esConsumes<edm::Transition::BeginLuminosityBlock>()) {}
+        hcalToken_(cc.esConsumes<edm::Transition::BeginRun>()),
+        geomToken_(cc.esConsumes<edm::Transition::BeginRun>()) {}
 
   void init(const edm::EventSetup& iSetup) override {
     bool check = theRecNumberWatcher_.check(iSetup);

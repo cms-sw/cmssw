@@ -2,6 +2,7 @@
 #include "EventFilter/Utilities/interface/EvFOutputModule.h"
 #include "EventFilter/Utilities/interface/FastMonitoringService.h"
 #include "EventFilter/Utilities/interface/FedRawDataInputSource.h"
+#include "EventFilter/Utilities/interface/DAQSource.h"
 #include "EventFilter/Utilities/plugins/DaqFakeReader.h"
 #include "EventFilter/Utilities/plugins/EvFBuildingThrottle.h"
 #include "EventFilter/Utilities/plugins/EvFFEDSelector.h"
@@ -31,3 +32,4 @@ DEFINE_FWK_MODULE(EvFFEDExcluder);
 DEFINE_FWK_MODULE(EvFOutputModule);
 DEFINE_FWK_MODULE(DaqFakeReader);
 DEFINE_FWK_INPUT_SOURCE(FedRawDataInputSource);
+DEFINE_FWK_INPUT_SOURCE(DAQSource);

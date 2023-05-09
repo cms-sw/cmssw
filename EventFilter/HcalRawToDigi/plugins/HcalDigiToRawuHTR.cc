@@ -241,10 +241,7 @@ void HcalDigiToRawuHTR::produce(edm::StreamID id, edm::Event& iEvent, const edm:
   // -----------------------------------------------------
   // -----------------------------------------------------
   // loop over each uHTR and format data
-  int idxuhtr = -1;
   for (UHTRpacker::UHTRMap::iterator uhtr = uhtrs.uhtrs.begin(); uhtr != uhtrs.uhtrs.end(); ++uhtr) {
-    idxuhtr++;
-
     uint64_t crateId = (uhtr->first) & 0xFF;
     uint64_t slotId = (uhtr->first & 0xF00) >> 8;
 

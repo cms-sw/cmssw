@@ -26,7 +26,7 @@ firstStepPrimaryVerticesUnsorted = cms.EDProducer("PrimaryVertexProducer",
         trackQuality = cms.string('any')
     ),
     TrackLabel = cms.InputTag("initialStepTracks"),
-    beamSpotLabel = cms.InputTag("offlineBeamSpot"),
+    beamSpotLabel = cms.InputTag("hltOnlineBeamSpot"),
     verbose = cms.untracked.bool(False),
     vertexCollections = cms.VPSet(cms.PSet(
         algorithm = cms.string('AdaptiveVertexFitter'),

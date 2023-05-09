@@ -390,7 +390,7 @@ void fitAll() {
   fit(xmat, Verr);  // get initial values
   fnthite++;
 
-  Double_t chi2cut = 20;
+  //Double_t chi2cut = 20;
 
   int fminNtrks = 100;
   double fconvergence = 0.9;
@@ -405,7 +405,7 @@ void fitAll() {
 
     fit(xmat, Verr);
     fd0cut /= 1.5;
-    chi2cut /= 1.5;
+    //chi2cut /= 1.5;
     if (tmpNtrks_ > fconvergence * zdata.size() && tmpNtrks_ > fminNtrks)
       fnthite++;
   }

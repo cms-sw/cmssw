@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun testHGCalParametersVXDD4hep_cfg.py type=V17
 #
-#   Options for type V16, V17
+#   Options for type V16, V17, V17n, V17Shift, V18
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('type',
                  "V17",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: V16, V17")
+                  "type of operations: V16, V17, V17n, V17Shift, V18")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -30,7 +30,7 @@ geomFile = "Geometry/HGCalCommonData/data/dd4hep/testHGCal" + options.type + ".x
 print("Geometry file: ", geomFile)
 
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-process.load("Geometry.HGCalCommonData.hgcalV15ParametersInitialization_cfi")
+process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if hasattr(process,'MessageLogger'):

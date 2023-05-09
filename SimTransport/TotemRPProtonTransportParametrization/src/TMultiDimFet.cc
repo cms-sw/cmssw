@@ -680,11 +680,6 @@ void TMultiDimFet::MakeCandidates() {
     // Number of funcs selected
     Int_t numberFunctions = 0;
 
-    // Absolute max number of functions
-    Int_t maxNumberFunctions = 1;
-    for (i = 0; i < fNVariables; i++)
-      maxNumberFunctions *= fMaxPowers[i];
-
     while (kTRUE) {
       // Get the control value for this function
       Double_t s = EvalControl(iv);

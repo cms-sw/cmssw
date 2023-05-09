@@ -8,7 +8,7 @@ from os.path import exists, basename, join
 from datetime import datetime
 
 class WorkFlowRunner(Thread):
-    def __init__(self, wf, noRun=False,dryRun=False,cafVeto=True,dasOptions="",jobReport=False, nThreads=1, nStreams=0, maxSteps=9999):
+    def __init__(self, wf, noRun=False,dryRun=False,cafVeto=True,dasOptions="",jobReport=False, nThreads=1, nStreams=0, maxSteps=9999, nEvents=0):
         Thread.__init__(self)
         self.wf = wf
 
@@ -24,6 +24,7 @@ class WorkFlowRunner(Thread):
         self.nThreads=nThreads
         self.nStreams=nStreams
         self.maxSteps=maxSteps
+        self.nEvents=nEvents
         
         self.wfDir=str(self.wf.numId)+'_'+self.wf.nameId
         return
@@ -166,6 +167,11 @@ class WorkFlowRunner(Thread):
                   cmd += ' --nThreads %s' % self.nThreads
                 if (self.nStreams > 0) and ('HARVESTING' not in cmd) and ('ALCAHARVEST' not in cmd):
                   cmd += ' --nStreams %s' % self.nStreams
+                if (self.nEvents > 0):
+                  event_token = " -n "
+                  split = cmd.split(event_token)
+                  pos_cmd = " ".join(split[1].split(" ")[1:])
+                  cmd = split[0] + event_token + '%s ' % self.nEvents + pos_cmd
                 cmd+=closeCmd(istep,self.wf.nameId)            
                 retStep = 0
                 if istep>self.maxSteps:
@@ -207,6 +213,7 @@ class WorkFlowRunner(Thread):
         logStat=''
         for i,s in enumerate(self.stat):
             logStat+='Step%d-%s '%(i,s)
+        #self.report='%s_%s+%s %s - time %s; exit: '%(self.wf.numId,self.wf.nameId,'+'.join(self.wf.stepList),logStat,tottime)+' '.join(map(str,self.retStep))+'\n'
         self.report='%s_%s %s - time %s; exit: '%(self.wf.numId,self.wf.nameId,logStat,tottime)+' '.join(map(str,self.retStep))+'\n'
 
         return 

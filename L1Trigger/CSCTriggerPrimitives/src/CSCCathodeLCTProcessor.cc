@@ -23,28 +23,32 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
                                                unsigned sector,
                                                unsigned subsector,
                                                unsigned chamber,
-                                               const edm::ParameterSet& conf)
+                                               CSCBaseboard::Parameters& conf)
     : CSCBaseboard(endcap, station, sector, subsector, chamber, conf) {
   static std::atomic<bool> config_dumped{false};
 
   // CLCT configuration parameters.
-  fifo_tbins = clctParams_.getParameter<unsigned int>("clctFifoTbins");
-  hit_persist = clctParams_.getParameter<unsigned int>("clctHitPersist");
-  drift_delay = clctParams_.getParameter<unsigned int>("clctDriftDelay");
-  nplanes_hit_pretrig = clctParams_.getParameter<unsigned int>("clctNplanesHitPretrig");
-  nplanes_hit_pattern = clctParams_.getParameter<unsigned int>("clctNplanesHitPattern");
+  fifo_tbins = conf.clctParams().getParameter<unsigned int>("clctFifoTbins");
+  hit_persist = conf.clctParams().getParameter<unsigned int>("clctHitPersist");
+  drift_delay = conf.clctParams().getParameter<unsigned int>("clctDriftDelay");
+  nplanes_hit_pretrig = conf.clctParams().getParameter<unsigned int>("clctNplanesHitPretrig");
+  nplanes_hit_pattern = conf.clctParams().getParameter<unsigned int>("clctNplanesHitPattern");
 
   // Not used yet.
-  fifo_pretrig = clctParams_.getParameter<unsigned int>("clctFifoPretrig");
+  fifo_pretrig = conf.clctParams().getParameter<unsigned int>("clctFifoPretrig");
 
-  pid_thresh_pretrig = clctParams_.getParameter<unsigned int>("clctPidThreshPretrig");
-  min_separation = clctParams_.getParameter<unsigned int>("clctMinSeparation");
+  pid_thresh_pretrig = conf.clctParams().getParameter<unsigned int>("clctPidThreshPretrig");
+  min_separation = conf.clctParams().getParameter<unsigned int>("clctMinSeparation");
 
-  start_bx_shift = clctParams_.getParameter<int>("clctStartBxShift");
+  start_bx_shift = conf.clctParams().getParameter<int>("clctStartBxShift");
+
+  localShowerZone = conf.clctParams().getParameter<int>("clctLocalShowerZone");
+
+  localShowerThresh = conf.clctParams().getParameter<int>("clctLocalShowerThresh");
 
   // Motherboard parameters: common for all configurations.
   tmb_l1a_window_size =  // Common to CLCT and TMB
-      tmbParams_.getParameter<unsigned int>("tmbL1aWindowSize");
+      conf.tmbParams().getParameter<unsigned int>("tmbL1aWindowSize");
 
   /*
     In Summer 2021 the CLCT readout function was updated so that the
@@ -52,15 +56,15 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
     time BX7. In the past the window was based on early_tbins and late_tbins.
     The parameter is kept, but is not used.
   */
-  early_tbins = tmbParams_.getParameter<int>("tmbEarlyTbins");
+  early_tbins = conf.tmbParams().getParameter<int>("tmbEarlyTbins");
   if (early_tbins < 0)
     early_tbins = fifo_pretrig - CSCConstants::CLCT_EMUL_TIME_OFFSET;
 
   // wether to readout only the earliest two LCTs in readout window
-  readout_earliest_2 = tmbParams_.getParameter<bool>("tmbReadoutEarliest2");
+  readout_earliest_2 = conf.tmbParams().getParameter<bool>("tmbReadoutEarliest2");
 
   // Verbosity level, set to 0 (no print) by default.
-  infoV = clctParams_.getParameter<int>("verbosity");
+  infoV = conf.clctParams().getParameter<int>("verbosity");
 
   // Do not exclude pattern 0 and 1 when the Run-3 patterns are enabled!!
   // Valid Run-3 patterns are 0,1,2,3,4
@@ -84,16 +88,20 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
       stagger[i_layer] = 1;
   }
 
+  for (int i = 0; i < CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER; ++i) {
+    ispretrig_[i] = false;
+  }
+
   // which patterns should we use?
   if (runCCLUT_) {
     clct_pattern_ = CSCPatternBank::clct_pattern_run3_;
     // comparator code lookup table algorithm for Phase-2
-    cclut_ = std::make_unique<ComparatorCodeLUT>(conf);
+    cclut_ = std::make_unique<ComparatorCodeLUT>(conf.conf());
   } else {
     clct_pattern_ = CSCPatternBank::clct_pattern_legacy_;
   }
 
-  const auto& shower = showerParams_.getParameterSet("cathodeShower");
+  const auto& shower = conf.showerParams().getParameterSet("cathodeShower");
   thresholds_ = shower.getParameter<std::vector<unsigned>>("showerThresholds");
   showerNumTBins_ = shower.getParameter<unsigned>("showerNumTBins");
   minLayersCentralTBin_ = shower.getParameter<unsigned>("minLayersCentralTBin");
@@ -146,8 +154,6 @@ void CSCCathodeLCTProcessor::setConfigParameters(const CSCDBL1TPParameters* conf
   maxbx_readout_ = CSCConstants::LCT_CENTRAL_BX + tmb_l1a_window_size / 2;
 }
 
-void CSCCathodeLCTProcessor::setESLookupTables(const CSCL1TPLookupTableCCLUT* conf) { cclut_->setESLookupTables(conf); }
-
 void CSCCathodeLCTProcessor::checkConfigParameters() {
   // Make sure that the parameter values are within the allowed range.
 
@@ -186,10 +192,13 @@ void CSCCathodeLCTProcessor::clear() {
     bestCLCT[bx].clear();
     secondCLCT[bx].clear();
     cathode_showers_[bx].clear();
+    localShowerFlag[bx] = false;  //init with no shower around CLCT
   }
 }
 
-std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc) {
+std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiCollection* compdc,
+                                                     const CSCChamber* cscChamber,
+                                                     const CSCL1TPLookupTableCCLUT* lookupTable) {
   // This is the version of the run() function that is called when running
   // over the entire detector.  It gets the comparator & timing info from the
   // comparator digis and then passes them on to another run() function.
@@ -203,8 +212,8 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiColl
   // Get the number of strips and stagger of layers for the given chamber.
   // Do it only once per chamber.
   if (numStrips_ <= 0 or numStrips_ > CSCConstants::MAX_NUM_STRIPS_RUN2) {
-    if (cscChamber_) {
-      numStrips_ = cscChamber_->layer(1)->geometry()->numberOfStrips();
+    if (cscChamber) {
+      numStrips_ = cscChamber->layer(1)->geometry()->numberOfStrips();
 
       // ME1/a is known to the readout hardware as strips 65-80 of ME1/1.
       // Still need to decide whether we do any special adjustments to
@@ -254,7 +263,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiColl
       // negative half-strip numbers.  This will necessitate a
       // subtraction of 1 half-strip for TMB-07 later on. -SV.
       for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
-        stagger[i_layer] = (cscChamber_->layer(i_layer + 1)->geometry()->stagger() + 1) / 2;
+        stagger[i_layer] = (cscChamber->layer(i_layer + 1)->geometry()->stagger() + 1) / 2;
       }
     } else {
       edm::LogError("CSCCathodeLCTProcessor|ConfigError")
@@ -304,7 +313,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiColl
     // to fire is not null.  (Pre-trigger decisions are used for the
     // strip read-out conditions in DigiToRaw.)
     if (layersHit >= nplanes_hit_pretrig)
-      run(halfStripTimes);
+      run(halfStripTimes, lookupTable);
 
     // Get the high multiplicity bits in this chamber
     encodeHighMultiplicityBits();
@@ -328,7 +337,8 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::run(const CSCComparatorDigiColl
 }
 
 void CSCCathodeLCTProcessor::run(
-    const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]) {
+    const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER],
+    const CSCL1TPLookupTableCCLUT* lookupTable) {
   // This version of the run() function can either be called in a standalone
   // test, being passed the halfstrip times, or called by the
   // run() function above.  It uses the findLCTs() method to find vectors
@@ -339,7 +349,7 @@ void CSCCathodeLCTProcessor::run(
   // add 1 for possible stagger
   pulse_.initialize(numHalfStrips_ + 1);
 
-  std::vector<CSCCLCTDigi> CLCTlist = findLCTs(halfstrip);
+  std::vector<CSCCLCTDigi> CLCTlist = findLCTs(halfstrip, lookupTable);
 
   for (const auto& p : CLCTlist) {
     const int bx = p.getBX();
@@ -384,8 +394,41 @@ void CSCCathodeLCTProcessor::run(
             << "\n";
     }
   }
+  checkLocalShower(localShowerZone, halfstrip);
   // Now that we have our best CLCTs, they get correlated with the best
   // ALCTs and then get sent to the MotherBoard.  -JM
+}
+
+void CSCCathodeLCTProcessor::checkLocalShower(
+    int zone,
+    const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]) {
+  // Fire half-strip one-shots for hit_persist bx's (4 bx's by default).
+  //check local shower after pulse extension
+  pulseExtension(halfstrip);
+
+  for (int bx = 0; bx < CSCConstants::MAX_CLCT_TBINS; bx++) {
+    if (not bestCLCT[bx].isValid())
+      continue;
+
+    //only check the region around best CLCT
+    int keyHS = bestCLCT[bx].getKeyStrip();
+    int minHS = (keyHS - zone) >= stagger[CSCConstants::KEY_CLCT_LAYER - 1] ? keyHS - zone
+                                                                            : stagger[CSCConstants::KEY_CLCT_LAYER - 1];
+    int maxHS = (keyHS + zone) >= numHalfStrips_ ? numHalfStrips_ : keyHS + zone;
+    int totalHits = 0;
+    for (int hstrip = minHS; hstrip < maxHS; hstrip++) {
+      for (int this_layer = 0; this_layer < CSCConstants::NUM_LAYERS; this_layer++)
+        if (pulse_.isOneShotHighAtBX(this_layer, hstrip, bx + drift_delay))
+          totalHits++;
+    }
+
+    localShowerFlag[bx] = totalHits >= localShowerThresh;
+    if (infoV > 1)
+      LogDebug("CSCCathodeLCTProcessor") << " bx " << bx << " bestCLCT key HS " << keyHS
+                                         << " localshower zone: " << minHS << ", " << maxHS << " totalHits "
+                                         << totalHits
+                                         << (localShowerFlag[bx] ? " Validlocalshower " : " NolocalShower ");
+  }
 }
 
 bool CSCCathodeLCTProcessor::getDigis(const CSCComparatorDigiCollection* compdc) {
@@ -530,7 +573,8 @@ void CSCCathodeLCTProcessor::readComparatorDigis(
 
 // TMB-07 version.
 std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
-    const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER]) {
+    const std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_HALF_STRIPS_RUN2_TRIGGER],
+    const CSCL1TPLookupTableCCLUT* lookupTable) {
   std::vector<CSCCLCTDigi> lctList;
 
   if (infoV > 1)
@@ -621,7 +665,7 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
           // construct a CLCT if the trigger condition has been met
           if (best_hs >= 0 && nhits[best_hs] >= nplanes_hit_pattern) {
             // overwrite the current best CLCT
-            tempBestCLCT = constructCLCT(first_bx, best_hs, hits_in_patterns[best_hs][best_pid[best_hs]]);
+            tempBestCLCT = constructCLCT(first_bx, best_hs, hits_in_patterns[best_hs][best_pid[best_hs]], lookupTable);
           }
         }
       }
@@ -647,7 +691,8 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::findLCTs(
           // construct a CLCT if the trigger condition has been met
           if (best_hs >= 0 && nhits[best_hs] >= nplanes_hit_pattern) {
             // overwrite the current second best CLCT
-            tempSecondCLCT = constructCLCT(first_bx, best_hs, hits_in_patterns[best_hs][best_pid[best_hs]]);
+            tempSecondCLCT =
+                constructCLCT(first_bx, best_hs, hits_in_patterns[best_hs][best_pid[best_hs]], lookupTable);
           }
         }
 
@@ -961,7 +1006,8 @@ void CSCCathodeLCTProcessor::markBusyKeys(const int best_hstrip,
 
 CSCCLCTDigi CSCCathodeLCTProcessor::constructCLCT(const int bx,
                                                   const unsigned halfstrip_withstagger,
-                                                  const CSCCLCTDigi::ComparatorContainer& hits) {
+                                                  const CSCCLCTDigi::ComparatorContainer& hits,
+                                                  const CSCL1TPLookupTableCCLUT* lookupTable) {
   // Assign the CLCT properties
   const unsigned quality = nhits[halfstrip_withstagger];
   const unsigned pattern = best_pid[halfstrip_withstagger];
@@ -990,7 +1036,7 @@ CSCCLCTDigi CSCCathodeLCTProcessor::constructCLCT(const int bx,
 
   // do the CCLUT procedures for Run-3
   if (runCCLUT_) {
-    cclut_->run(clct, numCFEBs_);
+    cclut_->run(clct, numCFEBs_, lookupTable);
   }
 
   // purge the comparator digi collection from the obsolete "65535" entries...
@@ -1197,15 +1243,25 @@ std::vector<CSCCLCTDigi> CSCCathodeLCTProcessor::getCLCTs() const {
 // to make a proper comparison with ALCTs we need
 // CLCT and ALCT to have the central BX in the same bin
 CSCCLCTDigi CSCCathodeLCTProcessor::getBestCLCT(int bx) const {
+  if (bx >= CSCConstants::MAX_CLCT_TBINS or bx < 0)
+    return CSCCLCTDigi();
   CSCCLCTDigi lct = bestCLCT[bx];
   lct.setBX(lct.getBX() + CSCConstants::ALCT_CLCT_OFFSET);
   return lct;
 }
 
 CSCCLCTDigi CSCCathodeLCTProcessor::getSecondCLCT(int bx) const {
+  if (bx >= CSCConstants::MAX_CLCT_TBINS or bx < 0)
+    return CSCCLCTDigi();
   CSCCLCTDigi lct = secondCLCT[bx];
   lct.setBX(lct.getBX() + CSCConstants::ALCT_CLCT_OFFSET);
   return lct;
+}
+
+bool CSCCathodeLCTProcessor::getLocalShowerFlag(int bx) const {
+  if (bx >= CSCConstants::MAX_CLCT_TBINS or bx < 0)
+    return false;
+  return localShowerFlag[bx];
 }
 
 /** return vector of CSCShower digi **/

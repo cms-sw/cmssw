@@ -749,7 +749,7 @@ int DQMStoreStats::calcstats(int mode = DQMStoreStats::considerAllME) {
 
   // dump mem/bin table
 
-  unsigned int overallNHistograms = 0, overallNBins = 0, overallNEmptyBins = 0, overallNBytes = 0;
+  unsigned int overallNHistograms = 0, overallNBins = 0, overallNBytes = 0;
 
   std::cout << std::endl;
   std::cout << "------------------------------------------------------------------------------------------"
@@ -815,7 +815,6 @@ int DQMStoreStats::calcstats(int mode = DQMStoreStats::considerAllME) {
 
     overallNHistograms += nHistograms;
     overallNBins += nBins;
-    overallNEmptyBins += nEmptyBins;
     overallNBytes += nBytes;
 
     // display totals
@@ -872,7 +871,6 @@ int DQMStoreStats::calcstats(int mode = DQMStoreStats::considerAllME) {
       return 0;
     // Prepare appropriate map to store FWJR output.
     std::map<std::string, std::string> jrInfo;
-    unsigned int overallNHistograms = 0, overallNBins = 0, overallNBytes = 0;
 
     jrInfo["Source"] = "DQMServices/Components";
     jrInfo["FileClass"] = "DQMStoreStats";
@@ -900,9 +898,6 @@ int DQMStoreStats::calcstats(int mode = DQMStoreStats::considerAllME) {
         nEmptyBins += it1->totalEmptyBins_;
         nBytes += it1->totalMemory_;
       }
-      overallNHistograms += nHistograms;
-      overallNBins += nBins;
-      overallNBytes += nBytes;
       std::stringstream iss("");
       iss << nHistograms;
       jrInfo[it0->subsystemName_ + std::string("_h")] = iss.str();

@@ -18,8 +18,8 @@ public:
   float thickness() const override { return theZmax - theZmin; }
 
   bool inside(const Local3DPoint& p) const override {
-    return ((p.z() > theZmin) & (p.z() < theZmax)) &&
-           ((p.perp2() > theRmin * theRmin) & (p.perp2() < theRmax * theRmax));
+    return ((p.z() > theZmin) && (p.z() < theZmax)) &&
+           ((p.perp2() > theRmin * theRmin) && (p.perp2() < theRmax * theRmax));
   }
 
   using Bounds::inside;

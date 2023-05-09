@@ -31,6 +31,7 @@ private:
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
   edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> geometricSearchTrackerToken_;
   const std::string navigationSchoolName_;
+  std::string navigationSchoolPluginName_;
 };
 
 //
@@ -38,15 +39,17 @@ private:
 // constructors and destructor
 //
 NavigationSchoolESProducer::NavigationSchoolESProducer(const edm::ParameterSet& iConfig)
-    : navigationSchoolName_(iConfig.getParameter<std::string>("ComponentName")) {
+    : navigationSchoolName_(iConfig.getParameter<std::string>("ComponentName")),
+      navigationSchoolPluginName_(iConfig.getParameter<std::string>("PluginName")) {
   //the following line is needed to tell the framework what
   // data is being produced
-
   auto cc = setWhatProduced(this, navigationSchoolName_);
   magFieldToken_ = cc.consumes(edm::ESInputTag("", iConfig.getParameter<std::string>("SimpleMagneticField")));
   geometricSearchTrackerToken_ = cc.consumes();
 
   //now do what ever other initialization is needed
+  if (navigationSchoolPluginName_.empty())
+    navigationSchoolPluginName_ = navigationSchoolName_;
 }
 
 //
@@ -59,12 +62,13 @@ NavigationSchoolESProducer::ReturnType NavigationSchoolESProducer::produce(const
 
   //get the geometricsearch tracker geometry
   return ReturnType(NavigationSchoolFactory::get()->create(
-      navigationSchoolName_, &iRecord.get(geometricSearchTrackerToken_), &iRecord.get(magFieldToken_)));
+      navigationSchoolPluginName_, &iRecord.get(geometricSearchTrackerToken_), &iRecord.get(magFieldToken_)));
 }
 
 void NavigationSchoolESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("ComponentName");
+  desc.add<std::string>("PluginName", "");
   desc.add<std::string>("SimpleMagneticField", "");
   descriptions.addDefault(desc);
 }

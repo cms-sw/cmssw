@@ -1,10 +1,5 @@
-<environment>
-  <bin file="runtestTqafTopTools.cpp">
-    <flags TEST_RUNNER_ARGS=" /bin/bash TopQuarkAnalysis/TopTools/test runtests.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
+<test name="runtestTqafTopTools" command="runtests.sh"/>
 
-</environment>
 <library file="TestGenTtbarCategories.cc">
   <flags EDM_PLUGIN="1"/>
   <use name="FWCore/Framework"/>

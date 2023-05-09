@@ -9,6 +9,7 @@
 #include "SimG4CMS/Calo/interface/CaloSD.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4CMS/Calo/interface/HGCalNumberingScheme.h"
+#include "SimG4CMS/Calo/interface/HGCGuardRing.h"
 #include "SimG4CMS/Calo/interface/HGCMouseBite.h"
 
 #include <string>
@@ -41,6 +42,7 @@ private:
 
   const HGCalDDDConstants *hgcons_;
   std::unique_ptr<HGCalNumberingScheme> numberingScheme_;
+  std::unique_ptr<HGCGuardRing> guardRing_;
   std::unique_ptr<HGCMouseBite> mouseBite_;
   DetId::Detector mydet_;
   std::string nameX_;
@@ -49,8 +51,8 @@ private:
   double mouseBiteCut_, weight_;
   int levelT1_, levelT2_, cornerMinMask_;
   bool storeAllG4Hits_;
-  bool fiducialCut_, rejectMB_, waferRot_;
-  int useSimWt_;
+  bool fiducialCut_, rejectMB_, waferRot_, checkID_;
+  int useSimWt_, verbose_;
   const double tan30deg_;
   std::vector<double> angles_;
   std::string missingFile_;

@@ -169,7 +169,7 @@ AlgebraicMatrix CompositeAlignmentParameters::derivativesLegacy(const std::vecto
   int ipos = 1;
   AlgebraicMatrix selderiv(nparam, 2);
   for (std::vector<AlgebraicMatrix>::const_iterator imat = vecderiv.begin(); imat != vecderiv.end(); ++imat) {
-    AlgebraicMatrix thisselderiv = (*imat);
+    const AlgebraicMatrix &thisselderiv = (*imat);
     int npar = thisselderiv.num_row();
     selderiv.sub(ipos, 1, thisselderiv);
     ipos += npar;

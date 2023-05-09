@@ -17,7 +17,6 @@
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "DataFormats/Math/interface/liblogintpack.h"
 #include <algorithm>
-#include <boost/foreach.hpp>
 #include "FWCore/Utilities/interface/transform.h"
 
 //#define EDM_ML_DEBUG
@@ -34,7 +33,7 @@ namespace {
 
   int getCellThickness(const HGCalGeometry* geom, const DetId& detid) {
     const auto& dddConst = geom->topology().dddConstants();
-    return (1 + dddConst.waferType(detid));
+    return (1 + dddConst.waferType(detid, false));
   }
 
   void getValidDetIds(const HGCalGeometry* geom, std::unordered_set<DetId>& valid) {
@@ -199,25 +198,24 @@ namespace {
         int waferThickness = getCellThickness(geom, detectorId);
         float cell_threshold = tdcForToAOnset[waferThickness - 1];
         const auto& hitRec = hitmapIterator.second;
-        float accChargeForToA(0.f), fireTDC(0.f);
+        float fireTDC(0.f);
         const auto aboveThrPos = std::upper_bound(
             hitRec.begin(), hitRec.end(), std::make_pair(cell_threshold, 0.f), [](const auto& i, const auto& j) {
               return i.first < j.first;
             });
 
-        if (aboveThrPos == hitRec.end()) {
-          accChargeForToA = hitRec.back().first;
-          fireTDC = 0.f;
-        } else if (hitRec.end() - aboveThrPos > 0 || orderChanged) {
-          accChargeForToA = aboveThrPos->first;
-          fireTDC = aboveThrPos->second;
-          if (aboveThrPos - hitRec.begin() >= 1) {
-            const auto& belowThrPos = aboveThrPos - 1;
-            float chargeBeforeThr = belowThrPos->first;
-            float timeBeforeThr = belowThrPos->second;
-            float deltaQ = accChargeForToA - chargeBeforeThr;
-            float deltaTOF = fireTDC - timeBeforeThr;
-            fireTDC = (cell_threshold - chargeBeforeThr) * deltaTOF / deltaQ + timeBeforeThr;
+        if (aboveThrPos != hitRec.end()) {
+          if (hitRec.end() - aboveThrPos > 0 || orderChanged) {
+            fireTDC = aboveThrPos->second;
+            if (aboveThrPos - hitRec.begin() >= 1) {
+              float accChargeForToA = aboveThrPos->first;
+              const auto& belowThrPos = aboveThrPos - 1;
+              float chargeBeforeThr = belowThrPos->first;
+              float timeBeforeThr = belowThrPos->second;
+              float deltaQ = accChargeForToA - chargeBeforeThr;
+              float deltaTOF = fireTDC - timeBeforeThr;
+              fireTDC = (cell_threshold - chargeBeforeThr) * deltaTOF / deltaQ + timeBeforeThr;
+            }
           }
         }
         (simIt->second).hit_info[1][9] = fireTDC;
@@ -432,7 +430,6 @@ void HGCDigitizer::accumulate_forPreMix(edm::Handle<edm::PCaloHitContainer> cons
   auto tdcForToAOnset = theDigitizer_->tdcForToAOnset();
 
   int nchits = (int)hits->size();
-  int count_thisbx = 0;
   std::vector<HGCCaloHitTuple_t> hitRefs;
   hitRefs.reserve(nchits);
   for (int i = 0; i < nchits; ++i) {
@@ -470,7 +467,6 @@ void HGCDigitizer::accumulate_forPreMix(edm::Handle<edm::PCaloHitContainer> cons
 
     int waferThickness = getCellThickness(geom, id);
     if (itime == (int)thisBx_) {
-      ++count_thisbx;
       if (PhitRefs_bx0[id].empty()) {
         PhitRefs_bx0[id].emplace_back(charge, charge, tof);
       } else if (tof > std::get<2>(PhitRefs_bx0[id].back())) {

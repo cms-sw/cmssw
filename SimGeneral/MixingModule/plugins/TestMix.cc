@@ -187,7 +187,7 @@ void TestMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
                 << cfi3.bunch() << " trigger " << cfi3.getTrigger()
                 << ", from EncodedEventId: " << cfi3->eventId().bunchCrossing() << " " << cfi3->eventId().event()
                 << std::endl;
-      SimVertex myvtx = (*cfi3);
+      const SimVertex& myvtx = (*cfi3);
       std::cout << "Same with op*: " << count3 << " has parent index  " << myvtx.parentIndex() << " bunchcr "
                 << cfi3.bunch() << " trigger " << cfi3.getTrigger()
                 << ", from EncodedEventId: " << myvtx.eventId().bunchCrossing() << " " << myvtx.eventId().event()

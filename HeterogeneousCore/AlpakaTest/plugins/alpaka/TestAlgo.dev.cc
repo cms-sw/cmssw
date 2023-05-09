@@ -18,8 +18,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   class TestAlgoKernel {
   public:
-    template <typename TAcc, typename = std::enable_if_t<is_accelerator_v<TAcc>>>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc, portabletest::TestDeviceCollection::View view, int32_t size) const {
+    template <typename TAcc, typename = std::enable_if_t<alpaka::isAccelerator<TAcc>>>
+    ALPAKA_FN_ACC void operator()(TAcc const& acc,
+                                  portabletest::TestDeviceCollection::View view,
+                                  int32_t size,
+                                  double xvalue) const {
       // global index of the thread within the grid
       const int32_t thread = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0u];
       const portabletest::Matrix matrix{{1, 2, 3, 4, 5, 6}, {2, 4, 6, 8, 10, 12}, {3, 6, 9, 12, 15, 18}};
@@ -31,12 +34,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
       // make a strided loop over the kernel grid, covering up to "size" elements
       for (int32_t i : elements_with_stride(acc, size)) {
-        view[i] = {0., 0., 0., i, matrix * i};
+        view[i] = {xvalue, 0., 0., i, matrix * i};
       }
     }
   };
 
-  void TestAlgo::fill(Queue& queue, portabletest::TestDeviceCollection& collection) const {
+  void TestAlgo::fill(Queue& queue, portabletest::TestDeviceCollection& collection, double xvalue) const {
     // use 64 items per group (this value is arbitrary, but it's a reasonable starting point)
     uint32_t items = 64;
 
@@ -48,7 +51,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     //   - elements within a single thread on a CPU backend
     auto workDiv = make_workdiv<Acc1D>(groups, items);
 
-    alpaka::exec<Acc1D>(queue, workDiv, TestAlgoKernel{}, collection.view(), collection->metadata().size());
+    alpaka::exec<Acc1D>(queue, workDiv, TestAlgoKernel{}, collection.view(), collection->metadata().size(), xvalue);
   }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

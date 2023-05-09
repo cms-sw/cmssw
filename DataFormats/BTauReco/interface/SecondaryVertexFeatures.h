@@ -6,6 +6,9 @@ namespace btagbtvdeep {
   class SecondaryVertexFeatures {
   public:
     float pt;
+    float px;
+    float py;
+    float pz;
     float ptrel;
     float mass;
 
@@ -21,6 +24,13 @@ namespace btagbtvdeep {
 
     float costhetasvpv;
     float enratio;
+
+    float etarel;
+    float phirel;
+
+    float eta;
+    float phi;
+    float e;
   };
 
 }  // namespace btagbtvdeep

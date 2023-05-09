@@ -14,21 +14,15 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   /**
-   * This class demonstrates and ESProducer on the data model 3 that
-   * - consumes a standard host ESProduct and converts the data into an Alpaka buffer
-   * - transfers the buffer contents to the device of the backend
+   * This class demonstrates and ESProducer on the data model 1 that
+   * consumes a standard host ESProduct and converts the data into
+   * PortableCollection, and implicitly transfers the data product to device
    */
   class TestAlpakaESProducerC : public ESProducer {
   public:
-    TestAlpakaESProducerC(edm::ParameterSet const& iConfig) {
-      {
-        auto cc = setWhatProduced(this, &TestAlpakaESProducerC::produceHost);
-        token_ = cc.consumes();
-      }
-      {
-        auto cc = setWhatProduced(this, &TestAlpakaESProducerC::produceDevice);
-        hostToken_ = cc.consumes();
-      }
+    TestAlpakaESProducerC(edm::ParameterSet const& iConfig) : ESProducer(iConfig) {
+      auto cc = setWhatProduced(this);
+      token_ = cc.consumes();
     }
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -36,7 +30,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       descriptions.addWithDefaultLabel(desc);
     }
 
-    std::optional<AlpakaESTestDataCHost> produceHost(AlpakaESTestRecordC const& iRecord) {
+    std::optional<AlpakaESTestDataCHost> produce(AlpakaESTestRecordC const& iRecord) {
       auto const& input = iRecord.get(token_);
 
       int const size = 5;
@@ -49,19 +43,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       return product;
     }
 
-    // TODO: in principle in this model the transfer to device could be automated
-    std::optional<AlpakaESTestDataCDevice> produceDevice(device::Record<AlpakaESTestRecordC> const& iRecord) {
-      auto hostHandle = iRecord.getTransientHandle(hostToken_);
-      auto const& hostProduct = *hostHandle;
-      AlpakaESTestDataCDevice deviceProduct(hostProduct->metadata().size(), iRecord.queue());
-      alpaka::memcpy(iRecord.queue(), deviceProduct.buffer(), hostProduct.buffer());
-
-      return deviceProduct;
-    }
-
   private:
     edm::ESGetToken<cms::alpakatest::ESTestDataC, AlpakaESTestRecordC> token_;
-    edm::ESGetToken<AlpakaESTestDataCHost, AlpakaESTestRecordC> hostToken_;
   };
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 

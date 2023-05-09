@@ -1,8 +1,7 @@
-from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
 from enum import Enum
-from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultMC_Realistic2022
+from Alignment.OfflineValidation.TkAlAllInOneTool.defaultInputFiles_cff import filesDefaultMC_TTBarPU
 
 class RefitType(Enum):
      STANDARD = 1
@@ -14,29 +13,35 @@ allFromGT = True
 applyBows = True
 applyExtraConditions = True
 theRefitter = RefitType.COMMON
+_theTrackCollection = 'generalTracks' # 'ALCARECOTkAlMinBias'
 
-process = cms.Process("Demo") 
+process = cms.Process("Demo")
+
+###################################################################
+# Set the process to run multi-threaded
+###################################################################
+process.options.numberOfThreads = 8
 
 ###################################################################
 # Event source and run selection
 ###################################################################
 process.source = cms.Source("PoolSource",
-                            fileNames = filesDefaultMC_Realistic2022,
+                            fileNames = filesDefaultMC_TTBarPU,
                             duplicateCheckMode = cms.untracked.string('checkAllFilesOpened')
                             )
 
 runboundary = 1
 process.source.firstRun = cms.untracked.uint32(int(runboundary))
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(2600) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 ###################################################################
 # JSON Filtering
 ###################################################################
 if isMC:
-     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is Simulation!")
+     print("############ testPVValidation_cfg.py: msg%-i: This is Simulation!")
      runboundary = 1
 else:
-     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is DATA!")
+     print("############ testPVValidation_cfg.py: msg%-i: This is DATA!")
      import FWCore.PythonUtilities.LumiList as LumiList
      process.source.lumisToProcess = LumiList.LumiList(filename ='None').getVLuminosityBlockRange()
 
@@ -86,10 +91,10 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 ####################################################################
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2022_realistic', '')
 
 if allFromGT:
-     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: All is taken from GT")
+     print("############ testPVValidation_cfg.py: msg%-i: All is taken from GT")
 else:
      ####################################################################
      # Get Alignment constants
@@ -122,7 +127,7 @@ else:
      # Kinks and Bows (optional)
      ####################################################################
      if applyBows:
-          print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Applying TrackerSurfaceDeformations!")
+          print("############ testPVValidation_cfg.py: msg%-i: Applying TrackerSurfaceDeformations!")
           process.trackerBows = cms.ESSource("PoolDBESSource",CondDBSetup,
                                              connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
                                              toGet = cms.VPSet(cms.PSet(record = cms.string('TrackerSurfaceDeformationRcd'),
@@ -132,7 +137,7 @@ else:
                                              )
           process.es_prefer_Bows = cms.ESPrefer("PoolDBESSource", "trackerBows")
      else:
-          print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: MultiPVValidation: Not applying TrackerSurfaceDeformations!")
+          print("############ testPVValidation_cfg.py: msg%-i: MultiPVValidation: Not applying TrackerSurfaceDeformations!")
 
      ####################################################################
      # Extra corrections not included in the GT
@@ -143,7 +148,7 @@ else:
           ##### END OF EXTRA CONDITIONS
  
      else:
-          print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Not applying extra calibration constants!")
+          print("############ testPVValidation_cfg.py: msg%-i: Not applying extra calibration constants!")
      
 ####################################################################
 # Load and Configure event selection
@@ -156,7 +161,7 @@ process.primaryVertexFilter = cms.EDFilter("VertexSelector",
 
 process.noscraping = cms.EDFilter("FilterOutScraping",
                                   applyfilter = cms.untracked.bool(True),
-                                  src =  cms.untracked.InputTag("generalTracks"),
+                                  src =  cms.untracked.InputTag(_theTrackCollection),
                                   debugOn = cms.untracked.bool(False),
                                   numtrack = cms.untracked.uint32(10),
                                   thresh = cms.untracked.double(0.25)
@@ -164,7 +169,7 @@ process.noscraping = cms.EDFilter("FilterOutScraping",
 
 process.noslowpt = cms.EDFilter("FilterOutLowPt",
                                 applyfilter = cms.untracked.bool(True),
-                                src =  cms.untracked.InputTag("generalTracks"),
+                                src =  cms.untracked.InputTag(_theTrackCollection),
                                 debugOn = cms.untracked.bool(False),
                                 numtrack = cms.untracked.uint32(0),
                                 thresh = cms.untracked.int32(1),
@@ -181,12 +186,12 @@ else:
 
 if(theRefitter == RefitType.COMMON):
 
-     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: using the common track selection and refit sequence!")          
+     print("############ testPVValidation_cfg.py: msg%-i: using the common track selection and refit sequence!")
      ####################################################################
      # Load and Configure Common Track Selection and refitting sequence
      ####################################################################
      import Alignment.CommonAlignment.tools.trackselectionRefitting as trackselRefit
-     process.seqTrackselRefit = trackselRefit.getSequence(process, 'generalTracks',
+     process.seqTrackselRefit = trackselRefit.getSequence(process, _theTrackCollection,
                                                           isPVValidation=True, 
                                                           TTRHBuilder='WithAngleAndTemplate',
                                                           usePixelQualityFlag=True,
@@ -200,14 +205,14 @@ if(theRefitter == RefitType.COMMON):
      
 elif (theRefitter == RefitType.STANDARD):
 
-     print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: using the standard single refit sequence!")          
+     print("############ testPVValidation_cfg.py: msg%-i: using the standard single refit sequence!")
      ####################################################################
      # Load and Configure Measurement Tracker Event
      # (needed in case NavigationSchool is set != '')
      ####################################################################
      # process.load("RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi") 
-     # process.MeasurementTrackerEvent.pixelClusterProducer = 'generalTracks'
-     # process.MeasurementTrackerEvent.stripClusterProducer = 'generalTracks'
+     # process.MeasurementTrackerEvent.pixelClusterProducer = '_theTrackCollection'
+     # process.MeasurementTrackerEvent.stripClusterProducer = '_theTrackCollection'
      # process.MeasurementTrackerEvent.inactivePixelDetectorLabels = cms.VInputTag()
      # process.MeasurementTrackerEvent.inactiveStripDetectorLabels = cms.VInputTag()
 
@@ -217,7 +222,7 @@ elif (theRefitter == RefitType.STANDARD):
      process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
      import RecoTracker.TrackProducer.TrackRefitters_cff
      process.FinalTrackRefitter = RecoTracker.TrackProducer.TrackRefitter_cfi.TrackRefitter.clone()
-     process.FinalTrackRefitter.src = "generalTracks"
+     process.FinalTrackRefitter.src = _theTrackCollection
      process.FinalTrackRefitter.TrajectoryInEvent = True
      process.FinalTrackRefitter.NavigationSchool = ''
      process.FinalTrackRefitter.TTRHBuilder = "WithAngleAndTemplate"
@@ -261,10 +266,10 @@ GapClusterizationParams = cms.PSet(algorithm   = cms.string('gap'),
 ####################################################################
 def switchClusterizerParameters(da):
      if da:
-          print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running DA Algorithm!")
+          print("############ testPVValidation_cfg.py: msg%-i: Running DA Algorithm!")
           return DAClusterizationParams
      else:
-          print(">>>>>>>>>> testPVValidation_cfg.py: msg%-i: Running GAP Algorithm!")
+          print("############ testPVValidation_cfg.py: msg%-i: Running GAP Algorithm!")
           return GapClusterizationParams
 
 ####################################################################

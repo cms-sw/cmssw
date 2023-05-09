@@ -16,22 +16,12 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/MuonDetId/interface/DTChamberId.h"
-#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
 #include "DataFormats/TrackingRecHit/interface/RecSegment.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
-#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
-#include "DataFormats/CSCRecHit/interface/CSCSegment.h"
-#include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
@@ -46,6 +36,36 @@
 MuonAlignmentAnalyzer::MuonAlignmentAnalyzer(const edm::ParameterSet &pset)
     : magFieldToken_(esConsumes()),
       trackingGeometryToken_(esConsumes()),
+      theSTAMuonTag(pset.getParameter<edm::InputTag>("StandAloneTrackCollectionTag")),
+      theGLBMuonTag(pset.getParameter<edm::InputTag>("GlobalMuonTrackCollectionTag")),
+      theRecHits4DTagDT(pset.getParameter<edm::InputTag>("RecHits4DDTCollectionTag")),
+      theRecHits4DTagCSC(pset.getParameter<edm::InputTag>("RecHits4DCSCCollectionTag")),
+      theDataType(pset.getUntrackedParameter<std::string>("DataType")),
+      doSAplots(pset.getUntrackedParameter<bool>("doSAplots")),
+      doGBplots(pset.getUntrackedParameter<bool>("doGBplots")),
+      doResplots(pset.getUntrackedParameter<bool>("doResplots")),
+      ptRangeMin(pset.getUntrackedParameter<double>("ptRangeMin")),
+      ptRangeMax(pset.getUntrackedParameter<double>("ptRangeMax")),
+      invMassRangeMin(pset.getUntrackedParameter<double>("invMassRangeMin")),
+      invMassRangeMax(pset.getUntrackedParameter<double>("invMassRangeMax")),
+      resLocalXRangeStation1(pset.getUntrackedParameter<double>("resLocalXRangeStation1")),
+      resLocalXRangeStation2(pset.getUntrackedParameter<double>("resLocalXRangeStation2")),
+      resLocalXRangeStation3(pset.getUntrackedParameter<double>("resLocalXRangeStation3")),
+      resLocalXRangeStation4(pset.getUntrackedParameter<double>("resLocalXRangeStation4")),
+      resLocalYRangeStation1(pset.getUntrackedParameter<double>("resLocalYRangeStation1")),
+      resLocalYRangeStation2(pset.getUntrackedParameter<double>("resLocalYRangeStation2")),
+      resLocalYRangeStation3(pset.getUntrackedParameter<double>("resLocalYRangeStation3")),
+      resLocalYRangeStation4(pset.getUntrackedParameter<double>("resLocalYRangeStation4")),
+      resPhiRange(pset.getUntrackedParameter<double>("resPhiRange")),
+      resThetaRange(pset.getUntrackedParameter<double>("resThetaRange")),
+      nbins(pset.getUntrackedParameter<unsigned int>("nbins")),
+      min1DTrackRecHitSize(pset.getUntrackedParameter<unsigned int>("min1DTrackRecHitSize")),
+      min4DTrackSegmentSize(pset.getUntrackedParameter<unsigned int>("min4DTrackSegmentSize")),
+      simTrackToken_(consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"))),
+      staTrackToken_(consumes<reco::TrackCollection>(theSTAMuonTag)),
+      glbTrackToken_(consumes<reco::TrackCollection>(theGLBMuonTag)),
+      allDTSegmentToken_(consumes<DTRecSegment4DCollection>(theRecHits4DTagDT)),
+      allCSCSegmentToken_(consumes<CSCSegmentCollection>(theRecHits4DTagCSC)),
       hGBNmuons(nullptr),
       hSANmuons(nullptr),
       hSimNmuons(nullptr),
@@ -195,36 +215,6 @@ MuonAlignmentAnalyzer::MuonAlignmentAnalyzer(const edm::ParameterSet &pset)
       hprofGlobalRCSC(nullptr) {
   usesResource(TFileService::kSharedResource);
 
-  theSTAMuonTag = pset.getParameter<edm::InputTag>("StandAloneTrackCollectionTag");
-  theGLBMuonTag = pset.getParameter<edm::InputTag>("GlobalMuonTrackCollectionTag");
-
-  theRecHits4DTagDT = pset.getParameter<edm::InputTag>("RecHits4DDTCollectionTag");
-  theRecHits4DTagCSC = pset.getParameter<edm::InputTag>("RecHits4DCSCCollectionTag");
-
-  theDataType = pset.getUntrackedParameter<std::string>("DataType");
-  ptRangeMin = pset.getUntrackedParameter<double>("ptRangeMin");
-  ptRangeMax = pset.getUntrackedParameter<double>("ptRangeMax");
-  invMassRangeMin = pset.getUntrackedParameter<double>("invMassRangeMin");
-  invMassRangeMax = pset.getUntrackedParameter<double>("invMassRangeMax");
-
-  doSAplots = pset.getUntrackedParameter<bool>("doSAplots");
-  doGBplots = pset.getUntrackedParameter<bool>("doGBplots");
-  doResplots = pset.getUntrackedParameter<bool>("doResplots");
-
-  resLocalXRangeStation1 = pset.getUntrackedParameter<double>("resLocalXRangeStation1");
-  resLocalXRangeStation2 = pset.getUntrackedParameter<double>("resLocalXRangeStation2");
-  resLocalXRangeStation3 = pset.getUntrackedParameter<double>("resLocalXRangeStation3");
-  resLocalXRangeStation4 = pset.getUntrackedParameter<double>("resLocalXRangeStation4");
-  resLocalYRangeStation1 = pset.getUntrackedParameter<double>("resLocalYRangeStation1");
-  resLocalYRangeStation2 = pset.getUntrackedParameter<double>("resLocalYRangeStation2");
-  resLocalYRangeStation3 = pset.getUntrackedParameter<double>("resLocalYRangeStation3");
-  resLocalYRangeStation4 = pset.getUntrackedParameter<double>("resLocalYRangeStation4");
-  resPhiRange = pset.getUntrackedParameter<double>("resPhiRange");
-  resThetaRange = pset.getUntrackedParameter<double>("resThetaRange");
-  nbins = pset.getUntrackedParameter<unsigned int>("nbins");
-  min1DTrackRecHitSize = pset.getUntrackedParameter<unsigned int>("min1DTrackRecHitSize");
-  min4DTrackSegmentSize = pset.getUntrackedParameter<unsigned int>("min4DTrackSegmentSize");
-
   if (theDataType != "RealData" && theDataType != "SimData")
     edm::LogError("MuonAlignmentAnalyzer") << "Error in Data Type!!" << std::endl;
 
@@ -234,8 +224,35 @@ MuonAlignmentAnalyzer::MuonAlignmentAnalyzer(const edm::ParameterSet &pset)
   numberOfHits = 0;
 }
 
-/// Destructor
-MuonAlignmentAnalyzer::~MuonAlignmentAnalyzer() {}
+void MuonAlignmentAnalyzer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("StandAloneTrackCollectionTag", edm::InputTag("globalMuons"));
+  desc.add<edm::InputTag>("GlobalMuonTrackCollectionTag", edm::InputTag("standAloneMuons", "UpdatedAtVtx"));
+  desc.add<edm::InputTag>("RecHits4DDTCollectionTag", edm::InputTag("dt4DSegments"));
+  desc.add<edm::InputTag>("RecHits4DCSCCollectionTag", edm::InputTag("cscSegments"));
+  desc.addUntracked<std::string>("DataType", "RealData");
+  desc.addUntracked<double>("ptRangeMin", 0.0);
+  desc.addUntracked<double>("ptRangeMax", 300.0);
+  desc.addUntracked<double>("invMassRangeMin", 0.0);
+  desc.addUntracked<double>("invMassRangeMax", 200.0);
+  desc.addUntracked<bool>("doSAplots", true);
+  desc.addUntracked<bool>("doGBplots", true);
+  desc.addUntracked<bool>("doResplots", true);
+  desc.addUntracked<double>("resLocalXRangeStation1", 0.1);
+  desc.addUntracked<double>("resLocalXRangeStation2", 0.3);
+  desc.addUntracked<double>("resLocalXRangeStation3", 3.0);
+  desc.addUntracked<double>("resLocalXRangeStation4", 3.0);
+  desc.addUntracked<double>("resLocalYRangeStation1", 0.7);
+  desc.addUntracked<double>("resLocalYRangeStation2", 0.7);
+  desc.addUntracked<double>("resLocalYRangeStation3", 5.0);
+  desc.addUntracked<double>("resLocalYRangeStation4", 5.0);
+  desc.addUntracked<double>("resThetaRange", 0.1);
+  desc.addUntracked<double>("resPhiRange", 0.1);
+  desc.addUntracked<int>("nbins", 500);
+  desc.addUntracked<int>("min1DTrackRecHitSize", 1);
+  desc.addUntracked<int>("min4DTrackSegmentSize", 1);
+  descriptions.add("muonAlignmentAnalyzer", desc);
+}
 
 void MuonAlignmentAnalyzer::beginJob() {
   //  eventSetup.get<IdealMagneticFieldRecord>().get(theMGField);
@@ -1729,8 +1746,7 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event &event, const edm::EventSet
     int i = 0, ie = 0, ib = 0;
 
     // Get the SimTrack collection from the event
-    edm::Handle<edm::SimTrackContainer> simTracks;
-    event.getByLabel("g4SimHits", simTracks);
+    const edm::Handle<edm::SimTrackContainer> &simTracks = event.getHandle(simTrackToken_);
 
     edm::SimTrackContainer::const_iterator simTrack;
 
@@ -1794,8 +1810,7 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event &event, const edm::EventSet
     double ich = 0;
 
     // Get the RecTrack collection from the event
-    edm::Handle<reco::TrackCollection> staTracks;
-    event.getByLabel(theSTAMuonTag, staTracks);
+    const edm::Handle<reco::TrackCollection> &staTracks = event.getHandle(staTrackToken_);
     numberOfSARecTracks += staTracks->size();
 
     reco::TrackCollection::const_iterator staTrack;
@@ -1890,8 +1905,7 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event &event, const edm::EventSet
 
   if (doGBplots) {
     // Get the RecTrack collection from the event
-    edm::Handle<reco::TrackCollection> glbTracks;
-    event.getByLabel(theGLBMuonTag, glbTracks);
+    const edm::Handle<reco::TrackCollection> &glbTracks = event.getHandle(glbTrackToken_);
     numberOfGBRecTracks += glbTracks->size();
 
     double GBrecPt = 0;
@@ -1994,20 +2008,17 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event &event, const edm::EventSet
 
   if (doResplots) {
     const MagneticField *theMGField = &eventSetup.getData(magFieldToken_);
-    edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry = eventSetup.getHandle(trackingGeometryToken_);
+    const edm::ESHandle<GlobalTrackingGeometry> &theTrackingGeometry = eventSetup.getHandle(trackingGeometryToken_);
 
     // Get the RecTrack collection from the event
-    edm::Handle<reco::TrackCollection> staTracks;
-    event.getByLabel(theSTAMuonTag, staTracks);
+    const edm::Handle<reco::TrackCollection> &staTracks = event.getHandle(staTrackToken_);
 
     // Get the 4D DTSegments
-    edm::Handle<DTRecSegment4DCollection> all4DSegmentsDT;
-    event.getByLabel(theRecHits4DTagDT, all4DSegmentsDT);
+    const edm::Handle<DTRecSegment4DCollection> &all4DSegmentsDT = event.getHandle(allDTSegmentToken_);
     DTRecSegment4DCollection::const_iterator segmentDT;
 
     // Get the 4D CSCSegments
-    edm::Handle<CSCSegmentCollection> all4DSegmentsCSC;
-    event.getByLabel(theRecHits4DTagCSC, all4DSegmentsCSC);
+    const edm::Handle<CSCSegmentCollection> &all4DSegmentsCSC = event.getHandle(allCSCSegmentToken_);
     CSCSegmentCollection::const_iterator segmentCSC;
 
     //Vectors used to perform the matching between Segments and hits from Track
@@ -2464,11 +2475,11 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event &event, const edm::EventSet
 }
 
 RecHitVector MuonAlignmentAnalyzer::doMatching(const reco::Track &staTrack,
-                                               edm::Handle<DTRecSegment4DCollection> &all4DSegmentsDT,
-                                               edm::Handle<CSCSegmentCollection> &all4DSegmentsCSC,
+                                               const edm::Handle<DTRecSegment4DCollection> &all4DSegmentsDT,
+                                               const edm::Handle<CSCSegmentCollection> &all4DSegmentsCSC,
                                                intDVector *indexCollectionDT,
                                                intDVector *indexCollectionCSC,
-                                               edm::ESHandle<GlobalTrackingGeometry> &theTrackingGeometry) {
+                                               const edm::ESHandle<GlobalTrackingGeometry> &theTrackingGeometry) {
   DTRecSegment4DCollection::const_iterator segmentDT;
   CSCSegmentCollection::const_iterator segmentCSC;
 

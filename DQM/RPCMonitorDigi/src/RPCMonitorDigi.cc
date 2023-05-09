@@ -187,7 +187,7 @@ void RPCMonitorDigi::analyze(const edm::Event& event, const edm::EventSetup& set
   if (rpcHits.isValid()) {
     //    RPC rec hits NOT associated to a muon
     for (auto rpcRecHitIter = rpcHits->begin(); rpcRecHitIter != rpcHits->end(); rpcRecHitIter++) {
-      RPCRecHit rpcRecHit = (*rpcRecHitIter);
+      const RPCRecHit& rpcRecHit = (*rpcRecHitIter);
       int detId = (int)rpcRecHit.rpcId();
       if (rechitNoise.find(detId) == rechitNoise.end() || rechitNoise[detId].empty()) {
         std::vector<RPCRecHit> myVect(1, rpcRecHit);
@@ -313,7 +313,7 @@ void RPCMonitorDigi::performSourceOperation(std::map<RPCDetId, std::vector<RPCRe
     std::string tmpName;
     for (std::vector<RPCRecHit>::const_iterator recHitIter = recHits.begin(); recHitIter != recHits.end();
          recHitIter++) {
-      RPCRecHit recHit = (*recHitIter);
+      const RPCRecHit& recHit = (*recHitIter);
 
       int bx = recHit.BunchX();
       bxSet.insert(bx);

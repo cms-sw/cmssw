@@ -4,7 +4,7 @@ test=testGetBy
 
 function die { echo Failure $1: status $2 ; exit $2 ; }
 
-pushd ${LOCAL_TMP_DIR}
+LOCAL_TEST_DIR=${SCRAM_TEST_PATH}
 
   echo "testGetBy1"
   cmsRun -p ${LOCAL_TEST_DIR}/${test}1_cfg.py > testGetBy1.log 2>/dev/null || die "cmsRun ${test}1_cfg.py" $?
@@ -52,6 +52,7 @@ pushd ${LOCAL_TMP_DIR}
   echo "testGetByWithEmptyRun_cfg.py"
   cmsRun -p ${LOCAL_TEST_DIR}/testGetByWithEmptyRun_cfg.py || die "cmsRun testGetByWithEmptyRun_cfg.py" $?
 
-popd
+  echo "testGetterOfProductsWithOutputModule_cfg.py"
+  cmsRun -p ${LOCAL_TEST_DIR}/testGetterOfProductsWithOutputModule_cfg.py || die "cmsRun testGetterOfProductsWithOutputModule_cfg.py" $?
 
 exit 0

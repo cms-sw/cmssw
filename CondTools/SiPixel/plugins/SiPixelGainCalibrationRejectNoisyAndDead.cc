@@ -179,7 +179,6 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
   int ndead = 0;
 
   int detid = 0;
-  int NDetid = 0;
 
   //checking for noisy pixels that won't be inserted ...
   bool willNoisyPixBeInserted;
@@ -212,9 +211,6 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
       detid = ((*it)->geographicalId()).rawId();
     if (detid == 0)
       continue;
-    NDetid++;
-    //edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead")<<NDetid<<"  "<<detid<<endl;
-    //if(NDetid==164) continue;
 
     if (DEBUG)
       edm::LogPrint("SiPixelGainCalibrationRejectNoisyAndDead") << "=>=>=>=> We are in module " << detid << endl;

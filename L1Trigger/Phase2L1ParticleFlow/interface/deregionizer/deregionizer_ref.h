@@ -25,12 +25,9 @@ namespace l1ct {
 
     void setDebug(bool debug = true) { debug_ = debug; }
 
-    void run(const DeregionizerInput in,
+    void run(std::vector<std::vector<std::vector<l1ct::PuppiObjEmu>>> in,
              std::vector<l1ct::PuppiObjEmu> &out,
              std::vector<l1ct::PuppiObjEmu> &truncated);
-
-    std::vector<std::vector<l1ct::PuppiObjEmu> > splitPFregions(
-        const std::vector<std::vector<std::vector<l1ct::PuppiObjEmu> > > &regionPuppis, const int i, const int j);
 
   private:
     unsigned int nPuppiFinalBuffer_, nPuppiPerClk_, nPuppiFirstBuffers_, nPuppiSecondBuffers_, nPuppiThirdBuffers_;
@@ -39,6 +36,9 @@ namespace l1ct {
     static std::vector<l1ct::PuppiObjEmu> mergeXtoY(const unsigned int X,
                                                     const unsigned int Y,
                                                     const std::vector<l1ct::PuppiObjEmu> &inLeft,
+                                                    const std::vector<l1ct::PuppiObjEmu> &inRight);
+
+    static std::vector<l1ct::PuppiObjEmu> mergeXtoY(const std::vector<l1ct::PuppiObjEmu> &inLeft,
                                                     const std::vector<l1ct::PuppiObjEmu> &inRight);
 
     static void accumulateToY(const unsigned int Y,

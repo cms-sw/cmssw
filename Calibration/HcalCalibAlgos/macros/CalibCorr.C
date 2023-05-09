@@ -38,6 +38,12 @@
 //      A class for selecting a given Read Out Box and provides
 //        bool isItRBX(detId): if it/they is in the chosen RBX
 //        bool isItRBX(ieta, iphi): if it is in the chosen RBX
+// CalibDuplicate(infile, flag, debug)
+//      A class for either rejecting duplicate entries or giving depth
+//        dependent weight. flag is 0 for keeping a list of duplicate
+//        emtries; 1 is to keep depth dependent weight for each ieta
+//        bool isDuplicate(entry): if it is a duplicate entry
+//        double getWeight(ieta, depth): get the dependent weight
 // void CalibCorrTest(infile, flag)
 //      Tests a file which contains correction factors used by CalibCorr
 //////////////////////////////////////////////////////////////////////////////
@@ -71,6 +77,30 @@ void unpackDetId(unsigned int detId, int& subdet, int& zside, int& ieta, int& ip
     zside = (detId & 0x80000) ? (1) : (-1);
     depth = ((detId >> 20) & 0xF);
     iphi = (detId & 0x3FF);
+  }
+}
+
+unsigned int packDetId(int subdet, int ieta, int iphi, int depth) {
+  // The maskings are defined in DataFormats/DetId/interface/DetId.h
+  //                      and in DataFormats/HcalDetId/interface/HcalDetId.h
+  // The macro does not invoke the classes there and use them
+  const int det(4);
+  unsigned int id = (((det & 0xF) << 28) | ((subdet & 0x7) << 25));
+  id |= ((0x1000000) | ((depth & 0xF) << 20) | ((ieta > 0) ? (0x80000 | (ieta << 10)) : ((-ieta) << 10)) |
+         (iphi & 0x3FF));
+  return id;
+}
+
+unsigned int matchDetId(unsigned int detId) {
+  if ((detId & 0x1000000) == 0) {
+    int subdet = ((detId >> 25) & (0x7));
+    int ieta = ((detId >> 7) & 0x3F);
+    int zside = (detId & 0x2000) ? (1) : (-1);
+    int depth = ((detId >> 14) & 0x1F);
+    int iphi = (detId & 0x3F);
+    return packDetId(subdet, (ieta * zside), iphi, depth);
+  } else {
+    return detId;
   }
 }
 
@@ -130,6 +160,31 @@ unsigned int repackId(int eta, int depth) {
   unsigned int id =
       (subdet << 25) | (0x1000000) | ((depth & 0xF) << 20) | ((zside > 0) ? (0x80000 | (ieta << 10)) : (ieta << 10));
   return id;
+}
+
+unsigned int repackId(int subdet, int ieta, int iphi, int depth) {
+  unsigned int id = ((subdet & 0x7) << 25);
+  id |= ((0x1000000) | ((depth & 0xF) << 20) | ((ieta > 0) ? (0x80000 | (ieta << 10)) : ((-ieta) << 10)) |
+         (iphi & 0x3FF));
+  return id;
+}
+
+bool ifHB(int ieta, int depth) { return ((std::abs(ieta) < 16) || ((std::abs(ieta) == 16) && (depth != 4))); }
+
+int truncateDepth(int ieta, int depth, int truncateFlag) {
+  int d(depth);
+  if (truncateFlag == 5) {
+    d = (depth == 1) ? 1 : 2;
+  } else if (truncateFlag == 4) {
+    d = ifHB(ieta, depth) ? ((depth == 1) ? 1 : 2) : depth;
+  } else if (truncateFlag == 3) {
+    d = (!ifHB(ieta, depth)) ? ((depth == 1) ? 1 : 2) : depth;
+  } else if (truncateFlag == 2) {
+    d = 1;
+  } else if (truncateFlag == 1) {
+    d = ((std::abs(ieta) == 15) || (std::abs(ieta) == 16)) ? 1 : depth;
+  }
+  return d;
 }
 
 double puFactor(int type, int ieta, double pmom, double eHcal, double ediff, bool debug = false) {
@@ -453,14 +508,17 @@ public:
   float getCorr(int run, unsigned int id);
   double getCorr(const Long64_t& entry);
   double getTrueCorr(const Long64_t& entry);
+  double getPhiCorr(unsigned int id);
   bool absent(const Long64_t& entry);
+  bool absent() { return (good_ == 0); }
   bool present(const Long64_t& entry);
 
 private:
-  void readCorrRun(const char* infile);
-  void readCorrDepth(const char* infile);
-  void readCorrResp(const char* infile);
-  void readCorrPU(const char* infile);
+  unsigned int readCorrRun(const char* infile);
+  unsigned int readCorrDepth(const char* infile);
+  unsigned int readCorrResp(const char* infile);
+  unsigned int readCorrPU(const char* infile);
+  unsigned int readCorrPhi(const char* infile);
   unsigned int getDetIdHE(int ieta, int iphi, int depth);
   unsigned int getDetId(int subdet, int ieta, int iphi, int depth);
   unsigned int correctDetId(const unsigned int& detId);
@@ -468,9 +526,11 @@ private:
   static const unsigned int nmax_ = 10;
   int flag_;
   bool debug_;
+  unsigned int good_;
   std::map<unsigned int, float> corrFac_[nmax_], corrFacDepth_, corrFacResp_;
   std::map<Long64_t, double> cfactors_;
   std::vector<int> runlow_;
+  std::map<unsigned int, double> corrPhiSym_;
 };
 
 class CalibSelectRBX {
@@ -486,6 +546,22 @@ private:
   bool debug_;
   int subdet_, zside_;
   std::vector<int> phis_;
+};
+
+class CalibDuplicate {
+public:
+  CalibDuplicate(const char* infile, int flag, bool debug);
+  ~CalibDuplicate() {}
+
+  bool isDuplicate(long entry);
+  double getWeight(const unsigned int);
+  bool doCorr() { return ((flag_ != 1) && ok_); }
+
+private:
+  int flag_;
+  double debug_, ok_;
+  std::vector<Long64_t> entries_;
+  std::map<int, std::vector<double> > weights_;
 };
 
 CalibCorrFactor::CalibCorrFactor(const char* infile, int useScale, double scale, bool etamax, bool marina, bool debug)
@@ -510,17 +586,19 @@ CalibCorrFactor::CalibCorrFactor(const char* infile, int useScale, double scale,
 double CalibCorrFactor::getCorr(unsigned int id) {
   double cfac(1.0);
   if (corrE_) {
-    int subdet, zside, ieta, iphi, depth;
-    unpackDetId(id, subdet, zside, ieta, iphi, depth);
-    std::map<std::pair<int, int>, double>::const_iterator itr =
-        cfactors_.find(std::pair<int, int>(zside * ieta, depth));
-    if (itr != cfactors_.end()) {
-      cfac = itr->second;
-    } else if (etaMax_) {
-      if (zside > 0 && ieta > etamp_)
-        cfac = (depth < depMax_) ? cfacmp_[depth] : cfacmp_[depMax_ - 1];
-      if (zside < 0 && ieta > -etamn_)
-        cfac = (depth < depMax_) ? cfacmn_[depth] : cfacmn_[depMax_ - 1];
+    if (cfactors_.size() > 0) {
+      int subdet, zside, ieta, iphi, depth;
+      unpackDetId(id, subdet, zside, ieta, iphi, depth);
+      std::map<std::pair<int, int>, double>::const_iterator itr =
+          cfactors_.find(std::pair<int, int>(zside * ieta, depth));
+      if (itr != cfactors_.end()) {
+        cfac = itr->second;
+      } else if (etaMax_) {
+        if (zside > 0 && ieta > etamp_)
+          cfac = (depth < depMax_) ? cfacmp_[depth] : cfacmp_[depMax_ - 1];
+        if (zside < 0 && ieta > -etamn_)
+          cfac = (depth < depMax_) ? cfacmn_[depth] : cfacmn_[depMax_ - 1];
+      }
     }
   } else if (useScale_ != 0) {
     int subdet, zside, ieta, iphi, depth;
@@ -590,17 +668,21 @@ double CalibCorrFactor::getFactor(const int& ieta) {
 CalibCorr::CalibCorr(const char* infile, int flag, bool debug) : flag_(flag), debug_(debug) {
   std::cout << "CalibCorr is created with flag " << flag << ":" << flag_ << " for i/p file " << infile << std::endl;
   if (flag == 1)
-    readCorrDepth(infile);
+    good_ = readCorrDepth(infile);
   else if (flag == 2)
-    readCorrResp(infile);
+    good_ = readCorrResp(infile);
   else if (flag == 3)
-    readCorrPU(infile);
+    good_ = readCorrPU(infile);
+  else if (flag == 4)
+    good_ = readCorrPhi(infile);
   else
-    readCorrRun(infile);
+    good_ = readCorrRun(infile);
 }
 
 float CalibCorr::getCorr(int run, unsigned int id) {
   float cfac(1.0);
+  if (good_ == 0)
+    return cfac;
   unsigned idx = correctDetId(id);
   if (flag_ == 1) {
     std::map<unsigned int, float>::iterator itr = corrFacDepth_.find(idx);
@@ -609,6 +691,10 @@ float CalibCorr::getCorr(int run, unsigned int id) {
   } else if (flag_ == 2) {
     std::map<unsigned int, float>::iterator itr = corrFacResp_.find(idx);
     if (itr != corrFacResp_.end())
+      cfac = itr->second;
+  } else if (flag_ == 4) {
+    std::map<unsigned int, double>::iterator itr = corrPhiSym_.find(idx);
+    if (itr != corrPhiSym_.end())
       cfac = itr->second;
   } else {
     int ip(-1);
@@ -638,6 +724,8 @@ float CalibCorr::getCorr(int run, unsigned int id) {
 }
 
 double CalibCorr::getCorr(const Long64_t& entry) {
+  if (good_ == 0)
+    return 1.0;
   double cfac(0.0);
   std::map<Long64_t, double>::iterator itr = cfactors_.find(entry);
   if (itr != cfactors_.end())
@@ -646,6 +734,8 @@ double CalibCorr::getCorr(const Long64_t& entry) {
 }
 
 double CalibCorr::getTrueCorr(const Long64_t& entry) {
+  if (good_ == 0)
+    return 1.0;
   double cfac(0.0);
   std::map<Long64_t, double>::iterator itr = cfactors_.find(entry);
   if (itr != cfactors_.end())
@@ -653,19 +743,34 @@ double CalibCorr::getTrueCorr(const Long64_t& entry) {
   return cfac;
 }
 
+double CalibCorr::getPhiCorr(unsigned int idx) {
+  double cfac(1.0);
+  if (good_ == 0)
+    return cfac;
+  std::map<unsigned int, double>::iterator itr = corrPhiSym_.find(idx);
+  if (itr != corrPhiSym_.end())
+    cfac = itr->second;
+  if (debug_) {
+    int subdet, zside, ieta, iphi, depth;
+    unpackDetId(idx, subdet, zside, ieta, iphi, depth);
+    std::cout << "ID " << std::hex << idx << std::dec << " (Sub " << subdet << " eta " << zside * ieta << " phi "
+              << iphi << " depth " << depth << ")  Factor " << cfac << std::endl;
+  }
+  return cfac;
+}
+
 bool CalibCorr::absent(const Long64_t& entry) { return (cfactors_.find(entry) == cfactors_.end()); }
 
 bool CalibCorr::present(const Long64_t& entry) { return (cfactors_.find(entry) != cfactors_.end()); }
 
-void CalibCorr::readCorrRun(const char* infile) {
+unsigned int CalibCorr::readCorrRun(const char* infile) {
   std::cout << "Enters readCorrRun for " << infile << std::endl;
   std::ifstream fInput(infile);
-  unsigned int ncorr(0);
+  unsigned int all(0), good(0), ncorr(0);
   if (!fInput.good()) {
     std::cout << "Cannot open file " << infile << std::endl;
   } else {
     char buffer[1024];
-    unsigned int all(0), good(0);
     while (fInput.getline(buffer, 1024)) {
       ++all;
       std::string bufferString(buffer);
@@ -711,16 +816,17 @@ void CalibCorr::readCorrRun(const char* infile) {
     std::cout << "Reads total of " << all << " and " << good << " good records of run dependent corrections from "
               << infile << std::endl;
   }
+  return good;
 }
 
-void CalibCorr::readCorrDepth(const char* infile) {
+unsigned int CalibCorr::readCorrDepth(const char* infile) {
   std::cout << "Enters readCorrDepth for " << infile << std::endl;
+  unsigned int all(0), good(0);
   std::ifstream fInput(infile);
   if (!fInput.good()) {
     std::cout << "Cannot open file " << infile << std::endl;
   } else {
     char buffer[1024];
-    unsigned int all(0), good(0);
     while (fInput.getline(buffer, 1024)) {
       ++all;
       std::string bufferString(buffer);
@@ -755,16 +861,17 @@ void CalibCorr::readCorrDepth(const char* infile) {
     std::cout << "Reads total of " << all << " and " << good << " good records of depth dependent factors from "
               << infile << std::endl;
   }
+  return good;
 }
 
-void CalibCorr::readCorrResp(const char* infile) {
+unsigned int CalibCorr::readCorrResp(const char* infile) {
   std::cout << "Enters readCorrResp for " << infile << std::endl;
+  unsigned int all(0), good(0), other(0);
   std::ifstream fInput(infile);
   if (!fInput.good()) {
     std::cout << "Cannot open file " << infile << std::endl;
   } else {
     char buffer[1024];
-    unsigned int all(0), good(0), other(0);
     while (fInput.getline(buffer, 1024)) {
       ++all;
       std::string bufferString(buffer);
@@ -800,9 +907,10 @@ void CalibCorr::readCorrResp(const char* infile) {
     std::cout << "Reads total of " << all << " and " << good << " good and " << other
               << " detector records of depth dependent factors from " << infile << std::endl;
   }
+  return good;
 }
 
-void CalibCorr::readCorrPU(const char* infile) {
+unsigned int CalibCorr::readCorrPU(const char* infile) {
   if (std::string(infile) != "") {
     std::ifstream fInput(infile);
     if (!fInput.good()) {
@@ -821,6 +929,49 @@ void CalibCorr::readCorrPU(const char* infile) {
     }
   }
   std::cout << "Reads " << cfactors_.size() << " PU correction factors from " << infile << std::endl;
+  return cfactors_.size();
+}
+
+unsigned int CalibCorr::readCorrPhi(const char* infile) {
+  std::cout << "Enters readCorrPhi for " << infile << std::endl;
+  unsigned int all(0), good(0);
+  std::ifstream fInput(infile);
+  if (!fInput.good()) {
+    std::cout << "Cannot open file " << infile << std::endl;
+  } else {
+    char buffer[1024];
+    while (fInput.getline(buffer, 1024)) {
+      ++all;
+      std::string bufferString(buffer);
+      if (bufferString.substr(0, 1) == "#") {
+        continue;  //ignore other comments
+      } else {
+        std::vector<std::string> items = splitString(bufferString);
+        if (items.size() < 5) {
+          std::cout << "Ignore  line: " << buffer << " Size " << items.size();
+          for (unsigned int k = 0; k < items.size(); ++k)
+            std::cout << " [" << k << "] : " << items[k];
+          std::cout << std::endl;
+        } else {
+          ++good;
+          int subdet = std::atoi(items[0].c_str());
+          int ieta = std::atoi(items[1].c_str());
+          int iphi = std::atoi(items[2].c_str());
+          int depth = std::atoi(items[3].c_str());
+          double corrf = std::atof(items[4].c_str());
+          unsigned int id = packDetId(subdet, ieta, iphi, depth);
+          corrPhiSym_[id] = corrf;
+          if (debug_)
+            std::cout << "ID " << std::hex << id << std::dec << ":" << id << " (subdet " << subdet << " eta " << ieta
+                      << " phi " << iphi << " depth " << depth << ") " << corrPhiSym_[id] << std::endl;
+        }
+      }
+    }
+    fInput.close();
+    std::cout << "Reads total of " << all << " and " << good << " good records of phi-symmetry factors from " << infile
+              << std::endl;
+  }
+  return good;
 }
 
 unsigned int CalibCorr::getDetIdHE(int ieta, int iphi, int depth) { return getDetId(2, ieta, iphi, depth); }
@@ -921,6 +1072,100 @@ bool CalibSelectRBX::isItRBX(const int ieta, const int iphi) {
     std::cout << "isItRBX: ieta " << ieta << " iphi " << iphi << " OK " << ok << std::endl;
   }
   return ok;
+}
+
+CalibDuplicate::CalibDuplicate(const char* fname, int flag, bool debug) : flag_(flag), debug_(debug), ok_(false) {
+  if (flag_ == 1) {
+    if (strcmp(fname, "") != 0) {
+      std::ifstream infile(fname);
+      if (!infile.is_open()) {
+        std::cout << "Cannot open duplicate file " << fname << std::endl;
+      } else {
+        while (1) {
+          Long64_t jentry;
+          infile >> jentry;
+          if (!infile.good())
+            break;
+          entries_.push_back(jentry);
+        }
+        infile.close();
+        std::cout << "Reads a list of " << entries_.size() << " events from " << fname << std::endl;
+        if (entries_.size() > 0)
+          ok_ = true;
+      }
+    } else {
+      std::cout << "No duplicate events in the input file" << std::endl;
+    }
+  } else {
+    if (strcmp(fname, "") != 0) {
+      std::ifstream infile(fname);
+      if (!infile.is_open()) {
+        std::cout << "Cannot open duplicate file " << fname << std::endl;
+      } else {
+        unsigned int all(0), good(0);
+        char buffer[1024];
+        while (infile.getline(buffer, 1024)) {
+          ++all;
+          std::string bufferString(buffer);
+          if (bufferString.substr(0, 1) == "#") {
+            continue;  //ignore other comments
+          } else {
+            std::vector<std::string> items = splitString(bufferString);
+            if (items.size() < 3) {
+              std::cout << "Ignore  line: " << buffer << " Size " << items.size();
+              for (unsigned int k = 0; k < items.size(); ++k)
+                std::cout << " [" << k << "] : " << items[k];
+              std::cout << std::endl;
+            } else {
+              ++good;
+              int ieta = std::atoi(items[0].c_str());
+              std::vector<double> weights;
+              for (unsigned int k = 1; k < items.size(); ++k) {
+                double corrf = std::atof(items[k].c_str());
+                weights.push_back(corrf);
+              }
+              weights_[ieta] = weights;
+              if (debug_) {
+                std::cout << "Eta " << ieta << " with " << weights.size() << " depths having weights:";
+                for (unsigned int k = 0; k < weights.size(); ++k)
+                  std::cout << " " << weights[k];
+                std::cout << std::endl;
+              }
+            }
+          }
+        }
+        infile.close();
+        std::cout << "Reads total of " << all << " and " << good << " good records of depth dependent factors from "
+                  << fname << std::endl;
+        if (good > 0)
+          ok_ = true;
+      }
+    }
+  }
+}
+
+bool CalibDuplicate::isDuplicate(long entry) {
+  if (ok_)
+    return (std::find(entries_.begin(), entries_.end(), entry) != entries_.end());
+  else
+    return false;
+}
+
+double CalibDuplicate::getWeight(unsigned int detId) {
+  double wt(1.0);
+  if (ok_) {
+    int subdet, ieta, zside, depth, iphi;
+    unpackDetId(detId, subdet, zside, ieta, iphi, depth);
+    std::map<int, std::vector<double> >::const_iterator itr = weights_.find(ieta);
+    --depth;
+    if (depth < 0)
+      std::cout << "Strange Depth value " << depth << " in " << std::hex << detId << std::dec << std::endl;
+    if (itr != weights_.end()) {
+      if (depth < static_cast<int>(itr->second.size()))
+        wt = itr->second[depth];
+    }
+  }
+  return wt;
 }
 
 void CalibCorrTest(const char* infile, int flag) {

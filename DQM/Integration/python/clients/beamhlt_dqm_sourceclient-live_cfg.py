@@ -6,16 +6,16 @@ import FWCore.ParameterSet.Config as cms
 BSOnlineRecordName = 'BeamSpotOnlineHLTObjectsRcd'
 BSOnlineTag = 'BeamSpotOnlineHLT'
 BSOnlineJobName = 'BeamSpotOnlineHLT'
-BSOnlineOmsServiceUrl = 'http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'
+BSOnlineOmsServiceUrl = 'http://cmsoms-eventing.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'
 useLockRecords = True
 
 import sys
 if 'runkey=hi_run' in sys.argv:
   from Configuration.Eras.Era_Run3_pp_on_PbPb_approxSiStripClusters_cff import Run3_pp_on_PbPb_approxSiStripClusters
-  process = cms.Process("BeamMonitor", Run3_pp_on_PbPb_approxSiStripClusters)
+  process = cms.Process("BeamMonitorHLT", Run3_pp_on_PbPb_approxSiStripClusters)
 else:
   from Configuration.Eras.Era_Run3_cff import Run3
-  process = cms.Process("BeamMonitor", Run3)
+  process = cms.Process("BeamMonitorHLT", Run3)
 
 
 # Message logger

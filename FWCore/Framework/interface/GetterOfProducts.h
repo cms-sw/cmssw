@@ -101,9 +101,13 @@ There are some variants for special cases
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
 #include "FWCore/Framework/interface/ProcessBlock.h"
+#include "FWCore/Framework/interface/ProcessBlockForOutput.h"
 #include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/RunForOutput.h"
 #include "FWCore/Framework/interface/WillGetIfMatch.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
@@ -115,6 +119,35 @@ There are some variants for special cases
 #include <vector>
 
 namespace edm {
+
+  template <typename U>
+  struct BranchTypeForContainerType {
+    static constexpr BranchType branchType = InEvent;
+  };
+  template <>
+  struct BranchTypeForContainerType<LuminosityBlock> {
+    static constexpr BranchType branchType = InLumi;
+  };
+  template <>
+  struct BranchTypeForContainerType<LuminosityBlockForOutput> {
+    static constexpr BranchType branchType = InLumi;
+  };
+  template <>
+  struct BranchTypeForContainerType<Run> {
+    static constexpr BranchType branchType = InRun;
+  };
+  template <>
+  struct BranchTypeForContainerType<RunForOutput> {
+    static constexpr BranchType branchType = InRun;
+  };
+  template <>
+  struct BranchTypeForContainerType<ProcessBlock> {
+    static constexpr BranchType branchType = InProcess;
+  };
+  template <>
+  struct BranchTypeForContainerType<ProcessBlockForOutput> {
+    static constexpr BranchType branchType = InProcess;
+  };
 
   template <typename T>
   class GetterOfProducts {
@@ -139,48 +172,13 @@ namespace edm {
       }
     }
 
-    void fillHandles(edm::Event const& event, std::vector<edm::Handle<T>>& handles) const {
+    template <typename ProductContainer>
+    void fillHandles(ProductContainer const& productContainer, std::vector<edm::Handle<T>>& handles) const {
       handles.clear();
-      if (branchType_ == edm::InEvent) {
+      if (branchType_ == BranchTypeForContainerType<ProductContainer>::branchType) {
         handles.reserve(tokens_->size());
         for (auto const& token : *tokens_) {
-          if (auto handle = event.getHandle(token)) {
-            handles.push_back(handle);
-          }
-        }
-      }
-    }
-
-    void fillHandles(edm::LuminosityBlock const& lumi, std::vector<edm::Handle<T>>& handles) const {
-      handles.clear();
-      if (branchType_ == edm::InLumi) {
-        handles.reserve(tokens_->size());
-        for (auto const& token : *tokens_) {
-          if (auto handle = lumi.getHandle(token)) {
-            handles.push_back(handle);
-          }
-        }
-      }
-    }
-
-    void fillHandles(edm::Run const& run, std::vector<edm::Handle<T>>& handles) const {
-      handles.clear();
-      if (branchType_ == edm::InRun) {
-        handles.reserve(tokens_->size());
-        for (auto const& token : *tokens_) {
-          if (auto handle = run.getHandle(token)) {
-            handles.push_back(handle);
-          }
-        }
-      }
-    }
-
-    void fillHandles(edm::ProcessBlock const& processBlock, std::vector<edm::Handle<T>>& handles) const {
-      handles.clear();
-      if (branchType_ == edm::InProcess) {
-        handles.reserve(tokens_->size());
-        for (auto const& token : *tokens_) {
-          if (auto handle = processBlock.getHandle(token)) {
+          if (auto handle = productContainer.getHandle(token)) {
             handles.push_back(handle);
           }
         }

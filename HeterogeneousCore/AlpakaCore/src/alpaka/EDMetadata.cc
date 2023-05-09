@@ -1,3 +1,5 @@
+#include <alpaka/alpaka.hpp>
+
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "HeterogeneousCore/AlpakaCore/interface/alpaka/EDMetadata.h"
 

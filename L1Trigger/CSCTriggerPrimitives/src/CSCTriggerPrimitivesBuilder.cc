@@ -34,6 +34,7 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
   runME21ILT_ = commonParams.getParameter<bool>("runME21ILT");
 
   // Initializing boards.
+  CSCBaseboard::Parameters baseparams(conf);
   for (int endc = min_endcap; endc <= max_endcap; endc++) {
     for (int stat = min_station; stat <= max_station; stat++) {
       int numsubs = ((stat == 1) ? max_subsector : 1);
@@ -60,11 +61,11 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
             // GE1/1-ME1/1 integrated local trigger or GE2/1-ME2/1 integrated local trigger
             if (upgradeGE11 or upgradeGE21)
               tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1] =
-                  std::make_unique<CSCGEMMotherboard>(endc, stat, sect, subs, cham, conf);
+                  std::make_unique<CSCGEMMotherboard>(endc, stat, sect, subs, cham, baseparams);
             // default case
             else
               tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1] =
-                  std::make_unique<CSCMotherboard>(endc, stat, sect, subs, cham, conf);
+                  std::make_unique<CSCMotherboard>(endc, stat, sect, subs, cham, baseparams);
           }
         }
         // Init MPC
@@ -79,75 +80,11 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
 //------------
 CSCTriggerPrimitivesBuilder::~CSCTriggerPrimitivesBuilder() {}
 
-void CSCTriggerPrimitivesBuilder::setConfigParameters(const CSCDBL1TPParameters* conf) {
-  // Receives CSCDBL1TPParameters percolated down from ESProducer.
-
-  for (int endc = min_endcap; endc <= max_endcap; endc++) {
-    for (int stat = min_station; stat <= max_station; stat++) {
-      int numsubs = ((stat == 1) ? max_subsector : 1);
-      for (int sect = min_sector; sect <= max_sector; sect++) {
-        for (int subs = min_subsector; subs <= numsubs; subs++) {
-          for (int cham = min_chamber; cham <= max_chamber; cham++) {
-            tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1]->setConfigParameters(conf);
-          }
-        }
-      }
-    }
-  }
-}
-
-void CSCTriggerPrimitivesBuilder::setESLookupTables(const CSCL1TPLookupTableCCLUT* conf) {
-  // Receives CSCL1TPLookupTableCCLUT percolated down from ESProducer.
-  for (int endc = min_endcap; endc <= max_endcap; endc++) {
-    for (int stat = min_station; stat <= max_station; stat++) {
-      int numsubs = ((stat == 1) ? max_subsector : 1);
-      for (int sect = min_sector; sect <= max_sector; sect++) {
-        for (int subs = min_subsector; subs <= numsubs; subs++) {
-          for (int cham = min_chamber; cham <= max_chamber; cham++) {
-            tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1]->setESLookupTables(conf);
-          }
-        }
-      }
-    }
-  }
-}
-
-void CSCTriggerPrimitivesBuilder::setESLookupTables(const CSCL1TPLookupTableME11ILT* conf) {
-  for (int endc = min_endcap; endc <= max_endcap; endc++) {
-    for (int stat = min_station; stat <= max_station; stat++) {
-      int numsubs = ((stat == 1) ? max_subsector : 1);
-      for (int sect = min_sector; sect <= max_sector; sect++) {
-        for (int subs = min_subsector; subs <= numsubs; subs++) {
-          for (int cham = min_chamber; cham <= max_chamber; cham++) {
-            if (tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1]->id().isME11())
-              tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1]->setESLookupTables(conf);
-          }
-        }
-      }
-    }
-  }
-}
-
-void CSCTriggerPrimitivesBuilder::setESLookupTables(const CSCL1TPLookupTableME21ILT* conf) {
-  for (int endc = min_endcap; endc <= max_endcap; endc++) {
-    for (int stat = min_station; stat <= max_station; stat++) {
-      int numsubs = ((stat == 1) ? max_subsector : 1);
-      for (int sect = min_sector; sect <= max_sector; sect++) {
-        for (int subs = min_subsector; subs <= numsubs; subs++) {
-          for (int cham = min_chamber; cham <= max_chamber; cham++) {
-            if (tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1]->id().isME21())
-              tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1]->setESLookupTables(conf);
-          }
-        }
-      }
-    }
-  }
-}
-
 void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
                                         const CSCWireDigiCollection* wiredc,
                                         const CSCComparatorDigiCollection* compdc,
                                         const GEMPadDigiClusterCollection* gemClusters,
+                                        const BuildContext& context,
                                         CSCALCTDigiCollection& oc_alct,
                                         CSCCLCTDigiCollection& oc_clct,
                                         CSCALCTPreTriggerDigiCollection& oc_alctpretrigger,
@@ -160,6 +97,9 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
                                         CSCShowerDigiCollection& oc_shower,
                                         GEMCoPadDigiCollection& oc_gemcopad) {
   // CSC geometry.
+  CSCMotherboard::RunContext mbcontext{
+      context.cscgeom_, context.cclut_, context.me11ilt_, context.me21ilt_, context.parameters_};
+
   for (int endc = min_endcap; endc <= max_endcap; endc++) {
     for (int stat = min_station; stat <= max_station; stat++) {
       int numsubs = ((stat == 1) ? max_subsector : 1);
@@ -175,8 +115,6 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
 
             CSCMotherboard* tmb = tmb_[endc - 1][stat - 1][sect - 1][subs - 1][cham - 1].get();
 
-            tmb->setCSCGeometry(csc_g);
-
             // actual chamber number =/= trigger chamber number
             int chid = CSCTriggerNumbering::chamberFromTriggerLabels(sect, subs, stat, cham);
 
@@ -184,7 +122,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             CSCDetId detid(endc, stat, ring, chid, 0);
 
             // Run processors only if chamber exists in geometry.
-            if (tmb == nullptr || csc_g->chamber(detid) == nullptr)
+            if (tmb == nullptr || context.cscgeom_->chamber(detid) == nullptr)
               continue;
 
             // Skip chambers marked as bad (usually includes most of ME4/2 chambers;
@@ -206,10 +144,14 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             // GE1/1-ME1/1 integrated local trigger or GE2/1-ME2/1 integrated local trigger
             if (upgradeGE11 or upgradeGE21) {
               // run the TMB
+              CSCGEMMotherboard::RunContext c{context.gemgeom_,
+                                              context.cscgeom_,
+                                              context.cclut_,
+                                              context.me11ilt_,
+                                              context.me21ilt_,
+                                              context.parameters_};
               CSCGEMMotherboard* tmbGEM = static_cast<CSCGEMMotherboard*>(tmb);
-              tmbGEM->setGEMGeometry(gem_g);
-              tmbGEM->setCSCGeometry(csc_g);
-              tmbGEM->run(wiredc, compdc, gemClusters);
+              tmbGEM->run(wiredc, compdc, gemClusters, c);
 
               // 0th layer means whole chamber.
               GEMDetId gemId(detid.zendcap(), 1, stat, 0, chid, 0);
@@ -219,7 +161,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             // default case: regular TMBs and OTMBs without GEMs
             else {
               // run the TMB
-              tmb->run(wiredc, compdc);
+              tmb->run(wiredc, compdc, mbcontext);
             }
 
             // get the collections

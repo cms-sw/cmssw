@@ -28,8 +28,8 @@ void SummaryTableOutputBranches::makeVectorBranches(const std::vector<Col> &tabc
     if (std::find_if(branches.begin(), branches.end(), [&col](const NamedBranchPtr &x) {
           return x.name == col.name;
         }) == branches.end()) {
-      unsigned int backFillValue = 0;
-      auto *cbr = tree.Branch(("n" + col.name).c_str(), &backFillValue, ("n" + col.name + "/i").c_str());
+      int backFillValue = 0;
+      auto *cbr = tree.Branch(("n" + col.name).c_str(), &backFillValue, ("n" + col.name + "/I").c_str());
       auto *vbr =
           tree.Branch(col.name.c_str(), (void *)nullptr, (col.name + "[n" + col.name + "]/" + rootType).c_str());
       cbr->SetTitle(("Number of entries in " + col.name).c_str());

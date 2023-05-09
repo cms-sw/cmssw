@@ -7,13 +7,13 @@ bool DiskSectorBounds::inside(const Local3DPoint& p) const {
   // and rotated  x/y axis
   Local3DPoint tmp(p.y() + theOffset, -p.x(), p.z());
 
-  return ((tmp.z() >= theZmin) & (tmp.z() <= theZmax) & (tmp.perp2() >= theRmin * theRmin) &
+  return ((tmp.z() >= theZmin) && (tmp.z() <= theZmax) && (tmp.perp2() >= theRmin * theRmin) &&
           (tmp.perp2() <= theRmax * theRmax)) &&
          (std::abs(tmp.barePhi()) <= thePhiExtH);
 }
 
 bool DiskSectorBounds::inside(const Local3DPoint& p, const LocalError& err, float scale) const {
-  if ((p.z() < theZmin) | (p.z() > theZmax))
+  if ((p.z() < theZmin) || (p.z() > theZmax))
     return false;
 
   Local2DPoint tmp(p.x(), p.y() + theOffset);

@@ -371,7 +371,7 @@ namespace fwlite {
       if (htemplate != nullptr) {
         if ((strcmp(hname, "htemp") == 0) && (strcmp(hname, htemplate->GetName()) != 0))
           htempDelete();
-        hist = (TProfile *)hist->Clone(hname);
+        hist = (TProfile *)htemplate->Clone(hname);
       } else if (drawopt.Contains("SAME", TString::kIgnoreCase)) {
         hist = getSameProf(hname);
       }
@@ -463,7 +463,7 @@ namespace fwlite {
       if (htemplate != nullptr) {
         if ((strcmp(hname, "htemp") == 0) && (strcmp(hname, htemplate->GetName()) != 0))
           htempDelete();
-        hist = (TH2 *)hist->Clone(hname);
+        hist = (TH2 *)htemplate->Clone(hname);
       } else if (drawopt.Contains("SAME", TString::kIgnoreCase)) {
         hist = getSameH2(hname);
       }

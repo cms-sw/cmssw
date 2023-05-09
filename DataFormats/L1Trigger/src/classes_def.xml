@@ -109,7 +109,8 @@
   <class name="l1t::MuonVectorRef"/>
   <class name="edm::Wrapper<l1t::MuonVectorRef>"/>
 
-  <class name="l1t::MuonShower" ClassVersion="12">
+  <class name="l1t::MuonShower" ClassVersion="13">
+   <version ClassVersion="13" checksum="39793345"/>
    <version ClassVersion="12" checksum="2452991184"/>
    <version ClassVersion="11" checksum="3610959089"/>
    <version ClassVersion="10" checksum="3869296059"/>
@@ -304,7 +305,8 @@
   <class name="edm::Wrapper<l1t::VertexWordCollection>"/>
   <class name="edm::Ref<l1t::VertexWordCollection>" />
 
-  <class name="l1t::TkJetWord" ClassVersion="3">
+  <class name="l1t::TkJetWord" ClassVersion="4">
+    <version ClassVersion="4" checksum="2346039066"/>
     <version ClassVersion="3" checksum="3521396532"/>
   </class>
   <class name="std::vector<l1t::TkJetWord>"/>

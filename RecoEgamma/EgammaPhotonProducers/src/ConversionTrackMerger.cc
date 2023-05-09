@@ -173,10 +173,8 @@ void ConversionTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
         for (unsigned ih = 0; ih < nh1; ++ih) {
           const TrackingRecHit* it = iHits[ih];
           if (it->isValid()) {
-            int jj = -1;
             for (unsigned jh = 0; jh < nh2; ++jh) {
               const TrackingRecHit* jt = jHits[jh];
-              jj++;
               if (jt->isValid()) {
                 if (it->sharesInput(jt, TrackingRecHit::some)) {
                   noverlap++;

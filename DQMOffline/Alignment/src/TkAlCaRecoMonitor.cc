@@ -17,12 +17,20 @@
 #include "TLorentzVector.h"
 
 TkAlCaRecoMonitor::TkAlCaRecoMonitor(const edm::ParameterSet &iConfig)
-    : tkGeomToken_(esConsumes()), mfToken_(esConsumes()) {
+    : tkGeomToken_(esConsumes()),
+      mfToken_(esConsumes()),
+      trackProducer_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("TrackProducer"))),
+      referenceTrackProducer_(
+          consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("ReferenceTrackProducer"))),
+      jetCollection_(mayConsume<reco::CaloJetCollection>(iConfig.getParameter<edm::InputTag>("CaloJetCollection"))),
+      daughterMass_(iConfig.getParameter<double>("daughterMass")),
+      maxJetPt_(iConfig.getParameter<double>("maxJetPt")),
+      fillInvariantMass_(iConfig.getParameter<bool>("fillInvariantMass")),
+      fillRawIdMap_(iConfig.getParameter<bool>("fillRawIdMap")),
+      runsOnReco_(iConfig.getParameter<bool>("runsOnReco")),
+      useSignedR_(iConfig.getParameter<bool>("useSignedR")) {
+  // copy configuration object to use it in bookHistograms
   conf_ = iConfig;
-  trackProducer_ = consumes<reco::TrackCollection>(conf_.getParameter<edm::InputTag>("TrackProducer"));
-  referenceTrackProducer_ =
-      consumes<reco::TrackCollection>(conf_.getParameter<edm::InputTag>("ReferenceTrackProducer"));
-  jetCollection_ = mayConsume<reco::CaloJetCollection>(conf_.getParameter<edm::InputTag>("CaloJetCollection"));
 }
 
 void TkAlCaRecoMonitor::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &, edm::EventSetup const &) {
@@ -30,16 +38,7 @@ void TkAlCaRecoMonitor::bookHistograms(DQMStore::IBooker &iBooker, edm::Run cons
 
   std::string AlgoName = conf_.getParameter<std::string>("AlgoName");
   std::string MEFolderName = conf_.getParameter<std::string>("FolderName");
-
-  daughterMass_ = conf_.getParameter<double>("daughterMass");
-
-  maxJetPt_ = conf_.getParameter<double>("maxJetPt");
-
   iBooker.setCurrentFolder(MEFolderName + "/TkAlignmentSpecific");
-  fillInvariantMass_ = conf_.getParameter<bool>("fillInvariantMass");
-  runsOnReco_ = conf_.getParameter<bool>("runsOnReco");
-  useSignedR_ = conf_.getParameter<bool>("useSignedR");
-  fillRawIdMap_ = conf_.getParameter<bool>("fillRawIdMap");
 
   //
   unsigned int MassBin = conf_.getParameter<unsigned int>("MassBin");
@@ -182,7 +181,10 @@ void TkAlCaRecoMonitor::bookHistograms(DQMStore::IBooker &iBooker, edm::Run cons
 //
 // -- Analyse
 //
-void TkAlCaRecoMonitor::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+//*************************************************************
+void TkAlCaRecoMonitor::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
+//*************************************************************
+{
   edm::Handle<reco::TrackCollection> trackCollection;
   iEvent.getByToken(trackProducer_, trackCollection);
   if (!trackCollection.isValid()) {
@@ -222,50 +224,45 @@ void TkAlCaRecoMonitor::analyze(const edm::Event &iEvent, const edm::EventSetup 
   AlCaRecoTrackEfficiency_->Fill(static_cast<double>((*trackCollection).size()) / (*referenceTrackCollection).size());
 
   double sumOfCharges = 0;
-  for (reco::TrackCollection::const_iterator track = (*trackCollection).begin(); track < (*trackCollection).end();
-       ++track) {
-    double dR = 0;
+  for (const auto &track : *trackCollection) {
+    double dR2 = 0;
     if (runsOnReco_) {
-      double minJetDeltaR = 10;  // some number > 2pi
-      for (reco::CaloJetCollection::const_iterator itJet = jets->begin(); itJet != jets->end(); ++itJet) {
-        jetPt_->Fill((*itJet).pt());
-        dR = deltaR((*track), (*itJet));
-        if ((*itJet).pt() > maxJetPt_ && dR < minJetDeltaR)
-          minJetDeltaR = dR;
+      double minJetDeltaR2 = 10 * 10;  // some number > 2pi
+      for (const auto &itJet : *jets) {
+        jetPt_->Fill(itJet.pt());
+        dR2 = deltaR2(track, itJet);
+        if (itJet.pt() > maxJetPt_ && dR2 < minJetDeltaR2)
+          minJetDeltaR2 = dR2;
 
         // edm::LogInfo("Alignment") <<">  isolated: "<< isolated << " jetPt "<<
         // (*itJet).pt() <<" deltaR: "<< deltaR(*(*it),(*itJet)) ;
       }
-      minJetDeltaR_->Fill(minJetDeltaR);
+      minJetDeltaR_->Fill(std::sqrt(minJetDeltaR2));
     }
 
-    double minTrackDeltaR = 10;  // some number > 2pi
-    for (reco::TrackCollection::const_iterator track2 = (*trackCollection).begin(); track2 < (*trackCollection).end();
-         ++track2) {
-      dR = deltaR((*track), (*track2));
-      if (dR < minTrackDeltaR && dR > 1e-6)
-        minTrackDeltaR = dR;
+    double minTrackDeltaR2 = 10 * 10;  // some number > 2pi
+    for (const auto &track2 : *trackCollection) {
+      dR2 = deltaR2(track, track2);
+      if (dR2 < minTrackDeltaR2 && dR2 > 1e-12)
+        minTrackDeltaR2 = dR2;
     }
 
     for (int i = 0; i < reco::TrackBase::qualitySize; ++i) {
-      if ((*track).quality(reco::TrackBase::TrackQuality(i))) {
+      if (track.quality(reco::TrackBase::TrackQuality(i))) {
         TrackQuality_->Fill(i);
       }
     }
 
-    GlobalPoint gPoint((*track).vx(), (*track).vy(), (*track).vz());
+    GlobalPoint gPoint(track.vx(), track.vy(), track.vz());
     double B = magneticField->inTesla(gPoint).z();
-    double curv = -(*track).charge() * 0.002998 * B / (*track).pt();
+    double curv = -track.charge() * 0.002998 * B / track.pt();
     TrackCurvature_->Fill(curv);
 
-    if ((*track).charge() > 0)
-      TrackPtPositive_->Fill((*track).pt());
-    if ((*track).charge() < 0)
-      TrackPtNegative_->Fill((*track).pt());
+    track.charge() > 0 ? TrackPtPositive_->Fill(track.pt()) : TrackPtNegative_->Fill(track.pt());
 
-    minTrackDeltaR_->Fill(minTrackDeltaR);
-    fillHitmaps(*track, *geometry);
-    sumOfCharges += (*track).charge();
+    minTrackDeltaR_->Fill(std::sqrt(minTrackDeltaR2));
+    fillHitmaps(track, *geometry);
+    sumOfCharges += track.charge();
   }
 
   sumCharge_->Fill(sumOfCharges);
@@ -291,11 +288,13 @@ void TkAlCaRecoMonitor::analyze(const edm::Event &iEvent, const edm::EventSetup 
   }
 }
 
-void TkAlCaRecoMonitor::fillHitmaps(const reco::Track &track, const TrackerGeometry &geometry) {
-  for (trackingRecHit_iterator iHit = track.recHitsBegin(); iHit != track.recHitsEnd(); ++iHit) {
-    if ((*iHit)->isValid()) {
-      const TrackingRecHit *hit = (*iHit);
-      const DetId geoId(hit->geographicalId());
+//*************************************************************
+void TkAlCaRecoMonitor::fillHitmaps(const reco::Track &track, const TrackerGeometry &geometry)
+//*************************************************************
+{
+  for (auto const &iHit : track.recHits()) {
+    if (iHit->isValid()) {
+      const DetId geoId(iHit->geographicalId());
       const GeomDet *gd = geometry.idToDet(geoId);
       // since 2_1_X local hit positions are transient. taking center of the hit
       // module for now. The alternative would be the coarse estimation or a
@@ -315,19 +314,69 @@ void TkAlCaRecoMonitor::fillHitmaps(const reco::Track &track, const TrackerGeome
   }
 }
 
-void TkAlCaRecoMonitor::fillRawIdMap(const TrackerGeometry &geometry) {
+//*************************************************************
+void TkAlCaRecoMonitor::fillRawIdMap(const TrackerGeometry &geometry)
+//*************************************************************
+{
   std::vector<int> sortedRawIds;
-  for (std::vector<DetId>::const_iterator iDetId = geometry.detUnitIds().begin(); iDetId != geometry.detUnitIds().end();
-       ++iDetId) {
-    sortedRawIds.push_back((*iDetId).rawId());
+  for (const auto &iDetId : geometry.detUnitIds()) {
+    sortedRawIds.push_back(iDetId.rawId());
   }
   std::sort(sortedRawIds.begin(), sortedRawIds.end());
 
   int i = 0;
-  for (std::vector<int>::iterator iRawId = sortedRawIds.begin(); iRawId != sortedRawIds.end(); ++iRawId) {
-    binByRawId_[*iRawId] = i;
+  for (const auto &iRawId : sortedRawIds) {
+    binByRawId_[iRawId] = i;
     ++i;
   }
+}
+
+//*************************************************************
+void TkAlCaRecoMonitor::fillDescriptions(edm::ConfigurationDescriptions &descriptions)
+//*************************************************************
+{
+  edm::ParameterSetDescription desc;
+  desc.setComment("Generic track analyzer to check ALCARECO Tracker Alignment specific sample quantities");
+  desc.add<edm::InputTag>("TrackProducer", edm::InputTag("generalTracks"));
+  desc.add<edm::InputTag>("ReferenceTrackProducer", edm::InputTag("generalTrakcs"));
+  desc.add<edm::InputTag>("CaloJetCollection", edm::InputTag("ak4CaloJets"));
+  desc.add<std::string>("AlgoName", "testTkAlCaReco");
+  desc.add<std::string>("FolderName", "TkAlCaRecoMonitor");
+  desc.add<double>("daughterMass", kMuonMass_)->setComment("GeV");
+  desc.add<double>("maxJetPt", 10.)->setComment("GeV");
+  desc.add<bool>("fillInvariantMass", false);
+  desc.add<bool>("runsOnReco", false);
+  desc.add<bool>("useSignedR", false);
+  desc.add<bool>("fillRawIdMap", false);
+  desc.add<unsigned int>("MassBin", 100);
+  desc.add<double>("MassMin", 0.0);
+  desc.add<double>("MassMax", 100.0);
+  desc.add<unsigned int>("TrackPtBin", 110);
+  desc.add<double>("TrackPtMin", 0.0);
+  desc.add<double>("TrackPtMax", 110.);
+  desc.add<unsigned int>("TrackCurvatureBin", 2000);
+  desc.add<double>("TrackCurvatureMin", -0.01)->setComment("1/GeV");
+  desc.add<double>("TrackCurvatureMax", 0.01)->setComment("1/GeV");
+  desc.add<unsigned int>("SumChargeBin", 11);
+  desc.add<double>("SumChargeMin", -5.5);
+  desc.add<double>("SumChargeMax", 5.5);
+  desc.add<unsigned int>("JetPtBin", 100);
+  desc.add<double>("JetPtMin", 0.0);
+  desc.add<double>("JetPtMax", 50.0);
+  desc.add<unsigned int>("MinJetDeltaRBin", 100);
+  desc.add<double>("MinJetDeltaRMin", 0);
+  desc.add<double>("MinJetDeltaRMax", 10);
+  desc.add<unsigned int>("MinTrackDeltaRBin", 100);
+  desc.add<double>("MinTrackDeltaRMin", 0);
+  desc.add<double>("MinTrackDeltaRMax", 3.2);
+  desc.add<unsigned int>("TrackEfficiencyBin", 102);
+  desc.add<double>("TrackEfficiencyMin", -0.01);
+  desc.add<double>("TrackEfficiencyMax", 1.01);
+  desc.add<unsigned int>("HitMapsZBin", 300);
+  desc.add<double>("HitMapZMax", 300.)->setComment("cm");
+  desc.add<unsigned int>("HitMapsRBin", 120);
+  desc.add<double>("HitMapRMax", 120.)->setComment("cm");
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_MODULE(TkAlCaRecoMonitor);

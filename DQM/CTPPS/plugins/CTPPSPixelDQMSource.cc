@@ -7,12 +7,12 @@
  *
  *******************************************/
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -25,6 +25,7 @@
 #include "DataFormats/CTPPSDigi/interface/CTPPSPixelDataError.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelCluster.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelLocalTrack.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 
 #include <string>
 
@@ -47,6 +48,8 @@ private:
   edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelDataError>> tokenError;
   edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelCluster>> tokenCluster;
   edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelLocalTrack>> tokenTrack;
+  edm::EDGetTokenT<edm::TriggerResults> tokenTrigResults;
+  std::string randomHLTPath;
 
   static constexpr int NArms = 2;
   static constexpr int NStationMAX = 3;  // in an arm
@@ -62,7 +65,8 @@ private:
   static constexpr int ClusMultMAX = 10;  // tuned
   static constexpr int ClusterSizeMax = 9;
   static constexpr int errCodeSize = 15;
-
+  static constexpr int minFedNumber = 1462;
+  static constexpr int numberOfFeds = 2;
   static constexpr int mapXbins = 200;
   static constexpr int mapYbins = 240;
   static constexpr float mapYmin = -16.;
@@ -88,7 +92,16 @@ private:
   int RPindexValid[RPotsTotalNumber];
   MonitorElement *h2trackXY0[RPotsTotalNumber];
   MonitorElement *h2ErrorCodeRP[RPotsTotalNumber];
-  MonitorElement *h2ErrorCode;
+  MonitorElement *h2ErrorCodeFED[2];
+  MonitorElement *h2TBMMessageFED[2];
+  MonitorElement *h2TBMTypeFED[2];
+  MonitorElement *h2ErrorCodeUnidDet;
+  MonitorElement *h2TBMMessageUnidDet;
+  MonitorElement *h2TBMTypeUnidDet;
+
+  MonitorElement *h2FullType;
+  MonitorElement *h2TBMMessageRP[RPotsTotalNumber];
+  MonitorElement *h2TBMTypeRP[RPotsTotalNumber];
 
   MonitorElement *htrackMult[RPotsTotalNumber];
   MonitorElement *htrackHits[RPotsTotalNumber];
@@ -106,9 +119,38 @@ private:
   MonitorElement *h2xyROCHits[RPotsTotalNumber * NplaneMAX][NROCsMAX];
   MonitorElement *hROCadc[RPotsTotalNumber * NplaneMAX][NROCsMAX];
   MonitorElement *hRPotActivBXall[RPotsTotalNumber];
+  MonitorElement *h2HitsVsBXRandoms[RPotsTotalNumber];
   int HitsMultROC[RPotsTotalNumber * NplaneMAX][NROCsMAX];
   int HitsMultPlane[RPotsTotalNumber][NplaneMAX];
 
+  //--------------------------------------------------------
+  static constexpr int LINK_bits = 6;
+  static constexpr int ROC_bits = 5;
+  static constexpr int DCOL_bits = 5;
+  static constexpr int PXID_bits = 8;
+  static constexpr int ADC_bits = 8;
+  static constexpr int DataBit_bits = 1;
+
+  static constexpr int ADC_shift = 0;
+  static constexpr int PXID_shift = ADC_shift + ADC_bits;
+  static constexpr int DCOL_shift = PXID_shift + PXID_bits;
+  static constexpr int ROC_shift = DCOL_shift + DCOL_bits;
+  static constexpr int LINK_shift = ROC_shift + ROC_bits;
+  static constexpr int DB0_shift = 0;
+  static constexpr int DB1_shift = DB0_shift + DataBit_bits;
+  static constexpr int DB2_shift = DB1_shift + DataBit_bits;
+  static constexpr int DB3_shift = DB2_shift + DataBit_bits;
+  static constexpr int DB4_shift = DB3_shift + DataBit_bits;
+  static constexpr int DB5_shift = DB4_shift + DataBit_bits;
+  static constexpr int DB6_shift = DB5_shift + DataBit_bits;
+  static constexpr int DB7_shift = DB6_shift + DataBit_bits;
+
+  static constexpr uint32_t LINK_mask = ~(~uint32_t(0) << LINK_bits);
+  static constexpr uint32_t ROC_mask = ~(~uint32_t(0) << ROC_bits);
+  static constexpr uint32_t DCOL_mask = ~(~uint32_t(0) << DCOL_bits);
+  static constexpr uint32_t PXID_mask = ~(~uint32_t(0) << PXID_bits);
+  static constexpr uint32_t ADC_mask = ~(~uint32_t(0) << ADC_bits);
+  static constexpr uint32_t DataBit_mask = ~(~uint32_t(0) << DataBit_bits);
   // Flags for disabling set of plots
   bool offlinePlots = true;
   bool onlinePlots = true;
@@ -169,17 +211,18 @@ using namespace edm;
 
 CTPPSPixelDQMSource::CTPPSPixelDQMSource(const edm::ParameterSet &ps)
     : verbosity(ps.getUntrackedParameter<unsigned int>("verbosity", 0)),
+      randomHLTPath(ps.getUntrackedParameter<std::string>("randomHLTPath", "")),
       rpStatusWord(ps.getUntrackedParameter<unsigned int>("RPStatusWord", 0x8008)) {
   tokenDigi = consumes<DetSetVector<CTPPSPixelDigi>>(ps.getUntrackedParameter<edm::InputTag>("tagRPixDigi"));
   tokenError = consumes<DetSetVector<CTPPSPixelDataError>>(ps.getUntrackedParameter<edm::InputTag>("tagRPixError"));
   tokenCluster = consumes<DetSetVector<CTPPSPixelCluster>>(ps.getUntrackedParameter<edm::InputTag>("tagRPixCluster"));
   tokenTrack = consumes<DetSetVector<CTPPSPixelLocalTrack>>(ps.getUntrackedParameter<edm::InputTag>("tagRPixLTrack"));
+  tokenTrigResults = consumes<edm::TriggerResults>(ps.getUntrackedParameter<edm::InputTag>("tagTrigResults"));
   offlinePlots = ps.getUntrackedParameter<bool>("offlinePlots", true);
   onlinePlots = ps.getUntrackedParameter<bool>("onlinePlots", true);
 
   vector<string> disabledPlanePlotsVec =
       ps.getUntrackedParameter<vector<string>>("turnOffPlanePlots", vector<string>());
-
   // Parse the strings in disabledPlanePlotsVec and set the flags in
   // isPlanePlotsTurnedOff
   for (auto s : disabledPlanePlotsVec) {
@@ -291,7 +334,7 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
   }
   const float minErrCode = 25.;
   const string errCode[errCodeSize] = {
-      "Invalid ROC                        ",  // error  25
+      "Masked channel                     ",  // error 25
       "Gap word",                             // error 26
       "Dummy word",                           // error 27
       "FIFO nearly full",                     // error 28
@@ -307,19 +350,77 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
       "-",
       "CRC"  //error 39
   };
-  h2ErrorCode = ibooker.book2D("Errors in Unidentified Det",
-                               "Errors in Unidentified Det;;fed",
-                               errCodeSize,
-                               minErrCode - 0.5,
-                               minErrCode + float(errCodeSize) - 0.5,
-                               2,
-                               1461.5,
-                               1463.5);
+
+  const string tbmMessage[8] = {"Stack full ",
+                                "Pre-cal issued ",
+                                "Clear trigger counter",
+                                "Synch trigger",
+                                "Synch trigger error",
+                                "Reset ROC",
+                                "Reset TBM",
+                                "No token pass"};
+
+  const string tbmType[5] = {
+      "All bits 0", "bit 8 : Overflow", "bit 9 : PKAM", "bit 10 : Auto Reset", "bit 11 : Number of ROC Error"};
+
+  h2ErrorCodeUnidDet = ibooker.book2D("Errors in Unidentified Det",
+                                      "Errors in Unidentified Det;;fed",
+                                      errCodeSize,
+                                      minErrCode - 0.5,
+                                      minErrCode + float(errCodeSize) - 0.5,
+                                      2,
+                                      1461.5,
+                                      1463.5);
   for (unsigned int iBin = 1; iBin <= errCodeSize; iBin++)
-    h2ErrorCode->setBinLabel(iBin, errCode[iBin - 1]);
-  h2ErrorCode->setBinLabel(1, "1462", 2);
-  h2ErrorCode->setBinLabel(2, "1463", 2);
-  h2ErrorCode->getTH2F()->SetOption("colz");
+    h2ErrorCodeUnidDet->setBinLabel(iBin, errCode[iBin - 1]);
+  h2ErrorCodeUnidDet->setBinLabel(1, "1462", 2);
+  h2ErrorCodeUnidDet->setBinLabel(2, "1463", 2);
+  h2ErrorCodeUnidDet->getTH2F()->SetOption("colz");
+  h2TBMMessageUnidDet =
+      ibooker.book2D("TBM Message Unid Det", "TBM Message Unid Det;;fed", 8, -0.5, 7.5, 2, 1461.5, 1463.5);
+  for (unsigned int iBin = 1; iBin <= 8; iBin++)
+    h2TBMMessageUnidDet->setBinLabel(iBin, tbmMessage[iBin - 1]);
+  h2TBMMessageUnidDet->getTH2F()->SetOption("colz");
+
+  h2TBMTypeUnidDet =
+      ibooker.book2D("TBM Type in Unid Det", "TBM Type in Unid Det;;fed", 5, -0.5, 4.5, 2, 1461.5, 1463.5);
+  for (unsigned int iBin = 1; iBin <= 5; iBin++)
+    h2TBMTypeUnidDet->setBinLabel(iBin, tbmType[iBin - 1]);
+  h2TBMTypeUnidDet->getTH2F()->SetOption("colz");
+
+  h2FullType = ibooker.book2D("Full FIFO", "Full FIFO;;fed", 7, 0.5, 7.5, 2, 1461.5, 1463.5);
+  h2FullType->setBinLabel(1, "1462", 2);
+  h2FullType->setBinLabel(2, "1463", 2);
+  h2FullType->getTH2F()->SetOption("colz");
+
+  for (int iFed = 0; iFed < numberOfFeds; iFed++) {
+    int fedId = minFedNumber + iFed;
+    auto s_fed = std::to_string(fedId);
+
+    h2ErrorCodeFED[iFed] = ibooker.book2D("Errors in FED" + s_fed,
+                                          "Errors in FED" + s_fed + ";;channel",
+                                          errCodeSize,
+                                          minErrCode - 0.5,
+                                          minErrCode + float(errCodeSize) - 0.5,
+                                          37,
+                                          -0.5,
+                                          36.5);
+    for (unsigned int iBin = 1; iBin <= errCodeSize; iBin++)
+      h2ErrorCodeFED[iFed]->setBinLabel(iBin, errCode[iBin - 1]);
+    h2ErrorCodeFED[iFed]->getTH2F()->SetOption("colz");
+
+    h2TBMMessageFED[iFed] = ibooker.book2D(
+        "TBM Message in FED" + s_fed, "TBM Message in FED" + s_fed + ";;channel", 8, -0.5, 7.5, 37, -0.5, 36.5);
+    for (unsigned int iBin = 1; iBin <= 8; iBin++)
+      h2TBMMessageFED[iFed]->setBinLabel(iBin, tbmMessage[iBin - 1]);
+    h2TBMMessageFED[iFed]->getTH2F()->SetOption("colz");
+
+    h2TBMTypeFED[iFed] = ibooker.book2D(
+        "TBM Type in FED" + s_fed, "TBM Type in FED" + s_fed + ";;channel", 5, -0.5, 4.5, 37, -0.5, 36.5);
+    for (unsigned int iBin = 1; iBin <= 5; iBin++)
+      h2TBMTypeFED[iFed]->setBinLabel(iBin, tbmType[iBin - 1]);
+    h2TBMTypeFED[iFed]->getTH2F()->SetOption("colz");
+  }
 
   for (int arm = 0; arm < 2; arm++) {
     CTPPSDetId ID(CTPPSDetId::sdTrackingPixel, arm, 0);
@@ -383,6 +484,16 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
           h2ErrorCodeRP[indexP]->setBinLabel(iBin, errCode[iBin - 1]);
         h2ErrorCodeRP[indexP]->getTH2F()->SetOption("colz");
 
+        h2TBMMessageRP[indexP] = ibooker.book2D("TBM Message", "TBM Message;;plane", 8, -0.5, 7.5, 6, -0.5, 5.5);
+        for (unsigned int iBin = 1; iBin <= 8; iBin++)
+          h2TBMMessageRP[indexP]->setBinLabel(iBin, tbmMessage[iBin - 1]);
+        h2TBMMessageRP[indexP]->getTH2F()->SetOption("colz");
+
+        h2TBMTypeRP[indexP] = ibooker.book2D("TBM Type", "TBM Type;;plane", 5, -0.5, 4.5, 6, -0.5, 5.5);
+        for (unsigned int iBin = 1; iBin <= 5; iBin++)
+          h2TBMTypeRP[indexP]->setBinLabel(iBin, tbmType[iBin - 1]);
+        h2TBMTypeRP[indexP]->getTH2F()->SetOption("colz");
+
         st = "number of tracks per event";
         htrackMult[indexP] = ibooker.bookProfile(st,
                                                  rpTitle + ";number of tracks",
@@ -413,7 +524,7 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
                                                           0.,
                                                           double(NplaneMAX * NROCsMAX),
                                                           0.,
-                                                          rpixValues::ROCSizeInX *rpixValues::ROCSizeInY,
+                                                          rpixValues::ROCSizeInX * rpixValues::ROCSizeInY,
                                                           "");
         hp2HitsMultROC_LS[indexP]->getTProfile2D()->SetOption("colz");
         hp2HitsMultROC_LS[indexP]->getTProfile2D()->SetMinimum(1.0e-10);
@@ -427,6 +538,10 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
             yahp2->SetBinLabel(p * NplaneMAX + r + 1, s);
           }
         }
+
+        // Hits per plane per bx
+        h2HitsVsBXRandoms[indexP] = ibooker.book2D(
+            "Hits per plane per BX - random triggers", rpTitle + ";Event.BX;Plane", 4002, -1.5, 4000. + 0.5, 6, 0, 6);
 
         if (onlinePlots) {
           string st3 = ";PlaneIndex(=pixelPot*PlaneMAX + plane)";
@@ -570,6 +685,9 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
 
   Handle<DetSetVector<CTPPSPixelLocalTrack>> pixTrack;
   event.getByToken(tokenTrack, pixTrack);
+
+  Handle<edm::TriggerResults> hltResults;
+  event.getByToken(tokenTrigResults, hltResults);
 
   if (onlinePlots) {
     hBX->Fill(event.bunchCrossing());
@@ -737,14 +855,150 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
         if (idet == 15) {  //dummy det id: store in a plot with fed info
 
           for (DetSet<CTPPSPixelDataError>::const_iterator dit = ds_error.begin(); dit != ds_error.end(); ++dit) {
-            h2ErrorCode->Fill(dit->errorType(), dit->fedId());
+            h2ErrorCodeUnidDet->Fill(dit->errorType(), dit->fedId());
+            // recover fed channel number
+            int chanNmbr = -1;
+            if (dit->errorType() == 32 || dit->errorType() == 33 || dit->errorType() == 34) {
+              long long errorWord = dit->errorWord64();  // for 64-bit error words
+              chanNmbr = (errorWord >> LINK_shift) & LINK_mask;
+            } else {
+              uint32_t errorWord = dit->errorWord32();
+              chanNmbr = (errorWord >> LINK_shift) & LINK_mask;
+            }
+            bool fillFED = false;
+            int iFed = dit->fedId() - minFedNumber;
+            if (iFed >= 0 && iFed < numberOfFeds)
+              fillFED = true;
+
+            if (dit->errorType() == 28) {  //error 28 = FIFO nearly full: identify FIFO and fill histogram
+              int fullType = -1;
+              uint32_t errorWord = dit->errorWord32();
+              int NFa = (errorWord >> DB0_shift) & DataBit_mask;
+              int NFb = (errorWord >> DB1_shift) & DataBit_mask;
+              int NFc = (errorWord >> DB2_shift) & DataBit_mask;
+              int NFd = (errorWord >> DB3_shift) & DataBit_mask;
+              int NFe = (errorWord >> DB4_shift) & DataBit_mask;
+              int NF2 = (errorWord >> DB6_shift) & DataBit_mask;
+              int L1A = (errorWord >> DB7_shift) & DataBit_mask;
+              if (NFa == 1) {
+                fullType = 1;
+                h2FullType->Fill((int)fullType, dit->fedId());
+              }
+              if (NFb == 1) {
+                fullType = 2;
+                h2FullType->Fill((int)fullType, dit->fedId());
+              }
+              if (NFc == 1) {
+                fullType = 3;
+                h2FullType->Fill((int)fullType, dit->fedId());
+              }
+              if (NFd == 1) {
+                fullType = 4;
+                h2FullType->Fill((int)fullType, dit->fedId());
+              }
+              if (NFe == 1) {
+                fullType = 5;
+                h2FullType->Fill((int)fullType, dit->fedId());
+              }
+              if (NF2 == 1) {
+                fullType = 6;
+                h2FullType->Fill((int)fullType, dit->fedId());
+              }
+              if (L1A == 1) {
+                fullType = 7;
+                h2FullType->Fill((int)fullType, dit->fedId());
+              }
+            }
+            if (dit->errorType() == 30) {  //error 30 = TBM error trailer
+              uint32_t errorWord = dit->errorWord32();
+              int t0 = (errorWord >> DB0_shift) & DataBit_mask;
+              int t1 = (errorWord >> DB1_shift) & DataBit_mask;
+              int t2 = (errorWord >> DB2_shift) & DataBit_mask;
+              int t3 = (errorWord >> DB3_shift) & DataBit_mask;
+              int t4 = (errorWord >> DB4_shift) & DataBit_mask;
+              int t5 = (errorWord >> DB5_shift) & DataBit_mask;
+              int t6 = (errorWord >> DB6_shift) & DataBit_mask;
+              int t7 = (errorWord >> DB7_shift) & DataBit_mask;
+              if (t0 == 1) {
+                h2TBMMessageUnidDet->Fill(0, dit->fedId());
+                if (fillFED)
+                  h2TBMMessageFED[iFed]->Fill(0, chanNmbr);
+              }
+              if (t1 == 1) {
+                h2TBMMessageUnidDet->Fill(1, dit->fedId());
+                if (fillFED)
+                  h2TBMMessageFED[iFed]->Fill(1, chanNmbr);
+              }
+              if (t2 == 1) {
+                h2TBMMessageUnidDet->Fill(2, dit->fedId());
+                if (fillFED)
+                  h2TBMMessageFED[iFed]->Fill(2, chanNmbr);
+              }
+              if (t3 == 1) {
+                h2TBMMessageUnidDet->Fill(3, dit->fedId());
+                if (fillFED)
+                  h2TBMMessageFED[iFed]->Fill(3, chanNmbr);
+              }
+              if (t4 == 1) {
+                h2TBMMessageUnidDet->Fill(4, dit->fedId());
+                if (fillFED)
+                  h2TBMMessageFED[iFed]->Fill(4, chanNmbr);
+              }
+              if (t5 == 1) {
+                h2TBMMessageUnidDet->Fill(5, dit->fedId());
+                if (fillFED)
+                  h2TBMMessageFED[iFed]->Fill(5, chanNmbr);
+              }
+              if (t6 == 1) {
+                h2TBMMessageUnidDet->Fill(6, dit->fedId());
+                if (fillFED)
+                  h2TBMMessageFED[iFed]->Fill(6, chanNmbr);
+              }
+              if (t7 == 1) {
+                h2TBMMessageUnidDet->Fill(7, dit->fedId());
+                if (fillFED)
+                  h2TBMMessageFED[iFed]->Fill(7, chanNmbr);
+              }
+              int stateMach_bits = 4;
+              int stateMach_shift = 8;
+              uint32_t stateMach_mask = ~(~uint32_t(0) << stateMach_bits);
+              uint32_t stateMach = (errorWord >> stateMach_shift) & stateMach_mask;
+              if (stateMach == 0) {
+                h2TBMTypeUnidDet->Fill(0, dit->fedId());
+                if (fillFED)
+                  h2TBMTypeFED[iFed]->Fill(0, chanNmbr);
+              } else {
+                if (((stateMach >> DB0_shift) & DataBit_mask) == 1) {
+                  h2TBMTypeUnidDet->Fill(1, dit->fedId());
+                  if (fillFED)
+                    h2TBMTypeFED[iFed]->Fill(1, chanNmbr);
+                }
+                if (((stateMach >> DB1_shift) & DataBit_mask) == 1) {
+                  h2TBMTypeUnidDet->Fill(2, dit->fedId());
+                  if (fillFED)
+                    h2TBMTypeFED[iFed]->Fill(2, chanNmbr);
+                }
+                if (((stateMach >> DB2_shift) & DataBit_mask) == 1) {
+                  h2TBMTypeUnidDet->Fill(3, dit->fedId());
+                  if (fillFED)
+                    h2TBMTypeFED[iFed]->Fill(3, chanNmbr);
+                }
+                if (((stateMach >> DB3_shift) & DataBit_mask) == 1) {
+                  h2TBMTypeUnidDet->Fill(4, dit->fedId());
+                  if (fillFED)
+                    h2TBMTypeFED[iFed]->Fill(4, chanNmbr);
+                }
+              }
+            }
+            if (fillFED)
+              h2ErrorCodeFED[iFed]->Fill(dit->errorType(), chanNmbr);
           }
           continue;
         }
         if (verbosity > 1)
           LogPrint("CTPPSPixelDQMSource") << "not CTPPS: ds_error.id" << ds_error.id;
         continue;
-      }
+      }  // end of dummy detId block
 
       int plane = getPixPlane(ds_error.id);
       CTPPSDetId theId(ds_error.id);
@@ -753,6 +1007,7 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
       int rpot = theId.rp() & 0x7;
       int rpInd = getRPindex(arm, station, rpot);
       RPactivity[rpInd] = 1;
+      CTPPSPixelDetId IDD(ds_error.id);
 
       if (StationStatus[station] && RPstatus[station][rpot]) {
         int index = getRPindex(arm, station, rpot);
@@ -760,6 +1015,142 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
           if (RPindexValid[index]) {
             if (!isPlanePlotsTurnedOff[arm][station][rpot][plane]) {
               h2ErrorCodeRP[index]->Fill(dit->errorType(), plane);
+              // recover fed channel number
+              int chanNmbr = -1;
+              if (dit->errorType() == 32 || dit->errorType() == 33 || dit->errorType() == 34) {
+                long long errorWord = dit->errorWord64();  // for 64-bit error words
+                chanNmbr = (errorWord >> LINK_shift) & LINK_mask;
+              } else {
+                uint32_t errorWord = dit->errorWord32();
+                chanNmbr = (errorWord >> LINK_shift) & LINK_mask;
+              }
+              bool fillFED = false;
+              int iFed = dit->fedId() - minFedNumber;
+              if (iFed >= 0 && iFed < numberOfFeds)
+                fillFED = true;
+              if (dit->errorType() == 28) {  //error 28 = FIFO nearly full: identify FIFO and fill histogram
+                int fullType = -1;
+                uint32_t errorWord = dit->errorWord32();
+                int NFa = (errorWord >> DB0_shift) & DataBit_mask;
+                int NFb = (errorWord >> DB1_shift) & DataBit_mask;
+                int NFc = (errorWord >> DB2_shift) & DataBit_mask;
+                int NFd = (errorWord >> DB3_shift) & DataBit_mask;
+                int NFe = (errorWord >> DB4_shift) & DataBit_mask;
+                int NF2 = (errorWord >> DB6_shift) & DataBit_mask;
+                int L1A = (errorWord >> DB7_shift) & DataBit_mask;
+                if (NFa == 1) {
+                  fullType = 1;
+                  h2FullType->Fill((int)fullType, dit->fedId());
+                }
+                if (NFb == 1) {
+                  fullType = 2;
+                  h2FullType->Fill((int)fullType, dit->fedId());
+                }
+                if (NFc == 1) {
+                  fullType = 3;
+                  h2FullType->Fill((int)fullType, dit->fedId());
+                }
+                if (NFd == 1) {
+                  fullType = 4;
+                  h2FullType->Fill((int)fullType, dit->fedId());
+                }
+                if (NFe == 1) {
+                  fullType = 5;
+                  h2FullType->Fill((int)fullType, dit->fedId());
+                }
+                if (NF2 == 1) {
+                  fullType = 6;
+                  h2FullType->Fill((int)fullType, dit->fedId());
+                }
+                if (L1A == 1) {
+                  fullType = 7;
+                  h2FullType->Fill((int)fullType, dit->fedId());
+                }
+              }
+
+              if (dit->errorType() == 30) {  //error 30 = TBM error trailer
+                uint32_t errorWord = dit->errorWord32();
+                int t0 = (errorWord >> DB0_shift) & DataBit_mask;
+                int t1 = (errorWord >> DB1_shift) & DataBit_mask;
+                int t2 = (errorWord >> DB2_shift) & DataBit_mask;
+                int t3 = (errorWord >> DB3_shift) & DataBit_mask;
+                int t4 = (errorWord >> DB4_shift) & DataBit_mask;
+                int t5 = (errorWord >> DB5_shift) & DataBit_mask;
+                int t6 = (errorWord >> DB6_shift) & DataBit_mask;
+                int t7 = (errorWord >> DB7_shift) & DataBit_mask;
+                if (t0 == 1) {
+                  h2TBMMessageRP[index]->Fill(0, plane);
+                  if (fillFED)
+                    h2TBMMessageFED[iFed]->Fill(0, chanNmbr);
+                }
+                if (t1 == 1) {
+                  h2TBMMessageRP[index]->Fill(1, plane);
+                  if (fillFED)
+                    h2TBMMessageFED[iFed]->Fill(1, chanNmbr);
+                }
+                if (t2 == 1) {
+                  h2TBMMessageRP[index]->Fill(2, plane);
+                  if (fillFED)
+                    h2TBMMessageFED[iFed]->Fill(2, chanNmbr);
+                }
+                if (t3 == 1) {
+                  h2TBMMessageRP[index]->Fill(3, plane);
+                  if (fillFED)
+                    h2TBMMessageFED[iFed]->Fill(3, chanNmbr);
+                }
+                if (t4 == 1) {
+                  h2TBMMessageRP[index]->Fill(4, plane);
+                  if (fillFED)
+                    h2TBMMessageFED[iFed]->Fill(4, chanNmbr);
+                }
+                if (t5 == 1) {
+                  h2TBMMessageRP[index]->Fill(5, plane);
+                  if (fillFED)
+                    h2TBMMessageFED[iFed]->Fill(5, chanNmbr);
+                }
+                if (t6 == 1) {
+                  h2TBMMessageRP[index]->Fill(6, plane);
+                  if (fillFED)
+                    h2TBMMessageFED[iFed]->Fill(6, chanNmbr);
+                }
+                if (t7 == 1) {
+                  h2TBMMessageRP[index]->Fill(7, plane);
+                  if (fillFED)
+                    h2TBMMessageFED[iFed]->Fill(7, chanNmbr);
+                }
+                int stateMach_bits = 4;
+                int stateMach_shift = 8;
+                uint32_t stateMach_mask = ~(~uint32_t(0) << stateMach_bits);
+                uint32_t stateMach = (errorWord >> stateMach_shift) & stateMach_mask;
+                if (stateMach == 0) {
+                  h2TBMTypeRP[index]->Fill(0, plane);
+                  if (fillFED)
+                    h2TBMTypeFED[iFed]->Fill(0, chanNmbr);
+                } else {
+                  if (((stateMach >> DB0_shift) & DataBit_mask) == 1) {
+                    h2TBMTypeRP[index]->Fill(1, plane);
+                    if (fillFED)
+                      h2TBMTypeFED[iFed]->Fill(1, chanNmbr);
+                  }
+                  if (((stateMach >> DB1_shift) & DataBit_mask) == 1) {
+                    h2TBMTypeRP[index]->Fill(2, plane);
+                    if (fillFED)
+                      h2TBMTypeFED[iFed]->Fill(2, chanNmbr);
+                  }
+                  if (((stateMach >> DB2_shift) & DataBit_mask) == 1) {
+                    h2TBMTypeRP[index]->Fill(3, plane);
+                    if (fillFED)
+                      h2TBMTypeFED[iFed]->Fill(3, chanNmbr);
+                  }
+                  if (((stateMach >> DB3_shift) & DataBit_mask) == 1) {
+                    h2TBMTypeRP[index]->Fill(4, plane);
+                    if (fillFED)
+                      h2TBMTypeFED[iFed]->Fill(4, chanNmbr);
+                  }
+                }
+              }
+              if (fillFED)
+                h2ErrorCodeFED[iFed]->Fill(dit->errorType(), chanNmbr);
             }
           }  // end if(RPindexValid[index]) {
         }
@@ -836,6 +1227,16 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
           if (np >= 5)
             hRPotActivBX[index]->Fill(event.bunchCrossing());
           hRPotActivBXall[index]->Fill(event.bunchCrossing(), float(RPdigiSize[index]));
+        }
+
+        // Select only events from the desired random trigger and fill the histogram
+        const edm::TriggerNames &trigNames = event.triggerNames(*hltResults);
+        for (int p = 0; p < NplaneMAX; p++) {
+          for (unsigned int i = 0; i < trigNames.size(); i++) {
+            const std::string &triggerName = trigNames.triggerName(i);
+            if ((hltResults->accept(i) > 0) && (triggerName == randomHLTPath))
+              h2HitsVsBXRandoms[index]->Fill(event.bunchCrossing(), p, HitsMultPlane[index][p]);
+          }
         }
 
         int planesFiredAtROC[NROCsMAX];  // how many planes registered hits on ROC r

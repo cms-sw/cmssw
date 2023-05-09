@@ -87,7 +87,7 @@ public:
       jitter_ = double(sample.toa()) * toaLSBToNS_ - dist2center / c_cm_ns - tofDelay_;
     }
 
-    int thickness = (ddd_ != nullptr) ? ddd_->waferType(dataFrame.id()) : 0;
+    int thickness = (ddd_ != nullptr) ? ddd_->waferType(dataFrame.id(), false) : 0;
     amplitude_ = amplitude_ / fCPerMIP_[thickness];
 
     LogDebug("HGCUncalibratedRecHit") << "isSiFESim_: " << isSiFESim_ << " ADC+: set the charge to: " << amplitude_

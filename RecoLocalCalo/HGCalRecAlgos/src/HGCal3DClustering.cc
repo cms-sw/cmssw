@@ -57,7 +57,6 @@ std::vector<reco::HGCalMultiCluster> HGCal3DClustering::makeClusters(
     hit_kdtree[i].build(points[i], bounds);
   }
   std::vector<int> vused(es.size(), 0);
-  unsigned int used = 0;
 
   unsigned int es_size = es.size();
   for (unsigned int i = 0; i < es_size; ++i) {
@@ -65,7 +64,6 @@ std::vector<reco::HGCalMultiCluster> HGCal3DClustering::makeClusters(
       reco::HGCalMultiCluster temp;
       temp.push_back(thecls[es[i]]);
       vused[i] = (thecls[es[i]]->z() > 0) ? 1 : -1;
-      ++used;
       // Starting from cluster es[i] at from[0] - from[1] - from[2]
       std::array<double, 3> from{{thecls[es[i]]->x(), thecls[es[i]]->y(), thecls[es[i]]->z()}};
       unsigned int firstlayer = int(thecls[es[i]]->z() > 0) * (maxlayer + 1);
@@ -95,7 +93,6 @@ std::vector<reco::HGCalMultiCluster> HGCal3DClustering::makeClusters(
           if (vused[found[k].ind] == 0 && distReal2(thecls[es[found[k].ind]], to) < radius2) {
             temp.push_back(thecls[es[found[k].ind]]);
             vused[found[k].ind] = vused[i];
-            ++used;
           }
         }
       }

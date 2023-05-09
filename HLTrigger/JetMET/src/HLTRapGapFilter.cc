@@ -67,7 +67,6 @@ bool HLTRapGapFilter::hltFilter(edm::Event& iEvent,
     double etjet = 0.;
     double etajet = 0.;
     double sumets = 0.;
-    int countjets = 0;
 
     for (auto const& recocalojet : *recocalojets) {
       etjet = recocalojet.energy();
@@ -78,7 +77,6 @@ bool HLTRapGapFilter::hltFilter(edm::Event& iEvent,
         //std::cout << "Adding jet with eta = " << etajet << ", and e = "
         //	    << etjet << std::endl;
       }
-      countjets++;
     }
 
     //std::cout << "Sum jet energy = " << sumets << std::endl;

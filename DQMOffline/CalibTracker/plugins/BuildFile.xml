@@ -20,7 +20,6 @@
 <use name="RecoLocalTracker/ClusterParameterEstimator"/>
 <use name="RecoLocalTracker/Records"/>
 <use name="TrackingTools/TrackFitters"/>
-<use name="CondFormats/SiPixelObjects"/>
 <use name="CalibTracker/SiPixelESProducers"/>
 <library file="*.cc" name="DQMOfflineCalibTrackerplugins">
   <flags EDM_PLUGIN="1"/>

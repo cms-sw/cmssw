@@ -206,6 +206,7 @@ void TauolappInterface::init(const edm::EventSetup& es) {
   }
 
   Tauolapp::Log::LogWarning(false);
+  Tauolapp::Log::IgnoreRedirection(true);
 
   return;
 }

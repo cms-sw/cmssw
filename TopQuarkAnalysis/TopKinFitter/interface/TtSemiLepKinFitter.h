@@ -160,10 +160,10 @@ int TtSemiLepKinFitter::fit(const std::vector<pat::Jet>& jets,
     throw edm::Exception(edm::errors::Configuration, "Cannot run the TtSemiLepKinFitter with less than 4 jets");
 
   // get jets in right order
-  const pat::Jet hadP = jets[TtSemiLepEvtPartons::LightQ];
-  const pat::Jet hadQ = jets[TtSemiLepEvtPartons::LightQBar];
-  const pat::Jet hadB = jets[TtSemiLepEvtPartons::HadB];
-  const pat::Jet lepB = jets[TtSemiLepEvtPartons::LepB];
+  const pat::Jet& hadP = jets[TtSemiLepEvtPartons::LightQ];
+  const pat::Jet& hadQ = jets[TtSemiLepEvtPartons::LightQBar];
+  const pat::Jet& hadB = jets[TtSemiLepEvtPartons::HadB];
+  const pat::Jet& lepB = jets[TtSemiLepEvtPartons::LepB];
 
   // initialize particles
   const TLorentzVector p4HadP(hadP.px(), hadP.py(), hadP.pz(), hadP.energy());

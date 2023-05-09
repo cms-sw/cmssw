@@ -80,6 +80,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     g4GeometryDD4hepSource = cms.bool(False),
     NonBeamEvent = cms.bool(False),
     EventVerbose = cms.int32(0),
+    UseG4EventManager = cms.bool(True),
     UseMagneticField = cms.bool(True),
     UseCommandBaseScorer = cms.bool(False),
     StoreRndmSeeds = cms.bool(False),
@@ -175,6 +176,10 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         #
         type = cms.string('SimG4Core/Physics/FTFP_BERT_EMM'),
         DummyEMPhysics = cms.bool(False),
+        # 1 will print cuts as they get set from DD
+        # 2 will do as 1 + will dump Geant4 table of cuts
+        Verbosity = cms.untracked.int32(0),
+        # EM physics options
         CutsPerRegion = cms.bool(True),
         CutsOnProton  = cms.bool(True),
         DefaultCutValue = cms.double(1.0), ## cuts in cm
@@ -187,12 +192,31 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         G4MscLambdaLimit = cms.double(1.0), # in mm 
         G4MscStepLimit = cms.string("UseSafety"),
         G4GammaGeneralProcess = cms.bool(True),
-        G4NeutronGeneralProcess = cms.bool(False),
-        G4TransportWithMSC = cms.bool(False),
+        G4ElectronGeneralProcess = cms.bool(False),
+        G4TransportWithMSC = cms.int32(0),  # 1 - fEnabled, 2 - fMultipleSteps
+        PhotoeffectBelowKShell = cms.bool(True),
+        G4HepEmActive = cms.bool(False),
+        G4MuonPairProductionByMuon = cms.bool(False),
         ReadMuonData = cms.bool(False), 
-        Verbosity = cms.untracked.int32(0),
-        # 1 will print cuts as they get set from DD
-        # 2 will do as 1 + will dump Geant4 table of cuts
+        Region      = cms.string(''),
+        TrackingCut = cms.bool(False),
+        SRType      = cms.bool(True),
+        FlagMuNucl  = cms.bool(False),
+        FlagFluo    = cms.bool(False),
+        EMPhysics   = cms.untracked.bool(True),
+        # Hadronic physics options
+        HadPhysics  = cms.untracked.bool(True),
+        FlagBERT    = cms.untracked.bool(False),
+        EminFTFP    = cms.double(3.), # in GeV
+        EmaxBERT    = cms.double(6.), # in GeV
+        EminQGSP    = cms.double(12.), # in GeV
+        EmaxFTFP    = cms.double(25.), # in GeV
+        EmaxBERTpi  = cms.double(12.), # in GeV
+        G4NeutronGeneralProcess = cms.bool(False),
+        G4BCHadronicProcess = cms.bool(False),
+        G4LightHyperNucleiTracking = cms.bool(False),
+        ThermalNeutrons = cms.untracked.bool(False),
+        # Exotica
         MonopoleCharge       = cms.untracked.int32(1),
         MonopoleDeltaRay     = cms.untracked.bool(True),
         MonopoleMultiScatter = cms.untracked.bool(False),
@@ -202,19 +226,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         ExoticaPhysicsSS     = cms.untracked.bool(False),
         RhadronPhysics       = cms.bool(False),
         DarkMPFactor         = cms.double(1.0),
-        Region      = cms.string(''),
-        TrackingCut = cms.bool(False),
-        SRType      = cms.bool(True),
-        FlagMuNucl  = cms.bool(False),
-        FlagFluo    = cms.bool(False),
-        EMPhysics   = cms.untracked.bool(True),
-        HadPhysics  = cms.untracked.bool(True),
-        FlagBERT    = cms.untracked.bool(False),
-        EminFTFP    = cms.double(3.), # in GeV
-        EmaxBERT    = cms.double(6.), # in GeV
-        EminQGSP    = cms.double(12.), # in GeV
-        EmaxFTFP    = cms.double(25.), # in GeV
-        EmaxBERTpi  = cms.double(12.), # in GeV
+        # GFlash methods
         LowEnergyGflashEcal = cms.bool(False),
         LowEnergyGflashEcalEmax = cms.double(0.02), # in GeV
         GflashEcal    = cms.bool(False),
@@ -224,7 +236,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         bField        = cms.double(3.8),
         energyScaleEB = cms.double(1.032),
         energyScaleEE = cms.double(1.024),
-        ThermalNeutrons = cms.untracked.bool(False),
+        # Russian roulette
         RusRoElectronEnergyLimit  = cms.double(0.0),
         RusRoEcalElectron         = cms.double(1.0),
         RusRoHcalElectron         = cms.double(1.0),
@@ -232,6 +244,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         RusRoPreShowerElectron    = cms.double(1.0),
         RusRoCastorElectron       = cms.double(1.0),
         RusRoWorldElectron        = cms.double(1.0),
+        # Tracking and step limiters
         ElectronStepLimit         = cms.bool(False),
         ElectronRangeTest         = cms.bool(False),
         PositronStepLimit         = cms.bool(False),
@@ -267,7 +280,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         ApplyLumiMonitorCuts = cms.bool(False), ## primary for lumi monitors
         Verbosity = cms.untracked.int32(0),
         PDGselection = cms.PSet(
-            PDGfilterSel = cms.bool(False),        ## filter out unwanted particles
+            PDGfilterSel = cms.bool(False), ## filter out unwanted particles
             PDGfilter = cms.vint32(21,1,2,3,4,5,6) ## list of unwanted particles (gluons and quarks)
         )
     ),
@@ -319,6 +332,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         common_MCtruth,
         DetailedTiming = cms.untracked.bool(False),
         CheckTrack = cms.untracked.bool(False),
+        EndPrintTrackID = cms.int32(0)
     ),
     SteppingAction = cms.PSet(
         common_maximum_time,
@@ -504,6 +518,8 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         IgnoreTrackID    = cms.bool(False),
         EminHit          = cms.double(0.0),
         CheckID          = cms.untracked.bool(True),
+        EnergyThresholdForPersistencyInGeV = cms.double(1e9), # keep temporarily old behaviour
+        EnergyThresholdForHistoryInGeV = cms.double(1e9) # keep temporarily old behaviour)
     ),
     HGCSD = cms.PSet(
         Verbosity        = cms.untracked.int32(0),
@@ -519,7 +535,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         WaferAngles      = cms.untracked.vdouble(90.0,30.0),
         WaferSize        = cms.untracked.double(123.7),
         MouseBite        = cms.untracked.double(2.5),
-        CheckID          = cms.untracked.bool(True),
+        CheckID          = cms.untracked.bool(False),
         UseDetector      = cms.untracked.int32(3),
         Detectors        = cms.untracked.int32(2),
         MissingWaferFile = cms.untracked.string("")
@@ -534,6 +550,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         FiducialCut      = cms.bool(False),
         DistanceFromEdge = cms.double(1.0),
         StoreAllG4Hits   = cms.bool(False),
+        CheckID          = cms.untracked.bool(False),
         TileFileName     = cms.untracked.string("")
     ),
     HFNoseSD = cms.PSet(

@@ -167,7 +167,7 @@ namespace tmtt {
         pair<unsigned int, unsigned int> htCell = trk->cellLocationFit();
         // If this HT cell was not already memorized, rescue this track, since it is probably not a duplicate,
         // but just a track whose fitted helix parameters are a bit wierd for some reason.
-        if (std::count(htCellUsed.begin(), htCellUsed.end(), htCell) == 0) {
+        if (htCellUsed.count(htCell) == 0) {
           tracksFiltered.push_back(trk);  // Rescue track.
           // Optionally store cell location to avoid rescuing other tracks at the same location, which may be duplicates of this track.
           bool outsideCheck = (goOutsideArray || trk->pt() > settings_->houghMinPt());
@@ -222,7 +222,7 @@ namespace tmtt {
       pair<unsigned int, unsigned int> htCell = trk.cellLocationFit();
       // If this HT cell was not already memorized, rescue this track, since it is probably not a duplicate,
       // but just a track whose fitted helix parameters are a bit wierd for some reason.
-      if (std::count(htCellUsed.begin(), htCellUsed.end(), htCell) == 0) {
+      if (htCellUsed.count(htCell) == 0) {
         tracksFiltered.push_back(&trk);  // Rescue track.
         // Store cell location to avoid rescuing other tracks at the same location, which may be duplicates of this track.
         htCellUsed.insert(htCell);

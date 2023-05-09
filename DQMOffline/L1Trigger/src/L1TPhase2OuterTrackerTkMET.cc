@@ -85,10 +85,8 @@ void L1TPhase2OuterTrackerTkMET::analyze(const edm::Event& iEvent, const edm::Ev
   }
   float sumPx = 0;
   float sumPy = 0;
-  float etTot = 0;
   double sumPx_PU = 0;
   double sumPy_PU = 0;
-  double etTot_PU = 0;
   int nTracks_counter = 0;
 
   float zVTX = L1VertexHandle->begin()->z0();
@@ -155,11 +153,9 @@ void L1TPhase2OuterTrackerTkMET::analyze(const edm::Event& iEvent, const edm::Ev
 
       sumPx += pt * cos(phi);
       sumPy += pt * sin(phi);
-      etTot += pt;
     } else {  // PU sums
       sumPx_PU += pt * cos(phi);
       sumPy_PU += pt * sin(phi);
-      etTot_PU += pt;
     }
   }  // end loop over tracks
 

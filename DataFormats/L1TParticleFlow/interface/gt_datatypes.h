@@ -30,7 +30,7 @@ namespace l1gt {
   typedef ap_uint<1> valid_t;
 
   // E/gamma fields
-  typedef ap_fixed<11, 9> iso_t;
+  typedef ap_ufixed<11, 9> iso_t;
   typedef ap_uint<4> egquality_t;
 
   // tau fields
