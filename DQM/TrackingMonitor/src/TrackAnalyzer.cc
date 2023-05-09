@@ -1140,7 +1140,6 @@ void TrackAnalyzer::setLumi(const edm::Event& iEvent, const edm::EventSetup& iSe
     // Count the number of clusters with at least a minimum
     // number of pixels per cluster and at least a minimum charge.
     size_t numClusters = 0;
-    size_t tot = 0;
 
     edmNew::DetSetVector<SiPixelCluster>::const_iterator pixCluDet = pixelClusters->begin();
     for (; pixCluDet != pixelClusters->end(); ++pixCluDet) {
@@ -1153,7 +1152,6 @@ void TrackAnalyzer::setLumi(const edm::Event& iEvent, const edm::EventSetup& iSe
 
       edmNew::DetSet<SiPixelCluster>::const_iterator pixClu = pixCluDet->begin();
       for (; pixClu != pixCluDet->end(); ++pixClu) {
-        ++tot;
         if ((pixClu->size() >= minNumberOfPixelsPerCluster_) && (pixClu->charge() >= minPixelClusterCharge_)) {
           ++numClusters;
         }

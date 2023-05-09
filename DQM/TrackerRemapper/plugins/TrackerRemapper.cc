@@ -422,8 +422,6 @@ void TrackerRemapper::readVertices(double& minx, double& maxx, double& miny, dou
   // TPolyline vertices stored at https://github.com/cms-data/DQM-SiStripMonitorClient
   in.open(edm::FileInPath("DQM/SiStripMonitorClient/data/Geometry/tracker_map_bare").fullPath().c_str());
 
-  unsigned count = 0;
-
   if (!in.good()) {
     throw cms::Exception("TrackerRemapper") << "Error Reading File" << std::endl;
   }
@@ -433,7 +431,6 @@ void TrackerRemapper::readVertices(double& minx, double& maxx, double& miny, dou
 
     std::string line;
     std::getline(in, line);
-    ++count;
 
     TString string(line);
     TObjArray* array = string.Tokenize(" ");
