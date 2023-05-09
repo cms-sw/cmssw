@@ -148,7 +148,6 @@ void StubsSimHitsMatcher::match(const edm::Event& iEvent,
         auto stubGlobalPhi = omtfConfig->procHwPhiToGlobalPhi(stub->phiHw, processorPhiZero);
         ostr << (*stub) << "\nstubGlobalPhi " << stubGlobalPhi << std::endl;
 
-
         switch (stubDetId.subdetId()) {
           case MuonSubdetId::RPC: {
             RPCDetId rpcDetId(stubDetId);
