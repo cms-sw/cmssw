@@ -1,6 +1,20 @@
 #include "RecoBTag/FeatureTools/interface/deep_helpers.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalTrajectoryExtrapolatorToLine.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalImpactPointExtrapolator.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "TLorentzVector.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
+#include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
+#include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
+#include "RecoVertex/VertexPrimitives/interface/VertexState.h"
 
 namespace btagbtvdeep {
 
@@ -79,6 +93,56 @@ namespace btagbtvdeep {
       }
     }
     return mindr;
+  }
+
+  // compute minimum distance between SVs and a candidate (from DeepNTuples, now polymorphic)
+  float mindistsvpfcand(const std::vector<reco::VertexCompositePtrCandidate> &svs, const reco::TransientTrack track) {
+    float mindist_ = 999.999;
+    float out_dist = 0.0;
+    for (unsigned int i = 0; i < svs.size(); ++i) {
+      if (!track.isValid()) {
+        continue;
+      }
+      reco::Vertex::CovarianceMatrix csv;
+      svs[i].fillVertexCovariance(csv);
+      reco::Vertex vertex(svs[i].vertex(), csv);
+      if (!vertex.isValid()) {
+        continue;
+      }
+
+      GlobalVector direction(svs[i].px(), svs[i].py(), svs[i].pz());
+
+      AnalyticalImpactPointExtrapolator extrapolator(track.field());
+      TrajectoryStateOnSurface tsos =
+          extrapolator.extrapolate(track.impactPointState(), RecoVertex::convertPos(vertex.position()));
+
+      VertexDistance3D dist;
+
+      if (!tsos.isValid()) {
+        continue;
+      }
+      GlobalPoint refPoint = tsos.globalPosition();
+      GlobalError refPointErr = tsos.cartesianError().position();
+      GlobalPoint vertexPosition = RecoVertex::convertPos(vertex.position());
+      GlobalError vertexPositionErr = RecoVertex::convertError(vertex.error());
+
+      std::pair<bool, Measurement1D> result(
+          true, dist.distance(VertexState(vertexPosition, vertexPositionErr), VertexState(refPoint, refPointErr)));
+      if (!result.first) {
+        continue;
+      }
+
+      GlobalPoint impactPoint = tsos.globalPosition();
+      GlobalVector IPVec(impactPoint.x() - vertex.x(), impactPoint.y() - vertex.y(), impactPoint.z() - vertex.z());
+      double prod = IPVec.dot(direction);
+      double sign = (prod >= 0) ? 1. : -1.;
+
+      if (result.second.value() < mindist_) {
+        out_dist = sign * result.second.value();
+        mindist_ = result.second.value();
+      }
+    }
+    return out_dist;
   }
 
   // instantiate template

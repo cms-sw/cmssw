@@ -10,6 +10,7 @@ def applyDeepBtagging(process, postfix=""):
 
     from PhysicsTools.PatAlgos.slimming.slimmedJets_cfi import slimmedJets, slimmedJetsAK8
     from RecoBTag.ONNXRuntime.pfParticleNetAK4_cff import _pfParticleNetAK4JetTagsAll as pfParticleNetAK4JetTagsAll
+    from RecoBTag.ONNXRuntime.pfParticleTransformerAK4_cff import _pfParticleTransformerAK4JetTagsAll as pfParticleTransformerAK4JetTagsAll
     from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4PuppiCentralJetTagsAll as pfParticleNetFromMiniAODAK4PuppiCentralJetTagsAll
     from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4PuppiForwardJetTagsAll as pfParticleNetFromMiniAODAK4PuppiForwardJetTagsAll
     from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4CHSCentralJetTagsAll as pfParticleNetFromMiniAODAK4CHSCentralJetTagsAll
@@ -28,6 +29,7 @@ def applyDeepBtagging(process, postfix=""):
             'pfDeepFlavourJetTags:probg')
             + pfParticleNetFromMiniAODAK4CHSCentralJetTagsAll
             + pfParticleNetFromMiniAODAK4CHSForwardJetTagsAll
+            + pfParticleTransformerAK4JetTagsAll
     )
     updateJetCollection(
         process,
@@ -64,6 +66,7 @@ def applyDeepBtagging(process, postfix=""):
             'pfDeepFlavourJetTags:probg')
             + pfParticleNetFromMiniAODAK4PuppiCentralJetTagsAll
             + pfParticleNetFromMiniAODAK4PuppiForwardJetTagsAll
+            + pfParticleTransformerAK4JetTagsAll
     )
   
     updateJetCollection(

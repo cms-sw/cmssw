@@ -640,7 +640,7 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                     flip = False
 
                 # use right input tags when running with RECO PF candidates, which actually
-                # depens of wether jets use "particleFlow"
+                # depens of whether jets use "particleFlow"
                 if pfCandidates.value() == 'packedPFCandidates':
                     puppi_value_map = setupPackedPuppi(process)
                     vertex_associator = cms.InputTag("")
@@ -663,7 +663,38 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
                                       is_weighted_jet = is_weighted_jet,
                                       flip = flip),
                                     process, task)
-                
+
+            if 'ParticleTransformerAK4TagInfos' in btagInfo:
+                svUsed = svSource
+                if btagInfo == 'pfNegativeParticleTransformerAK4TagInfos':
+                    svUsed = cms.InputTag(btagPrefix+'inclusiveCandidateNegativeSecondaryVertices'+labelName+postfix)
+                    flip = True 
+                else:
+                    flip = False
+                # use right input tags when running with RECO PF candidates, which actually
+                # depends of whether jets use "particleFlow"
+                if pfCandidates.value() == 'packedPFCandidates':
+                    puppi_value_map = setupPackedPuppi(process)
+                    vertex_associator = cms.InputTag("")
+                else:
+                    puppi_value_map = cms.InputTag("puppi")
+                    vertex_associator = cms.InputTag("primaryVertexAssociation","original")
+
+                # If this jet is a puppi jet, then set is_weighted_jet to true.
+                is_weighted_jet = False
+                if ('puppi' in jetSource.value().lower()):
+                    is_weighted_jet = True
+                addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                    btag.pfParticleTransformerAK4TagInfos.clone(
+                                      jets = jetSource,
+                                      vertices=pvSource,
+                                      secondary_vertices=svUsed,
+                                      puppi_value_map = puppi_value_map,
+                                      vertex_associator = vertex_associator,
+                                      is_weighted_jet = is_weighted_jet,
+                                      flip = flip),
+                                    process, task)
+
             if btagInfo == 'pfDeepDoubleXTagInfos':
                 # can only run on PAT jets, so the updater needs to be used
                 if 'updated' not in jetSource.value().lower():
