@@ -208,12 +208,11 @@ namespace tt {
         kfShiftInitialC33_(pSetKF_.getParameter<int>("ShiftInitialC33")),
         // Parmeter specifying KalmanFilter Output Formatter
         pSetKFOut_(iConfig.getParameter<ParameterSet>("KalmanFilterOut")),
-        kfoutchi2rphiBins_(pSetKFOut_.getParameter<vector<double>>("chi2rphiBins")),
-        kfoutchi2rzBins_(pSetKFOut_.getParameter<vector<double>>("chi2rzBins")),
-        kfoutchi2rphiConv_(pSetKFOut_.getParameter<int>("chi2rphiConv")),
-        kfoutchi2rzConv_(pSetKFOut_.getParameter<int>("chi2rzConv")),
-        tttrackBits_(pSetKFOut_.getParameter<int>("TTTrackBits")),
+        kfoutchi2rphiConv_(pSetKFOut_.getParameter<int>("Chi2rphiConv")),
+        kfoutchi2rzConv_(pSetKFOut_.getParameter<int>("Chi2rzConv")),
         weightBinFraction_(pSetKFOut_.getParameter<int>("WeightBinFraction")),
+        dzTruncation_(pSetKFOut_.getParameter<int>("DzTruncation")),
+        dphiTruncation_(pSetKFOut_.getParameter<int>("DphiTruncation")),
         // Parmeter specifying DuplicateRemoval
         pSetDR_(iConfig.getParameter<ParameterSet>("DuplicateRemoval")),
         drDepthMemory_(pSetDR_.getParameter<int>("DepthMemory")) {
