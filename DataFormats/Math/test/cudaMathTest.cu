@@ -188,6 +188,7 @@ int main() {
     go<USESIN>();
     go<USELOG>();
     go<USELOG, true>();
+    exit(EXIT_FAILURE);
   } catch (std::runtime_error &ex) {
     std::cerr << "CUDA or std runtime error: " << ex.what() << std::endl;
     exit(EXIT_FAILURE);
