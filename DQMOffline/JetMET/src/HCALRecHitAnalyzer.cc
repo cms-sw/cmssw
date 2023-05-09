@@ -494,7 +494,6 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   // Loop over HBHERecHit's
   HBHERecHitCollection::const_iterator hbherechit;
-  int nHBrechit = 0, nHErechit = 0;
 
   for (hbherechit = HBHERecHits->begin(); hbherechit != HBHERecHits->end(); hbherechit++) {
     HcalDetId det = hbherechit->id();
@@ -507,7 +506,6 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     double phi = hHCAL_ieta_iphi_phiMap->getBinContent(EtaRing + 1, iphi);
     double theta = 2 * TMath::ATan(exp(-1 * eta));
     double ET = Energy * TMath::Sin(theta);
-    HcalSubdetector HcalNum = det.subdet();
     TLorentzVector v_;
 
     if (Energy > 0)  // zero suppress
@@ -568,13 +566,7 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
           hHCAL_D3_Minenergy_ieta_iphi->setBinContent(EtaRing + 1, iphi, Energy);
         break;
     }  // end switch
-
-    if (HcalNum == HcalBarrel) {
-      nHBrechit++;
-    } else {  // HcalEndcap
-      nHErechit++;
-    }
-  }  // end loop over HBHERecHit's
+  }    // end loop over HBHERecHit's
 
   // Fill eta-ring MET quantities
   for (int iEtaRing = 0; iEtaRing < 83; iEtaRing++) {
