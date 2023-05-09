@@ -81,7 +81,7 @@ void Phase2L1TGMTFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
   // store results
   std::unique_ptr<std::vector<l1t::TrackerMuon> > out1 = std::make_unique<std::vector<l1t::TrackerMuon> >(out);
-  iEvent.put(std::move(out1),"l1tTkMuonsGmtLowPtFix");
+  iEvent.put(std::move(out1), "l1tTkMuonsGmtLowPtFix");
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
