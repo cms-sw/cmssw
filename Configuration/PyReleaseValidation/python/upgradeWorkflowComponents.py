@@ -2005,7 +2005,7 @@ upgradeProperties[2017] = {
     },
    '2022ReReco' : {
         'Geom' : 'DB:Extended',
-        'GT' : 'auto:phase1_2022_realistic',
+        'GT' : 'auto:phase1_2022_realistic_postEE',
         'HLTmenu': '@relval2022',
         'Era' : 'Run3_2022_rereco',
         'BeamSpot': 'Realistic25ns13p6TeVEarly2022Collision',
