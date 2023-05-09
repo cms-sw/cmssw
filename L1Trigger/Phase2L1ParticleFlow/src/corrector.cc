@@ -116,7 +116,6 @@ void l1tpf::corrector::init_(TDirectory *lFile, bool debug) {
   corrections_.resize(neta_ * nemf_);
   std::fill(corrections_.begin(), corrections_.end(), nullptr);
   char buff[32];
-  int ngraphs = 0;
   for (unsigned int ieta = 0; ieta < neta_; ++ieta) {
     for (unsigned int iemf = 0; iemf < nemf_; ++iemf) {
       if (is2d_) {
@@ -135,7 +134,6 @@ void l1tpf::corrector::init_(TDirectory *lFile, bool debug) {
 #endif
       }
       if (graph) {
-        ngraphs++;
         corrections_[ieta * nemf_ + iemf] = (TGraph *)graph->Clone();
       }
       if (std::abs(index_->GetXaxis()->GetBinCenter(ieta + 1)) > 3.0) {
@@ -160,7 +158,6 @@ void l1tpf::corrector::initEmulation_(TDirectory *lFile, bool debug) {
   correctionsEmulated_.resize(neta_);
   std::fill(correctionsEmulated_.begin(), correctionsEmulated_.end(), nullptr);
   char buff[32];
-  int nhists = 0;
   for (unsigned int ieta = 0; ieta < neta_; ++ieta) {
     snprintf(buff, 31, "emul_eta_bin%d", ieta + 1);
     TH1 *hist = hists[buff];
@@ -171,7 +168,6 @@ void l1tpf::corrector::initEmulation_(TDirectory *lFile, bool debug) {
       std::cout << "   eta bin " << ieta << " hist " << buff << (hist ? " <valid>" : " <nil>") << "\n";
 #endif
     if (hist) {
-      nhists++;
       correctionsEmulated_[ieta] = (TH1 *)hist->Clone();
       correctionsEmulated_[ieta]->SetDirectory(nullptr);
     }
