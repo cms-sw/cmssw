@@ -82,10 +82,9 @@ fastSimProducer = cms.EDProducer(
 )
 
 from Configuration.ProcessModifiers.fastSimFixLongLivedBug_cff import fastSimFixLongLivedBug
-
 fastSimFixLongLivedBug.toModify(fastSimProducer, fixLongLivedBug = cms.bool(True))
 
-from Configuration.ProcessModifiers.useFastSimsDecayer_cff import useFastSimsDecayer
-useFastSimsDecayer.toModify(fastSimProducer, useFastSimsDecayer = cms.bool(True))
+from Configuration.ProcessModifiers.useGenNotFastSimDecays_cff import useGenNotFastSimDecays
+useGenNotFastSimDecays.toModify(fastSimProducer, useFastSimsDecayer = cms.bool(False))
 
 
