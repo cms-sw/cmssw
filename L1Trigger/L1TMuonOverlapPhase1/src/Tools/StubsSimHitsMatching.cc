@@ -148,8 +148,6 @@ void StubsSimHitsMatcher::match(const edm::Event& iEvent,
         auto stubGlobalPhi = omtfConfig->procHwPhiToGlobalPhi(stub->phiHw, processorPhiZero);
         ostr << (*stub) << "\nstubGlobalPhi " << stubGlobalPhi << std::endl;
 
-        int matchedMuonHits = 0;
-        int matchedNotMuonHits = 0;
 
         switch (stubDetId.subdetId()) {
           case MuonSubdetId::RPC: {
@@ -162,12 +160,6 @@ void StubsSimHitsMatcher::match(const edm::Event& iEvent,
                 double simHitStripGlobalPhi = (roll->toGlobal(roll->centreOfStrip((int)strip))).phi();
 
                 if (abs(stubGlobalPhi - simHitStripGlobalPhi) < 0.02) {
-                  if (abs(simHit.particleType()) == 13)
-                    matchedMuonHits++;
-                  else {
-                    matchedNotMuonHits++;
-                  }
-
                   matchedTrackInfos.insert(MatchedTrackInfo(simHit.eventId().event(), simHit.trackId()));
                 }
 
