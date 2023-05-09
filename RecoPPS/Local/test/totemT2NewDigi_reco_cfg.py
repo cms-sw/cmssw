@@ -15,11 +15,12 @@ process.load('Configuration.EventContent.EventContent_cff')
 #from Configuration.AlCa.GlobalTag import GlobalTag
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
+#dummy = cms.untracked.FileInPath('RecoPPS/Local/data/run364983_ls0001_streamA_StorageManager.dat'),
+
 # raw data source
 process.source = cms.Source("NewEventStreamFileReader",
-    fileNames = cms.untracked.vstring(
-        '/store/group/dpg_ctpps/comm_ctpps/TotemT2/RecoTest/run364983_ls0001_streamA_StorageManager.dat',
-#        '/store/t0streamer/Minidaq/A/000/364/983/run364983_ls0001_streamA_StorageManager.dat',
+fileNames = cms.untracked.vstring('http://cmsrep.cern.ch/cmssw/download/data/RecoPPS/Local/V1/run364983_ls0001_streamA_StorageManager.dat'
+#        '/store/group/dpg_ctpps/comm_ctpps/TotemT2/RecoTest/run364983_ls0001_streamA_StorageManager.dat',
     )
 )
 
