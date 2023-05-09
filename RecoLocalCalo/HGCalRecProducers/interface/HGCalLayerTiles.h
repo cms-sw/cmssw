@@ -7,7 +7,7 @@
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalTilesConstants.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/HFNoseTilesConstants.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalTilesWrapper.h"
-#include "DataFormats/Math/interface/normalizedPhi.h
+#include "DataFormats/Math/interface/normalizedPhi.h"
 
 #include <vector>
 #include <array>
