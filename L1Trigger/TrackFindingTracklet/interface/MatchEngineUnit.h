@@ -80,7 +80,7 @@ namespace trklet {
     VMStubsMEMemory* vmstubsmemory_;
 
     unsigned int nrzbins_;
-    unsigned int rzbin_;
+    unsigned int rzbin_, rzbin__, rzbin___, rzbin__t;
     unsigned int phibin_;
     int shift_;
 
@@ -98,6 +98,9 @@ namespace trklet {
     bool idle_;
 
     unsigned int layerdisk_;
+
+    //The minimum radius for 2s disks in projection bins
+    unsigned int ir2smin_;
 
     //Save state at the start of istep
     bool almostfullsave_;
