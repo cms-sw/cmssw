@@ -118,7 +118,7 @@ lowPtBarrelTripletStepKFFittingSmoother = TrackingTools.TrackFitters.KFFittingSm
 )
 
 import RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi
-lowPtBarrelTripletStepTracks = RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi.TrackProducer.clone(
+lowPtBarrelTripletStepTracks = RecoTracker.TrackProducer.TrackProducerIterativeDefault_cfi.TrackProducerIterativeDefault.clone(
     src           = 'lowPtBarrelTripletStepTrackCandidates',
     AlgorithmName = 'lowPtTripletStep',
     Fitter        = 'lowPtBarrelTripletStepKFFittingSmoother',

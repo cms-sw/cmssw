@@ -422,10 +422,8 @@ bool L1TdeStage2CaloLayer2::compareJets(const edm::Handle<l1t::JetBxCollection>&
     return false;
   }
 
-  int nJets = 0;
   if (dataIt != dataCol->end(currBx) || emulIt != emulCol->end(currBx)) {
     while (true) {
-      ++nJets;
       matchedEmulIt = emulIt;
 
       // object pt mismatch

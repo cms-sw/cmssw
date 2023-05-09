@@ -313,9 +313,7 @@ void L1TEventInfoClient::book(DQMStore::IBooker& ibooker, DQMStore::IGetter& ige
   ibooker.setCurrentFolder(dirEventInfo + "/reportSummaryContents");
   // general counters:
   //   iAllQTest: all quality tests for all systems and objects
-  //   iAllMon:   all monitored systems and objects
   int iAllQTest = 0;
-  int iAllMon = 0;
 
   for (unsigned int iMon = 0; iMon < m_nrL1Systems; ++iMon) {
     m_summaryContent.push_back(dqm::qstatus::DISABLED);
@@ -331,8 +329,6 @@ void L1TEventInfoClient::book(DQMStore::IBooker& ibooker, DQMStore::IGetter& ige
 
       iAllQTest++;
     }
-
-    iAllMon++;
   }
 
   for (unsigned int iMon = 0; iMon < m_nrL1Objects; ++iMon) {
@@ -349,8 +345,6 @@ void L1TEventInfoClient::book(DQMStore::IBooker& ibooker, DQMStore::IGetter& ige
 
       iAllQTest++;
     }
-
-    iAllMon++;
   }
 
   ibooker.setCurrentFolder(dirEventInfo);

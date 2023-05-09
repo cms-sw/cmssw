@@ -430,7 +430,6 @@ void HGCDigitizer::accumulate_forPreMix(edm::Handle<edm::PCaloHitContainer> cons
   auto tdcForToAOnset = theDigitizer_->tdcForToAOnset();
 
   int nchits = (int)hits->size();
-  int count_thisbx = 0;
   std::vector<HGCCaloHitTuple_t> hitRefs;
   hitRefs.reserve(nchits);
   for (int i = 0; i < nchits; ++i) {
@@ -468,7 +467,6 @@ void HGCDigitizer::accumulate_forPreMix(edm::Handle<edm::PCaloHitContainer> cons
 
     int waferThickness = getCellThickness(geom, id);
     if (itime == (int)thisBx_) {
-      ++count_thisbx;
       if (PhitRefs_bx0[id].empty()) {
         PhitRefs_bx0[id].emplace_back(charge, charge, tof);
       } else if (tof > std::get<2>(PhitRefs_bx0[id].back())) {

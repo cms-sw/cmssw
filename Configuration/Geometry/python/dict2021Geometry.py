@@ -1498,7 +1498,7 @@ forwardDict = {
             'Geometry/ForwardCommonData/data/lumimaterials.xml',
             'Geometry/ForwardCommonData/data/zdcrotations.xml',
             'Geometry/ForwardCommonData/data/lumirotations.xml',
-            'Geometry/ForwardCommonData/data/zdc/2021/v1/zdc.xml',
+            'Geometry/ForwardCommonData/data/zdc/2021/v2/zdc.xml',
             'Geometry/ForwardCommonData/data/zdclumi/2021/v2/zdclumi.xml',
             'Geometry/ForwardCommonData/data/cmszdc.xml',
         ],

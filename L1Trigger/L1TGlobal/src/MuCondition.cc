@@ -141,9 +141,6 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
   int jumpIndex = 1;
   int jump = myfactorial;  //factorial(numberObjects - nObjInCond);
 
-  int totalLoops = 0;
-  int passLoops = 0;
-
   // condition result condResult set to true if at least one permutation
   //     passes all requirements
   // all possible permutations are checked
@@ -162,7 +159,6 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
       continue;
 
     jumpIndex = jump;
-    totalLoops++;
 
     // clear the indices in the combination
     objectsInComb.clear();
@@ -308,15 +304,9 @@ const bool l1t::MuCondition::evaluateCondition(const int bxEval) const {
     // set the general result for evaluateCondition to "true"
 
     condResult = true;
-    passLoops++;
     (combinationsInCond()).push_back(objectsInComb);
 
   } while (std::next_permutation(index.begin(), index.end()));
-
-  //LogTrace("L1TGlobal")
-  //    << "\n  MuCondition: total number of permutations found:          " << totalLoops
-  //    << "\n  MuCondition: number of permutations passing requirements: " << passLoops
-  //    << "\n" << std::endl;
 
   return condResult;
 }

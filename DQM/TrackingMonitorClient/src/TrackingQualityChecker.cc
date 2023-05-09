@@ -496,15 +496,12 @@ void TrackingQualityChecker::fillTrackingStatusAtLumi(DQMStore::IBooker& ibooker
   if (!TrackingUtility::goToDir(ibooker, igetter, TopFolderName_))
     return;
 
-  int ibin = 0;
   for (std::map<std::string, TrackingLSMEs>::iterator it = TrackingLSMEsMap.begin(); it != TrackingLSMEsMap.end();
        it++) {
     if (verbose_)
       edm::LogInfo("TrackingQualityChecker") << "[TrackingQualityChecker::fillTrackingStatusAtLumi] ME: " << it->first
                                              << " [" << it->second.TrackingFlag->getFullname()
                                              << "] flag: " << it->second.TrackingFlag->getFloatValue() << std::endl;
-
-    ibin++;
 
     std::string localMEdirpath = it->second.HistoLSDir;
     std::string MEname = it->second.HistoLSName;
