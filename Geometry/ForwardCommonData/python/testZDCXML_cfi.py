@@ -1,0 +1,30 @@
+import FWCore.ParameterSet.Config as cms
+
+XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
+    geomXMLFiles = cms.vstring(
+        'Geometry/CMSCommonData/data/materials/2021/v3/materials.xml',
+        'Geometry/TrackerCommonData/data/trackermaterial/2021/v2/trackermaterial.xml',
+        'Geometry/CMSCommonData/data/rotations.xml',
+        'Geometry/CMSCommonData/data/extend/v3/cmsextent.xml',
+        'Geometry/CMSCommonData/data/cavernData/2021/v1/cavernData.xml',
+        'Geometry/CMSCommonData/data/cms/2021/v3/cms.xml',
+        'Geometry/CMSCommonData/data/cmsMother.xml',
+        'Geometry/CMSCommonData/data/eta3/etaMax.xml',
+        'Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml',
+        'Geometry/ForwardCommonData/data/forward/2021/v1/forward.xml',
+        'Geometry/ForwardCommonData/data/totemt2/2021/v1/totemt2.xml',
+        'Geometry/ForwardCommonData/data/forwardshield/2021/v1/forwardshield.xml',
+        'Geometry/ForwardCommonData/data/bhm.xml',
+        'Geometry/ForwardCommonData/data/zdcmaterials/2021/v1/zdcmaterials.xml',
+        'Geometry/ForwardCommonData/data/lumimaterials.xml',
+        'Geometry/ForwardCommonData/data/zdcrotations.xml',
+        'Geometry/ForwardCommonData/data/lumirotations.xml',
+        'Geometry/ForwardCommonData/data/zdc/2021/v1/zdc.xml',
+        'Geometry/ForwardCommonData/data/zdclumi/2021/v2/zdclumi.xml',
+        'Geometry/ForwardCommonData/data/cmszdc.xml',
+        'Geometry/ForwardSimData/data/zdcsens.xml',
+        'Geometry/ForwardSimData/data/zdcProdCuts/2021/v2/zdcProdCuts.xml',
+        'Geometry/CMSCommonData/data/FieldParameters.xml',
+    ),
+    rootNodeName = cms.string('cms:OCMS')
+)
