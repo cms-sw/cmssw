@@ -145,8 +145,7 @@ _phase2_siml1emulator.add( l1tTkMuonsGmt )
 _phase2_siml1emulator.add( l1tSAMuonsGmt )
 
 ## fix for low-pt muons, this collection is a copy of the l1tTkMuonsGmt collection 
-## in which we only keep those low pt muons with an SA muon associated to it. Threshold 
-## for this cutoff is configurable. 
+## in which we only keep those low pt muons with an SA muon associated to it. 
 l1tTkMuonsGmtLowPtFix = l1tGMTFilteredMuons.clone()
 _phase2_siml1emulator.add( l1tTkMuonsGmtLowPtFix )
 

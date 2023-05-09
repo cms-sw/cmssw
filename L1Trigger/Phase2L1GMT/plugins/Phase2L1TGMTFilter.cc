@@ -39,7 +39,7 @@ Phase2L1TGMTFilter::Phase2L1TGMTFilter(const edm::ParameterSet& iConfig)
       applyLowPtFilter_(iConfig.getParameter<bool>("applyLowPtFilter")),
       ptBarrelMin_(iConfig.getParameter<int>("ptBarrelMin")),
       ptEndcapMin_(iConfig.getParameter<int>("ptEndcapMin")) {
-  produces<std::vector<l1t::TrackerMuon> >("l1tTkMuonsGmtLowPtFix");
+  produces<std::vector<l1t::TrackerMuon> >("l1tTkMuonsGmtLowPtFix").setBranchAlias("l1tTkMuonsGmtLowPtFix");
 }
 
 Phase2L1TGMTFilter::~Phase2L1TGMTFilter() {
@@ -81,7 +81,7 @@ void Phase2L1TGMTFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
   // store results
   std::unique_ptr<std::vector<l1t::TrackerMuon> > out1 = std::make_unique<std::vector<l1t::TrackerMuon> >(out);
-  iEvent.put(std::move(out1));
+  iEvent.put(std::move(out1),"l1tTkMuonsGmtLowPtFix");
 }
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
