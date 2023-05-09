@@ -251,7 +251,8 @@ namespace hph {
     for (int iEtaSec = 1; iEtaSec < ((int)etaRegions.size() - 1); iEtaSec++) {  // Doesn't apply eta < 2.4 cut.
       double etaMax = etaRegions[iEtaSec];
       double zRefMax = chosenRofZ / tan(2. * atan(exp(-etaMax)));
-      if (kfzRef < zRefMax) break;
+      if (kfzRef < zRefMax)
+        break;
       kf_eta_reg = iEtaSec;
     }
     return kf_eta_reg;
