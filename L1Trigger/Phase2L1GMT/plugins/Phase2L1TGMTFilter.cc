@@ -39,7 +39,7 @@ Phase2L1TGMTFilter::Phase2L1TGMTFilter(const edm::ParameterSet& iConfig)
       applyLowPtFilter_(iConfig.getParameter<bool>("applyLowPtFilter")),
       ptBarrelMin_(iConfig.getParameter<int>("ptBarrelMin")),
       ptEndcapMin_(iConfig.getParameter<int>("ptEndcapMin")) {
-  produces<std::vector<l1t::TrackerMuon> >("l1tTkMuonsGmtLowPtFix").setBranchAlias("l1tTkMuonsGmtLowPtFix");
+  produces<std::vector<l1t::TrackerMuon> >("l1tTkMuonsGmtLowPtFix").setBranchAlias("tkMuLowPtFix");
 }
 
 Phase2L1TGMTFilter::~Phase2L1TGMTFilter() {
