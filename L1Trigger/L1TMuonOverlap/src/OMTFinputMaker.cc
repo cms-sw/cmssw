@@ -322,7 +322,6 @@ OMTFinput OMTFinputMaker::processRPC(const RPCDigiCollection *rpcDigis,
   for (auto rollDigis : rpcDigiCollection) {
     RPCDetId roll = rollDigis.first;
     unsigned int rawid = roll.rawId();
-    int nClusters = 0;
     if (!acceptDigi(rawid, iProcessor, type))
       continue;
     ///Find clusters of consecutive fired strips.
@@ -365,14 +364,12 @@ OMTFinput OMTFinputMaker::processRPC(const RPCDigiCollection *rpcDigis,
       bool outres = result.addLayerHit(iLayer, iInput, iPhi, iEta);
       //      if (cSize>2) flag |= 2;
       //      if (!outres) flag |= 1;
-      nClusters++;
 
       str << " RPC halfDigi "
           << " begin: " << cluster.first << " end: " << cluster.second << " iPhi: " << iPhi << " iEta: " << iEta
           << " hwNumber: " << hwNumber << " iInput: " << iInput << " iLayer: " << iLayer << " out: " << outres
           << std::endl;
     }
-    //    if (nClusters > 2) flag=1;
   }
 
   edm::LogInfo("OMTFInputMaker") << str.str();

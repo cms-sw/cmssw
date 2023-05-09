@@ -877,11 +877,9 @@ void l1t::GlobalBoard::runGTL(const edm::Event&,
       std::vector<L1TObjectTypeInCond> otypes;
       for (auto iop = gtAlg.operandTokenVector().begin(); iop != gtAlg.operandTokenVector().end(); ++iop) {
         //cout << "INFO:  operand name:  " << iop->tokenName << "\n";
-        int myChip = -1;
         int found = 0;
         L1TObjectTypeInCond otype;
         for (auto imap = conditionMap.begin(); imap != conditionMap.end(); imap++) {
-          myChip++;
           auto match = imap->find(iop->tokenName);
 
           if (match != imap->end()) {

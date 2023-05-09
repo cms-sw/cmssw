@@ -406,7 +406,6 @@ void PatternGenerator::upadatePdfs() {
           for (unsigned int iBinPdf = 0; iBinPdf < gp->getPdf()[iLayer][iRefLayer].size(); iBinPdf++) {
             double pdfVal = 0;
             if (iBinPdf > 0) {
-              int groupedBins = 0;
               for (int i = 0; i < statBinGroupSize; i++) {
                 int iBinStat =
                     statBinGroupSize * ((int)(iBinPdf)-pdfMiddle) + i + gp->meanDistPhiValue(iLayer, iRefLayer);
@@ -415,7 +414,6 @@ void PatternGenerator::upadatePdfs() {
 
                 if (iBinStat >= 0 && iBinStat < (int)gp->getStatistics()[iLayer][iRefLayer].size()) {
                   pdfVal += gp->getStatistics()[iLayer][iRefLayer][iBinStat][0];
-                  groupedBins++;
                   //cout<<__FUNCTION__<<": "<<__LINE__<<" "<<gp->key()<<" iLayer "<<iLayer<<" iBinStat "<<iBinStat<<" iBinPdf "<<iBinPdf<<" statVal "<<gp->getStatistics()[iLayer][iRefLayer][iBinStat][0]<<endl;
                 }
               }
