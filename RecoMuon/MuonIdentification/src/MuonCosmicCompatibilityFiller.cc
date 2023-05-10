@@ -304,14 +304,6 @@ bool MuonCosmicCompatibilityFiller::isOverlappingMuon(const edm::Event& iEvent,
         //	bool isCloseIP = false;
         //	bool isCloseRef = false;
 
-        for (trackingRecHit_iterator coshit = costrack->recHitsBegin(); coshit != costrack->recHitsEnd(); coshit++) {
-          if ((*coshit)->isValid()) {
-            DetId id((*coshit)->geographicalId());
-          }
-        }
-        // step1
-        //if( !isCosmic1Leg ) continue;
-
         if (outertrack.isNonnull()) {
           // step2
           //UNUSED:          const double ipErr = (double)outertrack->d0Error();
