@@ -166,8 +166,8 @@ void DisplacedRegionSeedingVertexProducer::produce(edm::StreamID streamID,
       farRegionsOfInterest->emplace_back(reco::Vertex::Point(roi.centerOfMass()), errorRegion);
   }
 
-  event.put(move(nearRegionsOfInterest), "nearRegionsOfInterest");
-  event.put(move(farRegionsOfInterest), "farRegionsOfInterest");
+  event.put(std::move(nearRegionsOfInterest), "nearRegionsOfInterest");
+  event.put(std::move(farRegionsOfInterest), "farRegionsOfInterest");
 }
 
 void DisplacedRegionSeedingVertexProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
