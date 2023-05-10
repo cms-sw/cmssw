@@ -12,7 +12,6 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESWatcher.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
@@ -28,8 +27,6 @@
 
 #include "Geometry/Records/interface/TotemGeometryRcd.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
-#include "CondFormats/DataRecord/interface/PPSTimingCalibrationRcd.h"
-#include "CondFormats/DataRecord/interface/PPSTimingCalibrationLUTRcd.h"
 
 class TotemT2RecHitProducer : public edm::stream::EDProducer<> {
 public:
@@ -41,13 +38,10 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   edm::EDGetTokenT<edmNew::DetSetVector<TotemT2Digi> > digiToken_;
-  edm::ESGetToken<PPSTimingCalibration, PPSTimingCalibrationRcd> timingCalibrationToken_;
-  edm::ESGetToken<PPSTimingCalibrationLUT, PPSTimingCalibrationLUTRcd> timingCalibrationLUTToken_;
   edm::ESGetToken<TotemGeometry, TotemGeometryRcd> geometryToken_;
   /// A watcher to detect timing calibration changes.
-  edm::ESWatcher<PPSTimingCalibrationRcd> calibWatcher_;
 
-  const bool applyCalib_;
+  const bool applyCalib_;  //Diamond calibration not used
   TotemT2RecHitProducerAlgorithm algo_;
 };
 
@@ -56,9 +50,6 @@ TotemT2RecHitProducer::TotemT2RecHitProducer(const edm::ParameterSet& iConfig)
       geometryToken_(esConsumes<TotemGeometry, TotemGeometryRcd>()),
       applyCalib_(iConfig.getParameter<bool>("applyCalibration")),
       algo_(iConfig) {
-  if (applyCalib_)
-    timingCalibrationToken_ = esConsumes<PPSTimingCalibration, PPSTimingCalibrationRcd>(
-        edm::ESInputTag(iConfig.getParameter<std::string>("timingCalibrationTag")));
   produces<edmNew::DetSetVector<TotemT2RecHit> >();
 }
 
@@ -69,9 +60,6 @@ void TotemT2RecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   const auto& digis = iEvent.get(digiToken_);
 
   if (!digis.empty()) {
-    if (applyCalib_ && calibWatcher_.check(iSetup))
-      algo_.setCalibration(iSetup.getData(timingCalibrationToken_), iSetup.getData(timingCalibrationLUTToken_));
-
     // produce the rechits collection
     algo_.build(iSetup.getData(geometryToken_), digis, *pOut);
   }
@@ -84,11 +72,9 @@ void TotemT2RecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& des
 
   desc.add<edm::InputTag>("digiTag", edm::InputTag("totemT2Digis", "TotemT2"))
       ->setComment("input digis collection to retrieve");
-  desc.add<std::string>("timingCalibrationTag", "GlobalTag:TotemT2TimingCalibration")
-      ->setComment("input tag for timing calibrations retrieval");
-  desc.add<double>("timeSliceNs", 25.0 / 1024.0)
+  desc.add<double>("timeSliceNs", 25.0 / 4.0)
       ->setComment("conversion constant between timing bin size and nanoseconds");
-  desc.add<bool>("applyCalibration", false)->setComment("switch on/off the timing calibration");
+  desc.add<bool>("applyCalibration", false)->setComment("switch on/off the timing calibration (not in use)");
 
   descr.add("totemT2RecHits", desc);
 }

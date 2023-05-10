@@ -96,6 +96,9 @@ private:
   //subdetector id for sampic
   unsigned int sampicSubDetId;
 
+  //Unpack multiple channels per payload for T2
+  bool packedPayload;
+
   /// the mapping files
   std::vector<std::string> mappingFileNames;
 
@@ -201,6 +204,9 @@ private:
   /// extracts VFAT's DAQ channel from XML attributes
   TotemFramePosition ChipFramePosition(xercesc::DOMNode *chipnode);
 
+  /// extracts VFAT's DAQ channel from XML attributes for packed T2 payload
+  TotemT2FramePosition ChipT2FramePosition(xercesc::DOMNode *chipnode);
+
   void GetChannels(xercesc::DOMNode *n, std::set<unsigned char> &channels);
 
   bool RPNode(NodeType type) {
@@ -270,6 +276,7 @@ TotemDAQMappingESSourceXML::TotemDAQMappingESSourceXML(const edm::ParameterSet &
     : verbosity(conf.getUntrackedParameter<unsigned int>("verbosity", 0)),
       subSystemName(conf.getUntrackedParameter<string>("subSystem")),
       sampicSubDetId(conf.getParameter<unsigned int>("sampicSubDetId")),
+      packedPayload(conf.getUntrackedParameter<bool>("multipleChannelsPerPayload", false)),
       currentBlock(0),
       currentBlockValid(false) {
   for (const auto &it : conf.getParameter<vector<ParameterSet>>("configuration")) {
@@ -869,13 +876,19 @@ void TotemDAQMappingESSourceXML::ParseTreeTotemT2(ParseType pType,
       // parse tag attributes
       unsigned int hw_id = 0;
       bool hw_id_set = false;
+      unsigned int channel_in_payload = 0;
+      bool payload_set = false;
       DOMNamedNodeMap *attr = child->getAttributes();
 
       for (unsigned int j = 0; j < attr->getLength(); j++) {
         DOMNode *a = attr->item(j);
         if (!strcmp(cms::xerces::toString(a->getNodeName()).c_str(), "hwId")) {
-          sscanf(cms::xerces::toString(a->getNodeValue()).c_str(), "%u", &hw_id);
+          sscanf(cms::xerces::toString(a->getNodeValue()).c_str(), "%x", &hw_id);
           hw_id_set = true;
+        }
+        if (packedPayload && (!strcmp(cms::xerces::toString(a->getNodeName()).c_str(), "pay"))) {
+          sscanf(cms::xerces::toString(a->getNodeValue()).c_str(), "%u", &channel_in_payload);
+          payload_set = true;
         }
       }
 
@@ -886,14 +899,28 @@ void TotemDAQMappingESSourceXML::ParseTreeTotemT2(ParseType pType,
       if (!hw_id_set)
         throw cms::Exception("TotemDAQMappingESSourceXML::ParseTreeTotemT2")
             << "hwId not given for element `" << cms::xerces::toString(child->getNodeName()) << "'";
+      if (packedPayload && (!payload_set))
+        throw cms::Exception("TotemDAQMappingESSourceXML::ParseTreeTotemT2")
+            << "Payload position in fibre not given for element `" << cms::xerces::toString(child->getNodeName())
+            << "'";
 
       // store mapping data
-      const TotemFramePosition &framepos = ChipFramePosition(child);
+      const TotemT2FramePosition &framepos = (packedPayload ? ChipT2FramePosition(child) : TotemT2FramePosition());
+      const TotemFramePosition &frameposSingle = (packedPayload ? TotemFramePosition() : ChipFramePosition(child));
       TotemVFATInfo vfatInfo;
+      vfatInfo.hwID = hw_id;
       unsigned int arm = parentID / 10, plane = parentID % 10;
       vfatInfo.symbolicID.symbolicID = TotemT2DetId(arm, plane, id);
+      if (verbosity > 2) {
+        edm::LogWarning("Totem") << "Print T2 frame pos (payload):" << framepos << " ("
+                                 << (packedPayload ? "true" : "false") << ") hw_id / T2 DetID" << hw_id << "/"
+                                 << TotemT2DetId(arm, plane, id) << endl;
+      }
 
-      mapping->insert(framepos, vfatInfo);
+      if (packedPayload)
+        mapping->insert(framepos, vfatInfo);
+      else
+        mapping->insert(frameposSingle, vfatInfo);
 
       continue;
     }
@@ -927,6 +954,30 @@ TotemFramePosition TotemDAQMappingESSourceXML::ChipFramePosition(xercesc::DOMNod
   return fp;
 }
 
+//----------------------------------------------------------------------------------------------------
+
+TotemT2FramePosition TotemDAQMappingESSourceXML::ChipT2FramePosition(xercesc::DOMNode *chipnode) {
+  TotemT2FramePosition fp;
+  unsigned char attributeFlag = 0;
+
+  DOMNamedNodeMap *attr = chipnode->getAttributes();
+  for (unsigned int j = 0; j < attr->getLength(); j++) {
+    DOMNode *a = attr->item(j);
+    if (fp.setXMLAttribute(
+            cms::xerces::toString(a->getNodeName()), cms::xerces::toString(a->getNodeValue()), attributeFlag) > 1) {
+      throw cms::Exception("TotemDAQMappingESSourceXML")
+          << "Unrecognized T2 tag `" << cms::xerces::toString(a->getNodeName()) << "' or incompatible value `"
+          << cms::xerces::toString(a->getNodeValue()) << "'.";
+    }
+  }
+
+  if (!fp.checkXMLAttributeFlag(attributeFlag)) {
+    throw cms::Exception("TotemDAQMappingESSourceXML")
+        << "Wrong/incomplete T2 DAQ channel specification (attributeFlag = " << attributeFlag << ").";
+  }
+
+  return fp;
+}
 //----------------------------------------------------------------------------------------------------
 
 TotemDAQMappingESSourceXML::NodeType TotemDAQMappingESSourceXML::GetNodeType(xercesc::DOMNode *n) {

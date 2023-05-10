@@ -104,6 +104,9 @@ public:
   /// If binary is true, binary format is used.
   void Print(bool binary = false) const;
 
+  //Follow the VFAT2 manual format, not reversed
+  void PrintT2(bool binary = false) const;
+
   /// internaly used to check CRC
   static word calculateCRC(word crc_in, word dato);
 
