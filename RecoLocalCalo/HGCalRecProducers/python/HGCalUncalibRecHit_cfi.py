@@ -46,7 +46,7 @@ HGCalUncalibRecHit = cms.EDProducer(
         ),
 
     HGCHEBConfig = cms.PSet(
-        isSiFE  = cms.bool(False),
+        isSiFE  = cms.bool(True),
         # adc information
         adcNbits      = hgchebackDigitizer.digiCfg.feCfg.adcNbits,
         adcSaturation = hgchebackDigitizer.digiCfg.feCfg.adcSaturation_fC,
