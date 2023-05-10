@@ -323,8 +323,8 @@ namespace trklet {
       }    // Iterate through links
     }      // Config Supported
     // store products
-    iEvent.emplace(edPutTokenAccepted_, move(accepted));
-    iEvent.emplace(edPutTokenLost_, move(lost));
+    iEvent.emplace(edPutTokenAccepted_, std::move(accepted));
+    iEvent.emplace(edPutTokenLost_, std::move(lost));
   }
 }  // namespace trklet
 
