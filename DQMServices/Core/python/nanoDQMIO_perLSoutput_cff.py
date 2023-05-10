@@ -174,6 +174,7 @@ nanoDQMIO_perLSoutput = cms.PSet(
     "JetMET/Jet/Cleanedak4PFJetsCHS/Phi_EndCap",
     "JetMET/Jet/Cleanedak4PFJetsCHS/Pt",
     "JetMET/MET/pfMETT1/Cleaned/METSig",
+    "JetMET/MET/pfMETT1/Cleaned/MET"
     "JetMET/vertices",     
   ) )
 )
