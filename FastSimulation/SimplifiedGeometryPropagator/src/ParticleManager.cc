@@ -20,7 +20,8 @@ fastsim::ParticleManager::ParticleManager(const HepMC::GenEvent& genEvent,
                                           double deltaRchargedMother,
                                           const fastsim::ParticleFilter& particleFilter,
                                           std::vector<SimTrack>& simTracks,
-                                          std::vector<SimVertex>& simVertices)
+                                          std::vector<SimVertex>& simVertices,
+                                          bool useFastSimsDecayer)
     : genEvent_(&genEvent),
       genParticleIterator_(genEvent_->particles_begin()),
       genParticleEnd_(genEvent_->particles_end()),
@@ -30,7 +31,8 @@ fastsim::ParticleManager::ParticleManager(const HepMC::GenEvent& genEvent,
       deltaRchargedMother_(deltaRchargedMother),
       particleFilter_(&particleFilter),
       simTracks_(&simTracks),
-      simVertices_(&simVertices)
+      simVertices_(&simVertices),
+      useFastSimsDecayer_(useFastSimsDecayer)
       // prepare unit convsersions
       //  --------------------------------------------
       // |          |      hepmc               |  cms |
@@ -228,12 +230,12 @@ std::unique_ptr<fastsim::Particle> fastsim::ParticleManager::nextGenParticle() {
     // FastSim will not make hits out of particles that decay before reaching the beam pipe
     const bool decayedWithinBeamPipe =
         endVertex && endVertex->position().perp2() * lengthUnitConversionFactor2_ < beamPipeRadius2_;
-    if (decayedWithinBeamPipe) {
+    if (!producedWithinBeamPipe && useFastSimsDecayer_) {
       continue;
     }
 
     // SM particles that descend from exotics and cross the beam pipe radius should make hits but not be decayed
-    if (producedWithinBeamPipe && !decayedWithinBeamPipe) {
+    if (producedWithinBeamPipe && !decayedWithinBeamPipe && useFastSimsDecayer_) {
       exoticRelativesChecker(productionVertex, exoticRelativeId, 0);
     }
 
