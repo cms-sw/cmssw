@@ -644,7 +644,6 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   // this performs the actual tracklet event processing
   eventProcessor.event(ev, streamsTrackRaw, streamsStubRaw);
 
-
   for (const auto& track : tracks) {
     if (track.duplicate())
       continue;

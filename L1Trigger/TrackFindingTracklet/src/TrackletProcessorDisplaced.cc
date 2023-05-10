@@ -409,7 +409,7 @@ void TrackletProcessorDisplaced::execute(unsigned int iSector, double phimin, do
                       }
 
                       if (innerFPGAStub->layerdisk() >= N_LAYER && middleFPGAStub->layerdisk() >= N_LAYER &&
-                                 outerFPGAStub->layerdisk() >= N_LAYER) {
+                          outerFPGAStub->layerdisk() >= N_LAYER) {
                         throw cms::Exception("LogicError") << __FILE__ << " " << __LINE__ << " Invalid seeding!";
                       }
 
