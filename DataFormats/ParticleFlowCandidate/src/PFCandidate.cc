@@ -299,10 +299,6 @@ void PFCandidate::rescaleMomentum(double rescaleFactor) {
 
   float e = std::sqrt(p() * p() * rescaleFactor * rescaleFactor + mass() * mass());
 
-  // Protect against invalid values (shouldn't happen, but could)
-  if (!(e > 0))
-    e = p() * rescaleFactor;
-
   LorentzVector rescaledp4(rescaleFactor * px(), rescaleFactor * py(), rescaleFactor * pz(), e);
   setP4(rescaledp4);
 }
