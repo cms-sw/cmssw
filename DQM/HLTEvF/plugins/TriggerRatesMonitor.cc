@@ -131,9 +131,10 @@ private:
   };
 
   // module configuration
-  const edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> m_l1tMenuToken;
-  const edm::EDGetTokenT<GlobalAlgBlkBxCollection> m_l1t_results;
-  const edm::EDGetTokenT<edm::TriggerResults> m_hlt_results;
+  const edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> m_l1tMenu_token;
+  const edm::InputTag m_l1t_results_inputTag;
+  const edm::EDGetTokenT<GlobalAlgBlkBxCollection> m_l1t_results_token;
+  const edm::EDGetTokenT<edm::TriggerResults> m_hlt_results_token;
   const std::string m_dqm_path;
   const uint32_t m_lumisections_range;
 };
@@ -152,11 +153,12 @@ void TriggerRatesMonitor::fillDescriptions(edm::ConfigurationDescriptions &descr
 
 TriggerRatesMonitor::TriggerRatesMonitor(edm::ParameterSet const &config)
     :  // module configuration
-      m_l1tMenuToken{esConsumes<edm::Transition::BeginRun>()},
-      m_l1t_results(consumes<GlobalAlgBlkBxCollection>(config.getUntrackedParameter<edm::InputTag>("l1tResults"))),
-      m_hlt_results(consumes<edm::TriggerResults>(config.getUntrackedParameter<edm::InputTag>("hltResults"))),
-      m_dqm_path(config.getUntrackedParameter<std::string>("dqmPath")),
-      m_lumisections_range(config.getUntrackedParameter<uint32_t>("lumisectionRange")) {}
+      m_l1tMenu_token{esConsumes<edm::Transition::BeginRun>()},
+      m_l1t_results_inputTag{config.getUntrackedParameter<edm::InputTag>("l1tResults")},
+      m_l1t_results_token{consumes(m_l1t_results_inputTag)},
+      m_hlt_results_token{consumes(config.getUntrackedParameter<edm::InputTag>("hltResults"))},
+      m_dqm_path{config.getUntrackedParameter<std::string>("dqmPath")},
+      m_lumisections_range{config.getUntrackedParameter<uint32_t>("lumisectionRange")} {}
 
 void TriggerRatesMonitor::dqmBeginRun(edm::Run const &run,
                                       edm::EventSetup const &setup,
@@ -171,7 +173,7 @@ void TriggerRatesMonitor::dqmBeginRun(edm::Run const &run,
   // initialise the HLTConfigProvider
   bool changed = true;
   edm::EDConsumerBase::Labels labels;
-  labelsForToken(m_hlt_results, labels);
+  labelsForToken(m_hlt_results_token, labels);
   if (histograms.hltConfig.init(run, setup, labels.process, changed)) {
     // number of trigger paths in labels.process
     auto const nTriggers = histograms.hltConfig.size();
@@ -257,7 +259,7 @@ void TriggerRatesMonitor::bookHistograms(DQMStore::IBooker &booker,
 
   // book the rate histograms for the L1T triggers that are included in the L1T menu
   booker.setCurrentFolder(m_dqm_path + "/L1T");
-  auto const &l1tMenu = setup.getData(m_l1tMenuToken);
+  auto const &l1tMenu = setup.getData(m_l1tMenu_token);
   for (auto const &keyval : l1tMenu.getAlgorithmMap()) {
     unsigned int const bit = keyval.second.getIndex();
     if (bit >= histograms.l1t_counts.size()) {
@@ -357,9 +359,17 @@ void TriggerRatesMonitor::dqmAnalyze(edm::Event const &event,
     histograms.tcds_counts[event.experimentType()]->Fill(lumisection);
 
   // monitor the rates of L1T triggers
-  auto const &bxvector = event.get(m_l1t_results);
-  if (not bxvector.isEmpty(0)) {
-    auto const &results = bxvector.at(0, 0);
+  auto const &algBlkBxVecHandle = event.getHandle(m_l1t_results_token);
+  if (not algBlkBxVecHandle.isValid()) {
+    edm::LogError("TriggerRatesMonitor")
+        << "L1 trigger results with label [" << m_l1t_results_inputTag.encode()
+        << "] not present or invalid. MonitorElements of L1T results not filled for this event.";
+  } else if (algBlkBxVecHandle->isEmpty(0)) {
+    edm::LogError("TriggerRatesMonitor")
+        << "L1 trigger results with label [" << m_l1t_results_inputTag.encode()
+        << "] empty for BX=0. MonitorElements of L1T results not filled for this event.";
+  } else {
+    auto const &results = algBlkBxVecHandle->at(0, 0);
     for (unsigned int i = 0; i < GlobalAlgBlk::maxPhysicsTriggers; ++i)
       if (results.getAlgoDecisionFinal(i))
         if (histograms.l1t_counts[i])
@@ -368,7 +378,7 @@ void TriggerRatesMonitor::dqmAnalyze(edm::Event const &event,
 
   // monitor the rates of HLT triggers, datasets and streams
   if (histograms.hltConfig.inited()) {
-    auto const &hltResults = event.get(m_hlt_results);
+    auto const &hltResults = event.get(m_hlt_results_token);
     if (hltResults.size() != histograms.hltIndices.size()) {
       edm::LogError("TriggerRatesMonitor")
           << "This should never happen: the number of HLT paths has changed since the beginning of the run"
