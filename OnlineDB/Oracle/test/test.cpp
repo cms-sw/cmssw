@@ -8,6 +8,9 @@ using namespace oracle::occi;
 using namespace std;
 
 int main(int argc, char *argv[]){
+  const char* fake_db = "cms-fake-unknown-db-server-1234567890";
+  char* p = std::getenv("CMSTEST_FAKE_ORACLE_DBNAME");
+  fake_db = p ? p : fake_db;
   int errCode = 0;
   if (argc==2){errCode = stoi(argv[1]);}
   if (errCode==24960){
@@ -22,7 +25,7 @@ int main(int argc, char *argv[]){
   try
   {
     auto env = Environment::createEnvironment(Environment::OBJECT);
-    auto conn = env->createConnection("a", "b", "c");
+    auto conn = env->createConnection("a", "b", fake_db);
     env->terminateConnection(conn);
     Environment::terminateEnvironment(env);
   }catch(oracle::occi::SQLException &e)
