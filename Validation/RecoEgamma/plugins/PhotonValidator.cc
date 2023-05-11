@@ -3232,32 +3232,13 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
     e.getByToken(conversionIOTrackPr_Token_, inOutTrkHandle);
 
     // Loop over Out In Tracks
-    int iTrk = 0;
-    int nHits = 0;
     for (View<reco::Track>::const_iterator iTk = outInTrkHandle->begin(); iTk != outInTrkHandle->end(); iTk++) {
       h_OIinnermostHitR_->Fill(sqrt(iTk->innerPosition().Perp2()));
-      for (trackingRecHit_iterator itHits = iTk->extra()->recHitsBegin(); itHits != iTk->extra()->recHitsEnd();
-           ++itHits) {
-        if ((*itHits)->isValid()) {
-          nHits++;
-        }
-      }
-
-      iTrk++;
     }
 
     // Loop over In Out Tracks Barrel
-    iTrk = 0;
     for (View<reco::Track>::const_iterator iTk = inOutTrkHandle->begin(); iTk != inOutTrkHandle->end(); iTk++) {
       h_IOinnermostHitR_->Fill(sqrt(iTk->innerPosition().Perp2()));
-      nHits = 0;
-      for (trackingRecHit_iterator itHits = iTk->extra()->recHitsBegin(); itHits != iTk->extra()->recHitsEnd();
-           ++itHits) {
-        if ((*itHits)->isValid()) {
-          nHits++;
-        }
-      }
-      iTrk++;
     }
 
   }  // if !fastSim

@@ -177,7 +177,6 @@ void V0Validator::doFakeRates(const reco::VertexCompositeCandidateCollection& co
   using namespace edm;
 
   int numCandidateFound = 0;
-  int realCandidateFound = 0;
   double mass = 0.;
   float CandidatepT = 0.;
   float CandidateEta = 0.;
@@ -234,7 +233,6 @@ void V0Validator::doFakeRates(const reco::VertexCompositeCandidateCollection& co
                          iTP++) {
                       if (abs((*iTP)->pdgId()) == particle_pdgid) {
                         CandidateStatus = 1;
-                        realCandidateFound++;
                         numCandidateFound += 1.;
                         goodCandidateMass[v0_type]->Fill(mass);
                       } else {

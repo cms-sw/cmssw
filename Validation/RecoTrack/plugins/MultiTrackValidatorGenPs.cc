@@ -177,9 +177,6 @@ void MultiTrackValidatorGenPs::dqmAnalyze(const edm::Event& event,
     edm::LogVerbatim("TrackValidator") << "\n# of GenParticles: " << tPCeff.size() << "\n";
     int ats(0);  //This counter counts the number of simTracks that are "associated" to recoTracks
     int st(0);   //This counter counts the number of simulated tracks passing the MTV selection (i.e. tpSelector(tp) )
-    unsigned sts(0);  //This counter counts the number of simTracks surviving the bunchcrossing cut
-    unsigned asts(
-        0);  //This counter counts the number of simTracks that are "associated" to recoTracks surviving the bunchcrossing cut
     for (GenParticleCollection::size_type i = 0; i < tPCeff.size();
          i++) {  //loop over TPs collection for tracking efficiency
       GenParticleRef tpr(TPCollectionHeff, i);
@@ -265,10 +262,6 @@ void MultiTrackValidatorGenPs::dqmAnalyze(const edm::Event& event,
                                                               nSimHits,
                                                               matchedTrackPointer,
                                                               puinfo.getPU_NumInteractions());
-
-      sts++;
-      if (matchedTrackPointer)
-        asts++;
 
     }  // End  for (GenParticleCollection::size_type i=0; i<tPCeff.size(); i++){
 
