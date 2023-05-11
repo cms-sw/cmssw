@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 from .MatrixUtil import *
-#test
+
 from Configuration.HLT.autoHLT import autoHLT
 from Configuration.AlCa.autoPCL import autoPCL
 from Configuration.Skimming.autoSkim import autoSkim
@@ -553,6 +553,22 @@ Run2022FCosmics_LS24={360336: [[24, 24]]}
 Run2022FCosmics={360333: [[1,105]]}
 steps['RunCosmics2022F']={'INPUT':InputInfo(dataSet='/Cosmics/Run2022F-v1/RAW',label='2022F',events=100000,location='STD', ls=Run2022FCosmics_LS24)}
 steps['RunSiPixelCalCosmics2022F']={'INPUT':InputInfo(dataSet='/Cosmics/Run2022F-SiPixelCalCosmics-PromptReco-v1/ALCARECO',label='2022F',events=100000,location='STD', ls=Run2022FCosmics)}
+
+#### run3 ####
+Run2023B={366727: [[1, 100]]}
+steps['RunMuon2023B']={'INPUT':InputInfo(dataSet='/Muon0/Run2023B-v1/RAW',label='2023B',events=100000,location='STD', ls=Run2023B)}
+steps['RunZeroBias2023B']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2023B-v1/RAW',label='2023B',events=100000,location='STD', ls=Run2023B)}
+steps['RunBTagMu2023B']={'INPUT':InputInfo(dataSet='/BTagMu/Run2023B-v1/RAW',label='2023B',events=100000,location='STD', ls=Run2023B)}
+steps['RunNoBPTX2023B']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2023B-v1/RAW',label='2023B',events=100000,location='STD', ls=Run2023B)}
+steps['RunHcalNZS2023B']={'INPUT':InputInfo(dataSet='/HcalNZS/Run2023B-v1/RAW',label='2023B',events=100000,location='STD', ls=Run2023B)}
+steps['RunHLTPhysics2023B']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2023B-v1/RAW',label='2023B',events=100000,location='STD', ls=Run2023)}
+steps['RunCommissioning2023B']={'INPUT':InputInfo(dataSet='/Commissioning/Run2023B-v1/RAW',label='2023B',events=100000,location='STD', ls=Run2023B)}
+steps['RunJetMET2023B']={'INPUT':InputInfo(dataSet='/JetMET1/Run2023B-v1/RAW',label='2023B',events=100000,location='STD', ls=Run2023B)}
+steps['RunCosmics2023B']={'INPUT':InputInfo(dataSet='/Cosmics/Run2023B-v1/RAW',label='2023B',events=100000,location='STD', ls=Run2023B)}
+steps['RunDisplacedJet2023B']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2023B-v1/RAW',label='2023B',events=100000,location='STD', ls=Run2023B)}
+steps['RunEGamma2023B']={'INPUT':InputInfo(dataSet='/EGamma1/Run2023B-v1/RAW',label='2023B',events=100000,location='STD', ls=Run2023B)}
+steps['RunTau2023B']={'INPUT':InputInfo(dataSet='/Tau/Run2023B-v1/RAW',label='2023B',events=100000,location='STD', ls=Run2023B)}
+steps['RunMuonEG2023B']={'INPUT':InputInfo(dataSet='/MuonEG/Run2023B-v1/RAW',label='2023B',events=100000,location='STD', ls=Run2023B)}
 
 # Highstat HLTPhysics
 Run2015DHS=selectedLS([258712,258713,258714,258741,258742,258745,258749,258750,259626,259637,259683,259685,259686,259721,259809,259810,259818,259820,259821,259822,259862,259890,259891])

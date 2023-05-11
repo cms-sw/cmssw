@@ -505,6 +505,21 @@ workflows[140.116] = ['',['RunCommissioning2022D','HLTDR3_2023','RECONANORUN3_re
 workflows[140.117] = ['',['RunCosmics2022D','HLTDR3_2023','RECOCOSMRUN3_reHLT','SKIMCOSMICSRUN3_reHLT']]
 #workflows[140.118] = ['',['RunParkingBPH2022B','HLTDR3_2023','RECONANORUN3_reHLT','SKIMPARKINGBPHRUN3_reHLT']]
 
+### run3 (2023) ###
+workflows[141.001] = ['',['RunMuon2023B','HLTDR3_2023','RECONANORUN3_reHLT','HARVESTRUN3']]
+workflows[141.002] = ['',['RunZeroBias2023B','HLTDR3_2023','RECONANORUN3_reHLT','HARVESTRUN3']]
+workflows[141.003] = ['',['RunBTagMu2023B','HLTDR3_2023','RECONANORUN3_reHLT','HARVESTRUN3']]
+workflows[141.004] = ['',['RunNoBPTX2023B','HLTDR3_2023','RECONANORUN3_reHLT','HARVESTRUN3']]
+workflows[141.005] = ['',['RunHcalNZS2023B','HLTDR3_2023','RECONANORUN3_reHLT','HARVESTRUN3']]
+workflows[141.006] = ['',['RunHLTPhysics2023B','HLTDR3_2023','RECONANORUN3_reHLT','HARVESTRUN3']]
+workflows[141.007] = ['',['RunCommissioning2023B','HLTDR3_2023','RECONANORUN3_reHLT','HARVESTRUN3']]
+workflows[141.008] = ['',['RunJetMET2023B','HLTDR3_2023','RECONANORUN3_reHLT','HARVESTRUN3']]
+workflows[141.009] = ['',['RunCosmics2023B','HLTDR3_2023','RECONANORUN3_reHLT','HARVESTRUN3']]
+workflows[141.010] = ['',['RunDisplacedJet2023B','HLTDR3_2023','RECONANORUN3_reHLT','HARVESTRUN3']]
+workflows[141.011] = ['',['RunEGamma2023B','HLTDR3_2023','RECONANORUN3_reHLT','HARVESTRUN3']]
+workflows[141.012] = ['',['RunTau2023B','HLTDR3_2023','RECONANORUN3_reHLT','HARVESTRUN3']]
+workflows[141.013] = ['',['RunMuonEG2023B','HLTDR3_2023','RECONANORUN3_reHLT','HARVESTRUN3']]
+
 ### fastsim ###
 workflows[5.1] = ['TTbarFS', ['TTbarFS','HARVESTFS']]
 workflows[5.2] = ['SingleMuPt10FS', ['SingleMuPt10FS','HARVESTFS']]
