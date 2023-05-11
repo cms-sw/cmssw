@@ -69,7 +69,7 @@ private:
   void doPFJets(edm::Handle<reco::PFJetCollection> pfJets);
   void doPFJetCorr(edm::Handle<reco::PFJetCollection> pfJets, edm::Handle<reco::JetCorrector> pfJetCorr);
   void doPUPPIJets(edm::Handle<reco::PFJetCollection> puppiJets);
-  void doCorrPUPPIJets(edm::Handle<std::vector< pat::Jet> >  corrPuppiJets);
+  void doCorrPUPPIJets(edm::Handle<std::vector<pat::Jet> > corrPuppiJets);
   void doCaloJets(edm::Handle<reco::CaloJetCollection> caloJets);
   void doCaloJetCorr(edm::Handle<reco::CaloJetCollection> caloJets, edm::Handle<reco::JetCorrector> caloJetCorr);
   void doCaloMet(edm::Handle<reco::CaloMETCollection> caloMet);
@@ -94,7 +94,7 @@ private:
   // EDM input tags
   edm::EDGetTokenT<reco::PFJetCollection> pfJetToken_;
   edm::EDGetTokenT<reco::PFJetCollection> puppiJetToken_;
-  edm::EDGetTokenT<std::vector< pat::Jet> > corrPuppiJetToken_;
+  edm::EDGetTokenT<std::vector<pat::Jet> > corrPuppiJetToken_;
   edm::EDGetTokenT<reco::CaloJetCollection> caloJetToken_;
   edm::EDGetTokenT<edm::ValueMap<reco::JetID> > caloJetIDToken_;
   edm::EDGetTokenT<reco::JetCorrector> pfJECToken_;
@@ -148,7 +148,7 @@ L1JetRecoTreeProducer::L1JetRecoTreeProducer(const edm::ParameterSet& iConfig)
   pfJetToken_ =
       consumes<reco::PFJetCollection>(iConfig.getUntrackedParameter("pfJetToken", edm::InputTag("ak4PFJetsCHS")));
   puppiJetToken_ = consumes<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("puppiJetToken"));
-  corrPuppiJetToken_ = consumes<std::vector< pat::Jet> >(
+  corrPuppiJetToken_ = consumes<std::vector<pat::Jet> >(
       iConfig.getUntrackedParameter("corrPuppiJetToken", edm::InputTag("patJetsCorrectedPuppiJets")));
   caloJetIDToken_ =
       consumes<edm::ValueMap<reco::JetID> >(iConfig.getUntrackedParameter("caloJetIDToken", edm::InputTag("ak4JetID")));
@@ -206,7 +206,7 @@ void L1JetRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSe
   iEvent.getByToken(puppiJetToken_, puppiJets);
 
   // get corrected puppi jets
-  edm::Handle<std::vector< pat::Jet> > corrPuppiJets;
+  edm::Handle<std::vector<pat::Jet> > corrPuppiJets;
   iEvent.getByToken(corrPuppiJetToken_, corrPuppiJets);
 
   // get calo jets
@@ -482,7 +482,7 @@ void L1JetRecoTreeProducer::doPUPPIJets(edm::Handle<reco::PFJetCollection> puppi
   }
 }
 
-void L1JetRecoTreeProducer::doCorrPUPPIJets(edm::Handle<std::vector< pat::Jet> > corrPuppiJets) {
+void L1JetRecoTreeProducer::doCorrPUPPIJets(edm::Handle<std::vector<pat::Jet> > corrPuppiJets) {
   float mHx = 0;
   float mHy = 0;
 
