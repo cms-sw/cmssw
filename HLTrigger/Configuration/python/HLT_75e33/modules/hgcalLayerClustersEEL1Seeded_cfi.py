@@ -54,16 +54,8 @@ hgcalLayerClustersEEL1Seeded = cms.EDProducer('HGCalLayerClusterProducer',
   
   ),
   detector = cms.string('all'),
-  recHits = cms.InputTag('HGCalRecHit', 'HGCEERecHits'),
+  recHits = cms.InputTag('hltRechitInRegionsHGCAL', 'HGCEERecHits'),
   timeClname = cms.string('timeLayerCluster'),
   nHitsTime = cms.uint32(3),
   mightGet = cms.optional.untracked.vstring
-)
-hgcalLayerClustersHSiL1Seeded = hgcalLayerClustersEEL1Seeded.clone(
-  recHits = cms.InputTag('HGCalRecHit', 'HGCHEFRecHits')
-)
-hgcalLayerClustersHSciL1Seeded = hgcalLayerClustersEEL1Seeded.clone(
-  recHits = cms.InputTag('HGCalRecHit', 'HGCHEBRecHits'),
-  plugin = hgcalLayerClustersEEL1Seeded.plugin.clone(type = cms.string('SciCLUE'))
-
 )

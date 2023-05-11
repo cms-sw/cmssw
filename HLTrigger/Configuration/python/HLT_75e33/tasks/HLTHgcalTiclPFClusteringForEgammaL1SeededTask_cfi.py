@@ -5,7 +5,9 @@ from ..modules.HGCalUncalibRecHitL1Seeded_cfi import *
 from ..modules.filteredLayerClustersCLUE3DHighL1Seeded_cfi import *
 from ..modules.hgcalDigisL1Seeded_cfi import *
 from ..modules.hgcalDigis_cfi import *
-from ..modules.hgcalLayerClustersL1Seeded_cfi import *
+from ..modules.hgcalLayerClustersEEL1Seeded_cfi import *
+from ..modules.hgcalLayerClustersHSiL1Seeded_cfi import *
+from ..modules.hgcalLayerClustersHSciL1Seeded_cfi import *
 from ..modules.hltL1TEGammaHGCFilteredCollectionProducer_cfi import *
 from ..modules.hltRechitInRegionsHGCAL_cfi import *
 from ..modules.particleFlowClusterHGCalFromTICLL1Seeded_cfi import *

@@ -59,11 +59,4 @@ hgcalLayerClustersEE = cms.EDProducer('HGCalLayerClusterProducer',
   nHitsTime = cms.uint32(3),
   mightGet = cms.optional.untracked.vstring
 )
-hgcalLayerClustersHSi = hgcalLayerClustersEE.clone(
-  recHits = cms.InputTag('HGCalRecHit', 'HGCHEFRecHits')
-)
-hgcalLayerClustersHSci = hgcalLayerClustersEE.clone(
-  recHits = cms.InputTag('HGCalRecHit', 'HGCHEBRecHits'),
-  plugin = hgcalLayerClustersEE.plugin.clone(type = cms.string('SciCLUE'))
-)
   
