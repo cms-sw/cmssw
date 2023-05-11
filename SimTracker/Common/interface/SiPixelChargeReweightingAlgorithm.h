@@ -501,7 +501,7 @@ inline int SiPixelChargeReweightingAlgorithm::PixelTempRewgt2D(int id_in, int id
   q10r = 0.2f * q50r;
 
   // calculate ratio of charge scaling factors (14/4/2023)
-  rqscale = qscalei/templ2D.qscale();
+  rqscale = qscalei / templ2D.qscale();
 
   // Find all non-zero denominator pixels in the input template and generate "inside" weights
 
@@ -597,15 +597,15 @@ inline int SiPixelChargeReweightingAlgorithm::PixelTempRewgt2D(int id_in, int id
       }
     }
   }
-  
-  // final rescaling by the ratio of charge scaling factors (14/4/2023)  
-  // put this here to avoid changing the threshold tests above and to be vectorizable 
+
+  // final rescaling by the ratio of charge scaling factors (14/4/2023)
+  // put this here to avoid changing the threshold tests above and to be vectorizable
   for (i = 0; i < TYSIZE; ++i) {
     for (j = 0; j < TXSIZE; ++j) {
-       cluster[j][i] *= rqscale;
+      cluster[j][i] *= rqscale;
     }
   }
-  
+
   return success;
 }  // PixelTempRewgt2D
 
