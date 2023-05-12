@@ -11,6 +11,7 @@
 #define CondFormats_PPSObjects_TotemDAQMapping
 
 #include "CondFormats/PPSObjects/interface/TotemFramePosition.h"
+#include "CondFormats/PPSObjects/interface/TotemT2FramePosition.h"
 
 #include "CondFormats/PPSObjects/interface/TotemSymbId.h"
 
@@ -51,6 +52,7 @@ public:
   std::map<uint8_t, TotemTimingPlaneChannelPair> totemTimingChannelMap;
 
   void insert(const TotemFramePosition& fp, const TotemVFATInfo& vi);
+  void insert(const TotemT2FramePosition& fp2, const TotemVFATInfo& vi);
 
   /// Given the hardware ID, returns the corresponding Plane, Channel pair (TotemTimingPlaneChannelPair)
   const TotemTimingPlaneChannelPair getTimingChannel(const uint8_t hwId) const;

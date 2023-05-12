@@ -204,7 +204,8 @@ std::vector<l1t::PFJet> L1SeedConePFJetProducer::convertHWToEDM(
                       gtJet.v3.pt.V,
                       gtJet.v3.eta.V,
                       gtJet.v3.phi.V);
-    edmJet.setEncodedJet(jet.toGT().pack());
+    edmJet.setEncodedJet(l1t::PFJet::HWEncoding::CT, jet.pack());
+    edmJet.setEncodedJet(l1t::PFJet::HWEncoding::GT, jet.toGT().pack());
     // get back the references to the constituents
     std::vector<edm::Ptr<l1t::PFCandidate>> constituents;
     std::for_each(jet.constituents.begin(), jet.constituents.end(), [&](auto constituent) {

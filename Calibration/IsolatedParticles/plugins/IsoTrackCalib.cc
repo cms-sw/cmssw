@@ -435,7 +435,7 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         edm::LogVerbatim("IsoTrack") << "jets pt/eta/phi = " << ptTriggered << "/" << etaTriggered << "/"
                                      << phiTriggered;
       //////////////////////loop over tracks////////////////////////////////////////
-      unsigned int nTracks(0), nselTracks(0);
+      unsigned int nTracks(0);
       for (trkDetItr = trkCaloDirections.begin(), nTracks = 0; trkDetItr != trkCaloDirections.end();
            trkDetItr++, nTracks++) {
         const reco::Track* pTrack = &(*(trkDetItr->trkItr));
@@ -491,7 +491,6 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
           }
         }
         if (t_qltyFlag) {
-          nselTracks++;
           h_tketa2[0]->Fill(t_ieta);
           for (unsigned int k = 1; k < pbin.size(); ++k) {
             if (t_p >= pbin[k - 1] && t_p < pbin[k]) {

@@ -158,6 +158,7 @@ void pat::DisplacedMuonFilterProducer::produce(edm::Event& iEvent, const edm::Ev
   std::vector<bool> filteredmuons(nMuons, true);
   int oMuons = nMuons;
 
+  unsigned int nsegments = 0;
   for (unsigned int i = 0; i < srcMuons->size(); i++) {
     const reco::Muon& muon(srcMuons->at(i));
 
@@ -169,9 +170,28 @@ void pat::DisplacedMuonFilterProducer::produce(edm::Event& iEvent, const edm::Ev
           oMuons = oMuons - 1;
           continue;
         }
+        // Discard STA-only muons below pt threshold
+      } else if (muon.standAloneMuon()->pt() < minPtSTA_) {
+        filteredmuons[i] = false;
+        oMuons = oMuons - 1;
+        continue;
       } else {
-        // Discard STA-only muons with less than minMatches_ segments and below pt threshold
-        if (!muon.isMatchesValid() || muon.numberOfMatches() < minMatches_ || muon.standAloneMuon()->pt() < minPtSTA_) {
+        // Compute number of DT+CSC segments and discard those that have less than the minimum required
+        nsegments = 0;
+        for (trackingRecHit_iterator hit = muon.standAloneMuon()->recHitsBegin();
+             hit != muon.standAloneMuon()->recHitsEnd();
+             ++hit) {
+          if (!(*hit)->isValid())
+            continue;
+          DetId id = (*hit)->geographicalId();
+          if (id.det() != DetId::Muon)
+            continue;
+          if (id.subdetId() == MuonSubdetId::DT || id.subdetId() == MuonSubdetId::CSC) {
+            nsegments++;
+          }
+        }
+        // Discard STA-only muons with less than minMatches_ segments
+        if (nsegments < minMatches_) {
           filteredmuons[i] = false;
           oMuons = oMuons - 1;
           continue;

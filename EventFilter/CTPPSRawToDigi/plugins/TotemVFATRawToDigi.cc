@@ -126,10 +126,16 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf)
     }
 
     else if (subSystem == ssTotemT2) {
-      for (int id = FEDNumbering::MINTotemT2FEDID; id < FEDNumbering::MAXTotemT2FEDID; ++id)
+      for (int id = FEDNumbering::MINTotemT2FEDID; id <= FEDNumbering::MAXTotemT2FEDID; ++id)
         fedIds.push_back(id);
     }
   }
+  LogDebug("TotemVFATRawToDigi").log([this](auto &log) {
+    log << "List of FEDs handled by this instance: ";
+    string sep;
+    for (const auto &fedId : fedIds)
+      log << sep << fedId, sep = ", ";
+  });
 
   // conversion status
   produces<DetSetVector<TotemVFATStatus>>(subSystemName);

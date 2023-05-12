@@ -65,7 +65,7 @@ void L1MhtPfProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Even
 std::vector<l1ct::Jet> L1MhtPfProducer::convertEDMToHW(std::vector<l1t::PFJet> edmJets) const {
   std::vector<l1ct::Jet> hwJets;
   std::for_each(edmJets.begin(), edmJets.end(), [&](l1t::PFJet jet) {
-    l1ct::Jet hwJet = l1ct::Jet::unpack(jet.encodedJet());
+    l1ct::Jet hwJet = jet.getHWJetCT();
     hwJets.push_back(hwJet);
   });
   return hwJets;
@@ -75,17 +75,18 @@ std::vector<l1t::EtSum> L1MhtPfProducer::convertHWToEDM(l1ct::Sum hwSums) const 
   std::vector<l1t::EtSum> edmSums;
 
   reco::Candidate::PolarLorentzVector htVector;
-  htVector.SetPt(hwSums.hwSumPt.to_double());
+  l1gt::Sum gtSum = hwSums.toGT();
+  htVector.SetPt(l1gt::Scales::floatPt(gtSum.scalar_pt));
   htVector.SetPhi(0);
   htVector.SetEta(0);
 
   reco::Candidate::PolarLorentzVector mhtVector;
-  mhtVector.SetPt(hwSums.hwPt.to_double());
-  mhtVector.SetPhi(l1ct::Scales::floatPhi(hwSums.hwPhi));
+  mhtVector.SetPt(l1gt::Scales::floatPt(gtSum.vector_pt));
+  mhtVector.SetPhi(l1gt::Scales::floatPhi(gtSum.vector_phi));
   mhtVector.SetEta(0);
 
-  l1t::EtSum ht(htVector, l1t::EtSum::EtSumType::kTotalHt);
-  l1t::EtSum mht(mhtVector, l1t::EtSum::EtSumType::kMissingHt);
+  l1t::EtSum ht(htVector, l1t::EtSum::EtSumType::kTotalHt, gtSum.scalar_pt.bits_to_uint64());
+  l1t::EtSum mht(mhtVector, l1t::EtSum::EtSumType::kMissingHt, gtSum.vector_pt.bits_to_uint64(), 0, gtSum.vector_phi);
 
   edmSums.push_back(ht);
   edmSums.push_back(mht);

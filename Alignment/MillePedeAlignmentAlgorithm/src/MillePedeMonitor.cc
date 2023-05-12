@@ -617,10 +617,8 @@ void MillePedeMonitor::fillTrack(const reco::Track *track,
   int nhitinTIDplus = 0, nhitinTIDminus = 0;
   int nhitinFPIXplus = 0, nhitinFPIXminus = 0;
   int nhitinTECplus = 0, nhitinTECminus = 0;
-  unsigned int thishit = 0;
 
   for (auto const &hit : track->recHits()) {
-    thishit++;
     const DetId detId(hit->geographicalId());
     const int subdetId = detId.subdetId();
 

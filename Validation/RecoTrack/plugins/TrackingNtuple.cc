@@ -2762,7 +2762,6 @@ TrackingNtuple::SimHitData TrackingNtuple::matchCluster(
                                     SimHitTPAssociationProducer::simHitTPAssociationListGreater);
       bool foundSimHit = false;
       bool foundElectron = false;
-      int foundElectrons = 0;
       int foundNonElectrons = 0;
       for (auto ip = range.first; ip != range.second; ++ip) {
         TrackPSimHitRef TPhit = ip->second;
@@ -2770,7 +2769,7 @@ TrackingNtuple::SimHitData TrackingNtuple::matchCluster(
         if (dId.rawId() == hitId.rawId()) {
           // skip electron SimHits for non-electron TPs also here
           if (std::abs(TPhit->particleType()) == 11 && std::abs(trackingParticle->pdgId()) != 11) {
-            foundElectrons++;
+            continue;  //electrons found
           } else {
             foundNonElectrons++;
           }

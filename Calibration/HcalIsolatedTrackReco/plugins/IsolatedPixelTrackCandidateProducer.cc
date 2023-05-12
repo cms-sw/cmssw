@@ -191,8 +191,9 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
   const edm::Handle<reco::VertexCollection>& pVert = theEvent.getHandle(tok_vert_);
 
   double drMaxL1Track_ = tauAssocCone_;
-
+#ifdef EDM_ML_DEBUG
   int ntr = 0;
+#endif
   std::vector<seedAtEC> VecSeedsatEC;
   //loop to select isolated tracks
   for (unsigned iS = 0; iS < pixelTrackRefs.size(); iS++) {
@@ -306,7 +307,9 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
           pixelTrackRefs[iSeed], l1extra::L1JetParticleRef(l1eTauJets, selj - l1eTauJets->begin()), maxP, sumP);
       newCandidate.setEtaPhiEcal(VecSeedsatEC[i].eta, VecSeedsatEC[i].phi);
       trackCollection->push_back(newCandidate);
+#ifdef EDM_ML_DEBUG
       ntr++;
+#endif
     }
   }
   // put the product in the event

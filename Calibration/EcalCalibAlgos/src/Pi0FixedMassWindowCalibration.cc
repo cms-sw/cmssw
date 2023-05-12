@@ -327,7 +327,6 @@ edm::EDLooper::Status Pi0FixedMassWindowCalibration::duringLoop(const edm::Event
 
   EcalRecHitCollection* recalibEcalRecHitCollection(new EcalRecHitCollection);
 
-  int nRecHitsEB = 0;
   Handle<EcalRecHitCollection> pEcalRecHitBarrelCollection;
   event.getByToken(recHitToken_, pEcalRecHitBarrelCollection);
   const EcalRecHitCollection* ecalRecHitBarrelCollection = pEcalRecHitBarrelCollection.product();
@@ -335,8 +334,6 @@ edm::EDLooper::Status Pi0FixedMassWindowCalibration::duringLoop(const edm::Event
   for (EcalRecHitCollection::const_iterator aRecHitEB = ecalRecHitBarrelCollection->begin();
        aRecHitEB != ecalRecHitBarrelCollection->end();
        aRecHitEB++) {
-    //cout << " ECAL Barrel RecHit #,E,time,det,subdetid: "<<nRecHitsEB<<" "<<aRecHitEB->energy()<<" "<<aRecHitEB->time()<<" "<<aRecHitEB->detid().det()<<" "<<aRecHitEB->detid().subdetId()<<endl;
-
     EBDetId ebrhdetid = aRecHitEB->detid();
     //cout << " EBDETID: z,ieta,iphi "<<ebrhdetid.zside()<<" "<<ebrhdetid.ieta()<<" "<<ebrhdetid.iphi()<<endl;
     //cout << " EBDETID: tower_ieta,tower_iphi "<<ebrhdetid.tower_ieta()<<" "<<ebrhdetid.tower_iphi()<<endl;
@@ -347,17 +344,12 @@ edm::EDLooper::Status Pi0FixedMassWindowCalibration::duringLoop(const edm::Event
                     aRecHitEB->energy() * oldCalibs_barl[abs(ebrhdetid.ieta()) - 1][ebrhdetid.iphi() - 1][sign],
                     aRecHitEB->time());
     recalibEcalRecHitCollection->push_back(aHit);
-
-    nRecHitsEB++;
   }
 
   //  cout<<" Recalib size: "<<recalibEcalRecHitCollection->size()<<endl;
-  int irecalib = 0;
   for (EcalRecHitCollection::const_iterator aRecHitEB = recalibEcalRecHitCollection->begin();
        aRecHitEB != recalibEcalRecHitCollection->end();
        aRecHitEB++) {
-    //cout << " [recalibrated] ECAL Barrel RecHit #,E,time,det,subdetid: "<<irecalib<<" "<<aRecHitEB->energy()<<" "<<aRecHitEB->time()<<" "<<aRecHitEB->detid().det()<<" "<<aRecHitEB->detid().subdetId()<<endl;
-
     //    EBDetId ebrhdetid = aRecHitEB->detid();
     //cout << " [recalibrated] EBDETID: z,ieta,iphi "<<ebrhdetid.zside()<<" "<<ebrhdetid.ieta()<<" "<<ebrhdetid.iphi()<<endl;
     //cout << " [recalibrated] EBDETID: tower_ieta,tower_iphi "<<ebrhdetid.tower_ieta()<<" "<<ebrhdetid.tower_iphi()<<endl;
@@ -365,8 +357,6 @@ edm::EDLooper::Status Pi0FixedMassWindowCalibration::duringLoop(const edm::Event
 
     std::pair<DetId, EcalRecHit> map_entry(aRecHitEB->id(), *aRecHitEB);
     recHitsEB_map->insert(map_entry);
-
-    irecalib++;
   }
 
   const CaloSubdetectorGeometry* geometry_p;

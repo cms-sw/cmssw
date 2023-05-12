@@ -646,10 +646,7 @@ void EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event, const ed
     }
   }
 
-  int nEbDigi = 0;
-
   for (EBDigiCollection::const_iterator it = ebDigis_->begin(); it != ebDigis_->end(); ++it) {
-    ++nEbDigi;
     const EBDataFrame& frame = *it;
     int iEta = static_cast<const EBDetId&>(frame.id()).ieta();
     int iPhi = static_cast<const EBDetId&>(frame.id()).iphi();
@@ -732,7 +729,6 @@ void EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event, const ed
 
   if (!localReco_) {
     for (RecHitCollection::const_iterator it = ebRecHits_->begin(); it != ebRecHits_->end(); ++it) {
-      ++nEbDigi;
       const RecHit& hit = *it;
       int iEta = static_cast<const EBDetId&>(hit.id()).ieta();
       int iPhi = static_cast<const EBDetId&>(hit.id()).iphi();

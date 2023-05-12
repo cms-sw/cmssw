@@ -786,7 +786,7 @@ std::array<int, 3> AlCaHcalIsotrkProducer::getProducts(int goodPV,
                                                        HcalIsoTrkEventVariables& hocalibEvent,
                                                        const edm::EventID& eventId) {
   int nSave(0), nLoose(0), nTight(0);
-  unsigned int nTracks(0), nselTracks(0);
+  unsigned int nTracks(0);
   double rhohEV = (tower.isValid()) ? rhoh(tower) : 0;
 
   //Loop over tracks
@@ -884,7 +884,6 @@ std::array<int, 3> AlCaHcalIsotrkProducer::getProducts(int goodPV,
       flag += 8;
 #endif
     if (isoTk.qltyFlag_ && notMuon) {
-      nselTracks++;
       int nNearTRKs(0);
       ////////////////////////////////-MIP STUFF-//////////////////////////////
       std::vector<DetId> eIds;

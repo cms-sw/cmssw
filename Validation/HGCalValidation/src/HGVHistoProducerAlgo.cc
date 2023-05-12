@@ -2731,7 +2731,6 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(
 
     std::unordered_map<unsigned, unsigned> occurrencesCPinTS;
     unsigned int numberOfNoiseHitsInTS = 0;
-    unsigned int numberOfHaloHitsInTS = 0;
 
     const auto tst_hitsAndFractions = apply_LCMultiplicity(tst, layerClusters);
     const auto numberOfHitsInTS = tst_hitsAndFractions.size();
@@ -2796,7 +2795,6 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(
       // real hit that has been marked as halo.
       if (rhFraction == 0.) {
         hitsToCaloParticleId[iHit] = -2;
-        numberOfHaloHitsInTS++;
       }
 
       // Check whether the RecHit of the trackster under study has a SimHit in the same cell

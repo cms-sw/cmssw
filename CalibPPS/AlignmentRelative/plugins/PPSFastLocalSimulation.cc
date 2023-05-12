@@ -424,13 +424,13 @@ void PPSFastLocalSimulation::produce(edm::Event &event, const edm::EventSetup &e
   if (makeHepMC_) {
     unique_ptr<HepMCProduct> hepMCoutput(new HepMCProduct());
     hepMCoutput->addHepMCData(gEv);
-    event.put(move(hepMCoutput));
+    event.put(std::move(hepMCoutput));
   }
 
   if (makeHits_) {
-    event.put(move(stripHitColl));
-    event.put(move(diamondHitColl));
-    event.put(move(pixelHitColl));
+    event.put(std::move(stripHitColl));
+    event.put(std::move(diamondHitColl));
+    event.put(std::move(pixelHitColl));
   }
 }
 

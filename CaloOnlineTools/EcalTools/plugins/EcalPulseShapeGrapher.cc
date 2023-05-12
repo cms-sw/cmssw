@@ -86,8 +86,6 @@ void EcalPulseShapeGrapher::analyze(const edm::Event& iEvent, const edm::EventSe
   using namespace edm;
   using namespace std;
 
-  int numHitsWithActivity = 0;
-
   const Handle<EcalUncalibratedRecHitCollection>& EBHits = iEvent.getHandle(EBUncalibratedRecHitCollection_);
   const Handle<EcalUncalibratedRecHitCollection>& EEHits = iEvent.getHandle(EEUncalibratedRecHitCollection_);
   const Handle<EBDigiCollection>& EBdigis = iEvent.getHandle(EBDigis_);
@@ -118,7 +116,6 @@ void EcalPulseShapeGrapher::analyze(const edm::Event& iEvent, const edm::EventSe
       continue;
 
     cutAmpHistMap_[hitDetId.hashedIndex()]->Fill(amplitude);
-    numHitsWithActivity++;
     EBDigiCollection::const_iterator digiItr = EBdigis->begin();
     while (digiItr != EBdigis->end() && digiItr->id() != hitItr->id()) {
       digiItr++;
@@ -178,7 +175,6 @@ void EcalPulseShapeGrapher::analyze(const edm::Event& iEvent, const edm::EventSe
       continue;
 
     cutAmpHistMap_[hitDetId.hashedIndex()]->Fill(amplitude);
-    numHitsWithActivity++;
     EEDigiCollection::const_iterator digiItr = EEdigis->begin();
     while (digiItr != EEdigis->end() && digiItr->id() != hitItr->id()) {
       digiItr++;

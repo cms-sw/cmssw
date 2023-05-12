@@ -71,6 +71,8 @@ private:
 
   unsigned char verbosity;
 
+  unsigned int olderTotemT2FileTest;  //Test file with T2 frame ver 2.1
+
   unsigned int printErrorSummary;
   unsigned int printUnknownFrameSummary;
 
