@@ -217,13 +217,17 @@ triggerObjectTable = triggerObjectTableProducer.clone(
             skipObjectsNotPassingQualityBits = cms.bool(True),
             qualityBits = cms.VPSet(
                 mksel(["hltAK8SingleCaloJet200"]), # 0
-                mksel(["hltAK8PFJetsCorrectedMatchedToCaloJets200"]), # 1
-                mksel(["hltSingleAK8PFJet220","hltSingleAK8PFJet230"]), # 2
-                mksel(["hltAK8PFSoftDropJets220","hltAK8PFSoftDropJets230"]), # 3
-                mksel(["hltAK8SinglePFJets220SoftDropMass40","hltAK8SinglePFJets230SoftDropMass40"]), # 4
-                mksel(["hltAK8PFJets220SoftDropMass40"]), # 5
-                mksel(["hltAK8SinglePFJets220SoftDropMass40PNetBBTag0p06"]), # 6
-                mksel(["hltAK8SinglePFJets230SoftDropMass40PNetTauTauTag0p03"]), # 7
+                mksel(["hltAK8DoublePFJet250"]), # 1
+                mksel(["hltAK8DoublePFJet270"]), # 2
+                mksel(["hltAK8DoublePFJetSDModMass30"]), # 3
+                mksel(["hltAK8DoublePFJetSDModMass50"]), # 4
+                mksel(["hltAK8PFJetsCorrectedMatchedToCaloJets200"]), # 5
+                mksel(["hltSingleAK8PFJet220","hltSingleAK8PFJet230"]), # 6
+                mksel(["hltAK8PFSoftDropJets220","hltAK8PFSoftDropJets230"]), # 8
+                mksel(["hltAK8SinglePFJets220SoftDropMass40","hltAK8SinglePFJets230SoftDropMass40"]), # 9
+                mksel(["hltAK8PFJets220SoftDropMass40"]), # 10
+                mksel(["hltAK8SinglePFJets220SoftDropMass40PNetBBTag0p06"]), # 11
+                mksel(["hltAK8SinglePFJets230SoftDropMass40PNetTauTauTag0p03"]), # 12
                 
                 )
         ),
