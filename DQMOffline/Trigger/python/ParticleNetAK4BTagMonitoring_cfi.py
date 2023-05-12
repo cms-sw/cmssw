@@ -10,15 +10,15 @@ particleNetAK4BTagMonitoring = _particleNetJetTagMonitor.clone(
     ## objects
     muons = "muons",
     electrons = "gedGsfElectrons",
-    jets = "ak4PFJetsCHS",
+    jets = "ak4PFJetsPuppi",
     jetPNETScore = "pfParticleNetAK4DiscriminatorsJetTagsForRECO:BvsAll",
     jetPNETScoreHLT = "hltParticleNetDiscriminatorsJetTags:BvsAll",    
     jetsForHTandBTag = "",
     jetPNETScoreForHTandBTag = "",
     jetSoftDropMass = "",
     met = "pfMetPuppi",
-    jecForMC = "ak4PFCHSL1FastL2L3Corrector",
-    jecForData = "ak4PFCHSL1FastL2L3ResidualCorrector",
+    jecForMC = "ak4PFPuppiL1FastL2L3Corrector",
+    jecForData = "ak4PFPuppiL1FastL2L3ResidualCorrector",
     ## PV selection
     vertexSelection = "!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2",
     ## Muon selection (based on the definition of https://cmssdt.cern.ch/lxr/source/DataFormats/MuonReco/interface/Muon.h)    
@@ -68,8 +68,8 @@ particleNetAK4BTagMonitoring = _particleNetJetTagMonitor.clone(
     jet2PtBinning = [20,30,40,50,60,75,90,110,130,150,175,200,225,250,300],
     jet1EtaBinning = [-2.5,-2.25,-2.0,-1.75,-1.5,-1.25,-1.0,-0.75,-0.5,-0.25,0.,0.25,0.5,0.75,1.0,1.25,1.5,1.75,2.0,2.25,2.5],
     jet2EtaBinning = [-2.5,-2.25,-2.0,-1.75,-1.5,-1.25,-1.0,-0.75,-0.5,-0.25,0.,0.25,0.5,0.75,1.0,1.25,1.5,1.75,2.0,2.25,2.5],
-    jet1PNETscoreBinning = [0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.75,0.8,0.85,0.9,0.925,0.95,0.975,1],
-    jet2PNETscoreBinning = [0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.75,0.8,0.85,0.9,0.925,0.95,0.975,1],
+    jet1PNETscoreBinning = [0,0.1,0.2,0.3,0.4,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.925,0.95,0.975,1],
+    jet2PNETscoreBinning = [0,0.1,0.2,0.3,0.4,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.925,0.95,0.975,1],
     jet1PNETscoreTransBinning = [0,0.1,0.2,0.3,0.4,0.6,0.8,1.0,1.25,1.50,1.75,2.25,2.75,3.5,6],
     jet2PNETscoreTransBinning = [0,0.1,0.2,0.3,0.4,0.6,0.8,1.0,1.25,1.50,1.75,2.25,2.75,3.5,6],
     jet1PtBinning2d = [20,30,40,50,75,100,150,250,500],
@@ -82,7 +82,7 @@ particleNetAK4BTagMonitoring = _particleNetJetTagMonitor.clone(
     jet2PNETscoreTransBinning2d = [0,0.15,0.30,0.45,0.60,0.75,1,1.5,2,2.5,3.25,6],
     ## trigger for numerator and denominator
     numGenericTriggerEvent = dict(
-        hltPaths      = ["HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBTagParticleNet_2BTagSum0p65_v*"],
+        hltPaths      = ["HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PNet2BTagMean0p50_v*"],
         andOr         = False,
         andOrHlt      = True,
         #hltInputTag   = "TriggerResults::reHLT", ## when testing in the DQM workflow (https://twiki.cern.ch/twiki/bin/viewauth/CMS/HLTValidationAndDQM)
