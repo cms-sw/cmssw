@@ -32,13 +32,15 @@ private:
   bool applyLowPtFilter_;
   int ptBarrelMin_;
   int ptEndcapMin_;
+  double etaBE_;
 };
 
 Phase2L1TGMTFilter::Phase2L1TGMTFilter(const edm::ParameterSet& iConfig)
     : srcMuons_(consumes<std::vector<l1t::TrackerMuon> >(iConfig.getParameter<edm::InputTag>("srcMuons"))),
       applyLowPtFilter_(iConfig.getParameter<bool>("applyLowPtFilter")),
       ptBarrelMin_(iConfig.getParameter<int>("ptBarrelMin")),
-      ptEndcapMin_(iConfig.getParameter<int>("ptEndcapMin")) {
+      ptEndcapMin_(iConfig.getParameter<int>("ptEndcapMin")),
+      etaBE_(iConfig.getParameter<double>("etaBE")) {
   produces<std::vector<l1t::TrackerMuon> >("l1tTkMuonsGmtLowPtFix").setBranchAlias("tkMuLowPtFix");
 }
 
@@ -63,8 +65,8 @@ void Phase2L1TGMTFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     auto mu = muonHandle->at(i);
     bool noSAMatch = true;
     if (applyLowPtFilter_) {
-      if ((fabs(mu.phEta()) < 0.9 && mu.phPt() < ptBarrelMin_) ||
-          (fabs(mu.phEta()) > 0.9 && mu.phPt() < ptEndcapMin_)) {
+      if ((fabs(mu.phEta()) < etaBE_ && mu.phPt() < ptBarrelMin_) ||
+          (fabs(mu.phEta()) > etaBE_ && mu.phPt() < ptEndcapMin_)) {
         // if quality is already set to 0 don't continue the loop.
         for (const auto& r : mu.muonRef()) {
           if (r.isNonnull()) {
