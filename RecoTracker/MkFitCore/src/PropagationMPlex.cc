@@ -297,7 +297,9 @@ namespace mkfit {
     MPlexLL errorPropTmp(0.f);   //initialize to zero
     MPlexLL errorPropSwap(0.f);  //initialize to zero
 
+#if !defined(__clang__)
 #pragma omp simd
+#endif
     for (int n = 0; n < NN; ++n) {
       //initialize erroProp to identity matrix
       errorProp(n, 0, 0) = 1.f;
