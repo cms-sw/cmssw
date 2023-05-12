@@ -737,7 +737,10 @@ void CaloSD::update(const ::EndOfEvent*) {
     if (!saveHit((*theHC)[i])) {
       ++wrong;
     }
+#else
+  saveHit((*theHC)[i]);
 #endif
+
     ++count;
     double x = (*theHC)[i]->getEM();
     eEM += x;
