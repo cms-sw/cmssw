@@ -738,7 +738,7 @@ void CaloSD::update(const ::EndOfEvent*) {
       ++wrong;
     }
 #else
-  saveHit((*theHC)[i]);
+    saveHit((*theHC)[i]);
 #endif
 
     ++count;
