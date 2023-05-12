@@ -160,7 +160,8 @@ triggerObjectTable = triggerObjectTableProducer.clone(
             l2seed = cms.string("type(85)  && coll('hltAK8CaloJetsCorrectedIDPassed')"),  l2deltaR = cms.double(0.3),
             skipObjectsNotPassingQualityBits = cms.bool(True),
             qualityBits = cms.VPSet(
-                mksel("filter('hltAK8SinglePFJets*SoftDropMass40*ParticleNetTauTau')","HLT_AK8PFJetX_SoftDropMass40_PFAK8ParticleNetTauTau0p30")
+                mksel("filter('hltAK8SinglePFJets*SoftDropMass40*ParticleNetTauTau')","HLT_AK8PFJetX_SoftDropMass40_PFAK8ParticleNetTauTau0p30"),
+                mksel(["hltAK8SinglePFJets230SoftDropMass40PNetTauTauTag0p03"])
             )
         ),
         Jet = cms.PSet(
@@ -201,7 +202,6 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 mksel(["hlt2PFCentralJetTightIDPt30","hltPF2CentralJetTightIDPt30"]), # 28
                 mksel(["hlt1PFCentralJetTightIDPt60"]), # 29
                 mksel(["hltPF2CentralJetPt30PNet2BTagMean0p50"]), # 30
-
             ),
         ),
         FatJet = cms.PSet(
@@ -233,7 +233,8 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 mksel(["hltL1sQuadJetC50IorQuadJetC60IorHTT280IorHTT300IorHTT320IorTripleJet846848VBFIorTripleJet887256VBFIorTripleJet927664VBF","hltL1sQuadJetCIorTripleJetVBFIorHTT"]),
                 mksel(["hltL1sQuadJetC60IorHTT380IorHTT280QuadJetIorHTT300QuadJet","hltL1sQuadJetC50to60IorHTT280to500IorHTT250to340QuadJet"]),
                 mksel(["hltCaloQuadJet30HT300","hltCaloQuadJet30HT320"]),
-                mksel(["hltPFCentralJetsLooseIDQuad30HT300","hltPFCentralJetsLooseIDQuad30HT330"])
+                mksel(["hltPFCentralJetsLooseIDQuad30HT300","hltPFCentralJetsLooseIDQuad30HT330"]),
+                mksel(["hltPFHT280Jet30"])
             ),
         ),
         MHT = cms.PSet(
