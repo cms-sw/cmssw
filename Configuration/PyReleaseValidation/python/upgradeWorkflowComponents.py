@@ -2003,10 +2003,10 @@ upgradeProperties[2017] = {
         'BeamSpot': 'Realistic25ns13p6TeVEarly2022Collision',
         'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
     },
-   '2022ReReco' : {
+    '2022ReReco' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2022_realistic_postEE',
-        'HLTmenu': '@relval2022',
+        'HLTmenu': '@relval2022_postEE',
         'Era' : 'Run3_2022_rereco',
         'BeamSpot': 'Realistic25ns13p6TeVEarly2022Collision',
         'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
