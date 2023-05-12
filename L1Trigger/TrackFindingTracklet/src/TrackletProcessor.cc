@@ -249,8 +249,6 @@ void TrackletProcessor::execute(unsigned int iSector, double phimin, double phim
   unsigned int countteall = 0;
   unsigned int stubpairs = 0;
 
-  unsigned int ntedata = 0;
-
   unsigned int ninnerstubs = 0;
 
   //Actual implemenation starts here
@@ -479,7 +477,6 @@ void TrackletProcessor::execute(unsigned int iSector, double phimin, double phim
         }
 
         if (!tedata.regions_.empty()) {
-          ntedata++;
           goodtedata = true;
         }
       }

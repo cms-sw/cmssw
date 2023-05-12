@@ -193,8 +193,6 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks_, unsigned int iSe
 
         // Count number of Unique Regions (UR) that share stubs, and the number of UR that each track hits
         unsigned int nShareUR = 0;
-        unsigned int nURStubTrk1 = 0;
-        unsigned int nURStubTrk2 = 0;
         if (settings_.mergeComparison() == "CompareAll") {
           bool URArray[16];
           for (auto& i : URArray) {
@@ -255,14 +253,6 @@ void PurgeDuplicate::execute(std::vector<Track>& outputtracks_, unsigned int iSe
             if (t1i != -1 && t2i != -1 && stubsTrk1[t1i].first == stubsTrk2[t2i].first &&
                 stubsTrk1[t1i].second == stubsTrk2[t2i].second)
               nShareUR++;
-          }
-          // Calculate the number of unique regions hit by each track, so that this number can be used in calculating the number of independent
-          // stubs on a track (not enabled/used by default)
-          for (int i = 0; i < 16; i++) {
-            if (URStubidsTrk1[i] != -1)
-              nURStubTrk1++;
-            if (URStubidsTrk2[i] != -1)
-              nURStubTrk2++;
           }
         }
 
