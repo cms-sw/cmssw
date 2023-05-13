@@ -561,7 +561,7 @@ steps['RunZeroBias2023B']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2023B-v1/RAW'
 steps['RunBTagMu2023B']={'INPUT':InputInfo(dataSet='/BTagMu/Run2023B-v1/RAW',label='2023B',events=100000,location='STD', ls=Run2023B)}
 steps['RunNoBPTX2023B']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2023B-v1/RAW',label='2023B',events=100000,location='STD', ls=Run2023B)}
 steps['RunHcalNZS2023B']={'INPUT':InputInfo(dataSet='/HcalNZS/Run2023B-v1/RAW',label='2023B',events=100000,location='STD', ls=Run2023B)}
-steps['RunHLTPhysics2023B']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2023B-v1/RAW',label='2023B',events=100000,location='STD', ls=Run2023)}
+steps['RunHLTPhysics2023B']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2023B-v1/RAW',label='2023B',events=100000,location='STD', ls=Run2023B)}
 steps['RunCommissioning2023B']={'INPUT':InputInfo(dataSet='/Commissioning/Run2023B-v1/RAW',label='2023B',events=100000,location='STD', ls=Run2023B)}
 steps['RunJetMET2023B']={'INPUT':InputInfo(dataSet='/JetMET1/Run2023B-v1/RAW',label='2023B',events=100000,location='STD', ls=Run2023B)}
 steps['RunCosmics2023B']={'INPUT':InputInfo(dataSet='/Cosmics/Run2023B-v1/RAW',label='2023B',events=100000,location='STD', ls=Run2023B)}
