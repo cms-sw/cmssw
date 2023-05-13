@@ -389,9 +389,9 @@ void CaloSimHitStudy::analyze(edm::Event const& e, edm::EventSetup const& set) {
 
 void CaloSimHitStudy::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
   int nHit = hits.size();
-  int nHB(0), nHE(0), nHO(0), nHF(0), nEB(0), nEBAPD(0), nEBATJ(0), nEE(0), nES(0);
+  int nHB(0), nHE(0), nHO(0), nHF(0), nEB(0), nEBAPD(0), nEBATJ(0);
 #ifdef EDM_ML_DEBUG
-  int nBad(0);
+  int nBad(0), nEE(0), nES(0);
 #endif
   std::map<unsigned int, double> hitMap;
   std::vector<double> etot(nCalo_, 0), etotG(nCalo_, 0);
@@ -447,11 +447,11 @@ void CaloSimHitStudy::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
         nEBAPD++;
       else if (idx == 2)
         nEBATJ++;
+#ifdef EDM_ML_DEBUG
       else if (idx == 3)
         nEE++;
       else if (idx == 4)
         nES++;
-#ifdef EDM_ML_DEBUG
       else
         nBad++;
 #endif
