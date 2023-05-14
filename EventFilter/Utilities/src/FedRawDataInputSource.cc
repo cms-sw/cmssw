@@ -155,14 +155,18 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset, edm:
 
   quit_threads_ = false;
 
+  //prepare data shared by threads
   for (unsigned int i = 0; i < numConcurrentReads_; i++) {
-    std::unique_lock<std::mutex> lk(startupLock_);
-    //issue a memory fence here and in threads (constructor was segfaulting without this)
     thread_quit_signal.push_back(false);
     workerJob_.push_back(ReaderInfo(nullptr, nullptr));
-    cvReader_.push_back(new std::condition_variable);
+    cvReader_.push_back(std::make_unique<std::condition_variable>());
     tid_active_.push_back(0);
-    threadInit_.store(false, std::memory_order_release);
+  }
+
+  //start threads
+  for (unsigned int i = 0; i < numConcurrentReads_; i++) {
+    //wait for each thread to complete initialization
+    std::unique_lock<std::mutex> lk(startupLock_);
     workerThreads_.push_back(new std::thread(&FedRawDataInputSource::readWorker, this, i));
     startupCv_.wait(lk);
   }
@@ -205,15 +209,6 @@ FedRawDataInputSource::~FedRawDataInputSource() {
       delete workerThreads_[i];
     }
   }
-  for (unsigned int i = 0; i < numConcurrentReads_; i++)
-    delete cvReader_[i];
-  /*
-  for (unsigned int i=0;i<numConcurrentReads_+1;i++) {
-    InputChunk *ch;
-    while (!freeChunks_.try_pop(ch)) {}
-    delete ch;
-  }
-  */
 }
 
 void FedRawDataInputSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -244,7 +239,6 @@ void FedRawDataInputSource::fillDescriptions(edm::ConfigurationDescriptions& des
 edm::RawInputSource::Next FedRawDataInputSource::checkNext() {
   if (!startedSupervisorThread_) {
     //this thread opens new files and dispatches reading to worker readers
-    //threadInit_.store(false,std::memory_order_release);
     std::unique_lock<std::mutex> lk(startupLock_);
     readSupervisorThread_ = std::make_unique<std::thread>(&FedRawDataInputSource::readSupervisor, this);
     startedSupervisorThread_ = true;
@@ -765,7 +759,6 @@ void FedRawDataInputSource::rewind_() {}
 void FedRawDataInputSource::readSupervisor() {
   bool stop = false;
   unsigned int currentLumiSection = 0;
-  //threadInit_.exchange(true,std::memory_order_acquire);
 
   {
     std::unique_lock<std::mutex> lk(startupLock_);
@@ -1257,7 +1250,6 @@ void FedRawDataInputSource::readSupervisor() {
 
 void FedRawDataInputSource::readWorker(unsigned int tid) {
   bool init = true;
-  threadInit_.exchange(true, std::memory_order_acquire);
 
   while (true) {
     tid_active_[tid] = false;
