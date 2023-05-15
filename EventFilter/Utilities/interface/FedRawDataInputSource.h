@@ -154,7 +154,7 @@ private:
   tbb::concurrent_queue<std::unique_ptr<InputFile>> fileQueue_;
 
   std::mutex mReader_;
-  std::vector<std::condition_variable*> cvReader_;
+  std::vector<std::unique_ptr<std::condition_variable>> cvReader_;
   std::vector<unsigned int> tid_active_;
 
   std::atomic<bool> quit_threads_;
