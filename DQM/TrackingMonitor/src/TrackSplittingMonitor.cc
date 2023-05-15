@@ -42,9 +42,7 @@ TrackSplittingMonitor::TrackSplittingMonitor(const edm::ParameterSet& iConfig)
 
 void TrackSplittingMonitor::bookHistograms(DQMStore::IBooker& ibooker,
                                            edm::Run const& /* iRun */,
-                                           edm::EventSetup const& /* iSetup */)
-
-{
+                                           edm::EventSetup const& /* iSetup */) {
   std::string MEFolderName = conf_.getParameter<std::string>("FolderName");
   ibooker.setCurrentFolder(MEFolderName);
 
@@ -366,6 +364,45 @@ void TrackSplittingMonitor::analyze(const edm::Event& iEvent, const edm::EventSe
       }
     }
   }
+}
+
+void TrackSplittingMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.setComment(
+      "Validates track parameters resolution by splitting cosmics tracks at the PCA and comparing the parameters of "
+      "the two halves");
+  desc.add<std::string>("FolderName", "TrackSplitMonitoring");
+  desc.add<edm::InputTag>("splitTrackCollection", edm::InputTag("splittedTracksP5"));
+  desc.add<edm::InputTag>("splitMuonCollection", edm::InputTag("splitMuons"));
+  desc.add<bool>("ifPlotMuons", true);
+  desc.add<int>("pixelHitsPerLeg", 1);
+  desc.add<int>("totalHitsPerLeg", 6);
+  desc.add<double>("d0Cut", 12.0);
+  desc.add<double>("dzCut", 25.0);
+  desc.add<double>("ptCut", 4.0);
+  desc.add<double>("norchiCut", 100.0);
+  desc.add<int>("ddxyBin", 100);
+  desc.add<double>("ddxyMin", -200.0);
+  desc.add<double>("ddxyMax", 200.0);
+  desc.add<int>("ddzBin", 100);
+  desc.add<double>("ddzMin", -400.0);
+  desc.add<double>("ddzMax", 400.0);
+  desc.add<int>("dphiBin", 100);
+  desc.add<double>("dphiMin", -0.01);
+  desc.add<double>("dphiMax", 0.01);
+  desc.add<int>("dthetaBin", 100);
+  desc.add<double>("dthetaMin", -0.01);
+  desc.add<double>("dthetaMax", 0.01);
+  desc.add<int>("dptBin", 100);
+  desc.add<double>("dptMin", -5.0);
+  desc.add<double>("dptMax", 5.0);
+  desc.add<int>("dcurvBin", 100);
+  desc.add<double>("dcurvMin", -0.005);
+  desc.add<double>("dcurvMax", 0.005);
+  desc.add<int>("normBin", 100);
+  desc.add<double>("normMin", -5.);
+  desc.add<double>("normMax", 5.);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 DEFINE_FWK_MODULE(TrackSplittingMonitor);
