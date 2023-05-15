@@ -160,14 +160,18 @@ DAQSource::DAQSource(edm::ParameterSet const& pset, edm::InputSourceDescription 
 
   quit_threads_ = false;
 
+  //prepare data shared by threads
   for (unsigned int i = 0; i < numConcurrentReads_; i++) {
-    std::unique_lock<std::mutex> lk(startupLock_);
-    //issue a memory fence here and in threads (constructor was segfaulting without this)
     thread_quit_signal.push_back(false);
     workerJob_.push_back(ReaderInfo(nullptr, nullptr));
-    cvReader_.push_back(new std::condition_variable);
+    cvReader_.push_back(std::make_unique<std::condition_variable>());
     tid_active_.push_back(0);
-    threadInit_.store(false, std::memory_order_release);
+  }
+
+  //start threads
+  for (unsigned int i = 0; i < numConcurrentReads_; i++) {
+    //wait for each thread to complete initialization
+    std::unique_lock<std::mutex> lk(startupLock_);
     workerThreads_.push_back(new std::thread(&DAQSource::readWorker, this, i));
     startupCv_.wait(lk);
   }
@@ -211,15 +215,6 @@ DAQSource::~DAQSource() {
       delete workerThreads_[i];
     }
   }
-  for (unsigned int i = 0; i < numConcurrentReads_; i++)
-    delete cvReader_[i];
-  /*
-  for (unsigned int i=0;i<numConcurrentReads_+1;i++) {
-    InputChunk *ch;
-    while (!freeChunks_.try_pop(ch)) {}
-    delete ch;
-  }
-  */
 }
 
 void DAQSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
