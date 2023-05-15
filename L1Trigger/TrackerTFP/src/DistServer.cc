@@ -45,13 +45,11 @@ TrackKFOutSAPtrCollection DistServer::clock(TrackKFOutSAPtrCollection& data) {
 
   TrackKFOutSAPtrCollection lOutputs(nOutputs(), std::make_shared<TrackKFOut>());
 
-  unsigned int nOutputs = 0;
   for (unsigned int iOutput = 0; iOutput < lOutputs.size(); ++iOutput) {
     for (unsigned int iInput = 0; iInput < nInputs(); ++iInput) {
       if (lMap[iInput][iOutput]) {
         lOutputs[iOutput] = lInputs[iInput];
         addr[iInput].back() += this->nInterleaving();
-        nOutputs++;
         break;
       }
     }

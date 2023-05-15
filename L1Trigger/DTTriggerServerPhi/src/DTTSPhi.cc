@@ -222,7 +222,6 @@ void DTTSPhi::runTSPhi() {
 
   for (int is = DTConfigTSPhi::NSTEPF; is < DTConfigTSPhi::NSTEPL + 1; is++) {
     // loop on DTTSSs
-    int ntss = 0;
     i_tsmd = 0;
     ntsm[is - DTConfigTSPhi::NSTEPF][0] = 0;  // counter to make sector collector run if at least a tsm
     ntsm[is - DTConfigTSPhi::NSTEPF][1] = 0;
@@ -257,7 +256,6 @@ void DTTSPhi::runTSPhi() {
             DTTSM *tsm = getDTTSM(is, itsmd);
             tsm->addCand((*p)->getTrack(it));
           }
-          ntss++;
         }  // end loop on output DTTSS tracks
       }
     }  // end loop on DTTSSs

@@ -214,10 +214,10 @@ namespace trackerTFP {
       }
     }
     // store products
-    iEvent.emplace(edPutTokenAcceptedStubs_, move(streamAcceptedStubs));
-    iEvent.emplace(edPutTokenAcceptedTracks_, move(streamAcceptedTracks));
-    iEvent.emplace(edPutTokenLostStubs_, move(streamLostStubs));
-    iEvent.emplace(edPutTokenLostTracks_, move(streamLostTracks));
+    iEvent.emplace(edPutTokenAcceptedStubs_, std::move(streamAcceptedStubs));
+    iEvent.emplace(edPutTokenAcceptedTracks_, std::move(streamAcceptedTracks));
+    iEvent.emplace(edPutTokenLostStubs_, std::move(streamLostStubs));
+    iEvent.emplace(edPutTokenLostTracks_, std::move(streamLostTracks));
   }
 
 }  // namespace trackerTFP
