@@ -589,6 +589,8 @@ void l1tpf_calo::SimpleCaloLinker::run() {
           float wecal = cluster.ecal_et / cluster.et, whcal = 1.0 - wecal;
           cluster.eta = ecal.eta * wecal + hcal.eta * whcal;
           cluster.phi = ecal.phi * wecal + hcal.phi * whcal;
+          cluster.ecal_eta = cluster.eta;
+          cluster.ecal_phi = cluster.phi;
           // wrap around phi
           cluster.phi = reco::reduceRange(cluster.phi);
           cluster.constituents.emplace_back(-i - 1, 1);
@@ -617,6 +619,8 @@ void l1tpf_calo::SimpleCaloLinker::run() {
           cluster.et = myet + etot;
           cluster.eta = hcal.eta + avg_eta / cluster.et;
           cluster.phi = hcal.phi + avg_phi / cluster.et;
+          cluster.ecal_eta = cluster.eta;
+          cluster.ecal_phi = cluster.phi;
           // wrap around phi
           cluster.phi = reco::reduceRange(cluster.phi);
         }
@@ -676,6 +680,8 @@ void l1tpf_calo::FlatCaloLinker::run() {
     dst.et = src.et;
     dst.eta = src.eta;
     dst.phi = src.phi;
+    dst.ecal_eta = src.eta;
+    dst.ecal_phi = src.phi;
     dst.ecal_et = 0;
     dst.hcal_et = 0;
     for (const auto &pair : src.constituents) {
