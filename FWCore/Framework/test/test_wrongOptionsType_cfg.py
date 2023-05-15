@@ -17,5 +17,6 @@ process = cms.Process("TEST")
 process.source = cms.Source("EmptySource")
 
 process.maxEvents.input = 2
-
+#avoid type check in python to force check in C++
+delattr(process.options, args.name)
 setattr(process.options, args.name, eval(str(args.value)))
