@@ -281,6 +281,43 @@ namespace {
   using SiPixelTemplateIDsFPixMap = SiPixelIDs<SiPixelTemplateDBObject, SiPixelPI::t_forward>;
   using SiPixelTemplateIDsMap = SiPixelIDs<SiPixelTemplateDBObject, SiPixelPI::t_all>;
 
+  //************************************************
+  // TH2Poly Map of qScale
+  //***********************************************/
+  using SiPixelTemplateQScaleBPixMap = SiPixelTemplateHeaderInfo<SiPixelTemplateDBObject,
+                                                                 SiPixelTemplateStore,
+                                                                 SiPixelTemplate,
+                                                                 SiPixelPI::t_barrel,
+                                                                 headerParam::k_qscale>;
+  using SiPixelTemplateQScaleFPixMap = SiPixelTemplateHeaderInfo<SiPixelTemplateDBObject,
+                                                                 SiPixelTemplateStore,
+                                                                 SiPixelTemplate,
+                                                                 SiPixelPI::t_forward,
+                                                                 headerParam::k_qscale>;
+  using SiPixelTemplateQScaleMap = SiPixelTemplateHeaderInfo<SiPixelTemplateDBObject,
+                                                             SiPixelTemplateStore,
+                                                             SiPixelTemplate,
+                                                             SiPixelPI::t_all,
+                                                             headerParam::k_qscale>;
+
+  //************************************************
+  // TH2Poly Map of Vbias
+  //***********************************************/
+  using SiPixelTemplateVbiasBPixMap = SiPixelTemplateHeaderInfo<SiPixelTemplateDBObject,
+                                                                SiPixelTemplateStore,
+                                                                SiPixelTemplate,
+                                                                SiPixelPI::t_barrel,
+                                                                headerParam::k_Vbias>;
+  using SiPixelTemplateVbiasFPixMap = SiPixelTemplateHeaderInfo<SiPixelTemplateDBObject,
+                                                                SiPixelTemplateStore,
+                                                                SiPixelTemplate,
+                                                                SiPixelPI::t_forward,
+                                                                headerParam::k_Vbias>;
+  using SiPixelTemplateVbiasMap = SiPixelTemplateHeaderInfo<SiPixelTemplateDBObject,
+                                                            SiPixelTemplateStore,
+                                                            SiPixelTemplate,
+                                                            SiPixelPI::t_all,
+                                                            headerParam::k_Vbias>;
 }  // namespace
 
 // Register the classes as boost python plugin
@@ -295,4 +332,10 @@ PAYLOAD_INSPECTOR_MODULE(SiPixelTemplateDBObject) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateLAMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateLABPixMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateLAFPixMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateQScaleBPixMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateQScaleFPixMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateQScaleMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateVbiasBPixMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateVbiasFPixMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelTemplateVbiasMap);
 }

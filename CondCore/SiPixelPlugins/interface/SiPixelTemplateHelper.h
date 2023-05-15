@@ -504,6 +504,265 @@ namespace templateHelper {
     std::string label_;
   };
 
+  enum headerParam {
+    k_ID = 0,
+    k_NTy = 1,
+    k_NTyx = 2,
+    k_NTxx = 3,
+    k_Dtype = 4,
+    k_qscale = 5,
+    k_lorywidth = 6,
+    k_lorxwidth = 7,
+    k_lorybias = 8,
+    k_lorxbias = 9,
+    k_Vbias = 10,
+    k_temperature = 11,
+    k_fluence = 12,
+    k_s50 = 13,
+    k_ss50 = 14,
+    k_title = 15,
+    k_templ_version = 16,
+    k_Bfield = 17,
+    k_fbin = 18,
+    k_END_OF_TYPES = 19,
+  };
+
+  static constexpr const char* header_types[] = {"ID;templated ID",
+                                                 "NTy;number of template y entries",
+                                                 "NTyx;number of template y-slices of x entries",
+                                                 "NTxx;number of template x-entries in each slice",
+                                                 "Dtype;detector type (0=BPix, 1=FPix)",
+                                                 "qScale;charge scaling correction",
+                                                 "lorxwidth;estimate of the y-Lorentz width",
+                                                 "lorywidth;estimate of the x-Lorentz width",
+                                                 "lorybias;estimate of the y-Lorentz bias",
+                                                 "lorxbias;estimate of the x-Lorentz bias",
+                                                 "Vbias;detector bias [V]",
+                                                 "temperature;detector temperature [K]",
+                                                 "fluence;radiation fluence [n_{eq}/cm^{2}] ",
+                                                 "s50;1/2 of the multihit dcol threshold [e]",
+                                                 "ss50;1/2 of the single hit dcol threshold [e]",
+                                                 "title;title",
+                                                 "template version;template version number",
+                                                 "B-field;B-field [T]",
+                                                 "fbin;Qbin in Q_{clus}/Q_{avg}",
+                                                 "NOT HERE;NOT HERE"};
+
+  // class to display values of the template header information in a Phase1 Pixel Map
+  template <class PayloadType, class StoreType, class TransientType, SiPixelPI::DetType myType, headerParam myParam>
+  class SiPixelTemplateHeaderInfo
+      : public cond::payloadInspector::PlotImage<PayloadType, cond::payloadInspector::SINGLE_IOV> {
+    struct header_info {
+      int ID;             //!< template ID number
+      int NTy;            //!< number of Template y entries
+      int NTyx;           //!< number of Template y-slices of x entries
+      int NTxx;           //!< number of Template x-entries in each slice
+      int Dtype;          //!< detector type (0=BPix, 1=FPix)
+      float qscale;       //!< Charge scaling to match cmssw and pixelav
+      float lorywidth;    //!< estimate of y-lorentz width for optimal resolution
+      float lorxwidth;    //!< estimate of x-lorentz width for optimal resolution
+      float lorybias;     //!< estimate of y-lorentz bias
+      float lorxbias;     //!< estimate of x-lorentz bias
+      float Vbias;        //!< detector bias potential in Volts
+      float temperature;  //!< detector temperature in deg K
+      float fluence;      //!< radiation fluence in n_eq/cm^2
+      float s50;          //!< 1/2 of the multihit dcol threshold in electrons
+      float ss50;         //!< 1/2 of the single hit dcol threshold in electrons
+      char title[80];     //!< template title
+      int templ_version;  //!< Version number of the template to ensure code compatibility
+      float Bfield;       //!< Bfield in Tesla
+      float fbin[3];      //!< The QBin definitions in Q_clus/Q_avg
+    };
+
+  public:
+    SiPixelTemplateHeaderInfo()
+        : cond::payloadInspector::PlotImage<PayloadType, cond::payloadInspector::SINGLE_IOV>(
+              "SiPixel CPE conditions Map of header quantities") {
+      if constexpr (std::is_same_v<PayloadType, SiPixelGenErrorDBObject>) {
+        isTemplate_ = false;
+        label_ = "SiPixelGenErrorDBObject_PayloadInspector";
+      } else {
+        isTemplate_ = true;
+        label_ = "SiPixelTemplateDBObject_PayloadInspector";
+      }
+    }
+
+    bool fill() override {
+      gStyle->SetPalette(kRainBow);
+      if (!(myParam == headerParam::k_Vbias || myParam == headerParam::k_Dtype)) {
+        TGaxis::SetMaxDigits(2);
+      }
+
+      auto tag = cond::payloadInspector::PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
+      std::vector<StoreType> thePixelTemp_;
+      std::shared_ptr<PayloadType> payload = this->fetchPayload(std::get<1>(iov));
+
+      if (payload.get()) {
+        if (!TransientType::pushfile(*payload, thePixelTemp_)) {
+          throw cms::Exception(label_) << "\nERROR: Templates not filled correctly. Check the conditions. Using "
+                                          "payload version "
+                                       << payload->version() << "\n\n";
+        }
+
+        // store the map of ID / interesting quantities
+        SiPixelTemplate templ(thePixelTemp_);
+        for (const auto& theTemp : thePixelTemp_) {
+          header_info info;
+          info.ID = theTemp.head.ID;
+          info.NTy = theTemp.head.NTy;
+          info.NTyx = theTemp.head.NTyx;
+          info.NTxx = theTemp.head.NTxx;
+          info.Dtype = theTemp.head.Dtype;
+          info.qscale = theTemp.head.qscale;
+          info.lorywidth = theTemp.head.lorywidth;
+          info.lorxwidth = theTemp.head.lorxwidth;
+          info.lorybias = theTemp.head.lorybias;
+          info.lorxbias = theTemp.head.lorxbias;
+          info.Vbias = theTemp.head.Vbias;
+          info.temperature = theTemp.head.temperature;
+          info.fluence = theTemp.head.fluence;
+          info.s50 = theTemp.head.s50;
+          info.ss50 = theTemp.head.ss50;
+          info.templ_version = theTemp.head.templ_version;
+          info.Bfield = theTemp.head.Bfield;
+          theInfos_[theTemp.head.ID] = info;
+        }
+
+        // Book the TH2Poly
+        Phase1PixelMaps theMaps("");
+        if (myType == SiPixelPI::t_all) {
+          theMaps.resetOption("COLZA L");
+        } else {
+          theMaps.resetOption("COLZL");
+        }
+
+        std::string input{header_types[myParam]};
+        std::string delimiter = ";";
+        std::string first = input.substr(0, input.find(delimiter));
+        std::string second = input.substr(input.find(delimiter) + 1);
+
+        if (myType == SiPixelPI::t_barrel) {
+          theMaps.bookBarrelHistograms("templateLABarrel", first.c_str(), second.c_str());
+        } else if (myType == SiPixelPI::t_forward) {
+          theMaps.bookForwardHistograms("templateLAForward", first.c_str(), second.c_str());
+        } else if (myType == SiPixelPI::t_all) {
+          theMaps.bookBarrelHistograms("templateLA", first.c_str(), second.c_str());
+          theMaps.bookForwardHistograms("templateLA", first.c_str(), second.c_str());
+        } else {
+          edm::LogError(label_) << " un-recognized detector type " << myType << std::endl;
+          return false;
+        }
+
+        std::map<unsigned int, short> templMap = payload->getTemplateIDs();
+        if (templMap.size() == SiPixelPI::phase0size || templMap.size() > SiPixelPI::phase1size) {
+          edm::LogError(label_)
+              << "There are " << templMap.size()
+              << " DetIds in this payload. SiPixelTempate Lorentz Angle maps are not supported for non-Phase1 Pixel "
+                 "geometries !";
+          TCanvas canvas("Canv", "Canv", 1200, 1000);
+          SiPixelPI::displayNotSupported(canvas, templMap.size());
+          std::string fileName(this->m_imageFileName);
+          canvas.SaveAs(fileName.c_str());
+          return false;
+        } else {
+          if (templMap.size() < SiPixelPI::phase1size) {
+            edm::LogWarning(label_) << "\n ********* WARNING! ********* \n There are " << templMap.size()
+                                    << " DetIds in this payload !"
+                                    << "\n **************************** \n";
+          }
+        }
+
+        for (auto const& entry : templMap) {
+          //templ.interpolate(entry.second, 0.f, 0.f, 1.f, 1.f);
+
+          const auto& theInfo = theInfos_[entry.second];
+
+          std::function<float(headerParam, header_info)> cutFunctor = [](headerParam my_param, header_info myInfo) {
+            float ret(-999.);
+            switch (my_param) {
+              case k_ID:
+                return (float)myInfo.ID;
+              case k_NTy:
+                return (float)myInfo.NTy;
+              case k_NTyx:
+                return (float)myInfo.NTyx;
+              case k_NTxx:
+                return (float)myInfo.NTxx;
+              case k_Dtype:
+                return (float)myInfo.Dtype;
+              case k_qscale:
+                return (float)myInfo.qscale;
+              case k_lorywidth:
+                return (float)myInfo.lorywidth;
+              case k_lorxwidth:
+                return (float)myInfo.lorxwidth;
+              case k_lorybias:
+                return (float)myInfo.lorybias;
+              case k_lorxbias:
+                return (float)myInfo.lorxbias;
+              case k_Vbias:
+                return (float)myInfo.Vbias;
+              case k_temperature:
+                return (float)myInfo.temperature;
+              case k_fluence:
+                return (float)myInfo.fluence;
+              case k_s50:
+                return (float)myInfo.s50;
+              case k_ss50:
+                return (float)myInfo.ss50;
+              case k_title:
+                return (float)myInfo.templ_version;
+              case k_Bfield:
+                return (float)myInfo.Bfield;
+              case k_END_OF_TYPES:
+                return ret;
+              default:
+                return ret;
+            }
+          };
+
+          auto detid = DetId(entry.first);
+          if (myType == SiPixelPI::t_all) {
+            if ((detid.subdetId() == PixelSubdetector::PixelBarrel)) {
+              theMaps.fillBarrelBin("templateLA", entry.first, cutFunctor(myParam, theInfo));
+            }
+            if ((detid.subdetId() == PixelSubdetector::PixelEndcap)) {
+              theMaps.fillForwardBin("templateLA", entry.first, cutFunctor(myParam, theInfo));
+            }
+          } else if ((detid.subdetId() == PixelSubdetector::PixelBarrel) && (myType == SiPixelPI::t_barrel)) {
+            theMaps.fillBarrelBin("templateLABarrel", entry.first, cutFunctor(myParam, theInfo));
+          } else if ((detid.subdetId() == PixelSubdetector::PixelEndcap) && (myType == SiPixelPI::t_forward)) {
+            theMaps.fillForwardBin("templateLAForward", entry.first, cutFunctor(myParam, theInfo));
+          }
+        }
+
+        theMaps.beautifyAllHistograms();
+
+        TCanvas canvas("Canv", "Canv", (myType == SiPixelPI::t_barrel) ? 1200 : 1600, 1000);
+        if (myType == SiPixelPI::t_barrel) {
+          theMaps.drawBarrelMaps("templateLABarrel", canvas);
+        } else if (myType == SiPixelPI::t_forward) {
+          theMaps.drawForwardMaps("templateLAForward", canvas);
+        } else if (myType == SiPixelPI::t_all) {
+          theMaps.drawSummaryMaps("templateLA", canvas);
+        }
+
+        canvas.cd();
+        std::string fileName(this->m_imageFileName);
+        canvas.SaveAs(fileName.c_str());
+      }
+      return true;
+    }  // fill
+
+  protected:
+    bool isTemplate_;
+    std::string label_;
+
+  private:
+    std::map<int, header_info> theInfos_;
+  };
+
 }  // namespace templateHelper
 
 #endif
