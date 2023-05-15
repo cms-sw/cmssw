@@ -980,7 +980,7 @@ void HcalTB04Analysis::fillEvent(PHcalTB04Info& product) {
   //Save Hits
   int nhit = 0;
 #ifdef EDM_ML_DEBUG
-  i = 0;
+  int i = 0;
 #endif
   std::vector<CaloHit>::iterator itr;
   for (itr = ecalHitCache.begin(); itr != ecalHitCache.end(); itr++) {
