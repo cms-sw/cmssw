@@ -44,6 +44,9 @@ public:
   enum TimeParamIndex { CREATE_TIME = 0, START_TIMESTAMP = 1, END_TIMESTAMP = 2, TSIZE = 3 };
 
   /// Setters Methods
+  // copy all copiable members from BeamSpotObjects
+  void copyFromBeamSpotObject(const BeamSpotObjects& bs);
+
   // set lastAnalyzedLumi_, last analyzed lumisection
   void setLastAnalyzedLumi(int val) { lastAnalyzedLumi_ = val; }
 

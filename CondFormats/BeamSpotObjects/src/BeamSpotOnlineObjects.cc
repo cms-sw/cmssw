@@ -92,6 +92,27 @@ cond::Time_t BeamSpotOnlineObjects::endTimeStamp() const {
 }
 
 // setters
+void BeamSpotOnlineObjects::copyFromBeamSpotObject(const BeamSpotObjects& bs) {
+  setType(bs.beamType());
+  setPosition(bs.x(), bs.y(), bs.z());
+  setSigmaZ(bs.sigmaZ());
+  setdxdz(bs.dxdz());
+  setdydz(bs.dydz());
+  setBeamWidthX(bs.beamWidthX());
+  setBeamWidthY(bs.beamWidthY());
+  setBeamWidthXError(bs.beamWidthXError());
+  setBeamWidthYError(bs.beamWidthYError());
+  setEmittanceX(bs.emittanceX());
+  setEmittanceY(bs.emittanceY());
+  setBetaStar(bs.betaStar());
+
+  for (int i = 0; i < 7; ++i) {
+    for (int j = 0; j < 7; ++j) {
+      setCovariance(i, j, bs.covariance(i, j));
+    }
+  }
+}
+
 void BeamSpotOnlineObjects::setNumTracks(int nTracks) {
   BeamSpotOnlineObjectsImpl::setOneParam(intParams_, NUM_TRACKS, nTracks);
 }
