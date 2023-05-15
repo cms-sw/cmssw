@@ -134,10 +134,10 @@ void TrackSplittingMonitor::bookHistograms(DQMStore::IBooker& ibooker,
   ddzAbsoluteResiduals_tracker_->setAxisTitle("(#delta d_{z})/#sqrt{2} [#mum]");
   dphiAbsoluteResiduals_tracker_->setAxisTitle("(#delta #phi)/#sqrt{2} [mrad]");
   dthetaAbsoluteResiduals_tracker_->setAxisTitle("(#delta #theta)/#sqrt{2} [mrad]");
-  dptAbsoluteResiduals_tracker_->setAxisTitle("(#delta pT)/#sqrt{2} [GeV]");
-  dcurvAbsoluteResiduals_tracker_->setAxisTitle("(#delta (1/pT))/#sqrt{2} [GeV^{-1}]");
+  dptAbsoluteResiduals_tracker_->setAxisTitle("(#delta p_{T})/#sqrt{2} [GeV]");
+  dcurvAbsoluteResiduals_tracker_->setAxisTitle("(#delta (1/p_{T}))/#sqrt{2} [GeV^{-1}]");
 
-  ddxyNormalizedResiduals_tracker_->setAxisTitle("#delta d_{xy}/#sigma(d_{xy}");
+  ddxyNormalizedResiduals_tracker_->setAxisTitle("#delta d_{xy}/#sigma(d_{xy})");
   ddzNormalizedResiduals_tracker_->setAxisTitle("#delta d_{z}/#sigma(d_{z})");
   dphiNormalizedResiduals_tracker_->setAxisTitle("#delta #phi/#sigma(d_{#phi})");
   dthetaNormalizedResiduals_tracker_->setAxisTitle("#delta #theta/#sigma(d_{#theta})");
@@ -149,10 +149,10 @@ void TrackSplittingMonitor::bookHistograms(DQMStore::IBooker& ibooker,
     ddzAbsoluteResiduals_global_->setAxisTitle("(#delta d_{z})/#sqrt{2} [#mum]");
     dphiAbsoluteResiduals_global_->setAxisTitle("(#delta #phi)/#sqrt{2} [mrad]");
     dthetaAbsoluteResiduals_global_->setAxisTitle("(#delta #theta)/#sqrt{2} [mrad]");
-    dptAbsoluteResiduals_global_->setAxisTitle("(#delta pT)/#sqrt{2} [GeV]");
-    dcurvAbsoluteResiduals_global_->setAxisTitle("(#delta (1/pT))/#sqrt{2} [GeV^{-1}]");
+    dptAbsoluteResiduals_global_->setAxisTitle("(#delta p_{T})/#sqrt{2} [GeV]");
+    dcurvAbsoluteResiduals_global_->setAxisTitle("(#delta (1/p_{T}))/#sqrt{2} [GeV^{-1}]");
 
-    ddxyNormalizedResiduals_global_->setAxisTitle("#delta d_{xy}/#sigma(d_{xy}");
+    ddxyNormalizedResiduals_global_->setAxisTitle("#delta d_{xy}/#sigma(d_{xy})");
     ddzNormalizedResiduals_global_->setAxisTitle("#delta d_{z}/#sigma(d_{z})");
     dphiNormalizedResiduals_global_->setAxisTitle("#delta #phi/#sigma(d_{#phi})");
     dthetaNormalizedResiduals_global_->setAxisTitle("#delta #theta/#sigma(d_{#theta})");
