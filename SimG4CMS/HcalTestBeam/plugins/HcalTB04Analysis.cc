@@ -543,7 +543,9 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent* evt) {
   }
   sort(hits.begin(), hits.end(), CaloHitIdMore());
   std::vector<CaloHit*>::iterator k1, k2;
+#ifdef EDM_ML_DEBUG
   int nhit = 0;
+#endif
   for (k1 = hits.begin(); k1 != hits.end(); k1++) {
     int det = (**k1).det();
     int layer = (**k1).layer();
@@ -557,11 +559,11 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent* evt) {
       ehit += (**k2).e();
       jump++;
     }
-    nhit++;
     CaloHit hit(det, layer, ehit, eta, phi, jitter, unitID);
     hcalHitCache.push_back(hit);
     k1 += jump;
 #ifdef EDM_ML_DEBUG
+    nhit++;
     etot2 += ehit;
     edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Hcal Hit store " << nhit << "  ID 0x" << std::hex << unitID
                                   << std::dec << " time " << std::setw(6) << jitter << " eta " << std::setw(8) << eta
@@ -577,8 +579,8 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent* evt) {
     hits[j] = &hhitl[j];
   }
   sort(hits.begin(), hits.end(), CaloHitIdMore());
-  int nhitl = 0;
 #ifdef EDM_ML_DEBUG
+  int nhitl = 0;
   double etotl = 0;
 #endif
   for (k1 = hits.begin(); k1 != hits.end(); k1++) {
@@ -594,14 +596,12 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent* evt) {
       ehit += (**k2).e();
       jump++;
     }
-    nhitl++;
     CaloHit hit(det, layer, ehit, eta, phi, jitter, unitID);
     hcalHitLayer.push_back(hit);
-#ifdef EDM_ML_DEBUG
-    etotl += ehit;
-#endif
     k1 += jump;
 #ifdef EDM_ML_DEBUG
+    nhitl++;
+    etotl += ehit;
     edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Hcal Hit store " << nhitl << "  ID 0x" << std::hex << unitID
                                   << std::dec << " time " << std::setw(6) << jitter << " eta " << std::setw(8) << eta
                                   << " phi " << std::setw(8) << phi << " e " << std::setw(8) << ehit;
@@ -659,7 +659,9 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent* evt) {
     hite[j] = &ehits[j];
   }
   sort(hite.begin(), hite.end(), CaloHitIdMore());
+#ifdef EDM_ML_DEBUG
   nhit = 0;
+#endif
   for (k1 = hite.begin(); k1 != hite.end(); k1++) {
     int det = (**k1).det();
     int layer = (**k1).layer();
@@ -673,11 +675,11 @@ void HcalTB04Analysis::fillBuffer(const EndOfEvent* evt) {
       ehit += (**k2).e();
       jump++;
     }
-    nhit++;
     CaloHit hit(det, layer, ehit, eta, phi, jitter, unitID);
     ecalHitCache.push_back(hit);
     k1 += jump;
 #ifdef EDM_ML_DEBUG
+    nhit++;
     etot2 += ehit;
     edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Ecal Hit store " << nhit << "  ID 0x" << std::hex << unitID
                                   << std::dec << " time " << std::setw(6) << jitter << " eta " << std::setw(8) << eta
@@ -974,9 +976,12 @@ void HcalTB04Analysis::fillEvent(PHcalTB04Info& product) {
   product.setLongProf(eslay, eqlay);
 
   //Save Hits
-  int i, nhit = 0;
+  int nhit = 0;
   std::vector<CaloHit>::iterator itr;
-  for (i = 0, itr = ecalHitCache.begin(); itr != ecalHitCache.end(); i++, itr++) {
+#ifdef EDM_ML_DEBUG
+  int i = 0;
+#endif
+  for (itr = ecalHitCache.begin(); itr != ecalHitCache.end(); itr++) {
     uint32_t id = itr->id();
     int det, z, group, ieta, iphi, lay;
     HcalTestNumbering::unpackHcalIndex(id, det, z, group, ieta, iphi, lay);
@@ -987,13 +992,15 @@ void HcalTB04Analysis::fillEvent(PHcalTB04Info& product) {
                                   << group << std::dec << " " << std::setw(2) << det << " " << std::setw(2) << lay
                                   << " " << std::setw(1) << z << " " << std::setw(3) << ieta << " " << std::setw(3)
                                   << iphi << " T " << std::setw(6) << itr->t() << " E " << std::setw(6) << itr->e();
+    ++i;
 #endif
   }
   edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Saves " << nhit << " hits from Crystals";
-  int hit = nhit;
+#ifdef EDM_ML_DEBUG
+  i = nhit;
+#endif
   nhit = 0;
-
-  for (i = hit, itr = hcalHitCache.begin(); itr != hcalHitCache.end(); i++, itr++) {
+  for (itr = hcalHitCache.begin(); itr != hcalHitCache.end(); itr++) {
     uint32_t id = itr->id();
     int det, z, group, ieta, iphi, lay;
     HcalTestNumbering::unpackHcalIndex(id, det, z, group, ieta, iphi, lay);
@@ -1004,6 +1011,7 @@ void HcalTB04Analysis::fillEvent(PHcalTB04Info& product) {
                                   << group << std::dec << " " << std::setw(2) << det << " " << std::setw(2) << lay
                                   << " " << std::setw(1) << z << " " << std::setw(3) << ieta << " " << std::setw(3)
                                   << iphi << " T " << std::setw(6) << itr->t() << " E " << std::setw(6) << itr->e();
+    ++i;
 #endif
   }
   edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Saves " << nhit << " hits from HCal";
