@@ -64,7 +64,8 @@ numWFStart={
 }
 numWFSkip=200
 # temporary measure to keep other WF numbers the same
-numWFConflict = [[20400,20800], #D87
+numWFConflict = [[14400,14800], #2022ReReco, 2022ReRecoPU (in 12_4)
+                 [20400,20800], #D87
                  [21200,22000], #D89-D90
                  [50000,51000]]
 numWFAll={
