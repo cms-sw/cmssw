@@ -85,11 +85,13 @@ private:
   edm::EDGetTokenT<reco::SuperClusterCollection> inputs_SC_;
   edm::EDGetTokenT<reco::ElectronSeedCollection> inputs_rElectronMergedSeeds_;
   edm::EDGetTokenT<edm::View<TrajectorySeed>> inputs_rElectronMergedSeedViews_;
+
+  std::string alias;
 };
 
 template <typename T1>
 TrackMergeremb<T1>::TrackMergeremb(const edm::ParameterSet& iConfig) {
-  std::string alias(iConfig.getParameter<std::string>("@module_label"));
+  alias = iConfig.getParameter<std::string>("@module_label");
   std::vector<edm::InputTag> inCollections = iConfig.getParameter<std::vector<edm::InputTag> >("mergCollections");
   globalGeomToken_ = esConsumes();
   for (const auto& inCollection : inCollections) {

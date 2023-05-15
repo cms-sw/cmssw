@@ -171,6 +171,20 @@ void TrackMergeremb<reco::GsfTrackCollection>::merg_and_put(
   auto rHits = iEvent.getRefBeforePut<TrackingRecHitCollection>();
   std::vector<reco::GsfTrackRefVector> trackRefColl;
 
+  //track to track map for trackerdriven seed fix
+  edm::Handle<TrackToTrackMapnew> track_ref_map;
+  iEvent.getByToken(inputs_fixtrackrefs_, track_ref_map);
+
+  edm::Handle<reco::TrackCollection> track_new_col;
+  iEvent.getByToken(inputs_fixtrackcol_, track_new_col);
+
+  std::map<reco::TrackRef , reco::TrackRef > simple_track_to_track_map; //I didn't find a more elegant way, so just build a good old fassion std::map
+  for (unsigned abc =0;  abc < track_new_col->size();  ++abc) {
+    reco::TrackRef trackRef(track_new_col, abc);
+    simple_track_to_track_map[((*track_ref_map)[trackRef])[0]] = trackRef;
+  }
+
+  // merge begin
   for (auto akt_collection : to_merge) {
     edm::Handle<reco::GsfTrackCollection> track_col_in;
     iEvent.getByToken(akt_collection, track_col_in);
@@ -178,6 +192,8 @@ void TrackMergeremb<reco::GsfTrackCollection>::merg_and_put(
     size_t sedref_it = 0;
     for (reco::GsfTrackCollection::const_iterator it = track_col_in->begin(); it != track_col_in->end();
          ++it, ++sedref_it) {
+      reco::ElectronSeedRef seed = it->seedRef().castTo<reco::ElectronSeedRef>();
+      (const_cast<reco::ElectronSeed*>(seed.get()))->setCtfTrack(simple_track_to_track_map[seed->ctfTrack()]);
       outTracks->push_back(reco::GsfTrack(*it));
       outTracks_ex->push_back(reco::TrackExtra(*it->extra()));
       outTracks_exgsf->push_back(reco::GsfTrackExtra(*it->gsfExtra()));
@@ -198,18 +214,6 @@ void TrackMergeremb<reco::GsfTrackCollection>::merg_and_put(
   filler.insert(trackHandle, trackRefColl.begin(), trackRefColl.end() );
   filler.fill();
 
-
-  //track to track map for trackerdriven seed fix
-  edm::Handle<TrackToTrackMapnew> track_ref_map;
-  iEvent.getByToken(inputs_fixtrackrefs_, track_ref_map);
-
-  edm::Handle<reco::TrackCollection> track_new_col;
-  iEvent.getByToken(inputs_fixtrackcol_, track_new_col);
-  std::map<reco::TrackRef , reco::TrackRef > simple_track_to_track_map; //I didn't find a more elegant way, so just build a good old fassion std::map
-  for (unsigned abc =0;  abc < track_new_col->size();  ++abc) {
-    reco::TrackRef trackRef(track_new_col, abc);
-    simple_track_to_track_map[((*track_ref_map)[trackRef])[0]] = trackRef;
-  }
 
   edm::Handle<reco::ElectronSeedCollection> elSeeds;
   iEvent.getByToken(inputs_rElectronMergedSeeds_,elSeeds);
