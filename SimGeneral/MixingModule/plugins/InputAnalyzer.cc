@@ -72,14 +72,14 @@ namespace edm {
       }
 #ifdef EDM_ML_DEBUG
       // Loop over the tracks
-      double simPt=0;
+      double simPt = 0;
       int i = 0;
 
       SimTrackContainer::const_iterator simTrack;
       for (simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack) {
         i++;
 
-        simPt=(*simTrack).momentum().Pt();
+        simPt = (*simTrack).momentum().Pt();
         edm::LogVerbatim("InputAnalyzer") << " # i = " << i << " simPt = " << simPt;
       }
 #endif

@@ -94,7 +94,8 @@ void TestAssociator::printRechitSimhit(const edm::Handle<edmNew::DetSetVector<re
     // Loop over the RecHits in this sensor
     for (auto const& rechit : theDetSet) {
       hitCounter++;
-      edm::LogVerbatim("TrackAssociator") << hitCounter << ") " << rechitName << " RecHit subDet, DetId " << detid.subdetId() << ", " << myid << " Pos = " << rechit.localPosition();
+      edm::LogVerbatim("TrackAssociator") << hitCounter << ") " << rechitName << " RecHit subDet, DetId "
+                                          << detid.subdetId() << ", " << myid << " Pos = " << rechit.localPosition();
       bool isPixel = false;
       float mindist = 999999;
       float dist, distx, disty;
@@ -105,7 +106,8 @@ void TestAssociator::printRechitSimhit(const edm::Handle<edmNew::DetSetVector<re
       if (!matched.empty()) {
         // Print out the SimHit positions and residuals
         for (auto const& m : matched) {
-          edm::LogVerbatim("TrackAssociator") << " simtrack ID = " << m.trackId() << "                            Simhit Pos = " << m.localPosition();
+          edm::LogVerbatim("TrackAssociator")
+              << " simtrack ID = " << m.trackId() << "                            Simhit Pos = " << m.localPosition();
           // Seek the smallest residual
           if (const SiPixelRecHit* dummy = dynamic_cast<const SiPixelRecHit*>(&rechit)) {
             isPixel = true;
@@ -119,7 +121,7 @@ void TestAssociator::printRechitSimhit(const edm::Handle<edmNew::DetSetVector<re
             closest = m;
           }
         }
-	std::ostringstream st1;
+        std::ostringstream st1;
         st1 << " Closest Simhit = " << closest.localPosition();
         if (isPixel) {
           distx = fabs(rechit.localPosition().x() - closest.localPosition().x());

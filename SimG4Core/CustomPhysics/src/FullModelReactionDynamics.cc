@@ -1288,7 +1288,7 @@ G4bool FullModelReactionDynamics::TwoCluster(
   //G4double cMass = forwardMass;
 
   // target is always in backward hemisphere
-  G4int backwardCount = 1;         // number of particles in backward hemisphere
+  G4int backwardCount = 1;  // number of particles in backward hemisphere
   targetParticle.SetSide(-1);
   G4double backwardMass = targetParticle.GetMass() / GeV;
   //G4double bMass = backwardMass;
