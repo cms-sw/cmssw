@@ -200,10 +200,13 @@ void XtalDedxAnalysis::analyzeHits(std::vector<PCaloHit> &hits,
   }
 
   // Type of the secondary (coming directly from a generator level track)
-  int nvtx = 0, ntrk = 0, k1 = 0;
+  int nvtx = 0, k1 = 0;
   edm::SimVertexContainer::const_iterator simVtxItr;
+#ifdef EDM_ML_DEBUG
+  int ntrk = 0;
   for (simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); simTrkItr++)
     ntrk++;
+#endif
   for (simVtxItr = SimVtx->begin(); simVtxItr != SimVtx->end(); simVtxItr++)
     nvtx++;
 #ifdef EDM_ML_DEBUG
