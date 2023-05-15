@@ -20,34 +20,25 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-//#include "DQM/TrackingMonitor/interface/TrackAnalyzer.h"
+
 #include <string>
 
 TrackSplittingMonitor::TrackSplittingMonitor(const edm::ParameterSet& iConfig)
-    : dqmStore_(edm::Service<DQMStore>().operator->()),
-      conf_(iConfig),
+    : conf_(iConfig),
       mfToken_(esConsumes()),
       tkGeomToken_(esConsumes()),
       dtGeomToken_(esConsumes()),
       cscGeomToken_(esConsumes()),
-      rpcGeomToken_(esConsumes()) {
-  splitTracks_ = conf_.getParameter<edm::InputTag>("splitTrackCollection");
-  splitMuons_ = conf_.getParameter<edm::InputTag>("splitMuonCollection");
-  splitTracksToken_ = consumes<std::vector<reco::Track> >(splitTracks_);
-  splitMuonsToken_ = mayConsume<std::vector<reco::Muon> >(splitMuons_);
-
-  plotMuons_ = conf_.getParameter<bool>("ifPlotMuons");
-
-  // cuts
-  pixelHitsPerLeg_ = conf_.getParameter<int>("pixelHitsPerLeg");
-  totalHitsPerLeg_ = conf_.getParameter<int>("totalHitsPerLeg");
-  d0Cut_ = conf_.getParameter<double>("d0Cut");
-  dzCut_ = conf_.getParameter<double>("dzCut");
-  ptCut_ = conf_.getParameter<double>("ptCut");
-  norchiCut_ = conf_.getParameter<double>("norchiCut");
-}
-
-TrackSplittingMonitor::~TrackSplittingMonitor() = default;
+      rpcGeomToken_(esConsumes()),
+      splitTracksToken_(consumes<std::vector<reco::Track> >(conf_.getParameter<edm::InputTag>("splitTrackCollection"))),
+      splitMuonsToken_(mayConsume<std::vector<reco::Muon> >(conf_.getParameter<edm::InputTag>("splitMuonCollection"))),
+      plotMuons_(conf_.getParameter<bool>("ifPlotMuons")),
+      pixelHitsPerLeg_(conf_.getParameter<int>("pixelHitsPerLeg")),
+      totalHitsPerLeg_(conf_.getParameter<int>("totalHitsPerLeg")),
+      d0Cut_(conf_.getParameter<double>("d0Cut")),
+      dzCut_(conf_.getParameter<double>("dzCut")),
+      ptCut_(conf_.getParameter<double>("ptCut")),
+      norchiCut_(conf_.getParameter<double>("norchiCut")) {}
 
 void TrackSplittingMonitor::bookHistograms(DQMStore::IBooker& ibooker,
                                            edm::Run const& /* iRun */,
@@ -142,33 +133,33 @@ void TrackSplittingMonitor::bookHistograms(DQMStore::IBooker& ibooker,
   }
 
   ddxyAbsoluteResiduals_tracker_->setAxisTitle("(#delta d_{xy})/#sqrt{2} [#mum]");
-  ddxyAbsoluteResiduals_tracker_->setAxisTitle("(#delta d_{z})/#sqrt{2} [#mum]");
-  ddxyAbsoluteResiduals_tracker_->setAxisTitle("(#delta #phi)/#sqrt{2} [mrad]");
-  ddxyAbsoluteResiduals_tracker_->setAxisTitle("(#delta #theta)/#sqrt{2} [mrad]");
-  ddxyAbsoluteResiduals_tracker_->setAxisTitle("(#delta pT)/#sqrt{2} [GeV]");
-  ddxyAbsoluteResiduals_tracker_->setAxisTitle("(#delta (1/pT))/#sqrt{2} [GeV^{-1}]");
+  ddzAbsoluteResiduals_tracker_->setAxisTitle("(#delta d_{z})/#sqrt{2} [#mum]");
+  dphiAbsoluteResiduals_tracker_->setAxisTitle("(#delta #phi)/#sqrt{2} [mrad]");
+  dthetaAbsoluteResiduals_tracker_->setAxisTitle("(#delta #theta)/#sqrt{2} [mrad]");
+  dptAbsoluteResiduals_tracker_->setAxisTitle("(#delta pT)/#sqrt{2} [GeV]");
+  dcurvAbsoluteResiduals_tracker_->setAxisTitle("(#delta (1/pT))/#sqrt{2} [GeV^{-1}]");
 
   ddxyNormalizedResiduals_tracker_->setAxisTitle("#delta d_{xy}/#sigma(d_{xy}");
-  ddxyNormalizedResiduals_tracker_->setAxisTitle("#delta d_{z}/#sigma(d_{z})");
-  ddxyNormalizedResiduals_tracker_->setAxisTitle("#delta #phi/#sigma(d_{#phi})");
-  ddxyNormalizedResiduals_tracker_->setAxisTitle("#delta #theta/#sigma(d_{#theta})");
-  ddxyNormalizedResiduals_tracker_->setAxisTitle("#delta p_{T}/#sigma(p_{T})");
-  ddxyNormalizedResiduals_tracker_->setAxisTitle("#delta 1/p_{T}/#sigma(1/p_{T})");
+  ddzNormalizedResiduals_tracker_->setAxisTitle("#delta d_{z}/#sigma(d_{z})");
+  dphiNormalizedResiduals_tracker_->setAxisTitle("#delta #phi/#sigma(d_{#phi})");
+  dthetaNormalizedResiduals_tracker_->setAxisTitle("#delta #theta/#sigma(d_{#theta})");
+  dptNormalizedResiduals_tracker_->setAxisTitle("#delta p_{T}/#sigma(p_{T})");
+  dcurvNormalizedResiduals_tracker_->setAxisTitle("#delta 1/p_{T}/#sigma(1/p_{T})");
 
   if (plotMuons_) {
     ddxyAbsoluteResiduals_global_->setAxisTitle("(#delta d_{xy})/#sqrt{2} [#mum]");
-    ddxyAbsoluteResiduals_global_->setAxisTitle("(#delta d_{z})/#sqrt{2} [#mum]");
-    ddxyAbsoluteResiduals_global_->setAxisTitle("(#delta #phi)/#sqrt{2} [mrad]");
-    ddxyAbsoluteResiduals_global_->setAxisTitle("(#delta #theta)/#sqrt{2} [mrad]");
-    ddxyAbsoluteResiduals_global_->setAxisTitle("(#delta pT)/#sqrt{2} [GeV]");
-    ddxyAbsoluteResiduals_global_->setAxisTitle("(#delta (1/pT))/#sqrt{2} [GeV^{-1}]");
+    ddzAbsoluteResiduals_global_->setAxisTitle("(#delta d_{z})/#sqrt{2} [#mum]");
+    dphiAbsoluteResiduals_global_->setAxisTitle("(#delta #phi)/#sqrt{2} [mrad]");
+    dthetaAbsoluteResiduals_global_->setAxisTitle("(#delta #theta)/#sqrt{2} [mrad]");
+    dptAbsoluteResiduals_global_->setAxisTitle("(#delta pT)/#sqrt{2} [GeV]");
+    dcurvAbsoluteResiduals_global_->setAxisTitle("(#delta (1/pT))/#sqrt{2} [GeV^{-1}]");
 
     ddxyNormalizedResiduals_global_->setAxisTitle("#delta d_{xy}/#sigma(d_{xy}");
-    ddxyNormalizedResiduals_global_->setAxisTitle("#delta d_{z}/#sigma(d_{z})");
-    ddxyNormalizedResiduals_global_->setAxisTitle("#delta #phi/#sigma(d_{#phi})");
-    ddxyNormalizedResiduals_global_->setAxisTitle("#delta #theta/#sigma(d_{#theta})");
-    ddxyNormalizedResiduals_global_->setAxisTitle("#delta p_{T}/#sigma(p_{T})");
-    ddxyNormalizedResiduals_global_->setAxisTitle("#delta 1/p_{T}/#sigma(1/p_{T})");
+    ddzNormalizedResiduals_global_->setAxisTitle("#delta d_{z}/#sigma(d_{z})");
+    dphiNormalizedResiduals_global_->setAxisTitle("#delta #phi/#sigma(d_{#phi})");
+    dthetaNormalizedResiduals_global_->setAxisTitle("#delta #theta/#sigma(d_{#theta})");
+    dptNormalizedResiduals_global_->setAxisTitle("#delta p_{T}/#sigma(p_{T})");
+    dcurvNormalizedResiduals_global_->setAxisTitle("#delta 1/p_{T}/#sigma(1/p_{T})");
   }
 }
 
@@ -205,10 +196,10 @@ void TrackSplittingMonitor::analyze(const edm::Event& iEvent, const edm::EventSe
     // looping through the hits for track 1
     double nRechits1 = 0;
     double nRechitinBPIX1 = 0;
-    for (trackingRecHit_iterator iHit = track1.recHitsBegin(); iHit != track1.recHitsEnd(); ++iHit) {
-      if ((*iHit)->isValid()) {
+    for (auto const& iHit : track1.recHits()) {
+      if (iHit->isValid()) {
         nRechits1++;
-        int type = (*iHit)->geographicalId().subdetId();
+        int type = iHit->geographicalId().subdetId();
         if (type == int(PixelSubdetector::PixelBarrel)) {
           ++nRechitinBPIX1;
         }
@@ -217,10 +208,10 @@ void TrackSplittingMonitor::analyze(const edm::Event& iEvent, const edm::EventSe
     // looping through the hits for track 2
     double nRechits2 = 0;
     double nRechitinBPIX2 = 0;
-    for (trackingRecHit_iterator iHit = track2.recHitsBegin(); iHit != track2.recHitsEnd(); ++iHit) {
-      if ((*iHit)->isValid()) {
+    for (auto const& iHit : track2.recHits()) {
+      if (iHit->isValid()) {
         nRechits2++;
-        int type = (*iHit)->geographicalId().subdetId();
+        int type = iHit->geographicalId().subdetId();
         if (type == int(PixelSubdetector::PixelBarrel)) {
           ++nRechitinBPIX2;
         }
@@ -246,7 +237,8 @@ void TrackSplittingMonitor::analyze(const edm::Event& iEvent, const edm::EventSe
     if ((nRechitinBPIX1 >= pixelHitsPerLeg_) && (nRechitinBPIX1 >= pixelHitsPerLeg_) &&
         (nRechits1 >= totalHitsPerLeg_) && (nRechits2 >= totalHitsPerLeg_)) {
       // dca cut
-      if (((fabs(d01) < d0Cut_)) && (fabs(d02) < d0Cut_) && (fabs(dz2) < dzCut_) && (fabs(dz2) < dzCut_)) {
+      if (((std::abs(d01) < d0Cut_)) && (std::abs(d02) < d0Cut_) && (std::abs(dz2) < dzCut_) &&
+          (std::abs(dz2) < dzCut_)) {
         // pt cut
         if ((pt1 + pt2) / 2 < ptCut_) {
           // chi2 cut
@@ -272,20 +264,20 @@ void TrackSplittingMonitor::analyze(const edm::Event& iEvent, const edm::EventSe
             double pt1ErrVal = track1.ptError();
             double pt2ErrVal = track2.ptError();
 
-            ddxyAbsoluteResiduals_tracker_->Fill(10000.0 * ddxyVal / sqrt(2.0));
-            ddxyAbsoluteResiduals_tracker_->Fill(10000.0 * ddzVal / sqrt(2.0));
-            ddxyAbsoluteResiduals_tracker_->Fill(1000.0 * dphiVal / sqrt(2.0));
-            ddxyAbsoluteResiduals_tracker_->Fill(1000.0 * dthetaVal / sqrt(2.0));
-            ddxyAbsoluteResiduals_tracker_->Fill(dptVal / sqrt(2.0));
-            ddxyAbsoluteResiduals_tracker_->Fill(dcurvVal / sqrt(2.0));
+            ddxyAbsoluteResiduals_tracker_->Fill(cmToUm * ddxyVal / sqrt2);
+            ddzAbsoluteResiduals_tracker_->Fill(cmToUm * ddzVal / sqrt2);
+            dphiAbsoluteResiduals_tracker_->Fill(radToUrad * dphiVal / sqrt2);
+            dthetaAbsoluteResiduals_tracker_->Fill(radToUrad * dthetaVal / sqrt2);
+            dptAbsoluteResiduals_tracker_->Fill(dptVal / sqrt2);
+            dcurvAbsoluteResiduals_tracker_->Fill(dcurvVal / sqrt2);
 
             ddxyNormalizedResiduals_tracker_->Fill(ddxyVal / sqrt(d01ErrVal * d01ErrVal + d02ErrVal * d02ErrVal));
-            ddxyNormalizedResiduals_tracker_->Fill(ddzVal / sqrt(dz1ErrVal * dz1ErrVal + dz2ErrVal * dz2ErrVal));
-            ddxyNormalizedResiduals_tracker_->Fill(dphiVal / sqrt(phi1ErrVal * phi1ErrVal + phi2ErrVal * phi2ErrVal));
-            ddxyNormalizedResiduals_tracker_->Fill(dthetaVal /
-                                                   sqrt(theta1ErrVal * theta1ErrVal + theta2ErrVal * theta2ErrVal));
-            ddxyNormalizedResiduals_tracker_->Fill(dptVal / sqrt(pt1ErrVal * pt1ErrVal + pt2ErrVal * pt2ErrVal));
-            ddxyNormalizedResiduals_tracker_->Fill(
+            ddzNormalizedResiduals_tracker_->Fill(ddzVal / sqrt(dz1ErrVal * dz1ErrVal + dz2ErrVal * dz2ErrVal));
+            dphiNormalizedResiduals_tracker_->Fill(dphiVal / sqrt(phi1ErrVal * phi1ErrVal + phi2ErrVal * phi2ErrVal));
+            dthetaNormalizedResiduals_tracker_->Fill(dthetaVal /
+                                                     sqrt(theta1ErrVal * theta1ErrVal + theta2ErrVal * theta2ErrVal));
+            dptNormalizedResiduals_tracker_->Fill(dptVal / sqrt(pt1ErrVal * pt1ErrVal + pt2ErrVal * pt2ErrVal));
+            dcurvNormalizedResiduals_tracker_->Fill(
                 dcurvVal / sqrt(pow(pt1ErrVal, 2) / pow(pt1, 4) + pow(pt2ErrVal, 2) / pow(pt2, 4)));
 
             // if do the same for split muons
@@ -347,12 +339,12 @@ void TrackSplittingMonitor::analyze(const edm::Event& iEvent, const edm::EventSe
                 double pt1ErrValGlb = glb1->ptError();
                 double pt2ErrValGlb = glb2->ptError();
 
-                ddxyAbsoluteResiduals_global_->Fill(10000.0 * ddxyValGlb / sqrt(2.0));
-                ddxyAbsoluteResiduals_global_->Fill(10000.0 * ddzValGlb / sqrt(2.0));
-                ddxyAbsoluteResiduals_global_->Fill(1000.0 * dphiValGlb / sqrt(2.0));
-                ddxyAbsoluteResiduals_global_->Fill(1000.0 * dthetaValGlb / sqrt(2.0));
-                ddxyAbsoluteResiduals_global_->Fill(dptValGlb / sqrt(2.0));
-                ddxyAbsoluteResiduals_global_->Fill(dcurvValGlb / sqrt(2.0));
+                ddxyAbsoluteResiduals_global_->Fill(cmToUm * ddxyValGlb / sqrt2);
+                ddzAbsoluteResiduals_global_->Fill(cmToUm * ddzValGlb / sqrt2);
+                dphiAbsoluteResiduals_global_->Fill(radToUrad * dphiValGlb / sqrt2);
+                dthetaAbsoluteResiduals_global_->Fill(radToUrad * dthetaValGlb / sqrt2);
+                dptAbsoluteResiduals_global_->Fill(dptValGlb / sqrt2);
+                dcurvAbsoluteResiduals_global_->Fill(dcurvValGlb / sqrt2);
 
                 ddxyNormalizedResiduals_global_->Fill(ddxyValGlb /
                                                       sqrt(d01ErrValGlb * d01ErrValGlb + d02ErrValGlb * d02ErrValGlb));
