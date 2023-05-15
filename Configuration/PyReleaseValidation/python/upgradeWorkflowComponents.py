@@ -82,7 +82,13 @@ numWFStart={
 }
 numWFSkip=200
 # temporary measure to keep other WF numbers the same
-numWFConflict = [[20000,23200],[23600,28200],[28600,31400],[31800,32200],[32600,34600],[50000,51000]]
+numWFConflict = [[14000,14400], #2023FS,2023FSPU in 13_0 or beyond
+                 [20000,23200],
+                 [23600,28200],
+                 [28600,31400],
+                 [31800,32200],
+                 [32600,34600],
+                 [50000,51000]]
 numWFAll={
     2017: [],
     2026: []
