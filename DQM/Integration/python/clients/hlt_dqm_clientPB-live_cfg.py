@@ -47,9 +47,9 @@ process.fastTimerServiceClient.doPlotsVsPixelLumi = False
 process.fastTimerServiceClient.onlineLumiME = dict(
     folder = 'HLT/LumiMonitoring',
     name   = 'lumiVsLS',
-    nbins  = 5000,
+    nbins  = 6000,
     xmin   = 0,
-    xmax   = 20000
+    xmax   = 30000,
 )
 
 # ThroughputService client
@@ -63,13 +63,10 @@ process.psColumnVsLumi = process.dqmCorrelationClient.clone(
       folder = cms.string("HLT/PSMonitoring"),
       name   = cms.string("psColumnVSlumi"),
       doXaxis = cms.bool( True ),
-      nbinsX = cms.int32( 5000),
-      xminX  = cms.double(    0.),
-      xmaxX  = cms.double(20000.),
+      nbinsX = cms.int32( 6000 ),
+      xminX  = cms.double( 0. ),
+      xmaxX  = cms.double( 30000. ),
       doYaxis = cms.bool( False ),
-      nbinsY = cms.int32 (   8),
-      xminY  = cms.double(   0.),
-      xmaxY  = cms.double(   8.),
    ),
    me1 = cms.PSet(
       folder   = cms.string("HLT/LumiMonitoring"),
