@@ -8,51 +8,41 @@ SiTrivialDigitalConverter::SiTrivialDigitalConverter(float in, bool PreMix)
   _tempRaw.reserve(800);
 }
 
-
-
-
 namespace {
 
-inline
-int truncate(float in_adc) {
-  //Rounding the ADC number instead of truncating it
-  int radc = int(in_adc + 0.5f);
-  /*
+  inline int truncate(float in_adc) {
+    //Rounding the ADC number instead of truncating it
+    int radc = int(in_adc + 0.5f);
+    /*
     254 ADC: 254  <= raw charge < 1023
     255 ADC: raw charge >= 1023
   */
-  int adc  = std::clamp(radc, 0, 254);
-  if (radc > 1022)
-      adc =  255;
-  return adc;
-}
+    int adc = std::clamp(radc, 0, 254);
+    if (radc > 1022)
+      adc = 255;
+    return adc;
+  }
 
-inline
-int truncateForPremix(float in_adc) {
-  //Rounding the ADC number instead of truncating it (in_adc is >=0)
-  int radc = int(in_adc + 0.5f);
-  /*
+  inline int truncateForPremix(float in_adc) {
+    //Rounding the ADC number instead of truncating it (in_adc is >=0)
+    int radc = int(in_adc + 0.5f);
+    /*
     1022 ADC: 1022  <= raw charge < 2047
     1023 ADC: raw charge > 2047
   */
-  int adc = std::min(radc, 1022);
-  if (radc > 2047)
-      adc =  1023;
-  return adc;
-}
+    int adc = std::min(radc, 1022);
+    if (radc > 2047)
+      adc = 1023;
+    return adc;
+  }
 
+  inline int truncateRaw(float in_adc) {
+    //Rounding the ADC number
+    int adc = int(in_adc + 0.5f);
+    return std::clamp(adc, 0, 1023);
+  }
 
-inline
-int truncateRaw(float in_adc) {
-  //Rounding the ADC number
-  int adc = int(in_adc + 0.5f);
-  return std::clamp(adc, 0, 1023);
-}
-
-
-}
-
-
+}  // namespace
 
 SiDigitalConverter::DigitalVecType const& SiTrivialDigitalConverter::convert(const std::vector<float>& analogSignal,
                                                                              const SiStripGain* gain,
@@ -124,4 +114,3 @@ SiDigitalConverter::DigitalRawVecType const& SiTrivialDigitalConverter::convertR
   }
   return _tempRaw;
 }
-

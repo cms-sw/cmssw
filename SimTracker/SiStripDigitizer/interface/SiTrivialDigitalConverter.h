@@ -13,7 +13,6 @@ public:
   DigitalRawVecType const& convertRaw(const std::vector<float>&, const SiStripGain*, unsigned int detid) override;
 
 private:
-
   const float ADCperElectron;
   SiDigitalConverter::DigitalVecType _temp;
   SiDigitalConverter::DigitalRawVecType _tempRaw;

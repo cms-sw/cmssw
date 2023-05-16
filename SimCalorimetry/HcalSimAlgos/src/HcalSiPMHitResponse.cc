@@ -86,7 +86,7 @@ void HcalSiPMHitResponse::add(const CaloSamples& signal) {
     return;
   }
   DetId id(signal.id());
-#ifdef EDM_ML_DEBUG 
+#ifdef EDM_ML_DEBUG
   int photonTimeHistSize = nbins * getReadoutFrameSize(id);
   assert(photonTimeHistSize == signal.size());
 #endif
@@ -94,7 +94,7 @@ void HcalSiPMHitResponse::add(const CaloSamples& signal) {
   if (photI == precisionTimedPhotons.end()) {
     photI = precisionTimedPhotons.emplace(id, photonTimeHist(signal.size(), 0)).first;
   }
-  auto & phot = photI->second;
+  auto& phot = photI->second;
   for (int i = 0; i < signal.size(); ++i) {
     unsigned int photons(signal[i] + 0.5);
     phot[i] += photons;
