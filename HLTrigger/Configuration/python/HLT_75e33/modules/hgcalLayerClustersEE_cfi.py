@@ -53,7 +53,7 @@ hgcalLayerClustersEE = cms.EDProducer('HGCalLayerClusterProducer',
     type = cms.string('SiCLUE')
   
   ),
-  detector = cms.string('all'),
+  detector = cms.string('EE'),
   recHits = cms.InputTag('HGCalRecHit', 'HGCEERecHits'),
   timeClname = cms.string('timeLayerCluster'),
   nHitsTime = cms.uint32(3),
