@@ -343,6 +343,7 @@ bool L1TStage2CaloLayer2Comp::compareJets(const edm::Handle<l1t::JetBxCollection
     while (true) {
       bool posGood = true;
       bool etGood = true;
+      bool qualGood = true;
 
       // object pt mismatch
       if (dataIt->hwPt() != emulBxIt->hwPt()) {
@@ -358,6 +359,12 @@ bool L1TStage2CaloLayer2Comp::compareJets(const edm::Handle<l1t::JetBxCollection
       // object position mismatch (eta)
       if (dataIt->hwEta() != emulBxIt->hwEta()) {
         posGood = false;
+      }
+
+      // object quality mismatch
+      if (dataIt->hwQual() != emulBxIt->hwQual()) {
+        qualGood = false;
+        eventGood = false;
       }
 
       //bypass sorting bug
@@ -384,12 +391,13 @@ bool L1TStage2CaloLayer2Comp::compareJets(const edm::Handle<l1t::JetBxCollection
       if (!posGood)
         eventGood = false;
 
-      // if both position and energy agree, object is good
-      if (!etGood || !posGood) {
+      //if both position and energy agree, object is good
+      if (!etGood || !posGood || !qualGood) {
         edm::LogProblem("l1tcalol2ebec") << "Jet Problem (data emul): "
                                          << "\tEt = " << dataIt->hwPt() << " " << emulBxIt->hwPt()
                                          << "\teta = " << dataIt->hwEta() << " " << emulBxIt->hwEta()
-                                         << "\tphi = " << dataIt->hwPhi() << " " << emulBxIt->hwPhi() << std::endl;
+                                         << "\tphi = " << dataIt->hwPhi() << " " << emulBxIt->hwPhi()
+                                         << "\tqual = " << dataIt->hwQual() << " " << emulBxIt->hwQual() << std::endl;
       }
 
       // increment position of pointers

@@ -47,10 +47,10 @@ namespace reco {
           float covbetabeta = -1.);
 
     /// return true if the outermost hit is valid
-    bool outerOk() const { return extra_->outerOk(); }
+    bool outerOk() const { return extra_.isNonnull() && extra_.isAvailable() && extra_->outerOk(); }
 
     /// return true if the innermost hit is valid
-    bool innerOk() const { return extra_->innerOk(); }
+    bool innerOk() const { return extra_.isNonnull() && extra_.isAvailable() && extra_->innerOk(); }
 
     /// position of the innermost hit
     const math::XYZPoint& innerPosition() const { return extra_->innerPosition(); }

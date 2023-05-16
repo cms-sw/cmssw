@@ -518,19 +518,12 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
           float leftlobe = 0;
           float rightlobe = 0;
           float e5x5 = 0;
-          float n5x5 = 0;
           float e2x5_1 = 0;
-          float n2x5_1 = 0;
           float e2x5_2 = 0;
-          float n2x5_2 = 0;
           float e2x2_1 = 0;
-          float n2x2_1 = 0;
           float e2x2_2 = 0;
-          float n2x2_2 = 0;
           float e2x2_3 = 0;
-          float n2x2_3 = 0;
           float e2x2_4 = 0;
-          float n2x2_4 = 0;
           for (auto& hit : ecalhits) {
             if (getCrystal_phiID(hit.position().phi()) <= getPhiMax_card(cc) &&
                 getCrystal_phiID(hit.position().phi()) >= getPhiMin_card(cc) &&
@@ -546,35 +539,28 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
               }
               if (abs(hit.dieta(centerhit)) <= 2 && abs(hit.diphi(centerhit)) <= 2) {
                 e5x5 += hit.energy();
-                n5x5++;
               }
               if ((hit.dieta(centerhit) == 1 or hit.dieta(centerhit) == 0) &&
                   (hit.diphi(centerhit) == 1 or hit.diphi(centerhit) == 0)) {
                 e2x2_1 += hit.energy();
-                n2x2_1++;
               }
               if ((hit.dieta(centerhit) == 0 or hit.dieta(centerhit) == -1) &&
                   (hit.diphi(centerhit) == 0 or hit.diphi(centerhit) == 1)) {
                 e2x2_2 += hit.energy();
-                n2x2_2++;
               }
               if ((hit.dieta(centerhit) == 0 or hit.dieta(centerhit) == 1) &&
                   (hit.diphi(centerhit) == 0 or hit.diphi(centerhit) == -1)) {
                 e2x2_3 += hit.energy();
-                n2x2_3++;
               }
               if ((hit.dieta(centerhit) == 0 or hit.dieta(centerhit) == -1) &&
                   (hit.diphi(centerhit) == 0 or hit.diphi(centerhit) == -1)) {
                 e2x2_4 += hit.energy();
-                n2x2_4++;
               }
               if ((hit.dieta(centerhit) == 0 or hit.dieta(centerhit) == 1) && abs(hit.diphi(centerhit)) <= 2) {
                 e2x5_1 += hit.energy();
-                n2x5_1++;
               }
               if ((hit.dieta(centerhit) == 0 or hit.dieta(centerhit) == -1) && abs(hit.diphi(centerhit)) <= 2) {
                 e2x5_2 += hit.energy();
-                n2x5_2++;
               }
             }
             if (getCrystal_phiID(hit.position().phi()) <= getPhiMax_card(cc) &&

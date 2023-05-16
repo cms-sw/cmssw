@@ -28,6 +28,7 @@ public:
     RP_45_220_FR_HR,
     RP_45_220_FR_TP,
     RP_45_220_NR_BT,
+    RP_45_220_NR_HR,
     RP_45_220_NR_TP,
     RP_56_210_FR_BT,
     RP_56_210_FR_HR,
@@ -37,6 +38,7 @@ public:
     RP_56_220_FR_HR,
     RP_56_220_FR_TP,
     RP_56_220_NR_BT,
+    RP_56_220_NR_HR,
     RP_56_220_NR_TP,
     Last
   };

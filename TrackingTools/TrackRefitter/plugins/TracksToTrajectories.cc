@@ -152,8 +152,8 @@ void TracksToTrajectories::produce(Event& event, const EventSetup& setup) {
     }
   }
   LogTrace(metname) << "Load the Trajectory Collection";
-  event.put(move(trajectoryCollection), "Refitted");
-  event.put(move(trajTrackMap), "Refitted");
+  event.put(std::move(trajectoryCollection), "Refitted");
+  event.put(std::move(trajTrackMap), "Refitted");
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

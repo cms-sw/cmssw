@@ -36,7 +36,7 @@ step1Up2018ProdDefaults = merge ([{'--eventcontent':'RAWSIM'},step1Up2018Default
 step1Up2018HiProdDefaults = merge ([{'--eventcontent':'RAWSIM'},step1Up2018HiDefaults])
 # step1 gensim: for 2022 HI prod
 step1Up2022HiProdDefaults = merge ([{'--conditions':'auto:phase1_2022_realistic_hi','--era':'Run3_pp_on_PbPb','--beamspot':'Realistic2022PbPbCollision','--eventcontent':'RAWSIM','--geometry':'DB:Extended'},step1Up2018HiDefaults])
-step1Up2023HiProdDefaults = merge ([{'--conditions':'auto:phase1_2023_realistic_hi','--era':'Run3_pp_on_PbPb','--beamspot':'Realistic2022PbPbCollision','--eventcontent':'RAWSIM','--geometry':'DB:Extended'},step1Up2018HiDefaults])
+step1Up2023HiProdDefaults = merge ([{'--conditions':'auto:phase1_2023_realistic_hi','--era':'Run3_pp_on_PbPb_2023','--beamspot':'Realistic2022PbPbCollision','--eventcontent':'RAWSIM','--geometry':'DB:Extended'},step1Up2018HiDefaults])
 
 steps = Steps()
 
@@ -548,6 +548,20 @@ steps['RunDisplacedJet2022D']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2022D
 steps['RunEGamma2022D']={'INPUT':InputInfo(dataSet='/EGamma/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D_LS25)}
 steps['RunTau2022D']={'INPUT':InputInfo(dataSet='/Tau/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D_LS100)}
 steps['RunMuonEG2022D']={'INPUT':InputInfo(dataSet='/MuonEG/Run2022D-v1/RAW',label='2022D',events=100000,location='STD', ls=Run2022D_LS100)}
+
+
+Run2022E={359694: [[1, 50]]}
+Run2022E_LS100={359694: [[1, 100]]}
+Run2022E_LS200={359694: [[1, 200]]}
+steps['RunMuon2022E']={'INPUT':InputInfo(dataSet='/Muon/Run2022E-v1/RAW',label='2022E',events=100000,location='STD', ls=Run2022E)}
+steps['RunZeroBias2022E']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2022E-v1/RAW',label='2022E',events=100000,location='STD', ls=Run2022E_LS100)}
+steps['RunBTagMu2022E']={'INPUT':InputInfo(dataSet='/BTagMu/Run2022E-v1/RAW',label='2022E',events=100000,location='STD', ls=Run2022E_LS100)}
+steps['RunJetMET2022E']={'INPUT':InputInfo(dataSet='/JetMET/Run2022E-v1/RAW',label='2022E',events=100000,location='STD', ls=Run2022E)}
+steps['RunDisplacedJet2022E']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2022E-v1/RAW',label='2022E',events=100000,location='STD', ls=Run2022E_LS200)}
+steps['RunEGamma2022E']={'INPUT':InputInfo(dataSet='/EGamma/Run2022E-v1/RAW',label='2022E',events=100000,location='STD', ls=Run2022E)}
+steps['RunTau2022E']={'INPUT':InputInfo(dataSet='/Tau/Run2022E-v1/RAW',label='2022E',events=100000,location='STD', ls=Run2022E_LS200)}
+steps['RunMuonEG2022E']={'INPUT':InputInfo(dataSet='/MuonEG/Run2022E-v1/RAW',label='2022E',events=100000,location='STD', ls=Run2022E_LS200)}
+
 
 Run2022FCosmics_LS24={360336: [[24, 24]]}
 Run2022FCosmics={360333: [[1,105]]}
@@ -1083,8 +1097,8 @@ hiDefaults2018 = {'--conditions':'auto:phase1_2018_realistic_hi', '--era':'Run2_
 hiDefaults2018_ppReco = {'--conditions':'auto:phase1_2018_realistic_hi', '--era':'Run2_2018_pp_on_AA'}
 hiDefaults2022_ppReco = {'--conditions':'auto:phase1_2022_realistic_hi', '--era':'Run3_pp_on_PbPb'}
 hiDefaults2022_ppReco_approxClusters = {'--conditions':'auto:phase1_2022_realistic_hi', '--era':'Run3_pp_on_PbPb_approxSiStripClusters'}
-hiDefaults2023_ppReco = {'--conditions':'auto:phase1_2023_realistic_hi', '--era':'Run3_pp_on_PbPb'}
-hiDefaults2023_ppReco_approxClusters = {'--conditions':'auto:phase1_2023_realistic_hi', '--era':'Run3_pp_on_PbPb_approxSiStripClusters'}
+hiDefaults2023_ppReco = {'--conditions':'auto:phase1_2023_realistic_hi', '--era':'Run3_pp_on_PbPb_2023'}
+hiDefaults2023_ppReco_approxClusters = {'--conditions':'auto:phase1_2023_realistic_hi', '--era':'Run3_pp_on_PbPb_approxSiStripClusters_2023'}
 
 steps['Hydjet2Q_MinBias_5020GeV_2018_ppReco']=merge([{'-n':1},hiDefaults2018_ppReco,gen2018hiprod('Hydjet2_Quenched_MinBias_5020GeV_cfi',U2000by1)])
 steps['HydjetQ_B12_5020GeV_2011']=merge([{'-n':1,'--beamspot':'RealisticHI2011Collision'},hiDefaults2011,genS('Hydjet_Quenched_B12_5020GeV_cfi',U2000by1)])
@@ -2935,20 +2949,20 @@ steps['RECOHI2023PPRECOAPPROXCLUSTERS']=merge([hiDefaults2023_ppReco_approxClust
 steps['RECOHI2023PPRECOMBAPPROXCLUSTERS']=merge([hiDefaults2023_ppReco_approxClusters,{'-s':'RAW2DIGI,L1Reco,RECO,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM',
                                                           '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
                                                           '--eventcontent':'RECOSIM,MINIAODSIM,DQM',
-                                                          '--era':'Run3_pp_on_PbPb',
+                                                          '--era':'Run3_pp_on_PbPb_2023',
                                                           '--procModifiers':'genJetSubEvent',
                                                         },step3Up2015Defaults])
 
 steps['RECOHI2023PROD']=merge([hiDefaults2023_ppReco_approxClusters,{'-s':'RAW2DIGI,L1Reco,RECO',
                                                                      '--datatier':'AODSIM',
                                                                      '--eventcontent':'AODSIM',
-                                                                     '--era':'Run3_pp_on_PbPb',
+                                                                     '--era':'Run3_pp_on_PbPb_2023',
                                                         },step3Up2015Defaults])
 
 steps['MINIHI2023PROD']=merge([hiDefaults2023_ppReco,{'-s':'PAT',
                                                                      '--datatier':'MINIAODSIM',
                                                                      '--eventcontent':'MINIAODSIM',
-                                                                     '--era':'Run3_pp_on_PbPb',
+                                                                     '--era':'Run3_pp_on_PbPb_2023',
                                                                      '--procModifiers':'genJetSubEvent',
                                                         },step3Up2015Defaults])
 
@@ -2959,14 +2973,14 @@ steps['RECOHI2023PPRECO']=merge([hiDefaults2023_ppReco,{'-s':'RAW2DIGI,L1Reco,RE
 steps['RECOHI2023PPRECOMB']=merge([hiDefaults2023_ppReco,{'-s':'RAW2DIGI,L1Reco,RECO,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM',
                                                           '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
                                                           '--eventcontent':'RECOSIM,MINIAODSIM,DQM',
-                                                          '--era':'Run3_pp_on_PbPb',
+                                                          '--era':'Run3_pp_on_PbPb_2023',
                                                           '--procModifiers':'genJetSubEvent',
                                                         },step3Up2015Defaults])
 steps['REMINIAODHI2023PPRECOMB']=merge([{'-s':'PAT,VALIDATION:@miniAODValidation,DQM:@miniAODDQM',
                                          '--datatier':'MINIAODSIM,DQMIO',
                                          '--eventcontent':'MINIAODSIM,DQM',
                                          '-n':100,
-                                         '--era':'Run3_pp_on_PbPb',
+                                         '--era':'Run3_pp_on_PbPb_2023',
                                          '--procModifiers':'genJetSubEvent',
                                      },hiDefaults2023_ppReco,step3Up2015Defaults])
 
@@ -3575,18 +3589,18 @@ steps['HARVESTFS']={'-s':'HARVESTING:validationHarvestingFS',
 steps['HARVESTHI2023PPRECO']=merge([hiDefaults2023_ppReco,{'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
                                                            '--filein':'file:step3_inDQM.root',
                                                            '--mc':'',
-                                                           '--era' : 'Run3_pp_on_PbPb',
+                                                           '--era' : 'Run3_pp_on_PbPb_2023',
                                                            '--filetype':'DQM'}])
 
 steps['HARVESTHI2023PPRECO4']=merge([hiDefaults2023_ppReco,{'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
                                                             '--filein':'file:step4_inDQM.root',
                                                             '--mc':'',
-                                                            '--era' : 'Run3_pp_on_PbPb',
+                                                            '--era' : 'Run3_pp_on_PbPb_2023',
                                                             '--filetype':'DQM'}])
 steps['HARVESTHI2023PPRECOMINIAOD']=merge([{'-s':'HARVESTING:@miniAODValidation+@miniAODDQM',
                                                                   '--filein':'file:step2_inDQM.root',
                                                                   '--mc':'',
-                                                                  '--era' : 'Run3_pp_on_PbPb',
+                                                                  '--era' : 'Run3_pp_on_PbPb_2023',
                                                                   '--filetype':'DQM',
                                                                   '-n':100},hiDefaults2023_ppReco])
 
@@ -4051,7 +4065,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--eventcontent':'FEVTDEBUGHLT',
                                       '--geometry' : geom
                                       }
-                                      
+
     upgradeStepDict['HLTRun3'][k] = {'-s':'HLT:%s'%(hltversion),
                                  '--conditions':gt,
                                  '--datatier':'GEN-SIM-DIGI-RAW',
@@ -4060,7 +4074,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                  '--geometry' : geom,
                                  '--outputCommands' : '"drop *_*_*_GEN,drop *_*_*_DIGI2RAW"'
                                  }
-    
+
     upgradeStepDict['HLT75e33'][k] = {'-s':'HLT:@relval2026',
                                       '--processName':'HLTX',
                                       '--conditions':gt,
@@ -4069,7 +4083,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--eventcontent':'FEVTDEBUGHLT',
                                       '--geometry' : geom
                                       }
-    
+
     upgradeStepDict['Reco'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM',
                                       '--conditions':gt,
                                       '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
@@ -4118,21 +4132,29 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                     '--filetype':'DQM',
                                     }
 
-    upgradeStepDict['HARVESTNano'][k]={'-s':'HARVESTING:@standardValidation+@standardDQM+@ExtraHLT+@miniAODValidation+@miniAODDQM+@nanoAODDQM',
+    upgradeStepDict['HARVESTFakeHLT'][k]={'-s':'HARVESTING:@standardValidationNoHLT+@standardDQMFakeHLT+@miniAODValidation+@miniAODDQM',
                                           '--conditions':gt,
                                           '--mc':'',
                                           '--geometry' : geom,
                                           '--scenario' : 'pp',
                                           '--filetype':'DQM',
-                                          }
-                                    
-    upgradeStepDict['HARVESTFakeHLT'][k]={'-s':'HARVESTING:@standardValidationNoHLT+@standardDQMFakeHLT+@miniAODValidation+@miniAODDQM',
-                                    '--conditions':gt,
-                                    '--mc':'',
-                                    '--geometry' : geom,
-                                    '--scenario' : 'pp',
-                                    '--filetype':'DQM',
-                                    }
+                                         }
+
+    upgradeStepDict['HARVESTNano'][k]={'-s': 'HARVESTING:@standardValidation+@standardDQM+@ExtraHLT+@miniAODValidation+@miniAODDQM+@nanoAODDQM',
+                                       '--conditions': gt,
+                                       '--mc': '',
+                                       '--geometry': geom,
+                                       '--scenario': 'pp',
+                                       '--filetype': 'DQM',
+                                      }
+
+    upgradeStepDict['HARVESTNanoFakeHLT'][k]={'-s': 'HARVESTING:@standardValidationNoHLT+@standardDQMFakeHLT+@miniAODValidation+@miniAODDQM+@nanoAODDQM',
+                                              '--conditions': gt,
+                                              '--mc': '',
+                                              '--geometry': geom,
+                                              '--scenario': 'pp',
+                                              '--filetype': 'DQM',
+                                             }
 
     upgradeStepDict['HARVESTGlobal'][k] = merge([{'-s': 'HARVESTING:@phase2Validation+@phase2+@miniAODValidation+@miniAODDQM'}, upgradeStepDict['HARVEST'][k]])
 
@@ -4154,7 +4176,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                    '--fast':'',
                                    '--geometry' : geom,
                                    '--relval':'27000,3000'}
-    
+
     upgradeStepDict['HARVESTFast'][k]={'-s':'HARVESTING:validationHarvesting',
                                     '--conditions':gt,
                                     '--mc':'',
@@ -4171,7 +4193,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                        '--eventcontent':'FEVTDEBUGHLT,MINIAODSIM,NANOEDMAODSIM,DQM',
                                        '--datatier':'GEN-SIM-DIGI-RECO,MINIAODSIM,NANOAODSIM,DQMIO',
                                        }
-    
+
     upgradeStepDict['HARVESTFastRun3'][k]={'-s':'HARVESTING:validationHarvesting+@miniAODValidation+@miniAODDQM+@nanoAODDQM',
                                            '--conditions':gt,
                                            '--mc':'',
@@ -4180,7 +4202,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                            '--scenario':'pp',
                                            '--filetype':'DQM',
                                            '--filein':'file:step2_inDQM.root'}
-    
+
     upgradeStepDict['Nano'][k] = {'-s':'NANO,DQM:@nanoAODDQM',
                                       '--conditions':gt,
                                       '--datatier':'NANOAODSIM,DQMIO',
@@ -4189,15 +4211,23 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--filein':'file:step3_inMINIAODSIM.root',
                                       '--geometry' : geom
                                       }
-                                      
+
     upgradeStepDict['RecoNano'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,PAT,NANO,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM+@nanoAODDQM',
                                       '--conditions':gt,
                                       '--datatier':'GEN-SIM-RECO,MINIAODSIM,NANOAODSIM,DQMIO',
                                       '-n':'10',
                                       '--eventcontent':'RECOSIM,MINIAODSIM,NANOEDMAODSIM,DQM',
-                                      '--geometry' : geom
+                                      '--geometry' : geom,
                                       }
-                                      
+
+    upgradeStepDict['RecoNanoFakeHLT'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,PAT,NANO,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM+@nanoAODDQM',
+                                             '--conditions':gt,
+                                             '--datatier':'GEN-SIM-RECO,MINIAODSIM,NANOAODSIM,DQMIO',
+                                             '-n':'10',
+                                             '--eventcontent':'RECOSIM,MINIAODSIM,NANOEDMAODSIM,DQM',
+                                             '--geometry' : geom,
+                                            }
+
     # setup baseline and variations
     for specialType,specialWF in upgradeWFs.items():
         specialWF.setup(upgradeStepDict, k, upgradeProperties[year][k])

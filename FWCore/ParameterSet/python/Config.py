@@ -150,8 +150,8 @@ class Process(object):
         self.__isStrict = False
         self.__dict__['_Process__modifiers'] = Mods
         self.__dict__['_Process__accelerators'] = {}
-        self.options = Process.defaultOptions_()
-        self.maxEvents = Process.defaultMaxEvents_()
+        self.__injectValidValue('options', Process.defaultOptions_())
+        self.__injectValidValue('maxEvents', Process.defaultMaxEvents_())
         self.maxLuminosityBlocks = Process.defaultMaxLuminosityBlocks_()
         # intentionally not cloned to ensure that everyone taking
         # MessageLogger still via
@@ -557,6 +557,10 @@ class Process(object):
                 self._replaceInScheduleDirectly(name, newValue)
 
             self._delattrFromSetattr(name)
+        self.__injectValidValue(name, value, newValue)
+    def __injectValidValue(self, name, value, newValue = None):
+        if newValue is None:
+            newValue = value
         self.__dict__[name]=newValue
         if isinstance(newValue,_Labelable):
             self.__setObjectLabel(newValue, name)
@@ -3600,6 +3604,10 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))""")
                              numberOfThreads =2)
             self.assertEqual(p.options.numberOfThreads.value(),2)
             self.assertEqual(p.options.numberOfStreams.value(),2)
+            del p.options
+            self.assertRaises(TypeError, setattr, p, 'options', untracked.PSet(numberOfThreads = int32(-1)))
+            p.options = untracked.PSet(numberOfThreads = untracked.uint32(4))
+            self.assertEqual(p.options.numberOfThreads.value(), 4)
 
         def testMaxEvents(self):
             p = Process("Test")
@@ -3614,7 +3622,10 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))""")
             p = Process("Test")
             p.maxEvents = untracked.PSet(input = untracked.int32(5))
             self.assertEqual(p.maxEvents.input.value(), 5)
-
+            del p.maxEvents
+            self.assertRaises(TypeError, setattr, p, 'maxEvents', untracked.PSet(input = untracked.uint32(1)))
+            p.maxEvents = untracked.PSet(input = untracked.int32(1))
+            self.assertEqual(p.maxEvents.input.value(), 1)
         
         def testExamples(self):
             p = Process("Test")

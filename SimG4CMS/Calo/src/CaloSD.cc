@@ -720,12 +720,12 @@ void CaloSD::update(const ::EndOfEvent*) {
   slave.get()->ReserveMemory(theHC->entries());
 
   int count(0);
-  int wrong(0);
   double eEM(0.0);
   double eHAD(0.0);
   double eEM2(0.0);
   double eHAD2(0.0);
 #ifdef EDM_ML_DEBUG
+  int wrong(0);
   double tt(0.0);
   double zloc(0.0);
   double zglob(0.0);
@@ -733,9 +733,14 @@ void CaloSD::update(const ::EndOfEvent*) {
 #endif
   int hc_entries = theHC->entries();
   for (int i = 0; i < hc_entries; ++i) {
+#ifdef EDM_ML_DEBUG
     if (!saveHit((*theHC)[i])) {
       ++wrong;
     }
+#else
+    saveHit((*theHC)[i]);
+#endif
+
     ++count;
     double x = (*theHC)[i]->getEM();
     eEM += x;

@@ -77,7 +77,7 @@ patMuons = cms.EDProducer("PATMuonProducer",
     # mc matching
     addGenMatch   = cms.bool(True),
     embedGenMatch = cms.bool(True),
-    genParticleMatch = cms.InputTag("muonMatch"), ## particles source to be used for the matching
+    genParticleMatch = cms.required.allowed(cms.InputTag, cms.VInputTag, default = cms.InputTag("muonMatch")), ## particles source to be used for the matching
 
     # efficiencies
     addEfficiencies = cms.bool(False),

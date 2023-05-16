@@ -644,13 +644,9 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   // this performs the actual tracklet event processing
   eventProcessor.event(ev, streamsTrackRaw, streamsStubRaw);
 
-  int ntracks = 0;
-
   for (const auto& track : tracks) {
     if (track.duplicate())
       continue;
-
-    ntracks++;
 
     // this is where we create the TTTrack object
     double tmp_rinv = track.rinv(settings_);
@@ -756,8 +752,8 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     }
   }
 
-  iEvent.emplace(putTokenTracks_, move(streamsTrack));
-  iEvent.emplace(putTokenStubs_, move(streamsStub));
+  iEvent.emplace(putTokenTracks_, std::move(streamsTrack));
+  iEvent.emplace(putTokenStubs_, std::move(streamsStub));
 
 }  /// End of produce()
 
