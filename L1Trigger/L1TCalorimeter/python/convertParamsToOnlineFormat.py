@@ -1,4 +1,4 @@
-#!/bin/env python
+#!/bin/env python3
 
 from __future__ import print_function
 import argparse
@@ -11,7 +11,7 @@ import xml.etree.ElementTree as ET
 
 # Pairwise generator: returns pairs of adjacent elements in a list / other iterable
 def pairwiseGen(aList):
-    for i in xrange(len(aList)-1):
+    for i in range(len(aList)-1):
         yield (aList[i], aList[i+1])
 
 def parseOfflineLUTfile(aRelPath, aExpectedSize, aPaddingValue = None, aTruncate = False):
@@ -125,7 +125,9 @@ def getFullListOfParameters(aModule):
       (('mp_jet', 'jetMaxEta'),          '6_JetEtaMax.mif',             0x00028),
       (('mp_jet', 'jetBypassPileUpSub'), 'BypassJetPUS.mif',            bool(aModule.jetBypassPUS.value())),
       (('mp_jet', 'jetPUSUsePhiRing'), 'PhiRingPUS.mif',        bool(aModule.jetPUSUsePhiRing.value())),
-      (('mp_jet', 'jetEnergyCalibLUT'),  'L_JetCalibration_11to18.mif', parseOfflineLUTfile(aModule.jetCalibrationLUTFile.value(), 2048)),
+      (('mp_jet', 'jetEnergyCalibLUT'),  'L_JetCalibration_11to18.mif', parseOfflineLUTfile(aModule.jetCalibrationLUTFile.value(), 4096)),
+      (('mp_jet', 'jetCompressPtLUT'),  'K_EnergyCompression_8to4.mif', parseOfflineLUTfile(aModule.jetCompressPtLUTFile.value(), 256)),
+      (('mp_jet', 'jetCompressEtaLUT'),  'J_EtaCompression_6to6.mif', parseOfflineLUTfile(aModule.jetCompressEtaLUTFile.value(), 64)),
       (('mp_jet', 'HTMHT_maxJetEta'),    'HTMHT_maxJetEta.mif',         aModule.etSumEtaMax[1]), # assert == etSumEtaMax[3] ?
       (('mp_jet', 'HT_jetThreshold'),    '8_HtThreshold.mif',           int(aModule.etSumEtThreshold[1] / aModule.etSumLsb.value())),
       (('mp_jet', 'MHT_jetThreshold'),   '9_MHtThreshold.mif',          int(aModule.etSumEtThreshold[3] / aModule.etSumLsb.value())),
@@ -145,12 +147,12 @@ def getFullListOfParameters(aModule):
       (('demux', 'algoRev'), None, 0xcafe),
       (('demux', 'ET_centralityLowerThresholds'), 'CentralityLowerThrs.mif', [ int(round(loBound / aModule.etSumLsb.value())) for loBound in aModule.etSumCentralityLower.value()]),
       (('demux', 'ET_centralityUpperThresholds'), 'CentralityUpperThrs.mif', [ int(round(upBound / aModule.etSumLsb.value())) for upBound in aModule.etSumCentralityUpper.value()]),
-      (('demux', 'MET_energyCalibLUT'),       'M_METnoHFenergyCalibration_12to18.mif',     parseOfflineLUTfile(aModule.metCalibrationLUTFile.value(), 4096, aTruncate = True)),
-      (('demux', 'METHF_energyCalibLUT'),     'M_METwithHFenergyCalibration_12to18.mif',   parseOfflineLUTfile(aModule.metHFCalibrationLUTFile.value(), 4096, aTruncate = True)),
-      (('demux', 'ET_energyCalibLUT'),        'S_ETcalibration_12to18.mif',       parseOfflineLUTfile(aModule.etSumEttCalibrationLUTFile.value(), 4096, aTruncate = True)),
-      (('demux', 'ecalET_energyCalibLUT'),    'R_EcalCalibration_12to18.mif',     parseOfflineLUTfile(aModule.etSumEcalSumCalibrationLUTFile.value(), 4096, aTruncate = True)),
-      (('demux', 'MET_phiCalibLUT'),          'Q_METnoHFphiCalibration_12to18.mif',     parseOfflineLUTfile(aModule.metPhiCalibrationLUTFile.value(), 4096, aTruncate = True)),
-      (('demux', 'METHF_phiCalibLUT'),        'Q_METwithHFphiCalibration_12to18.mif',   parseOfflineLUTfile(aModule.metHFPhiCalibrationLUTFile.value(), 4096, aTruncate = True)),
+      #(('demux', 'MET_energyCalibLUT'),       'M_METnoHFenergyCalibration_12to18.mif',     parseOfflineLUTfile(aModule.metCalibrationLUTFile.value(), 4096, aTruncate = True)),
+      #(('demux', 'METHF_energyCalibLUT'),     'M_METwithHFenergyCalibration_12to18.mif',   parseOfflineLUTfile(aModule.metHFCalibrationLUTFile.value(), 4096, aTruncate = True)),
+      #(('demux', 'ET_energyCalibLUT'),        'S_ETcalibration_12to18.mif',       parseOfflineLUTfile(aModule.etSumEttCalibrationLUTFile.value(), 4096, aTruncate = True)),
+      #(('demux', 'ecalET_energyCalibLUT'),    'R_EcalCalibration_12to18.mif',     parseOfflineLUTfile(aModule.etSumEcalSumCalibrationLUTFile.value(), 4096, aTruncate = True)),
+      #(('demux', 'MET_phiCalibLUT'),          'Q_METnoHFphiCalibration_12to18.mif',     parseOfflineLUTfile(aModule.metPhiCalibrationLUTFile.value(), 4096, aTruncate = True)),
+      #(('demux', 'METHF_phiCalibLUT'),        'Q_METwithHFphiCalibration_12to18.mif',   parseOfflineLUTfile(aModule.metHFPhiCalibrationLUTFile.value(), 4096, aTruncate = True)),
     ]
 
     result = [(a, b, parseOfflineLUTfile(c.value()) if isinstance(c, cms.FileInPath) else c) for a, b, c in result]
@@ -225,7 +227,7 @@ def createXML(parameters, contextId, outputFilePath):
 
     print("Writing XML file:", outputFilePath)
     with open(outputFilePath, 'w') as f:
-        f.write(ET.tostring(topNode))
+        f.write(ET.tostring(topNode, encoding="unicode"))
 
 
 
@@ -246,9 +248,6 @@ if __name__ == '__main__':
     print("Importing calo params from module:", moduleName)
     caloParams = import_module(moduleName).caloStage2Params
 
-    print(caloParams.egCalibrationLUTFile.value())
-    print(caloParams.egIsoLUTFile.value())
-    print(caloParams.egIsoLUTFile2.value())
     os.mkdir(args.output_dir)
 
     if args.mif:
