@@ -185,9 +185,9 @@ void PFTkEGAlgoEmulator::link_emCalo2tk_composite(const PFRegionEmu &r,
 
       float d_phi = deltaPhi(tk.floatPhi(), calo.floatPhi());
       float d_eta = tk.floatEta() - calo.floatEta();  // We only use it squared
-      float dR = std::sqrt((d_phi * d_phi) + (d_eta * d_eta));
+      float dR2 = (d_phi * d_phi) + (d_eta * d_eta);
 
-      if (dR < 0.2) {
+      if (dR2 < 0.04) {
         // Only store indices, dR and dpT for now. The other quantities are computed only for the best nCandPerCluster.
         CompositeCandidate cand;
         cand.cluster_idx = ic;
