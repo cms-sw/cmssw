@@ -7,7 +7,6 @@
  *
  *******************************************/
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -532,7 +531,7 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
                                                           0.,
                                                           double(NplaneMAX * NROCsMAX),
                                                           0.,
-                                                          rpixValues::ROCSizeInX * rpixValues::ROCSizeInY,
+                                                          rpixValues::ROCSizeInX *rpixValues::ROCSizeInY,
                                                           "");
         hp2HitsMultROC_LS[indexP]->getTProfile2D()->SetOption("colz");
         hp2HitsMultROC_LS[indexP]->getTProfile2D()->SetMinimum(1.0e-10);
@@ -697,8 +696,7 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
   Handle<edm::TriggerResults> hltResults;
   event.getByToken(tokenTrigResults, hltResults);
 
-  ESHandle<CTPPSPixelDAQMapping> mapping;
-  mapping = eventSetup.getHandle(tokenPixelDAQMapping);
+  const CTPPSPixelDAQMapping *mapping = &eventSetup.getData(tokenPixelDAQMapping);
 
   if (onlinePlots) {
     hBX->Fill(event.bunchCrossing());
