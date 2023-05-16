@@ -156,6 +156,10 @@ int main(int argc, char** argv) {
   histo19.process(connectionString, PI::mk_input(tag, start, end));
   edm::LogPrint("testSiPixelPayloadInspector") << histo19.data() << std::endl;
 
+  SiPixelTemplateQScaleMap histoQscale;
+  histoQscale.process(connectionString, PI::mk_input(tag, start, end));
+  edm::LogPrint("testSiPixelPayloadInspector") << histoQscale.data() << std::endl;
+
   // SiPixelVCal
 
   tag = "SiPixelVCal_v1";
