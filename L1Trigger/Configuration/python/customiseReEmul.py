@@ -257,9 +257,29 @@ def L1TReEmulFromNANO(process):
 
 def L1TReEmulFromRAWCalo(process):
     process.load('L1Trigger.Configuration.SimL1CaloEmulator_cff')
-    process.L1TReEmul = cms.Sequence(process.SimL1CaloEmulator)
-    process.simCaloStage2Layer1Digis.ecalToken = cms.InputTag('ecalDigis:EcalTriggerPrimitives')
-    process.simCaloStage2Layer1Digis.hcalToken = cms.InputTag('hcalDigis:')
+    process.load('L1Trigger.Configuration.CaloTriggerPrimitives_cff')
+    process.simEcalTriggerPrimitiveDigis.Label = 'ecalDigis'
+    process.simHcalTriggerPrimitiveDigis.inputLabel = cms.VInputTag(
+        cms.InputTag('hcalDigis'),
+        cms.InputTag('hcalDigis')
+    )
+    process.simHcalTriggerPrimitiveDigis.inputUpgradeLabel = cms.VInputTag(
+                cms.InputTag('hcalDigis'),
+                cms.InputTag('hcalDigis')
+    )
+
+    process.L1TReEmul = cms.Sequence(process.simEcalTriggerPrimitiveDigis * process.simHcalTriggerPrimitiveDigis * process.SimL1CaloEmulator)
+
+    # Calo Layer1
+    stage2L1Trigger.toModify(process.simCaloStage2Layer1Digis,
+        ecalToken = 'ecalDigis:EcalTriggerPrimitives',
+        hcalToken = 'hcalDigis:'
+    )
+
+    (~stage2L1Trigger).toModify(process.simRctDigis,
+        ecalDigis = ['ecalDigis:EcalTriggerPrimitives'],
+        hcalDigis = ['hcalDigis:']
+    )
     process.L1TReEmulPath = cms.Path(process.L1TReEmul)
     process.schedule.append(process.L1TReEmulPath)
 
