@@ -7,7 +7,6 @@
  *
  *******************************************/
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -697,8 +696,7 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
   Handle<edm::TriggerResults> hltResults;
   event.getByToken(tokenTrigResults, hltResults);
 
-  ESHandle<CTPPSPixelDAQMapping> mapping;
-  mapping = eventSetup.getHandle(tokenPixelDAQMapping);
+  const CTPPSPixelDAQMapping *mapping = &eventSetup.getData(tokenPixelDAQMapping);
 
   if (onlinePlots) {
     hBX->Fill(event.bunchCrossing());
