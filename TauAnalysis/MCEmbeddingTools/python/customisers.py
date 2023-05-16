@@ -63,6 +63,11 @@ to_bemanipulate.append(
 )
 to_bemanipulate.append(
     module_manipulate(
+        module_name="cosmicsVetoTracksRaw", manipulator_name="Track", steps=["SIM", "MERGE"]
+    )
+)
+to_bemanipulate.append(
+    module_manipulate(
         module_name="electronGsfTracks",
         manipulator_name="GsfTrack",
         steps=["SIM", "MERGE"],
@@ -813,15 +818,15 @@ def customiseMerging(process, changeProcessname=True, reselect=False):
         "firstStepPrimaryVertices", "", dataTier
     )
 
-    process.muons.FillDetectorBasedIsolation = cms.bool(False)
-    process.muons.FillSelectorMaps = cms.bool(False)
-    process.muons.FillShoweringInfo = cms.bool(False)
-    process.muons.FillCosmicsIdMap = cms.bool(False)
+    # process.muons.FillDetectorBasedIsolation = cms.bool(False)
+    # process.muons.FillSelectorMaps = cms.bool(False)
+    # process.muons.FillShoweringInfo = cms.bool(False)
+    # process.muons.FillCosmicsIdMap = cms.bool(False)
 
-    process.displacedMuons.FillDetectorBasedIsolation = cms.bool(False)
-    process.displacedMuons.FillSelectorMaps = cms.bool(False)
-    process.displacedMuons.FillShoweringInfo = cms.bool(False)
-    process.displacedMuons.FillCosmicsIdMap = cms.bool(False)
+    # process.displacedMuons.FillDetectorBasedIsolation = cms.bool(False)
+    # process.displacedMuons.FillSelectorMaps = cms.bool(False)
+    # process.displacedMuons.FillShoweringInfo = cms.bool(False)
+    # process.displacedMuons.FillCosmicsIdMap = cms.bool(False)
 
     # seed configuration needed for seedmerger
     #process.load(
