@@ -10,7 +10,8 @@ SuperCluster::SuperCluster(double energy, const math::XYZPoint& position)
       phiWidth_(0),
       etaWidth_(0),
       preshowerEnergy1_(0),
-      preshowerEnergy2_(0) {}
+      preshowerEnergy2_(0),
+      trkiso_(0) {}
 
 SuperCluster::SuperCluster(double energy,
                            const math::XYZPoint& position,
@@ -20,7 +21,8 @@ SuperCluster::SuperCluster(double energy,
                            double phiWidth,
                            double etaWidth,
                            double Epreshower1,
-                           double Epreshower2)
+                           double Epreshower2,
+			   double trkiso)
     : CaloCluster(energy, position), rawEnergy_(0) {
   phiWidth_ = phiWidth;
   etaWidth_ = etaWidth;
@@ -28,6 +30,7 @@ SuperCluster::SuperCluster(double energy,
   preshowerEnergy_ = Epreshower;
   preshowerEnergy1_ = Epreshower1;
   preshowerEnergy2_ = Epreshower2;
+  trkiso_ = trkiso;
 
   // set references to constituent basic clusters and update list of rechits
   for (CaloClusterPtrVector::const_iterator bcit = clusters.begin(); bcit != clusters.end(); ++bcit) {
@@ -52,7 +55,8 @@ SuperCluster::SuperCluster(double energy,
                            double phiWidth,
                            double etaWidth,
                            double Epreshower1,
-                           double Epreshower2)
+                           double Epreshower2,
+			   double trkiso)
     : CaloCluster(energy, position), rawEnergy_(-1.) {
   phiWidth_ = phiWidth;
   etaWidth_ = etaWidth;
@@ -60,6 +64,7 @@ SuperCluster::SuperCluster(double energy,
   preshowerEnergy_ = Epreshower;
   preshowerEnergy1_ = Epreshower1;
   preshowerEnergy2_ = Epreshower2;
+  trkiso_ = trkiso;
 
   // set references to constituent basic clusters and update list of rechits
   for (CaloClusterPtrVector::const_iterator bcit = clusters.begin(); bcit != clusters.end(); ++bcit) {

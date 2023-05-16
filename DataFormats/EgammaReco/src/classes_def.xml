@@ -17,7 +17,8 @@
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::BasicCluster>,reco::BasicCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicCluster>,reco::BasicCluster> > >"/>
   <class name="std::vector<edm::Ref<std::vector<reco::BasicCluster>,reco::BasicCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicCluster>,reco::BasicCluster> > >"/>
 
-  <class name="reco::SuperCluster" ClassVersion="15">
+  <class name="reco::SuperCluster" ClassVersion="16">
+   <version ClassVersion="16" checksum="1334973347"/>
    <version ClassVersion="15" checksum="705520405"/>
    <version ClassVersion="14" checksum="3716250139"/>
    <version ClassVersion="13" checksum="1878352437"/>

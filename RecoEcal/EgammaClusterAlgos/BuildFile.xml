@@ -18,6 +18,7 @@
 <use name="Geometry/CaloTopology"/>
 <use name="Geometry/Records"/>
 <use name="RecoEgamma/EgammaTools"/>
+<use name="RecoEgamma/EgammaIsolationAlgos"/>
 <use name="RecoEcal/EgammaCoreTools"/>
 <use name="RecoParticleFlow/PFClusterTools"/>
 <use name="HeterogeneousCore/SonicTriton"/>

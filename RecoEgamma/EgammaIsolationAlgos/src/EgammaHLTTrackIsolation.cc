@@ -55,6 +55,13 @@ std::pair<int, float> EgammaHLTTrackIsolation::photonIsolation(const reco::RecoC
   }
 }
 
+std::pair<int, float> EgammaHLTTrackIsolation::scIsolation(const reco::SuperCluster& recocandidate,
+                                                               const reco::TrackCollection* isoTracks) {
+    reco::RecoCandidate::Point pos = recocandidate.position();
+    GlobalVector mom(pos.x(), pos.y(), pos.z());
+    return findIsoTracks(mom, GlobalPoint(), isoTracks, false, false);  
+}
+
 std::pair<int, float> EgammaHLTTrackIsolation::photonIsolation(const reco::RecoCandidate* const recocandidate,
                                                                const reco::TrackCollection* isoTracks,
                                                                GlobalPoint zvtx) {
@@ -79,6 +86,8 @@ std::pair<int, float> EgammaHLTTrackIsolation::findIsoTracks(
     GlobalVector mom, GlobalPoint vtx, const reco::TrackCollection* isoTracks, bool isElectron, bool useVertex) {
   // Check that reconstructed tracks fit within cone boundaries,
   // (Note: tracks will not always stay within boundaries)
+
+
   int ntrack = 0;
   float ptSum = 0.;
 
@@ -139,7 +148,6 @@ std::pair<int, float> EgammaHLTTrackIsolation::findIsoTracks(
   }
 
   // if (isElectron) ntrack-=1; //to exclude electron track
-
   return (std::pair<int, float>(ntrack, ptSum));
 }
 

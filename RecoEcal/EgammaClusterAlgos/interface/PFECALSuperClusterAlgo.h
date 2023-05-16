@@ -29,6 +29,7 @@
 #include "RecoEcal/EgammaClusterAlgos/interface/SCEnergyCorrectorSemiParm.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClustersGraph.h"
 #include "RecoEcal/EgammaCoreTools/interface/CalibratedPFCluster.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHLTTrackIsolation.h" 
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -116,12 +117,23 @@ public:
 
   void loadAndSortPFClusters(const edm::Event& evt);
 
-  void run();
+  void run(const edm::Event& iEvent);
 
 private:
   edm::EDGetTokenT<edm::View<reco::PFCluster> > inputTagPFClusters_;
   edm::EDGetTokenT<reco::PFCluster::EEtoPSAssociation> inputTagPFClustersES_;
   edm::EDGetTokenT<reco::BeamSpot> inputTagBeamSpot_;
+
+  // track isolation parameters: begin
+  edm::EDGetTokenT<reco::TrackCollection> trackProducer_;
+  double trkIsoPtMin_;
+  double trkIsoConeSize_;
+  double trkIsoZSpan_;
+  double trkIsoRSpan_;
+  double trkIsoVetoConeSize_;
+  double trkIsoStripBarrel_;
+  double trkIsoStripEndcap_;
+  // track isolation parameters: end
 
   edm::ESGetToken<ESEEIntercalibConstants, ESEEIntercalibConstantsRcd> esEEInterCalibToken_;
   edm::ESGetToken<ESChannelStatus, ESChannelStatusRcd> esChannelStatusToken_;
@@ -130,6 +142,7 @@ private:
   edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopologyToken_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
 
+  EgammaHLTTrackIsolation* isoCalculator_;
   const reco::BeamSpot* beamSpot_;
   const ESChannelStatus* channelStatus_;
   const CaloGeometry* geometry_;
@@ -149,11 +162,11 @@ private:
   std::shared_ptr<PFEnergyCalibration> _pfEnergyCalibration;
   clustering_type _clustype;
   energy_weight _eweight;
-  void buildAllSuperClusters(CalibratedPFClusterVector&, double seedthresh);
-  void buildAllSuperClustersMustacheOrBox(CalibratedPFClusterVector&, double seedthresh);
-  void buildAllSuperClustersDeepSC(CalibratedPFClusterVector&, double seedthresh);
-  void buildSuperClusterMustacheOrBox(CalibratedPFCluster&, CalibratedPFClusterVector&);
-  void finalizeSuperCluster(CalibratedPFCluster& seed, CalibratedPFClusterVector& clustered, bool isEE);
+  void buildAllSuperClusters(CalibratedPFClusterVector&, double seedthresh, const edm::Event&);
+  void buildAllSuperClustersMustacheOrBox(CalibratedPFClusterVector&, double seedthresh, const edm::Event&);
+  void buildAllSuperClustersDeepSC(CalibratedPFClusterVector&, double seedthresh,  const edm::Event&);
+  void buildSuperClusterMustacheOrBox(CalibratedPFCluster&, CalibratedPFClusterVector&,  const edm::Event&);
+  void finalizeSuperCluster(CalibratedPFCluster& seed, CalibratedPFClusterVector& clustered, bool isEE, const edm::Event&);
 
   bool verbose_;
 

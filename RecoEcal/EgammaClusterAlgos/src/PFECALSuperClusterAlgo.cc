@@ -121,6 +121,18 @@ void PFECALSuperClusterAlgo::setTokens(const edm::ParameterSet& iConfig, edm::Co
       cc.consumes<reco::PFCluster::EEtoPSAssociation>(iConfig.getParameter<edm::InputTag>("ESAssociation"));
   inputTagBeamSpot_ = cc.consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("BeamSpot"));
 
+  // Parameters needed for track Isolation of Mustache superclusters
+  trackProducer_ = cc.consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trackProducer"));
+  trkIsoPtMin_ = iConfig.getParameter<double>("trkIsoPtMin");
+  trkIsoConeSize_ = iConfig.getParameter<double>("trkIsoConeSize");
+  trkIsoZSpan_ = iConfig.getParameter<double>("trkIsoZSpan");
+  trkIsoRSpan_ = iConfig.getParameter<double>("trkIsoRSpan");
+  trkIsoVetoConeSize_ = iConfig.getParameter<double>("trkIsoVetoConeSize");
+  trkIsoStripBarrel_ = iConfig.getParameter<double>("trkIsoStripBarrel");
+  trkIsoStripEndcap_ = iConfig.getParameter<double>("trkIsoStripEndcap");
+  isoCalculator_ = new EgammaHLTTrackIsolation(trkIsoPtMin_, trkIsoConeSize_, trkIsoZSpan_, trkIsoRSpan_, trkIsoVetoConeSize_,  trkIsoStripBarrel_, trkIsoStripEndcap_);
+  //isoCalculator_ = new EgammaHLTTrackIsolation(0.5,      0.4,             999999,       999999,       0.06,                 0.03,               0.03);   
+
   esEEInterCalibToken_ =
       cc.esConsumes<ESEEIntercalibConstants, ESEEIntercalibConstantsRcd, edm::Transition::BeginLuminosityBlock>();
   esChannelStatusToken_ = cc.esConsumes<ESChannelStatus, ESChannelStatusRcd, edm::Transition::BeginLuminosityBlock>();
@@ -261,22 +273,22 @@ void PFECALSuperClusterAlgo::loadAndSortPFClusters(const edm::Event& iEvent) {
   }
 }
 
-void PFECALSuperClusterAlgo::run() {
+void PFECALSuperClusterAlgo::run(const edm::Event& iEvent) {
   // clusterize the EB
-  buildAllSuperClusters(_clustersEB, threshPFClusterSeedBarrel_);
+  buildAllSuperClusters(_clustersEB, threshPFClusterSeedBarrel_,iEvent);
   // clusterize the EE
-  buildAllSuperClusters(_clustersEE, threshPFClusterSeedEndcap_);
+  buildAllSuperClusters(_clustersEE, threshPFClusterSeedEndcap_,iEvent);
 }
 
-void PFECALSuperClusterAlgo::buildAllSuperClusters(CalibratedPFClusterVector& clusters, double seedthresh) {
+void PFECALSuperClusterAlgo::buildAllSuperClusters(CalibratedPFClusterVector& clusters, double seedthresh, const edm::Event& iEvent) {
   if (_clustype == PFECALSuperClusterAlgo::kMustache || _clustype == PFECALSuperClusterAlgo::kBOX)
-    buildAllSuperClustersMustacheOrBox(clusters, seedthresh);
+    buildAllSuperClustersMustacheOrBox(clusters, seedthresh, iEvent);
   else if (_clustype == PFECALSuperClusterAlgo::kDeepSC)
-    buildAllSuperClustersDeepSC(clusters, seedthresh);
+    buildAllSuperClustersDeepSC(clusters, seedthresh, iEvent);
 }
 
 void PFECALSuperClusterAlgo::buildAllSuperClustersMustacheOrBox(CalibratedPFClusterVector& clusters,
-                                                                double seedthresh) {
+                                                                double seedthresh, const edm::Event& iEvent) {
   auto seedable = std::bind(isSeed, _1, seedthresh, threshIsET_);
 
   // make sure only seeds appear at the front of the list of clusters
@@ -287,11 +299,11 @@ void PFECALSuperClusterAlgo::buildAllSuperClustersMustacheOrBox(CalibratedPFClus
   // NB: since clusters is sorted in loadClusters any_of has O(1)
   //     timing until you run out of seeds!
   while (std::any_of(clusters.cbegin(), clusters.cend(), seedable)) {
-    buildSuperClusterMustacheOrBox(clusters.front(), clusters);
+    buildSuperClusterMustacheOrBox(clusters.front(), clusters, iEvent);
   }
 }
 
-void PFECALSuperClusterAlgo::buildAllSuperClustersDeepSC(CalibratedPFClusterVector& clusters, double seedthresh) {
+void PFECALSuperClusterAlgo::buildAllSuperClustersDeepSC(CalibratedPFClusterVector& clusters, double seedthresh,  const edm::Event& iEvent) {
   auto seedable = std::bind(isSeed, _1, seedthresh, threshIsET_);
   // EcalClustersGraph utility class for DeepSC algorithm application
   // make sure only seeds appear at the front of the list of clusters
@@ -320,12 +332,12 @@ void PFECALSuperClusterAlgo::buildAllSuperClustersDeepSC(CalibratedPFClusterVect
     bool isEE = false;
     if (seed.ptr()->layer() == PFLayer::ECAL_ENDCAP)
       isEE = true;
-    finalizeSuperCluster(seed, clustered, isEE);
+    finalizeSuperCluster(seed, clustered, isEE, iEvent);
   }
 }
 
 void PFECALSuperClusterAlgo::buildSuperClusterMustacheOrBox(CalibratedPFCluster& seed,
-                                                            CalibratedPFClusterVector& clusters) {
+                                                            CalibratedPFClusterVector& clusters,  const edm::Event& iEvent) {
   CalibratedPFClusterVector clustered;
 
   double etawidthSuperCluster = 0.0;
@@ -407,12 +419,12 @@ void PFECALSuperClusterAlgo::buildSuperClusterMustacheOrBox(CalibratedPFCluster&
   clusters.erase(clusters.begin(), not_clustered);
 
   // Finalize the SuperCluster passing the list of clustered clusters
-  finalizeSuperCluster(seed, clustered, isEE);
+  finalizeSuperCluster(seed, clustered, isEE, iEvent);
 }
 
 void PFECALSuperClusterAlgo::finalizeSuperCluster(CalibratedPFCluster& seed,
                                                   CalibratedPFClusterVector& clustered,
-                                                  bool isEE) {
+                                                  bool isEE, const edm::Event& iEvent) {
   // need the vector of raw pointers for a PF width class
   std::vector<const reco::PFCluster*> bare_ptrs;
   // calculate necessary parameters and build the SC
@@ -513,6 +525,15 @@ void PFECALSuperClusterAlgo::finalizeSuperCluster(CalibratedPFCluster& seed,
   PFClusterWidthAlgo pfwidth(bare_ptrs);
   new_sc.setEtaWidth(pfwidth.pflowEtaWidth());
   new_sc.setPhiWidth(pfwidth.pflowPhiWidth());
+
+  float isol = 0;
+  edm::Handle<reco::TrackCollection> trackHandle;
+  iEvent.getByToken(trackProducer_, trackHandle);
+  if (trackHandle.isValid()) {
+    const reco::TrackCollection* trackCollection = trackHandle.product();
+    isol = isoCalculator_->scPtSum(new_sc, trackCollection);
+  }
+  new_sc.setTrackIsolation(isol);
 
   // cache the value of the raw energy
   new_sc.rawEnergy();

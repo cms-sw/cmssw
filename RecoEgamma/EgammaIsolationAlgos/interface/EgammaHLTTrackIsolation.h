@@ -58,7 +58,7 @@ public:
     /*
 	std::cout << "EgammaHLTTrackIsolation instance:"
 	<< " ptMin=" << ptMin << " "
-	<< " conesize="<< conesize << " "
+	<< " conesiz="<< conesize << " "
 	<< " zspan=" << zspan << " "
 	<< " rspan=" << rspan << " "
 	<< " vetoConesize="<< vetoConesize
@@ -88,6 +88,9 @@ public:
                                         const reco::ElectronCollection* allEle,
                                         const reco::TrackCollection* isoTracks);
 
+  std::pair<int, float> scIsolation(const reco::SuperCluster& recocandidate,
+				    const reco::TrackCollection* isoTracks);
+
   /// Get number of tracks inside an isolation cone for electrons
   int electronTrackCount(const reco::Track* const tr, const reco::TrackCollection* isoTracks) {
     return electronIsolation(tr, isoTracks).first;
@@ -104,6 +107,11 @@ public:
                        bool useVertex) {
     return photonIsolation(recocand, isoTracks, useVertex).first;
   }
+
+  float scTrackCount(const reco::SuperCluster& recocand, const reco::TrackCollection* isoTracks) {
+    return scIsolation(recocand, isoTracks).first;
+  }
+
   int photonTrackCount(const reco::RecoCandidate* const recocand,
                        const reco::TrackCollection* isoTracks,
                        GlobalPoint vertex) {
@@ -134,6 +142,11 @@ public:
   float photonPtSum(const reco::RecoCandidate* const recocand, const reco::TrackCollection* isoTracks, bool useVertex) {
     return photonIsolation(recocand, isoTracks, useVertex).second;
   }
+
+  float scPtSum(const reco::SuperCluster& recocand, const reco::TrackCollection* isoTracks) {
+    return scIsolation(recocand, isoTracks).second;
+  }
+
   float photonPtSum(const reco::RecoCandidate* const recocand,
                     const reco::TrackCollection* isoTracks,
                     GlobalPoint vertex) {

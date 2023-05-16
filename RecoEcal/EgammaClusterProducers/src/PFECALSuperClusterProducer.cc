@@ -1,4 +1,3 @@
-
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 #include "CondFormats/GBRForest/interface/GBRForest.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
@@ -229,7 +228,7 @@ void PFECALSuperClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
   superClusterAlgo_.updateSCParams(iSetup);
   // do clustering
   superClusterAlgo_.loadAndSortPFClusters(iEvent);
-  superClusterAlgo_.run();
+  superClusterAlgo_.run(iEvent);
 
   //build collections of output CaloClusters from the used PFClusters
   auto caloClustersEB = std::make_unique<reco::CaloClusterCollection>();
@@ -356,6 +355,18 @@ void PFECALSuperClusterProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<double>("thresh_PFClusterBarrel", 0.0);
   desc.add<std::string>("PFBasicClusterCollectionBarrel", "particleFlowBasicClusterECALBarrel");
   desc.add<bool>("useRegression", true);
+  // Track isolation parameters: begin
+  //  desc.add<edm::InputTag>("trackProducer", edm::InputTag("generalTracks"));
+  desc.add<edm::InputTag>("trackProducer", edm::InputTag(""));
+  desc.add<double>("trkIsoPtMin", 0.5);
+  desc.add<double>("trkIsoConeSize", 0.4);
+  desc.add<double>("trkIsoZSpan", 999999.9);
+  desc.add<double>("trkIsoRSpan", 999999.9);
+  desc.add<double>("trkIsoVetoConeSize", 0.06);
+  desc.add<double>("trkIsoStripBarrel", 0.03);
+  desc.add<double>("trkIsoStripEndcap", 0.03);
+
+  // Track isolation parameters: end
   desc.add<double>("satelliteMajorityFraction", 0.5);
   desc.add<double>("thresh_PFClusterEndcap", 0.0);
   desc.add<edm::InputTag>("ESAssociation", edm::InputTag("particleFlowClusterECAL"));
