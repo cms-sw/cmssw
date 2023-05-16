@@ -144,7 +144,6 @@ void RPCStripsRing::filterOverlapingChambers() {
   TDetId2StripNo det2stripNo;
 
   // Note: we begin in middle of first chamber (ch1), we have to handle that
-  int ch1BegStrips = 0;  // no of strips on the begining of the map (first=last chamber of map)
   int ch1EndStrips = 0;  // no of strips on the end of the map (first=last chamber of map)
 
   // How many strips has each chamber?
@@ -157,9 +156,7 @@ void RPCStripsRing::filterOverlapingChambers() {
       ++det2stripNo[it->second.m_detRawId];  // Increase strip count of a chamber
     }
 
-    if (det2stripNo.size() == 1 && ch1Det == it->second.m_detRawId) {
-      ++ch1BegStrips;
-    } else if (ch1Det == it->second.m_detRawId) {
+    if (det2stripNo.size() != 1 && ch1Det == it->second.m_detRawId) {
       ++ch1EndStrips;
     }
   }
