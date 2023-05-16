@@ -10,15 +10,15 @@ particleNetAK4BTagMonitoring = _particleNetJetTagMonitor.clone(
     ## objects
     muons = "muons",
     electrons = "gedGsfElectrons",
-    jets = "ak4PFJetsPuppi",
+    jets = "ak4PFJetsCHS",
     jetPNETScore = "pfParticleNetAK4DiscriminatorsJetTagsForRECO:BvsAll",
     jetPNETScoreHLT = "hltParticleNetDiscriminatorsJetTags:BvsAll",    
     jetsForHTandBTag = "",
     jetPNETScoreForHTandBTag = "",
     jetSoftDropMass = "",
     met = "pfMetPuppi",
-    jecForMC = "ak4PFPuppiL1FastL2L3Corrector",
-    jecForData = "ak4PFPuppiL1FastL2L3ResidualCorrector",
+    jecForMC = "ak4PFCHSL1FastL2L3Corrector",
+    jecForData = "ak4PFCHSL1FastL2L3ResidualCorrector",
     ## PV selection
     vertexSelection = "!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2",
     ## Muon selection (based on the definition of https://cmssdt.cern.ch/lxr/source/DataFormats/MuonReco/interface/Muon.h)    
