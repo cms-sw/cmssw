@@ -188,24 +188,20 @@ triggerObjectTable = triggerObjectTableProducer.clone(
                 mksel(["hlt2PFCentralJetLooseID60"]), # 14
                 mksel(["hlt3PFCentralJetLooseID45"]), # 15
                 mksel(["hlt4PFCentralJetLooseID40"]), # 16
-                mksel(["hltBTagPFDeepCSV4p5Triple"]), # 17
-                mksel("filter('hltHpsOverlapFilterDeepTauDoublePFTau*PFJet*')","(Double tau + jet) hltHpsOverlapFilterDeepTauDoublePFTau*PFJet*"), # 18
-                mksel("filter('*CrossCleaned*MediumDeepTauDitauWPPFTau*')","(VBF cross-cleaned from medium deeptau PFTau) *CrossCleaned*MediumDeepTauDitauWPPFTau*"), # 19
-                mksel("filter('*CrossCleanedUsingDiJetCorrChecker*')","(VBF cross-cleaned using dijet correlation checker) *CrossCleanedUsingDiJetCorrChecker*"), # 20
-                mksel("filter('hltHpsOverlapFilterDeepTauPFTau*PFJet*')","(monitoring muon + tau + jet)  hltHpsOverlapFilterDeepTauPFTau*PFJet*"), # 21
-                mksel(["hlt2PFCentralJetTightIDPt50"]), # 22
-                mksel(["hlt1PixelOnlyPFCentralJetTightIDPt60"]), # 23
-                mksel(["hlt1PFCentralJetTightIDPt70"]), # 24
-                mksel(["hltBTagPFDeepJet1p5Single"]), # 25
-                mksel(["hltBTagPFDeepJet4p5Triple"]), # 26
-                mksel(["hltBTagCentralJetPt35PFParticleNet2BTagSum0p65","hltBTagCentralJetPt30PFParticleNet2BTagSum0p65","hltPFJetTwoC30PFBTagParticleNet2BTagSum0p65","hltPFCentralJetPt30PNet2BTagMean0p55"]), # 27
-                mksel(["hltBTagPFDeepCSV1p5Single"]) # 28
-                mksel(["hlt2PixelOnlyPFCentralJetTightIDPt20"]), # 29
-                mksel(["hlt1PixelOnlyPFCentralJetTightIDPt50"]), # 30
-                mksel(["hlt2PFCentralJetTightIDPt30"]), # 31
-                mksel(["hlt1PFCentralJetTightIDPt60"]), # 32
-                mksel(["hltPF2CentralJetTightIDPt30"]), # 33
-                mksel(["hltPF2CentralJetPt30PNet2BTagMean0p50"]), # 34
+                mksel("filter('hltHpsOverlapFilterDeepTauDoublePFTau*PFJet*')","(Double tau + jet) hltHpsOverlapFilterDeepTauDoublePFTau*PFJet*"), # 17
+                mksel("filter('*CrossCleaned*MediumDeepTauDitauWPPFTau*')","(VBF cross-cleaned from medium deeptau PFTau) *CrossCleaned*MediumDeepTauDitauWPPFTau*"), # 18
+                mksel("filter('*CrossCleanedUsingDiJetCorrChecker*')","(VBF cross-cleaned using dijet correlation checker) *CrossCleanedUsingDiJetCorrChecker*"), # 19
+                mksel("filter('hltHpsOverlapFilterDeepTauPFTau*PFJet*')","(monitoring muon + tau + jet)  hltHpsOverlapFilterDeepTauPFTau*PFJet*"), # 20
+                mksel(["hlt2PFCentralJetTightIDPt50"]), # 21
+                mksel(["hlt1PixelOnlyPFCentralJetTightIDPt60"]), # 22
+                mksel(["hlt1PFCentralJetTightIDPt70"]), # 23
+                mksel(["hltBTagPFDeepJet1p5Single"]), # 24
+                mksel(["hltBTagPFDeepJet4p5Triple"]), # 25
+                mksel(["hltBTagCentralJetPt35PFParticleNet2BTagSum0p65","hltBTagCentralJetPt30PFParticleNet2BTagSum0p65","hltPFJetTwoC30PFBTagParticleNet2BTagSum0p65","hltPFCentralJetPt30PNet2BTagMean0p55"]), # 26
+                mksel(["hlt2PixelOnlyPFCentralJetTightIDPt20","hlt1PixelOnlyPFCentralJetTightIDPt50"]), # 27
+                mksel(["hlt2PFCentralJetTightIDPt30","hltPF2CentralJetTightIDPt30"]), # 28
+                mksel(["hlt1PFCentralJetTightIDPt60"]), # 29
+                mksel(["hltPF2CentralJetPt30PNet2BTagMean0p50"]), # 30
 
             ),
         ),
