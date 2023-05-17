@@ -70,6 +70,7 @@ namespace trackerTFP {
     numStreamsTracks_[+Process::kfin] = numStreams_[+Process::kf];
     numStreamsTracks_[+Process::kf] = numStreams_[+Process::kf];
     // Print digi data format of all variables of any specified algo step
+    // (Look at DataFormat.h::tracks_ to see variable names).
     //for (const Variable v : tracks_[+Process::kf]) {
     //  const DataFormat& f = format(v, Process::kf);
     //  cout <<" KF "<< f.base() << " " << f.range() << " " << f.width() << endl;
