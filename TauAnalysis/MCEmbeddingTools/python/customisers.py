@@ -324,6 +324,8 @@ def keepCleaned(dataTier):
         "keep *_l1extraParticles_*_" + dataTier,
         "keep TrajectorySeeds_*_*_*",
         "keep recoElectronSeeds_*_*_*",
+        "drop recoIsoDepositedmValueMap_muIsoDepositTk_*_*" ,
+        "drop recoIsoDepositedmValueMap_muIsoDepositTkDisplaced_*_*",
         # "keep recoPFClusters_*_*_*",
         # "keep recoPFRecHits_*_*_*"
     )
@@ -466,6 +468,8 @@ def keepSimulated(process, processname="SIMembedding"):
     ret_vstring.append("keep *_muonCSCDigis_*_*")
     ret_vstring.append("keep TrajectorySeeds_*_*_*")
     ret_vstring.append("keep recoElectronSeeds_*_*_*")
+    ret_vstring.append("drop recoIsoDepositedmValueMap_muIsoDepositTk_*_*")
+    ret_vstring.append("drop recoIsoDepositedmValueMap_muIsoDepositTkDisplaced_*_*")
     # for those two steps, the output has to be modified
     # to keep the information from the cleaning step in the output file
     if processname == "SIMembeddingpreHLT" or processname == "SIMembeddingHLT":
@@ -808,6 +812,12 @@ def customiseMerging(process, changeProcessname=True, reselect=False):
     # muonEcalDetIds
     process.load("RecoMuon.MuonIdentification.muons1stStep_cfi")
     process.merge_step += process.muonEcalDetIds
+    process.merge_step += process.muonShowerInformation
+
+    # muon Isolation tasks
+    process.load("RecoMuon.MuonIsolationProducers.muIsolation_cff")
+    process.merge_step += process.muIsolation
+    process.merge_step += process.muIsolationDisplaced
 
     process.merge_step += process.doAlldEdXEstimators
     process.merge_step += process.vertexreco
