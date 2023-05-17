@@ -58,7 +58,7 @@ public:
     /*
 	std::cout << "EgammaHLTTrackIsolation instance:"
 	<< " ptMin=" << ptMin << " "
-	<< " conesiz="<< conesize << " "
+	<< " conesize="<< conesize << " "
 	<< " zspan=" << zspan << " "
 	<< " rspan=" << rspan << " "
 	<< " vetoConesize="<< vetoConesize

@@ -131,7 +131,6 @@ void PFECALSuperClusterAlgo::setTokens(const edm::ParameterSet& iConfig, edm::Co
   trkIsoStripBarrel_ = iConfig.getParameter<double>("trkIsoStripBarrel");
   trkIsoStripEndcap_ = iConfig.getParameter<double>("trkIsoStripEndcap");
   isoCalculator_ = new EgammaHLTTrackIsolation(trkIsoPtMin_, trkIsoConeSize_, trkIsoZSpan_, trkIsoRSpan_, trkIsoVetoConeSize_,  trkIsoStripBarrel_, trkIsoStripEndcap_);
-  //isoCalculator_ = new EgammaHLTTrackIsolation(0.5,      0.4,             999999,       999999,       0.06,                 0.03,               0.03);   
 
   esEEInterCalibToken_ =
       cc.esConsumes<ESEEIntercalibConstants, ESEEIntercalibConstantsRcd, edm::Transition::BeginLuminosityBlock>();
