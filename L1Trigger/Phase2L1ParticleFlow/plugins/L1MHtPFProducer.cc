@@ -65,7 +65,7 @@ void L1MhtPfProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Even
 std::vector<l1ct::Jet> L1MhtPfProducer::convertEDMToHW(std::vector<l1t::PFJet> edmJets) const {
   std::vector<l1ct::Jet> hwJets;
   std::for_each(edmJets.begin(), edmJets.end(), [&](l1t::PFJet jet) {
-    l1ct::Jet hwJet = jet.getHWJetCT();
+    l1ct::Jet hwJet = l1ct::Jet::unpack(jet.getHWJetCT());
     hwJets.push_back(hwJet);
   });
   return hwJets;
