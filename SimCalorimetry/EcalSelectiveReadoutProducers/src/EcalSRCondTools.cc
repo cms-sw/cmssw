@@ -5,13 +5,9 @@
  */
 
 #include "SimCalorimetry/EcalSelectiveReadoutProducers/interface/namespace_ecalsrcondtools.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-
+#include <cassert>
 #include <fstream>
 #include <iostream>
 #include <algorithm>

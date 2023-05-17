@@ -1,4 +1,17 @@
-#include "SimCalorimetry/EcalSelectiveReadoutProducers/interface/EcalSelectiveReadoutProducer.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "SimCalorimetry/EcalSelectiveReadoutAlgos/interface/EcalSelectiveReadoutSuppressor.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
+#include "CondFormats/EcalObjects/interface/EcalSRSettings.h"
+#include "CondFormats/DataRecord/interface/EcalSRSettingsRcd.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
+
+#include <memory>
+#include <vector>
+
 #include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -6,18 +19,181 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
 //#include "DataFormats/EcalDigi/interface/EcalMGPASample.h"
 
-#include "SimCalorimetry/EcalSelectiveReadoutProducers/interface/EcalSRCondTools.h"
+#include "SimCalorimetry/EcalSelectiveReadoutProducers/interface/namespace_ecalsrcondtools.h"
 
 #include <memory>
 #include <fstream>
 #include <atomic>
 
-using namespace std;
+namespace esrp {
+  /* All stream instances of the module write to the same files. The writes are guarded
+     by the shared mutex.
+   */
+  struct Cache {
+    CMS_THREAD_GUARD("mutex_") mutable int iEvent_ = 1;
+    mutable std::mutex mutex_;
+  };
+}  // namespace esrp
 
-EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterSet& params)
-    : suppressor_(params, consumesCollector()), firstCallEB_(true), firstCallEE_(true), iEvent_(1) {
+class EcalSelectiveReadoutProducer : public edm::stream::EDProducer<edm::GlobalCache<esrp::Cache>> {
+public:
+  /** Constructor
+   * @param params seletive readout parameters
+   */
+  explicit EcalSelectiveReadoutProducer(const edm::ParameterSet& params, esrp::Cache const*);
+
+  /** Destructor
+   */
+
+  ~EcalSelectiveReadoutProducer() override;
+
+  /** Produces the EDM products
+   * @param CMS event
+   * @param eventSetup event conditions
+   */
+  void produce(edm::Event& event, const edm::EventSetup& eventSetup) override;
+
+  /** Help function to print SR flags.
+   * @param ebSrFlags the action flags of EB
+   * @param eeSrFlag the action flags of EE
+   * @param iEvent event number. Ignored if <0.
+   * @param withHeader, if true an output description is written out as header.
+   */
+  static void printSrFlags(std::ostream& os,
+                           const EBSrFlagCollection& ebSrFlags,
+                           const EESrFlagCollection& eeSrFlags,
+                           int iEvent = -1,
+                           bool withHeader = true);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& iDesc);
+
+  static std::unique_ptr<esrp::Cache> initializeGlobalCache(const edm::ParameterSet&);
+  static void globalEndJob(esrp::Cache*) {}
+
+private:
+  /** Sanity check on the DCC FIR filter weights. Log warning or
+   * error message if an unexpected weight set is found. In principle
+   * it is checked that the maximum weight is applied to the expected
+   * maximum sample.
+   */
+  void checkWeights(const edm::Event& evt, const edm::ProductID& noZSDigiId) const;
+
+  /** Gets the value of the digitizer binOfMaximum parameter.
+   * @param noZsDigiId product ID of the non-suppressed digis
+   * @param binOfMax [out] set the parameter value if found
+   * @return true on success, false otherwise
+   */
+  bool getBinOfMax(const edm::Event& evt, const edm::ProductID& noZsDigiId, int& binOfMax) const;
+
+  const EBDigiCollection* getEBDigis(edm::Event& event);
+
+  const EEDigiCollection* getEEDigis(edm::Event& event);
+
+  const EcalTrigPrimDigiCollection* getTrigPrims(edm::Event& event) const;
+
+  ///@{
+  /// call these once an event, to make sure everything
+  /// is up-to-date
+  void checkGeometry(const edm::EventSetup& eventSetup);
+  void checkTriggerMap(const edm::EventSetup& eventSetup);
+  void checkElecMap(const edm::EventSetup& eventSetup);
+
+  ///@}
+
+  ///Checks validity of selective setting object is valid to be used
+  ///for MC, especially checks the number of elements in the vectors
+  ///@param forEmulator if true check the restriction that applies for
+  ///EcalSelectiveReadoutProducer
+  ///@throw cms::Exception if the setting is not valid.
+  static void checkValidity(const EcalSRSettings& settings);
+
+  void printTTFlags(const EcalTrigPrimDigiCollection& tp, std::ostream& os) const;
+
+private:
+  EcalSelectiveReadoutSuppressor suppressor_;
+  std::string digiProducer_;         // name of module/plugin/producer making digis
+  std::string ebdigiCollection_;     // secondary name given to collection of input digis
+  std::string eedigiCollection_;     // secondary name given to collection of input digis
+  std::string ebSRPdigiCollection_;  // secondary name given to collection of suppressed digis
+  std::string eeSRPdigiCollection_;  // secondary name given to collection of suppressed digis
+  std::string ebSrFlagCollection_;   // secondary name given to collection of SR flag digis
+  std::string eeSrFlagCollection_;   // secondary name given to collection of SR flag digis
+  std::string trigPrimProducer_;     // name of module/plugin/producer making triggere primitives
+  std::string trigPrimCollection_;   // name of module/plugin/producer making triggere primitives
+
+  // store the pointer, so we don't have to update it every event
+  const CaloGeometry* theGeometry;
+  const EcalTrigTowerConstituentsMap* theTriggerTowerMap;
+  const EcalElectronicsMapping* theElecMap;
+
+  bool suppressorSettingsSet_ = false;
+
+  bool trigPrimBypass_;
+
+  int trigPrimBypassMode_;
+
+  /** Number of event whose TT and SR flags must be dumped into a file.
+   */
+  int dumpFlags_;
+
+  /** switch to write out the SrFlags collections in the event
+   */
+  bool writeSrFlags_;
+
+  /** Switch for suppressed digi production If false SR flags are produced
+   * but selective readout is not applied on the crystal channel digis.
+   */
+  bool produceDigis_;
+
+  /** SR settings
+   */
+  const EcalSRSettings* settings_;
+
+  /** Switch for retrieving SR settings from condition database instead
+   * of CMSSW python configuration file.
+   */
+  bool useCondDb_;
+
+  /**  Special switch to turn off SR entirely using special DB entries 
+   */
+
+  bool useFullReadout_;
+
+  /** keys
+   */
+  bool firstCallEB_;
+  bool firstCallEE_;
+
+  /** Used when settings_ is imported from configuration file. Just used
+   * for memory management. Used settings_ to access to the object
+   */
+  std::unique_ptr<EcalSRSettings> settingsFromFile_;
+
+  // Tokens for consumes collection:
+
+  edm::EDGetTokenT<EBDigiCollection> EB_token;
+  edm::EDGetTokenT<EEDigiCollection> EE_token;
+  edm::EDGetTokenT<EcalTrigPrimDigiCollection> EcTP_token;
+  edm::ESGetToken<EcalSRSettings, EcalSRSettingsRcd> hSr_token_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geom_token_;
+  edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> eTTmap_token_;
+  edm::ESGetToken<EcalElectronicsMapping, EcalMappingRcd> eElecmap_token_;
+};
+
+using namespace std;
+using namespace ecalsrcondtools;
+
+std::unique_ptr<esrp::Cache> EcalSelectiveReadoutProducer::initializeGlobalCache(const edm::ParameterSet&) {
+  return std::make_unique<esrp::Cache>();
+}
+
+EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterSet& params, esrp::Cache const*)
+    : suppressor_(params, consumesCollector()), firstCallEB_(true), firstCallEE_(true) {
   //settings:
   //  settings which are only in python config files:
   digiProducer_ = params.getParameter<string>("digiProducer");
@@ -31,23 +207,14 @@ EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterS
   trigPrimCollection_ = params.getParameter<string>("trigPrimCollection");
   trigPrimBypass_ = params.getParameter<bool>("trigPrimBypass");
   trigPrimBypassMode_ = params.getParameter<int>("trigPrimBypassMode");
-  dumpFlags_ = params.getUntrackedParameter<int>("dumpFlags", 0);
-  writeSrFlags_ = params.getUntrackedParameter<bool>("writeSrFlags", false);
-  produceDigis_ = params.getUntrackedParameter<bool>("produceDigis", true);
+  dumpFlags_ = params.getUntrackedParameter<int>("dumpFlags");
+  writeSrFlags_ = params.getUntrackedParameter<bool>("writeSrFlags");
+  produceDigis_ = params.getUntrackedParameter<bool>("produceDigis");
   //   settings which can come from either condition database or python configuration file:
-  useCondDb_ = false;
-  try {
-    if (params.getParameter<bool>("configFromCondDB")) {
-      useCondDb_ = true;
-    }
-  } catch (cms::Exception const&) {
-    /* pameter not found */
-    edm::LogWarning("EcalSelectiveReadout") << "Parameter configFromCondDB of EcalSelectiveReadout module not found. "
-                                               "Selective readout configuration will be read from python file.";
-  }
+  useCondDb_ = params.getParameter<bool>("configFromCondDB");
   if (!useCondDb_) {
     settingsFromFile_ = std::make_unique<EcalSRSettings>();
-    EcalSRCondTools::importParameterSet(*settingsFromFile_, params);
+    ecalsrcondtools::importParameterSet(*settingsFromFile_, params);
     settings_ = settingsFromFile_.get();
   }
 
@@ -62,7 +229,6 @@ EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterS
     produces<EESrFlagCollection>(eeSrFlagCollection_);
   }
 
-  useFullReadout_ = false;
   useFullReadout_ = params.getParameter<bool>("UseFullReadout");
 
   theGeometry = nullptr;
@@ -82,6 +248,48 @@ EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterS
   eTTmap_token_ = esConsumes<EcalTrigTowerConstituentsMap, IdealGeometryRecord>();
   eElecmap_token_ = esConsumes<EcalElectronicsMapping, EcalMappingRcd>();
   ;
+}
+
+void EcalSelectiveReadoutProducer::fillDescriptions(edm::ConfigurationDescriptions& iDesc) {
+  edm::ParameterSetDescription ps;
+
+  ps.add<string>("digiProducer");
+  ps.add<std::string>("EBdigiCollection");
+  ps.add<std::string>("EEdigiCollection");
+  ps.add<std::string>("EBSRPdigiCollection");
+  ps.add<std::string>("EESRPdigiCollection");
+  ps.add<std::string>("EBSrFlagCollection");
+  ps.add<std::string>("EESrFlagCollection");
+  ps.add<string>("trigPrimProducer");
+  ps.add<string>("trigPrimCollection");
+  ps.add<bool>("trigPrimBypass");     //also used by suppressor
+  ps.add<int>("trigPrimBypassMode");  // also used by suppressor
+  ps.addUntracked<int>("dumpFlags", 0);
+  ps.addUntracked<bool>("writeSrFlags", false);
+  ps.addUntracked<bool>("produceDigis", true);
+  ps.add<bool>("configFromCondDB", false);
+  ps.add<bool>("UseFullReadout");
+
+  //from suppressor_
+  ps.add<int>("defaultTtf");
+  ps.add<bool>("trigPrimBypassWithPeakFinder");
+  ps.add<double>("trigPrimBypassLTH");
+  ps.add<double>("trigPrimBypassHTH");
+
+  //from importParameterSet
+  ps.addOptional<int>("deltaPhi");
+  ps.addOptional<int>("deltaEta");
+  ps.addOptional<int>("ecalDccZs1stSample");
+  ps.addOptional<double>("ebDccAdcToGeV");
+  ps.addOptional<double>("eeDccAdcToGeV");
+  ps.addOptional<std::vector<double>>("dccNormalizedWeights");
+  ps.addOptional<bool>("symetricZS");
+  ps.addOptional<double>("srpBarrelLowInterestChannelZS");
+  ps.addOptional<double>("srpEndcapLowInterestChannelZS");
+  ps.addOptional<double>("srpBarrelHighInterestChannelZS");
+  ps.addOptional<double>("srpEndcapHighInterestChannelZS");
+
+  iDesc.addDefault(ps);
 }
 
 EcalSelectiveReadoutProducer::~EcalSelectiveReadoutProducer() {}
@@ -144,23 +352,30 @@ void EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSe
                   ebSrFlags.get(),
                   eeSrFlags.get());
 
-  if (dumpFlags_ >= iEvent_) {
-    ofstream ttfFile("TTF.txt", (iEvent_ == 1 ? ios::trunc : ios::app));
-    suppressor_.printTTFlags(ttfFile, iEvent_, iEvent_ == 1 ? true : false);
+  if (dumpFlags_ > 0) {
+    auto* cache = globalCache();
+    std::lock_guard<std::mutex> guard(cache->mutex_);
+    auto iEvent_ = cache->iEvent_;
+    if (dumpFlags_ >= iEvent_) {
+      ofstream ttfFile("TTF.txt", (iEvent_ == 1 ? ios::trunc : ios::app));
+      suppressor_.printTTFlags(ttfFile, iEvent_, iEvent_ == 1 ? true : false);
 
-    ofstream srfFile("SRF.txt", (iEvent_ == 1 ? ios::trunc : ios::app));
-    if (iEvent_ == 1) {
-      suppressor_.getEcalSelectiveReadout()->printHeader(srfFile);
+      ofstream srfFile("SRF.txt", (iEvent_ == 1 ? ios::trunc : ios::app));
+      if (iEvent_ == 1) {
+        suppressor_.getEcalSelectiveReadout()->printHeader(srfFile);
+      }
+      srfFile << "# Event " << iEvent_ << "\n";
+      suppressor_.getEcalSelectiveReadout()->print(srfFile);
+      srfFile << "\n";
+
+      ofstream afFile("AF.txt", (iEvent_ == 1 ? ios::trunc : ios::app));
+      printSrFlags(afFile, *ebSrFlags, *eeSrFlags, iEvent_, iEvent_ == 1 ? true : false);
+      ++(cache->iEvent_);
+    } else {
+      //do not want to dump anymore, so can turn off
+      dumpFlags_ = 0;
     }
-    srfFile << "# Event " << iEvent_ << "\n";
-    suppressor_.getEcalSelectiveReadout()->print(srfFile);
-    srfFile << "\n";
-
-    ofstream afFile("AF.txt", (iEvent_ == 1 ? ios::trunc : ios::app));
-    printSrFlags(afFile, *ebSrFlags, *eeSrFlags, iEvent_, iEvent_ == 1 ? true : false);
   }
-
-  ++iEvent_;  //event counter
 
   if (produceDigis_) {
     //puts the selected digis into the event:
@@ -270,7 +485,7 @@ void EcalSelectiveReadoutProducer::printTTFlags(const EcalTrigPrimDigiCollection
         "#\n";
   //}
 
-  vector<vector<int> > ttf(nEta, vector<int>(nPhi, -1));
+  vector<vector<int>> ttf(nEta, vector<int>(nPhi, -1));
   for (EcalTrigPrimDigiCollection::const_iterator it = tp.begin(); it != tp.end(); ++it) {
     const EcalTriggerPrimitiveDigi& trigPrim = *it;
     if (trigPrim.size() > 0) {
@@ -516,3 +731,5 @@ void EcalSelectiveReadoutProducer::checkValidity(const EcalSRSettings& settings)
         << "number of ecalDccZs1Sample values (" << settings.ecalDccZs1stSample_.size() << ").";
   }
 }
+
+DEFINE_FWK_MODULE(EcalSelectiveReadoutProducer);
