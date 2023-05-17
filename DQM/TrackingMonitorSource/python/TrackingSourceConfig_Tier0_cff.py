@@ -29,7 +29,7 @@ TrackMon_ckf.FolderName                            = 'Tracking/TrackParameters/T
 #TrackEffMon_bhmuon.AlgoName                        = 'BHMuonTk'
 #TrackEffMon_bhmuon.FolderName                      = 'Tracking/TrackParameters/TrackEfficiency'
 
-# # Split Tracking
+# Split Tracking
 # from  DQM.TrackingMonitor.TrackSplittingMonitor_cfi import *
 # TrackSplitMonitor.FolderName = 'Tracking/TrackParameters/SplitTracks'
 
