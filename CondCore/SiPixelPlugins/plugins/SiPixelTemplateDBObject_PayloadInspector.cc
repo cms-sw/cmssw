@@ -137,6 +137,7 @@ namespace {
 
       auto tag = PlotBase::getTag<0>();
       auto iov = tag.iovs.front();
+      const auto& tagname = tag.name;
       std::vector<SiPixelTemplateStore> thePixelTemp_;
       std::shared_ptr<SiPixelTemplateDBObject> payload = fetchPayload(std::get<1>(iov));
 
@@ -242,6 +243,17 @@ namespace {
         } else if (myType == SiPixelPI::t_all) {
           theMaps.drawSummaryMaps("templateLA", canvas);
         }
+
+        canvas.cd();
+        TPaveText ksPt(0, 0, 0.88, 0.04, "NDC");
+        ksPt.SetBorderSize(0);
+        ksPt.SetFillColor(0);
+        const char* textToAdd = Form("Template Tag: #color[2]{%s}, IOV: #color[2]{%s}. Payload hash: #color[2]{%s}",
+                                     tagname.c_str(),
+                                     std::to_string(std::get<0>(iov)).c_str(),
+                                     (std::get<1>(iov)).c_str());
+        ksPt.AddText(textToAdd);
+        ksPt.Draw();
 
         canvas.cd();
         std::string fileName(m_imageFileName);

@@ -595,6 +595,7 @@ namespace templateHelper {
 
       auto tag = cond::payloadInspector::PlotBase::getTag<0>();
       auto iov = tag.iovs.front();
+      const auto& tagname = tag.name;
       std::vector<StoreType> thePixelTemp_;
       std::shared_ptr<PayloadType> payload = this->fetchPayload(std::get<1>(iov));
 
@@ -749,6 +750,17 @@ namespace templateHelper {
         }
 
         canvas.cd();
+        TPaveText ksPt(0, 0, 0.88, 0.04, "NDC");
+        ksPt.SetBorderSize(0);
+        ksPt.SetFillColor(0);
+        const char* textToAdd = Form("%s Tag: #color[2]{%s}, IOV: #color[2]{%s}. Payload hash: #color[2]{%s}",
+                                     (isTemplate_ ? "Template" : "GenError"),
+                                     tagname.c_str(),
+                                     std::to_string(std::get<0>(iov)).c_str(),
+                                     (std::get<1>(iov)).c_str());
+        ksPt.AddText(textToAdd);
+        ksPt.Draw();
+
         std::string fileName(this->m_imageFileName);
         canvas.SaveAs(fileName.c_str());
       }
