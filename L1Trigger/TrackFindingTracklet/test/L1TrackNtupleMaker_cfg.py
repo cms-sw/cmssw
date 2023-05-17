@@ -186,6 +186,8 @@ elif (L1TRKALGO == 'HYBRID_NEWKF' or L1TRKALGO == 'HYBRID_REDUCED'):
         fwConfig( process )
     if (L1TRKALGO == 'HYBRID_REDUCED'):
         reducedConfig( process )
+    # Needed by L1TrackNtupleMaker
+    process.HitPatternHelperSetup.useNewKF = True
 
 # LEGACY ALGORITHM (EXPERTS ONLY): TRACKLET
 elif (L1TRKALGO == 'TRACKLET'):

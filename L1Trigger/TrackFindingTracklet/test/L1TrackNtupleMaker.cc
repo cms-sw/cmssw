@@ -936,6 +936,13 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       float tmp_trk_phi = iterL1Track->momentum().phi();
       float tmp_trk_z0 = iterL1Track->z0();  //cm
       float tmp_trk_tanL = iterL1Track->tanL();
+      bool usingNewKF = hphSetup->useNewKF();
+      if (usingNewKF) {
+        // Skip crazy tracks to avoid crash (as NewKF applies no cuts to kill them).
+        constexpr float crazy_z0_cut = 30.;  // Cut to kill any crazy tracks found by New KF (which applies no cuts)
+        if (fabs(tmp_trk_z0) > crazy_z0_cut)
+          continue;
+      }
 
       int tmp_trk_hitpattern = 0;
       tmp_trk_hitpattern = (int)iterL1Track->hitPattern();
