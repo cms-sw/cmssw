@@ -814,10 +814,14 @@ def customiseMerging(process, changeProcessname=True, reselect=False):
     process.merge_step += process.muonEcalDetIds
     process.merge_step += process.muonShowerInformation
 
-    # muon Isolation tasks
+    # muon Isolation sequences
     process.load("RecoMuon.MuonIsolationProducers.muIsolation_cff")
     process.merge_step += process.muIsolation
     process.merge_step += process.muIsolationDisplaced
+
+    # muon ID selection type sequences
+    process.load("RecoMuon.MuonIdentification.muonSelectionTypeValueMapProducer_cff")
+    process.merge_step += process.muonSelectionTypeSequence
 
     process.merge_step += process.doAlldEdXEstimators
     process.merge_step += process.vertexreco
