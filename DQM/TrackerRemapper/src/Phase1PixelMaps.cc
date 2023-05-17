@@ -7,6 +7,7 @@
 
 #include <fmt/printf.h>
 #include <fstream>
+#include <iostream>
 #include <boost/tokenizer.hpp>
 #include <boost/range/adaptor/indexed.hpp>
 
@@ -334,7 +335,6 @@ void Phase1PixelMaps::setForwardScale(const std::string& currentHistoName, std::
 
 //============================================================================
 void Phase1PixelMaps::drawBarrelMaps(const std::string& currentHistoName, TCanvas& canvas, const char* drawOption) {
-  canvas.Divide(2, 2);
   auto found = (std::find(m_knownNames.begin(), m_knownNames.end(), currentHistoName) != m_knownNames.end());
 
   if (!m_isBooked.first || !found) {
@@ -342,15 +342,20 @@ void Phase1PixelMaps::drawBarrelMaps(const std::string& currentHistoName, TCanva
     return;
   }
 
+  TPad* pad1 = new TPad("pad1", "pad1", 0.0, 0.025, 1.0, 1.0);
+  TPad* pad2 = new TPad("pad2", "pad2", 0.0, 0.00, 1.0, 0.025);
+  pad1->Divide(2, 2);
+  pad1->Draw();
+  pad2->Draw();
   for (int i = 1; i <= 4; i++) {
-    canvas.cd(i);
+    pad1->cd(i);
     if (strcmp(m_option, "text") == 0) {
-      canvas.cd(i)->SetRightMargin(0.02);
+      pad1->cd(i)->SetRightMargin(0.02);
       pxbTh2PolyBarrel[currentHistoName].at(i - 1)->SetMarkerColor(kRed);
     } else {
       if (m_autorescale)
         rescaleAllBarrel(currentHistoName);
-      adjustCanvasMargins(canvas.cd(i), 0.07, 0.12, 0.10, 0.18);
+      adjustCanvasMargins(pad1->cd(i), 0.07, 0.12, 0.10, 0.18);
     }
     if (drawOption) {
       pxbTh2PolyBarrel[currentHistoName].at(i - 1)->Draw("L");
@@ -364,7 +369,6 @@ void Phase1PixelMaps::drawBarrelMaps(const std::string& currentHistoName, TCanva
 
 //============================================================================
 void Phase1PixelMaps::drawForwardMaps(const std::string& currentHistoName, TCanvas& canvas, const char* drawOption) {
-  canvas.Divide(3, 2);
   auto found = (std::find(m_knownNames.begin(), m_knownNames.end(), currentHistoName) != m_knownNames.end());
 
   if (!m_isBooked.second || !found) {
@@ -372,15 +376,21 @@ void Phase1PixelMaps::drawForwardMaps(const std::string& currentHistoName, TCanv
     return;
   }
 
+  TPad* pad1 = new TPad("pad1", "pad1", 0.0, 0.025, 1.0, 1.0);
+  TPad* pad2 = new TPad("pad2", "pad2", 0.0, 0.00, 1.0, 0.025);
+  pad1->Divide(3, 2);
+  pad1->Draw();
+  pad2->Draw();
+
   for (int i = 1; i <= 6; i++) {
-    canvas.cd(i);
+    pad1->cd(i);
     if (strcmp(m_option, "text") == 0) {
-      canvas.cd(i)->SetRightMargin(0.02);
+      pad1->cd(i)->SetRightMargin(0.02);
       pxfTh2PolyForward[currentHistoName].at(i - 1)->SetMarkerColor(kRed);
     } else {
       if (m_autorescale)
         rescaleAllForward(currentHistoName);
-      adjustCanvasMargins(canvas.cd(i), 0.07, 0.12, 0.10, 0.18);
+      adjustCanvasMargins(pad1->cd(i), 0.07, 0.12, 0.10, 0.18);
     }
     if (drawOption) {
       pxfTh2PolyForward[currentHistoName].at(i - 1)->Draw("L");
@@ -401,11 +411,16 @@ void Phase1PixelMaps::drawSummaryMaps(const std::string& currentHistoName, TCanv
     return;
   }
 
-  canvas.Divide(2, 1);
-  canvas.cd(1);
+  TPad* pad1 = new TPad("pad1", "pad1", 0.0, 0.025, 1.0, 1.0);
+  TPad* pad2 = new TPad("pad2", "pad2", 0.0, 0.00, 1.0, 0.025);
+  pad1->Divide(2, 1);
+  pad1->Draw();
+  pad2->Draw();
+
+  pad1->cd(1);
   std::string temp(m_option);  // create a std string
   auto isText = (temp.find("text") != std::string::npos);
-  adjustCanvasMargins(canvas.cd(1), 0.07, 0.02, 0.01, isText ? 0.05 : 0.15);
+  adjustCanvasMargins(pad1->cd(1), 0.07, 0.02, 0.01, isText ? 0.05 : 0.15);
   if (isText) {
     pxbTh2PolyBarrelSummary[currentHistoName]->SetMarkerColor(kRed);
     pxbTh2PolyBarrelSummary[currentHistoName]->SetMarkerSize(0.5);
@@ -414,8 +429,8 @@ void Phase1PixelMaps::drawSummaryMaps(const std::string& currentHistoName, TCanv
   pxbTh2PolyBarrelSummary[currentHistoName]->Draw("AL");
   pxbTh2PolyBarrelSummary[currentHistoName]->Draw(fmt::sprintf("%s%ssame", m_option, drawOption).c_str());
 
-  canvas.cd(2);
-  adjustCanvasMargins(canvas.cd(2), 0.07, 0.02, 0.01, isText ? 0.05 : 0.15);
+  pad1->cd(2);
+  adjustCanvasMargins(pad1->cd(2), 0.07, 0.02, 0.01, isText ? 0.05 : 0.15);
   if (isText) {
     pxfTh2PolyForwardSummary[currentHistoName]->SetMarkerColor(kRed);
     pxfTh2PolyForwardSummary[currentHistoName]->SetMarkerSize(0.5);
