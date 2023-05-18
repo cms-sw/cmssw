@@ -32,7 +32,6 @@ def L1NtupleCustomReco(process):
     delattr(process, 'patJetGenJetMatchCorrectedPuppiJets')
     delattr(process, 'patJetPartonMatchCorrectedPuppiJets')
 
-    process.es_prefer_jec = cms.ESPrefer('PoolDBESSource', 'GlobalTag')
 
 
 ####  Custom Met Filter reco
