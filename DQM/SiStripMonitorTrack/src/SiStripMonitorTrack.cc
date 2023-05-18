@@ -717,7 +717,7 @@ void SiStripMonitorTrack::bookSubDetMEs(DQMStore::IBooker& ibooker, std::string&
   theSubDetMEs.nClustersOnTrack->setAxisTitle(axisName);
   theSubDetMEs.nClustersOnTrack->setStatOverflows(kTRUE);
 
-    // TotalNumber of Cluster OnTrack
+  // TotalNumber of Cluster OnTrack
   completeName = "Summary_TotalNumberOfClusters_OnTrackStereo" + subdet_tag;
   axisName = "Number of on-track stereo clusters in " + name;
   theSubDetMEs.nClustersOnTrackStereo = bookME1D(ibooker, "TH1nClustersOnStereo", completeName.c_str());
@@ -757,7 +757,7 @@ void SiStripMonitorTrack::bookSubDetMEs(DQMStore::IBooker& ibooker, std::string&
   // Cluster StoN On Track
   completeName = "Summary_ClusterStoNCorr_OnTrack" + subdet_tag;
   theSubDetMEs.ClusterStoNCorrOnTrack = bookME1D(ibooker, "TH1ClusterStoNCorr", completeName.c_str());
-   
+
   completeName = "Summary_ClusterStoNCorrThin_OnTrack" + subdet_tag;
   if (subdet_tag.find("TEC") != std::string::npos)
     theSubDetMEs.ClusterStoNCorrThinOnTrack = bookME1D(ibooker, "TH1ClusterStoNCorr", completeName.c_str());
@@ -1581,7 +1581,7 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster,
     }
     // layerMEs
     if (MEs.iLayer != nullptr) {
-      if (noise > 0.0) 
+      if (noise > 0.0)
         fillME(MEs.iLayer->ClusterStoNCorrOnTrack, StoN * cosRZ);
       if (noise == 0.0)
         LogDebug("SiStripMonitorTrack") << "Module " << detid << " in Event " << eventNb << " noise "
@@ -1626,7 +1626,7 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster,
       fillME(MEs.iSubdet->ClusterGain, clustergain);
       fillME(MEs.iSubdet->ClusterChargeOnTrack, charge);
       fillME(MEs.iSubdet->ClusterChargeRawOnTrack, chargeraw);
-      if (noise > 0.0) 
+      if (noise > 0.0)
         fillME(MEs.iSubdet->ClusterStoNCorrOnTrack, StoN * cosRZ);
       fillME(MEs.iSubdet->ClusterChargeCorrOnTrack, charge * cosRZ);
       if (track_ok)
