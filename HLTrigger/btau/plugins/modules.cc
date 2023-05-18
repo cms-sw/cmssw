@@ -64,7 +64,6 @@ DEFINE_FWK_MODULE(HLTPFJetPairDzMatchFilter);
 DEFINE_FWK_MODULE(HLTPFTauPairDzMatchFilter);
 
 #include "HLTJetTag.h"
-#include "HLTJetTag.cc"
 typedef HLTJetTag<reco::CaloJet> HLTCaloJetTag;
 typedef HLTJetTag<reco::PFJet> HLTPFJetTag;
 DEFINE_FWK_MODULE(HLTCaloJetTag);
