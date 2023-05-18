@@ -297,6 +297,9 @@ namespace mkfit {
     MPlexLL errorPropTmp(0.f);   //initialize to zero
     MPlexLL errorPropSwap(0.f);  //initialize to zero
 
+    // loop does not vectorize with llvm16, and it issues a warning
+    // that apparently can't be suppressed with a pragma.  Needs to
+    // be rechecked if future llvm versions improve vectorization.
 #if !defined(__clang__)
 #pragma omp simd
 #endif
