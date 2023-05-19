@@ -1104,7 +1104,14 @@ void HLTExoticaSubAnalysis::bookHist(DQMStore::IBooker &iBooker,
   // This is the trick, that takes a normal TH1F and puts it in in the DQM
   // machinery. Seems to be easy!
   // Updated to use the new iBooker machinery.
-  _elements[name] = iBooker.book1D(name, h);
+
+  if(source == "gen"){
+    if(objType != "refittedStandAloneMuons"){ _elements[name] = iBooker.book1D(name, h);}
+  }
+  else{
+    _elements[name] = iBooker.book1D(name, h);
+  }
+
   delete h;
 }
 
@@ -1118,7 +1125,14 @@ void HLTExoticaSubAnalysis::fillHist(const std::string &source,
   std::string name = source + objType + variable;
 
   LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::fillHist() " << name << " " << value;
-  _elements[name]->Fill(value);
+
+  if(source == "gen"){
+    if(objType != "refittedStandAloneMuons") {_elements[name]->Fill(value);}
+  }
+  else{
+    _elements[name]->Fill(value);
+  }
+
   LogDebug("ExoticaValidation") << "In HLTExoticaSubAnalysis::fillHist() " << name << " worked";
 }
 
