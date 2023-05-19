@@ -39,7 +39,7 @@ namespace l1ct {
   };
 
   struct TkObjEmu : public TkObj {
-    uint16_t hwChi2, hwStubs;
+    uint16_t hwChi2;
     float simPt, simCaloEta, simCaloPhi, simVtxEta, simVtxPhi, simZ0, simD0;
     const l1t::PFTrack *src = nullptr;
     bool read(std::fstream &from);
@@ -48,7 +48,6 @@ namespace l1ct {
       TkObj::clear();
       src = nullptr;
       hwChi2 = 0;
-      hwStubs = 0;
       simPt = 0;
       simCaloEta = 0;
       simCaloPhi = 0;
@@ -196,6 +195,7 @@ namespace l1ct {
     const l1t::PFTrack *srcTrack = nullptr;
     // we use an index to the standalone object needed to retrieve a Ref when putting
     int sta_idx;
+    float idScore;
     bool read(std::fstream &from);
     bool write(std::fstream &to) const;
     void clear() {
@@ -203,6 +203,7 @@ namespace l1ct {
       srcCluster = nullptr;
       srcTrack = nullptr;
       sta_idx = -1;
+      idScore = -999;
       clearIsoVars();
     }
 
@@ -334,7 +335,7 @@ namespace l1ct {
   };
 
   struct Event {
-    enum { VERSION = 11 };
+    enum { VERSION = 12 };
     uint32_t run, lumi;
     uint64_t event;
     RawInputs raw;

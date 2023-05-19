@@ -150,8 +150,46 @@ l1tLayer2EG = cms.EDProducer(
     # )
 )
 
+l1tLayer2EGElliptic = l1tLayer2EG.clone(
+     tkElectrons=cms.VPSet(
+        cms.PSet(
+            pfProducer=cms.InputTag("l1tLayer1HGCalElliptic", 'L1TkElePerBoard'),
+            channels=cms.vint32(3, 4)
+        ),
+        cms.PSet(
+            pfProducer=cms.InputTag("l1tLayer1Barrel", 'L1TkElePerBoard'),
+            channels=cms.vint32(0, 1, 2)
+        ),
+    ),
+    tkEms=cms.VPSet(
+        cms.PSet(
+            pfProducer=cms.InputTag("l1tLayer1HGCalElliptic", 'L1TkEmPerBoard'),
+            channels=cms.vint32(3, 4)
+        ),
+        cms.PSet(
+            pfProducer=cms.InputTag("l1tLayer1HGCalNoTK", 'L1TkEmPerBoard'),
+            channels=cms.vint32(-1)
+        ),
+        cms.PSet(
+            pfProducer=cms.InputTag("l1tLayer1Barrel", 'L1TkEmPerBoard'),
+            channels=cms.vint32(0, 1, 2)
+        ),
+    ),
+    tkEgs=cms.VPSet(
+        cms.PSet(
+            pfProducer=cms.InputTag("l1tLayer1HGCalElliptic", 'L1Eg'),
+            channels=cms.vint32(-1)
+        ),
+        cms.PSet(
+            pfProducer=cms.InputTag("l1tLayer1HGCalNoTK", 'L1Eg'),
+            channels=cms.vint32(-1)
+        ),
+    ),
+)
+
 
 L1TLayer2EGTask = cms.Task(
      l1tLayer2Deregionizer,
-     l1tLayer2EG
+     l1tLayer2EG,
+     l1tLayer2EGElliptic
 )

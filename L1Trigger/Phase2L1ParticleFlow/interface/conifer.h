@@ -1,8 +1,12 @@
 #ifndef L1TRIGGER_PHASE2L1PARTICLEFLOW_CONNIFER_H
 #define L1TRIGGER_PHASE2L1PARTICLEFLOW_CONNIFER_H
-#include "FWCore/Utilities/interface/Exception.h"
 #include "nlohmann/json.hpp"
 #include <fstream>
+#ifdef CMSSW_GIT_HASH
+#include "FWCore/Utilities/interface/Exception.h"
+#else
+#include <stdexcept>
+#endif
 
 namespace conifer {
 
@@ -115,18 +119,25 @@ namespace conifer {
 
     std::vector<U> decision_function(std::vector<T> x) const {
       /* Do the prediction */
+#ifdef CMSSW_GIT_HASH
       if (x.size() != n_features) {
         throw cms::Exception("RuntimeError")
             << "Conifer : Size of feature vector mismatches expected n_features" << std::endl;
       }
+#else
+      if (x.size() != n_features) {
+        throw std::runtime_error("Conifer : Size of feature vector mismatches expected n_features");
+      }
+#endif
       std::vector<U> values;
       std::vector<std::vector<U>> values_trees;
       values_trees.resize(n_classes);
       values.resize(n_classes, U(0));
       for (unsigned int i = 0; i < n_classes; i++) {
-        std::transform(trees.begin(), trees.end(), std::back_inserter(values_trees.at(i)), [&i, &x](auto tree_v) {
-          return tree_v.at(i).decision_function(x);
-        });
+        std::transform(trees.begin(),
+                       trees.end(),
+                       std::back_inserter(values_trees.at(i)),
+                       [&i, &x](std::vector<DecisionTree<T, U>> tree_v) { return tree_v.at(i).decision_function(x); });
         if (useAddTree) {
           values.at(i) = init_predict_.at(i);
           values.at(i) += reduce<U, OpAdd<U>>(values_trees.at(i), add);
