@@ -753,7 +753,8 @@ namespace dqm {
       void debugTrackME(const char* message, MonitorElement* me_local, MonitorElement* me_global) const;
       // accesor to keep MEsToSave_ private
       const auto& getMEsToSave() const { return MEsToSave_; }
-
+      // accesor to keep onlineMode_ private
+      const bool& getMode() const { return onlineMode_;}
     private:
       // MEComparison is a name-only comparison on MEs and Paths, allowing
       // heterogeneous lookup.
@@ -800,6 +801,9 @@ namespace dqm {
       // if non-empty, debugTrackME calls will log some information whenever a
       // ME path contains this string.
       std::string trackME_;
+
+      // Online mode
+      bool onlineMode_;
     };
   }  // namespace implementation
 

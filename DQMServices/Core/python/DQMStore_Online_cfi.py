@@ -16,5 +16,5 @@ DQMStore = cms.Service("DQMStore",
     # remains here, even though the DQMStore does not use it any more.
     enableMultiThread = cms.untracked.bool(True),
     # Online mode
-    onlineMode = cms.untracked.bool(False)
+    onlineMode = cms.untracked.bool(True)
 )
