@@ -18,6 +18,7 @@
 #include "RooCategory.h"
 #include "RooDataHist.h"
 #include "RooDataSet.h"
+#include "RooFitLegacy/RooCatTypeLegacy.h"
 #include "RooFitResult.h"
 #include "RooFormulaVar.h"
 #include "RooGlobalFunc.h"
