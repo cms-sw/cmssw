@@ -71,10 +71,11 @@ process.load("L1Trigger.L1TTrackMatch.L1TkMETAnalyser_cfi")
 # Primary vertex
 ############################################################
 
+process.load('L1Trigger.L1TTrackMatch.l1tTrackSelectionProducer_cfi')
 process.load('L1Trigger.VertexFinder.l1tVertexProducer_cfi')
 process.l1tVertexProducer.l1TracksInputTag = cms.InputTag("l1tTTTracksFromTrackletEmulation", "Level1TTTracks")  
 
-
+producerSum += process.l1tTrackSelectionProducer
 producerSum += process.l1tVertexProducer
 
 producerName = 'VertexProducer{0}'.format("fastHisto")
