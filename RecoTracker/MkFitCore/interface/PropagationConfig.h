@@ -12,7 +12,8 @@ namespace mkfit {
     PF_copy_input_state_on_fail = 0x4
   };
 
-  struct PropagationFlags {
+  class PropagationFlags {
+  public:
     const TrackerInfo *tracker_info = nullptr;  // back-pointer for easy passing into low-level funcs
     bool use_param_b_field : 1;
     bool apply_material : 1;
