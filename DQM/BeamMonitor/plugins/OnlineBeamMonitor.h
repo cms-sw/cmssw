@@ -26,18 +26,21 @@
 #include "CondFormats/DataRecord/interface/BeamSpotTransientObjectsRcd.h"
 
 namespace onlinebeammonitor {
-  struct NoCache {};
+  struct BeamSpotInfo {
+    typedef std::map<std::string, reco::BeamSpot> BeamSpotContainer;
+    BeamSpotContainer beamSpotsMap_;
+  };
 }  // namespace onlinebeammonitor
 
-class OnlineBeamMonitor : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<onlinebeammonitor::NoCache>> {
+class OnlineBeamMonitor : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<onlinebeammonitor::BeamSpotInfo>> {
 public:
   OnlineBeamMonitor(const edm::ParameterSet&);
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  std::shared_ptr<onlinebeammonitor::NoCache> globalBeginLuminosityBlock(const edm::LuminosityBlock& iLumi,
-                                                                         const edm::EventSetup& iSetup) const override;
+  std::shared_ptr<onlinebeammonitor::BeamSpotInfo> globalBeginLuminosityBlock(
+      const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) const override;
   void globalEndLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) override;
   void dqmEndRun(edm::Run const&, edm::EventSetup const&) override;
 
@@ -59,13 +62,11 @@ private:
 
   //Service variables
   int numberOfValuesToSave_;
-  mutable int numberOfProcessedLumis_;
-  mutable std::vector<int> processedLumis_;
+  std::vector<int> processedLumis_;
   // MonitorElements:
   MonitorElement* bsChoice_;
 
   //Containers
-  mutable BeamSpotContainer beamSpotsMap_;
   HistosContainer histosMap_;
   PositionContainer positionsMap_;
   std::vector<std::string> varNamesV_;                            //x,y,z,sigmax(y,z)

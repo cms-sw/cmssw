@@ -28,10 +28,14 @@ class BeamFitter;
 class PVFitter;
 
 namespace alcabeammonitor {
-  struct NoCache {};
+  struct BeamSpotInfo {
+    std::vector<reco::VertexCollection> vertices_;
+    typedef std::map<std::string, reco::BeamSpot> BeamSpotContainer;
+    BeamSpotContainer beamSpotMap_;
+  };
 }  // namespace alcabeammonitor
 
-class AlcaBeamMonitor : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<alcabeammonitor::NoCache>> {
+class AlcaBeamMonitor : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<alcabeammonitor::BeamSpotInfo>> {
 public:
   AlcaBeamMonitor(const edm::ParameterSet&);
   static void fillDescriptions(edm::ConfigurationDescriptions&);
@@ -39,8 +43,8 @@ public:
 protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
-  std::shared_ptr<alcabeammonitor::NoCache> globalBeginLuminosityBlock(const edm::LuminosityBlock& iLumi,
-                                                                       const edm::EventSetup& iSetup) const override;
+  std::shared_ptr<alcabeammonitor::BeamSpotInfo> globalBeginLuminosityBlock(
+      const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) const override;
   void globalEndLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) override;
   void dqmEndRun(edm::Run const&, edm::EventSetup const&) override;
 
@@ -65,8 +69,7 @@ private:
   int numberOfValuesToSave_;
   std::unique_ptr<BeamFitter> theBeamFitter_;
   std::unique_ptr<PVFitter> thePVFitter_;
-  mutable int numberOfProcessedLumis_;
-  mutable std::vector<int> processedLumis_;
+  std::vector<int> processedLumis_;
 
   // MonitorElements:
   MonitorElement* hD0Phi0_;
@@ -74,12 +77,10 @@ private:
   //mutable MonitorElement* theValuesContainer_;
 
   //Containers
-  mutable BeamSpotContainer beamSpotsMap_;
   HistosContainer histosMap_;
   PositionContainer positionsMap_;
   std::vector<std::string> varNamesV_;                            //x,y,z,sigmax(y,z)
   std::multimap<std::string, std::string> histoByCategoryNames_;  //run, lumi
-  mutable std::vector<reco::VertexCollection> vertices_;
 };
 
 #endif
