@@ -83,13 +83,15 @@ void DiMuonMassBiasClient::bookMEs(DQMStore::IBooker& iBooker)
     const auto& nxbins = ME->getNbinsX();
     const auto& xmin = ME->getAxisMin(1);
     const auto& xmax = ME->getAxisMax(1);
+    const auto& ymin = ME->getAxisMin(2);
+    const auto& ymax = ME->getAxisMax(2);
 
     MonitorElement* meanToBook =
-        iBooker.book1D(("Mean" + key), (title + ";" + xtitle + ";" + ytitle), nxbins, xmin, xmax);
+        iBooker.bookProfile(("Mean" + key), (title + ";" + xtitle + ";" + ytitle), nxbins, xmin, xmax, ymin, ymax);
     meanProfiles_.insert({key, meanToBook});
 
-    MonitorElement* sigmaToBook =
-        iBooker.book1D(("Sigma" + key), (title + ";" + xtitle + ";" + "#sigma of " + ytitle), nxbins, xmin, xmax);
+    MonitorElement* sigmaToBook = iBooker.bookProfile(
+        ("Sigma" + key), (title + ";" + xtitle + ";" + "#sigma of " + ytitle), nxbins, xmin, xmax, ymin, ymax);
     widthProfiles_.insert({key, sigmaToBook});
   }
 }
@@ -114,46 +116,98 @@ void DiMuonMassBiasClient::getMEsToHarvest(DQMStore::IGetter& iGetter)
 }
 
 //-----------------------------------------------------------------------------------
+void DiMuonMassBiasClient::fitAndFill(std::pair<std::string, MonitorElement*> toHarvest, DQMStore::IBooker& iBooker)
+//-----------------------------------------------------------------------------------
+{
+  const auto& key = toHarvest.first;
+  const auto& ME = toHarvest.second;
+
+  if (debugMode_)
+    edm::LogPrint("DiMuonMassBiasClient") << "dealing with key: " << key << std::endl;
+
+  if (ME == nullptr) {
+    edm::LogError("DiMuonMassBiasClient") << "could not find MonitorElement for key: " << key << std::endl;
+    return;
+  }
+
+  const auto& title = ME->getTitle();
+  const auto& xtitle = ME->getAxisTitle(1);
+  const auto& ytitle = ME->getAxisTitle(2);
+
+  const auto& nxbins = ME->getNbinsX();
+  const auto& xmin = ME->getAxisMin(1);
+  const auto& xmax = ME->getAxisMax(1);
+  //const auto& ymin = ME->getAxisMin(2);
+  //const auto& ymax = ME->getAxisMax(2);
+
+  TProfile* p_mean = new TProfile(
+      ("Mean" + key).c_str(), (title + ";" + xtitle + ";#LT" + ytitle + "#GT").c_str(), nxbins, xmin, xmax, "g");
+
+  TProfile* p_width = new TProfile(
+      ("Sigma" + key).c_str(), (title + ";" + xtitle + ";#sigma of " + ytitle).c_str(), nxbins, xmin, xmax, "g");
+
+  p_mean->Sumw2();
+  p_width->Sumw2();
+
+  TH2F* bareHisto = ME->getTH2F();
+  for (int bin = 1; bin <= nxbins; bin++) {
+    const auto& xaxis = bareHisto->GetXaxis();
+    const auto& low_edge = xaxis->GetBinLowEdge(bin);
+    const auto& high_edge = xaxis->GetBinUpEdge(bin);
+
+    if (debugMode_)
+      edm::LogPrint("DiMuonMassBiasClient") << "dealing with bin: " << bin << " range: (" << std::setprecision(2)
+                                            << low_edge << "," << std::setprecision(2) << high_edge << ")";
+
+    TH1D* Proj = bareHisto->ProjectionY(Form("%s_proj_%i", key.c_str(), bin), bin, bin);
+    Proj->SetTitle(Form("%s #in (%.2f,%.2f), bin: %i", Proj->GetTitle(), low_edge, high_edge, bin));
+
+    diMuonMassBias::fitOutputs results = fitLineShape(Proj);
+
+    if (results.isInvalid()) {
+      edm::LogWarning("DiMuonMassBiasClient") << "the current bin has invalid data" << std::endl;
+      continue;
+    }
+
+    // fill the mean profiles
+    const Measurement1D& bias = results.getBias();
+    p_mean->SetBinContent(bin, bias.value() / (bias.error() * bias.error()));
+    p_mean->SetBinEntries(bin, 1. / (bias.error() * bias.error()));
+
+    if (debugMode_)
+      LogDebug("DiMuonBassBiasClient") << " Bin: " << bin << " value:  " << bias.value() << " from profile ( "
+                                       << p_mean->GetBinContent(bin) << ") - error:  " << bias.error()
+                                       << "  from profile ( " << p_mean->GetBinError(bin) << " )";
+
+    // fill the width profiles
+    const Measurement1D& width = results.getWidth();
+    p_width->SetBinContent(bin, width.value() / (width.error() * width.error()));
+    p_width->SetBinEntries(bin, 1. / (width.error() * width.error()));
+  }
+
+  // now book the profiles
+  iBooker.setCurrentFolder(TopFolder_ + "/DiMuonMassBiasMonitor/MassBias/Profiles");
+  MonitorElement* meanToBook = iBooker.bookProfile(p_mean->GetName(), p_mean);
+  meanProfiles_.insert({key, meanToBook});
+
+  MonitorElement* sigmaToBook = iBooker.bookProfile(p_width->GetName(), p_width);
+  widthProfiles_.insert({key, sigmaToBook});
+
+  delete p_mean;
+  delete p_width;
+}
+
+//-----------------------------------------------------------------------------------
 void DiMuonMassBiasClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter)
 //-----------------------------------------------------------------------------------
 {
   edm::LogInfo("DiMuonMassBiasClient") << "DiMuonMassBiasClient::endLuminosityBlock";
 
   getMEsToHarvest(igetter);
-  bookMEs(ibooker);
+  //bookMEs(ibooker);
 
-  for (const auto& [key, ME] : harvestTargets_) {
-    if (debugMode_)
-      edm::LogPrint("DiMuonMassBiasClient") << "dealing with key: " << key << std::endl;
-    TH2F* bareHisto = ME->getTH2F();
-    for (int bin = 1; bin <= ME->getNbinsX(); bin++) {
-      const auto& xaxis = bareHisto->GetXaxis();
-      const auto& low_edge = xaxis->GetBinLowEdge(bin);
-      const auto& high_edge = xaxis->GetBinUpEdge(bin);
-
-      if (debugMode_)
-        edm::LogPrint("DiMuonMassBiasClient") << "dealing with bin: " << bin << " range: (" << std::setprecision(2)
-                                              << low_edge << "," << std::setprecision(2) << high_edge << ")";
-      TH1D* Proj = bareHisto->ProjectionY(Form("%s_proj_%i", key.c_str(), bin), bin, bin);
-      Proj->SetTitle(Form("%s #in (%.2f,%.2f), bin: %i", Proj->GetTitle(), low_edge, high_edge, bin));
-
-      diMuonMassBias::fitOutputs results = fitLineShape(Proj);
-
-      if (results.isInvalid()) {
-        edm::LogWarning("DiMuonMassBiasClient") << "the current bin has invalid data" << std::endl;
-        continue;
-      }
-
-      // fill the mean profiles
-      const Measurement1D& bias = results.getBias();
-      meanProfiles_[key]->setBinContent(bin, bias.value());
-      meanProfiles_[key]->setBinError(bin, bias.error());
-
-      // fill the width profiles
-      const Measurement1D& width = results.getWidth();
-      widthProfiles_[key]->setBinContent(bin, width.value());
-      widthProfiles_[key]->setBinError(bin, width.error());
-    }
+  for (const auto& element : harvestTargets_) {
+    this->fitAndFill(element, ibooker);
   }
 }
 
