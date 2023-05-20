@@ -81,6 +81,7 @@ private:
   void bookMEs(DQMStore::IBooker& ibooker);
   void getMEsToHarvest(DQMStore::IGetter& igetter);
   diMuonMassBias::fitOutputs fitLineShape(TH1* hist, const bool& fitBackground = false) const;
+  void fitAndFill(std::pair<std::string, MonitorElement*> toHarvest, DQMStore::IBooker& iBooker);
 
   // data members
   const std::string TopFolder_;
