@@ -91,6 +91,12 @@ ctpps_2018.toReplaceWith(
     
 )
 
+from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
+ctpps_2016.toReplaceWith(
+    _ctppsDQMOfflineSource,
+    cms.Sequence(
+    )
+)
 
 # the actually used sequences must be empty for pre-PPS data
 from Configuration.Eras.Modifier_ctpps_cff import ctpps

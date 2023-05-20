@@ -7,7 +7,6 @@
  *
  *******************************************/
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -27,6 +26,9 @@
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelCluster.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelLocalTrack.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+
+#include "CondFormats/DataRecord/interface/CTPPSPixelDAQMappingRcd.h"
+#include "CondFormats/PPSObjects/interface/CTPPSPixelDAQMapping.h"
 
 #include <string>
 
@@ -50,7 +52,9 @@ private:
   edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelCluster>> tokenCluster;
   edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelLocalTrack>> tokenTrack;
   edm::EDGetTokenT<edm::TriggerResults> tokenTrigResults;
+  edm::ESGetToken<CTPPSPixelDAQMapping, CTPPSPixelDAQMappingRcd> tokenPixelDAQMapping;
   std::string randomHLTPath;
+  std::string mappingLabel;
 
   static constexpr int NArms = 2;
   static constexpr int NStationMAX = 3;  // in an arm
@@ -219,6 +223,8 @@ CTPPSPixelDQMSource::CTPPSPixelDQMSource(const edm::ParameterSet &ps)
   tokenCluster = consumes<DetSetVector<CTPPSPixelCluster>>(ps.getUntrackedParameter<edm::InputTag>("tagRPixCluster"));
   tokenTrack = consumes<DetSetVector<CTPPSPixelLocalTrack>>(ps.getUntrackedParameter<edm::InputTag>("tagRPixLTrack"));
   tokenTrigResults = consumes<edm::TriggerResults>(ps.getUntrackedParameter<edm::InputTag>("tagTrigResults"));
+  tokenPixelDAQMapping = esConsumes<CTPPSPixelDAQMapping, CTPPSPixelDAQMappingRcd>();
+  mappingLabel = ps.getUntrackedParameter<std::string>("mappingLabel");
   offlinePlots = ps.getUntrackedParameter<bool>("offlinePlots", true);
   onlinePlots = ps.getUntrackedParameter<bool>("onlinePlots", true);
 
@@ -525,7 +531,7 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
                                                           0.,
                                                           double(NplaneMAX * NROCsMAX),
                                                           0.,
-                                                          rpixValues::ROCSizeInX *rpixValues::ROCSizeInY,
+                                                          rpixValues::ROCSizeInX * rpixValues::ROCSizeInY,
                                                           "");
         hp2HitsMultROC_LS[indexP]->getTProfile2D()->SetOption("colz");
         hp2HitsMultROC_LS[indexP]->getTProfile2D()->SetMinimum(1.0e-10);
@@ -690,6 +696,8 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
   Handle<edm::TriggerResults> hltResults;
   event.getByToken(tokenTrigResults, hltResults);
 
+  const CTPPSPixelDAQMapping *mapping = &eventSetup.getData(tokenPixelDAQMapping);
+
   if (onlinePlots) {
     hBX->Fill(event.bunchCrossing());
     hBXshort->Fill(event.bunchCrossing());
@@ -850,13 +858,13 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
   }      // if(pixDigi.isValid()) {
 
   if (pixError.isValid()) {
+    std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo> rocMapping = mapping->ROCMapping;
     for (const auto &ds_error : *pixError) {
       int idet = getDet(ds_error.id);
       if (idet != DetId::VeryForward) {
         if (idet == 15) {  //dummy det id: store in a plot with fed info
 
           for (DetSet<CTPPSPixelDataError>::const_iterator dit = ds_error.begin(); dit != ds_error.end(); ++dit) {
-            h2ErrorCodeUnidDet->Fill(dit->errorType(), dit->fedId());
             // recover fed channel number
             int chanNmbr = -1;
             if (dit->errorType() == 32 || dit->errorType() == 33 || dit->errorType() == 34) {
@@ -866,6 +874,30 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
               uint32_t errorWord = dit->errorWord32();
               chanNmbr = (errorWord >> LINK_shift) & LINK_mask;
             }
+
+            // recover detector Id from chanNmbr and fedId
+            CTPPSPixelFramePosition fPos(dit->fedId(), 0, chanNmbr, 0);  // frame position for ROC 0
+            std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo>::const_iterator mit;
+            int index = -1;
+            int plane = -1;
+            bool goodRecovery = false;
+            mit = rocMapping.find(fPos);
+            if (mit != rocMapping.end()) {
+              CTPPSPixelROCInfo rocInfo = (*mit).second;
+              CTPPSPixelDetId recoveredDetId(rocInfo.iD);
+              plane = recoveredDetId.plane();
+              index = getRPindex(recoveredDetId.arm(), recoveredDetId.station(), recoveredDetId.rp());
+              if (RPindexValid[index] && !isPlanePlotsTurnedOff[recoveredDetId.arm()][recoveredDetId.station()]
+                                                               [recoveredDetId.rp()][recoveredDetId.plane()])
+                goodRecovery = true;
+            }  // if (mit != rocMapping.end())
+
+            if (goodRecovery) {
+              h2ErrorCodeRP[index]->Fill(dit->errorType(), plane);
+            } else {
+              h2ErrorCodeUnidDet->Fill(dit->errorType(), dit->fedId());
+            }
+
             bool fillFED = false;
             int iFed = dit->fedId() - minFedNumber;
             if (iFed >= 0 && iFed < numberOfFeds)
@@ -921,42 +953,74 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
               int t6 = (errorWord >> DB6_shift) & DataBit_mask;
               int t7 = (errorWord >> DB7_shift) & DataBit_mask;
               if (t0 == 1) {
-                h2TBMMessageUnidDet->Fill(0, dit->fedId());
+                if (goodRecovery) {
+                  h2TBMMessageRP[index]->Fill(0, plane);
+                } else {
+                  h2TBMMessageUnidDet->Fill(0, dit->fedId());
+                }
                 if (fillFED)
                   h2TBMMessageFED[iFed]->Fill(0, chanNmbr);
               }
               if (t1 == 1) {
-                h2TBMMessageUnidDet->Fill(1, dit->fedId());
+                if (goodRecovery) {
+                  h2TBMMessageRP[index]->Fill(1, plane);
+                } else {
+                  h2TBMMessageUnidDet->Fill(1, dit->fedId());
+                }
                 if (fillFED)
                   h2TBMMessageFED[iFed]->Fill(1, chanNmbr);
               }
               if (t2 == 1) {
-                h2TBMMessageUnidDet->Fill(2, dit->fedId());
+                if (goodRecovery) {
+                  h2TBMMessageRP[index]->Fill(2, plane);
+                } else {
+                  h2TBMMessageUnidDet->Fill(2, dit->fedId());
+                }
                 if (fillFED)
                   h2TBMMessageFED[iFed]->Fill(2, chanNmbr);
               }
               if (t3 == 1) {
-                h2TBMMessageUnidDet->Fill(3, dit->fedId());
+                if (goodRecovery) {
+                  h2TBMMessageRP[index]->Fill(3, plane);
+                } else {
+                  h2TBMMessageUnidDet->Fill(3, dit->fedId());
+                }
                 if (fillFED)
                   h2TBMMessageFED[iFed]->Fill(3, chanNmbr);
               }
               if (t4 == 1) {
-                h2TBMMessageUnidDet->Fill(4, dit->fedId());
+                if (goodRecovery) {
+                  h2TBMMessageRP[index]->Fill(4, plane);
+                } else {
+                  h2TBMMessageUnidDet->Fill(4, dit->fedId());
+                }
                 if (fillFED)
                   h2TBMMessageFED[iFed]->Fill(4, chanNmbr);
               }
               if (t5 == 1) {
-                h2TBMMessageUnidDet->Fill(5, dit->fedId());
+                if (goodRecovery) {
+                  h2TBMMessageRP[index]->Fill(5, plane);
+                } else {
+                  h2TBMMessageUnidDet->Fill(5, dit->fedId());
+                }
                 if (fillFED)
                   h2TBMMessageFED[iFed]->Fill(5, chanNmbr);
               }
               if (t6 == 1) {
-                h2TBMMessageUnidDet->Fill(6, dit->fedId());
+                if (goodRecovery) {
+                  h2TBMMessageRP[index]->Fill(6, plane);
+                } else {
+                  h2TBMMessageUnidDet->Fill(6, dit->fedId());
+                }
                 if (fillFED)
                   h2TBMMessageFED[iFed]->Fill(6, chanNmbr);
               }
               if (t7 == 1) {
-                h2TBMMessageUnidDet->Fill(7, dit->fedId());
+                if (goodRecovery) {
+                  h2TBMMessageRP[index]->Fill(7, plane);
+                } else {
+                  h2TBMMessageUnidDet->Fill(7, dit->fedId());
+                }
                 if (fillFED)
                   h2TBMMessageFED[iFed]->Fill(7, chanNmbr);
               }
@@ -965,27 +1029,47 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
               uint32_t stateMach_mask = ~(~uint32_t(0) << stateMach_bits);
               uint32_t stateMach = (errorWord >> stateMach_shift) & stateMach_mask;
               if (stateMach == 0) {
-                h2TBMTypeUnidDet->Fill(0, dit->fedId());
+                if (goodRecovery) {
+                  h2TBMTypeRP[index]->Fill(0, plane);
+                } else {
+                  h2TBMTypeUnidDet->Fill(0, dit->fedId());
+                }
                 if (fillFED)
                   h2TBMTypeFED[iFed]->Fill(0, chanNmbr);
               } else {
                 if (((stateMach >> DB0_shift) & DataBit_mask) == 1) {
-                  h2TBMTypeUnidDet->Fill(1, dit->fedId());
+                  if (goodRecovery) {
+                    h2TBMTypeRP[index]->Fill(1, plane);
+                  } else {
+                    h2TBMTypeUnidDet->Fill(1, dit->fedId());
+                  }
                   if (fillFED)
                     h2TBMTypeFED[iFed]->Fill(1, chanNmbr);
                 }
                 if (((stateMach >> DB1_shift) & DataBit_mask) == 1) {
-                  h2TBMTypeUnidDet->Fill(2, dit->fedId());
+                  if (goodRecovery) {
+                    h2TBMTypeRP[index]->Fill(2, plane);
+                  } else {
+                    h2TBMTypeUnidDet->Fill(2, dit->fedId());
+                  }
                   if (fillFED)
                     h2TBMTypeFED[iFed]->Fill(2, chanNmbr);
                 }
                 if (((stateMach >> DB2_shift) & DataBit_mask) == 1) {
-                  h2TBMTypeUnidDet->Fill(3, dit->fedId());
+                  if (goodRecovery) {
+                    h2TBMTypeRP[index]->Fill(3, plane);
+                  } else {
+                    h2TBMTypeUnidDet->Fill(3, dit->fedId());
+                  }
                   if (fillFED)
                     h2TBMTypeFED[iFed]->Fill(3, chanNmbr);
                 }
                 if (((stateMach >> DB3_shift) & DataBit_mask) == 1) {
-                  h2TBMTypeUnidDet->Fill(4, dit->fedId());
+                  if (goodRecovery) {
+                    h2TBMTypeRP[index]->Fill(4, plane);
+                  } else {
+                    h2TBMTypeUnidDet->Fill(4, dit->fedId());
+                  }
                   if (fillFED)
                     h2TBMTypeFED[iFed]->Fill(4, chanNmbr);
                 }
@@ -995,7 +1079,7 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
               h2ErrorCodeFED[iFed]->Fill(dit->errorType(), chanNmbr);
           }
           continue;
-        }
+        }  // if idet == 15
         if (verbosity > 1)
           LogPrint("CTPPSPixelDQMSource") << "not CTPPS: ds_error.id" << ds_error.id;
         continue;
