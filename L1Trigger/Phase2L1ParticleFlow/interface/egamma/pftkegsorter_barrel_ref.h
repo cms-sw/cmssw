@@ -1,33 +1,28 @@
-#ifndef REF_PFTKEGSORTER_BARREL_REF_H
-#define REF_PFTKEGSORTER_BARREL_REF_H
+#ifndef L1Trigger_Phase2L1ParticleFlow_egamma_pftkegsorter_barrel_ref_h
+#define L1Trigger_Phase2L1ParticleFlow_egamma_pftkegsorter_barrel_ref_h
 
 #include <cstdio>
 #include <vector>
 
+#include "pftkegsorter_ref.h"
 #include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/common/bitonic_hybrid_sort_ref.h"
 
-#ifdef CMSSW_GIT_HASH
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#endif
-
-namespace edm {
-  class ParameterSet;
-}
-
 namespace l1ct {
-  class PFTkEGSorterBarrelEmulator {
+  class PFTkEGSorterBarrelEmulator : public PFTkEGSorterEmulator {
   public:
     PFTkEGSorterBarrelEmulator(const unsigned int nObjToSort = 10, const unsigned int nObjSorted = 16)
-        : nObjToSort_(nObjToSort), nObjSorted_(nObjSorted), debug_(false) {}
+        : PFTkEGSorterEmulator(nObjToSort, nObjSorted) {}
 
-    PFTkEGSorterBarrelEmulator(const edm::ParameterSet& iConfig);
+#ifdef CMSSW_GIT_HASH
+    PFTkEGSorterBarrelEmulator(const edm::ParameterSet& iConfig)
+        : PFTkEGSorterEmulator(iConfig.getParameter<uint32_t>("nObjToSort"),
+                               iConfig.getParameter<uint32_t>("nObjSorted")) {}
+#endif
 
-    virtual ~PFTkEGSorterBarrelEmulator() {}
+    ~PFTkEGSorterBarrelEmulator() override {}
 
-    void setDebug(bool debug = true) { debug_ = debug; };
-
-    void toFirmware_pho(const OutputRegion& outregions, EGIsoObj (&photons_in)[nObjSorted_]) const {
+    void toFirmware_pho(const OutputRegion& outregions, EGIsoObj photons_in[/*nObjSorted_*/]) const {
       for (unsigned int i = 0; i < nObjToSort_; i++) {
         EGIsoObj pho;
         if (i < outregions.egphoton.size()) {
@@ -39,7 +34,7 @@ namespace l1ct {
       }
     }
 
-    void toFirmware_ele(const OutputRegion& outregions, EGIsoEleObj (&eles_in)[nObjSorted_]) const {
+    void toFirmware_ele(const OutputRegion& outregions, EGIsoEleObj eles_in[/*nObjSorted_*/]) const {
       for (unsigned int i = 0; i < nObjToSort_; i++) {
         EGIsoEleObj ele;
         if (i < outregions.egelectron.size()) {
@@ -49,6 +44,19 @@ namespace l1ct {
 
         eles_in[i] = ele;
       }
+    }
+
+    void runPho(const std::vector<l1ct::PFInputRegion>& pfregions,
+                const std::vector<l1ct::OutputRegion>& outregions,
+                const std::vector<unsigned int>& region_index,
+                std::vector<l1ct::EGIsoObjEmu>& eg_sorted_inBoard) override {
+      run<l1ct::EGIsoObjEmu>(pfregions, outregions, region_index, eg_sorted_inBoard);
+    }
+    void runEle(const std::vector<l1ct::PFInputRegion>& pfregions,
+                const std::vector<l1ct::OutputRegion>& outregions,
+                const std::vector<unsigned int>& region_index,
+                std::vector<l1ct::EGIsoEleObjEmu>& eg_sorted_inBoard) override {
+      run<l1ct::EGIsoEleObjEmu>(pfregions, outregions, region_index, eg_sorted_inBoard);
     }
 
     template <typename T>
@@ -96,8 +104,8 @@ namespace l1ct {
                          std::vector<T>& global_objects) {
       for (const auto& reg_obj : regional_objects) {
         global_objects.emplace_back(reg_obj);
-        global_objects.back().hwEta = region.hwGlbEta(reg_obj.hwEta);  //<=========== uncomment this
-        global_objects.back().hwPhi = region.hwGlbPhi(reg_obj.hwPhi);  //<=========== uncomment this
+        global_objects.back().hwEta = region.hwGlbEta(reg_obj.hwEta);
+        global_objects.back().hwPhi = region.hwGlbPhi(reg_obj.hwPhi);
       }
     }
 
@@ -144,58 +152,32 @@ namespace l1ct {
 
     template <typename T>
     void merge(const std::vector<std::vector<T>>& in_objs, std::vector<T>& out) const {
-      if (in_objs.size() == 1) {  //size is 1, fine!
-        std::copy(in_objs[0].begin(), in_objs[0].end(), std::back_inserter(out));
-        if (out.size() > nObjSorted_)
-          out.resize(nObjSorted_);                                //size 16
-      } else if (in_objs.size() == 2) {                           //size is 2, fine!
-        merge_regions(in_objs[0], in_objs[1], out, nObjSorted_);  //10, 10, 16
-      } else {
-        std::vector<T> pair_merge_01;                                       //size is >2, merge 0 and 1 regions always
-        merge_regions(in_objs[0], in_objs[1], pair_merge_01, nObjSorted_);  //10, 10, 16
-
-        std::vector<std::vector<T>> to_merge;
-        if (in_objs.size() == 3)
-          to_merge.push_back(pair_merge_01);  //push 01 only if size is 3 //and then in_objs[id] will be pushed into it
-
-        std::vector<T> pair_merge_tmp = pair_merge_01;  //
-        for (unsigned int id = 2, idn = 3; id < in_objs.size(); id += 2, idn = id + 1) {
-          if (idn >= in_objs.size()) {        //if size is odd number starting from 3
-            to_merge.push_back(in_objs[id]);  //size 10
-          } else {
-            std::vector<T> pair_merge;
-            merge_regions(in_objs[id],
-                          in_objs[idn],
-                          pair_merge,
-                          nObjSorted_);  //10, 10, 16 // merge two regions: 23, 45, 67, and so on
-
-            //pair_merge_tmp.resize(nObjToSort_);
-            //pair_merge.resize(nObjToSort_);
-            merge_regions(
-                pair_merge_tmp,
-                pair_merge,
-                pair_merge_tmp,
-                nObjSorted_);  //16, 16, 16 //merge 23 with 01 for first time // then merge 45, and then 67, and then 89, and so on
-            to_merge.push_back(
-                pair_merge_tmp);  //push back 0123, 012345, 01234567, and so on (remember 01 is the 0th element)
-          }
+      unsigned int nregions = in_objs.size();
+      std::vector<T> pair_merge(nObjSorted_);
+      if (nregions == 18) {  // merge pairs, and accumulate pairs
+        for (unsigned int i = 0; i < nregions; i += 2) {
+          merge_regions(in_objs[i + 0], in_objs[i + 1], pair_merge, nObjSorted_);
+          if (i == 0)
+            out = pair_merge;
+          else
+            merge_regions(out, pair_merge, out, nObjSorted_);
         }
-        if (in_objs.size() % 2 == 1) {
-          //to_merge[to_merge.size()-2].resize(nObjToSort_);
-          merge_regions(
-              to_merge[to_merge.size() - 2],
-              to_merge[to_merge.size() - 1],
-              out,
-              nObjSorted_);  //16, 16, 16 //e.g. is size is 3, we merge 01 and 2, if size is 7, we merge 012345 and 6
-        } else
-          out =
-              pair_merge_tmp;  //if size is even number, e.g. 6, out is 012345 (or we can say to_merge[to_merge.size()-1])
-      }
+      } else if (nregions == 9) {  // simple accumulation
+        for (unsigned int i = 0; i < nregions; ++i) {
+          for (unsigned int j = 0, nj = in_objs[i].size(); j < nObjSorted_; ++j) {
+            if (j < nj)
+              pair_merge[j] = in_objs[i][j];
+            else
+              pair_merge[j].clear();
+          }
+          if (i == 0)
+            out = pair_merge;
+          else
+            merge_regions(out, pair_merge, out, nObjSorted_);
+        }
+      } else
+        throw std::runtime_error("This sorter requires 18 or 9 regions");
     }
-
-    unsigned int nObjToSort_;
-    unsigned int nObjSorted_;
-    bool debug_;
   };
 }  // namespace l1ct
 
