@@ -781,7 +781,7 @@ namespace dqm::implementation {
     doSaveByLumi_ = pset.getUntrackedParameter<bool>("saveByLumi", false);
     MEsToSave_ = pset.getUntrackedParameter<std::vector<std::string>>("MEsToSave", std::vector<std::string>());
     trackME_ = pset.getUntrackedParameter<std::string>("trackME", "");
-    onlineMode_ =  pset.getUntrackedParameter<bool>("onlineMode", false);
+    onlineMode_ = pset.getUntrackedParameter<bool>("onlineMode", false);
 
     // Set lumi and run for legacy booking.
     // This is no more than a guess with concurrent runs/lumis, but should be

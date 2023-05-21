@@ -754,7 +754,8 @@ namespace dqm {
       // accesor to keep MEsToSave_ private
       const auto& getMEsToSave() const { return MEsToSave_; }
       // accesor to keep onlineMode_ private
-      const bool& getMode() const { return onlineMode_;}
+      const bool& getMode() const { return onlineMode_; }
+
     private:
       // MEComparison is a name-only comparison on MEs and Paths, allowing
       // heterogeneous lookup.
