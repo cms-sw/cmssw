@@ -684,7 +684,7 @@ namespace dqm::implementation {
         for (std::vector<std::string>::const_iterator ipath = store_->MEsToSave_.begin();
              ipath != store_->MEsToSave_.end();
              ++ipath) {
-          std::string nameToSave = *ipath;
+          const std::string& nameToSave = *ipath;
           // option 1 (used in the past): inclusive selection
           // (store all MEs that contain any of the requested patterns)
           // if (name.find(nameToSave) != std::string::npos) {
