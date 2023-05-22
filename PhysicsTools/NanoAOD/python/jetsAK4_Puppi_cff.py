@@ -145,10 +145,10 @@ def nanoAOD_addDeepInfoAK4(process,addParticleNet,addRobustParTAK4=False):
     _btagDiscriminators=[]
     if addParticleNet:
         print("Updating process to run ParticleNetAK4")
-        from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4CHSCentralJetTagsAll as pfParticleNetFromMiniAODAK4CHSCentralJetTagsAll
-        from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4CHSForwardJetTagsAll as pfParticleNetFromMiniAODAK4CHSForwardJetTagsAll
-        _btagDiscriminators += pfParticleNetFromMiniAODAK4CHSCentralJetTagsAll
-        _btagDiscriminators += pfParticleNetFromMiniAODAK4CHSForwardJetTagsAll
+        from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4PuppiCentralJetTagsAll as pfParticleNetFromMiniAODAK4PuppiCentralJetTagsAll
+        from RecoBTag.ONNXRuntime.pfParticleNetFromMiniAODAK4_cff import _pfParticleNetFromMiniAODAK4PuppiForwardJetTagsAll as pfParticleNetFromMiniAODAK4PuppiForwardJetTagsAll
+        _btagDiscriminators += pfParticleNetFromMiniAODAK4PuppiCentralJetTagsAll
+        _btagDiscriminators += pfParticleNetFromMiniAODAK4PuppiForwardJetTagsAll
     if addRobustParTAK4:
         print("Updating process to run RobustParTAK4")
         from RecoBTag.ONNXRuntime.pfParticleTransformerAK4_cff import _pfParticleTransformerAK4JetTagsAll as pfParticleTransformerAK4JetTagsAll
@@ -174,7 +174,7 @@ nanoAOD_addDeepInfoAK4_switch = cms.PSet(
 )
 
 ################################################
-## DeepInfoAK4CHS:End
+## DeepInfoAK4:End
 #################################################
 
 ################################################################################
