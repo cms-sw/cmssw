@@ -5,8 +5,6 @@
 #include "DataFormats/L1Trigger/interface/L1Candidate.h"
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"
 #include "DataFormats/Common/interface/Ptr.h"
-#include "DataFormats/L1TParticleFlow/interface/jets.h"
-#include "DataFormats/L1TParticleFlow/interface/gt_datatypes.h"
 
 namespace l1t {
 
@@ -51,8 +49,8 @@ namespace l1t {
     }
 
     // Accessors to HW objects with ap_* types from encoded words
-    l1gt::Jet getHWJetGT() const { return l1gt::Jet::unpack(encodedJet(HWEncoding::GT)); }
-    l1ct::Jet getHWJetCT() const { return l1ct::Jet::unpack(encodedJet(HWEncoding::CT)); }
+    const PackedJet& getHWJetGT() const { return encodedJet(HWEncoding::GT); }
+    const PackedJet& getHWJetCT() const { return encodedJet(HWEncoding::CT); }
 
   private:
     float rawPt_;
