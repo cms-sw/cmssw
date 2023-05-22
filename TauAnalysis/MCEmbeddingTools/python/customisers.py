@@ -326,6 +326,7 @@ def keepCleaned(dataTier):
         "keep recoElectronSeeds_*_*_*",
         "drop recoIsoDepositedmValueMap_muIsoDepositTk_*_*" ,
         "drop recoIsoDepositedmValueMap_muIsoDepositTkDisplaced_*_*",
+        "drop *_muonSimClassifier_*_*",
         # "keep recoPFClusters_*_*_*",
         # "keep recoPFRecHits_*_*_*"
     )
@@ -470,6 +471,8 @@ def keepSimulated(process, processname="SIMembedding"):
     ret_vstring.append("keep recoElectronSeeds_*_*_*")
     ret_vstring.append("drop recoIsoDepositedmValueMap_muIsoDepositTk_*_*")
     ret_vstring.append("drop recoIsoDepositedmValueMap_muIsoDepositTkDisplaced_*_*")
+    ret_vstring.append("drop *_muonSimClassifier_*_*")
+
     # for those two steps, the output has to be modified
     # to keep the information from the cleaning step in the output file
     if processname == "SIMembeddingpreHLT" or processname == "SIMembeddingHLT":
