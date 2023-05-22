@@ -58,9 +58,16 @@ private:
     Interval m_current;
   };
   typedef std::unordered_map<int, GapCollector> layer_gap_map_t;
-  using MaterialHistogram =
-      std::array<std::array<std::vector<std::tuple<float, float, float>>, mkfit::Config::nBinsRMat>,
-                 mkfit::Config::nBinsZMat>;
+
+  struct MatHistBin {
+    float weight{0}, xi{0}, rl{0};
+    void add(float w, float x, float r) {
+      weight += w;
+      xi += w * x;
+      rl += w * r;
+    }
+  };
+  using MaterialHistogram = mkfit::rectvec<MatHistBin>;
 
   void considerPoint(const GlobalPoint &gp, mkfit::LayerInfo &lay_info);
   void fillShapeAndPlacement(const GeomDet *det,
@@ -292,19 +299,19 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
   if (!doubleSide)  //fill material
   {
     //module material
-    float bbxi = det->surface().mediumProperties().xi();
-    float radL = det->surface().mediumProperties().radLen();
+    const float bbxi = det->surface().mediumProperties().xi();
+    const float radL = det->surface().mediumProperties().radLen();
     //loop over bins to fill histogram with bbxi, radL and their weight, which the overlap surface in r-z with the cmsquare of a bin
-    for (unsigned int i = 0; i < mkfit::Config::nBinsZMat; i++) {
-      for (unsigned int j = 0; j < mkfit::Config::nBinsRMat; j++) {
-        constexpr float iBin = mkfit::Config::nBinsZMat / mkfit::Config::rangeZMat;
-        constexpr float jBin = mkfit::Config::nBinsRMat / mkfit::Config::rangeRMat;
-        float iF = i * iBin;
-        float jF = j * jBin;
-        float overlap = std::max(0.f, std::min(jF + 1, rbox_max) - std::max(jF, rbox_min)) *
-                        std::max(0.f, std::min(iF + 1, zbox_max) - std::max(iF, zbox_min));
+    const float iBin = trk_info.mat_range_z() / trk_info.mat_nbins_z();
+    const float jBin = trk_info.mat_range_r() / trk_info.mat_nbins_r();
+    for (int i = 0; i < trk_info.mat_nbins_z(); i++) {
+      for (int j = 0; j < trk_info.mat_nbins_r(); j++) {
+        const float iF = i * iBin;
+        const float jF = j * jBin;
+        float overlap = std::max(0.f, std::min(jF + jBin, rbox_max) - std::max(jF, rbox_min)) *
+                        std::max(0.f, std::min(iF + iBin, zbox_max) - std::max(iF, zbox_min));
         if (overlap > 0)
-          material_histogram[i][j].push_back(std::make_tuple(overlap, bbxi, radL));
+          material_histogram(i,j).add(overlap, bbxi, radL);
       }
     }
   }
@@ -407,71 +414,61 @@ void MkFitGeometryESProducer::findRZBox(const GlobalPoint &gp, float &rmin, floa
 void MkFitGeometryESProducer::aggregateMaterialInfo(mkfit::TrackerInfo &trk_info,
                                                     MaterialHistogram &material_histogram) {
   //from histogram (vector of tuples) to grid
-  for (unsigned int i = 0; i < mkfit::Config::nBinsZMat; i++) {
-    for (unsigned int j = 0; j < mkfit::Config::nBinsRMat; j++) {
-      float materialXi = 0;
-      float materialRadl = 0;
-      float sumW = 0;
-      for (auto tuple : material_histogram[i][j]) {
-        materialXi += std::get<0>(tuple) * std::get<1>(tuple);
-        materialRadl += std::get<0>(tuple) * std::get<2>(tuple);
-        sumW += std::get<0>(tuple);
-      }
-      if (sumW > 0) {
-        trk_info.material_bbxi[i][j] = materialXi / sumW;
-        trk_info.material_radl[i][j] = materialRadl / sumW;
-      } else {
-        trk_info.material_bbxi[i][j] = 0;
-        trk_info.material_radl[i][j] = 0;
+  for (int i = 0; i < trk_info.mat_nbins_z(); i++) {
+    for (int j = 0; j < trk_info.mat_nbins_r(); j++) {
+      const MatHistBin &mhb = material_histogram(i, j);
+      if (mhb.weight > 0) {
+        trk_info.material_bbxi(i, j) = mhb.xi / mhb.weight;
+        trk_info.material_radl(i, j) = mhb.rl / mhb.weight;
       }
     }
   }
 }
 
 void MkFitGeometryESProducer::fillLayers(mkfit::TrackerInfo &trk_info) {
-  int rneighbor_map[mkfit::Config::nBinsZMat][mkfit::Config::nBinsRMat];
-  int zneighbor_map[mkfit::Config::nBinsZMat][mkfit::Config::nBinsRMat];
+  mkfit::rectvec<int> rneighbor_map(trk_info.mat_nbins_z(), trk_info.mat_nbins_r());
+  mkfit::rectvec<int> zneighbor_map(trk_info.mat_nbins_z(), trk_info.mat_nbins_r());
+
   for (int im = 0; im < trk_info.n_layers(); ++im) {
     const mkfit::LayerInfo &li = trk_info.layer(im);
-    if (li.zmin() < 0 and li.zmax() < 0)
-      continue;  //neg endcap covered by pos
-    unsigned int rin, rout, zmin, zmax;
-    rin = int(abs(li.rin()) * mkfit::Config::nBinsRMat / mkfit::Config::rangeRMat);
-    rout = int(abs(li.rout()) * mkfit::Config::nBinsRMat / mkfit::Config::rangeRMat) + 1;
+    if (!li.is_barrel() && li.zmax() < 0)
+      continue;  // neg endcap covered by pos
+    int rin, rout, zmin, zmax;
+    rin = trk_info.mat_bin_r(li.rin());
+    rout = trk_info.mat_bin_r(li.rout()) + 1;
     if (li.is_barrel()) {
       zmin = 0;
-      zmax =
-          std::max(int(abs(li.zmax())), int(abs(li.zmin()))) * mkfit::Config::nBinsZMat / mkfit::Config::rangeZMat + 1;
+      zmax = trk_info.mat_bin_z(std::max(std::abs(li.zmax()), std::abs(li.zmin()))) + 1;
     } else {
-      zmin = int(abs(li.zmin()) * mkfit::Config::nBinsZMat / mkfit::Config::rangeZMat);
-      zmax = int(abs(li.zmax()) * mkfit::Config::nBinsZMat / mkfit::Config::rangeZMat) + 1;
+      zmin = trk_info.mat_bin_z(li.zmin());
+      zmax = trk_info.mat_bin_z(li.zmax()) + 1;
     }
-    for (unsigned int i = zmin; i < zmax; i++) {
-      for (unsigned int j = rin; j < rout; j++) {
-        if (trk_info.material_bbxi[i][j] == 0) {
+    for (int i = zmin; i < zmax; i++) {
+      for (int j = rin; j < rout; j++) {
+        if (trk_info.material_bbxi(i, j) == 0) {
           float distancesqmin = 100000;
-          for (unsigned int i2 = zmin; i2 < zmax; i2++) {
-            for (unsigned int j2 = rin; j2 < rout; j2++) {
+          for (int i2 = zmin; i2 < zmax; i2++) {
+            for (int j2 = rin; j2 < rout; j2++) {
               if (j == j2 && i == i2)
                 continue;
               auto mydistsq = (i - i2) * (i - i2) + (j - j2) * (j - j2);
-              if (mydistsq < distancesqmin && trk_info.material_radl[i2][j2] > 0) {
+              if (mydistsq < distancesqmin && trk_info.material_radl(i2, j2) > 0) {
                 distancesqmin = mydistsq;
-                zneighbor_map[i][j] = i2;
-                rneighbor_map[i][j] = j2;
+                zneighbor_map(i, j) = i2;
+                rneighbor_map(i, j) = j2;
               }
             }
           }  // can work on speedup here
         }
       }
     }
-    for (unsigned int i = zmin; i < zmax; i++) {
-      for (unsigned int j = rin; j < rout; j++) {
-        if (trk_info.material_bbxi[i][j] == 0) {
-          int iN = zneighbor_map[i][j];
-          int jN = rneighbor_map[i][j];
-          trk_info.material_bbxi[i][j] = trk_info.material_bbxi[iN][jN];
-          trk_info.material_radl[i][j] = trk_info.material_radl[iN][jN];
+    for (int i = zmin; i < zmax; i++) {
+      for (int j = rin; j < rout; j++) {
+        if (trk_info.material_bbxi(i, j) == 0) {
+          int iN = zneighbor_map(i, j);
+          int jN = rneighbor_map(i, j);
+          trk_info.material_bbxi(i, j) = trk_info.material_bbxi(iN, jN);
+          trk_info.material_radl(i, j) = trk_info.material_radl(iN, jN);
         }
       }
     }
@@ -515,12 +512,15 @@ std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRec
     edm::LogInfo("MkFitGeometryESProducer") << "Extracting PhaseI geometry";
     trackerInfo->create_layers(18, 27, 27);
     qBinDefaults = phase1QBins;
+
+    trackerInfo->create_material(300, 300.0f, 120, 120.0f);
   } else if (trackerGeom_->isThere(GeomDetEnumerators::P2PXB) || trackerGeom_->isThere(GeomDetEnumerators::P2PXEC) ||
              trackerGeom_->isThere(GeomDetEnumerators::P2OTB) || trackerGeom_->isThere(GeomDetEnumerators::P2OTEC)) {
     edm::LogInfo("MkFitGeometryESProducer") << "Extracting PhaseII geometry";
     layerNrConv_.reset(mkfit::TkLayout::phase2);
     trackerInfo->create_layers(16, 22, 22);
     qBinDefaults = phase2QBins;
+    trackerInfo->create_material(300, 300.0f, 120, 120.0f);
   } else {
     throw cms::Exception("UnimplementedFeature") << "unsupported / unknowen geometry version";
   }
@@ -533,7 +533,7 @@ std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRec
     li.reserve_modules(256);
   }
 
-  MaterialHistogram material_histogram;
+  MaterialHistogram material_histogram(trackerInfo->mat_nbins_z(), trackerInfo->mat_nbins_r());
 
   // This is sort of CMS-phase1 specific ... but fireworks code uses it for PhaseII as well.
   addPixBGeometry(*trackerInfo, material_histogram);

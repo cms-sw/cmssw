@@ -536,8 +536,7 @@ namespace mkfit {
       MPlexQF hitsXi;
       MPlexQF propSign;
 
-      // const TrackerInfo &tinfo = *pflags.tracker_info;
-      // Use TrackerInfo for material access ...
+      const TrackerInfo &tinfo = *pflags.tracker_info;
 
 #pragma omp simd
       for (int n = 0; n < NN; ++n) {
@@ -545,12 +544,11 @@ namespace mkfit {
           hitsRl(n, 0, 0) = 0.f;
           hitsXi(n, 0, 0) = 0.f;
         } else {
-          const int zbin = (std::abs(outPar(n, 2, 0)) * Config::nBinsZMat) / Config::rangeZMat;
-          const int rbin = (msRad(n, 0, 0) * Config::nBinsRMat) / Config::rangeRMat;
-          bool checkBins = (zbin >= 0 && zbin < Config::nBinsZMat && rbin >= 0 &&
-                            rbin < Config::nBinsRMat);  // protect against crazy propagations
-          hitsRl(n, 0, 0) = checkBins ? pflags.tracker_info->material_radl[zbin][rbin] : 0.f;
-          hitsXi(n, 0, 0) = checkBins ? pflags.tracker_info->material_bbxi[zbin][rbin] : 0.f;
+          const int zbin = tinfo.mat_bin_z(std::abs(outPar(n, 2, 0)));
+          const int rbin = tinfo.mat_bin_r(msRad(n, 0, 0));
+          bool checkBins = tinfo.check_bins(zbin, rbin); // protect against crazy propagations
+          hitsRl(n, 0, 0) = checkBins ? tinfo.material_radl(zbin, rbin) : 0.f;
+          hitsXi(n, 0, 0) = checkBins ? tinfo.material_bbxi(zbin, rbin) : 0.f;
         }
         const float r0 = hipo(inPar(n, 0, 0), inPar(n, 1, 0));
         const float r = msRad(n, 0, 0);
@@ -641,8 +639,8 @@ namespace mkfit {
       MPlexQF hitsXi;
       MPlexQF propSign;
 
-      // const TrackerInfo &tinfo = *pflags.tracker_info;
-      // Use TrackerInfo for material access ...
+      const TrackerInfo &tinfo = *pflags.tracker_info;
+
 #pragma omp simd
       for (int n = 0; n < NN; ++n) {
         if (n >= N_proc || (noMatEffPtr && noMatEffPtr->constAt(n, 0, 0))) {
@@ -650,12 +648,11 @@ namespace mkfit {
           hitsXi(n, 0, 0) = 0.f;
         } else {
           const float hypo = std::hypot(outPar(n, 0, 0), outPar(n, 1, 0));
-          const int zbin = (std::abs(msZ(n, 0, 0)) * Config::nBinsZMat) / Config::rangeZMat;
-          const int rbin = (hypo <= Config::rangeRMat) ? (hypo * Config::nBinsRMat) / (Config::rangeRMat) : -1;
-          bool checkBins = (zbin >= 0 && zbin < Config::nBinsZMat && rbin >= 0 &&
-                            rbin < Config::nBinsRMat);  // protect against crazy propagations
-          hitsRl(n, 0, 0) = checkBins ? pflags.tracker_info->material_radl[zbin][rbin] : 0.f;
-          hitsXi(n, 0, 0) = checkBins ? pflags.tracker_info->material_bbxi[zbin][rbin] : 0.f;
+          const int zbin = tinfo.mat_bin_z(std::abs(msZ(n, 0, 0)));
+          const int rbin = tinfo.mat_bin_r(hypo);
+          bool checkBins = tinfo.check_bins(zbin, rbin); // protect against crazy propagations
+          hitsRl(n, 0, 0) = checkBins ? tinfo.material_radl(zbin, rbin) : 0.f;
+          hitsXi(n, 0, 0) = checkBins ? tinfo.material_bbxi(zbin, rbin) : 0.f;
         }
         const float zout = msZ.constAt(n, 0, 0);
         const float zin = inPar.constAt(n, 2, 0);

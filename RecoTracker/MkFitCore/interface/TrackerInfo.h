@@ -144,6 +144,22 @@ namespace mkfit {
 
   //==============================================================================
 
+  template<typename T>
+  class rectvec {
+  public:
+    rectvec(int n1, int n2) : m_vec(n1 * n2), m_n1(n1), m_n2(n2) {}
+
+    const T& operator()(int i1, int i2) const { return m_vec[i1 * m_n2 + i2]; }
+    T& operator()(int i1, int i2) { return m_vec[i1 * m_n2 + i2]; }
+
+    const T* operator[](int i1) const { return & m_vec[i1 * m_n2]; }
+    T* operator[](int i1) { return & m_vec[i1 * m_n2]; }
+
+  private:
+    std::vector<T> m_vec;
+    int m_n1, m_n2;
+  };
+
   class TrackerInfo {
   public:
     enum EtaRegion {
@@ -184,8 +200,21 @@ namespace mkfit {
     void read_bin_file(const std::string& fname);
     void print_tracker(int level) const;
 
-    float material_bbxi[Config::nBinsZMat][Config::nBinsRMat];
-    float material_radl[Config::nBinsZMat][Config::nBinsRMat];
+    void create_material(int nBinZ, float rngZ, int nBinR, float rngR);
+    int mat_nbins_z() const { return m_mat_nbins_z; }
+    int mat_nbins_r() const { return m_mat_nbins_r; }
+    float mat_range_z() const { return m_mat_range_z; }
+    float mat_range_r() const { return m_mat_range_r; }
+    int mat_bin_z(float z) const { return z * m_mat_fac_z; }
+    int mat_bin_r(float r) const { return r * m_mat_fac_r; }
+    bool check_bins(int bz, int br) const { return bz >= 0 && bz < m_mat_nbins_z && br >= 0 && br < m_mat_nbins_r; }
+
+    bool material_at_z_r(float z, float r, float &rl, float &xi) const;
+
+    float material_bbxi(int binZ, int binR) const { return m_mat_bbxi[binZ * m_mat_nbins_r + binR]; }
+    float material_radl(int binZ, int binR) const { return m_mat_radl[binZ * m_mat_nbins_r + binR]; }
+    float& material_bbxi(int binZ, int binR) { return m_mat_bbxi[binZ * m_mat_nbins_r + binR]; }
+    float& material_radl(int binZ, int binR) { return m_mat_radl[binZ * m_mat_nbins_r + binR]; }
 
   private:
     int new_layer(LayerInfo::LayerType_e type);
@@ -195,6 +224,12 @@ namespace mkfit {
     std::vector<int> m_barrel;
     std::vector<int> m_ecap_pos;
     std::vector<int> m_ecap_neg;
+
+    int m_mat_nbins_z, m_mat_nbins_r;
+    float m_mat_range_z, m_mat_range_r;
+    float m_mat_fac_z, m_mat_fac_r;
+    std::vector<float> m_mat_radl;
+    std::vector<float> m_mat_bbxi;
 
     PropagationConfig m_prop_config;
   };
