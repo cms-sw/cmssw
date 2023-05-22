@@ -88,8 +88,7 @@ public:
                                         const reco::ElectronCollection* allEle,
                                         const reco::TrackCollection* isoTracks);
 
-  std::pair<int, float> scIsolation(const reco::SuperCluster& recocandidate,
-				    const reco::TrackCollection* isoTracks);
+  std::pair<int, float> scIsolation(const reco::SuperCluster& recocandidate, const reco::TrackCollection* isoTracks);
 
   /// Get number of tracks inside an isolation cone for electrons
   int electronTrackCount(const reco::Track* const tr, const reco::TrackCollection* isoTracks) {

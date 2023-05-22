@@ -44,7 +44,7 @@ namespace reco {
                  double etaWidth = 0.,
                  double Epreshower1 = 0.,
                  double Epreshower2 = 0.,
-		 double trkiso =0.);
+                 double trkiso = 0.);
 
     // to be merged in the previous one? -- FIXME
     SuperCluster(double energy,
@@ -57,7 +57,7 @@ namespace reco {
                  double etaWidth = 0.,
                  double Epreshower1 = 0.,
                  double Epreshower2 = 0.,
-		 double trkiso =0.);
+                 double trkiso = 0.);
 
     /// raw uncorrected energy (sum of energies of component BasicClusters)
     double rawEnergy() const { return rawEnergy_; }
@@ -78,7 +78,7 @@ namespace reco {
     void setPreshowerEnergyPlane2(double preshowerEnergy2) { preshowerEnergy2_ = preshowerEnergy2; };
     void setPhiWidth(double pw) { phiWidth_ = pw; }
     void setEtaWidth(double ew) { etaWidth_ = ew; }
-    void setTrackIsolation(double trkiso) {trkiso_ = trkiso;}
+    void setTrackIsolation(double trkiso) { trkiso_ = trkiso; }
 
     /// seed BasicCluster
     const CaloClusterPtr& seed() const { return seed_; }
@@ -202,7 +202,6 @@ namespace reco {
     double preshowerEnergy1_;
     double preshowerEnergy2_;
     double trkiso_;
-
   };
 
 }  // namespace reco

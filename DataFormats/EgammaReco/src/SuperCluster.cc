@@ -22,7 +22,7 @@ SuperCluster::SuperCluster(double energy,
                            double etaWidth,
                            double Epreshower1,
                            double Epreshower2,
-			   double trkiso)
+                           double trkiso)
     : CaloCluster(energy, position), rawEnergy_(0) {
   phiWidth_ = phiWidth;
   etaWidth_ = etaWidth;
@@ -56,7 +56,7 @@ SuperCluster::SuperCluster(double energy,
                            double etaWidth,
                            double Epreshower1,
                            double Epreshower2,
-			   double trkiso)
+                           double trkiso)
     : CaloCluster(energy, position), rawEnergy_(-1.) {
   phiWidth_ = phiWidth;
   etaWidth_ = etaWidth;

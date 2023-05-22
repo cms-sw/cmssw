@@ -130,7 +130,13 @@ void PFECALSuperClusterAlgo::setTokens(const edm::ParameterSet& iConfig, edm::Co
   trkIsoVetoConeSize_ = iConfig.getParameter<double>("trkIsoVetoConeSize");
   trkIsoStripBarrel_ = iConfig.getParameter<double>("trkIsoStripBarrel");
   trkIsoStripEndcap_ = iConfig.getParameter<double>("trkIsoStripEndcap");
-  isoCalculator_ = new EgammaHLTTrackIsolation(trkIsoPtMin_, trkIsoConeSize_, trkIsoZSpan_, trkIsoRSpan_, trkIsoVetoConeSize_,  trkIsoStripBarrel_, trkIsoStripEndcap_);
+  isoCalculator_ = new EgammaHLTTrackIsolation(trkIsoPtMin_,
+                                               trkIsoConeSize_,
+                                               trkIsoZSpan_,
+                                               trkIsoRSpan_,
+                                               trkIsoVetoConeSize_,
+                                               trkIsoStripBarrel_,
+                                               trkIsoStripEndcap_);
 
   esEEInterCalibToken_ =
       cc.esConsumes<ESEEIntercalibConstants, ESEEIntercalibConstantsRcd, edm::Transition::BeginLuminosityBlock>();
@@ -274,12 +280,14 @@ void PFECALSuperClusterAlgo::loadAndSortPFClusters(const edm::Event& iEvent) {
 
 void PFECALSuperClusterAlgo::run(const edm::Event& iEvent) {
   // clusterize the EB
-  buildAllSuperClusters(_clustersEB, threshPFClusterSeedBarrel_,iEvent);
+  buildAllSuperClusters(_clustersEB, threshPFClusterSeedBarrel_, iEvent);
   // clusterize the EE
-  buildAllSuperClusters(_clustersEE, threshPFClusterSeedEndcap_,iEvent);
+  buildAllSuperClusters(_clustersEE, threshPFClusterSeedEndcap_, iEvent);
 }
 
-void PFECALSuperClusterAlgo::buildAllSuperClusters(CalibratedPFClusterVector& clusters, double seedthresh, const edm::Event& iEvent) {
+void PFECALSuperClusterAlgo::buildAllSuperClusters(CalibratedPFClusterVector& clusters,
+                                                   double seedthresh,
+                                                   const edm::Event& iEvent) {
   if (_clustype == PFECALSuperClusterAlgo::kMustache || _clustype == PFECALSuperClusterAlgo::kBOX)
     buildAllSuperClustersMustacheOrBox(clusters, seedthresh, iEvent);
   else if (_clustype == PFECALSuperClusterAlgo::kDeepSC)
@@ -287,7 +295,8 @@ void PFECALSuperClusterAlgo::buildAllSuperClusters(CalibratedPFClusterVector& cl
 }
 
 void PFECALSuperClusterAlgo::buildAllSuperClustersMustacheOrBox(CalibratedPFClusterVector& clusters,
-                                                                double seedthresh, const edm::Event& iEvent) {
+                                                                double seedthresh,
+                                                                const edm::Event& iEvent) {
   auto seedable = std::bind(isSeed, _1, seedthresh, threshIsET_);
 
   // make sure only seeds appear at the front of the list of clusters
@@ -302,7 +311,9 @@ void PFECALSuperClusterAlgo::buildAllSuperClustersMustacheOrBox(CalibratedPFClus
   }
 }
 
-void PFECALSuperClusterAlgo::buildAllSuperClustersDeepSC(CalibratedPFClusterVector& clusters, double seedthresh,  const edm::Event& iEvent) {
+void PFECALSuperClusterAlgo::buildAllSuperClustersDeepSC(CalibratedPFClusterVector& clusters,
+                                                         double seedthresh,
+                                                         const edm::Event& iEvent) {
   auto seedable = std::bind(isSeed, _1, seedthresh, threshIsET_);
   // EcalClustersGraph utility class for DeepSC algorithm application
   // make sure only seeds appear at the front of the list of clusters
@@ -336,7 +347,8 @@ void PFECALSuperClusterAlgo::buildAllSuperClustersDeepSC(CalibratedPFClusterVect
 }
 
 void PFECALSuperClusterAlgo::buildSuperClusterMustacheOrBox(CalibratedPFCluster& seed,
-                                                            CalibratedPFClusterVector& clusters,  const edm::Event& iEvent) {
+                                                            CalibratedPFClusterVector& clusters,
+                                                            const edm::Event& iEvent) {
   CalibratedPFClusterVector clustered;
 
   double etawidthSuperCluster = 0.0;
@@ -423,7 +435,8 @@ void PFECALSuperClusterAlgo::buildSuperClusterMustacheOrBox(CalibratedPFCluster&
 
 void PFECALSuperClusterAlgo::finalizeSuperCluster(CalibratedPFCluster& seed,
                                                   CalibratedPFClusterVector& clustered,
-                                                  bool isEE, const edm::Event& iEvent) {
+                                                  bool isEE,
+                                                  const edm::Event& iEvent) {
   // need the vector of raw pointers for a PF width class
   std::vector<const reco::PFCluster*> bare_ptrs;
   // calculate necessary parameters and build the SC

@@ -29,7 +29,7 @@
 #include "RecoEcal/EgammaClusterAlgos/interface/SCEnergyCorrectorSemiParm.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClustersGraph.h"
 #include "RecoEcal/EgammaCoreTools/interface/CalibratedPFCluster.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHLTTrackIsolation.h" 
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHLTTrackIsolation.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -164,9 +164,12 @@ private:
   energy_weight _eweight;
   void buildAllSuperClusters(CalibratedPFClusterVector&, double seedthresh, const edm::Event&);
   void buildAllSuperClustersMustacheOrBox(CalibratedPFClusterVector&, double seedthresh, const edm::Event&);
-  void buildAllSuperClustersDeepSC(CalibratedPFClusterVector&, double seedthresh,  const edm::Event&);
-  void buildSuperClusterMustacheOrBox(CalibratedPFCluster&, CalibratedPFClusterVector&,  const edm::Event&);
-  void finalizeSuperCluster(CalibratedPFCluster& seed, CalibratedPFClusterVector& clustered, bool isEE, const edm::Event&);
+  void buildAllSuperClustersDeepSC(CalibratedPFClusterVector&, double seedthresh, const edm::Event&);
+  void buildSuperClusterMustacheOrBox(CalibratedPFCluster&, CalibratedPFClusterVector&, const edm::Event&);
+  void finalizeSuperCluster(CalibratedPFCluster& seed,
+                            CalibratedPFClusterVector& clustered,
+                            bool isEE,
+                            const edm::Event&);
 
   bool verbose_;
 
