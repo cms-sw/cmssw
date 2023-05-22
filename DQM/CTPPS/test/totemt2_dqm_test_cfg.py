@@ -32,9 +32,8 @@ process.dqmSaver.tag = "CTPPS"
 # raw data source
 process.source = cms.Source("NewEventStreamFileReader",
     fileNames = cms.untracked.vstring(
-        'file:../../../../../../CMSSW_13_1_0_pre1/t2v2p1/run364983_ls0001_streamA_StorageManager.dat',
-        'file:../../../../../../CMSSW_13_1_0_pre1/t2v2p1/run364983_ls0002_streamA_StorageManager.dat',
-#        '/store/data/Run2018D/ZeroBias/RAW/v1/000/324/747/00000/97A72F4B-786F-5A48-B97E-C596DD73BD77.root',
+        'http://cmsrep.cern.ch/cmssw/download/data/RecoPPS/Local/V1/run364983_ls0001_streamA_StorageManager.dat',
+#        '/store/group/dpg_ctpps/comm_ctpps/TotemT2/RecoTest/run364983_ls0001_streamA_StorageManager.dat',
     )
 )
 
