@@ -297,7 +297,6 @@ bool MuonCosmicCompatibilityFiller::isOverlappingMuon(const edm::Event& iEvent,
       // shared hits
       int RecHitsMuon = outertrack->numberOfValidHits();
       int shared = 0;
-      // count hits for same hemisphere
       if (costrack.isNonnull()) {
         // unused
         //	bool isCosmic1Leg = false;
@@ -312,8 +311,8 @@ bool MuonCosmicCompatibilityFiller::isOverlappingMuon(const edm::Event& iEvent,
           //if( !isCloseIP ) continue;
 
           // step3
-          GlobalPoint muonRefVtx(outertrack->vx(), outertrack->vy(), outertrack->vz());
-          GlobalPoint cosmicRefVtx(costrack->vx(), costrack->vy(), costrack->vz());
+          //GlobalPoint muonRefVtx(outertrack->vx(), outertrack->vy(), outertrack->vz());
+          //GlobalPoint cosmicRefVtx(costrack->vx(), costrack->vy(), costrack->vz());
           //UNUSED:	  float dist = (muonRefVtx - cosmicRefVtx).mag();
           //UNUSED:	  if( dist < 0.1 ) isCloseRef = true;
           //if( !isCloseRef ) continue;
