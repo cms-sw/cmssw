@@ -89,6 +89,13 @@ to_bemanipulate.append(
 )
 to_bemanipulate.append(
     module_manipulate(
+        module_name="displacedTracks",
+        manipulator_name="Track",
+        steps=["SIM", "MERGE"],
+    )
+)
+to_bemanipulate.append(
+    module_manipulate(
         module_name="ckfInOutTracksFromConversions",
         manipulator_name="Track",
         steps=["SIM", "MERGE"],
@@ -826,6 +833,14 @@ def customiseMerging(process, changeProcessname=True, reselect=False):
     process.load("RecoMuon.MuonIdentification.muonSelectionTypeValueMapProducer_cff")
     process.merge_step += process.muonSelectionTypeSequence
 
+    # displaced muons extras & tracks
+    process.load("RecoMuon.MuonIdentification.displacedMuonReducedTrackExtras_cfi")
+    process.merge_step += process.displacedMuonReducedTrackExtras
+
+    process.load("RecoMuon.Configuration.MergeDisplacedTrackCollections_cff")
+    process.merge_step += process.displacedTracksSequence
+
+    # Other things
     process.merge_step += process.doAlldEdXEstimators
     process.merge_step += process.vertexreco
     process.unsortedOfflinePrimaryVertices.beamSpotLabel = cms.InputTag(
