@@ -102,7 +102,7 @@ namespace dqm::implementation {
 
       const auto& MEs = store_->getMEsToSave();
 
-      if (not MEs.empty()) {
+      if (not MEs.empty() && not store_->getMode()) {
         bool pathInList = false;
         for (const auto& thepath : MEs) {
           if (fullpath == thepath) {
@@ -684,7 +684,7 @@ namespace dqm::implementation {
         for (std::vector<std::string>::const_iterator ipath = store_->MEsToSave_.begin();
              ipath != store_->MEsToSave_.end();
              ++ipath) {
-          std::string nameToSave = *ipath;
+          const std::string& nameToSave = *ipath;
           // option 1 (used in the past): inclusive selection
           // (store all MEs that contain any of the requested patterns)
           // if (name.find(nameToSave) != std::string::npos) {
@@ -781,6 +781,7 @@ namespace dqm::implementation {
     doSaveByLumi_ = pset.getUntrackedParameter<bool>("saveByLumi", false);
     MEsToSave_ = pset.getUntrackedParameter<std::vector<std::string>>("MEsToSave", std::vector<std::string>());
     trackME_ = pset.getUntrackedParameter<std::string>("trackME", "");
+    onlineMode_ = pset.getUntrackedParameter<bool>("onlineMode", false);
 
     // Set lumi and run for legacy booking.
     // This is no more than a guess with concurrent runs/lumis, but should be
