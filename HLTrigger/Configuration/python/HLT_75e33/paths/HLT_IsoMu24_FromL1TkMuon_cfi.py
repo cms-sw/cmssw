@@ -21,7 +21,7 @@ from ..modules.hltEcalPreshowerDigis_cfi import *
 from ..modules.hltEcalPreshowerRecHit_cfi import *
 from ..modules.hltEcalRecHit_cfi import *
 from ..modules.hltEcalUncalibRecHit_cfi import *
-from ..modules.hltFixedGridRhoFastjetAllCaloForMuons_cfi import *
+from ..modules.hltFixedGridRhoFastjetAllCaloForEGamma_cfi import *
 from ..modules.hltGemRecHits_cfi import *
 from ..modules.hltGemSegments_cfi import *
 from ..modules.hltHbhereco_cfi import *
@@ -56,11 +56,11 @@ from ..modules.hltMe0RecHits_cfi import *
 from ..modules.hltMe0Segments_cfi import *
 from ..modules.hltParticleFlowClusterECALUncorrectedUnseeded_cfi import *
 from ..modules.hltParticleFlowClusterECALUnseeded_cfi import *
-from ..modules.hltParticleFlowClusterHBHEForMuons_cfi import *
-from ..modules.hltParticleFlowClusterHCALForMuons_cfi import *
+from ..modules.hltParticleFlowClusterHBHE_cfi import *
+from ..modules.hltParticleFlowClusterHCAL_cfi import *
 from ..modules.hltParticleFlowClusterPSUnseeded_cfi import *
 from ..modules.hltParticleFlowRecHitECALUnseeded_cfi import *
-from ..modules.hltParticleFlowRecHitHBHEForMuons_cfi import *
+from ..modules.hltParticleFlowRecHitHBHE_cfi import *
 from ..modules.hltParticleFlowRecHitPSUnseeded_cfi import *
 from ..modules.hltPhase2L3FromL1TkMuonPixelLayerQuadruplets_cfi import *
 from ..modules.hltPhase2L3FromL1TkMuonPixelTracks_cfi import *
@@ -150,7 +150,7 @@ HLT_IsoMu24_FromL1TkMuon = cms.Path(
         hltEcalPreshowerRecHit,
         hltEcalRecHit,
         hltEcalUncalibRecHit,
-        hltFixedGridRhoFastjetAllCaloForMuons,
+        hltFixedGridRhoFastjetAllCaloForEGamma,
         hltGemRecHits,
         hltGemSegments,
         hltHbhereco,
@@ -185,11 +185,11 @@ HLT_IsoMu24_FromL1TkMuon = cms.Path(
         hltMe0Segments,
         hltParticleFlowClusterECALUncorrectedUnseeded,
         hltParticleFlowClusterECALUnseeded,
-        hltParticleFlowClusterHBHEForMuons,
-        hltParticleFlowClusterHCALForMuons,
+        hltParticleFlowClusterHBHE,
+        hltParticleFlowClusterHCAL,
         hltParticleFlowClusterPSUnseeded,
         hltParticleFlowRecHitECALUnseeded,
-        hltParticleFlowRecHitHBHEForMuons,
+        hltParticleFlowRecHitHBHE,
         hltParticleFlowRecHitPSUnseeded,
         hltPhase2L3FromL1TkMuonPixelLayerQuadruplets,
         hltPhase2L3FromL1TkMuonPixelTracks,

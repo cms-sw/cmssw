@@ -13,7 +13,7 @@ hltPhase2L3MuonsHgcalLCIsodR0p2dRVetoEM0p00dRVetoHad0p02minEEM0p00minEHad0p00 = 
     minEtHad = cms.double(0.0),
     recoCandidateProducer = cms.InputTag("hltPhase2L3MuonCandidates"),
     rhoMax = cms.double(99999999.0),
-    rhoProducer = cms.InputTag("hltFixedGridRhoFastjetAllCaloForMuons"),
+    rhoProducer = cms.InputTag("hltFixedGridRhoFastjetAllCaloForEGamma"),
     rhoScale = cms.double(1.0),
     useEt = cms.bool(False)
 )
