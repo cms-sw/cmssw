@@ -144,7 +144,7 @@ namespace mkfit {
 
   //==============================================================================
 
-  template<typename T>
+  template <typename T>
   class rectvec {
   public:
     rectvec(int n1, int n2) : m_vec(n1 * n2), m_n1(n1), m_n2(n2) {}
@@ -152,8 +152,8 @@ namespace mkfit {
     const T& operator()(int i1, int i2) const { return m_vec[i1 * m_n2 + i2]; }
     T& operator()(int i1, int i2) { return m_vec[i1 * m_n2 + i2]; }
 
-    const T* operator[](int i1) const { return & m_vec[i1 * m_n2]; }
-    T* operator[](int i1) { return & m_vec[i1 * m_n2]; }
+    const T* operator[](int i1) const { return &m_vec[i1 * m_n2]; }
+    T* operator[](int i1) { return &m_vec[i1 * m_n2]; }
 
   private:
     std::vector<T> m_vec;
@@ -209,7 +209,7 @@ namespace mkfit {
     int mat_bin_r(float r) const { return r * m_mat_fac_r; }
     bool check_bins(int bz, int br) const { return bz >= 0 && bz < m_mat_nbins_z && br >= 0 && br < m_mat_nbins_r; }
 
-    bool material_at_z_r(float z, float r, float &rl, float &xi) const;
+    bool material_at_z_r(float z, float r, float& rl, float& xi) const;
 
     float material_bbxi(int binZ, int binR) const { return m_mat_bbxi[binZ * m_mat_nbins_r + binR]; }
     float material_radl(int binZ, int binR) const { return m_mat_radl[binZ * m_mat_nbins_r + binR]; }

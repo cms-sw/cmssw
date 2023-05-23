@@ -127,7 +127,7 @@ namespace mkfit {
     m_mat_bbxi.resize(nBinZ * nBinR);
   }
 
-  bool TrackerInfo::material_at_z_r(float z, float r, float &rl, float &xi) const {
+  bool TrackerInfo::material_at_z_r(float z, float r, float& rl, float& xi) const {
     int bz = mat_bin_z(z);
     int br = mat_bin_r(r);
     return bz >= 0 && bz < m_mat_nbins_z && br >= 0 && br < m_mat_nbins_r;

@@ -536,7 +536,7 @@ namespace mkfit {
       MPlexQF hitsXi;
       MPlexQF propSign;
 
-      const TrackerInfo &tinfo = *pflags.tracker_info;
+      const TrackerInfo& tinfo = *pflags.tracker_info;
 
 #pragma omp simd
       for (int n = 0; n < NN; ++n) {
@@ -546,7 +546,7 @@ namespace mkfit {
         } else {
           const int zbin = tinfo.mat_bin_z(std::abs(outPar(n, 2, 0)));
           const int rbin = tinfo.mat_bin_r(msRad(n, 0, 0));
-          bool checkBins = tinfo.check_bins(zbin, rbin); // protect against crazy propagations
+          bool checkBins = tinfo.check_bins(zbin, rbin);  // protect against crazy propagations
           hitsRl(n, 0, 0) = checkBins ? tinfo.material_radl(zbin, rbin) : 0.f;
           hitsXi(n, 0, 0) = checkBins ? tinfo.material_bbxi(zbin, rbin) : 0.f;
         }
@@ -639,7 +639,7 @@ namespace mkfit {
       MPlexQF hitsXi;
       MPlexQF propSign;
 
-      const TrackerInfo &tinfo = *pflags.tracker_info;
+      const TrackerInfo& tinfo = *pflags.tracker_info;
 
 #pragma omp simd
       for (int n = 0; n < NN; ++n) {
@@ -650,7 +650,7 @@ namespace mkfit {
           const float hypo = std::hypot(outPar(n, 0, 0), outPar(n, 1, 0));
           const int zbin = tinfo.mat_bin_z(std::abs(msZ(n, 0, 0)));
           const int rbin = tinfo.mat_bin_r(hypo);
-          bool checkBins = tinfo.check_bins(zbin, rbin); // protect against crazy propagations
+          bool checkBins = tinfo.check_bins(zbin, rbin);  // protect against crazy propagations
           hitsRl(n, 0, 0) = checkBins ? tinfo.material_radl(zbin, rbin) : 0.f;
           hitsXi(n, 0, 0) = checkBins ? tinfo.material_bbxi(zbin, rbin) : 0.f;
         }

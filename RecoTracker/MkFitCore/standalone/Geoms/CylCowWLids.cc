@@ -147,7 +147,7 @@ namespace {
   //============================================================================
 
   void Create_CylCowWLids(TrackerInfo& ti, IterationsInfo& ii, bool verbose) {
-    PropagationConfig &pconf = ti.prop_config_nc();
+    PropagationConfig& pconf = ti.prop_config_nc();
     pconf.backward_fit_to_pca = Config::includePCA;
     pconf.finding_requires_propagation_to_hit_pos = false;
     pconf.finding_inter_layer_pflags = PropagationFlags(PF_none);

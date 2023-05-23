@@ -304,14 +304,14 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
     //loop over bins to fill histogram with bbxi, radL and their weight, which the overlap surface in r-z with the cmsquare of a bin
     const float iBin = trk_info.mat_range_z() / trk_info.mat_nbins_z();
     const float jBin = trk_info.mat_range_r() / trk_info.mat_nbins_r();
-    for (int i = 0; i < trk_info.mat_nbins_z(); i++) {
-      for (int j = 0; j < trk_info.mat_nbins_r(); j++) {
+    for (int i = std::floor(zbox_min / iBin); i < std::ceil(zbox_max / iBin); i++) {
+      for (int j = std::floor(rbox_min / jBin); j < std::ceil(rbox_max / jBin); j++) {
         const float iF = i * iBin;
         const float jF = j * jBin;
         float overlap = std::max(0.f, std::min(jF + jBin, rbox_max) - std::max(jF, rbox_min)) *
                         std::max(0.f, std::min(iF + iBin, zbox_max) - std::max(iF, zbox_min));
         if (overlap > 0)
-          material_histogram(i,j).add(overlap, bbxi, radL);
+          material_histogram(i, j).add(overlap, bbxi, radL);
       }
     }
   }
