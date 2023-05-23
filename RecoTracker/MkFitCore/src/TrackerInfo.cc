@@ -147,7 +147,7 @@ namespace mkfit {
       GeomFileHeader() = default;
 
       constexpr static int s_magic = 0xB00F;
-      constexpr static int s_version = 1;
+      constexpr static int s_version = 2;
     };
 
     template <typename T>
@@ -200,6 +200,11 @@ namespace mkfit {
     for (int l = 0; l < fh.f_n_layers; ++l) {
       write_std_vec(fp, m_layers[l].m_modules);
     }
+
+    constexpr int mat_vars_len = 2 * sizeof(int) + 4 * sizeof(float);
+    fwrite(&m_mat_nbins_z, mat_vars_len, 1, fp);
+    write_std_vec(fp, m_mat_radl);
+    write_std_vec(fp, m_mat_bbxi);
 
     fclose(fp);
   }
@@ -269,6 +274,11 @@ namespace mkfit {
         li.m_detid2sid.insert({li.m_modules[m].detid, m});
       }
     }
+
+    constexpr int mat_vars_len = 2 * sizeof(int) + 4 * sizeof(float);
+    fread(&m_mat_nbins_z, mat_vars_len, 1, fp);
+    read_std_vec(fp, m_mat_radl);
+    read_std_vec(fp, m_mat_bbxi);
 
     fclose(fp);
   }
