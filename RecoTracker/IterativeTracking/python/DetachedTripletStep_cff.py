@@ -287,6 +287,10 @@ trackingPhase1.toReplaceWith(detachedTripletStep, detachedTripletStepClassifier1
     mva = dict(GBRForestLabel = 'MVASelectorDetachedTripletStep_Phase1'),
     qualityCuts = [-0.2,0.3,0.8]
 ))
+pp_on_AA.toModify(detachedTripletStep, 
+        mva = dict(GBRForestLabel = 'HIMVASelectorDetachedTripletStep_Phase1'),
+        qualityCuts = [-0.2, 0.4, 0.85],
+)
 
 from RecoTracker.FinalTrackSelectors.trackTfClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
@@ -297,11 +301,9 @@ trackdnn.toReplaceWith(detachedTripletStep, trackTfClassifier.clone(
 ))
 (trackdnn & fastSim).toModify(detachedTripletStep,vertices = 'firstStepPrimaryVerticesBeforeMixing')
 
+(pp_on_AA & trackdnn).toModify(detachedTripletStep, qualityCuts =  [-0.32, 0.5, 0.98] )
+
 highBetaStar_2018.toModify(detachedTripletStep,qualityCuts = [-0.5,0.0,0.5])
-pp_on_AA.toModify(detachedTripletStep, 
-        mva = dict(GBRForestLabel = 'HIMVASelectorDetachedTripletStep_Phase1'),
-        qualityCuts = [-0.2, 0.4, 0.85],
-)
 
 # For LowPU
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi

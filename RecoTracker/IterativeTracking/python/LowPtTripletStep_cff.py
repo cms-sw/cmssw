@@ -311,6 +311,10 @@ trackingPhase1.toReplaceWith(lowPtTripletStep, lowPtTripletStep.clone(
      mva         = dict(GBRForestLabel = 'MVASelectorLowPtTripletStep_Phase1'),
      qualityCuts = [-0.4,0.0,0.3],
 ))
+pp_on_AA.toModify(lowPtTripletStep, 
+        mva         = dict(GBRForestLabel = 'HIMVASelectorLowPtTripletStep_Phase1'),
+        qualityCuts = [-0.8, -0.4, 0.5],
+)
 
 from RecoTracker.FinalTrackSelectors.trackTfClassifier_cfi import *
 from RecoTracker.FinalTrackSelectors.trackSelectionTf_cfi import *
@@ -320,14 +324,13 @@ trackdnn.toReplaceWith(lowPtTripletStep, trackTfClassifier.clone(
     qualityCuts = qualityCutDictionary.LowPtTripletStep.value()
 ))
 highBetaStar_2018.toModify(lowPtTripletStep,qualityCuts = [-0.7,-0.3,-0.1])
-pp_on_AA.toModify(lowPtTripletStep, 
-        mva         = dict(GBRForestLabel = 'HIMVASelectorLowPtTripletStep_Phase1'),
-        qualityCuts = [-0.8, -0.4, 0.5],
-)
+
 fastSim.toModify(lowPtTripletStep, vertices = 'firstStepPrimaryVerticesBeforeMixing')
 
 ((~trackingMkFitLowPtTripletStep) & trackdnn).toModify(lowPtTripletStep, mva = dict(tfDnnLabel  = 'trackSelectionTf_CKF'),
                                                     qualityCuts = [-0.23,  0.15,  0.41])
+
+(pp_on_AA & trackdnn).toModify(lowPtTripletStep, qualityCuts =  [-0.29, 0.65, 0.98] )
 
 # For LowPU and Phase2PU140
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi

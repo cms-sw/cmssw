@@ -117,7 +117,8 @@ _trackClusterRemoverBase = _trackClusterRemover.clone(
 )
 
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
-pp_on_AA.toModify(_trackClusterRemoverBase, TrackQuality = 'tight')
+from Configuration.ProcessModifiers.trackdnn_cff import trackdnn
+(pp_on_AA & (~trackdnn) ).toModify(_trackClusterRemoverBase, TrackQuality = 'tight')
 
 #Phase2 : configuring the phase2 track Cluster Remover
 from RecoLocalTracker.SubCollectionProducers.phase2trackClusterRemover_cfi import phase2trackClusterRemover as _phase2trackClusterRemover
