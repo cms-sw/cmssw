@@ -58,7 +58,8 @@ HGCalTestGuardRing::HGCalTestGuardRing(const edm::ParameterSet& ps)
       guardRingOffset_(ps.getParameter<double>("guardRingOffset")),
       geomToken_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", nameSense_})) {
   DetId::Detector det = (nameSense_ != "HGCalHESiliconSensitive") ? DetId::HGCalEE : DetId::HGCalHSi;
-edm::LogVerbatim("HGCalSim") << "Test Guard Ring Offset " << guardRingOffset_ << " for " << nameSense_ << ":" << det << " for wafers read from file " << waferFile_;
+  edm::LogVerbatim("HGCalSim") << "Test Guard Ring Offset " << guardRingOffset_ << " for " << nameSense_ << ":" << det
+                               << " for wafers read from file " << waferFile_;
   if (!waferFile_.empty()) {
     std::string thick[4] = {"h120", "l200", "l300", "h200"};
     int addType[4] = {HGCalTypes::WaferFineThin,
@@ -66,18 +67,18 @@ edm::LogVerbatim("HGCalSim") << "Test Guard Ring Offset " << guardRingOffset_ <<
                       HGCalTypes::WaferCoarseThick,
                       HGCalTypes::WaferFineThick};
     const int partTypeH[6] = {HGCalTypes::WaferFull,
-			      HGCalTypes::WaferHalf2,
-			      HGCalTypes::WaferChopTwoM,
-			      HGCalTypes::WaferSemi2,
-			      HGCalTypes::WaferSemi2,
-			      HGCalTypes::WaferFive2};
+                              HGCalTypes::WaferHalf2,
+                              HGCalTypes::WaferChopTwoM,
+                              HGCalTypes::WaferSemi2,
+                              HGCalTypes::WaferSemi2,
+                              HGCalTypes::WaferFive2};
     const int partTypeL[7] = {HGCalTypes::WaferFull,
-			      HGCalTypes::WaferHalf,
-			      HGCalTypes::WaferHalf,
-			      HGCalTypes::WaferSemi,
-			      HGCalTypes::WaferSemi,
-			      HGCalTypes::WaferFive,
-			      HGCalTypes::WaferThree};
+                              HGCalTypes::WaferHalf,
+                              HGCalTypes::WaferHalf,
+                              HGCalTypes::WaferSemi,
+                              HGCalTypes::WaferSemi,
+                              HGCalTypes::WaferFive,
+                              HGCalTypes::WaferThree};
     edm::FileInPath filetmp("SimG4CMS/Calo/data/" + waferFile_);
     std::string fileName = filetmp.fullPath();
     std::ifstream fInput(fileName.c_str());
@@ -92,23 +93,25 @@ edm::LogVerbatim("HGCalSim") << "Test Guard Ring Offset " << guardRingOffset_ <<
           int waferU = std::atoi(items[4].c_str());
           int waferV = std::atoi(items[5].c_str());
           int thck = static_cast<int>(std::find(thick, thick + 4, items[2]) - thick);
-	  int type = (thck < 4) ? addType[thck] : 0;
-	  HGCSiliconDetId id(det, -1, type, layer, waferU, waferV, 0, 0);
+          int type = (thck < 4) ? addType[thck] : 0;
+          HGCSiliconDetId id(det, -1, type, layer, waferU, waferV, 0, 0);
           int orient = std::atoi(items[5].c_str());
-	  int part = std::atoi(items[1].c_str());
-	  if (part >= 0) {
-	    if (type == HGCalTypes::WaferFineThin)
-	      part = partTypeH[part];
-	    else
-	      part = partTypeL[part];
-	  }
+          int part = std::atoi(items[1].c_str());
+          if (part >= 0) {
+            if (type == HGCalTypes::WaferFineThin)
+              part = partTypeH[part];
+            else
+              part = partTypeL[part];
+          }
           waferID_[id] = orient * 100 + part;
 #ifdef EDM_ML_DEBUG
-	  edm::LogVerbatim("HGCalSim") << "HGCalTestGuardRing::Reads " << id << " Orientatoin:Partial " >> orient >> ":" >> part;
+          edm::LogVerbatim("HGCalSim") << "HGCalTestGuardRing::Reads " << id << " Orientatoin:Partial " >> orient >>
+              ":" >> part;
 #endif
-	}
+        }
       }
-      edm::LogVerbatim("HGCalSim") << "HGCalTestGuardRing::Reads in " << waferID_.size() << " wafer information from " << fileName;
+      edm::LogVerbatim("HGCalSim") << "HGCalTestGuardRing::Reads in " << waferID_.size() << " wafer information from "
+                                   << fileName;
       fInput.close();
     }
   }
@@ -139,37 +142,44 @@ void HGCalTestGuardRing::analyze(const edm::Event& e, const edm::EventSetup& iS)
     if ((id.det() == DetId::HGCalEE) || (id.det() == DetId::HGCalHSi)) {
       ++allSi;
       if (((id.det() == DetId::HGCalEE) && (nameSense_ == "HGCalEESensitive")) ||
-	  ((id.det() == DetId::HGCalHSi) && (nameSense_ == "HGCalHESiliconSensitive"))) {
-	int partial = ((itr->second) % 100);
-	int orient = (((itr->second) / 100) % 100);
-	int type = id.type();
-	int nCells = hgc.getUVMax(type);
-	for (int u = 0; u < 2 * nCells; ++u) {
-	  for (int v = 0; v < 2 * nCells; ++v) {
+          ((id.det() == DetId::HGCalHSi) && (nameSense_ == "HGCalHESiliconSensitive"))) {
+        int partial = ((itr->second) % 100);
+        int orient = (((itr->second) / 100) % 100);
+        int type = id.type();
+        int nCells = hgc.getUVMax(type);
+        for (int u = 0; u < 2 * nCells; ++u) {
+          for (int v = 0; v < 2 * nCells; ++v) {
             if (((v - u) < nCells) && ((u - v) <= nCells)) {
-	      HGCSiliconDetId hid(id.det(), id.zside(), id.type(), id.layer(), id.waferU(), id.waferV(), u, v);
-	      bool valid = (geom->topology()).valid(static_cast<DetId>(hid));
-	      if (valid) {
-		++good;	      
-		int placeIndex = wafer.cellPlacementIndex(1, HGCalTypes::waferFrontBack(0), orient);
-		std::pair<double, double> xy = wafer.cellUV2XY1(u, v, placeIndex, type);
-		std::vector<std::pair<double, double> > wxy1 = HGCalWaferMask::waferXY(partial, orient, -1, waferSize, 0.0, 0.0, 0.0);
-		bool check1 = HGCGuardRing::insidePolygon(xy.first, xy.second, wxy1);
-		std::ostringstream st1;
-		for (unsigned int k1 = 0; k1 < wxy1.size(); ++k1)
-		  st1 << " (" << wxy1[k1].first << ", " << wxy1[k1].second << ")";
-		edm::LogVerbatim("HGCSim") << "First " << hid << " Type:Partial:Orient:Place " << type << ":" << partial << ":" << orient << ":" << placeIndex << " Boundary with " << wxy1.size() << " points: " << st1.str()  << " check " << check1 << " for (" << xy.first << ", " << xy.second << ")";
+              HGCSiliconDetId hid(id.det(), id.zside(), id.type(), id.layer(), id.waferU(), id.waferV(), u, v);
+              bool valid = (geom->topology()).valid(static_cast<DetId>(hid));
+              if (valid) {
+                ++good;
+                int placeIndex = wafer.cellPlacementIndex(1, HGCalTypes::waferFrontBack(0), orient);
+                std::pair<double, double> xy = wafer.cellUV2XY1(u, v, placeIndex, type);
+                std::vector<std::pair<double, double> > wxy1 =
+                    HGCalWaferMask::waferXY(partial, orient, -1, waferSize, 0.0, 0.0, 0.0);
+                bool check1 = HGCGuardRing::insidePolygon(xy.first, xy.second, wxy1);
+                std::ostringstream st1;
+                for (unsigned int k1 = 0; k1 < wxy1.size(); ++k1)
+                  st1 << " (" << wxy1[k1].first << ", " << wxy1[k1].second << ")";
+                edm::LogVerbatim("HGCSim")
+                    << "First " << hid << " Type:Partial:Orient:Place " << type << ":" << partial << ":" << orient
+                    << ":" << placeIndex << " Boundary with " << wxy1.size() << " points: " << st1.str() << " check "
+                    << check1 << " for (" << xy.first << ", " << xy.second << ")";
 
-		std::vector<std::pair<double, double> > wxy2 = HGCalWaferMask::waferXY(partial, orient, -1, waferSize, guardRingOffset_, 0.0, 0.0);
-		bool check2 = HGCGuardRing::insidePolygon(xy.first, xy.second, wxy2);
-		std::ostringstream st2;
-		for (unsigned int k1 = 0; k1 < wxy2.size(); ++k1)
-		  st2 << " (" << wxy2[k1].first << ", " << wxy2[k1].second << ")";
-		edm::LogVerbatim("HGCSim") << "Second Offset " << guardRingOffset_ << " Boundary with " << wxy2.size() << " points: " << st2.str()  << " check " << check2 << " for (" << xy.first << ", " << xy.second << ")";
-	      }
-	    }
+                std::vector<std::pair<double, double> > wxy2 =
+                    HGCalWaferMask::waferXY(partial, orient, -1, waferSize, guardRingOffset_, 0.0, 0.0);
+                bool check2 = HGCGuardRing::insidePolygon(xy.first, xy.second, wxy2);
+                std::ostringstream st2;
+                for (unsigned int k1 = 0; k1 < wxy2.size(); ++k1)
+                  st2 << " (" << wxy2[k1].first << ", " << wxy2[k1].second << ")";
+                edm::LogVerbatim("HGCSim") << "Second Offset " << guardRingOffset_ << " Boundary with " << wxy2.size()
+                                           << " points: " << st2.str() << " check " << check2 << " for (" << xy.first
+                                           << ", " << xy.second << ")";
+              }
+            }
           }
-	}
+        }
       }
     }
   }

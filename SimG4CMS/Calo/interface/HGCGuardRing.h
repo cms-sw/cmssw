@@ -13,7 +13,6 @@ public:
   static bool insidePolygon(double x, double y, const std::vector<std::pair<double, double> >& xyv);
 
 private:
-
   static constexpr double sqrt3_ = 1.732050807568877;  // std::sqrt(3.0) in double precision
   const HGCalDDDConstants& hgcons_;
   const HGCalGeometryMode::GeometryMode modeUV_;
