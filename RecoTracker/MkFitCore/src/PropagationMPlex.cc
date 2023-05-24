@@ -544,11 +544,9 @@ namespace mkfit {
           hitsRl(n, 0, 0) = 0.f;
           hitsXi(n, 0, 0) = 0.f;
         } else {
-          const int zbin = tinfo.mat_bin_z(std::abs(outPar(n, 2, 0)));
-          const int rbin = tinfo.mat_bin_r(msRad(n, 0, 0));
-          bool checkBins = tinfo.check_bins(zbin, rbin);  // protect against crazy propagations
-          hitsRl(n, 0, 0) = checkBins ? tinfo.material_radl(zbin, rbin) : 0.f;
-          hitsXi(n, 0, 0) = checkBins ? tinfo.material_bbxi(zbin, rbin) : 0.f;
+          auto mat = tinfo.material_checked(std::abs(outPar(n, 2, 0)), msRad(n, 0, 0));
+          hitsRl(n, 0, 0) = mat.radl;
+          hitsXi(n, 0, 0) = mat.bbxi;
         }
         const float r0 = hipo(inPar(n, 0, 0), inPar(n, 1, 0));
         const float r = msRad(n, 0, 0);
@@ -648,11 +646,9 @@ namespace mkfit {
           hitsXi(n, 0, 0) = 0.f;
         } else {
           const float hypo = std::hypot(outPar(n, 0, 0), outPar(n, 1, 0));
-          const int zbin = tinfo.mat_bin_z(std::abs(msZ(n, 0, 0)));
-          const int rbin = tinfo.mat_bin_r(hypo);
-          bool checkBins = tinfo.check_bins(zbin, rbin);  // protect against crazy propagations
-          hitsRl(n, 0, 0) = checkBins ? tinfo.material_radl(zbin, rbin) : 0.f;
-          hitsXi(n, 0, 0) = checkBins ? tinfo.material_bbxi(zbin, rbin) : 0.f;
+          auto mat = tinfo.material_checked(std::abs(msZ(n, 0, 0)), hypo);
+          hitsRl(n, 0, 0) = mat.radl;
+          hitsXi(n, 0, 0) = mat.bbxi;
         }
         const float zout = msZ.constAt(n, 0, 0);
         const float zin = inPar.constAt(n, 2, 0);

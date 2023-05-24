@@ -116,21 +116,12 @@ namespace mkfit {
   // Material
 
   void TrackerInfo::create_material(int nBinZ, float rngZ, int nBinR, float rngR) {
-    m_mat_nbins_z = nBinZ;
-    m_mat_nbins_r = nBinR;
     m_mat_range_z = rngZ;
     m_mat_range_r = rngR;
-    m_mat_fac_z = m_mat_nbins_z / m_mat_range_z;
-    m_mat_fac_r = m_mat_nbins_r / m_mat_range_r;
+    m_mat_fac_z = nBinZ / m_mat_range_z;
+    m_mat_fac_r = nBinR / m_mat_range_r;
 
-    m_mat_radl.resize(nBinZ * nBinR);
-    m_mat_bbxi.resize(nBinZ * nBinR);
-  }
-
-  bool TrackerInfo::material_at_z_r(float z, float r, float& rl, float& xi) const {
-    int bz = mat_bin_z(z);
-    int br = mat_bin_r(r);
-    return bz >= 0 && bz < m_mat_nbins_z && br >= 0 && br < m_mat_nbins_r;
+    m_mat_vec.rerect(nBinZ, nBinR);
   }
 
   //==============================================================================
@@ -201,10 +192,9 @@ namespace mkfit {
       write_std_vec(fp, m_layers[l].m_modules);
     }
 
-    constexpr int mat_vars_len = 2 * sizeof(int) + 4 * sizeof(float);
-    fwrite(&m_mat_nbins_z, mat_vars_len, 1, fp);
-    write_std_vec(fp, m_mat_radl);
-    write_std_vec(fp, m_mat_bbxi);
+    fwrite(&m_mat_range_z, 4 * sizeof(float), 1, fp);
+    fwrite(&m_mat_vec, 2 * sizeof(int), 1, fp);
+    write_std_vec(fp, m_mat_vec.vector());
 
     fclose(fp);
   }
@@ -275,10 +265,9 @@ namespace mkfit {
       }
     }
 
-    constexpr int mat_vars_len = 2 * sizeof(int) + 4 * sizeof(float);
-    fread(&m_mat_nbins_z, mat_vars_len, 1, fp);
-    read_std_vec(fp, m_mat_radl);
-    read_std_vec(fp, m_mat_bbxi);
+    fread(&m_mat_range_z, 4 * sizeof(float), 1, fp);
+    fread(&m_mat_vec, 2 * sizeof(int), 1, fp);
+    read_std_vec(fp, m_mat_vec.vector());
 
     fclose(fp);
   }

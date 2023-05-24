@@ -147,7 +147,13 @@ namespace mkfit {
   template <typename T>
   class rectvec {
   public:
-    rectvec(int n1, int n2) : m_vec(n1 * n2), m_n1(n1), m_n2(n2) {}
+    rectvec(int n1=0, int n2=0) : m_n1(n1), m_n2(n2), m_vec(n1 * n2) {}
+
+    void rerect(int n1, int n2) {
+      m_n1 = n1;
+      m_n2 = n2;
+      m_vec.resize(n1 * n2);
+    }
 
     const T& operator()(int i1, int i2) const { return m_vec[i1 * m_n2 + i2]; }
     T& operator()(int i1, int i2) { return m_vec[i1 * m_n2 + i2]; }
@@ -155,9 +161,16 @@ namespace mkfit {
     const T* operator[](int i1) const { return &m_vec[i1 * m_n2]; }
     T* operator[](int i1) { return &m_vec[i1 * m_n2]; }
 
+    const std::vector<T>& vector() const { return m_vec; }
+    std::vector<T>& vector() { return m_vec; }
+
+    int n1() const { return m_n1; }
+    int n2() const { return m_n2; }
+    bool check_idcs(int i1, int i2) const { return i1 >= 0 && i1 < m_n1 && i2 >= 0 && i2 < m_n2; }
+
   private:
-    std::vector<T> m_vec;
     int m_n1, m_n2;
+    std::vector<T> m_vec;
   };
 
   class TrackerInfo {
@@ -171,6 +184,9 @@ namespace mkfit {
       Reg_Endcap_Pos,
       Reg_End,
       Reg_Count = Reg_End
+    };
+    struct Material {
+      float bbxi{0}, radl{0};
     };
 
     void reserve_layers(int n_brl, int n_ec_pos, int n_ec_neg);
@@ -201,20 +217,23 @@ namespace mkfit {
     void print_tracker(int level) const;
 
     void create_material(int nBinZ, float rngZ, int nBinR, float rngR);
-    int mat_nbins_z() const { return m_mat_nbins_z; }
-    int mat_nbins_r() const { return m_mat_nbins_r; }
+    int mat_nbins_z() const { return m_mat_vec.n1(); }
+    int mat_nbins_r() const { return m_mat_vec.n2(); }
     float mat_range_z() const { return m_mat_range_z; }
     float mat_range_r() const { return m_mat_range_r; }
     int mat_bin_z(float z) const { return z * m_mat_fac_z; }
     int mat_bin_r(float r) const { return r * m_mat_fac_r; }
-    bool check_bins(int bz, int br) const { return bz >= 0 && bz < m_mat_nbins_z && br >= 0 && br < m_mat_nbins_r; }
+    bool check_bins(int bz, int br) const { return m_mat_vec.check_idcs(bz, br); }
 
-    bool material_at_z_r(float z, float r, float& rl, float& xi) const;
+    float material_bbxi(int binZ, int binR) const { return m_mat_vec(binZ, binR).bbxi; }
+    float material_radl(int binZ, int binR) const { return m_mat_vec(binZ, binR).radl; }
+    float& material_bbxi(int binZ, int binR) { return m_mat_vec(binZ, binR).bbxi; }
+    float& material_radl(int binZ, int binR) { return m_mat_vec(binZ, binR).radl; }
 
-    float material_bbxi(int binZ, int binR) const { return m_mat_bbxi[binZ * m_mat_nbins_r + binR]; }
-    float material_radl(int binZ, int binR) const { return m_mat_radl[binZ * m_mat_nbins_r + binR]; }
-    float& material_bbxi(int binZ, int binR) { return m_mat_bbxi[binZ * m_mat_nbins_r + binR]; }
-    float& material_radl(int binZ, int binR) { return m_mat_radl[binZ * m_mat_nbins_r + binR]; }
+    Material material_checked(float z, float r) const {
+      const int zbin = mat_bin_z(z), rbin = mat_bin_r(r);
+      return check_bins(zbin, rbin) ? m_mat_vec(zbin, rbin) : Material();
+    }
 
   private:
     int new_layer(LayerInfo::LayerType_e type);
@@ -225,11 +244,9 @@ namespace mkfit {
     std::vector<int> m_ecap_pos;
     std::vector<int> m_ecap_neg;
 
-    int m_mat_nbins_z, m_mat_nbins_r;
     float m_mat_range_z, m_mat_range_r;
     float m_mat_fac_z, m_mat_fac_r;
-    std::vector<float> m_mat_radl;
-    std::vector<float> m_mat_bbxi;
+    rectvec<Material> m_mat_vec;
 
     PropagationConfig m_prop_config;
   };
