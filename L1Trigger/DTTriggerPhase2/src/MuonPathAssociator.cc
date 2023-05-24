@@ -108,7 +108,7 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
             SL3metaPrimitives.push_back(metaprimitiveIt);
         }
 
-        if (SL1metaPrimitives.empty() and SL3metaPrimitives.empty())
+        if (SL1metaPrimitives.empty() or SL3metaPrimitives.empty())
           continue;
 
         if (debug_)
