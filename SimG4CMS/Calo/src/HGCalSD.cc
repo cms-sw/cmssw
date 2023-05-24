@@ -257,7 +257,8 @@ void HGCalSD::update(const BeginOfJob* job) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "HGCalSD::Initialized with mode " << geom_mode_ << " Slope cut " << slopeMin_
                                << " top Level " << levelT1_ << ":" << levelT2_ << " useSimWt " << useSimWt_ << " wafer "
-                               << waferSize << ":" << mouseBite << ":" << guardRingOffset << ":" << sensorSizeOffset << ":" << mouseBiteNew << ":" << mouseBiteCut_ << " useOffset " << useOffset;
+                               << waferSize << ":" << mouseBite << ":" << guardRingOffset << ":" << sensorSizeOffset
+                               << ":" << mouseBiteNew << ":" << mouseBiteCut_ << " useOffset " << useOffset;
 #endif
 
     numberingScheme_ = std::make_unique<HGCalNumberingScheme>(*hgcons_, mydet_, nameX_, missingFile_);
