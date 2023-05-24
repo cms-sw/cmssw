@@ -232,7 +232,7 @@ void TrackSplittingMonitor::analyze(const edm::Event& iEvent, const edm::EventSe
 
     // basic selection
     // pixel hits and total hits
-    if ((nRechitinBPIX1 >= pixelHitsPerLeg_) && (nRechitinBPIX1 >= pixelHitsPerLeg_) &&
+    if ((nRechitinBPIX1 >= pixelHitsPerLeg_) && (nRechitinBPIX2 >= pixelHitsPerLeg_) &&
         (nRechits1 >= totalHitsPerLeg_) && (nRechits2 >= totalHitsPerLeg_)) {
       // dca cut
       if (((std::abs(d01) < d0Cut_)) && (std::abs(d02) < d0Cut_) && (std::abs(dz1) < dzCut_) &&
