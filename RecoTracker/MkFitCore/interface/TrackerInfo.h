@@ -147,7 +147,7 @@ namespace mkfit {
   template <typename T>
   class rectvec {
   public:
-    rectvec(int n1=0, int n2=0) : m_n1(n1), m_n2(n2), m_vec(n1 * n2) {}
+    rectvec(int n1 = 0, int n2 = 0) : m_n1(n1), m_n2(n2), m_vec(n1 * n2) {}
 
     void rerect(int n1, int n2) {
       m_n1 = n1;
