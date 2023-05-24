@@ -10,9 +10,9 @@ class HGCGuardRing {
 public:
   HGCGuardRing(const HGCalDDDConstants& hgc);
   bool exclude(G4ThreeVector& point, int zside, int frontBack, int layer, int waferU, int waferV);
+  static bool insidePolygon(double x, double y, const std::vector<std::pair<double, double> >& xyv);
 
 private:
-  bool insidePolygon(double x, double y, const std::vector<std::pair<double, double> >& xyv);
 
   static constexpr double sqrt3_ = 1.732050807568877;  // std::sqrt(3.0) in double precision
   const HGCalDDDConstants& hgcons_;
