@@ -978,9 +978,6 @@ void HcalTB04Analysis::fillEvent(PHcalTB04Info& product) {
   //Save Hits
   int nhit = 0;
   std::vector<CaloHit>::iterator itr;
-#ifdef EDM_ML_DEBUG
-  int i = 0;
-#endif
   for (itr = ecalHitCache.begin(); itr != ecalHitCache.end(); itr++) {
     uint32_t id = itr->id();
     int det, z, group, ieta, iphi, lay;
@@ -988,16 +985,15 @@ void HcalTB04Analysis::fillEvent(PHcalTB04Info& product) {
     product.saveHit(det, lay, ieta, iphi, itr->e(), itr->t());
     nhit++;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Save Hit " << std::setw(3) << i + 1 << " ID 0x" << std::hex
+    edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Save Hit " << std::setw(3) << nhit << " ID 0x" << std::hex
                                   << group << std::dec << " " << std::setw(2) << det << " " << std::setw(2) << lay
                                   << " " << std::setw(1) << z << " " << std::setw(3) << ieta << " " << std::setw(3)
                                   << iphi << " T " << std::setw(6) << itr->t() << " E " << std::setw(6) << itr->e();
-    ++i;
 #endif
   }
   edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Saves " << nhit << " hits from Crystals";
 #ifdef EDM_ML_DEBUG
-  i = nhit;
+  int nhit0 = nhit;
 #endif
   nhit = 0;
   for (itr = hcalHitCache.begin(); itr != hcalHitCache.end(); itr++) {
@@ -1007,11 +1003,10 @@ void HcalTB04Analysis::fillEvent(PHcalTB04Info& product) {
     product.saveHit(det, lay, ieta, iphi, itr->e(), itr->t());
     nhit++;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Save Hit " << std::setw(3) << i + 1 << " ID 0x" << std::hex
+    edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Save Hit " << std::setw(3) << nhit + nhit0 << " ID 0x" << std::hex
                                   << group << std::dec << " " << std::setw(2) << det << " " << std::setw(2) << lay
                                   << " " << std::setw(1) << z << " " << std::setw(3) << ieta << " " << std::setw(3)
                                   << iphi << " T " << std::setw(6) << itr->t() << " E " << std::setw(6) << itr->e();
-    ++i;
 #endif
   }
   edm::LogVerbatim("HcalTBSim") << "HcalTB04Analysis:: Saves " << nhit << " hits from HCal";
