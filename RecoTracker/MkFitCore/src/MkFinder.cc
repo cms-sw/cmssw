@@ -299,8 +299,14 @@ namespace mkfit {
     };
 
     if (L.is_barrel()) {
-      // Pull out the part of the loop that vectorizes
+      // Pull out the part of the loop that vectorizes with icc and gcc
+      // In llvm16 clang issues a warning that it can't vectorize
+      // the loop.  Unfortunately, there doesn't seem to be a
+      // pragma to suppress the warning, so we ifdef it out.  This
+      // should be rechecked if llvm vectorization improves.
+#if !defined(__clang__)
 #pragma omp simd
+#endif
       for (int itrack = 0; itrack < NN; ++itrack) {
         m_XHitSize[itrack] = 0;
 
@@ -339,8 +345,10 @@ namespace mkfit {
       //layer half-thikness for dphi spread calculation; only for very restrictive iters
       const float layerD = std::abs(L.layer_info()->zmax() - L.layer_info()->zmin()) * 0.5f *
                            (m_iteration_params->maxConsecHoles == 0 || m_iteration_params->maxHolesPerCand == 0);
-      // Pull out the part of the loop that vectorizes
+      // Pull out the part of the loop that vectorizes with icc and gcc
+#if !defined(__clang__)
 #pragma omp simd
+#endif
       for (int itrack = 0; itrack < NN; ++itrack) {
         m_XHitSize[itrack] = 0;
 
@@ -716,7 +724,7 @@ namespace mkfit {
 
       mhp.reset();
 
-#pragma omp simd
+      //#pragma omp simd doesn't vectorize with current compilers
       for (int itrack = 0; itrack < N_proc; ++itrack) {
         if (hit_cnt < m_XHitSize[itrack]) {
           mhp.addInputAt(itrack, layer_of_hits.refHit(m_XHitArr.At(itrack, hit_cnt, 0)));
@@ -932,7 +940,7 @@ namespace mkfit {
 
       int charge_pcm[NN];
 
-#pragma omp simd
+      //#pragma omp simd doesn't vectorize with current compilers
       for (int itrack = 0; itrack < N_proc; ++itrack) {
         if (hit_cnt < m_XHitSize[itrack]) {
           const auto &hit = layer_of_hits.refHit(m_XHitArr.At(itrack, hit_cnt, 0));
@@ -1179,7 +1187,7 @@ namespace mkfit {
 
       int charge_pcm[NN];
 
-#pragma omp simd
+      //#pragma omp simd doesn't vectorize with current compilers
       for (int itrack = 0; itrack < N_proc; ++itrack) {
         if (hit_cnt < m_XHitSize[itrack]) {
           const auto &hit = layer_of_hits.refHit(m_XHitArr.At(itrack, hit_cnt, 0));
@@ -1206,7 +1214,7 @@ namespace mkfit {
                                      m_prop_config->finding_intra_layer_pflags,
                                      m_prop_config->finding_requires_propagation_to_hit_pos);
 
-#pragma omp simd  // DOES NOT VECTORIZE AS IT IS NOW
+      //#pragma omp simd  // DOES NOT VECTORIZE AS IT IS NOW
       for (int itrack = 0; itrack < N_proc; ++itrack) {
         // We can be in failed state from the initial propagation before selectHitIndices
         // and there hit_count for track is set to -1 and WSR state to Failed, handled below.
