@@ -64,10 +64,12 @@ namespace JME {
       auto ip = paramValues.find("Jet_Pt");
       if (ip != paramValues.end()) {
         par_Pt = std::stod(ip->second);
+        edm::LogWarning("JER_PI") << "Jet Pt: " << par_Pt;
       }
       ip = paramValues.find("Jet_Rho");
       if (ip != paramValues.end()) {
         par_Rho = std::stod(ip->second);
+        edm::LogWarning("JER_PI") << "Jet Rho: " << par_Rho;
       }
 
       auto tag = PlotBase::getTag<0>();
@@ -129,10 +131,12 @@ namespace JME {
       auto ip = paramValues.find("Jet_Eta");
       if (ip != paramValues.end()) {
         par_Eta = std::stod(ip->second);
+        edm::LogWarning("JER_PI") << "Jet Eta: " << par_Eta;
       }
       ip = paramValues.find("Jet_Rho");
       if (ip != paramValues.end()) {
         par_Rho = std::stod(ip->second);
+        edm::LogWarning("JER_PI") << "Jet Rho: " << par_Rho;
       }
 
       auto tag = PlotBase::getTag<0>();
@@ -358,10 +362,12 @@ namespace JME {
       auto ip = paramValues.find("Jet_Pt");
       if (ip != paramValues.end()) {
         par_Pt = std::stod(ip->second);
+        edm::LogWarning("JER_PI") << "Jet Pt: " << par_Pt;
       }
       ip = paramValues.find("Jet_Eta");
       if (ip != paramValues.end()) {
         par_Eta = std::stod(ip->second);
+        edm::LogWarning("JER_PI") << "Jet Eta: " << par_Eta;
       }
 
       auto tag = PlotBase::getTag<0>();
@@ -420,10 +426,12 @@ namespace JME {
       auto ip = paramValues.find("Jet_Pt");
       if (ip != paramValues.end()) {
         par_Pt = std::stod(ip->second);
+        edm::LogWarning("JER_PI") << "Jet Pt: " << par_Pt;
       }
       ip = paramValues.find("Jet_Eta");
       if (ip != paramValues.end()) {
         par_Eta = std::stod(ip->second);
+        edm::LogWarning("JER_PI") << "Jet Eta: " << par_Eta;
       }
 
       auto tag = PlotBase::getTag<0>();
