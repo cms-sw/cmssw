@@ -38,11 +38,11 @@ def listFilesLocal(paths, extension = '.root'):
                 file_paths.append( os.path.join( root, filename ) )
     return file_paths
 
-def haddLocal(localdir,result_file,extension = 'root'):
-    if not os.path.exists( localdir ):
-        raise ValueError(f"localdir {localdir} for hadd operation does not exist")
+def haddLocal(files,result_file,extension = 'root'):
+    # if not os.path.exists( localdir ):
+    #    raise ValueError(f"localdir {localdir} for hadd operation does not exist")
 
-    files = listFilesLocal([localdir],extension)
+    # files = listFilesLocal([localdir],extension)
     process = subprocess.Popen( ['hadd','-f', result_file] + files,
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.STDOUT)

@@ -217,11 +217,11 @@ class DTWorkflow(CLIHelper, CrabHelper):
         crabtask = self.crabFunctions.CrabTask(crab_config = self.crab_config_filepath,
                                                initUpdate = False)
         if not (self.options.skip_stageout or self.files_reveived or self.options.no_exec):
-            self.get_output_files(crabtask, output_path)
+            output_files =  self.get_output_files(crabtask, output_path)
             log.info("Received files from storage element")
             log.info("Using hadd to merge output files")
         if not self.options.no_exec and do_hadd:
-            returncode = tools.haddLocal(output_path, merged_file)
+            returncode = tools.haddLocal(output_files["xrootd"], merged_file)
             if returncode != 0:
                 raise RuntimeError("Failed to merge files with hadd")
         return crabtask.crabConfig.Data.outputDatasetTag
@@ -268,10 +268,12 @@ class DTWorkflow(CLIHelper, CrabHelper):
                                                                 )
 
     def get_output_files(self, crabtask, output_path):
-        self.crab.callCrabCommand( ["getoutput",
-                                    "--outputpath",
-                                    output_path,
+        res = self.crab.callCrabCommand( ["getoutput",
+                                    "--dump",
+                                    "--xrootd",
                                     crabtask.crabFolder ] )
+        
+        return res
 
     def runCMSSWtask(self, pset_path=""):
         """ Run a cmsRun job locally. The member variable self.pset_path is used
