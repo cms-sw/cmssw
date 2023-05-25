@@ -9,18 +9,24 @@ options = VarParsing.VarParsing("analysis")
 options.register ('firstRun',
                   325170,
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
-                  VarParsing.VarParsing.varType.int,              # string, int, or float
+                  VarParsing.VarParsing.varType.int,            # string, int, or float
                   "first run to be processed")
 options.register ('nLSToProcessPerRun',
                   2000,
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
-                  VarParsing.VarParsing.varType.int,              # string, int, or float
+                  VarParsing.VarParsing.varType.int,            # string, int, or float
                   "number of lumisections to process per run")
 options.register ('nRunsToProcess',
                   1,
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
-                  VarParsing.VarParsing.varType.int,              # string, int, or float
+                  VarParsing.VarParsing.varType.int,            # string, int, or float
                   "total number of Runs to process")
+options.register ('inputLumiFile',
+                  '/eos/cms/store/group/comm_luminosity/LumiProducerFromBrilcalc/LumiData_2018_20200401.csv',
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.string,         # string, int, or float
+                  "input luminosity file")
+
 options.parseArguments()
 
 ##
@@ -63,6 +69,7 @@ print(" First run to be processed: ",options.firstRun)
 print(" Last  run to be processed: ",maxRunsToProcess)
 print(" n. LS process per Run: ",options.nLSToProcessPerRun)
 print(" Total LS to process: ",maxEventsToProcess)
+print(" Using Luminosity file: ",options.inputLumiFile)
 print("===============================================")
 
 ##
@@ -111,7 +118,7 @@ process.ReadInDB = cms.EDAnalyzer("SiPixelQualityPlotter",
 ## The lumi information
 ##
 process.LumiInfo = cms.EDProducer('LumiProducerFromBrilcalc',
-                                  lumiFile = cms.string("/eos/cms/store/group/comm_luminosity/LumiProducerFromBrilcalc/LumiData_2018_20200401.csv"),
+                                  lumiFile = cms.string(options.inputLumiFile),
                                   throwIfNotFound = cms.bool(False),
                                   doBunchByBunch = cms.bool(False))
 
