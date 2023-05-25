@@ -111,12 +111,12 @@ namespace {
       auto ip = paramValues.find("Jet_Pt");
       if (ip != paramValues.end()) {
         par_JetPt = std::stod(ip->second);
-        edm::LogWarning("JEC_PI") << "Jet Pt: " << par_JetPt;
+        edm::LogPrint("JEC_PI") << "Jet Pt: " << par_JetPt;
       }
       ip = paramValues.find("Jet_Rho");
       if (ip != paramValues.end()) {
         par_Rho = std::stod(ip->second);
-        edm::LogWarning("JEC_PI") << "Rho: " << par_Rho;
+        edm::LogPrint("JEC_PI") << "Rho: " << par_Rho;
       }
 
       auto tag = PlotBase::getTag<0>();
