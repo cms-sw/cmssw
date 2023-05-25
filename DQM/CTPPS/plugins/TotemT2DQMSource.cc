@@ -194,7 +194,6 @@ void TotemT2DQMSource::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
       planePlots_[planeId] = PlanePlots(ibooker, planeId, nbinsx_, nbinsy_);
       for (unsigned int ch = 0; ch <= TotemT2DetId::maxChannel; ++ch) {
         const TotemT2DetId detidCh(arm, pl, ch);
-//        const TotemT2DetId channelId(detidCh.rawId() & (~ TotemT2DetId::lowMaskChannel));
         channelPlots_[detidCh] = ChannelPlots(ibooker, detidCh, windowsNum_);
       }
     }

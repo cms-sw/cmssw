@@ -37,12 +37,6 @@ process.source = cms.Source("NewEventStreamFileReader",
     )
 )
 
-#process.source = cms.Source('PoolSource',
-#    fileNames = cms.untracked.vstring(
-#        '/store/data/Run2018D/ZeroBias/RAW/v1/000/324/747/00000/97A72F4B-786F-5A48-B97E-C596DD73BD77.root',
-#    ),
-#)
-
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, '130X_dataRun3_HLT_v2', '')
 
