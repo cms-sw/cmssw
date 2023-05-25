@@ -81,10 +81,12 @@ private:
   void bookMEs(DQMStore::IBooker& ibooker);
   void getMEsToHarvest(DQMStore::IGetter& igetter);
   diMuonMassBias::fitOutputs fitLineShape(TH1* hist, const bool& fitBackground = false) const;
-  void fitAndFill(std::pair<std::string, MonitorElement*> toHarvest, DQMStore::IBooker& iBooker);
+  void fitAndFillProfile(std::pair<std::string, MonitorElement*> toHarvest, DQMStore::IBooker& iBooker);
+  void fitAndFillHisto(std::pair<std::string, MonitorElement*> toHarvest, DQMStore::IBooker& iBooker);
 
   // data members
   const std::string TopFolder_;
+  const bool useTH1s_;
   const bool fitBackground_;
   const bool useRooCBShape_;
   const bool useRooCMSShape_;
@@ -98,6 +100,10 @@ private:
   std::vector<std::string> MEtoHarvest_;
 
   // the histograms to be filled
+  std::map<std::string, MonitorElement*> meanHistos_;
+  std::map<std::string, MonitorElement*> widthHistos_;
+
+  // the profiles to be filled
   std::map<std::string, MonitorElement*> meanProfiles_;
   std::map<std::string, MonitorElement*> widthProfiles_;
 
