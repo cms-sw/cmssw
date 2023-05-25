@@ -30,36 +30,54 @@ int main(int argc, char** argv) {
   std::string tag_data = "JetCorrectorParametersCollection_Autumn18_RunABCD_V19_DATA_AK4PF";
   cond::Time_t start = static_cast<unsigned long long>(1);
   cond::Time_t end = static_cast<unsigned long long>(1);
+  py::dict inputs;
 
-  edm::LogWarning("JEC_PI") << "## Jet Energy Corrector Vs. Eta Histograms MC" << std::endl;
+  inputs["Jet_Pt"] = "120.";
+  inputs["Jet_Eta"] = "0.";
+  inputs["Jet_Rho"] = "30.";
+
+  edm::LogPrint("JEC_PI") << "## Jet Energy Corrector Vs. Eta Histograms MC" << std::endl;
 
   JetCorrectorVsEtaL1Offset histo1;
+  histo1.setInputParamValues(inputs);
   histo1.process(connectionString, PI::mk_input(tag_mc, start, end));
-  edm::LogWarning("JEC_PI") << histo1.data() << std::endl;
+  edm::LogPrint("JEC_PI") << histo1.data() << std::endl;
 
   JetCorrectorVsEtaL1FastJet histo2;
+  histo2.setInputParamValues(inputs);
   histo2.process(connectionString, PI::mk_input(tag_mc, start, end));
-  edm::LogWarning("JEC_PI") << histo2.data() << std::endl;
+  edm::LogPrint("JEC_PI") << histo2.data() << std::endl;
 
   JetCorrectorVsEtaL2Relative histo3;
+  histo3.setInputParamValues(inputs);
   histo3.process(connectionString, PI::mk_input(tag_mc, start, end));
-  edm::LogWarning("JEC_PI") << histo3.data() << std::endl;
+  edm::LogPrint("JEC_PI") << histo3.data() << std::endl;
 
   JetCorrectorVsEtaL3Absolute histo4;
+  histo4.setInputParamValues(inputs);
   histo4.process(connectionString, PI::mk_input(tag_mc, start, end));
-  edm::LogWarning("JEC_PI") << histo4.data() << std::endl;
+  edm::LogPrint("JEC_PI") << histo4.data() << std::endl;
 
   JetCorrectorVsEtaL2L3Residual histo5;
+  histo5.setInputParamValues(inputs);
   histo5.process(connectionString, PI::mk_input(tag_mc, start, end));
-  edm::LogWarning("JEC_PI") << histo5.data() << std::endl;
+  edm::LogPrint("JEC_PI") << histo5.data() << std::endl;
 
   JetCorrectorVsEtaUncertainty histo6;
+  histo6.setInputParamValues(inputs);
   histo6.process(connectionString, PI::mk_input(tag_mc, start, end));
-  edm::LogWarning("JEC_PI") << histo6.data() << std::endl;
+  edm::LogPrint("JEC_PI") << histo6.data() << std::endl;
 
   JetCorrectorVsEtaL1RC histo7;
+  histo7.setInputParamValues(inputs);
   histo7.process(connectionString, PI::mk_input(tag_mc, start, end));
-  edm::LogWarning("JEC_PI") << histo7.data() << std::endl;
+  edm::LogPrint("JEC_PI") << histo7.data() << std::endl;
+
+  inputs.clear();
+#if PY_MAJOR_VERSION >= 3
+  // TODO check why this Py_INCREF is necessary...
+  Py_INCREF(inputs.ptr());
+#endif
 
   Py_Finalize();
 }
