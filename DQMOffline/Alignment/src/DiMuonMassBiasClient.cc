@@ -86,7 +86,7 @@ void DiMuonMassBiasClient::bookMEs(DQMStore::IBooker& iBooker)
     const auto& xmax = ME->getAxisMax(1);
 
     MonitorElement* meanToBook =
-        iBooker.book1D(("Mean" + key), (title + ";" + xtitle + ";" + ytitle), nxbins, xmin, xmax);
+        iBooker.book1D(("Mean" + key), (title + ";#LT M_{#mu^{-}#mu^{+}} #GT [GeV];" + ytitle), nxbins, xmin, xmax);
     meanHistos_.insert({key, meanToBook});
 
     MonitorElement* sigmaToBook =
@@ -138,8 +138,12 @@ void DiMuonMassBiasClient::fitAndFillProfile(std::pair<std::string, MonitorEleme
   const auto& xmin = ME->getAxisMin(1);
   const auto& xmax = ME->getAxisMax(1);
 
-  TProfile* p_mean = new TProfile(
-      ("Mean" + key).c_str(), (title + ";" + xtitle + ";#LT" + ytitle + "#GT").c_str(), nxbins, xmin, xmax, "g");
+  TProfile* p_mean = new TProfile(("Mean" + key).c_str(),
+                                  (title + ";" + xtitle + ";#LT M_{#mu^{-}#mu^{+}} #GT [GeV]").c_str(),
+                                  nxbins,
+                                  xmin,
+                                  xmax,
+                                  "g");
 
   TProfile* p_width = new TProfile(
       ("Sigma" + key).c_str(), (title + ";" + xtitle + ";#sigma of " + ytitle).c_str(), nxbins, xmin, xmax, "g");
