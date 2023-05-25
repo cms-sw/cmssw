@@ -154,9 +154,7 @@ TotemT2DQMSource::PlanePlots::PlanePlots(DQMStore::IBooker& ibooker,
                                        double(nbinsy) - 0.5);
 }
 
-TotemT2DQMSource::ChannelPlots::ChannelPlots(DQMStore::IBooker& ibooker,
-                                         unsigned int id,
-                                         unsigned int windowsNum) {
+TotemT2DQMSource::ChannelPlots::ChannelPlots(DQMStore::IBooker& ibooker, unsigned int id, unsigned int windowsNum) {
   std::string title, path;
   TotemT2DetId(id).channelName(title, TotemT2DetId::nFull);
   TotemT2DetId(id).channelName(path, TotemT2DetId::nPath);
