@@ -44,7 +44,8 @@ HGCalSD::HGCalSD(const std::string& name,
       levelT1_(99),
       levelT2_(99),
       useSimWt_(0),
-      tan30deg_(std::tan(30.0 * CLHEP::deg)) {
+      tan30deg_(std::tan(30.0 * CLHEP::deg)),
+      cos30deg_(std::cos(30.0 * CLHEP::deg)) {
   numberingScheme_.reset(nullptr);
   guardRing_.reset(nullptr);
   mouseBite_.reset(nullptr);
@@ -245,15 +246,19 @@ void HGCalSD::update(const BeginOfJob* job) {
     int useOffset = hgcons_->getParameter()->useOffset_;
     double waferSize = hgcons_->waferSize(false);
     double mouseBite = hgcons_->mouseBite(false);
-    mouseBiteCut_ = waferSize * tan30deg_ - mouseBite;
+    double guardRingOffset = hgcons_->guardRingOffset(false);
+    double sensorSizeOffset = hgcons_->sensorSizeOffset(false);
     if (useOffset > 0) {
       rejectMB_ = true;
       fiducialCut_ = true;
     }
+    double mouseBiteNew = (fiducialCut_) ? (mouseBite + guardRingOffset + sensorSizeOffset / cos30deg_) : mouseBite;
+    mouseBiteCut_ = waferSize * tan30deg_ - mouseBiteNew;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "HGCalSD::Initialized with mode " << geom_mode_ << " Slope cut " << slopeMin_
                                << " top Level " << levelT1_ << ":" << levelT2_ << " useSimWt " << useSimWt_ << " wafer "
-                               << waferSize << ":" << mouseBite << " useOffset " << useOffset;
+                               << waferSize << ":" << mouseBite << ":" << guardRingOffset << ":" << sensorSizeOffset
+                               << ":" << mouseBiteNew << ":" << mouseBiteCut_ << " useOffset " << useOffset;
 #endif
 
     numberingScheme_ = std::make_unique<HGCalNumberingScheme>(*hgcons_, mydet_, nameX_, missingFile_);
