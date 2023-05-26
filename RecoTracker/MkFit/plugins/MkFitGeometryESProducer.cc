@@ -400,15 +400,11 @@ void MkFitGeometryESProducer::addTECGeometry(mkfit::TrackerInfo &trk_info, Mater
 }
 
 void MkFitGeometryESProducer::findRZBox(const GlobalPoint &gp, float &rmin, float &rmax, float &zmin, float &zmax) {
-  float r = gp.perp(), z = gp.z();
-  if (std::fabs(r) > rmax)
-    rmax = std::fabs(r);
-  if (std::fabs(r) < rmin)
-    rmin = std::fabs(r);
-  if (std::fabs(z) > zmax)
-    zmax = std::fabs(z);
-  if (std::fabs(z) < zmin)
-    zmin = std::fabs(z);
+  float r = gp.perp(), z = std::abs(gp.z());
+  rmax = std::max(r, rmax);
+  rmin = std::min(r, rmin);
+  zmax = std::max(z, zmax);
+  zmin = std::min(z, zmin);
 }
 
 void MkFitGeometryESProducer::aggregateMaterialInfo(mkfit::TrackerInfo &trk_info,
