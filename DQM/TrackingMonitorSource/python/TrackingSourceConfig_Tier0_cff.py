@@ -30,8 +30,8 @@ TrackMon_ckf.FolderName                            = 'Tracking/TrackParameters/T
 #TrackEffMon_bhmuon.FolderName                      = 'Tracking/TrackParameters/TrackEfficiency'
 
 # Split Tracking
-from  DQM.TrackingMonitor.TrackSplittingMonitor_cfi import *
-TrackSplitMonitor.FolderName = 'Tracking/TrackParameters/SplitTracks'
+# from  DQM.TrackingMonitor.TrackSplittingMonitor_cfi import *
+# TrackSplitMonitor.FolderName = 'Tracking/TrackParameters/SplitTracks'
 
 
 # DQM Services
@@ -352,7 +352,7 @@ run3_common.toModify(primaryVertexResolution, forceSCAL = False)
 # Sequence
 TrackingDQMSourceTier0 = cms.Sequence(cms.ignore(trackingDQMgoodOfflinePrimaryVertices))
 # dEdx monitoring
-TrackingDQMSourceTier0 += dedxHarmonicSequence * dEdxMonCommon * dEdxHitMonCommon   * TrackMon_ckf * TrackSplitMonitor * dqmInfoTracking
+TrackingDQMSourceTier0 += dedxHarmonicSequence * dEdxMonCommon * dEdxHitMonCommon * TrackMon_ckf * dqmInfoTracking
 #TrackMon_cosmicTk*TrackMon_ckf*TrackEffMon_ckf*TrackSplitMonitor*dqmInfoTracking
 #    # temporary patch in order to have BXlumi
 #    * lumiProducer
@@ -399,7 +399,7 @@ TrackingDQMSourceTier0 += dqmInfoTracking
 
 TrackingDQMSourceTier0Common = cms.Sequence(cms.ignore(trackingDQMgoodOfflinePrimaryVertices))
 # dEdx monitoring
-TrackingDQMSourceTier0Common += (dedxHarmonicSequence * dEdxMonCommon * dEdxHitMonCommon * TrackMon_ckf * TrackSplitMonitor * dqmInfoTracking)
+TrackingDQMSourceTier0Common += (dedxHarmonicSequence * dEdxMonCommon * dEdxHitMonCommon * TrackMon_ckf * dqmInfoTracking)
 #TrackEffMon_ckf*TrackSplitMonitor*dqmInfoTracking)    
 ## monitor track collections
 for tracks in selectedTracks :
@@ -420,7 +420,7 @@ TrackingDQMSourceTier0Common += dqmInfoTracking
 
 TrackingDQMSourceTier0MinBias = cms.Sequence(cms.ignore(trackingDQMgoodOfflinePrimaryVertices))
 # dEdx monitoring
-TrackingDQMSourceTier0MinBias += dedxHarmonicSequence * dEdxMonCommon * dEdxHitMonCommon * TrackMon_ckf * TrackSplitMonitor * dqmInfoTracking
+TrackingDQMSourceTier0MinBias += dedxHarmonicSequence * dEdxMonCommon * dEdxHitMonCommon * TrackMon_ckf * dqmInfoTracking
 #TrackMon_cosmicTk*TrackMon_ckf*TrackEffMon_ckf*TrackSplitMonitor*dqmInfoTracking#TrackMon_ckf*TrackEffMon_ckf 
 #    * lumiProducer
 # monitor track collections

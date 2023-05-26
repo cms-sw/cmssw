@@ -40,22 +40,22 @@ class TProfile;
 class TrackSplittingMonitor : public DQMEDAnalyzer {
 public:
   explicit TrackSplittingMonitor(const edm::ParameterSet&);
-  ~TrackSplittingMonitor() override;
+  ~TrackSplittingMonitor() override = default;
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void doProfileX(TH2* th2, MonitorElement* me);
   void doProfileX(MonitorElement* th2m, MonitorElement* me);
 
   // ----------member data ---------------------------
-
-  //  unsigned int minTracks_;
+  static constexpr double cmToUm = 10.e4;
+  static constexpr double radToUrad = 10.e3;
+  static constexpr double sqrt2 = 1.41421356237;
 
   std::string histname;  //for naming the histograms according to algorithm used
-
-  DQMStore* dqmStore_;
   edm::ParameterSet conf_;
 
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> mfToken_;
@@ -70,18 +70,16 @@ private:
   const CSCGeometry* cscGeometry;
   const RPCGeometry* rpcGeometry;
 
-  edm::InputTag splitTracks_;
-  edm::InputTag splitMuons_;
-  edm::EDGetTokenT<std::vector<reco::Track> > splitTracksToken_;
-  edm::EDGetTokenT<std::vector<reco::Muon> > splitMuonsToken_;
+  const edm::EDGetTokenT<std::vector<reco::Track> > splitTracksToken_;
+  const edm::EDGetTokenT<std::vector<reco::Muon> > splitMuonsToken_;
 
-  bool plotMuons_;
-  int pixelHitsPerLeg_;
-  int totalHitsPerLeg_;
-  double d0Cut_;
-  double dzCut_;
-  double ptCut_;
-  double norchiCut_;
+  const bool plotMuons_;
+  const int pixelHitsPerLeg_;
+  const int totalHitsPerLeg_;
+  const double d0Cut_;
+  const double dzCut_;
+  const double ptCut_;
+  const double norchiCut_;
 
   // histograms
   MonitorElement* ddxyAbsoluteResiduals_tracker_;
