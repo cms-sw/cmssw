@@ -43,8 +43,6 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '130X_dataRun3_HLT_v2', '')
 #Raw-to-digi
 process.load('EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff')
 
-#process.load('CalibPPS.ESProducers.totemT2DAQMapping_cff')
-
 process.load('Geometry.ForwardCommonData.totemT22021V2XML_cfi')
 process.load('Geometry.ForwardGeometry.totemGeometryESModule_cfi')
 process.load('RecoPPS.Local.totemT2RecHits_cfi')
