@@ -47,13 +47,13 @@ process.load('Geometry.ForwardCommonData.totemT22021V2XML_cfi')
 process.load('Geometry.ForwardGeometry.totemGeometryESModule_cfi')
 process.load('RecoPPS.Local.totemT2RecHits_cfi')
 process.load('DQM.CTPPS.totemT2DQMSource_cfi')
-process.totemDAQMappingESSourceXML_TotemT2.verbosity = cms.untracked.uint32(0)
-process.totemT2Digis.RawUnpacking.verbosity = cms.untracked.uint32(0)
-process.totemT2Digis.RawToDigi.verbosity = cms.untracked.uint32(0)
+process.totemDAQMappingESSourceXML_TotemT2.verbosity = 0
+process.totemT2Digis.RawUnpacking.verbosity = 0
+process.totemT2Digis.RawToDigi.verbosity = 0
 process.totemT2Digis.RawToDigi.useOlderT2TestFile = cms.untracked.uint32(1)
-process.totemT2Digis.RawToDigi.printUnknownFrameSummary = cms.untracked.uint32(0)
-process.totemT2Digis.RawToDigi.printErrorSummary = cms.untracked.uint32(0)
-process.totemDAQMappingESSourceXML_TotemT2.multipleChannelsPerPayload = cms.untracked.bool(True)
+process.totemT2Digis.RawToDigi.printUnknownFrameSummary = 0
+process.totemT2Digis.RawToDigi.printErrorSummary = 0
+process.totemDAQMappingESSourceXML_TotemT2.multipleChannelsPerPayload = True
 
 process.path = cms.Path(
     process.ctppsRawToDigi *
