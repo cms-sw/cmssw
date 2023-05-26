@@ -48,6 +48,8 @@ struct BaVec {
 
 typedef BaVec<float> BaVecF;
 
+static_assert(sizeof(BaVecF) == sizeof(Vec3F));
+
 struct makeVec3F {
   makeVec3F(BaVecF& bv) : v(reinterpret_cast<Vec3F&>(bv)) {}
   Vec3F& v;
@@ -68,7 +70,7 @@ inline BaVecF& BaVecF::operator+=(BaVecF const& rh) {
 void sum(BaVecF& lh, BaVecF const& rh) { lh += rh; }
 
 void testBa() {
-  std::cout << " test BA" << std::endl;
+  std::cout << " test BA of size " << sizeof(BaVecF) << std::endl;
   BaVecF vx(2.0, 4.0, 5.0);
   BaVecF vy(-3.0, 2.0, -5.0);
   vx += vy;
@@ -79,6 +81,8 @@ template <typename T>
 void go2d() {
   typedef Vec2<T> Vec2d;
   typedef Vec4<T> Vec3d;
+  static_assert(sizeof(Vec2d) == 2 * sizeof(T));
+  static_assert(sizeof(Vec3d) == 4 * sizeof(T));
 
   std::cout << "\n2d" << std::endl;
   std::cout << sizeof(Vec2d) << ' ' << alignof(Vec2d) << std::endl;
