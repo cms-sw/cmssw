@@ -286,8 +286,14 @@ void TrackMergeremb<reco::MuonCollection>::willproduce(std::string instance, std
 
 template <>
 void TrackMergeremb<reco::MuonCollection>::willconsume(const edm::ParameterSet& iConfig) {
-  inputs_fixtrackrefs_ = consumes<TrackToTrackMapnew>(edm::InputTag("generalTracks"));
-  inputs_fixtrackcol_ = consumes<reco::TrackCollection>(edm::InputTag("generalTracks"));
+  if(alias == "displacedMuons1stStep"){
+    inputs_fixtrackrefs_ = consumes<TrackToTrackMapnew>(edm::InputTag("displacedTracks"));
+    inputs_fixtrackcol_ = consumes<reco::TrackCollection>(edm::InputTag("displacedTracks"));
+  }
+  else{
+    inputs_fixtrackrefs_ = consumes<TrackToTrackMapnew>(edm::InputTag("generalTracks"));
+    inputs_fixtrackcol_ = consumes<reco::TrackCollection>(edm::InputTag("generalTracks"));
+  }
 }
 
 template <>
