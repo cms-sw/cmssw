@@ -105,8 +105,8 @@ HGCalTestGuardRing::HGCalTestGuardRing(const edm::ParameterSet& ps)
           }
           waferID_[id] = orient * 100 + part;
 #ifdef EDM_ML_DEBUG
-          edm::LogVerbatim("HGCalSim") << "HGCalTestGuardRing::Reads " << id << " Orientatoin:Partial " >> orient >>
-              ":" >> part;
+          edm::LogVerbatim("HGCalSim") << "HGCalTestGuardRing::Reads " << id << " Orientation:Partial " << orient << ":"
+                                       << part;
 #endif
         }
       }
