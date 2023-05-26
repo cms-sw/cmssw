@@ -953,7 +953,7 @@ def customiseNanoAOD(process):
     process.embeddingTable = cms.EDProducer(
         "GlobalVariablesTableProducer",
         name=cms.string("TauEmbedding"),
-        doc=cms.string("TauEmbedding"),
+        # doc=cms.string("TauEmbedding"),
         variables=cms.PSet(
             nInitialPairCandidates=ExtVar(
                 cms.InputTag("selectedMuonsForEmbedding", "nPairCandidates"),
