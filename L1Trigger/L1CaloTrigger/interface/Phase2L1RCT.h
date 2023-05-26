@@ -1,7 +1,7 @@
-#include "L1Trigger/L1CaloTrigger/interface/Phase2L1CaloEGammaEmulator.h"
-
 #ifndef PHASE_2_L1_RCT_H_INCL
 #define PHASE_2_L1_RCT_H_INCL
+
+#include "L1Trigger/L1CaloTrigger/interface/Phase2L1CaloEGammaUtils.h"
 
 //////////////////////////////////////////////////////////////////////////
 // Other emulator helper functions

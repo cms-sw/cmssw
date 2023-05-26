@@ -1,6 +1,8 @@
 //------------------------------------
-// Helper functions for Phase2L1CaloEGammaEmulator.h
+// Helper functions for Phase2L1CaloEGammaEmulator.cc
 //------------------------------------
+#ifndef PHASE_2_L1_CALO_EGAMMA_UTILS_H
+#define PHASE_2_L1_CALO_EGAMMA_UTILS_H
 
 #include <ap_int.h>
 #include <cstdio>
@@ -21,9 +23,6 @@
 
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 #include "DataFormats/L1Trigger/interface/EGamma.h"
-
-#ifndef PHASE_2_L1_CALO_EGAMMA_EMULATOR_H
-#define PHASE_2_L1_CALO_EGAMMA_EMULATOR_H
 
 namespace p2eg {
 

@@ -1,3 +1,6 @@
+#ifndef PHASE_2_L1_GCT_H_INCL
+#define PHASE_2_L1_GCT_H_INCL
+
 #include <iostream>
 #include <ap_int.h>
 
@@ -5,10 +8,7 @@
 #include "DataFormats/L1TCalorimeterPhase2/interface/CaloCrystalCluster.h"
 #include "DataFormats/L1TCalorimeterPhase2/interface/CaloTower.h"
 
-#include "L1Trigger/L1CaloTrigger/interface/Phase2L1CaloEGammaEmulator.h"
-
-#ifndef PHASE_2_L1_GCT_H_INCL
-#define PHASE_2_L1_GCT_H_INCL
+#include "L1Trigger/L1CaloTrigger/interface/Phase2L1CaloEGammaUtils.h"
 
 /*
  * Do proximity stitching and brems combination for POSITIVE eta, using GCTcard as input. Write to GCTcombinedClusters.

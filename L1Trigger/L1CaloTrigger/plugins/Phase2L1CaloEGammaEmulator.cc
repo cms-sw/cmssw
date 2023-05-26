@@ -17,7 +17,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
 #include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
@@ -49,7 +51,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "L1Trigger/L1CaloTrigger/interface/Phase2L1CaloEGammaEmulator.h"
+#include "L1Trigger/L1CaloTrigger/interface/Phase2L1CaloEGammaUtils.h"
 #include "L1Trigger/L1CaloTrigger/interface/Phase2L1RCT.h"
 #include "L1Trigger/L1CaloTrigger/interface/Phase2L1GCT.h"
 
@@ -59,6 +61,8 @@ class Phase2L1CaloEGammaEmulator : public edm::stream::EDProducer<> {
 public:
   explicit Phase2L1CaloEGammaEmulator(const edm::ParameterSet&);
   ~Phase2L1CaloEGammaEmulator() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
@@ -637,6 +641,113 @@ void Phase2L1CaloEGammaEmulator::produce(edm::Event& iEvent, const edm::EventSet
 }
 
 //////////////////////////////////////////////////////////////////////////
+
+void Phase2L1CaloEGammaEmulator::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // l1tPhase2L1CaloEGammaEmulator
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("ecalTPEB", edm::InputTag("simEcalEBTriggerPrimitiveDigis"));
+  desc.add<edm::InputTag>("hcalTP", edm::InputTag("simHcalTriggerPrimitiveDigis"));
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<std::vector<double>>("etaBins",
+                                  {
+                                      0.087,
+                                      0.174,
+                                      0.261,
+                                      0.348,
+                                      0.435,
+                                      0.522,
+                                      0.609,
+                                      0.696,
+                                      0.783,
+                                      0.87,
+                                      0.957,
+                                      1.044,
+                                      1.131,
+                                      1.218,
+                                      1.305,
+                                      1.392,
+                                      1.479,
+                                  });
+    psd0.add<std::vector<double>>("ptBins",
+                                  {
+                                      12,
+                                      20,
+                                      30,
+                                      40,
+                                      55,
+                                      90,
+                                      1000000.0,
+                                  });
+    psd0.add<std::vector<double>>("scale",
+                                  {
+                                      1.298,  1.287,
+                                      1.309,  1.298,
+                                      1.309,  1.309,
+                                      1.309,  1.298,
+                                      1.309,  1.298,
+                                      1.309,  1.309,
+                                      1.309,  1.32,
+                                      1.309,  1.32,
+                                      1.309,  1.1742,
+                                      1.1639, 1.1639,
+                                      1.1639, 1.1639,
+                                      1.1639, 1.1639,
+                                      1.1742, 1.1742,
+                                      1.1639, 1.1639,
+                                      1.1742, 1.1639,
+                                      1.1639, 1.1742,
+                                      1.1742, 1.1536000000000002,
+                                      1.11,   1.11,
+                                      1.11,   1.11,
+                                      1.11,   1.11,
+                                      1.11,   1.11,
+                                      1.11,   1.11,
+                                      1.11,   1.11,
+                                      1.11,   1.11,
+                                      1.11,   1.11,
+                                      1.1,    1.09,
+                                      1.09,   1.09,
+                                      1.09,   1.09,
+                                      1.09,   1.09,
+                                      1.09,   1.09,
+                                      1.09,   1.09,
+                                      1.09,   1.09,
+                                      1.09,   1.09,
+                                      1.09,   1.09,
+                                      1.07,   1.07,
+                                      1.07,   1.07,
+                                      1.07,   1.07,
+                                      1.07,   1.08,
+                                      1.07,   1.07,
+                                      1.08,   1.08,
+                                      1.07,   1.08,
+                                      1.08,   1.08,
+                                      1.08,   1.06,
+                                      1.06,   1.06,
+                                      1.06,   1.05,
+                                      1.05,   1.06,
+                                      1.06,   1.06,
+                                      1.06,   1.06,
+                                      1.06,   1.06,
+                                      1.06,   1.06,
+                                      1.06,   1.06,
+                                      1.04,   1.04,
+                                      1.04,   1.04,
+                                      1.05,   1.04,
+                                      1.05,   1.05,
+                                      1.05,   1.05,
+                                      1.05,   1.05,
+                                      1.05,   1.05,
+                                      1.05,   1.05,
+                                      1.05,
+                                  });
+    desc.add<edm::ParameterSetDescription>("calib", psd0);
+  }
+  descriptions.add("l1tPhase2L1CaloEGammaEmulator", desc);
+  // or use the following to generate the label from the module's C++ type
+  //descriptions.addWithDefaultLabel(desc);
+}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(Phase2L1CaloEGammaEmulator);
