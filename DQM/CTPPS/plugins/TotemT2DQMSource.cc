@@ -21,7 +21,6 @@
 
 #include "DataFormats/CTPPSDetId/interface/TotemT2DetId.h"
 #include "DataFormats/TotemReco/interface/TotemT2Digi.h"
-#include "DataFormats/TotemReco/interface/TotemT2RecHit.h"
 
 #include "Geometry/Records/interface/TotemGeometryRcd.h"
 #include "DQM/CTPPS/interface/TotemT2Segmentation.h"
@@ -44,18 +43,18 @@ private:
   void clearTriggerBitset();
   bool areChannelsTriggered(const TotemT2DetId&);
   void bookErrorFlagsHistogram(DQMStore::IBooker&);
-  void fillErrorFlagsHistogram(const TotemT2Digi&);
+  void fillErrorFlagsHistogram(const TotemT2Digi&, const TotemT2DetId&);
   void fillEdges(const TotemT2Digi&, const TotemT2DetId&);
-  void fillToT(const TotemT2RecHit&, const TotemT2DetId&);
+  void fillToT(const TotemT2Digi&, const TotemT2DetId&);
+  void fillFlags(const TotemT2Digi&, const TotemT2DetId&);
 
   const edm::ESGetToken<TotemGeometry, TotemGeometryRcd> geometryToken_;
   const edm::EDGetTokenT<edmNew::DetSetVector<TotemT2Digi>> digiToken_;
-  const edm::EDGetTokenT<edmNew::DetSetVector<TotemT2RecHit>> rechitToken_;
-
-  std::unique_ptr<TotemT2Segmentation> segm_;
 
   static constexpr double T2_BIN_WIDTH_NS_ = 25. / 4;
-  MonitorElement* HPTDCErrorFlags_2D_ = nullptr;
+  MonitorElement* totemT2ErrorFlags_2D_ = nullptr;
+
+  enum evFlag { t2TE = 0, t2LE, t2MT, t2ML };
 
   const unsigned int nbinsx_, nbinsy_;
   const unsigned int windowsNum_;
@@ -68,7 +67,7 @@ private:
     std::bitset<(TotemT2DetId::maxPlane + 1) * (TotemT2DetId::maxChannel + 1)> hitTilesArray;
     static const unsigned int MINIMAL_TRIGGER = 3;
 
-    MonitorElement *leadingEdge = nullptr, *trailingEdge = nullptr, *timeOverTreshold = nullptr;
+    MonitorElement *leadingEdge = nullptr, *trailingEdge = nullptr, *timeOverTreshold = nullptr, *eventFlags = nullptr;
 
     SectorPlots() = default;
     SectorPlots(
@@ -78,6 +77,7 @@ private:
   struct PlanePlots {
     MonitorElement* digisMultiplicity = nullptr;
     MonitorElement* rechitMultiplicity = nullptr;
+    MonitorElement* eventFlagsPl = nullptr;
 
     PlanePlots() = default;
     PlanePlots(DQMStore::IBooker& ibooker, unsigned int id, unsigned int nbinsx, unsigned int nbinsy);
@@ -86,6 +86,7 @@ private:
     MonitorElement* leadingEdgeCh = nullptr;
     MonitorElement* trailingEdgeCh = nullptr;
     MonitorElement* timeOverTresholdCh = nullptr;
+    MonitorElement* eventFlagsCh = nullptr;
 
     ChannelPlots() = default;
     ChannelPlots(DQMStore::IBooker& ibooker, unsigned int id, unsigned int windowsNum);
@@ -124,7 +125,13 @@ TotemT2DQMSource::SectorPlots::SectorPlots(
       "trailing edge", title + " trailing edge (DIGIs); trailing edge (ns)", 25 * windowsNum, 0, 25 * windowsNum);
 
   timeOverTreshold = ibooker.book1D(
-      "time over threshold", title + " time over threshold (rechit);time over threshold (ns)", 250, -25, 100);
+      "time over threshold", title + " time over threshold (digi);time over threshold (ns)", 500, -50, 200);
+
+  eventFlags = ibooker.book1D(
+      "event flags", title + " event flags (digi);Event flags (TE/LE valid, TE/LE multiple)", 4, -0.5, 3.5);
+
+  for (unsigned short flag_index = 1; flag_index <= 4; ++flag_index)
+    eventFlags->setBinLabel(flag_index, "Flag " + std::to_string(flag_index));
 }
 
 TotemT2DQMSource::PlanePlots::PlanePlots(DQMStore::IBooker& ibooker,
@@ -152,6 +159,12 @@ TotemT2DQMSource::PlanePlots::PlanePlots(DQMStore::IBooker& ibooker,
                                        nbinsy,
                                        -0.5,
                                        double(nbinsy) - 0.5);
+
+  eventFlagsPl = ibooker.book1D(
+      "event flags", title + " event flags (digi);Event flags (TE/LE valid, TE/LE multiple)", 4, -0.5, 3.5);
+
+  for (unsigned short flag_index = 1; flag_index <= 4; ++flag_index)
+    eventFlagsPl->setBinLabel(flag_index, "Flag " + std::to_string(flag_index));
 }
 
 TotemT2DQMSource::ChannelPlots::ChannelPlots(DQMStore::IBooker& ibooker, unsigned int id, unsigned int windowsNum) {
@@ -166,13 +179,18 @@ TotemT2DQMSource::ChannelPlots::ChannelPlots(DQMStore::IBooker& ibooker, unsigne
       "trailing edge", title + " trailing edge (DIGIs); trailing edge (ns)", 25 * windowsNum, 0, 25 * windowsNum);
 
   timeOverTresholdCh = ibooker.book1D(
-      "time over threshold", title + " time over threshold (rechit);time over threshold (ns)", 250, -25, 100);
+      "time over threshold", title + " time over threshold (digi);time over threshold (ns)", 500, -50, 200);
+
+  eventFlagsCh = ibooker.book1D(
+      "event flags", title + " event flags (digi);Event flags (TE/LE valid, TE/LE multiple)", 4, -0.5, 3.5);
+
+  for (unsigned short flag_index = 1; flag_index <= 4; ++flag_index)
+    eventFlagsCh->setBinLabel(flag_index, "Flag " + std::to_string(flag_index));
 }
 
 TotemT2DQMSource::TotemT2DQMSource(const edm::ParameterSet& iConfig)
     : geometryToken_(esConsumes<TotemGeometry, TotemGeometryRcd, edm::Transition::BeginRun>()),
       digiToken_(consumes<edmNew::DetSetVector<TotemT2Digi>>(iConfig.getParameter<edm::InputTag>("digisTag"))),
-      rechitToken_(consumes<edmNew::DetSetVector<TotemT2RecHit>>(iConfig.getParameter<edm::InputTag>("rechitsTag"))),
       nbinsx_(iConfig.getParameter<unsigned int>("nbinsx")),
       nbinsy_(iConfig.getParameter<unsigned int>("nbinsy")),
       windowsNum_(iConfig.getParameter<unsigned int>("windowsNum")) {}
@@ -201,46 +219,23 @@ void TotemT2DQMSource::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run
   }
 
   // build a segmentation helper for the size of histograms previously booked
-  segm_ = std::make_unique<TotemT2Segmentation>(iSetup.getData(geometryToken_), nbinsx_, nbinsy_);
 }
 
 void TotemT2DQMSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // fill digis information
   for (const auto& ds_digis : iEvent.get(digiToken_)) {
-    const TotemT2DetId detid(ds_digis.detId());
-    const TotemT2DetId planeId(detid.planeId());
-    for (const auto& digi : ds_digis) {
-      segm_->fill(planePlots_[planeId].digisMultiplicity->getTH2D(), detid);
-      fillTriggerBitset(detid);
-      fillErrorFlagsHistogram(digi);
-      fillEdges(digi, detid);
-    }
-  }
-
-  // fill rechits information
-  std::unordered_map<unsigned int, std::set<unsigned int>> planes;
-  for (const auto& ds_rechits : iEvent.get(rechitToken_)) {
-    const TotemT2DetId detid(ds_rechits.detId());
-    const TotemT2DetId planeId(detid.planeId());
-    for (const auto& rechit : ds_rechits) {
-      segm_->fill(planePlots_[planeId].rechitMultiplicity->getTH2D(), detid);
-      fillToT(rechit, detid);
-      fillActivePlanes(planes, detid);
-    }
-  }
-
-  for (const auto& plt : sectorPlots_)
-    plt.second.activePlanesCount->Fill(planes[plt.first].size());
-
-  for (unsigned short arm = 0; arm <= CTPPSDetId::maxArm; ++arm)
-    for (unsigned short plane = 0; plane <= 1; ++plane)
-      for (unsigned short id = 0; id <= TotemT2DetId::maxChannel; ++id) {
-        const TotemT2DetId detid(arm, plane, id);
-        if (areChannelsTriggered(detid)) {
-          const TotemT2DetId secId(detid.armId());
-          segm_->fill(sectorPlots_[secId].triggerEmulator->getTH2D(), detid);
-        }
+    if (!ds_digis.empty()) {
+      const TotemT2DetId detid(ds_digis.detId());
+      for (const auto& digi : ds_digis) {
+        fillTriggerBitset(detid);
+        fillErrorFlagsHistogram(digi, detid);
+        fillEdges(digi, detid);
+        fillToT(digi, detid);
+        fillFlags(digi, detid);
       }
+    }
+  }
+  // fill rechits information
 
   clearTriggerBitset();
 }
@@ -285,18 +280,21 @@ bool TotemT2DQMSource::areChannelsTriggered(const TotemT2DetId& detid) {
 }
 
 void TotemT2DQMSource::bookErrorFlagsHistogram(DQMStore::IBooker& ibooker) {
-  HPTDCErrorFlags_2D_ = ibooker.book2D("HPTDC Errors", " HPTDC Errors?", 8, -0.5, 7.5, 2, -0.5, 1.5);
-  for (unsigned short error_index = 1; error_index <= 8; ++error_index)
-    HPTDCErrorFlags_2D_->setBinLabel(error_index, "Flag " + std::to_string(error_index));
+  totemT2ErrorFlags_2D_ = ibooker.book2D("nt2 readout flags", " nt2 readout flags", 4, -0.5, 3.5, 2, -0.5, 1.5);
+  for (unsigned short error_index = 1; error_index <= 4; ++error_index)
+    totemT2ErrorFlags_2D_->setBinLabel(error_index, "Flag " + std::to_string(error_index));
 
   int tmpIndex = 0;
-  HPTDCErrorFlags_2D_->setBinLabel(++tmpIndex, "some id 0", /* axis */ 2);
-  HPTDCErrorFlags_2D_->setBinLabel(++tmpIndex, "some id 1", /* axis */ 2);
+  totemT2ErrorFlags_2D_->setBinLabel(++tmpIndex, "arm 4-5", /* axis */ 2);
+  totemT2ErrorFlags_2D_->setBinLabel(++tmpIndex, "arm 5-6", /* axis */ 2);
 }
 
-void TotemT2DQMSource::fillErrorFlagsHistogram(const TotemT2Digi& digi) {
-  // placeholder for error hitogram filling
-  (void)digi;
+void TotemT2DQMSource::fillErrorFlagsHistogram(const TotemT2Digi& digi, const TotemT2DetId& detid) {
+  // readout flags histogram filling
+  for (unsigned int i = 0; i < 4; i++) {
+    if (digi.getStatus() & (1 << i))
+      totemT2ErrorFlags_2D_->Fill(i + 0.0, detid.arm() + 0.0);
+  }
 }
 
 void TotemT2DQMSource::fillEdges(const TotemT2Digi& digi, const TotemT2DetId& detid) {
@@ -307,10 +305,46 @@ void TotemT2DQMSource::fillEdges(const TotemT2Digi& digi, const TotemT2DetId& de
   channelPlots_[detid].trailingEdgeCh->Fill(T2_BIN_WIDTH_NS_ * digi.trailingEdge());
 }
 
-void TotemT2DQMSource::fillToT(const TotemT2RecHit& rechit, const TotemT2DetId& detid) {
+void TotemT2DQMSource::fillToT(const TotemT2Digi& digi, const TotemT2DetId& detid) {
   const TotemT2DetId secId(detid.armId());
-  sectorPlots_[secId].timeOverTreshold->Fill(rechit.toT());
-  channelPlots_[detid].timeOverTresholdCh->Fill(rechit.toT());
+
+  const int t_lead = digi.leadingEdge(), t_trail = digi.trailingEdge();
+  // don't skip no-edge digis
+  double toT = 0.;
+  if (digi.hasLE() && digi.hasTE()) {
+    toT = (t_trail - t_lead) * T2_BIN_WIDTH_NS_;  // in ns
+  }
+
+  sectorPlots_[secId].timeOverTreshold->Fill(toT);
+  channelPlots_[detid].timeOverTresholdCh->Fill(toT);
+}
+
+void TotemT2DQMSource::fillFlags(const TotemT2Digi& digi, const TotemT2DetId& detid) {
+  const TotemT2DetId secId(detid.armId());
+  const TotemT2DetId planeId(detid.planeId());
+  if (digi.hasTE()) {
+    sectorPlots_[secId].eventFlags->Fill(t2TE + 0.0);
+    planePlots_[planeId].eventFlagsPl->Fill(t2TE + 0.0);
+    channelPlots_[detid].eventFlagsCh->Fill(t2TE + 0.0);
+  }
+
+  if (digi.hasLE()) {
+    sectorPlots_[secId].eventFlags->Fill(t2LE + 0.0);
+    planePlots_[planeId].eventFlagsPl->Fill(t2LE + 0.0);
+    channelPlots_[detid].eventFlagsCh->Fill(t2LE + 0.0);
+  }
+
+  if (digi.hasManyTE()) {
+    sectorPlots_[secId].eventFlags->Fill(t2MT + 0.0);
+    planePlots_[planeId].eventFlagsPl->Fill(t2MT + 0.0);
+    channelPlots_[detid].eventFlagsCh->Fill(t2MT + 0.0);
+  }
+
+  if (digi.hasManyLE()) {
+    sectorPlots_[secId].eventFlags->Fill(t2ML + 0.0);
+    planePlots_[planeId].eventFlagsPl->Fill(t2ML + 0.0);
+    channelPlots_[detid].eventFlagsCh->Fill(t2ML + 0.0);
+  }
 }
 
 DEFINE_FWK_MODULE(TotemT2DQMSource);
