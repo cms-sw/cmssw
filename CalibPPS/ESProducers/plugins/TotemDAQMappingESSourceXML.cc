@@ -276,7 +276,9 @@ TotemDAQMappingESSourceXML::TotemDAQMappingESSourceXML(const edm::ParameterSet &
     : verbosity(conf.getUntrackedParameter<unsigned int>("verbosity", 0)),
       subSystemName(conf.getUntrackedParameter<string>("subSystem")),
       sampicSubDetId(conf.getParameter<unsigned int>("sampicSubDetId")),
-      packedPayload(conf.getUntrackedParameter<bool>("multipleChannelsPerPayload", false)),
+      packedPayload(conf.existsAs<bool>("multipleChannelsPerPayload", true)
+                        ? conf.getParameter<bool>("multipleChannelsPerPayload")
+                        : false),
       currentBlock(0),
       currentBlockValid(false) {
   for (const auto &it : conf.getParameter<vector<ParameterSet>>("configuration")) {

@@ -5,6 +5,7 @@ totemDAQMappingESSourceXML = cms.ESSource("TotemDAQMappingESSourceXML",
 
   # set it to: TrackingStrip, ...
   subSystem = cms.untracked.string(""),
+  multipleChannelsPerPayload = cms.bool(False),
 
   configuration = cms.VPSet(
     # example configuration block:

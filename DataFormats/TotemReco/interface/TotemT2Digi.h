@@ -12,12 +12,13 @@
 class TotemT2Digi {
 public:
   TotemT2Digi() = default;
-  TotemT2Digi(unsigned short id, unsigned char marker, unsigned short le, unsigned short te);
+  TotemT2Digi(unsigned short id, unsigned char marker, unsigned short le, unsigned short te, unsigned char status);
 
   void setLeadingEdge(unsigned short le) { lead_edge_ = le; }
   unsigned short leadingEdge() const { return lead_edge_; }
   void setTrailingEdge(unsigned short te) { trail_edge_ = te; }
   unsigned short trailingEdge() const { return trail_edge_; }
+  unsigned char getStatus() const { return status_ & 0xF; }
   bool hasLE() const { return marker_ & 0x1; }
   bool hasTE() const { return marker_ & 0x2; }
   bool hasManyLE() const { return marker_ & 0x4; }
@@ -32,6 +33,8 @@ private:
   unsigned short lead_edge_{0};
   /// Trailing edge time
   unsigned short trail_edge_{0};
+  /// Header status flags
+  unsigned char status_{0};
 };
 
 bool operator<(const TotemT2Digi& lhs, const TotemT2Digi& rhs);
