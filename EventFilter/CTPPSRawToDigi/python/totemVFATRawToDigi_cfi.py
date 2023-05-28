@@ -38,11 +38,14 @@ totemVFATRawToDigi = cms.EDProducer("TotemVFATRawToDigi",
     # the most frequent counter value is accepted provided its relative occupancy is higher than this fraction
     EC_fraction = cms.untracked.double(0.6),
     BC_fraction = cms.untracked.double(0.6),
+
+    # True is only used for special test runs
+    useOlderT2TestFile = cms.bool(False),
     
-    # if non-zero, prints a per-VFAT error summary at the end of the job
-    printErrorSummary = cms.untracked.uint32(0),
+    # prints a per-VFAT error summary at the end of the job
+    printErrorSummary = cms.untracked.bool(False),
     
-    # if non-zero, prints a summary of frames found in data, but not in the mapping
-    printUnknownFrameSummary = cms.untracked.uint32(0),
+    # prints a summary of frames found in data, but not in the mapping
+    printUnknownFrameSummary = cms.untracked.bool(False),
   )
 )
