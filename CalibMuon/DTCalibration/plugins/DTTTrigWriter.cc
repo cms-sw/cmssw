@@ -104,7 +104,7 @@ void DTTTrigWriter::endJob() {
   string tTrigRecord = "DTTtrigRcd";
 
   // Write the object to DB
-  DTCalibDBUtils::writeToDB(tTrigRecord, tTrig);
+  DTCalibDBUtils::writeToDB(tTrigRecord, *tTrig);
 }
 
 // Compute the name of the time box histo
